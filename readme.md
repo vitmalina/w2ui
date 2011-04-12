@@ -17,7 +17,7 @@ You can see the demo of the library here:
 * [http://web20boom.com](http://web20boom.com)
 
 There are several applications built on this libraries that can give you a better idea of the scope of the library. You
-can find these apps here:
+can find demo pages for these applications here:
 
 * Web 2.0 CRM Portal 
 * [http://web20office.com/crm/demo] (http://web20office.com/crm/demo) 
