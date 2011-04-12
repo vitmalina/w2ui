@@ -19,12 +19,18 @@ You can see the demo of the library here:
 There are several applications built on this libraries that can give you a better idea of the scope of the library. You
 can find these apps here:
 
-* [http://web20boom.com/demo/pgadmin](http://web20boom.com/demo/pgadmin)
+* Web 2.0 CRM Portal - [http://web20office.com/crm/demo] (http://web20office.com/crm/demo) 
+
+and
+
+* [http://web20boom.com/demo/pgadmin](http://web20boom.com/demo/pgadmin) 
+  (find it on github) [https://github.com/web20boom/Web-2.0-PgAdmin] (https://github.com/web20boom/Web-2.0-PgAdmin)
 * User: demo 
 * pass: demo
 
 and 
 
 * [http://web20boom.com/demo/fm](http://web20boom.com/demo/fm)
+  (find it on github) [https://github.com/web20boom/Web-2.0-File-Manager] (https://github.com/web20boom/Web-2.0-File-Manager)
 * User: demo 
 * pass: demo
