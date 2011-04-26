@@ -123,13 +123,52 @@ function buildCheckList($db, $reqParams, $SQL, $out=true) {
 // ---------- LIST CLASS FUNCTIONS
 
 function list_processSearchFields($db, $reqParams, $SQL) {
-	if ($reqParams['req_search'] == '') {
-		$SQL = str_replace("~SEARCH~", "1=1", $SQL);
-	} else {
+	if ($reqParams['req_search'] == '' && $reqParams['req_search-all'] == '') {
+		$searchStatement = "";
+	} elseif ($reqParams['req_search-all'] != '') {
+		// -- search in all fields at the same time
+		$searchStatement = "";
+		$value = trim($reqParams['req_search-all']); 
+		foreach( $reqParams['req_search-fields'] as $ind => $column) {
+			if ($value == '' || $value == '::') continue;
+			$tmp = split("::", $value);
+			
+			if (count(split('/', $tmp[0])) == 3) { // check if date
+				if (count($tmp) == 2) {
+					if (count(split('/', $tmp[1])) != 3) $tmp[1] = $tmp[0];
+					$searchStatement .= " OR (".$column." >= '".str_replace("'","''", $tmp[0])."'::DATE AND ".$column." <= '".str_replace("'","''", $tmp[1])."'::DATE)".chr(13).chr(10);
+				} else {
+					if ($tmp[1] == '') $tmp[1] = $tmp[0];
+					$searchStatement .= " OR ".$column." = '".str_replace("'","''", $tmp[0])."'::DATE".chr(13).chr(10);
+				}
+					
+			} elseif (strpos('*'.strtoupper($column), "~VALUE") > 0) { // check if custom field
+				$column = str_ireplace('~AMP~', '&', $column);
+				$column = str_ireplace("~VALUE~",  $tmp[0], $column);
+				$column = str_ireplace("~VALUE1~", $tmp[0], $column);
+				$column = str_ireplace("~VALUE2~", $tmp[1], $column);
+				$searchStatement .= " OR (".$column.") ".chr(13).chr(10);
+			} else { // trit as text field				
+				if (count($tmp) == 1) {
+					if ($db->dbType == 'mysql') {
+						$searchStatement .= " OR lower(".$column.") LIKE lower('%".str_replace("'", "''", $value)."%')".chr(13).chr(10);
+					} 
+					if ($db->dbType == 'postgres') {
+						$searchStatement .= " OR ".$column." ILIKE '%".str_replace("'", "''", $value)."%'".chr(13).chr(10);
+					}
+				} else {
+					if ($tmp[1] == '') $tmp[1] = $tmp[0];
+					$searchStatement .= " OR (".$column." >= '".str_replace("'","''", $tmp[0])."' AND ".$column." <= '".str_replace("'","''", $tmp[1])."')".chr(13).chr(10);
+				}
+			}
+		}
+		$searchStatement = substr($searchStatement, 4);
+	} elseif ($reqParams['req_search'] != '') {
+		// -- search each field separately	
 		$searchStatement = "";
 		foreach( $reqParams['req_search'] as $column => $value) {
 			$value = trim($value); 
-			if (trim($value) == '' || trim($value) == '::') continue;
+			if ($value == '' || $value == '::') continue;
 			if (strpos('*'.strtoupper($column), "~VALUE") > 0) {
 				$tmp = split("::", $value);
 				$column = str_ireplace('~AMP~', '&', $column);
@@ -138,54 +177,33 @@ function list_processSearchFields($db, $reqParams, $SQL) {
 				$column = str_ireplace("~VALUE2~", $tmp[1], $column);
 				$searchStatement .= " AND (".$column.") ".chr(13).chr(10);
 			} else {
-				if ($db->dbType == 'mysql') {
-					$searchStatement .= " AND lower(".$column.") LIKE lower('".str_replace("'","''", $value)."%')".chr(13).chr(10);
-				} 
-				if ($db->dbType == 'postgres') {
-					$searchStatement .= " AND ".$column." ILIKE '".str_replace("'","''", $value)."%'".chr(13).chr(10);
+				$tmp = split("::", $value);
+				if (count($tmp) == 1) {
+					if ($db->dbType == 'mysql') {
+						$searchStatement .= " AND lower(".$column.") LIKE lower('".str_replace("'","''", $value)."%')".chr(13).chr(10);
+					} 
+					if ($db->dbType == 'postgres') {
+						$searchStatement .= " AND ".$column." ILIKE '".str_replace("'","''", $value)."%'".chr(13).chr(10);
+					}
+				} else {
+					$searchStatement .= " AND ".$column." >= '".str_replace("'","''", $tmp[0])."' AND ".$column." <= '".str_replace("'","''", $tmp[1])."'".chr(13).chr(10);
 				}
 			}
 		}
 		$searchStatement = substr($searchStatement, 5);
-		if ($searchStatement == "") $searchStatement = "1=1";
-		$SQL = str_replace("~SEARCH~", $searchStatement, $SQL);
 	}
+	if ($searchStatement == "") $searchStatement = "1=1";
+	$SQL = str_replace("~SEARCH~", $searchStatement, $SQL);		
 	return $SQL;
 }
 
 function list_process($db, $reqParams, $SQL, $CQL="", $retArray=false, $colorColumn=null) {
 	$retValues = Array();
 	// prepare sql
-	if ($reqParams['req_search'] == '') {
-		$SQL = str_replace("~SEARCH~", "1=1", $SQL);
-		$CQL = str_replace("~SEARCH~", "1=1", $CQL);
-	} else {
-		$searchStatement = "";
-		foreach( $reqParams['req_search'] as $column => $value) {
-			$value = trim($value); 
-			if (trim($value) == '' || trim($value) == '::') continue;
-			if (strpos('*'.strtoupper($column), "~VALUE") > 0) {
-				$tmp = split("::", $value);
-				$column = str_ireplace('~AMP~', '&', $column);
-				$column = str_ireplace("~VALUE~",  $tmp[0], $column);
-				$column = str_ireplace("~VALUE1~", $tmp[0], $column);
-				$column = str_ireplace("~VALUE2~", $tmp[1], $column);
-				$searchStatement .= " AND (".$column.") ".chr(13).chr(10);
-			} else {
-				if ($db->dbType == 'mysql') {
-					$searchStatement .= " AND lower(".$column.") LIKE lower('".str_replace("'","''", $value)."%')".chr(13).chr(10);
-				} 
-				if ($db->dbType == 'postgres') {
-					$searchStatement .= " AND ".$column." ILIKE '".str_replace("'","''", $value)."%'".chr(13).chr(10);
-				}
-			}
-		}
-		$searchStatement = substr($searchStatement, 5);
-		if ($searchStatement == "") $searchStatement = "1=1";
-		$SQL = str_replace("~SEARCH~", $searchStatement, $SQL);
-		$CQL = str_replace("~SEARCH~", $searchStatement, $CQL);
-	}
+	$SQL = list_processSearchFields($db, $reqParams, $SQL);
+	$CQL = list_processSearchFields($db, $reqParams, $CQL);
 	if ($CQL == "") $CQL = "SELECT count(*) FROM ($SQL) as listforcount";
+	print("/* $SQL */");
 
 	if (is_array($reqParams['req_sort'])) {
 		// remove old sorting
@@ -279,9 +297,16 @@ function list_delete($db, $reqParams, $deleteTableName, $deleteKeyField){
 
 function list_prepareSearch($field, $search){
 	global $lstParams;
+	// process each fields search
 	if ($lstParams['req_search'][$field] != '') {				
 		$lstParams['req_search'][$search] = $lstParams['req_search'][$field];
 		unset($lstParams['req_search'][$field]);
+	}
+	// process all fields search 
+	if (is_array($lstParams['req_search-fields'])) {
+		foreach ($lstParams['req_search-fields'] as $ind => $column) {
+			if ($field == $column) $lstParams['req_search-fields'][$ind] = $search;
+		}
 	}
 }
 
@@ -373,7 +398,7 @@ function edit_save($db, $reqParams, $post, $table, $kfield, $stayHere=false) {
 			if (substr($key, strlen($key)-6) == '_check') continue;
 			$fields .= $key.",";
 			if ($val != '' OR $val == '0') {
-				if (substr($val, 0, 2) != '__') $values .= "'".addslashes($val)."',";
+				if (substr($val, 0, 2) != '__') $values .= "'".str_replace("'", "'", $val)."',";
 										  else $values .= "".substr($val, 2).",";
 			} else {
 				$values .= "DEFAULT,";
@@ -390,7 +415,7 @@ function edit_save($db, $reqParams, $post, $table, $kfield, $stayHere=false) {
 			if (substr($key, strlen($key)-6) == '_radio') continue;
 			if (substr($key, strlen($key)-6) == '_check') continue;
 			if ($val != '' OR $val == '0') {
-				if (substr($val, 0, 2) != '__') $fields .= "$key = '".addslashes($val)."',";
+				if (substr($val, 0, 2) != '__') $fields .= "$key = '".str_replace("'", "'", $val)."',";
 										  else $fields .= "$key = ".substr($val, 2).",";
 			} else {
 				$fields .= "$key = null,";

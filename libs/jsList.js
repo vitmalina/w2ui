@@ -45,7 +45,6 @@ function jsList(name, box) {
     this.items    		= [];
 	this.colors			= [];
 	this.recid			= null; // might be used by edit class to set sublists ids
-    this.searches   	= [];
 	this.filters		= '';
     this.layout   		= 'table'; // can be 'table' or 'div'
     this.tmpl           = '';
@@ -60,6 +59,7 @@ function jsList(name, box) {
     this.srvFile  		= '';
     this.srvParams      = [];
     this.header   		= 'List Title';
+    this.searches		= [];
     this.controls 		= [];
     this.columns  		= [];
 	this.toolbar		= null; // if not null, then it is toolbar object
@@ -67,6 +67,7 @@ function jsList(name, box) {
     this.page_num		= 0;
     this.page_count     = 0;
     this.showHeader 	= true;
+	this.showToolbar	= false;
     this.showFooter 	= true;
     this.showTabHeader 	= true;
     this.showTabNumber 	= true;
@@ -101,6 +102,7 @@ function jsList(name, box) {
     this.addControl  	= jsList_addControl;
     this.addSearch   	= jsList_addSearch;
     this.addItem     	= jsList_addItem;
+	this.addNew			= jsList_addNew;
 	this.applyFilter	= jsList_applyFilter;
     this.getData     	= jsList_getData;
 	this.showPage		= jsList_showPage;
@@ -119,13 +121,16 @@ function jsList(name, box) {
     this.openSearch  	= jsList_openSearch;
     this.clearSearch 	= jsList_clearSearch;
     this.submitSearch	= jsList_submitSearch;
+	this.searchAll		= jsList_searchAll;
     this.findSearch  	= jsList_findSearch;
 
     // internal
     this.tmpLastInd;
     this.fieldList	 	= 0;
     this.showSearch  	= false;
+	this.searchFlag 	= false;
 	this.searchData		= [];
+    this.searchFields   = [];
     this.lstClick    	= jsList_lstClick;
     this.lstDblClick 	= jsList_lstDblClick;
     this.columnClick 	= jsList_columnClick;
@@ -175,95 +180,33 @@ function jsList(name, box) {
 	}
 
 	function jsList_addColumn(caption, size, type, attr) {
-		this.columns[this.columns.length] = caption+'::'+size+'::'+type+'::'+attr;
+		var ind = this.columns.length;
+		// initialize object if necessary
+		if (size != null && typeof(size) == 'object' && String(size) == '[object Object]') { // javascript object
+			this.columns[ind] = { caption: caption, size: size.size, type: size.type, attr: size.attr };
+		} else {
+			this.columns[ind] = { caption: caption, size: size, type: type, attr: attr };
+		}
 	}
 
 	function jsList_addControl(type, caption, param, img) {
-		ind = this.controls.length;
-		switch (String(type).toLowerCase()) {
-			case 'add':
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
-					   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/add.png"></td>'+
-					   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px">'+
-					   '	<a style="padding-right: 5px; cursor: pointer; font-weight: bold" id="'+ this.name +'_control'+ ind + '" class="rText" '+
-					   '		onclick="obj = top.elements[\''+ this.name +'\'].onAddOrEdit; if (typeof(obj) == \'function\') { obj(); } else if (typeof(obj) == \'object\') { obj.box = top.elements[\''+ this.name +'\'].box; obj.recid = null; obj.output(); } else { top.elements[\''+ this.name +'\'].serverCall(obj.onAddOrEdit); }" '+ param +'>'+ caption + '</a>'+
-					   '</td>'+
-					   '</tr></table></div>';
-				break;
-			case 'delete':
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
-					   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/delete.png"></td>'+
-					   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" id="'+ this.name +'_control'+ ind + '" class="rText" onclick="top.elements[\''+ this.name +'\'].delRecords();" '+ param +'>'+ caption + '</a></td>'+
-					   '</tr></table></div>';
-				break;
-			case 'save':
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
-					   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/accept.png"></td>'+
-					   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" id="'+ this.name +'_control'+ ind + '" class="rText" onclick="top.elements[\''+ this.name +'\'].saveData();" '+ param +'>'+ caption + '</a></td>'+
-					   '</tr></table></div>';
-				break;
-			case 'server':
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
-					   (img != undefined ? '<td style="padding-left:3px;"><img src="'+ img +'"></td>' : '')+
-					   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" id="'+ this.name +'_control'+ ind + '" class="rText" onclick="top.elements[\''+ this.name +'\'].serverCall(\''+ param +'\');">'+ caption + '</a></td>'+
-					   '</tr></table></div>';
-				break;
-			case 'button':
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<input id="'+ this.name +'_control'+ ind + '" class="rButton" type="button" onclick="'+ param +'" value="'+ caption + '">'+
-					   '</div>';
-				break;
-			case 'link':
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
-					   (img != undefined ? '<td style="padding-left:3px;"><img src="'+ img +'"></td>' : '')+
-					   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" id="'+ this.name +'_control'+ ind + '" href="'+ param + '">'+ caption + '</a></td>'+
-					   '</tr></table></div>';
-				break;
-			case 'select':
-				var tmp  = '<b>'+ caption +'</b> <a href="javascript: top.elements[\''+ this.name +'\'].selectAll()">All</a> '+
-					   '<span style="color: gray">|</span> '+
-					   '<a href="javascript: top.elements[\''+ this.name +'\'].selectNone()">None</a>&nbsp;';
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
-					   (img != undefined ? '<td style="padding-left:3px;"><img src="'+ img +'"></td>' : '')+
-					   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ tmp + '</td>'+
-					   '</tr></table></div>';
-				break;
-			case 'choice':
-				var choices = caption.split('|');
-				var tmp  = '<b>'+ choices[0] +'</b> ';
-				for (var i=1; i<choices.length; i++) {
-					if (i != 1) tmp += '<span style="color: gray">|</span> ';
-					if (typeof(param) == 'function') {
-						tmp += '<a href="javascript: '+ param +'(\''+ choices[i] +'\')">'+ choices[i] +'</a>&nbsp;';
-					} else {
-						if (param == '' || String(param) == 'undefined') cmd = 'choice'; else cmd = param;
-						tmp += '<a href="javascript: top.elements[\''+ this.name +'\'].serverCall(\''+ param +'\', \'choice::'+ choices[i] +'\')">'+ choices[i] +'</a>&nbsp;';
-					}
-				}
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
-					   (img != undefined ? '<td style="padding-left:3px;"><img src="'+ img +'"></td>' : '')+
-					   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ tmp + '</td>'+
-					   '</tr></table></div>';
-				break;
-			case 'custom':
-				html = '<div id="'+ this.name +'_control'+ ind + '_div">'+
-					   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
-					   (img != undefined ? '<td style="padding-left:3px;"><img src="'+ img +'"></td>' : '')+
-					   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ caption + '</td>'+
-					   '</tr></table></div>';
-				break;
-			default:
-				html = caption;
-				break;
+		var ind = this.controls.length;
+		// initialize object if necessary
+		if (caption != null && typeof(caption) == 'object' && String(caption) == '[object Object]') { // javascript object
+			this.controls[ind] = { type: type, caption: caption.caption, param: caption.param, img: caption.img };		
+		} else {
+			this.controls[ind] = { type: type, caption: caption, param: param, img: img };		
 		}
-		this.controls[this.controls.length] = html;
+	}
+
+	function jsList_addSearch(caption, type, fieldName, inTag, outTag, defValue, items) {
+		var ind = this.searches.length;
+		// initialize object if necessary
+		if (type != null && typeof(type) == 'object' && String(type) == '[object Object]') { // javascript object
+			this.searches[ind] = { caption: caption, type: type.type, fieldName: type.fieldName, inTag: type.inTag, outTag: type.outTag, defValue: type.defValue, items: type.items };
+		} else {
+			this.searches[ind] = { caption: caption, type: type, fieldName: fieldName, inTag: inTag, outTag: outTag, defValue: defValue, items: items };
+		}
 	}
 
 	function jsList_addFilter(caption, img) {
@@ -282,24 +225,6 @@ function jsList(name, box) {
 	function jsList_applyFilter(param) {
 		this.srvParams['filter'] = param;
 		this.getData();
-	}
-
-	function jsList_addSearch(caption, type, fieldName, inTag, outTag, defValue, items) {
-		if (inTag    == null) inTag    = '';
-		if (outTag   == null) outTag   = '';
-		if (defValue == null) defValue = '';
-		ind = this.searches.length;
-		this.searches[ind] = new top.jsField(caption, type, fieldName, inTag, outTag, defValue, false, 0);
-		if (items) this.searches[ind].items = items;
-		if (type.toUpperCase() != 'BREAK') {
-			this.searches[ind].index    = ind;
-			this.searches[ind].prefix   = this.name;
-			this.searches[ind].owner    = this;
-			this.searches[ind].td1Class = 'lstSearch_caption';
-			this.searches[ind].td2Class = 'lstSearch_value';
-			this.searches[ind].inTag   = ' onkeyup="if (event.keyCode == 13) { obj = top.elements[\''+ this.name +'\']; if (obj) { obj.submitSearch(); obj.openSearch(false);  } }" '+ this.searches[ind].inTag;
-		}
-		return this.searches[ind];
 	}
 
 	function jsList_lookup_show(name) {
@@ -407,7 +332,7 @@ function jsList(name, box) {
 			if (this.timer > 0) clearTimeout(this.timer);
 			this.timer = setTimeout("top.elements['"+ this.name + "'].currentField  = -1; "+
 									"top.elements['"+ this.name + "'].lookup_items  = []; "+
-									"top.elements['"+ this.name + "'].serverCall('edit_lookup', 'lookup_name::"+ name +";;lookup_search::"+ el.value +"');", 300);
+									"top.elements['"+ this.name + "'].serverCall('edit_lookup', { lookup_name: '"+ name +"', lookup_search: '"+ el.value +"' });", 300);
 		} else {
 			this.lookup_items = [];
 			this.lookup_show(name);
@@ -429,10 +354,63 @@ function jsList(name, box) {
 		this.items[ind].ind   = ind;
 		this.items[ind].owner = this;
 	}
+	
+	function jsList_addNew() {
+		var obj = this.onAddOrEdit; 
+		if (typeof(obj) == 'function') { 
+			obj(); 
+		} else if (typeof(obj) == 'object') { 
+			obj.box = this.box; 
+			obj.recid = null; 
+			obj.output(); 
+		} else { 
+			top.elements[obj].box = this.box;
+			top.elements[obj].recid = null;
+			top.elements[obj].output(); 
+		}
+	}
 
+	function jsList_searchAll(val) {
+		if (this.last_search == val) return;
+		this.last_search = val;
+		this.clearSearch();
+		// build search fields name list
+		var fields = [];
+		for (s in this.searchFields) {
+			// Possible types:  HIDDEN, TEXT, LOOKUP, TEXTAREA, HTMLAREA, PASSWORD, INT, INTRANGE, FLOAT, FLOATRANGE, LIST, RADIO, RADIO_YESNO, CHECK
+			//   DATE, DATERANGE, TIME, TIMERANGE, BREAK, UPLOAD, READONLY, TITLE, FIELD
+			// skipp all unknown values;
+			var tmp = String(val).split('::');
+			if (!top.jsUtils.inArray(String(this.searchFields[s].type).toUpperCase(), 
+					['TEXT', 'TEXTAREA', 'HTMLAREA', 'INT', 'INTRANGE', 'FLOAT', 'FLOATRANGE', 'DATE', 'DATERANGE', 'TIME', 'TIMERANGE'])) continue;	
+			// if not integer - do not search in integer fields
+			if (!top.jsUtils.isFloat(tmp[0]) && top.jsUtils.inArray(String(this.searchFields[s].type).toUpperCase(), ['INT', 'INTRANGE', 'FLOAT', 'FLOATRANGE'])) continue;
+			// if not date - do not search in dates fields
+			if (!top.jsUtils.isDate(tmp[0]) &&	top.jsUtils.inArray(String(this.searchFields[s].type).toUpperCase(), ['DATE', 'DATERANGE'])) continue;
+			// if not time - do not search in time fields
+			if (!top.jsUtils.isTime(tmp[0]) &&	top.jsUtils.inArray(String(this.searchFields[s].type).toUpperCase(), ['TIME', 'TIMERANGE'])) continue;
+			// --
+			fields[fields.length] = this.searchFields[s].fieldName;
+		}
+		var value = val;
+		// convert date into db format
+		if (top.jsUtils.isDate(val)) {
+			var tmp = String(val).split('/');
+			value = tmp[2]+'/'+tmp[0]+'/'+tmp[1];
+		}
+		this.srvParams['req_search-all'] 	= value;
+		this.srvParams['req_search-fields'] = fields;
+		this.getData();
+	}
+	
 	function jsList_submitSearch() {
-		var el = this.box.ownerDocument.getElementById('clearSearchLink_'+ this.name);
-		if (el) if (this.searched) el.style.display = ''; else el.style.display = 'none';	
+		// -- clear all search field
+		this.srvParams['req_search-all'] 	= '';
+		this.srvParams['req_search-fields'] = [];
+		var el = this.box.ownerDocument.getElementById(this.name + '_search_all');
+		if (el) el.value = '';
+		// -- submit search
+		this.openSearch(false);
 		this.items = [];
 		this.page_num = 0;
 		this.getData();
@@ -440,27 +418,31 @@ function jsList(name, box) {
 
 	function jsList_clearSearch(flag) {
 		if (!this.box) return;
-		for (si=0; si<this.searches.length; si++) {
-			this.searches[si].value = null;
+		for (si = 0; si < this.searchFields.length; si++) {
+			this.searchFields[si].value = null;
 			if (this.box) {
-				var el  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[si].index);
-				var el2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[si].index + '_2');
+				var el  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[si].index);
+				var el2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[si].index + '_2');
 				if (flag) {
 					if (el)  el.value  = '';
 					if (el2) el2.value = '';
 				} else {
-					tmp = this.searches[si].defValue.split('::');
-					if (el)  el.value  = tmp[0];
-					if (el2) el2.value = tmp[1] ? tmp[1] : '';
+					tmp = this.searchFields[si].defValue.split('::');
+					if (el2) {
+						el.value  = tmp[0];
+						el2.value = tmp[1] ? tmp[1] : '';
+					} else {
+						el.value  = this.searchFields[si].defValue;
+					}
 				}
 			}
 		}
-		this.searched = false;
 	}
 
 	function jsList_openSearch(flag) {
 		if (!this.box) return;
 		if (flag != null) this.showSearch = !flag;
+		if (this.searches.length == 0) return;
 		// init searches (only if opening)
 		if (!this.showSearch) {
 			var i = 0;
@@ -470,8 +452,12 @@ function jsList(name, box) {
 				if (!sr1 ) break;
 				if (sr1.name != '' && String(this.searchData[sr1.name]) != 'undefined') {
 					var tmp = String(this.searchData[sr1.name]).split('::');
-					sr1.value = tmp[0];
-					if (sr2) sr2.value = tmp[1];				
+					if (sr2) {
+						sr1.value = tmp[0];
+						sr2.value = tmp[1];
+					} else {
+						sr1.value = this.searchData[sr1.name];
+					}
 				}
 				i++;
 			}
@@ -490,28 +476,16 @@ function jsList(name, box) {
 			// slide down and drop shadow
 			top.jsUtils.slideDown(el, new Function("var el = top.tmp_search_el; if (el.shadow) { el.shadow.style.display = ''; } else { el.shadow = top.jsUtils.dropShadow(el); }"));
 			// focus first element
-			top.tmp_sel = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[0].index);
+			top.tmp_sel = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[0].index);
 			if (top.tmp_sel) { setTimeout("top.tmp_sel.focus();", 100); }
 		}
 	}
 
 	function jsList_getList(fld) {
 		if (!this.box) return;
-		this.fieldList++;
-		req = this.box.ownerDocument.createElement('SCRIPT');
-		param = [];
-		// add custom params
-		for (obj in this.srvParams) param[obj] = this.srvParams[obj];
-		// add list params
-		param['req_cmd']    = 'search_field_list';
-		param['req_name']   = this.name;
-		param['req_recid']  = this.recid ? this.recid : 'null';
-		param['req_index']  = fld.index;
-		param['req_field']  = fld.fieldName;
-
-		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
-		req.src  = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
-		this.box.ownerDocument.body.appendChild(req);
+		this.fieldList++;		
+		// call server script
+		this.serverCall('search_field_list', { req_index: fld.index, req_field: fld.fieldName });
 	}
 
 	function jsList_getListDone(nameOrIndex, param) {
@@ -523,10 +497,10 @@ function jsList(name, box) {
 			var el = this.box.ownerDocument.getElementById('searches_'+ this.name);
 			if (el) {
 				el.innerHTML = this.getSearches();
-				for (ssi=0; ssi<this.searches.length; ssi++) {
-					ssel  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[ssi].index);
-					ssel2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[ssi].index + '_2');
-					sstmp = this.searches[ssi].value != '' ? this.searches[ssi].value : this.searches[ssi].defValue;
+				for (var ssi = 0; ssi < this.searchFields.length; ssi++) {
+					ssel  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[ssi].index);
+					ssel2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[ssi].index + '_2');
+					sstmp = this.searchFields[ssi].value != '' ? this.searchFields[ssi].value : this.searchFields[ssi].defValue;
 					if (ssel.value == '' && sstmp != '' && sstmp != null) {
 						sstmp = sstmp.split('::');
 						ssel.value = sstmp[0];
@@ -539,8 +513,8 @@ function jsList(name, box) {
 	}
 
 	function jsList_findSearch(indOrName) {
-		for (i=0; i<this.searches.length; i++) {
-			fld = this.searches[i];
+		for (var i = 0; i < this.searchFields.length; i++) {
+			fld = this.searchFields[i];
 			if (fld.fieldName == indOrName) return fld;
 			if (fld.index == indOrName) return fld;
 		}
@@ -553,32 +527,39 @@ function jsList(name, box) {
 		var tmpHTML = this.box.innerHTML;
 		this.box.innerHTML = '';
 		var height = parseInt(this.box.clientHeight);
-		var width= parseInt(this.box.clientWidth);
+		var width  = parseInt(this.box.clientWidth);
 		if (parseInt(height) == 0) height = parseInt(this.box.style.height);
 		if (parseInt(width)  == 0) width  = parseInt(this.box.style.width);
 		this.box.innerHTML = tmpHTML;
+		
 		// --
 		var el  = this.box.ownerDocument.getElementById('body_'+ this.name);
-		var el2 = this.box.ownerDocument.getElementById('mtbody_'+ this.name);
-		var els = this.box.ownerDocument.getElementById('mtcell_'+ this.name);
+		var el2 = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
+		//var el2 = this.box.ownerDocument.getElementById('mtbody_'+ this.name);
+		//var els = this.box.ownerDocument.getElementById('mtcell_'+ this.name);
 		if (height > 0 && el) {
 			var newHeight = height 
-				- (this.showHeader ? 27 : 0) 
+				- (this.showHeader ? 28 : 0) 
 				- (this.showFooter ? 25 : 0) 
 				- (this.toolbar != null ? 30 : 0) 
-				- (document.all ? 0 : 4);
+				- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
 			if (newHeight < 0 ) newHeight = 0;
-			el.style.height = newHeight;
+			el.style.height = newHeight + 'px';
 		}
 		if (width > 0 && el) {
-			var newWidth = width - (document.all ? 0 : 4);
+			var newWidth = width 
+				- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
 			if (newWidth < 0) newWidth = 0;
-			el.style.width = newWidth;
+			// in FF4 - if width is set - it goes beyond borders
+			// el.style.width = newWidth + 'px';
+			// if (el2) el2.style.width = newWidth + 'px';
 		}
+		
 		// -- mtbody
+		/*
 		if (el2) el2.style.overflow = '';
 		if (el2 && parseInt(el2.clientHeight) > parseInt(el.clientHeight) && el.clientWidth > el2.clientWidth && 
-					(navigator.userAgent.toLowerCase().indexOf('chrome') == -1) /* does not work in chrome */) {
+					(navigator.userAgent.toLowerCase().indexOf('chrome') == -1)) {
 			el2.style.overflow = 'auto';
 			el2.style.height   = height - 22
 				- (this.showHeader ? 27 : 0) 
@@ -589,13 +570,13 @@ function jsList(name, box) {
 		} else {
 			if (els) els.style.display = 'none';
 		}
+		*/
 	}
 
 	function jsList_refresh() {
 		if (!this.box) return;
 		this.showSearch = false;
-		var el = this.box.ownerDocument.getElementById('clearSearchLink_'+ this.name);
-		if (el) if (this.searched) el.style.display = ''; else el.style.display = 'none';	
+		
 		// CHANGING PART: generate records
 		var bodyHTML = '';
 		if (this.layout == 'table') {
@@ -620,6 +601,11 @@ function jsList(name, box) {
 		} else {
 			pageCountDsp = this.page_num + 1;
 		}
+		
+		if (String(this.srvParams['req_search-all']) == 'undefined') {
+			this.srvParams['req_search-all'] 	= '';
+			this.srvParams['req_search-fields'] = [];
+		}
 
 		// OTHER PART: output or regenerate
 		if (this.box.ownerDocument.getElementById('body_'+ this.name)) {
@@ -643,8 +629,8 @@ function jsList(name, box) {
 			body.innerHTML = bodyHTML;
 			// refresh toolbar if any
 			if (this.toolbar != null) {
-				this.toolbar.box = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
-				this.toolbar.output();
+				// this.toolbar.box = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
+				// this.toolbar.output();
 			}
 			// make sure search is hidden
 			this.showSearch = false;
@@ -660,28 +646,33 @@ function jsList(name, box) {
 			html =  '<div id="list_'+ this.name +'" class="lst_div" style="'+ this.style_list +'">';
 			// generate header
 			if (this.showHeader) {
-				html += '<div id="header_'+ this.name +'" class="lstHeader_div" style="height: 26px; overflow: hidden; '+ this.style_header +'">\n'+
-						'   <table cellpadding=0 cellspacing=1 style="width: 100%; height: 26px;" class="lstHeader_tbl"><tr>\n'+
+				html += '<div id="header_'+ this.name +'" class="lstHeader_div" style="width: 100%; margin: 0px; padding: 0px; border: 0; height: 28px; overflow: hidden; '+ this.style_header +'">\n'+
+						'   <table cellpadding=0 cellspacing=1 style="width: 100%; height: 28px;" class="lstHeader_tbl"><tr>\n'+
 						'       <td id="title_td1_'+ this.name + '" style="padding-left: 5px; padding-top: 0px; width: 95%" class="lstHeader_td1">'+ 
-						'		 <span ondblclick="top.elements.'+ this.name +'.getData()" id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
-								 (this.searches.length != 0 ? '<span class="rText" id="searchLink_'+ this.name +'"> - <a href="javascript: top.elements[\''+ this.name +'\'].openSearch();">Search</a></span>'+
-															  '<span style="display: none" id="clearSearchLink_'+ this.name +'"> - [<a href="javascript: var obj = top.elements[\''+ this.name +'\']; obj.clearSearch(); obj.submitSearch();">Clear Search</a>]' : '') +
-						'		 <span style="font-variant: normal; font-size: 10px; font-family: verdana; padding: 1px; margin-left: 10px; display: none; position: absolute; background-color: red; color: white;" id="status_'+ this.name + '"></span>'+
+						'		   <span ondblclick="top.elements.'+ this.name +'.getData()" id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
+								   (this.searchFields.length && !this.showToolbar != 0 ? 
+										'<span class="rText" id="searchLink_'+ this.name +'"> - <a href="javascript: top.elements[\''+ this.name +'\'].openSearch();">Search</a></span>' 
+									  : '') +
+						'		   <span style="display: none; font-size: 11px;" id="clearSearchLink_'+ this.name +'"> - '+
+						'				<img style="position: absolute;" src="'+ top.jsUtils.sys_path +'/includes/silk/icons/cross.png">'+
+						'				<span style="padding-left: 17px;"></span>'+
+						'				<a href="javascript: var obj = top.elements[\''+ this.name +'\']; obj.clearSearch(); obj.submitSearch();">Clear Search</a></span>'+
+						'		   <span style="font-variant: normal; font-size: 10px; font-family: verdana; padding: 3px; margin-left: 5px; width: auto;  display: none; background-color: red; color: white;" id="status_'+ this.name + '"></span>'+
 						'       </td>\n'+
 						'       <td align="right" style=" padding-top: 0px; width: 5%;" class="lstHeader_td2" id="controls_'+ this.name +'" nowrap="nowrap">'+ this.getControls() +'</td>\n'+
 						'   </tr></table>\n'+
-						'</div>\n'+
-						'<div style="position: relative">'+
-						'	<div style="margin-left: 10px; position: absolute; overflow: hidden; z-index: 100;">'+
-						'	<div id="searches_'+ this.name +'" class="lstSearch_div" style="display: none; position: absolute; z-index: 100;">'+
-								this.getSearches() +
-						'	</div>'+
-						'	</div>'+
-						'</div>';
+						'</div>\n';
 			}
-			if (this.toolbar != null) {
-				html += '<div id="toolbar_'+ this.name +'" class="tabs_toolbar" style="border-bottom: 1px solid silver;"></div>';
+			if (this.toolbar != null || this.showToolbar) {
+				html += '<div id="toolbar_'+ this.name +'" class="lstToolbar" style=""></div>';
 			}
+			html +=	'<div style="position: relative">'+
+					'	<div style="margin-left: 22px; position: absolute; overflow: hidden; z-index: 100;">'+
+					'	<div id="searches_'+ this.name +'" class="lstSearch_div" style="display: none; position: absolute; z-index: 100;">'+
+							this.getSearches() +
+					'	</div>'+
+					'	</div>'+
+					'</div>';
 			html += '<div id="body_'+ this.name +'" class="lstBody_div" style="height: 250px; overflow: auto; '+ this.style_body +'">\n';
 
 			html += bodyHTML + '</div>\n';
@@ -699,21 +690,66 @@ function jsList(name, box) {
 
 			html += '</div>';
 			this.box.innerHTML = html;
+			// init toolbar
+			if (this.showToolbar) {
+				if (!top.jsToolBar) {
+					alert('The jsToolBar class is not loaded. To use toolbar with jsList you need to load jsToolBar.');
+				} else {
+					top.elements[this.name + '_toolbar'] = null;
+					this.toolbar = new top.jsToolBar(this.name +'_toolbar', null);
+					this.toolbar.addHTML('<table cellpadding=2 cellspacing=0><tr>'+
+						'	<td><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/magnifier.png"></td>'+
+						'	<td><input id="'+ this.name +'_search_all" value="'+ (String(this.srvParams['req_search-all']) != '' ? this.srvParams['req_search-all'] : '') +'"'+
+						'			style="font-size: 11px; font-family: verdana; border: 1px solid silver; padding: 2px; margin: 0px;" '+
+						'			onkeyup=\'if (this.timer > 0) clearTimeout(this.timer);	top.el = this; '+
+						'					  this.timer = setTimeout("top.elements.'+ this.name +'.searchAll(top.el.value)", 300);\'></td>'+
+						'</tr></table>');
+					this.toolbar.addButton('Advanced', top.jsUtils.sys_path +'/includes/silk/icons/magnifier_zoom_in.png', 
+						new Function("top.elements['"+ this.name +"'].openSearch();"), 'Advanced Search');
+					this.getControls();
+				}
+			}
 			// refresh toolbar if any
 			if (this.toolbar != null) {
 				this.toolbar.box = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
 				this.toolbar.output();
 			}
-			
+			this.resize();
 		}
+		// show/hide clear search link
+		var el = this.box.ownerDocument.getElementById('clearSearchLink_'+ this.name);
+		if (el) if (this.searchFlag || this.srvParams['req_search-all'] != '') {
+			el.style.display = ''; 
+		} else {
+			el.style.display = 'none';	
+		}		
 		if (this.onRefresh) this.onRefresh();
-		this.resize();
 	}
 
 	function jsList_output() {
+		// convert searches array into objects (once per object
+		if (this.searches.length != this.searchFields.length) {
+			for (var i = 0; i < this.searches.length; i++) {
+				var s = this.searches[i];			
+				if (s.inTag    == null) s.inTag    = '';
+				if (s.outTag   == null) s.outTag   = '';
+				if (s.defValue == null) s.defValue = '';
+				var ind = this.searchFields.length;
+				this.searchFields[ind] = new top.jsField(s.caption, s.type, s.fieldName, s.inTag, s.outTag, s.defValue, false, 0);
+				if (s.items) this.searchFields[ind].items = s.items;
+				if (s.type.toUpperCase() != 'BREAK') {
+					this.searchFields[ind].index    = ind;
+					this.searchFields[ind].prefix   = this.name;
+					this.searchFields[ind].owner    = this;
+					this.searchFields[ind].td1Class = 'lstSearch_caption';
+					this.searchFields[ind].td2Class = 'lstSearch_value';
+					this.searchFields[ind].inTag   = ' onkeyup="if (event.keyCode == 13) { obj = top.elements[\''+ this.name +'\']; if (obj) { obj.submitSearch(); } }" '+ this.searchFields[ind].inTag;
+				}
+			}		
+		}
 		// fill search lists if any
-		for (i=0; i<this.searches.length; i++) {
-			fld = this.searches[i];
+		for (var i = 0; i < this.searchFields.length; i++) {
+			fld = this.searchFields[i];
 			if (String(fld.type).toUpperCase() == 'LIST' && !fld.items) {
 				this.getList(fld);
 				flag = true;
@@ -734,12 +770,189 @@ function jsList(name, box) {
 	}
 
 	function jsList_getControls() {
-		html = '';
-		html = '<table cellspacing="0" cellpadding="0" class="rText"><tr>';
-		for (i=0; i<this.controls.length; i++) {
-			html += '<td nowrap="nowrap" style="padding-left: 2px; padding-right: 2px;">'+ this.controls[i] + '</td>';
+		// -- if toolbar is true
+		if (this.showToolbar && this.toolbar != null) {
+			if (this.controls.length > 0) this.toolbar.addBreak();
+			for (i=0; i<this.controls.length; i++) {	
+				var cnt = this.controls[i];
+				if (String(cnt.param) == 'undefined') cnt.param = '';
+				if (String(cnt.caption) == 'undefined') cnt.caption = '';
+				if (String(cnt.img) == 'undefined') cnt.img = '';
+				if (cnt.img != '') cnt.img = (String(cnt.img).substr(0,1) == '/' ? cnt.img : top.jsUtils.sys_path +'/includes/silk/icons/'+ cnt.img);
+
+				switch (String(cnt.type).toLowerCase()) {
+					case 'add':
+						this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/add.png', 
+							new Function("top.elements['"+ this.name +"'].addNew();"), cnt.caption);
+						break;
+					case 'delete':
+						this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/delete.png', 
+							new Function("top.elements['"+ this.name +"'].delRecords();"), cnt.caption);
+						break;
+					case 'break':
+						this.toolbar.addBreak(cnt.caption + cnt.param);
+						break;
+					case 'save':
+						this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/accept.png', 
+							new Function("top.elements['"+ this.name +"'].saveData();"), cnt.caption);
+						break;
+					case 'server':
+						this.toolbar.addButton(cnt.caption, cnt.img,
+							new Function("top.elements['"+ this.name +"'].serverCall('"+ cnt.param +"');"), cnt.caption);
+						break;
+					case 'button':
+					case 'custom':
+					case 'link':
+						this.toolbar.addButton(cnt.caption, cnt.img, new Function(cnt.param), cnt.caption);
+						break;
+					case 'select':						
+						var tmp ='<table cellpadding=2 cellspacing=0 class=rtext>'+
+							   '<tr><td>-</td><td nowarp>'+
+							   '	<a href="javascript: top.elements[\''+ this.name +'\'].selectAll(); '+
+							   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">All Records</a>'+
+							   '</td></tr>'+
+							   '<tr><td>-</td><td nowrap>'+
+							   '	<a href="javascript: top.elements[\''+ this.name +'\'].selectNone(); '+
+							   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">None</a>'+
+							   '</td></tr>'+
+							   '</table>';
+						this.toolbar.addDrop(cnt.caption, cnt.img, null, cnt.caption, tmp);
+						break;
+					case 'choice':
+						var choices = cnt.caption.split('|');
+						cnt.caption = choices[0]+' <span id=\''+ this.name +'_but'+ i +'_drop\'>'+choices[1]+'</span>';
+						var tmp ='<table cellpadding=2 cellspacing=0 class=rtext>';
+						for (var k=1; k<choices.length; k++) {
+							if (typeof(cnt.param) == 'function') {
+								tmp += '<tr><td>-</td><td nowarp>'+
+									   '	<a href="javascript: '+ cnt.param +'(\''+ choices[k] +'\');'+
+									   '				document.getElementById(\''+ this.name +'_but'+ i +'_drop\').innerHTML = \''+ choices[k] +'\'; '+
+									   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">'+ choices[k] +'</a>'+
+									   '</td></tr>';
+							} else {
+								if (cnt.param == '' || String(cnt.param) == 'undefined') cmd = 'choice'; else cmd = cnt.param;
+								tmp += '<tr><td>-</td><td nowarp>'+
+									   '	<a href="javascript: top.elements[\''+ this.name +'\'].serverCall(\''+ cnt.param +'\', { choice: \''+ choices[k] +'\' }); '+
+									   '				document.getElementById(\''+ this.name +'_but'+ i +'_drop\').innerHTML = \''+ choices[k] +'\';'+
+									   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">'+ choices[k] +'</a>'+
+									   '</td></tr>';
+							}
+						}
+						tmp += '</table>';
+						var but = this.toolbar.addDrop(cnt.caption, cnt.img, null, cnt.caption, tmp);
+						break;
+					default:
+						this.toolbar.addHTML(cnt.caption + cnt.param);
+				}
+			}
 		}
-		html += '</tr></table>';
+		// if no toolbar (old controls
+		var html = '';
+		if (!this.showToolbar) {
+			html = '<table cellspacing="0" cellpadding="0" class="rText"><tr>';
+			for (var i=0; i<this.controls.length; i++) {	
+				var cnt = this.controls[i];
+				if (String(cnt.param) == 'undefined') cnt.param = '';
+				if (String(cnt.caption) == 'undefined') cnt.caption = '';
+				if (String(cnt.img) == 'undefined') cnt.img = '';
+				if (cnt.img != '') cnt.img = (String(cnt.img).substr(0,1) == '/' ? cnt.img : top.jsUtils.sys_path +'/includes/silk/icons/'+ cnt.img);
+
+				// function jsList_addControl(type, caption, param, img) {
+
+				switch (String(cnt.type).toLowerCase()) {
+					case 'add':
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/add.png"></td>'+
+							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px">'+
+							   '	<a style="padding-right: 5px; cursor: pointer; font-weight: bold" id="'+ this.name +'_control'+ i + '" class="rText" '+
+							   '		onclick="top.elements[\''+ this.name +'\'].addNew();" '+ cnt.param +'>'+ cnt.caption + '</a>'+
+							   '</td>'+
+							   '</tr></table></div>';
+						break;
+					case 'delete':
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/delete.png"></td>'+
+							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" '+
+							   '	id="'+ this.name +'_control'+ i + '" class="rText" onclick="top.elements[\''+ this.name +'\'].delRecords();" '+ cnt.param +'>'+ cnt.caption + '</a></td>'+
+							   '</tr></table></div>';
+						break;
+					case 'save':
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/accept.png"></td>'+
+							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" '+
+							   '	id="'+ this.name +'_control'+ i + '" class="rText" onclick="top.elements[\''+ this.name +'\'].saveData();" '+ cnt.param +'>'+ cnt.caption + '</a></td>'+
+							   '</tr></table></div>';
+						break;
+					case 'server':
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
+							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" '+
+							   '	id="'+ this.name +'_control'+ i + '" class="rText" onclick="top.elements[\''+ this.name +'\'].serverCall(\''+ cnt.param +'\');">'+ cnt.caption + '</a></td>'+
+							   '</tr></table></div>';
+						break;
+					case 'button':
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<input id="'+ this.name +'_control'+ i + '" class="rButton" type="button" onclick="'+ cnt.param +'" value="'+ cnt.caption + '">'+
+							   '</div>';
+						break;
+					case 'link':
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
+							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" '+
+							   '	id="'+ this.name +'_control'+ i + '" href="'+ cnt.param + '">'+ cnt.caption + '</a></td>'+
+							   '</tr></table></div>';
+						break;
+					case 'custom':
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
+							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ cnt.caption + '</td>'+
+							   '</tr></table></div>';
+						break;
+					case 'select':
+						var tmp  = '<b>'+ cnt.caption +'</b> <a href="javascript: top.elements[\''+ this.name +'\'].selectAll()">All</a> '+
+							   '<span style="color: gray">|</span> '+
+							   '<a href="javascript: top.elements[\''+ this.name +'\'].selectNone()">None</a>&nbsp;';
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
+							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ tmp + '</td>'+
+							   '</tr></table></div>';
+						break;
+					case 'choice':
+						var choices = cnt.caption.split('|');
+						var tmp  = '<b>'+ choices[0] +'</b> ';
+						for (var k=1; k<choices.length; k++) {
+							if (k != 1) tmp += '<span style="color: gray">|</span> ';
+							if (typeof(cnt.param) == 'function') {
+								tmp += '<a href="javascript: '+ cnt.param +'(\''+ choices[k] +'\')">'+ choices[k] +'</a>&nbsp;';
+							} else {
+								if (cnt.param == '' || String(cnt.param) == '') cmd = 'choice'; else cmd = cnt.param;
+								tmp += '<a href="javascript: top.elements[\''+ this.name +'\'].serverCall(\''+ cnt.param +'\', { choice: \''+ choices[k] +'\' })">'+ choices[k] +'</a>&nbsp;';
+							}
+						}
+						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
+							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
+							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ tmp + '</td>'+
+							   '</tr></table></div>';
+						break;
+					case 'break':
+						htmp = '<span style="width: 5px; padding: 5px; color: gray;">|</span>';
+						break;
+					default:
+						htmp = cnt.caption;
+						break;
+				}
+				html += '<td nowrap="nowrap" style="padding-left: 2px; padding-right: 2px;">'+ htmp + '</td>';
+			}
+			html += '</tr></table>';
+		}
 		return html;
 	}
 
@@ -756,20 +969,20 @@ function jsList(name, box) {
 	function jsList_getSearches() {
 		html = '';
 		html = '<table cellspacing="0" cellpadding="2" class="lstSearch_tbl">';
-		for (i=0; i<this.searches.length; i++) {
+		for (var i = 0; i < this.searchFields.length; i++) {
 			btn = '';
 			if (i == 0) btn = '<input type="button" value="X" class="rButton" onclick="obj = top.elements[\''+ this.name +'\']; if (obj) { obj.openSearch(false); }" style="width: 22px; text-align: center;">';
 			html += '<tr>'+
 					'<td width="20px" style="padding-right: 20px">'+ btn +'</td>' +
-						 this.searches[i].build('nowrap="nowrap"') +
+						 this.searchFields[i].build('nowrap="nowrap"') +
 					'</tr>';
 		}
 		html += '<tr>'+
 				'	<td colspan="2" class="lstSearch_caption"></td>'+
 				'	<td class="lstSearch_caption" style="border-right: 0px"></td>'+
 				'	<td colspan="2" class="lstSearch_value" style="padding-top: 10px; padding-bottom: 6px;" nowrap>'+
-				'		<input type="button" onclick="obj = top.elements[\''+ this.name +'\']; if (obj) { obj.searched = true; obj.submitSearch(); obj.openSearch(false); }" style="width: 70px" class="rButton" value="Search">'+
-				'		<input type="button" onclick="obj = top.elements[\''+ this.name +'\']; if (obj) { obj.searched = false; obj.clearSearch(); obj.submitSearch(); obj.openSearch(false); }" style="width: 70px" class="rButton" value="Clear">'+
+				'		<input type="button" onclick="obj = top.elements[\''+ this.name +'\']; if (obj) { obj.submitSearch(); }" style="width: 70px" class="rButton" value="Search">'+
+				'		<input type="button" onclick="obj = top.elements[\''+ this.name +'\']; if (obj) { obj.clearSearch(); obj.submitSearch(); }" style="width: 70px" class="rButton" value="Clear">'+
 				'	</td>'+
 				'</tr></table>';
 		return html;
@@ -850,19 +1063,19 @@ function jsList(name, box) {
 													'	<div class="lstBody_number" style="width: 18px; overflow: hidden; text-align: left;">#</div>'+
 													'</td>';
 					for (i=0; i<this.columns.length; i++) {
-						tmp = this.columns[i].split('::');
+						var col = this.columns[i];
 						if (this.sortBy[i] && this.sortBy[i] != '') {
 							if (this.sortBy[i].indexOf('ASC') > 0) img = 'sort_down.png'; else img = 'sort_up.png';
-							sortStyle = 'background-image: url('+ top.jsUtils.sys_path +'/images/'+ img +'); background-repeat: no-repeat; background-position: center right; ';
+							sortStyle = 'background-color: #edf5f9; background-image: url('+ top.jsUtils.sys_path +'/images/'+ img +'); background-repeat: no-repeat; background-position: center right; ';
 						} else {
 							sortStyle = '';
 						}
-						html += '<td id="'+ this.name +'_cell_header_'+ i +'" onclick="top.elements[\''+ this.name +'\'].columnClick('+ i +', event);" class="lstBody_head" width="'+ tmp[1] +'" '+
+						html += '<td id="'+ this.name +'_cell_header_'+ i +'" onclick="top.elements[\''+ this.name +'\'].columnClick('+ i +', event);" class="lstBody_head" width="'+ col.size +'" '+
 								'		style="'+ sortStyle +'cursor: default;" nowrap="nowrap">'+
-								'<div style="overflow: hidden; padding: 2px;">'+ tmp[0] +'</div>'+
+								'<div style="overflow: hidden; padding: 2px;">'+ col.caption +'</div>'+
 								'</td>';
 					}
-					html += '<td id="mtcell_'+ this.name +'" class="lstBody_head" style="padding-left: 10px; border-left: 0px;">&nbsp;</td>';
+					//html += '<td id="mtcell_'+ this.name +'" class="lstBody_head" style="padding-left: 10px; border-left: 0px;">&nbsp;</td>';
 					html += '</tr></thead>';
 				} else {
 				}
@@ -915,10 +1128,10 @@ function jsList(name, box) {
 													'</td>';
 					j = 0;
 					while (true) {
-						tmp = this.columns[j].split('::');
+						var col = this.columns[j];
 						// prepare cell data
 						printItem = this.items[i].values[j];
-						switch (tmp[2].toUpperCase()) {
+						switch (col.type.toUpperCase()) {
 							case 'URL':
 								pos = printItem.indexOf('/', 8);
 								printItem = '<a href="' + printItem + '" target="_blank">'+
@@ -934,8 +1147,8 @@ function jsList(name, box) {
 						// prepare cell
 						if (this.editable[j] != undefined) { cellPadding = 0; }
 													  else { cellPadding = this.tblPadding; }
-						html += '<td valign=top id="'+ this.name +'_cell_'+ i +'_'+ j +'" class="lstBody_td" width="'+ tmp[1] +'" '+
-								'style="cursor: default;" '+ tmp[3] +'>';
+						html += '<td valign=top id="'+ this.name +'_cell_'+ i +'_'+ j +'" class="lstBody_td" width="'+ col.size +'" '+
+								'style="cursor: default;" '+ col.attr +'>';
 						if (this.fixed) {
 							// this is for editable controls
 							tmp = String(this.editable[j]).split('::');
@@ -1088,15 +1301,18 @@ function jsList(name, box) {
 			return;
 		}
 		// if nothing is defined, then use Edit URL function or command
-		if (this.onAddOrEdit) {
-			if (typeof(this.onAddOrEdit) == 'function') {
-				this.onAddOrEdit(this.items[ind].id);
-			} else if (typeof(this.onAddOrEdit) == 'object') {
-				this.onAddOrEdit.box = this.box;
-				this.onAddOrEdit.recid = this.items[ind].id;
-				this.onAddOrEdit.output(); 
+		var obj = this.onAddOrEdit;
+		if (obj) {
+			if (typeof(obj) == 'function') {
+				obj(this.items[ind].id);
+			} else if (typeof(obj) == 'object') {
+				obj.box = this.box;
+				obj.recid = this.items[ind].id;
+				obj.output(); 
 			} else {
-				this.serverCall(this.onAddOrEdit);
+				top.elements[obj].box = this.box;
+				top.elements[obj].recid = this.items[ind].id;
+				top.elements[obj].output(); 
 			}
 		}
 	}
@@ -1124,54 +1340,7 @@ function jsList(name, box) {
 		}
 		this.getData();
 	}
-
-	function jsList_getData() {
-		if (!this.box) return;
-		if (this.fieldList > 0) return;
-		if (this.onData) this.onData();
-		this.showStatus('Retrieving Data...');
-		this.items = [];
-		req = this.box.ownerDocument.createElement('SCRIPT');
-		param = [];
-		// add custom params
-		for (obj in this.srvParams) param[obj] = this.srvParams[obj];
-		// get search data fields
-		this.searchData = [];
-		var tmpSearchData = '';
-		var searchFlag = false;
-		for (si=0; si<this.searches.length; si++) {
-			sel  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[si].index);
-			sel2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[si].index + '_2');
-			if ( (!sel || sel.value == '') &&
-				 (this.searches[si].defValue == '' || this.searches[si].defValue == null) &&
-				 (this.searches[si].value == '' || this.searches[si].value == null) ) continue;
-			searchFlag = true;
-			if (sel2) { if (sel2.value != '') el2dsp = '::' + sel2.value; else el2dsp = '::' + sel.value; } else el2dsp = '';
-			if (sel) { this.searchData[this.searches[si].fieldName] = sel.value + el2dsp; }
-				else { this.searchData[this.searches[si].fieldName] = (this.searches[si].value != null && this.searches[si].value != '') ? this.searches[si].value : this.searches[si].defValue; }
-			this.searches[si].value = this.searchData[this.searches[si].fieldName];
-		}
-		if (!searchFlag) { tmpSearchData = ''; } else { tmpSearchData = this.searchData; }
-		// add list params
-		param['req_cmd'] 	 = 'lst_get_data';
-		param['req_name']    = this.name;
-		param['req_count']   = -1;
-		param['req_limit']   = this.items_pp;
-		param['req_offset']  = this.page_num * this.items_pp;
-		param['req_search']  = tmpSearchData;
-		param['req_sort']    = (this.sortBy.length != 0 ? this.sortBy : '');
-		if (this.recid != null) param['req_recid'] = this.recid;
-		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
-		req.src    = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
-		this.box.ownerDocument.body.appendChild(req);
-	}
-
-	function jsList_dataReceived() {
-		this.refresh();
-		this.hideStatus();
-		if (this.onDataReceived) { this.onDataReceived(); }
-	}
-
+	
 	function jsList_selectAll() {
 		for (var i=0; i<this.items.length; i++) { this.items[i].select(true); }
 	}
@@ -1197,6 +1366,21 @@ function jsList(name, box) {
 		return null;
 	}
 
+	function jsList_getData() {
+		if (!this.box) return;
+		if (this.fieldList > 0) return;
+		if (this.onData) this.onData();
+		this.showStatus('Refreshing...');
+		this.items = [];
+		this.serverCall('lst_get_data');
+	}
+
+	function jsList_dataReceived() {
+		this.refresh();
+		this.hideStatus();
+		if (this.onDataReceived) { this.onDataReceived(); }
+	}
+
 	function jsList_delRecords() {
 		if (!this.box) return;
 		recs = this.getSelected();
@@ -1207,75 +1391,67 @@ function jsList(name, box) {
 		}
 		if (this.onDelete) this.onDelete();
 		// call delete script
-		req = this.box.ownerDocument.createElement('SCRIPT');
-		param = [];
-		// add custom params
-		for (obj in this.srvParams) param[obj] = this.srvParams[obj];
-		// add list params
-		param['req_cmd']  = 'lst_del_records';
-		param['req_name'] = this.name;
-		param['req_ids']  = recs;
-
-		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
-		req.src    = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
-		this.box.ownerDocument.body.appendChild(req);
+		this.serverCall('lst_del_records');
 	}
 
 	function jsList_serverCall(cmd, params) {
 		if (!this.box) return;
-		recs = this.getSelected();
-		// call sever script
-		req = this.box.ownerDocument.createElement('SCRIPT');
-		param = [];
+		var param = [];
+		// add list params
+		param['req_name'] 	 = this.name;
+		param['req_cmd']  	 = cmd;
+		param['req_limit']   = this.items_pp;
+		param['req_offset']  = this.page_num * this.items_pp;
+		param['req_count']   = -1;
+		param['req_ids']  	 = this.getSelected();
+		// if there is a recid (some some edit connections)
+		if (this.recid != null) param['req_recid'] = this.recid;
 		// add custom params
 		for (obj in this.srvParams) param[obj] = this.srvParams[obj];
 		// get search data fields
-		this.searchData   = [];
-		var tmpSearchData = '';
-		var searchFlag = false;
-		for (si=0; si<this.searches.length; si++) {
-			sel  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[si].index);
-			sel2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searches[si].index + '_2');
+		this.searchData = [];
+		this.searchFlag = false;
+		for (var si = 0; si < this.searchFields.length; si++) {
+			var sel  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[si].index);
+			var sel2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[si].index + '_2');
 			if ( (!sel || sel.value == '') &&
-				 (this.searches[si].defValue == '' || this.searches[si].defValue == null) &&
-				 (this.searches[si].value == '' || this.searches[si].value == null) ) continue;
-			searchFlag = true;
+				 (this.searchFields[si].defValue == '' || this.searchFields[si].defValue == null) &&
+				 (this.searchFields[si].value == '' || this.searchFields[si].value == null) ) continue;
+			this.searchFlag = true;
 			if (sel2) { if (sel2.value != '') el2dsp = '::' + sel2.value; else el2dsp = '::' + sel.value; } else el2dsp = '';
-			if (sel) { this.searchData[this.searches[si].fieldName] = sel.value + el2dsp; }
-				else { this.searchData[this.searches[si].fieldName] = (this.searches[si].value != null && this.searches[si].value != '') ? this.searches[si].value : this.searches[si].defValue; }
-			this.searches[si].value = this.searchData[this.searches[si].fieldName];
+			if (sel) { 
+				this.searchData[this.searchFields[si].fieldName] = sel.value + el2dsp; 
+			} else {
+				if (this.searchFields[si].value != null && this.searchFields[si].value != '') {
+					this.searchData[this.searchFields[si].fieldName] = this.searchFields[si].value; 
+				} else {
+					this.searchData[this.searchFields[si].fieldName] = this.searchFields[si].defValue; 
+				}
+			}
+			this.searchFields[si].value = this.searchData[this.searchFields[si].fieldName];
 		}
-		if (!searchFlag) tmpSearchData = ''; else tmpSearchData = this.searchData;
-		// add list params
-		param['req_cmd']  	 = cmd;
-		param['req_name'] 	 = this.name;
-		param['req_count']   = -1;
-		param['req_limit']   = this.items_pp;
-		param['req_offset']  = this.page_num * this.items_pp;
-		param['req_search']  = tmpSearchData;
+		param['req_search']  = (this.searchFlag == true ? this.searchData : '');
 		param['req_sort']    = (this.sortBy.length != 0 ? this.sortBy : '');
-		param['req_ids']  	 = recs;
 		// add passed params
-		if (params != undefined && params != '') {
-			var tmp = params.split(';;');
-			for (var i=0; i<tmp.length; i++) {
-				var t = tmp[i].split('::');
-				param[t[0]] = t[1];
+		if (typeof(params) == 'object') {
+			for(p in params) { param[p] = params[p]; }
+		} else {
+			if (params != undefined && params != '') {
+				var tmp = params.split(';;');
+				for (var i=0; i<tmp.length; i++) {
+					var t = tmp[i].split('::');
+					param[t[0]] = t[1];
+				}
 			}
 		}
-
-		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
-		req.src    = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
+		// generate and append SCRIPT tag
+		var req = this.box.ownerDocument.createElement('SCRIPT');
+		req.src = this.srvFile + (this.srvFile.indexOf('?') > -1 ? '&' : '?') + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
 		this.box.ownerDocument.body.appendChild(req);
 	}
 
 	function jsList_saveData() {
 		if (!this.box) return;
-		// call sever script
-		req = this.box.ownerDocument.createElement('SCRIPT');
-		param = [];
-		// add custom params
-		for (obj in this.srvParams) param[obj] = this.srvParams[obj];
 		// build new edits
 		var editData = [];
 		flag = false;
@@ -1295,14 +1471,8 @@ function jsList(name, box) {
 			}
 		}
 		if (!flag) return;
-		// add list params
-		param['req_cmd']  	= 'lst_save_data';
-		param['req_name'] 	= this.name;
-		param['req_data'] 	= editData;
-
-		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
-		req.src    = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
-		this.box.ownerDocument.body.appendChild(req);
+		// call server
+		this.serverCall('lst_save_data', { req_data: editData });
 	}
 
 	function jsList_showStatus(msg) {
@@ -1322,6 +1492,12 @@ function jsList(name, box) {
 			el.innerHTML = '';
 		}
 	}
+	
+	// initialize object if necessary
+	if (box != null && typeof(box) == 'object' && String(box) == '[object Object]') { // javascript object
+		this.box = null;
+		for (var e in box) { this[e] = box[e]; }
+	}	
 }
 if (top != window) top.jsListItem = jsListItem;
 if (top != window) top.jsList = jsList;

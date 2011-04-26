@@ -11,8 +11,8 @@ function jsEdit(name, box, recid) {
     this.box      		= box; // HTML element that hold this element
     this.tmpl			= '';
     this.items    		= []; // items received from getData
+	this.groups			= [];
     this.controls   	= [];
-    this.groups    		= [];
 	this.tabs			= null;
 	this.tabsToolbar	= null;
     this.srvFile  		= '';
@@ -45,6 +45,7 @@ function jsEdit(name, box, recid) {
     this.findField   	= jsEdit_findField;
     this.saveData	 	= jsEdit_saveData;
     this.saveDone	 	= jsEdit_saveDone;
+	this.complete		= jsEdit_complete;
     this.output      	= jsEdit_output;
     this.refresh     	= jsEdit_refresh;
     this.resetFields 	= jsEdit_resetFields;
@@ -64,6 +65,7 @@ function jsEdit(name, box, recid) {
     this.getListDone 	= jsEdit_getListDone;
 	this.resize	 	 	= jsEdit_resize;
 	this.scroll	 	 	= jsEdit_scroll;
+    this.groupObjs    	= [];
 	this.lookup_items 	= [];
 	this.lookup_keyup  	= jsEdit_lookup_keyup;
 	this.lookup_blur 	= jsEdit_lookup_blur;
@@ -78,33 +80,35 @@ function jsEdit(name, box, recid) {
 	// ==============-------------------------------
 	// -------------- IMPLEMENTATION
 	
-	function jsEdit_addControl(type, caption, param, inLabel) {
-		ind = this.controls.length;
-		switch (type) {
-			case 'save':
-				html = '<input id="'+ this.name +'_control'+ ind + '" class="rButton" type="button" onclick="var el = top.elements[\''+ this.name + '\']; el.stayHere = false; el.saveData();" value="'+ caption + '" '+ inLabel +'>';
-				break;
-			case 'update': // -- save & edit
-				html = '<input id="'+ this.name +'_control'+ ind + '" class="rButton" type="button" onclick="var el = top.elements[\''+ this.name + '\']; el.stayHere = true; el.saveData();" value="'+ caption + '" '+ inLabel +'>';
-				break;
-			case 'back':
-				html = '<input id="'+ this.name +'_control'+ ind + '" type="button" class="rButton" onclick="obj = top.elements[\''+ this.name +'\'].onComplete; if (obj) { if (obj.output) obj.output(); else obj(); }" value="'+ caption + '" '+ inLabel +'>';
-				break;
-			case 'button':
-				html = '<input id="'+ this.name +'_control'+ ind + '" class="rButton" type="button" onclick="'+ param + '" value="'+ caption + '" '+ inLabel +'>';
-				break;
-			default:
-				html = caption;
-				break;
+	function jsEdit_addControl(type, caption, param, inTag) {
+		var ind = this.controls.length;
+		// initialize object if necessary
+		if (caption != null && typeof(caption) == 'object' && String(caption) == '[object Object]') { // javascript object
+			this.controls[ind] = { type: type, caption: caption.caption, param: caption.param, inTag: (caption.inTag ? caption.inTag : null) };
+		} else {
+			this.controls[ind] = { type: type, caption: caption, param: param, inTag: inTag };		
 		}
-		this.controls[this.controls.length] = html;
 	}
 
 	function jsEdit_addGroup(name, caption, tabName) {
 		var ind = this.groups.length;
-		this.groups[ind] = new top.jsGroup(name, caption);
-		this.groups[ind].owner   = this;
-		this.groups[ind].tabName = tabName;
+		this.groups[ind] = { name: name, caption: caption, tabName: tabName, fields: [],
+			addField: function (caption, type, fieldName, inTag, outTag, defValue, required, column, items) {
+				var ind = this.fields.length;
+				if (type != null && typeof(type) == 'object' && String(type) == '[object Object]') { // javascript object
+					this.fields[ind] = { caption: caption, type: type.type, fieldName: type.fieldName, inTag: type.inTag, outTag: type.outTag, 
+						defValue: type.defValue, required: type.required, column: type.column, items: type.items };
+				} else {
+					this.fields[ind] = { caption: caption, type: type, fieldName: fieldName, inTag: inTag, outTag: outTag, 
+						defValue: defValue, required: required, column: column, items: items };
+				}
+			},
+			addBreak: function (height, column) { this.fields[this.fields.length] = { type: 'break', height: height, column: column }}
+		};
+		if (caption != null && typeof(caption) == 'object' && String(caption) == '[object Object]') { // javascript object
+			this.caption = null;
+			for (var e in caption) { this.groups[ind][e] = caption[e]; }
+		}
 		return this.groups[ind];
 	}
 
@@ -128,11 +132,11 @@ function jsEdit(name, box, recid) {
 	function jsEdit_changeTab(tab) {
 		// -- here 'this' is jsTabs object
 		var id = this.tabs[tab].id;
-		for (var i=0; i<this.owner.groups.length; i++) {
-			var el1 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groups[i].name);
-			var el2 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groups[i].name+'_break');
-			var el3 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groups[i].name+'_object');
-			if (this.owner.groups[i].tabName == id) { 
+		for (var i=0; i<this.owner.groupObjs.length; i++) {
+			var el1 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groupObjs[i].name);
+			var el2 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groupObjs[i].name+'_break');
+			var el3 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groupObjs[i].name+'_object');
+			if (this.owner.groupObjs[i].tabName == id) { 
 				if (el1) el1.style.display = '';
 				if (el2) el2.style.display = '';
 				if (el3) { 
@@ -140,10 +144,10 @@ function jsEdit(name, box, recid) {
 					this.owner.box.ownerDocument.getElementById('footer_'+this.owner.name).style.display = 'none';
 					this.owner.resize();
 					el3.style.display = ''; 				
-					el3.style.height  = this.owner.box.ownerDocument.getElementById('body_'+this.owner.name).clientHeight;
-					this.owner.groups[i].object.box = el3;
-					this.owner.groups[i].object.recid = this.owner.recid;				
-					this.owner.groups[i].object.refresh(); 
+					el3.style.height  = parseInt(this.owner.box.ownerDocument.getElementById('body_'+this.owner.name).clientHeight) + 'px';
+					this.owner.groupObjs[i].object.box = el3;
+					this.owner.groupObjs[i].object.recid = this.owner.recid;				
+					this.owner.groupObjs[i].object.refresh(); 
 				}
 			} else {
 				if (el1) el1.style.display = 'none';
@@ -159,11 +163,44 @@ function jsEdit(name, box, recid) {
 	}
 
 	function jsEdit_output() {
+		// init group objects
+		for (var i=0; i<this.groups.length; i++) {
+			var grp = this.groups[i];
+			var ind = this.groupObjs.length;
+			this.groupObjs[ind] = new top.jsGroup(grp.name, grp.caption);
+			this.groupObjs[ind].owner   = this;
+			this.groupObjs[ind].tabName = grp.tabName;
+			this.groupObjs[ind].height  = grp.height;
+			this.groupObjs[ind].inLabel = grp.inLabel;
+			if (grp.inTag) this.groupObjs[ind].inLabel = grp.inTag;
+			if (grp.object) this.groupObjs[ind].object = grp.object;
+			if (grp.closeForm) this.groupObjs[ind].closeForm = grp.closeForm;
+			// fields
+			for (var j=0; j<grp.fields.length; j++) {
+				var f = grp.fields[j];
+				if (!f) continue;
+				if (f.type == 'break') {
+					if (String(f.height) == 'undefined') f.height = null;
+					if (String(f.column) == 'undefined') f.column = false;
+					this.groupObjs[ind].addBreak(f.height, f.column); 
+				} else {
+					if (String(f.fieldName) == 'undefined') f.fieldName = '';
+					if (String(f.inTag) == 'undefined')  f.inTag = '';
+					if (String(f.outTag) == 'undefined') f.outTag = '';
+					if (String(f.defValue) == 'undefined') f.defValue = '';
+					if (String(f.required) == 'undefined') f.required = false;
+					if (String(f.column) == 'undefined') f.column = false;
+					if (String(f.items) == 'undefined') f.items = null;
+					this.groupObjs[ind].addField(f.caption, f.type, f.fieldName, f.inTag, f.outTag, f.defValue, f.required, f.column, f.items); 
+				}
+			}
+		}
+		
 		if (this.onOutput) { this.onOutput(); }
 		// fill drop lists if any
 		var flag = false;
-		for (var i=0; i<this.groups.length; i++) {
-			var grp = this.groups[i];
+		for (var i=0; i<this.groupObjs.length; i++) {
+			var grp = this.groupObjs[i];
 			for (j=0; j<grp.fields.length; j++) {
 				var fld = grp.fields[j];
 				if (String(fld.type).toUpperCase() == 'LIST' && !fld.items) {
@@ -190,12 +227,35 @@ function jsEdit(name, box, recid) {
 		var html =  '<div id="edit_'+ this.name +'" class="edit_div">';
 		// first generate header
 		if (this.showHeader) {
+			var tabs_html = '<td style="width: 1px" nowrap>&nbsp;</td>\n'+
+							'<td style="width: 103px; padding: 0px; margin: 0px; font-weight: normal;">'+
+							'	<div style="position: relative; top: -10px; padding: 0px; margin: 0px;">'+
+							'		<div style="position: absolute; height: 20px; background-color: #f4f4fe;width: 100px;  padding: 0px; padding-top: 4px; border: 1px solid #99bbe8; border-bottom: 0px; border-radius: 3px 3px 0px 0px; text-align: center;">Activities</div>'+
+							'	</div>'+
+							'</td>'+
+							'<td style="width: 103px; padding: 0px; margin: 0px; font-weight: normal;">'+
+							'	<div style="position: relative; top: -10px; padding: 0px; margin: 0px;">'+
+							'		<div style="position: absolute; height: 20px; margin: 0px; width: 100px; padding: 0px; padding-top: 4px; border: 1px solid #99bbe8; border-bottom: 0px; border-radius: 3px 3px 0px 0px; text-align: center;">Tasks</div>'+
+							'	</div>'+
+							'</td>'+
+							'<td style="width: 103px; padding: 0px; margin: 0px; font-weight: normal;">'+
+							'	<div style="position: relative; top: -10px; padding: 0px; margin: 0px;">'+
+							'		<div style="position: absolute; height: 20px; margin: 0px; width: 100px; padding: 0px; padding-top: 4px; border: 1px solid #99bbe8; border-bottom: 0px; border-radius: 3px 3px 0px 0px; text-align: center;">Participants</div>'+
+							'	</div>'+
+							'</td>'+
+							'<td style="width: 103px; padding: 0px; margin: 0px; font-weight: normal;">'+
+							'	<div style="position: relative; top: -10px; padding: 0px; margin: 0px;">'+
+							'		<div style="position: absolute; height: 20px; margin: 0px; width: 100px; padding: 0px; padding-top: 4px; border: 1px solid #99bbe8; border-bottom: 0px; border-radius: 3px 3px 0px 0px; text-align: center;">Logs</div>'+
+							'	</div>'+
+							'</td>';
+			tabs_html = '';
 			html += '<div id="header_'+ this.name +'">\n'+
 					'   <table style="width: 100%; height: 28px;" class="editHeader_tbl"><tr>\n'+
-					'       <td id="title_td1_'+ this.name + '" style="width: 95%; padding-left: 5px;">'+
-					'			<span id="title_'+ this.name + '">'+ this.header +'&nbsp;</span>'+
-					'			<span style="font-variant: normal; font-size: 10px; font-family: verdana; padding: 1px; display: none; background-color: red; color: white;" id="status_'+ this.name + '"></span>'+
-					'       </td>\n'+
+					'       <td id="title_td1_'+ this.name + '" style="width: 5%; padding-left: 5px;" nowrap>'+
+					'			<span id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
+					'       </td>\n'+ tabs_html +
+					'       <td style="width: 1px" nowrap>&nbsp;</td>\n'+
+					'       <td><span style="font-variant: normal; font-size: 10px; font-family: verdana; padding: 1px; display: none; background-color: red; color: white;" id="status_'+ this.name + '"></span></td>\n'+
 					'       <td id="title_td2_'+ this.name + '" align="right" style="width: 5%" nowrap="nowrap"></td>\n'+
 					'   </tr></table>\n'+
 					'</div>\n';
@@ -211,8 +271,8 @@ function jsEdit(name, box, recid) {
 			html += this.tmpl;
 		}	
 		
-		for (var ii=0; ii<this.groups.length; ii++) {
-			var gr = this.groups[ii];
+		for (var ii=0; ii<this.groupObjs.length; ii++) {
+			var gr = this.groupObjs[ii];
 			if (gr.disabled == true) {
 				html = html.replace('~'+gr.name+'~', '');
 				continue;
@@ -248,8 +308,8 @@ function jsEdit(name, box, recid) {
 		if (this.box) this.box.innerHTML = html; 
 
 		// output group objects if any
-		for (var ii=0; ii<this.groups.length; ii++) {
-			var gr = this.groups[ii];
+		for (var ii=0; ii<this.groupObjs.length; ii++) {
+			var gr = this.groupObjs[ii];
 			if (this.box && gr.object != null) {
 				var div = this.box.ownerDocument.getElementById("group_"+ gr.name +"_object");
 				gr.object.box = div;
@@ -264,11 +324,11 @@ function jsEdit(name, box, recid) {
 			this.tabs.output();
 			// init first tab
 			var id = this.tabs.tabs[0].id;
-			for (var i=0; i<this.groups.length; i++) {
-				var el1 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name);
-				var el2 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name+'_break');
-				var el3 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name+'_object');
-				if (this.groups[i].tabName == id) { 
+			for (var i=0; i<this.groupObjs.length; i++) {
+				var el1 = this.box.ownerDocument.getElementById('group_'+this.groupObjs[i].name);
+				var el2 = this.box.ownerDocument.getElementById('group_'+this.groupObjs[i].name+'_break');
+				var el3 = this.box.ownerDocument.getElementById('group_'+this.groupObjs[i].name+'_object');
+				if (this.groupObjs[i].tabName == id) { 
 					if (el1) el1.style.display = '';
 					if (el2) el2.style.display = '';
 					if (el3) el3.style.display = '';
@@ -281,8 +341,8 @@ function jsEdit(name, box, recid) {
 			this.tabs.setActive(0);
 		}
 		this.resize();
-		
-		this.dataReceived(true);
+				
+		//this.dataReceived(true);
 		if (this.onRefresh) { this.onRefresh(); }
 	}
 
@@ -302,16 +362,16 @@ function jsEdit(name, box, recid) {
 					- (this.tabs != null ? elt.clientHeight + 2 : 0)
 					;
 				el.style.overflow = 'auto';
-				el.style.height   = hheight;
+				el.style.height   = hheight + 'px';
 			}
 		}
 		// resize if there is tabs group object
 		if (this.tabs != null) {
-			for (var i=0; i<this.groups.length; i++) {
-				var el = this.box.ownerDocument.getElementById('group_'+this.groups[i].name+'_object');
+			for (var i=0; i<this.groupObjs.length; i++) {
+				var el = this.box.ownerDocument.getElementById('group_'+this.groupObjs[i].name+'_object');
 				if (el) { 
-					el.style.height = this.box.ownerDocument.getElementById('body_'+this.name).clientHeight; 
-					this.groups[i].object.refresh(); 
+					el.style.height = parseInt(this.box.ownerDocument.getElementById('body_'+this.name).clientHeight) + 'px';
+					this.groupObjs[i].object.refresh(); 
 				}
 			}
 		}
@@ -453,10 +513,34 @@ function jsEdit(name, box, recid) {
 	}
 
 	function jsEdit_getControls() {
-		html = '';
-		html = '<table cellspacing="0" cellpadding="0" class="rText"><tr>';
-		for (i=0; i<this.controls.length; i++) {
-			html += '<td nowrap="nowrap" style="padding-left: 2px; padding-right: 2px">'+ this.controls[i] + '</td>';
+		var html = '<table cellspacing="0" cellpadding="0" class="rText"><tr>';
+		for (var i=0; i<this.controls.length; i++) {
+			var cnt = this.controls[i];
+			var cnt_html = '';
+			switch (cnt.type) {
+				case 'save':
+					cnt_html = '<input id="'+ this.name +'_control'+ i +'" class="rButton" type="button" '+
+							   '	onclick="var el = top.elements[\''+ this.name + '\']; el.stayHere = false; el.saveData();" '+
+							   '	value="'+ cnt.caption + '" '+ cnt.inTag +'>';
+					break;
+				case 'update': // -- save & edit
+					cnt_html = '<input id="'+ this.name +'_control'+ i +'" class="rButton" type="button" '+
+							   '	onclick="var el = top.elements[\''+ this.name + '\']; el.stayHere = true; el.saveData();" '+
+							   '	value="'+ cnt.caption + '" '+ cnt.inTag +'>';
+					break;
+				case 'back':
+					cnt_html = '<input id="'+ this.name +'_control'+ i +'" type="button" class="rButton" '+
+							   '	onclick="top.elements[\''+ this.name +'\'].complete();" value="'+ cnt.caption + '" '+ cnt.inTag +'>';
+					break;
+				case 'button':
+					cnt_html = '<input id="'+ this.name +'_control'+ i +'" class="rButton" type="button" '+
+							   '	onclick="'+ cnt.param + '" value="'+ cnt.caption + '" '+ cnt.inTag +'>';
+					break;
+				default:
+					cnt_html = cnt.caption;
+					break;
+			}
+			html += '<td nowrap="nowrap" style="padding-left: 2px; padding-right: 2px">'+ cnt_html + '</td>';
 		}
 		html += '<td>&nbsp;</td></tr></table>';
 		return html;
@@ -527,8 +611,8 @@ function jsEdit(name, box, recid) {
 	}
 
 	function jsEdit_findField(indOrName) {
-		for (i=0; i<this.groups.length; i++) {
-			grp = this.groups[i];
+		for (i=0; i<this.groupObjs.length; i++) {
+			grp = this.groupObjs[i];
 			for (j=0; j<grp.fields.length; j++) {
 				fld = grp.fields[j];
 				if (fld.fieldName == indOrName) return fld;
@@ -542,7 +626,7 @@ function jsEdit(name, box, recid) {
 		if (!this.box) return;
 		if (this.fieldList != 0) return;
 		this.resetFields();
-		this.showStatus('Retrieving Data...');
+		this.showStatus('Refreshing...');
 		if (this.onData) {
 			ret = this.onData();
 			if (ret === false) return;
@@ -597,6 +681,13 @@ function jsEdit(name, box, recid) {
 			var el = this.box.ownerDocument.getElementById(this.name+'_field'+val);
 			if (el) {
 				el.value = this.items[val];
+				// -- convert html entities if needed
+				var str_tmp = String(el.value);
+				if (str_tmp.indexOf('&#') >= 0) {
+					var tmp = document.createElement("textarea");
+					tmp.innerHTML = str_tmp.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+					el.value = tmp.value;
+				}
 				// label type
 				if (el.tagName == 'LABEL') el.innerHTML = this.items[val];
 				if (el.tagName == 'DIV')   el.innerHTML = this.items[val];
@@ -640,6 +731,23 @@ function jsEdit(name, box, recid) {
 		if (!el) el = this.box.ownerDocument.getElementById(this.name+'_field0');
 		try { if (el) { if (el.onclick) { el.onclick(); } el.focus(); } } catch(e) {}
 		
+		// init HTML Area fields
+		for (var ii=0; ii<this.groupObjs.length; ii++) {
+			var gr = this.groupObjs[ii];
+			for (var ij = 0; ij < gr.fields.length; ij++) {
+				if (!gr.fields[ij]) continue;
+				if (gr.fields[ij].type.toUpperCase() == 'HTMLAREA') {
+					var div = this.box.ownerDocument.getElementById(this.name+'_field_box'+ij);
+					var txt = this.box.ownerDocument.getElementById(this.name+'_field'+ij);					
+					//
+					top.elements[this.name+'field'+ij+'_editor'] = null;
+					var editor = new top.jsEditor(this.name+'field'+ij+'_editor', div);
+					editor.output();
+					editor.setHTML(txt.value);
+				}
+			}
+		}	
+		
 		if (initial !== true && this.onDataReceived) { this.onDataReceived(); }
 	}
 
@@ -651,6 +759,18 @@ function jsEdit(name, box, recid) {
 		}
 		if (!this.validate()) return;
 		if (this.disableOnSave) for (var i=0; i<10; i++) { el = this.box.ownerDocument.getElementById(this.name+'_control'+i); if (el) el.disabled = true; }
+		
+		// save data from HTML Area fields
+		for (var ii=0; ii<this.groupObjs.length; ii++) {
+			var gr = this.groupObjs[ii];
+			for (var ij = 0; ij < gr.fields.length; ij++) {
+				if (!gr.fields[ij]) continue;
+				if (gr.fields[ij].type.toUpperCase() == 'HTMLAREA') {
+					var txt = this.box.ownerDocument.getElementById(this.name+'_field'+ij);					
+					txt.value = top.elements[this.name+'field'+ij+'_editor'].getHTML();
+				}
+			}
+		}	
 
 		frm = this.box.ownerDocument.getElementById('form_' + this.name);
 		req = this.box.ownerDocument.getElementById('frame_' + this.name);
@@ -686,7 +806,18 @@ function jsEdit(name, box, recid) {
 			this.stayHere = false;
 			this.output();
 		} else {
-			if (this.onComplete) if (this.onComplete.output) { this.onComplete.output(); } else { this.onComplete(); }
+			this.complete();			
+		}
+	}
+	
+	function jsEdit_complete() {
+		var obj = this.onComplete;
+		if (typeof(obj) == 'function') { 
+			obj(); 
+		} else if (typeof(obj) == 'object') { 
+			obj.output(); 
+		} else { 
+			top.elements[obj].output(); 
 		}
 	}
 
@@ -719,8 +850,8 @@ function jsEdit(name, box, recid) {
 		if (!this.box) return;
 		// make sure required fields are not empty
 		reqFields = '';
-		for (i=0; i<this.groups.length; i++) {
-			grp = this.groups[i];
+		for (i=0; i<this.groupObjs.length; i++) {
+			grp = this.groupObjs[i];
 			for (j=0; j<grp.fields.length; j++) {
 				fld = grp.fields[j];
 				if (fld.required && this.box.ownerDocument.getElementById(this.name+'_field'+fld.index).value == '') {
@@ -735,8 +866,8 @@ function jsEdit(name, box, recid) {
 		}
 		// check ints and floats
 		reqFields = '';
-		for (i=0; i<this.groups.length; i++) {
-			grp = this.groups[i];
+		for (i=0; i<this.groupObjs.length; i++) {
+			grp = this.groupObjs[i];
 			for (j=0; j<grp.fields.length; j++) {
 				fld = grp.fields[j];
 				if (String(fld.type).toUpperCase() == 'INT' && !top.jsUtils.isInt(this.box.ownerDocument.getElementById(this.name+'_field'+fld.index).value)) {
@@ -771,6 +902,12 @@ function jsEdit(name, box, recid) {
 			el.style.display = 'none';
 			el.innerHTML = '';
 		}
+	}	
+	
+	// initialize object if necessary
+	if (box != null && typeof(box) == 'object' && String(box) == '[object Object]') { // javascript object
+		this.box = null;
+		for (var e in box) { this[e] = box[e]; }
 	}	
 }
 if (top != window) top.jsEdit = jsEdit;

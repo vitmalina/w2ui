@@ -4,37 +4,32 @@
 *
 ***********************************/
 
-function jsUtils() {
-	this.sys_path	  = '../';	
-	this.get		  = jsUtils_get;
-	this.post		  = jsUtils_post;
+var jsUtils = {
 
-	this.isInt		  = jsUtils_isInt;
-	this.isFloat	  = jsUtils_isFloat;
-	this.isHex		  = jsUtils_isHex;
-	this.isTime       = jsUtils_isTime;
-	this.isDate       = jsUtils_isDate;
-	this.trim		  = jsUtils_trim;
-	this.stripTags	  = jsUtils_stripTags;
-	this.serialize    = jsUtils_serialize;
-	this.phpSerialize = jsUtils_phpSerialize;
-	this.base64encode = jsUtils_base64encode;
-	this.base64decode = jsUtils_base64decode;
+	init: function(sys_path) {
+		this.sys_path = sys_path;		
+		// -- detect engine can be: IE5, IE7, IE8, IE9, Gecko, WebKit
+		if (navigator.appName == 'Microsoft Internet Explorer')	{
+			if (document.documentMode) { // IE8 or later
+				this.engine = 'IE'+document.documentMode;
+			} else { // IE 5-7
+				this.engine = 'IE'+5; // Assume quirks mode unless proven otherwise
+				if (document.compatMode) if (document.compatMode == "CSS1Compat") {
+					this.engine = 'IE'+7; // standards mode
+				}
+			}
+		}
+		if (String(navigator.userAgent).indexOf('Gecko/') > 0) {
+			this.engine = "Gecko";
+		}
+		if (String(navigator.userAgent).indexOf('WebKit/') > 0) {
+			this.engine = "WebKit";
+		}
+		// -- initialize
+		window.elements = [];
+	},
 	
-	this.message	  = jsUtils_message;
-	this.center       = jsUtils_center;
-	this.lock		  = jsUtils_lock;
-	this.unlock		  = jsUtils_unlock;
-	this.dropShadow   = jsUtils_dropShadow;
-	this.clearShadow  = jsUtils_clearShadow;
-	this.slideDown	  = jsUtils_slideDown;
-	this.slideUp	  = jsUtils_slideUp;
-	
-	/***************************************
-	* ---- IMPLEMENTATION
-	*/
-	
-	function jsUtils_get(url, data, callback) {
+	get: function (url, data, callback) {
 		// -- process parameters
 		var url_add = '';
 		for (var key in data) { 
@@ -56,9 +51,10 @@ function jsUtils() {
 			}
 		}		
 		document.body.appendChild(frm);
-	}
+	},
 	
-	function jsUtils_post(url, data, callback) {
+	post: function (url, data, callback) {
+		// ENGINE: doesn't work in IE5-IE7
 		var tmp = 'frame_' + (d = new Date()).getTime();
 		// -- process parameters
 		var form = document.createElement("form");
@@ -90,9 +86,10 @@ function jsUtils() {
 		document.body.appendChild(frm);
 		document.body.appendChild(form);
 		form.submit();
-	}
+	},
 
-	function jsUtils_isInt(val) {
+	isInt: function (val) {
+		if (String(val) == 'undefined') return false;
 		var tmpStr = '-0123456789';
 		val = String(val);
 		for (var ii=0; ii<val.length; ii++){
@@ -100,28 +97,44 @@ function jsUtils() {
 			if (val.substr(ii, 1) == '-' && ii != 0) { return false; }
 		}
 		return true;
-	}
+	},
 
-	function jsUtils_isFloat(val) {
+	isFloat: function (val) {
+		if (String(val) == 'undefined') return false;
 		var tmpStr = '-.0123456789';
 		val = String(val);
 		for (var ii=0; ii<val.length; ii++){
 			if (tmpStr.indexOf(val.substr(ii, 1)) < 0) { return false; }
 			if (val.substr(ii, 1) == '-' && ii != 0) { return false; }
+			if (val.indexOf('.') > 0) if (val.indexOf('.', val.indexOf('.')+1) > 0) return false; // one dot per number
 		}
 		return true;
-	}
+	},
 
-	function jsUtils_isHex(val) {
+	isMoney: function (val) {
+		if (String(val) == 'undefined') return false;
+		var tmpStr = '$-.,0123456789';
+		val = String(val);
+		for (var ii=0; ii<val.length; ii++){
+			if (tmpStr.indexOf(val.substr(ii, 1)) < 0) { return false; }
+			if (val.substr(ii, 1) == '-' && ii != 0) { return false; }
+			if (val.indexOf('.') > 0) if (val.indexOf('.', val.indexOf('.')+1) > 0) return false; // one dot per number
+		}
+		return true;
+	},
+
+	isHex: function (val) {
+		if (String(val) == 'undefined') return false;
 		var tmpStr = '0123456789ABCDEFabcdef';
 		val = String(val);
 		for (var ii=0; ii<val.length; ii++){
 			if (tmpStr.indexOf(val.substr(ii, 1)) < 0) { return false; }
 		}
 		return true;
-	}
+	},
 
-	function jsUtils_isDate(val) {
+	isDate: function (val) {
+		if (String(val) == 'undefined') return false;
 		if (val.split("/").length != 3) return false; 
 		var month	= val.split("/")[0];
 		var day		= val.split("/")[1];
@@ -129,24 +142,25 @@ function jsUtils() {
 		var obj = new Date(year, month-1, day);
 		if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
 		return true;
-	}
+	},
 
-	function jsUtils_isTime(val) {
+	isTime: function (val) {
+		if (String(val) == 'undefined') return false;
 		var max;
 		// -- process american foramt
 		val = val.toUpperCase();
 		if (val.indexOf('PM') >= 0 || val.indexOf('AM') >= 0) max = 12; else max = 23;
-		val = top.jsUtils.trim(val.replace('AM', ''));
-		val = top.jsUtils.trim(val.replace('PM', ''));
+		val = window.jsUtils.trim(val.replace('AM', ''));
+		val = window.jsUtils.trim(val.replace('PM', ''));
 		// ---
 		var tmp = val.split(':');
 		if (tmp.length != 2) { return false; }
-		if (tmp[0] == '' || parseInt(tmp[0]) < 0 || parseInt(tmp[0]) > max || !top.jsUtils.isInt(tmp[0])) { return false; }
-		if (tmp[1] == '' || parseInt(tmp[1]) < 0 || parseInt(tmp[1]) > 59 || !top.jsUtils.isInt(tmp[1])) { return false; }
+		if (tmp[0] == '' || parseInt(tmp[0]) < 0 || parseInt(tmp[0]) > max || !window.jsUtils.isInt(tmp[0])) { return false; }
+		if (tmp[1] == '' || parseInt(tmp[1]) < 0 || parseInt(tmp[1]) > 59 || !window.jsUtils.isInt(tmp[1])) { return false; }
 		return true;
-	}
+	},
 
-	function jsUtils_serialize(obj){
+	serialize: function (obj){
 		var res = '';
 		for (var key in obj) {
 			if (typeof(obj[key]) == 'object') {
@@ -156,49 +170,9 @@ function jsUtils() {
 			}
 		}
 		return res; 
-	}
+	},
 
-	function jsUtils_phpSerialize(obj){
-		var res = '';
-		switch(typeof(obj)) {
-			case 'number':
-				if ((obj - Math.round(obj)) == 0) {
-					res += 'i:' + obj + ';';
-				} else {
-					res += 'd:' + obj + ';';
-				}
-				break;
-			case 'string':
-				var tmp = unescape(obj); 
-				res += 's:' + tmp.length + ':"' + obj + '";';
-				break;
-			case 'boolean':
-				if (obj) {
-					res += 'b:1;';
-				} else {
-					res += 'b:0;';
-				}
-				break;
-			 case 'object' :
-				if (obj instanceof Array) {
-					res = 'a:';
-					var tmpStr = '';
-					var cntr = 0;
-					for (var key in obj) {
-						tmpStr += top.jsUtils.serialize(key);
-						tmpStr += top.jsUtils.serialize(obj[key]);
-						cntr++;
-					}
-					res += cntr + ':{' + tmpStr + '}';
-				}
-			 break;
-
-		}
-		return res;
-	}
-
-
-	function jsUtils_base64encode(input) {
+	base64encode: function (input) {
 		var output = "";
 		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
 		var i = 0;
@@ -244,9 +218,9 @@ function jsUtils() {
 		}
 		
 		return output;
-	}
+	},
 	 
-	function jsUtils_base64decode(input) {
+	base64decode: function (input) {
 		var output = "";
 		var chr1, chr2, chr3;
 		var enc1, enc2, enc3, enc4;
@@ -300,9 +274,9 @@ function jsUtils() {
 		}
 
 		return output;
-	}
+	},
 	 
-	function jsUtils_trim(sstr) {
+	trim: function (sstr) {
 		while (true) {
 			if (sstr.substr(0, 1) == " " || sstr.substr(0, 1) == "\n" || sstr.substr(0, 1) == "\r") {
 				sstr = sstr.substr(1, sstr.length - 1);
@@ -315,104 +289,150 @@ function jsUtils() {
 			}
 		}
 		return sstr;
-	}
+	},
+	
+	inArray: function (needle, haystack) {
+		for(var i = 0; i < haystack.length; i++) {
+			if (typeof(haystack[i]) == 'object') {
+				if (this.inArray(needle, haystack[i]) == true) return true;
+			}
+			if (haystack[i] == needle) return true;
+		}
+		return false;
+	},
 
-	function jsUtils_stripTags(html) {
+	stripTags: function (html) {
 		html = this.trim(html.replace(/(<([^>]+)>)/ig, ""));
 		return html;
-	}
+	},
 
-	function jsUtils_center(div, ctype) {
+	center: function (div, ctype) {
 		if (String(ctype) == 'undefined') ctype = '';
 		ctype = ctype.toLowerCase();
-		if (top.innerHeight == undefined) {
-			var width  = top.document.body.clientWidth;
-			var height = top.document.body.clientHeight;
+		if (window.innerHeight == undefined) {
+			var width  = document.documentElement.offsetWidth;
+			var height = document.documentElement.offsetHeight;
+			if (this.engine == 'IE7') { width += 21; height += 4; }
 		} else {
-			var width  = top.innerWidth;
-			var height = top.innerHeight;
-		}		
+			var width  = window.innerWidth;
+			var height = window.innerHeight;
+		}
 		if (ctype == 'x' || ctype == '') { 
 			div.style.left = (width  - parseInt(div.style.width)) / 2 + 'px'; 
 		}
 		if (ctype == 'y' || ctype == '') { 
+			if (div.style.height == '') div.style.height = 150; // needed for IE prior to ver. 9
 			div.style.top = (height - parseInt(div.style.height)) / 2 + 'px'; 
 			if (parseInt(div.style.top) > 0) div.style.top = parseInt(div.style.top) - parseInt(div.style.top) * 0.15 + 'px'; 
 		}
-	}
+	},
 	
-	function jsUtils_lock(opacity, lockOnClick) {
-		if (top.document.getElementById('screenLock')) return;
+	lock: function (opacity, lockOnClick) {
+		if (window.document.getElementById('screenLock')) return;
 		if (opacity == undefined || opacity == null) opacity = 0;
-		var width;
-		var height;
 		// get width and height
-		if (top.innerHeight == undefined) {
-			width  = top.document.body.clientWidth;
-			height = top.document.body.clientHeight;
+		if (window.innerHeight == undefined) {
+			var width  = document.documentElement.offsetWidth;
+			var height = document.documentElement.offsetHeight;
+			if (this.engine == 'IE7') { width += 21; height += 4; }
 		} else {
-			width  = top.innerWidth;
-			height = top.innerHeight;
+			var width  = window.innerWidth;
+			var height = window.innerHeight;
 		}		
 		//lock window
-		top.screenLock 	= top.document.createElement('DIV');
-		top.screenLock.style.cssText = 'position: fixed; zIndex: 1000; left: 0px; top: 0px; background-color: black;'+
-									   'width: '+ width +'px; height: '+ height +'px; opacity: 0;';
-		top.screenLock.id = 'screenLock';
-		top.screenLock.style.filter = 'alpha(opacity=0)';
-		if (typeof(lockOnClick) == 'function') { top.screenLock.onclick = lockOnClick; }
-		top.document.body.appendChild(top.screenLock);
+		window.screenLock 	= window.document.createElement('DIV');
+		window.screenLock.style.cssText = 'position: '+(this.engine == 'IE5' ? 'absolute' : 'fixed')+'; padding: 0px; margin: 0px;'+
+			'zIndex: 1000; left: 0px; top: 0px; background-color: black; width: '+ width +'px; height: '+ height +'px; opacity: 0;';
+		window.screenLock.id = 'screenLock';
+		window.screenLock.style.filter = 'alpha(opacity=0)';
+		if (typeof(lockOnClick) == 'function') { window.screenLock.onclick = lockOnClick; }
+		window.document.body.appendChild(window.screenLock);
 		// - nice opacity
-		top.tmp_opacity  = opacity;
-		top.tmp_sopacity = 0;
+		window.tmp_opacity  = opacity;
+		window.tmp_sopacity = 0;
 		if (opacity != 0) {
-			top.tmp_opacity_timeout = setInterval(new Function(
-					"if(top.tmp_sopacity >= top.tmp_opacity) { "+
-					"	top.tmp_sopacity = top.tmp_opacity; "+
-					"	clearInterval(top.tmp_opacity_timeout); "+
+			window.tmp_opacity_timeout = setInterval(new Function(
+					"if(window.tmp_sopacity >= window.tmp_opacity) { "+
+					"	window.tmp_sopacity = window.tmp_opacity; "+
+					"	clearInterval(window.tmp_opacity_timeout); "+
 					"} "+
-					"top.tmp_sopacity += 0.05; top.screenLock.style.opacity = top.tmp_sopacity; "+
-					"top.screenLock.style.filter = 'alpha(opacity='+ (top.tmp_sopacity * 100) +')'"+
+					"window.tmp_sopacity += 0.05; window.screenLock.style.opacity = window.tmp_sopacity; "+
+					"window.screenLock.style.filter = 'alpha(opacity='+ (window.tmp_sopacity * 100) +')'"+
 					""), 1);
 		}
-	}
+	},
 
-	function jsUtils_unlock() {
-		top.tmp_sopacity = top.tmp_opacity;
-		top.tmp_opacity  = 0;
-		top.tmp_opacity_timeout = setInterval(new Function(
-				"top.tmp_sopacity -= 0.05; "+
-				"if(top.tmp_sopacity <= 0) { "+
-				"	top.document.body.removeChild(top.screenLock);"+
-				"	top.screenLock = null;"+
-				"	top.tmp_sopacity = top.tmp_opacity; "+
-				"	clearInterval(top.tmp_opacity_timeout); "+
+	unlock: function () {
+		window.tmp_sopacity = window.tmp_opacity;
+		window.tmp_opacity  = 0;
+		window.tmp_opacity_timeout = setInterval(new Function(
+				"window.tmp_sopacity -= 0.05; "+
+				"if(window.tmp_sopacity <= 0) { "+
+				"	window.document.body.removeChild(window.screenLock);"+
+				"	window.screenLock = null;"+
+				"	window.tmp_sopacity = window.tmp_opacity; "+
+				"	clearInterval(window.tmp_opacity_timeout); "+
 				"	return; "+
 				"} "+
-				"top.screenLock.style.opacity = top.tmp_sopacity; "+
-				"top.screenLock.style.filter = 'alpha(opacity='+ (top.tmp_sopacity * 100) +')'"+
+				"window.screenLock.style.opacity = window.tmp_sopacity; "+
+				"window.screenLock.style.filter = 'alpha(opacity='+ (window.tmp_sopacity * 100) +')'"+
 				""), 1);
-	}
+	},
 	
-	function jsUtils_message(msg, width, height) {
-		var box = top.document.createElement('DIV');		
-		
-		box.style.cssText 	= 'position: fixed; z-Index: 1001; color: black; background-color: white;';
+	message: function (msg, width, height) {
+		// create div for the message
+		var box = window.document.createElement('DIV');				
+		box.style.cssText 	= 'position: '+(this.engine == 'IE5' ? 'absolute' : 'fixed')+'; z-Index: 1001;';
 		box.innerHTML 		= '\n'+msg+'\n';
-		
+		// set predefined size if any
 		if (String(width)  != 'undefined') box.style.width  = width + 'px';
 		if (String(height) != 'undefined') box.style.height = height + 'px';		
-		
-		document.body.appendChild(box);
-		
+		// insert box
+		document.body.appendChild(box);		
+		// adjust size if not predefined
 		if (String(width)  == 'undefined') box.style.width  = parseInt(box.clientWidth) + 'px';
 		if (String(height) == 'undefined') box.style.height = parseInt(box.clientHeight) + 'px';
-		
-		this.center(box);
+		// center box
+		window.screenMessage = box;
+		if (this.inArray(this.engine, ['IE5', 'IE7', 'IE8'])) {
+			window.setTimeout("window.jsUtils.center(window.screenMessage)", 10);
+		} else{
+			this.center(box);
+		}
 		return box;
-	}
+	},
+	
+	showMsg: function (title, body, buttons, width, height) {
+		// lock screen
+		window.jsUtils.lock(0.3, function() { // unlock if clicked away
+			window.jsUtils.hideMsg(); 
+		});
+		// show message
+		var msg = '<div>'+
+				  '<div style="border-radius: 8px 8px 0px 0px; font-variant: small-caps; background-color: #7bceff; color: white; '+
+				  '		font-weight: bold; padding: 12px; font-size: 14px;">'+ title + '</div>'+
+				  '<div style="padding: 20px 12px; background-color: white; font-size: 12px;'+ 
+						(String(buttons) == 'undefined' ? 'border-radius: 0px 0px 8px 8px;' : '') +'">'+ body + 
+				  '</div>'+
+				  '</div>';
+		if (String(buttons) != 'undefined') { 
+			msg +='<div style="border-radius: 0px 0px 8px 8px; background-color: #eeeeee; text-align: center; padding: 10px;">'+ buttons + '</div>';
+		}
+		var box = window.jsUtils.message(msg, width, height);
+		box.style.cssText += 'border-radius: 6px; padding: 0px; margin: 0px; border: 1px solid gray;';
+		// drop shadow
+		window.jsUtils.dropShadow(box, true);
+		return box;
+	},
 
-	function jsUtils_dropShadow(shadowel, center) {
+	hideMsg: function () {
+		// lock screen and remove message
+		window.jsUtils.clearShadow(window.screenMessage);	
+		window.screenMessage.parentNode.removeChild(window.screenMessage);
+		window.jsUtils.unlock();
+	},
+	
+	dropShadow: function (shadowel, center) {
 		var shleft      = parseInt(shadowel.offsetLeft);
 		var shtop       = parseInt(shadowel.offsetTop);
 		var shwidth     = parseInt(shadowel.offsetWidth);
@@ -444,21 +464,21 @@ function jsUtils() {
 		tmp.style.height    = (shheight + (center ? 20 : 10) + addshHeight) + 'px';
 
 		var html = '\n';
-		html += '<table cellpadding="0" cellspacing="0" style="width:100%; height:100%; font-size: 2px; font: 2px;">\n'+
-				'<tr height="10px">\n'+
-				'  <td width="10px" style="-moz-border-radius: 12 0 0 0; border-radius: 12 0 0 0; background-image: url('+ top.jsUtils.sys_path +'/images/shadow1.png)">&nbsp;</td>\n'+
-				'  <td style="background-image: url('+ top.jsUtils.sys_path +'/images/shadow2.png)">&nbsp;</td>\n'+
-				'  <td width="10px" style="-moz-border-radius: 0 12 0 0; border-radius: 0 12 0 0; background-image: url('+ top.jsUtils.sys_path +'/images/shadow3.png); background-position: right top">&nbsp;</td>\n'+
+		html += '<table cellpadding="0" cellspacing="0" style="width:100%; height:100%; font-size: 2px; font: 2px; table-layout: fixed;">\n'+
+				'<tr>\n'+
+				'  <td style="width: 10px; height: 10px; -moz-border-radius: 12 0 0 0; border-radius: 12 0 0 0; background-image: url('+ window.jsUtils.sys_path +'/images/shadow1.png)"></td>\n'+
+				'  <td style="height: 10px; background-image: url('+ window.jsUtils.sys_path +'/images/shadow2.png)"></td>\n'+
+				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 12 0 0; border-radius: 0 12 0 0; background-image: url('+ window.jsUtils.sys_path +'/images/shadow3.png); background-position: right top"></td>\n'+
 				'</tr>\n'+
 				'<tr>\n'+
-				'  <td width="10px" style="background-image: url('+ top.jsUtils.sys_path +'/images/shadow8.png)">&nbsp;</td>\n'+
-				'  <td style="background-image: url('+ top.jsUtils.sys_path +'/images/shadow0.png); opacity: 0.55; filter: alpha(opacity=12);">&nbsp;</td>\n'+
-				'  <td width="10px" style="background-image: url('+ top.jsUtils.sys_path +'/images/shadow4.png); background-position: right top">&nbsp;</td>\n'+
+				'  <td style="width: 10px; background-image: url('+ window.jsUtils.sys_path +'/images/shadow8.png)"></td>\n'+
+				'  <td style="background-image: url('+ window.jsUtils.sys_path +'/images/shadow0.png); opacity: 0.55; filter: alpha(opacity=12);"></td>\n'+
+				'  <td style="width: 10px; background-image: url('+ window.jsUtils.sys_path +'/images/shadow4.png); background-position: right top"></td>\n'+
 				'</tr>\n'+
-				'<tr height="10px">\n'+
-				'  <td width="10px" style="-moz-border-radius: 0 0 0 12; border-radius: 0 0 0 12; background-image: url('+ top.jsUtils.sys_path +'/images/shadow7.png); background-position: left bottom;">&nbsp;</td>\n'+
-				'  <td style="background-image: url('+ top.jsUtils.sys_path +'/images/shadow6.png); background-position: right bottom">&nbsp;</td>\n'+
-				'  <td width="10px" style="-moz-border-radius: 0 0 12 0; border-radius: 0 0 12 0; background-image: url('+ top.jsUtils.sys_path +'/images/shadow5.png); background-position: right bottom">&nbsp;</td>\n'+
+				'<tr>\n'+
+				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 0 0 12; border-radius: 0 0 0 12; background-image: url('+ window.jsUtils.sys_path +'/images/shadow7.png); background-position: left bottom;"></td>\n'+
+				'  <td style="height: 10px; background-image: url('+ window.jsUtils.sys_path +'/images/shadow6.png); background-position: right bottom"></td>\n'+
+				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 0 12 0; border-radius: 0 0 12 0; background-image: url('+ window.jsUtils.sys_path +'/images/shadow5.png); background-position: right bottom"></td>\n'+
 				'</tr>\n'+
 				'</table>\n';
 		tmp.innerHTML = html;
@@ -466,87 +486,85 @@ function jsUtils() {
 		if (shadowel.style.zIndex != undefined && shadowel.style.zIndex != null) tmp.style.zIndex = parseInt(shadowel.style.zIndex)-1;
 		shadowel.shadow = tmp;
 		return tmp;
-	}
+	},
 
-	function jsUtils_clearShadow(shadowel) {
+	clearShadow: function (shadowel) {
 		if (shadowel.shadow) shadowel.parentNode.removeChild(shadowel.shadow);
 		shadowel.shadow = null;
-	}
+	},
 
-	function jsUtils_slideDown(el, onfinish) {
+	slideDown: function (el, onfinish) {
 		try {
 			if (el != undefined && el != null) {
 				// initiate
-				top.tmp_sd_el 		= el;
+				window.tmp_sd_el 		= el;
 				el.style.top  		= -1000;
 				el.style.display  	= '';
-				top.tmp_sd_height 	= parseInt(el.clientHeight);
-				top.tmp_sd_top	  	= -parseInt(el.clientHeight);
-				top.tmp_sd_timer  	= setInterval("top.jsUtils.slideDown()", 2);
-				top.tmp_sd_step   	= top.tmp_sd_height / 15;
-				top.tmp_sd_onfinish	= onfinish;
+				window.tmp_sd_height 	= parseInt(el.clientHeight);
+				window.tmp_sd_top	  	= -parseInt(el.clientHeight);
+				window.tmp_sd_timer  	= setInterval("window.jsUtils.slideDown()", 2);
+				window.tmp_sd_step   	= window.tmp_sd_height / 15;
+				window.tmp_sd_onfinish	= onfinish;
 				// show parent element
 				el.parentNode.style.width  = parseInt(el.clientWidth) + 5;
 				el.parentNode.style.height = parseInt(el.clientHeight) + 5;
 				el.parentNode.style.overflow = 'hidden';
 				return;
 			}	
-			top.tmp_sd_top += top.tmp_sd_step;
-			if (top.tmp_sd_top > 0) top.tmp_sd_top = 0;
-			if (top.tmp_sd_el) {
-				top.tmp_sd_el.style.top = top.tmp_sd_top;
-				if (top.tmp_sd_top == 0) { 
-					if (top.tmp_sd_onfinish) top.tmp_sd_onfinish(top.tmp_sd_el);
-					top.tmp_sd_el.parentNode.style.overflow = '';
+			window.tmp_sd_top += window.tmp_sd_step;
+			if (window.tmp_sd_top > 0) window.tmp_sd_top = 0;
+			if (window.tmp_sd_el) {
+				window.tmp_sd_el.style.top = window.tmp_sd_top;
+				if (window.tmp_sd_top == 0) { 
+					if (window.tmp_sd_onfinish) window.tmp_sd_onfinish(window.tmp_sd_el);
+					window.tmp_sd_el.parentNode.style.overflow = '';
 					// stop role out
-					clearInterval(top.tmp_sd_timer); 
-					top.tmp_sd_el 	  	= undefined;
-					top.tmp_sd_height 	= undefined;
-					top.tmp_sd_top	  	= undefined;
-					top.tmp_sd_timer  	= undefined;
-					top.tmp_sd_step   	= undefined;
-					top.tmp_sd_onfinish = undefined;
+					clearInterval(window.tmp_sd_timer); 
+					window.tmp_sd_el 	  	= undefined;
+					window.tmp_sd_height 	= undefined;
+					window.tmp_sd_top	  	= undefined;
+					window.tmp_sd_timer  	= undefined;
+					window.tmp_sd_step   	= undefined;
+					window.tmp_sd_onfinish = undefined;
 				}
 			}
 		} catch (e) {}
-	}
+	},
 
-	function jsUtils_slideUp(el, onfinish) {
+	slideUp: function (el, onfinish) {
 		try {
 			if (el != undefined && el != null) {
 				// initiate
-				top.tmp_sd_el 		= el;
+				window.tmp_sd_el 		= el;
 				el.style.display  	= '';
-				top.tmp_sd_height 	= parseInt(el.clientHeight);
-				top.tmp_sd_top	  	= 0;
-				top.tmp_sd_timer  	= setInterval("top.jsUtils.slideUp()", 2);
-				top.tmp_sd_step   	= top.tmp_sd_height / 15;
-				top.tmp_sd_onfinish	= onfinish;
+				window.tmp_sd_height 	= parseInt(el.clientHeight);
+				window.tmp_sd_top	  	= 0;
+				window.tmp_sd_timer  	= setInterval("window.jsUtils.slideUp()", 2);
+				window.tmp_sd_step   	= window.tmp_sd_height / 15;
+				window.tmp_sd_onfinish	= onfinish;
 				// control the parent element
 				el.parentNode.style.overflow 	= 'hidden';
 				return;
 			}
-			top.tmp_sd_top -= top.tmp_sd_step;
-			if (-top.tmp_sd_top > top.tmp_sd_height) top.tmp_sd_top = -top.tmp_sd_height - 10;
-			top.tmp_sd_el.style.top = top.tmp_sd_top;
-			if (top.tmp_sd_top == -top.tmp_sd_height - 10) { 
-				if (top.tmp_sd_onfinish) top.tmp_sd_onfinish(top.tmp_sd_el);
+			window.tmp_sd_top -= window.tmp_sd_step;
+			if (-window.tmp_sd_top > window.tmp_sd_height) window.tmp_sd_top = -window.tmp_sd_height - 10;
+			window.tmp_sd_el.style.top = window.tmp_sd_top;
+			if (window.tmp_sd_top == -window.tmp_sd_height - 10) { 
+				if (window.tmp_sd_onfinish) window.tmp_sd_onfinish(window.tmp_sd_el);
 				// hide parent element
-				top.tmp_sd_el.parentNode.style.width  = 0;
-				top.tmp_sd_el.parentNode.style.height = 0;
+				window.tmp_sd_el.parentNode.style.width  = 0;
+				window.tmp_sd_el.parentNode.style.height = 0;
 				// stop role out
-				clearInterval(top.tmp_sd_timer); 
-				top.tmp_sd_el 	  	= undefined;
-				top.tmp_sd_height 	= undefined;
-				top.tmp_sd_top	  	= undefined;
-				top.tmp_sd_timer  	= undefined;
-				top.tmp_sd_step   	= undefined;
-				top.tmp_sd_onfinish	= undefined;
+				clearInterval(window.tmp_sd_timer); 
+				window.tmp_sd_el 	  	= undefined;
+				window.tmp_sd_height 	= undefined;
+				window.tmp_sd_top	  	= undefined;
+				window.tmp_sd_timer  	= undefined;
+				window.tmp_sd_step   	= undefined;
+				window.tmp_sd_onfinish	= undefined;
 			}
 		} catch (e) {}
-	}
-	
-	// -- initialize
-	top.elements = [];
+	}	
 }
-top.jsUtils  = new jsUtils();
+// init object
+jsUtils.init(sys_path);

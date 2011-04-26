@@ -80,7 +80,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '		<input size=2 id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
 							 '			class="rText rInput" type="hidden" onchange="'+ this.onSelect +'" value="'+ tmp[0] +'">'+
-							 '		<input type="text" autocomplete="off" class="rText rInput" style="background-color: ecf5e4; color: #666666;'+ this.inTag +'"'+
+							 '		<input type="text" autocomplete="off" class="rText rInput" style="background-color: #ecf5e4; color: #666666;'+ this.inTag +'"'+
 							 '			id="'+ this.prefix + '_field' +  this.index +'_search" value="'+ tmp[1] +'" '+ 
 							 '			onclick="if (this.value == \'start typing...\') { this.value = \'\'; this.style.color = \'black\'; } this.select();" '+
 							 '			onkeydown="if (this.value ==\'start typing...\') this.value = \'\'; "'+
@@ -145,9 +145,11 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'" valign=top> ';
 				}
-				this.html += '	<div id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'"'+
-							 '			class="rText rInput rHTMLArea" type="text" value="'+ tmpValue +'" '+ this.inTag +'>'
+				this.html += '	<div id="'+ this.prefix + '_field_box' +  this.index +'" '+
+							 '			class="rHTMLArea" type="text" value="'+ tmpValue +'" '+ this.inTag +'>'+
 							 '	</div>'+ 
+							 '	<textarea id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
+							 '			style="display: none" value="'+ tmpValue +'"></textarea>'+
 							 (this.outTag != '' ? this.outTag : '')+
 							 '</td>\n';
 				break;
@@ -582,7 +584,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 				break;
 				
 			case 'BREAK':
-				this.html += '	<td colspan="'+ parseInt(spanAdd+3) +'"  class="rText" '+ this.inTag +'>'+ this.outTag +'</td>';
+				this.html += '	<td colspan="'+ parseInt(spanAdd+3) +'"  class="rText" '+ this.inTag +' style="padding: 0px; margin: 0px;">'+ this.outTag +'</td>';
 				break;
 
 			case 'UPLOAD':
@@ -676,11 +678,13 @@ function jsGroup(name, header) {
 					 
 		this.html = '<div id="group_'+ this.name +'_break" style="height: 5px; font-size: 1px;"></div>' +
 					'<div class="group" id="group_'+ this.name +'">'+
-					'<div class="groupTitle" id="group_title_'+ this.name + '" style="z-Index: 1;">'+ this.header + '</div>'+
+					'<div style="position: relative; top: -10px; margin: 0px; padding: 0px; width: auto; height: 15px;">'+
+					'	<div class="groupTitle" id="group_title_'+ this.name + '" style="position: absolute; z-Index: 1;">'+ this.header + '</div>'+
+					'</div>'+
 					'<div style="clear: both; '+ addH +'" id="group_content_'+ this.name +'">';				
 
 		// render column
-		this.html += '<table style="padding-left: 6px; padding-right: 6px; clear: both" cellpadding="2" cellspacing="0" width="100%">';
+		this.html += '<table style="clear: both;" cellpadding="3" cellspacing="0" width="100%">';
 		this.html += '<tr>';
 		var spanFlag = true;
 		for (i=0; i<this.fields.length; i++) {
@@ -719,7 +723,7 @@ function jsGroup(name, header) {
 
 	function jsGroup_addBreak(height, column) {
 		ind = this.fields.length;
-		this.fields[ind] = new top.jsField('', 'break', '', '', '<div style="height: '+ height +'"></div>', '', false, column);
+		this.fields[ind] = new top.jsField('', 'break', '', '', '<div style="height: '+ height +'px; padding: 0px; margin: 0px;"></div>', '', false, column);
 		this.fields[ind].index = ind;
 		return this.fields[ind];
 	}

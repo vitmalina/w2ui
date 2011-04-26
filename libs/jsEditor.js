@@ -8,7 +8,8 @@ function jsEditor(name, box) {
 	// -- public
 	this.name 			= name;
 	this.box			= box;
-	this.showSource 	= true;
+	this.buttons		= 'basic'; // basic or extanded
+	this.showSource 	= false;
 	this.currentFolder	= '';
 	this.thumbSize		= 'small';
 	this.charTab		= '&nbsp;&nbsp;&nbsp;&nbsp;';
@@ -120,6 +121,7 @@ function jsEditor(name, box) {
 		var editor		= this.box.ownerDocument.getElementById(this.name+'_editor');
 		var source_tb	= this.box.ownerDocument.getElementById(this.name+'_tb_source');
 		var source		= this.box.ownerDocument.getElementById(this.name+'_source');
+		if (!this.showSource) source_tb.style.display = 'none';
 		// calc height
 		editor.style.height = height - 30 - (this.showSource ? parseInt(this.source_height) + 30 : -2);
 		if (this.showSource && source) {
@@ -164,6 +166,7 @@ function jsEditor(name, box) {
 			editor.body.addEventListener('keydown', top.elements[this.name].catchKeyDown, false);	
 		}	
 		// -- get toolbar
+		top.elements[this.name+'_tb'] = null;
 		if (!top.elements[this.name+'_tb']) {
 			var img = top.jsUtils.sys_path+'/includes/silk/icons/';
 			
@@ -364,11 +367,27 @@ function jsEditor(name, box) {
 			tb.addDrop('<img src="'+img+'lightning.png">', '', Function("top.elements['"+this.name+"'].tbAction(this.id)"), 'Insert an object', insert_html);
 			this.toolbar = tb;
 		}
+		// hide/show buttons
+		if (this.buttons == 'basic') {
+			this.toolbar.items[1].visible = false;
+			this.toolbar.items[2].visible = false;
+			this.toolbar.items[3].visible = false;
+			this.toolbar.items[10].visible = false;
+			this.toolbar.items[15].visible = false;
+			this.toolbar.items[17].visible = false;
+			this.toolbar.items[20].visible = false;
+			this.toolbar.items[23].visible = false;
+			this.toolbar.items[24].visible = false;
+			this.toolbar.items[25].visible = false;
+			this.toolbar.items[28].visible = false;
+			this.toolbar.items[29].visible = false;
+		}
 		var el = this.box.ownerDocument.getElementById(this.name+'_tb');
 		if (el) { top.elements[this.name+'_tb'].box = el; top.elements[this.name+'_tb'].output(); }
 		
 		// source toolbar
 		if (!top.elements[this.name+'_tb_source']) {
+			top.elements[this.name+'_tb_source'] = null;
 			var tb = new top.jsToolBar(this.name+'_tb_source', null);
 			
 			// -- syntax highlight
@@ -523,14 +542,14 @@ function jsEditor(name, box) {
 				if (el == 'Right')	  editor.execCommand('justifyRight', false, null);
 				if (el == 'Center')	  editor.execCommand('justifyCenter', false, null);
 				if (el == 'Justify')  editor.execCommand('justifyFull', false, null);
-				top.elements[this.name+'_tb'].items[19].caption = '<img src="'+ img +'text_align_'+ el.toLowerCase() +'">';
+				top.elements[this.name+'_tb'].items[19].caption = '<img src="'+ img +'text_align_'+ el.toLowerCase() +'.png">';
 				top.elements[this.name+'_tb'].items[19].refresh();	
 				break;
 			case 'list': // lists
 				if (el == 'Bullets')  editor.execCommand('insertUnorderedList', false, null);
 				if (el == 'Numbers')  editor.execCommand('insertOrderedList', false, null);
-				top.elements[this.name+'_tb'].items[20].caption = '<img src="'+ img +'text_list_'+ el.toLowerCase() +'">';
-				top.elements[this.name+'_tb'].items[20].refresh();	
+				top.elements[this.name+'_tb'].items[21].caption = '<img src="'+ img +'text_list_'+ el.toLowerCase() +'.png">';
+				top.elements[this.name+'_tb'].items[21].refresh();	
 				break;
 			case 'extra': // extra formating		
 				if (el == 'Underline')  	editor.execCommand('underline', false, null);
@@ -897,7 +916,7 @@ function jsEditor(name, box) {
 			if (el.tagName.toLowerCase() == 'html') { tmp = 'left'; break; }
 			el = el.parentNode; if (!el) break;
 		}
-		obj.toolbar.items[19].caption = '<img src="'+ img +'text_align_'+ tmp.toLowerCase() +'">';
+		obj.toolbar.items[19].caption = '<img src="'+ img +'text_align_'+ tmp.toLowerCase() +'.png">';
 		obj.toolbar.items[19].refresh();	
 		// lists
 		var el  = focusElem;
@@ -909,8 +928,8 @@ function jsEditor(name, box) {
 		if (tmp) {
 			if (tmp.tagName.toLowerCase() == 'ul') { tmp2 = 'bullets'; }
 			if (tmp.tagName.toLowerCase() == 'ol') { tmp2 = 'numbers'; }
-			obj.toolbar.items[20].caption = '<img src="'+ img +'text_list_'+ tmp2 +'">';
-			obj.toolbar.items[20].refresh();
+			obj.toolbar.items[21].caption = '<img src="'+ img +'text_list_'+ tmp2 +'.png">';
+			obj.toolbar.items[21].refresh();
 		}
 	}
 

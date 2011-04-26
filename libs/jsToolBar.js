@@ -31,10 +31,11 @@ function jsToolBarItem(id, owner, type, caption, picture) {
 	function jsToolBarItem_getHTML() {
 		if (this.caption == null) this.caption = '';
 		if (this.picture == null) this.picture = '';
-		if (document.all) transparent = '#62a241; filter: chroma(color=#62a241)'; else transparent = 'transparent';
+		//if (document.all) transparent = '#62a241; filter: chroma(color=#62a241)'; else transparent = 'transparent';
+		transparent = 'transparent';
 		addToText = '';
 		if (this.picture != '') {
-			if (document.all) {
+			if (top.jsUtils.engine == 'IE5') {
 				if (this.disabled) {
 					addToText   = "FILTER: alpha(opacity=20);";
 					butPicture  = 'src="'+ this.picture +'" style="FILTER: alpha(opacity=20);"';
@@ -54,12 +55,13 @@ function jsToolBarItem(id, owner, type, caption, picture) {
 						 '       onmouseout  = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemOut(\''+ this.id +'\');" '+
 						 '       onmousedown = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemDown(\''+ this.id +'\');" '+
 						 '       onmouseup   = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemUp(\''+ this.id +'\');" '+
-						 '       style="-moz-border-radius: 4px; border-radius: 4px; height: 22px; margin-top: 2px; border: 1px solid '+ transparent +';"><tr><td>'+
+						 '       style="border-radius: 4px; -moz-border-radius: 4px; height: 18px; margin-top: 2px; border: 1px solid '+ transparent +';">'+
+						 '<tr><td>'+
 						 '  <table cellpadding=2 cellspacing=0 id="tab1_'+ this.owner.name + '_' + this.id +'"'+
-						 '       style="-moz-border-radius: 4px; border-radius: 4px; height: 100%; border: 1px solid '+ transparent +'; '+
+						 '       style="border-radius: 4px; -moz-border-radius: 4px; border: 1px solid '+ transparent +'; '+
 						 '              border-left: 0px solid '+ transparent +'; border-top: 0px solid '+ transparent +'; cursor: default;"><tr>'+
-							(this.picture != '' ? '<td><img '+ butPicture +'></td>' : '') +
-							(this.caption != '' ? '<td nowrap style="font-size: 11px; font-family: verdana; '+ addToText +'">'+ this.caption +'</td>' : '') +
+							(this.picture != '' ? '<td style="padding: 0px; margin: 0px"><img style="width: 16px; height: 16px; padding: 0px; margin: 3px 2px; margin-bottom: 0px; margin-right: 0px;" '+ butPicture +'></td>' : '') +
+							(this.caption != '' ? '<td nowrap style="padding: 0px 5px; font-size: 11px; font-family: verdana; '+ addToText +'">'+ this.caption +'</td>' : '') +
 						 '  </tr></table>'+
 						 '</td></tr></table>';
 				break;
@@ -77,9 +79,9 @@ function jsToolBarItem(id, owner, type, caption, picture) {
 						 '       onmouseout  = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemOut(\''+ this.id +'\');" '+
 						 '       onmousedown = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemDown(\''+ this.id +'\');" '+
 						 '       onmouseup   = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemUp(\''+ this.id +'\');" '+
-						 '       style="-moz-border-radius: 4px; border-radius: 4px; height: 22px; margin-top: 2px; '+ addCheckStyle +';"><tr><td>'+
+						 '       style="border-radius: 4px; -moz-border-radius: 4px; height: 22px; margin-top: 2px; '+ addCheckStyle +';"><tr><td>'+
 						 '  <table cellpadding=2 cellspacing=0 id="tab1_'+ this.owner.name + '_' + this.id +'"'+
-						 '       style="-moz-border-radius: 4px; border-radius: 4px; height: 100%; border: 1px solid '+ transparent +'; '+ addCheckStyle2 +
+						 '       style="border-radius: 4px; -moz-border-radius: 4px; height: 100%; border: 1px solid '+ transparent +'; '+ addCheckStyle2 +
 						 '              border-left: 0px solid '+ transparent +'; border-top: 0px solid '+ transparent +'; cursor: default;"><tr>'+
 							(this.picture != '' ? '<td><img '+ butPicture +'></td>' : '') +
 							(this.caption != '' ? '<td nowrap style="font-size: 11px; font-family: verdana; '+ addToText +'">'+ this.caption +'</td>' : '') +
@@ -100,9 +102,9 @@ function jsToolBarItem(id, owner, type, caption, picture) {
 						 '       onmouseout  = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemOut(\''+ this.id +'\');" '+
 						 '       onmousedown = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemDown(\''+ this.id +'\');" '+
 						 '       onmouseup   = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemUp(\''+ this.id +'\');" '+
-						 '       style="-moz-border-radius: 4px; border-radius: 4px; height: 22px; margin-top: 2px; '+ addCheckStyle +';"><tr><td>'+
+						 '       style="border-radius: 4px; -moz-border-radius: 4px; eight: 22px; margin-top: 2px; '+ addCheckStyle +';"><tr><td>'+
 						 '  <table cellpadding=2 cellspacing=0 id="tab1_'+ this.owner.name + '_' + this.id +'"'+
-						 '       style="-moz-border-radius: 4px; border-radius: 4px; height: 100%; border: 1px solid '+ transparent +'; '+ addCheckStyle2 +
+						 '       style="border-radius: 4px; -moz-border-radius: 4px; height: 100%; border: 1px solid '+ transparent +'; '+ addCheckStyle2 +
 						 '              border-left: 0px solid '+ transparent +'; border-top: 0px solid '+ transparent +'; cursor: default;"><tr>'+
 							(this.picture != '' ? '<td><img '+ butPicture +'></td>' : '') +
 							(this.caption != '' ? '<td nowrap style="font-size: 11px; font-family: verdana; '+ addToText +'">'+ this.caption +'</td>' : '') +
@@ -136,9 +138,9 @@ function jsToolBarItem(id, owner, type, caption, picture) {
 						 '							tmp.style.display = \'none\'; '+
 						 '						}" '+
 						 '       onmouseup   = "var el=top.elements[\''+ this.owner.name + '\']; if (el) el.itemUp(\''+ this.id +'\');" '+
-						 '       style="-moz-border-radius: 4px; border-radius: 4px; height: 22px; margin-top: 2px;'+ addCheckStyle +';"><tr><td>'+
+						 '       style="border-radius: 4px; -moz-border-radius: 4px; height: 22px; margin-top: 2px;'+ addCheckStyle +';"><tr><td>'+
 						 '  <table cellpadding=2 cellspacing=0 id="tab1_'+ this.owner.name + '_' + this.id +'"'+
-						 '       style="-moz-border-radius: 4px; border-radius: 4px; height: 100%; border: 1px solid '+ transparent +'; '+ addCheckStyle2 +
+						 '       style="border-radius: 4px; -moz-border-radius: 4px; height: 100%; border: 1px solid '+ transparent +'; '+ addCheckStyle2 +
 						 '              border-left: 0px solid '+ transparent +'; border-top: 0px solid '+ transparent +'; cursor: default;"><tr>'+
 							(this.picture != '' ? '<td><img '+ butPicture +'></td>' : '') +
 							(this.caption != '' ? '<td nowrap style="font-size: 11px; font-family: verdana; '+ addToText +'">'+ this.caption +'</td>' : '') +
@@ -407,7 +409,7 @@ function jsToolBar(name, box) {
 			if (this.items[i] == null)  continue;
 			addStyle = '';
 			if (!this.items[i].visible) { addStyle += 'display: none;'; }
-			if (this.items[i].disabled) { addStyle += '-moz-opacity: 0.2; opacity: 0.2; filter:alpha(opacity=20);'; }
+			if (this.items[i].disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; filter:alpha(opacity=20);'; }
 			html += '<td id="item_'+ this.items[i].id +'" style="'+ addStyle +'" valign=middle>'+ this.items[i].getHTML() + '</td>';
 		}
 		html += '<td width="100%" id="'+ this.name +'_right" align="right">'+ this.rightHTML +'</td></tr>';
@@ -450,7 +452,8 @@ function jsToolBar(name, box) {
 	function jsToolBar_itemOver(id) { 
 		if (!this.box) return;
 		var transparent;
-		if (document.all) { transparent = '#62a241;'; } else { transparent = 'transparent'; }
+		//if (document.all) { transparent = '#62a241;'; } else { transparent = 'transparent'; }
+		transparent = 'transparent';
 		var it = this.getItem(id);
 		if (!it.disabled) {
 			var el = this.box.ownerDocument.getElementById('tab0_' + this.name + '_' + id);
@@ -461,7 +464,7 @@ function jsToolBar(name, box) {
 				el.style.borderTop       = '0px solid '+transparent;
 				el.style.borderRight     = '1px solid #E4E1D6';
 				el.style.borderBottom    = '1px solid #E4E1D6';
-				el.style.cssText 		+= 'filter: chroma(color=#62a241);';
+				//el.style.cssText 		+= 'filter: chroma(color=#62a241);';
 			} catch (e) {}
 		}
 		if (it.type == 'drop') { clearTimeout(it.hideTimer); }
@@ -471,7 +474,8 @@ function jsToolBar(name, box) {
 
 	function jsToolBar_itemOut(id) {
 		if (!this.box) return;
-		if (document.all) { transparent = '#62a241'; } else { transparent = 'transparent'; }
+		//if (document.all) { transparent = '#62a241'; } else { transparent = 'transparent'; }
+		transparent = 'transparent';
 		var it = this.getItem(id);
 		if (!it.disabled) {
 			var el1 = this.box.ownerDocument.getElementById('tab0_' + this.name + '_' + id);
@@ -481,13 +485,13 @@ function jsToolBar(name, box) {
 					el1.style.border = '1px solid #CECEC3';
 				} else {
 					el1.style.border   = '1px solid '+transparent;
-					el1.style.cssText += 'filter: chroma(color=#62a241)';
+					//el1.style.cssText += 'filter: chroma(color=#62a241)';
 				}
 				el2.style.borderLeft      = '0px solid '+transparent;
 				el2.style.borderTop       = '0px solid '+transparent;
 				el2.style.borderRight     = '1px solid '+transparent;
 				el2.style.borderBottom    = '1px solid '+transparent;
-				el2.style.cssText 		 += 'filter: chroma(color=#62a241)';
+				//el2.style.cssText 		 += 'filter: chroma(color=#62a241)';
 			} catch (e) {}		
 		}
 		if (it.type == 'drop') { // hide drop
@@ -508,7 +512,8 @@ function jsToolBar(name, box) {
 
 	function jsToolBar_itemDown(id) {
 		if (!this.box) return;
-		if (document.all) { transparent = '#62a241'; } else { transparent = 'transparent'; }
+		//if (document.all) { transparent = '#62a241'; } else { transparent = 'transparent'; }
+		transparent = 'transparent';
 		var it = this.getItem(id);
 		if (!it.disabled) {
 			try {
@@ -520,7 +525,7 @@ function jsToolBar(name, box) {
 				el.style.borderRight     = '0px solid '+transparent;
 				el.style.borderBottom    = '0px solid '+transparent;
 				el.style.backgroundColor = '#E6E5DE';
-				el.style.cssText 		 += 'filter: chroma(color=#62a241)';
+				//el.style.cssText 		 += 'filter: chroma(color=#62a241)';
 			} catch (e) {}
 			// clear all drop time outs
 			for (var i=0; i<this.items.length; i++) {
@@ -535,7 +540,8 @@ function jsToolBar(name, box) {
 
 	function jsToolBar_itemUp(id) {
 		if (!this.box) return;
-		if (document.all) { transparent = '#62a241'; } else { transparent = 'transparent'; }
+		//if (document.all) { transparent = '#62a241'; } else { transparent = 'transparent'; }
+		transparent = 'transparent';
 		var it = this.getItem(id);
 		if (!it.disabled) {
 			var el1 = this.box.ownerDocument.getElementById('tab0_' + this.name + '_' + id);
@@ -547,7 +553,7 @@ function jsToolBar(name, box) {
 				el2.style.borderRight     = '1px solid #E4E1D6';
 				el2.style.borderBottom    = '1px solid #E4E1D6';
 				el2.style.backgroundColor = transparent;
-				el2.style.cssText 		 += 'filter: chroma(color=#62a241)';
+				//el2.style.cssText 		 += 'filter: chroma(color=#62a241)';
 			} catch(e) {}
 			if (it.type == 'radio') {
 				for (var i=0; i<this.items.length; i++) {
@@ -571,7 +577,7 @@ function jsToolBar(name, box) {
 						el2.style.backgroundColor = '#ffffff';
 					} else {
 						el2.style.backgroundColor = transparent;
-						el.style.cssText 		 += 'filter: chroma(color=#62a241)';
+						//el.style.cssText 		 += 'filter: chroma(color=#62a241)';
 					}
 				} catch(e) {}
 			}
