@@ -4,40 +4,6 @@
 *
 ***********************************/
 
-function jsListItem(id, values) {
-	this.id    		= id;
-    this.values		= values;
-    this.selected 	= false;
-	this.select		= jsListItem_select;
-	this.ind;
-	this.owner;
-	
-	// ==============-------------------------------
-	// -------------- IMPLEMENTATION
-
-	function jsListItem_select(flag) {
-		if (flag != undefined && flag != null) this.selected = !flag;
-		// select new
-		if (this.selected) {
-			this.selected = false;
-			el = this.owner.box.ownerDocument.getElementById(this.owner.name +'_line_'+ this.ind);
-			if (el) {
-				el.style.cssText = el.getAttribute('custom_style');
-				el.className = (this.ind%2 == 0 ? 'lstBody_odd' : 'lstBody_even');
-				el.setAttribute('selected', 'no');
-			}
-		} else {
-			this.selected = true;
-			el = this.owner.box.ownerDocument.getElementById(this.owner.name +'_line_'+ this.ind);
-			if (el) {
-				el.style.cssText = '';
-				el.className = 'lstBody_selected';
-				el.setAttribute('selected', 'yes');
-			}
-		}
-	}
-}
-
 function jsList(name, box) {
 	// public properties
     this.name  	  		= name;
@@ -69,14 +35,13 @@ function jsList(name, box) {
     this.showHeader 	= true;
 	this.showToolbar	= false;
     this.showFooter 	= true;
-    this.showTabHeader 	= true;
-    this.showTabNumber 	= true;
+    this.showRecHeader 	= true;
+    this.showRecNumber 	= true;
 	this.showKey		= false;
     this.smallPageCount = false;
     this.smallPageNav   = false;
     this.fixed      	= true;
-    this.tblPadding 	= 4;
-	this.divStyle 		= 'height: 13px; margin: 2px;';
+	this.fixedSize		= false;
     this.editable       = [];
     this.sortBy			= [];
     this.count      	= 0;
@@ -110,6 +75,7 @@ function jsList(name, box) {
     this.output      	= jsList_output;
     this.refresh     	= jsList_refresh;
 	this.resize		 	= jsList_resize;
+	this.selectItem		= jsList_selectItem;
 	this.selectAll		= jsList_selectAll;
 	this.selectNone		= jsList_selectNone;
     this.getSelected 	= jsList_getSelected;
@@ -131,6 +97,10 @@ function jsList(name, box) {
 	this.searchFlag 	= false;
 	this.searchData		= [];
     this.searchFields   = [];
+	this.last_search	= '';
+	this.last_scrollTop	= '';
+	this.last_scrollLeft= '';
+	this.last_selected	= '';
     this.lstClick    	= jsList_lstClick;
     this.lstDblClick 	= jsList_lstDblClick;
     this.columnClick 	= jsList_columnClick;
@@ -148,37 +118,16 @@ function jsList(name, box) {
 	this.lookup_keyup  	= jsList_lookup_keyup;
 	this.lookup_blur 	= jsList_lookup_blur;
 	this.lookup_show 	= jsList_lookup_show
-	this.initEvents		= jsList_initEvents;
-
+	
     if (!top.jsUtils) alert('The jsUtils class is not loaded. This class is a must for the jsList class.');
     if (!top.jsField) alert('The jsField class is not loaded. This class is a must for the jsList class.');
     if (!top.elements) top.elements = [];
     if (top.elements[this.name]) alert('The element with this name "'+ this.name +'" is already registered.');
     top.elements[this.name] = this;
 	
-	// initialization
-	if (this.box) { this.initEvents(); }
-	
 	// ==============-------------------------------
 	// -------------- IMPLEMENTATION
 	
-	function jsList_initEvents() {
-		/*
-		if (window.addEventListener) {
-			top.addEventListener('resize', 	new Function("if (top.elements) top.elements['"+ this.name + "'].resize()"), false);
-			top.addEventListener('mousemove', 	new Function("event", "if (top.elements) top.elements['"+ this.name + "'].doResize(event)"), false);
-			top.addEventListener('mouseup',   	new Function("event", "if (top.elements) top.elements['"+ this.name + "'].stopResize(event)"), false);
-			if (this.box) this.box.addEventListener('resize', 	 new Function("if (top.elements) top.elements['"+ this.name + "'].resize()"), false);
-			if (this.box) this.box.addEventListener('mousemove', new Function("event", "if (top.elements) top.elements['"+ this.name + "'].doResize(event)"), false);
-			if (this.box) this.box.addEventListener('mouseup',   new Function("event", "if (top.elements) top.elements['"+ this.name + "'].stopResize(event)"), false);
-		} else {
-			window.attachEvent('onresize', 	  new Function("if (top.elements) top.elements['"+ this.name + "'].resize()"));
-			window.document.attachEvent('onmousemove',  new Function("if (top.elements) top.elements['"+ this.name + "'].doResize()"));
-			window.document.attachEvent('onmouseup',    new Function("if (top.elements) top.elements['"+ this.name + "'].stopResize()"));
-		}
-		*/
-	}
-
 	function jsList_addColumn(caption, size, type, attr) {
 		var ind = this.columns.length;
 		// initialize object if necessary
@@ -212,7 +161,7 @@ function jsList(name, box) {
 	function jsList_addFilter(caption, img) {
 		ind  = this.filters.length;
 		html = '<div id="'+ this.name +'_filter'+ ind + '_div">'+
-			   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+			   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 			   (img != undefined ? '<td style="padding-left:3px;"><img src="'+ img +'"></td>' : '')+
 			   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+
 			   '	<a style="padding-right: 5px; cursor: pointer; font-weight: bold" id="'+ this.name +'_filter'+ ind + '" '+
@@ -246,7 +195,7 @@ function jsList(name, box) {
 					'	onclick="this.style.backgroundColor = \'highlight\'; '+
 					'			 this.style.color = \'white\'; '+
 					'			 document.getElementById(\''+ name +'\').value = \''+ item +'\'; '+
-					'			 document.getElementById(\''+ name +'_search\').value = \''+ this.lookup_items[item] +'\'; '+
+					'			 document.getElementById(\''+ name +'_search\').value = \''+ String(this.lookup_items[item]).replace("'", "\\'") +'\'; '+
 					'			 document.getElementById(\''+ name +'_div\').style.display = \'none\'; '+
 					'			 top.jsUtils.clearShadow(document.getElementById(\''+ name +'_div\')); '+
 					'			 var el = document.getElementById(\''+ name +'\'); '+
@@ -350,9 +299,8 @@ function jsList(name, box) {
 
 	function jsList_addItem(id, values) {
 		var ind = this.items.length;
-		this.items[ind] = new top.jsListItem(id, (this.showKey ? Array(id).concat(values) : values));
-		this.items[ind].ind   = ind;
-		this.items[ind].owner = this;
+		this.items[ind] = { id: id, ind: ind, values: values, selected: false };
+
 	}
 	
 	function jsList_addNew() {
@@ -372,7 +320,13 @@ function jsList(name, box) {
 
 	function jsList_searchAll(val) {
 		if (this.last_search == val) return;
+		// reset scrolling position
+		this.last_scrollTop		= 0;
+		this.last_scrollLeft	= 0;
+		this.last_selected		= '';
+		// remember last search
 		this.last_search = val;
+		// clear regular search
 		this.clearSearch();
 		// build search fields name list
 		var fields = [];
@@ -400,15 +354,22 @@ function jsList(name, box) {
 		}
 		this.srvParams['req_search-all'] 	= value;
 		this.srvParams['req_search-fields'] = fields;
+		this.items = [];
+		this.page_num = 0;
 		this.getData();
 	}
 	
 	function jsList_submitSearch() {
 		// -- clear all search field
+		this.last_search = '';
 		this.srvParams['req_search-all'] 	= '';
 		this.srvParams['req_search-fields'] = [];
 		var el = this.box.ownerDocument.getElementById(this.name + '_search_all');
 		if (el) el.value = '';
+		// reset scrolling position
+		this.last_scrollTop		= 0;
+		this.last_scrollLeft	= 0;
+		this.last_selected		= '';
 		// -- submit search
 		this.openSearch(false);
 		this.items = [];
@@ -523,7 +484,11 @@ function jsList(name, box) {
 
 	function jsList_resize() {
 		if (!this.box) return;
-		// --
+		if (this.fixedSize) return;
+		// remember search field, beacuase HTML will be re-pasted
+		var els = this.box.ownerDocument.getElementById(this.name + '_search_all');
+		if (els) this.last_search = els.value;
+		// remove all innerHTML of the control and reinsert it
 		var tmpHTML = this.box.innerHTML;
 		this.box.innerHTML = '';
 		var height = parseInt(this.box.clientHeight);
@@ -534,65 +499,125 @@ function jsList(name, box) {
 		
 		// --
 		var el  = this.box.ownerDocument.getElementById('body_'+ this.name);
-		var el2 = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
-		//var el2 = this.box.ownerDocument.getElementById('mtbody_'+ this.name);
-		//var els = this.box.ownerDocument.getElementById('mtcell_'+ this.name);
+		var ehr  = this.box.ownerDocument.getElementById('header_'+ this.name);
+		var eto  = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
+		var efo  = this.box.ownerDocument.getElementById('footer_'+ this.name);
+		var els = this.box.ownerDocument.getElementById('hcell_'+ this.name);
+		var elm = this.box.ownerDocument.getElementById('mtable_'+ this.name);
+		var elh = this.box.ownerDocument.getElementById('htable_'+ this.name);
+		if (elh && elm) elh.scrollLeft = elm.scrollLeft;
+		
+		
+		// -- height of the _body
 		if (height > 0 && el) {
 			var newHeight = height 
 				- (this.showHeader ? 28 : 0) 
-				- (this.showFooter ? 25 : 0) 
-				- (this.toolbar != null ? 30 : 0) 
-				- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
+				- (this.showFooter ? 24 : 0) 
+				- (this.showToolbar ? 30 : 0) 
+				- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 7);
 			if (newHeight < 0 ) newHeight = 0;
 			el.style.height = newHeight + 'px';
 		}
+		// -- width of the _body
 		if (width > 0 && el) {
 			var newWidth = width 
 				- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
 			if (newWidth < 0) newWidth = 0;
 			// in FF4 - if width is set - it goes beyond borders
-			// el.style.width = newWidth + 'px';
-			// if (el2) el2.style.width = newWidth + 'px';
+			el.style.width = newWidth + 'px';
 		}
-		
-		// -- mtbody
-		/*
-		if (el2) el2.style.overflow = '';
-		if (el2 && parseInt(el2.clientHeight) > parseInt(el.clientHeight) && el.clientWidth > el2.clientWidth && 
-					(navigator.userAgent.toLowerCase().indexOf('chrome') == -1)) {
-			el2.style.overflow = 'auto';
-			el2.style.height   = height - 22
-				- (this.showHeader ? 27 : 0) 
-				- (this.showFooter ? 25 : 0) 
-				- (this.toolbar != null ? 30 : 0) 
-				- (document.all ? 0 : 4);
-			if (els) els.style.display = '';
-		} else {
-			if (els) els.style.display = 'none';
+
+		// -- height of records
+		if (elm) {
+			if (parseInt(elm.clientHeight) > parseInt(el.clientHeight)) {
+				bodyOverFlow = true;
+				el.style.overflow	= 'hidden';
+				elm.style.display  	= 'block';
+				elm.style.overflow 	= 'auto';
+				var newHeight = height - 23
+					- (this.showHeader ? 28 : 0) 
+					- (this.showFooter ? 24 : 0) 
+					- (this.showToolbar ? 30 : 0) 
+					- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
+				elm.style.height = newHeight + 'px';
+				els.style.display = '';
+			} else {
+				bodyOverFlow = false;
+				el.style.overflow	= 'auto';
+				els.style.display 	= 'none';
+				elm.style.display  	= '';
+				elm.style.overflow 	= '';
+			}
 		}
-		*/
+		// -- Calculate Column size in PX
+		var dbody = this.box.ownerDocument.getElementById('body_'+ this.name);
+		if (dbody) {
+			var width_max = parseInt(dbody.clientWidth) - (this.columns.length + 1) * 7
+				- (bodyOverFlow ? 14 : -3)
+				- (top.jsUtils.engine == 'WebKit' ? -2 : 0)
+				- (this.showRecNumber ? 24 : 0);
+			// assign PX columns
+			for (var i=0; i<this.columns.length; i++) {
+				var col = this.columns[i];
+				if (String(col.size).substr(String(col.size).length-2).toLowerCase() == 'px') {
+					width_max -= parseInt(col.size);
+					this.columns[i].calculatedSize = col.size;
+				}				
+			}
+			// calculate % columns
+			for (var i=0; i<this.columns.length; i++) {
+				var col = this.columns[i];
+				if (String(col.size).substr(String(col.size).length-2).toLowerCase() != 'px') {
+					this.columns[i].calculatedSize = (width_max * parseInt(col.size) / 100) + 'px';
+				}
+			}			
+		}
+		// resize HTML table
+		for (var i=0; i<this.columns.length; i++) {
+			var el = this.box.ownerDocument.getElementById(this.name+'_cell_header_'+ i);
+			if (el) el.firstChild.style.width = this.columns[i].calculatedSize;
+			for (var j=0; j<1000; j++) {
+				var el = this.box.ownerDocument.getElementById(this.name+'_cell_'+ j +'_'+ i);
+				if (!el) break;
+				el.firstChild.style.width = this.columns[i].calculatedSize;
+			}			
+		}
+		// apply last scroll if any
+		if (this.last_scroll != '' && elm) {
+			elm.scrollTop 	= this.last_scrollTop;
+			elm.scrollLeft 	= this.last_scrollLeft;
+			elh.scrollLeft 	= this.last_scrollLeft;
+		}
 	}
 
 	function jsList_refresh() {
 		if (!this.box) return;
 		this.showSearch = false;
 		
-		// CHANGING PART: generate records
+		// --- RECORDS
 		var bodyHTML = '';
 		if (this.layout == 'table') {
-		   bodyHTML += '<table id="mtable_'+ this.name + '" cellpadding="0" cellspacing="0" style="width: 100%" class="lstBody_tbl">\n'+
+		   bodyHTML +=  '<div id="htable_'+ this.name + '" style="overflow: hidden; display: block;">'+
+						'<table class="tbl-head" cellpadding="0" cellspacing="0" style="table-layout: fixed;">\n'+
 							this.getHeaders() +
+						'</table>'+
+						'</div>'+						
+						'<div id="mtable_'+ this.name + '" style="overflow: hidden; display: block; table-layout: fixed;" '+
+						'	onscroll="document.getElementById(\'htable_'+ this.name + '\').scrollLeft = this.scrollLeft">'+
+						'<table cellpadding="0" cellspacing="0" style="table-layout: fixed;">\n'+
 							this.getRecords() +
-						'</table>\n';
+						'</table>\n'+
+						'</div>';
 		}
 		if (this.layout == 'div') {
-		   bodyHTML += '<table id="mtable_'+ this.name + '" style="width: 100%" class="lstBody_tbl"><tr><td>\n'+
+		   bodyHTML += '<table id="mtable_'+ this.name + '" style="width: 100%"><tr><td>\n'+
 							this.tmpl_start +
 							this.getHeaders() +
 							this.getRecords() +
 							this.tmpl_end +
 					   '</td></tr></table>\n';
 		}
+		// --- FOOTER
 		var pages = this.getFooter();
 		if (!this.smallPageCount) {
 			var last = (this.page_num * this.items_pp + this.items_pp);
@@ -601,21 +626,23 @@ function jsList(name, box) {
 		} else {
 			pageCountDsp = this.page_num + 1;
 		}
-		
+		// -- Universal Search
 		if (String(this.srvParams['req_search-all']) == 'undefined') {
 			this.srvParams['req_search-all'] 	= '';
 			this.srvParams['req_search-fields'] = [];
 		}
-
-		// OTHER PART: output or regenerate
+		
+		// === REFRESH or OUTPUT
+		
 		if (this.box.ownerDocument.getElementById('body_'+ this.name)) {
+			// ---- REFRESH -----
 			// refresh Header
 			if (this.showHeader) {
 				el = this.box.ownerDocument.getElementById('title_'+ this.name);
 				if (el) el.innerHTML = this.header +'&nbsp;';
 				// controls
-				el = this.box.ownerDocument.getElementById('controls_'+ this.name);
-				if (el) el.innerHTML = this.getControls();
+				//el = this.box.ownerDocument.getElementById('controls_'+ this.name);
+				//if (el) el.innerHTML = this.getControls();
 			}
 			// refresh Footer
 			if (this.showFooter) {
@@ -627,11 +654,6 @@ function jsList(name, box) {
 			// refresh body
 			var body = this.box.ownerDocument.getElementById('body_'+ this.name);
 			body.innerHTML = bodyHTML;
-			// refresh toolbar if any
-			if (this.toolbar != null) {
-				// this.toolbar.box = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
-				// this.toolbar.output();
-			}
 			// make sure search is hidden
 			this.showSearch = false;
 			var el = this.box.ownerDocument.getElementById('searches_'+ this.name);
@@ -641,53 +663,56 @@ function jsList(name, box) {
 				el.parentNode.style.width = '1px';
 				if (el.shadow) el.shadow.style.display = 'none';
 			}
-		} else {
+			// call resize
+			this.resize();
+			
+		} else { // ---- OUTPUT -----			
 			// output entire thing
-			html =  '<div id="list_'+ this.name +'" class="lst_div" style="'+ this.style_list +'">';
+			html =  '<div id="list_'+ this.name +'" class="w20-list" style="'+ this.style_list +'">';
 			// generate header
 			if (this.showHeader) {
-				html += '<div id="header_'+ this.name +'" class="lstHeader_div" style="width: 100%; margin: 0px; padding: 0px; border: 0; height: 28px; overflow: hidden; '+ this.style_header +'">\n'+
-						'   <table cellpadding=0 cellspacing=1 style="width: 100%; height: 28px;" class="lstHeader_tbl"><tr>\n'+
-						'       <td id="title_td1_'+ this.name + '" style="padding-left: 5px; padding-top: 0px; width: 95%" class="lstHeader_td1">'+ 
-						'		   <span ondblclick="top.elements.'+ this.name +'.getData()" id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
+				html += '<div id="header_'+ this.name +'" class="list_header" style="width: 100%; margin: 0px; padding: 0px; border: 0; height: 28px; overflow: hidden; '+ this.style_header +'">\n'+
+						'   <table class="header" cellpadding=0 cellspacing=1 style="width: 100%; height: 28px;"><tr>\n'+
+						'       <td id="title_td1_'+ this.name + '" style="padding-left: 5px; padding-top: 0px; width: 95%">'+ 
+						'		   <span ondblclick="top.elements.'+ this.name +'.getData(); top.elements.'+ this.name +'.resize();" id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
 								   (this.searchFields.length && !this.showToolbar != 0 ? 
 										'<span class="rText" id="searchLink_'+ this.name +'"> - <a href="javascript: top.elements[\''+ this.name +'\'].openSearch();">Search</a></span>' 
 									  : '') +
 						'		   <span style="display: none; font-size: 11px;" id="clearSearchLink_'+ this.name +'"> - '+
 						'				<img style="position: absolute;" src="'+ top.jsUtils.sys_path +'/includes/silk/icons/cross.png">'+
-						'				<span style="padding-left: 17px;"></span>'+
+						'				<span style="padding-left: 18px;"></span>'+
 						'				<a href="javascript: var obj = top.elements[\''+ this.name +'\']; obj.clearSearch(); obj.submitSearch();">Clear Search</a></span>'+
-						'		   <span style="font-variant: normal; font-size: 10px; font-family: verdana; padding: 3px; margin-left: 5px; width: auto;  display: none; background-color: red; color: white;" id="status_'+ this.name + '"></span>'+
+						(!this.showToolbar ? ' <span class="status" style="display: none" id="status_'+ this.name + '"></span>' : '') +
 						'       </td>\n'+
-						'       <td align="right" style=" padding-top: 0px; width: 5%;" class="lstHeader_td2" id="controls_'+ this.name +'" nowrap="nowrap">'+ this.getControls() +'</td>\n'+
+						'       <td align="right" style=" padding-top: 0px; width: 5%;" id="controls_'+ this.name +'" nowrap="nowrap">'+ this.getControls() +'</td>\n'+
 						'   </tr></table>\n'+
 						'</div>\n';
 			}
 			if (this.toolbar != null || this.showToolbar) {
-				html += '<div id="toolbar_'+ this.name +'" class="lstToolbar" style=""></div>';
+				html += '<div id="toolbar_'+ this.name +'" class="list_toolbar" style="height: 30px;"></div>';
 			}
 			html +=	'<div style="position: relative">'+
 					'	<div style="margin-left: 22px; position: absolute; overflow: hidden; z-index: 100;">'+
-					'	<div id="searches_'+ this.name +'" class="lstSearch_div" style="display: none; position: absolute; z-index: 100;">'+
+					'	<div id="searches_'+ this.name +'" class="list_search" style="display: none; position: absolute; z-index: 100;">'+
 							this.getSearches() +
 					'	</div>'+
 					'	</div>'+
 					'</div>';
-			html += '<div id="body_'+ this.name +'" class="lstBody_div" style="height: 250px; overflow: auto; '+ this.style_body +'">\n';
-
-			html += bodyHTML + '</div>\n';
+			html += '<div id="body_'+ this.name +'" class="list_body" style="overflow: auto;'+ this.style_body +'">\n'+
+					bodyHTML + '</div>\n';
+					
 			// generate footer
 			if (this.showFooter) {
-				html += '<div id="footer_'+ this.name +'" class="lstFooter_div" style="height: 24px; overflow: hidden; '+ this.style_footer +'">\n'+
-						'   <table cellpadding=0 cellspacing=1 style="height: 24px; width: 100%" class="lstFooter_tbl"><tr>\n'+
-						'       <td id="footerL_'+ this.name +'" style="width: 70%" nowrap="nowrap" class="lstFooter_td1">'+ pages +'</td>\n'+
-						'       <td id="footerR_'+ this.name +'" style="width: 30%" nowrap="nowrap" align=right class="lstFooter_td2">'+
+				html += '<div id="footer_'+ this.name +'" class="list_footer" style="height: 24px; overflow: hidden; '+ this.style_footer +'">\n'+
+						'   <table cellpadding=0 cellspacing=0 style="height: 24px; width: 100%"><tr>\n'+
+						'       <td id="footerL_'+ this.name +'" style="width: 70%" nowrap="nowrap">'+ pages +'</td>\n'+
+						'       <td id="footerR_'+ this.name +'" style="width: 30%" nowrap="nowrap" align=right>'+
 						'			<table cellpadding=0 cellspacing=0><tr><td>'+ this.getFilters() +'</td><td>'+ pageCountDsp +'</td></tr></table>'+
 						'		</td>\n'+
 						'   </tr></table>'+
 						'</div>';
 			}
-
+ 
 			html += '</div>';
 			this.box.innerHTML = html;
 			// init toolbar
@@ -698,15 +723,16 @@ function jsList(name, box) {
 					top.elements[this.name + '_toolbar'] = null;
 					this.toolbar = new top.jsToolBar(this.name +'_toolbar', null);
 					this.toolbar.addHTML('<table cellpadding=2 cellspacing=0><tr>'+
-						'	<td><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/magnifier.png"></td>'+
+						'	<td><img ondblclick="top.elements.'+ this.name +'.getData(); top.elements.'+ this.name +'.resize();" src="'+ top.jsUtils.sys_path +'/includes/silk/icons/magnifier.png"></td>'+
 						'	<td><input id="'+ this.name +'_search_all" value="'+ (String(this.srvParams['req_search-all']) != '' ? this.srvParams['req_search-all'] : '') +'"'+
-						'			style="font-size: 11px; font-family: verdana; border: 1px solid silver; padding: 2px; margin: 0px;" '+
+						'			style="font-size: 11px; font-family: verdana; border: 1px solid silver; padding: 3px; margin: 0px;" '+
 						'			onkeyup=\'if (this.timer > 0) clearTimeout(this.timer);	top.el = this; '+
 						'					  this.timer = setTimeout("top.elements.'+ this.name +'.searchAll(top.el.value)", 300);\'></td>'+
 						'</tr></table>');
 					this.toolbar.addButton('Advanced', top.jsUtils.sys_path +'/includes/silk/icons/magnifier_zoom_in.png', 
 						new Function("top.elements['"+ this.name +"'].openSearch();"), 'Advanced Search');
 					this.getControls();
+					this.toolbar.rightHTML = '<span class="list_status" style="display: none" id="status_'+ this.name + '"></span>';
 				}
 			}
 			// refresh toolbar if any
@@ -716,13 +742,24 @@ function jsList(name, box) {
 			}
 			this.resize();
 		}
+		// select last selected record
+		if (this.last_selected != '' && this.getItem(this.last_selected)) {
+			this.selectItem(this.getItem(this.last_selected).ind, true);
+		}
 		// show/hide clear search link
 		var el = this.box.ownerDocument.getElementById('clearSearchLink_'+ this.name);
-		if (el) if (this.searchFlag || this.srvParams['req_search-all'] != '') {
-			el.style.display = ''; 
+		if (this.searchFlag || this.srvParams['req_search-all'] != '') {
+			if (el) el.style.display = ''; 
 		} else {
-			el.style.display = 'none';	
-		}		
+			if (el) el.style.display = 'none';	
+		}
+		// universal search
+		var us = this.box.ownerDocument.getElementById(this.name +'_search_all'); 
+		if (us) {
+			if (String(this.last_search) != 'undefined') us.value = this.last_search;
+			us.focus();
+		}
+		// call user event if any
 		if (this.onRefresh) this.onRefresh();
 	}
 
@@ -741,15 +778,15 @@ function jsList(name, box) {
 					this.searchFields[ind].index    = ind;
 					this.searchFields[ind].prefix   = this.name;
 					this.searchFields[ind].owner    = this;
-					this.searchFields[ind].td1Class = 'lstSearch_caption';
-					this.searchFields[ind].td2Class = 'lstSearch_value';
+					this.searchFields[ind].td1Class = 'caption';
+					this.searchFields[ind].td2Class = 'value';
 					this.searchFields[ind].inTag   = ' onkeyup="if (event.keyCode == 13) { obj = top.elements[\''+ this.name +'\']; if (obj) { obj.submitSearch(); } }" '+ this.searchFields[ind].inTag;
 				}
 			}		
 		}
 		// fill search lists if any
 		for (var i = 0; i < this.searchFields.length; i++) {
-			fld = this.searchFields[i];
+			var fld = this.searchFields[i];
 			if (String(fld.type).toUpperCase() == 'LIST' && !fld.items) {
 				this.getList(fld);
 				flag = true;
@@ -801,7 +838,6 @@ function jsList(name, box) {
 							new Function("top.elements['"+ this.name +"'].serverCall('"+ cnt.param +"');"), cnt.caption);
 						break;
 					case 'button':
-					case 'custom':
 					case 'link':
 						this.toolbar.addButton(cnt.caption, cnt.img, new Function(cnt.param), cnt.caption);
 						break;
@@ -841,6 +877,7 @@ function jsList(name, box) {
 						tmp += '</table>';
 						var but = this.toolbar.addDrop(cnt.caption, cnt.img, null, cnt.caption, tmp);
 						break;
+					case 'custom':
 					default:
 						this.toolbar.addHTML(cnt.caption + cnt.param);
 				}
@@ -862,7 +899,7 @@ function jsList(name, box) {
 				switch (String(cnt.type).toLowerCase()) {
 					case 'add':
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
-							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 							   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/add.png"></td>'+
 							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px">'+
 							   '	<a style="padding-right: 5px; cursor: pointer; font-weight: bold" id="'+ this.name +'_control'+ i + '" class="rText" '+
@@ -872,7 +909,7 @@ function jsList(name, box) {
 						break;
 					case 'delete':
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
-							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 							   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/delete.png"></td>'+
 							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" '+
 							   '	id="'+ this.name +'_control'+ i + '" class="rText" onclick="top.elements[\''+ this.name +'\'].delRecords();" '+ cnt.param +'>'+ cnt.caption + '</a></td>'+
@@ -880,7 +917,7 @@ function jsList(name, box) {
 						break;
 					case 'save':
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
-							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 							   '<td style="padding-left:3px;"><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/accept.png"></td>'+
 							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" '+
 							   '	id="'+ this.name +'_control'+ i + '" class="rText" onclick="top.elements[\''+ this.name +'\'].saveData();" '+ cnt.param +'>'+ cnt.caption + '</a></td>'+
@@ -888,7 +925,7 @@ function jsList(name, box) {
 						break;
 					case 'server':
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
-							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
 							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" '+
 							   '	id="'+ this.name +'_control'+ i + '" class="rText" onclick="top.elements[\''+ this.name +'\'].serverCall(\''+ cnt.param +'\');">'+ cnt.caption + '</a></td>'+
@@ -901,7 +938,7 @@ function jsList(name, box) {
 						break;
 					case 'link':
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
-							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
 							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;"><a style="padding-right: 5px; cursor: pointer; font-weight: bold" '+
 							   '	id="'+ this.name +'_control'+ i + '" href="'+ cnt.param + '">'+ cnt.caption + '</a></td>'+
@@ -909,7 +946,7 @@ function jsList(name, box) {
 						break;
 					case 'custom':
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
-							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
 							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ cnt.caption + '</td>'+
 							   '</tr></table></div>';
@@ -919,7 +956,7 @@ function jsList(name, box) {
 							   '<span style="color: gray">|</span> '+
 							   '<a href="javascript: top.elements[\''+ this.name +'\'].selectNone()">None</a>&nbsp;';
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
-							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
 							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ tmp + '</td>'+
 							   '</tr></table></div>';
@@ -937,7 +974,7 @@ function jsList(name, box) {
 							}
 						}
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
-							   '<table cellpadding=0 cellspacing=0 class="lstButton"><tr>'+
+							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
 							   (cnt.img != '' ? '<td style="padding-left:3px;"><img src="'+ cnt.img +'"></td>' : '')+
 							   '<td nowrap style="padding: 2px; padding-bottom: 1px; padding-left: 5px;">'+ tmp + '</td>'+
 							   '</tr></table></div>';
@@ -968,7 +1005,7 @@ function jsList(name, box) {
 
 	function jsList_getSearches() {
 		html = '';
-		html = '<table cellspacing="0" cellpadding="2" class="lstSearch_tbl">';
+		html = '<table cellspacing="0" cellpadding="2">';
 		for (var i = 0; i < this.searchFields.length; i++) {
 			btn = '';
 			if (i == 0) btn = '<input type="button" value="X" class="rButton" onclick="obj = top.elements[\''+ this.name +'\']; if (obj) { obj.openSearch(false); }" style="width: 22px; text-align: center;">';
@@ -978,9 +1015,9 @@ function jsList(name, box) {
 					'</tr>';
 		}
 		html += '<tr>'+
-				'	<td colspan="2" class="lstSearch_caption"></td>'+
-				'	<td class="lstSearch_caption" style="border-right: 0px"></td>'+
-				'	<td colspan="2" class="lstSearch_value" style="padding-top: 10px; padding-bottom: 6px;" nowrap>'+
+				'	<td colspan="2" class="caption"></td>'+
+				'	<td class="caption" style="border-right: 0px"></td>'+
+				'	<td colspan="2" class="value" style="padding-top: 10px; padding-bottom: 6px;" nowrap>'+
 				'		<input type="button" onclick="obj = top.elements[\''+ this.name +'\']; if (obj) { obj.submitSearch(); }" style="width: 70px" class="rButton" value="Search">'+
 				'		<input type="button" onclick="obj = top.elements[\''+ this.name +'\']; if (obj) { obj.clearSearch(); obj.submitSearch(); }" style="width: 70px" class="rButton" value="Clear">'+
 				'	</td>'+
@@ -991,6 +1028,11 @@ function jsList(name, box) {
 	function jsList_showPage(newPage) {
 		if (newPage < 0) newPage = 0;
 		if (newPage > this.page_count) newPage = this.page_count-1;
+		// reset scrolling position
+		this.last_scrollTop		= 0;
+		this.last_scrollLeft	= 0;
+		this.last_selected		= '';
+		// refresh items
 		this.items = [];  
 		this.refresh(); 
 		this.page_num = newPage; 
@@ -1033,9 +1075,9 @@ function jsList(name, box) {
 		}
 		if (!this.smallPageNav) {
 			for (i=1; i<=istart; i++) {
-				if (i == this.page_num+1) { cName = 'lstFooter_current_page'; } else { cName = 'lstFooter_page'; }
+				if (i == this.page_num+1) { cName = 'page_current'; } else { cName = 'page_normal'; }
 				pages += '<div class="'+ cName +'" style="float: left; cursor: pointer;" '+
-						 '  onmouseover = "this.className = \'lstFooter_selected_page\';" '+
+						 '  onmouseover = "this.className = \'page_selected\';" '+
 						 '  onmouseout  = "this.className = \''+ cName +'\';" '+
 						 '	onclick = "top.elements[\''+ this.name +'\'].showPage('+ (i-1) +')"'+
 						 '>' + i + '</div>';
@@ -1054,15 +1096,16 @@ function jsList(name, box) {
 	}
 
 	function jsList_getHeaders() {
-		html = '';
+		var html = '';
 		switch (this.layout) {
 			case 'table':
-				if (this.showTabHeader) {
-					html += '<thead id="mthead_'+ this.name +'"><tr>';
-					if (this.showTabNumber) html += '<td id="'+ this.name +'_cell_header_number" class="lstBody_head" width="18px" style="cursor: default;">'+
-													'	<div class="lstBody_number" style="width: 18px; overflow: hidden; text-align: left;">#</div>'+
-													'</td>';
-					for (i=0; i<this.columns.length; i++) {
+				if (this.showRecHeader) {
+					html += '<tr>';
+					if (this.showRecNumber) {
+						html += '<td id="'+ this.name +'_cell_header_number" class="head number" style="border-bottom: 0px">'+
+								'<div style="cursor: default; overflow: hidden; width: 22px;">#</div></td>';
+					}
+					for (var i=0; i<this.columns.length; i++) {
 						var col = this.columns[i];
 						if (this.sortBy[i] && this.sortBy[i] != '') {
 							if (this.sortBy[i].indexOf('ASC') > 0) img = 'sort_down.png'; else img = 'sort_up.png';
@@ -1070,14 +1113,14 @@ function jsList(name, box) {
 						} else {
 							sortStyle = '';
 						}
-						html += '<td id="'+ this.name +'_cell_header_'+ i +'" onclick="top.elements[\''+ this.name +'\'].columnClick('+ i +', event);" class="lstBody_head" width="'+ col.size +'" '+
-								'		style="'+ sortStyle +'cursor: default;" nowrap="nowrap">'+
-								'<div style="overflow: hidden; padding: 2px;">'+ col.caption +'</div>'+
-								'</td>';
+						html += '<td id="'+ this.name +'_cell_header_'+ i +'" class="head" '+
+								'		onclick="top.elements[\''+ this.name +'\'].columnClick('+ i +', event);" '+
+								'		style="'+ sortStyle +'">'+ 
+								'<div style="cursor: default; width: '+ col.calculatedSize +'; overflow: hidden;">'+ col.caption +'<div></td>';
 					}
-					//html += '<td id="mtcell_'+ this.name +'" class="lstBody_head" style="padding-left: 10px; border-left: 0px;">&nbsp;</td>';
-					html += '</tr></thead>';
-				} else {
+					html += '<td id="hcell_'+ this.name +'" class="head" style="border-right: 0px; display: none;">'+
+							'	<div style="width: 16px; overflow: hidden;">&nbsp;</div></td>';
+					html += '</tr>';
 				}
 				break;
 			case 'div':
@@ -1087,10 +1130,10 @@ function jsList(name, box) {
 	}
 
 	function jsList_getRecords() {
-		html = '';
+		var html = '';
 		switch (this.layout) {
 			case 'table':
-				html += '<tbody id="mtbody_'+ this.name + '">';
+				html += '';
 				for (i=0; i<this.items_pp; i++) {
 					// empty line
 					if (!this.items[i]) { continue; }
@@ -1103,29 +1146,31 @@ function jsList(name, box) {
 						if (tmp_colors[1] != '') tmp_color += 'background-color: '+ tmp_colors[1] + ';';
 					}
 					if (this.items[i].selected) {
-						html += '<tr id="'+ this.name +'_line_'+ i +'" class="lstBody_selected" ' +
+						html += '<tr id="'+ this.name +'_line_'+ i +'" class="selected" ' +
 								'    onclick     = "top.elements[\''+ this.name +'\'].lstClick('+ i +', event);" '+
 								'    ondblclick  = "top.elements[\''+ this.name +'\'].lstDblClick('+ i +', event);" '+
-								'    onmouseup = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
+								//'    onmouseup = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
 								//'    onmousemove = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
 								'	 custom_style="'+ tmp_color +'"'+
 								'>';
 					} else {
-						html += '<tr id="'+ this.name +'_line_'+ i +'" class="'+ (i%2 == 0 ? 'lstBody_odd' : 'lstBody_even') + '" ' + 
-								'    onmouseover = "if (this.getAttribute(\'selected\') == \'yes\') { return; } this.className = \''+ (i%2 == 0 ? 'lstBody_odd_hover' : 'lstBody_even_hover') + '\'; this.style.cssText = \'\';" '+
-								'    onmouseout  = "if (this.getAttribute(\'selected\') == \'yes\') { return; } this.className = \''+ (i%2 == 0 ? 'lstBody_odd' : 'lstBody_even') + '\'; this.style.cssText = \''+ tmp_color +'\';" '+
+						html += '<tr id="'+ this.name +'_line_'+ i +'" class="'+ (i%2 == 0 ? 'odd' : 'even') + '" ' + 
+								'    onmouseover = "if (this.getAttribute(\'selected\') == \'yes\') { return; } this.className = \''+ (i%2 == 0 ? 'odd_hover' : 'even_hover') + '\'; this.style.cssText = \'\';" '+
+								'    onmouseout  = "if (this.getAttribute(\'selected\') == \'yes\') { return; } this.className = \''+ (i%2 == 0 ? 'odd' : 'even') + '\'; this.style.cssText = \''+ tmp_color +'\';" '+
 								'    onclick     = "top.elements[\''+ this.name +'\'].lstClick('+ i +', event);" '+
 								'    ondblclick  = "top.elements[\''+ this.name +'\'].lstDblClick('+ i +', event);" '+
-								'    onmouseup = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
+								//'    onmouseup = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
 								//'    onmousemove = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
 								'	 custom_style="'+ tmp_color +'"'+
 								'	 style="'+ tmp_color +'"'+
 								'>';
 					}
-					num = (parseInt(this.page_num) * parseInt(this.items_pp)) + parseInt(i+1);
-					if (this.showTabNumber) html += '<td id="'+ this.name +'_cell_'+ i +'_number" width="20px" class="lstBody_head" style="padding-left: 0px;">'+
-													'	<div class="lstBody_number" style="width: 20px; overflow: hidden; text-align: left; padding-left: 0px;">'+ num +'</div>'+
-													'</td>';
+					var num = (parseInt(this.page_num) * parseInt(this.items_pp)) + parseInt(i+1);
+					if (this.showRecNumber) {
+						html += '<td id="'+ this.name +'_cell_'+ i +'_number" class="head number">'+
+								'	<div style="width: 22px; cursor: pointer; overflow: hidden;">'+ num +'</div>'+
+								'</td>';
+					}
 					j = 0;
 					while (true) {
 						var col = this.columns[j];
@@ -1145,10 +1190,7 @@ function jsList(name, box) {
 								break;
 						}
 						// prepare cell
-						if (this.editable[j] != undefined) { cellPadding = 0; }
-													  else { cellPadding = this.tblPadding; }
-						html += '<td valign=top id="'+ this.name +'_cell_'+ i +'_'+ j +'" class="lstBody_td" width="'+ col.size +'" '+
-								'style="cursor: default;" '+ col.attr +'>';
+						html += '<td valign=top id="'+ this.name +'_cell_'+ i +'_'+ j +'" style="cursor: default; " '+ col.attr +'>';
 						if (this.fixed) {
 							// this is for editable controls
 							tmp = String(this.editable[j]).split('::');
@@ -1158,7 +1200,7 @@ function jsList(name, box) {
 									if (!ttmp[1]) ttmp[1] = '';
 									if (ttmp[0] != tmp[2]) {
 										html +=	'<input id="'+ this.name +'_edit_'+ i +'_'+ j +'" class="rText" type="text" '+
-												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0; padding: '+ (this.tblPadding-2) +'; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
+												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
 												'	oldvalue="'+ printItem +'" value="'+ printItem +'" '+
 												'	onclick="this.select(); this.focus();"'+
 												'	onkeyup="if (event.keyCode == 40 || event.keyCode == 13) { el = document.getElementById(\''+ this.name +'_edit_'+ (i+1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } '+
@@ -1167,7 +1209,7 @@ function jsList(name, box) {
 												'	onblur="if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ffffb2\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +' } else { this.style.backgroundColor = \'white\'; }"'+
 												'>';
 									} else {
-										html +=	'<div style="overflow: hidden; '+ this.divStyle + '">'+ ttmp[1] +'</div>';
+										html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ ttmp[1] +'</div>';
 									}
 									break;
 								case 'INT':
@@ -1175,7 +1217,7 @@ function jsList(name, box) {
 									if (!ttmp[1]) ttmp[1] = '';
 									if (ttmp[0] != tmp[2]) {
 										html +=	'<input id="'+ this.name +'_edit_'+ i +'_'+ j +'" class="rText" type="text" '+
-												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0; padding: '+ (this.tblPadding-2) +'; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
+												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0;'+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
 												'	oldvalue="'+ printItem +'" value="'+ printItem +'" '+
 												'	onclick="this.select(); this.focus();"'+
 												'	onkeyup="if (event.keyCode == 40 || event.keyCode == 13) { el = document.getElementById(\''+ this.name +'_edit_'+ (i+1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } '+
@@ -1184,7 +1226,7 @@ function jsList(name, box) {
 												'	onblur="if (!top.jsUtils.isInt(this.value)) { this.value = this.getAttribute(\'oldvalue\'); } if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ffffb2\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +' } else { this.style.backgroundColor = \'white\'; }"'+
 												'>';
 									} else {
-										html +=	'<div style="overflow: hidden; '+ this.divStyle + '">'+ ttmp[1] +'</div>';
+										html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ ttmp[1] +'</div>';
 									}
 									break;
 								case 'FLOAT':
@@ -1192,7 +1234,7 @@ function jsList(name, box) {
 									if (!ttmp[1]) ttmp[1] = '';
 									if (ttmp[0] != tmp[2]) {
 										html +=	'<input id="'+ this.name +'_edit_'+ i +'_'+ j +'" class="rText" type="text" '+
-												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0; padding: '+ (this.tblPadding-2) +'; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
+												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
 												'	oldvalue="'+ printItem +'" value="'+ printItem +'" '+
 												'	onclick="this.select(); this.focus();"'+
 												'	onkeyup="if (event.keyCode == 40 || event.keyCode == 13) { el = document.getElementById(\''+ this.name +'_edit_'+ (i+1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } '+
@@ -1201,16 +1243,15 @@ function jsList(name, box) {
 												'	onblur="if (!top.jsUtils.isFloat(this.value)) { this.value = this.getAttribute(\'oldvalue\'); } if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ffffb2\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +'} else { this.style.backgroundColor = \'white\'; }"'+
 												'';
 									} else {
-										html +=	'<div style="overflow: hidden; '+ this.divStyle + '">'+ ttmp[1] +'</div>';
+										html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ ttmp[1] +'</div>';
 									}
 									break;
 								default:
-									html +=	'<div style="overflow: hidden; '+ this.divStyle + '" '+
-											' onmouseover="if (this.title == \'\' ) { if (top.jsUtils.stripTags) this.title = top.jsUtils.stripTags(this.innerHTML);} ">'+ printItem +'</div>';
+									html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ printItem +'</div>';
 									break;
 							}
 						} else {
-							html +=	'<div style="padding: '+ this.tblPadding +';">' + printItem + '</div>';
+							html +=	'<div style="width: '+ col.calculatedSize +'; height: auto; overflow: visible;">'+ printItem +'</div>';
 						}
 						html += '</td>';
 						j++;
@@ -1219,7 +1260,6 @@ function jsList(name, box) {
 					}
 					html += '</tr>';
 				}
-				html += '</tbody>';
 				break;
 
 			case 'div':
@@ -1231,8 +1271,8 @@ function jsList(name, box) {
 					var tmp  = this.tmpl_group;
 					while (tmp.indexOf('~field0~') > 0) { tmp = tmp.replace('~field0~', this.items[i].id); }
 					while (tmp.indexOf('~FIELD0~') > 0) { tmp = tmp.replace('~FIELD0~', this.items[i].id); }
-					while (tmp.indexOf('~class~') > 0)  { tmp = tmp.replace('~class~', (i % 2 == 0 ? 'lstBody_odd' : 'lstBody_even')); }
-					while (tmp.indexOf('~CLASS~') > 0)  { tmp = tmp.replace('~CLASS~', (i % 2 == 0 ? 'lstBody_odd' : 'lstBody_even')); }
+					while (tmp.indexOf('~class~') > 0)  { tmp = tmp.replace('~class~', (i % 2 == 0 ? 'odd' : 'even')); }
+					while (tmp.indexOf('~CLASS~') > 0)  { tmp = tmp.replace('~CLASS~', (i % 2 == 0 ? 'odd' : 'even')); }
 					for (var k=0; k<item.length; k++) {
 						while (tmp.indexOf('~field'+(k+1)+'~') > 0) { tmp = tmp.replace('~field'+(k+1)+'~', item[k]); }
 						while (tmp.indexOf('~FIELD'+(k+1)+'~') > 0) { tmp = tmp.replace('~FIELD'+(k+1)+'~', item[k]); }
@@ -1242,8 +1282,8 @@ function jsList(name, box) {
 					var tmp  = this.tmpl;
 					while (tmp.indexOf('~field0~') > 0) { tmp = tmp.replace('~field0~', this.items[i].id); }
 					while (tmp.indexOf('~FIELD0~') > 0) { tmp = tmp.replace('~FIELD0~', this.items[i].id); }
-					while (tmp.indexOf('~class~') > 0)  { tmp = tmp.replace('~class~', (i % 2 == 0 ? 'lstBody_odd' : 'lstBody_even')); }
-					while (tmp.indexOf('~CLASS~') > 0)  { tmp = tmp.replace('~CLASS~', (i % 2 == 0 ? 'lstBody_odd' : 'lstBody_even')); }
+					while (tmp.indexOf('~class~') > 0)  { tmp = tmp.replace('~class~', (i % 2 == 0 ? 'odd' : 'even')); }
+					while (tmp.indexOf('~CLASS~') > 0)  { tmp = tmp.replace('~CLASS~', (i % 2 == 0 ? 'odd' : 'even')); }
 					for (var k=0; k<item.length; k++) {
 						while (tmp.indexOf('~field'+(k+1)+'~') > 0) { tmp = tmp.replace('~field'+(k+1)+'~', item[k]); }
 						while (tmp.indexOf('~FIELD'+(k+1)+'~') > 0) { tmp = tmp.replace('~FIELD'+(k+1)+'~', item[k]); }
@@ -1258,38 +1298,47 @@ function jsList(name, box) {
 	function jsList_lstClick(ind, evnt) {
 		if (!this.box) return;
 		if (this.showSearch) this.openSearch(false); // show search if it is open
-		if (document.all) this.box.ownerDocument.selection.empty(); else window.getSelection().removeAllRanges();
 		if (this.onClick) {
 			fl = this.onClick(this.items[ind].id, evnt);
 			if (fl === false) return;
 		}
 		// clear other if necessary
 		if (!evnt.ctrlKey && !evnt.shiftKey) {
-			for (i=0; i<this.items.length; i++) { this.items[i].select(false); }
-		}
+			for (var i=0; i<this.items.length; i++) { this.selectItem(i, false); }
+		} else {
+			// clear selection on screen
+			window.setTimeout("if (document.all) this.box.ownerDocument.selection.empty(); else window.getSelection().removeAllRanges();", 100);
+		}		
 		if (evnt.shiftKey) {
 			var cnt = 0; var firsti = null;
-			for (i=0; i<this.items.length; i++) { if (this.items[i].selected) { cnt++; if (!firsti) firsti = i; } }
+			for (var i=0; i<this.items.length; i++) { if (this.items[i].selected) { cnt++; if (!firsti) firsti = i; } }
 			if (cnt >  1) {
-				for (i=0; i<this.items.length; i++) { this.items[i].select(false); }
+				for (i=0; i<this.items.length; i++) { this.selectItem(i, false); }
 				//this.refresh();
 			}
 			if (cnt == 1) {
 				if (ind > firsti) {
-					for (i=firsti; i<=ind; i++) { this.items[i].select(true); }
+					for (i=firsti; i<=ind; i++) { this.selectItem(i, true); }
 				} else {
-					for (i=ind; i<=firsti; i++) { this.items[i].select(true); }
+					for (i=ind; i<=firsti; i++) { this.selectItem(i, true); }
 				}
 				//this.refresh();
 				return;
 			}
 		}
 		// select new
-		if (this.items[ind]) this.items[ind].select();
+		if (this.items[ind]) this.selectItem(ind);
 	}
 
 	function jsList_lstDblClick(ind, evnt) {
 		if (!this.box) return;
+		// remember last scroll if any
+		var elm = this.box.ownerDocument.getElementById('mtable_'+ this.name);
+		if (elm) {
+			this.last_scrollTop  = elm.scrollTop;
+			this.last_scrollLeft = elm.scrollLeft;
+			this.last_selected	 = this.getSelected();
+		}
 		// if it is a function or a command
 		if (typeof(this.onDblClick) == 'function') {
 			if (this.items[ind]) {
@@ -1341,18 +1390,40 @@ function jsList(name, box) {
 		this.getData();
 	}
 	
+	function jsList_selectItem(i, flag) {
+		if (flag != undefined && flag != null) this.items[i].selected = !flag;
+		// select new
+		if (this.items[i].selected) {
+			this.items[i].selected = false;
+			el = this.box.ownerDocument.getElementById(this.name +'_line_'+ this.items[i].ind);
+			if (el) {
+				el.style.cssText = el.getAttribute('custom_style');
+				el.className = (this.items[i].ind % 2 == 0 ? 'odd' : 'even');
+				el.setAttribute('selected', 'no');
+			}
+		} else {
+			this.items[i].selected = true;
+			el = this.box.ownerDocument.getElementById(this.name +'_line_'+ this.items[i].ind);
+			if (el) {
+				el.style.cssText = '';
+				el.className = 'selected';
+				el.setAttribute('selected', 'yes');
+			}
+		}
+	}	
+	
 	function jsList_selectAll() {
-		for (var i=0; i<this.items.length; i++) { this.items[i].select(true); }
+		for (var i=0; i<this.items.length; i++) { this.selectItem(i, true); }
 	}
 
 	function jsList_selectNone() {
-		for (var i=0; i<this.items.length; i++) { this.items[i].select(false); }
+		for (var i=0; i<this.items.length; i++) { this.selectItem(i, false); }
 	}
 
 	function jsList_getSelected(sep) {
 		if (!sep) sep = ',';
-		recs = '';
-		for (i=0; i<this.items.length; i++) {
+		var recs = '';
+		for (var i=0; i<this.items.length; i++) {
 			if (this.items[i].selected) recs += this.items[i].id + sep;
 		}
 		if (recs.length > 0 && recs.substr(recs.length-sep.length) == sep) recs = recs.substr(0, recs.length-sep.length);
@@ -1434,7 +1505,7 @@ function jsList(name, box) {
 		param['req_sort']    = (this.sortBy.length != 0 ? this.sortBy : '');
 		// add passed params
 		if (typeof(params) == 'object') {
-			for(p in params) { param[p] = params[p]; }
+			for(var p in params) { param[p] = params[p]; }
 		} else {
 			if (params != undefined && params != '') {
 				var tmp = params.split(';;');

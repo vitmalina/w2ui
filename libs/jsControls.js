@@ -19,6 +19,9 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
     this.td1Class   = 'fieldTitle';
     this.td2Class   = 'fieldControl';
 	this.onSelect   = ''; // used for LOOKUP field for now
+	this.index;
+	this.prefix;
+	this.owner;
 
     this.param;  	// parameter of the control, such as OPTIONS from the list page
     this.items;  	// if it is not null, it will be used to build the list
@@ -131,7 +134,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'" valign=top> ';
 				}
 				this.html += '	<textarea id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
-							 '			class="rText rInput rTextArea" type="text" value="'+ tmpValue +'" '+ this.inTag +'></textarea>'+ 
+							 '			class="rText rInput rTextArea" type="text" '+ this.inTag +'>'+ tmpValue +'</textarea>'+ 
 							 (this.outTag != '' ? this.outTag : '')+
 							 '</td>\n';
 				break;
@@ -149,7 +152,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 							 '			class="rHTMLArea" type="text" value="'+ tmpValue +'" '+ this.inTag +'>'+
 							 '	</div>'+ 
 							 '	<textarea id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
-							 '			style="display: none" value="'+ tmpValue +'"></textarea>'+
+							 '			style="display: none">'+ tmpValue +'</textarea>'+
 							 (this.outTag != '' ? this.outTag : '')+
 							 '</td>\n';
 				break;
@@ -271,7 +274,8 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 					for (it=0; it<this.items.length; it++) {
 						itt = this.items[it];
 						tmp = itt.split('::');
-						this.param += '<option value="'+ tmp[0] + '" '+ tmp[2] +'>' + tmp[1] + '</option>';
+						this.param += '<option value="'+ tmp[0] +'" '+ tmp[2] +' '+ (tmp[0] == tmpValue ? 'selected' : '') +'>'+ 
+									  tmp[1] +'</option>';
 					}
 				}
 				if (this.caption != '') {
@@ -324,7 +328,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 						this.param += '<td style="padding-top: 0px; padding-bottom: 2px;">'+
 									  '	<input tabindex=-1 type=radio name="'+ this.prefix + '_field' +  this.index +'_radio" id="'+ this.prefix +'_field'+ this.index +'_radio'+ it +'" value="'+ tmp[0] + '" '+ dch +' '+ tmp[2] +
 									  ' 	onclick="document.getElementById(\''+ this.prefix + '_field' +  this.index +'\').value = this.value;'+
-									  '				 if (el.onchange) el.onchange();">'+
+									  '				 if (el) if (el.onchange) el.onchange();">'+
 									  '</td>'+
 									  '<td style="padding-top: 0px; padding-right: 15px;">'+
 									  '	<label for="'+ this.prefix +'_field'+ this.index +'_radio'+ it +'">' + tmp[1] + '</label>'+
@@ -366,7 +370,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 									  '					el.value = el.value.replace(\',\'+this.value, \'\'); '+
 									  '					if (el.value == this.value) el.value = \'\'; '+
 									  '				 }'+
-									  '				 if (el.onchange) el.onchange();">'+
+									  '				 if (el) if (el.onchange) el.onchange();">'+
 									  '</td>'+
 									  '<td style="padding-top: 0px; padding-right: 15px;">'+
 									  '	<label for="'+ this.prefix +'_field'+ this.index +'_check'+ it +'">' + tmp[1] + '</label>'+

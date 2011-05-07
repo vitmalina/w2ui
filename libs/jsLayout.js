@@ -4,116 +4,17 @@
 *
 ***********************************/
 
-function jsLayoutPanel(name, title, object, psize, resizable) {
-	// internal
-	this.name			= name; 	// left, rigth, top, bottom, 'custom_name'
-	this.hidden			= false;
-	this.size			= psize;	// width or height depending on panel name
-	this.resizable		= resizable;
-	this.overflow		= 'hidden';
-	// public propreties	this.object 		= object; 	// can be a layout, list, edit, etc.
-	this.title			= title;
-	this.style_title 	= '';
-	this.style_body		= '';
-	this.width;		// readonly
-	this.height;	// readonly
-	// public methods
-	this.init		= jsLayoutPanel_init;
-	this.refresh	= jsLayoutPanel_refresh;
-	// internal
-	this.owner;
-	this.getHTML	= jsLayoutPanel_getHTML;
-	this.resize		= jsLayoutPanel_resize;
-	
-	// ==============-------------------------------
-	// --- IMPLEMENTATION
-
-	function jsLayoutPanel_getHTML() {
-		var html;
-		html =  '<div id="'+ this.owner.name + '_panel_'+ this.name +'" '+
-				'	style="position: absolute; left: 0px; top: 0px; width: 0px; height: 0px; overflow: '+ this.overflow +';"'+
-				'>'+
-				'<table cellpadding=0 cellspacing=0 style="width: 100%; height: 100%;">'+
-				'<tr><td id="'+ this.owner.name + '_panel_'+ this.name +'_title" class="pTitle"></td></tr>'+
-				'<tr><td valign=top id="'+ this.owner.name + '_panel_'+ this.name +'_body" class="pBody">'+
-				'</td></tr>'+
-				'</table>'+
-				'</div>'+
-				'<div id="'+ this.owner.name + '_panel_resize_'+ this.name +'" style="font-size: 1px; position: absolute; display: none"></div>';
-		return html;
-	}
-
-	function jsLayoutPanel_resize() {
-		var body  = this.owner.box.ownerDocument.getElementById(this.owner.name + '_panel_'+ this.name +'_body');
-		var title = this.owner.box.ownerDocument.getElementById(this.owner.name + '_panel_'+ this.name +'_title');
-		var notitle;
-		if (this.title != '' && this.title != null && String(this.title) != 'undefined') { notitle = false; } else { notitle = true; }
-		// refresh body
-		if (this.object != null && typeof(this.object) == 'object') {
-			body.style.border  = 0;
-			body.style.padding = 0;
-			body.style.margin  = 0;
-		}
-		try { // -- for IE
-			body.style.width   = this.width;
-			body.style.height  = parseInt(this.height) - (notitle ? 0 : 26);
-		} catch (e) {}
-	}
-
-	function jsLayoutPanel_init(obj) {
-		this.object = obj;
-		this.refresh();
-	}
-
-	function jsLayoutPanel_refresh() {
-		var body  = this.owner.box.ownerDocument.getElementById(this.owner.name + '_panel_'+ this.name +'_body');
-		var title = this.owner.box.ownerDocument.getElementById(this.owner.name + '_panel_'+ this.name +'_title');
-		if (!body) return;
-		// refresh title
-		if (this.title != '' && this.title != null && String(this.title) != 'undefined') {
-			var notitle = false;
-			title.innerHTML  	= this.title;
-			title.style.cssText = 'height: 26px;' + this.style_title;
-		} else {
-			var notitle = true;
-			if (title) title.style.cssText = "display: none; height: 0px;";
-		}
-		// refresh body
-		body.style.cssText += this.style_body;
-		if (this.object == null) {
-			body.innerHTML = '';
-		}
-		if (this.object != null && typeof(this.object) == 'object') {
-			body.style.border  = 0;
-			body.style.padding = 0;
-			body.style.margin  = 0;
-			try { // -- for IE
-				body.style.width   = this.width;
-				body.style.height  = parseInt(this.height) - (notitle ? 0 : 26);
-			} catch (e) {}
-			// --
-			this.object.box = body;
-			this.object.output();
-		}
-		if (this.object != null && typeof(this.object) == 'string') {
-			body.innerHTML = this.object;
-		}
-	}
-}
-
 function jsLayout(name, box) {
 	// public properties
     this.name  	  	= name;
     this.box      	= box; 	// HTML element that hold this element only applicable to document.body
-    this.panels     = [];
-	this.padding 	= 0;
-	this.border     = 3;
-	this.style		= '';
-    // public readonly
-    this.left;	// this vars will be set by resize
-    this.top;
-    this.width;
+	this.panels		= [];
+	this.padding 	= 0;  // panel padding
+	this.spacer     = 4;  // resizer width or height
+	this.border		= 0;  // CSS border error margin (if in CSS panel has border width different from 1, then change this.
+    this.width; // this vars will be set by resize
     this.height;
+	
     // public methods
     this.addPanel		= jsLayout_addPanel;
 	this.initPanel		= jsLayout_initPanel;
@@ -125,26 +26,43 @@ function jsLayout(name, box) {
     this.resize			= jsLayout_resize;
 
 	// internal
+    this.panelObjs      = [];
 	this.initEvents 	= jsLayout_initEvents;
 	this.startResize 	= jsLayout_startResize;
 	this.doResize	 	= jsLayout_doResize;
 	this.stopResize  	= jsLayout_stopResize;
+	this.panel			= jsLayout_panel;
 
 	// register element in the top
     if (!top.jsUtils) alert('The jsUtils class is not loaded. This class is a must for the jsList class.');
 	if (!top.elements) top.elements = [];
     if (top.elements[this.name]) alert('The element with this name "'+ this.name +'" is already registered.');
     top.elements[this.name] = this;
-
-    // initialization
-    this.addPanel('main', null, null, null, null);
-	if (this.box) { this.initEvents(); }
 	
+	// initialize object if necessary
+	if (box != null && typeof(box) == 'object' && String(box) == '[object Object]') { // javascript object
+		this.box = null;
+		for (var e in box) { this[e] = box[e]; }
+	}	
+
 	// ==============-------------------------------
 	// --- IMPLEMENTATION
 
 	function jsLayout_output() {
 		if (!this.box) return;
+		// initialize panels
+		if (this.panelObjs.length <= 0) {
+			for (panel in this.panels) {
+				var ind = this.panelObjs.length;
+				this.panelObjs[ind] = new this.panel(this.panels[panel].name, this.panels[panel].caption, 
+					this.panels[panel].object, this.panels[panel].size, this.panels[panel].resizable);
+				this.panelObjs[ind].style = this.panels[panel].style;
+				this.panelObjs[ind].owner = this;
+			}
+		}
+		// is there is no main panel - add it
+		if (!this.findPanel('main')) this.addPanel('main', null, null, null, null);
+		
 		var strPanels = ['top', 'left', 'main', 'right', 'bottom'];
 		var html = '';
 		var panel;
@@ -156,7 +74,6 @@ function jsLayout(name, box) {
 		panel = this.findPanel('bottom'); if (panel != null) html += panel.getHTML();
 		// output
 		this.box.innerHTML = html;
-		this.box.style.cssText += this.style;
 		this.resize();
 		if (window.attachEvent) setTimeout(new Function("top.elements['"+ this.name + "'].resize()"), 1);
 		// refresh objects in the layout;
@@ -170,171 +87,26 @@ function jsLayout(name, box) {
 		//window.setTimeout("top.elements."+ this.name +".resize();", 500);
 	}
 
-	function jsLayout_resize() {
-		if (!this.box) return;
-		if (this.box.tagName == 'BODY') {
-			this.left = 0;
-			this.top  = 0;
-			if (window.innerHeight == undefined) {
-				this.width  = this.box.ownerDocument.body.clientWidth;
-				this.height = this.box.ownerDocument.body.clientHeight;
-			} else {
-				this.width  = window.innerWidth;
-				this.height = window.innerHeight;
-			}
-		} else {
-			this.left 	= parseInt(this.box.style.left);
-			this.top 	= parseInt(this.box.style.top);
-			this.width  = parseInt(this.box.style.width);
-			this.height = parseInt(this.box.style.height);
-		}
-		this.box.style.overflow = 'hidden';
-		// reset width/height for panels
-		var strPanels = ['top', 'left', 'main', 'right', 'bottom'];
-		pt = this.findPanel('top');		if (pt && pt.hidden) pt = null;
-		pl = this.findPanel('left');	if (pl && pl.hidden) pl = null;
-		pm = this.findPanel('main');
-		pr = this.findPanel('right');	if (pr && pr.hidden) pr = null;
-		pb = this.findPanel('bottom');	if (pb && pb.hidden) pb = null;
-		for (key in strPanels) {
-			var ppl = this.box.ownerDocument.getElementById(this.name + '_panel_'+ strPanels[key]);
-			panel = this.findPanel(strPanels[key]);
-			if (panel == null && !panel) continue;
-			if (panel.hidden) { ppl.style.display = 'none'; continue; } else { ppl.style.display = ''; }
-			if (panel.name == 'top') {
-				panel.width      = parseInt(this.width) - parseInt(this.padding)*2;
-				panel.height     = parseInt(panel.size);
-				try {
-					ppl.style.left	 = parseInt(this.padding);
-					ppl.style.top	 = parseInt(this.padding);
-					ppl.style.width  = parseInt(panel.width);
-					ppl.style.height = parseInt(panel.height);
-				} catch(e) {}
-				//  add resizable div
-				if (panel.resizable) {
-					var ppr = this.box.ownerDocument.getElementById(this.name + '_panel_resize_'+ strPanels[key]);
-					ppr.style.left 	  = parseInt(ppl.style.left);
-					ppr.style.top 	  = parseInt(ppl.style.top) + parseInt(panel.height);
-					ppr.style.width   = parseInt(ppl.style.width);
-					ppr.style.height  = parseInt(this.border);
-					ppr.style.zIndex  = 1001;
-					ppr.style.display = '';
-					ppr.style.cursor  = 'N-resize';
-					ppr.onmousedown   = new Function('event', "el = top.elements['"+ this.name +"']; el.startResize('"+ panel.name +"', event); return false;");
-				}
-			}
-			if (panel.name == 'left') {
-				panel.width      = parseInt(panel.size);
-				panel.height     = parseInt(this.height)
-									- (pt ? parseInt(pt.size) + parseInt(this.border) + parseInt(this.padding) : parseInt(this.padding))
-									- (pb ? parseInt(pb.size) + parseInt(this.border) + parseInt(this.padding) : parseInt(this.padding));
-				try {
-					ppl.style.left	 = parseInt(this.padding);
-					ppl.style.top	 = parseInt(this.padding)
-										+ (pt ? parseInt(pt.size) + parseInt(this.border) : 0);
-					ppl.style.width  = parseInt(panel.width);
-					ppl.style.height = parseInt(panel.height);
-				} catch(e) {}
-				//  add resizable div
-				if (panel.resizable) {
-					var ppr = this.box.ownerDocument.getElementById(this.name + '_panel_resize_'+ strPanels[key]);
-					ppr.style.left 	  = parseInt(ppl.style.left) + parseInt(ppl.style.width);
-					ppr.style.top 	  = parseInt(ppl.style.top);
-					ppr.style.width   = parseInt(this.border);
-					ppr.style.height  = parseInt(ppl.style.height);
-					ppr.style.zIndex  = 100;
-					ppr.style.display = '';
-					ppr.style.cursor  = 'E-resize';
-					ppr.onmousedown   = new Function('event', "el = top.elements['"+ this.name +"']; el.startResize('"+ panel.name +"', event); return false;");
-				}
-			}
-			if (panel.name == 'main') {
-				panel.width      = parseInt(this.width)
-									- (pl ? parseInt(pl.size) + parseInt(this.border) + parseInt(this.padding) : parseInt(this.padding))
-									- (pr ? parseInt(pr.size) + parseInt(this.border) + parseInt(this.padding) : parseInt(this.padding));
-				panel.height     = parseInt(this.height)
-									- (pt ? parseInt(pt.size) + parseInt(this.border) + parseInt(this.padding) : parseInt(this.padding))
-									- (pb ? parseInt(pb.size) + parseInt(this.border) + parseInt(this.padding) : parseInt(this.padding));
-				try { 					
-					ppl.style.left	 = parseInt(this.padding)
-										+ (pl ? parseInt(pl.size) + parseInt(this.border) : 0);
-					ppl.style.top	 = parseInt(this.padding)
-										+ (pt ? parseInt(pt.size) + parseInt(this.border) : 0);
-					ppl.style.width  = parseInt(panel.width);
-					ppl.style.height = parseInt(panel.height);
-				} catch(e) {}
-			}
-			if (panel.name == 'right') {
-				panel.width      = parseInt(panel.size);
-				panel.height     = parseInt(this.height)
-									- (pt ? parseInt(pt.size) + parseInt(this.border) + parseInt(this.padding) : parseInt(this.padding))
-									- (pb ? parseInt(pb.size) + parseInt(this.border) + parseInt(this.padding) : parseInt(this.padding));
-				try {
-					ppl.style.left	 = parseInt(this.width) 
-										- parseInt(panel.size) - parseInt(this.padding);
-					ppl.style.top	 = parseInt(this.padding)
-										+ (pt ? parseInt(pt.size) + parseInt(this.border) : 0);
-					ppl.style.width  = parseInt(panel.width);
-					ppl.style.height = parseInt(panel.height);
-				} catch(e) {}
-				//  add resizable div
-				if (panel.resizable) {
-					var ppr = this.box.ownerDocument.getElementById(this.name + '_panel_resize_'+ strPanels[key]);
-					ppr.style.left 	  = parseInt(ppl.style.left) - parseInt(this.border);
-					ppr.style.top 	  = parseInt(ppl.style.top);
-					ppr.style.width   = parseInt(this.border);
-					ppr.style.height  = parseInt(ppl.style.height);
-					ppr.style.zIndex  = 100;
-					ppr.style.display = '';
-					ppr.style.cursor  = 'E-resize';
-					ppr.onmousedown   = new Function('event', "el = top.elements['"+ this.name +"']; el.startResize('"+ panel.name +"', event); return false;");
-				}
-			}
-			if (panel.name == 'bottom') {
-				panel.width      = this.width - parseInt(this.padding)*2;
-				panel.height     = parseInt(panel.size);
-				try {
-					ppl.style.left	 = parseInt(this.padding);
-					ppl.style.top	 = parseInt(this.height) - parseInt(panel.height) - parseInt(this.padding);
-					ppl.style.width  = parseInt(panel.width);
-					ppl.style.height = parseInt(panel.height);
-				} catch(e) {}
-				//  add resizable div
-				if (panel.resizable) {
-					var ppr = this.box.ownerDocument.getElementById(this.name + '_panel_resize_'+ strPanels[key]);
-					ppr.style.left    = parseInt(ppl.style.left);
-					ppr.style.top 	  = parseInt(ppl.style.top) - parseInt(this.border);
-					ppr.style.width   = parseInt(ppl.style.width);
-					ppr.style.height  = parseInt(this.border);
-					ppr.style.zIndex  = 100;
-					ppr.style.display = '';
-					ppr.style.cursor  = 'N-resize';
-					ppr.onmousedown   = new Function('event', "el = top.elements['"+ this.name +"']; el.startResize('"+ panel.name +"', event); return false;");
-				}
-			}
-		}
-		// resize objects in the layout;
-		var strPanels = ['top', 'left', 'main', 'right', 'bottom'];
-		for (key in strPanels) {
-			panel = this.findPanel(strPanels[key]);
-			if (panel == null || !panel) continue;
-			if (panel.resize) panel.resize();
-			if (panel.object && panel.object.resize) { panel.object.resize(); }
-		}
-		return;
-	}
 
-	function jsLayout_addPanel(name, title, object, psize, resizable) {
+	function jsLayout_addPanel(name, caption, object, size, resizable) {
 		var ind = this.panels.length;
-		this.panels[ind] = new top.jsLayoutPanel(name, title, object, psize, resizable);
-		this.panels[ind].owner = this;
-		return this.panels[ind];
+		if (caption != null && typeof(caption) == 'object' && String(caption) == '[object Object]') { // javascript object
+			this.panels[ind] = { name: name, caption: caption.caption, object: caption.object, size: caption.size, resizable: caption.resizable };
+		} else {
+			this.panels[ind] = { name: name, caption: caption, object: object, size: size, resizable: resizable };
+		}
+		var panel = this.panels[ind];
+		// initialize panel object
+		this.panelObjs[ind] = new this.panel(panel.name, panel.caption, panel.object, panel.size, panel.resizable);
+		this.panelObjs[ind].owner = this;
+		return this.panelObjs[ind];
 	}
 
 	function jsLayout_findPanel(name) {
 		var panel;
-		for (var i=0; i<this.panels.length; i++) {
-			panel = this.panels[i];
+		for (var i=0; i<this.panelObjs.length; i++) {
+			panel = this.panelObjs[i];
+			if (!panel) continue;
 			if (panel.name == name) return panel;
 		}
 		return null;
@@ -343,6 +115,7 @@ function jsLayout(name, box) {
 	function jsLayout_initPanel(name, obj) {
 		if (!this.box) return;
 		var panel = this.findPanel(name);
+		panel.object = obj;		
 		panel.init(obj);
 		panel.refresh();
 	}
@@ -350,16 +123,203 @@ function jsLayout(name, box) {
 	function jsLayout_togglePanel(name, status) {
 		var panel = this.findPanel(name);
 		if (name == 'main') return;
-		if (panel) panel.hidden = (String(status) == 'undefined' ? !panel.hidden : status);
+		if (panel) panel.hidden = (String(status) == 'undefined' ? !panel.hidden : status); 
 		this.resize();
 	}
 
 	function jsLayout_hidePanel(name) { this.togglePanel(name, true); }
 	function jsLayout_showPanel(name) { this.togglePanel(name, false); }
 
+	function jsLayout_resize() {
+		if (!this.box) return;
+		if (this.box.tagName == 'BODY') {
+			if (window.innerHeight == undefined) {
+				this.width  = parseInt(this.box.ownerDocument.body.clientWidth);
+				this.height = parseInt(this.box.ownerDocument.body.clientHeight);
+			} else {
+				this.width  = parseInt(window.innerWidth);
+				this.height = parseInt(window.innerHeight);
+			}
+		} else {
+			this.width  = parseInt(this.box.style.width);
+			this.height = parseInt(this.box.style.height);
+		}
+		this.box.style.overflow = 'hidden';
+		
+		this.padding = parseInt(this.padding);
+		this.spacer	 = parseInt(this.spacer);
+		this.border  = parseInt(this.border);
+		
+		// reset width/height for panels
+		var strPanels = ['top', 'left', 'main', 'right', 'bottom'];
+		var pt = this.findPanel('top');		if (pt && pt.hidden) pt = null;
+		var pl = this.findPanel('left');	if (pl && pl.hidden) pl = null;
+		var pm = this.findPanel('main');
+		var pr = this.findPanel('right');	if (pr && pr.hidden) pr = null;
+		var pb = this.findPanel('bottom');	if (pb && pb.hidden) pb = null;
+		
+		for (key in strPanels) {
+		
+			// the panel is position: relative
+			var ppl1 = this.box.ownerDocument.getElementById(this.name + '_panel1_'+ strPanels[key]);
+			var ppl2 = this.box.ownerDocument.getElementById(this.name + '_panel2_'+ strPanels[key]);
+			var ppr1 = this.box.ownerDocument.getElementById(this.name + '_panel_resize1_'+ strPanels[key]);
+			var ppr2 = this.box.ownerDocument.getElementById(this.name + '_panel_resize2_'+ strPanels[key]);
+			
+			var panel = this.findPanel(strPanels[key]);
+			if (panel) panel.size = parseInt(panel.size);
+			
+			if (panel == null && !panel) continue;
+			if (panel.hidden) { 
+				ppl1.style.display = 'none'; 
+				ppl2.style.display = 'none'; 
+				continue; 
+			} else { 
+				ppl1.style.display = ''; 
+				ppl2.style.display = ''; 
+			}
+			
+			// -- TOP PANEL
+			if (panel.name == 'top') {
+				panel.width  = this.width - this.padding * 2 - this.border * 2;
+				panel.height = panel.size;
+				
+				ppl1.style.left	  = this.padding + 'px';
+				ppl1.style.top	  = this.padding + 'px';
+				ppl2.style.width  = String(panel.width) + 'px';
+				ppl2.style.height = panel.height + 'px';
+				
+				//  add resizable div
+				if (panel.resizable) {
+					ppr1.style.left    = parseInt(ppl1.style.left) + 'px';
+					ppr1.style.top 	   = (parseInt(ppl1.style.top) + this.border * 2 + panel.height) + 'px';
+					ppr1.style.display = '';
+					
+					ppr2.style.width   = (parseInt(ppl2.style.width) + this.border * 2) + 'px';
+					ppr2.style.height  = this.spacer + 'px';
+					ppr2.style.display = '';
+					ppr2.style.cursor  = 'N-resize';
+					ppr2.onmousedown   = new Function('event', "el = top.elements['"+ this.name +"']; el.startResize('"+ panel.name +"', event); return false;");
+				}
+			}
+			
+			// -- LEFT PANEL
+			if (panel.name == 'left') {
+				panel.width  = panel.size;
+				panel.height = this.height - this.border * 2
+					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : this.padding)
+					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.padding) : this.padding);
+
+				ppl1.style.left	= this.padding + 'px';
+				ppl1.style.top	= (this.padding 
+					+ (pt ? parseInt(pt.size) + (pt.resizable ? this.spacer : this.padding) + this.border * 2 : 0)) + 'px';
+				ppl2.style.width  = panel.width + 'px';
+				ppl2.style.height = panel.height + 'px';
+
+				//  add resizable div
+				if (panel.resizable) {
+					ppr1.style.left    = (this.padding + this.border * 2 + panel.width) + 'px';
+					ppr1.style.top 	   = parseInt(ppl1.style.top) + 'px';
+					ppr1.style.display = '';
+
+					ppr2.style.width   = this.spacer + 'px';
+					ppr2.style.height  = (panel.height + this.border * 2) + 'px';
+					ppr2.style.display = '';
+					ppr2.style.cursor  = 'E-resize';
+					ppr2.onmousedown   = new Function('event', "el = top.elements['"+ this.name +"']; el.startResize('"+ panel.name +"', event); return false;");
+				}
+			}
+			
+			// -- MAIN PANEL
+			if (panel.name == 'main') {
+				panel.width  = this.width - this.border * 2
+					- (pl ? parseInt(pl.size) + this.padding + this.border * 2 + (pl.resizable ? this.spacer : this.padding) : this.padding)
+					- (pr ? parseInt(pr.size) + this.padding + this.border * 2 + (pr.resizable ? this.spacer : this.padding) : this.padding);
+				panel.height = this.height - this.border * 2
+					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : this.padding)
+					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.padding) : this.padding);
+
+				ppl1.style.left = (this.padding  
+					+ (pl ? parseInt(pl.size) + this.border * 2 + (pl.resizable ? this.spacer : this.padding) : 0)) + 'px';
+				ppl1.style.top = (this.padding 
+					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : 0)) + 'px';
+
+				ppl2.style.width  = panel.width + 'px';
+				ppl2.style.height = panel.height + 'px';
+			}
+			
+			// -- RIGHT PANEL
+			if (panel.name == 'right') {
+				panel.width  = panel.size;
+				panel.height = this.height - this.border * 2
+					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : this.padding)
+					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.padding) : this.padding);
+
+				ppl1.style.left = (this.padding + pm.width + this.border * 2 
+					+ (pl ? parseInt(pl.size) + this.border * 2 + (pl.resizable ? this.spacer : this.padding) : 0)
+					+ (pr.resizable ? this.spacer : this.padding)) + 'px';
+				ppl1.style.top = (this.padding
+					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : 0)) + 'px';
+				ppl2.style.width  = parseInt(panel.width) + 'px';
+				ppl2.style.height = parseInt(panel.height) + 'px';
+				
+				//  add resizable div
+				if (panel.resizable) {
+					ppr1.style.left    = (parseInt(ppl1.style.left) - this.spacer) + 'px';
+					ppr1.style.top 	   = parseInt(ppl1.style.top) + 'px';
+					ppr1.style.display = '';
+					
+					ppr2.style.width   = this.spacer + 'px';
+					ppr2.style.height  = (panel.height + this.border * 2) + 'px';
+					ppr2.style.display = '';
+					ppr2.style.cursor  = 'E-resize';
+					ppr2.onmousedown   = new Function('event', "el = top.elements['"+ this.name +"']; el.startResize('"+ panel.name +"', event); return false;");
+				}
+			}
+						
+			// -- BOTTOM PANEL
+			if (panel.name == 'bottom') {
+				panel.width  = this.width - this.padding * 2 - this.border * 2;
+				panel.height = panel.size;
+				
+				ppl1.style.left	  = this.padding + 'px';
+				ppl1.style.top	  = (this.padding
+					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : 0)
+					+ (pb.resizable ? this.spacer : this.padding)
+					+ pm.height + this.border * 2
+					) + 'px';
+				ppl2.style.width  = panel.width + 'px';
+				ppl2.style.height = panel.height + 'px';
+				
+				//  add resizable div
+				if (panel.resizable) {
+					ppr1.style.left    = parseInt(ppl1.style.left) + 'px';
+					ppr1.style.top 	   = (parseInt(ppl1.style.top) - this.spacer) + 'px';
+					ppr1.style.display = '';
+					
+					ppr2.style.width   = (parseInt(ppl2.style.width) + this.border * 2) + 'px';
+					ppr2.style.height  = this.spacer + 'px';
+					ppr2.style.display = '';
+					ppr2.style.cursor  = 'N-resize';
+					ppr2.onmousedown   = new Function('event', "el = top.elements['"+ this.name +"']; el.startResize('"+ panel.name +"', event); return false;");
+				}
+			}
+		}
+		// resize objects in the layout;
+		var strPanels = ['top', 'left', 'main', 'right', 'bottom'];
+		for (key in strPanels) {
+			var panel = this.findPanel(strPanels[key]);
+			if (panel == null || !panel) continue;
+			if (panel.resize) panel.resize();
+			//if (panel.object && panel.object.resize) { panel.object.resize(); }
+		}
+		return;
+	}
+	
 	// --- INTERNAL FUNCTIONS
 
 	function jsLayout_initEvents() {
+		// this is needed for resize of panels and resize of screen
 		if (window.addEventListener) {
 			top.addEventListener('resize', 	new Function("if (top.elements) top.elements['"+ this.name + "'].resize()"), false);
 			top.addEventListener('mousemove', 	new Function("event", "if (top.elements) top.elements['"+ this.name + "'].doResize(event)"), false);
@@ -382,44 +342,16 @@ function jsLayout(name, box) {
 		this.tmp_resizing = type;
 		this.tmp_x = evnt.screenX;
 		this.tmp_y = evnt.screenY;
-		// process event
-		var ppr = this.box.ownerDocument.getElementById(this.name + '_panel_resize_'+ type);
-		ppr.style.backgroundColor = 'gray';
-		this.tmp_left = parseInt(ppr.style.left);
-		this.tmp_top  = parseInt(ppr.style.top);
 	}
 
 	function jsLayout_doResize(evnt) {
 		if (!this.box) return;
 		if (!evnt) evnt = window.event;
 		if (this.tmp_resizing == undefined) return;
-		type = this.tmp_resizing;
-
-		var prl = this.box.ownerDocument.getElementById(this.name + '_panel_resize_'+ type);
-		switch(type) 
-		{
-			case 'bottom':
-			case 'top':
-				prl.style.top = this.tmp_top + (evnt.screenY - this.tmp_y);
-				break;
-
-			case 'left':
-			case 'right':
-				prl.style.left = this.tmp_left + (evnt.screenX - this.tmp_x);
-				break;
-		}
-	}
-
-	function jsLayout_stopResize(evnt) {
-		if (!this.box) return;
-		if (!evnt) evnt = window.event;
-		if (!window.addEventListener) { window.document.detachEvent('onselectstart', top.ie_no_event); }
-		if (this.tmp_resizing == undefined) return;
-		type = this.tmp_resizing;
-		// stop resize
-		var ppr = this.box.ownerDocument.getElementById(this.name + '_panel_resize_'+ type);
-		ppr.style.backgroundColor = '';
-		panel = this.findPanel(type);
+		var type = this.tmp_resizing;
+		// auto-resize
+		var panel = this.findPanel(type);
+		if (panel.size < 10) { panel.size = 10; return; }
 		switch(type) {
 			case 'top':
 				panel.size = parseInt(panel.size) + parseInt(evnt.screenY - this.tmp_y);
@@ -434,10 +366,94 @@ function jsLayout(name, box) {
 				panel.size = parseInt(panel.size) - parseInt(evnt.screenX - this.tmp_x);
 				break;
 		}
-		if (panel.size < 10) panel.size = 10;
+		this.tmp_x = evnt.screenX;
+		this.tmp_y = evnt.screenY;
 		this.resize();
+	}
+
+	function jsLayout_stopResize(evnt) {
+		if (!this.box) return;
+		if (!evnt) evnt = window.event;
+		if (!window.addEventListener) { window.document.detachEvent('onselectstart', top.ie_no_event); }
+		if (this.tmp_resizing == undefined) return;
 		this.tmp_resizing = undefined;
 	}	
+	
+	// ------------------------------------------
+	// --- Panel Class
+	
+	function jsLayout_panel(name, caption, object, psize, resizable) {
+		// public
+		this.name		= name; 	// left, rigth, top, bottom, 'custom_name'
+		this.hidden		= false;
+		this.size		= psize;	// width or height depending on panel name
+		this.resizable	= resizable;
+		this.overflow	= 'hidden';
+		this.object 	= object; 	// can be a layout, list, edit, etc.
+		this.caption	= caption;
+		this.style;
+		this.width;		// readonly
+		this.height;	// readonly		
+		// internal
+		this.owner;
+		this.getHTML	= jsPanel_getHTML;
+		this.init		= jsPanel_init;
+		this.resize		= jsPanel_resize;
+		this.refresh	= jsPanel_refresh;
+		
+		// ==============-------------------------------
+		// --- IMPLEMENTATION
+
+		function jsPanel_getHTML() {
+			var html;
+			html =  '<div id="'+ this.owner.name + '_panel1_'+ this.name +'" '+
+					'		style="position: relative; left: 0px; top: 0px; width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px;">'+
+					'	<div id="'+ this.owner.name + '_panel2_'+ this.name +'" class="w20-panel"'+
+					'			style="position: absolute; z-Index: 10000; width: 0px; height: 0px; overflow: '+ this.overflow +';">'+
+					'	</div>'+
+					'</div>'+
+					'<div id="'+ this.owner.name + '_panel_resize1_'+ this.name +'" style="position: relative; left: 0px; top: 0px; width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;">'+
+					'	<div id="'+ this.owner.name + '_panel_resize2_'+ this.name +'" style="position: absolute; width: 0px; height: 0px; background-color: white;"'+
+					'		onmouseover = "this.style.backgroundColor=\'silver\'" onmouseout = "this.style.backgroundColor = \'white\'"'+
+					'	></div>'+
+					'</div>';
+			return html;
+		}
+		
+		function jsPanel_init(obj) {
+			this.object = obj;
+			this.refresh();
+		}
+
+		function jsPanel_resize() {
+			var panel = this.owner.box.ownerDocument.getElementById(this.owner.name + '_panel2_'+ this.name);
+			if (!panel) return;			
+			if (this.object != null && typeof(this.object) == 'object') {
+				if (this.object.resize) this.object.resize();
+			}
+		}
+
+		function jsPanel_refresh() {
+			var panel = this.owner.box.ownerDocument.getElementById(this.owner.name + '_panel2_'+ this.name);			
+			if (!panel) return;
+			if (this.style) panel.style.cssText += this.style;
+			// empty panel
+			if (this.object == null) {
+				panel.innerHTML = '';
+			}
+			// HTML panel
+			if (this.object != null && typeof(this.object) == 'string') {
+				panel.innerHTML = this.object;
+			}
+			// object panel
+			if (this.object != null && typeof(this.object) == 'object' && this.object.output) {
+				panel.style.border  = 0;
+				panel.style.padding = 0;
+				panel.style.margin  = 0;
+				this.object.box = panel;
+				this.object.output();
+			}
+		}
+	}
 }
 if (top != window) top.jsLayout = jsLayout;
-if (top != window) top.jsLayoutPanel = jsLayoutPanel;

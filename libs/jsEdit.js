@@ -13,13 +13,13 @@ function jsEdit(name, box, recid) {
     this.items    		= []; // items received from getData
 	this.groups			= [];
     this.controls   	= [];
-	this.tabs			= null;
-	this.tabsToolbar	= null;
+	this.tabs			= [];
     this.srvFile  		= '';
     this.srvParams  	= [];
     this.header   		= 'Edit Page';
     this.showHeader 	= true;
 	this.showFooter 	= true;
+	this.fixedSize		= false;
     this.recid      	= recid;
     this.msgEmpty   	= 'Some of the required fields are empty:';
     this.msgWrong   	= 'The type of the following fields is wrong:';
@@ -32,14 +32,13 @@ function jsEdit(name, box, recid) {
     this.onSave;
     this.onSaveDone;
     this.onData;
-    this.onDataRecieved;
-	this.onResize;
-	this.onScroll;
+    this.onDataReceived;
 
     // public methods
     this.addControl  	= jsEdit_addControl;
 	this.addGroup 	 	= jsEdit_addGroup;
 	this.addTab 	 	= jsEdit_addTab;
+	this.showTab		= jsEdit_showTab;
     this.getData     	= jsEdit_getData;
     this.dataReceived 	= jsEdit_dataReceived;
     this.findField   	= jsEdit_findField;
@@ -54,7 +53,6 @@ function jsEdit(name, box, recid) {
     this.serverCall  	= jsEdit_serverCall;
     this.showStatus 	= jsEdit_showStatus;
     this.hideStatus  	= jsEdit_hideStatus;
-	this.changeTab		= jsEdit_changeTab;
 
     // internal
     this.fieldIndex  	= 0;
@@ -64,7 +62,6 @@ function jsEdit(name, box, recid) {
     this.getList     	= jsEdit_getList;
     this.getListDone 	= jsEdit_getListDone;
 	this.resize	 	 	= jsEdit_resize;
-	this.scroll	 	 	= jsEdit_scroll;
     this.groupObjs    	= [];
 	this.lookup_items 	= [];
 	this.lookup_keyup  	= jsEdit_lookup_keyup;
@@ -112,92 +109,69 @@ function jsEdit(name, box, recid) {
 		return this.groups[ind];
 	}
 
-	function jsEdit_addTab(name, caption) {
-		// make sure libs are loaded
-		if (String(top.jsTabs) == 'undefined') { alert('The jsTabs class is not loaded. This class is necessary if you want to use tabs.'); return; }
-		if (String(top.jsToolBar) == 'undefined') { alert('The jsToolBar class is not loaded. This class is necessary if you want to use tabs.'); return; }
-		// init objects if needed
-		if (this.tabs == null) {
-			this.tabs = new top.jsTabs(this.name + '_tabs', null);
-			this.tabs.owner   = this;
-			this.tabs.onClick = this.changeTab;
-		}
-		if (this.tabsToolBar == null) {	
-			this.tabsToolBar = new top.jsToolBar(this.name + '_tabsToolbar', null);
-		}	
-		var tab = this.tabs.addTab(name, caption, this.tabsToolBar, null);
-		return tab;
+	function jsEdit_addTab(name, params) {
+		var ind = this.tabs.length
+		this.tabs[ind] = { 
+			name: name, 
+			caption: params.caption, 
+			object: params.object,
+			width: params.width, 
+			active: (ind == 0 ? true : false) 
+		};
 	}
 
-	function jsEdit_changeTab(tab) {
-		// -- here 'this' is jsTabs object
-		var id = this.tabs[tab].id;
-		for (var i=0; i<this.owner.groupObjs.length; i++) {
-			var el1 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groupObjs[i].name);
-			var el2 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groupObjs[i].name+'_break');
-			var el3 = this.owner.box.ownerDocument.getElementById('group_'+this.owner.groupObjs[i].name+'_object');
-			if (this.owner.groupObjs[i].tabName == id) { 
-				if (el1) el1.style.display = '';
-				if (el2) el2.style.display = '';
-				if (el3) { 
-					// hide controls
-					this.owner.box.ownerDocument.getElementById('footer_'+this.owner.name).style.display = 'none';
-					this.owner.resize();
-					el3.style.display = ''; 				
-					el3.style.height  = parseInt(this.owner.box.ownerDocument.getElementById('body_'+this.owner.name).clientHeight) + 'px';
-					this.owner.groupObjs[i].object.box = el3;
-					this.owner.groupObjs[i].object.recid = this.owner.recid;				
-					this.owner.groupObjs[i].object.refresh(); 
-				}
-			} else {
-				if (el1) el1.style.display = 'none';
-				if (el2) el2.style.display = 'none';
-				if (el3) el3.style.display = 'none';
-				// show controls
-				if (this.owner.showFooter) {
-					this.owner.box.ownerDocument.getElementById('footer_'+this.owner.name).style.display = '';
-					this.owner.resize();
-				}
-			}
-		}
+	function jsEdit_showTab(tab) {
+		if (this.tabs.length <= 0) return;
+		// -- reset tabs
+		for (var i=0; i<this.tabs.length; i++) this.tabs[i].active = false;
+		this.tabs[tab].active = true;
+		
+		this.refresh();
 	}
 
 	function jsEdit_output() {
-		// init group objects
-		for (var i=0; i<this.groups.length; i++) {
-			var grp = this.groups[i];
-			var ind = this.groupObjs.length;
-			this.groupObjs[ind] = new top.jsGroup(grp.name, grp.caption);
-			this.groupObjs[ind].owner   = this;
-			this.groupObjs[ind].tabName = grp.tabName;
-			this.groupObjs[ind].height  = grp.height;
-			this.groupObjs[ind].inLabel = grp.inLabel;
-			if (grp.inTag) this.groupObjs[ind].inLabel = grp.inTag;
-			if (grp.object) this.groupObjs[ind].object = grp.object;
-			if (grp.closeForm) this.groupObjs[ind].closeForm = grp.closeForm;
-			// fields
-			for (var j=0; j<grp.fields.length; j++) {
-				var f = grp.fields[j];
-				if (!f) continue;
-				if (f.type == 'break') {
-					if (String(f.height) == 'undefined') f.height = null;
-					if (String(f.column) == 'undefined') f.column = false;
-					this.groupObjs[ind].addBreak(f.height, f.column); 
-				} else {
-					if (String(f.fieldName) == 'undefined') f.fieldName = '';
-					if (String(f.inTag) == 'undefined')  f.inTag = '';
-					if (String(f.outTag) == 'undefined') f.outTag = '';
-					if (String(f.defValue) == 'undefined') f.defValue = '';
-					if (String(f.required) == 'undefined') f.required = false;
-					if (String(f.column) == 'undefined') f.column = false;
-					if (String(f.items) == 'undefined') f.items = null;
-					this.groupObjs[ind].addField(f.caption, f.type, f.fieldName, f.inTag, f.outTag, f.defValue, f.required, f.column, f.items); 
+		if (this.box == null) return false;		
+		// make first tab default
+		if (this.tabs.length > 0) {
+			for (var i=0; i<this.tabs.length; i++) this.tabs[i].active = false;
+			this.tabs[0].active = true;
+		}
+		// init group objects		
+		if (this.groupObjs.length <= 0) { // this method can be called many times by populating fields
+			for (var i=0; i<this.groups.length; i++) {
+				var grp = this.groups[i];
+				var ind = this.groupObjs.length;
+				top.elements[grp.name] = null;
+				this.groupObjs[ind] = new top.jsGroup(grp.name, grp.caption);
+				this.groupObjs[ind].owner   = this;
+				this.groupObjs[ind].tabName = grp.tabName;
+				this.groupObjs[ind].height  = grp.height;
+				this.groupObjs[ind].inLabel = grp.inLabel;
+				if (grp.inTag) this.groupObjs[ind].inLabel = grp.inTag;
+				if (grp.object) this.groupObjs[ind].object = grp.object;
+				if (grp.closeForm) this.groupObjs[ind].closeForm = grp.closeForm;
+				// fields
+				if (grp.fields) for (var j=0; j<grp.fields.length; j++) {
+					var f = grp.fields[j];
+					if (!f) continue;
+					if (f.type == 'break') {
+						if (String(f.height) == 'undefined') f.height = null;
+						if (String(f.column) == 'undefined') f.column = false;
+						this.groupObjs[ind].addBreak(f.height, f.column); 
+					} else {
+						if (String(f.fieldName) == 'undefined') f.fieldName = '';
+						if (String(f.inTag) == 'undefined')  f.inTag = '';
+						if (String(f.outTag) == 'undefined') f.outTag = '';
+						if (String(f.defValue) == 'undefined') f.defValue = '';
+						if (String(f.required) == 'undefined') f.required = false;
+						if (String(f.column) == 'undefined') f.column = false;
+						if (String(f.items) == 'undefined') f.items = null;
+						this.groupObjs[ind].addField(f.caption, f.type, f.fieldName, f.inTag, f.outTag, f.defValue, f.required, f.column, f.items); 
+					}
 				}
 			}
 		}
-		
-		if (this.onOutput) { this.onOutput(); }
-		// fill drop lists if any
+		// fill drop lists if any (one at a time)
 		var flag = false;
 		for (var i=0; i<this.groupObjs.length; i++) {
 			var grp = this.groupObjs[i];
@@ -221,48 +195,50 @@ function jsEdit(name, box, recid) {
 		// finalize
 		this.refresh();
 		this.getData();
+		// onoutput event
+		if (this.onOutput) { this.onOutput(); }		
 	}
 
 	function jsEdit_refresh() {
-		var html =  '<div id="edit_'+ this.name +'" class="edit_div">';
+		if (this.box == null) return false;		
+		// init tabs if any
+		if (this.tabs.length > 0) {
+			var tab = 0;
+			for (var i=0; i<this.tabs.length; i++) if (this.tabs[i].active == true) { tab = i; break; } 
+			this.tabs[tab].active = true;
+		}
+		// generate entire html
+		var html 	  = '<div id="edit_'+ this.name +'" class="w20-edit">';
+		var tabs_html = '';
 		// first generate header
 		if (this.showHeader) {
-			var tabs_html = '<td style="width: 1px" nowrap>&nbsp;</td>\n'+
-							'<td style="width: 103px; padding: 0px; margin: 0px; font-weight: normal;">'+
-							'	<div style="position: relative; top: -10px; padding: 0px; margin: 0px;">'+
-							'		<div style="position: absolute; height: 20px; background-color: #f4f4fe;width: 100px;  padding: 0px; padding-top: 4px; border: 1px solid #99bbe8; border-bottom: 0px; border-radius: 3px 3px 0px 0px; text-align: center;">Activities</div>'+
-							'	</div>'+
-							'</td>'+
-							'<td style="width: 103px; padding: 0px; margin: 0px; font-weight: normal;">'+
-							'	<div style="position: relative; top: -10px; padding: 0px; margin: 0px;">'+
-							'		<div style="position: absolute; height: 20px; margin: 0px; width: 100px; padding: 0px; padding-top: 4px; border: 1px solid #99bbe8; border-bottom: 0px; border-radius: 3px 3px 0px 0px; text-align: center;">Tasks</div>'+
-							'	</div>'+
-							'</td>'+
-							'<td style="width: 103px; padding: 0px; margin: 0px; font-weight: normal;">'+
-							'	<div style="position: relative; top: -10px; padding: 0px; margin: 0px;">'+
-							'		<div style="position: absolute; height: 20px; margin: 0px; width: 100px; padding: 0px; padding-top: 4px; border: 1px solid #99bbe8; border-bottom: 0px; border-radius: 3px 3px 0px 0px; text-align: center;">Participants</div>'+
-							'	</div>'+
-							'</td>'+
-							'<td style="width: 103px; padding: 0px; margin: 0px; font-weight: normal;">'+
-							'	<div style="position: relative; top: -10px; padding: 0px; margin: 0px;">'+
-							'		<div style="position: absolute; height: 20px; margin: 0px; width: 100px; padding: 0px; padding-top: 4px; border: 1px solid #99bbe8; border-bottom: 0px; border-radius: 3px 3px 0px 0px; text-align: center;">Logs</div>'+
-							'	</div>'+
-							'</td>';
-			tabs_html = '';
-			html += '<div id="header_'+ this.name +'">\n'+
-					'   <table style="width: 100%; height: 28px;" class="editHeader_tbl"><tr>\n'+
+			if (this.tabs.length > 0) {
+				tabs_html = '<td style="width: 1px" nowrap>&nbsp;</td>\n';
+				for (var i=0; i<this.tabs.length; i++) {
+					if (this.tabs[i].width == null) this.tabs[i].width = 100;
+					tabs_html += '<td style="width: '+ (parseInt(this.tabs[i].width)+3) +'px; padding: 0px; margin: 0px; font-weight: normal;">'+
+						'	<div style="position: relative; top: -11px; padding: 0px; margin: 0px;">'+
+						'		<div class="tab '+ (this.tabs[i].active ? 'tab_selected' : '') +'" style="position: absolute; height: 20px; '+
+						'			width: '+ parseInt(this.tabs[i].width) +'px; cursor: default;" '+
+						'			onclick="top.elements[\''+ this.name +'\'].showTab('+ i +');">'+ 
+						this.tabs[i].caption+ '</div>'+
+						'	</div>'+
+						'</td>';
+				}
+			}
+			html += '<div id="header_'+ this.name +'" class="edit_header">\n'+
+					'   <table style="width: 100%; height: 28px;"><tr>\n'+
 					'       <td id="title_td1_'+ this.name + '" style="width: 5%; padding-left: 5px;" nowrap>'+
-					'			<span id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
+					'			<span ondblclick="top.elements.'+ this.name +'.getData(); top.elements.'+ this.name +'.resize();" id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
 					'       </td>\n'+ tabs_html +
 					'       <td style="width: 1px" nowrap>&nbsp;</td>\n'+
-					'       <td><span style="font-variant: normal; font-size: 10px; font-family: verdana; padding: 1px; display: none; background-color: red; color: white;" id="status_'+ this.name + '"></span></td>\n'+
+					'       <td><span class="status" style="display: none" id="status_'+ this.name + '"></span></td>\n'+
 					'       <td id="title_td2_'+ this.name + '" align="right" style="width: 5%" nowrap="nowrap"></td>\n'+
 					'   </tr></table>\n'+
 					'</div>\n';
 		}
-		if (this.tabs != null) { html += '<div style="margin-top: 3px;" class="editTabs" id="tabs_'+ this.name +'"></div>\n'; }
 		// then groups and controls
-		html += '<div id="body_'+ this.name +'" onscroll="top.elements[\''+ this.name +'\'].scroll();">';
+		html += '<div id="body_'+ this.name +'">';
 		var frm   = '<form style="margin: 0px; font-size: 1px;" id="form_'+ this.name +'" name="form_'+ this.name +'" target="frame_'+ this.name +'" enctype="multipart/form-data" method="POST">';
 		if (this.tmpl.indexOf('~form~') >= 0) {
 			html += this.tmpl.replace('~form~', frm);
@@ -273,11 +249,22 @@ function jsEdit(name, box, recid) {
 		
 		for (var ii=0; ii<this.groupObjs.length; ii++) {
 			var gr = this.groupObjs[ii];
+			// save field values if controls were created before
+			for (var k=0; k<gr.fields.length; k++) {
+				var fld1 = this.box.ownerDocument.getElementById(this.name +'_field'+ gr.fields[k].index);				
+				var fld2 = this.box.ownerDocument.getElementById(this.name +'_field'+ gr.fields[k].index + '_2');
+				var fld3 = this.box.ownerDocument.getElementById(this.name +'_field'+ gr.fields[k].index + '_search');
+				if (!fld1) continue;
+				var val = fld1.value + (fld2 ? '::'+ fld2.value : '') + (fld3 ? '::'+ fld3.value : '');
+				this.items[gr.fields[k].index] = val;
+				//gr.fields[k].value = val;
+			}
+			// output group
 			if (gr.disabled == true) {
 				html = html.replace('~'+gr.name+'~', '');
 				continue;
 			}
-			if (gr.object != null) {
+			if (gr.object != null && gr.object != '') {
 				if (gr.height != null) addH = 'style="border: 0px; margin: 0px; padding: 0px; height: '+ parseInt(gr.height)+ 'px;"'; 
 								  else addH = 'style="border: 0px; margin: 0px; padding: 0px;"';
 				html = html.replace('~'+gr.name+'~', "<div class=\"group\" id=\"group_"+ gr.name +"_object\" "+ addH +"></div>");
@@ -297,89 +284,139 @@ function jsEdit(name, box, recid) {
 			html = html.replace('~controls~', this.getControls());
 		}
 		if (this.showFooter) {
-			html += '<div id="footer_'+ this.name +'">\n'+
-					'   <table style="width: 100%;" class="editFooter_tbl"><tr>\n'+
+			html += '<div id="footer_'+ this.name +'" class="edit_footer">\n'+
+					'   <table style="width: 100%;"><tr>\n'+
 					'       <td align="center">'+ this.getControls() +'</td>\n'+
 					'   </tr></table>\n'+
 					'</div>\n';
 		}
 		html += '</div>';
 
+		// -- regenerate entire HTML for edit
 		if (this.box) this.box.innerHTML = html; 
-
+		// -- populate values into fields from this.items
+		this.resetFields();		
 		// output group objects if any
 		for (var ii=0; ii<this.groupObjs.length; ii++) {
 			var gr = this.groupObjs[ii];
-			if (this.box && gr.object != null) {
+			if (this.box && (gr.object != null && gr.object != '')) {
 				var div = this.box.ownerDocument.getElementById("group_"+ gr.name +"_object");
-				gr.object.box = div;
-				gr.object.recid = gr.owner.recid;
-				gr.object.output();
+				if (gr.object != null && typeof(gr.object) == 'object') {
+					gr.object.box 	= div;
+					gr.object.recid = this.recid;
+					gr.object.output();
+				} else {
+					top.elements[gr.object].box   = div;
+					top.elements[gr.object].recid = this.recid;
+					top.elements[gr.object].output();
+				}
 			}
 		}	
-		// output tabs if any
-		if (this.tabs != null) {
-			this.tabs.box = this.box.ownerDocument.getElementById('tabs_'+ this.name);
-			this.tabs.tabsOnly = true;
-			this.tabs.output();
-			// init first tab
-			var id = this.tabs.tabs[0].id;
-			for (var i=0; i<this.groupObjs.length; i++) {
-				var el1 = this.box.ownerDocument.getElementById('group_'+this.groupObjs[i].name);
-				var el2 = this.box.ownerDocument.getElementById('group_'+this.groupObjs[i].name+'_break');
-				var el3 = this.box.ownerDocument.getElementById('group_'+this.groupObjs[i].name+'_object');
-				if (this.groupObjs[i].tabName == id) { 
+		// init HTML Area fields
+		for (var ii=0; ii<this.groupObjs.length; ii++) {
+			var gr = this.groupObjs[ii];
+			for (var ij = 0; ij < gr.fields.length; ij++) {
+				if (!gr.fields[ij]) continue;
+				if (gr.fields[ij].type.toUpperCase() == 'HTMLAREA') {
+					var div = this.box.ownerDocument.getElementById(this.name+'_field_box'+ij);
+					var txt = this.box.ownerDocument.getElementById(this.name+'_field'+ij);
+					//
+					top.elements[this.name+'field'+ij+'_editor'] = null;
+					var editor = new top.jsEditor(this.name+'field'+ij+'_editor', div);
+					editor.output();
+					editor.setHTML(txt.value);
+				}
+			}
+		}	
+		// if there are tabs show hide what needed to be
+		if (this.tabs.length > 0) {
+			// -- show/hide groups
+			var tmp_name = this.tabs[tab].name;		
+			for (var i=0; i<this.groups.length; i++) {
+				var el1 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name);
+				var el2 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name+'_break');
+				var el3 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name+'_object');
+				var gr 	= this.groups[i];
+				if (gr.tabName == tmp_name || gr.tab == tmp_name) { 
 					if (el1) el1.style.display = '';
 					if (el2) el2.style.display = '';
-					if (el3) el3.style.display = '';
+					if (el1) if (el1.parentNode.tagName == 'TD') el1.parentNode.style.display = '';
+					if (el3) { 
+						el3.style.display = ''; 				
+						if (gr.object != null && typeof(gr.object) == 'object') {
+							gr.object.box 	= el3;
+							gr.object.recid = this.recid;
+							gr.object.output();
+						} else {
+							top.elements[gr.object].box   = el3;
+							top.elements[gr.object].recid = this.recid;
+							top.elements[gr.object].output();
+						}
+					}
 				} else {
 					if (el1) el1.style.display = 'none';
 					if (el2) el2.style.display = 'none';
 					if (el3) el3.style.display = 'none';
+					if (el1) if (el1.parentNode.tagName == 'TD') el1.parentNode.style.display = 'none';
 				}
 			}
-			this.tabs.setActive(0);
+			// if tab is an object
+			if (this.tabs[tab].object != null && this.tabs[tab].object != '') {
+				// hide controls
+				if (this.showFooter) {
+					this.box.ownerDocument.getElementById('footer_'+this.name).style.display = 'none';
+					this.resize();
+				}
+				var gr = this.tabs[tab];
+				var el = this.box.ownerDocument.getElementById('body_'+this.name);
+				el.innerHTML = 'loading...';
+				if (gr.object != null && typeof(gr.object) == 'object') {
+					gr.object.box 	= el;
+					gr.object.recid = this.recid;
+					gr.object.output();
+				} else {
+					top.elements[gr.object].box   = el;
+					top.elements[gr.object].recid = this.recid;
+					top.elements[gr.object].output();
+				}
+				el.firstChild.style.border = 0;
+			} else {
+				// show controls
+				if (this.showFooter) {
+					this.box.ownerDocument.getElementById('footer_'+this.name).style.display = '';
+					this.resize();
+				}
+			}
 		}
+		// -- finalize
 		this.resize();
-				
-		//this.dataReceived(true);
+		// -- refresh event
 		if (this.onRefresh) { this.onRefresh(); }
 	}
 
 	function jsEdit_resize() {
 		if (!this.box) return;
-		var width  = parseInt(this.box.style.width);
-		var height = parseInt(this.box.style.height);
-		if (height > 0) {
-			var el  = this.box.ownerDocument.getElementById('body_'+ this.name);
-			var elh = this.box.ownerDocument.getElementById('header_'+ this.name);
-			var elf = this.box.ownerDocument.getElementById('footer_'+ this.name);
-			var elt = this.box.ownerDocument.getElementById('tabs_'+ this.name);
-			if (el) {
-				var hheight = height 
-					- (this.showHeader ? elh.clientHeight + 2 : 0)
-					- (this.showFooter ? elf.clientHeight + 2: 0)
-					- (this.tabs != null ? elt.clientHeight + 2 : 0)
-					;
-				el.style.overflow = 'auto';
-				el.style.height   = hheight + 'px';
-			}
+		if (this.fixedSize) return;
+		
+		var el  = this.box.ownerDocument.getElementById('body_'+ this.name);
+		var elh = this.box.ownerDocument.getElementById('header_'+ this.name);
+		var elf = this.box.ownerDocument.getElementById('footer_'+ this.name);
+		
+		// reset height (otherwise this.box.clientHeight is wrong)
+		if (el) {
+			el.style.overflow = 'auto';
+			el.style.height   = '1px';
+		}		
+		
+		var width  = parseInt(this.box.clientWidth);
+		var height = parseInt(this.box.clientHeight);
+		
+		if (height > 0 && el) {
+			var hheight = height 
+				- (this.showHeader ? parseInt(elh.clientHeight)+1 : 0)
+				- (this.showFooter ? parseInt(elf.clientHeight)+1 : 0);
+			el.style.height   = hheight + 'px';
 		}
-		// resize if there is tabs group object
-		if (this.tabs != null) {
-			for (var i=0; i<this.groupObjs.length; i++) {
-				var el = this.box.ownerDocument.getElementById('group_'+this.groupObjs[i].name+'_object');
-				if (el) { 
-					el.style.height = parseInt(this.box.ownerDocument.getElementById('body_'+this.name).clientHeight) + 'px';
-					this.groupObjs[i].object.refresh(); 
-				}
-			}
-		}
-		if (this.onResize) this.onResize(width, hheight);
-	}
-
-	function jsEdit_scroll() {
-		if (this.onScroll) this.onScroll();
 	}
 
 	function jsEdit_lookup_show(name) {
@@ -401,7 +438,8 @@ function jsEdit(name, box, recid) {
 					'	onclick="this.style.backgroundColor = \'highlight\'; '+
 					'			 this.style.color = \'white\'; '+
 					'			 document.getElementById(\''+ name +'\').value = \''+ item +'\'; '+
-					'			 if (document.getElementById(\''+ name +'_search\')) document.getElementById(\''+ name +'_search\').value = \''+ this.lookup_items[item] +'\'; '+
+					'			 if (document.getElementById(\''+ name +'_search\')) '+
+					'					document.getElementById(\''+ name +'_search\').value = \''+ String(this.lookup_items[item]).replace("'", "\\'") +'\'; '+
 					'			 document.getElementById(\''+ name +'_div\').style.display = \'none\'; '+
 					'			 top.jsUtils.clearShadow(document.getElementById(\''+ name +'_div\')); '+
 					'			 var el = document.getElementById(\''+ name +'\'); '+
@@ -575,11 +613,11 @@ function jsEdit(name, box, recid) {
 		// add custom params
 		for (obj in this.srvParams) param[obj] = this.srvParams[obj];
 		// add list params
-		param['req_cmd']    	 = 'edit_field_list';
-		param['req_name']   	 = this.name;
-		param['req_recid']  	 = this.recid ? this.recid : 'null';
-		param['req_index']  	 = fld.index;
-		param['req_field']  	 = fld.fieldName;
+		param['req_cmd']     = 'edit_field_list';
+		param['req_name']    = this.name;
+		param['req_recid'] 	 = (String(this.recid) != 'undefined' && String(this.recid) != '' ? this.recid : 'null');
+		param['req_index']   = fld.index;
+		param['req_field']   = fld.fieldName;
 
 		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
 		req.src  = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
@@ -625,13 +663,13 @@ function jsEdit(name, box, recid) {
 	function jsEdit_getData() {
 		if (!this.box) return;
 		if (this.fieldList != 0) return;
-		this.resetFields();
 		this.showStatus('Refreshing...');
 		if (this.onData) {
 			ret = this.onData();
 			if (ret === false) return;
 		}
 		this.items = [];
+		this.resetFields();
 		req = this.box.ownerDocument.createElement('SCRIPT');
 		param = [];
 		// add custom params
@@ -639,7 +677,7 @@ function jsEdit(name, box, recid) {
 		// add list params
 		param['req_cmd']     = 'edit_get_data';
 		param['req_name']  	 = this.name;
-		param['req_recid'] 	 = this.recid ? this.recid : 'null';
+		param['req_recid'] 	 = (String(this.recid) != 'undefined' && String(this.recid) != '' ? this.recid : 'null');
 
 		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
 		req.src    = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
@@ -648,28 +686,56 @@ function jsEdit(name, box, recid) {
 
 	function jsEdit_resetFields() {
 		if (!this.box) return;
-		for (val in this.items) {
+		var val = 0;
+		while (true) {
 			var el = this.box.ownerDocument.getElementById(this.name+'_field'+val);
-			if (el) {
-				if (el.tagName == 'LABEL') el.innerHTML = '';
-				el.value = '';
-				// radio buttons
-				var ir = 0;
-				while (el = this.box.ownerDocument.getElementById(this.name+'_field'+val+'_radio'+ir)) {
-					if (el.value == this.items[val]) el.checked = true;
-					ir++;
-				}
-				// check buttons
-				var ir = 0;
-				while (ell = this.box.ownerDocument.getElementById(this.name+'_field'+val+'_check'+ir)) {
-					var t = String(this.items[val]);
-					if (t == ell.value || t.indexOf(','+ell.value+',') != -1 || t.substr(0, ell.value.length+1) == ell.value+','
-						|| t.substr(t.length - ell.value.length-1) == ','+ell.value) ell.checked = true; else ell.checked = false;
-					ir++;
-				}
+			if (!el) break;
+			var data = String(this.items[val]) != 'undefined' ? this.items[val] : '';
+			el.value = data;
+			// -- convert html entities if needed
+			var str_tmp = String(el.value);
+			if (str_tmp.indexOf('&#') >= 0) {
+				var tmp = document.createElement("textarea");
+				tmp.innerHTML = str_tmp.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+				el.value = tmp.value;
 			}
+			// label type
+			if (el.tagName == 'LABEL') el.innerHTML = data;
+			if (el.tagName == 'DIV')   el.innerHTML = data;
+			// radio buttons
+			var ir = 0;
+			while (el2 = this.box.ownerDocument.getElementById(this.name+'_field'+val+'_radio'+ir)) {
+				if (el2.value == data) el2.checked = true;
+				ir++;
+			}
+			// check buttons
+			var ir = 0;
+			while (ell = this.box.ownerDocument.getElementById(this.name+'_field'+val+'_check'+ir)) {
+				var t = String(data);
+				if (t == ell.value || t.indexOf(','+ell.value+',') != -1 || t.substr(0, ell.value.length+1) == ell.value+','
+					|| t.substr(t.length - ell.value.length-1) == ','+ell.value) ell.checked = true; else ell.checked = false;
+				ir++;
+			}
+			// lookup type
+			el2 = this.box.ownerDocument.getElementById(this.name +'_field'+ val +'_search');
+			if (el2) {
+				var color = 'black';
+				var tmp = String(data).split('::');
+				if (tmp[1] == undefined) {
+					tmp[1] = 'start typing...';
+					color  = '#666666';
+				}
+				el.value  = tmp[0];
+				el2.value = tmp[1];
+				el2.style.color = color;
+			}
+			// color type
+			el2 = this.box.ownerDocument.getElementById(this.name +'_field'+ val +'_dspcolor');
+			if (el2) {
+				el2.style.backgroundColor = el.value;
+			}
+			val++;
 		}
-
 	}
 
 	function jsEdit_dataReceived(initial) {
@@ -677,56 +743,8 @@ function jsEdit(name, box, recid) {
 		// the function needs to be called after the data retrieved.
 		this.hideStatus();
 		// it will go thru the items array and will set data to corresponding fields
-		for (val in this.items) {
-			var el = this.box.ownerDocument.getElementById(this.name+'_field'+val);
-			if (el) {
-				el.value = this.items[val];
-				// -- convert html entities if needed
-				var str_tmp = String(el.value);
-				if (str_tmp.indexOf('&#') >= 0) {
-					var tmp = document.createElement("textarea");
-					tmp.innerHTML = str_tmp.replace(/</g,"&lt;").replace(/>/g,"&gt;");
-					el.value = tmp.value;
-				}
-				// label type
-				if (el.tagName == 'LABEL') el.innerHTML = this.items[val];
-				if (el.tagName == 'DIV')   el.innerHTML = this.items[val];
-				// radio buttons
-				ir = 0;
-				while (el2 = this.box.ownerDocument.getElementById(this.name+'_field'+val+'_radio'+ir)) {
-					if (el2.value == this.items[val]) el2.checked = true;
-					ir++;
-				}
-				// check buttons
-				var ir = 0;
-				while (ell = this.box.ownerDocument.getElementById(this.name+'_field'+val+'_check'+ir)) {
-					var t = String(this.items[val]);
-					if (t == ell.value || t.indexOf(','+ell.value+',') != -1 || t.substr(0, ell.value.length+1) == ell.value+','
-						|| t.substr(t.length - ell.value.length-1) == ','+ell.value) ell.checked = true; else ell.checked = false;
-					ir++;
-				}
-				// lookup type
-				el2 = this.box.ownerDocument.getElementById(this.name +'_field'+ val +'_search');
-				if (el2) {
-					var color = 'black';
-					var tmp = String(this.items[val]).split('::');
-					if (tmp[1] == undefined) {
-						tmp[1] = 'start typing...';
-						color  = '#666666';
-					}
-					el.value  = tmp[0];
-					el2.value = tmp[1];
-					el2.style.color = color;
-				}
-				// color type
-				el2 = this.box.ownerDocument.getElementById(this.name +'_field'+ val +'_dspcolor');
-				if (el2) {
-					el2.style.backgroundColor = el.value;
-				}
-				
-			}
-		}
-		// focust fist element
+		this.resetFields();
+		// focus first element
 		var el = this.box.ownerDocument.getElementById(this.name +'_field0_search');
 		if (!el) el = this.box.ownerDocument.getElementById(this.name+'_field0');
 		try { if (el) { if (el.onclick) { el.onclick(); } el.focus(); } } catch(e) {}
@@ -738,7 +756,7 @@ function jsEdit(name, box, recid) {
 				if (!gr.fields[ij]) continue;
 				if (gr.fields[ij].type.toUpperCase() == 'HTMLAREA') {
 					var div = this.box.ownerDocument.getElementById(this.name+'_field_box'+ij);
-					var txt = this.box.ownerDocument.getElementById(this.name+'_field'+ij);					
+					var txt = this.box.ownerDocument.getElementById(this.name+'_field'+ij);
 					//
 					top.elements[this.name+'field'+ij+'_editor'] = null;
 					var editor = new top.jsEditor(this.name+'field'+ij+'_editor', div);
@@ -783,7 +801,7 @@ function jsEdit(name, box, recid) {
 		// add list params
 		param['req_cmd']  	 = 'edit_save_data';
 		param['req_name']  	 = this.name;
-		param['req_recid'] 	 = this.recid ? this.recid : 'null';
+		param['req_recid'] 	 = (String(this.recid) != 'undefined' && String(this.recid) != '' ? this.recid : 'null');
 		param['req_frame']	 = req.id;
 
 		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
@@ -795,10 +813,13 @@ function jsEdit(name, box, recid) {
 		this.recid = recid;
 		if (!this.box) return;
 		// enable buttons again
-		for (var i=0; i<10; i++) { el = this.box.ownerDocument.getElementById(this.name+'_control'+i); if (el) el.disabled = false; }
+		for (var i=0; i<10; i++) { 
+			var el = this.box.ownerDocument.getElementById(this.name+'_control'+i); 
+			if (el) el.disabled = false; 
+		}
 		
 		if (this.onSaveDone) {
-			ret = this.onSaveDone(recid);
+			var ret = this.onSaveDone(recid);
 			if (ret === false) return;
 		}
 		// go to another page or output a message
@@ -831,7 +852,7 @@ function jsEdit(name, box, recid) {
 		// add list params
 		param['req_cmd']   = cmd;
 		param['req_name']  = this.name;
-		param['req_recid'] = this.recid ? this.recid : 'null';
+		param['req_recid'] = (String(this.recid) != 'undefined' && String(this.recid) != '' ? this.recid : 'null');
 		// add passed params
 		if (params != undefined && params != '') {
 			var tmp = params.split(';;');
@@ -849,11 +870,11 @@ function jsEdit(name, box, recid) {
 	function jsEdit_validate() {
 		if (!this.box) return;
 		// make sure required fields are not empty
-		reqFields = '';
-		for (i=0; i<this.groupObjs.length; i++) {
-			grp = this.groupObjs[i];
-			for (j=0; j<grp.fields.length; j++) {
-				fld = grp.fields[j];
+		var reqFields = '';
+		for (var i=0; i<this.groupObjs.length; i++) {
+			var grp = this.groupObjs[i];
+			for (var j=0; j<grp.fields.length; j++) {
+				var fld = grp.fields[j];
 				if (fld.required && this.box.ownerDocument.getElementById(this.name+'_field'+fld.index).value == '') {
 					reqFields += ' - ' + fld.caption + ' \n';
 				}
@@ -865,22 +886,22 @@ function jsEdit(name, box, recid) {
 			return false;
 		}
 		// check ints and floats
-		reqFields = '';
-		for (i=0; i<this.groupObjs.length; i++) {
-			grp = this.groupObjs[i];
-			for (j=0; j<grp.fields.length; j++) {
-				fld = grp.fields[j];
+		var wrongFields = '';
+		for (var i=0; i<this.groupObjs.length; i++) {
+			var grp = this.groupObjs[i];
+			for (var j=0; j<grp.fields.length; j++) {
+				var fld = grp.fields[j];
 				if (String(fld.type).toUpperCase() == 'INT' && !top.jsUtils.isInt(this.box.ownerDocument.getElementById(this.name+'_field'+fld.index).value)) {
-					reqFields += ' - ' + fld.caption + ' - should be integer \n';
+					wrongFields += ' - ' + fld.caption + ' - should be integer \n';
 				}
 				if (String(fld.type).toUpperCase() == 'FLOAT' && !top.jsUtils.isFloat(this.box.ownerDocument.getElementById(this.name+'_field'+fld.index).value)) {
-					reqFields += ' - ' + fld.caption + ' - should be float \n';
+					wrongFields += ' - ' + fld.caption + ' - should be float \n';
 				}
 			}
 		}
-		if (reqFields != '') {
-			reqFields = reqFields.substr(0, reqFields.length -2);
-			alert(this.msgWrong + '\n' + reqFields);
+		if (wrongFields != '') {
+			wrongFields = wrongFields.substr(0, wrongFields.length -2);
+			alert(this.msgWrong + '\n' + wrongFields);
 			return false;
 		}
 		return true;

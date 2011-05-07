@@ -8,15 +8,17 @@
 $tmp_file = str_replace(".php", ".js", $_GET['page']);
 
 if (file_exists($tmp_file) === true) {
-	$headers = apache_request_headers();
-	$hash1 	 = $headers['If-None-Match'];
-	$hash2   = filemtime($tmp_file);
-	header("eTag:".$hash2);
+	if (function_exists('apache_request_headers')) {
+		$headers = apache_request_headers();
+		$hash1 	 = $headers['If-None-Match'];
+		$hash2   = filemtime($tmp_file);
+		header("eTag:".$hash2);
 
-	// -- file is the same as in browser cache
-	if ($hash1 == $hash2) {
-		header('HTTP/1.1 304 Not Modified');
-		die();
+		// -- file is the same as in browser cache
+		if ($hash1 == $hash2) {
+			header('HTTP/1.1 304 Not Modified');
+			die();
+		}
 	}
 	
 	// -- output the file

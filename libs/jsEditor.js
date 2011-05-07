@@ -100,7 +100,7 @@ function jsEditor(name, box) {
 		var script2 = this.box.ownerDocument.createElement('SCRIPT');
 		script2.src = top.jsUtils.sys_path+'/includes/CodeMirror/js/beautify.js';
 		var link1   = this.box.ownerDocument.createElement('LINK');
-		link1.href  = top.jsUtils.sys_path+'/images/editor.css';
+		link1.href  = top.jsUtils.sys_path+'/images/w20-editor.css';
 		link1.rel	= 'stylesheet';
 		this.box.ownerDocument.body.appendChild(script1);
 		this.box.ownerDocument.body.appendChild(script2);
@@ -126,15 +126,16 @@ function jsEditor(name, box) {
 		editor.style.height = height - 30 - (this.showSource ? parseInt(this.source_height) + 30 : -2);
 		if (this.showSource && source) {
 			source_tb.nextSibling.nextSibling.style.height = this.source_height;
-			CodeMirror.height 		= this.source_height; 
-			source.style.height 	= this.source_height; 
+			window.CodeMirror.height = this.source_height; 
+			source.style.height 	 = this.source_height; 
 		}
 	}
 
 	function jsEditor_initCodeMirror() {
 		var obj = top.elements[top.tmp_editor];
+		if (String(window.CodeMirror) == 'undefined') return false;
 		// -- code mirror
-		obj.source_editor = CodeMirror.fromTextArea(obj.name+'_source_txt', {
+		obj.source_editor = window.CodeMirror.fromTextArea(obj.name+'_source_txt', {
 			height: "1px",
 			iframeId: obj.name+'_source',
 			parserfile: ["parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "parsehtmlmixed.js"],
@@ -1285,7 +1286,6 @@ function jsEditor(name, box) {
 		top.el_td 	 = el_td;
 		top.el_table = el_td.parentNode.parentNode.parentNode;
 		top.el_style = el_td.ownerDocument.getElementById(top.el_table.id+'_style');
-		//console.log(top.el_style.innerHTML);
 		
 		top.elements[this.name+'_tb2'] = null;
 		var tb = new top.jsToolBar(this.name+'_tb2', el);

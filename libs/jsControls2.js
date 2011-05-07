@@ -53,7 +53,8 @@ var jsControls2 = {
 				// -- insert div for calendar
 				var div = document.createElement('DIV');
 				div.id  = cnt.id + '_calendar';
-				div.style.cssText += 'position: absolute; z-index: 1000; display: none; margin-top: 1px;';
+				div.style.cssText += 'position: absolute; z-index: 1000; display: none;';
+				div.className = 'w20-calendar';
 				//div.innerHTML = this.getCalendar(cnt.value, (param ? param : {}));
 				
 				cnt.parentNode.appendChild(div, cnt);
@@ -160,43 +161,44 @@ var jsControls2 = {
 		td.setYear(year);
 		var weekDay = td.getDay();
 		
-		var cc 	  = 'align="center" style="background-color: #e8e8e8; color: gray;"';
-		var html  = '<table cellpadding="3" onclick = "window.clearTimeout(window._tmp_timeout); window._calendar_el.focus();" '+
-					'		cellspacing="0" style="background-color: #e4ebed; border: 1px solid silver; font-family: verdana; font-size: 11px;" class="rText">'+
-					'	<tr><td colspan="7" align="center" style="padding: 5px; border-bottom: 1px solid silver; '+
-					'			background-image: url('+top.jsUtils.sys_path+'/images/bl_title_bg.png); color: black"> '+ 
-					'	<b>'+ months[month-1] +', '+ year +'</b> </td></tr>'+
-					'	<tr><td '+cc+'>M</td> <td '+cc+'>T</td> <td '+cc+'>W</td>'+
-					'	    <td '+cc+'>T</td> <td '+cc+'>F</td> <td '+cc+'>S</td> <td '+cc+'>S</td>'+
-					'	</tr>'+
-					'	<tr>';
+		var html  = 
+			'<table cellpadding="3" onclick = "window.clearTimeout(window._tmp_timeout); window._calendar_el.focus();" cellspacing="0">'+
+			'	<tr><td colspan="7" align="center" class="title"> '+ 
+			'	<b>'+ months[month-1] +', '+ year +'</b> </td></tr>'+
+			'	<tr><td class="week_day">M</td> <td class="week_day">T</td> <td class="week_day">W</td>'+
+			'	    <td class="week_day">T</td> <td class="week_day">F</td> <td class="week_day">S</td> <td class="week_day">S</td>'+
+			'	</tr>'+
+			'	<tr>';
 				
 		var day = 1;
 		for (var ci=1; ci<43; ci++) {
 			if (weekDay == 0 && ci == 1) {
-				for (var ti=0; ti<6; ti++) html += '<td style="cursor: default; background-color: #f4f4fe; border: 1px solid #e8e8e8;">&nbsp;</td>';
+				for (var ti=0; ti<6; ti++) html += '<td class="day_empty">&nbsp;</td>';
 				ci += 6;
 			} else {
 				if (ci < weekDay || day > daysCount[month-1]) {
-					html += '<td style="cursor: default; background-color: #f4f4fe; border: 1px solid #e8e8e8;">&nbsp;</td>';
+					html += '<td class="day_empty">&nbsp;</td>';
 					if ((ci)%7 == 0) html += '</tr><tr>';
 					continue;
 				}
 			}
 			var dt  = month + '/' + day + '/' + year;
-			var bor = '';
+			
+			var className = "day";
+			if (dt == today) className += ' day_today';
+			if (ci % 7 == 6) className += ' day_saturday';
+			if (ci % 7 == 0) className += ' day_sunday';
+			
+			var dspDay = day;			
 			var col = '';
-			if (dt == today) bor = 'border: 1px solid #c8493b;'; else bor = 'border: 1px solid #e8e8e8;';
-			if ((ci)%7 == 0) col = 'color: #c8493b;'; else col = 'color: black;'; 
-			var dspDay = day;
-			var bgcol = 'background-color: #f4f4fe;';
-			if (param.colored) if (param.colored[dt] != undefined) {
+			var bgcol = '';
+			if (param.colored) if (param.colored[dt] != undefined) { // if there is predefined colors for dates
 				tmp   = param.colored[dt].split(':');
 				bgcol = 'background-color: ' + tmp[0] + ';';
 				col   = 'color: ' + tmp[1] + ';';
 			}
-			html += '<td align="right" style="padding-left: 5px; padding-right: 5px; cursor: default; '+ bor + col + bgcol +'"'+
-					'	id="'+ this.name +'_date_'+ dt +'" date="'+ dt +'"';
+			
+			html += '<td class="'+ className +'" style="'+ col + bgcol +'" id="'+ this.name +'_date_'+ dt +'" date="'+ dt +'"';
 			var noSelect = false;
 			if (param.blocked) if (param.blocked[dt] != undefined) {
 				dspDay = '<strike>'+ dspDay +'</strike>';
@@ -205,11 +207,11 @@ var jsControls2 = {
 			if (noSelect === false) {
 				html += 'onclick     = "window._calendar_el.value = \''+ dt +'\'; if(window._calendar_el.onchange) window._calendar_el.onchange();'+
 						'			    event.stopPropagation(); return false;"'+
-						'onmouseover = "this._bgColor = this.style.backgroundColor; this.style.backgroundColor =\'yellow\';"'+
-						'onmouseout  = "this.style.backgroundColor = this._bgColor;"';
+						'onmouseover = "this._bgColor = this.style.backgroundColor; this.className = \''+ className +' day_hover\';"'+
+						'onmouseout  = "this.style.backgroundColor = this._bgColor; this.className = \''+ className +'\';"';
 			}
 			html +=	'>'+ dspDay + '</td>';
-			if ((ci)%7 == 0 || (weekDay == 0 && ci == 1)) html += '</tr><tr>';
+			if (ci % 7 == 0 || (weekDay == 0 && ci == 1)) html += '</tr><tr>';
 			day++;
 		}
 		html += '</tr></table>';

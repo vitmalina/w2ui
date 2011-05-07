@@ -203,7 +203,6 @@ function list_process($db, $reqParams, $SQL, $CQL="", $retArray=false, $colorCol
 	$SQL = list_processSearchFields($db, $reqParams, $SQL);
 	$CQL = list_processSearchFields($db, $reqParams, $CQL);
 	if ($CQL == "") $CQL = "SELECT count(*) FROM ($SQL) as listforcount";
-	print("/* $SQL */");
 
 	if (is_array($reqParams['req_sort'])) {
 		// remove old sorting
@@ -415,7 +414,7 @@ function edit_save($db, $reqParams, $post, $table, $kfield, $stayHere=false) {
 			if (substr($key, strlen($key)-6) == '_radio') continue;
 			if (substr($key, strlen($key)-6) == '_check') continue;
 			if ($val != '' OR $val == '0') {
-				if (substr($val, 0, 2) != '__') $fields .= "$key = '".str_replace("'", "'", $val)."',";
+				if (substr($val, 0, 2) != '__') $fields .= "$key = '".str_replace("'", "''", $val)."',";
 										  else $fields .= "$key = ".substr($val, 2).",";
 			} else {
 				$fields .= "$key = null,";
@@ -435,16 +434,16 @@ function edit_save($db, $reqParams, $post, $table, $kfield, $stayHere=false) {
 		$rs = $db->execute($sql_id);
 		$reqParams["req_recid"] = $rs->fields[0];
 	}
-	if (!$stayHere) edit_finish($reqParams);
+	if (!$stayHere) {
+		print("<script>
+				  top.elements['".$reqParams["req_name"]."'].saveDone(".$reqParams["req_recid"].");
+			   </script>
+			   ");
+	}
 	return $reqParams;
 }
 
-function edit_finish($reqParams) {
-	print("<script>
-			  top.elements['".$reqParams["req_name"]."'].saveDone(".$reqParams["req_recid"].");
-		   </script>
-		   ");
-}
+function edit_finish($reqParams) { }
 
 function edit_showFrame($reqParams) {
 	print("=== POST ===<pre>");

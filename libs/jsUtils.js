@@ -163,6 +163,7 @@ var jsUtils = {
 	serialize: function (obj){
 		var res = '';
 		for (var key in obj) {
+			if (String(obj[key]) == 'undefined') obj[key] = '';
 			if (typeof(obj[key]) == 'object') {
 				res += escape(key) + '^[' + this.serialize(obj[key]) + ']!!';
 			} else {
@@ -402,34 +403,36 @@ var jsUtils = {
 		return box;
 	},
 	
-	showMsg: function (title, body, buttons, width, height) {
+	showMsg: function (body, params) {
 		// lock screen
 		window.jsUtils.lock(0.3, function() { // unlock if clicked away
 			window.jsUtils.hideMsg(); 
 		});
+		if (!params) params = {};
 		// show message
-		var msg = '<div>'+
-				  '<div style="border-radius: 8px 8px 0px 0px; font-variant: small-caps; background-color: #7bceff; color: white; '+
-				  '		font-weight: bold; padding: 12px; font-size: 14px;">'+ title + '</div>'+
-				  '<div style="padding: 20px 12px; background-color: white; font-size: 12px;'+ 
-						(String(buttons) == 'undefined' ? 'border-radius: 0px 0px 8px 8px;' : '') +'">'+ body + 
-				  '</div>'+
-				  '</div>';
-		if (String(buttons) != 'undefined') { 
-			msg +='<div style="border-radius: 0px 0px 8px 8px; background-color: #eeeeee; text-align: center; padding: 10px;">'+ buttons + '</div>';
-		}
-		var box = window.jsUtils.message(msg, width, height);
-		box.style.cssText += 'border-radius: 6px; padding: 0px; margin: 0px; border: 1px solid gray;';
+		var msg = '<div class="w20-message" style="">';
+		if (String(params.title) != 'undefined' && params.title != null) { msg +='<div class="msg_title">'+ params.title + '</div>';	}
+		msg += 	'<div class="msg_body'+
+			(String(params.buttons) == 'undefined' || params.buttons == null ? ' msg_no-buttons' : '') +
+			(String(params.title) == 'undefined' || params.title == null ? ' msg_no-title' : '') +
+			'">'+ body +'</div>';
+		if (String(params.buttons) != 'undefined' && params.buttons != null) { msg +='<div class="msg_buttons">'+ params.buttons + '</div>';	}
+		msg += '</div>';
+		var box = this.message(msg, params.width, params.height);
 		// drop shadow
-		window.jsUtils.dropShadow(box, true);
+		if (this.inArray(this.engine, ['IE5', 'IE7', 'IE8'])) {
+			window.setTimeout("window.jsUtils.dropShadow(window.screenMessage)", 10);
+		} else{
+			this.dropShadow(box, true);
+		}
 		return box;
 	},
 
 	hideMsg: function () {
 		// lock screen and remove message
-		window.jsUtils.clearShadow(window.screenMessage);	
+		this.clearShadow(window.screenMessage);	
 		window.screenMessage.parentNode.removeChild(window.screenMessage);
-		window.jsUtils.unlock();
+		this.unlock();
 	},
 	
 	dropShadow: function (shadowel, center) {
@@ -466,19 +469,19 @@ var jsUtils = {
 		var html = '\n';
 		html += '<table cellpadding="0" cellspacing="0" style="width:100%; height:100%; font-size: 2px; font: 2px; table-layout: fixed;">\n'+
 				'<tr>\n'+
-				'  <td style="width: 10px; height: 10px; -moz-border-radius: 12 0 0 0; border-radius: 12 0 0 0; background-image: url('+ window.jsUtils.sys_path +'/images/shadow1.png)"></td>\n'+
-				'  <td style="height: 10px; background-image: url('+ window.jsUtils.sys_path +'/images/shadow2.png)"></td>\n'+
-				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 12 0 0; border-radius: 0 12 0 0; background-image: url('+ window.jsUtils.sys_path +'/images/shadow3.png); background-position: right top"></td>\n'+
+				'  <td style="width: 10px; height: 10px; -moz-border-radius: 12 0 0 0; border-radius: 12 0 0 0; background-image: url('+ this.sys_path +'/images/shadow1.png)"></td>\n'+
+				'  <td style="height: 10px; background-image: url('+ this.sys_path +'/images/shadow2.png)"></td>\n'+
+				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 12 0 0; border-radius: 0 12 0 0; background-image: url('+ this.sys_path +'/images/shadow3.png); background-position: right top"></td>\n'+
 				'</tr>\n'+
 				'<tr>\n'+
-				'  <td style="width: 10px; background-image: url('+ window.jsUtils.sys_path +'/images/shadow8.png)"></td>\n'+
-				'  <td style="background-image: url('+ window.jsUtils.sys_path +'/images/shadow0.png); opacity: 0.55; filter: alpha(opacity=12);"></td>\n'+
-				'  <td style="width: 10px; background-image: url('+ window.jsUtils.sys_path +'/images/shadow4.png); background-position: right top"></td>\n'+
+				'  <td style="width: 10px; background-image: url('+ this.sys_path +'/images/shadow8.png)"></td>\n'+
+				'  <td style="background-image: url('+ this.sys_path +'/images/shadow0.png); opacity: 0.55; filter: alpha(opacity=12);"></td>\n'+
+				'  <td style="width: 10px; background-image: url('+ this.sys_path +'/images/shadow4.png); background-position: right top"></td>\n'+
 				'</tr>\n'+
 				'<tr>\n'+
-				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 0 0 12; border-radius: 0 0 0 12; background-image: url('+ window.jsUtils.sys_path +'/images/shadow7.png); background-position: left bottom;"></td>\n'+
-				'  <td style="height: 10px; background-image: url('+ window.jsUtils.sys_path +'/images/shadow6.png); background-position: right bottom"></td>\n'+
-				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 0 12 0; border-radius: 0 0 12 0; background-image: url('+ window.jsUtils.sys_path +'/images/shadow5.png); background-position: right bottom"></td>\n'+
+				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 0 0 12; border-radius: 0 0 0 12; background-image: url('+ this.sys_path +'/images/shadow7.png); background-position: left bottom;"></td>\n'+
+				'  <td style="height: 10px; background-image: url('+ this.sys_path +'/images/shadow6.png); background-position: right bottom"></td>\n'+
+				'  <td style="width: 10px; height: 10px; -moz-border-radius: 0 0 12 0; border-radius: 0 0 12 0; background-image: url('+ this.sys_path +'/images/shadow5.png); background-position: right bottom"></td>\n'+
 				'</tr>\n'+
 				'</table>\n';
 		tmp.innerHTML = html;
