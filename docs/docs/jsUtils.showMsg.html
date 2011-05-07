@@ -1,0 +1,51 @@
+<div id="help_main">
+
+<h1>jsUtils.showMsg()</h1>
+
+Displays a message dialog. 
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.showMsg( text, params )</b>
+  text - text of the message
+  params - a JavaScript object with additional parameters
+</pre>
+<br>
+Returns HTML div element object
+<br><br>
+This function will display a message dialog. The text of the message is represended by the first parameter. The second parameter is a
+JavaScript object with additional parameters. Below is the list of these additional parameters:
+<br><br>
+<pre class="code params">
+  title - the title of the message
+  buttons - html text that will be displayed in the bottom of the dialog, 
+    which can be used to output buttons
+  width - the width of the dialog in px
+  height - the height of the dialog in px
+</pre>
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        window.onload = function() {
+            jsUtils.showMsg('This is my message', { 
+                title: 'A Title', 
+                buttons: '&lt;input type=button value="close" onclick="jsUtils.hideMsg()"&gt;' 
+            });
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.showMsg.html')">jsUtils.showMsg()</a></li>
+	<li><a href="javascript: load('jsUtils.hideMsg.html')">jsUtils.hideMsg()</a></li>
+</ul>
+
+</div>

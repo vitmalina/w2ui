@@ -1,0 +1,40 @@
+<div id="help_main">
+
+<h1>jsUtils.trim()</h1>
+
+Trims string variable.
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.trim( str )</b>
+  str - string variable
+</pre>
+<br>
+Returns trimmed string.
+<br><br>
+JavaScript does not have a function that trims white spaces from the beginning and end of a string. jsUtils.trim() should compensates
+for the lack. Besides white spaces, it will also remove new line codes if they are at the beginning or end of the string.
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        window.onload = function() {
+            alert(jsUtils.trim(' some string.     '));
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.trim.html')">jsUtils.trim()</a></li>
+	<li><a href="javascript: load('jsUtils.stripTags.html')">jsUtils.stripTags()</a></li>
+</ul>
+
+</div>

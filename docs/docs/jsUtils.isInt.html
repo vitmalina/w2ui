@@ -1,0 +1,45 @@
+<div id="help_main">
+
+<h1>jsUtils.isInt()</h1>
+
+Checks if the variable is an integer.
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.isInt( str )</b>
+  str - any javascript variable
+</pre>
+<br>
+Returns true if the variable is a valid integer or false otherwise.
+<br><br>
+Any input variable is treated as a string. The function will test each charector in this string to be inside the set of 0..9. If all charectors
+are inside the set, it will return true, otherwise false.
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        window.onload = function() {
+            alert(jsUtils.isInt('10'));
+            alert(jsUtils.isInt('10.2'));
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.isInt.html')">jsUtils.isInt()</a></li>
+	<li><a href="javascript: load('jsUtils.isFloat.html')">jsUtils.isFloat()</a></li>
+	<li><a href="javascript: load('jsUtils.isMoney.html')">jsUtils.isMoney()</a></li>
+	<li><a href="javascript: load('jsUtils.isHex.html')">jsUtils.isHex()</a></li>
+	<li><a href="javascript: load('jsUtils.isDate.html')">jsUtils.isDate()</a></li>
+	<li><a href="javascript: load('jsUtils.isTime.html')">jsUtils.isTime()</a></li>
+</ul>
+
+</div>
