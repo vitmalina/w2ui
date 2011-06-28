@@ -14,16 +14,16 @@ function initTree() {
 	var node = docTree.addNode(basics, 'jsUtils.html', 'jsUtils');
 	docTree.addNode(node, 'jsUtils.general.html', 'Genearal');
 	docTree.addNode(node, 'jsUtils.string.html', 'String');
-	docTree.addNode(node, 'jsUtils.onscreen.html', 'On Screen');
+	docTree.addNode(node, 'jsUtils.screen.html', 'Screen');
 	docTree.addNode(node, 'jsUtils.styling.html', 'Styling');
 	
-	var node = docTree.addNode(basics, 'classes:jsControls.js', 'jsControls');
+	var node = docTree.addNode(basics, 'jsControls.html', 'jsControls');
 	docTree.addNode(node, 'jsControls.basic.html', 'General');
 	docTree.addNode(node, 'jsControls.calendar.html', 'Calendar');
 	docTree.addNode(node, 'jsControls.lookup.html', 'Lookup');
 	docTree.addNode(node, 'jsControls.styling.html', 'Styling');
 	
-	var node = docTree.addNode(basics, 'classes:jsList.js', 'jsList');
+	var node = docTree.addNode(basics, 'jsList.html', 'jsList');
 	docTree.addNode(node, 'jsList.basic.html', 'Basic');
 	docTree.addNode(node, 'jsList.columns.html', 'Columns');
 	docTree.addNode(node, 'jsList.searches.html', 'Searches');
@@ -31,7 +31,7 @@ function initTree() {
 	docTree.addNode(node, 'jsList.eid.html', 'Edit Row');
 	docTree.addNode(node, 'jsList.styling.html', 'Styling');
 	
-	var node = docTree.addNode(basics, 'classes:jsEdit.js', 'jsEdit');
+	var node = docTree.addNode(basics, 'jsEdit.html', 'jsEdit');
 	docTree.addNode(node, 'jsEdit.basic.html', 'Basic');
 	docTree.addNode(node, 'jsEdit.groups.html', 'Groups');
 	docTree.addNode(node, 'jsEdit.controls.html', 'Controls');

@@ -125,17 +125,19 @@ function buildCheckList($db, $reqParams, $SQL, $out=true) {
 function list_processSearchFields($db, $reqParams, $SQL) {
 	if ($reqParams['req_search'] == '' && $reqParams['req_search-all'] == '') {
 		$searchStatement = "";
+		
 	} elseif ($reqParams['req_search-all'] != '') {
+	
 		// -- search in all fields at the same time
 		$searchStatement = "";
 		$value = trim($reqParams['req_search-all']); 
 		foreach( $reqParams['req_search-fields'] as $ind => $column) {
 			if ($value == '' || $value == '::') continue;
-			$tmp = split("::", $value);
+			$tmp = explode("::", $value);
 			
-			if (count(split('/', $tmp[0])) == 3) { // check if date
+			if (count(explode('/', $tmp[0])) == 3) { // check if date
 				if (count($tmp) == 2) {
-					if (count(split('/', $tmp[1])) != 3) $tmp[1] = $tmp[0];
+					if (count(explode('/', $tmp[1])) != 3) $tmp[1] = $tmp[0];
 					$searchStatement .= " OR (".$column." >= '".str_replace("'","''", $tmp[0])."'::DATE AND ".$column." <= '".str_replace("'","''", $tmp[1])."'::DATE)".chr(13).chr(10);
 				} else {
 					if ($tmp[1] == '') $tmp[1] = $tmp[0];
@@ -163,21 +165,23 @@ function list_processSearchFields($db, $reqParams, $SQL) {
 			}
 		}
 		$searchStatement = substr($searchStatement, 4);
+		
 	} elseif ($reqParams['req_search'] != '') {
+	
 		// -- search each field separately	
 		$searchStatement = "";
 		foreach( $reqParams['req_search'] as $column => $value) {
 			$value = trim($value); 
 			if ($value == '' || $value == '::') continue;
 			if (strpos('*'.strtoupper($column), "~VALUE") > 0) {
-				$tmp = split("::", $value);
+				$tmp = explode("::", $value);
 				$column = str_ireplace('~AMP~', '&', $column);
 				$column = str_ireplace("~VALUE~",  $tmp[0], $column);
 				$column = str_ireplace("~VALUE1~", $tmp[0], $column);
 				$column = str_ireplace("~VALUE2~", $tmp[1], $column);
 				$searchStatement .= " AND (".$column.") ".chr(13).chr(10);
 			} else {
-				$tmp = split("::", $value);
+				$tmp = explode("::", $value);
 				if (count($tmp) == 1) {
 					if ($db->dbType == 'mysql') {
 						$searchStatement .= " AND lower(".$column.") LIKE lower('".str_replace("'","''", $value)."%')".chr(13).chr(10);
@@ -193,7 +197,7 @@ function list_processSearchFields($db, $reqParams, $SQL) {
 		$searchStatement = substr($searchStatement, 5);
 	}
 	if ($searchStatement == "") $searchStatement = "1=1";
-	$SQL = str_replace("~SEARCH~", $searchStatement, $SQL);		
+	$SQL = str_replace("~SEARCH~", "(".$searchStatement.")", $SQL);		
 	return $SQL;
 }
 
@@ -280,7 +284,7 @@ function list_process($db, $reqParams, $SQL, $CQL="", $retArray=false, $colorCol
 function list_delete($db, $reqParams, $deleteTableName, $deleteKeyField){
 	if( $reqParams['req_ids'] > '' ) {
 		$reqParams['req_ids'] = "'".str_replace(",", "','", $reqParams['req_ids'])."'";
-		$tmp = split(",", $reqParams['req_ids']);
+		$tmp = explode(",", $reqParams['req_ids']);
 		$error = false;
 		foreach ($tmp as $key => $value) {
 			$cmd = "DELETE FROM $deleteTableName WHERE $deleteKeyField = $value";
@@ -312,10 +316,10 @@ function list_prepareSearch($field, $search){
 function list_prepareSave($params, $fields) {
 	$ret = Array();
 	foreach ($params as $k => $v) {
-		$tmp = split(';;', $v);
+		$tmp = explode(';;', $v);
 		$ret[$k] = Array();
 		foreach ($tmp as $key => $value) {
-			$t = split('\^\^', $value);
+			$t = explode('^^', $value);
 			$ret[$k][$fields[$t[0]]] = $t[1];
 		}
 	}
@@ -333,6 +337,7 @@ function edit_process($db, $reqParams, $SQL) {
 		$db->execute($SQL);
 		return false;
 	}
+	print("top.elements['".$reqParams["req_name"]."'].items = [];\n");
 	// -- fill out values
 	if ($rs && !$rs->EOF) {
 		$fld = $rs->fields;
@@ -397,7 +402,7 @@ function edit_save($db, $reqParams, $post, $table, $kfield, $stayHere=false) {
 			if (substr($key, strlen($key)-6) == '_check') continue;
 			$fields .= $key.",";
 			if ($val != '' OR $val == '0') {
-				if (substr($val, 0, 2) != '__') $values .= "'".str_replace("'", "'", $val)."',";
+				if (substr($val, 0, 2) != '__') $values .= "'".str_replace("'", "''", $val)."',";
 										  else $values .= "".substr($val, 2).",";
 			} else {
 				$values .= "DEFAULT,";

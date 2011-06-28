@@ -67,7 +67,7 @@ function jsCalendar(name, box) {
 		var weekDay = td.getDay();
 		
 		cc 	  = 'align="center" style="background-color: #e8e8e8; color: gray;"';
-		html  = '<table cellpadding="3" cellspacing="0" style="background-color: #e4ebed; border: 1px solid silver;" class="rText">'+
+		html  = '<table cellpadding="3" cellspacing="0" style="padding: 0px; margin: 0px; background-color: #e4ebed; border: 1px solid silver;" class="rText">'+
 				'	<tr><td colspan="7" align="center" style="padding: 4px; border-bottom: 1px solid silver; '+
 				'			background-image: url('+top.jsUtils.sys_path+'/images/bl_title_bg.png); color: black"> '+ 
 				this.months[month-1] +', '+ year +' </td></tr>'+
@@ -125,7 +125,7 @@ function jsCalendar(name, box) {
 		if (!month) month = this.curMonth;
 		year  = parseInt(year);
 		month = parseInt(month);
-		html = '<table cellpadding="0" cellspacing="1" class="rText" style="background-color: white; border: 2px solid #5a8cdc;" id="'+ this.name + '_tbl" date="'+ this.curDate +'">'+
+		html = '<table cellpadding="0" cellspacing="1" class="rText" style="padding: 0px; margin: 0px; background-color: white; border: 2px solid #5a8cdc;" id="'+ this.name + '_tbl" date="'+ this.curDate +'">'+
 			   '<tr> <td colspan=5 style="border-bottom: 2px solid silver; background-color: #3b79c8; color: black; font-weight: 700"> '+
 			   '	<div style="float: left; cursor: default;">'+
 			   '		<input type="button" value="<<"  class="rText" style="width: 37px" tabindex="-1"'+

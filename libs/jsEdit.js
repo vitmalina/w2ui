@@ -17,9 +17,10 @@ function jsEdit(name, box, recid) {
     this.srvFile  		= '';
     this.srvParams  	= [];
     this.header   		= 'Edit Page';
+	this.headerRight	= '';
     this.showHeader 	= true;
 	this.showFooter 	= true;
-	this.fixedSize		= false;
+	this.fixedSize		= true;
     this.recid      	= recid;
     this.msgEmpty   	= 'Some of the required fields are empty:';
     this.msgWrong   	= 'The type of the following fields is wrong:';
@@ -122,10 +123,13 @@ function jsEdit(name, box, recid) {
 
 	function jsEdit_showTab(tab) {
 		if (this.tabs.length <= 0) return;
+		// -- remember right title
+		this.headerRight = this.box.ownerDocument.getElementById('title_td2_'+ this.name).innerHTML;
+		if (String(this.headerRight) == 'undefined') this.headerRight = '';
 		// -- reset tabs
 		for (var i=0; i<this.tabs.length; i++) this.tabs[i].active = false;
 		this.tabs[tab].active = true;
-		
+		// -- refresh
 		this.refresh();
 	}
 
@@ -144,7 +148,7 @@ function jsEdit(name, box, recid) {
 				top.elements[grp.name] = null;
 				this.groupObjs[ind] = new top.jsGroup(grp.name, grp.caption);
 				this.groupObjs[ind].owner   = this;
-				this.groupObjs[ind].tabName = grp.tabName;
+				this.groupObjs[ind].tabName = (String(grp.tab) != 'undefined' ? grp.tab : grp.tabName);
 				this.groupObjs[ind].height  = grp.height;
 				this.groupObjs[ind].inLabel = grp.inLabel;
 				if (grp.inTag) this.groupObjs[ind].inLabel = grp.inTag;
@@ -217,8 +221,8 @@ function jsEdit(name, box, recid) {
 				for (var i=0; i<this.tabs.length; i++) {
 					if (this.tabs[i].width == null) this.tabs[i].width = 100;
 					tabs_html += '<td style="width: '+ (parseInt(this.tabs[i].width)+3) +'px; padding: 0px; margin: 0px; font-weight: normal;">'+
-						'	<div style="position: relative; top: -11px; padding: 0px; margin: 0px;">'+
-						'		<div class="tab '+ (this.tabs[i].active ? 'tab_selected' : '') +'" style="position: absolute; height: 20px; '+
+						'	<div style="position: relative; top: -'+ (top.jsUtils.engine == 'WebKit' ? '10' : '11') +'px; padding: 0px; margin: 0px;">'+
+						'		<div id="'+ this.name + '_tab'+ i +'" class="tab '+ (this.tabs[i].active ? 'tab_selected' : '') +'" style="position: absolute; margin: 0px; height: 20px; '+
 						'			width: '+ parseInt(this.tabs[i].width) +'px; cursor: default;" '+
 						'			onclick="top.elements[\''+ this.name +'\'].showTab('+ i +');">'+ 
 						this.tabs[i].caption+ '</div>'+
@@ -232,10 +236,13 @@ function jsEdit(name, box, recid) {
 					'			<span ondblclick="top.elements.'+ this.name +'.getData(); top.elements.'+ this.name +'.resize();" id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
 					'       </td>\n'+ tabs_html +
 					'       <td style="width: 1px" nowrap>&nbsp;</td>\n'+
-					'       <td><span class="status" style="display: none" id="status_'+ this.name + '"></span></td>\n'+
-					'       <td id="title_td2_'+ this.name + '" align="right" style="width: 5%" nowrap="nowrap"></td>\n'+
+					'       <td><span class="edit_status" style="display: none" id="status_'+ this.name + '"></span></td>\n'+
+					'       <td id="title_td2_'+ this.name + '" align="right" style="width: 5%" nowrap="nowrap">'+ this.headerRight +'</td>\n'+
 					'   </tr></table>\n'+
-					'</div>\n';
+					'</div>\n'+
+					'<div style="position: relative;"><div style="margin-top: -1px; position: absolute; overflow: hidden;">\n'+
+					'	<div id="header_'+ this.name +'_drop" style="display: none; position: absolute; z-index: 100;"></div>\n'+
+					'</div></div>\n';
 		}
 		// then groups and controls
 		html += '<div id="body_'+ this.name +'">';
@@ -259,6 +266,11 @@ function jsEdit(name, box, recid) {
 				this.items[gr.fields[k].index] = val;
 				//gr.fields[k].value = val;
 			}
+			// if there is no fields in the group - save html
+			if (gr.fields.length == 0) {
+				var el = this.box.ownerDocument.getElementById(gr.owner.name +'_group_content_'+ gr.name);
+				if (el) gr.groupHTML = el.innerHTML;
+			}
 			// output group
 			if (gr.disabled == true) {
 				html = html.replace('~'+gr.name+'~', '');
@@ -267,7 +279,7 @@ function jsEdit(name, box, recid) {
 			if (gr.object != null && gr.object != '') {
 				if (gr.height != null) addH = 'style="border: 0px; margin: 0px; padding: 0px; height: '+ parseInt(gr.height)+ 'px;"'; 
 								  else addH = 'style="border: 0px; margin: 0px; padding: 0px;"';
-				html = html.replace('~'+gr.name+'~', "<div class=\"group\" id=\"group_"+ gr.name +"_object\" "+ addH +"></div>");
+				html = html.replace('~'+gr.name+'~', "<div class=\"group\" id=\""+ this.name +"_group_"+ gr.name +"_object\" "+ addH +"></div>");
 			} else {
 				html = html.replace('~'+gr.name+'~', gr.build());
 			}
@@ -300,15 +312,18 @@ function jsEdit(name, box, recid) {
 		for (var ii=0; ii<this.groupObjs.length; ii++) {
 			var gr = this.groupObjs[ii];
 			if (this.box && (gr.object != null && gr.object != '')) {
-				var div = this.box.ownerDocument.getElementById("group_"+ gr.name +"_object");
-				if (gr.object != null && typeof(gr.object) == 'object') {
-					gr.object.box 	= div;
-					gr.object.recid = this.recid;
-					gr.object.output();
-				} else {
-					top.elements[gr.object].box   = div;
-					top.elements[gr.object].recid = this.recid;
-					top.elements[gr.object].output();
+				var div = this.box.ownerDocument.getElementById(this.name+ "_group_"+ gr.name +"_object");
+				// only refresh if in current tab
+				if (String(tab) == 'undefined' || gr.tabName == this.tabs[tab].name) {
+					if (gr.object != null && typeof(gr.object) == 'object') {
+						gr.object.box 	= div;
+						gr.object.recid = this.recid;
+						gr.object.output();
+					} else {
+						top.elements[gr.object].box   = div;
+						top.elements[gr.object].recid = this.recid;
+						top.elements[gr.object].output();
+					}
 				}
 			}
 		}	
@@ -333,9 +348,9 @@ function jsEdit(name, box, recid) {
 			// -- show/hide groups
 			var tmp_name = this.tabs[tab].name;		
 			for (var i=0; i<this.groups.length; i++) {
-				var el1 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name);
-				var el2 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name+'_break');
-				var el3 = this.box.ownerDocument.getElementById('group_'+this.groups[i].name+'_object');
+				var el1 = this.box.ownerDocument.getElementById(this.name+'_group_'+this.groups[i].name);
+				var el2 = this.box.ownerDocument.getElementById(this.name+'_group_'+this.groups[i].name+'_break');
+				var el3 = this.box.ownerDocument.getElementById(this.name+'_group_'+this.groups[i].name+'_object');
 				var gr 	= this.groups[i];
 				if (gr.tabName == tmp_name || gr.tab == tmp_name) { 
 					if (el1) el1.style.display = '';
@@ -396,7 +411,7 @@ function jsEdit(name, box, recid) {
 
 	function jsEdit_resize() {
 		if (!this.box) return;
-		if (this.fixedSize) return;
+		if (!this.fixedSize) return;
 		
 		var el  = this.box.ownerDocument.getElementById('body_'+ this.name);
 		var elh = this.box.ownerDocument.getElementById('header_'+ this.name);
@@ -413,8 +428,8 @@ function jsEdit(name, box, recid) {
 		
 		if (height > 0 && el) {
 			var hheight = height 
-				- (this.showHeader ? parseInt(elh.clientHeight)+1 : 0)
-				- (this.showFooter ? parseInt(elf.clientHeight)+1 : 0);
+				- (this.showHeader ? parseInt(elh.clientHeight)+2 : 0)
+				- (this.showFooter ? parseInt(elf.clientHeight)+2 : 0);
 			el.style.height   = hheight + 'px';
 		}
 	}
@@ -539,15 +554,17 @@ function jsEdit(name, box, recid) {
 	}
 
 	function jsEdit_lookup_blur(el, name, evnt) {
-		setTimeout("if (top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"').value == '') {" +
-				   "	if (top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"_search')) {"+
-				   "		top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"_search').value = 'start typing...';" +
-				   "		top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"_search').style.color = '#666666';" +
-				   "	}"+
-				   "}"+
-				   "top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"_div').style.display = 'none';"+
-				   "top.jsUtils.clearShadow(top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"_div')); "+
-				   "", 400);
+		setTimeout("var el  = top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"');"+
+				   "var eld = top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"_div');"+
+				   "var els = top.elements['"+ this.name +"'].box.ownerDocument.getElementById('"+ name +"_search');"+
+				   "if (el) if (el.value == '') { if (els) {"+
+				   "	els.value = 'start typing...';" +
+				   "	els.style.color = '#666666';" +
+				   "}}"+
+				   "if (eld) {"+
+				   "	eld.style.display = 'none';"+
+				   "	top.jsUtils.clearShadow(eld); "+
+				   "}", 400);
 	}
 
 	function jsEdit_getControls() {
@@ -559,20 +576,22 @@ function jsEdit(name, box, recid) {
 				case 'save':
 					cnt_html = '<input id="'+ this.name +'_control'+ i +'" class="rButton" type="button" '+
 							   '	onclick="var el = top.elements[\''+ this.name + '\']; el.stayHere = false; el.saveData();" '+
-							   '	value="'+ cnt.caption + '" '+ cnt.inTag +'>';
+							   '	value="'+ cnt.caption + '" '+ cnt.inTag +' '+ (cnt.disabled ? 'disabled' : '') +'>';
 					break;
 				case 'update': // -- save & edit
 					cnt_html = '<input id="'+ this.name +'_control'+ i +'" class="rButton" type="button" '+
 							   '	onclick="var el = top.elements[\''+ this.name + '\']; el.stayHere = true; el.saveData();" '+
-							   '	value="'+ cnt.caption + '" '+ cnt.inTag +'>';
+							   '	value="'+ cnt.caption + '" '+ cnt.inTag +' '+ (cnt.disabled ? 'disabled' : '') +'>';
 					break;
 				case 'back':
 					cnt_html = '<input id="'+ this.name +'_control'+ i +'" type="button" class="rButton" '+
-							   '	onclick="top.elements[\''+ this.name +'\'].complete();" value="'+ cnt.caption + '" '+ cnt.inTag +'>';
+							   '	onclick="top.elements[\''+ this.name +'\'].complete();" value="'+ cnt.caption + '" '+ 
+							   cnt.inTag +' '+ (cnt.disabled ? 'disabled' : '') +'>';
 					break;
 				case 'button':
 					cnt_html = '<input id="'+ this.name +'_control'+ i +'" class="rButton" type="button" '+
-							   '	onclick="'+ cnt.param + '" value="'+ cnt.caption + '" '+ cnt.inTag +'>';
+							   '	onclick="'+ cnt.param + '" value="'+ cnt.caption + '" '+ cnt.inTag +' '+ 
+							   (cnt.disabled ? 'disabled' : '') +'>';
 					break;
 				default:
 					cnt_html = cnt.caption;
@@ -686,11 +705,11 @@ function jsEdit(name, box, recid) {
 
 	function jsEdit_resetFields() {
 		if (!this.box) return;
-		var val = 0;
-		while (true) {
-			var el = this.box.ownerDocument.getElementById(this.name+'_field'+val);
-			if (!el) break;
-			var data = String(this.items[val]) != 'undefined' ? this.items[val] : '';
+		for (var val=0; val<200; val++) {
+			var el  = this.box.ownerDocument.getElementById(this.name+'_field'+val);
+			var fld = this.findField(val);
+			if (!el) continue;
+			var data = String(this.items[val]) != 'undefined' ? this.items[val] : (String(fld.defValue) != 'undefined' ? fld.defValue : '');
 			el.value = data;
 			// -- convert html entities if needed
 			var str_tmp = String(el.value);
@@ -734,7 +753,14 @@ function jsEdit(name, box, recid) {
 			if (el2) {
 				el2.style.backgroundColor = el.value;
 			}
-			val++;
+		}
+		// if there are groups with no fields - output html
+		for (var ii=0; ii<this.groupObjs.length; ii++) {
+			var gr = this.groupObjs[ii];
+			if (gr.fields.length == 0) {
+				var el = this.box.ownerDocument.getElementById(gr.owner.name +'_group_content_'+ gr.name);
+				if (el && String(gr.groupHTML) != 'undefined') el.innerHTML = gr.groupHTML;
+			}
 		}
 	}
 
@@ -745,9 +771,12 @@ function jsEdit(name, box, recid) {
 		// it will go thru the items array and will set data to corresponding fields
 		this.resetFields();
 		// focus first element
-		var el = this.box.ownerDocument.getElementById(this.name +'_field0_search');
-		if (!el) el = this.box.ownerDocument.getElementById(this.name+'_field0');
-		try { if (el) { if (el.onclick) { el.onclick(); } el.focus(); } } catch(e) {}
+		var doc = this.box.ownerDocument;
+		try {
+			var el = doc.getElementById(this.name +'_field0_search');
+			if (!el) el = doc.getElementById(this.name+'_field0');
+			if (el) { if (el.onclick) { el.onclick(); } el.focus(); } 
+		} catch(e) {}
 		
 		// init HTML Area fields
 		for (var ii=0; ii<this.groupObjs.length; ii++) {
@@ -836,9 +865,13 @@ function jsEdit(name, box, recid) {
 		if (typeof(obj) == 'function') { 
 			obj(); 
 		} else if (typeof(obj) == 'object') { 
+			if (this.lpanel) this.lpanel.object = obj;
 			obj.output(); 
 		} else { 
-			top.elements[obj].output(); 
+			if (top.elements[obj]) {			
+				if (this.lpanel) this.lpanel.object = top.elements[obj];
+				top.elements[obj].output(); 
+			}
 		}
 	}
 

@@ -3,9 +3,9 @@ $outputCloseHead = false;
 require("tree.php");
 ?>
 <link href="main.css" type="text/css" rel="stylesheet">
-<link href="../images/w20-main.css" type="text/css" rel="stylesheet">
-<link href="../images/w20-ui-blue.css" type="text/css" rel="stylesheet">
-<link href="../images/w20-buttons.css" type="text/css" rel="stylesheet">
+<link href="../css/w20-main.css" type="text/css" rel="stylesheet">
+<link href="../css/w20-ui-blue.css" type="text/css" rel="stylesheet">
+<link href="../css/w20-buttons.css" type="text/css" rel="stylesheet">
 
 <script src="../libs/jsUtils.php"></script>	
 <script src="../libs/jsLayout.php"></script>	

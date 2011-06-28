@@ -17,7 +17,7 @@ function jsList(name, box) {
     this.tmpl_start 	= '';
     this.tmpl_end		= '';
 	this.tmpl_group		= '';
-    this.tmpl_empty 	= '<div style="padding: 8px">~msg~</div>';
+    this.tmpl_empty 	= '<div style="padding: 8px;">~msg~</div>';
 	this.style_list		= '';
 	this.style_header	= '';
 	this.style_body		= '';
@@ -41,17 +41,19 @@ function jsList(name, box) {
     this.smallPageCount = false;
     this.smallPageNav   = false;
     this.fixed      	= true;
-	this.fixedSize		= false;
+	this.fixedSize		= true;
     this.editable       = [];
     this.sortBy			= [];
     this.count      	= 0;
     this.time           = [];
+	this.isDataReceived = false;
     this.msgDelete      = 'Are you sure you want to delete selected record(s)?';
-    this.msgNodata      = 'There is no data.';
+    this.msgNoData      = 'There is no data.';
 
     // events
 	this.onOutput;
 	this.onRefresh;
+	this.onAdd;
 	this.onAddOrEdit;
     this.onClick;
     this.onDblClick;
@@ -69,6 +71,7 @@ function jsList(name, box) {
     this.addItem     	= jsList_addItem;
 	this.addNew			= jsList_addNew;
 	this.applyFilter	= jsList_applyFilter;
+	this.applyChoice	= jsList_applyChoice;
     this.getData     	= jsList_getData;
 	this.showPage		= jsList_showPage;
     this.dataReceived	= jsList_dataReceived;
@@ -174,6 +177,28 @@ function jsList(name, box) {
 	function jsList_applyFilter(param) {
 		this.srvParams['filter'] = param;
 		this.getData();
+	}
+	
+	function jsList_applyChoice(ind, choice) {
+		var cnt = this.controls[ind];
+		if (typeof(cnt.param) == 'function') {
+			cnt.param(choice);
+		} else {
+			top.elements[this.name].serverCall(cnt.param, { choice: choice });
+		}
+		// -- show choice
+		cnt.selected = choice;
+		if (this.showToolbar && this.toolbar) {
+			var but = this.toolbar.getItem(cnt.button_id);
+			if (but) but.caption = but.caption.split('<span id=')[0] + '<span id=\''+ this.name +'_but'+ ind +'_choice\' style=\'color: blue\'>'+ choice +'</span>';
+		}
+		// -- no toolbar
+		if (this.box) {
+			var els = this.box.ownerDocument.getElementsByName(this.name +'_choice'+ ind);
+			if (els) for (var i in els) { if (!els[i] || !els[i].style) continue; els[i].style.color = 'blue'; }
+			var el = this.box.ownerDocument.getElementById(this.name +'_choice'+ ind +'_'+ choice);
+			if (el) el.style.color = 'green';
+		}
 	}
 
 	function jsList_lookup_show(name) {
@@ -305,15 +330,20 @@ function jsList(name, box) {
 	
 	function jsList_addNew() {
 		var obj = this.onAddOrEdit; 
+		if (this.onAdd) obj = this.onAdd;
 		if (typeof(obj) == 'function') { 
 			obj(); 
 		} else if (typeof(obj) == 'object') { 
-			obj.box = this.box; 
-			obj.recid = null; 
+			if (this.lpanel) this.lpanel.object = obj;
+			obj.box 	= this.box; 
+			obj.lpanel	= this.lpanel;
+			obj.recid 	= null; 
 			obj.output(); 
 		} else { 
-			top.elements[obj].box = this.box;
-			top.elements[obj].recid = null;
+			if (this.lpanel) this.lpanel.object = top.elements[obj];
+			top.elements[obj].box 	 = this.box;
+			top.elements[obj].lpanel = this.lpanel;
+			top.elements[obj].recid  = null;
 			top.elements[obj].output(); 
 		}
 	}
@@ -355,6 +385,7 @@ function jsList(name, box) {
 		this.srvParams['req_search-all'] 	= value;
 		this.srvParams['req_search-fields'] = fields;
 		this.items = [];
+		this.isDataReceived = false;
 		this.page_num = 0;
 		this.getData();
 	}
@@ -362,6 +393,7 @@ function jsList(name, box) {
 	function jsList_submitSearch() {
 		// -- clear all search field
 		this.last_search = '';
+		this.show_search = '';
 		this.srvParams['req_search-all'] 	= '';
 		this.srvParams['req_search-fields'] = [];
 		var el = this.box.ownerDocument.getElementById(this.name + '_search_all');
@@ -373,6 +405,7 @@ function jsList(name, box) {
 		// -- submit search
 		this.openSearch(false);
 		this.items = [];
+		this.isDataReceived = false;
 		this.page_num = 0;
 		this.getData();
 	}
@@ -484,11 +517,20 @@ function jsList(name, box) {
 
 	function jsList_resize() {
 		if (!this.box) return;
-		if (this.fixedSize) return;
-		// remember search field, beacuase HTML will be re-pasted
-		var els = this.box.ownerDocument.getElementById(this.name + '_search_all');
-		if (els) this.last_search = els.value;
+		
 		// remove all innerHTML of the control and reinsert it
+		//*
+		var tmp = this.box.ownerDocument.getElementById('body_'+ this.name);
+		if (!tmp) return;
+		var tmpHTML = tmp.innerHTML;
+		var height  = parseInt(this.box.clientHeight);
+		var width   = parseInt(this.box.clientWidth);
+		if (parseInt(height) == 0) height = parseInt(this.box.style.height);
+		if (parseInt(width)  == 0) width  = parseInt(this.box.style.width);
+		tmp.innerHTML = tmpHTML;
+		//*/
+
+		/* // remove if no resize problems
 		var tmpHTML = this.box.innerHTML;
 		this.box.innerHTML = '';
 		var height = parseInt(this.box.clientHeight);
@@ -496,27 +538,28 @@ function jsList(name, box) {
 		if (parseInt(height) == 0) height = parseInt(this.box.style.height);
 		if (parseInt(width)  == 0) width  = parseInt(this.box.style.width);
 		this.box.innerHTML = tmpHTML;
+		//*/
 		
 		// --
 		var el  = this.box.ownerDocument.getElementById('body_'+ this.name);
-		var ehr  = this.box.ownerDocument.getElementById('header_'+ this.name);
-		var eto  = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
-		var efo  = this.box.ownerDocument.getElementById('footer_'+ this.name);
+		var ehr = this.box.ownerDocument.getElementById('header_'+ this.name);
+		var eto = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
+		var efo = this.box.ownerDocument.getElementById('footer_'+ this.name);
 		var els = this.box.ownerDocument.getElementById('hcell_'+ this.name);
 		var elm = this.box.ownerDocument.getElementById('mtable_'+ this.name);
+		var elt = this.box.ownerDocument.getElementById('mtable_'+ this.name).firstChild;
 		var elh = this.box.ownerDocument.getElementById('htable_'+ this.name);
 		if (elh && elm) elh.scrollLeft = elm.scrollLeft;
-		
 		
 		// -- height of the _body
 		if (height > 0 && el) {
 			var newHeight = height 
 				- (this.showHeader ? 28 : 0) 
 				- (this.showFooter ? 24 : 0) 
-				- (this.showToolbar ? 30 : 0) 
+				- (this.showToolbar ? 30 : -2) // compensating for toolbar border
 				- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 7);
 			if (newHeight < 0 ) newHeight = 0;
-			el.style.height = newHeight + 'px';
+			if (this.fixedSize) el.style.height = newHeight + 'px';
 		}
 		// -- width of the _body
 		if (width > 0 && el) {
@@ -528,25 +571,27 @@ function jsList(name, box) {
 		}
 
 		// -- height of records
-		if (elm) {
-			if (parseInt(elm.clientHeight) > parseInt(el.clientHeight)) {
+		if (elm && elt) {
+			if (parseInt(elt.clientHeight) > parseInt(el.clientHeight)) {
 				bodyOverFlow = true;
 				el.style.overflow	= 'hidden';
-				elm.style.display  	= 'block';
-				elm.style.overflow 	= 'auto';
-				var newHeight = height - 23
-					- (this.showHeader ? 28 : 0) 
-					- (this.showFooter ? 24 : 0) 
-					- (this.showToolbar ? 30 : 0) 
-					- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
-				elm.style.height = newHeight + 'px';
-				els.style.display = '';
+				if (elm) {
+					elm.style.display  	= 'block';
+					elm.style.overflow 	= 'auto';
+					var newHeight = height - 23
+						- (this.showHeader ? 28 : 0) 
+						- (this.showFooter ? 24 : 0) 
+						- (this.showToolbar ? 30 : -2) // compensating for toolbar border 
+						- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
+					elm.style.height = newHeight + 'px';
+				}
+				if (els) els.style.display = '';
 			} else {
 				bodyOverFlow = false;
 				el.style.overflow	= 'auto';
-				els.style.display 	= 'none';
-				elm.style.display  	= '';
-				elm.style.overflow 	= '';
+				if (els) els.style.display 	= 'none';
+				if (elm) elm.style.display  	= '';
+				if (elm) elm.style.overflow 	= '';
 			}
 		}
 		// -- Calculate Column size in PX
@@ -554,7 +599,7 @@ function jsList(name, box) {
 		if (dbody) {
 			var width_max = parseInt(dbody.clientWidth) - (this.columns.length + 1) * 7
 				- (bodyOverFlow ? 14 : -3)
-				- (top.jsUtils.engine == 'WebKit' ? -2 : 0)
+				- (top.jsUtils.engine == 'WebKit' ? -1 : 0)
 				- (this.showRecNumber ? 24 : 0);
 			// assign PX columns
 			for (var i=0; i<this.columns.length; i++) {
@@ -579,11 +624,12 @@ function jsList(name, box) {
 			for (var j=0; j<1000; j++) {
 				var el = this.box.ownerDocument.getElementById(this.name+'_cell_'+ j +'_'+ i);
 				if (!el) break;
+				if (el.firstChild.tagName == 'INPUT') break;
 				el.firstChild.style.width = this.columns[i].calculatedSize;
 			}			
 		}
 		// apply last scroll if any
-		if (this.last_scroll != '' && elm) {
+		if (this.last_scrollTop != '' && elm) {
 			elm.scrollTop 	= this.last_scrollTop;
 			elm.scrollLeft 	= this.last_scrollLeft;
 			elh.scrollLeft 	= this.last_scrollLeft;
@@ -598,24 +644,24 @@ function jsList(name, box) {
 		var bodyHTML = '';
 		if (this.layout == 'table') {
 		   bodyHTML +=  '<div id="htable_'+ this.name + '" style="overflow: hidden; display: block;">'+
-						'<table class="tbl-head" cellpadding="0" cellspacing="0" style="table-layout: fixed;">\n'+
+						'<table class="tbl-head" cellpadding="0" cellspacing="0" style="table-layout: fixed;">'+
 							this.getHeaders() +
 						'</table>'+
 						'</div>'+						
-						'<div id="mtable_'+ this.name + '" style="overflow: hidden; display: block; table-layout: fixed;" '+
+						'<div id="mtable_'+ this.name + '" style="overflow: hidden; display: block;" '+
 						'	onscroll="document.getElementById(\'htable_'+ this.name + '\').scrollLeft = this.scrollLeft">'+
-						'<table cellpadding="0" cellspacing="0" style="table-layout: fixed;">\n'+
+						'<table cellpadding="0" cellspacing="0" style="table-layout: fixed;">'+
 							this.getRecords() +
-						'</table>\n'+
+						'</table>'+
 						'</div>';
 		}
 		if (this.layout == 'div') {
-		   bodyHTML += '<table id="mtable_'+ this.name + '" style="width: 100%"><tr><td>\n'+
+		   bodyHTML += '<div id="mtable_'+ this.name + '">'+
 							this.tmpl_start +
 							this.getHeaders() +
 							this.getRecords() +
 							this.tmpl_end +
-					   '</td></tr></table>\n';
+					   '</div>';
 		}
 		// --- FOOTER
 		var pages = this.getFooter();
@@ -638,11 +684,15 @@ function jsList(name, box) {
 			// ---- REFRESH -----
 			// refresh Header
 			if (this.showHeader) {
-				el = this.box.ownerDocument.getElementById('title_'+ this.name);
+				var el = this.box.ownerDocument.getElementById('title_'+ this.name);
 				if (el) el.innerHTML = this.header +'&nbsp;';
-				// controls
-				//el = this.box.ownerDocument.getElementById('controls_'+ this.name);
-				//if (el) el.innerHTML = this.getControls();
+			}
+			// controls
+			if (this.showToolbar) {
+				// this.toolbar.output();
+			} else {
+				var el = this.box.ownerDocument.getElementById('controls_'+ this.name);
+				if (el) el.innerHTML = this.getControls();
 			}
 			// refresh Footer
 			if (this.showFooter) {
@@ -675,20 +725,22 @@ function jsList(name, box) {
 						'   <table class="header" cellpadding=0 cellspacing=1 style="width: 100%; height: 28px;"><tr>\n'+
 						'       <td id="title_td1_'+ this.name + '" style="padding-left: 5px; padding-top: 0px; width: 95%">'+ 
 						'		   <span ondblclick="top.elements.'+ this.name +'.getData(); top.elements.'+ this.name +'.resize();" id="title_'+ this.name +'">'+ this.header +'&nbsp;</span>'+
-								   (this.searchFields.length && !this.showToolbar != 0 ? 
+								   (this.searchFields.length != 0 && !this.showToolbar ? 
 										'<span class="rText" id="searchLink_'+ this.name +'"> - <a href="javascript: top.elements[\''+ this.name +'\'].openSearch();">Search</a></span>' 
 									  : '') +
 						'		   <span style="display: none; font-size: 11px;" id="clearSearchLink_'+ this.name +'"> - '+
-						'				<img style="position: absolute;" src="'+ top.jsUtils.sys_path +'/includes/silk/icons/cross.png">'+
-						'				<span style="padding-left: 18px;"></span>'+
+						'				<img style="position: absolute; margin-top: 3px;" src="'+ top.jsUtils.sys_path +'/images/input_clear.png">'+
+						'				<span style="padding-left: 13px;"></span>'+
 						'				<a href="javascript: var obj = top.elements[\''+ this.name +'\']; obj.clearSearch(); obj.submitSearch();">Clear Search</a></span>'+
-						(!this.showToolbar ? ' <span class="status" style="display: none" id="status_'+ this.name + '"></span>' : '') +
+									(!this.showToolbar ? ' <span class="list_status" style="position: absolute; display: none" id="status_'+ this.name + '"></span>' : '') +
 						'       </td>\n'+
-						'       <td align="right" style=" padding-top: 0px; width: 5%;" id="controls_'+ this.name +'" nowrap="nowrap">'+ this.getControls() +'</td>\n'+
+						'       <td align="right" style=" padding-top: 0px; width: 5%;" id="controls_'+ this.name +'" nowrap="nowrap">'+ 
+									(!this.showToolbar ? this.getControls() : '') +
+						'		</td>\n'+
 						'   </tr></table>\n'+
 						'</div>\n';
 			}
-			if (this.toolbar != null || this.showToolbar) {
+			if (this.showToolbar) {
 				html += '<div id="toolbar_'+ this.name +'" class="list_toolbar" style="height: 30px;"></div>';
 			}
 			html +=	'<div style="position: relative">'+
@@ -699,7 +751,8 @@ function jsList(name, box) {
 					'	</div>'+
 					'</div>';
 			html += '<div id="body_'+ this.name +'" class="list_body" style="overflow: auto;'+ this.style_body +'">\n'+
-					bodyHTML + '</div>\n';
+						bodyHTML + 
+					'</div>\n';
 					
 			// generate footer
 			if (this.showFooter) {
@@ -717,26 +770,7 @@ function jsList(name, box) {
 			this.box.innerHTML = html;
 			// init toolbar
 			if (this.showToolbar) {
-				if (!top.jsToolBar) {
-					alert('The jsToolBar class is not loaded. To use toolbar with jsList you need to load jsToolBar.');
-				} else {
-					top.elements[this.name + '_toolbar'] = null;
-					this.toolbar = new top.jsToolBar(this.name +'_toolbar', null);
-					this.toolbar.addHTML('<table cellpadding=2 cellspacing=0><tr>'+
-						'	<td><img ondblclick="top.elements.'+ this.name +'.getData(); top.elements.'+ this.name +'.resize();" src="'+ top.jsUtils.sys_path +'/includes/silk/icons/magnifier.png"></td>'+
-						'	<td><input id="'+ this.name +'_search_all" value="'+ (String(this.srvParams['req_search-all']) != '' ? this.srvParams['req_search-all'] : '') +'"'+
-						'			style="font-size: 11px; font-family: verdana; border: 1px solid silver; padding: 3px; margin: 0px;" '+
-						'			onkeyup=\'if (this.timer > 0) clearTimeout(this.timer);	top.el = this; '+
-						'					  this.timer = setTimeout("top.elements.'+ this.name +'.searchAll(top.el.value)", 300);\'></td>'+
-						'</tr></table>');
-					this.toolbar.addButton('Advanced', top.jsUtils.sys_path +'/includes/silk/icons/magnifier_zoom_in.png', 
-						new Function("top.elements['"+ this.name +"'].openSearch();"), 'Advanced Search');
-					this.getControls();
-					this.toolbar.rightHTML = '<span class="list_status" style="display: none" id="status_'+ this.name + '"></span>';
-				}
-			}
-			// refresh toolbar if any
-			if (this.toolbar != null) {
+				this.getControls();
 				this.toolbar.box = this.box.ownerDocument.getElementById('toolbar_'+ this.name);
 				this.toolbar.output();
 			}
@@ -747,16 +781,20 @@ function jsList(name, box) {
 			this.selectItem(this.getItem(this.last_selected).ind, true);
 		}
 		// show/hide clear search link
-		var el = this.box.ownerDocument.getElementById('clearSearchLink_'+ this.name);
+		var ell = this.box.ownerDocument.getElementById('clearSearchLink_'+ this.name);
+		var eli = this.box.ownerDocument.getElementById('clearSearchImg_'+ this.name);
 		if (this.searchFlag || this.srvParams['req_search-all'] != '') {
-			if (el) el.style.display = ''; 
+			if (ell) ell.style.display = ''; 
+			if (eli) eli.style.display = ''; 
 		} else {
-			if (el) el.style.display = 'none';	
+			if (ell) ell.style.display = 'none';	
+			if (eli) eli.style.display = 'none';	
 		}
 		// universal search
 		var us = this.box.ownerDocument.getElementById(this.name +'_search_all'); 
 		if (us) {
 			if (String(this.last_search) != 'undefined') us.value = this.last_search;
+			if (String(this.show_search) != 'undefined') us.value = this.show_search;
 			us.focus();
 		}
 		// call user event if any
@@ -807,85 +845,110 @@ function jsList(name, box) {
 	}
 
 	function jsList_getControls() {
+		var html = '';
 		// -- if toolbar is true
-		if (this.showToolbar && this.toolbar != null) {
-			if (this.controls.length > 0) this.toolbar.addBreak();
-			for (i=0; i<this.controls.length; i++) {	
-				var cnt = this.controls[i];
-				if (String(cnt.param) == 'undefined') cnt.param = '';
-				if (String(cnt.caption) == 'undefined') cnt.caption = '';
-				if (String(cnt.img) == 'undefined') cnt.img = '';
-				if (cnt.img != '') cnt.img = (String(cnt.img).substr(0,1) == '/' ? cnt.img : top.jsUtils.sys_path +'/includes/silk/icons/'+ cnt.img);
+		if (this.showToolbar) {
+			if (!top.jsToolBar) { alert('The jsToolBar class is not loaded. To use toolbar with jsList you need to load jsToolBar.'); return; }
+			// -- init toolbar
+			if (!this.toolbar) {
+				this.toolbar = new top.jsToolBar(this.name +'_toolbar', null);
+				if (this.searches.length > 0) {
+					this.toolbar.addHTML(
+						'<table cellpadding=2 cellspacing=0><tr>'+
+						'	<td><img ondblclick="top.elements.'+ this.name +'.getData(); top.elements.'+ this.name +'.resize();" src="'+ top.jsUtils.sys_path +'/includes/silk/icons/magnifier.png"></td>'+
+						'	<td>'+
+						'		<img title="Clear Search" style="position: absolute; cursor: pointer; margin-left: 125px; margin-top: 5px;" '+
+						'			 id="clearSearchImg_'+ this.name +'" onclick="var obj = top.elements[\''+ this.name +'\']; obj.clearSearch(); obj.submitSearch();" '+
+						'			src="'+ top.jsUtils.sys_path +'/images/input_clear.png">'+
+						'		<input id="'+ this.name +'_search_all" value="'+ (String(this.srvParams['req_search-all']) != '' ? this.srvParams['req_search-all'] : '') +'"'+
+						'			style="width: 140px; line-height: 100%; font-size: 11px; font-family: verdana; border: 1px solid silver; padding: 3px; margin: 0px;" '+
+						'			onkeyup=\'if (this.timer > 0) clearTimeout(this.timer);	'+
+						'					  top.tmp_el = this; top.tmp_el_value = this.value; '+
+						'					  this.timer = setTimeout("top.elements.'+ this.name +'.searchAll(top.tmp_el_value)", 500);'+
+						'					  top.elements.'+ this.name +'.show_search = this.value;\'>'+
+						'	</td>'+
+						'</tr></table>');
+					this.toolbar.addButton('Advanced', top.jsUtils.sys_path +'/includes/silk/icons/magnifier_zoom_in.png', 
+						new Function("top.elements['"+ this.name +"'].openSearch();"), 'Advanced Search');
+					this.toolbar.addBreak();
+				}
+				this.toolbar.rightHTML = '<span class="list_status" style="display: none" id="status_'+ this.name + '"></span>';
+				// -- all toolbar buttons
+				for (var i=0; i<this.controls.length; i++) {	
+					var cnt = this.controls[i];
+					if (!cnt) continue;
+					if (String(cnt.param) == 'undefined') cnt.param = '';
+					if (String(cnt.caption) == 'undefined') cnt.caption = '';
+					if (String(cnt.img) == 'undefined') cnt.img = '';
+					if (cnt.img != '') cnt.img = (String(cnt.img).substr(0,1) == '/' ? cnt.img : top.jsUtils.sys_path +'/includes/silk/icons/'+ cnt.img);
 
-				switch (String(cnt.type).toLowerCase()) {
-					case 'add':
-						this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/add.png', 
-							new Function("top.elements['"+ this.name +"'].addNew();"), cnt.caption);
-						break;
-					case 'delete':
-						this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/delete.png', 
-							new Function("top.elements['"+ this.name +"'].delRecords();"), cnt.caption);
-						break;
-					case 'break':
-						this.toolbar.addBreak(cnt.caption + cnt.param);
-						break;
-					case 'save':
-						this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/accept.png', 
-							new Function("top.elements['"+ this.name +"'].saveData();"), cnt.caption);
-						break;
-					case 'server':
-						this.toolbar.addButton(cnt.caption, cnt.img,
-							new Function("top.elements['"+ this.name +"'].serverCall('"+ cnt.param +"');"), cnt.caption);
-						break;
-					case 'button':
-					case 'link':
-						this.toolbar.addButton(cnt.caption, cnt.img, new Function(cnt.param), cnt.caption);
-						break;
-					case 'select':						
-						var tmp ='<table cellpadding=2 cellspacing=0 class=rtext>'+
-							   '<tr><td>-</td><td nowarp>'+
-							   '	<a href="javascript: top.elements[\''+ this.name +'\'].selectAll(); '+
-							   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">All Records</a>'+
-							   '</td></tr>'+
-							   '<tr><td>-</td><td nowrap>'+
-							   '	<a href="javascript: top.elements[\''+ this.name +'\'].selectNone(); '+
-							   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">None</a>'+
-							   '</td></tr>'+
-							   '</table>';
-						this.toolbar.addDrop(cnt.caption, cnt.img, null, cnt.caption, tmp);
-						break;
-					case 'choice':
-						var choices = cnt.caption.split('|');
-						cnt.caption = choices[0]+' <span id=\''+ this.name +'_but'+ i +'_drop\'>'+choices[1]+'</span>';
-						var tmp ='<table cellpadding=2 cellspacing=0 class=rtext>';
-						for (var k=1; k<choices.length; k++) {
-							if (typeof(cnt.param) == 'function') {
-								tmp += '<tr><td>-</td><td nowarp>'+
-									   '	<a href="javascript: '+ cnt.param +'(\''+ choices[k] +'\');'+
-									   '				document.getElementById(\''+ this.name +'_but'+ i +'_drop\').innerHTML = \''+ choices[k] +'\'; '+
-									   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">'+ choices[k] +'</a>'+
-									   '</td></tr>';
-							} else {
-								if (cnt.param == '' || String(cnt.param) == 'undefined') cmd = 'choice'; else cmd = cnt.param;
-								tmp += '<tr><td>-</td><td nowarp>'+
-									   '	<a href="javascript: top.elements[\''+ this.name +'\'].serverCall(\''+ cnt.param +'\', { choice: \''+ choices[k] +'\' }); '+
-									   '				document.getElementById(\''+ this.name +'_but'+ i +'_drop\').innerHTML = \''+ choices[k] +'\';'+
+					switch (String(cnt.type).toLowerCase()) {
+						case 'add':
+							this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/add.png', 
+								new Function("top.elements['"+ this.name +"'].addNew();"), cnt.caption);
+							break;
+						case 'delete':
+							this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/delete.png', 
+								new Function("top.elements['"+ this.name +"'].delRecords();"), cnt.caption);
+							break;
+						case 'break':
+							this.toolbar.addBreak(cnt.caption + cnt.param);
+							break;
+						case 'save':
+							this.toolbar.addButton(cnt.caption, top.jsUtils.sys_path +'/includes/silk/icons/accept.png', 
+								new Function("top.elements['"+ this.name +"'].saveData();"), cnt.caption);
+							break;
+						case 'server':
+							this.toolbar.addButton(cnt.caption, cnt.img,
+								new Function("top.elements['"+ this.name +"'].serverCall('"+ cnt.param +"');"), cnt.caption);
+							break;
+						case 'button':
+						case 'link':
+							if (typeof(cnt.param) == 'function') { var onAction = cnt.param; } else { var onAction = new Function(cnt.param); }
+							this.toolbar.addButton(cnt.caption, cnt.img, onAction, cnt.caption);
+							break;
+						case 'select':						
+							var tmp ='<table cellpadding=2 cellspacing=0 class=rtext>'+
+								   '<tr><td>-</td><td nowarp>'+
+								   '	<a href="javascript: top.elements[\''+ this.name +'\'].selectAll(); '+
+								   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">All Records</a>'+
+								   '</td></tr>'+
+								   '<tr><td>-</td><td nowrap>'+
+								   '	<a href="javascript: top.elements[\''+ this.name +'\'].selectNone(); '+
+								   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">None</a>'+
+								   '</td></tr>'+
+								   '</table>';
+							this.toolbar.addDrop(cnt.caption, cnt.img, null, cnt.caption, tmp);
+							break;
+						case 'choice':
+							var choices = cnt.caption.split('|');						
+							cnt.img = top.jsUtils.sys_path +'/includes/silk/icons/information.png';
+							if (!cnt.selected) cnt.selected = choices[1];
+							cnt.caption = choices[0]+' <span id=\''+ this.name +'_but'+ i +'_choice\' style=\'color: blue\'>'+ cnt.selected +'</span>';
+							var tmp ='<table cellpadding=2 cellspacing=0 class=rtext>';
+							for (var k=1; k<choices.length; k++) {
+								tmp += '<tr><td><img src="'+ top.jsUtils.sys_path +'/includes/silk/icons/bullet_green.png' +'"></td><td nowarp>'+
+									   '	<a href="javascript: top.elements[\''+ this.name +'\'].applyChoice('+ i +', \''+ choices[k] +'\');'+
+									   '				document.getElementById(\''+ this.name +'_but'+ i +'_choice\').innerHTML = \''+ choices[k] +'\'; '+
 									   '				top.elements[\''+ this.name +'\'].toolbar.hideDrop();">'+ choices[k] +'</a>'+
 									   '</td></tr>';
 							}
-						}
-						tmp += '</table>';
-						var but = this.toolbar.addDrop(cnt.caption, cnt.img, null, cnt.caption, tmp);
-						break;
-					case 'custom':
-					default:
-						this.toolbar.addHTML(cnt.caption + cnt.param);
+							tmp += '</table>';
+							var but = this.toolbar.addDrop(cnt.caption, cnt.img, null, cnt.caption, tmp);
+							cnt.button_id = but.id;
+							break;
+						case 'drop':
+							this.toolbar.addDrop(cnt.caption, cnt.img, null, cnt.caption, cnt.param);
+							break;
+						case 'custom':
+						default:
+							this.toolbar.addHTML(cnt.caption + cnt.param);
+					}
 				}
 			}
-		}
-		// if no toolbar (old controls
-		var html = '';
-		if (!this.showToolbar) {
+			
+		} else { // if no toolbar (old controls
+		
 			html = '<table cellspacing="0" cellpadding="0" class="rText"><tr>';
 			for (var i=0; i<this.controls.length; i++) {	
 				var cnt = this.controls[i];
@@ -893,8 +956,6 @@ function jsList(name, box) {
 				if (String(cnt.caption) == 'undefined') cnt.caption = '';
 				if (String(cnt.img) == 'undefined') cnt.img = '';
 				if (cnt.img != '') cnt.img = (String(cnt.img).substr(0,1) == '/' ? cnt.img : top.jsUtils.sys_path +'/includes/silk/icons/'+ cnt.img);
-
-				// function jsList_addControl(type, caption, param, img) {
 
 				switch (String(cnt.type).toLowerCase()) {
 					case 'add':
@@ -966,12 +1027,8 @@ function jsList(name, box) {
 						var tmp  = '<b>'+ choices[0] +'</b> ';
 						for (var k=1; k<choices.length; k++) {
 							if (k != 1) tmp += '<span style="color: gray">|</span> ';
-							if (typeof(cnt.param) == 'function') {
-								tmp += '<a href="javascript: '+ cnt.param +'(\''+ choices[k] +'\')">'+ choices[k] +'</a>&nbsp;';
-							} else {
-								if (cnt.param == '' || String(cnt.param) == '') cmd = 'choice'; else cmd = cnt.param;
-								tmp += '<a href="javascript: top.elements[\''+ this.name +'\'].serverCall(\''+ cnt.param +'\', { choice: \''+ choices[k] +'\' })">'+ choices[k] +'</a>&nbsp;';
-							}
+							tmp += '<a name="'+ this.name +'_choice'+ i +'" id="'+ this.name +'_choice'+ i +'_'+ choices[k] +'" '+ (cnt.selected == choices[k] ? 'style="color: green"' : '') +
+								   '	 href="javascript: top.elements[\''+ this.name +'\'].applyChoice('+ i +', \''+ choices[k] +'\')">'+ choices[k] +'</a>&nbsp;';
 						}
 						htmp = '<div id="'+ this.name +'_control'+ i + '_div">'+
 							   '<table cellpadding=0 cellspacing=0 class="list_button"><tr>'+
@@ -1034,6 +1091,7 @@ function jsList(name, box) {
 		this.last_selected		= '';
 		// refresh items
 		this.items = [];  
+		this.isDataReceived = false;
 		this.refresh(); 
 		this.page_num = newPage; 
 		this.getData();
@@ -1133,7 +1191,9 @@ function jsList(name, box) {
 		var html = '';
 		switch (this.layout) {
 			case 'table':
-				html += '';
+				if (this.items.length == 0 && this.isDataReceived) {
+					html += '<tr><td colspna=200 style="padding: 10px; border: 0px;">'+ this.msgNoData + '</div>';
+				}
 				for (i=0; i<this.items_pp; i++) {
 					// empty line
 					if (!this.items[i]) { continue; }
@@ -1190,7 +1250,7 @@ function jsList(name, box) {
 								break;
 						}
 						// prepare cell
-						html += '<td valign=top id="'+ this.name +'_cell_'+ i +'_'+ j +'" style="cursor: default; " '+ col.attr +'>';
+						html += '<td valign=top id="'+ this.name +'_cell_'+ i +'_'+ j +'" style="cursor: default; padding: 0px; margin: 0px; " '+ col.attr +'>';
 						if (this.fixed) {
 							// this is for editable controls
 							tmp = String(this.editable[j]).split('::');
@@ -1200,13 +1260,13 @@ function jsList(name, box) {
 									if (!ttmp[1]) ttmp[1] = '';
 									if (ttmp[0] != tmp[2]) {
 										html +=	'<input id="'+ this.name +'_edit_'+ i +'_'+ j +'" class="rText" type="text" '+
-												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
+												'	style="border-color: transparent; background-color: transparent; width: 100%; margin: 0; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
 												'	oldvalue="'+ printItem +'" value="'+ printItem +'" '+
-												'	onclick="this.select(); this.focus();"'+
+												'	onclick="this.select(); this.focus(); event.stopPropagation(); return false;"'+
 												'	onkeyup="if (event.keyCode == 40 || event.keyCode == 13) { el = document.getElementById(\''+ this.name +'_edit_'+ (i+1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } '+
 												'			 if (event.keyCode == 38) { el = document.getElementById(\''+ this.name +'_edit_'+ (i-1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } "'+
-												'	onfocus="obj = top.elements[\''+ this.name +'\']; obj.lstClick('+ i +', event);"'+
-												'	onblur="if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ffffb2\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +' } else { this.style.backgroundColor = \'white\'; }"'+
+												'	onfocus="this.style.cssText += \'background: white; border-color: silver;\'; obj = top.elements[\''+ this.name +'\']; obj.lstClick('+ i +', event);"'+
+												'	onblur="this.style.cssText += \'border-color: transparent;\'; if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ecffd9\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +' } else { this.style.backgroundColor = \'transparent\'; }"'+
 												'>';
 									} else {
 										html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ ttmp[1] +'</div>';
@@ -1217,13 +1277,13 @@ function jsList(name, box) {
 									if (!ttmp[1]) ttmp[1] = '';
 									if (ttmp[0] != tmp[2]) {
 										html +=	'<input id="'+ this.name +'_edit_'+ i +'_'+ j +'" class="rText" type="text" '+
-												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0;'+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
+												'	style="border-color: transparent; background-color: transparent; width: 100%; margin: 0;'+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
 												'	oldvalue="'+ printItem +'" value="'+ printItem +'" '+
-												'	onclick="this.select(); this.focus();"'+
+												'	onclick="this.select(); this.focus(); event.stopPropagation(); return false;"'+
 												'	onkeyup="if (event.keyCode == 40 || event.keyCode == 13) { el = document.getElementById(\''+ this.name +'_edit_'+ (i+1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } '+
 												'			 if (event.keyCode == 38) { el = document.getElementById(\''+ this.name +'_edit_'+ (i-1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } "'+
-												'	onfocus="obj = top.elements[\''+ this.name +'\']; obj.lstClick('+ i +', event);"'+
-												'	onblur="if (!top.jsUtils.isInt(this.value)) { this.value = this.getAttribute(\'oldvalue\'); } if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ffffb2\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +' } else { this.style.backgroundColor = \'white\'; }"'+
+												'	onfocus="this.style.cssText += \'background: white; border-color: silver;\'; obj = top.elements[\''+ this.name +'\']; obj.lstClick('+ i +', event);"'+
+												'	onblur="this.style.cssText += \'border-color: transparent;\'; if (!top.jsUtils.isInt(this.value)) { this.value = this.getAttribute(\'oldvalue\'); } if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ecffd9\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +' } else { this.style.backgroundColor = \'transparent\'; }"'+
 												'>';
 									} else {
 										html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ ttmp[1] +'</div>';
@@ -1234,18 +1294,35 @@ function jsList(name, box) {
 									if (!ttmp[1]) ttmp[1] = '';
 									if (ttmp[0] != tmp[2]) {
 										html +=	'<input id="'+ this.name +'_edit_'+ i +'_'+ j +'" class="rText" type="text" '+
-												'	style="border: 1px solid #d2cedf; width: 100%; margin: 0; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
+												'	style="border-color: transparent; background-color: transparent; width: 100%; margin: 0; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
 												'	oldvalue="'+ printItem +'" value="'+ printItem +'" '+
-												'	onclick="this.select(); this.focus();"'+
+												'	onclick="this.select(); this.focus(); event.stopPropagation(); return false;"'+
 												'	onkeyup="if (event.keyCode == 40 || event.keyCode == 13) { el = document.getElementById(\''+ this.name +'_edit_'+ (i+1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } '+
 												'			 if (event.keyCode == 38) { el = document.getElementById(\''+ this.name +'_edit_'+ (i-1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } "'+
-												'	onfocus="obj = top.elements[\''+ this.name +'\']; obj.lstClick('+ i +', event);"'+
-												'	onblur="if (!top.jsUtils.isFloat(this.value)) { this.value = this.getAttribute(\'oldvalue\'); } if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ffffb2\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +'} else { this.style.backgroundColor = \'white\'; }"'+
+												'	onfocus="this.style.cssText += \'background: white; border-color: silver;\'; obj = top.elements[\''+ this.name +'\']; obj.lstClick('+ i +', event);"'+
+												'	onblur="this.style.cssText += \'border-color: transparent;\'; if (!top.jsUtils.isFloat(this.value)) { this.value = this.getAttribute(\'oldvalue\'); } if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ecffd9\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +'} else { this.style.backgroundColor = \'transparent\'; }"'+
 												'';
 									} else {
 										html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ ttmp[1] +'</div>';
 									}
 									break;
+								case 'MONEY':
+									var ttmp = printItem.split('::');
+									if (!ttmp[1]) ttmp[1] = '';
+									if (ttmp[0] != tmp[2]) {
+										html +=	'<input id="'+ this.name +'_edit_'+ i +'_'+ j +'" class="rText" type="text" '+
+												'	style="border-color: transparent; background-color: transparent; width: 100%; margin: 0; '+ (tmp[1] != undefined ? tmp[1] : '') +'" '+
+												'	oldvalue="'+ printItem +'" value="'+ printItem +'" '+
+												'	onclick="this.select(); this.focus(); event.stopPropagation(); return false;"'+
+												'	onkeyup="if (event.keyCode == 40 || event.keyCode == 13) { el = document.getElementById(\''+ this.name +'_edit_'+ (i+1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } '+
+												'			 if (event.keyCode == 38) { el = document.getElementById(\''+ this.name +'_edit_'+ (i-1) +'_'+ j +'\'); if (el) {el.select(); el.focus(); } } "'+
+												'	onfocus="this.style.cssText += \'background: white; border-color: silver;\'; obj = top.elements[\''+ this.name +'\']; obj.lstClick('+ i +', event);"'+
+												'	onblur="this.style.cssText += \'border-color: transparent;\'; if (!top.jsUtils.isMoney(this.value)) { this.value = this.getAttribute(\'oldvalue\'); } if (this.getAttribute(\'oldvalue\') != this.value) { this.style.backgroundColor = \'#ecffd9\'; '+ (this.onEditableChange ? 'top.elements.'+ this.name +'.onEditableChange(this);' : '') +'} else { this.style.backgroundColor = \'transparent\'; }"'+
+												'';
+									} else {
+										html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ ttmp[1] +'</div>';
+									}
+									break;									
 								default:
 									html +=	'<div style="width: '+ col.calculatedSize +'; overflow: hidden;">'+ printItem +'</div>';
 									break;
@@ -1263,7 +1340,9 @@ function jsList(name, box) {
 				break;
 
 			case 'div':
-				if (this.items.length == 0) html += this.tmpl_empty.replace('~msg~', this.msgNodata);
+				if (this.items.length == 0 && this.isDataReceived) {
+					if (this.items.length == 0) html += this.tmpl_empty.replace('~msg~', this.msgNoData);
+				}
 				var tmp_last_grp = '';
 				for (i=0; i<this.items.length; i++) {
 					var item = this.items[i].values;
@@ -1296,18 +1375,19 @@ function jsList(name, box) {
 	}
 
 	function jsList_lstClick(ind, evnt) {
-		if (!this.box) return;
+		if (!this.box) return;		
 		if (this.showSearch) this.openSearch(false); // show search if it is open
 		if (this.onClick) {
 			fl = this.onClick(this.items[ind].id, evnt);
 			if (fl === false) return;
 		}
+		if (this.items[ind]) var tmp_previous = this.items[ind].selected;
 		// clear other if necessary
 		if (!evnt.ctrlKey && !evnt.shiftKey) {
 			for (var i=0; i<this.items.length; i++) { this.selectItem(i, false); }
 		} else {
-			// clear selection on screen
-			window.setTimeout("if (document.all) this.box.ownerDocument.selection.empty(); else window.getSelection().removeAllRanges();", 100);
+			window.setTimeout("var doc = top.elements['"+ this.name +"'].box.ownerDocument; if (doc.selection) doc.selection.empty(); "+
+				"else doc.defaultView.getSelection().removeAllRanges();", 10);
 		}		
 		if (evnt.shiftKey) {
 			var cnt = 0; var firsti = null;
@@ -1327,11 +1407,13 @@ function jsList(name, box) {
 			}
 		}
 		// select new
-		if (this.items[ind]) this.selectItem(ind);
+		if ((this.items[ind] && !tmp_previous) || evnt.ctrlKey) this.selectItem(ind);
 	}
 
 	function jsList_lstDblClick(ind, evnt) {
 		if (!this.box) return;
+		// make sure it is selected
+		this.selectItem(ind, true);
 		// remember last scroll if any
 		var elm = this.box.ownerDocument.getElementById('mtable_'+ this.name);
 		if (elm) {
@@ -1355,12 +1437,16 @@ function jsList(name, box) {
 			if (typeof(obj) == 'function') {
 				obj(this.items[ind].id);
 			} else if (typeof(obj) == 'object') {
-				obj.box = this.box;
-				obj.recid = this.items[ind].id;
+				if (this.lpanel) this.lpanel.object = obj;
+				obj.box 	= this.box;
+				obj.lpanel 	= this.lpanel;
+				obj.recid 	= this.items[ind].id;
 				obj.output(); 
 			} else {
-				top.elements[obj].box = this.box;
-				top.elements[obj].recid = this.items[ind].id;
+				if (this.lpanel) this.lpanel.object = top.elements[obj];
+				top.elements[obj].box 	 = this.box;
+				top.elements[obj].lpanel = this.lpanel;
+				top.elements[obj].recid  = this.items[ind].id;
 				top.elements[obj].output(); 
 			}
 		}
@@ -1443,6 +1529,7 @@ function jsList(name, box) {
 		if (this.onData) this.onData();
 		this.showStatus('Refreshing...');
 		this.items = [];
+		this.isDataReceived = false;
 		this.serverCall('lst_get_data');
 	}
 
@@ -1450,6 +1537,7 @@ function jsList(name, box) {
 		this.refresh();
 		this.hideStatus();
 		if (this.onDataReceived) { this.onDataReceived(); }
+		this.isDataReceived = true;
 	}
 
 	function jsList_delRecords() {
@@ -1488,7 +1576,6 @@ function jsList(name, box) {
 			if ( (!sel || sel.value == '') &&
 				 (this.searchFields[si].defValue == '' || this.searchFields[si].defValue == null) &&
 				 (this.searchFields[si].value == '' || this.searchFields[si].value == null) ) continue;
-			this.searchFlag = true;
 			if (sel2) { if (sel2.value != '') el2dsp = '::' + sel2.value; else el2dsp = '::' + sel.value; } else el2dsp = '';
 			if (sel) { 
 				this.searchData[this.searchFields[si].fieldName] = sel.value + el2dsp; 
@@ -1500,8 +1587,9 @@ function jsList(name, box) {
 				}
 			}
 			this.searchFields[si].value = this.searchData[this.searchFields[si].fieldName];
+			if (this.searchFields[si].defValue != this.searchFields[si].value) this.searchFlag = true;
 		}
-		param['req_search']  = (this.searchFlag == true ? this.searchData : '');
+		param['req_search']  = this.searchData;
 		param['req_sort']    = (this.sortBy.length != 0 ? this.sortBy : '');
 		// add passed params
 		if (typeof(params) == 'object') {
@@ -1548,7 +1636,7 @@ function jsList(name, box) {
 
 	function jsList_showStatus(msg) {
 		if (!this.box) return;
-		el = this.box.ownerDocument.getElementById('status_'+this.name);
+		var el = this.box.ownerDocument.getElementById('status_'+this.name);
 		if (el) {
 			el.innerHTML = msg;
 			el.style.display = '';
@@ -1557,7 +1645,7 @@ function jsList(name, box) {
 
 	function jsList_hideStatus(msg) {
 		if (!this.box) return;
-		el = this.box.ownerDocument.getElementById('status_'+this.name);
+		var el = this.box.ownerDocument.getElementById('status_'+this.name);
 		if (el) {
 			el.style.display = 'none';
 			el.innerHTML = '';

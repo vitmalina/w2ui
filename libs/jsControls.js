@@ -449,13 +449,13 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 				if (this.caption != '') {
 					this.html += '<td nowrap class="'+ this.td1Class +'" '+ td1_style + '>'+ this.caption + ssign +'</td>\n'+
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
+								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'">';
 				} else {
 					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'">';
 				}
 				this.html += '<div style="float: left; width: auto;">'+
-							 '<table cellpadding=0 cellspacing=0 class=rText><tr><td nowrap>'+
+							 '<table cellpadding="0" cellspacing="0" class="rText" style="padding: 0px; margin: 0px"><tr><td nowrap>'+
 							 '	<input type="text" size="10" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
 							 '		class="rText rInput" value="'+ tmpValue[0] +'" '+ this.inTag +'>'+ calhtml1 + calhtml2 +
 							 '	<input type="button" class="rText" value="..." style="width: 32px" tabindex="-1"'+
@@ -679,13 +679,12 @@ function jsGroup(name, header) {
 
 	function jsGroup_build(el) {
 		if (this.height != null) addH = 'height: '+ parseInt(this.height) +'px; overflow: auto;'; else addH = '';
-					 
-		this.html = '<div id="group_'+ this.name +'_break" style="height: 5px; font-size: 1px;"></div>' +
-					'<div class="group" id="group_'+ this.name +'">'+
+		this.html = '<div id="'+ this.owner.name +'_group_'+ this.name +'_break" style="height: 5px; font-size: 1px;"></div>' +
+					'<div class="group" id="'+ this.owner.name +'_group_'+ this.name +'">'+
 					'<div style="position: relative; top: -10px; margin: 0px; padding: 0px; width: auto; height: 15px;">'+
-					'	<div class="groupTitle" id="group_title_'+ this.name + '" style="position: absolute; z-Index: 1;">'+ this.header + '</div>'+
+					'	<div class="groupTitle" id="'+ this.owner.name +'_group_title_'+ this.name + '" style="position: absolute; z-Index: 1;">'+ this.header + '</div>'+
 					'</div>'+
-					'<div style="clear: both; '+ addH +'" id="group_content_'+ this.name +'">';				
+					'<div style="clear: both; '+ addH +'" id="'+ this.owner.name +'_group_content_'+ this.name +'">';				
 
 		// render column
 		this.html += '<table style="clear: both;" cellpadding="3" cellspacing="0" width="100%">';

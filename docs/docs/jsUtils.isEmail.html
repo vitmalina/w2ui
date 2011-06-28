@@ -1,19 +1,22 @@
 <div id="help_main">
 
-<h1>jsUtils.isInt()</h1>
+<h1>jsUtils.isEmail()</h1>
 
-Checks if the variable is an integer.
+Checks if the variable looks like an email address.
 <br><br>
 
 <pre class="code params">
-<b>jsUtils.isInt( str )</b>
+<b>jsUtils.isEmail( str )</b>
   str - any javascript variable
 </pre>
 <br>
-Returns true if the variable is a valid integer or false otherwise.
+Returns true if the variable looks like a valid email address or false otherwise.
 <br><br>
-Any input variable is treated as a string. The function will test each charector in this string to be inside the set of 0..9. If all charectors
-are inside the set, it will return true, otherwise false.
+The input variable is treated as a string in the format of an email address. This string is tested to look like a valid eamil address
+it returns true if it does not look like an email, it returns false. The following regex is used: 
+<br><br>
+
+/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}$/
 
 <h2>Example</h2>
 <pre class="code html">
@@ -23,8 +26,9 @@ are inside the set, it will return true, otherwise false.
     &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
     &lt;script type="text/javascript"&gt;
         window.onload = function() {
-            alert(jsUtils.isInt('10'));
-            alert(jsUtils.isInt('10.2'));
+            alert(jsUtils.isEmail('sometext'));
+            alert(jsUtils.isTime('sometext@1'));
+            alert(jsUtils.isTime('name@domain.com'));
         }
     &lt;/script&gt;
 &lt;body&gt;

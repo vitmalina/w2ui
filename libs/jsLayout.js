@@ -207,12 +207,12 @@ function jsLayout(name, box) {
 			if (panel.name == 'left') {
 				panel.width  = panel.size;
 				panel.height = this.height - this.border * 2
-					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : this.padding)
-					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.padding) : this.padding);
+					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.spacer) : this.padding)
+					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.spacer) : this.padding);
 
 				ppl1.style.left	= this.padding + 'px';
 				ppl1.style.top	= (this.padding 
-					+ (pt ? parseInt(pt.size) + (pt.resizable ? this.spacer : this.padding) + this.border * 2 : 0)) + 'px';
+					+ (pt ? parseInt(pt.size) + (pt.resizable ? this.spacer : this.spacer) + this.border * 2 : 0)) + 'px';
 				ppl2.style.width  = panel.width + 'px';
 				ppl2.style.height = panel.height + 'px';
 
@@ -233,16 +233,16 @@ function jsLayout(name, box) {
 			// -- MAIN PANEL
 			if (panel.name == 'main') {
 				panel.width  = this.width - this.border * 2
-					- (pl ? parseInt(pl.size) + this.padding + this.border * 2 + (pl.resizable ? this.spacer : this.padding) : this.padding)
-					- (pr ? parseInt(pr.size) + this.padding + this.border * 2 + (pr.resizable ? this.spacer : this.padding) : this.padding);
+					- (pl ? parseInt(pl.size) + this.padding + this.border * 2 + (pl.resizable ? this.spacer : this.spacer) : this.padding)
+					- (pr ? parseInt(pr.size) + this.padding + this.border * 2 + (pr.resizable ? this.spacer : this.spacer) : this.padding);
 				panel.height = this.height - this.border * 2
-					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : this.padding)
-					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.padding) : this.padding);
+					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.spacer) : this.padding)
+					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.spacer) : this.padding);
 
 				ppl1.style.left = (this.padding  
-					+ (pl ? parseInt(pl.size) + this.border * 2 + (pl.resizable ? this.spacer : this.padding) : 0)) + 'px';
+					+ (pl ? parseInt(pl.size) + this.border * 2 + (pl.resizable ? this.spacer : this.spacer) : 0)) + 'px';
 				ppl1.style.top = (this.padding 
-					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : 0)) + 'px';
+					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.spacer) : 0)) + 'px';
 
 				ppl2.style.width  = panel.width + 'px';
 				ppl2.style.height = panel.height + 'px';
@@ -252,14 +252,14 @@ function jsLayout(name, box) {
 			if (panel.name == 'right') {
 				panel.width  = panel.size;
 				panel.height = this.height - this.border * 2
-					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : this.padding)
-					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.padding) : this.padding);
+					- (pt ? parseInt(pt.size) + this.padding + this.border * 2 + (pt.resizable ? this.spacer : this.spacer) : this.padding)
+					- (pb ? parseInt(pb.size) + this.padding + this.border * 2 + (pb.resizable ? this.spacer : this.spacer) : this.padding);
 
 				ppl1.style.left = (this.padding + pm.width + this.border * 2 
-					+ (pl ? parseInt(pl.size) + this.border * 2 + (pl.resizable ? this.spacer : this.padding) : 0)
-					+ (pr.resizable ? this.spacer : this.padding)) + 'px';
+					+ (pl ? parseInt(pl.size) + this.border * 2 + (pl.resizable ? this.spacer : this.spacer) : 0)
+					+ (pr.resizable ? this.spacer : this.spacer)) + 'px';
 				ppl1.style.top = (this.padding
-					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : 0)) + 'px';
+					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.spacer) : 0)) + 'px';
 				ppl2.style.width  = parseInt(panel.width) + 'px';
 				ppl2.style.height = parseInt(panel.height) + 'px';
 				
@@ -284,8 +284,8 @@ function jsLayout(name, box) {
 				
 				ppl1.style.left	  = this.padding + 'px';
 				ppl1.style.top	  = (this.padding
-					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.padding) : 0)
-					+ (pb.resizable ? this.spacer : this.padding)
+					+ (pt ? parseInt(pt.size) + this.border * 2 + (pt.resizable ? this.spacer : this.spacer) : 0)
+					+ (pb.resizable ? this.spacer : this.spacer)
 					+ pm.height + this.border * 2
 					) + 'px';
 				ppl2.style.width  = panel.width + 'px';
@@ -413,9 +413,9 @@ function jsLayout(name, box) {
 					'	</div>'+
 					'</div>'+
 					'<div id="'+ this.owner.name + '_panel_resize1_'+ this.name +'" style="position: relative; left: 0px; top: 0px; width: 0px; height: 0px; padding: 0px; margin: 0px; border: 0px; display: none;">'+
-					'	<div id="'+ this.owner.name + '_panel_resize2_'+ this.name +'" style="position: absolute; width: 0px; height: 0px; background-color: white;"'+
-					'		onmouseover = "this.style.backgroundColor=\'silver\'" onmouseout = "this.style.backgroundColor = \'white\'"'+
-					'	></div>'+
+					'	<div id="'+ this.owner.name + '_panel_resize2_'+ this.name +'" class="w20-splitter" style="position: absolute; width: 0px; height: 0px;"'+
+					'		onmouseover = "this.className = \'w20-splitter-active\'" onmouseout = "this.className = \'w20-splitter\'">'+
+					'	</div>'+
 					'</div>';
 			return html;
 		}
@@ -450,7 +450,8 @@ function jsLayout(name, box) {
 				panel.style.border  = 0;
 				panel.style.padding = 0;
 				panel.style.margin  = 0;
-				this.object.box = panel;
+				this.object.box 	= panel;
+				this.object.lpanel 	= this;
 				this.object.output();
 			}
 		}
