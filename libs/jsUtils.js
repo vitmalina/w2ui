@@ -364,7 +364,7 @@ var jsUtils = {
 					"} "+
 					"window.tmp_sopacity += 0.05; window.screenLock.style.opacity = window.tmp_sopacity; "+
 					"window.screenLock.style.filter = 'alpha(opacity='+ (window.tmp_sopacity * 100) +')'"+
-					""), 1);
+					""), 20);
 		}
 	},
 
@@ -382,7 +382,7 @@ var jsUtils = {
 				"} "+
 				"window.screenLock.style.opacity = window.tmp_sopacity; "+
 				"window.screenLock.style.filter = 'alpha(opacity='+ (window.tmp_sopacity * 100) +')'"+
-				""), 1);
+				""), 20);
 	},
 	
 	message: function (msg, width, height) {
@@ -408,26 +408,36 @@ var jsUtils = {
 		return box;
 	},
 	
-	showMsg: function (title, body, buttons, width, height) {
+	showMsg: function (body, params) {	
+		// parse params
+		var isTitle   = false;
+		var isButtons = false;
+		var isModal	  = false;
+		var width	  = 400; 
+		var height	  = 200;
+		var opacity   = 0.3;
+		if (String(params) != 'undefined') {
+			if (String(params['title'])   != 'undefined') { isTitle 	= true; }
+			if (String(params['buttons']) != 'undefined') { isButtons 	= true; }
+			if (String(params['modal'])   != 'undefined') { isModal 	= params['modal']; }
+			if (String(params['width'])   != 'undefined') { width   	= params['width']; }
+			if (String(params['height'])  != 'undefined') { height  	= params['height']; }
+			if (String(params['opacity']) != 'undefined') { opacity 	= params['opacity']; }
+		}
 		// lock screen
-		window.jsUtils.lock(0.3, function() { // unlock if clicked away
-			window.jsUtils.hideMsg(); 
+		window.jsUtils.lock(opacity, function() { // unlock if clicked away
+			if (!isModal) { window.jsUtils.hideMsg();  }
 		});
 		// show message
-		var msg = '<div>'+
-				  '<div style="border-radius: 8px 8px 0px 0px; font-variant: small-caps; background-color: #7bceff; color: white; '+
-				  '		font-weight: bold; padding: 12px; font-size: 14px;">'+ title + '</div>'+
-				  '<div style="padding: 20px 12px; background-color: white; font-size: 12px;'+ 
-						(String(buttons) == 'undefined' ? 'border-radius: 0px 0px 8px 8px;' : '') +'">'+ body + 
-				  '</div>'+
-				  '</div>';
-		if (String(buttons) != 'undefined') { 
-			msg +='<div style="border-radius: 0px 0px 8px 8px; background-color: #eeeeee; text-align: center; padding: 10px;">'+ buttons + '</div>';
-		}
+		var msg = '';
+		if (isTitle) { msg +='<div class="msg_title">'+ params['title'] +'</div>'; }
+		msg +='<div class="msg_body'+ (!isTitle ? ' msg_no-title' : '') + (!isButtons ? ' msg_no-buttons' : '') +'">'+ body +'</div>';
+		if (isButtons) { msg += '<div class="msg_buttons">'+ params['buttons'] +'</div>'; }
+		// output message
 		var box = window.jsUtils.message(msg, width, height);
-		box.style.cssText += 'border-radius: 6px; padding: 0px; margin: 0px; border: 1px solid gray;';
+		box.className = 'w20-message';
 		// drop shadow
-		window.jsUtils.dropShadow(box, true);
+		//window.jsUtils.dropShadow(box, true);
 		return box;
 	},
 
@@ -573,4 +583,4 @@ var jsUtils = {
 	}	
 }
 // init object
-jsUtils.init(sys_path);
+jsUtils.init(window.sys_path != undefined ? window.sys_path : '');

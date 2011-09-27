@@ -553,18 +553,16 @@ function jsList(name, box) {
 		
 		// -- height of the _body
 		if (height > 0 && el) {
-			var newHeight = height 
+			var newHeight = height - 2
 				- (this.showHeader ? 28 : 0) 
-				- (this.showFooter ? 24 : 0) 
-				- (this.showToolbar ? 30 : -2) // compensating for toolbar border
-				- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 7);
+				- (this.showToolbar ? 32 : 0) 
+				- (this.showFooter ? 24 : 0);
 			if (newHeight < 0 ) newHeight = 0;
 			if (this.fixedSize) el.style.height = newHeight + 'px';
 		}
 		// -- width of the _body
 		if (width > 0 && el) {
-			var newWidth = width 
-				- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
+			var newWidth = width - 2
 			if (newWidth < 0) newWidth = 0;
 			// in FF4 - if width is set - it goes beyond borders
 			el.style.width = newWidth + 'px';
@@ -578,11 +576,11 @@ function jsList(name, box) {
 				if (elm) {
 					elm.style.display  	= 'block';
 					elm.style.overflow 	= 'auto';
-					var newHeight = height - 23
-						- (this.showHeader ? 28 : 0) 
-						- (this.showFooter ? 24 : 0) 
-						- (this.showToolbar ? 30 : -2) // compensating for toolbar border 
-						- (top.jsUtils.inArray(top.jsUtils.engine, ['IE5']) ? 2 : 4);
+					var newHeight = height - 2
+						- (this.showHeader  ? 28 : 0) 
+						- (this.showToolbar ? 32 : 0) 
+						- (this.showRecHeader ? 24 : 0) 
+						- (this.showFooter  ? 24 : 0) 
 					elm.style.height = newHeight + 'px';
 				}
 				if (els) els.style.display = '';
@@ -597,15 +595,14 @@ function jsList(name, box) {
 		// -- Calculate Column size in PX
 		var dbody = this.box.ownerDocument.getElementById('body_'+ this.name);
 		if (dbody) {
-			var width_max = parseInt(dbody.clientWidth) - (this.columns.length + 1) * 7
-				- (bodyOverFlow ? 14 : -3)
-				- (top.jsUtils.engine == 'WebKit' ? -1 : 0)
-				- (this.showRecNumber ? 24 : 0);
+			var width_max = parseInt(dbody.clientWidth) 
+				- (bodyOverFlow ? 17 : 0)
+				- (this.showRecNumber ? 23 : 0);
 			// assign PX columns
 			for (var i=0; i<this.columns.length; i++) {
 				var col = this.columns[i];
 				if (String(col.size).substr(String(col.size).length-2).toLowerCase() == 'px') {
-					width_max -= parseInt(col.size);
+					width_max -= parseInt(col.size) + 1; // count in cell border
 					this.columns[i].calculatedSize = col.size;
 				}				
 			}
@@ -613,7 +610,7 @@ function jsList(name, box) {
 			for (var i=0; i<this.columns.length; i++) {
 				var col = this.columns[i];
 				if (String(col.size).substr(String(col.size).length-2).toLowerCase() != 'px') {
-					this.columns[i].calculatedSize = (width_max * parseInt(col.size) / 100) + 'px';
+					this.columns[i].calculatedSize = (width_max * parseInt(col.size) / 100 - 1) + 'px'; // count in cell border
 				}
 			}			
 		}
@@ -741,7 +738,7 @@ function jsList(name, box) {
 						'</div>\n';
 			}
 			if (this.showToolbar) {
-				html += '<div id="toolbar_'+ this.name +'" class="list_toolbar" style="height: 30px;"></div>';
+				html += '<div id="toolbar_'+ this.name +'" class="list_toolbar" style="height: 32px;"></div>';
 			}
 			html +=	'<div style="position: relative">'+
 					'	<div style="margin-left: 22px; position: absolute; overflow: hidden; z-index: 100;">'+
@@ -1173,11 +1170,11 @@ function jsList(name, box) {
 						}
 						html += '<td id="'+ this.name +'_cell_header_'+ i +'" class="head" '+
 								'		onclick="top.elements[\''+ this.name +'\'].columnClick('+ i +', event);" '+
-								'		style="'+ sortStyle +'">'+ 
+								'		style="'+ sortStyle +'; '+ (i == this.columns.length -1 ? 'border-right: 1px solid transparent;' : '') +'">'+ 
 								'<div style="cursor: default; width: '+ col.calculatedSize +'; overflow: hidden;">'+ col.caption +'<div></td>';
 					}
 					html += '<td id="hcell_'+ this.name +'" class="head" style="border-right: 0px; display: none;">'+
-							'	<div style="width: 16px; overflow: hidden;">&nbsp;</div></td>';
+							'	<div style="width: 2000px; overflow: hidden;">&nbsp;</div></td>';
 					html += '</tr>';
 				}
 				break;
@@ -1603,10 +1600,14 @@ function jsList(name, box) {
 				}
 			}
 		}
-		// generate and append SCRIPT tag
-		var req = this.box.ownerDocument.createElement('SCRIPT');
-		req.src = this.srvFile + (this.srvFile.indexOf('?') > -1 ? '&' : '?') + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
-		this.box.ownerDocument.body.appendChild(req);
+		// populate data
+		if (typeof(this.srvFile) == 'function') {
+			this.srvFile(cmd, param);
+		} else {
+			var req = this.box.ownerDocument.createElement('SCRIPT');
+			req.src = this.srvFile + (this.srvFile.indexOf('?') > -1 ? '&' : '?') + 'cmd=' + top.jsUtils.serialize(param) + '&rnd=' + Math.random();
+			this.box.ownerDocument.body.appendChild(req);
+		}
 	}
 
 	function jsList_saveData() {

@@ -141,7 +141,7 @@ class phpDBConnection {
 				$ssql = "INSERT INTO ".$sys_dbPrefix."log_error(domain, url, userid, sql, error)
 						 VALUES('".$_SERVER["HTTP_HOST"]."', '".mysql_escape_string($_SERVER["REQUEST_URI"])."', $userid, 
 							'".mysql_escape_string($sql)."', '".mysql_escape_string($this->res_errMsg)."');";
-				mysql_query($this->dbConn, $ssql);
+				mysql_query($ssql, $this->dbConn);
 			}
 		}
 		

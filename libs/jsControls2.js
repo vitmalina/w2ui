@@ -53,34 +53,34 @@ var jsControls2 = {
 				// -- insert div for calendar
 				var div = document.createElement('DIV');
 				div.id  = cnt.id + '_calendar';
-				div.style.cssText += 'position: absolute; z-index: 1000; display: none;';
+				div.style.cssText += 'position: absolute; z-index: 1000; display: none; '+
+					'top: '+ (parseInt(cnt.offsetTop) + parseInt(cnt.offsetHeight)) +'px; left: '+ parseInt(cnt.offsetLeft) +'px;';
 				div.className = 'w20-calendar';
 				//div.innerHTML = this.getCalendar(cnt.value, (param ? param : {}));
 				
-				cnt.parentNode.appendChild(div, cnt);
-				cnt._controls = this;
-				cnt._param	  = param;
-				cnt.calendar  = div;				
-				window._calendar_el = cnt;
+				cnt.parentNode.appendChild(div);
+				cnt._controls 		= this;
+				cnt._param	  		= param;
+				cnt._calendar_div	= div;				
 				
 				// -- cross browser multiple events
 				if (cnt.onfocus) cnt._onfocus = cnt.onfocus;
 				cnt.onfocus = function (event) {
-					if (this.calendar.style.display == '') return;
-					this.calendar.innerHTML = this._controls.getCalendar(cnt.value, (this._param ? this._param : {}));
-					this.calendar.style.display = '';
-					window.jsUtils.dropShadow(this.calendar);
+					window._tmp_el = this;
+					if (this._calendar_div.style.display == '') return;
+					this._calendar_div.innerHTML = this._controls.getCalendar(cnt.value, (this._param ? this._param : {}));
+					this._calendar_div.style.display = '';
 					if (cnt._onfocus) cnt._onfocus();
 				}
 				if (cnt.onkeyup) cnt._onkeyup = cnt.onkeyup;
 				cnt.onkeyup = function (event) {
-					this.calendar.innerHTML = this._controls.getCalendar(cnt.value, (this._param ? this._param : {}));
+					this._calendar_div.innerHTML = this._controls.getCalendar(cnt.value, (this._param ? this._param : {}));
 					if (cnt._onkeyup) cnt._onkeyup();
 				}
 				if (cnt.onblur) cnt._onblur = cnt.onblur;
 				cnt.onblur = function (event) {
 					window._tmp_el = this;
-					window._tmp_timeout = setTimeout("window._tmp_el.calendar.style.display = 'none'; window.jsUtils.clearShadow(window._tmp_el.calendar);", 300);
+					window._tmp_timeout = setTimeout("document.getElementById('"+ cnt.id +"')._calendar_div.style.display = 'none';", 300);
 					if (cnt._onblur) cnt._onblur();
 				}
 				break;
@@ -94,10 +94,66 @@ var jsControls2 = {
 			case 'LIST':
 				break;
 				
-			case 'LOOKUP':
+			case 'AUTOCOMPLETE':
+				// -- insert div for items
+				var div = document.createElement('DIV');
+				div.id  = cnt.id + '_items';
+				div.style.cssText += 'position: absolute; z-index: 1000; display: none; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;'+
+					'width: '+ parseInt(cnt.offsetWidth) +'px; height: 200px; overflow: auto;'+
+					'top: '+ (parseInt(cnt.offsetTop) + parseInt(cnt.offsetHeight)) +'px; left: '+ parseInt(cnt.offsetLeft) +'px;';
+				div.className = 'w20-items';
+				
+				cnt.parentNode.appendChild(div);
+				cnt._controls 	 = this;
+				cnt._param	  	 = param;
+				cnt._items_div	 = div;
+				if (param && param['items']) {
+					cnt._items = param['items'];
+					this.populate(cnt);
+				} else {
+					cnt._items = [];
+				}
+				cnt.hideItems = function (delay) {
+					if (String(delay) == 'undefined') delay = 300;
+					this._timeout = setTimeout("document.getElementById('"+ this.id +"')._items_div.style.display = 'none';", delay);
+				}
+				cnt.showItems = function () {
+					this._items_div.style.display = '';
+					setTimeout("document.getElementById('"+ this.id +"')._items_div.scrollTop = '0px';", 1);
+				}
+				// if items clicked
+				div.onmousedown = new Function("setTimeout('var el = document.getElementById(\""+ cnt.id +"\"); clearTimeout(el._timeout); el.focus();', 200)");
+				
+				// -- cross browser multiple events
+				if (cnt.onclick) cnt._onclick = cnt.onclick;
+				cnt.onclick = function (event) {
+					// check minChars
+					var minChars = 1;				
+					if (this._param && this._param['minChars']) minChars = parseInt(this._param['minChars']);
+					if (String(this.value).length < minChars) { return; }
+					// show
+					if (this._items.length > 0 && this._param && this._param['showOnClick'] == true) this.showItems();
+					if (this._onclick) this._onclick();
+				}
+				if (cnt.onkeyup) cnt._onkeyup = cnt.onkeyup;
+				cnt.onkeyup = function (event) {
+					// check minChars
+					var minChars = 1;				
+					if (this._param && this._param['minChars']) minChars = parseInt(this._param['minChars']);
+					if (String(this.value).length < minChars) { return; }
+					// show
+					this._controls.populate(this);
+					if (this._items_div.style.display != '') this.showItems();
+					if (this._onkeyup) this._onkeyup();
+				}
+				if (cnt.onblur) cnt._onblur = cnt.onblur;
+				cnt.onblur = function (event) {
+					this.hideItems();
+					if (this._onblur) this._onblur();
+				}
 				break;
 				
-			case 'LOOKUP-SOFT':
+			case 'LOOKUP':
 				break;
 				
 			case 'HTMLAREA':
@@ -109,12 +165,51 @@ var jsControls2 = {
 			case 'RADIO-YESNO':
 				break;
 				
+			case 'MASK':
+				break;
+				
 			case 'UPLOAD':
 				break;
 		}
 	},
 	
-	populate: function(cnt, param) {
+	populate: function(cnt) { // used for autocomplete
+		var items	 = cnt._items;
+		var minChars = 1;				
+		if (cnt._param && cnt._param['minChars']) minChars = parseInt(cnt._param['minChars']);
+	
+		if (cnt._param && cnt._param['url'] && (items.length == 0 // not items
+					|| (String(cnt.value).length == minChars && cnt._param['lastSearch'] != cnt.value) // min chars is reached
+					|| (String(cnt.value).length > minChars && cnt._param['lastSearch'] != cnt.value && cnt._param['cacheMax'] == cnt._count) // > min chars and max = cacheMax
+				)) {
+			cnt._param['lastSearch'] = cnt.value;
+			window.jsUtils.get(cnt._param['url'], { s: cnt.value, tmp: new Date().getTime() }, 
+				new Function('data', "var t = String(data).split('\\n'); var tmp = []; var i = 0; " +
+									 "for (var a in t) { i++; tmp[a] = t[a]; if (i >= '"+ cnt._param['cacheMax'] +"') break; }" +
+									 "document.getElementById('"+ cnt.id +"')._items = tmp; "+
+									 "document.getElementById('"+ cnt.id +"')._controls.populate(document.getElementById('"+ cnt.id +"')); ") );
+			cnt._items_div.innerHTML = 'Loading...';
+		} else {
+			var html = '<ul>';
+			var i    = 0;
+			for (var a in items) { 
+				if (items[a] == '') continue;
+				var row = String(items[a]).split('|');
+				if (parseInt(cnt._param['showMax']) > i || !cnt._param) {
+					html += '<li class="'+ (i % 2 ? 'even' : 'odd')+ '"' + 
+							'	onclick="var el = document.getElementById(\''+ cnt.id +'\'); el.value = '+ 
+										(cnt._param && cnt._param['onSelect'] ? "el._param['onSelect'](String(el._items['"+ a +"']).split('|'), '"+ a +"')" : "el._items['"+ a +"']") +';'+
+										'el.hideItems(0);">'+
+								(cnt._param && cnt._param['onFormat'] ? cnt._param['onFormat'](row) : row[0]) + 
+							'</li>'; 
+				}
+				i++;
+			}
+			html += '</ul>';
+			cnt._items_div.innerHTML = html;
+			cnt._count = i;
+			setTimeout("document.getElementById('"+ cnt.id +"')._items_div.scrollTop = '0px';", 1);
+		}
 	},
 	
 	getCalendar: function (date, param) {
@@ -162,7 +257,7 @@ var jsControls2 = {
 		var weekDay = td.getDay();
 		
 		var html  = 
-			'<table cellpadding="3" onclick = "window.clearTimeout(window._tmp_timeout); window._calendar_el.focus();" cellspacing="0">'+
+			'<table cellpadding="3" onclick = "window.clearTimeout(window._tmp_timeout); window._tmp_el.focus();" cellspacing="0">'+
 			'	<tr><td colspan="7" align="center" class="title"> '+ 
 			'	<b>'+ months[month-1] +', '+ year +'</b> </td></tr>'+
 			'	<tr><td class="week_day">M</td> <td class="week_day">T</td> <td class="week_day">W</td>'+
@@ -205,7 +300,7 @@ var jsControls2 = {
 				noSelect = true;
 			} 
 			if (noSelect === false) {
-				html += 'onclick     = "window._calendar_el.value = \''+ dt +'\'; if(window._calendar_el.onchange) window._calendar_el.onchange();'+
+				html += 'onclick     = "window._tmp_el.value = \''+ dt +'\'; if(window._tmp_el.onchange) window._tmp_el.onchange();'+
 						'			    event.stopPropagation(); return false;"'+
 						'onmouseover = "this._bgColor = this.style.backgroundColor; this.className = \''+ className +' day_hover\';"'+
 						'onmouseout  = "this.style.backgroundColor = this._bgColor; this.className = \''+ className +'\';"';

@@ -222,7 +222,7 @@ function jsEdit(name, box, recid) {
 					if (this.tabs[i].width == null) this.tabs[i].width = 100;
 					tabs_html += '<td style="width: '+ (parseInt(this.tabs[i].width)+3) +'px; padding: 0px; margin: 0px; font-weight: normal;">'+
 						'	<div style="position: relative; top: -'+ (top.jsUtils.engine == 'WebKit' ? '10' : '11') +'px; padding: 0px; margin: 0px;">'+
-						'		<div id="'+ this.name + '_tab'+ i +'" class="tab '+ (this.tabs[i].active ? 'tab_selected' : '') +'" style="position: absolute; margin: 0px; height: 20px; '+
+						'		<div id="'+ this.name + '_tab'+ i +'" class="tab '+ (this.tabs[i].active ? 'tab_selected' : '') +'" style="position: absolute; margin: 0px; height: 25px; '+
 						'			width: '+ parseInt(this.tabs[i].width) +'px; cursor: default;" '+
 						'			onclick="top.elements[\''+ this.name +'\'].showTab('+ i +');">'+ 
 						this.tabs[i].caption+ '</div>'+
@@ -894,10 +894,14 @@ function jsEdit(name, box, recid) {
 				param[t[0]] = t[1];
 			}
 		}
-
-		if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
-		req.src    = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&' + Math.random();
-		this.box.ownerDocument.body.appendChild(req);
+		// populate data
+		if (typeof(this.srvFile) == 'function') {
+			this.srvFile(cmd, param);
+		} else {
+			if (this.srvFile.indexOf('?') > -1) { cchar = '&'; } else { cchar = '?'; }
+			req.src    = this.srvFile + cchar + 'cmd=' + top.jsUtils.serialize(param) + '&' + Math.random();
+			this.box.ownerDocument.body.appendChild(req);
+		}
 	}
 
 	function jsEdit_validate() {
