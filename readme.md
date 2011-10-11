@@ -1,8 +1,7 @@
 ## Web 2.0 UI
 
 JavaScript UI libraries for building rich Internet data-driven application. The library has a small foot print and 
-has no dependencies. At this moment Web 2.0 UI is released under GPL licence (contact me if you need it under a different 
-licence).
+has no dependencies. The library is released under MIT license. See license.txt for more information
 
 ## Installation
 
