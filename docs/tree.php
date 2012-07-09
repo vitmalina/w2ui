@@ -6,10 +6,10 @@ function initTree() {
 	var docTree = new top.jsTree('docTree', null);
 	docTree.onClick = doc_click;
 	docTree.style = 'background-color: #fafafa; padding: 2px; border-right: 2px solid silver;';
-	docTree.picture  = '../../system/includes/silk/icons/page.png';
+	docTree.picture  = '../includes/silk/icons/page.png';
 	
 	var basics = docTree.addNode(docTree, 'classes', 'Classes');
-	basics.picture  = '../../system/includes/silk/icons/folder.png';
+	basics.picture  = '../includes/silk/icons/folder.png';
 	basics.expanded = true;
 	var node = docTree.addNode(basics, 'jsUtils.html', 'jsUtils');
 	docTree.addNode(node, 'jsUtils.general.html', 'Genearal');
@@ -57,7 +57,7 @@ function initTree() {
 	docTree.addNode(node, 'jsTabs.styling.html', 'Styling');
 
 	var ecamples = docTree.addNode(docTree, 'demos', 'Demos');
-	ecamples.picture  = '../../system/includes/silk/icons/folder.png';
+	ecamples.picture  = '../includes/silk/icons/folder.png';
 	var node = docTree.addNode(ecamples, 'demos:grid', 'Table Grid');
 	var node = docTree.addNode(ecamples, 'demos:edit', 'Edit Controls');
 	var node = docTree.addNode(ecamples, 'demos:layout', 'Layouts');

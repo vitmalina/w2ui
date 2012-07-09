@@ -80,7 +80,10 @@ var jsControls2 = {
 				if (cnt.onblur) cnt._onblur = cnt.onblur;
 				cnt.onblur = function (event) {
 					window._tmp_el = this;
-					window._tmp_timeout = setTimeout("document.getElementById('"+ cnt.id +"')._calendar_div.style.display = 'none';", 300);
+					window._tmp_timeout = setTimeout(function () {
+						var parent = cnt;
+						parent._calendar_div.style.display = 'none';
+					}, 300);
 					if (cnt._onblur) cnt._onblur();
 				}
 				break;
@@ -96,7 +99,7 @@ var jsControls2 = {
 				
 			case 'AUTOCOMPLETE':
 				// -- insert div for items
-				var div = document.createElement('DIV');
+				var div = cnt.ownerDocument.createElement('DIV');
 				div.id  = cnt.id + '_items';
 				div.style.cssText += 'position: absolute; z-index: 1000; display: none; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;'+
 					'width: '+ parseInt(cnt.offsetWidth) +'px; height: 200px; overflow: auto;'+
@@ -115,14 +118,26 @@ var jsControls2 = {
 				}
 				cnt.hideItems = function (delay) {
 					if (String(delay) == 'undefined') delay = 300;
-					this._timeout = setTimeout("document.getElementById('"+ this.id +"')._items_div.style.display = 'none';", delay);
+					var parent = this;
+					this._timeout = setTimeout(function() {
+						parent._items_div.style.display = 'none'
+					}, delay);
 				}
 				cnt.showItems = function () {
 					this._items_div.style.display = '';
-					setTimeout("document.getElementById('"+ this.id +"')._items_div.scrollTop = '0px';", 1);
+					var parent = this;
+					setTimeout(function() {
+						parent._items_div.scrollTop = '0px';
+					}, 1);
 				}
 				// if items clicked
-				div.onmousedown = new Function("setTimeout('var el = document.getElementById(\""+ cnt.id +"\"); clearTimeout(el._timeout); el.focus();', 200)");
+				div.onmousedown = function () {
+					var parent = this;
+					setTimeout(function () {
+						clearTimeout(parent._timeout); 
+						parent.focus();
+					}, 200); 
+				}
 				
 				// -- cross browser multiple events
 				if (cnt.onclick) cnt._onclick = cnt.onclick;
@@ -184,10 +199,20 @@ var jsControls2 = {
 				)) {
 			cnt._param['lastSearch'] = cnt.value;
 			window.jsUtils.get(cnt._param['url'], { s: cnt.value, tmp: new Date().getTime() }, 
-				new Function('data', "var t = String(data).split('\\n'); var tmp = []; var i = 0; " +
-									 "for (var a in t) { i++; tmp[a] = t[a]; if (i >= '"+ cnt._param['cacheMax'] +"') break; }" +
-									 "document.getElementById('"+ cnt.id +"')._items = tmp; "+
-									 "document.getElementById('"+ cnt.id +"')._controls.populate(document.getElementById('"+ cnt.id +"')); ") );
+				function(data) {
+					var parent = cnt;
+					var t = String(data).split('\n'); 
+					var tmp = [], i = 0; 
+					for (var a in t) { 
+						if (i > parent._param['cacheMax']) break; 
+						if (t[a] == '') continue;
+						tmp[a] = t[a]; 
+						i++; 
+					}
+					parent._items = tmp; 
+					parent._controls.populate(parent); 
+				}
+			);
 			cnt._items_div.innerHTML = 'Loading...';
 		} else {
 			var html = '<ul>';
@@ -196,8 +221,8 @@ var jsControls2 = {
 				if (items[a] == '') continue;
 				var row = String(items[a]).split('|');
 				if (parseInt(cnt._param['showMax']) > i || !cnt._param) {
-					html += '<li class="'+ (i % 2 ? 'even' : 'odd')+ '"' + 
-							'	onclick="var el = document.getElementById(\''+ cnt.id +'\'); el.value = '+ 
+					html += '<li style="display: block" class="'+ (i % 2 ? 'even' : 'odd')+ '"' + 
+							'	onclick="var el = this.ownerDocument.getElementById(\''+ cnt.id +'\'); el.value = '+ 
 										(cnt._param && cnt._param['onSelect'] ? "el._param['onSelect'](String(el._items['"+ a +"']).split('|'), '"+ a +"')" : "el._items['"+ a +"']") +';'+
 										'el.hideItems(0);">'+
 								(cnt._param && cnt._param['onFormat'] ? cnt._param['onFormat'](row) : row[0]) + 
@@ -208,7 +233,10 @@ var jsControls2 = {
 			html += '</ul>';
 			cnt._items_div.innerHTML = html;
 			cnt._count = i;
-			setTimeout("document.getElementById('"+ cnt.id +"')._items_div.scrollTop = '0px';", 1);
+			setTimeout(function () {
+				var parent = cnt;
+				cnt._items_div.scrollTop = '0px';
+			}, 1);
 		}
 	},
 	

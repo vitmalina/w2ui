@@ -5,6 +5,9 @@
 ***********************************/
 
 var jsUtils = {
+	// date/time formats
+	format_date: 'mm/dd/yyyy',
+	format_time: 'hh:mi pm',
 
 	init: function(sys_path) {
 		this.sys_path = sys_path;		
@@ -26,7 +29,9 @@ var jsUtils = {
 			this.engine = "WebKit";
 		}
 		// -- initialize
-		window.elements = [];
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }
+		win.elements = [];
 	},
 	
 	get: function (url, data, callback) {
@@ -113,7 +118,7 @@ var jsUtils = {
 
 	isMoney: function (val) {
 		if (String(val) == 'undefined') return false;
-		var tmpStr = '$-.,0123456789';
+		var tmpStr = '$€£¥-.,0123456789';
 		val = String(val);
 		for (var ii=0; ii<val.length; ii++){
 			if (tmpStr.indexOf(val.substr(ii, 1)) < 0) { return false; }
@@ -145,19 +150,58 @@ var jsUtils = {
 	},
 
 	isTime: function (val) {
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }
+
 		if (String(val) == 'undefined') return false;
 		var max;
 		// -- process american foramt
 		val = val.toUpperCase();
 		if (val.indexOf('PM') >= 0 || val.indexOf('AM') >= 0) max = 12; else max = 23;
-		val = window.jsUtils.trim(val.replace('AM', ''));
-		val = window.jsUtils.trim(val.replace('PM', ''));
+		val = win.jsUtils.trim(val.replace('AM', ''));
+		val = win.jsUtils.trim(val.replace('PM', ''));
 		// ---
 		var tmp = val.split(':');
 		if (tmp.length != 2) { return false; }
-		if (tmp[0] == '' || parseInt(tmp[0]) < 0 || parseInt(tmp[0]) > max || !window.jsUtils.isInt(tmp[0])) { return false; }
-		if (tmp[1] == '' || parseInt(tmp[1]) < 0 || parseInt(tmp[1]) > 59 || !window.jsUtils.isInt(tmp[1])) { return false; }
+		if (tmp[0] == '' || parseInt(tmp[0]) < 0 || parseInt(tmp[0]) > max || !win.jsUtils.isInt(tmp[0])) { return false; }
+		if (tmp[1] == '' || parseInt(tmp[1]) < 0 || parseInt(tmp[1]) > 59 || !win.jsUtils.isInt(tmp[1])) { return false; }
 		return true;
+	},
+	
+	formatDate: function(val) {
+		// comes in mm/dd/yyyy
+		var mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',	'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		var tmp = val.split('/');
+		var ret = this.format_date;
+		// month
+		ret = ret.replace('mm', tmp[0]);
+		ret = ret.replace('Mon', mon[parseInt(tmp[0])-1]);
+		// date
+		ret = ret.replace('dd', tmp[1]);
+		// year 
+		ret = ret.replace('yyyy', tmp[2]);
+		ret = ret.replace('yy', tmp[2].substr(2));
+		return ret;
+	},
+	
+	formatTime: function(val) {
+		// comes in hh24:mi
+		var tmp = val.split(':');
+		var ret = this.format_time;
+		// hours
+		ret = ret.replace('hh24', tmp[0]);
+		// minutes
+		ret = ret.replace('mi', tmp[1]);
+		// pm
+		if (ret.indexOf('hh') >= 0) {
+			if (parseInt(tmp[0]) < 12)  { ret = ret.replace('hh', tmp[0]); tm = 'am'; }
+			if (parseInt(tmp[0]) > 12)  { ret = ret.replace('hh', parseInt(tmp[0])-12); tm = 'pm'; }
+			if (parseInt(tmp[0]) == 12) { ret = ret.replace('hh', tmp[0]); tm = 'pm'; }
+			if (parseInt(tmp[0]) == 24) { ret = ret.replace('hh', parseInt(tmp[0])-12); tm = 'am'; }
+			ret = ret.replace('pm', tm);
+			ret = ret.replace('am', tm);
+		}
+		return ret;
 	},
 	
 	isEmail: function (val) {
@@ -313,15 +357,18 @@ var jsUtils = {
 	},
 
 	center: function (div, ctype) {
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }
+
 		if (String(ctype) == 'undefined') ctype = '';
 		ctype = ctype.toLowerCase();
-		if (window.innerHeight == undefined) {
-			var width  = document.documentElement.offsetWidth;
-			var height = document.documentElement.offsetHeight;
+		if (win.innerHeight == undefined) {
+			var width  = div.ownerDocument.documentElement.offsetWidth;
+			var height = div.ownerDocument.documentElement.offsetHeight;
 			if (this.engine == 'IE7') { width += 21; height += 4; }
 		} else {
-			var width  = window.innerWidth;
-			var height = window.innerHeight;
+			var width  = win.innerWidth;
+			var height = win.innerHeight;
 		}
 		if (ctype == 'x' || ctype == '') { 
 			div.style.left = (width  - parseInt(div.style.width)) / 2 + 'px'; 
@@ -334,60 +381,83 @@ var jsUtils = {
 	},
 	
 	lock: function (opacity, lockOnClick) {
-		if (window.document.getElementById('screenLock')) return;
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }
+		
+		// see if opacity is a parameter
+		var speed = 20;
+		if (String(opacity) != 'undefined' && typeof(opacity) == 'object') {
+			if (String(opacity['onUnlock'])  != 'undefined') { lockOnClick 	= opacity['onUnlock']; }
+			if (String(opacity['speed'])   	 != 'undefined') { speed		= opacity['speed']; }
+			if (String(opacity['opacity'])   != 'undefined') { opacity 		= opacity['opacity']; }
+		}
+		
+		if (win.document.getElementById('screenLock')) { win.document.body.removeChild(win.document.getElementById('screenLock')); }
 		if (opacity == undefined || opacity == null) opacity = 0;
 		// get width and height
-		if (window.innerHeight == undefined) {
-			var width  = document.documentElement.offsetWidth;
-			var height = document.documentElement.offsetHeight;
+		if (win.innerHeight == undefined) {
+			var width  = win.document.documentElement.offsetWidth;
+			var height = win.document.documentElement.offsetHeight;
 			if (this.engine == 'IE7') { width += 21; height += 4; }
 		} else {
-			var width  = window.innerWidth;
-			var height = window.innerHeight;
+			var width  = win.innerWidth;
+			var height = win.innerHeight;
 		}		
 		//lock window
-		window.screenLock 	= window.document.createElement('DIV');
-		window.screenLock.style.cssText = 'position: '+(this.engine == 'IE5' ? 'absolute' : 'fixed')+'; padding: 0px; margin: 0px;'+
+		win.screenLock 	= win.document.createElement('DIV');
+		win.screenLock.style.cssText = 'position: '+(this.engine == 'IE5' ? 'absolute' : 'fixed')+'; padding: 0px; margin: 0px;'+
 			'zIndex: 1000; left: 0px; top: 0px; background-color: black; width: '+ width +'px; height: '+ height +'px; opacity: 0;';
-		window.screenLock.id = 'screenLock';
-		window.screenLock.style.filter = 'alpha(opacity=0)';
-		if (typeof(lockOnClick) == 'function') { window.screenLock.onclick = lockOnClick; }
-		window.document.body.appendChild(window.screenLock);
+		win.screenLock.id = 'screenLock';
+		win.screenLock.style.filter = 'alpha(opacity=0)';
+		if (typeof(lockOnClick) == 'function') { win.screenLock.onclick = lockOnClick; }
+		win.document.body.appendChild(win.screenLock);
 		// - nice opacity
-		window.tmp_opacity  = opacity;
-		window.tmp_sopacity = 0;
+		win.tmp_opacity  = opacity;
+		win.tmp_sopacity = 0;
 		if (opacity != 0) {
-			window.tmp_opacity_timeout = setInterval(new Function(
-					"if(window.tmp_sopacity >= window.tmp_opacity) { "+
-					"	window.tmp_sopacity = window.tmp_opacity; "+
-					"	clearInterval(window.tmp_opacity_timeout); "+
-					"} "+
-					"window.tmp_sopacity += 0.05; window.screenLock.style.opacity = window.tmp_sopacity; "+
-					"window.screenLock.style.filter = 'alpha(opacity='+ (window.tmp_sopacity * 100) +')'"+
-					""), 20);
+			win.tmp_opacity_timeout = setInterval(function () {
+				var parentWin = win;
+				if (parentWin.tmp_sopacity >= parentWin.tmp_opacity || !parentWin.screenLock) { 
+					parentWin.tmp_sopacity = parentWin.tmp_opacity; 
+					clearInterval(parentWin.tmp_opacity_timeout); 
+				} 
+				parentWin.tmp_sopacity += 0.05; 
+				parentWin.screenLock.style.opacity = parentWin.tmp_sopacity; 
+				parentWin.screenLock.style.filter = 'alpha(opacity='+ (parentWin.tmp_sopacity * 100) +')';
+			}, speed);
 		}
 	},
 
-	unlock: function () {
-		window.tmp_sopacity = window.tmp_opacity;
-		window.tmp_opacity  = 0;
-		window.tmp_opacity_timeout = setInterval(new Function(
-				"window.tmp_sopacity -= 0.05; "+
-				"if(window.tmp_sopacity <= 0) { "+
-				"	window.document.body.removeChild(window.screenLock);"+
-				"	window.screenLock = null;"+
-				"	window.tmp_sopacity = window.tmp_opacity; "+
-				"	clearInterval(window.tmp_opacity_timeout); "+
-				"	return; "+
-				"} "+
-				"window.screenLock.style.opacity = window.tmp_sopacity; "+
-				"window.screenLock.style.filter = 'alpha(opacity='+ (window.tmp_sopacity * 100) +')'"+
-				""), 20);
+	unlock: function (params) {
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }	
+		// parse params
+		var speed = 20;
+		if (String(params) != 'undefined' && typeof(params) == 'object') {
+			if (String(params['speed']) != 'undefined') { speed = params['speed']; }
+		}
+		win.tmp_sopacity = win.tmp_opacity;
+		win.tmp_opacity  = 0;
+		win.tmp_opacity_timeout = setInterval(function () {
+			var parentWin = win;
+			parentWin.tmp_sopacity -= 0.05; 
+			if (parentWin.tmp_sopacity <= 0 || !parentWin.screenLock) { 
+				if (parentWin.screenLock) parentWin.document.body.removeChild(parentWin.screenLock);
+				parentWin.screenLock = null;
+				parentWin.tmp_sopacity = parentWin.tmp_opacity; 
+				clearInterval(parentWin.tmp_opacity_timeout); 
+				return; 
+			} 
+			parentWin.screenLock.style.opacity = parentWin.tmp_sopacity; 
+			parentWin.screenLock.style.filter = 'alpha(opacity='+ (parentWin.tmp_sopacity * 100) +')';
+		}, speed); 
 	},
 	
 	message: function (msg, width, height) {
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }
 		// create div for the message
-		var box = window.document.createElement('DIV');				
+		var box = win.document.createElement('DIV');				
 		box.style.cssText 	= 'position: '+(this.engine == 'IE5' ? 'absolute' : 'fixed')+'; z-Index: 1001;';
 		box.innerHTML 		= '\n'+msg+'\n';
 		// set predefined size if any
@@ -399,9 +469,12 @@ var jsUtils = {
 		if (String(width)  == 'undefined') box.style.width  = parseInt(box.clientWidth) + 'px';
 		if (String(height) == 'undefined') box.style.height = parseInt(box.clientHeight) + 'px';
 		// center box
-		window.screenMessage = box;
+		win.screenMessage = box;
 		if (this.inArray(this.engine, ['IE5', 'IE7', 'IE8'])) {
-			window.setTimeout("window.jsUtils.center(window.screenMessage)", 10);
+			win.setTimeout(function () { 
+				var parentWin = win;
+				win.jsUtils.center(win.screenMessage)
+			}, 10); 
 		} else{
 			this.center(box);
 		}
@@ -409,6 +482,8 @@ var jsUtils = {
 	},
 	
 	showMsg: function (body, params) {	
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }
 		// parse params
 		var isTitle   = false;
 		var isButtons = false;
@@ -416,6 +491,7 @@ var jsUtils = {
 		var width	  = 400; 
 		var height	  = 200;
 		var opacity   = 0.3;
+		var onhide    = null;
 		if (String(params) != 'undefined') {
 			if (String(params['title'])   != 'undefined') { isTitle 	= true; }
 			if (String(params['buttons']) != 'undefined') { isButtons 	= true; }
@@ -423,10 +499,12 @@ var jsUtils = {
 			if (String(params['width'])   != 'undefined') { width   	= params['width']; }
 			if (String(params['height'])  != 'undefined') { height  	= params['height']; }
 			if (String(params['opacity']) != 'undefined') { opacity 	= params['opacity']; }
+			if (String(params['onhide'])  != 'undefined') { onhide 		= params['onhide']; }
 		}
 		// lock screen
-		window.jsUtils.lock(opacity, function() { // unlock if clicked away
-			if (!isModal) { window.jsUtils.hideMsg();  }
+		win.jsUtils.lock(opacity, function() { // unlock if clicked away
+			var parentWin = win;
+			if (!isModal) { parentWin.jsUtils.hideMsg(); } else { return; }
 		});
 		// show message
 		var msg = '';
@@ -434,18 +512,23 @@ var jsUtils = {
 		msg +='<div class="msg_body'+ (!isTitle ? ' msg_no-title' : '') + (!isButtons ? ' msg_no-buttons' : '') +'">'+ body +'</div>';
 		if (isButtons) { msg += '<div class="msg_buttons">'+ params['buttons'] +'</div>'; }
 		// output message
-		var box = window.jsUtils.message(msg, width, height);
+		var box = win.jsUtils.message(msg, width, height);
 		box.className = 'w20-message';
 		// drop shadow
-		//window.jsUtils.dropShadow(box, true);
+		//win.jsUtils.dropShadow(box, true);
+		win.screenMessage.onhide = onhide;
 		return box;
 	},
 
 	hideMsg: function () {
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) win = top; else win = window; } catch(e) { win = window; }
+		// execute onhide event
+		if (win.screenMessage && typeof(win.screenMessage.onhide) == 'function') { win.screenMessage.onhide(); }
 		// lock screen and remove message
-		window.jsUtils.clearShadow(window.screenMessage);	
-		window.screenMessage.parentNode.removeChild(window.screenMessage);
-		window.jsUtils.unlock();
+		if (win.screenMessage) win.screenMessage.parentNode.removeChild(win.screenMessage);
+		win.screenMessage = null;
+		win.jsUtils.unlock({ speed: 1 });
 	},
 	
 	dropShadow: function (shadowel, center) {
@@ -505,82 +588,97 @@ var jsUtils = {
 	},
 
 	clearShadow: function (shadowel) {
-		if (shadowel.shadow) shadowel.parentNode.removeChild(shadowel.shadow);
-		shadowel.shadow = null;
+		if (shadowel && shadowel.shadow) shadowel.parentNode.removeChild(shadowel.shadow);
+		if (shadowel) shadowel.shadow = null;
 	},
 
 	slideDown: function (el, onfinish) {
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }
+		
 		try {
 			if (el != undefined && el != null) {
 				// initiate
-				window.tmp_sd_el 		= el;
+				win.tmp_sd_el 		= el;
 				el.style.top  		= -1000;
 				el.style.display  	= '';
-				window.tmp_sd_height 	= parseInt(el.clientHeight);
-				window.tmp_sd_top	  	= -parseInt(el.clientHeight);
-				window.tmp_sd_timer  	= setInterval("window.jsUtils.slideDown()", 2);
-				window.tmp_sd_step   	= window.tmp_sd_height / 15;
-				window.tmp_sd_onfinish	= onfinish;
+				win.tmp_sd_height 	= parseInt(el.clientHeight);
+				win.tmp_sd_top	  	= -parseInt(el.clientHeight);
+				win.tmp_sd_timer  	= setInterval(function () { var parentWin = win; win.jsUtils.slideDown() }, 2);
+				win.tmp_sd_step   	= win.tmp_sd_height / 15;
+				win.tmp_sd_onfinish	= onfinish;
 				// show parent element
 				el.parentNode.style.width  = parseInt(el.clientWidth) + 5;
 				el.parentNode.style.height = parseInt(el.clientHeight) + 5;
 				el.parentNode.style.overflow = 'hidden';
 				return;
 			}	
-			window.tmp_sd_top += window.tmp_sd_step;
-			if (window.tmp_sd_top > 0) window.tmp_sd_top = 0;
-			if (window.tmp_sd_el) {
-				window.tmp_sd_el.style.top = window.tmp_sd_top;
-				if (window.tmp_sd_top == 0) { 
-					if (window.tmp_sd_onfinish) window.tmp_sd_onfinish(window.tmp_sd_el);
-					window.tmp_sd_el.parentNode.style.overflow = '';
+			win.tmp_sd_top += win.tmp_sd_step;
+			if (win.tmp_sd_top > 0) win.tmp_sd_top = 0;
+			if (win.tmp_sd_el) {
+				win.tmp_sd_el.style.top = win.tmp_sd_top;
+				if (win.tmp_sd_top == 0) { 
+					if (win.tmp_sd_onfinish) win.tmp_sd_onfinish(win.tmp_sd_el);
+					win.tmp_sd_el.parentNode.style.overflow = '';
 					// stop role out
-					clearInterval(window.tmp_sd_timer); 
-					window.tmp_sd_el 	  	= undefined;
-					window.tmp_sd_height 	= undefined;
-					window.tmp_sd_top	  	= undefined;
-					window.tmp_sd_timer  	= undefined;
-					window.tmp_sd_step   	= undefined;
-					window.tmp_sd_onfinish = undefined;
+					clearInterval(win.tmp_sd_timer); 
+					win.tmp_sd_el 	  	= undefined;
+					win.tmp_sd_height 	= undefined;
+					win.tmp_sd_top	  	= undefined;
+					win.tmp_sd_timer  	= undefined;
+					win.tmp_sd_step   	= undefined;
+					win.tmp_sd_onfinish = undefined;
 				}
 			}
 		} catch (e) {}
 	},
 
 	slideUp: function (el, onfinish) {
+		var win; // if top is available - do it in top, otherwise window
+		try { if (top) { win = top; } else { win = window; } } catch(e) { win = window; }
+		
 		try {
 			if (el != undefined && el != null) {
 				// initiate
-				window.tmp_sd_el 		= el;
+				win.tmp_sd_el 		= el;
 				el.style.display  	= '';
-				window.tmp_sd_height 	= parseInt(el.clientHeight);
-				window.tmp_sd_top	  	= 0;
-				window.tmp_sd_timer  	= setInterval("window.jsUtils.slideUp()", 2);
-				window.tmp_sd_step   	= window.tmp_sd_height / 15;
-				window.tmp_sd_onfinish	= onfinish;
+				win.tmp_sd_height 	= parseInt(el.clientHeight);
+				win.tmp_sd_top	  	= 0;
+				win.tmp_sd_timer  	= setInterval(function () { var parentWin = win; win.jsUtils.slideUp() }, 2);
+				win.tmp_sd_step   	= win.tmp_sd_height / 15;
+				win.tmp_sd_onfinish	= onfinish;
 				// control the parent element
 				el.parentNode.style.overflow 	= 'hidden';
 				return;
 			}
-			window.tmp_sd_top -= window.tmp_sd_step;
-			if (-window.tmp_sd_top > window.tmp_sd_height) window.tmp_sd_top = -window.tmp_sd_height - 10;
-			window.tmp_sd_el.style.top = window.tmp_sd_top;
-			if (window.tmp_sd_top == -window.tmp_sd_height - 10) { 
-				if (window.tmp_sd_onfinish) window.tmp_sd_onfinish(window.tmp_sd_el);
+			win.tmp_sd_top -= win.tmp_sd_step;
+			if (-win.tmp_sd_top > win.tmp_sd_height) win.tmp_sd_top = -win.tmp_sd_height - 10;
+			win.tmp_sd_el.style.top = win.tmp_sd_top;
+			if (win.tmp_sd_top == -win.tmp_sd_height - 10) { 
+				if (win.tmp_sd_onfinish) win.tmp_sd_onfinish(win.tmp_sd_el);
 				// hide parent element
-				window.tmp_sd_el.parentNode.style.width  = 0;
-				window.tmp_sd_el.parentNode.style.height = 0;
+				win.tmp_sd_el.parentNode.style.width  = 0;
+				win.tmp_sd_el.parentNode.style.height = 0;
 				// stop role out
-				clearInterval(window.tmp_sd_timer); 
-				window.tmp_sd_el 	  	= undefined;
-				window.tmp_sd_height 	= undefined;
-				window.tmp_sd_top	  	= undefined;
-				window.tmp_sd_timer  	= undefined;
-				window.tmp_sd_step   	= undefined;
-				window.tmp_sd_onfinish	= undefined;
+				clearInterval(win.tmp_sd_timer); 
+				win.tmp_sd_el 	  	= undefined;
+				win.tmp_sd_height 	= undefined;
+				win.tmp_sd_top	  	= undefined;
+				win.tmp_sd_timer  	= undefined;
+				win.tmp_sd_step   	= undefined;
+				win.tmp_sd_onfinish	= undefined;
 			}
 		} catch (e) {}
 	}	
 }
 // init object
+var sys_path;
+(function () {
+	var els = document.getElementsByTagName('script');
+	for (var e in els) {
+		if (String(els[e].src).indexOf('jsUtils.js') > -1) {
+			sys_path = String(els[e].src).replace(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?/, '').replace(/[^\/]*$/, '');
+		}
+	}
+})();
 jsUtils.init(window.sys_path != undefined ? window.sys_path : '');

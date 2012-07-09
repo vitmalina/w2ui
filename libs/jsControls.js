@@ -37,7 +37,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 
 	function jsField_build(inLabel, spanAdd) {
 		this.html = '';
-		td1_style = 'valign="top" style="padding-top: 4px" '+ inLabel;
+		var td1_style = 'valign="middle" '+ inLabel;
 		if (this.caption == '') ssign = ''; else ssign = ':';
 		if (this.required) rsign = "<div style='padding-top: 3px; padding-left: 2px; color: red' class='rText'>*</div>"; else rsign = "<div style='padding: 2px;' class='rText'>&nbsp;</div>";
 		tmpValue = ((this.value != null && this.value != '') ? this.value : this.defValue);
@@ -57,9 +57,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td></td>'+
-								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '		<input id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -77,8 +75,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '		<input size=2 id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -105,8 +102,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+ 
 							 '		<input type="text" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -130,8 +126,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'" valign=top> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'" valign=top> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<textarea id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
 							 '			class="rText rInput rTextArea" type="text" '+ this.inTag +'>'+ tmpValue +'</textarea>'+ 
@@ -145,8 +140,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'" valign=top> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'" valign=top> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div id="'+ this.prefix + '_field_box' +  this.index +'" '+
 							 '			class="rHTMLArea" type="text" value="'+ tmpValue +'" '+ this.inTag +'>'+
@@ -163,8 +157,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '		<input id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -180,8 +173,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '	<input id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -203,8 +195,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '	<input id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -227,8 +218,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '	<input id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -250,8 +240,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '<div style="float: left; width: auto;">'+
 							 '	<input id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -283,8 +272,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '		<select id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" value="'+ tmpValue +'" '+
@@ -342,8 +330,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<input type="hidden" value="'+ tmpValue +'" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+ this.inTag +'>'+
 										this.param + 
@@ -384,8 +371,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<input type="hidden" value="'+ tmpValue +'" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+ this.inTag +'>'+
 										this.param + 
@@ -397,7 +383,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 				if (!top.jsCalendar) { alert('You need to load jsCalendar class in order to use a DATE field.'); break; }
 				cal  = new top.jsCalendar(''+ this.prefix + '_field' +  this.index+ '_calendar');
 				try { cal.ownerDocument = (this.owner.owner ? this.owner.owner.box.ownerDocument : this.owner.box.ownerDocument); } catch(e) {}
-				cal.onSelect = new Function("param", "this.ownerDocument.getElementById('"+ this.prefix + "_field"+ this.index +"').value = param;"+
+				cal.onSelect = new Function("param", "this.ownerDocument.getElementById('"+ this.prefix + "_field"+ this.index +"').value = top.jsUtils.formatDate(param);"+
 													 "this.ownerDocument.getElementById(this.name + '_tbl').parentNode.style.display = 'none';"+
 													 "cal = this.ownerDocument.getElementById(this.name + '_tbl').parentNode; cal.shadow.style.display = 'none';");
 				cal.onCancel = new Function("cal = this.ownerDocument.getElementById(this.name + '_tbl').parentNode; cal.shadow.style.display = 'none';");
@@ -407,8 +393,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'" nowrap> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'" nowrap> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '	<input type="text" size="10" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -418,7 +403,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 							 '				 if (cal.style.display == \'none\')  { cal.style.display = \'\'; cal.shadow = top.jsUtils.dropShadow(cal); } '+
 							 '												else { cal.style.display = \'none\'; cal.shadow.style.display = \'none\'; } '+
 							 '				 this.blur();">'+ 
-							 '	(mm/dd/yyyy)'+
+							 '	('+ top.jsUtils.format_date +')'+
 							 '	</div>'+
 							 (this.outTag != '' ? '	<div style="float: left; width: auto; margin: 3px;">'+ this.outTag +'</div>' : '')+
 							 '</td>\n';
@@ -430,7 +415,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 				cal  = new top.jsCalendar(''+ this.prefix + '_field' +  this.index+ '_calendar');
 				try { cal.ownerDocument = (this.owner.owner ? this.owner.owner.box.ownerDocument : this.owner.box.ownerDocument); } catch(e) {}
 				cal.onCancel = new Function("cal = this.ownerDocument.getElementById(this.name + '_tbl').parentNode; cal.shadow.style.display = 'none';");
-				cal.onSelect = new Function("param", "this.ownerDocument.getElementById('"+ this.prefix + "_field"+ this.index +"').value = param;"+
+				cal.onSelect = new Function("param", "this.ownerDocument.getElementById('"+ this.prefix + "_field"+ this.index +"').value = top.jsUtils.formatDate(param);"+
 													 "this.ownerDocument.getElementById(this.name + '_tbl').parentNode.style.display = 'none';"+
 													 "cal = this.ownerDocument.getElementById(this.name + '_tbl').parentNode; cal.shadow.style.display = 'none';");
 				calhtml1 = '<div style="position: absolute; z-Index: 100; padding-top: 1px; display: none;" id="'+ this.prefix + '_field' +  this.index +'_caldiv">'+ cal.get3Months() + '</div>';
@@ -438,7 +423,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 				cal  = new top.jsCalendar(''+ this.prefix + '_field' +  this.index+ '_2_calendar');
 				try { cal.ownerDocument = (this.owner.owner ? this.owner.owner.box.ownerDocument : this.owner.box.ownerDocument); } catch(e) {}
 				cal.onCancel = new Function("cal = this.ownerDocument.getElementById(this.name + '_tbl').parentNode; cal.shadow.style.display = 'none';");
-				cal.onSelect = new Function("param", "this.ownerDocument.getElementById('"+ this.prefix + "_field"+ this.index +"_2').value = param;"+
+				cal.onSelect = new Function("param", "this.ownerDocument.getElementById('"+ this.prefix + "_field"+ this.index +"_2').value = top.jsUtils.formatDate(param);"+
 													 "this.ownerDocument.getElementById(this.name + '_tbl').parentNode.style.display = 'none';"+
 													 "cal = this.ownerDocument.getElementById(this.name + '_tbl').parentNode; cal.shadow.style.display = 'none';");
 				calhtml2 = '<div style="position: absolute; z-Index: 100; padding-top: 1px; display: none;" id="'+ this.prefix + '_field' +  this.index +'_2_caldiv">'+ cal.get3Months() + '</div>';
@@ -451,8 +436,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'">';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'">';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '<div style="float: left; width: auto;">'+
 							 '<table cellpadding="0" cellspacing="0" class="rText" style="padding: 0px; margin: 0px"><tr><td nowrap>'+
@@ -471,7 +455,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 							 '				 if (cal.style.display == \'none\')  { cal.style.display = \'\'; cal.shadow = top.jsUtils.dropShadow(cal); } '+
 							 '												else { cal.style.display = \'none\'; cal.shadow.style.display = \'none\'; } '+
 							 '				 this.blur();">'+ 
-							 '	(mm/dd/yyyy)'+
+							 '	('+ top.jsUtils.format_date +')'+
 							 '</td>'+
 							 '</tr></table>'+
 							 '</div>'+
@@ -483,7 +467,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 				if (!top.jsCalendar) { alert('You need to load jsCalendar class in order to use a TIME field.'); break; }
 				cal  = new top.jsCalendar(''+ this.prefix + '_field' +  this.index+ '_time');
 				try { cal.ownerDocument = (this.owner.owner ? this.owner.owner.box.ownerDocument : this.owner.box.ownerDocument); } catch(e) {}
-				cal.onSelect = new Function("param", "this.ownerDocument.getElementById('"+ this.prefix + "_field"+ this.index +"').value = param;"+
+				cal.onSelect = new Function("param", "this.ownerDocument.getElementById('"+ this.prefix + "_field"+ this.index +"').value = top.jsUtils.formatTime(param);"+
 													 "this.ownerDocument.getElementById(this.name + '_tbl').parentNode.style.display = 'none';"+
 													 "cal = this.ownerDocument.getElementById(this.name + '_tbl').parentNode; cal.shadow.style.display = 'none';");
 				cal.onCancel = new Function("cal = this.ownerDocument.getElementById(this.name + '_tbl').parentNode; cal.shadow.style.display = 'none';");
@@ -493,8 +477,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="width: auto; float: left;">'+
 							 '	<input size="10" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -505,6 +488,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 							 '				 if (cal.style.display == \'none\')  { cal.style.display = \'\'; cal.shadow = top.jsUtils.dropShadow(cal); } '+
 							 '												else { cal.style.display = \'none\'; cal.shadow.style.display = \'none\'; } '+
 							 '				 this.blur();">'+
+							 '	('+ top.jsUtils.format_time +')'+
 							 '	</div>'+
 							 (this.outTag != '' ? '<div style="float: left; width: auto; margin: 3px;">'+ this.outTag +'</div>' : '')+
 							 '</td>\n';
@@ -519,8 +503,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '	<input size="5" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -530,6 +513,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 							 '	<input size="5" id="'+ this.prefix + '_field' +  this.index +'_2" name="'+ this.fieldName +'_2" '+
 							 '			onblur ="if (!top.jsUtils.isTime(this.value)) this.value = \'\';"'+
 							 '			class="rText rInput" type="text" value="'+ tmpValue[1] +'" '+ this.inTag +'>'+
+							 '	('+ top.jsUtils.format_time +')'+
 							 '	</div>'+
 							 (this.outTag != '' ? '<div style="float: left; width: auto; margin: 3px;">'+ this.outTag +'</div>' : '')+
 							 '</td>\n';
@@ -567,8 +551,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'" nowrap> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'" nowrap> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '	<input type="text" size="6" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -597,8 +580,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '		<input size=20 type="text" id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" readonly class="rText rInput" value="'+ tmpValue +'" '+ this.inTag +'>'+
@@ -615,8 +597,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
 								 '<td colspan="'+ parseInt(spanAdd) +'" class="'+ this.td2Class +'"> ';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>'+
-								 '<td colspan="'+ (parseInt(spanAdd)+1) +'" class="'+ this.td2Class +'"> ';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+3) +'" class="'+ this.td2Class +'"> ';
 				}
 				this.html += '	<div style="float: left; width: auto;">'+
 							 '		<input tabindex=-1 id="'+ this.prefix + '_field' +  this.index +'" name="'+ this.fieldName +'" '+
@@ -645,7 +626,7 @@ function jsField(caption, type, fieldName, inTag, outTag, defValue, required, co
 					this.html += '<td nowrap class="'+ this.td1Class +'" '+ td1_style + '>'+ this.caption + ssign +'</td>\n'+
 								 '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>';
 				} else {
-					this.html += '<td style="width: 1px; padding: 0px; padding-top: 2px;" valign=top>'+ rsign +'</td>';
+					this.html += '<td colspan="'+ (parseInt(spanAdd)+2) +'" class="'+ this.td2Class +'"> </td>';
 				}
 				this.html += '<td colspan="'+ parseInt(spanAdd) +'" class="rText" style="padding-top: 4px">'+
 							 '	<div class="rText" style="clear: both; padding: 1px; padding-top: 0px;" '+ this.inTag +'>'+ tmpValue + this.outTag +'</div>'+
@@ -663,7 +644,7 @@ function jsGroup(name, header) {
     this.owner 		= null;
 	this.object     = null;
 	this.height     = null;
-	this.disabled   = false;
+	this.visible	= true; // not implemented
 
     // private properties
     this.inLabel    = '';

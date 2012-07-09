@@ -38,10 +38,12 @@ function jsList(name, box) {
     this.showRecHeader 	= true;
     this.showRecNumber 	= true;
 	this.showKey		= false;
+	this.useIScroll		= false;
     this.smallPageCount = false;
     this.smallPageNav   = false;
     this.fixed      	= true;
 	this.fixedSize		= true;
+	this.multiSelect	= true;
     this.editable       = [];
     this.sortBy			= [];
     this.count      	= 0;
@@ -63,6 +65,7 @@ function jsList(name, box) {
 	this.onDelete;
 	this.onDeleteDone;
 	this.onEditableChange;
+	this.onServer;
 
     // public methods
     this.addColumn   	= jsList_addColumn;
@@ -104,6 +107,8 @@ function jsList(name, box) {
 	this.last_scrollTop	= '';
 	this.last_scrollLeft= '';
 	this.last_selected	= '';
+	this.iscroll		= null;
+	this.iscroll_timer  = null;
     this.lstClick    	= jsList_lstClick;
     this.lstDblClick 	= jsList_lstDblClick;
     this.columnClick 	= jsList_columnClick;
@@ -127,6 +132,11 @@ function jsList(name, box) {
     if (!top.elements) top.elements = [];
     if (top.elements[this.name]) alert('The element with this name "'+ this.name +'" is already registered.');
     top.elements[this.name] = this;
+    
+    if (top.jsUtils.engine == 'WebKit' && typeof iScroll != 'undefined') this.useIScroll = true; else this.useIScroll = false;
+    this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 || 
+				  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
+				  navigator.userAgent.toLowerCase().indexOf('ipad') != -1) ? true : false;
 	
 	// ==============-------------------------------
 	// -------------- IMPLEMENTATION
@@ -441,8 +451,8 @@ function jsList(name, box) {
 		if (!this.showSearch) {
 			var i = 0;
 			while(true) {
-				sr1 = this.box.ownerDocument.getElementById(this.name+'_field'+i);
-				sr2 = this.box.ownerDocument.getElementById(this.name+'_field'+i+'_2');
+				var sr1 = this.box.ownerDocument.getElementById(this.name+'_field'+i);
+				var sr2 = this.box.ownerDocument.getElementById(this.name+'_field'+i+'_2');
 				if (!sr1 ) break;
 				if (sr1.name != '' && String(this.searchData[sr1.name]) != 'undefined') {
 					var tmp = String(this.searchData[sr1.name]).split('::');
@@ -451,6 +461,10 @@ function jsList(name, box) {
 						sr2.value = tmp[1];
 					} else {
 						sr1.value = this.searchData[sr1.name];
+					}
+					// if list box
+					if (sr1.options) for (var j=0; j<sr1.options.length; j++) {
+						if (sr1.options[j].value == tmp[0]) sr1.selectedIndex = j;
 					}
 				}
 				i++;
@@ -492,9 +506,9 @@ function jsList(name, box) {
 			if (el) {
 				el.innerHTML = this.getSearches();
 				for (var ssi = 0; ssi < this.searchFields.length; ssi++) {
-					ssel  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[ssi].index);
-					ssel2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[ssi].index + '_2');
-					sstmp = this.searchFields[ssi].value != '' ? this.searchFields[ssi].value : this.searchFields[ssi].defValue;
+					var ssel  = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[ssi].index);
+					var ssel2 = this.box.ownerDocument.getElementById(this.name + '_field' + this.searchFields[ssi].index + '_2');
+					var sstmp = this.searchFields[ssi].value != '' ? this.searchFields[ssi].value : this.searchFields[ssi].defValue;
 					if (ssel.value == '' && sstmp != '' && sstmp != null) {
 						sstmp = sstmp.split('::');
 						ssel.value = sstmp[0];
@@ -595,34 +609,39 @@ function jsList(name, box) {
 		// -- Calculate Column size in PX
 		var dbody = this.box.ownerDocument.getElementById('body_'+ this.name);
 		if (dbody) {
-			var width_max = parseInt(dbody.clientWidth) 
-				- (bodyOverFlow ? 17 : 0)
+			var width_max = parseInt(dbody.clientWidth) - 1
+				- (bodyOverFlow && !this.isIOS && !this.useIScroll ? 17 : 0)
 				- (this.showRecNumber ? 23 : 0);
+			var width_curr = 0;
 			// assign PX columns
 			for (var i=0; i<this.columns.length; i++) {
 				var col = this.columns[i];
 				if (String(col.size).substr(String(col.size).length-2).toLowerCase() == 'px') {
 					width_max -= parseInt(col.size) + 1; // count in cell border
-					this.columns[i].calculatedSize = col.size;
+					this.columns[i].calculatedSize = parseInt(col.size);
+					width_curr += parseInt(col.size) + 1; 
 				}				
 			}
 			// calculate % columns
 			for (var i=0; i<this.columns.length; i++) {
 				var col = this.columns[i];
 				if (String(col.size).substr(String(col.size).length-2).toLowerCase() != 'px') {
-					this.columns[i].calculatedSize = (width_max * parseInt(col.size) / 100 - 1) + 'px'; // count in cell border
+					var tmp = (Math.floor(width_max * parseInt(col.size) / 100));
+					width_curr += tmp;
+					this.columns[i].calculatedSize = tmp + 'px'; // count in cell border
+					var last_column = this.columns[i];
 				}
-			}			
+			}
 		}
 		// resize HTML table
 		for (var i=0; i<this.columns.length; i++) {
 			var el = this.box.ownerDocument.getElementById(this.name+'_cell_header_'+ i);
-			if (el) el.firstChild.style.width = this.columns[i].calculatedSize;
+			if (el) el.firstChild.style.width = parseInt(this.columns[i].calculatedSize)+'px';
 			for (var j=0; j<1000; j++) {
 				var el = this.box.ownerDocument.getElementById(this.name+'_cell_'+ j +'_'+ i);
 				if (!el) break;
 				if (el.firstChild.tagName == 'INPUT') break;
-				el.firstChild.style.width = this.columns[i].calculatedSize;
+				el.firstChild.style.width = parseInt(this.columns[i].calculatedSize)+'px';
 			}			
 		}
 		// apply last scroll if any
@@ -630,6 +649,18 @@ function jsList(name, box) {
 			elm.scrollTop 	= this.last_scrollTop;
 			elm.scrollLeft 	= this.last_scrollLeft;
 			elh.scrollLeft 	= this.last_scrollLeft;
+		}
+		// init iScroll
+		if (this.isIOS || this.useIScroll) {
+			var obj = this;
+			clearTimeout(this.iscroll_timer);
+			this.iscroll_timer = setTimeout(function () {
+				if (obj.iscroll != null) { obj.iscroll.destroy(); obj.iscroll = null; }
+				obj.iscroll = new iScroll(
+					obj.box.ownerDocument.getElementById('mtable_'+ obj.name), 
+					{ desktopCompatibility: true, zoom: false }
+				);
+			}, 300);
 		}
 	}
 
@@ -645,7 +676,7 @@ function jsList(name, box) {
 							this.getHeaders() +
 						'</table>'+
 						'</div>'+						
-						'<div id="mtable_'+ this.name + '" style="overflow: hidden; display: block;" '+
+						'<div id="mtable_'+ this.name + '" style="'+(this.isIOS || this.useIScroll ? 'position: absolute;' : '')+' overflow: hidden; display: block;" '+
 						'	onscroll="document.getElementById(\'htable_'+ this.name + '\').scrollLeft = this.scrollLeft">'+
 						'<table cellpadding="0" cellspacing="0" style="table-layout: fixed;">'+
 							this.getRecords() +
@@ -792,7 +823,7 @@ function jsList(name, box) {
 		if (us) {
 			if (String(this.last_search) != 'undefined') us.value = this.last_search;
 			if (String(this.show_search) != 'undefined') us.value = this.show_search;
-			us.focus();
+			if (!this.isIOS) us.focus();
 		}
 		// call user event if any
 		if (this.onRefresh) this.onRefresh();
@@ -1204,20 +1235,24 @@ function jsList(name, box) {
 					}
 					if (this.items[i].selected) {
 						html += '<tr id="'+ this.name +'_line_'+ i +'" class="selected" ' +
-								'    onclick     = "top.elements[\''+ this.name +'\'].lstClick('+ i +', event);" '+
-								'    ondblclick  = "top.elements[\''+ this.name +'\'].lstDblClick('+ i +', event);" '+
-								//'    onmouseup = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
-								//'    onmousemove = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
+								(this.isIOS ? 
+									'    onclick 	 = "top.elements[\''+ this.name +'\'].lstDblClick('+ i +', event);" '
+									:
+									'    onclick     = "top.elements[\''+ this.name +'\'].lstClick('+ i +', event);" '+
+									'    ondblclick  = "top.elements[\''+ this.name +'\'].lstDblClick('+ i +', event);" '
+								 )+
 								'	 custom_style="'+ tmp_color +'"'+
 								'>';
 					} else {
 						html += '<tr id="'+ this.name +'_line_'+ i +'" class="'+ (i%2 == 0 ? 'odd' : 'even') + '" ' + 
 								'    onmouseover = "if (this.getAttribute(\'selected\') == \'yes\') { return; } this.className = \''+ (i%2 == 0 ? 'odd_hover' : 'even_hover') + '\'; this.style.cssText = \'\';" '+
 								'    onmouseout  = "if (this.getAttribute(\'selected\') == \'yes\') { return; } this.className = \''+ (i%2 == 0 ? 'odd' : 'even') + '\'; this.style.cssText = \''+ tmp_color +'\';" '+
-								'    onclick     = "top.elements[\''+ this.name +'\'].lstClick('+ i +', event);" '+
-								'    ondblclick  = "top.elements[\''+ this.name +'\'].lstDblClick('+ i +', event);" '+
-								//'    onmouseup = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
-								//'    onmousemove = "if (document.all) document.selection.empty(); else window.getSelection().removeAllRanges();" '+
+								(this.isIOS ? 
+									'    onclick  	 = "top.elements[\''+ this.name +'\'].lstDblClick('+ i +', event);" '
+									:
+									'    onclick     = "top.elements[\''+ this.name +'\'].lstClick('+ i +', event);" '+
+									'    ondblclick  = "top.elements[\''+ this.name +'\'].lstDblClick('+ i +', event);" '
+								 )+
 								'	 custom_style="'+ tmp_color +'"'+
 								'	 style="'+ tmp_color +'"'+
 								'>';
@@ -1380,7 +1415,7 @@ function jsList(name, box) {
 		}
 		if (this.items[ind]) var tmp_previous = this.items[ind].selected;
 		// clear other if necessary
-		if (!evnt.ctrlKey && !evnt.shiftKey) {
+		if ((!evnt.ctrlKey && !evnt.shiftKey) || !this.multiSelect) {
 			for (var i=0; i<this.items.length; i++) { this.selectItem(i, false); }
 		} else {
 			window.setTimeout("var doc = top.elements['"+ this.name +"'].box.ownerDocument; if (doc.selection) doc.selection.empty(); "+
@@ -1574,6 +1609,7 @@ function jsList(name, box) {
 				 (this.searchFields[si].defValue == '' || this.searchFields[si].defValue == null) &&
 				 (this.searchFields[si].value == '' || this.searchFields[si].value == null) ) continue;
 			if (sel2) { if (sel2.value != '') el2dsp = '::' + sel2.value; else el2dsp = '::' + sel.value; } else el2dsp = '';
+			if (this.searchFields[si].type == 'List') el2dsp = '::List';
 			if (sel) { 
 				this.searchData[this.searchFields[si].fieldName] = sel.value + el2dsp; 
 			} else {
@@ -1583,7 +1619,7 @@ function jsList(name, box) {
 					this.searchData[this.searchFields[si].fieldName] = this.searchFields[si].defValue; 
 				}
 			}
-			this.searchFields[si].value = this.searchData[this.searchFields[si].fieldName];
+			this.searchFields[si].value = String(this.searchData[this.searchFields[si].fieldName]).replace('::List', '');
 			if (this.searchFields[si].defValue != this.searchFields[si].value) this.searchFlag = true;
 		}
 		param['req_search']  = this.searchData;
@@ -1599,8 +1635,9 @@ function jsList(name, box) {
 					param[t[0]] = t[1];
 				}
 			}
-		}
-		// populate data
+		}		
+		// call server to get data
+		if (this.srvFile == '') this.srvFile = this.onServer;
 		if (typeof(this.srvFile) == 'function') {
 			this.srvFile(cmd, param);
 		} else {

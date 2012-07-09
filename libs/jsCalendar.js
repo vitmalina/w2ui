@@ -67,7 +67,7 @@ function jsCalendar(name, box) {
 		var weekDay = td.getDay();
 		
 		cc 	  = 'align="center" style="background-color: #e8e8e8; color: gray;"';
-		html  = '<table cellpadding="3" cellspacing="0" style="padding: 0px; margin: 0px; background-color: #e4ebed; border: 1px solid silver;" class="rText">'+
+		html  = '<table class="calendar_month" cellpadding="3" cellspacing="0" style="padding: 0px; margin: 0px; background-color: #e4ebed; border: 1px solid silver;" class="rText">'+
 				'	<tr><td colspan="7" align="center" style="padding: 4px; border-bottom: 1px solid silver; '+
 				'			background-image: url('+top.jsUtils.sys_path+'/images/bl_title_bg.png); color: black"> '+ 
 				this.months[month-1] +', '+ year +' </td></tr>'+
@@ -157,45 +157,45 @@ function jsCalendar(name, box) {
 	function jsCalendar_getHours(id) {
 		var doc = this.ownerDocument ? this.ownerDocument : document;
 		var el  = doc.getElementById(this.name + '_tbl');
-		var html = '<div style="background-color: #a5cbd5; padding: 3px;">AM</div>';
+		var html = '<div style="background-color: #a5cbd5; padding: 3px;">Morning</div>';
 		for (var i=1; i<=12; i++) {
 			html += '<div onmouseover="this.style.backgroundColor = \'yellow\';" onmouseout="this.style.backgroundColor = \'\';" '+
 					'	onclick="tm = document.getElementById(\''+id+'\').value.split(\':\'); min = parseInt(tm[1] == undefined ? \'0\' : tm[1]); min = (min<10 ? \'0\' : \'\') + min; document.getElementById(\''+ id +'\').value = \''+ i +'\' + \':\' + min; top.elements[\''+ id +'_time' +'\'].getMinutes(\''+ id +'\');"'+
-					'	style="padding: 3px; margin: 2px; width: 14px; height: 14px; text-align: center; float: left; cursor: default;">'+ i +'</div>';
+					'	style="padding: 3px; margin: 2px; width: 21px; height: 21px; text-align: center; float: left; cursor: default;">'+ i +'</div>';
 			if (i==6)  html += '<div></div>';
 			if (i==12) html += '<div></div>';
 			if (i==18) html += '<div></div>';
 		}
 		html += '<div style="clear: both"></div>'+
-				'<div style="clear: both; background-color: #a5cbd5; padding: 3px; margin-top: 3px;">PM</div>';
+				'<div style="clear: both; background-color: #a5cbd5; padding: 3px; margin-top: 3px;">Afternoon</div>';
 		for (var i=13; i<=24; i++) {
 			html += '<div onmouseover="this.style.backgroundColor = \'yellow\';" onmouseout="this.style.backgroundColor = \'\';" '+
 					'	onclick="tm = document.getElementById(\''+id+'\').value.split(\':\'); min = parseInt(tm[1] == undefined ? \'0\' : tm[1]); min = (min<10 ? \'0\' : \'\') + min; document.getElementById(\''+ id +'\').value = \''+ i +'\' + \':\' + min; top.elements[\''+ id +'_time' +'\'].getMinutes(\''+ id +'\');"'+
-					'	style="padding: 3px; margin: 2px; width: 14px; height: 14px; text-align: center; float: left; cursor: default;">'+ parseInt(i-12) +'</div>';
+					'	style="padding: 3px; margin: 2px; width: 21px; height: 21px; text-align: center; float: left; cursor: default;">'+ parseInt(i-12) +'</div>';
 			if (i==6)  html += '<div></div>';
 			if (i==12) html += '<div></div>';
 			if (i==18) html += '<div></div>';
 		}
 		if (el) el.innerHTML = html;
-		return '<div style="background-color: #f4f4fe; text-align: center; font-family: verdana; font-size: 11px; padding: 2px; width: 145px; height: 138px; text-align: center; border: 2px solid #3b79c8; padding: 1px;" id="'+ this.name +'_tbl">' + html + '</div>';
+		return '<div style="background-color: #f4f4fe; text-align: center; font-family: verdana; font-size: 11px; padding: 2px; width: 165px; height: 150px; text-align: center; border: 2px solid #3b79c8; padding: 1px;" id="'+ this.name +'_tbl">' + html + '</div>';
 	}
 
 	function jsCalendar_getMinutes(id) {
 		var doc = this.ownerDocument ? this.ownerDocument : document;
 		var el  = doc.getElementById(this.name + '_tbl');
-		var html = '<div style="background-color: #a5cbd5; padding: 3px;">Minute</div>'+
+		var html = '<div style="background-color: #a5cbd5; padding: 1px 3px;">Minute</div>'+
 				   '<div style="padding-top: 5px; padding-left: 23px;">';	
 		for (var i=0; i<=59; i+=15) {
 			html += '<div onmouseover="this.style.backgroundColor = \'yellow\';" onmouseout="this.style.backgroundColor = \'\';" '+
 					'	onclick="tm = document.getElementById(\''+id+'\').value.split(\':\'); hour = parseInt(tm[0] == undefined ? \'0\' : tm[0]); document.getElementById(\''+ id +'\').value = hour + \':\' + \''+ (i<10 ? '0' : '') + i +'\'; top.elements[\''+ id +'_time' +'\'].onSelect(document.getElementById(\''+ id +'\').value); top.elements[\''+ id +'_time' +'\'].getHours(\''+ id +'\');"'+
-					'	style="padding: 3px; margin: 2px; width: 14px; height: 14px; text-align: center; float: left; cursor: default;">'+ (i<10 ? '0' : '') + i +'</div>';
+					'	style="padding: 3px; margin: 2px; width: 21px; height: 21px; text-align: center; float: left; cursor: default;">'+ (i<10 ? '0' : '') + i +'</div>';
 		}
 		html += '</div><div style="clear: both"></div>'+
 				'<div style="border-bottom: 1px solid #a5cbd5; font-size: 1px; margin-bottom: 2px;">&nbsp;</div>';
 		for (var i=0; i<=59; i+=5) {
 			html += '<div onmouseover="this.style.backgroundColor = \'yellow\';" onmouseout="this.style.backgroundColor = \'\';" '+
 					'	onclick="tm = document.getElementById(\''+id+'\').value.split(\':\'); hour = parseInt(tm[0] == undefined ? \'0\' : tm[0]); document.getElementById(\''+ id +'\').value = hour + \':\' + \''+ (i<10 ? '0' : '') + i +'\'; top.elements[\''+ id +'_time' +'\'].onSelect(document.getElementById(\''+ id +'\').value); top.elements[\''+ id +'_time' +'\'].getHours(\''+ id +'\');"'+
-					'	style="padding: 3px; margin: 2px; width: 14px; height: 14px; text-align: center; float: left; cursor: default;">'+ (i<10 ? '0' : '') + i +'</div>';
+					'	style="padding: 3px; margin: 2px; width: 21px; height: 21px; text-align: center; float: left; cursor: default;">'+ (i<10 ? '0' : '') + i +'</div>';
 			if (i==6) html += '<div></div>';
 			if (i==12) html += '<div></div>';
 			if (i==18) html += '<div></div>';

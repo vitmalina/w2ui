@@ -7,9 +7,9 @@ require("tree.php");
 <link href="../css/w20-ui-blue.css" type="text/css" rel="stylesheet">
 <link href="../css/w20-buttons.css" type="text/css" rel="stylesheet">
 
-<script src="../libs/jsUtils.php"></script>	
-<script src="../libs/jsLayout.php"></script>	
-<script src="../libs/jsTree.php"></script>	
+<script src="../jsUtils.js"></script>	
+<script src="../jsLayout.js"></script>	
+<script src="../jsTree.js"></script>	
 <script>
 window.onload    = pload;
 window.onresize	 = resize;
@@ -32,6 +32,7 @@ function pload() {
 	docLayout.output();	
 	docLayout.initPanel('main', docMain);
 	resize();
+	if ('<?=$_GET[doc]?>' != '') { setTimeout("load('<?=$_GET[doc]?>');", 1000); }
 }
 
 function load(file) {
