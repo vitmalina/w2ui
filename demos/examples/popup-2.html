@@ -1,0 +1,73 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>More Popup Options</h1>
+		Below is another popup window, but with more options that you can define. You do not need to specify all the options, but only the
+		ones needed.
+	</div>
+	
+	<div id="example_view">
+		<input type="button" value="Open Popup" onclick="popup()">
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<input type="button" value="Open Popup" onclick="popup()">
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+function popup() {
+	$().w2popup('open', {
+		title: 'Popup Title',
+		body: 'This is text inside the popup',
+		buttons: '<input type="button" value="Close" onclick="$().w2popup(\'close\');">',
+		width: 500,
+		height: 300,
+		overflow: 'hidden',
+		color: '#ffc',
+		speed: '0.3',
+		opacity: '0.5',
+		modal: true,
+		showClose: true,
+		showMax: true,
+		onUnlock:       function () { console.log('unlock'); },
+		onUnlockClick:  function () { console.log('unlock click'); },
+		onOpen:         function () { console.log('open'); },
+		onBeforeClose:  function () { console.log('before close (cancelable, just return false)'); },
+		onClose:        function () { console.log('close'); },
+		onMax:          function () { console.log('max'); }
+	});
+}
+		</textarea>
+	</div>
+	
+</div>
+
+<script>
+function popup() {
+	$().w2popup('open', {
+		title: 'Popup Title',
+		body: 'This is text inside the popup',
+		buttons: '<input type="button" value="Close" onclick="$().w2popup(\'close\');">',
+		width: 500,
+		height: 300,
+		overflow: 'hidden',
+		color: '#ffc',
+		speed: '0.3',
+		opacity: '0.5',
+		modal: true,
+		showClose: true,
+		showMax: true,
+		onUnlock:       function () { console.log('unlock'); },
+		onUnlockClick:  function () { console.log('unlock click'); },
+		onOpen:         function () { console.log('open'); },
+		onBeforeClose:  function () { console.log('before close (cancelable, just return false)'); },
+		onClose:        function () { console.log('close'); },
+		onMax:          function () { console.log('max'); }
+	});
+}
+</script>

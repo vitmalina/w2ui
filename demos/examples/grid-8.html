@@ -1,0 +1,81 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Sub Grids</h1>
+		If you need to show or hide column, you can do it on the fly without any problems. Just remember to refresh the grid.
+	</div>
+	
+	<div id="example_view">
+		<div id="grid" style="width: 100%; height: 300px;"></div>
+		<br>
+		<input type="button" value="Toggle First Column" 
+			onclick="w2ui['grid'].columns[0].hidden = !w2ui['grid'].columns[0].hidden; w2ui['grid'].refresh();">
+		<input type="button" value="Toggle Last Column" 
+			onclick="w2ui['grid'].columns[3].hidden = !w2ui['grid'].columns[3].hidden; w2ui['grid'].refresh();">
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<div id="grid" style="width: 100%; height: 300px;"></div>
+<br>
+<input type="button" value="Toggle First Column" 
+	onclick="w2ui['grid'].columns[0].hidden = !w2ui['grid'].columns[0].hidden; w2ui['grid'].refresh();">
+<input type="button" value="Toggle Last Column" 
+	onclick="w2ui['grid'].columns[3].hidden = !w2ui['grid'].columns[3].hidden; w2ui['grid'].refresh();">
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+$('#grid').w2grid({ 
+	name: 'grid', 
+	columns: [				
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'Start Date', size: '90px' },
+	],
+	records: [
+		{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+	]
+});	
+		</textarea>
+	</div>
+</div>
+
+</div>
+
+<script>
+$(document).ready(function () {
+	if (w2ui['grid']) w2ui['grid'].destroy();
+	
+	$('#grid').w2grid({ 
+		name: 'grid', 
+		columns: [				
+			{ field: 'lname', caption: 'Last Name', size: '30%' },
+			{ field: 'fname', caption: 'First Name', size: '30%' },
+			{ field: 'email', caption: 'Email', size: '40%' },
+			{ field: 'sdate', caption: 'Start Date', size: '90px' },
+		],
+		records: [
+			{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+		]
+	});	
+});
+</script>

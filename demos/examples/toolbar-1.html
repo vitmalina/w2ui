@@ -1,0 +1,62 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Simple Toolbar</h1>
+		This simple toolbar has 5 buttons of the same type and same icon. Once a button is clicked an event handler will be executed that
+		will output a log with the button's command.
+	</div>
+	
+	<div id="example_view">
+		<div id="toolbar" style="width: 100%; height: 34px; padding: 1px; border-bottom: 1px solid silver; border-top: 1px solid silver; 
+			background-color: #efefef; background-image: -webkit-linear-gradient(bottom, rgb(232,232,232) 27%, rgb(247,247,247) 60%);"></div>
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<div id="toolbar" style="width: 100%; height: 34px; padding: 1px; border-bottom: 1px solid silver; border-top: 1px solid silver; 
+	background-color: #efefef; background-image: -webkit-linear-gradient(bottom, rgb(232,232,232) 27%, rgb(247,247,247) 60%);"></div>
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+$('#toolbar').w2toolbar({
+	name: 'toolbar',
+	items: [
+		{ type: 'button',  id: 'item1',  caption: 'Item 1', img: 'icon-page', hint: 'Hint for item 1' },
+		{ type: 'button',  id: 'item2',  caption: 'Item 2', img: 'icon-page', hint: 'Hint for item 2' },
+		{ type: 'button',  id: 'item3',  caption: 'Item 3', img: 'icon-page', hint: 'Hint for item 3' },
+		{ type: 'button',  id: 'item4',  caption: 'Item 4', img: 'icon-page', hint: 'Hint for item 4' },
+		{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-page', hint: 'Hint for item 5' }
+	],
+	onClick: function (target, data) {
+		console.log('Target: '+ target);
+		console.log(data);
+	}
+});
+		</textarea>
+	</div>
+</div>
+
+<script>
+$(document).ready(function () {
+	if (w2ui['toolbar']) delete w2ui['toolbar'];
+	
+	$('#toolbar').w2toolbar({
+		name: 'toolbar',
+		items: [
+			{ type: 'button',  id: 'item1',  caption: 'Item 1', img: 'icon-page', hint: 'Hint for item 1' },
+			{ type: 'button',  id: 'item2',  caption: 'Item 2', img: 'icon-page', hint: 'Hint for item 2' },
+			{ type: 'button',  id: 'item3',  caption: 'Item 3', img: 'icon-page', hint: 'Hint for item 3' },
+			{ type: 'button',  id: 'item4',  caption: 'Item 4', img: 'icon-page', hint: 'Hint for item 4' },
+			{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-page', hint: 'Hint for item 5' }
+		],
+		onClick: function (target, data) {
+			console.log('Target: '+ target);
+			console.log(data);
+		}
+	});
+});
+</script>

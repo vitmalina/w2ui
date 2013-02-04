@@ -1,0 +1,59 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Popup Elements</h1>
+		Each popup window consists of 3 panels: title, body, and buttons. The first panel defines HTML for the title is optional. The second
+		panel defines HTML the body of the popup. The third panel defines HTML for the bottom panels and is also optional.
+		<br><br>
+		You can also have two buttons in the title: max and close.
+	</div>
+	
+	<div id="example_view">
+		<input type="button" value="Popup With all Elements" onclick="popup1()">
+		<input type="button" value="Popup Without Elements" onclick="popup2()">
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<input type="button" value="Popup With all Elements" onclick="popup1()">
+<input type="button" value="Popup Without Elements" onclick="popup2()">
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+function popup1() {
+	$().w2popup('open', {
+		title: 'Popup Title',
+		body: 'This is text inside the popup',
+		buttons: 'buttons',
+		showMax: true
+	});
+}
+function popup2() {
+	$().w2popup('open', {
+		body: 'Click anywhere outside the popup to hide it.',
+	});
+}
+		</textarea>
+	</div>
+	
+</div>
+
+<script>
+function popup1() {
+	$().w2popup('open', {
+		title: 'Popup Title',
+		body: 'This is text inside the popup',
+		buttons: 'buttons',
+		showMax: true
+	});
+}
+function popup2() {
+	$().w2popup('open', {
+		body: 'Click anywhere outside the popup to hide it.',
+	});
+}
+</script>

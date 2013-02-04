@@ -1,0 +1,80 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Advanced Toolbar</h1>
+		You can easily add different item types to the toolbar with different icons and multiple event handlers. This demo shows how to
+		add simple event listener onClick as well as add an event listener to listen all events both before and after they trigger.
+		<br><br>
+		This example also shows you how to listen to all events.
+	</div>
+	
+	<div id="example_view">
+		<div id="toolbar" style="width: 100%; height: 34px; padding: 1px; border-bottom: 1px solid silver; border-top: 1px solid silver; 
+			background-color: #efefef; background-image: -webkit-linear-gradient(bottom, rgb(232,232,232) 27%, rgb(247,247,247) 60%);"></div>
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<div id="toolbar" style="width: 100%; height: 34px; padding: 1px; border-bottom: 1px solid silver; border-top: 1px solid silver; 
+	background-color: #efefef; background-image: -webkit-linear-gradient(bottom, rgb(232,232,232) 27%, rgb(247,247,247) 60%);"></div>
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+$('#toolbar').w2toolbar({
+	name: 'toolbar',
+	items: [
+		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+		{ type: 'break',  id: 'break0' },
+		{ type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
+			{ text: 'Item 1', icon: 'icon-page' }, 
+			{ text: 'Item 2', icon: 'icon-page' }, 
+			{ text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
+		]},
+		{ type: 'break', id: 'break1' },
+		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add', hint: 'Hint for item 3', checked: true },
+		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add', hint: 'Hint for item 4' },
+		{ type: 'spacer' },
+		{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save', hint: 'Hint for item 5' }
+	]
+});
+
+w2ui['toolbar'].on('*', function (target, data) { 
+	console.log('EVENT: '+ data.type + ' TARGET: '+ target );
+	console.log(data);
+});
+		</textarea>
+	</div>
+</div>
+
+<script>
+$(document).ready(function () {
+	if (w2ui['toolbar']) delete w2ui['toolbar'];
+	
+	$('#toolbar').w2toolbar({
+		name: 'toolbar',
+		items: [
+			{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+			{ type: 'break',  id: 'break0' },
+			{ type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
+				{ text: 'Item 1', icon: 'icon-page' }, 
+				{ text: 'Item 2', icon: 'icon-page' }, 
+				{ text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
+			]},
+			{ type: 'break', id: 'break1' },
+			{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add', hint: 'Hint for item 3', checked: true },
+			{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add', hint: 'Hint for item 4' },
+			{ type: 'spacer' },
+			{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save', hint: 'Hint for item 5' }
+		]
+	});
+	
+	w2ui['toolbar'].on('*', function (target, data) { 
+		console.log('EVENT: '+ data.type + ' TARGET: '+ target );
+		console.log(data);
+	});
+});
+</script>

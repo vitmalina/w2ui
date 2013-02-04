@@ -1,0 +1,136 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Events</h1>
+		All key actions have event listeners. It is easy to listen to any form event either by providing on"event_name" function with the form or by 
+		using on() and off() methods. Open up a console and see the event flow of the form below.
+	</div>
+	
+	<div id="example_view">
+		<div id="form" class="w2ui-reset" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
+			<div class="w2ui-page page-0">
+				<div class="w2ui-label">First Name:</div>
+				<div class="w2ui-field">
+					<input name="first_name" type="text" maxlength="100" size="60"/>
+				</div>
+				<div class="w2ui-label">Last Name:</div>
+				<div class="w2ui-field">
+					<input name="last_name" type="text" maxlength="100" size="60"/>
+				</div>
+				<div class="w2ui-label">DOB:</div>
+				<div class="w2ui-field">
+					<input name="dob" type="text" maxlength="10" size="12"/>
+				</div>
+				<div class="w2ui-label">Category:</div>
+				<div class="w2ui-field">
+					<input name="category" type="text" size="60"/>
+				</div>
+				<div class="w2ui-label">Text Area:</div>
+				<div class="w2ui-field">
+					<textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"/>
+				</div>
+			</div>
+
+			<div class="w2ui-buttons">
+				<input type="button" value="Reset" name="reset">
+				<input type="button" value="Save" name="save">
+			</div>
+		</div>
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<div id="form" class="w2ui-reset" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
+	<div class="w2ui-page page-0">
+		<div class="w2ui-label">First Name:</div>
+		<div class="w2ui-field">
+			<input name="first_name" type="text" maxlength="100" size="60"/>
+		</div>
+		<div class="w2ui-label">Last Name:</div>
+		<div class="w2ui-field">
+			<input name="last_name" type="text" maxlength="100" size="60"/>
+		</div>
+		<div class="w2ui-label">Text Area:</div>
+		<div class="w2ui-field">
+			&lt;textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"/>
+		</div>
+	</div>
+
+	<div class="w2ui-buttons">
+		<input type="button" value="Reset" name="reset">
+		<input type="button" value="Save" name="save">
+	</div>
+</div>
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+$('#form').w2form({ 
+	name      : 'form',
+	url       : 'server/post',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name',  type: 'text', required: true },
+		{ name: 'dob',  type: 'date' },
+		{ name: 'category',  type: 'list', 
+			options: { items: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 
+							   'Category 6', 'Category 7', 'Category 8', 'Category 9', 'Category 10']} 
+		},
+		{ name: 'comments',   type: 'text'}
+	],
+	actions: {
+		reset: function () {
+			this.clear();
+		},
+		save: function () {
+			this.save();
+		}
+	}
+});
+
+// attach event listener for all events
+w2ui['form'].on('*', function (target, data) {
+	console.log('Event: '+ data.type);
+	console.log('Target: '+ target);
+	console.log(data);
+});
+		</textarea>
+	</div>
+	
+</div>
+<script>
+$(function () {
+	$().w2destroy('form');
+	$('#form').w2form({ 
+		name      : 'form',
+		url       : 'server/post',
+		fields: [
+			{ name: 'first_name', type: 'text', required: true },
+			{ name: 'last_name',  type: 'text', required: true },
+			{ name: 'dob',  type: 'date' },
+			{ name: 'category',  type: 'enum', 
+				options: { items: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 
+								   'Category 6', 'Category 7', 'Category 8', 'Category 9', 'Category 10']} 
+			},
+			{ name: 'comments',   type: 'text'}
+		],
+		actions: {
+			reset: function () {
+				this.clear();
+			},
+			save: function () {
+				this.save();
+			}
+		}
+	});
+	// attach event listener for all events
+	w2ui['form'].on('*', function (target, data) {
+		console.log('Event: '+ data.type);
+		console.log('Target: '+ target);
+		console.log(data);
+	});
+});
+</script>

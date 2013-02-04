@@ -1,0 +1,21 @@
+<project name="w2ui" basedir="." default="build">
+	<property name="build.dir"	value="BUILD"/>
+	<taskdef name="jsmin" classname="net.matthaynes.jsmin.JSMin_Task"/>
+
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+
+	<target name="build" depends="clean">
+		<!--mkdir dir="${build.dir}"/-->
+
+		<concat destfile="js/w2ui-1.1.js">
+			<filelist dir="./src/"
+				files="w2utils.js w2grid.js w2layout.js w2popup.js w2tabs.js w2toolbar.js w2sidebar.js w2fields.js w2form.js"/>
+		</concat>
+
+		<jsmin srcfile="js/w2ui-1.1.js" suffix="true" copyright="(c) http://w2ui.com, vitmalina@gmail.com" force="true"/>
+		<jsmin srcfile="css/w2ui-1.1.css" suffix="true" copyright="(c) http://w2ui.com, vitmalina@gmail.com" force="true"/>
+
+	</target>
+</project>

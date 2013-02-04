@@ -1,38 +1,32 @@
-## Web 2.0 UI
+## W2UI 1.1 - MIT License
 
-JavaScript UI libraries for building rich Internet data-driven application. The library has a small foot print and 
-has no dependencies. The library is released under MIT license. See license.txt for more information
+W2UI is modern, intuitive JavaScript UI library for buidling rich data-driven web application. The library has
+a small footprint and no dependencies except jQuery. The librar has following widgets
 
-## Installation
+* w2layout
+* w2grid
+* w2toolbar
+* w2sidebar
+* w2tabs
+* w2form
+* w2popup
+* w2utils
 
-To use this library all you need to do is to download and put it on your web server. The server side is written in PHP, but 
-any languge can be used. I am more concerned with the JavaScript part then PHP, but somthing need to provide db connectivity, 
-hence PHP. The PHP part supports 2 databases at the moment MySQL and PostgreSQL.
+## Quick Start
 
-## Demo
+To start using the library you need to download w2ui-1.1.js (or w2ui-1.1.min.js) and w2ui-1.1.css files. All the widgets and their 
+css classes are defined inside of these two files.
 
-You can see the demo of the library here:
+There is no requirement for a server side language. Java, PHP, ASP, Perl or .NET all will work, as long as you can return JSON
+format from the server (or write a converter into JSON format).
 
-* [http://web20boom.com](http://web20boom.com)
+## Documentation & Demos
 
-There are several applications built on this libraries that can give you a better idea of the scope of the library. You
-can find demo pages for these applications here:
+You can find documentation and demos here:
 
-* Web 2.0 CRM Portal 
-* [http://web20office.com/crm/demo] (http://web20office.com/crm/demo) 
+* [http://w2ui.com/w2ui-web/](http://w2ui.com/w2ui-web/)
 
-and
+## Bug Tracking
 
-* Web 2.0 PgAdmin
-* [http://web20boom.com/demo/pgadmin](http://web20boom.com/demo/pgadmin) 
-  find it on github: [https://github.com/web20boom/Web-2.0-PgAdmin] (https://github.com/web20boom/Web-2.0-PgAdmin)
-* User: demo 
-* pass: demo
-
-and 
-
-* Web 2.0 File Manager
-* [http://web20boom.com/demo/fm](http://web20boom.com/demo/fm) -
-  find it on github: [https://github.com/web20boom/Web-2.0-File-Manager] (https://github.com/web20boom/Web-2.0-File-Manager) 
-* User: demo 
-* pass: demo
+Have a bug or a feature request? Please open an issue here [https://github.com/vitmalina/w2ui/issues](https://github.com/vitmalina/w2ui/issues). 
+Please make sure that the same issue was not previously submitted by someone else.

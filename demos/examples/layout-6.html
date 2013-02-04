@@ -1,0 +1,94 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Event Listeners</h1>
+		You can attach an event listener to a panel. There are two ways to do this: (1) with onRefresh, onResize, onShow, onHide properties
+		or (2) with .on() method. The second way allows to add multiple event listeners.
+	</div>
+	
+	<div id="example_view">
+		<div id="layout" style="width: 100%; height: 400px;"></div>
+		<br>
+		<input type="button" value="Toggle Top Panel" onclick="w2ui['layout'].toggle('top')" style="width: 160px">
+		<input type="button" value="Toggle Left Panel" onclick="w2ui['layout'].toggle('left')" style="width: 160px">
+		<input type="button" value="Toggle Right Panel" onclick="w2ui['layout'].toggle('right')" style="width: 160px">
+		<input type="button" value="Toggle Preview Panel" onclick="w2ui['layout'].toggle('preview')" style="width: 160px">
+		<input type="button" value="Toggle Bottom Panel" onclick="w2ui['layout'].toggle('bottom')" style="width: 160px">
+		<div style="height: 10px;"></div>
+		<input type="button" value="Instant Toggle Top Panel" onclick="w2ui['layout'].toggle('top', true)" style="width: 160px">
+		<input type="button" value="Instant Toggle Left Panel" onclick="w2ui['layout'].toggle('left', true)" style="width: 160px">
+		<input type="button" value="Instant Toggle Right Panel" onclick="w2ui['layout'].toggle('right', true)" style="width: 160px">
+		<div style="height: 10px;"></div>
+		<input type="button" value="Clear Main Panel" onclick="$('#eventList').html('');" style="width: 160px">
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<div id="layout" style="width: 100%; height: 400px;"></div>
+<br>
+<input type="button" value="Toggle Top Panel" onclick="w2ui['layout'].toggle('top')" style="width: 160px">
+<input type="button" value="Toggle Left Panel" onclick="w2ui['layout'].toggle('left')" style="width: 160px">
+<input type="button" value="Toggle Right Panel" onclick="w2ui['layout'].toggle('right')" style="width: 160px">
+<input type="button" value="Toggle Preview Panel" onclick="w2ui['layout'].toggle('preview')" style="width: 160px">
+<input type="button" value="Toggle Bottom Panel" onclick="w2ui['layout'].toggle('bottom')" style="width: 160px">
+<div style="height: 10px;"></div>
+<input type="button" value="Instang Toggle Top Panel" onclick="w2ui['layout'].toggle('top', true)" style="width: 160px">
+<input type="button" value="Instang Toggle Left Panel" onclick="w2ui['layout'].toggle('left', true)" style="width: 160px">
+<input type="button" value="Instang Toggle Right Panel" onclick="w2ui['layout'].toggle('right', true)" style="width: 160px">
+<div style="height: 10px;"></div>
+<input type="button" value="Clear Main Panel" onclick="$('#eventList').html('');" style="width: 160px">
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px;';
+var layout = $('#layout').w2layout({
+	name: 'layout',
+	panels: [
+		{ type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
+		{ type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
+		{ type: 'main', style: pstyle, content: '<div id="eventList"></div>' },
+		{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
+		{ type: 'right', size: 200, resizable: true, hidden: true, style: pstyle, content: 'right' },
+		{ type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
+	]
+});
+var listener = function (target, data) {
+	console.log('Event: '+ data.type + ' Target: '+ target);
+	console.log(data);
+	var log = $('#eventList').html();
+	$('#eventList').html( log + (log != '' ? '<br>' : '') + data.type + ': '+ target);
+}
+layout.on('*', listener);
+		</textarea>
+	</div>
+</div>
+
+<script>
+$(document).ready(function () {
+	if (w2ui['layout']) delete w2ui['layout'];
+	
+	var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px;';
+	var layout = $('#layout').w2layout({
+		name: 'layout',
+		panels: [
+			{ type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
+			{ type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
+			{ type: 'main', style: pstyle, content: '<div id="eventList"></div>' },
+			{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
+			{ type: 'right', size: 200, resizable: true, hidden: true, style: pstyle, content: 'right' },
+			{ type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
+		]
+	});
+	var listener = function (target, data) {
+		console.log('Event: '+ data.type + ' Target: '+ target);
+		console.log(data);
+		var log = $('#eventList').html();
+		$('#eventList').html( log + (log != '' ? '<br>' : '') + data.type + ': '+ target);
+	}
+	layout.on('*', listener);
+});
+</script>

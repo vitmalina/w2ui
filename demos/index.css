@@ -1,0 +1,65 @@
+* {
+	margin: 0px;
+	padding: 0px;
+	box-sizing: border-box;
+}
+
+body {
+	overflow: hidden;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+}
+
+h1 {
+	margin: 15px 0px;
+	font-size: 20px;
+}
+
+h2 {
+	margin: 8px 0px;
+	font-size: 13px;
+}
+
+#main_layout {
+	position: absolute; 
+	width: 100%; 
+	height: 100%;
+}
+
+#example_title {
+	width: 750px; 
+	margin-bottom: 20px;
+}
+
+#example_view {
+	margin-bottom: 30px;
+}
+
+.content {
+	padding: 10px;
+	line-height: 150%;
+}
+
+.preview {
+	margin-bottom: 10px;
+	width: 100%;
+	border: 0px;
+	background-color: #efefef;
+}
+
+.CodeMirror {
+	font-size: 12px;
+	overflow: auto;
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
+table.list {
+	margin: 20px 0px;
+	border-collapse: collapse;
+}
+
+table.list td {
+	border: 1px solid #d1d1d1;
+	padding: 3px 10px !important;
+}

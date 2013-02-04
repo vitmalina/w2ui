@@ -1,0 +1,206 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Large Form</h1>
+		If you have a large form with many fields you can render the form in a variety of ways. There is no difference how you position HTML.
+		The w2form object binds to the fields that you specify. <br><br>
+
+		There are several helper classes for variable width for labels and fields.
+		In the exampble below you can see w2ui-span4 and w2ui-span5 classes, where w2ui-span4 = 80px and w2ui-span5 = 100px. There 
+		are w2ui-span1, ..., w2ui-span10, where each step is 20px.
+	</div>
+	
+	<div id="example_view">
+		<div id="form" class="w2ui-reset" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
+			<div class="w2ui-page page-0">
+				<div style="width: 340px; height: 200px; float: left; margin-top: 5px;">
+					<div class="w2ui-group">General</div>
+					<div class="w2ui-label w2ui-span4">First Name:</div>
+					<div class="w2ui-field w2ui-span4">
+						<input name="first_name" type="text" maxlength="100" size="30"/>
+					</div>
+					<div class="w2ui-label w2ui-span4">Last Name:</div>
+					<div class="w2ui-field w2ui-span4">
+						<input name="last_name" type="text" maxlength="100" size="30"/>
+					</div>
+					<div class="w2ui-label w2ui-span4">Comments:</div>
+					<div class="w2ui-field w2ui-span4">
+						<textarea name="comments" type="text" style="width: 207px; height: 80px; resize: none"/>
+					</div>
+				</div>
+				<div style="margin-left: 352px;">
+					<div class="w2ui-group">Address</div>
+					<div class="w2ui-label w2ui-span5">Address Line 1:</div>
+					<div class="w2ui-field w2ui-span5" w2ui-span5>
+						<input name="address1" type="text" maxlength="100" size="30"/>
+					</div>
+					<div class="w2ui-label w2ui-span5">Address Line 2:</div>
+					<div class="w2ui-field w2ui-span5">
+						<input name="address2" type="text" maxlength="100" size="30"/>
+					</div>
+					<div class="w2ui-label w2ui-span5">City:</div>
+					<div class="w2ui-field w2ui-span5">
+						<input name="city" type="text" maxlength="50" size="30"/>
+					</div>
+					<div class="w2ui-label w2ui-span5">State:</div>
+					<div class="w2ui-field w2ui-span5">
+						<input name="state" type="text" maxlength="2" size="2"/>
+					</div>
+					<div class="w2ui-label w2ui-span5">Zip:</div>
+					<div class="w2ui-field w2ui-span5">
+						<input name="zip" type="text" maxlength="10" size="10"/>
+					</div>
+				</div>
+				<div style="clear: both">
+					<div class="w2ui-group">Additional Information</div>
+					<div class="w2ui-label">Short Bio:</div>
+					<div class="w2ui-field">
+						<textarea name="short_bio" type="text" style="width: 90%; height: 80px; resize: none"/>
+					</div>
+					<div class="w2ui-label">Talk Name:</div>
+					<div class="w2ui-field">
+						<input name="talk_name" type="text" maxlength="100" style="width: 90%"/>
+					</div>
+					<div class="w2ui-label">Talk Description:</div>
+					<div class="w2ui-field">
+						<textarea name="description" type="text" style="width: 90%; height: 80px; resize: none"/>
+					</div>
+				</div>
+			</div>
+
+			<div class="w2ui-buttons">
+				<input type="button" value="Reset" name="reset">
+				<input type="button" value="Save" name="save">
+			</div>
+		</div>
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<div class="w2ui-page page-0">
+	<div style="width: 340px; height: 200px; float: left; margin-top: 5px;">
+		<div class="w2ui-group">General</div>
+		<div class="w2ui-label w2ui-span4">First Name:</div>
+		<div class="w2ui-field w2ui-span4">
+			<input name="first_name" type="text" maxlength="100" size="30"/>
+		</div>
+		<div class="w2ui-label w2ui-span4">Last Name:</div>
+		<div class="w2ui-field w2ui-span4">
+			<input name="last_name" type="text" maxlength="100" size="30"/>
+		</div>
+		<div class="w2ui-label w2ui-span4">Comments:</div>
+		<div class="w2ui-field w2ui-span4">
+			&lt;textarea name="comments" type="text" style="width: 207px; height: 80px; resize: none"/>
+		</div>
+	</div>
+	<div style="margin-left: 352px;">
+		<div class="w2ui-group">Address</div>
+		<div class="w2ui-label w2ui-span5">Address Line 1:</div>
+		<div class="w2ui-field w2ui-span5" w2ui-span5>
+			<input name="address1" type="text" maxlength="100" size="30"/>
+		</div>
+		<div class="w2ui-label w2ui-span5">Address Line 2:</div>
+		<div class="w2ui-field w2ui-span5">
+			<input name="address2" type="text" maxlength="100" size="30"/>
+		</div>
+		<div class="w2ui-label w2ui-span5">City:</div>
+		<div class="w2ui-field w2ui-span5">
+			<input name="city" type="text" maxlength="50" size="30"/>
+		</div>
+		<div class="w2ui-label w2ui-span5">State:</div>
+		<div class="w2ui-field w2ui-span5">
+			<input name="state" type="text" maxlength="2" size="2"/>
+		</div>
+		<div class="w2ui-label w2ui-span5">Zip:</div>
+		<div class="w2ui-field w2ui-span5">
+			<input name="zip" type="text" maxlength="10" size="10"/>
+		</div>
+	</div>
+	<div style="clear: both">
+		<div class="w2ui-group">Additional Information</div>
+		<div class="w2ui-label">Short Bio:</div>
+		<div class="w2ui-field">
+			&lt;textarea name="short_bio" type="text" style="width: 90%; height: 80px; resize: none"/>
+		</div>
+		<div class="w2ui-label">Talk Name:</div>
+		<div class="w2ui-field">
+			<input name="talk_name" type="text" maxlength="100" style="width: 90%"/>
+		</div>
+		<div class="w2ui-label">Talk Description:</div>
+		<div class="w2ui-field">
+			&lt;textarea name="description" type="text" style="width: 90%; height: 80px; resize: none"/>
+		</div>
+	</div>
+</div>
+
+<div class="w2ui-buttons">
+	<input type="button" value="Reset" name="reset">
+	<input type="button" value="Save" name="save">
+</div>
+</div>
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+$('#form').w2form({ 
+	name   : 'form',
+	url    : 'server/post',
+	fields : [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name',  type: 'text', required: true },
+		{ name: 'comments',   type: 'text'},
+		{ name: 'address1', type: 'text', required: true },
+		{ name: 'address2', type: 'text' },
+		{ name: 'city', type: 'text', required: true },
+		{ name: 'state', type: 'text', required: true },
+		{ name: 'zip', type: 'int', required: true },
+		{ name: 'short_bio', type: 'text' },
+		{ name: 'talk_name', type: 'text', required: true },
+		{ name: 'description', type: 'text' }
+	],
+	actions: {
+		reset: function () {
+			this.clear();
+		},
+		save: function () {
+			this.save();
+		}
+	}
+});
+		</textarea>
+	</div>
+	
+</div>
+<script>
+$(function () {
+	$().w2destroy('form');
+	$('#form').w2form({ 
+		name      : 'form',
+		url       : 'server/post',
+		fields: [
+			{ name: 'first_name', type: 'text', required: true },
+			{ name: 'last_name',  type: 'text', required: true },
+			{ name: 'comments',   type: 'text'},
+			{ name: 'address1', type: 'text', required: true },
+			{ name: 'address2', type: 'text' },
+			{ name: 'city', type: 'text', required: true },
+			{ name: 'state', type: 'text', required: true },
+			{ name: 'zip', type: 'int', required: true },
+			{ name: 'short_bio', type: 'text' },
+			{ name: 'talk_name', type: 'text', required: true },
+			{ name: 'description', type: 'text' }
+		],
+		actions: {
+			reset: function () {
+				this.clear();
+			},
+			save: function () {
+				this.save();
+			}
+		}
+	});
+});
+</script>

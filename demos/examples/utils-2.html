@@ -1,0 +1,31 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Base64 Encoding and Decoding</h1>
+		All server side languages provide functions for base64 encoding and decoding, but there is no such functions in Java Script.
+		You can use Web 2.0 UI functions for base64.
+	</div>
+	
+	<div id="example_view">
+		<textarea id="encode" style="width: 100%; height: 90px; border: 1px solid silver">This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.</textarea>
+		<br><br>
+		<input type="button" value="Encode base64" onclick="$('#encode').html(w2utils.base64encode($('#encode')[0].value))">
+		<input type="button" value="Decode base64" onclick="$('#encode').html(w2utils.base64decode($('#encode')[0].value))">
+		&nbsp;&nbsp;&nbsp;
+		<input type="button" value="Encode HTML Tags" onclick="alert(w2utils.encodeTags($('#encode')[0].value))">
+		<input type="button" value="Strip HTML Tags" onclick="alert(w2utils.stripTags($('#encode')[0].value))">
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<textarea id="encode" style="width: 100%; height: 90px; border: 1px solid silver">This is some text to be encoded.&lt;/textarea>
+<br><br>
+<input type="button" value="Encode base64" onclick="$('#encode').html(w2utils.base64encode($('#encode')[0].value))">
+<input type="button" value="Decode base64" onclick="$('#encode').html(w2utils.base64decode($('#encode')[0].value))">
+<input type="button" value="Encode HTML Tags" onclick="alert(w2utils.encodeTags($('#encode')[0].value))">
+<input type="button" value="Strip HTML Tags" onclick="alert(w2utils.stripTags($('#encode')[0].value))">
+		</textarea>
+	</div>
+		
+</div>

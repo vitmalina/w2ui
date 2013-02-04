@@ -1,0 +1,81 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Load Content</h1>
+		You can set (or get) the content of the panel with the .content() method. You can also load content from
+		external url with .load() method.
+		<br><br>
+		If the content property of the panel is an object and has .render(box) method, it will be called to render the content when 
+		needed. When layout is resized, it will call .resize(width, height) of all panels where content is an object.
+	</div>
+	
+	<div id="example_view">
+		<div id="layout" style="width: 100%; height: 400px;"></div>
+		<br>
+		<input type="button" value="Set Main Panel" style="width: 120px"
+			onclick="w2ui['layout'].content('main', 'This is some content set manually')">
+		<input type="button" value="Load Content 1" style="width: 120px"
+			onclick="w2ui['layout'].load('main', 'data/content1.html')">
+		<input type="button" value="Load Content 2" style="width: 120px"
+			onclick="w2ui['layout'].load('main', 'data/content2.html')">
+		<div style="height: 10px;"></div>
+		<input type="button" value="Set Left Panel" style="width: 120px"
+			onclick="w2ui['layout'].content('left', 'This is some content set manually')">
+		<input type="button" value="Load Content 1" style="width: 120px"
+			onclick="w2ui['layout'].load('left', 'data/content1.html')">
+		<input type="button" value="Load Content 2" style="width: 120px"
+			onclick="w2ui['layout'].load('left', 'data/content2.html')">
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<div id="layout" style="width: 100%; height: 400px;"></div>
+<br>
+<input type="button" value="Set Main Panel" style="width: 120px"
+	onclick="w2ui['layout'].content('main', 'This is some content set manually')">
+<input type="button" value="Load Content 1" style="width: 120px"
+	onclick="w2ui['layout'].load('main', 'data/content1.html')">
+<input type="button" value="Load Content 2" style="width: 120px"
+	onclick="w2ui['layout'].load('main', 'data/content2.html')">
+<div style="height: 10px;"></div>
+<input type="button" value="Set Left Panel" style="width: 120px"
+	onclick="w2ui['layout'].content('left', 'This is some content set manually')">
+<input type="button" value="Load Content 1" style="width: 120px"
+	onclick="w2ui['layout'].load('left', 'data/content1.html')">
+<input type="button" value="Load Content 2" style="width: 120px"
+	onclick="w2ui['layout'].load('left', 'data/content2.html')">
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px;'
+$('#layout').w2layout({
+	name: 'layout',
+	panels: [
+		{ type: 'top', size: 50, style: pstyle, content: 'top' },
+		{ type: 'left', size: 200, style: pstyle, content: 'left', resizable: true },
+		{ type: 'main', style: pstyle, content: 'main' }
+	]
+});
+		</textarea>
+	</div>
+</div>
+
+<script>
+$(document).ready(function () {
+	if (w2ui['layout']) delete w2ui['layout'];
+	
+	var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px;'
+	$('#layout').w2layout({
+		name: 'layout',
+		panels: [
+			{ type: 'top', size: 50, style: pstyle, content: 'top' },
+			{ type: 'left', size: 200, style: pstyle, content: 'left', resizable: true },
+			{ type: 'main', style: pstyle, content: 'main' }
+		]
+	});
+});
+</script>

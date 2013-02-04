@@ -1,0 +1,51 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Slide a Message</h1>
+		The w2ui library allows to open only one popup dialog due to usability convictions. However, in some cases you need to have an
+		information panel in addition to the dialog. This is where sliding a message from the top comes in.
+	</div>
+	
+	<div id="example_view">
+		<input type="button" value="Open Popup" onclick="popup()">
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+		<input type="button" value="Open Popup" onclick="popup()">
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+function popup() {
+	$().w2popup('open', {
+		width: 800,
+		height: 500,
+		title: 'Popup Title',
+		body: 'This is text inside the popup',
+		buttons: '<input type="button" value="Show Message" onclick="$().w2popup(\'message\', '+
+				 '{ html: \'<div style=&#34padding: 20px; text-align: center&#34>Some message</div>\', width: 300, height: 60 })"> ',
+		showMax: true
+	});
+}
+		</textarea>
+	</div>
+	
+</div>
+
+<script>
+function popup() {
+	$().w2popup('open', {
+		width: 800,
+		height: 500,
+		title: 'Popup Title',
+		body: 'This is text inside the popup',
+		buttons: '<input type="button" value="Show Message" onclick="$().w2popup(\'message\', '+
+				 '{ html: \'<div style=&#34padding: 20px; text-align: center&#34>Some message</div>\', width: 300, height: 60 })"> ',
+		showMax: true
+	});
+}
+</script>

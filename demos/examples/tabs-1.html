@@ -1,0 +1,70 @@
+<div class="content">
+	
+	<div id="example_title">
+		<h1>Simple Tabs</h1>
+		Below is an example of how to define simple tabs
+	</div>
+	
+	<div id="example_view">
+		<div id="tabs" style="width: 100%;"></div>
+		<div id="selected-tab" style="padding: 10px 0px"> &nbsp; </div>
+	</div>
+	
+	<div id="example_html">
+		<h2>HTML</h2>
+		<textarea class="preview">
+<div id="tabs" style="width: 100%;"></div>
+<div id="selected-tab" style="padding: 10px 0px"> &nbsp; </div>
+		</textarea>
+	</div>
+	
+	<div id="example_js">
+		<h2>JavaScript</h2>
+		<textarea class="preview">
+$('#tabs').w2tabs({
+	name: 'tabs',
+	active: 'tab1',
+	tabs: [
+		{ id: 'tab1', caption: 'Tab 1' },
+		{ id: 'tab2', caption: 'Tab 2' },
+		{ id: 'tab3', caption: 'Tab 3' },
+		{ id: 'tab4', caption: 'Tab 4' }
+	],
+	onClick: function (target, data) {
+		$('#selected-tab').html(target);
+	}
+});
+// display all events
+w2ui['tabs'].on('*', function (target, data) {
+	console.log('Target: '+ target + ' Event: '+ data.type);
+	console.log(data);
+});
+		</textarea>
+	</div>
+	
+</div>
+
+<script>
+$(document).ready(function () {
+	if (w2ui['tabs']) delete w2ui['tabs'];
+	
+	$('#tabs').w2tabs({
+		name: 'tabs',
+		active: 'tab1',
+		tabs: [
+			{ id: 'tab1', caption: 'Tab 1' },
+			{ id: 'tab2', caption: 'Tab 2' },
+			{ id: 'tab3', caption: 'Tab 3' },
+			{ id: 'tab4', caption: 'Tab 4' }
+		],
+		onClick: function (target, data) {
+			$('#selected-tab').html(target);
+		}
+	});
+	// display all events
+	w2ui['tabs'].on('*', function (target, data) {
+		console.log('Target: '+ target + ' Event: '+ data.type);
+		console.log(data);
+	});
+});
+</script>
