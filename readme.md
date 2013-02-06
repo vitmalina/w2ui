@@ -24,7 +24,7 @@ format from the server (or write a converter into JSON format).
 
 You can find documentation and demos here:
 
-* [http://w2ui.com/w2ui-web/](http://w2ui.com/w2ui-web/)
+* [http://w2ui.com](http://w2ui.com)
 
 ## Bug Tracking
 
