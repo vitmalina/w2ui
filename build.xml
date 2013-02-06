@@ -9,13 +9,13 @@
 	<target name="build" depends="clean">
 		<!--mkdir dir="${build.dir}"/-->
 
-		<concat destfile="js/w2ui-1.1.js">
+		<concat destfile="js/w2ui-1.2.js">
 			<filelist dir="./src/"
 				files="w2utils.js w2grid.js w2layout.js w2popup.js w2tabs.js w2toolbar.js w2sidebar.js w2fields.js w2form.js"/>
 		</concat>
 
-		<jsmin srcfile="js/w2ui-1.1.js" suffix="true" copyright="(c) http://w2ui.com, vitmalina@gmail.com" force="true"/>
-		<jsmin srcfile="css/w2ui-1.1.css" suffix="true" copyright="(c) http://w2ui.com, vitmalina@gmail.com" force="true"/>
+		<jsmin srcfile="js/w2ui-1.2.js" suffix="true" copyright="(c) http://w2ui.com, vitmalina@gmail.com" force="true"/>
+		<jsmin srcfile="css/w2ui-1.2.css" suffix="true" copyright="(c) http://w2ui.com, vitmalina@gmail.com" force="true"/>
 
 	</target>
 </project>
