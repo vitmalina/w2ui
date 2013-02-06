@@ -32,7 +32,7 @@
 	</div>
 
 	<div id="example_html">
-		<h2>File: demo-forms.html</h2>
+		<h2>File: form.html</h2>
 		<textarea class="preview">
 <div class="w2ui-page page-0">
 	<div class="w2ui-label">Text:</div>
@@ -81,7 +81,7 @@
 $('#form').w2form({ 
 	name     : 'form',
 	url      : 'server/post',
-	form_url : '../pages/demo/demo-forms.html', 
+	form_url : 'data/form.html', 
 	fields: [
 		{ name: 'field_text', type: 'text', required: true },
 		{ name: 'field_alpha', type: 'alphaNumeric', required: true },
@@ -120,7 +120,7 @@ $(function () {
 	$('#form').w2form({ 
 		name     : 'form',
 		url      : 'server/post',
-		form_url : '../pages/demo/demo-forms.html', 
+		form_url : 'data/form.html', 
 		fields: [
 			{ name: 'field_text', type: 'text', required: true },
 			{ name: 'field_alpha', type: 'alphaNumeric', required: true },

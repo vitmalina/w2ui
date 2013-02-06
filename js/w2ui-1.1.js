@@ -1211,6 +1211,13 @@ $.w2event = {
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			} 
+			// all selected?
+			$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			if ($('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length == $('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]:checked').length) {
+				$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			} else {
+				$('#grid_'+ this.name +'_check_all').removeAttr('checked');
+			}
 			return selected;
 		},
 
@@ -1234,13 +1241,20 @@ $.w2event = {
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			} 
+			// all selected?
+			$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			if ($('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length == $('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]:checked').length) {
+				$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			} else {
+				$('#grid_'+ this.name +'_check_all').removeAttr('checked');
+			}
 			return unselected;
 		},
 
 		selectAll: function () {
 			if (this.multiSelect === false) return;
 			for (var i=0; i<this.records.length; i++) {
-				if (this.records[i].hidden) continue;
+				if (this.records[i].hidden === true || this.records[i].summary === true) continue; 
 				this.select(this.records[i].recid);
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
@@ -1249,8 +1263,16 @@ $.w2event = {
 		selectPage: function () {
 			if (this.multiSelect === false) return;
 			this.selectNone();
-			var startRecord = (this.url == '' ? (this.page * this.recordsPerPage) : 0);
-			for (var i = startRecord, ri = 0; ri < this.recordsPerPage && i < this.records.length; i++) {
+			var startWith = 0;
+			if (this.url == '') { // local data
+				var cnt = this.page * this.recordsPerPage;
+				for (var tt=0; tt<this.records.length; tt++) {
+					if (this.records[tt].hidden === true || this.records[tt].summary === true) continue; 
+					cnt--;
+					if (cnt < 0) { startWith = tt; break; }
+				}
+			}
+			for (var i = startWith, ri = 0; ri < this.recordsPerPage && i < this.records.length; i++) {
 				var record 	= this.records[i];
 				if (!record || record.hidden === true) continue;
 				ri++;
@@ -2168,6 +2190,13 @@ $.w2event = {
 			} else {
 				$('#grid_'+ this.name +'_searchClear').hide();
 			}
+			// all selected?
+			$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			if ($('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length == $('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]:checked').length) {
+				$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			} else {
+				$('#grid_'+ this.name +'_check_all').removeAttr('checked');
+			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.resize(null, null, true);
@@ -2596,9 +2625,18 @@ $.w2event = {
 				$('#grid_'+ this.name +'_cell_header_last').hide();
 			}
 			if (this.show.emptyRecords && !bodyOverflowY) {
+				var startWith = 0;
+				if (this.url == '') { // local data
+					var cnt = this.page * this.recordsPerPage;
+					for (var tt=0; tt<this.records.length; tt++) {
+						if (this.records[tt].hidden === true || this.records[tt].summary === true) continue; 
+						cnt--;
+						if (cnt < 0) { startWith = tt; break; }
+					}
+				}
 				// find only records that are shown
 				var total = 0;
-				for (var r in this.records) {
+				for (var r=startWith; r < this.records.length; r++) {
 					if (this.records[r].hidden === true || this.records[r].summary === true) continue; 
 					total++;
 				}
@@ -2710,9 +2748,16 @@ $.w2event = {
 				tmp.width(col.sizeCalculated);
 				if (tmp.attr('name') == 'columnGroup') { tmp.find('div').css('padding', '13px 3px'); }
 
-				var startRecord = 0;
-				if (this.url == '') startRecord = this.page * this.recordsPerPage;
-				for (var j=startRecord; j<1000; j++) {
+				var startWith = 0;
+				if (this.url == '') { // local data
+					var cnt = this.page * this.recordsPerPage;
+					for (var tt=0; tt<this.records.length; tt++) {
+						if (this.records[tt] && this.records[tt].hidden) continue;
+						cnt--;
+						if (cnt < 0) { startWith = tt; break; }
+					}
+				}
+				for (var j=startWith; j<1000; j++) {
 					if (this.records[j] && this.records[j].hidden) { continue; }
 					var cell = $('#grid_'+ this.name+'_cell_'+ j +'_'+ i + ' > div:first-child');
 					if (cell.length == 0) break;
@@ -2938,8 +2983,16 @@ $.w2event = {
 					if (this.records.length == 0 && this.isLoaded && !this.show.emptyRecords) {
 						html += '<tr><td colspan=100 style="padding: 10px; border: 0px;">'+ this.msgNoData + '</div>';
 					} else {
-						var startRecord = (this.url == '' ? (this.page * this.recordsPerPage) : 0);
-						for (var i = startRecord, di = 0, ri = 0; ri < this.recordsPerPage && i < this.records.length; i++) {
+						var startWith = 0;
+						if (this.url == '') { // local data
+							var cnt = this.page * this.recordsPerPage;
+							for (var tt=0; tt<this.records.length; tt++) {
+								if (this.records[tt] && this.records[tt].hidden) continue;
+								cnt--;
+								if (cnt < 0) { startWith = tt; break; }
+							}
+						}
+						for (var i = startWith, di = 0, ri = 0; ri < this.recordsPerPage && i < this.records.length; i++) {
 							var record 	= this.records[i];
 							if (!record || record.hidden === true) continue;
 							var rec_html = '';
@@ -2977,13 +3030,13 @@ $.w2event = {
 							var num = (parseInt(this.page) * parseInt(this.recordsPerPage)) + parseInt(i+1);
 							if (this.show.lineNumbers) {
 								rec_html += '<td id="grid_'+ this.name +'_cell_'+ i +'_number" class="w2ui-number">'+
-										'	<div style="width: 24px; cursor: default; overflow: hidden;">'+ (startRecord + ri) +'</div>'+
+										'	<div style="width: 24px; cursor: default; overflow: hidden;">'+ (startWith + ri) +'</div>'+
 										'</td>';
 							}
 							if (this.show.selectColumn) {
 								rec_html += '<td id="grid_'+ this.name +'_cell_'+ i +'_select" class="w2ui-grid-data" onclick="event.stopPropagation();">'+
 										'<div style="cursor: default; text-align: center; overflow: hidden; width: 23px; padding: 0px; margin: 0px;">'+
-										'	<input id="grid_'+ this.name +'_cell_'+ i +'_select_check" type="checkbox" tabIndex="-1"'+
+										'	<input id="grid_'+ this.name +'_cell_'+ i +'_select_check" class="grid_select_check" type="checkbox" tabIndex="-1"'+
 										'		style="display: inline-block; margin: 6px 5px; padding: 0px;" '+ (record.selected ? 'checked="checked"' : '') +
 										'		onclick="var obj = w2ui[\''+ this.name +'\']; if (!obj.multiSelect) { obj.selectNone(); }'+
 										'			if (this.checked) obj.select(\''+ record.recid + '\'); else obj.unselect(\''+ record.recid + '\'); '+

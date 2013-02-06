@@ -25,7 +25,16 @@ $('#grid').w2grid({
 	header: 'List of Names',
 	show: { 
 		toolbar: true,
-		footer: true
+		footer: true,
+		toolbarAdd: true,
+		toolbarDelete: true,
+		toolbarSave: true,
+	},
+	toolbar: {
+		onClick: function (target, data) {
+			console.log(target);
+			console.log(data);
+		}
 	},
 	searches: [				
 		{ field: 'lname', caption: 'Last Name', type: 'text' },
