@@ -2,7 +2,7 @@
 	
 	<div id="example_title">
 		<h1>Add/Remove Items</h1>
-		You can add/remove items to the sidebar on the fly. The library will automatically refresh the portion of the sidebar that
+		You can add/remove items to the sidebar during the run time. The library will automatically refresh the portion of the sidebar that
 		needs rebuilding. The example below demonstrates this feature.
 	</div>
 	
@@ -21,7 +21,7 @@
 		<h2>HTML</h2>
 		<textarea class="preview">
 <div id="sidebar" style="width: 100%; height: 300px; width: 180px; background-color: #F5F6F7; 
-		padding: 1px 0px; overflow: auto; float: left"></div>
+	padding: 1px 0px; overflow: auto; float: left"></div>
 <div style="margin-left: 200px;">
 	<input type="button" value="Add Items" onclick="addItems()"/> 
 	<input type="button" value="Insert Items" onclick="insertItems()"/> 
@@ -34,25 +34,21 @@
 	<div id="example_js">
 		<h2>JavaScript</h2>
 		<textarea class="preview">
-$(document).ready(function () {
-	if (w2ui['sidebar']) delete w2ui['sidebar'];
-	
-	$('#sidebar').w2sidebar({
-		name: 'sidebar',
-		img: null,
-		nodes: [ 
-			{ id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
-			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img: 'icon-page' },
-					   { id: 'level-1-2', text: 'Level 1.2', img: 'icon-page' },
-					   { id: 'level-1-3', text: 'Level 1.3', img: 'icon-page' }
-					 ]
-			}
-		]
-	});
+$('#sidebar').w2sidebar({
+	name: 'sidebar',
+	img: null,
+	nodes: [ 
+		{ id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
+		  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img: 'icon-page' },
+				   { id: 'level-1-2', text: 'Level 1.2', img: 'icon-page' },
+				   { id: 'level-1-3', text: 'Level 1.3', img: 'icon-page' }
+				 ]
+		}
+	]
 });
 
 function addItems() {
-	w2ui['sidebar'].add('level-1', [
+	w2ui['sidebar'].add([
 		{ id: 'new-1', text: 'New Item 1', img: 'icon-add' },
 		{ id: 'new-2', text: 'New Item 2', img: 'icon-add' },
 		{ id: 'new-3', text: 'New Item 3', img: 'icon-add' }
@@ -77,8 +73,8 @@ function removeItem() {
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['sidebar']) delete w2ui['sidebar'];
+$(function () {
+	$().w2destroy('sidebar');
 	
 	$('#sidebar').w2sidebar({
 		name: 'sidebar',

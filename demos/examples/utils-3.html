@@ -1,12 +1,12 @@
 <div class="content">
 	
 	<div id="example_title">
-		<h1>Transition</h1>
-		If you have 2 divs with absolute position, you can easily transition them.
+		<h1>Transitions</h1>
+		If you have 2 divs with absolute position, you can transition them nicely.
 	</div>
 	
 	<div id="example_view">
-		<div style="position: absolute; width: 420px; height: 230px; padding: 10px; overflow: hidden;">
+		<div style="width: 420px; height: 230px; padding: 10px; overflow: hidden;">
 			<div id="box1" style="background-color: #fafafa; padding: 4px; position: absolute; width: 400px; height: 200px; border: 1px solid silver;">
 				This this first div. It jast has some text as example. This box does not have any other elements then some text.
 				This this first div. It jast has some text as example. This box does not have any other elements then some text.
@@ -27,7 +27,7 @@
 			</div>
 		</div>
 	</div>
-	<div style="margin: 250px 0px 20px 10px">
+	<div style="margin: 0px 0px 20px 10px">
 		<select id="trans">
 			<option value="flip-left">flip-left</option>
 			<option value="flip-right">flip-right</option>
@@ -47,13 +47,19 @@
 		<h2>HTML</h2>
 		<textarea class="preview">
 <div id="example_view">
-	<div style="position: absolute; width: 420px; height: 230px; padding: 10px; overflow: hidden;">
+	<div style="width: 420px; height: 230px; padding: 10px; overflow: hidden;">
+
+		<!-- BOX 1 -->
+
 		<div id="box1" style="background-color: #fafafa; padding: 4px; position: absolute; width: 400px; height: 200px; border: 1px solid silver;">
 			This this first div. It jast has some text as example. This box does not have any other elements then some text.
 			This this first div. It jast has some text as example. This box does not have any other elements then some text.
 			This this first div. It jast has some text as example. This box does not have any other elements then some text.
 			This this first div. It jast has some text as example. This box does not have any other elements then some text.
 		</div>
+
+		<!-- BOX 2 -->
+
 		<div id="box2" style="display: none; background-color: #E0FFE1; padding: 4px; position: absolute; width: 400px; height: 200px; border: 1px solid silver;">
 			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">1</div>
 			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">2</div>
@@ -68,7 +74,10 @@
 		</div>
 	</div>
 </div>
-<div style="margin: 250px 0px 20px 10px">
+
+<!-- drop down and Go button -->
+
+<div style="margin: 0px 0px 20px 10px">
 	<select id="trans">
 		<option value="flip-left">flip-left</option>
 		<option value="flip-right">flip-right</option>

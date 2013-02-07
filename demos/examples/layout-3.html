@@ -1,38 +1,34 @@
 <div class="content">	
 	<div id="example_title">
 		<h1>Show/Hide Panels</h1>
-		It is easy to hide and show panels. You can instantly hide then, or with nice visual effect. When the layout is rendered, it will
-		add all 6 panels even if you do not add a panel. However, if panel is not added, its div element will not be visible.
+		A layout may be created with up to 6 panels. The panels can be visible or hidden when they are created, and can be shown or hidden
+		during run time with animation or without.
 	</div>
 	
 	<div id="example_view">
-		<div id="layout" style="width: 100%; height: 400px;"></div>
+		<div id="layout" style="width: 95%; height: 400px;"></div>
 		<br>
-		<input type="button" value="Toggle Top Panel" onclick="w2ui['layout'].toggle('top')" style="width: 160px">
-		<input type="button" value="Toggle Left Panel" onclick="w2ui['layout'].toggle('left')" style="width: 160px">
-		<input type="button" value="Toggle Right Panel" onclick="w2ui['layout'].toggle('right')" style="width: 160px">
-		<input type="button" value="Toggle Preview Panel" onclick="w2ui['layout'].toggle('preview')" style="width: 160px">
-		<input type="button" value="Toggle Bottom Panel" onclick="w2ui['layout'].toggle('bottom')" style="width: 160px">
+		<input type="checkbox" id="instant" onclick="window.instant = this.checked;"> <label for="instant">Instant</label>
 		<div style="height: 10px;"></div>
-		<input type="button" value="Instang Toggle Top Panel" onclick="w2ui['layout'].toggle('top', true)" style="width: 160px">
-		<input type="button" value="Instang Toggle Left Panel" onclick="w2ui['layout'].toggle('left', true)" style="width: 160px">
-		<input type="button" value="Instang Toggle Right Panel" onclick="w2ui['layout'].toggle('right', true)" style="width: 160px">
+		<input type="button" value="Top" onclick="w2ui['layout'].toggle('top', window.instant)" style="width: 60px">
+		<input type="button" value="Left" onclick="w2ui['layout'].toggle('left', window.instant)" style="width: 60px">
+		<input type="button" value="Right" onclick="w2ui['layout'].toggle('right', window.instant)" style="width: 60px">
+		<input type="button" value="Preview" onclick="w2ui['layout'].toggle('preview', window.instant)" style="width: 60px">
+		<input type="button" value="Bottom" onclick="w2ui['layout'].toggle('bottom', window.instant)" style="width: 60px">
 	</div>
 	
 	<div id="example_html">
 		<h2>HTML</h2>
 		<textarea class="preview">
-<div id="layout" style="width: 100%; height: 400px;"></div>
+<div id="layout" style="width: 95%; height: 400px;"></div>
 <br>
-<input type="button" value="Toggle Top Panel" onclick="w2ui['layout'].toggle('top')" style="width: 160px">
-<input type="button" value="Toggle Left Panel" onclick="w2ui['layout'].toggle('left')" style="width: 160px">
-<input type="button" value="Toggle Right Panel" onclick="w2ui['layout'].toggle('right')" style="width: 160px">
-<input type="button" value="Toggle Preview Panel" onclick="w2ui['layout'].toggle('preview')" style="width: 160px">
-<input type="button" value="Toggle Bottom Panel" onclick="w2ui['layout'].toggle('bottom')" style="width: 160px">
+<input type="checkbox" id="instant" onclick="window.instant = this.checked;"> <label for="instant">Instant</label>
 <div style="height: 10px;"></div>
-<input type="button" value="Instang Toggle Top Panel" onclick="w2ui['layout'].toggle('top', true)" style="width: 160px">
-<input type="button" value="Instang Toggle Left Panel" onclick="w2ui['layout'].toggle('left', true)" style="width: 160px">
-<input type="button" value="Instang Toggle Right Panel" onclick="w2ui['layout'].toggle('right', true)" style="width: 160px">
+<input type="button" value="Top" onclick="w2ui['layout'].toggle('top', window.instant)" style="width: 60px">
+<input type="button" value="Left" onclick="w2ui['layout'].toggle('left', window.instant)" style="width: 60px">
+<input type="button" value="Right" onclick="w2ui['layout'].toggle('right', window.instant)" style="width: 60px">
+<input type="button" value="Preview" onclick="w2ui['layout'].toggle('preview', window.instant)" style="width: 60px">
+<input type="button" value="Bottom" onclick="w2ui['layout'].toggle('bottom', window.instant)" style="width: 60px">
 		</textarea>
 	</div>
 	
@@ -57,8 +53,7 @@ $('#layout').w2layout({
 
 <script>
 $(document).ready(function () {	
-	if (w2ui['layout']) delete w2ui['layout'];
-	
+	$().w2destroy('layout');	
 	var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px;';
 	$('#layout').w2layout({
 		name: 'layout',

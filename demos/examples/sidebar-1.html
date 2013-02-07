@@ -2,9 +2,8 @@
 	
 	<div id="example_title">
 		<h1>Simple Sidebar</h1>
-		The sidebar object provides a quick solution for a vertical menu. The example below demonstrates a sample sidebar with 
-		multiple items. Some of the items are nested. User can hide or show entire group of items. The very same object can be 
-		used to create tree structures.
+		The w2sidebar object provides a quick solution for a vertical menu. The example below demonstrates a sample sidebar with 
+		multiple items. Some of the items are nested. The very same object can be used to create tree structures.
 	</div>
 	
 	<div id="example_view">
@@ -20,7 +19,7 @@
 	
 	<div id="example_js">
 		<h2>JavaScript</h2>
-		<textarea class="preview">
+		<textarea class="preview" id="js_text">
 $('#sidebar').w2sidebar({
 	name: 'sidebar',
 	nodes: [ 
@@ -42,15 +41,15 @@ $('#sidebar').w2sidebar({
 				 ]
 		}
 	]
-});	
+});
 		</textarea>
 	</div>
 	
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['sidebar']) delete w2ui['sidebar'];
+$(function () {
+	$().w2destroy('sidebar');
 	
 	$('#sidebar').w2sidebar({
 		name: 'sidebar',

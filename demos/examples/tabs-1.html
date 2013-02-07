@@ -2,7 +2,7 @@
 	
 	<div id="example_title">
 		<h1>Simple Tabs</h1>
-		Below is an example of how to define simple tabs
+		Below is an example of how to use tabs.
 	</div>
 	
 	<div id="example_view">
@@ -34,11 +34,6 @@ $('#tabs').w2tabs({
 		$('#selected-tab').html(target);
 	}
 });
-// display all events
-w2ui['tabs'].on('*', function (target, data) {
-	console.log('Target: '+ target + ' Event: '+ data.type);
-	console.log(data);
-});
 		</textarea>
 	</div>
 	
@@ -46,7 +41,7 @@ w2ui['tabs'].on('*', function (target, data) {
 
 <script>
 $(document).ready(function () {
-	if (w2ui['tabs']) delete w2ui['tabs'];
+	$().w2destroy('tabs');
 	
 	$('#tabs').w2tabs({
 		name: 'tabs',
@@ -60,11 +55,6 @@ $(document).ready(function () {
 		onClick: function (target, data) {
 			$('#selected-tab').html(target);
 		}
-	});
-	// display all events
-	w2ui['tabs'].on('*', function (target, data) {
-		console.log('Target: '+ target + ' Event: '+ data.type);
-		console.log(data);
 	});
 });
 </script>

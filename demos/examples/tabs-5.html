@@ -27,16 +27,13 @@
 		<textarea class="preview">
 $('#tabs').w2tabs({
 	name: 'tabs',
-	active: 'tab2',
+	active: 'tab1',
 	tabs: [
 		{ id: 'tab1', caption: 'Tab 1' },
 		{ id: 'tab2', caption: 'Tab 2' },
 		{ id: 'tab3', caption: 'Tab 3' },
 		{ id: 'tab4', caption: 'Tab 4' }
-	],
-	onClick: function (id) {
-		console.log('Tab clicked: '+ id);
-	}
+	]
 });
 		</textarea>
 	</div>
@@ -45,7 +42,7 @@ $('#tabs').w2tabs({
 
 <script>
 $(document).ready(function () {
-	if (w2ui['tabs']) delete w2ui['tabs'];
+	$().w2destroy('tabs');
 	
 	$('#tabs').w2tabs({
 		name: 'tabs',
@@ -55,10 +52,7 @@ $(document).ready(function () {
 			{ id: 'tab2', caption: 'Tab 2' },
 			{ id: 'tab3', caption: 'Tab 3' },
 			{ id: 'tab4', caption: 'Tab 4' }
-		],
-		onClick: function (id) {
-			console.log('Tab clicked: '+ id);
-		}
+		]
 	});
 });
 </script>

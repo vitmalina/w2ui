@@ -1,9 +1,9 @@
 <div class="content">
 	
 	<div id="example_title">
-		<h1>Transition</h1>
-		Anytime you load new content, regardless the method, you can specify transition type. If transition is not specified, then
-		it will use the default one. The transitions are done thru w2utils.transtion method.
+		<h1>Transitions</h1>
+		Anytime you load new content, regardless the method, you can specify a transition type. If transition is not specified, then
+		the default will be used. All transitions are done with w2utils.
 	</div>
 	
 	<div id="example_view">
@@ -55,21 +55,22 @@
 		</select>
 		<input type="button" value="Load Another Page" onclick="load()">
 	</div>
-	<script> 
+	&lt;script&gt; 
 		if (typeof last_index == 'undefined') last_index = 2;
 		if (typeof last_trans == 'undefined') last_trans = ''; else {
 			setTimeout(function () { $('#trans').val(last_trans); }, 350); // because of the transition time
 		}
 		function load() {
 			last_trans = $('#trans').val();
-			$().w2popup('load', 
-				{ url: 'data/popup3.html', transition: (last_trans == "" ? $('#trans option:nth-child('+ last_index +')').val() : $('#trans').val()) }
-			); 
+			$().w2popup('load', { 
+				url: 'data/popup3.html', 
+				transition: (last_trans == "" ? $('#trans option:nth-child('+ last_index +')').val() : $('#trans').val()) 
+			}); 
 			last_index++; 
 			if (last_index > 11) last_index = 2; 
 		}
-	</script>
-</div>		</textarea>
-	</div>
-	
+	&lt;/script&gt;
+</div>
+		</textarea>
+	</div>	
 </div>

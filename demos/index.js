@@ -99,8 +99,8 @@ $(function () {
 					nodes: [
 						{ id: 'popup-1', text: 'Simple Popup', img: 'icon-page' },
 						{ id: 'popup-2', text: 'More Options', img: 'icon-page' },
-						{ id: 'popup-3', text: 'Based on Markup', img: 'icon-page' },
-						{ id: 'popup-4', text: 'Popup Elements', img: 'icon-page' },
+						{ id: 'popup-3', text: 'Popup Panels', img: 'icon-page' },
+						{ id: 'popup-4', text: 'Based on Markup', img: 'icon-page' },
 						{ id: 'popup-5', text: 'Load Content', img: 'icon-page' },
 						{ id: 'popup-6', text: 'Transitions', img: 'icon-page' },
 						{ id: 'popup-7', text: 'Slide a Message', img: 'icon-page' }

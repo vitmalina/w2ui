@@ -68,7 +68,7 @@ $('#grid').w2grid({
 		  sdate: '1/1/2012', edate: '2/1/2012', udate: '4/1/2012'
 		}
 	]
-});
+});	
 		</textarea>
 	</div>
 </div>
@@ -76,8 +76,8 @@ $('#grid').w2grid({
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['grid']) w2ui['grid'].destroy();
+$(function () {
+	$().w2destroy('grid');
 	
 	$('#grid').w2grid({ 
 		name: 'grid', 

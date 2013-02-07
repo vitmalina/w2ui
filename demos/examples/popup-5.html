@@ -2,22 +2,18 @@
 	
 	<div id="example_title">
 		<h1>Load Content</h1>
-		There are three ways popup can be displayed. You can initiate everything in Java Script, you can initiated from HTMl that is already
-		loaded and you can load content dynamically.
-		<br><br>
-		The example below shows how content can be loaded from HTML file on the server.
+		There are three ways popup can be open: from JavaScript, from Markup, loaded from a file. The example below shows how content can 
+		be loaded from HTML file on the server.
 	</div>
 	
 	<div id="example_view">
-		<input type="button" value="Load Content 1" onclick="$().w2popup('load', { url: 'data/popup1.html', showMax: true })">
-		<input type="button" value="Load Content 2" onclick="$().w2popup('load', { url: 'data/popup2.html' })">
+		<input type="button" value="Load Content" onclick="$().w2popup('load', { url: 'data/popup1.html', showMax: true })">
 	</div>
 	
 	<div id="example_html">
 		<h2>HTML</h2>
 		<textarea class="preview">
-<input type="button" value="Load Content 1" onclick="$().w2popup('load', 'data/popup1.html', { showMax: true })">
-<input type="button" value="Load Content 2" onclick="$().w2popup('load', 'data/popup2.html')">
+<input type="button" value="Load Content" onclick="$().w2popup('load', { url: 'data/popup1.html', showMax: true })">
 		</textarea>
 	</div>
 	
@@ -48,23 +44,5 @@
 </div>
 		</textarea>
 	</div>
-	
-	<div id="example_html2">
-		<h2>File: data/popup2.html</h2>
-		<textarea class="preview">
-<div id="popup2" style="display: none; width: 400px; height: 200px; overflow: hidden">
-	<div rel="title">
-		Popup #2
-	</div>
-	<div rel="body">
-		Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
-		Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
-	</div>
-	<div rel="buttons">
-		<input type="button" value="Close" onclick="$().w2popup('close')">
-	</div>
-</div>
-		</textarea>
-	</div>
-	
+
 </div>

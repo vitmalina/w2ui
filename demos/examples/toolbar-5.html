@@ -2,7 +2,7 @@
 	
 	<div id="example_title">
 		<h1>Enable/Disable Buttons</h1>
-		It is very easy to enable and disable buttons on the fly. The example below demonstrates how to do this.
+		It is easy to enable and disable buttons during the run time. The example below demonstrates how to do this.
 	</div>
 	
 	<div id="example_view">
@@ -30,9 +30,9 @@ $('#toolbar').w2toolbar({
 		{ type: 'button', id: 'btn', caption: 'Action Button', img: 'icon-page' },
 		{ type: 'button', id: 'btn2', caption: 'Other Button', img: 'icon-page' }
 	],
-	onClick: function (target, data) {
-		if (target == 'enable') this.enable('btn');
-		if (target == 'disable') this.disable('btn');
+	onClick: function (id, data) {
+		if (id == 'enable') this.enable('btn');
+		if (id == 'disable') this.disable('btn');
 	}
 });
 		</textarea>
@@ -40,8 +40,8 @@ $('#toolbar').w2toolbar({
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['toolbar']) delete w2ui['toolbar'];
+$(function () {
+	$().w2destroy('toolbar');
 
 	$('#toolbar').w2toolbar({
 		name: 'toolbar',

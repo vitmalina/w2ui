@@ -7,7 +7,7 @@
 	</div>
 	
 	<div id="example_view">
-		<div id="form" class="w2ui-reset" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
+		<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
 			<div class="w2ui-page page-0">
 				<div class="w2ui-label">First Name:</div>
 				<div class="w2ui-field">
@@ -38,24 +38,27 @@
 	<div id="example_html">
 		<h2>HTML</h2>
 		<textarea class="preview">
-<div class="w2ui-page page-0">
-	<div class="w2ui-label">First Name:</div>
-	<div class="w2ui-field">
-		<input name="first_name" type="text" maxlength="100" size="60"/>
-	</div>
-	<div class="w2ui-label">Last Name:</div>
-	<div class="w2ui-field">
-		<input name="last_name" type="text" maxlength="100" size="60"/>
-	</div>
-	<div class="w2ui-label">Text Area:</div>
-	<div class="w2ui-field">
-		&lt;textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"/>
-	</div>
-</div>
+<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
 
-<div class="w2ui-buttons">
-	<input type="button" value="Reset" name="reset">
-	<input type="button" value="Save" name="save">
+	<div class="w2ui-page page-0">
+		<div class="w2ui-label">First Name:</div>
+		<div class="w2ui-field">
+			<input name="first_name" type="text" maxlength="100" size="60"/>
+		</div>
+		<div class="w2ui-label">Last Name:</div>
+		<div class="w2ui-field">
+			<input name="last_name" type="text" maxlength="100" size="60"/>
+		</div>
+		<div class="w2ui-label">Text Area:</div>
+		<div class="w2ui-field">
+			&lt;textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"/&gt;
+		</div>
+	</div>
+
+	<div class="w2ui-buttons">
+		<input type="button" value="Reset" name="reset">
+		<input type="button" value="Save" name="save">
+	</div>
 </div>
 		</textarea>
 	</div>
@@ -64,8 +67,8 @@
 		<h2>JavaScript</h2>
 		<textarea class="preview">
 $('#form').w2form({ 
-	name     : 'form',
-	url      : 'server/post',
+	name      : 'form',
+	url       : 'server/post',
 	fields: [
 		{ name: 'first_name', type: 'text', required: true },
 		{ name: 'last_name',  type: 'text', required: true },

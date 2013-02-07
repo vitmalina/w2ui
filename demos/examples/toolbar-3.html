@@ -2,7 +2,7 @@
 	
 	<div id="example_title">
 		<h1>Add/Remove Buttons</h1>
-		It is very easy to add and remove buttons on the fly. The example below demonstrates how to do this.
+		It is easy to add and remove buttons during the run time. The example below demonstrates how to do this.
 	</div>
 	
 	<div id="example_view">
@@ -52,8 +52,8 @@ $('#toolbar').w2toolbar({
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['toolbar']) delete w2ui['toolbar'];
+$(function () {
+	$().w2destroy('toolbar');
 
 	var btnCount = 0;
 	$('#toolbar').w2toolbar({

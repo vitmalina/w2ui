@@ -42,8 +42,8 @@ $('#grid').w2grid({
 	records: [
 		{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-	]
-});	
+	]	
+});
 
 function addARecord() {
 	w2ui['grid'].add( { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );
@@ -70,8 +70,8 @@ function removeRecords() {
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['grid']) w2ui['grid'].destroy();
+$(function () {
+	$().w2destroy('grid');
 	
 	$('#grid').w2grid({ 
 		name: 'grid', 

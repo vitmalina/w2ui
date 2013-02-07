@@ -28,11 +28,12 @@
 $('#grid').w2grid({ 
 	name: 'grid', 
 	header: 'List of Names',
-	show: { footer: true }, 
+	show: { footer: true },
 	recordsPerPage: 8,
 	searches: [				
 		{ field: 'fname', caption: 'First Name', type: 'text' },
-		{ field: 'lname', caption: 'Last Name', type: 'text' }
+		{ field: 'lname', caption: 'Last Name', type: 'text' },
+		{ field: 'email', caption: 'Email', type: 'text' },
 	],
 	sortData: [ { field: 'lname', direction: 'asc' } ],
 	columns: [				
@@ -70,8 +71,8 @@ $('#grid').w2grid({
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['grid']) w2ui['grid'].destroy();
+$(function () {
+	$().w2destroy('grid');
 	
 	$('#grid').w2grid({ 
 		name: 'grid', 

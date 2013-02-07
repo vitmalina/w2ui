@@ -3,45 +3,45 @@
 	<div id="example_title">
 		<h1>Transitions</h1>
 		It is very easy to add a nice transition when setting or loading content. All transition are implemented in w2utils library, which
-		is called to do the actual transition.
+		is called to do the actual transition. The layout below is exactly like the previous one, but with added transition.
 	</div>
 	
 	<div id="example_view">
-		<div id="layout" style="width: 100%; height: 400px;"></div>
-		<br>
-		<input type="button" value="Set Main Panel" style="width: 130px"
-			onclick="w2ui['layout'].content('main', 'This is some content set manually', 'blur')">
-		<input type="button" value="Load content1.html" style="width: 130px"
-			onclick="w2ui['layout'].load('main', 'data/content1.html', 'slide-left')">
-		<input type="button" value="Load content2.html" style="width: 130px"
-			onclick="w2ui['layout'].load('main', 'data/content2.html', 'slide-right')">
+		<div id="layout" style="width: 95%; height: 400px;"></div>
+
+		<div style="height: 20px;"></div>
+
+		<span style="display: inline-block; width: 50px;"> Left: </span>
+		<input type="button" value="Set Content" onclick="w2ui['layout'].content('left', 'This is some content set manually', 'blur')">
+		<input type="button" value="Load Content 1" onclick="w2ui['layout'].load('left', 'data/content1.html', 'slide-left')">
+		<input type="button" value="Load Content 2" onclick="w2ui['layout'].load('left', 'data/content2.html', 'slide-right')">
+
 		<div style="height: 10px;"></div>
-		<input type="button" value="Set Main Panel" style="width: 130px"
-			onclick="w2ui['layout'].content('left', 'This is some content set manually', 'blur')">
-		<input type="button" value="Load content1.html" style="width: 130px"
-			onclick="w2ui['layout'].load('left', 'data/content1.html', 'flip-left')">
-		<input type="button" value="Load content2.html" style="width: 130px"
-			onclick="w2ui['layout'].load('left', 'data/content2.html', 'flip-right')">
+		
+		<span style="display: inline-block; width: 50px;"> Main: </span>
+		<input type="button" value="Set Content" onclick="w2ui['layout'].content('main', 'This is some content set manually', 'blur')">
+		<input type="button" value="Load Content 1" onclick="w2ui['layout'].load('main', 'data/content1.html', 'slide-left')">
+		<input type="button" value="Load Content 2" onclick="w2ui['layout'].load('main', 'data/content2.html', 'slide-right')">
 	</div>
 	
 	<div id="example_html">
 		<h2>HTML</h2>
 		<textarea class="preview">
-<div id="layout" style="width: 100%; height: 400px;"></div>
-<br>
-<input type="button" value="Set Main Panel" style="width: 130px"
-	onclick="w2ui['layout'].content('main', 'This is some content set manually', 'blur')">
-<input type="button" value="Load content1.html" style="width: 130px"
-	onclick="w2ui['layout'].load('main', 'data/content1.html', 'slide-left')">
-<input type="button" value="Load content2.html" style="width: 130px"
-	onclick="w2ui['layout'].load('main', 'data/content2.html', 'slide-right')">
+<div id="layout" style="width: 95%; height: 400px;"></div>
+
+<div style="height: 20px;"></div>
+
+<span style="display: inline-block; width: 50px;"> Left: </span>
+<input type="button" value="Set Content" onclick="w2ui['layout'].content('left', 'This is some content set manually', 'blur')">
+<input type="button" value="Load Content 1" onclick="w2ui['layout'].load('left', 'data/content1.html', 'slide-left')">
+<input type="button" value="Load Content 2" onclick="w2ui['layout'].load('left', 'data/content2.html', 'slide-right')">
+
 <div style="height: 10px;"></div>
-<input type="button" value="Set Main Panel" style="width: 130px"
-	onclick="w2ui['layout'].content('left', 'This is some content set manually', 'blur')">
-<input type="button" value="Load content1.html" style="width: 130px"
-	onclick="w2ui['layout'].load('left', 'data/content1.html', 'flip-left')">
-<input type="button" value="Load content2.html" style="width: 130px"
-	onclick="w2ui['layout'].load('left', 'data/content2.html', 'flip-right')">
+
+<span style="display: inline-block; width: 50px;"> Main: </span>
+<input type="button" value="Set Content" onclick="w2ui['layout'].content('main', 'This is some content set manually', 'blur')">
+<input type="button" value="Load Content 1" onclick="w2ui['layout'].load('main', 'data/content1.html', 'slide-left')">
+<input type="button" value="Load Content 2" onclick="w2ui['layout'].load('main', 'data/content2.html', 'slide-right')">
 		</textarea>
 	</div>
 	
@@ -52,8 +52,8 @@ var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px
 $('#layout').w2layout({
 	name: 'layout',
 	panels: [
-		{ type: 'top', size: 50, style: pstyle, content: 'top' },
-		{ type: 'left', size: 200, style: pstyle, content: 'left', resizable: true },
+		{ type: 'top', size: 50, style: pstyle, content: 'top', resizable: true },
+		{ type: 'left', size: 300, style: pstyle, content: 'left', resizable: true },
 		{ type: 'main', style: pstyle, content: 'main' }
 	]
 });
@@ -63,14 +63,14 @@ $('#layout').w2layout({
 
 <script>
 $(document).ready(function () {
-	if (w2ui['layout']) delete w2ui['layout'];
+	$().w2destroy('layout');
 	
 	var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px;'
 	$('#layout').w2layout({
 		name: 'layout',
 		panels: [
-			{ type: 'top', size: 50, style: pstyle, content: 'top' },
-			{ type: 'left', size: 200, style: pstyle, content: 'left', resizable: true },
+			{ type: 'top', size: 50, style: pstyle, content: 'top', resizable: true },
+			{ type: 'left', size: 300, style: pstyle, content: 'left', resizable: true },
 			{ type: 'main', style: pstyle, content: 'main' }
 		]
 	});

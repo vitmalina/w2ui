@@ -89,8 +89,8 @@ w2ui['grid'].load('data/list2.json');
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['grid']) w2ui['grid'].destroy();
+$(function () {
+	$().w2destroy('grid');
 	
 	$('#grid').w2grid({ 
 		name: 'grid', 

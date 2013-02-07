@@ -34,7 +34,7 @@
 		<h2>JavaScript</h2>
 		<textarea class="preview">
 $(document).ready(function () {
-	if (w2ui['tabs']) delete w2ui['tabs'];
+	$().w2destroy('tabs');
 	
 	$('#tabs').w2tabs({
 		name: 'tabs',
@@ -86,7 +86,7 @@ function removeTabs() {
 
 <script>
 $(document).ready(function () {
-	if (w2ui['tabs']) delete w2ui['tabs'];
+	$().w2destroy('tabs');
 	
 	$('#tabs').w2tabs({
 		name: 'tabs',

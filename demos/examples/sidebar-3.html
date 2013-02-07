@@ -2,7 +2,7 @@
 	
 	<div id="example_title">
 		<h1>Show/Hide Items</h1>
-		You can show/hide items to the sidebar on the fly. The library will automatically refresh the portion of the sidebar that
+		You can show/hide items to the sidebar during the run time. The library will automatically refresh the portion of the sidebar that
 		needs rebuilding. The example below demonstrates this feature.
 	</div>
 	
@@ -32,29 +32,26 @@
 	<div id="example_js">
 		<h2>JavaScript</h2>
 		<textarea class="preview">
-$(document).ready(function () {
-	if (w2ui['sidebar']) delete w2ui['sidebar'];
-	
-	$('#sidebar').w2sidebar({
-		name: 'sidebar',
-		img: null,
-		nodes: [ 
-			{ id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
-			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img: 'icon-page' },
-					   { id: 'level-1-2', text: 'Level 1.2', img: 'icon-page' },
-					   { id: 'level-1-3', text: 'Level 1.3', img: 'icon-page' }
-					 ]
-			}
-		]
-	});
-});		</textarea>
+$('#sidebar').w2sidebar({
+	name: 'sidebar',
+	img: null,
+	nodes: [ 
+		{ id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
+		  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img: 'icon-page' },
+				   { id: 'level-1-2', text: 'Level 1.2', img: 'icon-page' },
+				   { id: 'level-1-3', text: 'Level 1.3', img: 'icon-page' }
+				 ]
+		}
+	]
+});
+		</textarea>
 	</div>
 	
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['sidebar']) delete w2ui['sidebar'];
+$(function () {
+	$().w2destroy('sidebar');
 	
 	$('#sidebar').w2sidebar({
 		name: 'sidebar',

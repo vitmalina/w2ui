@@ -26,12 +26,11 @@ $('#grid').w2grid({
 	name: 'grid', 
 	url: 'data/list2.json',
 	columns: [				
-		{ field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-		{ field: 'lname', caption: 'Last Name', size: '70%', sortable: true, 
-			render: function (record, index) { return record.lname + ', ' + record.fname } },
-		{ field: 'sdate', caption: 'Start Date', size: '120px', sortable: true },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'lname', caption: 'Last Name', size: '70%', render: function (record, index) { return record.lname + ', ' + record.fname } },
+		{ field: 'sdate', caption: 'Dates', size: '120px', attr: "align=center" },
 	]
-});
+});	
 		</textarea>
 	</div>
 	
@@ -87,8 +86,8 @@ $('#grid').w2grid({
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['grid']) w2ui['grid'].destroy();
+$(function () {
+	$().w2destroy('grid');
 	
 	$('#grid').w2grid({ 
 		name: 'grid', 

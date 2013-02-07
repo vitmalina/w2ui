@@ -70,9 +70,9 @@ $('#grid2').w2grid({
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['grid1']) w2ui['grid1'].destroy();
-	if (w2ui['grid2']) w2ui['grid2'].destroy();
+$(function () {
+	$().w2destroy('grid1');
+	$().w2destroy('grid2');
 	
 	$('#grid1').w2grid({ 
 		name: 'grid1', 

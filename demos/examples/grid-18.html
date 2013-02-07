@@ -56,11 +56,11 @@ $('#grid1').w2grid({
 });
 
 $('#grid2').w2grid({ 
-	name: 'grid2', 
 	header: 'Details',
 	show: { header: true, columnHeaders: false },
+	name: 'grid2', 
 	columns: [				
-		{ field: 'name', caption: 'Name', size: '100px', style: 'background-color: #D8E5F3; padding-right: 5px;', attr: "align=right" },
+		{ field: 'name', caption: 'Name', size: '100px', style: 'background-color: #efefef; border-bottom: 1px solid white; padding-right: 5px;', attr: "align=right" },
 		{ field: 'value', caption: 'Value', size: '100%' }
 	]
 });	
@@ -71,9 +71,9 @@ $('#grid2').w2grid({
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['grid1']) w2ui['grid1'].destroy();
-	if (w2ui['grid2']) w2ui['grid2'].destroy();
+$(function () {
+	$().w2destroy('grid1');
+	$().w2destroy('grid2');
 	
 	$('#grid1').w2grid({ 
 		name: 'grid1', 

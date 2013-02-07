@@ -3,7 +3,7 @@
 	<div id="example_title">
 		<h1>Advanced Toolbar</h1>
 		You can easily add different item types to the toolbar with different icons and multiple event handlers. This demo shows how to
-		add simple event listener onClick as well as add an event listener to listen all events both before and after they trigger.
+		add simple event listener to listen to all events both before and after they trigger.
 		<br><br>
 		This example also shows you how to listen to all events.
 	</div>
@@ -51,8 +51,8 @@ w2ui['toolbar'].on('*', function (target, data) {
 </div>
 
 <script>
-$(document).ready(function () {
-	if (w2ui['toolbar']) delete w2ui['toolbar'];
+$(function () {
+	$().w2destroy('toolbar');
 	
 	$('#toolbar').w2toolbar({
 		name: 'toolbar',
