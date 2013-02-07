@@ -5,6 +5,9 @@
 *		- $.w2popup	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 * 
+*   NICE TO HAVE
+*   - when maximized, align the slide down message
+*
 ************************************************************************/
 
 (function () {

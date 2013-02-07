@@ -4,6 +4,10 @@
 * 		- w2ui.w2layout - layout widget
 *		- $.w2layout	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
+*
+*   DEPRECATED METHODS
+*   - add()
+*   - remove()
 * 
 ************************************************************************/
 
@@ -83,28 +87,7 @@
 			onShow: 	null,
 			onHide: 	null
 		},
-		
-		add: function (options) {
-			if (!$.isArray(options)) options = [options];
-			for (var o in options) {
-				var panel = $.extend({}, panel, options[o]);
-				this.panels.push(panel)
-				this.refresh(panel.type);
-			}
-		},
-		
-		remove: function (panel) {
-			var removed = 0;
-			for (var a in arguments) {
-				var obj = this.getIndex(arguments[a]);
-				if (obj == null || this.panels[obj].type == 'main') continue;
-				removed++;
-				this.panels.splice(obj, 1);
-				this.resize();
-			}
-			return removed;			
-		},
-		
+			
 		content: function (panel, data, transition) {
 			var obj = this;
 			var p = this.get(panel);

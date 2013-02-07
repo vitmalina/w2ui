@@ -9,6 +9,9 @@
 * 		- global search apply types and drop downs
 * 		- editable fields (list)
 *
+*  == 1.2 changes
+*     - find(obj, flag) - gets second argument
+*
 ************************************************************************/
 
 (function () {
@@ -199,13 +202,14 @@
 			this.refresh();
 		},
 
-		find: function (obj) {
+		find: function (obj, flag) {
 			if (typeof obj == 'undefined' || obj == null) obj = {};
 			var recs = [];
 			for (var i=0; i<this.records.length; i++) {
-				var flag = true;
-				for (var o in obj) if (obj[o] != this.records[i][o]) flag = false;
-				if (flag) recs.push(this.records[i].recid);
+				var match = true;
+				for (var o in obj) if (obj[o] != this.records[i][o]) match = false;
+				if (match && flag !== true) recs.push(this.records[i].recid);
+				if (match && flag === true) recs.push(this.records[i]);
 			}
 			return recs;
 		},
@@ -261,10 +265,8 @@
 		},
 
 		get: function (recid) {
-			for (var i=0; i<this.records.length; i++) {
-				if (this.records[i].recid == recid) return this.records[i];
-			}
-			return null;
+			var record = this.find({ recid: recid }, true);
+			return (record.length > 0 ? record[0] : null);
 		},
 
 		getIndex: function (recid) {
@@ -484,21 +486,12 @@
 		},
 
 		selectNone: function () {
-			for (var i=0; i<this.records.length; i++) {
-				if (this.records[i].selected !== true) continue;
-				this.unselect(this.records[i].recid);
-			}
+			this.unselect.apply(this, this.getSelection());
 			this.last_selected = [];
 		},
 
 		getSelection: function () {
-			var recs = [];
-			for (var i in this.records) {
-				if (this.records[i].selected === true) {
-					recs.push(this.records[i].recid);
-				}
-			}
-			return recs;
+			return this.find({ selected: true });
 		},
 
 		search: function (field, value) {
