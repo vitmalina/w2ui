@@ -7,6 +7,10 @@
 *
 *   NICE TO HAVE
 *     - group animate open
+*
+*   NEW 
+*     - top_html, bottom_html
+*     - suport for icon fonts
 * 
 ************************************************************************/
 
@@ -17,9 +21,12 @@
 		this.sidebar		= null;
 		this.parent 		= null;
 		this.img 			= null;
+		this.icon 			= null;
 		this.style	 		= '';
 		this.selected 		= null;	// current selected node (readonly)
 		this.nodes	 		= []; 	// Sidebar child nodes
+		this.top_html		= '';
+		this.bottom_html    = '';
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
 		this.onContextMenu	= null;	
@@ -81,6 +88,7 @@
 			text	   		: '',
 			count			: '',
 			img 			: null,
+			icon 			: null,
 			parent	 		: null,		// node object
 			sidebar			: null,
 			nodes	  		: [],
@@ -396,7 +404,11 @@
 				this.box = box;
 			}
 			if (!this.box) return;
-			$(this.box).html('<div id="sidebar_'+ this.name +'" class="w2ui-reset w2ui-sidebar" style="'+ this.style +'"></div>');
+			$(this.box).html(
+				(this.top_html != '' ? this.top_html : '') +
+				'<div id="sidebar_'+ this.name +'" class="w2ui-reset w2ui-sidebar" style="'+ this.style +'"></div>'+
+				(this.bottom_html != '' ? this.bottom_html : '')
+			);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// ---
@@ -440,6 +452,8 @@
 				var html = '';
 				var img  = nd.img;
 				if (typeof img == 'undefined') img = this.img;
+				var icon  = nd.icon;
+				if (typeof icon == 'undefined') icon = this.icon;
 				// -- find out level
 				var tmp   = nd.parent;
 				var level = 0;
@@ -472,7 +486,8 @@
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+ 
 							(img ? '<div class="w2ui-node-image w2ui-icon '+ img +' '+ 
-								(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'"></div>' : '') +
+								(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'" style="margin-top: 4px;"></div>' : '') +
+							(icon ? '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>' : '') +
 							(nd.count ? 
 								'<div class="w2ui-node-count" style="width: auto; padding: 2px 5px; float: right">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+

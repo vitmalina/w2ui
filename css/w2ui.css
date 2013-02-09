@@ -905,6 +905,8 @@ div.w2ui-sidebar {
 	div.w2ui-sidebar div.w2ui-node {
 		border-top: 1px solid transparent;
 		border-bottom: 1px solid transparent;
+		margin: 0px;
+		padding: 1px 0px;
 	}
 
 	div.w2ui-sidebar div.w2ui-selected {
@@ -918,7 +920,7 @@ div.w2ui-sidebar {
 	}
 
 	div.w2ui-sidebar td.w2ui-node-dots {
-		width: 16px;
+		width: 18px;
 		padding: 0px 0px 1px 7px;
 		text-align: center;
 	}
@@ -928,16 +930,23 @@ div.w2ui-sidebar {
 	}
 
 	div.w2ui-sidebar td.w2ui-node-data div.w2ui-node-image {
-		margin-top: 2px;
+		padding: 3px 0px 0px 0px;
 		float: left;
+	}
+
+	div.w2ui-sidebar td.w2ui-node-data div.w2ui-node-image > span {
+		font-size: 18px !important;
+		color: #676E7B !important;
+		text-shadow: 1px 1px 2px #f4f4f4;
 	}
 
 	div.w2ui-sidebar div.w2ui-node-caption {
 		white-space: nowrap;
-		padding: 3px 0px 3px 3px;
-		margin: 2px 0px 1px 16px;
+		padding: 5px 0px 5px 3px;
+		margin: 1px 0px 1px 22px;
 		position: relative;
 		z-index: 1;
+		font-size: 12px;
 	}
 
 	div.w2ui-sidebar td.w2ui-node-data div.w2ui-node-count {
@@ -955,24 +964,23 @@ div.w2ui-sidebar {
 	}
 
 	div.w2ui-sidebar div.w2ui-selected div.w2ui-node-caption, 
+	div.w2ui-sidebar div.w2ui-selected div.w2ui-node-image, 
+	div.w2ui-sidebar div.w2ui-selected div.w2ui-node-image > span, 
 	div.w2ui-sidebar div.w2ui-selected td.w2ui-node-dots {
-		color: white;
-		text-shadow: 0px 0px 2px #333;
+		color: white !important;
+		text-shadow: 1px 1px 2px #444;
 	}
 
 	div.w2ui-sidebar div.w2ui-disabled div.w2ui-node-caption, 
+	div.w2ui-sidebar div.w2ui-disabled div.w2ui-node-image, 
 	div.w2ui-sidebar div.w2ui-disabled td.w2ui-node-dots {
-		opacity: 0.3;
-	}
-
-	div.w2ui-sidebar div.w2ui-disabled div.w2ui-node-image {
 		opacity: 0.3;
 	}
 
 	div.w2ui-sidebar div.w2ui-node-group {
 		white-space: nowrap;
 		overflow: hidden;
-		margin: 12px 0px 4px 8px;
+		margin: 18px 0px 5px 8px;
 		cursor: default;
 	}
 
