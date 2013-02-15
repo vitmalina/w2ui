@@ -185,7 +185,7 @@
 			if (this.url != '') {
 				//this.clear();
 				this.isLoaded = false;
-				this.request(null, callBack);
+				this.request(callBack);
 			} else {
 				this.isLoaded = true;
 				this.refresh();
@@ -203,20 +203,14 @@
 			this.refresh();
 		},
 		
-		request: function (postData, url, callBack) {
+		request: function (postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
 			// check for multiple params
 			if (typeof postData == 'function') {
 				callBack 	= postData;
-				url 		= null
 				postData 	= null;
 			}
-			if (typeof url == 'function') {
-				callBack 	= url;
-				url 		= null
-			}
-			if (typeof postData == 'undefined') postData = {};
-			if (typeof url == 'undefined' || url == '' || url == null) url = this.url;
-			if (url == '' || url == null) return;
+			if (!$.isPlainObject(postData)) postData = {};
+			if (!this.url) return;
 			if (this.recid == null || typeof this.recid == 'undefined') this.recid = 0;
 			// build parameters list
 			var params = {};
@@ -228,7 +222,7 @@
 			$.extend(params, this.postData);
 			$.extend(params, postData);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
+			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
 			if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
 			// default action
 			this.record	  = {};
@@ -239,8 +233,8 @@
 			this.showStatus('Refreshing ');
 			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
 			this.request_xhr = $.ajax({
-				type		: 'POST',
-				url			: url + (url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				type		: 'GET',
+				url			: eventData.url + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
@@ -371,17 +365,12 @@
 			return errors;
 		},
 
-		save: function (postData, url, callBack) {
+		save: function (postData, callBack) {
 			var obj = this;
 			// check for multiple params
 			if (typeof postData == 'function') {
 				callBack 	= postData;
-				url 		= null
 				postData 	= null;
-			}
-			if (typeof url == 'function') {
-				callBack 	= url;
-				url 		= null
 			}
 			// validation
 			var errors = this.validate(true);
@@ -391,8 +380,7 @@
 			}
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (typeof url == 'undefined' || url == '' || url == null) url = this.url;
-			if (url == '' || url == null) return;
+			if (!this.url) return;
 			this.showStatus('Saving...');
 			// build parameters list
 			var params = {};
@@ -414,13 +402,13 @@
 				}
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'submit', target: this.name, url: url, postData: params });
+			var eventData = this.trigger({ phase: 'before', type: 'submit', target: this.name, url: this.url, postData: params });
 			if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
 			// default action
 			if (this.save_xhr) try { this.save_xhr.abort(); } catch (e) {};
 			this.save_xhr = $.ajax({
-				type		: 'POST',
-				url			: url + (url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				type		: (this.recid == 0 ? 'POST' : 'PUT'),
+				url			: eventData.url + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {

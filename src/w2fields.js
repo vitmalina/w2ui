@@ -384,7 +384,7 @@
 				var match = false;
 				if (settings.last_total < settings.maxCache) match = true;
 				$.ajax({
-					type 	: 'POST',
+					type 	: 'GET',
 					dataType: 'text',
 					url 	: settings.url,
 					data 	: {

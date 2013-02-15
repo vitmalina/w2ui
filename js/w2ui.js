@@ -693,7 +693,7 @@ $.w2event = {
 				$('#global-tag-'+tagID).remove();
 				// insert
 				$('body').append('<div id="global-tag-'+ tagID +'" class="global-tag" '+
-								 '	style="position: absolute; z-index: 1100; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');		
+								 '	style="position: absolute; z-index: 1201; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');		
 
 				var timer = setInterval(function () { 
 					// monitor if destroyed
@@ -1652,8 +1652,11 @@ $.w2event = {
 			var obj = this;
 			this.showStatus('Refreshing ');
 			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
+			var xhr_type = 'GET';
+			if (cmd == 'save-records')   xhr_type = 'PUT';  // so far it is always update
+			if (cmd == 'delete-records') xhr_type = 'DELETE';
 			this.request_xhr = $.ajax({
-				type		: 'POST',
+				type		: xhr_type,
 				url			: url + (url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
@@ -4290,7 +4293,7 @@ $.w2event = {
 			if (typeof html != 'undefined') {
 				popup(html, selector);
 			} else {
-				$.post(url, function (data, status, obj) {
+				$.get(url, function (data, status, obj) {
 					popup(obj.responseText, selector);
 					$('#w2ui-popup').data(url, obj.responseText); // remember for possible future purposes
 				});
@@ -6440,7 +6443,7 @@ $.w2event = {
 				var match = false;
 				if (settings.last_total < settings.maxCache) match = true;
 				$.ajax({
-					type 	: 'POST',
+					type 	: 'GET',
 					dataType: 'text',
 					url 	: settings.url,
 					data 	: {
@@ -6960,7 +6963,7 @@ $.w2event = {
 			if (this.url != '') {
 				//this.clear();
 				this.isLoaded = false;
-				this.request(null, callBack);
+				this.request(callBack);
 			} else {
 				this.isLoaded = true;
 				this.refresh();
@@ -6978,20 +6981,14 @@ $.w2event = {
 			this.refresh();
 		},
 		
-		request: function (postData, url, callBack) {
+		request: function (postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
 			// check for multiple params
 			if (typeof postData == 'function') {
 				callBack 	= postData;
-				url 		= null
 				postData 	= null;
 			}
-			if (typeof url == 'function') {
-				callBack 	= url;
-				url 		= null
-			}
-			if (typeof postData == 'undefined') postData = {};
-			if (typeof url == 'undefined' || url == '' || url == null) url = this.url;
-			if (url == '' || url == null) return;
+			if (!$.isPlainObject(postData)) postData = {};
+			if (!this.url) return;
 			if (this.recid == null || typeof this.recid == 'undefined') this.recid = 0;
 			// build parameters list
 			var params = {};
@@ -7003,7 +7000,7 @@ $.w2event = {
 			$.extend(params, this.postData);
 			$.extend(params, postData);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
+			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
 			if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
 			// default action
 			this.record	  = {};
@@ -7014,8 +7011,8 @@ $.w2event = {
 			this.showStatus('Refreshing ');
 			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
 			this.request_xhr = $.ajax({
-				type		: 'POST',
-				url			: url + (url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				type		: 'GET',
+				url			: eventData.url + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
@@ -7146,17 +7143,12 @@ $.w2event = {
 			return errors;
 		},
 
-		save: function (postData, url, callBack) {
+		save: function (postData, callBack) {
 			var obj = this;
 			// check for multiple params
 			if (typeof postData == 'function') {
 				callBack 	= postData;
-				url 		= null
 				postData 	= null;
-			}
-			if (typeof url == 'function') {
-				callBack 	= url;
-				url 		= null
 			}
 			// validation
 			var errors = this.validate(true);
@@ -7166,8 +7158,7 @@ $.w2event = {
 			}
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (typeof url == 'undefined' || url == '' || url == null) url = this.url;
-			if (url == '' || url == null) return;
+			if (!this.url) return;
 			this.showStatus('Saving...');
 			// build parameters list
 			var params = {};
@@ -7189,13 +7180,13 @@ $.w2event = {
 				}
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'submit', target: this.name, url: url, postData: params });
+			var eventData = this.trigger({ phase: 'before', type: 'submit', target: this.name, url: this.url, postData: params });
 			if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
 			// default action
 			if (this.save_xhr) try { this.save_xhr.abort(); } catch (e) {};
 			this.save_xhr = $.ajax({
-				type		: 'POST',
-				url			: url + (url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				type		: (this.recid == 0 ? 'POST' : 'PUT'),
+				url			: eventData.url + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {

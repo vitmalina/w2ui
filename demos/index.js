@@ -119,6 +119,7 @@ $(function () {
 		onClick: function (cmd) {
 			if (parseInt(cmd.substr(cmd.length-1)) != cmd.substr(cmd.length-1)) return;
 			var tmp = w2ui['demo-sidebar'].get(cmd);
+			document.title = tmp.parent.text + ': ' + tmp.text + ' | w2ui';
 			if (tmp.parent && tmp.parent.id != '') {
 				var pid = w2ui['demo-sidebar'].get(cmd).parent.id;
 				document.location.hash = '!'+ pid + '/' + cmd;

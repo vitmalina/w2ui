@@ -693,7 +693,7 @@ $.w2event = {
 				$('#global-tag-'+tagID).remove();
 				// insert
 				$('body').append('<div id="global-tag-'+ tagID +'" class="global-tag" '+
-								 '	style="position: absolute; z-index: 1100; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');		
+								 '	style="position: absolute; z-index: 1201; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');		
 
 				var timer = setInterval(function () { 
 					// monitor if destroyed

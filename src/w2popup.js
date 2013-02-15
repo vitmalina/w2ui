@@ -280,7 +280,7 @@
 			if (typeof html != 'undefined') {
 				popup(html, selector);
 			} else {
-				$.post(url, function (data, status, obj) {
+				$.get(url, function (data, status, obj) {
 					popup(obj.responseText, selector);
 					$('#w2ui-popup').data(url, obj.responseText); // remember for possible future purposes
 				});

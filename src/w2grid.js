@@ -854,8 +854,11 @@
 			var obj = this;
 			this.showStatus('Refreshing ');
 			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
+			var xhr_type = 'GET';
+			if (cmd == 'save-records')   xhr_type = 'PUT';  // so far it is always update
+			if (cmd == 'delete-records') xhr_type = 'DELETE';
 			this.request_xhr = $.ajax({
-				type		: 'POST',
+				type		: xhr_type,
 				url			: url + (url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
