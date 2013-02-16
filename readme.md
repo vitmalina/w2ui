@@ -1,7 +1,7 @@
 ## W2UI 1.1 - MIT License
 
 W2UI is modern, intuitive JavaScript UI library for buidling rich data-driven web application. The library has
-a small footprint and no dependencies except jQuery. The librar has following widgets
+a small footprint and no dependencies except jQuery. The library has the following widgets:
 
 * w2layout
 * w2grid
