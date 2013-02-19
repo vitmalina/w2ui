@@ -8,7 +8,7 @@
 *   NICE TO HAVE
 *     - group animate open
 *
-*   NEW 
+*  == 1.2 changes 
 *     - top_html, bottom_html
 *     - suport for icon fonts
 * 

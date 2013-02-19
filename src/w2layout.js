@@ -5,7 +5,9 @@
 *		- $.w2layout	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-*   DEPRECATED METHODS
+* == 1.2 changes 
+*
+*  DEPRECATED METHODS
 *   - add()
 *   - remove()
 * 

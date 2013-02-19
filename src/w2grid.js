@@ -8,9 +8,11 @@
 *   == NICE TO HAVE
 * 		- global search apply types and drop downs
 * 		- editable fields (list)
+* 		- exposed prototype so it can be changed for all grids
 *
 *  == 1.2 changes
 *     - find(obj, flag) - gets second argument
+*     - getFooterHTML - can now be used to overwrite entire footer now
 *
 ************************************************************************/
 
@@ -1365,14 +1367,7 @@
 
 			// -- footer
 			if (this.show.footer) {
-				var pages = this.getFooterHTML();
-				var last = (this.page * this.recordsPerPage + this.recordsPerPage);
-				if (last > this.total) last = this.total;
-				var pageCountDsp = (this.page * this.recordsPerPage + 1) +'-'+ last +' of '+ this.total;
-				if (this.page == 0 && this.total == 0) pageCountDsp = '0-0 of 0';
-				$('#grid_'+ this.name +'_footerR').html(pageCountDsp);
-				$('#grid_'+ this.name +'_footerC').html(pages);
-				$('#grid_'+ this.name +'_footer').show();
+				$('#grid_'+ this.name +'_footer').html(this.getFooterHTML()).show();
 			} else {
 				$('#grid_'+ this.name +'_footer').hide();
 			}
@@ -1427,12 +1422,7 @@
 			this.initToolbar();
 			if (this.toolbar != null) this.toolbar.render($('#grid_'+ this.name +'_toolbar')[0]);
 			// init footer
-			$('#grid_'+ this.name +'_footer').html(
-				'<div style="width: 100%; height: 24px;">'+
-				'	<div id="grid_'+ this.name +'_footerL" style="float: left;"></div>'+
-				'	<div id="grid_'+ this.name +'_footerR" style="float: right;"></div>'+
-				'	<div id="grid_'+ this.name +'_footerC" style="text-align: center;"></div>'+
-				'</div>');
+			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
 
 			this.refresh();
@@ -2381,6 +2371,12 @@
 		},
 
 		getFooterHTML: function () {
+			// counts
+			var last = (this.page * this.recordsPerPage + this.recordsPerPage);
+			if (last > this.total) last = this.total;
+			var pageCountDsp = (this.page * this.recordsPerPage + 1) +'-'+ last +' of '+ this.total;
+			if (this.page == 0 && this.total == 0) pageCountDsp = '0-0 of 0';
+			// pages
 			var totalPages = Math.floor(this.total / this.recordsPerPage);
 			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
 			if (totalPages < 1) totalPages = 1;
@@ -2401,7 +2397,11 @@
 				 "  		onclick=\"w2ui[\'"+ this.name +"\'].goto(w2ui[\'"+ this.name +"\'].page + 1)\" "+ (this.page == totalPages-1 || totalPages == 0 ? 'disabled' : '') +
 				 "		> >> </a>"+
 				 "</div>";
-			return pages;
+			return '<div style="width: 100%; height: 24px;">'+
+				'	<div id="grid_'+ this.name +'_footerL" style="float: left;"></div>'+
+				'	<div id="grid_'+ this.name +'_footerR" style="float: right;">'+ pageCountDsp +'</div>'+
+				'	<div id="grid_'+ this.name +'_footerC" style="text-align: center;">'+ pages +'</div>'+
+				'</div>';
 		},
 
 		showStatus: function (status) {
