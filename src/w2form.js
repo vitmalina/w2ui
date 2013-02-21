@@ -5,6 +5,9 @@
 *		- $.w2form		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs
 * 
+*  == 1.2 changes
+*     - focus first elements on the page
+*
 ************************************************************************/
 
 
@@ -617,6 +620,8 @@
 						break;						
 				}
 			}
+			var inputs = $(this.box).find('input, select')
+			if (inputs.length > 0) inputs[0].focus();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
