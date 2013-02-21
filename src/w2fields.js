@@ -474,6 +474,7 @@
 				.on('mousedown', function (event) {
 					var id 	 = $(event.target).attr('index');
 					var item = settings.items[id];
+					if (typeof id == 'undefined') { event.preventDefault(); return; }
 					obj.add(item);
 					$(obj).data('last_index', 0);
 					obj.refresh();
