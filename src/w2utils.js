@@ -5,6 +5,9 @@
 *		- w2utils 		- basic utilities
 *		- w2ui.w2evet	- generic event object
 *   - Dependencies: jQuery
+*
+* == 1.2 changes 
+*  - added event.preventDefault() method
 * 
 ************************************************/
 
@@ -245,7 +248,7 @@ var w2utils = (function () {
 		}
 
 		function utf8_encode (string) {
-			var string = string.replace(/\r\n/g,"\n");
+			var string = String(string).replace(/\r\n/g,"\n");
 			var utftext = "";
 
 			for (var n = 0; n < string.length; n++) {
@@ -601,7 +604,8 @@ $.w2event = {
 	},
 		
 	trigger: function (eventData) {
-		var eventData = $.extend({ type: null, phase: 'before', target: null, stop: false }, eventData);
+		var eventData = $.extend({ type: null, phase: 'before', target: null, stop: false }, eventData,
+			{ preventDefault: function () { this.stop = true; } });
 		if (typeof eventData.target == 'undefined') eventData.target = null;		
 		// process events in REVERSE order 
 		for (var h = this.handlers.length-1; h >= 0; h--) {
@@ -638,7 +642,7 @@ $.w2event = {
 		if (eventData.phase == 'after' && eventData.onComplete != null)	eventData.onComplete.call(this, eventData);
 	
 		return eventData;
-	}	
+	}
 };
 
 /***********************************************************
