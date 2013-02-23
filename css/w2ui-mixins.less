@@ -1,0 +1,35 @@
+//////////////////////////
+//    mixins
+/////////////////////////
+.box-shadow(@value : none) {
+    box-shadow: @value;
+    -webkit-box-shadow: @value;
+    -moz-box-shadow: @value;
+    -ms-box-shadow: @value;
+    -o-box-shadow: @value;
+}
+.box-sizing(@value : border-box) {
+        box-sizing: @value;
+    	-webkit-box-sizing: @value;
+		-moz-box-sizing: @value;
+		-ms-box-sizing: @value;
+		-o-box-sizing: @value;
+}
+.user-select(@value : none) {
+    user-select: @value;
+    -webkit-user-select: @value;
+    -moz-user-select: @value;
+    -ms-user-select: @value;
+	-o-user-select: @value;
+}
+.tranform( @value : -45deg) {
+    -webkit-transform: rotate(@value);
+	-moz-transform: rotate(@value);
+	-ms-transform: rotate(@value);
+	-o-transform: rotate(@value);
+}
+.opacity(@value : 1.0) {
+    opacity : @value;
+    @value : (@value * 100);
+    filter: alpha(opacity=@value);
+}
