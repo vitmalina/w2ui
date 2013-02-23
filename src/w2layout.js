@@ -6,10 +6,14 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == 1.2 changes 
+*   - added panel name in the event data object
 *
 *  DEPRECATED METHODS
 *   - add()
 *   - remove()
+*
+*  NICE TO HAVE
+*   - onResize for the panel
 * 
 ************************************************************************/
 
@@ -362,7 +366,7 @@
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (!this.box) return;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, width: width, height: height });	
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp_resizing, width: width, height: height });	
 			if (eventData.stop === true) return false;
 	
 			// layout itself
@@ -665,6 +669,8 @@
 			this.tmp_resizing = type;
 			this.tmp_x = evnt.screenX;
 			this.tmp_y = evnt.screenY;
+			this.tmp_div_x = 0;
+			this.tmp_div_y = 0;
 			if (type == 'left' || type == 'right') {
 				this.tmp_value = parseInt($('#layout_'+ this.name + '_splitter_'+ type)[0].style.left);
 			}
