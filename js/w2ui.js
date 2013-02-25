@@ -5,6 +5,9 @@
 *		- w2utils 		- basic utilities
 *		- w2ui.w2evet	- generic event object
 *   - Dependencies: jQuery
+*
+* == 1.2 changes 
+*  - added event.preventDefault() method
 * 
 ************************************************/
 
@@ -66,15 +69,37 @@ var w2utils = (function () {
 		return email.test(val); 
 	}
 
-	function isDate (val) {
-		// USA format only mm/dd/yy[yy]
+	function isDate (val, format) {
 		if (typeof val == 'undefined' || val == null) return false;
-		if (val.split("/").length != 3) return false; 
-		var month	= val.split("/")[0];
-		var day		= val.split("/")[1];
-		var year	= val.split("/")[2];
-		var obj = new Date(year, month-1, day);
-		if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
+		// USA format mm/dd/yyyy
+		if (format.toLowerCase() == 'mm/dd/yyyy') {
+			if (val.split("/").length != 3) return false; 
+			var month	= val.split("/")[0];
+			var day		= val.split("/")[1];
+			var year	= val.split("/")[2];
+			var obj = new Date(year, month-1, day);
+			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;			
+			return true;
+		}
+		// European format dd/mm/yyyy
+		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy') {
+			val = val.replace(/-/g, '/');
+			if (val.split("/").length != 3) return false; 
+			var month	= val.split("/")[1];
+			var day		= val.split("/")[0];
+			var year	= val.split("/")[2];
+			var obj = new Date(year, month-1, day);
+			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
+			return true;
+		}
+		// Other formats
+		var dt = new Date(val);
+		if (dt == 'Invalid Date') return false;
+		// make sure it is in correct format
+		if (typeof format != 'undefined') {
+			var dt = this.formatDate(val, format);
+			if (dt != val) return false;
+		}
 		return true;
 	}
 
@@ -245,7 +270,7 @@ var w2utils = (function () {
 		}
 
 		function utf8_encode (string) {
-			var string = string.replace(/\r\n/g,"\n");
+			var string = String(string).replace(/\r\n/g,"\n");
 			var utftext = "";
 
 			for (var n = 0; n < string.length; n++) {
@@ -601,7 +626,8 @@ $.w2event = {
 	},
 		
 	trigger: function (eventData) {
-		var eventData = $.extend({ type: null, phase: 'before', target: null, stop: false }, eventData);
+		var eventData = $.extend({ type: null, phase: 'before', target: null, stop: false }, eventData,
+			{ preventDefault: function () { this.stop = true; } });
 		if (typeof eventData.target == 'undefined') eventData.target = null;		
 		// process events in REVERSE order 
 		for (var h = this.handlers.length-1; h >= 0; h--) {
@@ -638,7 +664,7 @@ $.w2event = {
 		if (eventData.phase == 'after' && eventData.onComplete != null)	eventData.onComplete.call(this, eventData);
 	
 		return eventData;
-	}	
+	}
 };
 
 /***********************************************************
@@ -806,9 +832,11 @@ $.w2event = {
 *   == NICE TO HAVE
 * 		- global search apply types and drop downs
 * 		- editable fields (list)
+* 		- exposed prototype so it can be changed for all grids
 *
 *  == 1.2 changes
 *     - find(obj, flag) - gets second argument
+*     - getFooterHTML - can now be used to overwrite entire footer now
 *
 ************************************************************************/
 
@@ -2163,14 +2191,7 @@ $.w2event = {
 
 			// -- footer
 			if (this.show.footer) {
-				var pages = this.getFooterHTML();
-				var last = (this.page * this.recordsPerPage + this.recordsPerPage);
-				if (last > this.total) last = this.total;
-				var pageCountDsp = (this.page * this.recordsPerPage + 1) +'-'+ last +' of '+ this.total;
-				if (this.page == 0 && this.total == 0) pageCountDsp = '0-0 of 0';
-				$('#grid_'+ this.name +'_footerR').html(pageCountDsp);
-				$('#grid_'+ this.name +'_footerC').html(pages);
-				$('#grid_'+ this.name +'_footer').show();
+				$('#grid_'+ this.name +'_footer').html(this.getFooterHTML()).show();
 			} else {
 				$('#grid_'+ this.name +'_footer').hide();
 			}
@@ -2225,12 +2246,7 @@ $.w2event = {
 			this.initToolbar();
 			if (this.toolbar != null) this.toolbar.render($('#grid_'+ this.name +'_toolbar')[0]);
 			// init footer
-			$('#grid_'+ this.name +'_footer').html(
-				'<div style="width: 100%; height: 24px;">'+
-				'	<div id="grid_'+ this.name +'_footerL" style="float: left;"></div>'+
-				'	<div id="grid_'+ this.name +'_footerR" style="float: right;"></div>'+
-				'	<div id="grid_'+ this.name +'_footerC" style="text-align: center;"></div>'+
-				'</div>');
+			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
 
 			this.refresh();
@@ -3179,6 +3195,12 @@ $.w2event = {
 		},
 
 		getFooterHTML: function () {
+			// counts
+			var last = (this.page * this.recordsPerPage + this.recordsPerPage);
+			if (last > this.total) last = this.total;
+			var pageCountDsp = (this.page * this.recordsPerPage + 1) +'-'+ last +' of '+ this.total;
+			if (this.page == 0 && this.total == 0) pageCountDsp = '0-0 of 0';
+			// pages
 			var totalPages = Math.floor(this.total / this.recordsPerPage);
 			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
 			if (totalPages < 1) totalPages = 1;
@@ -3199,7 +3221,11 @@ $.w2event = {
 				 "  		onclick=\"w2ui[\'"+ this.name +"\'].goto(w2ui[\'"+ this.name +"\'].page + 1)\" "+ (this.page == totalPages-1 || totalPages == 0 ? 'disabled' : '') +
 				 "		> >> </a>"+
 				 "</div>";
-			return pages;
+			return '<div style="width: 100%; height: 24px;">'+
+				'	<div id="grid_'+ this.name +'_footerL" style="float: left;"></div>'+
+				'	<div id="grid_'+ this.name +'_footerR" style="float: right;">'+ pageCountDsp +'</div>'+
+				'	<div id="grid_'+ this.name +'_footerC" style="text-align: center;">'+ pages +'</div>'+
+				'</div>';
 		},
 
 		showStatus: function (status) {
@@ -3250,9 +3276,15 @@ $.w2event = {
 *		- $.w2layout	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-*   DEPRECATED METHODS
+* == 1.2 changes 
+*   - added panel name in the event data object
+*
+*  DEPRECATED METHODS
 *   - add()
 *   - remove()
+*
+*  NICE TO HAVE
+*   - onResize for the panel
 * 
 ************************************************************************/
 
@@ -3605,7 +3637,7 @@ $.w2event = {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (!this.box) return;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, width: width, height: height });	
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp_resizing, width: width, height: height });	
 			if (eventData.stop === true) return false;
 	
 			// layout itself
@@ -3908,6 +3940,8 @@ $.w2event = {
 			this.tmp_resizing = type;
 			this.tmp_x = evnt.screenX;
 			this.tmp_y = evnt.screenY;
+			this.tmp_div_x = 0;
+			this.tmp_div_y = 0;
 			if (type == 'left' || type == 'right') {
 				this.tmp_value = parseInt($('#layout_'+ this.name + '_splitter_'+ type)[0].style.left);
 			}
@@ -5542,7 +5576,7 @@ $.w2event = {
 *   NICE TO HAVE
 *     - group animate open
 *
-*   NEW 
+*  == 1.2 changes 
 *     - top_html, bottom_html
 *     - suport for icon fonts
 * 
@@ -6172,6 +6206,15 @@ $.w2event = {
 						
 					case 'date':
 						var obj = this;
+						var defaults = {
+							format 		: 'mm/dd/yyyy', 	// date format
+							start   	: '',				// start of selectable range
+							end 		: '',				// end of selectable range
+							blocked     : {}, 				// {'4/11/2011': 'yes'}
+							colored     : {}				// {'4/11/2011': 'red:white'} 
+						}
+						options = $.extend({}, defaults, options);
+
 						// -- insert div for calendar
 						if ($(this).length == 0 || $('#'+$(this)[0].id).length != 1) {
 							console.error('The date field must have a unique id in w2field(\'date\').');
@@ -6216,7 +6259,10 @@ $.w2event = {
 								$(obj).data('mtimer', mtimer);
 							})
 							.on('blur', function (event) {
-								if (!w2utils.isDate($(obj).val())) $(obj).val('');
+								if (!w2utils.isDate($(obj).val(), options.format)) {
+									$(obj).val('');
+									$(this).w2tag('Not a valid date: '+ options.format, { class: 'w2ui-error' });
+								}
 								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
 							})
@@ -6533,6 +6579,7 @@ $.w2event = {
 				.on('mousedown', function (event) {
 					var id 	 = $(event.target).attr('index');
 					var item = settings.items[id];
+					if (typeof id == 'undefined') { event.preventDefault(); return; }
 					obj.add(item);
 					$(obj).data('last_index', 0);
 					obj.refresh();
@@ -6636,12 +6683,17 @@ $.w2event = {
 		calendar_get: function (date, options) {
 			var td = new Date();
 			var today = (Number(td.getMonth())+1) + '/' + td.getDate() + '/' + (String(td.getYear()).length > 3 ? td.getYear() : td.getYear() + 1900);
-			if (date == '' || String(date) == 'undefined') date = today; 
-			if (!w2utils.isDate(date)) date = today;
+			if (date == '' || String(date) == 'undefined') date = w2utils.formatDate(today, options.format); 
+			if (!w2utils.isDate(date, options.format)) date = w2utils.formatDate(today, options.format);
 			
-			var tmp  = date.split('/')
+			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy') {
+				var tmp = date.replace(/-/g, '/').split('/');
+				var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
+			} else {				
+				var dt = new Date(date);
+			}
 			var html =  '<table cellpadding="0" cellspacing="0" style=""><tr>' +
-						'<td>'+ $().w2field('calendar_month', tmp[0], tmp[2], options) +'</td>'+
+						'<td>'+ $().w2field('calendar_month', (dt.getMonth() + 1), dt.getFullYear(), options) +'</td>'+
 						'<!--td valign="top" style="background-color: #f4f4fe; padding: 8px; padding-bottom: 0px; padding-top: 22px; border: 1px solid silver; border-left: 0px;">'+
 						'	Jan <br> Feb <br> Mar <br> Apr <br> May <br> Jun <br> Jul <br> Aug <br> Sep <br> Oct <br> Nov <br> Dec'+
 						'</td>'+
@@ -6652,8 +6704,8 @@ $.w2event = {
 			return html;
 		},
 		
-		calendar_next: function(date) {
-			var tmp = String(date).split('/');
+		calendar_next: function(month_year) {
+			var tmp = String(month_year).split('/');
 			var month = tmp[0];
 			var year  = tmp[1];
 			if (parseInt(month) < 12) {
@@ -6663,11 +6715,11 @@ $.w2event = {
 				year  = parseInt(year) + 1;
 			}
 			var options = $($('#global_calendar_div.w2ui-calendar').data('el')).data('options');
-			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', month+'/1/'+year, options) );
+			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', w2utils.formatDate(month+'/1/'+year, options.format), options) );
 		},
 		
-		calendar_previous: function(date) {
-			var tmp = String(date).split('/');
+		calendar_previous: function(month_year) {
+			var tmp = String(month_year).split('/');
 			var month = tmp[0];
 			var year  = tmp[1];
 			if (parseInt(month) > 1) {
@@ -6677,11 +6729,10 @@ $.w2event = {
 				year  = parseInt(year) - 1;
 			}
 			var options = $($('#global_calendar_div.w2ui-calendar').data('el')).data('options');
-			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', month+'/1/'+year, options) );
+			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', w2utils.formatDate(month+'/1/'+year, options.format), options) );
 		},
 		
 		calendar_month: function(month, year, options) {
-			// options = { blocked: {'4/11/2011': 'yes'}, colored: {'4/11/2011': 'red:white'} }
 			var td = new Date();
 			var months 		= ['January', 'February', 'March', 'April', 'May', 'June', 'July',	'August', 'September', 'October', 'November', 'December'];
 			var days  		= ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -6762,7 +6813,7 @@ $.w2event = {
 				html += '<td class="'+ className + blocked +'" style="'+ col + bgcol + '" id="'+ this.name +'_date_'+ dt +'" date="'+ dt +'"';
 				if (noSelect === false) {
 					html += 'onclick="var el = $(\'#global_calendar_div.w2ui-calendar\').data(\'el\'); '+
-							'	$(el).val(\''+ dt +'\').trigger(\'change\').trigger(\'blur\'); '+
+							'	$(el).val(\''+ w2utils.formatDate(dt, options.format) +'\').trigger(\'change\').trigger(\'blur\'); '+
 							'	 event.stopPropagation(); return false;'+
 							'"';
 				}
@@ -6783,6 +6834,11 @@ $.w2event = {
 *		- $.w2form		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs
 * 
+*  == 1.2 changes
+*     - focus first elements on the page
+*     - added select/list control
+* 	  - Added date format for date fields. 
+*
 ************************************************************************/
 
 
@@ -7099,8 +7155,8 @@ $.w2event = {
 						break;
 					case 'date':
 						// format date before submit
-						if (this.record[field.name] && !w2utils.isDate(this.record[field.name])) {
-							var error = { field: field, error: 'Not a valid date (mm/dd/yyyy)' };
+						if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
+							var error = { field: field, error: 'Not a valid date: '+ field.options.format };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} else {
@@ -7113,7 +7169,9 @@ $.w2event = {
 							//this.record[field.name] = w2utils.formatDate(this.record[field.name], 'mm/dd/yyyy');
 						}
 						break;
+					case 'select':
 					case 'list':
+						break;
 					case 'enum':
 						var sel = $(field.el).data('selected');
 						if (!$.isArray(sel)) sel = [];
@@ -7175,7 +7233,12 @@ $.w2event = {
 				var field = this.fields[f];
 				switch (String(field.type).toLowerCase()) {
 					case 'date': // to yyyy-mm-dd format
-						params.record[field.name] = w2utils.formatDate(params.record[field.name], 'yyyy-mm-dd');
+						var dt = params.record[field.name];
+						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy') {
+							var tmp = dt.replace(/-/g, '/').split('/');
+							var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
+						}
+						params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
 						break;
 				}
 			}
@@ -7343,9 +7406,16 @@ $.w2event = {
 						field.el.value = value;
 						break;
 					case 'date':
-						field.el.value = w2utils.formatDate(value, 'mm/dd/yyyy');
+						if (!field.options) field.options = {};
+						if (!field.options.format) field.options.format = 'mm/dd/yyyy';
+						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy') {
+							var tmp = value.replace(/-/g, '/').split('/');
+							field.el.value = w2utils.formatDate(tmp[2]+'-'+tmp[1]+'-'+tmp[0], field.options.format);
+						} else {
+							field.el.value = w2utils.formatDate(value, field.options.format);
+						}
 						this.record[field.name] = field.el.value;
-						$(field.el).w2field('date');
+						$(field.el).w2field($.extend({}, field.options, { type: 'date' }));
 						break;
 					case 'int':
 						field.el.value = value;
@@ -7378,9 +7448,26 @@ $.w2event = {
 						// hide passwords
 						field.el.value = value;
 						break;
+					case 'select':
 					case 'list':
-						field.options.max  	  = 1;
-						field.options.showAll = true; // show selected items in drop down
+						var options = '<option value="">- not selected -</option>';
+						for (var o in field.options.items) {
+							var opt  = field.options.items[o];
+							var id   = '';
+							var text = '';
+							if (typeof opt == 'string') {
+								id   = opt;
+								text = opt;
+							}
+							if (typeof opt == 'object' || opt.id)    id = opt.id;
+							if (typeof opt == 'object' || opt.value) id = opt.value;
+							if (typeof opt == 'object' || opt.text)  text = opt.text;
+							if (typeof opt == 'object' || opt.txt)   text = opt.txt;
+							options += '<option value="'+ id +'">'+ text + '</option>';
+						}
+						$(field.el).html(options);
+						$(field.el).val(this.record[field.name]);
+						break;
 					case 'enum':
 						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {
 							console.log("ERROR: (w2form."+ obj.name +") the field "+ field.name +" defined as enum but not field.options.url or field.options.items provided.");
@@ -7395,6 +7482,8 @@ $.w2event = {
 						break;						
 				}
 			}
+			var inputs = $(this.box).find('input, select')
+			if (inputs.length > 0) inputs[0].focus();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
