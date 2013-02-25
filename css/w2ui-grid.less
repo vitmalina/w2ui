@@ -56,7 +56,7 @@ div.w2ui-grid {
 	}
 
 	.w2ui-grid-lock {
-		opacity: 0.15;
+		.opacity(0.15);
 		background-color: @background-color-w2ui-grid-lock;
 	}
 
@@ -67,7 +67,7 @@ div.w2ui-grid {
 		height: 80px;
 		font-variant: normal;
 		font-weight: bold;
-		opacity: 0.8;
+		.opacity(0.8);
 		background-color: @background-color-w2ui-grid-status;
 		color: @color-w2ui-grid-status;
 		text-align: center;
@@ -84,12 +84,7 @@ div.w2ui-grid {
 		font-size: 13px;
 		text-align: center;
 		padding: 5px 10px;
-		background-image: linear-gradient(bottom, rgb(194,213,237) 0%, rgb(218,230,243) 100%);
-		background-image: -webkit-linear-gradient(bottom, rgb(194,213,237) 0%, rgb(218,230,243) 100%);
-		background-image: -moz-linear-gradient(bottom, rgb(194,213,237) 0%, rgb(218,230,243) 100%);
-		background-image: -ms-linear-gradient(bottom, rgb(194,213,237) 0%, rgb(218,230,243) 100%);
-		background-image: -o-linear-gradient(bottom, rgb(194,213,237) 0%, rgb(218,230,243) 100%);
-		filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffDAE6F3', endColorstr='#ffC2D5ED', GradientType=0);
+        .linear-gradient-vertical(#C2D5ED, #DAE6F3);
 		border-top-left-radius: 2px;
 		border-top-right-radius: 2px;
 		box-shadow: @box-shadow-grid-header;
@@ -170,12 +165,7 @@ div.w2ui-grid {
     		border-bottom: @border-head;	
             > div {
             	padding: 7px 3px;
-        		background-image: linear-gradient(top, #F9F9F9 0%, #E4E4E4 100%);
-        		background-image: -webkit-linear-gradient(top, #F9F9F9 0%, #E4E4E4 100%);
-        		background-image: -moz-linear-gradient(top, #F9F9F9 0%, #E4E4E4 100%);
-        		background-image: -ms-linear-gradient(top, #F9F9F9 0%, #E4E4E4 100%);
-        		background-image: -o-linear-gradient(top, #F9F9F9 0%, #E4E4E4 100%);
-        		filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffF9F9F9', endColorstr='#ffE4E4E4', GradientType=0);
+                .linear-gradient-vertical(#E4E4E4, #F9F9F9);
                 > div {
                 	white-space: nowrap;
     		        text-overflow: ellipsis;

@@ -30,14 +30,10 @@ div.w2ui-sidebar {
 		padding: 1px 0px;
 	}
     .test {
-.linear-gradient-vertical( #69B1E0, #3787CC);        
-    }
+
+}
     div.w2ui-selected {
-		background-image: -webkit-linear-gradient(top, #69B1E0 100%, #3787CC 0%);
-		background-image: -moz-linear-gradient(top, #69B1E0 100%, #3787CC 0%);
-		background-image: -ms-linear-gradient(top, #69B1E0 100%, #3787CC 0%);
-		background-image: -o-linear-gradient(top, #69B1E0 100%, #3787CC 0%);
-		filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff69B1E0', endColorstr='#ff3787CC', GradientType=0);		
+        .linear-gradient-vertical(#3787CC, #69B1E0);
 		border-top: @border-top-sidebar-selected;
 		border-bottom: @border-bottom-sidebar-selected;
         div.w2ui-node-caption, 
@@ -52,7 +48,7 @@ div.w2ui-sidebar {
         div.w2ui-node-caption, 
         div.w2ui-node-image, 
     	td.w2ui-node-dots {
-    		opacity: 0.3;
+    		.opacity( 0.3);
     	}
     }
     div.w2ui-node-caption {

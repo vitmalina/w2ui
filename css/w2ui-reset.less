@@ -1,39 +1,40 @@
-/*************************************************
-/* -- Reset Script for all w2ui Widgets, so that 
-/* -- it can be used on the pages whhere other CSS
-/* -- already exists. For example bootstrap
-*/
+/********************************************************
+*	Reset Script for all w2ui Widgets, so that 
+*	it can be used on the pages whhere other CSS
+*	already exists. For example bootstrap
+********************************************************/
 
-div.w2ui-reset * {
-	color: inherit;
-	font-family: verdana;
-	font-size: 11px;
-	font-weight: normal;
-	line-height: 100%;
-	box-sizing:			border-box;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing:    border-box;
-	-ms-box-sizing:     border-box;
-	-o-box-sizing:    	border-box;
-	margin: 0px;
-	padding: 0px;
+//////////////////////////
+//    css
+//////////////////////////
+div.w2ui-reset {
+	 * {
+		color: inherit;
+		font-family: verdana;
+		font-size: 11px;
+		font-weight: normal;
+		line-height: 100%;
+		.box-sizing;
+		margin: 0px;
+		padding: 0px;
+	}
+	table {
+		max-width: none;
+		background-color: transparent;
+		border-collapse: separate;
+		border-spacing: 0;
+	}
+	& input, & textarea {
+		width: auto;
+		height: auto;
+		vertical-align: baseline;
+		padding: 4px;
+	}
+	select {
+		padding: 1px;
+		height: 23px;
+	}
 }
 
-div.w2ui-reset table {
-	max-width: none;
-	background-color: transparent;
-	border-collapse: separate;
-	border-spacing: 0;
-}
 
-div.w2ui-reset input,  div.w2ui-reset textarea {
-	width: auto;
-	height: auto;
-	vertical-align: baseline;
-	padding: 4px;
-}
 
-div.w2ui-reset select {
-	padding: 1px;
-	height: 23px;
-}

@@ -1,30 +1,33 @@
-/*************************************************
-* ---- Layout ----
-*/
+/**********************
+* Layout
+**********************/
+//////////////////////////
+//    variables
+//////////////////////////
+@background-color-layout: #D7E4F2;
 
+//////////////////////////
+//    css
+//////////////////////////
 div.w2ui-layout {
 		overflow: hidden;
 		border: 0px;
 		margin: 0px;
 		padding: 0px;
 		outline: 0px;
-	}
-	div.w2ui-layout, div.w2ui-layout * {
-		box-sizing: border-box;
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		-ms-box-sizing: border-box;
-		-o-box-sizing: border-box;
-	}
-
-	div.w2ui-layout div.w2ui-panel {
-		display: none;
-	}
-
-	div.w2ui-layout div.w2ui-splitter {
-		display: none;
+		&, & * {
+			.box-sizing;
+		}
+		div.w2ui-panel {
+			display: none;
+		}
+		div.w2ui-splitter {
+			display: none;
+			&:hover, &.active {
+				background-color: @background-color-layout;
+			}
+		}
 	}
 
-	div.w2ui-layout div.w2ui-splitter:hover, div.w2ui-layout div.w2ui-splitter.active {
-		background-color: #D7E4F2;
-	}
+
+
