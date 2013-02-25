@@ -563,6 +563,11 @@ div.w2ui-toolbar {
 	margin-top: 6px;
 }
 
+.w2ui-form select {
+	border: 1px solid #bbb;
+	padding: 2px;
+}
+
 .w2ui-form .w2ui-label {
 	float: left;
 	margin-top: 6px;
@@ -579,7 +584,7 @@ div.w2ui-toolbar {
 	width: 300px;
 	margin-left: 128px;
 	padding: 3px;
-	min-height: 20px;
+	min-height: 26px;
 }
 
 .w2ui-form .w2ui-label.w2ui-span1 { width: 20px; float: left; } .w2ui-form .w2ui-field.w2ui-span1  { margin-left: 28px; float: none; }

@@ -5,13 +5,19 @@
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2form.js"></script>
+<script type="text/javascript" src="../src/w2tabs.js"></script>
 <script>
 	$(function () {
 		$('#form').w2form({ 
 			name     : 'form',
 			url      : 'server/post',
+			tabs: [
+				{ id: 'tab1', caption: 'General' }, 
+				{ id: 'tab2', caption: 'Additional' }
+			],
 			fields: [
 				{ name: 'field_text', type: 'text', required: true },
+				{ name: 'field_text2', type: 'text' },
 				{ name: 'field_alpha', type: 'alphanumeric', required: true },
 				{ name: 'field_int', type: 'int', required: true },
 				{ name: 'field_float', type: 'float', required: true },
@@ -69,7 +75,7 @@
 			</div>
 			<div class="w2ui-label">List:</div>
 			<div class="w2ui-field">
-				<input name="field_list" type="text" size="30"/>
+				<select name="field_list"></select>
 			</div>
 			<div class="w2ui-label">Multi Select:</div>
 			<div class="w2ui-field">
@@ -78,6 +84,25 @@
 			<div class="w2ui-label">Text Area:</div>
 			<div class="w2ui-field">
 				<textarea name="field_textarea" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
+			</div>
+		</div>
+
+		<div class="w2ui-page page-1">
+			<div class="w2ui-label">Text:</div>
+			<div class="w2ui-field">
+				<input name="field_text2" type="text" maxlength="100" size="60"/>
+			</div>
+			<div class="w2ui-label">Text:</div>
+			<div class="w2ui-field">
+				<input name="field_text3" type="text" maxlength="100" size="60"/>
+			</div>
+			<div class="w2ui-label">Text:</div>
+			<div class="w2ui-field">
+				<input name="field_text4" type="text" maxlength="100" size="60"/>
+			</div>
+			<div class="w2ui-label">Text:</div>
+			<div class="w2ui-field">
+				<input name="field_text5" type="text" maxlength="100" size="60"/>
 			</div>
 		</div>
 

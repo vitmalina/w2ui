@@ -7,6 +7,7 @@
 * 
 *  == 1.2 changes
 *     - focus first elements on the page
+*     - added select/list control
 *
 ************************************************************************/
 
@@ -338,7 +339,9 @@
 							//this.record[field.name] = w2utils.formatDate(this.record[field.name], 'mm/dd/yyyy');
 						}
 						break;
+					case 'select':
 					case 'list':
+						break;
 					case 'enum':
 						var sel = $(field.el).data('selected');
 						if (!$.isArray(sel)) sel = [];
@@ -603,9 +606,26 @@
 						// hide passwords
 						field.el.value = value;
 						break;
+					case 'select':
 					case 'list':
-						field.options.max  	  = 1;
-						field.options.showAll = true; // show selected items in drop down
+						var options = '<option value="">- not selected -</option>';
+						for (var o in field.options.items) {
+							var opt  = field.options.items[o];
+							var id   = '';
+							var text = '';
+							if (typeof opt == 'string') {
+								id   = opt;
+								text = opt;
+							}
+							if (typeof opt == 'object' || opt.id)    id = opt.id;
+							if (typeof opt == 'object' || opt.value) id = opt.value;
+							if (typeof opt == 'object' || opt.text)  text = opt.text;
+							if (typeof opt == 'object' || opt.txt)   text = opt.txt;
+							options += '<option value="'+ id +'">'+ text + '</option>';
+						}
+						$(field.el).html(options);
+						$(field.el).val(this.record[field.name]);
+						break;
 					case 'enum':
 						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {
 							console.log("ERROR: (w2form."+ obj.name +") the field "+ field.name +" defined as enum but not field.options.url or field.options.items provided.");
