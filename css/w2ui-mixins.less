@@ -28,10 +28,10 @@
 	-ms-transform: rotate(@value);
 	-o-transform: rotate(@value);
 }
-.opacity(@value : 1.0) {
+.opacity-property(@value : 1.0) {
     opacity : @value;
-    @value : (@value * 100);
-    filter: alpha(opacity=@value);
+    @valueNew : (@value * 100);
+    filter: alpha(opacity=@valueNew);
 }
 .linear-gradient-vertical( @color1, @color2) {
 	// by default to bottom
