@@ -8,6 +8,7 @@
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script>
 	$(function () {
+		$('#dt').w2field({ type: 'date', format: 'Mon dd, yyyy' });
 		$('#form').w2form({ 
 			name     : 'form',
 			url      : 'server/post',
@@ -15,18 +16,24 @@
 				{ id: 'tab1', caption: 'General' }, 
 				{ id: 'tab2', caption: 'Additional' }
 			],
+			record: {
+				field_date: '5/11/1977'
+			},
 			fields: [
 				{ name: 'field_text', type: 'text', required: true },
-				{ name: 'field_text2', type: 'text' },
 				{ name: 'field_alpha', type: 'alphanumeric', required: true },
 				{ name: 'field_int', type: 'int', required: true },
 				{ name: 'field_float', type: 'float', required: true },
-				{ name: 'field_date', type: 'date' },
+				{ name: 'field_date', type: 'date', options: { format: 'mm/dd/yyyy' } },
 				{ name: 'field_list', type: 'list', required: true, 
 					options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
 				{ name: 'field_enum', type: 'enum', required: true, 
 					options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-				{ name: 'field_textarea', type: 'text'}
+				{ name: 'field_textarea', type: 'text'},
+				{ name: 'field_text2', type: 'text' },
+				{ name: 'field_text3', type: 'text' },
+				{ name: 'field_text4', type: 'text' },
+				{ name: 'field_text5', type: 'text' }
 			],
 			actions: {
 				reset: function () {
@@ -46,11 +53,14 @@
 		});
 		// all event listener
 		w2ui['form'].on('*', function (id, data) {
-			console.log(id);
-			console.log(data);
+			//console.log(id);
+			//console.log(data);
 		});	});
 </script>
 <body>
+	<div style="padding: 10px">
+		<input type="text" id="dt" value="11/5/1977"/>
+	</div>
 	<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
 		<div class="w2ui-page page-0">
 			<div class="w2ui-label">Text:</div>

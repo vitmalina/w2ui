@@ -8,6 +8,7 @@
 *  == 1.2 changes
 *     - focus first elements on the page
 *     - added select/list control
+* 	  - Added date format for date fields. 
 *
 ************************************************************************/
 
@@ -325,8 +326,8 @@
 						break;
 					case 'date':
 						// format date before submit
-						if (this.record[field.name] && !w2utils.isDate(this.record[field.name])) {
-							var error = { field: field, error: 'Not a valid date (mm/dd/yyyy)' };
+						if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
+							var error = { field: field, error: 'Not a valid date: '+ field.options.format };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} else {
@@ -403,7 +404,12 @@
 				var field = this.fields[f];
 				switch (String(field.type).toLowerCase()) {
 					case 'date': // to yyyy-mm-dd format
-						params.record[field.name] = w2utils.formatDate(params.record[field.name], 'yyyy-mm-dd');
+						var dt = params.record[field.name];
+						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy') {
+							var tmp = dt.replace(/-/g, '/').split('/');
+							var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
+						}
+						params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
 						break;
 				}
 			}
@@ -571,9 +577,16 @@
 						field.el.value = value;
 						break;
 					case 'date':
-						field.el.value = w2utils.formatDate(value, 'mm/dd/yyyy');
+						if (!field.options) field.options = {};
+						if (!field.options.format) field.options.format = 'mm/dd/yyyy';
+						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy') {
+							var tmp = value.replace(/-/g, '/').split('/');
+							field.el.value = w2utils.formatDate(tmp[2]+'-'+tmp[1]+'-'+tmp[0], field.options.format);
+						} else {
+							field.el.value = w2utils.formatDate(value, field.options.format);
+						}
 						this.record[field.name] = field.el.value;
-						$(field.el).w2field('date');
+						$(field.el).w2field($.extend({}, field.options, { type: 'date' }));
 						break;
 					case 'int':
 						field.el.value = value;

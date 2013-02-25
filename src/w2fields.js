@@ -113,6 +113,15 @@
 						
 					case 'date':
 						var obj = this;
+						var defaults = {
+							format 		: 'mm/dd/yyyy', 	// date format
+							start   	: '',				// start of selectable range
+							end 		: '',				// end of selectable range
+							blocked     : {}, 				// {'4/11/2011': 'yes'}
+							colored     : {}				// {'4/11/2011': 'red:white'} 
+						}
+						options = $.extend({}, defaults, options);
+
 						// -- insert div for calendar
 						if ($(this).length == 0 || $('#'+$(this)[0].id).length != 1) {
 							console.error('The date field must have a unique id in w2field(\'date\').');
@@ -157,7 +166,10 @@
 								$(obj).data('mtimer', mtimer);
 							})
 							.on('blur', function (event) {
-								if (!w2utils.isDate($(obj).val())) $(obj).val('');
+								if (!w2utils.isDate($(obj).val(), options.format)) {
+									$(obj).val('');
+									$(this).w2tag('Not a valid date: '+ options.format, { class: 'w2ui-error' });
+								}
 								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
 							})
@@ -578,12 +590,17 @@
 		calendar_get: function (date, options) {
 			var td = new Date();
 			var today = (Number(td.getMonth())+1) + '/' + td.getDate() + '/' + (String(td.getYear()).length > 3 ? td.getYear() : td.getYear() + 1900);
-			if (date == '' || String(date) == 'undefined') date = today; 
-			if (!w2utils.isDate(date)) date = today;
+			if (date == '' || String(date) == 'undefined') date = w2utils.formatDate(today, options.format); 
+			if (!w2utils.isDate(date, options.format)) date = w2utils.formatDate(today, options.format);
 			
-			var tmp  = date.split('/')
+			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy') {
+				var tmp = date.replace(/-/g, '/').split('/');
+				var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
+			} else {				
+				var dt = new Date(date);
+			}
 			var html =  '<table cellpadding="0" cellspacing="0" style=""><tr>' +
-						'<td>'+ $().w2field('calendar_month', tmp[0], tmp[2], options) +'</td>'+
+						'<td>'+ $().w2field('calendar_month', (dt.getMonth() + 1), dt.getFullYear(), options) +'</td>'+
 						'<!--td valign="top" style="background-color: #f4f4fe; padding: 8px; padding-bottom: 0px; padding-top: 22px; border: 1px solid silver; border-left: 0px;">'+
 						'	Jan <br> Feb <br> Mar <br> Apr <br> May <br> Jun <br> Jul <br> Aug <br> Sep <br> Oct <br> Nov <br> Dec'+
 						'</td>'+
@@ -594,8 +611,8 @@
 			return html;
 		},
 		
-		calendar_next: function(date) {
-			var tmp = String(date).split('/');
+		calendar_next: function(month_year) {
+			var tmp = String(month_year).split('/');
 			var month = tmp[0];
 			var year  = tmp[1];
 			if (parseInt(month) < 12) {
@@ -605,11 +622,11 @@
 				year  = parseInt(year) + 1;
 			}
 			var options = $($('#global_calendar_div.w2ui-calendar').data('el')).data('options');
-			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', month+'/1/'+year, options) );
+			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', w2utils.formatDate(month+'/1/'+year, options.format), options) );
 		},
 		
-		calendar_previous: function(date) {
-			var tmp = String(date).split('/');
+		calendar_previous: function(month_year) {
+			var tmp = String(month_year).split('/');
 			var month = tmp[0];
 			var year  = tmp[1];
 			if (parseInt(month) > 1) {
@@ -619,11 +636,10 @@
 				year  = parseInt(year) - 1;
 			}
 			var options = $($('#global_calendar_div.w2ui-calendar').data('el')).data('options');
-			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', month+'/1/'+year, options) );
+			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', w2utils.formatDate(month+'/1/'+year, options.format), options) );
 		},
 		
 		calendar_month: function(month, year, options) {
-			// options = { blocked: {'4/11/2011': 'yes'}, colored: {'4/11/2011': 'red:white'} }
 			var td = new Date();
 			var months 		= ['January', 'February', 'March', 'April', 'May', 'June', 'July',	'August', 'September', 'October', 'November', 'December'];
 			var days  		= ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -704,7 +720,7 @@
 				html += '<td class="'+ className + blocked +'" style="'+ col + bgcol + '" id="'+ this.name +'_date_'+ dt +'" date="'+ dt +'"';
 				if (noSelect === false) {
 					html += 'onclick="var el = $(\'#global_calendar_div.w2ui-calendar\').data(\'el\'); '+
-							'	$(el).val(\''+ dt +'\').trigger(\'change\').trigger(\'blur\'); '+
+							'	$(el).val(\''+ w2utils.formatDate(dt, options.format) +'\').trigger(\'change\').trigger(\'blur\'); '+
 							'	 event.stopPropagation(); return false;'+
 							'"';
 				}

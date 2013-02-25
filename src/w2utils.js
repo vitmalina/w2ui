@@ -69,15 +69,37 @@ var w2utils = (function () {
 		return email.test(val); 
 	}
 
-	function isDate (val) {
-		// USA format only mm/dd/yy[yy]
+	function isDate (val, format) {
 		if (typeof val == 'undefined' || val == null) return false;
-		if (val.split("/").length != 3) return false; 
-		var month	= val.split("/")[0];
-		var day		= val.split("/")[1];
-		var year	= val.split("/")[2];
-		var obj = new Date(year, month-1, day);
-		if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
+		// USA format mm/dd/yyyy
+		if (format.toLowerCase() == 'mm/dd/yyyy') {
+			if (val.split("/").length != 3) return false; 
+			var month	= val.split("/")[0];
+			var day		= val.split("/")[1];
+			var year	= val.split("/")[2];
+			var obj = new Date(year, month-1, day);
+			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;			
+			return true;
+		}
+		// European format dd/mm/yyyy
+		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy') {
+			val = val.replace(/-/g, '/');
+			if (val.split("/").length != 3) return false; 
+			var month	= val.split("/")[1];
+			var day		= val.split("/")[0];
+			var year	= val.split("/")[2];
+			var obj = new Date(year, month-1, day);
+			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
+			return true;
+		}
+		// Other formats
+		var dt = new Date(val);
+		if (dt == 'Invalid Date') return false;
+		// make sure it is in correct format
+		if (typeof format != 'undefined') {
+			var dt = this.formatDate(val, format);
+			if (dt != val) return false;
+		}
 		return true;
 	}
 
