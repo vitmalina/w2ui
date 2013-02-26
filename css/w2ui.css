@@ -1,5 +1,5 @@
 /**********************
-* Common
+* Common 
 **********************/
 .w2ui-highlight {
   background-color: #ffa;
@@ -45,7 +45,7 @@
 }
 /********************************************************
 *	Reset Script for all w2ui Widgets, so that 
-*	it can be used on the pages whhere other CSS
+*	it can be used on the pages whhere other CSS 
 *	already exists. For example bootstrap
 ********************************************************/
 div.w2ui-reset * {
@@ -80,7 +80,7 @@ div.w2ui-reset select {
   height: 23px;
 }
 /**********************
-* calendar
+* calendar 
 **********************/
 div.w2ui-calendar {
   margin: 3px 0px 0px -2px;
@@ -239,7 +239,7 @@ div.w2ui-list ul li div:hover {
   cursor: pointer;
 }
 /**********************
-* Forms & Fields
+* Forms & Fields 
 **********************/
 .w2ui-form .w2ui-group {
   background-color: #e2eaf9;
@@ -452,7 +452,7 @@ div#w2ui-global-items ul li.selected {
   background-color: #b6d5ff;
 }
 /**********************
-* Forms & Fields
+* Forms & Fields 
 **********************/
 div.w2ui-grid {
   border: 1px solid #c0c0c0;
@@ -570,12 +570,12 @@ div.w2ui-grid .w2ui-grid-body table .w2ui-head {
 }
 div.w2ui-grid .w2ui-grid-body table .w2ui-head > div {
   padding: 7px 3px;
-  background-image: -webkit-linear-gradient(#e4e4e4, #f9f9f9);
-  background-image: -moz-linear-gradient(#e4e4e4, #f9f9f9);
-  background-image: -ms-linear-gradient(#e4e4e4, #f9f9f9);
-  background-image: -o-linear-gradient(#e4e4e4, #f9f9f9);
-  background-image: linear-gradient(#e4e4e4, #f9f9f9);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#fff9f9f9', endColorstr='#ffe4e4e4', GradientType=0);
+  background-image: -webkit-linear-gradient(#f9f9f9, #e4e4e4);
+  background-image: -moz-linear-gradient(#f9f9f9, #e4e4e4);
+  background-image: -ms-linear-gradient(#f9f9f9, #e4e4e4);
+  background-image: -o-linear-gradient(#f9f9f9, #e4e4e4);
+  background-image: linear-gradient(#f9f9f9, #e4e4e4);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffe4e4e4', endColorstr='#fff9f9f9', GradientType=0);
 }
 div.w2ui-grid .w2ui-grid-body table .w2ui-head > div > div {
   white-space: nowrap;
@@ -746,7 +746,7 @@ div#w2ui-global-searches > div table td .value select {
   height: 23px;
 }
 /**********************
-* Layout
+* Layout 
 **********************/
 div.w2ui-layout {
   overflow: hidden;
@@ -806,7 +806,7 @@ div.w2ui-overlay:before {
   margin: -9px 0 0 45px;
 }
 /********************************************************
-*       Sidebar
+*       Sidebar 
 ********************************************************/
 div.w2ui-sidebar {
   cursor: default;
@@ -936,7 +936,7 @@ div.w2ui-tabs div.w2ui-tab-close:hover {
   background-position: -12px 0px;
 }
 /********************************************************
-*       Dialog & Popup
+*       Dialog & Popup 
 ********************************************************/
 div.w2ui-popup {
   font-family: verdana;
@@ -1071,7 +1071,7 @@ div.w2ui-popup-message {
   border-radius: 0px 0px 6px 6px;
 }
 /********************************************************
-*       Sidebar
+*       Sidebar 
 ********************************************************/
 div.w2ui-sidebar {
   cursor: default;
@@ -1167,8 +1167,7 @@ div.w2ui-sidebar td.w2ui-node-data div.w2ui-node-count {
 }
 /**********************
 * toolbar
-**********************/
-div.w2ui-toolbar {
+**********************/div.w2ui-toolbar {
   overflow: hidden;
   border: 0px;
   margin: 0px;
