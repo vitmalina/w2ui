@@ -1,0 +1,69 @@
+/********************************************************
+*       enum input control
+********************************************************/
+//////////////////////////
+//    variables
+//////////////////////////
+@border-list: 1px solid silver; 
+@background-color-list: rgba(0,0,0,0); 
+@border-list-li: 1px solid #bbb;
+@background-color-list-li: #fafafa;
+@border-list-li-last-child: 1px solid transparent;
+@background-color-list-li-last-child: transparent;
+
+//////////////////////////
+//    css
+//////////////////////////
+div.w2ui-list {
+		position: absolute; 
+		padding: 0px;
+		margin: 0px; 
+		min-height: 24px; 
+		overflow: auto; 
+		border: @border-list; 
+		border-radius: 3px;
+    	.box-sizing;
+		background-color: @background-color-list; // Needed for IE9+ 
+        input[type=text] {
+            .box-shadow;
+    	}
+        ul {
+    		list-style-type: none;
+            li {
+        		float: left;
+        		margin: 2px;
+        		border-radius: 3px;
+        		width: auto;
+        		padding: 1px 5px 1px 5px;
+        		border: @border-list-li;
+        		background-color: @background-color-list-li;
+        		white-space: nowrap;
+        		cursor: default;
+        		font-size: 11px;
+        		line-height: normal;
+                &:last-child {
+            		border-radius: 0px;
+            		border: @border-list-li-last-child;
+            		background-color: @background-color-list-li-last-child;
+                    input {
+                		padding: 0px;
+                		margin: 0px;
+                		outline: none;
+                		border: 0px;
+                	}
+            	}
+                div {
+            		float: right;
+            		width: 12px;
+            		margin: 1px -3px 0px 2px;
+            		border-radius: 15px;
+            		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAMCAMAAABP7o1HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAwUExURfn5+rS7xLnBydLX3Ky0venr7d7i5cbM0tnd4fDy8+Tn6cDHzc/T2P7+/v///////4FNqFgAAAAQdFJOU////////////////////wDgI10ZAAAAnUlEQVR42mSPQQ5EIQhDAQEFFe5/2xH/zOJnXBhCy2sK+X7bXGyfAd57m8RM064Qj6MsttoRsHUrAfqCtL4i9xzhzBo6yweNmnQa54DIQzWEUAoADRH1DMJlD0fmK6QhTcidB8MjQvkrWMeJDQqFGu7hhH7DUQ+tnRKzhSD7L3zpThhj161Wj9HlFtxR334KnmAk+2ue4CLFz48AAwCGCgrOTWMmPAAAAABJRU5ErkJggg==) no-repeat center left;
+            		background-position: 0px 0px;
+                    &:hover {
+                		background-position: -12px 0px;
+                		cursor: pointer;
+                	}
+            	}
+        	}
+    	}
+	}

@@ -1,0 +1,55 @@
+//////////////////////////
+//    mixins
+/////////////////////////
+.box-shadow(@value : none) {
+    box-shadow: @value;
+    -webkit-box-shadow: @value;
+    -moz-box-shadow: @value;
+    -ms-box-shadow: @value;
+    -o-box-shadow: @value;
+}
+.box-sizing(@value : border-box) {
+        box-sizing: @value;
+    	-webkit-box-sizing: @value;
+		-moz-box-sizing: @value;
+		-ms-box-sizing: @value;
+		-o-box-sizing: @value;
+}
+.user-select(@value : none) {
+    user-select: @value;
+    -webkit-user-select: @value;
+    -moz-user-select: @value;
+    -ms-user-select: @value;
+	-o-user-select: @value;
+}
+.tranform( @value : -45deg) {
+    -webkit-transform: rotate(@value);
+	-moz-transform: rotate(@value);
+	-ms-transform: rotate(@value);
+	-o-transform: rotate(@value);
+}
+.opacity-property(@value : 1.0) {
+    opacity : @value;
+    @valueNew : (@value * 100);
+    filter: alpha(opacity=@valueNew);
+}
+.linear-gradient-vertical( @color1, @color2) {
+	// by default to bottom
+    background-image: -webkit-linear-gradient(@color1, @color2);
+    background-image: -moz-linear-gradient( @color1, @color2);
+    background-image: -ms-linear-gradient( @color1, @color2);
+    background-image: -o-linear-gradient( @color1, @color2);
+    background-image: linear-gradient(@color1, @color2);
+    @colorStart : argb(rgba(red(@color2), green(@color2), blue(@color2), 255));
+    @colorEnd : argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0); 
+}
+.linear-gradient-dark-center(@color, @colorReplace ) {
+    background-image: -webkit-linear-gradient(top, @color 0%, @color 30%, @color 70%, @color 100%);
+    background-image: -moz-linear-gradient(top, @color 0%, @color 30%, @color 70%, @color 100%);
+    background-image: -ms-linear-gradient(top, @color 0%, @color 30%, @color 70%, @color 100%);
+    background-image: -o-linear-gradient(top, @color 0%, @color 30%, @color 70%, @color 100%);
+    @colorStart : argb(rgba(red(@colorReplace), green(@colorReplace), blue(@colorReplace), 255));
+    @colorEnd : argb(rgba(red(@colorReplace), green(@colorReplace), blue(@colorReplace), 255));
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0);
+}
