@@ -1,6 +1,5 @@
 <project name="w2ui" basedir="." default="build">
 	<property name="build.dir"	value="BUILD"/>
-	<taskdef name="jsmin" classname="net.matthaynes.jsmin.JSMin_Task"/>
 
 	<target name="clean">
 		<delete dir="${build.dir}"/>
@@ -9,13 +8,31 @@
 	<target name="build" depends="clean">
 		<!--mkdir dir="${build.dir}"/-->
 
+  		<echo message="Concatenate JS Files"/>
 		<concat destfile="js/w2ui.js">
 			<filelist dir="./src/"
 				files="w2utils.js w2grid.js w2layout.js w2popup.js w2tabs.js w2toolbar.js w2sidebar.js w2fields.js w2form.js"/>
 		</concat>
 
-		<jsmin srcfile="js/w2ui.js" suffix="true" copyright="(c) http://w2ui.com, vitmalina@gmail.com" force="true"/>
-		<jsmin srcfile="css/w2ui.css" suffix="true" copyright="(c) http://w2ui.com, vitmalina@gmail.com" force="true"/>
+  		<!-- Minify JS files -->
+  		<echo message="Minify JS Files"/>
+		<exec executable="/opt/local/bin/node_modules/uglify-js/bin/uglifyjs" output="js/w2ui.min.js">
+    		<arg value="js/w2ui.js"/>
+  		</exec>
+
+		<!-- Compile LESS files -->
+  		<echo message="Compile LESS Files"/>
+		<exec executable="lessc">
+    		<arg value="css/w2ui.less"/>
+    		<arg value="css/w2ui.css"/>
+  		</exec>
+
+  		<!-- Minify JS files -->
+  		<echo message="Minify CSS Files"/>
+		<exec executable="/opt/local/bin/node_modules/clean-css/bin/cleancss" output="css/w2ui.min.css">
+    		<arg value="--s1"/>
+    		<arg value="css/w2ui.css"/>
+  		</exec>
 
 	</target>
 </project>

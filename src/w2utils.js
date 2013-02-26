@@ -1,3 +1,7 @@
+// w2ui 1.x (c) http://w2ui.com, vitmalina@gmail.com
+
+var w2ui = w2ui || {};
+
 /************************************************
 *   Library: Web 2.0 UI for jQuery
 *   - Following objects are defines
@@ -10,8 +14,6 @@
 *  - added event.preventDefault() method
 * 
 ************************************************/
-
-var w2ui = w2ui || {}; // w2utils might not be loaded yet
 
 var w2utils = (function () {
 	var obj = {
