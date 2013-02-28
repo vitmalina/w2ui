@@ -1,6 +1,7 @@
 // w2ui 1.x (c) http://w2ui.com, vitmalina@gmail.com
 
-var w2ui = w2ui || {};
+var w2ui  = w2ui  || {};
+var w2obj = w2obj || {}; 	// expose object to be able to overwrite default functions
 
 /************************************************
 *   Library: Web 2.0 UI for jQuery
@@ -12,6 +13,7 @@ var w2ui = w2ui || {};
 *
 * == 1.2 changes 
 *  - added event.preventDefault() method
+*  - expose prototype in w2obj object
 * 
 ************************************************/
 
@@ -685,6 +687,7 @@ $.w2event = {
 	}
 
 	$.fn.w2destroy = function (name) {
+		if (typeof name == 'undefined' && this.length > 0) name = this.data('w2name');
 		if (typeof name == 'string' && w2ui[name]) w2ui[name].destroy();
 		if (typeof name == 'object') name.destroy();
 	}

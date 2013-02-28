@@ -1,6 +1,7 @@
 // w2ui 1.x (c) http://w2ui.com, vitmalina@gmail.com
 
-var w2ui = w2ui || {};
+var w2ui  = w2ui  || {};
+var w2obj = w2obj || {}; 	// expose object to be able to overwrite default functions
 
 /************************************************
 *   Library: Web 2.0 UI for jQuery
@@ -12,6 +13,7 @@ var w2ui = w2ui || {};
 *
 * == 1.2 changes 
 *  - added event.preventDefault() method
+*  - expose prototype in w2obj object
 * 
 ************************************************/
 
@@ -685,6 +687,7 @@ $.w2event = {
 	}
 
 	$.fn.w2destroy = function (name) {
+		if (typeof name == 'undefined' && this.length > 0) name = this.data('w2name');
 		if (typeof name == 'string' && w2ui[name]) w2ui[name].destroy();
 		if (typeof name == 'object') name.destroy();
 	}
@@ -3270,6 +3273,7 @@ $.w2event = {
 	}
 
 	$.extend(w2grid.prototype, $.w2event);
+	w2obj.w2grid = w2grid;
 })();
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -4046,6 +4050,7 @@ $.w2event = {
 	}
 	
 	$.extend(w2layout.prototype, $.w2event);
+	w2obj.w2layout = w2layout;
 })();
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -4089,7 +4094,7 @@ $.w2event = {
 	};
 	
 	// ====================================================
-	// -- Implementation of core functionality
+	// -- Implementation of core functionality (SINGELTON)
 	
 	window.w2popup = {	
 		defaults: {
@@ -4992,6 +4997,7 @@ $.w2event = {
 	}
 	
 	$.extend(w2tabs.prototype, $.w2event);
+	w2obj.w2tabs = w2tabs;
 })();
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -5567,6 +5573,7 @@ $.w2event = {
 	}
 	
 	$.extend(w2toolbar.prototype, $.w2event);
+	w2obj.w2toolbar = w2toolbar;
 })();
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -6092,6 +6099,7 @@ $.w2event = {
 	}
 	
 	$.extend(w2sidebar.prototype, $.w2event);
+	w2obj.w2sidebar = w2sidebar;
 })();
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -6099,10 +6107,20 @@ $.w2event = {
 * 		- w2ui.w2field 	- various field controls
 *		- $.w2field		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
+*
+*  == 1.2 chanses
+*  - new type list/select
+*  - added a way to add customTypes
 * 
 ************************************************************************/
 
 (function ($) {
+
+	/* SINGELTON PATTERN */
+
+	var w2field = new (function () {
+		this.customTypes = [];
+	});
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
@@ -6122,12 +6140,18 @@ $.w2event = {
 	
 	// ====================================================
 	// -- Implementation of core functionality
-	
-	var w2field = {
+
+	$.extend(w2field, {
 		// CONTEXT: this - is jQuery object
 		init: function (options) { 		
 			var obj = w2field;
 			return $(this).each(function (field, index) {
+				// Check for Custom Types
+				if (typeof w2field.customTypes[options.type.toLowerCase()] == 'function') {
+					w2field.customTypes[options.type.toLowerCase()].apply(this, arguments);
+					return;
+				}  
+				// Common Types
 				switch (options.type.toLowerCase()) {
 					case 'clear': // removes any previous field type
 						$(this).off('keypress').off('focus').off('blur');
@@ -6261,7 +6285,10 @@ $.w2event = {
 								$(obj).data('mtimer', mtimer);
 							})
 							.on('blur', function (event) {
-								if (!w2utils.isDate($(obj).val(), options.format)) {
+								// trim empty spaces
+								$(obj).val($.trim($(obj).val()));
+								// check if date is valid
+								if ($.trim($(obj).val()) != '' && !w2utils.isDate($(obj).val(), options.format)) {
 									$(obj).val('');
 									$(this).w2tag('Not a valid date: '+ options.format, { class: 'w2ui-error' });
 								}
@@ -6285,7 +6312,38 @@ $.w2event = {
 					case 'color':
 						break;
 
-					case 'list': // drop down with read only <input>
+					case 'select':
+					case 'list':
+						var defaults = {
+							items 		: [],
+							value 		: null,
+							showNone    : true
+						};
+						var settings = $.extend({}, defaults, options);
+						var items = '';
+						if (settings.showNone) {
+							items = '<option value="">- none -</option>';
+						}
+						for (var o in settings.items) {
+							var opt  = settings.items[o];
+							var id   = '';
+							var text = '';
+							if (typeof opt == 'string') {
+								id   = opt;
+								text = opt;
+							}
+							if (typeof opt == 'object') {
+							 	if (typeof opt.id != 'undefined')    id = opt.id;
+								if (typeof opt.value != 'undefined') id = opt.value;
+								if (typeof opt.text != 'undefined')  text = opt.text;
+								if (typeof opt.txt != 'undefined')   text = opt.txt;
+							}
+							if (!settings.showNone && settings.value == null) settings.value = id;
+							items += '<option value="'+ id +'">'+ text + '</option>';
+						}
+						$(this).html(items);
+						$(this).val(settings.value);
+						if (settings.value != null) $(this).change();
 						break;
 
 					case 'enum':
@@ -6451,12 +6509,20 @@ $.w2event = {
 						$(this).data('settings', settings).attr('tabindex', -1);
 						this.refresh();
 						break;
+
+					default: 
+						console.log('Error w2field does not recognize "'+ options.type + '" field type.');
+						break;
 				}
 			});
 		},
 		
 		// ******************************************************
 		// -- Implementation
+
+		addType: function (type, handler) {
+			w2field.customTypes[type] = handler;
+		},
 
 		list_render: function (search) {
 			var obj 	 = this;
@@ -6826,7 +6892,9 @@ $.w2event = {
 			html += '</tr></table>';
 			return html;
 		}
-	}
+	});
+
+	w2obj.w2field = w2field;
 
 }) (jQuery);
 /************************************************************************
@@ -7452,23 +7520,8 @@ $.w2event = {
 						break;
 					case 'select':
 					case 'list':
-						var options = '<option value="">- not selected -</option>';
-						for (var o in field.options.items) {
-							var opt  = field.options.items[o];
-							var id   = '';
-							var text = '';
-							if (typeof opt == 'string') {
-								id   = opt;
-								text = opt;
-							}
-							if (typeof opt == 'object' || opt.id)    id = opt.id;
-							if (typeof opt == 'object' || opt.value) id = opt.value;
-							if (typeof opt == 'object' || opt.text)  text = opt.text;
-							if (typeof opt == 'object' || opt.txt)   text = opt.txt;
-							options += '<option value="'+ id +'">'+ text + '</option>';
-						}
-						$(field.el).html(options);
-						$(field.el).val(this.record[field.name]);
+						field.el.value = value;
+						$(field.el).w2field($.extend({}, field.options, { type: 'list' }));
 						break;
 					case 'enum':
 						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {
@@ -7524,4 +7577,5 @@ $.w2event = {
 	}
 	
 	$.extend(w2form.prototype, $.w2event);
+	w2obj.w2form = w2form;
 })();

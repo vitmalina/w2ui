@@ -522,4 +522,5 @@
 	}
 	
 	$.extend(w2sidebar.prototype, $.w2event);
+	w2obj.w2sidebar = w2sidebar;
 })();

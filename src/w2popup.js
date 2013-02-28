@@ -40,7 +40,7 @@
 	};
 	
 	// ====================================================
-	// -- Implementation of core functionality
+	// -- Implementation of core functionality (SINGELTON)
 	
 	window.w2popup = {	
 		defaults: {

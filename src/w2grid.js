@@ -2444,4 +2444,5 @@
 	}
 
 	$.extend(w2grid.prototype, $.w2event);
+	w2obj.w2grid = w2grid;
 })();

@@ -621,23 +621,8 @@
 						break;
 					case 'select':
 					case 'list':
-						var options = '<option value="">- not selected -</option>';
-						for (var o in field.options.items) {
-							var opt  = field.options.items[o];
-							var id   = '';
-							var text = '';
-							if (typeof opt == 'string') {
-								id   = opt;
-								text = opt;
-							}
-							if (typeof opt == 'object' || opt.id)    id = opt.id;
-							if (typeof opt == 'object' || opt.value) id = opt.value;
-							if (typeof opt == 'object' || opt.text)  text = opt.text;
-							if (typeof opt == 'object' || opt.txt)   text = opt.txt;
-							options += '<option value="'+ id +'">'+ text + '</option>';
-						}
-						$(field.el).html(options);
-						$(field.el).val(this.record[field.name]);
+						field.el.value = value;
+						$(field.el).w2field($.extend({}, field.options, { type: 'list' }));
 						break;
 					case 'enum':
 						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {
@@ -693,4 +678,5 @@
 	}
 	
 	$.extend(w2form.prototype, $.w2event);
+	w2obj.w2form = w2form;
 })();

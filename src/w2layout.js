@@ -773,4 +773,5 @@
 	}
 	
 	$.extend(w2layout.prototype, $.w2event);
+	w2obj.w2layout = w2layout;
 })();

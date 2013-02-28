@@ -379,4 +379,5 @@
 	}
 	
 	$.extend(w2tabs.prototype, $.w2event);
+	w2obj.w2tabs = w2tabs;
 })();
