@@ -4,8 +4,9 @@
 //////////////////////////
 //    variables
 //////////////////////////
-@background-color-layout: #D7E4F2;
-
+@background-color-layout-splitter: #D7E4F2;
+@background-color-layout : inherit;
+@color-layout : inherit;
 //////////////////////////
 //    css
 //////////////////////////
@@ -15,6 +16,8 @@ div.w2ui-layout {
 		margin: 0px;
 		padding: 0px;
 		outline: 0px;
+		background-color : @background-color-layout;
+		color : @color-layout;
 		&, & * {
 			.box-sizing;
 		}
@@ -24,7 +27,7 @@ div.w2ui-layout {
 		div.w2ui-splitter {
 			display: none;
 			&:hover, &.active {
-				background-color: @background-color-layout;
+				background-color: @background-color-layout-splitter;
 			}
 		}
 	}

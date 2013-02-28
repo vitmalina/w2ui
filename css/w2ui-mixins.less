@@ -53,3 +53,7 @@
     @colorEnd : argb(rgba(red(@colorReplace), green(@colorReplace), blue(@colorReplace), 255));
     filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0);
 }
+
+.background-image( @image, @rest...) {
+	background:  @image  @rest;
+}

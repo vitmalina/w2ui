@@ -1,0 +1,176 @@
+////////////////////////
+//		main
+////////////////////////
+
+
+@import "../w2ui-mixins.less";
+//@import "../w2ui-images.less";
+@import "../w2ui-images-dev.less";
+@import "../w2ui-common.less";
+
+//////////////////////////
+//    reset
+//////////////////////////
+@import "../w2ui-reset.less";
+@background-color-reset : black;
+@color-reset : white;
+
+//////////////////////////
+//    Calendar
+//////////////////////////
+@import "../w2ui-calendar.less";
+//////////////////////////
+//    enumlist
+//////////////////////////
+@import "../w2ui-enumlist.less";
+//////////////////////////
+//    form
+//////////////////////////
+@import "../w2ui-form.less";
+//////////////////////////
+//    grid
+//////////////////////////
+@import "../w2ui-grid.less";
+// global variables
+@shadow-color : #919191;
+
+// grid variables
+@border-w2ui-grid :  1px solid silver;
+@background-color-w2ui-grid-lock : #333;
+@background-color-w2ui-grid-status : #555;
+@color-w2ui-grid-status : white;
+@border-w2ui-grid_status :  2px solid #eee;
+    //* ===== Grid Header ===== */
+@background-color-grid-header: #EAEBEE;
+@border-grid-header : 1px solid #99bbe8;
+@color-grid-header : white;
+@box-shadow-grid-header : 0px 0px 2px @shadow-color;
+@linear-gradiant-grid-start : black;
+@linear-gradiant-grid-end : #282828;
+    //* ===== Grid Toolbar ===== */
+@border-grid-toolbar : 1px solid silver;
+@background-color-grid-toolbar : #282828;
+@box-shadow-grid-toolbar : 0px 1px 2px @shadow-color;
+    //* ===== Grid Search ===== */
+@border-grid-search-all : 1px solid #999;
+    //* ==== Column Headers ====== */
+@box-shadow-grid-columns: 0px 1px 4px @shadow-color;
+//* ===== Grid Body ===== */
+@background-color-grid-body: black;
+@background-color-head: black;
+@border-head : 1px solid #c5c5c5;
+@linear-gradient-grid-head-div-start : #282828;
+@linear-gradient-grid-head-div-end : gray;
+
+// ===== Grid Footer ===== 
+@background-color-grid-footer : #282828;
+@color-grid-footer-page-normal : black;
+@color-grid-footer-page-current : white;
+@color-grid-footer-page-selected : white;
+@background-color-grid-footer-page-selected: #808080;
+@border-grid-footer : 1px solid silver;
+@box-shadow-color-grid-footer : @shadow-color;
+@background-color-grid-btn-hover: gray; 
+
+@border-footer-nav : 1px solid silver;
+
+@background-color-global-searches :    #f3f1d9;
+@background-color-global-searches-value :    #f7f6f0;
+@border-global-searches : 1px solid silver;
+// td
+@border-right-grid-td: 1px solid #ccc;
+@border-bottom-grid-td: 0px solid #F3F6FA;
+// row
+@background-color-grid-odd : black;
+@background-color-grid-odd-hover : #0078a3;
+@background-color-grid-even : #303030 ;
+@background-color-grid-even-hover : #0078a3;
+@background-color-grid-selected : #FF9205;
+@color-grid-selected : black;
+@color-grid-number : white;
+@background-color-grid-editable: transparent;
+@background-color-grid-editable-active : white;
+@background-color-grid-editable-changed : #ddFFdd;
+@background-color-grid-summary: #FAFAFA;
+@box-shadow-color-grid-summary: #aaa;
+@background-color-grid-page-current: #629cfc;
+
+//////////////////////////
+//    layout
+//////////////////////////
+@import "../w2ui-layout.less";
+@background-color-layout-splitter: whitesmoke;
+@background-color-layout : black;
+@color-layout : white;
+
+//////////////////////////
+//    overlay
+//////////////////////////
+@import "../w2ui-overlay.less";
+//////////////////////////
+//    sidebar
+//////////////////////////
+@import "../w2ui-sidebar.less";
+//////////////////////////
+//    tabs
+//////////////////////////
+@import "../w2ui-tab.less";
+@background-color-tabs: black;
+@color-tabs: white;
+@border-tabs-tab: 1px solid silver;
+@border-bottom-tabs-tab: 1px solid transparent;
+@background-color-tabs-tab-active: #FF9205;
+@border-tabs-tab-close: 2px solid transparent;
+
+
+//////////////////////////
+//    popup
+//////////////////////////
+@import "../w2ui-popup.less";
+@background-color-popup-main : black;
+@border-popup : 1px solid #E8E8E8;
+@background-color-popup: @background-color-popup-main;
+@color-shadow-popup : #555;
+@color-popup: white;
+@border-popup-title: 2px solid #BFBFBF;
+@color-popup-title: white;
+@border-popup-msg-buttons: 1px solid #d5d8d8;
+@background-color-popup-msg-buttons: @background-color-popup-main;
+@background-color-popup-msg-max: #ccc;
+@border-popup-msg-max: 1px solid #aaa;
+@border-popup-msg-button: 1px solid transparent;
+@color-popup-msg-button: transparent;
+@background-color-popup-msg-close: #ccc;
+@border-popup-msg-close: 1px solid #aaa;
+@background-popup-color-msg-body: @background-color-popup-main;
+@background-color-popup-message: #141414; 
+@border-popup-message: 1px solid #aaa; 
+@shadow-color-popup-message :  #aaa;
+@linear-gradient-message-msg-title-start :  black;
+@linear-gradient-message-msg-title-end :  #2B2B2B;
+@background-color-button : #555;
+
+
+//////////////////////////
+//    toolbar
+//////////////////////////
+@border-toolbar-tab0 : 1px solid transparent;
+@border-toolbar-tab0-other : 1px solid #0078a3;
+@border-toolbar-tab1: 1px solid transparent;
+@border-left-toolbar-tab1: 0px solid transparent;
+@border-top-toolbar-tab1: 0px solid transparent;
+@border-left-toolbar-tab1-over: 0px solid transparent;
+@border-top-toolbar-tab1-over: 0px solid transparent;
+@border-right-toolbar-tab1-over: 1px solid #E4E1D6;
+@border-bottom-toolbar-tab1-over: 1px solid #E4E1D6;
+@border-left-toolbar-tab1-down: 1px solid #E3E0D5;
+@border-top-toolbar-tab1-down: 1px solid #E3E0D5;
+@border-right-toolbar-tab1-down: 0px solid transparent;
+@border-bottom-toolbar-tab1-down: 0px solid transparent;
+@background-color-toolbar-tab1-down: #F1F1F1;
+@background-color-toolbar-tab1-checked: white;
+@background-color-toolbar-global-drop: white;
+@border-toolbar-global-drop: 1px solid #ccc;
+@shadow-color-toolbar-global-drop:  #999;
+@background-color-toolbar-global-drop-selected: #D7E4F2;
+@import "../w2ui-toolbar.less";
