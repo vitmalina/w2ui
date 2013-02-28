@@ -10,6 +10,8 @@
 </body>
 <script>
 $(function () {
+    $().w2popup({ body: '<div style="padding-top: 8px; text-align: center">Refreshing...</div>', modal: true, width: 200, height: 50 });
+    setTimeout(function () { $().w2popup('close'); }, 1000);
     $('#grid').w2grid({
         name: 'grid',
         header: 'List of Names',

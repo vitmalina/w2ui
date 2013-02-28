@@ -8,7 +8,6 @@
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script>
 	$(function () {
-		$('#dt').w2field({ type: 'date', format: 'Mon dd, yyyy' });
 		$('#form').w2form({ 
 			name     : 'form',
 			url      : 'server/post',
@@ -26,7 +25,7 @@
 				{ name: 'field_float', type: 'float', required: true },
 				{ name: 'field_date', type: 'date', options: { format: 'mm/dd/yyyy' } },
 				{ name: 'field_list', type: 'list', required: true, 
-					options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
+					options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false } },
 				{ name: 'field_enum', type: 'enum', required: true, 
 					options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
 				{ name: 'field_textarea', type: 'text'},
@@ -58,9 +57,6 @@
 		});	});
 </script>
 <body>
-	<div style="padding: 10px">
-		<input type="text" id="dt" value="11/5/1977"/>
-	</div>
 	<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
 		<div class="w2ui-page page-0">
 			<div class="w2ui-label">Text:</div>
