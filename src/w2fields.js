@@ -4,10 +4,20 @@
 * 		- w2ui.w2field 	- various field controls
 *		- $.w2field		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
+*
+*  == 1.2 chanses
+*  - new type list/select
+*  - added a way to add customTypes
 * 
 ************************************************************************/
 
 (function ($) {
+
+	/* SINGELTON PATTERN */
+
+	var w2field = new (function () {
+		this.customTypes = [];
+	});
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
@@ -27,12 +37,18 @@
 	
 	// ====================================================
 	// -- Implementation of core functionality
-	
-	var w2field = {
+
+	$.extend(w2field, {
 		// CONTEXT: this - is jQuery object
 		init: function (options) { 		
 			var obj = w2field;
 			return $(this).each(function (field, index) {
+				// Check for Custom Types
+				if (typeof w2field.customTypes[options.type.toLowerCase()] == 'function') {
+					w2field.customTypes[options.type.toLowerCase()].apply(this, arguments);
+					return;
+				}  
+				// Common Types
 				switch (options.type.toLowerCase()) {
 					case 'clear': // removes any previous field type
 						$(this).off('keypress').off('focus').off('blur');
@@ -166,7 +182,10 @@
 								$(obj).data('mtimer', mtimer);
 							})
 							.on('blur', function (event) {
-								if (!w2utils.isDate($(obj).val(), options.format)) {
+								// trim empty spaces
+								$(obj).val($.trim($(obj).val()));
+								// check if date is valid
+								if ($.trim($(obj).val()) != '' && !w2utils.isDate($(obj).val(), options.format)) {
 									$(obj).val('');
 									$(this).w2tag('Not a valid date: '+ options.format, { class: 'w2ui-error' });
 								}
@@ -190,7 +209,38 @@
 					case 'color':
 						break;
 
-					case 'list': // drop down with read only <input>
+					case 'select':
+					case 'list':
+						var defaults = {
+							items 		: [],
+							value 		: null,
+							showNone    : true
+						};
+						var settings = $.extend({}, defaults, options);
+						var items = '';
+						if (settings.showNone) {
+							items = '<option value="">- none -</option>';
+						}
+						for (var o in settings.items) {
+							var opt  = settings.items[o];
+							var id   = '';
+							var text = '';
+							if (typeof opt == 'string') {
+								id   = opt;
+								text = opt;
+							}
+							if (typeof opt == 'object') {
+							 	if (typeof opt.id != 'undefined')    id = opt.id;
+								if (typeof opt.value != 'undefined') id = opt.value;
+								if (typeof opt.text != 'undefined')  text = opt.text;
+								if (typeof opt.txt != 'undefined')   text = opt.txt;
+							}
+							if (!settings.showNone && settings.value == null) settings.value = id;
+							items += '<option value="'+ id +'">'+ text + '</option>';
+						}
+						$(this).html(items);
+						$(this).val(settings.value);
+						if (settings.value != null) $(this).change();
 						break;
 
 					case 'enum':
@@ -356,12 +406,20 @@
 						$(this).data('settings', settings).attr('tabindex', -1);
 						this.refresh();
 						break;
+
+					default: 
+						console.log('Error w2field does not recognize "'+ options.type + '" field type.');
+						break;
 				}
 			});
 		},
 		
 		// ******************************************************
 		// -- Implementation
+
+		addType: function (type, handler) {
+			w2field.customTypes[type] = handler;
+		},
 
 		list_render: function (search) {
 			var obj 	 = this;
@@ -731,6 +789,8 @@
 			html += '</tr></table>';
 			return html;
 		}
-	}
+	});
+
+	w2obj.w2field = w2field;
 
 }) (jQuery);
