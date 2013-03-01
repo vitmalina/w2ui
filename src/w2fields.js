@@ -45,7 +45,7 @@
 			return $(this).each(function (field, index) {
 				// Check for Custom Types
 				if (typeof w2field.customTypes[options.type.toLowerCase()] == 'function') {
-					w2field.customTypes[options.type.toLowerCase()].apply(this, arguments);
+					w2field.customTypes[options.type.toLowerCase()].call(this, options);
 					return;
 				}  
 				// Common Types
