@@ -873,30 +873,50 @@
 						if (typeof callBack == 'function') callBack();
 						return false;
 					}
-					// default action
-					if (typeof eventData.data != 'undefined' && eventData.data != '') {
-						var data = 'data = '+ eventData.data; 	// $.parseJSON or $.getJSON did not work because it expect perfect JSON data
-						var data = eval(data);					//  where everything is in double quotes
-						if (typeof data['status'] != 'undefined' && data['status'] != 'success') {
-							if (xhr['status'] == 403) {
-								document.location = 'login.html'
-								return;
+					// if no error from the server
+					if (status != 'error') {
+						// default action
+						if (typeof eventData.data != 'undefined' && eventData.data != '') {
+							var data;
+							// check if the onLoad handler has not already parsed the data
+							if (typeof eventData.data == "object") {
+								data= eventData.data
+							} else {
+								// $.parseJSON or $.getJSON did not work because it expect perfect JSON data
+								//  where everything is in double quotes
+								eval('data = '+ eventData.data); 	
 							}
-							// need a time out because message might be already up
-							setTimeout(function () {
-								$().w2popup('open', {
-									width 	: 400,
-									height 	: 180,
-									showMax : false,
-									title 	: 'Error',
-									body 	: '<div style="padding: 15px 5px; text-align: center;">'+ data['message'] +'</div>',
-									buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" style="width: 60px; margin-right: 5px;">'
-								});
-							}, 300);
-						} else {
-							if (cmd == 'get-records') $.extend(obj, data);
-							if (cmd == 'delete-records') { obj.reload(); return; }
+							if (typeof data['status'] != 'undefined' && data['status'] != 'success') {
+							
+								// let the management of the error outside of the grid
+								obj.trigger({ target: obj.name, type: 'error', message: xhr.responseText , xhr: xhr });
+
+								/*
+								if (xhr['status'] == 403) {
+									document.location = 'login.html'
+									return;
+								}
+								// need a time out because message might be already up
+								setTimeout(function () {
+									$().w2popup('open', {
+										width 	: 400,
+										height 	: 180,
+										showMax : false,
+										title 	: 'Error',
+										body 	: '<div style="padding: 15px 5px; text-align: center;">'+ data['message'] +'</div>',
+										buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" style="width: 60px; margin-right: 5px;">'
+									});
+								}, 300);
+								*/
+							} else {
+								if (cmd == 'get-records') $.extend(obj, data);
+								if (cmd == 'delete-records') { obj.reload(); return; }
+							}
 						}
+					}
+					} else {
+						// let the management of the error outside of the grid
+						obj.trigger({ target: obj.name, type: 'error', message: xhr.responseText , xhr: xhr });
 					}
 					// event after
 					if (obj.url == '') {
