@@ -4,8 +4,18 @@
 //////////////////////////
 //    variables
 //////////////////////////
+@background-color-toolbar: #efefef; 
+@background-image-toolbar-start: #E8E8E8;
+@background-image-toolbar-start-percent: 27%;
+@background-image-toolbar-end: #F7F7F7;
+@background-image-toolbar-end-percent: 60%;
+@border-bottom-toolbar: 1px solid silver; 
+@border-top-toolbar: 1px solid silver; 
+@border-left-toolbar: none; 
+@border-right-toolbar: none; 
 @border-toolbar-tab0 : 1px solid transparent;
 @border-toolbar-tab0-other : 1px solid #CECEC3;
+@background-color-toolbar-tab0-hover : #CECEC3;
 @border-toolbar-tab1: 1px solid transparent;
 @border-left-toolbar-tab1: 0px solid transparent;
 @border-top-toolbar-tab1: 0px solid transparent;
@@ -23,16 +33,27 @@
 @border-toolbar-global-drop: 1px solid #ccc;
 @shadow-color-toolbar-global-drop:  #999;
 @background-color-toolbar-global-drop-selected: #D7E4F2;
+@color-toolbar-global-drop : inherit;
 
 //////////////////////////
 //    css
 //////////////////////////
 div.w2ui-toolbar {
 		overflow: hidden;
-		border: 0px;
 		margin: 0px;
 		padding: 2px;
 		outline: 0px;
+		width: 100%; 
+		height: 34px; 
+		border-left: @border-left-toolbar; 
+		border-right: @border-right-toolbar; 
+		border-bottom: @border-bottom-toolbar; 
+		border-top: @border-top-toolbar; 
+		background-color: @background-color-toolbar; 
+		.linear-gradient-vertical4( 	@background-image-toolbar-start, 
+										@background-image-toolbar-start-percent, 
+										@background-image-toolbar-end, 
+										@background-image-toolbar-end-percent);
         &, & * {
     		.box-sizing;
     	}
@@ -44,6 +65,7 @@ div.w2ui-toolbar {
         		border: @border-toolbar-tab0;
                 &.over {
             		border: @border-toolbar-tab0-other;
+					background-color : @background-color-toolbar-tab0-hover;
             	}
                 &.down {
             		border: @border-toolbar-tab0-other;
@@ -105,6 +127,7 @@ div.w2ui-toolbar {
 		position: absolute;
 		display: none;
 		z-index: 1600;
+		color : @color-toolbar-global-drop;
 		background-color: @background-color-toolbar-global-drop;
 		border: @border-toolbar-global-drop;
 		box-shadow: 0px 4px 8px @shadow-color-toolbar-global-drop;

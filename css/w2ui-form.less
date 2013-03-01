@@ -4,9 +4,12 @@
 //////////////////////////
 //    variables
 //////////////////////////
+@background-color-form: #F5F6F7; 
+@border-form: 1px solid #EAEBEE;
 @background-color-form-group: #E2EAF9;
 @border-bottom-form-group: 1px solid #C3D4DE;
 @border-form-input: 1px solid #bbb;
+@background-color : white;
 @background-color-form-tab-active: #F5F6F7;
 @background-color-form-tabs: #FDFDFD;
 @color-form-required-before: red;
@@ -28,8 +31,11 @@
 @border-bottom-form-global-items-before: 7px solid transparent;
 @border-bottom-color-form-global-items-before: inherit;
 @background-color-form-item-even: #fff;
+@color-form-item-even: inherit;
 @background-color-form-item-odd: #F3F6FA;
+@color-form-item-odd: inherit;
 @background-color-form-selected: #B6D5FF;
+@color-form-selected: inherit;
 @border-form-select: 1px solid #bbb;
 @form-step-bt-label : 20px;
 @form-step-bt-labelfield : 8;
@@ -38,6 +44,10 @@
 //    css
 //////////////////////////
 .w2ui-form {
+	background-color: @background-color-form; 
+	border: @border-form;
+	border-radius : 5px;
+	padding : 8px;
     .w2ui-group {
     	background-color: @background-color-form-group;
     	margin: -5px -5px 10px -5px;
@@ -46,11 +56,12 @@
     	font-size: 13px;
     }
     input[type=text], 
-    .w2ui-form input[type=password], 
-    .w2ui-form textarea {
+    input[type=password], 
+    textarea {
         padding: 4px;
     	border: @border-form-input;
     	border-radius: 3px;
+		background-color : white;
     }
     .w2ui-form input[type=checkbox] {
         margin-top: 6px;
@@ -186,6 +197,16 @@
     input[type=button] {
         width: 80px;
     	margin-right: 5px;
+		border-radius : 3px;
+		border : 1px solid white;
+		background-color : black;
+		color : white;
+		&:hover {
+			background-color : #0078a3;
+		}
+		&:active {
+			background-color : #FF9205;
+		}
     }
 }
 
@@ -248,12 +269,15 @@ div#w2ui-global-items {
         		cursor: pointer;
                 &.w2ui-item-even {
                 	background-color: @background-color-form-item-even;
+					color : @color-form-item-even;
             	}
                 &.w2ui-item-odd {
             		background-color: @background-color-form-item-odd;
+					color : @color-form-item-odd;
             	}
                 &.selected {
             		background-color: @background-color-form-selected;
+					color : @color-form-selected;
             	}
     	}
 }

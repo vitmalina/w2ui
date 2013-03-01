@@ -27,6 +27,43 @@
 //    form
 //////////////////////////
 @import "../w2ui-form.less";
+@background-color-form: black; 
+@border-form: 1px solid white;
+@background-color-form-group: #282828;
+@border-bottom-form-group: 1px solid DarkGray ;
+@border-form-input: 1px solid #282828;
+@background-color : white;
+@background-color-form-tab-active: #FF9205;
+@background-color-form-tabs: black;
+@color-form-required-before: red;
+@border-top-form-buttons: 1px solid #E5E8E8;
+@background-color-form-buttons: black;
+@border-form-error: 1px solid #FFA8A8;
+@background-color-form-error: #FFF4EB;
+@background-form-bubble-tag: rgba(60,60,60,0.82);
+@color-form-bubble-tag : white;
+@box-shadow-color-form-bubble-tag : #aaa;
+@border-top-form-bubble-tag-before: 5px solid transparent;
+@border-right-form-bubble-tag-before: 5px solid rgba(60,60,60,0.82);
+@border-bottom-form-bubble-tag-before: 5px solid transparent;
+@background-color-form-global-items: #F7F7F7;
+@border-form-global-items: 3px solid #777;
+@box-shadow-color-form-global-items: 0px 3px 8px #999;
+@border-left-form-global-items-before: 7px solid transparent;
+@border-right-form-global-items-before: 7px solid transparent;
+@border-bottom-form-global-items-before: 7px solid transparent;
+@border-bottom-color-form-global-items-before: inherit;
+@background-color-form-item-even: black;
+@color-form-item-even: white;
+@background-color-form-item-odd: black;
+@color-form-item-odd: white;
+@background-color-form-selected: #FF9205;
+@color-form-selected: white;
+@border-form-select: 1px solid #bbb;
+@form-step-bt-label : 20px;
+@form-step-bt-labelfield : 8;
+
+
 //////////////////////////
 //    grid
 //////////////////////////
@@ -111,6 +148,20 @@
 //    sidebar
 //////////////////////////
 @import "../w2ui-sidebar.less";
+@border-sidebar-node: 1px solid transparent;
+@border-top-sidebar-selected: 1px solid #5DA5DA;
+@border-bottom-sidebar-selected: 1px solid #347BBC;
+@color-sidebar-node-dataimage: #676E7B;
+@text-shadow-color-sidebar-node-dataimage: #f4f4f4;
+@border-sidebar-node-count: 2px solid white;
+@background-color-sidebar-node-count: #282828;
+@color-sidebar-node: white;
+@box-shadow-color-sidebar: #444;
+@color-sidebar-group: white;
+@background-color-sidebar : black;
+@linear-gradient-sidebar-selected-start : #FF9205;
+@linear-gradient-sidebar-selected-end : #FF9205;
+
 //////////////////////////
 //    tabs
 //////////////////////////
@@ -134,8 +185,16 @@
 @color-popup: white;
 @border-popup-title: 2px solid #BFBFBF;
 @color-popup-title: white;
+@linear-gradient-popup-title-start : #282828;
+@linear-gradient-popup-title-end : gray;
 @border-popup-msg-buttons: 1px solid #d5d8d8;
 @background-color-popup-msg-buttons: @background-color-popup-main;
+@background-color-popup-buttons-child : #282828;
+@border-popup-buttons-button : 1px solid white;
+@background-color-popup-buttons-button-hover : #0078a3;
+@color-popup-buttons-button-hover : white;
+@background-color-popup-buttons-button-active : #FF9205;
+@color-color-popup-buttons-button-active : black;
 @background-color-popup-msg-max: #ccc;
 @border-popup-msg-max: 1px solid #aaa;
 @border-popup-msg-button: 1px solid transparent;
@@ -154,23 +213,33 @@
 //////////////////////////
 //    toolbar
 //////////////////////////
+@import "../w2ui-toolbar.less";
+@background-color-toolbar: black; 
+@background-image-toolbar-start: #282828;;
+@background-image-toolbar-start-percent: 0%;
+@background-image-toolbar-end: gray;
+@background-image-toolbar-end-percent: 100%;
+@border-bottom-toolbar: 1px solid silver; 
+@border-top-toolbar: 1px solid silver; 
 @border-toolbar-tab0 : 1px solid transparent;
 @border-toolbar-tab0-other : 1px solid #0078a3;
-@border-toolbar-tab1: 1px solid transparent;
+@background-color-toolbar-tab0-hover : #0078a3;
+@border-toolbar-tab1: 1px solid #282828;
 @border-left-toolbar-tab1: 0px solid transparent;
 @border-top-toolbar-tab1: 0px solid transparent;
 @border-left-toolbar-tab1-over: 0px solid transparent;
 @border-top-toolbar-tab1-over: 0px solid transparent;
-@border-right-toolbar-tab1-over: 1px solid #E4E1D6;
-@border-bottom-toolbar-tab1-over: 1px solid #E4E1D6;
+@border-right-toolbar-tab1-over: 1px solid #0078a3;
+@border-bottom-toolbar-tab1-over: 1px solid #0078a3;
 @border-left-toolbar-tab1-down: 1px solid #E3E0D5;
 @border-top-toolbar-tab1-down: 1px solid #E3E0D5;
 @border-right-toolbar-tab1-down: 0px solid transparent;
 @border-bottom-toolbar-tab1-down: 0px solid transparent;
-@background-color-toolbar-tab1-down: #F1F1F1;
-@background-color-toolbar-tab1-checked: white;
-@background-color-toolbar-global-drop: white;
+@background-color-toolbar-tab1-down: #282828;
+@background-color-toolbar-tab1-checked: #282828;
+@background-color-toolbar-global-drop: #282828;
 @border-toolbar-global-drop: 1px solid #ccc;
-@shadow-color-toolbar-global-drop:  #999;
-@background-color-toolbar-global-drop-selected: #D7E4F2;
-@import "../w2ui-toolbar.less";
+@shadow-color-toolbar-global-drop:  black;
+@background-color-toolbar-global-drop-selected: #0078a3;
+@color-toolbar-global-drop : white;
+

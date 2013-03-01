@@ -177,6 +177,7 @@ div.w2ui-calendar table.w2ui-calendar-days tr.w2ui-day-title td {
 *       enum input control
 ********************************************************/
 div.w2ui-list {
+  color: black;
   position: absolute;
   padding: 0px;
   margin: 0px;
@@ -208,7 +209,7 @@ div.w2ui-list ul li {
   width: auto;
   padding: 1px 5px 1px 5px;
   border: 1px solid #bbbbbb;
-  background-color: #fafafa;
+  background-color: #d3d3d3;
   white-space: nowrap;
   cursor: default;
   font-size: 11px;
@@ -240,19 +241,26 @@ div.w2ui-list ul li div:hover {
 /**********************
 * Forms & Fields 
 **********************/
+.w2ui-form {
+  background-color: #000000;
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+  padding: 8px;
+}
 .w2ui-form .w2ui-group {
-  background-color: #e2eaf9;
+  background-color: #282828;
   margin: -5px -5px 10px -5px;
   padding: 5px;
-  border-bottom: 1px solid #c3d4de;
+  border-bottom: 1px solid DarkGray;
   font-size: 13px;
 }
 .w2ui-form input[type=text],
-.w2ui-form .w2ui-form input[type=password],
-.w2ui-form .w2ui-form textarea {
+.w2ui-form input[type=password],
+.w2ui-form textarea {
   padding: 4px;
-  border: 1px solid #bbbbbb;
+  border: 1px solid #282828;
   border-radius: 3px;
+  background-color: white;
 }
 .w2ui-form .w2ui-form input[type=checkbox] {
   margin-top: 6px;
@@ -362,10 +370,10 @@ div.w2ui-list ul li div:hover {
   margin: -5px -5px 6px -5px;
 }
 .w2ui-form .w2ui-tabs {
-  background-color: #fdfdfd;
+  background-color: #000000;
 }
 .w2ui-form .w2ui-tabs .w2ui-tab.active {
-  background-color: #f5f6f7;
+  background-color: #ff9205;
 }
 .w2ui-form .w2ui-required::before {
   content: '*';
@@ -378,12 +386,22 @@ div.w2ui-list ul li div:hover {
   text-align: center;
   margin: 15px -5px -5px -5px !important;
   border-top: 1px solid #e5e8e8;
-  background-color: #fdfdfd;
+  background-color: #000000;
   padding: 10px !important;
 }
 .w2ui-buttons input[type=button] {
   width: 80px;
   margin-right: 5px;
+  border-radius: 3px;
+  border: 1px solid white;
+  background-color: black;
+  color: white;
+}
+.w2ui-buttons input[type=button]:hover {
+  background-color: #0078a3;
+}
+.w2ui-buttons input[type=button]:active {
+  background-color: #FF9205;
 }
 .w2ui-error {
   border: 1px solid 1px solid #ffa8a8 !important;
@@ -442,13 +460,16 @@ div#w2ui-global-items ul li {
   cursor: pointer;
 }
 div#w2ui-global-items ul li.w2ui-item-even {
-  background-color: #ffffff;
+  background-color: #000000;
+  color: #ffffff;
 }
 div#w2ui-global-items ul li.w2ui-item-odd {
-  background-color: #f3f6fa;
+  background-color: #000000;
+  color: #ffffff;
 }
 div#w2ui-global-items ul li.selected {
-  background-color: #b6d5ff;
+  background-color: #ff9205;
+  color: #ffffff;
 }
 /**********************
 * Grid 
@@ -825,6 +846,8 @@ div.w2ui-overlay:before {
 ********************************************************/
 div.w2ui-sidebar {
   cursor: default;
+  background-color: #000000;
+  padding: 2px 0px;
 }
 div.w2ui-sidebar table {
   width: 100%;
@@ -836,12 +859,12 @@ div.w2ui-sidebar div.w2ui-node {
   padding: 1px 0px;
 }
 div.w2ui-sidebar div.w2ui-selected {
-  background-image: -webkit-linear-gradient(#3787cc, #69b1e0);
-  background-image: -moz-linear-gradient(#3787cc, #69b1e0);
-  background-image: -ms-linear-gradient(#3787cc, #69b1e0);
-  background-image: -o-linear-gradient(#3787cc, #69b1e0);
-  background-image: linear-gradient(#3787cc, #69b1e0);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff69b1e0', endColorstr='#ff3787cc', GradientType=0);
+  background-image: -webkit-linear-gradient(#ff9205, #ff9205);
+  background-image: -moz-linear-gradient(#ff9205, #ff9205);
+  background-image: -ms-linear-gradient(#ff9205, #ff9205);
+  background-image: -o-linear-gradient(#ff9205, #ff9205);
+  background-image: linear-gradient(#ff9205, #ff9205);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffff9205', endColorstr='#ffff9205', GradientType=0);
   border-top: 1px solid #5da5da;
   border-bottom: 1px solid #347bbc;
 }
@@ -879,7 +902,7 @@ div.w2ui-sidebar div.w2ui-node-group :nth-child(1) {
 div.w2ui-sidebar div.w2ui-node-group :nth-child(2) {
   /* title text */
   font-weight: bold;
-  color: #707e8d;
+  color: #ffffff;
   text-transform: uppercase;
 }
 div.w2ui-sidebar div.w2ui-node-sub {
@@ -909,7 +932,7 @@ div.w2ui-sidebar td.w2ui-node-data div.w2ui-node-count {
   padding: 0px 8px;
   margin-bottom: -2px;
   margin-right: 4px;
-  background-color: #57a7e9;
+  background-color: #282828;
   color: #ffffff;
   box-shadow: 0px 0px 5px #444444;
   position: relative;
@@ -975,12 +998,12 @@ div.w2ui-popup * {
 div.w2ui-popup div.w2ui-msg-title {
   padding: 6px;
   border-radius: 6px 6px 0px 0px;
-  background-image: -webkit-linear-gradient(#dfdfdf, #ececec);
-  background-image: -moz-linear-gradient(#dfdfdf, #ececec);
-  background-image: -ms-linear-gradient(#dfdfdf, #ececec);
-  background-image: -o-linear-gradient(#dfdfdf, #ececec);
-  background-image: linear-gradient(#dfdfdf, #ececec);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffececec', endColorstr='#ffdfdfdf', GradientType=0);
+  background-image: -webkit-linear-gradient(#282828, #808080);
+  background-image: -moz-linear-gradient(#282828, #808080);
+  background-image: -ms-linear-gradient(#282828, #808080);
+  background-image: -o-linear-gradient(#282828, #808080);
+  background-image: linear-gradient(#282828, #808080);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff808080', endColorstr='#ff282828', GradientType=0);
   border-bottom: 2px solid #bfbfbf;
   position: absolute;
   overflow: hidden;
@@ -1013,8 +1036,20 @@ div.w2ui-popup div.w2ui-msg-buttons {
   bottom: 0px;
   z-index: 1021;
 }
+div.w2ui-popup div.w2ui-msg-buttons * {
+  border-radius: 3px;
+  background-color: #282828;
+}
 div.w2ui-popup div.w2ui-msg-buttons input[type="button"] {
-  -webkit-appearance: push-button;
+  border: 1px solid #ffffff;
+}
+div.w2ui-popup div.w2ui-msg-buttons input[type="button"]:hover {
+  background-color: #0078a3;
+  color: #ffffff;
+}
+div.w2ui-popup div.w2ui-msg-buttons input[type="button"]:active {
+  background-color: #ff9205;
+  color: #000000;
 }
 div.w2ui-popup div.w2ui-msg-button {
   float: right;
@@ -1089,10 +1124,22 @@ div.w2ui-popup-message {
 * toolbar
 **********************/div.w2ui-toolbar {
   overflow: hidden;
-  border: 0px;
   margin: 0px;
   padding: 2px;
   outline: 0px;
+  width: 100%;
+  height: 34px;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid #c0c0c0;
+  border-top: 1px solid #c0c0c0;
+  background-color: #000000;
+  background-image: -webkit-linear-gradient(#282828 0% #808080 100%);
+  background-image: -moz-linear-gradient(#282828 0%, #808080 100%);
+  background-image: -ms-linear-gradient(#282828 0%, #808080 100%);
+  background-image: -o-linear-gradient(#282828 0%, #808080 100%);
+  background-image: linear-gradient(#282828 0%, #808080 100%);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff808080', endColorstr='#ff282828', GradientType=0);
 }
 div.w2ui-toolbar,
 div.w2ui-toolbar * {
@@ -1109,18 +1156,19 @@ div.w2ui-toolbar table.w2ui-tab0 {
   border: 1px solid transparent;
 }
 div.w2ui-toolbar table.w2ui-tab0.over {
-  border: 1px solid #cecec3;
+  border: 1px solid #0078a3;
+  background-color: #0078a3;
 }
 div.w2ui-toolbar table.w2ui-tab0.down {
-  border: 1px solid #cecec3;
+  border: 1px solid #0078a3;
 }
 div.w2ui-toolbar table.w2ui-tab0.checked {
-  border: 1px solid #cecec3;
+  border: 1px solid #0078a3;
 }
 div.w2ui-toolbar table.w2ui-tab1 {
   height: 17px;
   border-radius: 4px;
-  border: 1px solid transparent;
+  border: 1px solid #282828;
   border-left: 0px solid transparent;
   border-top: 0px solid transparent;
   cursor: default;
@@ -1128,18 +1176,18 @@ div.w2ui-toolbar table.w2ui-tab1 {
 div.w2ui-toolbar table.w2ui-tab1.over {
   border-left: 0px solid transparent;
   border-top: 0px solid transparent;
-  border-right: 1px solid #e4e1d6;
-  border-bottom: 1px solid #e4e1d6;
+  border-right: 1px solid #0078a3;
+  border-bottom: 1px solid #0078a3;
 }
 div.w2ui-toolbar table.w2ui-tab1.down {
   border-left: 1px solid #e3e0d5;
   border-top: 1px solid #e3e0d5;
   border-right: 0px solid transparent;
   border-bottom: 0px solid transparent;
-  background-color: #f1f1f1;
+  background-color: #282828;
 }
 div.w2ui-toolbar table.w2ui-tab1.checked {
-  background-color: #ffffff;
+  background-color: #282828;
 }
 div.w2ui-toolbar div.w2ui-break {
   background-image: -webkit-linear-gradient(top, #adadad 0%, #adadad 30%, #adadad 70%, #adadad 100%);
@@ -1172,15 +1220,16 @@ div.w2ui-toolbar .w2ui-tb-caption {
   position: absolute;
   display: none;
   z-index: 1600;
-  background-color: #ffffff;
+  color: #ffffff;
+  background-color: #282828;
   border: 1px solid #cccccc;
-  box-shadow: 0px 4px 8px #999999;
+  box-shadow: 0px 4px 8px #000000;
   border-radius: 2px;
   text-align: left;
   margin-left: 2px;
 }
 #w2ui-global-drop .w2ui-selected {
-  background-color: #d7e4f2;
+  background-color: #0078a3;
 }
 .w2ui-tb-down {
   width: 12px;

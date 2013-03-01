@@ -12,8 +12,16 @@
 @color-popup: black;
 @border-popup-title: 2px solid #BFBFBF;
 @color-popup-title: #555;
+@linear-gradient-popup-title-start : #DFDFDF;
+@linear-gradient-popup-title-end : #ECECEC;
 @border-popup-msg-buttons: 1px solid #d5d8d8;
 @background-color-popup-msg-buttons: @background-color-popup-main;
+@background-color-popup-buttons-child : inherit;
+@border-popup-buttons-button : inherit;
+@background-color-popup-buttons-button-hover : inherit;
+@color-popup-buttons-button-hover : inherit;
+@background-color-popup-buttons-button-active : inherit;
+@color-color-popup-buttons-button-active : inherit;
 @background-color-popup-msg-max: #ccc;
 @border-popup-msg-max: 1px solid #aaa;
 @border-popup-msg-button: 1px solid transparent;
@@ -24,6 +32,7 @@
 @background-color-popup-message: #F9F9F9; 
 @border-popup-message: 1px solid #aaa; 
 @shadow-color-popup-message :  #aaa;
+
 
 //////////////////////////
 //    css
@@ -44,7 +53,7 @@ div.w2ui-popup {
         div.w2ui-msg-title {
             	padding: 6px;
         		border-radius: 6px 6px 0px 0px;
-                .linear-gradient-vertical( #DFDFDF, #ECECEC);                
+                .linear-gradient-vertical( @linear-gradient-popup-title-start, @linear-gradient-popup-title-end);                
         		border-bottom: @border-popup-title;
         		position: absolute;
         		overflow: hidden;
@@ -72,8 +81,20 @@ div.w2ui-popup {
             	right: 0px;
             	bottom: 0px;
             	z-index: 1021;
+				* {
+ 		           border-radius : 3px;
+				   background-color : @background-color-popup-buttons-child;
+				}
                 input[type="button"] {
- 		           -webkit-appearance: push-button;
+				   border : @border-popup-buttons-button;
+					&:hover {
+					   background-color : @background-color-popup-buttons-button-hover;
+					   color : @color-popup-buttons-button-hover;
+					}
+					&:active {
+					   background-color : @background-color-popup-buttons-button-active;
+					   color : @color-color-popup-buttons-button-active;
+ 	            }
  	            }
             }
             div.w2ui-msg-button {
