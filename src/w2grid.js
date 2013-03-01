@@ -889,9 +889,11 @@
 							if (typeof data['status'] != 'undefined' && data['status'] != 'success') {
 							
 								// let the management of the error outside of the grid
-								obj.trigger({ target: obj.name, type: 'error', message: xhr.responseText , xhr: xhr });
-
-								/*
+								if( obj.trigger({ target: obj.name, type: 'error', message: xhr.responseText , xhr: xhr }).stop === true) {
+									if (typeof callBack == 'function') callBack();
+									return false;
+								}
+								// default error management
 								if (xhr['status'] == 403) {
 									document.location = 'login.html'
 									return;
@@ -907,13 +909,11 @@
 										buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" style="width: 60px; margin-right: 5px;">'
 									});
 								}, 300);
-								*/
 							} else {
 								if (cmd == 'get-records') $.extend(obj, data);
 								if (cmd == 'delete-records') { obj.reload(); return; }
 							}
 						}
-					}
 					} else {
 						// let the management of the error outside of the grid
 						obj.trigger({ target: obj.name, type: 'error', message: xhr.responseText , xhr: xhr });
