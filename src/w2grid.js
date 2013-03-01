@@ -2147,7 +2147,7 @@
 												(col.sortable ? 'onclick="w2ui[\''+ this.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') +
 										'		style="height: auto !important; '+ (i == this.columns.length -1 ? 'border-right: 1px solid transparent;' : '') +'">'+
 										'<div><div class="'+ sortStyle +'" style="height: auto !important; cursor: default; width: 100%; overflow: hidden;">'+  
-											col.caption +
+											(col.caption == '' ? '&nbsp;' : col.caption) +
 										'</div></div>'+ resizer +'</td>';
 							}
 						}
