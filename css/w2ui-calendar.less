@@ -8,6 +8,8 @@
 @shadow-calendar : #bbb;
 @border-calendar-title: 1px solid #999;
 @color-calendar-title: black;
+@linear-gradient-title-start : #C2C4C4;
+@linear-gradient-title-end : #E6E6E6;
 @background-color-calendar-days: #e4ebed;
 @border-calendar-days-td: 1px solid #e8e8e8;
 @color-calendar-days-td: black;
@@ -20,6 +22,7 @@
 @color-calendar-day-title: gray;
 @border-calendar-day-title: 1px solid #e8e8e8;
 @color-calendar-day-saturdaysunday: #c8493b;
+@background-color-calendar-day-saturdaysunday : #f4f4fe;
 @color-calendar-days-blocked-date: gray;
 @background-color-calendar-days-blocked-date: #e8e8e8;
 @color-calendar-nextprevious: #666;
@@ -42,7 +45,7 @@ div.w2ui-calendar {
     		padding: 5px 1px;
     		border-top-left-radius: 4px;
     		border-top-right-radius: 4px;
-            .linear-gradient-vertical(#C2C4C4, #E6E6E6);
+            .linear-gradient-vertical(@linear-gradient-title-start, @linear-gradient-title-end);
     		border-bottom: @border-calendar-title;
     		color: @color-calendar-title;
     		text-align: center;
@@ -102,6 +105,11 @@ div.w2ui-calendar {
                     &.w2ui-saturday, 
                     &.w2ui-sunday {
                 		color: @color-calendar-day-saturdaysunday;
+						background-color: @background-color-calendar-day-saturdaysunday;
+						&:hover {
+							border: @border-calendar-days-hover;
+							background-color: @background-color-calendar-days-hover;
+						}
                 	}
                     &.w2ui-blocked-date {
                 		color: @color-calendar-days-blocked-date;

@@ -4,44 +4,80 @@
 
 
 @import "../w2ui-mixins.less";
-//@import "../w2ui-images.less";
-@import "../w2ui-images-dev.less";
+@import "w2ui-images-dark.less";
+//@import "../w2ui-images-dev.less";
 @import "../w2ui-common.less";
 
 //////////////////////////
 //    reset
 //////////////////////////
 @import "../w2ui-reset.less";
-@background-color-reset : black;
-@color-reset : white;
+//global variables for the theme
+@background-color-theme : black;
+@color-theme : white;
+@background-color-hover : #0078a3;
+@background-color-select : #FF9205;
 
 //////////////////////////
 //    Calendar
 //////////////////////////
 @import "../w2ui-calendar.less";
+@border-calendar: 1px solid #aaa;
+@shadow-calendar : #282828;
+@border-calendar-title: 1px solid #999;
+@color-calendar-title: white;
+@linear-gradient-title-start : black ;
+@linear-gradient-title-end : #282828;
+@background-color-calendar-days: #e4ebed;
+@border-calendar-days-td: 1px solid #e8e8e8;
+@color-calendar-days-td: white;
+@background-color-calendar-days-td: #353535;
+@border-calendar-days-today: 2px solid @background-color-select;
+@background-color-calendar-days-today: #e2f7cd;
+@border-calendar-days-hover: 1px solid @background-color-hover;
+@background-color-calendar-days-hover: @background-color-hover;
+@background-color-calendar-day-title: gray;
+@color-calendar-day-title: white;
+@border-calendar-day-title: 1px solid gray;
+@color-calendar-day-saturdaysunday: #D81204;
+@background-color-calendar-day-saturdaysunday : #C0C0C0;
+@color-calendar-days-blocked-date: gray;
+@background-color-calendar-days-blocked-date: #e8e8e8;
+@color-calendar-nextprevious: white;
+@border-calendar-nextprevious: 1px solid transparent;
+@background-color-calendar-nextprevious-hover: @background-color-hover;
+@border-color-calendar-nextprevious-hover: 1px solid @background-color-hover;
+@background-color-calendar-day-empty: snow;
+
 //////////////////////////
 //    enumlist
 //////////////////////////
 @import "../w2ui-enumlist.less";
+@color-list : @color-theme;
+@border-list: 1px solid silver; 
+@background-color-list: @background-color-theme; 
+@border-list-li: 1px solid #000;
+@background-color-list-li: #282828;
+@border-list-li-last-child: 1px solid transparent;
+@background-color-list-li-last-child: transparent;
 //////////////////////////
 //    form
 //////////////////////////
 @import "../w2ui-form.less";
-@background-color-form: black; 
+@background-color-form: @background-color-theme; 
 @border-form: 1px solid white;
 @background-color-form-group: #282828;
-@border-bottom-form-group: 1px solid DarkGray ;
+@border-bottom-form-group: 1px solid darkgray ;
 @border-form-input: 1px solid #282828;
-@background-color : white;
-@background-color-form-tab-active: #FF9205;
-@background-color-form-tabs: black;
+@background-color-form-tab-active: @background-color-select;
+@background-color-form-tabs: @background-color-theme;
 @color-form-required-before: red;
 @border-top-form-buttons: 1px solid #E5E8E8;
-@background-color-form-buttons: black;
+@background-color-form-buttons: @background-color-theme;
 @border-form-error: 1px solid #FFA8A8;
 @background-color-form-error: #FFF4EB;
 @background-form-bubble-tag: rgba(60,60,60,0.82);
-@color-form-bubble-tag : white;
+@color-form-bubble-tag : @color-theme;
 @box-shadow-color-form-bubble-tag : #aaa;
 @border-top-form-bubble-tag-before: 5px solid transparent;
 @border-right-form-bubble-tag-before: 5px solid rgba(60,60,60,0.82);
@@ -53,11 +89,11 @@
 @border-right-form-global-items-before: 7px solid transparent;
 @border-bottom-form-global-items-before: 7px solid transparent;
 @border-bottom-color-form-global-items-before: inherit;
-@background-color-form-item-even: black;
-@color-form-item-even: white;
-@background-color-form-item-odd: black;
-@color-form-item-odd: white;
-@background-color-form-selected: #FF9205;
+@background-color-form-item-even: @background-color-theme;
+@color-form-item-even: @color-theme;
+@background-color-form-item-odd: @background-color-theme;
+@color-form-item-odd: @color-theme;
+@background-color-form-selected: @background-color-select;
 @color-form-selected: white;
 @border-form-select: 1px solid #bbb;
 @form-step-bt-label : 20px;
@@ -75,12 +111,12 @@
 @border-w2ui-grid :  1px solid silver;
 @background-color-w2ui-grid-lock : #333;
 @background-color-w2ui-grid-status : #555;
-@color-w2ui-grid-status : white;
+@color-w2ui-grid-status : @color-theme;
 @border-w2ui-grid_status :  2px solid #eee;
     //* ===== Grid Header ===== */
 @background-color-grid-header: #EAEBEE;
-@border-grid-header : 1px solid #99bbe8;
-@color-grid-header : white;
+@border-grid-header : 1px solid #282828;
+@color-grid-header : @color-theme;
 @box-shadow-grid-header : 0px 0px 2px @shadow-color;
 @linear-gradiant-grid-start : black;
 @linear-gradiant-grid-end : #282828;
@@ -93,8 +129,8 @@
     //* ==== Column Headers ====== */
 @box-shadow-grid-columns: 0px 1px 4px @shadow-color;
 //* ===== Grid Body ===== */
-@background-color-grid-body: black;
-@background-color-head: black;
+@background-color-grid-body: @background-color-theme;
+@background-color-head: @background-color-theme;
 @border-head : 1px solid #c5c5c5;
 @linear-gradient-grid-head-div-start : #282828;
 @linear-gradient-grid-head-div-end : gray;
@@ -118,13 +154,13 @@
 @border-right-grid-td: 1px solid #ccc;
 @border-bottom-grid-td: 0px solid #F3F6FA;
 // row
-@background-color-grid-odd : black;
-@background-color-grid-odd-hover : #0078a3;
+@background-color-grid-odd : @background-color-theme;
+@background-color-grid-odd-hover : @background-color-hover;
 @background-color-grid-even : #303030 ;
-@background-color-grid-even-hover : #0078a3;
-@background-color-grid-selected : #FF9205;
+@background-color-grid-even-hover : @background-color-hover;
+@background-color-grid-selected : @background-color-select;
 @color-grid-selected : black;
-@color-grid-number : white;
+@color-grid-number : @color-theme;
 @background-color-grid-editable: transparent;
 @background-color-grid-editable-active : white;
 @background-color-grid-editable-changed : #ddFFdd;
@@ -138,12 +174,18 @@
 @import "../w2ui-layout.less";
 @background-color-layout-splitter: whitesmoke;
 @background-color-layout : black;
-@color-layout : white;
+@color-layout : @color-theme;
 
 //////////////////////////
 //    overlay
 //////////////////////////
 @import "../w2ui-overlay.less";
+@background-color-overlay: #F7F7F7;
+@border-overlay: 3px solid #777;
+@box-shadow-color-overlay: black;
+@border-overlay-before: 3px solid silver;
+@border-color-overlay-before: inherit;
+@background-color-overlay-before: inherit;
 //////////////////////////
 //    sidebar
 //////////////////////////
@@ -155,22 +197,22 @@
 @text-shadow-color-sidebar-node-dataimage: #f4f4f4;
 @border-sidebar-node-count: 2px solid white;
 @background-color-sidebar-node-count: #282828;
-@color-sidebar-node: white;
+@color-sidebar-node: @color-theme;
 @box-shadow-color-sidebar: #444;
-@color-sidebar-group: white;
-@background-color-sidebar : black;
-@linear-gradient-sidebar-selected-start : #FF9205;
-@linear-gradient-sidebar-selected-end : #FF9205;
+@color-sidebar-group: @color-theme;
+@background-color-sidebar : @background-color-theme;
+@linear-gradient-sidebar-selected-start : @background-color-select;
+@linear-gradient-sidebar-selected-end : @background-color-select;
 
 //////////////////////////
 //    tabs
 //////////////////////////
 @import "../w2ui-tab.less";
-@background-color-tabs: black;
-@color-tabs: white;
+@background-color-tabs: @background-color-theme;
+@color-tabs: @color-theme;
 @border-tabs-tab: 1px solid silver;
 @border-bottom-tabs-tab: 1px solid transparent;
-@background-color-tabs-tab-active: #FF9205;
+@background-color-tabs-tab-active: @background-color-select;
 @border-tabs-tab-close: 2px solid transparent;
 
 
@@ -178,11 +220,11 @@
 //    popup
 //////////////////////////
 @import "../w2ui-popup.less";
-@background-color-popup-main : black;
+@background-color-popup-main : @background-color-theme;
 @border-popup : 1px solid #E8E8E8;
 @background-color-popup: @background-color-popup-main;
 @color-shadow-popup : #555;
-@color-popup: white;
+@color-popup: @color-theme;
 @border-popup-title: 2px solid #BFBFBF;
 @color-popup-title: white;
 @linear-gradient-popup-title-start : #282828;
@@ -191,9 +233,9 @@
 @background-color-popup-msg-buttons: @background-color-popup-main;
 @background-color-popup-buttons-child : #282828;
 @border-popup-buttons-button : 1px solid white;
-@background-color-popup-buttons-button-hover : #0078a3;
+@background-color-popup-buttons-button-hover : @background-color-hover;
 @color-popup-buttons-button-hover : white;
-@background-color-popup-buttons-button-active : #FF9205;
+@background-color-popup-buttons-button-active : @background-color-select;
 @color-color-popup-buttons-button-active : black;
 @background-color-popup-msg-max: #ccc;
 @border-popup-msg-max: 1px solid #aaa;
@@ -214,7 +256,7 @@
 //    toolbar
 //////////////////////////
 @import "../w2ui-toolbar.less";
-@background-color-toolbar: black; 
+@background-color-toolbar: @background-color-theme; 
 @background-image-toolbar-start: #282828;;
 @background-image-toolbar-start-percent: 0%;
 @background-image-toolbar-end: gray;
@@ -222,15 +264,15 @@
 @border-bottom-toolbar: 1px solid silver; 
 @border-top-toolbar: 1px solid silver; 
 @border-toolbar-tab0 : 1px solid transparent;
-@border-toolbar-tab0-other : 1px solid #0078a3;
-@background-color-toolbar-tab0-hover : #0078a3;
+@border-toolbar-tab0-other : 1px solid #282828;
+@background-color-toolbar-tab0-hover : @background-color-hover;
 @border-toolbar-tab1: 1px solid #282828;
 @border-left-toolbar-tab1: 0px solid transparent;
 @border-top-toolbar-tab1: 0px solid transparent;
 @border-left-toolbar-tab1-over: 0px solid transparent;
 @border-top-toolbar-tab1-over: 0px solid transparent;
-@border-right-toolbar-tab1-over: 1px solid #0078a3;
-@border-bottom-toolbar-tab1-over: 1px solid #0078a3;
+@border-right-toolbar-tab1-over: 1px solid @background-color-hover;
+@border-bottom-toolbar-tab1-over: 1px solid @background-color-hover;
 @border-left-toolbar-tab1-down: 1px solid #E3E0D5;
 @border-top-toolbar-tab1-down: 1px solid #E3E0D5;
 @border-right-toolbar-tab1-down: 0px solid transparent;
@@ -240,6 +282,7 @@
 @background-color-toolbar-global-drop: #282828;
 @border-toolbar-global-drop: 1px solid #ccc;
 @shadow-color-toolbar-global-drop:  black;
-@background-color-toolbar-global-drop-selected: #0078a3;
+@background-color-toolbar-global-drop-selected: @background-color-hover;
 @color-toolbar-global-drop : white;
-
+@linear-gradient-toolbar-break-start: #adadad;
+@linear-gradient-toolbar-break-end: #bdbdbd; 

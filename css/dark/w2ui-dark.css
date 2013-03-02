@@ -13,35 +13,35 @@
   display: inline-block;
 }
 .icon-reload {
-  background: url(images/w2ui-reload.png) no-repeat center;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAJUExURf///9LS0v///15xb0AAAAABdFJOUwBA5thmAAAAPklEQVR42oSP0QoAIAwCd/7/R1dEzEUjHwbeQDGilTCDlqg2iVQBL4+FehpT+0Q+T08FXEX8ipP4ln70EGAAa88AznmBmM0AAAAASUVORK5CYII=) no-repeat center;
 }
 .icon-columns {
-  background: url(images/w2ui-columns.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///////1V89WwAAAACdFJOU/8A5bcwSgAAACVJREFUeNpiYEQDDGiAOAGIVqgBjDBBEgVoYQaaSzF8iy4AEGAAPmcAhu29VA4AAAAASUVORK5CYII=) no-repeat center !important;
 }
 .icon-search,
 .icon-search-down {
-  background: url(images/w2ui-searchdown.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///ygoKAt0wnYAAAABdFJOUwBA5thmAAAALElEQVR42mJgwAIYwQCdjxCBMhEiMAZlAmiGwq3FJ4LNuVAhDD8xEAEAAgwAK/oATMTxj0kAAAAASUVORK5CYII=) no-repeat center !important;
 }
 .icon-add {
-  background: url(images/w2ui-add.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAJUExURf///wKuAv///1Y5xzgAAAADdFJOU///ANfKDUEAAAA/SURBVHjafM/RDgAQDEPR1v9/tGFbShP3RZwEg/GEszASYFZAikD3SwqABiowAbsfXEfsUn/WBvPR/XPaFGAAt9ABWRoXnwcAAAAASUVORK5CYII=) no-repeat center !important;
 }
 .icon-delete {
-  background: url(images/w2ui-delete.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAJUExURf////8AAP///5orJIMAAAADdFJOU///ANfKDUEAAAA7SURBVHjaYmBCAwwQihEIkAQYoQAmwMiIJMKAzAeJYBFgRAEQAQYowC2AqoWwLZgOw3Q6pueQAUCAAQC58AFdn8W3tAAAAABJRU5ErkJggg==) no-repeat center !important;
 }
 .icon-save {
-  background: url(images/w2ui-save.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAJUExURf///wKuAv///1Y5xzgAAAADdFJOU///ANfKDUEAAABDSURBVHjafM9BEgAgCAJA6P+PzlImJpu4JNshw7iCPBgxYEVAmsD7kgdoBrAkIebsB6oLdL+h5PNKX6yv3j/nmQIMALmWAVz9v62XAAAAAElFTkSuQmCC) no-repeat center !important;
 }
 .icon-edit {
-  background: url(images/w2ui-edit.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAwUExUReiYQPDPqPflxqluItCTSfvxsdWrb/XaY/n17eK3M72KLVpBE/TWROOzXvrujv///ykrK9MAAAAQdFJOU////////////////////wDgI10ZAAAAbElEQVR42myP2w7DMAhDg3HIrbT//7ftFiVU0/wExwhwun6UoqxOen0BN4AWoAkA4QYti4lgg5ZzKTSupQ25HKdzXfn4s5+gTz+tP/qe/4LaxaJ/gAJKZ78CeFLVyDIoQn2FG0PV/qadugUYACKEC40oj6kLAAAAAElFTkSuQmCC) no-repeat center !important;
 }
 .icon-bullet-black {
-  background: url(images/w2ui-bullet-black.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABlSURBVCjPY/jPgB8yDC4FilKKDfJXZa6KNwhKYVfQkPW/63/b/+T/XA1YFchd7fqf/j/2f+N/5qtYFUhe7fif9D/sf91/BuwKhBoS/jcBpcP/M2C3gluKrYHhKhA2MEgN2pDEDgEb0f5zlvXgVgAAAABJRU5ErkJggg==) no-repeat center !important;
 }
 .icon-folder {
-  background: url(images/w2ui-folder.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAMUExURf///76+vtnZ2f///yEqaeQAAAABdFJOUwBA5thmAAAAJ0lEQVR42mJgIAMwM4IAhgAUMIMEmEAAJgvFIAoCECx6CxACAAEGAJsyAWlX6+diAAAAAElFTkSuQmCC) no-repeat center !important;
 }
 .icon-page {
-  background: url(images/w2ui-page.png) no-repeat center !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAJUExURf///9fX1/////GCgbEAAAABdFJOUwBA5thmAAAAO0lEQVR42rSMQRIAIAgCwf8/uonQtHt7UGdFAV4g3PZEi9w7MwSH8D3b2z8iJKKQOFWUeBMNiQGWAAMAXq4Az9o2u9cAAAAASUVORK5CYII=) no-repeat center !important;
 }
 /********************************************************
 *	Reset Script for all w2ui Widgets, so that 
@@ -86,28 +86,28 @@ div.w2ui-calendar {
   padding: 0px;
   border: 1px solid #aaaaaa;
   border-radius: 4px;
-  box-shadow: 2px 2px 8px #bbbbbb;
+  box-shadow: 2px 2px 8px #282828;
   line-height: 108%;
 }
 div.w2ui-calendar .w2ui-calendar-title {
   padding: 5px 1px;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
-  background-image: -webkit-linear-gradient(#c2c4c4, #e6e6e6);
-  background-image: -moz-linear-gradient(#c2c4c4, #e6e6e6);
-  background-image: -ms-linear-gradient(#c2c4c4, #e6e6e6);
-  background-image: -o-linear-gradient(#c2c4c4, #e6e6e6);
-  background-image: linear-gradient(#c2c4c4, #e6e6e6);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffe6e6e6', endColorstr='#ffc2c4c4', GradientType=0);
+  background-image: -webkit-linear-gradient(#000000, #282828);
+  background-image: -moz-linear-gradient(#000000, #282828);
+  background-image: -ms-linear-gradient(#000000, #282828);
+  background-image: -o-linear-gradient(#000000, #282828);
+  background-image: linear-gradient(#000000, #282828);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff282828', endColorstr='#ff000000', GradientType=0);
   border-bottom: 1px solid #999999;
-  color: #000000;
+  color: #ffffff;
   text-align: center;
   font-weight: bold;
 }
 div.w2ui-calendar div.w2ui-calendar-previous {
   width: 24px;
   height: 21px;
-  color: #666666;
+  color: #ffffff;
   border: 1px solid transparent;
   border-radius: 3px;
   padding: 2px 3px;
@@ -115,13 +115,13 @@ div.w2ui-calendar div.w2ui-calendar-previous {
   cursor: default;
 }
 div.w2ui-calendar div.w2ui-calendar-previous:hover {
-  background-color: #efefef;
-  border: 1px solid #c0c0c0;
+  background-color: #0078a3;
+  border: 1px solid #0078a3;
 }
 div.w2ui-calendar div.w2ui-calendar-next {
   width: 24px;
   height: 21px;
-  color: #666666;
+  color: #ffffff;
   border: 1px solid transparent;
   border-radius: 3px;
   padding: 2px 3px;
@@ -129,8 +129,8 @@ div.w2ui-calendar div.w2ui-calendar-next {
   cursor: default;
 }
 div.w2ui-calendar div.w2ui-calendar-next:hover {
-  background-color: #efefef;
-  border: 1px solid #c0c0c0;
+  background-color: #0078a3;
+  border: 1px solid #0078a3;
 }
 div.w2ui-calendar table.w2ui-calendar-days {
   background-color: #e4ebed;
@@ -140,23 +140,29 @@ div.w2ui-calendar table.w2ui-calendar-days {
 }
 div.w2ui-calendar table.w2ui-calendar-days td {
   border: 1px solid #e8e8e8;
-  color: #000000;
-  background-color: #f4f4fe;
+  color: #ffffff;
+  background-color: #353535;
   padding: 5px;
   cursor: default;
   text-align: right;
 }
 div.w2ui-calendar table.w2ui-calendar-days td.w2ui-today {
-  border: 1px solid #8cb067;
+  border: 2px solid #ff9205;
   background-color: #e2f7cd;
 }
 div.w2ui-calendar table.w2ui-calendar-days td:hover {
-  border: 1px solid #000000;
-  background-color: #ffff00;
+  border: 1px solid #0078a3;
+  background-color: #0078a3;
 }
 div.w2ui-calendar table.w2ui-calendar-days td.w2ui-saturday,
 div.w2ui-calendar table.w2ui-calendar-days td.w2ui-sunday {
-  color: #c8493b;
+  color: #d81204;
+  background-color: #c0c0c0;
+}
+div.w2ui-calendar table.w2ui-calendar-days td.w2ui-saturday:hover,
+div.w2ui-calendar table.w2ui-calendar-days td.w2ui-sunday:hover {
+  border: 1px solid #0078a3;
+  background-color: #0078a3;
 }
 div.w2ui-calendar table.w2ui-calendar-days td.w2ui-blocked-date {
   color: #808080;
@@ -164,20 +170,20 @@ div.w2ui-calendar table.w2ui-calendar-days td.w2ui-blocked-date {
   background-color: #e8e8e8;
 }
 div.w2ui-calendar table.w2ui-calendar-days td.w2ui-day-empty {
-  background-color: #f4f4fe;
+  background-color: #fffafa;
 }
 div.w2ui-calendar table.w2ui-calendar-days tr.w2ui-day-title td {
-  background-color: #e8e8e8;
-  color: #808080;
+  background-color: #808080;
+  color: #ffffff;
   text-align: center;
   padding: 5px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid #808080;
 }
 /********************************************************
 *       enum input control
 ********************************************************/
 div.w2ui-list {
-  color: black;
+  color: #ffffff;
   position: absolute;
   padding: 0px;
   margin: 0px;
@@ -190,7 +196,7 @@ div.w2ui-list {
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
   -o-box-sizing: border-box;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: white;
 }
 div.w2ui-list input[type=text] {
   box-shadow: none;
@@ -201,6 +207,7 @@ div.w2ui-list input[type=text] {
 }
 div.w2ui-list ul {
   list-style-type: none;
+  background-color: black;
 }
 div.w2ui-list ul li {
   float: left;
@@ -208,8 +215,8 @@ div.w2ui-list ul li {
   border-radius: 3px;
   width: auto;
   padding: 1px 5px 1px 5px;
-  border: 1px solid #bbbbbb;
-  background-color: #d3d3d3;
+  border: 1px solid #000000;
+  background-color: #282828;
   white-space: nowrap;
   cursor: default;
   font-size: 11px;
@@ -231,7 +238,7 @@ div.w2ui-list ul li div {
   width: 12px;
   margin: 1px -3px 0px 2px;
   border-radius: 15px;
-  background: url(images/w2ui-enumlist.png) no-repeat center left;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAMCAMAAABP7o1HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///////1V89WwAAAABdFJOUwBA5thmAAAARklEQVR42oxQyw4AIAiC///ppobz0SEOjA3EEuigAwvk22FYLjx2KUWQhRA5dUioVu2ciWWUiRnUjrk8qT/344PlJEeAAQBAmwByU9Fm/AAAAABJRU5ErkJggg==) no-repeat center left;
   background-position: 0px 0px;
 }
 div.w2ui-list ul li div:hover {
@@ -251,7 +258,7 @@ div.w2ui-list ul li div:hover {
   background-color: #282828;
   margin: -5px -5px 10px -5px;
   padding: 5px;
-  border-bottom: 1px solid DarkGray;
+  border-bottom: 1px solid #a9a9a9;
   font-size: 13px;
 }
 .w2ui-form input[type=text],
@@ -503,7 +510,7 @@ div.w2ui-grid .w2ui-grid-status {
 }
 div.w2ui-grid .w2ui-grid-header {
   background-color: #eaebee;
-  border-bottom: 1px solid #99bbe8 !important;
+  border-bottom: 1px solid #282828 !important;
   height: 28px;
   overflow: hidden;
   color: #ffffff;
@@ -552,7 +559,7 @@ div.w2ui-grid .w2ui-search-clear {
   margin-left: -19px;
   margin-top: -7px;
   border-radius: 15px;
-  background: url(images/w2ui-search-clear.png) no-repeat center left;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAOCAMAAAALzYw2AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///ygoKAt0wnYAAAABdFJOUwBA5thmAAAATUlEQVR42oxQWw4AIAiC+1+6rHSKrcWHOHC+gA5O4A4evDx3Dy+ysJ1Q6ZFRASY3KqhbxYye1B7NLJq0LTNlIdXllET6hP/3uWvZEGAAeawAoBBKU9EAAAAASUVORK5CYII=) no-repeat center left;
   background-position: 0px 0px;
 }
 div.w2ui-grid .w2ui-search-clear:hover {
@@ -648,10 +655,10 @@ div.w2ui-grid .w2ui-grid-body table .w2ui-number div {
   padding: 2px 0px 0px 0px;
 }
 div.w2ui-grid .w2ui-grid-body .w2ui-sort-up {
-  background: url(images/w2ui-sort-up.png) no-repeat center right !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAICAMAAAD6Ou7DAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///wgICJ3TgPwAAAABdFJOUwBA5thmAAAAGUlEQVR42mJgwAMYoQCZhyyHrJIBPwAIMAAE+gAV85Z60QAAAABJRU5ErkJggg==) no-repeat center right !important;
 }
 div.w2ui-grid .w2ui-grid-body .w2ui-sort-down {
-  background: url(images/w2ui-sort-down.png) no-repeat center right !important;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAICAMAAAD6Ou7DAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///wgICJ3TgPwAAAABdFJOUwBA5thmAAAAHUlEQVR42mJgwA8YGZHZCB4jI4LHyIjMww4AAgwAA/YAFV/vmX4AAAAASUVORK5CYII=) no-repeat center right !important;
 }
 div.w2ui-grid .w2ui-editable {
   outline: none;
@@ -820,7 +827,7 @@ div.w2ui-overlay {
   z-index: 1600;
   background-color: #f7f7f7;
   border: 3px solid #777777;
-  box-shadow: 0px 3px 8px #999999;
+  box-shadow: 0px 3px 8px #000000;
   border-radius: 4px;
   text-align: left;
 }
@@ -966,7 +973,7 @@ div.w2ui-tabs div.w2ui-tab-close {
   margin: 4px 5px 0px 4px;
   width: 12px;
   height: 16px;
-  background: url(images/w2ui-tab-close.png) no-repeat center left;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAMCAMAAABP7o1HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///////1V89WwAAAACdFJOU/8A5bcwSgAAAEZJREFUeNpiYEQFDGAAYmATB8mgSjBApEAMsC4YwYDEg5EQdTBZqD2McAvR+DCdmBJIOlCMQrID3XI4gepcIjyIFCQAAQYAaD0ArHd1+soAAAAASUVORK5CYII=) no-repeat center left;
   border: 2px solid transparent;
   border-left: 0px;
 }
@@ -1059,7 +1066,7 @@ div.w2ui-popup div.w2ui-msg-button {
   overflow: hidden;
   padding: 0px;
   margin: 0px 3px 0px 0px;
-  background: url(images/w2ui-msg-button.png) no-repeat center left;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAMAAABncAyDAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///xAQEB6RcjsAAAABdFJOUwBA5thmAAAASUlEQVR42mJgGADAiATI0wDTh0s/QhyugRGJIkIDRCluB2JqYMDvISwaGPAGADU0oDkJRyji9jQhDRjBiqGB5IgjMWlQGQAEGADlpwCj7hljygAAAABJRU5ErkJggg==) no-repeat center left;
   background-position: 0px 0px;
   color: transparent !important;
   border-radius: 3px;
@@ -1156,14 +1163,14 @@ div.w2ui-toolbar table.w2ui-tab0 {
   border: 1px solid transparent;
 }
 div.w2ui-toolbar table.w2ui-tab0.over {
-  border: 1px solid #0078a3;
+  border: 1px solid #282828;
   background-color: #0078a3;
 }
 div.w2ui-toolbar table.w2ui-tab0.down {
-  border: 1px solid #0078a3;
+  border: 1px solid #282828;
 }
 div.w2ui-toolbar table.w2ui-tab0.checked {
-  border: 1px solid #0078a3;
+  border: 1px solid #282828;
 }
 div.w2ui-toolbar table.w2ui-tab1 {
   height: 17px;
@@ -1235,5 +1242,5 @@ div.w2ui-toolbar .w2ui-tb-caption {
   width: 12px;
   height: 24px;
   display: block;
-  background: url(images/w2ui-tb-down.png) no-repeat center right;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAICAMAAAD6Ou7DAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///wkJCfIN6xwAAAABdFJOUwBA5thmAAAAGUlEQVR42mJgwAMYoQCZhyyHrJIBPwAIMAAE+gAV85Z60QAAAABJRU5ErkJggg==) no-repeat center right;
 }

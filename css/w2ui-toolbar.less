@@ -33,7 +33,10 @@
 @border-toolbar-global-drop: 1px solid #ccc;
 @shadow-color-toolbar-global-drop:  #999;
 @background-color-toolbar-global-drop-selected: #D7E4F2;
-@color-toolbar-global-drop : inherit;
+@color-toolbar-global-drop : inherit;        
+@linear-gradient-toolbar-break-start: #adadad;
+@linear-gradient-toolbar-break-end: #bdbdbd; 
+
 
 //////////////////////////
 //    css
@@ -100,7 +103,7 @@ div.w2ui-toolbar {
         	}
         }
         div.w2ui-break {
-            .linear-gradient-dark-center(#adadad, #bdbdbd); 
+            .linear-gradient-dark-center(@linear-gradient-toolbar-break-start, @linear-gradient-toolbar-break-end); 
     		width: 1px !important;
     		height: 22px;
     		padding: 0px;
