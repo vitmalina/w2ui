@@ -38,6 +38,11 @@
 @border-form-select: 1px solid #bbb;
 @form-step-bt-label : 20px;
 @form-step-bt-labelfield : 8;
+@border-color-form-buttons-button : inherit;
+@background-color-form-buttons-button : lightgray;
+@color-form-buttons-button : inherit;
+@background-color-form-buttons-button-hover: gray;
+@background-color-form-buttons-button-active: darkgray;
 
 //////////////////////////
 //    css
@@ -197,14 +202,14 @@
         width: 80px;
     	margin-right: 5px;
 		border-radius : 3px;
-		border : 1px solid white;
-		background-color : black;
-		color : white;
+		border : @border-color-form-buttons-button;
+		background-color : @background-color-form-buttons-button;
+		color : @color-form-buttons-button;
 		&:hover {
-			background-color : #0078a3;
+			background-color : @background-color-form-buttons-button-hover;
 		}
 		&:active {
-			background-color : #FF9205;
+			background-color : @background-color-form-buttons-button-active;
 		}
     }
 }

@@ -400,15 +400,15 @@ div.w2ui-list ul li div:hover {
   width: 80px;
   margin-right: 5px;
   border-radius: 3px;
-  border: 1px solid white;
-  background-color: black;
-  color: white;
+  border: 1px solid #ffffff;
+  background-color: #000000;
+  color: #ffffff;
 }
 .w2ui-buttons input[type=button]:hover {
   background-color: #0078a3;
 }
 .w2ui-buttons input[type=button]:active {
-  background-color: #FF9205;
+  background-color: #ff9205;
 }
 .w2ui-error {
   border: 1px solid 1px solid #ffa8a8 !important;
