@@ -4,6 +4,7 @@
 ////////////////////////// 
 //    variables
 //////////////////////////
+@color-list : inherit;
 @border-list: 1px solid silver; 
 @background-color-list: rgba(0,0,0,0); 
 @border-list-li: 1px solid #bbb;
@@ -15,6 +16,7 @@
 //    css
 //////////////////////////
 div.w2ui-list {
+		color : @color-list;
 		position: absolute; 
 		padding: 0px;
 		margin: 0px; 
@@ -23,12 +25,14 @@ div.w2ui-list {
 		border: @border-list; 
 		border-radius: 3px;
     	.box-sizing;
-		background-color: @background-color-list; // Needed for IE9+ 
+//		background-color: @background-color-list; // Needed for IE9+ 
+		background-color: white; // Needed for IE9+ 
         input[type=text] {
             .box-shadow;
     	}
         ul {
     		list-style-type: none;
+			background-color : black;
             li {
         		float: left;
         		margin: 2px;
@@ -57,7 +61,7 @@ div.w2ui-list {
             		width: 12px;
             		margin: 1px -3px 0px 2px;
             		border-radius: 15px;
-            		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAMCAMAAABP7o1HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAwUExURfn5+rS7xLnBydLX3Ky0venr7d7i5cbM0tnd4fDy8+Tn6cDHzc/T2P7+/v///////4FNqFgAAAAQdFJOU////////////////////wDgI10ZAAAAnUlEQVR42mSPQQ5EIQhDAQEFFe5/2xH/zOJnXBhCy2sK+X7bXGyfAd57m8RM064Qj6MsttoRsHUrAfqCtL4i9xzhzBo6yweNmnQa54DIQzWEUAoADRH1DMJlD0fmK6QhTcidB8MjQvkrWMeJDQqFGu7hhH7DUQ+tnRKzhSD7L3zpThhj161Wj9HlFtxR334KnmAk+2ue4CLFz48AAwCGCgrOTWMmPAAAAABJRU5ErkJggg==) no-repeat center left;
+					.background-image( @image-enumlist, no-repeat, center, left);
             		background-position: 0px 0px;
                     &:hover {
                 		background-position: -12px 0px;

@@ -1,11 +1,12 @@
 /**********************
-* Forms & Fields 
+* Grid 
 **********************/
 //////////////////////////
 //    variables
 //////////////////////////
 // global variables
 @shadow-color : #ddd;
+
 
 // grid variables
 @border-w2ui-grid :  1px solid silver;
@@ -18,31 +19,56 @@
 @border-grid-header : 1px solid #99bbe8;
 @color-grid-header : #444;
 @box-shadow-grid-header : 0px 0px 2px @shadow-color;
+@linear-gradiant-grid-start : #DAE6F3;
+@linear-gradiant-grid-end : #C2D5ED;
     //* ===== Grid Toolbar ===== */
 @border-grid-toolbar : 1px solid silver;
 @background-color-grid-toolbar : #DCE0E6;
 @box-shadow-grid-toolbar : 0px 1px 2px @shadow-color;
     //* ===== Grid Search ===== */
-@border--search-all : 1px solid #999;
+@border-grid-search-all : 1px solid #999;
     //* ==== Column Headers ====== */
 @box-shadow-grid-columns: 0px 1px 4px @shadow-color;
 //* ===== Grid Body ===== */
 @background-color-grid-body: white;
 @background-color-head: #e4e4e4;
 @border-head : 1px solid #c5c5c5;
+@linear-gradient-grid-head-div-start : #F9F9F9;
+@linear-gradient-grid-head-div-end : #E4E4E4;
+
 // ===== Grid Footer ===== 
 @background-color-grid-footer : #F0F0F0;
 @color-grid-footer-page-normal : black;
 @color-grid-footer-page-current : white;
 @color-grid-footer-page-selected : white;
+@background-color-grid-footer-page-selected: #808080;
 @border-grid-footer : 1px solid silver;
 @box-shadow-color-grid-footer : @shadow-color;
+@background-color-grid-btn-hover: #AEC8FF; 
 
 @border-footer-nav : 1px solid silver;
 
 @background-color-global-searches :    #f3f1d9;
 @background-color-global-searches-value :    #f7f6f0;
 @border-global-searches : 1px solid silver;
+// td
+@border-right-grid-td: 1px solid #ccc;
+@border-bottom-grid-td: 0px solid #F3F6FA;
+// row
+@background-color-grid-odd : white;
+@background-color-grid-odd-hover : #E6F0FF;
+@background-color-grid-even : #F3F6FA;
+@background-color-grid-even-hover : #E6F0FF;
+@background-color-grid-selected : #B6D5FF;
+@color-grid-selected : black;
+@color-grid-number : #555;
+@background-color-grid-editable: transparent;
+@background-color-grid-editable-active : white;
+@background-color-grid-editable-changed : #ddFFdd;
+@background-color-grid-summary: #FAFAFA;
+@box-shadow-color-grid-summary: #aaa;
+@background-color-grid-page-current: #629cfc;
+
 
 //////////////////////////
 //    css
@@ -84,7 +110,7 @@ div.w2ui-grid {
 		font-size: 13px;
 		text-align: center;
 		padding: 5px 10px;
-        .linear-gradient-vertical(#DAE6F3, #C2D5ED);
+        .linear-gradient-vertical( @linear-gradiant-grid-start, @linear-gradiant-grid-end);
 		border-top-left-radius: 2px;
 		border-top-right-radius: 2px;
 		box-shadow: @box-shadow-grid-header;
@@ -93,7 +119,6 @@ div.w2ui-grid {
 	//* ===== Grid Toolbar ===== */
 
 	.w2ui-grid-toolbar {
-		//*border-top: 1px solid #efefef;*/
 		border-bottom: @border-grid-toolbar;
 		background-color: @background-color-grid-toolbar;
 		height: 34px;
@@ -113,7 +138,7 @@ div.w2ui-grid {
 		border-radius: 10px;
 		line-height: 100%;
 		height: 22px;
-		border: @border--search-all;
+		border: @border-grid-search-all;
 		padding: 3px 18px 3px 20px;
 		margin: 0px;
 	}
@@ -130,7 +155,7 @@ div.w2ui-grid {
 		margin-left: -19px;
 		margin-top: -7px;
 		border-radius: 15px;
-		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAOCAMAAAALzYw2AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAwUExURbrBybK6w/Lz9Pn5+qqzvMzR1sTK0Ors7ubo6+7w8vX297/Gzt7h5f7+/v///////z1WtgwAAAAQdFJOU////////////////////wDgI10ZAAAAwUlEQVR42myQy45DMQhDTZoQAnn8/9+Oye0sqpYFQhyBDTjf4aX4LZBp3bQe1BtqRbN/mPiNjgHCAOYDy3SyJ3eUzkmxEka4zoT6KSF29mnoe4j0XUJXTrqGWqC9WEIwdrftIVKQeq5VhIy7q1SO7QEWCdkzURnpN2G1vbu8IVtRIXpdIfXG4Ohdm51og7p5eQP1INQNfV23qedKtxSAj+ATuvPQ69bSS2bGjPh4wseHjik9ic6fvz2Lfy93y58AAwDuJQ7DzYYOggAAAABJRU5ErkJggg==) no-repeat center left;
+		.background-image( @image-search-clear, no-repeat, center, left);
 		background-position: 0px 0px;
         &:hover {
     		background-position: -14px 0px;
@@ -165,7 +190,7 @@ div.w2ui-grid {
     		border-bottom: @border-head;	
             > div {
             	padding: 7px 3px;
-                .linear-gradient-vertical(#F9F9F9, #E4E4E4);
+                .linear-gradient-vertical(@linear-gradient-grid-head-div-start, @linear-gradient-grid-head-div-end);
                 > div {
                 	white-space: nowrap;
     		        text-overflow: ellipsis;
@@ -174,8 +199,8 @@ div.w2ui-grid {
             }
         }//.w2ui-head
     td {
-		border-right: 1px solid #ccc;
-		border-bottom: 0px solid #F3F6FA;
+		border-right: 1px solid @border-right-grid-td;
+		border-bottom: 0px solid @border-bottom-grid-td;
 		cursor: default;
         &.w2ui-grid-data {
         	height: 22px;
@@ -194,19 +219,20 @@ div.w2ui-grid {
 	}
     tr{
         &.w2ui-odd {
-    		background-color: white;
+    		background-color: @background-color-grid-odd;
             &:hover {
-		        background-color: #E6F0FF;
+		        background-color: @background-color-grid-odd-hover;
 	        }
     	}
         &.w2ui-even {
-    		background-color: #F3F6FA;
+    		background-color: @background-color-grid-even;
             &:hover {
-        		background-color: #E6F0FF;
+        		background-color: @background-color-grid-even-hover;
         	}
     	}
         &.w2ui-selected {
-    		background-color: #B6D5FF !important;
+    		color: @color-grid-selected !important;
+    		background-color: @background-color-grid-selected !important;
     	}
     } //tr
     	
@@ -216,49 +242,42 @@ div.w2ui-grid {
     		margin: 0px;
     		text-align: center;
     		font-size: 10px;
-    		color: #555;
+    		color: @color-grid-number;
             div {
 		        padding: 2px 0px 0px 0px;
 	        }
         }
 	}
     .w2ui-sort-up {
-	    //*background-color: #edf5f9 !important;*/
-		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAICAMAAAD6Ou7DAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAYUExURfz9/bG3vaWss620urS6v7K5vmdyfv///y2lvy0AAAAIdFJOU/////////8A3oO9WQAAAChJREFUeNpiYEcCDGgcJjYwYAZzGFhAbFaoMhCPFaGHkRWrAQgAEGAAfVsCbFRzvrMAAAAASUVORK5CYII=) no-repeat center right !important;
+		.background-image( @image-sort-up, no-repeat, center, right, ~"!important");
 	}
     .w2ui-sort-down {
-		//*background-color: #edf5f9 !important;*/
-		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAICAMAAAD6Ou7DAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAYUExURfz9/bG3vaWss620urS6v7K5vmdyfv///y2lvy0AAAAIdFJOU/////////8A3oO9WQAAAClJREFUeNpiYEcCDJgcRlY4h4GFjY0VygGxITwgh4kNDJixGgAFAAEGAH6GAmwCu54iAAAAAElFTkSuQmCC) no-repeat center right !important;
+		.background-image( @image-sort-down, no-repeat, center, right, ~"!important");
 	}
 
 }  // .w2ui-grid-body
 	.w2ui-grid-records {
 	}
 
-
 	.w2ui-editable {
 		outline: none;
 		padding: 4px 3px;
 		border: 0px;
-		background-color: transparent;
+		background-color: @background-color-grid-editable;
 		width: 100%;
 		margin: 0px;
 		margin-top: 1px;
         &.active {
-    		background-color: white;
+    		background-color: @background-color-grid-editable-active;
     	}
         &.changed {
-    	    background-color: #ddFFdd;
+    	    background-color: @background-color-grid-editable-changed;
         }
 	}
 
-
-
-
-
 	.w2ui-grid-summary {
-		background-color: #FAFAFA;
-		box-shadow: 0px -1px 4px #aaa;
+		background-color: @background-color-grid-summary;
+		box-shadow: 0px -1px 4px @box-shadow-color-grid-summary;
 	}
 
 // ===== Grid Footer ===== 
@@ -287,16 +306,15 @@ div.w2ui-grid {
     	}
         .w2ui-page-current {
     		color: @color-grid-footer-page-current !important;
-    		background-color: #629cfc;
+    		background-color: @background-color-grid-page-current;
             .layout-grid-footer-page;
     	}
         .w2ui-page-selected {
-    		color: @color-grid-footer-page-selected!important;
-    		background-color: #808080;
+    		color: @color-grid-footer-page-selected !important;
+    		background-color: @background-color-grid-footer-page-selected;
             .layout-grid-footer-page;
     	}
 	}
-
 
 	.w2ui-footer-nav {
 		margin-top: -1px;
@@ -306,10 +324,23 @@ div.w2ui-grid {
     		border-radius: 3px;
     	}
 	}
-
-
-
-
+	// in the footer previous page, next page
+	a {
+		&.w2btn { 
+			display: inline-block; 
+			border-radius: 3px; 
+			cursor: pointer; 
+			font-size: 11px; 
+			line-height: 16px; 
+			padding: 0px 5px; 
+			width: 30px; 
+			height: 18px;
+			&:hover { 
+				background-color: @background-color-grid-btn-hover; 
+			} 
+		} 
+	}
+	
 } //div.w2ui-grid
 	div#w2ui-global-searches {
 		text-align: left;

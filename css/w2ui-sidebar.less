@@ -14,12 +14,16 @@
 @color-sidebar-node: white;
 @box-shadow-color-sidebar: #444;
 @color-sidebar-group: #707E8D;
-
+@background-color-sidebar : #F5F6F7;
+@linear-gradient-sidebar-selected-start : #3787CC;
+@linear-gradient-sidebar-selected-end : #69B1E0;
 //////////////////////////
 //    css
 //////////////////////////
 div.w2ui-sidebar {
 		cursor: default;
+		background-color: @background-color-sidebar; 
+		padding: 2px 0px;
     table {
 		width: 100%;
 	}
@@ -33,7 +37,7 @@ div.w2ui-sidebar {
 
 }
     div.w2ui-selected {
-        .linear-gradient-vertical(#3787CC, #69B1E0);
+        .linear-gradient-vertical(@linear-gradient-sidebar-selected-start, @linear-gradient-sidebar-selected-end);
 		border-top: @border-top-sidebar-selected;
 		border-bottom: @border-bottom-sidebar-selected;
         div.w2ui-node-caption, 

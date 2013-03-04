@@ -44,6 +44,17 @@
     @colorEnd : argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
     filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0); 
 }
+.linear-gradient-vertical4( @color1, @percent1, @color2, @percent2) {
+	// by default to bottom
+    background-image: -webkit-linear-gradient(@color1  @percent1 @color2 @percent2);
+    background-image: -moz-linear-gradient( @color1 @percent1, @color2 @percent2);
+    background-image: -ms-linear-gradient( @color1 @percent1, @color2 @percent2);
+    background-image: -o-linear-gradient( @color1 @percent1, @color2 @percent2);
+    background-image: linear-gradient(@color1 @percent1, @color2 @percent2);
+    @colorStart : argb(rgba(red(@color2), green(@color2), blue(@color2), 255));
+    @colorEnd : argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0); 
+}
 .linear-gradient-dark-center(@color, @colorReplace ) {
     background-image: -webkit-linear-gradient(top, @color 0%, @color 30%, @color 70%, @color 100%);
     background-image: -moz-linear-gradient(top, @color 0%, @color 30%, @color 70%, @color 100%);
@@ -52,4 +63,8 @@
     @colorStart : argb(rgba(red(@colorReplace), green(@colorReplace), blue(@colorReplace), 255));
     @colorEnd : argb(rgba(red(@colorReplace), green(@colorReplace), blue(@colorReplace), 255));
     filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0);
+}
+
+.background-image( @image, @rest...) {
+	background:  @image  @rest;
 }
