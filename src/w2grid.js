@@ -67,6 +67,7 @@
 
 		this.msgDelete			= 'Are you sure you want to delete selected record(s)?';
 		this.msgNoData			= 'There is no data.';
+                this.msgRefresh                 = 'Refreshing...';
 
 		// ----- in progress
 		this.layout				= 'table'; 	// can be 'table' or 'div'
@@ -854,7 +855,7 @@
 			if (cmd == 'get-records') this.records = [];
 			// call server to get data
 			var obj = this;
-			this.showStatus('Refreshing ');
+			this.showStatus(this.msgRefresh);
 			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
 			if (cmd == 'save-records')   xhr_type = 'PUT';  // so far it is always update
@@ -2428,7 +2429,7 @@
 				'</div>';
 		},
 
-		showStatus: function (status) {
+		showStatus: function (statusMsg) {
 			var obj = this;
 			$('#grid_'+ this.name).append(
 				'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock" style="position: absolute; display: none;"></div>'+
@@ -2449,7 +2450,7 @@
 						width 	: '100%',
 						height 	: '100%'
 					});
-					status.html('Refreshing...').css({
+					status.html(statusMsg).css({
 						opacity : status.data('old_opacity'),
 						left	: left + 'px',
 						top		: top + 'px'
