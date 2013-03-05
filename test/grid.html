@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui-1.1.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.css" /> 
 <script type="text/javascript" src="../js/jquery.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
@@ -50,7 +50,7 @@ $(function () {
 			{ caption: 'Important Dates', span: 3 }
 		],
 		columns: [				
-			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center1', style: 'text-align: right', resizable: true },
+			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
 			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
 			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true },
 			{ field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true },
@@ -59,7 +59,7 @@ $(function () {
 			{ field: 'sdate', caption: 'Release Date', size: '120px', resizable: true },
 		],
 		records: [
-			{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012', id: 1, "style": 'background-color: red; text-align: center !important' },
+			{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
 			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
 			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
 			{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },

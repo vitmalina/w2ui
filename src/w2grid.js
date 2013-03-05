@@ -13,6 +13,7 @@
 *  == 1.2 changes
 *     - find(obj, flag) - gets second argument
 *     - getFooterHTML - can now be used to overwrite entire footer now
+* 	  - new function requestComplete
 *
 ************************************************************************/
 
@@ -866,77 +867,76 @@
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
-				        obj.requestComplete(xhr, status, cmd, callBack);
+					obj.requestComplete(xhr, status, cmd, callBack);
 				}
 			});
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
                 
-                requestComplete: function(xhr, status, cmd, callBack ){
-                    this.hideStatus();
-                    this.isLoaded = true;
-                    // event before
-                    var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', data: xhr.responseText , xhr: xhr, status: status });
-                    if (eventData.stop === true) {
-                            if (typeof callBack == 'function') callBack();
-                            return false;
-                    }
-                    // if no error from the server
-                    if (status != 'error') {
-                            // default action
-                            if (typeof eventData.data != 'undefined' && eventData.data != '') {
-                                    var data;
-                                    // check if the onLoad handler has not already parsed the data
-                                    if (typeof eventData.data == "object") {
-                                            data= eventData.data
-                                    } else {
-                                            // $.parseJSON or $.getJSON did not work because it expect perfect JSON data
-                                            //  where everything is in double quotes
-                                            eval('data = '+ eventData.data); 	
-                                    }
-                                    if (typeof data['status'] != 'undefined' && data['status'] != 'success') {
-
-                                            // let the management of the error outside of the grid
-                                            if( this.trigger({ target: this.name, type: 'error', message: xhr.responseText , xhr: xhr }).stop === true) {
-                                                    if (typeof callBack == 'function') callBack();
-                                                    return false;
-                                            }
-                                            // default error management
-                                            if (xhr['status'] == 403) {
-                                                    document.location = 'login.html'
-                                                    return;
-                                            }
-                                            // need a time out because message might be already up
-                                            setTimeout(function () {
-                                                    $().w2popup('open', {
-                                                            width 	: 400,
-                                                            height 	: 180,
-                                                            showMax : false,
-                                                            title 	: 'Error',
-                                                            body 	: '<div style="padding: 15px 5px; text-align: center;">'+ data['message'] +'</div>',
-                                                            buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" style="width: 60px; margin-right: 5px;">'
-                                                    });
-                                            }, 300);
-                                    } else {
-                                            if (cmd == 'get-records') $.extend(this, data);
-                                            if (cmd == 'delete-records') { this.reload(); return; }
-                                    }
-                            }
-                    } else {
-                            // let the management of the error outside of the grid
-                            this.trigger({ target: this.name, type: 'error', message: xhr.responseText , xhr: xhr });
-                    }
-                    // event after
-                    if (this.url == '') {
-                            this.localSearch();
-                            this.localSort();
-                    }
-                    this.trigger($.extend(eventData, { phase: 'after' }));
-                    this.refresh();
-                    // call back
-                    if (typeof callBack == 'function') callBack();
-                },
+        requestComplete: function(xhr, status, cmd, callBack ){
+            this.hideStatus();
+            this.isLoaded = true;
+            // event before
+            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', data: xhr.responseText , xhr: xhr, status: status });
+            if (eventData.stop === true) {
+				if (typeof callBack == 'function') callBack();
+				return false;
+            }
+            // if no error from the server
+            if (status != 'error') {
+				// default action
+				if (typeof eventData.data != 'undefined' && eventData.data != '') {
+					var data;
+					// check if the onLoad handler has not already parsed the data
+					if (typeof eventData.data == "object") {
+						data= eventData.data
+					} else {
+						// $.parseJSON or $.getJSON did not work because it expect perfect JSON data
+						//  where everything is in double quotes
+						eval('data = '+ eventData.data); 	
+					}
+					if (typeof data['status'] != 'undefined' && data['status'] != 'success') {
+						// let the management of the error outside of the grid
+						if( this.trigger({ target: this.name, type: 'error', message: xhr.responseText , xhr: xhr }).stop === true) {
+							if (typeof callBack == 'function') callBack();
+							return false;
+						}
+						// default error management
+						if (xhr['status'] == 403) {
+							document.location = 'login.html'
+							return;
+						}
+						// need a time out because message might be already up
+						setTimeout(function () {
+							$().w2popup('open', {
+								width 	: 400,
+								height 	: 180,
+								showMax : false,
+								title 	: 'Error',
+								body 	: '<div style="padding: 15px 5px; text-align: center;">'+ data['message'] +'</div>',
+								buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" style="width: 60px; margin-right: 5px;">'
+							});
+						}, 300);
+					} else {
+						if (cmd == 'get-records') $.extend(this, data);
+						if (cmd == 'delete-records') { this.reload(); return; }
+					}
+				}
+            } else {
+				// let the management of the error outside of the grid
+				this.trigger({ target: this.name, type: 'error', message: xhr.responseText , xhr: xhr });
+            }
+            // event after
+            if (this.url == '') {
+				this.localSearch();
+				this.localSort();
+            }
+            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.refresh();
+            // call back
+            if (typeof callBack == 'function') callBack();
+        },
 
 		getChanged: function () {
 			// build new edits
