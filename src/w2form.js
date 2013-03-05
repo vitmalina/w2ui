@@ -405,8 +405,9 @@
 				switch (String(field.type).toLowerCase()) {
 					case 'date': // to yyyy-mm-dd format
 						var dt = params.record[field.name];
-						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy') {
-							var tmp = dt.replace(/-/g, '/').split('/');
+						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
+								|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+							var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
 							var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
 						}
 						params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
@@ -579,8 +580,9 @@
 					case 'date':
 						if (!field.options) field.options = {};
 						if (!field.options.format) field.options.format = 'mm/dd/yyyy';
-						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy') {
-							var tmp = value.replace(/-/g, '/').split('/');
+						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
+								|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+							var tmp = value.replace(/-/g, '/').replace(/\./g, '/').split('/');
 							field.el.value = w2utils.formatDate(tmp[2]+'-'+tmp[1]+'-'+tmp[0], field.options.format);
 						} else {
 							field.el.value = w2utils.formatDate(value, field.options.format);

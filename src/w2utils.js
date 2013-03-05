@@ -86,8 +86,9 @@ var w2utils = (function () {
 			return true;
 		}
 		// European format dd/mm/yyyy
-		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy') {
-			val = val.replace(/-/g, '/');
+		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy' 
+				|| format.toLowerCase() == 'dd.mm.yyyy') {
+			val = val.replace(/-/g, '/').replace(/\./g, '/');
 			if (val.split("/").length != 3) return false; 
 			var month	= val.split("/")[1];
 			var day		= val.split("/")[0];
@@ -96,7 +97,7 @@ var w2utils = (function () {
 			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
 			return true;
 		}
-		// Other formats
+ 		// Other formats
 		var dt = new Date(val);
 		if (dt == 'Invalid Date') return false;
 		// make sure it is in correct format

@@ -6,13 +6,13 @@
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script>
 	$(function () {
-		$('#dt').w2field({ type: 'date', format: 'Mon dd, yyyy' });
+		$('#dt').w2field({ type: 'date', format: 'mm.dd.yyyy' });
 		$('#dt2').w2field({ type: 'list', items: ['item1', 'item2'], showNone: false });
 	});
 </script>
 <body>
 	<div style="padding: 10px">
-		<input type="text" id="dt" value="11/5/1977"/>
+		<input type="text" id="dt" value="11.5.1977"/>
 		<select type="text" id="dt2" onchange="console.log('change: '+this.value);"></select>
 	</div>
 </body>

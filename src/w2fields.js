@@ -130,7 +130,7 @@
 					case 'date':
 						var obj = this;
 						var defaults = {
-							format 		: 'mm/dd/yyyy', 	// date format
+							format 		: w2utils.settings.date_format, // date format
 							start   	: '',				// start of selectable range
 							end 		: '',				// end of selectable range
 							blocked     : {}, 				// {'4/11/2011': 'yes'}
@@ -651,8 +651,9 @@
 			if (date == '' || String(date) == 'undefined') date = w2utils.formatDate(today, options.format); 
 			if (!w2utils.isDate(date, options.format)) date = w2utils.formatDate(today, options.format);
 			
-			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy') {
-				var tmp = date.replace(/-/g, '/').split('/');
+			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy' 
+					|| options.format.toLowerCase() == 'dd.mm.yyyy') {
+				var tmp = date.replace(/-/g, '/').replace(/\./g, '/').split('/');
 				var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
 			} else {				
 				var dt = new Date(date);
