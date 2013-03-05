@@ -86,8 +86,9 @@ var w2utils = (function () {
 			return true;
 		}
 		// European format dd/mm/yyyy
-		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy') {
-			val = val.replace(/-/g, '/');
+		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy' 
+				|| format.toLowerCase() == 'dd.mm.yyyy') {
+			val = val.replace(/-/g, '/').replace(/\./g, '/');
 			if (val.split("/").length != 3) return false; 
 			var month	= val.split("/")[1];
 			var day		= val.split("/")[0];
@@ -96,7 +97,7 @@ var w2utils = (function () {
 			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
 			return true;
 		}
-		// Other formats
+ 		// Other formats
 		var dt = new Date(val);
 		if (dt == 'Invalid Date') return false;
 		// make sure it is in correct format
@@ -1702,30 +1703,50 @@ $.w2event = {
 						if (typeof callBack == 'function') callBack();
 						return false;
 					}
-					// default action
-					if (typeof eventData.data != 'undefined' && eventData.data != '') {
-						var data = 'data = '+ eventData.data; 	// $.parseJSON or $.getJSON did not work because it expect perfect JSON data
-						var data = eval(data);					//  where everything is in double quotes
-						if (typeof data['status'] != 'undefined' && data['status'] != 'success') {
-							if (xhr['status'] == 403) {
-								document.location = 'login.html'
-								return;
+					// if no error from the server
+					if (status != 'error') {
+						// default action
+						if (typeof eventData.data != 'undefined' && eventData.data != '') {
+							var data;
+							// check if the onLoad handler has not already parsed the data
+							if (typeof eventData.data == "object") {
+								data= eventData.data
+							} else {
+								// $.parseJSON or $.getJSON did not work because it expect perfect JSON data
+								//  where everything is in double quotes
+								eval('data = '+ eventData.data); 	
 							}
-							// need a time out because message might be already up
-							setTimeout(function () {
-								$().w2popup('open', {
-									width 	: 400,
-									height 	: 180,
-									showMax : false,
-									title 	: 'Error',
-									body 	: '<div style="padding: 15px 5px; text-align: center;">'+ data['message'] +'</div>',
-									buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" style="width: 60px; margin-right: 5px;">'
-								});
-							}, 300);
-						} else {
-							if (cmd == 'get-records') $.extend(obj, data);
-							if (cmd == 'delete-records') { obj.reload(); return; }
+							if (typeof data['status'] != 'undefined' && data['status'] != 'success') {
+							
+								// let the management of the error outside of the grid
+								if( obj.trigger({ target: obj.name, type: 'error', message: xhr.responseText , xhr: xhr }).stop === true) {
+									if (typeof callBack == 'function') callBack();
+									return false;
+								}
+								// default error management
+								if (xhr['status'] == 403) {
+									document.location = 'login.html'
+									return;
+								}
+								// need a time out because message might be already up
+								setTimeout(function () {
+									$().w2popup('open', {
+										width 	: 400,
+										height 	: 180,
+										showMax : false,
+										title 	: 'Error',
+										body 	: '<div style="padding: 15px 5px; text-align: center;">'+ data['message'] +'</div>',
+										buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" style="width: 60px; margin-right: 5px;">'
+									});
+								}, 300);
+							} else {
+								if (cmd == 'get-records') $.extend(obj, data);
+								if (cmd == 'delete-records') { obj.reload(); return; }
+							}
 						}
+					} else {
+						// let the management of the error outside of the grid
+						obj.trigger({ target: obj.name, type: 'error', message: xhr.responseText , xhr: xhr });
 					}
 					// event after
 					if (obj.url == '') {
@@ -2976,7 +2997,7 @@ $.w2event = {
 												(col.sortable ? 'onclick="w2ui[\''+ this.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') +
 										'		style="height: auto !important; '+ (i == this.columns.length -1 ? 'border-right: 1px solid transparent;' : '') +'">'+
 										'<div><div class="'+ sortStyle +'" style="height: auto !important; cursor: default; width: 100%; overflow: hidden;">'+  
-											col.caption +
+											(col.caption == '' ? '&nbsp;' : col.caption) +
 										'</div></div>'+ resizer +'</td>';
 							}
 						}
@@ -6148,7 +6169,7 @@ $.w2event = {
 			return $(this).each(function (field, index) {
 				// Check for Custom Types
 				if (typeof w2field.customTypes[options.type.toLowerCase()] == 'function') {
-					w2field.customTypes[options.type.toLowerCase()].apply(this, arguments);
+					w2field.customTypes[options.type.toLowerCase()].call(this, options);
 					return;
 				}  
 				// Common Types
@@ -6754,8 +6775,9 @@ $.w2event = {
 			if (date == '' || String(date) == 'undefined') date = w2utils.formatDate(today, options.format); 
 			if (!w2utils.isDate(date, options.format)) date = w2utils.formatDate(today, options.format);
 			
-			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy') {
-				var tmp = date.replace(/-/g, '/').split('/');
+			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy' 
+					|| options.format.toLowerCase() == 'dd.mm.yyyy') {
+				var tmp = date.replace(/-/g, '/').replace(/\./g, '/').split('/');
 				var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
 			} else {				
 				var dt = new Date(date);
@@ -7304,8 +7326,9 @@ $.w2event = {
 				switch (String(field.type).toLowerCase()) {
 					case 'date': // to yyyy-mm-dd format
 						var dt = params.record[field.name];
-						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy') {
-							var tmp = dt.replace(/-/g, '/').split('/');
+						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
+								|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+							var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
 							var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
 						}
 						params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
@@ -7478,8 +7501,9 @@ $.w2event = {
 					case 'date':
 						if (!field.options) field.options = {};
 						if (!field.options.format) field.options.format = 'mm/dd/yyyy';
-						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy') {
-							var tmp = value.replace(/-/g, '/').split('/');
+						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
+								|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+							var tmp = value.replace(/-/g, '/').replace(/\./g, '/').split('/');
 							field.el.value = w2utils.formatDate(tmp[2]+'-'+tmp[1]+'-'+tmp[0], field.options.format);
 						} else {
 							field.el.value = w2utils.formatDate(value, field.options.format);
