@@ -1,0 +1,122 @@
+/*************************************************
+* ---- Sidebar ----
+*/
+
+div.w2ui-sidebar {
+	cursor: default;
+	background-color: @sidebar-background-color; 
+
+	div.w2ui-sidebar-div {
+		padding: 2px 0px;
+		.user-select;
+
+		table {
+			width: 100%;
+		}
+
+		div.w2ui-node {
+			.linear-gradient-vertical(@sidebar-node-linear-gradient-start, @sidebar-node-linear-gradient-end);
+			border-top: @sidebar-node-border-top;
+			border-bottom: @sidebar-node-border-bottom;
+			margin: 0px;
+			padding: 1px 0px;
+		}
+
+		div.w2ui-selected {
+			.linear-gradient-vertical(@sidebar-node-selected-linear-gradient-start, @sidebar-node-selected-linear-gradient-end);
+			border-top: @sidebar-node-selected-border-top;
+			border-bottom: @sidebar-node-selected-border-bottom;
+
+			div.w2ui-node-caption, 
+			div.w2ui-node-image, 
+			div.w2ui-node-image > span, 
+			td.w2ui-node-dots {
+				color: @sidebar-node-selected-icon-color !important;
+				text-shadow: @sidebar-node-selected-icon-shadow !important;
+			}
+		}
+
+		div.w2ui-disabled {
+			div.w2ui-node-caption, 
+			div.w2ui-node-image, 
+			td.w2ui-node-dots {
+				.opacity(0.4);
+			}
+		}
+
+		div.w2ui-node-caption {
+			white-space: nowrap;
+			padding: 5px 0px 5px 3px;
+			margin: 1px 0px 1px 22px;
+			position: relative;
+			z-index: 1;
+			font-size: 12px;
+		}
+
+		div.w2ui-node-group {
+			white-space: nowrap;
+			overflow: hidden;
+			margin: 10px 0px 5px 8px;
+			cursor: default;
+
+			:nth-child(1) { 
+				/* show / hide link */		
+				margin-right: 10px;
+				float: right; 
+				color: transparent;
+			}
+
+			:nth-child(2) { 
+				/* title text */		
+				font-weight: bold;
+				color: @sidebar-group-color;
+				text-transform: uppercase;
+			}
+		}
+
+		div.w2ui-node-sub {
+			overflow: hidden;
+		}
+
+		td.w2ui-node-dots {
+			width: 18px;
+			padding: 0px 0px 1px 7px;
+			text-align: center;
+
+			.w2ui-expand {
+				width: 16px;
+				margin-top: -3px;
+			}
+		}
+
+		td.w2ui-node-data {
+			padding: 1px 1px 3px 1px;
+
+			div.w2ui-node-image {
+				padding: 3px 0px 0px 0px;
+				float: left;
+				// for font-awesome icons
+				& > span {
+					font-size: 18px !important;
+					color: @sidebar-node-icon-color;
+					text-shadow: @sidebar-node-icon-shadow;
+				}
+			}
+
+			div.w2ui-node-count {
+				float: right;
+				border: @sidebar-node-count-border;
+				border-radius: 20px;
+				width: auto; 
+				height: 21px;
+				padding: 2px 5px;
+				margin: 2px 4px -2px 0px;
+				background-color: @sidebar-node-count-background-color;
+				color: @sidebar-node-count-color;
+				box-shadow: @sidebar-node-count-shadow;
+				position: relative;
+				z-index: 2;
+			}
+	 	}
+	 }
+}

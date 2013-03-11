@@ -1,0 +1,146 @@
+/*************************************************
+* ---- Popup ----
+*/
+
+div.w2ui-popup {
+	position: fixed;
+	z-index: 1200;
+	font-family: verdana;
+	border-radius: 6px;
+	padding: 0px;
+	margin: 0px;
+	border: @popup-border;
+	background-color: @popup-body-background-color;
+	box-shadow: @popup-shadow;
+	
+	&,* {
+		.box-sizing;
+		text-shadow: 0px 0px 0px transparent;
+		color: black;
+	}
+
+	div.w2ui-msg-title {
+		padding: 6px;
+		border-radius: 6px 6px 0px 0px;
+		.linear-gradient-vertical(@popup-title-linear-gradient-start, @popup-title-linear-gradient-end);				
+		border-bottom: @popup-title-border-bottom;
+		position: absolute;
+		overflow: hidden;
+		height: 32px;
+		left: 0px;
+		right: 0px;
+		top: 0px;
+		text-overflow: ellipsis;
+		text-align: center;
+		.user-select;
+		cursor: move;
+		font-size: 15px;
+		color: @popup-title-color;
+	}
+
+	div.w2ui-msg-button {
+		float: right;
+		width: 18px;
+		height: 18px;
+		cursor: pointer;
+		overflow: hidden;
+		padding: 0px;
+		margin: 0px 3px 0px 0px;
+		.background-image(@image-popup-button, no-repeat, center, left);
+		background-position: 0px 0px;
+		color: @popup-title-button-color !important;
+		border-radius: 3px;
+		border: @popup-title-button-border;
+	}
+
+	div.w2ui-msg-close {
+		margin-top: 0px;
+		background-position: -32px 0px;
+		&:hover {
+			background-color: @popup-title-close-background-color;
+			border: @popup-title-close-border;
+		}
+	}
+
+	div.w2ui-msg-max {
+		background-position: -16px 0px;
+		&:hover {
+			background-color: @popup-title-max-background-color;
+			border: @popup-title-max-border;
+		}
+	}
+
+	div.w2ui-box1, div.w2ui-box2 { // w2ui-box1 & w2ui-box2 needd for transitions
+		position: absolute;
+		left: 0px;
+		right: 0px;
+		top: 32px;
+		bottom: 35px;
+	}
+
+	div.w2ui-msg-body {
+		font-size: 13px;
+		line-height: 130%;
+		padding: 7px;
+		color: @popup-body-color;
+		background-color: @popup-body-background-color;
+		position: absolute;
+		overflow: auto;
+		width: 100%;
+		height: 100%;
+
+		div.w2ui-popup-message { // slide down message
+			background-color: @popup-message-background-color; 
+			border: @popup-message-border; 
+			box-shadow: @popup-message-shadow;
+			.box-sizing; 
+			border-top: 0px; 
+			border-radius: 0px 0px 6px 6px; 
+		}
+
+		// == w2alert, w2confirm	
+		div.w2ui-alert-body, div.w2ui-confirm-body {
+			padding: 12px; 
+			padding-right: 24px; 
+			text-align: center
+		}
+	}
+
+	div.w2ui-msg-buttons {
+		padding: 8px;
+		border-radius: 0px 0px 6px 6px;
+		border-top: @popup-buttons-border-top;
+		background-color: @popup-buttons-background-color;
+		text-align: center;
+		position: absolute;
+		overflow: hidden;
+		height: 42px;
+		left: 0px;
+		right: 0px;
+		bottom: 0px;
+		z-index: 1021;
+		input[type="button"], button {
+			.sys-button;
+			&:hover { .sys-button-hover; }
+			&:active { .sys-button-active; }
+		}
+
+		// == w2alert, w2confirm
+		.w2ui-alert-button, .w2ui-confirm-button {
+			width: 60px; 
+			margin-right: 5px
+		}
+	}
+
+	div.w2ui-msg-no-title {
+		border-top-left-radius: 6px;
+		border-top-right-radius: 6px;
+		top: 0px !important;
+	}
+
+	div.w2ui-msg-no-buttons {
+		border-bottom-left-radius: 6px;
+		border-bottom-right-radius: 6px;
+		bottom: 0px !important;
+	}
+}

@@ -1,0 +1,147 @@
+/*************************************************
+* --- Reset (used for all w2ui wdigetes)
+* --- The reset is needed to coexist with other CSS
+* --- on the same page (for example bootstrap)
+*/
+
+.w2ui-reset {
+	 * {
+		color: default;
+		font-family: verdana;
+		font-size: 11px;
+		font-weight: normal;
+		line-height: 100%;
+		.box-sizing;
+		margin: 0px;
+		padding: 0px;
+	}
+	table {
+		max-width: none;
+		background-color: transparent;
+		border-collapse: separate;
+		border-spacing: 0;
+	}
+	& input, & textarea {
+		width: auto;
+		height: auto;
+		vertical-align: baseline;
+		padding: 4px;
+	}
+	select {
+		padding: 1px;
+		height: 23px;
+	}
+}
+
+/*************************************************
+* ---- Overlay and Bubble ----
+*/
+
+div.w2ui-overlay {
+	position: absolute;
+	margin-top: 6px;
+	margin-left: -30px;
+	display: none;
+	z-index: 1600;
+	background-color: @overlay-background-color;
+	border: @overlay-border;
+	box-shadow: @overlay-shadow;
+	border-radius: 4px;
+	text-align: left;
+    &:before {
+        content: "";
+    	position: absolute;
+    	z-index: 1601;
+        .transform-rotate(-45deg);
+    	width: 10px;
+    	height: 10px;
+    	border: @overlay-border;
+    	border-color: inherit;
+    	background-color: inherit;
+    	border-left: 0px;
+    	border-bottom: 0px;
+    	margin: -9px 0 0 45px;
+    }
+}
+
+div.bubble-tag {
+	background-color: @bubble-tag-background-color;
+	display: inline-block;
+	position: absolute;
+	z-index: 1500;
+	border-radius: 4px;
+	padding: 4px 10px;
+	margin-left: 10px;
+	margin-top: 0px;
+	color: @bubble-tag-color !important;
+	box-shadow: @bubble-tag-shadow;
+	line-height: normal;
+	font-size: 11px;
+	font-family: verdana;
+	&:before {
+		content: "";
+		position: absolute;
+		width: 0;
+		height: 0;
+		border-top: 5px solid transparent;
+		border-right: 5px solid @bubble-tag-background-color;
+		border-bottom: 5px solid transparent;
+		margin: 2px 0 0 -15px;
+	}
+}
+
+/*************************************************
+* ---- Common Classes ----
+*/
+
+.w2ui-highlight {
+	background-color: #ffa;
+}
+
+.w2ui-icon {
+	background-repeat: no-repeat;
+	height: 16px;
+	width: 16px;
+	overflow: hidden;
+	margin: 2px 2px;
+	display: inline-block;
+	&.icon-reload {
+		.background-image(@image-reload, no-repeat, center);
+	}
+
+	&.icon-columns {
+		.background-image(@image-columns, no-repeat, center, ~"!important");
+	}
+
+	&.icon-search, &.icon-search-down {
+		.background-image(@image-search, no-repeat, center, ~"!important");
+	}
+
+	&.icon-add {
+		.background-image(@image-add, no-repeat, center, ~"!important");
+	}
+
+	&.icon-delete {
+		.background-image(@image-delete, no-repeat, center, ~"!important");
+	}
+
+	&.icon-save {
+		.background-image(@image-save, no-repeat, center, ~"!important");
+	}
+
+	&.icon-edit {
+		.background-image(@image-edit, no-repeat, center, ~"!important");
+	}
+
+	&.icon-bullet-black {
+		.background-image(@image-bullet-black, no-repeat, center, ~"!important");
+	}
+
+	&.icon-folder {
+		.background-image(@image-folder, no-repeat, center, ~"!important");
+	}
+
+	&.icon-page {
+		.background-image(@image-page, no-repeat, center, ~"!important");
+	}
+}

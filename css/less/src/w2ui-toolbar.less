@@ -1,0 +1,111 @@
+/*************************************************
+* ---- Toolbar ----
+*/
+
+div.w2ui-toolbar {
+	overflow: hidden;
+	margin: 0px;
+	padding: 2px;
+	outline: 0px;
+	.user-select;
+	.box-sizing;
+	&, & * {
+	}
+	.disabled {
+		.opacity(0.2)
+	}
+	table {
+		&.w2ui-button {
+			margin: 0px 1px;
+			border-radius: @toolbar-button-border-radius;
+			height: 24px;
+			border: @toolbar-button-border;
+			background-color: @toolbar-button-background-color;
+			.w2ui-tb-image {
+				width: 16px;
+				height: 16px;
+				padding: 0px;
+				margin: 3px 3px 3px 3px !important;
+				border: 0px !important;
+			}
+			.w2ui-tb-caption {
+				color: @toolbar-button-color;
+				padding: 0px 4px 0px 2px;
+			}
+			.w2ui-tb-down {
+				width: 12px;
+				height: 24px;
+				display: block;
+				.background-image(@image-tb-down, no-repeat, center, right);
+			}
+			&.over {
+				border: @toolbar-button-over-border;
+				background-color: @toolbar-button-over-background-color;
+				& .w2ui-tb-caption {
+					color: @toolbar-button-over-color;
+				}
+			}
+			&.down {
+				border: @toolbar-button-down-border;
+				background-color: @toolbar-button-down-background-color;
+				& .w2ui-tb-caption {
+					color: @toolbar-button-down-color;
+				}
+			}
+			&.checked {
+				border: @toolbar-button-checked-border;
+				background-color: @toolbar-button-checked-background-color;
+				& .w2ui-tb-caption {
+					color: @toolbar-button-checked-color;
+				}
+			}
+		}
+		&.w2ui-button table {
+			height: 17px;
+			border-radius: @toolbar-button-border-radius;
+			cursor: default;
+		}
+	} 
+
+	div.w2ui-break {
+		.linear-gradient-dark-center(@toolbar-break-color); 
+		width: 1px !important;
+		height: 22px;
+		padding: 0px;
+		margin: 0px 6px;
+   }
+
+   div.w2ui-drop-box {
+		position: absolute;
+		display: none;
+		z-index: 1600;
+		margin-top: -1px;
+	}
+}
+
+#w2ui-global-drop {
+	position: absolute;
+	display: none;
+	z-index: 1600;
+	border: @toolbar-drop-border;
+	box-shadow: @toolbar-drop-shadow;
+	border-radius: 2px;
+	text-align: left;
+	margin-left: 2px;
+	color: @toolbar-drop-color;
+	background-color: @toolbar-drop-background-color;
+	& table {
+		padding: 5px 0px;
+		cursor: default;
+	}
+	& tr td:first-child {
+		padding: 4px 0px 4px 6px
+	}
+	& tr td:last-child {
+		padding: 4px 15px 4px 4px
+	}
+	& tr.w2ui-selected {
+		color: @toolbar-drop-selected-color;
+		background-color: @toolbar-drop-selected-background-color;
+	}
+}

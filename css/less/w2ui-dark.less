@@ -1,17 +1,16 @@
-////////////////////////
-//		main
-////////////////////////
+// ******************************************
+// ---- Drak Theme ----
+//
 
-
-@import "../w2ui-mixins.less";
-@import "w2ui-images-dark.less";
-//@import "../w2ui-images-dev.less";
-@import "../w2ui-common.less";
+@import "src/w2ui-mixins.less";
+@import "src/w2ui-images-dark.less";
+//@import "src/w2ui-images-dev.less";
+@import "src/w2ui-common.less";
 
 //////////////////////////
 //    reset
 //////////////////////////
-@import "../w2ui-reset.less";
+
 //global variables for the theme
 @background-color-theme : black;
 @color-theme : white;
@@ -21,7 +20,7 @@
 //////////////////////////
 //    Calendar
 //////////////////////////
-@import "../w2ui-calendar.less";
+@import "src/w2ui-calendar.less";
 @border-calendar: 1px solid #aaa;
 @shadow-calendar : #282828;
 @border-calendar-title: 1px solid #999;
@@ -50,9 +49,9 @@
 @background-color-calendar-day-empty: snow;
 
 //////////////////////////
-//    enumlist
+//    enum-list
 //////////////////////////
-@import "../w2ui-enumlist.less";
+@import "src/w2ui-enum-list.less";
 @color-list : @color-theme;
 @border-list: 1px solid silver; 
 @background-color-list: @background-color-theme; 
@@ -63,7 +62,7 @@
 //////////////////////////
 //    form
 //////////////////////////
-@import "../w2ui-form.less";
+@import "src/w2ui-form.less";
 @background-color-form: @background-color-theme; 
 @border-form: 1px solid white;
 @background-color-form-group: #282828;
@@ -107,7 +106,7 @@
 //////////////////////////
 //    grid
 //////////////////////////
-@import "../w2ui-grid.less";
+@import "src/w2ui-grid.less";
 // global variables
 @shadow-color : #919191;
 
@@ -175,7 +174,7 @@
 //////////////////////////
 //    layout
 //////////////////////////
-@import "../w2ui-layout.less";
+@import "src/w2ui-layout.less";
 @background-color-layout-splitter: whitesmoke;
 @background-color-layout : black;
 @color-layout : @color-theme;
@@ -183,7 +182,7 @@
 //////////////////////////
 //    overlay
 //////////////////////////
-@import "../w2ui-overlay.less";
+@import "src/w2ui-overlay.less";
 @background-color-overlay: #F7F7F7;
 @border-overlay: 3px solid #777;
 @box-shadow-color-overlay: black;
@@ -193,7 +192,7 @@
 //////////////////////////
 //    sidebar
 //////////////////////////
-@import "../w2ui-sidebar.less";
+@import "src/w2ui-sidebar.less";
 @border-sidebar-node: 1px solid transparent;
 @border-top-sidebar-selected: 1px solid #5DA5DA;
 @border-bottom-sidebar-selected: 1px solid #347BBC;
@@ -211,7 +210,7 @@
 //////////////////////////
 //    tabs
 //////////////////////////
-@import "../w2ui-tab.less";
+@import "src/w2ui-tabs.less";
 @background-color-tabs: @background-color-theme;
 @color-tabs: @color-theme;
 @border-tabs-tab: 1px solid silver;
@@ -223,7 +222,7 @@
 //////////////////////////
 //    popup
 //////////////////////////
-@import "../w2ui-popup.less";
+@import "src/w2ui-popup.less";
 @background-color-popup-main : @background-color-theme;
 @border-popup : 1px solid #E8E8E8;
 @background-color-popup: @background-color-popup-main;
@@ -259,7 +258,7 @@
 //////////////////////////
 //    toolbar
 //////////////////////////
-@import "../w2ui-toolbar.less";
+@import "src/w2ui-toolbar.less";
 @background-color-toolbar: @background-color-theme; 
 @background-image-toolbar-start: #282828;;
 @background-image-toolbar-start-percent: 0%;

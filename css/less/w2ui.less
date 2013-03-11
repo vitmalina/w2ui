@@ -1,0 +1,274 @@
+// ******************************************
+// ---- Default Theme ----
+//
+
+@import "src/w2ui-mixins.less";
+@import "src/w2ui-images.less";
+
+// ******************************************
+// ---- If you need to redefine system button
+// ---- used in w2form, w2popup
+//
+
+.sys-button () {
+	// border-radius : 3px;
+	// border: 1px solid darkgray;
+	// background-color: #efefef;
+	// color: black;
+}
+
+.sys-button-hover () {
+	// color: black;
+	// background-color: darkgray;
+}
+
+.sys-button-active () {
+	// color: white;
+	// background-color: darkgray;
+}
+
+// ******************************************
+// ---- Common, Overlay, Bubble ----
+//
+
+@overlay-border: 3px solid #777;
+@overlay-background-color: #FbFbFb;
+@overlay-shadow: 0px 3px 8px #999;
+@bubble-tag-background-color: rgba(60,60,60,0.82);
+@bubble-tag-color: white;
+@bubble-tag-shadow: 1px 1px 3px #aaa;
+
+@import "src/w2ui-common.less";
+
+// ******************************************
+// ---- Fields: Calendar, Enum ----
+//
+
+@calendar-border: 1px solid #aaa;
+@calendar-shadow: 2px 2px 8px #bbb;
+@calendar-title-color: black;
+@calendar-title-border-bottom: 1px solid #999;
+@calendar-title-gradient-start: #E6E6E6;
+@calendar-title-gradient-end: #C2C4C4;
+@calendar-button-color: #666;
+@calendar-button-border: 1px solid transparent;
+@calendar-button-hover-background-color: #efefef;
+@calendar-button-hover-border: 1px solid silver;
+@calendar-day-border: 1px solid #e8e8e8;
+@calendar-day-color: black;
+@calendar-day-background-color: #f4f4fe;
+@calendar-day-title-border: 1px solid #e8e8e8;
+@calendar-day-title-color: gray;
+@calendar-day-title-background-color: #e8e8e8;
+@calendar-day-empty-border: 1px solid #e8e8e8 !important;
+@calendar-day-empty-color: inherit;
+@calendar-day-empty-background-color: #f4f4fe;
+@calendar-day-today-border: 1px solid #8cb067;
+@calendar-day-today-color: black;
+@calendar-day-today-background-color: #e2f7cd;
+@calendar-day-hover-border: 1px solid #aaa;
+@calendar-day-hover-color: black;
+@calendar-day-hover-background-color: yellow;
+@calendar-day-weekend-border: 1px solid #e8e8e8;
+@calendar-day-weekend-color: #c8493b;
+@calendar-day-weekend-background-color: #f4f4fe;
+@calendar-day-blocked-border: inherit;
+@calendar-day-blocked-color: gray;
+@calendar-day-blocked-background-color: #e8e8e8;
+
+@list-color: inherit;
+@list-border: 1px solid silver; 
+@list-background-color: white; 
+@list-item-border: 1px solid #bbb;
+@list-item-background-color: #fafafa;
+@dropdown-border: 3px solid #777;
+@dropdown-shadow: 0px 3px 8px #999;
+@dropdown-item-even-color: inherit;
+@dropdown-item-even-background-color: #FFF;
+@dropdown-item-odd-color: inherit;
+@dropdown-item-odd-background-color: #F3F6FA;
+@dropdown-item-selected-color: inherit;
+@dropdown-item-selected-background-color: #B6D5FF;
+@dropdown-item-padding: 5px;
+
+@import "src/w2ui-fields.less";
+
+// ******************************************
+// ---- Form ----
+
+@form-background-color: #F5F6F7; 
+@form-border: 0px solid #EAEBEE;
+@form-tabs-background-color: #fafafa;
+@form-group-background-color: #EBECEF;
+@form-group-border: 1px solid #C3D4DE;
+@form-input-border: 1px solid #bbb;
+@form-input-border-radius: 3px;
+@form-input-background-color: white;
+@form-required-color: red;
+@form-buttons-border-top: 1px solid #d5d8d8;
+@form-buttons-border-bottom: 1px solid #d5d8d8;
+@form-buttons-background-color: #fafafa;
+@form-error-border: 1px solid #FFA8A8;
+@form-error-background-color: #FFF4EB;
+@form-select-border: 1px solid #bbb;
+@form-step-label: 20px;
+@form-step-field: 8;
+
+@import "src/w2ui-form.less";
+
+// ******************************************
+// ---- Layout ----
+//
+
+@layout-color: inherit;
+@layout-background-color: inherit;
+@layout-splitter-background-color: #D7E4F2;
+
+@import "src/w2ui-layout.less";
+
+// ******************************************
+// ---- Grid ----
+//
+
+@grid-border: 1px solid silver;
+@grid-background-color: white;
+@grid-lock-background-color: #333;
+@grid-status-background-color: #555;
+@grid-status-color: white;
+@grid-status-border: 2px solid #444;
+@grid-header-color: #444;
+@grid-header-linear-gradiant-start: #DAE6F3;
+@grid-header-linear-gradiant-end: #C2D5ED;
+@grid-header-border-bottom: 1px solid #99bbe8;
+@grid-toolbar-border: 1px solid silver;
+@grid-toolbar-background-color: #DCE0E6;
+@grid-toolbar-shadow: 0px 1px 2px #ddd;
+@grid-search-all-border: 1px solid #999;
+@grid-search-all-background-color: white;
+@grid-searches-border: 1px solid silver;
+@grid-searches-background-color: #f3f1d9;
+@grid-searches-inner-border: 1px solid silver;
+@grid-searches-value-background-color: #f7f6f0;
+@grid-searches-input-border: 1px solid silver;
+@grid-headers-shadow: 0px 1px 4px #ddd;
+@grid-headers-border: 1px solid #c5c5c5;
+@grid-headers-linear-gradient-start: #F9F9F9;
+@grid-headers-linear-gradient-end: #E4E4E4;
+@grid-row-odd-color: inherit;
+@grid-row-odd-background-color: white;
+@grid-row-even-color: inherit;
+@grid-row-even-background-color: #F3F6FA;
+@grid-row-hover-color: inherit;
+@grid-row-hover-background-color: #E6F0FF;
+@grid-row-selected-color: black;
+@grid-row-selected-background-color: #B6D5FF;
+@grid-row-border-right: 1px solid #D6D5D7;
+@grid-row-border-bottom: 0px solid #D6D5D7;
+@grid-row-number-color: #555;
+@grid-row-number-background-color: inherit;
+@grid-editable-background-color: transparent;
+@grid-editable-active-background-color: white;
+@grid-editable-changed-background-color: #ddFFdd;
+@grid-summary-color: inherit;
+@grid-summary-background-color: #FAFAFA;
+@grid-summary-shadow: 0px -1px 4px #aaa;
+@grid-footer-background-color: #F0F0F0;
+@grid-footer-border-top: 1px solid silver;
+@grid-footer-shadow: 0px -1px 4px #ddd;
+@grid-footer-btn-background-color: transparent; 
+@grid-footer-btn-hover-background-color: #AEC8FF; 
+@grid-footer-input-border: 1px solid silver;
+@grid-footer-input-background-color: white;
+
+@import "src/w2ui-grid.less";
+
+// ******************************************
+// ---- Sidebar ----
+//
+
+@sidebar-background-color: #F5F6F7;
+@sidebar-group-color: #707E8D;
+@sidebar-node-border-top: 1px solid transparent;
+@sidebar-node-border-bottom: 1px solid transparent;
+@sidebar-node-linear-gradient-start: rgba(0,0,0,0);
+@sidebar-node-linear-gradient-end: rgba(0,0,0,0);
+@sidebar-node-selected-border-top: 1px solid #4C8EC3;
+@sidebar-node-selected-border-bottom: 1px solid #14315B;
+@sidebar-node-selected-linear-gradient-start: #69B1E0;
+@sidebar-node-selected-linear-gradient-end: #3787CC;
+@sidebar-node-selected-icon-color: white;
+@sidebar-node-selected-icon-shadow: 1px 1px 2px #666;
+@sidebar-node-icon-color: #676F86;
+@sidebar-node-icon-shadow: 1px 1px 2px #f4f4f4;
+@sidebar-node-count-border: 2px solid white;
+@sidebar-node-count-background-color: #57A7E9;
+@sidebar-node-count-shadow: 0px 0px 5px #444;
+@sidebar-node-count-color: white;
+
+@import "src/w2ui-sidebar.less";
+
+// ******************************************
+// ---- Tabs ----
+//
+
+@tabs-background-color: #efefef;
+@tabs-tab-border: 1px solid silver; 
+@tabs-tab-border-bottom: 1px solid transparent;
+@tabs-tab-active-background-color: #fff;
+@tabs-tab-close-border: 2px solid transparent;
+
+@import "src/w2ui-tabs.less";
+
+// ******************************************
+// ---- Popup ----
+//
+
+@popup-border: 1px solid #777;
+@popup-shadow: 0px 0px 25px #555;
+@popup-title-border-bottom: 2px solid #BFBFBF;
+@popup-title-color: #555;
+@popup-title-linear-gradient-start: #ECECEC;
+@popup-title-linear-gradient-end: #DFDFDF;
+@popup-title-button-border: 1px solid transparent;
+@popup-title-button-color: transparent;
+@popup-title-max-background-color: #ccc;
+@popup-title-max-border: 1px solid #aaa;
+@popup-title-close-background-color: #ccc;
+@popup-title-close-border: 1px solid #aaa;
+@popup-body-color: #000;
+@popup-body-background-color: #eee; 
+@popup-buttons-border-top: 1px solid #d5d8d8;
+@popup-buttons-background-color: #F1F1F1;
+// slide down message
+@popup-message-background-color: #F9F9F9;
+@popup-message-border: 1px solid #aaa; 
+@popup-message-shadow: 0px 0px 15px #aaa;
+
+@import "src/w2ui-popup.less";
+
+// ******************************************
+// ---- Toolbar ----
+//
+
+@toolbar-button-border-radius: 4px;
+@toolbar-button-border: 1px solid transparent;
+@toolbar-button-color: black;
+@toolbar-button-background-color: transparent;
+@toolbar-button-over-border: 1px solid #ccc;
+@toolbar-button-over-color: black;
+@toolbar-button-over-background-color: #eee;
+@toolbar-button-down-border: 1px solid #aaa;
+@toolbar-button-down-color: #666;
+@toolbar-button-down-background-color: #ddd;
+@toolbar-button-checked-border: 1px solid #aaa;
+@toolbar-button-checked-color: black;
+@toolbar-button-checked-background-color: white;
+@toolbar-break-color: #999;
+@toolbar-drop-border: 1px solid #aaa;
+@toolbar-drop-color: black;
+@toolbar-drop-background-color: white;
+@toolbar-drop-shadow: 0px 4px 8px #999;
+@toolbar-drop-selected-color: inherit;
+@toolbar-drop-selected-background-color: #D7E4F2;
+
+@import "src/w2ui-toolbar.less";

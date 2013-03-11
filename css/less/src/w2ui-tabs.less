@@ -1,0 +1,38 @@
+/*************************************************
+* ---- Tabs ----
+*/
+
+div.w2ui-tabs {
+	cursor: default;
+	border-bottom: 1px solid silver;
+	background-color: @tabs-background-color;
+	padding: 2px 5px 0px 5px;
+	div {
+		&.w2ui-tab {
+			padding: 5px 20px;
+			text-align: center;
+			border: @tabs-tab-border;
+			border-bottom: @tabs-tab-border-bottom;
+			white-space: nowrap;
+			margin: 1px 1px -1px 0px;
+			border-top-left-radius: 4px;
+			border-top-right-radius: 4px;
+			cursor: default;
+			&.active {
+				background-color: @tabs-tab-active-background-color;
+			}
+		}
+		&.w2ui-tab-close {
+			float: right;
+			margin: 4px 5px 0px 4px;
+			width: 12px;
+			height: 16px;
+			.background-image(@image-item-close, no-repeat, center, left);
+			border: @tabs-tab-close-border;
+			border-left: 0px;
+			&:hover {
+				background-position: -12px 0px;
+			}
+		}
+	}
+}
