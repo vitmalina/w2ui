@@ -2,45 +2,28 @@
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.css" /> 
 <script type="text/javascript" src="../js/jquery.min.js"></script>
-<script type="text/javascript" src="../src/w2utils.js"></script>
-<script type="text/javascript" src="../src/w2grid.js"></script>
-<script type="text/javascript" src="../src/w2toolbar.js"></script>
-<script type="text/javascript" src="../src/w2fields.js"></script>
-<script type="text/javascript" src="../src/w2popup.js"></script>
+<script type="text/javascript" src="../js/w2ui.js"></script>
 <script>
 $(function () {
 
-	$('#grid').w2grid({ 
+	// -- LAYOUT
+
+	var pstyle = 'background-color: #F5F6F7; overflow: hidden';
+	$('#layout').w2layout({
+		name: 'layout',
+		panels: [
+			{ type: 'main', style: pstyle },
+			{ type: 'right', size: window.innerWidth/2, style: pstyle, resizable: true }
+		]
+	});
+
+	// -- GRID
+
+	$().w2grid({ 
 		name: 'grid', 
-		header: 'List of Names',
-		//url: 'http://google.com',
 		show: { 
 			toolbar: true,
-			footer: true,
-			header: true,
-			columnHeaders: true,
-			selectColumn: true,
-			expandColumn: true,
-			lineNumbers: true,
-			toolbarDelete: true,
-			toolbarSave: true,
-			toolbarAdd: true
-		},
-		//recordsPerPage: 5,
-		//fixedRecord: false,
-		toolbar: {
-			items: [
-				{ type: 'break', id: 'br1' },
-				{ type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
-					{ text: 'Item 1', icon: 'icon-page' }, 
-					{ text: 'Item 2', icon: 'icon-page' }, 
-					{ text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
-				]},
-				{ type: 'break', id: 'br2' },
-				{ type: 'html', id: 'html1', html: '<b>HTML Button</b>' },
-				{ type: 'break', id: 'br3' },				
-				{ type: 'drop', id: 'drop1', caption: 'Drop Button', html: '123' }
-			]
+			footer: true
 		},
 		searches: [				
 			{ field: 'recid', caption: 'ID (int)', type: 'int' },
@@ -51,27 +34,19 @@ $(function () {
 			{ field: 'sdate', caption: 'Date', type: 'date' }
 		],
 		sortData: [ { field: 'recid', direction: 'asc' } ],
-		columnGroups: [
-			{ caption: '', span: 1 },
-			{ caption: 'General Information', span: 2},
-			{ caption: 'Email', span: 1, master: true },
-			{ caption: 'Important Dates', span: 3 }
-		],
 		columns: [				
 			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
 			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
 			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true },
-			{ field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true,
-				editable: { type: 'text' }},
-			{ field: 'sdate', caption: 'Start Date', size: '120px', resizable: true, 
-				editable: { type: 'date', format: 'mm/dd/yyyy', style: 'style="background-color: red"' } },
+			{ field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true },
+			{ field: 'sdate', caption: 'Start Date', size: '120px', resizable: true },
 			{ field: 'sdate', caption: 'End Date', size: '120px', resizable: true },
 			{ field: 'sdate', caption: 'Release Date', size: '120px', resizable: true },
 		],
 		records: [
-			{ recid: 1, fname: 'John<br>d', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+			{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
 			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012', summary1: true },
+			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
 			{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
 			{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' },
@@ -85,17 +60,71 @@ $(function () {
 			{ recid: 24, fname: 'Manny', lname: 'Silver', email: 'jim@gmail.com', sdate: '12/3/2012' },
 			{ recid: 25, fname: 'Ben', lname: 'Gatos', email: 'jim@gmail.com', sdate: '4/3/2012' },
 			{ recid: 26, fname: 'Doer', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 27, fname: 'Shashi', lname: 'bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012', summary: true },
-			{ recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012', summary: true }
-		], 
-		//getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
+			{ recid: 27, fname: 'Shashi', lname: 'bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+		],
+		onClick: function (target, data) {
+			var rec = this.get(data.recid);
+			w2ui['form'].record = rec;
+			w2ui['form'].refresh();
+			data.onComplete = function () {
+				if (this.getSelection().length == 0) $('#delete').attr('disabled', true); else $('#delete').removeAttr('disabled');
+			}
+		}
 	});
+
+	// -- FORM	
+
+	$().w2form({ 
+		name     : 'form',
+		fields: [
+			{ name: 'fname', type: 'text', required: true },
+			{ name: 'lname', type: 'text', required: true },
+			{ name: 'email', type: 'email' },
+			{ name: 'sdate',  type: 'date' }
+		],
+		onRefresh: function (target, data) {
+
+		},
+		actions: {
+			reset: function () {
+				this.clear();
+			},
+			save: function () {
+				// check for errors
+				var errors = this.validate();
+				if (errors.length > 0 ) return;
+
+				var rec = this.record;
+				if (typeof rec.recid == 'undefined') { // new record
+					rec.recid = 100 + w2ui['grid'].records.length;
+					w2ui['grid'].add(rec);
+				} else { // existing
+					if (!w2ui['grid'].get(rec.recid)) alert('Record is not found.');
+					w2ui['grid'].set(rec.recid, rec);
+				}
+				//w2ui['grid'].refresh();
+			},
+			delete: function () {
+				this.clear();
+				w2ui['grid'].remove.apply(w2ui['grid'], w2ui['grid'].getSelection());
+				$('#delete').attr('disabled', true);
+			}
+		}
+	});
+
+	// -- INITIATE
+
+	$.get('form-template.html', function (responseText) {
+		w2ui['form'].form_html = responseText;
+		w2ui['layout'].content('main', w2ui['grid']);
+		w2ui['layout'].content('right', w2ui['form']);
+	});
+
 });
 </script>
 </head>
 <body>
-	<div id="grid" style="width: 100%; height: 500px;"></div>
-	<br>
-	<input type="button" value="destroy" onclick="$().w2destroy('grid');">
+	<div id="layout" style="width: 100%; height: 500px;"></div>
 </body>
 </html>

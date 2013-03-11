@@ -1,19 +1,18 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui-1.1.css" /> 
 <script type="text/javascript" src="../js/jquery.min.js"></script>
-<script type="text/javascript" src="../src/w2utils.js"></script>
-<script type="text/javascript" src="../src/w2fields.js"></script>
+<script type="text/javascript" src="../js/w2ui-1.1.min.js"></script>
 <script>
 	$(function () {
-		$('#date').w2field({ type: 'date', format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] });
+		$('#date').w2field({ type: 'date', format: 'mm/dd/yyyy' });
 		$('#list').w2field({ type: 'list', items: ['item1', 'item2', 'item3', 'item4', 'item5'] });
 		$('#enum').w2field({ type: 'enum', items: ['item1', 'item2', 'item3', 'item4', 'item5'] });
 	});
 </script>
 <body>
 	<div style="padding: 10px">
-		<input type="text" id="date" size="12" />
+		<input type="text" id="date" value="5/11/1977" size="12" />
 		<div style="height: 10px"></div>
 		<select type="text" id="list" onchange="console.log('change: '+this.value);"></select>
 		<div style="height: 10px"></div>
