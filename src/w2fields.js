@@ -60,71 +60,71 @@
 					case 'text':
 						break;
 					case 'int':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isInt(ch) && ch != '-') {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { // keyCode & charCode differ in FireFox
+						$(this).on('blur', function (event)  { // keyCode & charCode differ in FireFox
 							if (!w2utils.isInt(this.value)) { this.value = ''; $(this).trigger('change'); } 
 						});
 						break;
 						
 					case 'float':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isInt(ch) && ch != '.' && ch != '-') {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { 
+						$(this).on('blur', function (event)  { 
 							if (!w2utils.isFloat(this.value)) { this.value = ''; $(this).trigger('change'); } 
 						});
 						break;
 						
 					case 'money':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox	
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox	
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isInt(ch) && ch != '.' && ch != '-' && ch != '$' && ch != '€' && ch != '£' && ch != '¥') {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { 
+						$(this).on('blur', function (event)  { 
 							if (!w2utils.isMoney(this.value)) { this.value = ''; $(this).trigger('change'); } 
 						});
 						break;
 						
 					case 'hex':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox	
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox	
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isHex(ch)) {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { 
+						$(this).on('blur', function (event)  { 
 							if (!w2utils.isHex(this.value)) { this.value = ''; $(this).trigger('change'); } 
 						});
 						break;
 						 
 					case 'alphanumeric':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isAlphaNumeric(ch)) {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { 
+						$(this).on('blur', function (event)  { 
 							if (!w2utils.isAlphaNumeric(this.value)) { this.value = ''; } 
 						});
 						break;
@@ -154,7 +154,10 @@
 								$('#global_calendar_div').remove();
 								$('body').append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
-									' onmousedown="event.stopPropagation(); event.preventDefault();"></div>');
+									' onmousedown="'+
+									'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
+									'		if (event.preventDefault) event.preventDefault(); else return false;">'+
+									'</div>');
 								$('#global_calendar_div')
 									.html($().w2field('calendar_get', obj.value, options))
 									.css({
@@ -188,7 +191,7 @@
 								// check if date is valid
 								if ($.trim($(obj).val()) != '' && !w2utils.isDate($(obj).val(), options.format)) {
 									$(obj).val('');
-									$(this).w2tag('Not a valid date: '+ options.format, { class: 'w2ui-error' });
+									$(this).w2tag('Not a valid date: '+ options.format, { 'class': 'w2ui-error' });
 								}
 								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
@@ -385,7 +388,7 @@
 									obj.refresh(); 
 									w2field.list_render.call(obj);
 									$(obj).trigger('change');
-									event.stopPropagation();
+									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								}
 								$(this).find('input').focus();
 							});
@@ -393,12 +396,12 @@
 								.on('focus', function (event) {
 									$(div).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
 									obj.show();
-									event.stopPropagation();
+									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								})
 								.on('blur', function (event) {
 									$(div).css('outline', 'none');
 									obj.hide();
-									event.stopPropagation();
+									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								});
 						}
 						// init control
@@ -541,7 +544,7 @@
 				.on('mousedown', function (event) {
 					var id 	 = $(event.target).attr('index');
 					var item = settings.items[id];
-					if (typeof id == 'undefined') { event.preventDefault(); return; }
+					if (typeof id == 'undefined') { if (event.preventDefault) event.preventDefault(); else return false; }
 					obj.add(item);
 					$(obj).data('last_index', 0);
 					obj.refresh();
@@ -554,7 +557,7 @@
 				.width(((search.length + 2) * 6) + 'px')
 				.focus()
 				.on('click', function (event) {
-					event.stopPropagation();
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 				})
 				.off('keyup')
 				.on('keyup', function (event) {
@@ -566,13 +569,13 @@
 								curr--;
 								if (curr < 0) curr = 0;
 								$(obj).data('last_index', curr);
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault();
 								break;
 							case 40: // down
 								curr++;
 								if (curr > $(obj).data('last_max')) curr = $(obj).data('last_max');
 								$(obj).data('last_index', curr);
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault(); 
 								break;
 							case 13: // enter
 								if (typeof $(obj).data('last_item') == 'undefined' || $(obj).data('last_item') == null || noItems === true) break;
@@ -585,7 +588,7 @@
 								// refrech
 								$(inp).val('');
 								obj.refresh();
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault();
 								break;
 							case 8: // backspace
 								if (inp.value == '') {
@@ -777,9 +780,11 @@
 				if (noSelect === false) {
 					html += 'onclick="var el = $(\'#global_calendar_div.w2ui-calendar\').data(\'el\'); '+
 							'	$(el).val(\''+ w2utils.formatDate(dt, options.format) +'\').trigger(\'change\').trigger(\'blur\'); '+
-							'	 event.stopPropagation(); return false;'+
+							'	 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;'+
+							'	 if (event.preventDefault) event.preventDefault(); else return false;'+
 							'"';
 				}
+
 				html +=	'>'+ dspDay + '</td>';
 				if (ci % 7 == 0 || (weekDay == 0 && ci == 1)) html += '</tr><tr>';
 				day++;

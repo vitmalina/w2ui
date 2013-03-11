@@ -64,8 +64,8 @@
 	background-image : 	   -ms-linear-gradient(@color1, @color2);
 	background-image : 	    -o-linear-gradient(@color1, @color2);
 	background-image : 		   linear-gradient(@color1, @color2);
-	@colorStart: argb(rgba(red(@color2), green(@color2), blue(@color2), 255));
-	@colorEnd: argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
+	@colorStart: argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
+	@colorEnd: argb(rgba(red(@color2), green(@color2), blue(@color2), 255));
 	filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0); 
 }
 

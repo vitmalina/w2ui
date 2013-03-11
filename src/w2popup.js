@@ -119,7 +119,7 @@
 						$().w2popup('close'); 
 					},
 					onClick: function (event) {
-						event.stopPropagation();
+						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					}
 				}));
 			
@@ -129,7 +129,8 @@
 								'left: '+ left +'px; top: '+ top +'px;">';
 				if (options.title != '') { 
 					msg +='<div class="w2ui-msg-title">'+
-						  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onclick="$().w2popup(\'close\'); event.stopPropagation();">Close</div>' : '')+ 
+						  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onclick="$().w2popup(\'close\'); '+
+						  					   'if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">Close</div>' : '')+ 
 						  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onclick="$().w2popup(\'max\')">Max</div>' : '') + 
 							  options.title +
 						  '</div>'; 
@@ -361,7 +362,8 @@
 			if ($('#w2ui-lock').length > 0) return false;
 			var options = $.extend({}, { 'onUnlock': null, 'onMouseDown': null, 'onMouseUp': null }, options);
 			// show element
-			$('body').append('<div id="w2ui-lock" onmousewheel="event.stopPropagation(); event.preventDefault()"'+
+			$('body').append('<div id="w2ui-lock" '+
+				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;; if (event.preventDefault) event.preventDefault(); else return false;"'+
 				'	style="position: '+(w2utils.engine == 'IE5' ? 'absolute' : 'fixed')+'; z-Index: 1199; left: 0px; top: 0px; '+
 				'		   padding: 0px; margin: 0px; background-color: '+ options.color +'; width: 100%; height: 100%; opacity: 0;"></div>');	
 			// lock screen
@@ -450,14 +452,14 @@
 			}
 		},
 		
-		startMove: function (evnt) {
-			if (!evnt) evnt = window.event;
+		startMove: function (event) {
+			if (!event) event = window.event;
 			if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
 			this.resizing = true;
-			this.tmp_x = evnt.screenX;
-			this.tmp_y = evnt.screenY;
-			evnt.stopPropagation();
-			evnt.preventDefault();
+			this.tmp_x = event.screenX;
+			this.tmp_y = event.screenY;
+			if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+			if (event.preventDefault) event.preventDefault(); else return false;
 		},
 		
 		doMove: function (evnt) {

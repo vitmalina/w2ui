@@ -157,7 +157,7 @@ div.w2ui-calendar .w2ui-calendar-title {
   background-image: -ms-linear-gradient(#e6e6e6, #c2c4c4);
   background-image: -o-linear-gradient(#e6e6e6, #c2c4c4);
   background-image: linear-gradient(#e6e6e6, #c2c4c4);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffc2c4c4', endColorstr='#ffe6e6e6', GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffe6e6e6', endColorstr='#ffc2c4c4', GradientType=0);
   border-bottom: 1px solid #999999;
   color: #000000;
   text-align: center;
@@ -608,7 +608,7 @@ div.w2ui-grid .w2ui-grid-header {
   background-image: -ms-linear-gradient(#dae6f3, #c2d5ed);
   background-image: -o-linear-gradient(#dae6f3, #c2d5ed);
   background-image: linear-gradient(#dae6f3, #c2d5ed);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffc2d5ed', endColorstr='#ffdae6f3', GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffdae6f3', endColorstr='#ffc2d5ed', GradientType=0);
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
 }
@@ -742,7 +742,7 @@ div.w2ui-grid .w2ui-grid-body table .w2ui-head > div {
   background-image: -ms-linear-gradient(#f9f9f9, #e4e4e4);
   background-image: -o-linear-gradient(#f9f9f9, #e4e4e4);
   background-image: linear-gradient(#f9f9f9, #e4e4e4);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffe4e4e4', endColorstr='#fff9f9f9', GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#fff9f9f9', endColorstr='#ffe4e4e4', GradientType=0);
 }
 div.w2ui-grid .w2ui-grid-body table .w2ui-head > div > div {
   white-space: nowrap;
@@ -1081,7 +1081,7 @@ div.w2ui-sidebar div.w2ui-sidebar-div div.w2ui-selected {
   background-image: -ms-linear-gradient(#69b1e0, #3787cc);
   background-image: -o-linear-gradient(#69b1e0, #3787cc);
   background-image: linear-gradient(#69b1e0, #3787cc);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff3787cc', endColorstr='#ff69b1e0', GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff69b1e0', endColorstr='#ff3787cc', GradientType=0);
   border-top: 1px solid #4c8ec3;
   border-bottom: 1px solid #14315b;
 }
@@ -1229,7 +1229,7 @@ div.w2ui-popup div.w2ui-msg-title {
   background-image: -ms-linear-gradient(#ececec, #dfdfdf);
   background-image: -o-linear-gradient(#ececec, #dfdfdf);
   background-image: linear-gradient(#ececec, #dfdfdf);
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffdfdfdf', endColorstr='#ffececec', GradientType=0);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffececec', endColorstr='#ffdfdfdf', GradientType=0);
   border-bottom: 2px solid #bfbfbf;
   position: absolute;
   overflow: hidden;

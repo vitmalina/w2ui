@@ -338,7 +338,7 @@
 					display: p.hidden ? 'none' : 'block',
 					overflow: p.overflow
 				});
-				if (el.length > 0) el[0].style.cssText += p.style;
+				if (el.length > 0) el[0].style.cssText += ';' + p.style;
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
 					p.content.render($('#layout_'+ this.name +' #layout_'+ this.name + '_panel_'+ p.type)[0]);
@@ -650,10 +650,10 @@
 			$(window).on('resize', function (event) {
 				w2ui[obj.name].resize()
 			});
-			$(window).on('mousemove', function (event) {
+			$(document).on('mousemove', function (event) {
 				w2ui[obj.name].doResize(event);
 			});
-			$(window).on('mouseup', function (event) {
+			$(document).on('mouseup', function (event) {
 				w2ui[obj.name].stopResize(event);
 			});
 		},

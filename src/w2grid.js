@@ -1023,8 +1023,8 @@
 
 			switch (type) {
 				case 'click':
-					event.stopPropagation();
-					event.preventDefault();
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+					if (event.preventDefault) event.preventDefault();
 					break;
 				case 'focus':
 					$(el).addClass('active');
@@ -1143,11 +1143,11 @@
 					if (event.target.tagName.toLowerCase() == 'body') {
 						if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
 							obj.selectPage();
-							event.preventDefault();
+							if (event.preventDefault) event.preventDefault();
 						}
 						if (event.keyCode == 8) {
 							obj.doDelete();
-							event.preventDefault();
+							if (event.preventDefault) event.preventDefault();
 						}
 						var sel = obj.getSelection();
 						if (sel.length == 1) {
@@ -1169,7 +1169,7 @@
 										obj.last_scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
 									}
 								}
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault();
 							}
 							if (event.keyCode == 40) { // down
 								if (ind + 1 < obj.records.length) {
@@ -1185,12 +1185,12 @@
 										obj.last_scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
 									}
 								}
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault();
 							}
 						}
 					}
 				}
-				$(window).off('keydown').on('keydown', grid_keydown);
+				$(document).off('keydown').on('keydown', grid_keydown);
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
 			finalizeDoClick();
@@ -1475,7 +1475,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
 			var obj = this;
-			$(window).bind('resize', function (event) {
+			$(window).on('resize', function (event) {
 				w2ui[obj.name].resize();
 			});
 			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
@@ -1524,7 +1524,8 @@
 							'				delete col.gridMinWidth; '+
 							'				col.hidden = true; '+
 							'			  } '+
-							'			  obj.refresh(); event.stopPropagation();">'+
+							'			  obj.refresh(); '+
+							'			  if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'</td>'+
 							'<td>'+
 								'<label for="grid_'+ this.name +'_column_'+ c +'_check">'+
@@ -1723,8 +1724,8 @@
 					obj.tmp_x = event.screenX;
 					obj.tmp_y = event.screenY;
 					obj.tmp_col = $(this).attr('name');
-					event.stopPropagation();
-					event.preventDefault();
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+					if (event.preventDefault) event.preventDefault();
 					// fix sizes
 					for (var c in obj.columns) {
 						if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
@@ -1745,14 +1746,17 @@
 					}
 					var mouseUp = function (event) {
 						delete obj.resizing;
-						$(window).off('mousemove', mouseMove);
-						$(window).off('mouseup', mouseUp);
+						$(document).off('mousemove', mouseMove);
+						$(document).off('mouseup', mouseUp);
 						obj.resizeRecords();
 					}
-					$(window).on('mousemove', mouseMove);
-					$(window).on('mouseup', mouseUp);
+					$(document).on('mousemove', mouseMove);
+					$(document).on('mouseup', mouseUp);
 				})
-				.on('click', function (event) { event.stopPropagation(); event.preventDefault; });
+				.on('click', function (event) { 
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+					if (event.preventDefault) event.preventDefault();
+				});
 		},
 
 		resizeBoxes: function () {
@@ -2154,11 +2158,13 @@
 							'</td>';
 				}
 				if (this.show.selectColumn) {
-					html += '<td id="grid_'+ this.name +'_cell_header_select" class="w2ui-head w2ui-column-select" onclick="event.stopPropagation();">'+
+					html += '<td id="grid_'+ this.name +'_cell_header_select" class="w2ui-head w2ui-column-select" '+
+							'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	<div>'+
 							'		<input type="checkbox" id="grid_'+ this.name +'_check_all" tabIndex="-1"'+
 							'			onclick="if (this.checked) w2ui[\''+ this.name +'\'].selectPage(); '+
-							'					 else w2ui[\''+ this.name +'\'].selectNone(); event.stopPropagation();">'+
+							'					 else w2ui[\''+ this.name +'\'].selectNone(); '+
+							'					 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	</div>'+
 							'</td>';
 				}
@@ -2234,9 +2240,7 @@
 							(this.isIOS ?
 								'	onclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 								:
-								'	onclick	 = "var obj = w2ui[\''+ this.name +'\']; var evnt = event; '+
-								'					clearTimeout(obj._click_timer); '+
-								'					obj._click_timer = setTimeout(function () { obj.doClick(\''+ record.recid +'\', evnt); }, 1);"'+
+								'	onclick	 = "w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', evnt);"'+
 								'	ondblclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 							 )+
 							(tmp_color != '' ? 'custom_style="'+ tmp_color +'"' : '')+
@@ -2244,12 +2248,10 @@
 				} else {
 					rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ i +'" class="'+ (di%2 == 0 ? 'w2ui-odd' : 'w2ui-even') + '" ' +
 							(this.isIOS ?
-								'	onclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
+								'	onclick = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 								:
-								'	onclick	 = "var obj = w2ui[\''+ this.name +'\']; var evnt = event; '+
-								'					clearTimeout(obj._click_timer); '+
-								'					obj._click_timer = setTimeout(function () { obj.doClick(\''+ record.recid +'\', evnt); }, 1);"'+
-								'	ondblclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
+								'	onclick ="w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', event);"'+
+								'	ondblclick = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 							 )+
 							(tmp_color != '' ? 'custom_style="'+ tmp_color +'" style="'+ tmp_color +'"' : '')+
 							'>';
@@ -2263,21 +2265,22 @@
 				if (this.show.selectColumn) {
 					rec_html += 
 							'<td id="grid_'+ this.name +'_cell_'+ i +'_select" valign="top" class="w2ui-grid-data w2ui-column-select" '+
-							'		onclick="event.stopPropagation();">'+
+							'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	<div>'+
 							'		<input id="grid_'+ this.name +'_cell_'+ i +'_select_check" class="grid_select_check" type="checkbox" tabIndex="-1"'+
 							'			'+ (record.selected ? 'checked="checked"' : '') +
 							'			onclick="var obj = w2ui[\''+ this.name +'\']; if (!obj.multiSelect) { obj.selectNone(); }'+
 							'				if (this.checked) obj.select(\''+ record.recid + '\'); else obj.unselect(\''+ record.recid + '\'); '+
-							'				event.stopPropagation();">'+
+							'				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	</div>'+
 							'</td>';
 				}
 				if (this.show.expandColumn) {
 					rec_html += 
 							'<td id="grid_'+ this.name +'_cell_'+ i +'_expand" valign="top" class="w2ui-grid-data w2ui-expand">'+
-							'	<div ondblclick="event.stopPropagation()" '+
-							'			onclick="w2ui[\''+ this.name +'\'].doExpand('+ record.recid +', event); event.stopPropagation();">'+
+							'	<div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
+							'			onclick="w2ui[\''+ this.name +'\'].doExpand('+ record.recid +', event); '+
+							'				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'		+ </div>'+
 							'</td>';
 				}
@@ -2342,8 +2345,8 @@
 									'	onkeyup = "w2ui[\''+ this.name + '\'].doEdit(\'keyup\', this, event);" '+
 									'	onfocus = "w2ui[\''+ this.name + '\'].doEdit(\'focus\', this, event);" '+
 									'	onblur  = "w2ui[\''+ this.name + '\'].doEdit(\'blur\', this, event);" '+
-									'	ondblclick = "event.stopPropagation(); this.select();" '+
-										edit.inTag + ' >' + 
+									'	ondblclick = "if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
+									'				  this.select();" '+ edit.inTag + ' >' + 
 									edit.outTag +
 								'</div>';
 						}

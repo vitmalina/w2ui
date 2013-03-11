@@ -3619,7 +3619,7 @@ $.w2event = {
 					display: p.hidden ? 'none' : 'block',
 					overflow: p.overflow
 				});
-				if (el.length > 0) el[0].style.cssText += p.style;
+				if (el.length > 0) el[0].style.cssText += ';' + p.style;
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
 					p.content.render($('#layout_'+ this.name +' #layout_'+ this.name + '_panel_'+ p.type)[0]);
