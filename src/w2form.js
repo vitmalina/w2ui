@@ -104,7 +104,7 @@
 			} else if (object.form_url) {
 				$.get(object.form_url, function (data) {
 					object.form_html = data;
-					if ($(obj).length != 0) {
+					if ($(obj).length != 0 || data.length != 0) {
 						$(obj).html(object.form_html);
 						object.init(obj);
 						object.render($(obj)[0]);

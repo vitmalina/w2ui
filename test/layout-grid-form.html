@@ -77,6 +77,7 @@ $(function () {
 
 	$().w2form({ 
 		name     : 'form',
+		form_url : 'form-template.html',
 		fields: [
 			{ name: 'fname', type: 'text', required: true },
 			{ name: 'lname', type: 'text', required: true },
@@ -114,13 +115,8 @@ $(function () {
 	});
 
 	// -- INITIATE
-
-	$.get('form-template.html', function (responseText) {
-		w2ui['form'].form_html = responseText;
-		w2ui['layout'].content('main', w2ui['grid']);
-		w2ui['layout'].content('right', w2ui['form']);
-	});
-
+	w2ui['layout'].content('main', w2ui['grid']);
+	w2ui['layout'].content('right', w2ui['form']);
 });
 </script>
 </head>

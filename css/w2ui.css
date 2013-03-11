@@ -759,9 +759,9 @@ div.w2ui-grid .w2ui-grid-body table td.w2ui-grid-data {
   height: 22px;
   margin: 0px;
   padding: 0px;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  overflow-y: hidden;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 div.w2ui-grid .w2ui-grid-body table td.w2ui-grid-data > div {
   padding: 7px 3px;
