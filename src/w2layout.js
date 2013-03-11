@@ -306,17 +306,13 @@
 			// add main panel if it was not already added
 			if (this.get('main') == null) this.panels.push( $.extend({}, w2layout.prototype.panel, { type: 'main'}) );
 			if (this.get('css') == null)  this.panels.push( $.extend({}, w2layout.prototype.panel, { type: 'css'}) );
-			var html = '<div id="layout_'+ this.name +'" class="w2ui-layout" style="position: absolute; overflow: hidden; '+ this.style +'"></div>';
+			var html = '<div id="layout_'+ this.name +'" class="w2ui-layout" style="'+ this.style +'"></div>';
 			$(this.box).html(html);
 			// create all panels
 			var tmp = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
 			for (var t in tmp) {
-				var html =  '<div id="layout_'+ this.name + '_panel_'+ tmp[t] +'" class="w2ui-panel"'+
-							'	style="position: absolute; z-index: 120; display: none;">'+
-							'</div>'+
-							'<div id="layout_'+ this.name + '_splitter_'+ tmp[t] +'" class="w2ui-splitter"'+
-							'	style="position: absolute; z-index: 121; display: none;">'+
-							'</div>';
+				var html =  '<div id="layout_'+ this.name + '_panel_'+ tmp[t] +'" class="w2ui-panel"></div>'+
+							'<div id="layout_'+ this.name + '_splitter_'+ tmp[t] +'" class="w2ui-splitter"></div>';
 				$('#layout_'+ this.name +'').append(html);
 			}
 			$('#layout_'+ this.name +'').append('<style id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;">'+ this.css +'</style>');		

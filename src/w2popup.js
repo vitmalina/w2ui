@@ -123,8 +123,8 @@
 					}
 				}));
 			
-				var msg = '<div id="w2ui-popup" class="w2ui-popup" style="position: '+(w2utils.engine == 'IE5' ? 'absolute' : 'fixed')+';'+
-								'z-Index: 1200; width: '+ parseInt(options.width) +'px; height: '+ parseInt(options.height) +'px; opacity: 0; '+
+				var msg = '<div id="w2ui-popup" class="w2ui-popup" style="'+
+								'width: '+ parseInt(options.width) +'px; height: '+ parseInt(options.height) +'px; opacity: 0; '+
 								'-webkit-transform: scale(0.8); -moz-transform: scale(0.8); -ms-transform: scale(0.8); -o-transform: scale(0.8); '+
 								'left: '+ left +'px; top: '+ top +'px;">';
 				if (options.title != '') { 
@@ -528,8 +528,8 @@
 			width 	: 350,
 			height 	: 160,
 			title   : title,
-			body    : '<div style="padding: 12px; padding-right: 24px; text-align: center">' + msg +'</div>',
-			buttons : '<input type="button" value="Ok" style="width: 60px" onclick="$().w2popup(\'close\');">'
+			body    : '<div class="w2ui-alert-body">' + msg +'</div>',
+			buttons : '<input type="button" value="Ok" class="w2ui-alert-button" onclick="$().w2popup(\'close\');">'
 		});
 		$('#w2ui-screenPopup #btnYes').on('click', function () {
 			$().w2popup('close');
@@ -549,9 +549,9 @@
 			width 	: 350,
 			height 	: 160,
 			title   : title,
-			body    : '<div style="padding: 12px; padding-right: 24px; text-align: center">' + msg +'</div>',
-			buttons : '<input id="buttonNo" type="button" value="No" style="width: 60px; margin-right: 5px">&nbsp;'+
-					  '<input id="buttonYes" type="button" value="Yes" style="width: 60px">'
+			body    : '<div class="w2ui-confirm-body">' + msg +'</div>',
+			buttons : '<input id="buttonNo" type="button" value="No" class="w2ui-confirm-button">&nbsp;'+
+					  '<input id="buttonYes" type="button" value="Yes" class="w2ui-confirm-button">'
 		});
 		$('#w2ui-screenPopup #buttonNo').on('click', function () {
 			$().w2popup('close');

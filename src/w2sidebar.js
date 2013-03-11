@@ -376,7 +376,7 @@
 			if (nd.nodes.length == 0) return;
 			// expand
 			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +'_sub').show();
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div style="width: 16px">-</div>');
+			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
 			nd.expanded = true;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -388,7 +388,7 @@
 			if (eventData.stop === true) return false;
 			// default action
 			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +'_sub').hide();		
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div style="width: 16px">+</div>');
+			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
 			this.get(id).expanded = false;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -404,11 +404,13 @@
 				this.box = box;
 			}
 			if (!this.box) return;
-			$(this.box).html(
-				(this.top_html != '' ? this.top_html : '') +
-				'<div id="sidebar_'+ this.name +'" class="w2ui-reset w2ui-sidebar" style="'+ this.style +'"></div>'+
-				(this.bottom_html != '' ? this.bottom_html : '')
-			);
+			$(this.box)
+				.addClass('w2ui-reset w2ui-sidebar')
+				.html(
+					(this.top_html != '' ? this.top_html : '') +
+					'<div id="sidebar_'+ this.name +'" class="w2ui-sidebar-div" style="'+ this.style +'"></div>'+
+					(this.bottom_html != '' ? this.bottom_html : '')
+				);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// ---
@@ -469,7 +471,7 @@
 						'				 var sp=$(this).find(\'span:nth-child(1)\'); if (sp.html() == \'Hide\') sp.html(\'Show\'); else sp.html(\'Hide\');"'+
 						'		onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
 						'		onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'gray\')">'+
-						'	<span style="float: right; color: transparent">Hide</span>'+
+						'	<span>Hide</span>'+
 						'	<span>'+ nd.text +'</span>'+
 						'</div>'+
 						'<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
@@ -482,14 +484,14 @@
 						'	onClick="w2ui[\''+ obj.name +'\'].doClick(\''+ nd.id +'\', event); /* event.stopPropagation(); */">'+
 						'<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
 						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].doToggle(\''+ nd.id +'\', event);">'+ 
-						'	<div style="width: 16px">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : '') + '</div>' +
+						'	<div class="w2ui-expand">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : '') + '</div>' +
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+ 
 							(img ? '<div class="w2ui-node-image w2ui-icon '+ img +' '+ 
-								(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'" style="margin-top: 4px;"></div>' : '') +
+								(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'" style="margin-top: 3px;"></div>' : '') +
 							(icon ? '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>' : '') +
 							(nd.count ? 
-								'<div class="w2ui-node-count" style="width: auto; padding: 2px 5px; float: right">'+ nd.count +'</div>' : '') +
+								'<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
 						'</td>'+
 						'</tr></table>'+

@@ -253,14 +253,11 @@
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
 				if (it == null)  continue;
-				var addStyle = '';
-				if (it.hidden) { addStyle += 'display: none;'; }
-				if (it.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 				if (it.type == 'spacer') {
 					html += '<td width="100%" id="'+ this.name +'_item_'+ it.id +'" align="right"></td>';
 				} else {
-					html += '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ addStyle +'" valign="middle">'+ 
-								this.getItemHTML(it) + 
+					html += '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
+							'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ this.getItemHTML(it) + 
 							'</td>';
 				}
 			}
@@ -293,10 +290,8 @@
 			var html  = this.getItemHTML(it);
 			if (jq_el.length == 0) {
 				// does not exist - create it
-				var addStyle = '';
-				if (it.hidden) { addStyle += 'display: none;'; }
-				if (it.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
-				html = '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ addStyle +'" valign="middle">'+ html + '</td>';
+				html =  '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
+						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html + '</td>';
 				if (this.getIndex(id) == this.items.length-1) {
 					$(this.box).find('.w2ui-toolbar #'+ this.name +'_right').before(html);
 				} else {
@@ -305,10 +300,8 @@
 			} else {
 				// refresh
 				jq_el.html(html);
-				if (it.hidden) { jq_el.css('display', 'none'); }
-							else { jq_el.css('display', ''); }
-				if (it.disabled) { jq_el.css({ 'opacity': '0.2', '-moz-opacity': '0.2', '-webkit-opacity': '0.2', '-o-opacity': '0.2', 'filter': 'alpha(opacity=20)' }); }
-							else { jq_el.css({ 'opacity': '1', '-moz-opacity': '1', '-webkit-opacity': '1', '-o-opacity': '1', 'filter': 'alpha(opacity=100)' }); }
+				if (it.hidden) { jq_el.css('display', 'none'); } else { jq_el.css('display', ''); }
+				if (it.disabled) { jq_el.addClass('disabled'); } else { jq_el.removeClass('disabled'); }
 			}
 			// event after
 			this.trigger($.extend({ phase: 'after' }));	
@@ -341,7 +334,7 @@
 		// --- Internal Functions
 		
 		getMenuHTML: function (item) { 
-			var menu_html = "<table cellspacing=\"0\" style=\"padding: 5px 0px;\">";
+			var menu_html = '<table cellspacing="0" cellpadding="0">';
 			for (var f = 0; f < item.items.length; f++) { 
 				if (typeof item.items[f] == 'string') {
 					var tmp = item.items[f].split('|');
@@ -359,12 +352,11 @@
 					tmp[1] = item.items[f].icon;
 					tmp[2] = typeof item.items[f].value != 'undefined' ? item.items[f].value : item.items[f].text;
 				}
-				menu_html += "<tr style=\"cursor: default;\" "+
-					"	onmouseover=\"$(this).addClass('w2ui-selected');\" onmouseout=\"$(this).removeClass('w2ui-selected');\" "+
+				menu_html += "<tr onmouseover=\"$(this).addClass('w2ui-selected');\" onmouseout=\"$(this).removeClass('w2ui-selected');\" "+
 					"	onclick=\"var obj = w2ui['"+ this.name +"']; obj.doDropOut('"+ item.id +"', 0); "+
 					"			  obj.doClick('"+ item.id +"', event, '"+ f +"');\">"+
-					"<td style='padding: 3px 3px 3px 6px'><div class=\""+ (typeof tmp[1] != 'undefined' ? 'w2ui-icon ' : '') + tmp[1] +"\"></div></td>"+
-					"<td style='padding: 3px 10px 3px 3px'>"+ tmp[0] +"</td>"+
+					"<td><div class=\""+ (typeof tmp[1] != 'undefined' ? 'w2ui-icon ' : '') + tmp[1] +"\"></div></td>"+
+					"<td>"+ tmp[0] +"</td>"+
 					"</tr>";
 			}
 			menu_html += "</table>";
@@ -376,20 +368,9 @@
 			
 			if (item.caption == null) item.caption = '';
 			if (item.img == null) item.img = '';
-			var transparent = 'transparent';
-			var addToText   = '';
-			
+
 			if (item.img != '') {
-				if (w2utils.engine == 'IE5') {
-					if (item.disabled) {
-						addToText   = "FILTER: alpha(opacity=20);";
-						butPicture  = 'src="'+ item.img +'" style="FILTER: alpha(opacity=20);"';
-					} else {
-						butPicture  = 'src="images/empty.gif" style="Filter:Progid:DXImageTransform.Microsoft.AlphaImageLoader(src='+ item.img + ', opacity=20)"';
-					}
-				} else {
-					butPicture  = 'src="'+ item.img +'"';
-				}
+				butPicture  = 'src="'+ item.img +'"';
 			}
 			if (typeof item.hint == 'undefined') item.hint = '';
 	
@@ -400,17 +381,17 @@
 				case 'check':
 				case 'radio':
 				case 'drop':
-					html +=  '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-tab0 '+ (item.checked ? 'checked' : '') +'" '+
+					html +=  '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
 							 '       onmouseover = "var el=w2ui[\''+ this.name + '\']; if (el) el.doOver(\''+ item.id +'\', event);" '+
 							 '       onmouseout  = "var el=w2ui[\''+ this.name + '\']; if (el) el.doOut(\''+ item.id +'\', event);" '+
 							 '       onmousedown = "var el=w2ui[\''+ this.name + '\']; if (el) el.doDown(\''+ item.id +'\', event);" '+
 							 '       onmouseup   = "var el=w2ui[\''+ this.name + '\']; if (el) el.doClick(\''+ item.id +'\', event);" '+
 							 '>'+
 							 '<tr><td>'+
-							 '  <table cellpadding="1" cellspacing="0" class="w2ui-tab1 '+ (item.checked ? 'checked' : '') +'">'+
+							 '  <table cellpadding="1" cellspacing="0">'+
 							 '  <tr>'+
 									(item.img != '' ? '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>' : '<td>&nbsp;</td>') +
-									(item.caption != '' ? '<td class="w2ui-tb-caption" style="'+ addToText +'" nowrap>'+ item.caption +'</td>' : '') +
+									(item.caption != '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.caption +'</td>' : '') +
 									(((item.type == 'drop' || item.type == 'menu') && item.arrow !== false) ? 
 										'<td class="w2ui-tb-down" nowrap>&nbsp;&nbsp;&nbsp;</td>' : '') +
 							 '  </tr></table>'+
@@ -418,13 +399,13 @@
 					break;
 								
 				case 'break':
-					html +=  '<table cellpadding="0" cellspacing="0" style="width 1px; height: 22px; margin-top: 2px;"><tr>'+
+					html +=  '<table cellpadding="0" cellspacing="0"><tr>'+
 							 '    <td><div class="w2ui-break">&nbsp;</div></td>'+
 							 '</tr></table>';
 					break;
 	
 				case 'html':
-					html +=  '<table cellpadding="0" cellspacing="0" style="height: 22px; margin-top: 2px;'+ addToText +';"><tr>'+
+					html +=  '<table cellpadding="0" cellspacing="0"><tr>'+
 							 '    <td nowrap>' + item.html + '</td>'+
 							 '</tr></table>';
 					break;
@@ -442,7 +423,7 @@
 		doOver: function (id) {
 			var it = this.get(id);
 			if (it && !it.disabled) {
-				$('#'+ this.name +'_item_'+ it.id + ' table').addClass('over');
+				$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').addClass('over');
 				
 				if (it.type == 'drop' || it.type == 'menu') { clearTimeout(it.timer); }
 			}
@@ -452,7 +433,7 @@
 			var it = this.get(id);
 			if (typeof timeout == 'undefined') timeout = 400;
 			if (it && !it.disabled) {
-				$('#'+ this.name +'_item_'+ it.id + ' table').removeClass('over');
+				$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').removeClass('over');
 	
 				if (it.type == 'drop' || it.type == 'menu') { // hide drop
 					var obj = this;
@@ -472,7 +453,7 @@
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			var it = this.get(id);
 			if (it && !it.disabled) {
-				$('#'+ this.name +'_item_'+ it.id + ' table').addClass('down');
+				$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').addClass('down');
 				// drop items
 				if (it.type == 'drop' || it.type == 'menu') {
 					if (!it.checked) {
@@ -539,7 +520,7 @@
 					  subItem: (typeof menu_index != 'undefined' && this.get(id) ? this.get(id).items[menu_index] : null), event: event });	
 				if (eventData.stop === true) return false;
 			
-				$('#'+ this.name +'_item_'+ it.id + ' table').removeClass('down');
+				$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').removeClass('down');
 				
 				for (var i = 0; i < this.items.length; i++) {
 					if (this.items[i].hideTimer) { clearTimeout(this.items[i].hideTimer); }
@@ -555,14 +536,14 @@
 						}
 					}
 					it.checked = true;
-					$('#'+ this.name +'_item_'+ it.id + ' table').addClass('checked');					
+					$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').addClass('checked');					
 				}
 				if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
 					it.checked = !it.checked;
 					if (it.checked) {
-						$('#'+ this.name +'_item_'+ it.id + ' table').addClass('checked');
+						$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').addClass('checked');
 					} else {
-						$('#'+ this.name +'_item_'+ it.id + ' table').removeClass('checked');					
+						$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').removeClass('checked');					
 					}
 				}
 				// event after

@@ -57,6 +57,8 @@
 							$(this).removeAttr('tabindex');
 						}
 						break;
+					case 'text':
+						break;
 					case 'int':
 						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox
 							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
@@ -150,8 +152,7 @@
 								var top  = parseFloat($(obj).offset().top) + parseFloat(obj.offsetHeight);
 								var left = parseFloat($(obj).offset().left);
 								$('#global_calendar_div').remove();
-								$('body').append('<div id="global_calendar_div" style="position: absolute; z-index: 1600; display: none;'+
-									'		top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
+								$('body').append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
 									' onmousedown="event.stopPropagation(); event.preventDefault();"></div>');
 								$('#global_calendar_div')
@@ -290,9 +291,7 @@
 						this.show = function () {
 							// insert global div
 							if ($('#w2ui-global-items').length == 0) {
-								$('body').append('<div id="w2ui-global-items" class="w2ui-reset w2ui-items" '+
-									'style="position: absolute; z-index: 1200; display: none; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;">'+
-									'</div>');
+								$('body').append('<div id="w2ui-global-items" class="w2ui-reset w2ui-items"></div>');
 							} else {
 								// ignore second click
 								return;	
@@ -363,7 +362,7 @@
 										selected[s].text +
 										'</li>';
 							}
-							html += '<li><input type="text" style="width: 10px; background-color: transparent"></li>';
+							html += '<li><input type="text"></li>';
 							html += '</ul></div>';
 							$(this).before(html);
 							// adjust height
@@ -432,9 +431,7 @@
 			// build overall html
 			if (typeof search == 'undefined') {
 				var html 	 = '';
-				html += '<div style="border-radius: 4px; background-color: white; padding: 3px;">'+
-						'	<div class="list_items" style="padding-top: 3px;"></div>'+
-						'</div>';
+				html += '<div class="w2ui-items-list"></div>';						
 				div.html(html);
 				search = '';
 			}
@@ -505,7 +502,7 @@
 					if (typeof settings['render'] == 'function') {
 						txt = settings['render'](items[a]);
 					}
-					ihtml += '\n<li style="display: block; -webkit-transition: 0.2s" index="'+ a +'" value="'+ id +'" '+
+					ihtml += '\n<li index="'+ a +'" value="'+ id +'" '+
 							 '  onmouseover="$(this).parent().find(\'li\').removeClass(\'selected\'); $(this).addClass(\'selected\'); "'+
 							 '	class="'+ (i % 2 ? 'w2ui-item-even' : 'w2ui-item-odd') + (i == $(obj).data('last_index') ? " selected" : "") +'">'+ 
 							 txt +'</li>';
@@ -515,10 +512,10 @@
 			}
 			ihtml += '</ul>';
 			if (i == 0) { 
-				ihtml   = '<div style="padding: 2px; padding-bottom: 5px; text-align: center; color: gray">No items found</div>';
+				ihtml   = '<div class="w2ui-empty-list">No items found</div>';
 				var noItems = true;
 			}
-			div.find('.list_items').html(ihtml);
+			div.find('.w2ui-items-list').html(ihtml);
 			$(this).data('last_max', i-1);	
 
 			// scroll selected into view
@@ -532,7 +529,7 @@
 					height 	: (max_height - 5) + 'px', 
 					overflow: 'show' 
 				});
-				$(div).find('.list_items').css({
+				$(div).find('.w2ui-items-list').css({
 					height 	: (max_height - 15) + 'px', 
 					overflow: 'auto' 
 				});
@@ -658,14 +655,14 @@
 			} else {				
 				var dt = new Date(date);
 			}
-			var html =  '<table cellpadding="0" cellspacing="0" style=""><tr>' +
+			var html =  '<table cellpadding="0" cellspacing="0"><tr>' +
 						'<td>'+ $().w2field('calendar_month', (dt.getMonth() + 1), dt.getFullYear(), options) +'</td>'+
-						'<!--td valign="top" style="background-color: #f4f4fe; padding: 8px; padding-bottom: 0px; padding-top: 22px; border: 1px solid silver; border-left: 0px;">'+
-						'	Jan <br> Feb <br> Mar <br> Apr <br> May <br> Jun <br> Jul <br> Aug <br> Sep <br> Oct <br> Nov <br> Dec'+
-						'</td>'+
-						'<td valign="top" style="background-color: #f4f4fe; padding: 6px; padding-bottom: 0px; padding-top: 22px; border: 1px solid silver; border-left: 0px;">'+
-						'	2001 <br> 2002 <br> 2003 <br> 2004'+
-						'</td-->'+
+						// '<!--td valign="top" style="background-color: #f4f4fe; padding: 8px; padding-bottom: 0px; padding-top: 22px; border: 1px solid silver; border-left: 0px;">'+
+						// '	Jan <br> Feb <br> Mar <br> Apr <br> May <br> Jun <br> Jul <br> Aug <br> Sep <br> Oct <br> Nov <br> Dec'+
+						// '</td>'+
+						// '<td valign="top" style="background-color: #f4f4fe; padding: 6px; padding-bottom: 0px; padding-top: 22px; border: 1px solid silver; border-left: 0px;">'+
+						// '	2001 <br> 2002 <br> 2003 <br> 2004'+
+						// '</td-->'+
 						'</tr></table>';
 			return html;
 		},
@@ -724,8 +721,8 @@
 			
 			var html  = 
 				'<div class="w2ui-calendar-title">'+
-				'	<div style="float: left" class="w2ui-calendar-previous" onclick="$().w2field(\'calendar_previous\', \''+ month +'/'+ year +'\')"> <- </div>'+
-				'	<div style="float: right" class="w2ui-calendar-next" onclick="$().w2field(\'calendar_next\', \''+ month +'/'+ year +'\')"> -> </div> '+ 
+				'	<div class="w2ui-calendar-previous" onclick="$().w2field(\'calendar_previous\', \''+ month +'/'+ year +'\')"> <- </div>'+
+				'	<div class="w2ui-calendar-next" onclick="$().w2field(\'calendar_next\', \''+ month +'/'+ year +'\')"> -> </div> '+ 
 						months[month-1] +', '+ year + 
 				'</div>'+
 				'<table class="w2ui-calendar-days" onclick="" cellspacing="0">'+

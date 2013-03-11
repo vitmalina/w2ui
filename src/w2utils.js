@@ -1,7 +1,5 @@
-// w2ui 1.x (c) http://w2ui.com, vitmalina@gmail.com
-
 var w2ui  = w2ui  || {};
-var w2obj = w2obj || {}; 	// expose object to be able to overwrite default functions
+var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
 /************************************************
 *   Library: Web 2.0 UI for jQuery
@@ -75,6 +73,7 @@ var w2utils = (function () {
 
 	function isDate (val, format) {
 		if (typeof val == 'undefined' || val == null) return false;
+		if (typeof format == 'undefined' || format == null) format = w2utils.settings.date_format;
 		// USA format mm/dd/yyyy
 		if (format.toLowerCase() == 'mm/dd/yyyy') {
 			if (val.split("/").length != 3) return false; 
@@ -328,7 +327,7 @@ var w2utils = (function () {
 		function utf8_decode (utftext) {
 			var string = "";
 			var i = 0;
-			var c = c1 = c2 = 0;
+			var c = 0, c1 = 0, c2 = 0;
 
 			while ( i < utftext.length ) {
 				c = utftext.charCodeAt(i);
