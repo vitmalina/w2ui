@@ -1852,8 +1852,8 @@ $.w2event = {
 
 			switch (type) {
 				case 'click':
-					event.stopPropagation();
-					event.preventDefault();
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+					if (event.preventDefault) event.preventDefault();
 					break;
 				case 'focus':
 					$(el).addClass('active');
@@ -1972,11 +1972,11 @@ $.w2event = {
 					if (event.target.tagName.toLowerCase() == 'body') {
 						if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
 							obj.selectPage();
-							event.preventDefault();
+							if (event.preventDefault) event.preventDefault();
 						}
 						if (event.keyCode == 8) {
 							obj.doDelete();
-							event.preventDefault();
+							if (event.preventDefault) event.preventDefault();
 						}
 						var sel = obj.getSelection();
 						if (sel.length == 1) {
@@ -1998,7 +1998,7 @@ $.w2event = {
 										obj.last_scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
 									}
 								}
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault();
 							}
 							if (event.keyCode == 40) { // down
 								if (ind + 1 < obj.records.length) {
@@ -2014,12 +2014,12 @@ $.w2event = {
 										obj.last_scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
 									}
 								}
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault();
 							}
 						}
 					}
 				}
-				$(window).off('keydown').on('keydown', grid_keydown);
+				$(document).off('keydown').on('keydown', grid_keydown);
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
 			finalizeDoClick();
@@ -2304,7 +2304,7 @@ $.w2event = {
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
 			var obj = this;
-			$(window).bind('resize', function (event) {
+			$(window).on('resize', function (event) {
 				w2ui[obj.name].resize();
 			});
 			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
@@ -2353,7 +2353,8 @@ $.w2event = {
 							'				delete col.gridMinWidth; '+
 							'				col.hidden = true; '+
 							'			  } '+
-							'			  obj.refresh(); event.stopPropagation();">'+
+							'			  obj.refresh(); '+
+							'			  if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'</td>'+
 							'<td>'+
 								'<label for="grid_'+ this.name +'_column_'+ c +'_check">'+
@@ -2552,8 +2553,8 @@ $.w2event = {
 					obj.tmp_x = event.screenX;
 					obj.tmp_y = event.screenY;
 					obj.tmp_col = $(this).attr('name');
-					event.stopPropagation();
-					event.preventDefault();
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+					if (event.preventDefault) event.preventDefault();
 					// fix sizes
 					for (var c in obj.columns) {
 						if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
@@ -2574,14 +2575,17 @@ $.w2event = {
 					}
 					var mouseUp = function (event) {
 						delete obj.resizing;
-						$(window).off('mousemove', mouseMove);
-						$(window).off('mouseup', mouseUp);
+						$(document).off('mousemove', mouseMove);
+						$(document).off('mouseup', mouseUp);
 						obj.resizeRecords();
 					}
-					$(window).on('mousemove', mouseMove);
-					$(window).on('mouseup', mouseUp);
+					$(document).on('mousemove', mouseMove);
+					$(document).on('mouseup', mouseUp);
 				})
-				.on('click', function (event) { event.stopPropagation(); event.preventDefault; });
+				.on('click', function (event) { 
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+					if (event.preventDefault) event.preventDefault();
+				});
 		},
 
 		resizeBoxes: function () {
@@ -2983,11 +2987,13 @@ $.w2event = {
 							'</td>';
 				}
 				if (this.show.selectColumn) {
-					html += '<td id="grid_'+ this.name +'_cell_header_select" class="w2ui-head w2ui-column-select" onclick="event.stopPropagation();">'+
+					html += '<td id="grid_'+ this.name +'_cell_header_select" class="w2ui-head w2ui-column-select" '+
+							'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	<div>'+
 							'		<input type="checkbox" id="grid_'+ this.name +'_check_all" tabIndex="-1"'+
 							'			onclick="if (this.checked) w2ui[\''+ this.name +'\'].selectPage(); '+
-							'					 else w2ui[\''+ this.name +'\'].selectNone(); event.stopPropagation();">'+
+							'					 else w2ui[\''+ this.name +'\'].selectNone(); '+
+							'					 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	</div>'+
 							'</td>';
 				}
@@ -3063,9 +3069,7 @@ $.w2event = {
 							(this.isIOS ?
 								'	onclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 								:
-								'	onclick	 = "var obj = w2ui[\''+ this.name +'\']; var evnt = event; '+
-								'					clearTimeout(obj._click_timer); '+
-								'					obj._click_timer = setTimeout(function () { obj.doClick(\''+ record.recid +'\', evnt); }, 1);"'+
+								'	onclick	 = "w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', evnt);"'+
 								'	ondblclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 							 )+
 							(tmp_color != '' ? 'custom_style="'+ tmp_color +'"' : '')+
@@ -3073,12 +3077,10 @@ $.w2event = {
 				} else {
 					rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ i +'" class="'+ (di%2 == 0 ? 'w2ui-odd' : 'w2ui-even') + '" ' +
 							(this.isIOS ?
-								'	onclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
+								'	onclick = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 								:
-								'	onclick	 = "var obj = w2ui[\''+ this.name +'\']; var evnt = event; '+
-								'					clearTimeout(obj._click_timer); '+
-								'					obj._click_timer = setTimeout(function () { obj.doClick(\''+ record.recid +'\', evnt); }, 1);"'+
-								'	ondblclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
+								'	onclick ="w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', event);"'+
+								'	ondblclick = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 							 )+
 							(tmp_color != '' ? 'custom_style="'+ tmp_color +'" style="'+ tmp_color +'"' : '')+
 							'>';
@@ -3092,21 +3094,22 @@ $.w2event = {
 				if (this.show.selectColumn) {
 					rec_html += 
 							'<td id="grid_'+ this.name +'_cell_'+ i +'_select" valign="top" class="w2ui-grid-data w2ui-column-select" '+
-							'		onclick="event.stopPropagation();">'+
+							'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	<div>'+
 							'		<input id="grid_'+ this.name +'_cell_'+ i +'_select_check" class="grid_select_check" type="checkbox" tabIndex="-1"'+
 							'			'+ (record.selected ? 'checked="checked"' : '') +
 							'			onclick="var obj = w2ui[\''+ this.name +'\']; if (!obj.multiSelect) { obj.selectNone(); }'+
 							'				if (this.checked) obj.select(\''+ record.recid + '\'); else obj.unselect(\''+ record.recid + '\'); '+
-							'				event.stopPropagation();">'+
+							'				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	</div>'+
 							'</td>';
 				}
 				if (this.show.expandColumn) {
 					rec_html += 
 							'<td id="grid_'+ this.name +'_cell_'+ i +'_expand" valign="top" class="w2ui-grid-data w2ui-expand">'+
-							'	<div ondblclick="event.stopPropagation()" '+
-							'			onclick="w2ui[\''+ this.name +'\'].doExpand('+ record.recid +', event); event.stopPropagation();">'+
+							'	<div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
+							'			onclick="w2ui[\''+ this.name +'\'].doExpand('+ record.recid +', event); '+
+							'				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'		+ </div>'+
 							'</td>';
 				}
@@ -3171,8 +3174,8 @@ $.w2event = {
 									'	onkeyup = "w2ui[\''+ this.name + '\'].doEdit(\'keyup\', this, event);" '+
 									'	onfocus = "w2ui[\''+ this.name + '\'].doEdit(\'focus\', this, event);" '+
 									'	onblur  = "w2ui[\''+ this.name + '\'].doEdit(\'blur\', this, event);" '+
-									'	ondblclick = "event.stopPropagation(); this.select();" '+
-										edit.inTag + ' >' + 
+									'	ondblclick = "if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
+									'				  this.select();" '+ edit.inTag + ' >' + 
 									edit.outTag +
 								'</div>';
 						}
@@ -3931,10 +3934,10 @@ $.w2event = {
 			$(window).on('resize', function (event) {
 				w2ui[obj.name].resize()
 			});
-			$(window).on('mousemove', function (event) {
+			$(document).on('mousemove', function (event) {
 				w2ui[obj.name].doResize(event);
 			});
-			$(window).on('mouseup', function (event) {
+			$(document).on('mouseup', function (event) {
 				w2ui[obj.name].stopResize(event);
 			});
 		},
@@ -4173,7 +4176,7 @@ $.w2event = {
 						$().w2popup('close'); 
 					},
 					onClick: function (event) {
-						event.stopPropagation();
+						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					}
 				}));
 			
@@ -4183,7 +4186,8 @@ $.w2event = {
 								'left: '+ left +'px; top: '+ top +'px;">';
 				if (options.title != '') { 
 					msg +='<div class="w2ui-msg-title">'+
-						  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onclick="$().w2popup(\'close\'); event.stopPropagation();">Close</div>' : '')+ 
+						  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onclick="$().w2popup(\'close\'); '+
+						  					   'if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">Close</div>' : '')+ 
 						  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onclick="$().w2popup(\'max\')">Max</div>' : '') + 
 							  options.title +
 						  '</div>'; 
@@ -4415,7 +4419,8 @@ $.w2event = {
 			if ($('#w2ui-lock').length > 0) return false;
 			var options = $.extend({}, { 'onUnlock': null, 'onMouseDown': null, 'onMouseUp': null }, options);
 			// show element
-			$('body').append('<div id="w2ui-lock" onmousewheel="event.stopPropagation(); event.preventDefault()"'+
+			$('body').append('<div id="w2ui-lock" '+
+				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;; if (event.preventDefault) event.preventDefault(); else return false;"'+
 				'	style="position: '+(w2utils.engine == 'IE5' ? 'absolute' : 'fixed')+'; z-Index: 1199; left: 0px; top: 0px; '+
 				'		   padding: 0px; margin: 0px; background-color: '+ options.color +'; width: 100%; height: 100%; opacity: 0;"></div>');	
 			// lock screen
@@ -4504,14 +4509,14 @@ $.w2event = {
 			}
 		},
 		
-		startMove: function (evnt) {
-			if (!evnt) evnt = window.event;
+		startMove: function (event) {
+			if (!event) event = window.event;
 			if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
 			this.resizing = true;
-			this.tmp_x = evnt.screenX;
-			this.tmp_y = evnt.screenY;
-			evnt.stopPropagation();
-			evnt.preventDefault();
+			this.tmp_x = event.screenX;
+			this.tmp_y = event.screenY;
+			if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+			if (event.preventDefault) event.preventDefault(); else return false;
 		},
 		
 		doMove: function (evnt) {
@@ -6146,71 +6151,71 @@ $.w2event = {
 					case 'text':
 						break;
 					case 'int':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isInt(ch) && ch != '-') {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { // keyCode & charCode differ in FireFox
+						$(this).on('blur', function (event)  { // keyCode & charCode differ in FireFox
 							if (!w2utils.isInt(this.value)) { this.value = ''; $(this).trigger('change'); } 
 						});
 						break;
 						
 					case 'float':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isInt(ch) && ch != '.' && ch != '-') {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { 
+						$(this).on('blur', function (event)  { 
 							if (!w2utils.isFloat(this.value)) { this.value = ''; $(this).trigger('change'); } 
 						});
 						break;
 						
 					case 'money':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox	
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox	
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isInt(ch) && ch != '.' && ch != '-' && ch != '$' && ch != '€' && ch != '£' && ch != '¥') {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { 
+						$(this).on('blur', function (event)  { 
 							if (!w2utils.isMoney(this.value)) { this.value = ''; $(this).trigger('change'); } 
 						});
 						break;
 						
 					case 'hex':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox	
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox	
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isHex(ch)) {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { 
+						$(this).on('blur', function (event)  { 
 							if (!w2utils.isHex(this.value)) { this.value = ''; $(this).trigger('change'); } 
 						});
 						break;
 						 
 					case 'alphanumeric':
-						$(this).on('keypress', function (evnt) { // keyCode & charCode differ in FireFox
-							if (evnt.metaKey || evnt.ctrlKey || evnt.altKey || (evnt.charCode != evnt.keyCode && evnt.keyCode > 0)) return;
-							var ch = String.fromCharCode(evnt.charCode);
+						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
+							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+							var ch = String.fromCharCode(event.charCode);
 							if (!w2utils.isAlphaNumeric(ch)) {
-								evnt.stopPropagation();
+								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								return false;
 							}
 						});
-						$(this).on('blur', function (evnt)  { 
+						$(this).on('blur', function (event)  { 
 							if (!w2utils.isAlphaNumeric(this.value)) { this.value = ''; } 
 						});
 						break;
@@ -6240,7 +6245,10 @@ $.w2event = {
 								$('#global_calendar_div').remove();
 								$('body').append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
-									' onmousedown="event.stopPropagation(); event.preventDefault();"></div>');
+									' onmousedown="'+
+									'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
+									'		if (event.preventDefault) event.preventDefault(); else return false;">'+
+									'</div>');
 								$('#global_calendar_div')
 									.html($().w2field('calendar_get', obj.value, options))
 									.css({
@@ -6274,7 +6282,7 @@ $.w2event = {
 								// check if date is valid
 								if ($.trim($(obj).val()) != '' && !w2utils.isDate($(obj).val(), options.format)) {
 									$(obj).val('');
-									$(this).w2tag('Not a valid date: '+ options.format, { class: 'w2ui-error' });
+									$(this).w2tag('Not a valid date: '+ options.format, { 'class': 'w2ui-error' });
 								}
 								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
@@ -6471,7 +6479,7 @@ $.w2event = {
 									obj.refresh(); 
 									w2field.list_render.call(obj);
 									$(obj).trigger('change');
-									event.stopPropagation();
+									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								}
 								$(this).find('input').focus();
 							});
@@ -6479,12 +6487,12 @@ $.w2event = {
 								.on('focus', function (event) {
 									$(div).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
 									obj.show();
-									event.stopPropagation();
+									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								})
 								.on('blur', function (event) {
 									$(div).css('outline', 'none');
 									obj.hide();
-									event.stopPropagation();
+									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								});
 						}
 						// init control
@@ -6627,7 +6635,7 @@ $.w2event = {
 				.on('mousedown', function (event) {
 					var id 	 = $(event.target).attr('index');
 					var item = settings.items[id];
-					if (typeof id == 'undefined') { event.preventDefault(); return; }
+					if (typeof id == 'undefined') { if (event.preventDefault) event.preventDefault(); else return false; }
 					obj.add(item);
 					$(obj).data('last_index', 0);
 					obj.refresh();
@@ -6640,7 +6648,7 @@ $.w2event = {
 				.width(((search.length + 2) * 6) + 'px')
 				.focus()
 				.on('click', function (event) {
-					event.stopPropagation();
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 				})
 				.off('keyup')
 				.on('keyup', function (event) {
@@ -6652,13 +6660,13 @@ $.w2event = {
 								curr--;
 								if (curr < 0) curr = 0;
 								$(obj).data('last_index', curr);
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault();
 								break;
 							case 40: // down
 								curr++;
 								if (curr > $(obj).data('last_max')) curr = $(obj).data('last_max');
 								$(obj).data('last_index', curr);
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault(); 
 								break;
 							case 13: // enter
 								if (typeof $(obj).data('last_item') == 'undefined' || $(obj).data('last_item') == null || noItems === true) break;
@@ -6671,7 +6679,7 @@ $.w2event = {
 								// refrech
 								$(inp).val('');
 								obj.refresh();
-								event.preventDefault();
+								if (event.preventDefault) event.preventDefault();
 								break;
 							case 8: // backspace
 								if (inp.value == '') {
@@ -6863,9 +6871,11 @@ $.w2event = {
 				if (noSelect === false) {
 					html += 'onclick="var el = $(\'#global_calendar_div.w2ui-calendar\').data(\'el\'); '+
 							'	$(el).val(\''+ w2utils.formatDate(dt, options.format) +'\').trigger(\'change\').trigger(\'blur\'); '+
-							'	 event.stopPropagation(); return false;'+
+							'	 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;'+
+							'	 if (event.preventDefault) event.preventDefault(); else return false;'+
 							'"';
 				}
+
 				html +=	'>'+ dspDay + '</td>';
 				if (ci % 7 == 0 || (weekDay == 0 && ci == 1)) html += '</tr><tr>';
 				day++;
