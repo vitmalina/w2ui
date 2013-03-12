@@ -1050,6 +1050,7 @@ div.w2ui-grid .w2ui-grid-footer .w2ui-footer-center .w2ui-footer-nav a.w2ui-foot
 */
 div.w2ui-sidebar {
   cursor: default;
+  overflow: auto;
   background-color: #f5f6f7;
 }
 div.w2ui-sidebar div.w2ui-sidebar-div {
@@ -1109,7 +1110,7 @@ div.w2ui-sidebar div.w2ui-sidebar-div div.w2ui-node-caption {
 div.w2ui-sidebar div.w2ui-sidebar-div div.w2ui-node-group {
   white-space: nowrap;
   overflow: hidden;
-  margin: 10px 0px 5px 8px;
+  margin: 15px 0px 10px 8px;
   cursor: default;
 }
 div.w2ui-sidebar div.w2ui-sidebar-div div.w2ui-node-group :nth-child(1) {
