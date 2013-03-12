@@ -11,54 +11,54 @@
 	</target>
 
 	<target name="css">
-		  <!-- Compile w2ui.less files -->
-			<echo message="LESS: css/less/w2ui.less ==> css/w2ui.css"/>
-		  <exec executable="lessc">
+		<!-- Compile w2ui.less files -->
+		<echo message="LESS: css/less/w2ui.less ==> css/w2ui.css"/>
+		<exec executable="lessc">
 			<arg value="css/less/w2ui.less"/>
 			<arg value="css/w2ui.css"/>
-			</exec>
+		</exec>
 
-			<!-- Minify w2ui.css files -->
-			<echo message="CleanCSS: /css/w2ui.css ==> /css/w2ui.min.css"/>
-		  <exec executable="cleancss" output="css/w2ui.min.css">
+		<!-- Minify w2ui.css files -->
+		<echo message="CleanCSS: /css/w2ui.css ==> /css/w2ui.min.css"/>
+		<exec executable="cleancss" output="css/w2ui.min.css">
 			<arg value="css/w2ui.css"/>
-			</exec>
-			<echo message="Add Copyright Statement"/>
-			<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
+		</exec>
+		<echo message="Add Copyright Statement"/>
+		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
 			<fileset dir="css" includes="w2ui.min.css" />
-		  </replaceregexp>
+		</replaceregexp>
 
-		  <!-- Compile w2ui-dark.less files -->
-			<!--echo message="LESS: css/less/w2ui-dark.less ==> css/w2ui-dark.css"/>
-		  <exec executable="lessc">
+		<!-- Compile w2ui-dark.less files -->
+		<!--echo message="LESS: css/less/w2ui-dark.less ==> css/w2ui-dark.css"/>
+		<exec executable="lessc">
 			<arg value="css/less/w2ui-dark.less"/>
 			<arg value="css/w2ui-dark.css"/>
-			</exec-->
+		</exec-->
 
-			<!-- Minify w2ui.css files -->
-			<!--echo message="CleanCSS: /css/w2ui-dark.css ==> /css/w2ui-dark.min.css"/>
-		  <exec executable="cleancss" output="css/w2ui-dark.min.css">
+		<!-- Minify w2ui.css files -->
+		<!--echo message="CleanCSS: /css/w2ui-dark.css ==> /css/w2ui-dark.min.css"/>
+		<exec executable="cleancss" output="css/w2ui-dark.min.css">
 			<arg value="css/w2ui-dark.css"/>
-			</exec>
-			<echo message="Add Copyright Statement"/>
-			<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
+		</exec>
+		<echo message="Add Copyright Statement"/>
+		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
 			<fileset dir="css" includes="w2ui-dark.min.css" />
 		</replaceregexp-->
 	</target>
 
 	<target name="js">
-			<echo message="Concatenate JS Files"/>
-		  <concat destfile="js/w2ui.js">
+		<echo message="Concatenate JS Files"/>
+		<concat destfile="js/w2ui.js">
 			 <filelist dir="./src/" files="w2utils.js w2grid.js w2layout.js w2popup.js w2tabs.js w2toolbar.js w2sidebar.js w2fields.js w2form.js"/>
-		  </concat>
+		</concat>
 
-			<!-- Minify JS files -->
-			<echo message="Uglify-JS: /js/w2ui.js ==> /js/w2ui.min.js"/>
+		<!-- Minify JS files -->
+		<echo message="Uglify-JS: /js/w2ui.js ==> /js/w2ui.min.js"/>
 		<exec executable="uglifyjs" output="js/w2ui.min.js">
 			<arg value="js/w2ui.js"/>
-			</exec>
-			<echo message="Add Copyright Statement"/>
-			<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
+		</exec>
+		<echo message="Add Copyright Statement"/>
+		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
 			<fileset dir="js" includes="w2ui.min.js" />
 		</replaceregexp>
 	</target>

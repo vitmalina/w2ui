@@ -6354,7 +6354,11 @@ $.w2event = {
 						$(obj).css({ 'border-color': 'transparent' });
 
 						var settings = $.extend({}, defaults, options);
-						if ($.isArray(settings.selected)) { $(this).data('selected', settings.selected); } else { $(this).data('selected', []); }
+						if ($.isArray(settings.selected)) { 
+							$(this).data('selected', settings.selected); 
+						} else { 
+							$(this).data('selected', []); 
+						}
 
 						// if items is array convert to an object
 						if ($.isArray(settings.items) && !$.isPlainObject(settings.items[0])) {
@@ -6575,13 +6579,13 @@ $.w2event = {
 			for (var a in selected) ids.push(w2utils.isInt(selected[a].id) ? parseInt(selected[a].id) : String(selected[a].id))
 			// build list
 			for (var a in items) {
-				if (items[a] == '') continue;
+				if (String(items[a]) == '') continue;
 				if (typeof items[a] == 'object') {
 					var txt = String(items[a].text);
 					if (txt == null && typeof items[a].caption != 'undefined') txt = items[a].caption;
 					var id  = items[a].id;
 					if (id == null && typeof items[a].value != 'undefined') id = items[a].value;
-					if (id == null || String(id) == 'undefined' || id == '') id = txt;
+					if (id == null || String(id) == 'undefined' || String(id) == '') id = txt;
 				}
 				if (typeof items[a] == 'string') {
 					var id  = items[a];
@@ -6682,7 +6686,7 @@ $.w2event = {
 								if (event.preventDefault) event.preventDefault();
 								break;
 							case 8: // backspace
-								if (inp.value == '') {
+								if (String(inp.value) == '') {
 									if (typeof $(obj).data('last_del') == 'undefined' || $(obj).data('last_del') == null) {
 										// mark for deletion
 										var selected = $(obj).data('selected'); 
@@ -6722,7 +6726,7 @@ $.w2event = {
 						if (div.length > 0) div[0].scrollTop = 1000;
 						$(obj).height(cntHeight);
 						// refresh menu
-						if (!(event.keyCode == 8 && inp.value == '')) { 
+						if (!(event.keyCode == 8 && String(inp.value) == '')) { 
 							$(obj).prev().find('li').css('opacity', '1');
 							$(obj).data('last_del', null);
 						}
@@ -6739,7 +6743,7 @@ $.w2event = {
 		calendar_get: function (date, options) {
 			var td = new Date();
 			var today = (Number(td.getMonth())+1) + '/' + td.getDate() + '/' + (String(td.getYear()).length > 3 ? td.getYear() : td.getYear() + 1900);
-			if (date == '' || String(date) == 'undefined') date = w2utils.formatDate(today, options.format); 
+			if (String(date) == '' || String(date) == 'undefined') date = w2utils.formatDate(today, options.format); 
 			if (!w2utils.isDate(date, options.format)) date = w2utils.formatDate(today, options.format);
 			
 			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy' 
@@ -7092,7 +7096,7 @@ $.w2event = {
 			// clear all enum fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				if (field.selected) delete field.selected;
+				if (field.options && field.options.selected) delete field.options.selected;
 			}
 			$().w2tag();
 			this.refresh();
@@ -7522,7 +7526,7 @@ $.w2event = {
 							break;
 						}
 						var v = value;
-						if (field.selected) v = field.selected;
+						if (field.options && field.options.selected) v = field.options.selected;
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: v }) );
 						break;
 					default:

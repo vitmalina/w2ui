@@ -202,7 +202,7 @@
 			// clear all enum fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				if (field.selected) delete field.selected;
+				if (field.options && field.options.selected) delete field.options.selected;
 			}
 			$().w2tag();
 			this.refresh();
@@ -632,7 +632,7 @@
 							break;
 						}
 						var v = value;
-						if (field.selected) v = field.selected;
+						if (field.options && field.options.selected) v = field.options.selected;
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: v }) );
 						break;
 					default:
