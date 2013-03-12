@@ -2824,7 +2824,7 @@ $.w2event = {
 						if (cnt < 0) { startWith = tt; break; }
 					}
 				}
-				for (var j=startWith; j<1000; j++) {
+				for (var j=startWith; j < 10000; j++) {
 					if (this.records[j] && this.records[j].hidden) { continue; }
 					var cell = $('#grid_'+ this.name+'_cell_'+ j +'_'+ i + ' > div:first-child');
 					if (cell.length == 0) break;
