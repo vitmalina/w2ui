@@ -38,6 +38,36 @@
 	// ====================================================
 	// -- Implementation of core functionality
 
+	function cleanItems(items) {
+		var newItems = [];
+		for (var i in items) {
+			var id   = '';
+			var text = '';
+			var opt  = items[i];
+			if (opt == null) continue;
+			if ($.isPlainObject(items)) {
+				id 	 = i;
+				text = opt;
+			} else {
+				if (typeof opt == 'string') {
+					if (String(opt) == '') continue;
+					id   = opt;
+					text = opt;
+				}
+				if (typeof opt == 'object') {
+				 	if (typeof opt.id != 'undefined')    id = opt.id;
+					if (typeof opt.value != 'undefined') id = opt.value;
+					if (typeof opt.txt != 'undefined')   text = opt.txt;
+					if (typeof opt.text != 'undefined')  text = opt.text;
+				}
+			}
+			if (w2utils.isInt(id)) id = parseInt(id);
+			if (w2utils.isFloat(id)) id = parseFloat(id);
+			newItems.push({ id: id, text: text });
+		}
+		return newItems;
+	}
+
 	$.extend(w2field, {
 		// CONTEXT: this - is jQuery object
 		init: function (options) { 		
@@ -221,28 +251,16 @@
 							showNone    : true
 						};
 						var settings = $.extend({}, defaults, options);
-						var items = '';
-						if (settings.showNone) {
-							items = '<option value="">- none -</option>';
+						var html =  '';
+						var items = cleanItems(settings.items);
+						if (settings.showNone) html = '<option value="">- none -</option>';
+						for (var i in items) {
+							if (!settings.showNone && settings.value == null) settings.value = items[i].id;
+							html += '<option value="'+ items[i].id +'">'+ items[i].text + '</option>';
 						}
-						for (var o in settings.items) {
-							var opt  = settings.items[o];
-							var id   = '';
-							var text = '';
-							if (typeof opt == 'string') {
-								id   = opt;
-								text = opt;
-							}
-							if (typeof opt == 'object') {
-							 	if (typeof opt.id != 'undefined')    id = opt.id;
-								if (typeof opt.value != 'undefined') id = opt.value;
-								if (typeof opt.text != 'undefined')  text = opt.text;
-								if (typeof opt.txt != 'undefined')   text = opt.txt;
-							}
-							if (!settings.showNone && settings.value == null) settings.value = id;
-							items += '<option value="'+ id +'">'+ text + '</option>';
-						}
-						$(this).html(items);
+						settings.items = items;
+						$(this).data('settings', settings);
+						$(this).html(html);
 						$(this).val(settings.value);
 						if (settings.value != null) $(this).change();
 						break;
@@ -260,26 +278,14 @@
 							onSelect 	: null		// -- not implemented
 						}
 						var obj	= this;
-						$(obj).css({ 'border-color': 'transparent' });
-
 						var settings = $.extend({}, defaults, options);
-						if ($.isArray(settings.selected)) { 
-							$(this).data('selected', settings.selected); 
-						} else { 
-							$(this).data('selected', []); 
-						}
 
-						// if items is array convert to an object
-						if ($.isArray(settings.items) && !$.isPlainObject(settings.items[0])) {
-							var items = [];
-							for (var i in settings.items) {
-								items.push({
-									'id' 	: settings.items[i],
-									'text'	: settings.items[i]
-								});
-							}
-							settings.items = items;
-						}
+						// normalize items and selected
+						settings.items 	  = cleanItems(settings.items);
+						settings.selected = cleanItems(settings.selected);
+
+						$(this).data('selected', settings.selected); 
+						$(this).css({ 'border-color': 'transparent' });
 
 						// add item to selected
 						this.add = function (item) {
@@ -431,9 +437,9 @@
 			var obj 	 = this;
 			var div 	 = $('#w2ui-global-items');
 			var settings = $(this).data('settings');
+			var items 	 = settings.items;
 			var selected = $(this).data('selected');
 			if (div.length == 0) return; // if it is hidden
-			if (typeof settings.items == 'undefined') settings.items = [];
 
 			// build overall html
 			if (typeof search == 'undefined') {
@@ -450,7 +456,7 @@
 			if (typeof settings.last_search_len == 'undefined') settings.last_search_len = 0;
 			if (typeof settings.last_search_match == 'undefined') settings.last_search_match = -1;
 			if (settings.url != '' && ( 
-					   (settings.items.length == 0 && settings.last_total != 0) 
+					   (items.length == 0 && settings.last_total != 0) 
 					|| (search.length > settings.last_search_len && settings.last_total > settings.maxCache)
 					|| (search.length < settings.last_search_match && search.length != settings.last_search_len)
 				)
@@ -472,7 +478,7 @@
 							if (match == false && data.total < settings.maxCache) { settings.last_search_match = search.length; }
 							settings.last_search_len = search.length;
 							settings.last_total = data.total
-							settings.items      = data.options;
+							settings.items      = data.items;
 							w2field.list_render.call(obj, search);
 						}
 					}
@@ -481,25 +487,14 @@
 			
 			// build items
 			var i = 0;
-			var items = settings.items;
 			var ihtml = '<ul>';
 			// get ids of all selected items
 			var ids	  = [];
 			for (var a in selected) ids.push(w2utils.isInt(selected[a].id) ? parseInt(selected[a].id) : String(selected[a].id))
 			// build list
 			for (var a in items) {
-				if (String(items[a]) == '') continue;
-				if (typeof items[a] == 'object') {
-					var txt = String(items[a].text);
-					if (txt == null && typeof items[a].caption != 'undefined') txt = items[a].caption;
-					var id  = items[a].id;
-					if (id == null && typeof items[a].value != 'undefined') id = items[a].value;
-					if (id == null || String(id) == 'undefined' || String(id) == '') id = txt;
-				}
-				if (typeof items[a] == 'string') {
-					var id  = items[a];
-					var txt = items[a];
-				}
+				var id  = items[a].id;
+				var txt = items[a].text;
 				// if already selected
 				if ($.inArray(w2utils.isInt(id) ? parseInt(id) : String(id), ids) != -1 && settings.showAll !== true) continue;
 				// check match with search
