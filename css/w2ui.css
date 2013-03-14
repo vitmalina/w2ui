@@ -978,70 +978,61 @@ div.w2ui-grid .w2ui-grid-footer .w2ui-footer-center .w2ui-footer-nav a.w2ui-foot
   display: block;
   padding: 3px 0px;
 }
-#w2ui-global-searches {
+#w2ui-overlay .w2ui-grid-searches {
   text-align: left;
-  position: absolute;
-  z-index: 1000;
-  overflow: hidden;
-  margin-top: 6px;
-  margin-left: 2px;
   padding: 0px;
   border-top: 0px;
-}
-#w2ui-global-searches > div {
   background-color: #f3f1d9;
-  border: 1px solid #c0c0c0;
-  border-top: 0px;
 }
-#w2ui-global-searches > div table {
+#w2ui-overlay .w2ui-grid-searches table {
   padding: 4px;
   padding-top: 8px;
   border-collapse: border-collapse;
 }
-#w2ui-global-searches > div table td {
+#w2ui-overlay .w2ui-grid-searches table td {
   padding: 4px;
 }
-#w2ui-global-searches > div table td.close-btn {
+#w2ui-overlay .w2ui-grid-searches table td.close-btn {
   width: 20px;
   padding-right: 20px;
 }
-#w2ui-global-searches > div table td.close-btn input {
+#w2ui-overlay .w2ui-grid-searches table td.close-btn input {
   width: 25px !important;
 }
-#w2ui-global-searches > div table td.caption {
+#w2ui-overlay .w2ui-grid-searches table td.caption {
   text-align: right;
   padding-right: 5px;
   border-right: 1px solid #c0c0c0;
 }
-#w2ui-global-searches > div table td.operator {
+#w2ui-overlay .w2ui-grid-searches table td.operator {
   text-align: left;
   padding: 0px 10px;
   padding-right: 5px;
   border-right: 1px solid #c0c0c0;
 }
-#w2ui-global-searches > div table td.value {
+#w2ui-overlay .w2ui-grid-searches table td.value {
   padding-right: 5px;
   padding-left: 5px;
   background-color: #f7f6f0;
 }
-#w2ui-global-searches > div table td.value input[type=text] {
+#w2ui-overlay .w2ui-grid-searches table td.value input[type=text] {
   border: 1px solid #c0c0c0;
   border-radius: 3px;
   padding: 3px;
   margin-right: 3px;
   height: 23px;
 }
-#w2ui-global-searches > div table td.value select {
+#w2ui-overlay .w2ui-grid-searches table td.value select {
   padding: 3px;
   margin-right: 3px;
   height: 23px;
 }
-#w2ui-global-searches > div table td.actions {
+#w2ui-overlay .w2ui-grid-searches table td.actions {
   border-right: 0px;
-  padding: 15px 0px 5px 0px;
+  padding: 20px 0px 10px 0px;
   text-align: center;
 }
-#w2ui-global-searches > div table td input[type=button] {
+#w2ui-overlay .w2ui-grid-searches table td input[type=button] {
   width: 60px;
   margin: 0px 2px;
 }

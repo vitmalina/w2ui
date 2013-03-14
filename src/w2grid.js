@@ -11,9 +11,14 @@
 * 		- exposed prototype so it can be changed for all grids
 *
 *  == 1.2 changes
-*	 - find(obj, flag) - gets second argument
-*	 - getFooterHTML - can now be used to overwrite entire footer now
-* 	 - new function requestComplete
+*	 - find(obj, returnRecords) - gets second argument
+*	 - getFooterHTML() - can now be used to overwrite entire footer now
+* 	 - added requestComplete()
+*    - added addColumn(), removeColumn(), hideColumn(), showColumn(), getColumn()
+*    - added addSearch(), removeSearch(), hideSearch(), showSearch(), getSearch()
+* 	 - added getSearchData()
+* 	 - deprecated getIndex()
+* 	 - added initColumnOnOff()
 *
 ************************************************************************/
 
@@ -28,7 +33,7 @@
 		this.columns			= []; 		// { field, caption, size, attr, render, hidden, gridMinWidth, [editable: {type, inTag, outTag, style, items}] }
 		this.columnGroups		= [];		// { span: int, caption: 'string', master: true/false }
 		this.records			= [];		// { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false }
-		this.searches			= [];		// { type, caption, field, inTag, outTag, default, items }
+		this.searches			= [];		// { type, caption, field, inTag, outTag, default, items, hidden }
 		this.searchData			= [];
 		this.sortData			= [];
 		this.postData			= {};
@@ -91,7 +96,6 @@
 
 		// internal
 		this.recid				= null; 	// might be used by edit class to set sublists ids
-		this.searchOpened		= false;
 		this.last_field			= 'all';
 		this.last_caption 		= 'All Fields';
 		this.last_logic			= 'OR';
@@ -197,20 +201,20 @@
 			this.refresh();
 		},
 
-		find: function (obj, flag) {
+		find: function (obj, returnRecords) {
 			if (typeof obj == 'undefined' || obj == null) obj = {};
 			var recs = [];
 			for (var i=0; i<this.records.length; i++) {
 				var match = true;
 				for (var o in obj) if (obj[o] != this.records[i][o]) match = false;
-				if (match && flag !== true) recs.push(this.records[i].recid);
-				if (match && flag === true) recs.push(this.records[i]);
+				if (match && returnRecords !== true) recs.push(this.records[i].recid);
+				if (match && returnRecords === true) recs.push(this.records[i]);
 			}
 			return recs;
 		},
 
 		set: function (recid, record) { // does not delete existing, but overrides on top of it
-			var ind = this.getIndex(recid);
+			var ind = this.get(recid, true);
 			var record;
 			$.extend(this.records[ind], record);
 			// refresh only that record
@@ -259,14 +263,11 @@
 			}
 		},
 
-		get: function (recid) {
-			var record = this.find({ recid: recid }, true);
-			return (record.length > 0 ? record[0] : null);
-		},
-
-		getIndex: function (recid) {
+		get: function (recid, returnIndex) {
 			for (var i=0; i<this.records.length; i++) {
-				if (this.records[i].recid == recid) return i;
+				if (this.records[i].recid == recid) {
+					if (returnIndex === true) return i; else return this.records[i];					
+				}
 			}
 			return null;
 		},
@@ -286,6 +287,142 @@
 			this.refresh();
 			return removed;
 		},
+
+		getColumn: function (field, returnIndex) {
+			for (var i=0; i<this.columns.length; i++) {
+				if (this.columns[i].field == field) {
+					if (returnIndex === true) return i; else return this.columns[i];
+				}
+			}
+			return null;
+		},
+
+		showColumn: function () {
+			var shown = 0;
+			for (var a in arguments) {
+				for (var r = this.columns.length-1; r >= 0; r--) {
+					if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== false) { 
+						this.columns[r].hidden = false; 
+						shown++; 
+					}
+				}
+			}
+			this.refresh();
+			return shown;
+		},
+
+		hideColumn: function () {
+			var hidden = 0;
+			for (var a in arguments) {
+				for (var r = this.columns.length-1; r >= 0; r--) {
+					if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== true) { 
+						this.columns[r].hidden = true; 
+						hidden++; 
+					}
+				}
+			}
+			this.refresh();
+			return hidden;
+		},
+
+		removeColumn: function () {
+			var removed = 0;
+			for (var a in arguments) {
+				for (var r = this.columns.length-1; r >= 0; r--) {
+					if (this.columns[r].field == arguments[a]) { this.columns.splice(r, 1); removed++; }
+				}
+			}
+			this.initColumnOnOff();
+			this.refresh();
+			return removed;
+		},
+
+		addColumn: function (before, column) {
+			if (arguments.length == 1) {
+				column = before;
+				before = this.columns.length;
+			} else {
+				before = this.getColumn(before, true);
+				if (before === null) before = this.columns.length;
+			}
+			if (!$.isArray(column)) column = [column];
+			for (var o in column) {
+				this.columns.splice(before, 0, column[o]);
+				before++;
+			}
+			this.refresh();
+		},
+
+		getSearch: function (field, returnIndex) {
+			for (var i=0; i<this.searches.length; i++) {
+				if (this.searches[i].field == field) {
+					if (returnIndex === true) return i; else return this.searches[i];
+				}
+			}
+			return null;
+		},
+
+		showSearch: function () {
+			var shown = 0;
+			for (var a in arguments) {
+				for (var r = this.searches.length-1; r >= 0; r--) {
+					if (this.searches[r].field == arguments[a] && this.searches[r].hidden !== false) { 
+						this.searches[r].hidden = false; 
+						shown++; 
+					}
+				}
+			}
+			this.searchClose();
+			return shown;
+		},
+
+		hideSearch: function () {
+			var hidden = 0;
+			for (var a in arguments) {
+				for (var r = this.searches.length-1; r >= 0; r--) {
+					if (this.searches[r].field == arguments[a] && this.searches[r].hidden !== true) { 
+						this.searches[r].hidden = true; 
+						hidden++; 
+					}
+				}
+			}
+			this.searchClose();
+			return hidden;
+		},
+
+		removeSearch: function () {
+			var removed = 0;
+			for (var a in arguments) {
+				for (var r = this.searches.length-1; r >= 0; r--) {
+					if (this.searches[r].field == arguments[a]) { this.searches.splice(r, 1); removed++; }
+				}
+			}
+			this.searchClose();
+			return removed;
+		},
+
+		addSearch: function (before, search) {
+			if (arguments.length == 1) {
+				search = before;
+				before = this.searches.length;
+			} else {
+				before = this.getSearch(before, true);
+				if (before === null) before = this.searches.length;
+			}
+			if (!$.isArray(search)) search = [search];
+			for (var o in search) {
+				this.searches.splice(before, 0, search[o]);
+				before++;
+			}
+			this.searchClose();
+		},
+
+		getSearchData: function (field) {
+			for (var s in this.searchData) {
+				if (this.searchData[s].field == field) return this.searchData[s];
+			}
+			return null;
+		},		
 
 		clear: function () {
 			this.records = [];
@@ -332,7 +469,7 @@
 					var fl  = 0;
 					for (var s in this.searches) {
 						var search 	= this.searches[s];
-						var sdata  	= findSearch(search.field);
+						var sdata  	= this.getSearchData(search.field);
 						if (sdata == null) continue;
 						var val1 	= String(rec[search.field]).toLowerCase();
 						if (typeof sdata.value != 'undefined') {
@@ -384,13 +521,6 @@
 					if (rec.hidden !== true && rec.summary !== true) this.total++;
 				}
 			}
-
-			function findSearch(field) {
-				for (var s in obj.searchData) {
-					if (obj.searchData[s].field == field) return obj.searchData[s];
-				}
-				return null;
-			}
 		},
 
 		select: function (recid) {
@@ -402,7 +532,7 @@
 				var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, recid: record.recid });
 				if (eventData.stop === true) continue;
 				// default action
-				var i = this.getIndex(record.recid);
+				var i = this.get(record.recid, true);
 				record.selected = true;
 				$('#grid_'+this.name +'_rec_'+ record.recid).addClass('w2ui-selected').data('selected', 'yes');
 				$('#grid_'+ this.name +'_cell_'+ i +'_select_check').attr('checked', true);
@@ -436,7 +566,7 @@
 				var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: record.recid });
 				if (eventData.stop === true) continue;
 				// default action
-				var i = this.getIndex(record.recid);
+				var i = this.get(record.recid, true);
 				record.selected = false
 				$('#grid_'+this.name +'_rec_'+ record.recid).removeClass('w2ui-selected').data('selected', '');
 				if ($('#grid_'+this.name +'_rec_'+ record.recid).length != 0) {
@@ -543,7 +673,7 @@
 				last_logic	= 'AND';
 				for (var f in field) {
 					var data   = field[f];
-					var search = findSearch(data.field);
+					var search = this.getSearch(data.field);
 					if (search == null) {
 						console.log('ERROR: Cannot find field "'+ data.field + '" when submitting a search.');
 						continue;
@@ -616,13 +746,6 @@
 				this.localSearch();
 				this.goto(0);
 			}
-
-			function findSearch(field) {
-				for (var s in obj.searches) {
-					if (obj.searches[s].field == field) return obj.searches[s];
-				}
-				return null;
-			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -631,60 +754,28 @@
 			if (!this.box) return;
 			if (this.searches.length == 0) return;
 			var obj = this;
-			// slide down
-			this.searchOpened = true;
-			if ($('#w2ui-global-searches').length == 0) {
-				$('body').append('<div id="w2ui-global-searches" class="w2ui-reset"> <div></div> </div>');
-			}
-			$('#w2ui-global-searches').css({
-				left 	: $('#grid_'+ this.name +'_search_all').offset().left + 'px',
-				top 	: ($('#grid_'+ this.name +'_search_all').offset().top
-						   + w2utils.getSize($('#grid_'+ this.name +'_search_all'),  'height')
-						  ) + 'px'
-			}).show().data('grid-name', this.name);
-			$('#w2ui-global-searches > div').html(this.getSearchesHTML())
-			$('#w2ui-global-searches > div').css({
-				'-webkit-transform': 'translate3d(0px, -'+ $('#w2ui-global-searches').height() +'px, 0px)',
-				'-moz-transform': 'translate3d(0px, -'+ $('#w2ui-global-searches').height() +'px, 0px)',
-				'-ms-transform': 'translate3d(0px, -'+ $('#w2ui-global-searches').height() +'px, 0px)',
-				'-o-transform': 'translate3d(0px, -'+ $('#w2ui-global-searches').height() +'px, 0px)'
-			});
-			setTimeout(function () {
-				$('#w2ui-global-searches > div').css({
-					'-webkit-transition': '.3s',
-					'-webkit-transform': 'translate3d(0px, 0px, 0px)',
-					'-moz-transition': '.3s',
-					'-moz-transform': 'translate3d(0px, 0px, 0px)',
-					'-ms-transition': '.3s',
-					'-ms-transform': 'translate3d(0px, 0px, 0px)',
-					'-o-transition': '.3s',
-					'-o-transform': 'translate3d(0px, 0px, 0px)'
-				});
-				if (obj.last_logic == 'OR') obj.searchData = [];
-				obj.initSearches();
-			}, 10);
-			setTimeout(function () {
-				$('#w2ui-global-searches').css({ 'box-shadow': '0px 2px 10px #777' });
-			}, 350);
+			// show search
+			$('#'+ this.name +'_toolbar_item_search-advanced').w2overlay(
+				this.getSearchesHTML(), 
+				{ 
+					left: -10, 
+					'class': 'w2ui-grid-searches',
+					onShow: function () {
+						if (obj.last_logic == 'OR') obj.searchData = [];
+						obj.initSearches();
+						$('#w2ui-overlay .w2ui-grid-searches').data('grid-name', obj.name);
+						var sfields = $('#w2ui-overlay .w2ui-grid-searches *[rel=search]');
+						if (sfields.length > 0) sfields[0].focus();
+					}
+				}
+			);
 		},
 
 		searchClose: function () {
 			if (!this.box) return;
 			if (this.searches.length == 0) return;
-			var obj = this;
-			// slide down
-			this.searchOpened = false;
-			$('#w2ui-global-searches').css('box-shadow', '0px 0px 0px white');
-			$('#w2ui-global-searches > div').css({
-				'-webkit-transform': 'translate3d(0px, -'+ $('#w2ui-global-searches').height() +'px, 0px)',
-				'-moz-transform': 'translate3d(0px, -'+ $('#w2ui-global-searches').height() +'px, 0px)',
-				'-ms-transform': 'translate3d(0px, -'+ $('#w2ui-global-searches').height() +'px, 0px)',
-				'-o-transform': 'translate3d(0px, -'+ $('#w2ui-global-searches').height() +'px, 0px)'
-			});
-			setTimeout(function () {
-				$('#w2ui-global-searches').hide();
-				$('#w2ui-global-searches > div').html('');
-			}, 300);
+			// hide search
+			$().w2overlay();
 		},
 
 		searchShowFields: function (el) {
@@ -746,13 +837,8 @@
 			this.last_scrollTop		= 0;
 			this.last_scrollLeft	= 0;
 			this.last_selected		= [];
-			// reset on screen
-			$('#grid_'+ this.name +'_search_all').attr('placeholder', this.last_caption);
-			$('#w2ui-global-searches *[rel=search]').val(null);
 			// -- clear all search field
 			this.searchClose();
-			$('#grid_'+ this.name +'_search_all').attr('placeholder', this.last_caption);
-			$('#w2ui-global-searches *[rel=search]').val(null);
 			// apply search
 			if (this.url != '') {
 				this.isLoaded = false;
@@ -811,7 +897,6 @@
 			this.height = null;
 			this.isLoaded = false;
 			// reset last remembered state
-			this.searchOpened		= false;
 			this.searchData			= [];
 			this.last_search		= '';
 			this.last_field			= 'all';
@@ -1101,7 +1186,6 @@
 			// default action
 			var obj = this;
 			$('#grid_'+ this.name +'_check_all').removeAttr('checked');
-			if (this.searchOpened) this.searchClose(); // hide search if it is open
 			var record = this.get(recid);
 			if (record) var tmp_previous = record.selected;
 			// clear other if necessary
@@ -1119,7 +1203,7 @@
 					this.selectNone();
 				}
 				if (cnt == 1) {
-					var ind = this.getIndex(recid);
+					var ind = this.get(recid, true);
 					if (ind > firsti) {
 						for (var i=firsti; i<=ind; i++) { this.select(this.records[i].recid); }
 					} else {
@@ -1152,7 +1236,7 @@
 						var sel = obj.getSelection();
 						if (sel.length == 1) {
 							var recid = sel[0];
-							var ind   = obj.getIndex(recid);
+							var ind   = obj.get(recid, true);
 							var sTop	= parseInt($('#grid_'+ obj.name +'_records').prop('scrollTop'));
 							var sHeight = parseInt($('#grid_'+ obj.name +'_records').height());
 							if (event.keyCode == 38) { // up
@@ -1249,10 +1333,10 @@
 			if (expanded == 'yes') {
 				$('#grid_'+this.name +'_rec_'+ recid).attr('expanded', '');
 				$('#grid_'+this.name +'_rec_'+ recid +'_expaned_row').remove();
-				$('#grid_'+this.name +'_cell_'+ this.getIndex(recid) +'_expand div').html('+');
+				$('#grid_'+this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('+');
 			} else {
 				$('#grid_'+this.name +'_rec_'+ recid).attr('expanded', 'yes')
-				$('#grid_'+this.name +'_cell_'+ this.getIndex(recid) +'_expand div').html('-');
+				$('#grid_'+this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('-');
 				$('#grid_'+this.name +'_rec_'+ recid +'_expaned_row').show();
 			}
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -1334,8 +1418,8 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
 			if (eventData.stop === true) return false;
-			// -- advanced search - hide it
-			if (this.searchOpened) this.searchClose();
+			// -- make sure search is closed
+			this.searchClose();
 			// -- header
 			if (this.show.header) {
 				$('#grid_'+ this.name +'_header').html(this.header +'&nbsp;').show();
@@ -1448,7 +1532,6 @@
 				this.box = box;
 			}
 			if (!this.box) return;
-			$('#w2ui-global-searches').remove(); // show searches from previous grid
 			if (this.last_sortData == null) this.last_sortData = this.sortData;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
@@ -1496,6 +1579,37 @@
 		// ===========================================
 		// --- Internal Functions
 
+		initColumnOnOff: function () {
+			if (!this.show.toolbarColumns) return;
+			var obj = this;
+			var col_html = '<div class="w2ui-column-on-off"><table>';
+			for (var c in this.columns) {
+				col_html += '<tr>'+
+					'<td>'+
+					'	<input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+
+					'		onclick ="var obj = w2ui[\''+ this.name +'\']; '+
+					'			  var col = obj.columns[\''+ c +'\']; '+
+					'			  if (this.checked) { '+
+					'				delete col.gridMinWidth; '+
+					'				delete col.hidden; '+
+					'			  } else { '+
+					'				delete col.gridMinWidth; '+
+					'				col.hidden = true; '+
+					'			  } '+
+					'			  obj.refresh(); '+
+					'			  if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
+					'</td>'+
+					'<td>'+
+						'<label for="grid_'+ this.name +'_column_'+ c +'_check">'+
+							(this.columns[c].caption == '' ? '- column '+ (c+1) +' -' : this.columns[c].caption) +
+						'</label>'+
+					'</td>'+
+					'</tr>';
+			}
+			col_html += "</div></table>";
+			this.toolbar.get('column-on-off').html = col_html;
+		},
+
 		initToolbar: function () {
 			// -- if toolbar is true
 			if (typeof this.toolbar['render'] == 'undefined') {
@@ -1509,33 +1623,9 @@
 				if (this.show.toolbarReload) {
 					this.toolbar.items.push({ type: 'button', id: 'refresh', img: 'icon-reload', hint: 'Reload data in the list' });
 				}
-				if (this.show.toolbarColumns) {
-					var col_html = '<div class="w2ui-column-on-off"><table>';
-					for (var c in this.columns) {
-						col_html += '<tr>'+
-							'<td>'+
-							'	<input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+
-							'	onclick ="var obj = w2ui[\''+ this.name +'\']; '+
-							'			  var col = obj.columns[\''+ c +'\']; '+
-							'			  if (this.checked) { '+
-							'				delete col.gridMinWidth; '+
-							'				delete col.hidden; '+
-							'			  } else { '+
-							'				delete col.gridMinWidth; '+
-							'				col.hidden = true; '+
-							'			  } '+
-							'			  obj.refresh(); '+
-							'			  if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
-							'</td>'+
-							'<td>'+
-								'<label for="grid_'+ this.name +'_column_'+ c +'_check">'+
-									(this.columns[c].caption == '' ? '- column '+ (c+1) +' -' : this.columns[c].caption) +
-								'</label>'+
-							'</td>'+
-							'</tr>';
-					}
-					col_html += "</div></table>";
-					this.toolbar.items.push({ type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: col_html });
+				if (this.show.toolbarColumns) {			
+					this.toolbar.items.push({ type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: '' });
+					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
 					this.toolbar.items.push({ type: 'break', id: 'break0' });
@@ -1612,7 +1702,7 @@
 							obj.doAdd();
 							break;
 						case 'search-advanced':
-							if (!obj.searchOpened) obj.searchOpen();
+							obj.searchOpen();
 							break;
 						case 'add-new':
 							obj.doAdd();
@@ -1645,9 +1735,9 @@
 			// init searches
 			for (var s in this.searches) {
 				var search = this.searches[s];
-				var sdata  = findSearch(search.field);
+				var sdata  = this.getSearchData(search.field);
 				// init types
-				switch (search.type) {
+				switch (String(search.type).toLowerCase()) {
 					case 'alphaNumeric':
 					case 'text':
 						$('#grid_'+ this.name +'_operator_'+s).val('begins with');
@@ -1691,16 +1781,9 @@
 				}
 			}
 			// add on change event
-			$('#w2ui-global-searches *[rel=search]').on('keypress', function (evnt) {
-				if (evnt.keyCode == 13) obj.search();
+			$('#w2ui-overlay .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
+				if (evnt.keyCode == 13) { obj.search(); }
 			});
-
-			function findSearch(field) {
-				for (var s in obj.searchData) {
-					if (obj.searchData[s].field == field) return obj.searchData[s];
-				}
-				return null;
-			}
 		},
 
 		initResize: function () {

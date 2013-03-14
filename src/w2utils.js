@@ -18,6 +18,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
 	var obj = {
 		settings : {
+<<<<<<< HEAD
                         i18n            : "en-US",
                         date_format	: "Mon dd, yyyy",
                         time_format	: "hh:mi pm",
@@ -29,6 +30,12 @@ var w2utils = (function () {
                         fulldays 	: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
                         yesterday       : "Yesterday"
                 },
+=======
+			RESTfull	: true,
+			date_format	: 'mm/dd/yyyy',
+			time_format	: 'hh:mi pm'
+		},
+>>>>>>> Added several grid methods and Refactored search fields
 		isInt			: isInt,
 		isFloat			: isFloat,
 		isMoney			: isMoney,
@@ -809,18 +816,19 @@ $.w2event = {
 	}
 	
 	$.fn.w2overlay = function (html, options) {
-		var newOverlay = false;
-		if (this.length == 0 || html == '') {
-			$('#w2ui-overlay').remove();
-			return;
-		}
-		// insert overlay if it does not exist
-		if ($('#w2ui-overlay').length == 0) {
-			$('body').append('<div id="w2ui-overlay" class="w2ui-overlay" style="display: none;"><div></div></div>');
-			newOverlay = true;
-		}
+		var isOpened = false;
 		if (!$.isPlainObject(options)) options = {};
 		if (!$.isPlainObject(options.css)) options.css = {};
+
+		if (this.length == 0 || html == '') {
+			if (typeof options.onHide == 'function') options.onHide();
+			$('#w2ui-overlay').remove();
+			$(document).off('click', hide);
+			return;
+		}
+		// insert (or re-insert) overlay
+		if ($('#w2ui-overlay').length > 0) { isOpened = true; $(document).off('click', hide); $('#w2ui-overlay').remove(); }
+		$('body').append('<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay"><div></div></div>');
 
 		// init
 		var obj = this;
@@ -830,31 +838,32 @@ $.w2event = {
 		if (typeof options.top == 'undefined') options.top = 0;
 		if (typeof options.left == 'undefined') options.left = 0;
 
+		// pickup bg color of first div
+		var bc  = div.css('background-color'); 
 		var div = $('#w2ui-overlay');
+		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div.css('background-color', bc);
+
 		div.css({
-				display : 'block',
+				display : 'none',
 				left 	: ($(obj).offset().left + options.left) + 'px',
 				top 	: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px'
 			})
 			.fadeIn('fast')
 			.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight))
-			.on('click', function () { div.data('ignoreClick', true); });
-		if (!newOverlay) div.data('ignoreClick', true);
+			.on('click', function (event) { 
+				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+			});
 
 		// click anywhere else hides the drop down
 		var hide = function () {
 			if (typeof options.onHide == 'function') options.onHide();
-			var div = $('#w2ui-overlay');
-			if (div.data('ignoreClick') === true) {
-				div.data('ignoreClick', false);
-				return;
-			}
-			div.remove();
+			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);
 		}
+
 		// need time to display
 		setTimeout(function () {
-			if (newOverlay) $(document).on('click', hide);
+			$(document).on('click', hide);
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 1);
 	}
