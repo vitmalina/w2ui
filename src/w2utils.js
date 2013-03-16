@@ -18,49 +18,46 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
 	var obj = {
 		settings : {
-                        /*
-                         * loc_ prefix reserved for translate strings
-                         */
-                        loc_i18n            : "en-US",
-                        loc_date_format	: "Mon dd, yyyy",
-                        loc_time_format	: "hh:mi pm",
-                        loc_currency        : "/^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$/",
-                        loc_float           : "/^[-]?[0-9]*[\.]?[0-9]+$/",
-                        loc_shortmonths     : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                        loc_fullmonths      : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                        loc_shortdays	: ["M", "T", "W", "T", "F", "S","S"],
-                        loc_fulldays 	: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
-                        loc_yesterday       : "Yesterday",
-                        /* w2fields.js  function : list_render */
-                        loc_no_items_found    : "No items found",
-                        /* w2form.js  function : validate */
-                        loc_not_integer      : "Not an integer",
-                        /* w2form.js  function : validate */
-                        loc_not_float        : "Not a float number",
-                        /* w2form.js  function : validate */
-                        loc_not_money        : "Not in money format",
-                        /* w2form.js  function : validate */
-                        loc_not_hex          : "Not a hex number",
-                        /* w2form.js  function : validate */
-                        loc_not_email        : "Not a valid email",
-                        /* w2form.js  function : validate */
-                        loc_not_valid_date   : "Not a valid date: ",
-                        /* w2form.js  function : validate */
-                        loc_required_field        : "Required field",
-                        
-                        /* w2popup.js  function : w2alert */
-                        loc_notification        : "Notification",
-                        
-                        /* w2popup.js  function : w2alert */
-                        loc_ok                  : "Ok",
-                        /* w2popup.js  function : w2confirm */
-                        loc_confirmation        : "Confirmation",
-                        /* w2popup.js  function : w2confirm */
-                        loc_yes                 : "Yes",
-                        /* w2popup.js  function : w2confirm */
-                        no                  : "No"
-                        
-                },
+						/*
+						 * loc_ prefix reserved for translate strings
+						 */
+						loc_i18n			: "en-US",
+						loc_date_format		: "Mon dd, yyyy",
+						loc_time_format		: "hh:mi pm",
+						loc_currency		: "^[\$]?[-]?[0-9]*[\.]?[0-9]+$",
+						loc_float			: "^[-]?[0-9]*[\.]?[0-9]+$",
+						loc_shortmonths		: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+						loc_fullmonths		: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+						loc_shortdays		: ["M", "T", "W", "T", "F", "S","S"],
+						loc_fulldays		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
+						loc_yesterday		: "Yesterday",
+						/* w2fields.js  function : list_render */
+						loc_no_items_found	: "No items found",
+						/* w2form.js  function : validate */
+						loc_not_integer		: "Not an integer",
+						/* w2form.js  function : validate */
+						loc_not_float		: "Not a float number",
+						/* w2form.js  function : validate */
+						loc_not_money		: "Not in money format",
+						/* w2form.js  function : validate */
+						loc_not_hex			: "Not a hex number",
+						/* w2form.js  function : validate */
+						loc_not_email		: "Not a valid email",
+						/* w2form.js  function : validate */
+						loc_not_valid_date	: "Not a valid date: ",
+						/* w2form.js  function : validate */
+						loc_required_field	: "Required field",
+						/* w2popup.js  function : w2alert */
+						loc_notification	: "Notification",
+						/* w2popup.js  function : w2alert */
+						loc_ok				: "Ok",
+						/* w2popup.js  function : w2confirm */
+						loc_confirmation	: "Confirmation",
+						/* w2popup.js  function : w2confirm */
+						loc_yes				: "Yes",
+						/* w2popup.js  function : w2confirm */
+						loc_no				: "No"
+		},
 		isInt			: isInt,
 		isFloat			: isFloat,
 		isMoney			: isMoney,
@@ -629,41 +626,41 @@ var w2utils = (function () {
 			case '+height': return bwidth.top + mwidth.top + bwidth.bottom + mwidth.bottom + pwidth.bottom + pwidth.bottom;
 		}
 	}
-        /**
-         * 
-         * @param {Object} localParam This object contain two properties :
-         * - {String} path The default value is ''
-         * - {String} local user code : {language}-{country}
-         * e.g. for Canada en-CA or fr-CA, for USA en-US, for UK en-EN 
-         * (cf http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm?=)
-         * The dafault value is en-US
-         * @returns {String}
-         */
-        function userLocal( localParam) {
-            var settings = w2utils.settings;
-            var param;
-            $.extend( {path : '', lang : 'en-us'}, localParam);
-            var result = localParam.lang.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
-            if ( result !== null && result.length === 3) {
-                param = result[1] + '-' + result[2].toUpperCase();
-                if ( param === settings.loc_i18n) {
-                    return param;
-                }
-                param = localParam.path + "locales/" + param.toLowerCase() + ".json";
-                $.ajax({
-                    url: param,
-                    type: "GET",
-                    dataType: "json",
-                    cache : false,
-                    async : false,
-                    }).done(function( data) {
-                        $.extend( settings, data);
-                    }).fail(function(jqXHR, textStatus) {
-                        alert( "Request failed: " + textStatus );
-                        });
-                }
-                return settings.loc_i18n;
-        }        
+	/**
+	* 
+	* @param {Object} localParam This object contain two properties :
+	* - {String} path The default value is ''
+	* - {String} local user code : {language}-{country}
+	* e.g. for Canada en-CA or fr-CA, for USA en-US, for UK en-EN 
+	* (cf http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm?=)
+	* The dafault value is en-US
+	* @returns {String}
+	*/
+	function userLocal( localParam) {
+		var settings = w2utils.settings;
+		var param;
+		$.extend( {path : '', lang : 'en-us'}, localParam);
+		var result = localParam.lang.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
+		if ( result !== null && result.length === 3) {
+			param = result[1] + '-' + result[2].toUpperCase();
+			if ( param === settings.loc_i18n) {
+				return param;
+			}
+			param = localParam.path + "locales/" + param.toLowerCase() + ".json";
+			$.ajax({
+				url: param,
+				type: "GET",
+				dataType: "json",
+				cache : false,
+				async : false,
+				}).done(function( data) {
+					$.extend( settings, data);
+				}).fail(function(jqXHR, textStatus) {
+					alert( "Request failed: " + textStatus );
+					});
+			}
+			return settings.loc_i18n;
+	}
 	
 })();
 

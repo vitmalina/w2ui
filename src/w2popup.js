@@ -564,8 +564,8 @@
 			height 	: 160,
 			title   : title,
 			body    : '<div class="w2ui-confirm-body">' + msg +'</div>',
-			buttons : '<input id="buttonNo" type="button" value="' + settings.no + '" class="w2ui-confirm-button">&nbsp;'+
-					  '<input id="buttonYes" type="button" value="' + settings.yes + '" class="w2ui-confirm-button">'
+			buttons : '<input id="buttonNo" type="button" value="No" class="w2ui-confirm-button">&nbsp;'+
+					  '<input id="buttonYes" type="button" value="Yes" class="w2ui-confirm-button">'
 		});
 		$('#w2ui-screenPopup #buttonNo').on('click', function () {
 			$().w2popup('close');
