@@ -926,7 +926,7 @@
 								showMax : false,
 								title 	: 'Error',
 								body 	: '<div class="w2ui-grid-error-msg">'+ data['message'] +'</div>',
-								buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
+								buttons : '<input type="button" value="' + w2utils.settings.loc_ok + '" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
 							});
 							console.log('ERROR: Cannot retrive records from '+ obj.url);
 							console.log(data);

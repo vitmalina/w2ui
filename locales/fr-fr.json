@@ -8,6 +8,14 @@
     "fullmonths"        : ["Janvier","Février","Mars","Avril","Mai","Juin","Jullet","Août","Septembre","Octobre","Novembre","Décembre"],
     "shortdays"		: ["L","M","M","J","V","S","D"],
     "fulldays" 		: ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"],
-    "yesterday"         : "Hier"
+    "yesterday"         : "Hier",
 
+    "no_items_found"   : "Aucune donnée trouvé",
+    "not_integer"      : "Ce n'est pas un entier",
+    "not_float"        : "Ce n'est pas un nombre à virgule",
+    "not_money"        : "Unité monétaire",
+    "not_hex"          : "Ce n'est pas un nombre en hexadécimal",
+    "not_email"        : "Ce n'est pas une adresse de courriel ",
+    "not_valid_date"   : "Ce n'est pas une date: ",
+    "required_field"   : "Champ obligatoire"
 }

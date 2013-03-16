@@ -521,39 +521,51 @@
 			delete this.resizing;
 		}		
 	}
-
+        /**
+         * Display a alert popup
+         * @param {String} msg
+         * @param {String} title 
+         */
 	window.w2alert = function (msg, title) {
+                var settings = w2utils.settings;
+
 		if (typeof title == 'undefined') {
-			title = 'Notification';
+			title = settings.loc_notification;
 		}
 		$().w2popup({
 			width 	: 350,
 			height 	: 160,
 			title   : title,
 			body    : '<div class="w2ui-alert-body">' + msg +'</div>',
-			buttons : '<input type="button" value="Ok" class="w2ui-alert-button" onclick="$().w2popup(\'close\');">'
+			buttons : '<input type="button" value="' + settings.loc_ok + '" class="w2ui-alert-button" onclick="$().w2popup(\'close\');">'
 		});
 		$('#w2ui-screenPopup #btnYes').on('click', function () {
 			$().w2popup('close');
 			if (typeof callBack == 'function') callBack();
 		});
 	};
-
+        /**
+         * Display a confirmation popup with two buttons (Yes, No)
+         * @param {String} msg
+         * @param {String|Function} title
+         * @param {Function} callBack
+         */
 	window.w2confirm = function (msg, title, callBack) {
+                var settings = w2utils.settings;
 		if (typeof callBack == 'undefined' || typeof title == 'function') {
 			callBack = title; 
-			title = 'Confirmation';
+			title = settings.loc_confirmation;
 		}
 		if (typeof title == 'undefined') {
-			title = 'Confirmation';
+			title = settings.loc_confirmation;
 		}
 		$().w2popup({
 			width 	: 350,
 			height 	: 160,
 			title   : title,
 			body    : '<div class="w2ui-confirm-body">' + msg +'</div>',
-			buttons : '<input id="buttonNo" type="button" value="No" class="w2ui-confirm-button">&nbsp;'+
-					  '<input id="buttonYes" type="button" value="Yes" class="w2ui-confirm-button">'
+			buttons : '<input id="buttonNo" type="button" value="' + settings.no + '" class="w2ui-confirm-button">&nbsp;'+
+					  '<input id="buttonYes" type="button" value="' + settings.yes + '" class="w2ui-confirm-button">'
 		});
 		$('#w2ui-screenPopup #buttonNo').on('click', function () {
 			$().w2popup('close');

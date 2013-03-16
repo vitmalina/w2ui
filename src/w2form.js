@@ -279,6 +279,8 @@
 		},
 
 		validate: function (showErrors) {
+                        var settings = w2utils.settings;
+
 			if (typeof showErrors == 'undefined') showErrors = true;
 			// validate before saving
 			var errors = [];
@@ -288,35 +290,35 @@
 				switch (field.type) {
 					case 'int':
 						if (this.record[field.name] && !w2utils.isInt(this.record[field.name])) {
-							var error = { field: field, error: 'Not an integer' };
+							var error = { field: field, error: settings.loc_not_integer };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} 
 						break;
 					case 'float':
 						if (this.record[field.name] && !w2utils.isFloat(this.record[field.name])) {
-							var error = { field: field, error: 'Not a float number' };
+							var error = { field: field, error: settings.loc_not_float };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} 
 						break;
 					case 'money':
 						if (this.record[field.name] && !w2utils.isMoney(this.record[field.name])) {
-							var error = { field: field, error: 'Not in money format' };
+							var error = { field: field, error: settings.loc_not_money };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} 
 						break;
 					case 'hex':
 						if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
-							var error = { field: field, error: 'Not a hex number' };
+							var error = { field: field, error: settings.loc_not_hex };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error, { class: 'w2ui-error' });
 						} 
 						break;
 					case 'email':
 						if (this.record[field.name] && !w2utils.isEmail(this.record[field.name])) {
-							var error = { field: field, error: 'Not a valid email' };
+							var error = { field: field, error: settings.loc_not_email };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} 
@@ -328,7 +330,7 @@
 					case 'date':
 						// format date before submit
 						if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
-							var error = { field: field, error: 'Not a valid date: '+ field.options.format };
+							var error = { field: field, error: settings.loc_not_valid_date + field.options.format };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} else {
@@ -365,7 +367,7 @@
 				}
 				// check required
 				if (field.required && !this.record[field.name]) {
-					var error = { field: field, error: 'Required field' };
+					var error = { field: field, error: settings.loc_required_field };
 					errors.push(error);
 					if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 				}					

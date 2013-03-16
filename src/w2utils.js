@@ -18,16 +18,48 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
 	var obj = {
 		settings : {
-                        i18n            : "en-US",
-                        date_format	: "Mon dd, yyyy",
-                        time_format	: "hh:mi pm",
-                        currency        : "/^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$/",
-                        float           : "/^[-]?[0-9]*[\.]?[0-9]+$/",
-                        shortmonths     : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                        fullmonths      : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                        shortdays	: ["M", "T", "W", "T", "F", "S","S"],
-                        fulldays 	: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
-                        yesterday       : "Yesterday"
+                        /*
+                         * loc_ prefix reserved for translate strings
+                         */
+                        loc_i18n            : "en-US",
+                        loc_date_format	: "Mon dd, yyyy",
+                        loc_time_format	: "hh:mi pm",
+                        loc_currency        : "/^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$/",
+                        loc_float           : "/^[-]?[0-9]*[\.]?[0-9]+$/",
+                        loc_shortmonths     : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                        loc_fullmonths      : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                        loc_shortdays	: ["M", "T", "W", "T", "F", "S","S"],
+                        loc_fulldays 	: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
+                        loc_yesterday       : "Yesterday",
+                        /* w2fields.js  function : list_render */
+                        loc_no_items_found    : "No items found",
+                        /* w2form.js  function : validate */
+                        loc_not_integer      : "Not an integer",
+                        /* w2form.js  function : validate */
+                        loc_not_float        : "Not a float number",
+                        /* w2form.js  function : validate */
+                        loc_not_money        : "Not in money format",
+                        /* w2form.js  function : validate */
+                        loc_not_hex          : "Not a hex number",
+                        /* w2form.js  function : validate */
+                        loc_not_email        : "Not a valid email",
+                        /* w2form.js  function : validate */
+                        loc_not_valid_date   : "Not a valid date: ",
+                        /* w2form.js  function : validate */
+                        loc_required_field        : "Required field",
+                        
+                        /* w2popup.js  function : w2alert */
+                        loc_notification        : "Notification",
+                        
+                        /* w2popup.js  function : w2alert */
+                        loc_ok                  : "Ok",
+                        /* w2popup.js  function : w2confirm */
+                        loc_confirmation        : "Confirmation",
+                        /* w2popup.js  function : w2confirm */
+                        loc_yes                 : "Yes",
+                        /* w2popup.js  function : w2confirm */
+                        no                  : "No"
+                        
                 },
 		isInt			: isInt,
 		isFloat			: isFloat,
@@ -46,7 +78,7 @@ var w2utils = (function () {
 		base64decode            : base64decode,
 		transition		: transition,
 		getSize			: getSize,
-                i18n: i18n
+                userLocal               : userLocal
 	}
 	return obj;
 	
@@ -56,12 +88,12 @@ var w2utils = (function () {
 	}
 		
 	function isFloat (val) {
-		var re =  new RegExp(w2utils.settings.float);
+		var re =  new RegExp(w2utils.settings.loc_float);
 		return re.test(val);		
 	}
 
 	function isMoney (val) {
-		var re =  new RegExp(w2utils.settings.currency);
+		var re =  new RegExp(w2utils.settings.loc_currency);
 		return re.test(val);		
 	}
 		
@@ -82,7 +114,7 @@ var w2utils = (function () {
 
 	function isDate (val, format) {
 		if (typeof val == 'undefined' || val == null) return false;
-		if (typeof format == 'undefined' || format == null) format = w2utils.settings.date_format;
+		if (typeof format == 'undefined' || format == null) format = w2utils.settings.loc_date_format;
 		// USA format mm/dd/yyyy
 		if (format.toLowerCase() == 'mm/dd/yyyy') {
 			if (val.split("/").length != 3) return false; 
@@ -134,9 +166,10 @@ var w2utils = (function () {
 	}
 
 	function formatDate (dateStr, format) {
-		var months = w2utils.settings.shortmonths;
-		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format == 'undefined') format = this.settings.date_format;
+                var settings = w2utils.settings;
+		var months = settings.loc_shortmonths;
+		var fullMonths = settings.loc_fullmonths;
+		if (typeof format == 'undefined') format = this.settings.loc_date_format;
 		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
 
 		var dt = new Date(dateStr);
@@ -160,7 +193,8 @@ var w2utils = (function () {
 	}
 	
 	function date (dateStr) {
-		var months = w2utils.settings.shortmonths;
+                var settings = w2utils.settings;
+		var months = settings.loc_shortmonths;
 		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
 		if (w2utils.isInt(dateStr)) dateStr = Number(dateStr); // for unix timestamps
 		
@@ -184,7 +218,7 @@ var w2utils = (function () {
 		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var dsp = dd1;
 		if (dd1 == dd2) dsp = time;
-		if (dd1 == dd3) dsp = w2utils.settings.yesterday;
+		if (dd1 == dd3) dsp = settings.loc_yesterday;
 
 		return '<span title="'+ dd1 + ' ' + time2 +'">'+ dsp + '</span>';
 	}
@@ -595,16 +629,27 @@ var w2utils = (function () {
 			case '+height': return bwidth.top + mwidth.top + bwidth.bottom + mwidth.bottom + pwidth.bottom + pwidth.bottom;
 		}
 	}
-        
-        function i18n( path, str) {
+        /**
+         * 
+         * @param {Object} localParam This object contain two properties :
+         * - {String} path The default value is ''
+         * - {String} local user code : {language}-{country}
+         * e.g. for Canada en-CA or fr-CA, for USA en-US, for UK en-EN 
+         * (cf http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm?=)
+         * The dafault value is en-US
+         * @returns {String}
+         */
+        function userLocal( localParam) {
+            var settings = w2utils.settings;
             var param;
-            var result = str.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
+            $.extend( {path : '', lang : 'en-us'}, localParam);
+            var result = localParam.lang.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
             if ( result !== null && result.length === 3) {
                 param = result[1] + '-' + result[2].toUpperCase();
-                if ( param === w2utils.settings.i18n) {
+                if ( param === settings.loc_i18n) {
                     return param;
                 }
-                param = path + "i18n/" + param.toLowerCase() + ".json";
+                param = localParam.path + "locales/" + param.toLowerCase() + ".json";
                 $.ajax({
                     url: param,
                     type: "GET",
@@ -612,12 +657,12 @@ var w2utils = (function () {
                     cache : false,
                     async : false,
                     }).done(function( data) {
-                        $.extend( w2utils.settings, data);
+                        $.extend( settings, data);
                     }).fail(function(jqXHR, textStatus) {
                         alert( "Request failed: " + textStatus );
                         });
                 }
-                return w2utils.settings.i18n;
+                return settings.loc_i18n;
         }        
 	
 })();

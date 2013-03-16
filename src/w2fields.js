@@ -132,7 +132,7 @@
 					case 'date':
 						var obj = this;
 						var defaults = {
-							format 		: w2utils.settings.date_format, // date format
+							format 		: w2utils.settings.loc_date_format, // date format
 							start   	: '',				// start of selectable range
 							end 		: '',				// end of selectable range
 							blocked     : {}, 				// {'4/11/2011': 'yes'}
@@ -515,7 +515,7 @@
 			}
 			ihtml += '</ul>';
 			if (i == 0) { 
-				ihtml   = '<div class="w2ui-empty-list">No items found</div>';
+				ihtml   = '<div class="w2ui-empty-list">' + w2utils.settings.loc_no_items_found + '</div>';
 				var noItems = true;
 			}
 			div.find('.w2ui-items-list').html(ihtml);
@@ -699,9 +699,11 @@
 		},
 		
 		calendar_month: function(month, year, options) {
+                        var settings = w2utils.settings;
+
 			var td = new Date();
-			var months 		= w2utils.settings.fullmonths;
-			var days  		= w2utils.settings.fulldays;
+			var months 		= settings.loc_fullmonths;
+			var days  		= settings.loc_fulldays;
 			var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
 			var today		= (Number(td.getMonth())+1) + '/' + td.getDate() + '/' + (String(td.getYear()).length > 3 ? td.getYear() : td.getYear() + 1900);
 			
@@ -721,7 +723,7 @@
 			td.setMonth(month-1);
 			td.setYear(year);
 			var weekDay = td.getDay();
-			var tabDays = w2utils.settings.shortdays;
+			var tabDays = settings.loc_shortdays;
                         var dayTitle = '';
                         for ( var i = 0, len = tabDays.length; i < len; i++) {
                             dayTitle += '<td>' + tabDays[i] + '</td>'; 
