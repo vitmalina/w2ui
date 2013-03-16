@@ -18,9 +18,18 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
 	var obj = {
 		settings : {
-			RESTfull	: true,
-			date_format	: 'mm/dd/yyyy',
-			time_format	: 'hh:mi pm'
+			i18n			: "en-US",
+			date_format		: "mm/dd/yyyy",
+			date_display	: "Mon dd, yyyy",
+			time_format		: "hh:mi pm",
+			currency		: "^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$",
+			float			: "^[-]?[0-9]*[\.]?[0-9]+$",
+			shortmonths		: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+			fullmonths		: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			shortdays		: ["M", "T", "W", "T", "F", "S","S"],
+			fulldays 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
+			yesterday		: "Yesterday",
+			RESTfull		: true
 		},
 		isInt			: isInt,
 		isFloat			: isFloat,
@@ -39,7 +48,8 @@ var w2utils = (function () {
 		base64encode	: base64encode,
 		base64decode	: base64decode,
 		transition		: transition,
-		getSize			: getSize
+		getSize			: getSize,
+		i18n 			: i18n
 	}
 	return obj;
 	
@@ -49,12 +59,12 @@ var w2utils = (function () {
 	}
 		
 	function isFloat (val) {
-		var re =  /^[-]?[0-9]*[\.]?[0-9]+$/;
+		var re =  new RegExp(w2utils.settings.float);
 		return re.test(val);		
 	}
 
 	function isMoney (val) {
-		var re =  /^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$/;
+		var re =  new RegExp(w2utils.settings.currency);
 		return re.test(val);		
 	}
 		
@@ -116,9 +126,8 @@ var w2utils = (function () {
 	}
 
 	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
-		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		var fullMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 
-						  'October', 'November', 'December'];
+		var months = w2utils.settings.shortmonths;
+		var fullMonths = w2utils.settings.fullmonths;
 		if (typeof format == 'undefined') format = this.settings.date_format;
 		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
 
@@ -143,7 +152,7 @@ var w2utils = (function () {
 	}
 	
 	function date (dateStr) {
-		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		var months = w2utils.settings.shortmonths;
 		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
 		if (w2utils.isInt(dateStr)) dateStr = Number(dateStr); // for unix timestamps
 		
@@ -167,7 +176,7 @@ var w2utils = (function () {
 		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var dsp = dd1;
 		if (dd1 == dd2) dsp = time;
-		if (dd1 == dd3) dsp = 'Yesterday';
+		if (dd1 == dd3) dsp = w2utils.settings.yesterday;
 
 		return '<span title="'+ dd1 + ' ' + time2 +'">'+ dsp + '</span>';
 	}
@@ -585,7 +594,31 @@ var w2utils = (function () {
 			case '+width': 	return bwidth.left + mwidth.left + bwidth.right + mwidth.right + pwidth.right + pwidth.right; 
 			case '+height': return bwidth.top + mwidth.top + bwidth.bottom + mwidth.bottom + pwidth.bottom + pwidth.bottom;
 		}
-	}		
+	}
+        
+        function i18n( path, str) {
+            var param;
+            var result = str.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
+            if ( result !== null && result.length === 3) {
+                param = result[1] + '-' + result[2].toUpperCase();
+                if ( param === w2utils.settings.i18n) {
+                    return param;
+                }
+                param = path + "i18n/" + param.toLowerCase() + ".json";
+                $.ajax({
+                    url: param,
+                    type: "GET",
+                    dataType: "json",
+                    cache : false,
+                    async : false,
+                    }).done(function( data) {
+                        $.extend( w2utils.settings, data);
+                    }).fail(function(jqXHR, textStatus) {
+                        alert( "Request failed: " + textStatus );
+                        });
+                }
+                return w2utils.settings.i18n;
+        }        
 	
 })();
 
@@ -6975,8 +7008,8 @@ $.w2event = {
 		
 		calendar_month: function(month, year, options) {
 			var td = new Date();
-			var months 		= ['January', 'February', 'March', 'April', 'May', 'June', 'July',	'August', 'September', 'October', 'November', 'December'];
-			var days  		= ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+			var months 		= w2utils.settings.fullmonths;
+			var days  		= w2utils.settings.fulldays;
 			var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
 			var today		= (Number(td.getMonth())+1) + '/' + td.getDate() + '/' + (String(td.getYear()).length > 3 ? td.getYear() : td.getYear() + 1900);
 			
@@ -6996,7 +7029,11 @@ $.w2event = {
 			td.setMonth(month-1);
 			td.setYear(year);
 			var weekDay = td.getDay();
-			
+			var tabDays = w2utils.settings.shortdays;
+                        var dayTitle = '';
+                        for ( var i = 0, len = tabDays.length; i < len; i++) {
+                            dayTitle += '<td>' + tabDays[i] + '</td>'; 
+                        }
 			var html  = 
 				'<div class="w2ui-calendar-title">'+
 				'	<div class="w2ui-calendar-previous" onclick="$().w2field(\'calendar_previous\', \''+ month +'/'+ year +'\')"> <- </div>'+
@@ -7004,7 +7041,7 @@ $.w2event = {
 						months[month-1] +', '+ year + 
 				'</div>'+
 				'<table class="w2ui-calendar-days" onclick="" cellspacing="0">'+
-				'	<tr class="w2ui-day-title"><td>M</td> <td>T</td> <td>W</td> <td>T</td> <td>F</td> <td>S</td> <td>S</td></tr>'+
+				'	<tr class="w2ui-day-title">' + dayTitle + '</tr>'+
 				'	<tr>';
 					
 			var day = 1;
@@ -7072,6 +7109,7 @@ $.w2event = {
 	w2obj.w2field = w2field;
 
 }) (jQuery);
+
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined

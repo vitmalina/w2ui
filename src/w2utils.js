@@ -18,29 +18,24 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
 	var obj = {
 		settings : {
-<<<<<<< HEAD
-                        i18n            : "en-US",
-                        date_format	: "Mon dd, yyyy",
-                        time_format	: "hh:mi pm",
-                        currency        : "/^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$/",
-                        float           : "/^[-]?[0-9]*[\.]?[0-9]+$/",
-                        shortmonths     : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                        fullmonths      : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                        shortdays	: ["M", "T", "W", "T", "F", "S","S"],
-                        fulldays 	: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
-                        yesterday       : "Yesterday"
-                },
-=======
-			RESTfull	: true,
-			date_format	: 'mm/dd/yyyy',
-			time_format	: 'hh:mi pm'
+			i18n			: "en-US",
+			date_format		: "mm/dd/yyyy",
+			date_display	: "Mon dd, yyyy",
+			time_format		: "hh:mi pm",
+			currency		: "^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$",
+			float			: "^[-]?[0-9]*[\.]?[0-9]+$",
+			shortmonths		: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+			fullmonths		: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			shortdays		: ["M", "T", "W", "T", "F", "S","S"],
+			fulldays 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
+			yesterday		: "Yesterday",
+			RESTfull		: true
 		},
->>>>>>> Added several grid methods and Refactored search fields
 		isInt			: isInt,
 		isFloat			: isFloat,
 		isMoney			: isMoney,
 		isHex			: isHex,
-		isAlphaNumeric          : isAlphaNumeric,
+		isAlphaNumeric	: isAlphaNumeric,
 		isEmail			: isEmail,
 		isDate			: isDate,
 		isTime			: isTime,
@@ -50,11 +45,11 @@ var w2utils = (function () {
 		date 			: date,
 		stripTags		: stripTags,
 		encodeTags		: encodeTags,
-		base64encode            : base64encode,
-		base64decode            : base64decode,
+		base64encode	: base64encode,
+		base64decode	: base64decode,
 		transition		: transition,
 		getSize			: getSize,
-                i18n: i18n
+		i18n 			: i18n
 	}
 	return obj;
 	
@@ -130,16 +125,9 @@ var w2utils = (function () {
 		return true;
 	}
 
-<<<<<<< HEAD
-	function formatDate (dateStr, format) {
+	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
-=======
-	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
-		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		var fullMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 
-						  'October', 'November', 'December'];
->>>>>>> Started work on new field type
 		if (typeof format == 'undefined') format = this.settings.date_format;
 		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
 
