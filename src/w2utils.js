@@ -18,14 +18,22 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
 	var obj = {
 		settings : {
-			date_format	: 'Mon dd, yyyy',
-			time_format	: 'hh:mi pm'
-		},
+                        i18n            : "en-US",
+                        date_format	: "Mon dd, yyyy",
+                        time_format	: "hh:mi pm",
+                        currency        : "/^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$/",
+                        float           : "/^[-]?[0-9]*[\.]?[0-9]+$/",
+                        shortmonths     : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                        fullmonths      : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                        shortdays	: ["M", "T", "W", "T", "F", "S","S"],
+                        fulldays 	: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
+                        yesterday       : "Yesterday"
+                },
 		isInt			: isInt,
 		isFloat			: isFloat,
 		isMoney			: isMoney,
 		isHex			: isHex,
-		isAlphaNumeric	: isAlphaNumeric,
+		isAlphaNumeric          : isAlphaNumeric,
 		isEmail			: isEmail,
 		isDate			: isDate,
 		isTime			: isTime,
@@ -34,10 +42,11 @@ var w2utils = (function () {
 		date 			: date,
 		stripTags		: stripTags,
 		encodeTags		: encodeTags,
-		base64encode	: base64encode,
-		base64decode	: base64decode,
+		base64encode            : base64encode,
+		base64decode            : base64decode,
 		transition		: transition,
-		getSize			: getSize
+		getSize			: getSize,
+                i18n: i18n
 	}
 	return obj;
 	
@@ -47,12 +56,12 @@ var w2utils = (function () {
 	}
 		
 	function isFloat (val) {
-		var re =  /^[-]?[0-9]*[\.]?[0-9]+$/;
+		var re =  new RegExp(w2utils.settings.float);
 		return re.test(val);		
 	}
 
 	function isMoney (val) {
-		var re =  /^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$/;
+		var re =  new RegExp(w2utils.settings.currency);
 		return re.test(val);		
 	}
 		
@@ -125,9 +134,8 @@ var w2utils = (function () {
 	}
 
 	function formatDate (dateStr, format) {
-		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		var fullMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 
-						  'October', 'November', 'December'];
+		var months = w2utils.settings.shortmonths;
+		var fullMonths = w2utils.settings.fullmonths;
 		if (typeof format == 'undefined') format = this.settings.date_format;
 		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
 
@@ -152,7 +160,7 @@ var w2utils = (function () {
 	}
 	
 	function date (dateStr) {
-		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		var months = w2utils.settings.shortmonths;
 		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
 		if (w2utils.isInt(dateStr)) dateStr = Number(dateStr); // for unix timestamps
 		
@@ -176,7 +184,7 @@ var w2utils = (function () {
 		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var dsp = dd1;
 		if (dd1 == dd2) dsp = time;
-		if (dd1 == dd3) dsp = 'Yesterday';
+		if (dd1 == dd3) dsp = w2utils.settings.yesterday;
 
 		return '<span title="'+ dd1 + ' ' + time2 +'">'+ dsp + '</span>';
 	}
@@ -586,7 +594,31 @@ var w2utils = (function () {
 			case '+width': 	return bwidth.left + mwidth.left + bwidth.right + mwidth.right + pwidth.right + pwidth.right; 
 			case '+height': return bwidth.top + mwidth.top + bwidth.bottom + mwidth.bottom + pwidth.bottom + pwidth.bottom;
 		}
-	}		
+	}
+        
+        function i18n( path, str) {
+            var param;
+            var result = str.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
+            if ( result !== null && result.length === 3) {
+                param = result[1] + '-' + result[2].toUpperCase();
+                if ( param === w2utils.settings.i18n) {
+                    return param;
+                }
+                param = path + "i18n/" + param.toLowerCase() + ".json";
+                $.ajax({
+                    url: param,
+                    type: "GET",
+                    dataType: "json",
+                    cache : false,
+                    async : false,
+                    }).done(function( data) {
+                        $.extend( w2utils.settings, data);
+                    }).fail(function(jqXHR, textStatus) {
+                        alert( "Request failed: " + textStatus );
+                        });
+                }
+                return w2utils.settings.i18n;
+        }        
 	
 })();
 
