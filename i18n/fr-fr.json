@@ -1,0 +1,13 @@
+{
+    "i18n"              : "fr-FR",
+    "date_format"	: "Mon dd, yyyy",
+    "time_format"	: "hh:mi",
+    "currency"          : "/^[-+]?[0-9]*[\\.]?[0-9]+\\€$/",
+    "float"             : "/^[-+]?[0-9]*[\\.,]?[0-9]+$/",
+    "shortmonths"       : ["Jan","Féb","Mar","Avr","Mai","Jui","Jui","Aou","Sep","Oct","Nov","Déc"],
+    "fullmonths"        : ["Janvier","Février","Mars","Avril","Mai","Juin","Jullet","Août","Septembre","Octobre","Novembre","Décembre"],
+    "shortdays"		: ["L","M","M","J","V","S","D"],
+    "fulldays" 		: ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"],
+    "yesterday"         : "Hier"
+
+}

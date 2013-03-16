@@ -700,8 +700,8 @@
 		
 		calendar_month: function(month, year, options) {
 			var td = new Date();
-			var months 		= ['January', 'February', 'March', 'April', 'May', 'June', 'July',	'August', 'September', 'October', 'November', 'December'];
-			var days  		= ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+			var months 		= w2utils.settings.fullmonths;
+			var days  		= w2utils.settings.fulldays;
 			var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
 			var today		= (Number(td.getMonth())+1) + '/' + td.getDate() + '/' + (String(td.getYear()).length > 3 ? td.getYear() : td.getYear() + 1900);
 			
@@ -721,7 +721,11 @@
 			td.setMonth(month-1);
 			td.setYear(year);
 			var weekDay = td.getDay();
-			
+			var tabDays = w2utils.settings.shortdays;
+                        var dayTitle = '';
+                        for ( var i = 0, len = tabDays.length; i < len; i++) {
+                            dayTitle += '<td>' + tabDays[i] + '</td>'; 
+                        }
 			var html  = 
 				'<div class="w2ui-calendar-title">'+
 				'	<div class="w2ui-calendar-previous" onclick="$().w2field(\'calendar_previous\', \''+ month +'/'+ year +'\')"> <- </div>'+
@@ -729,7 +733,7 @@
 						months[month-1] +', '+ year + 
 				'</div>'+
 				'<table class="w2ui-calendar-days" onclick="" cellspacing="0">'+
-				'	<tr class="w2ui-day-title"><td>M</td> <td>T</td> <td>W</td> <td>T</td> <td>F</td> <td>S</td> <td>S</td></tr>'+
+				'	<tr class="w2ui-day-title">' + dayTitle + '</tr>'+
 				'	<tr>';
 					
 			var day = 1;
