@@ -245,6 +245,10 @@
 
 					case 'select':
 					case 'list':
+						if (this.tagName != 'SELECT') {
+							console.log('ERROR: You can only apply $().w2field(\'list\') to a SELECT element');
+							return;
+						}
 						var defaults = {
 							items 		: [],
 							value 		: null,
@@ -266,6 +270,10 @@
 						break;
 
 					case 'enum':
+						if (this.tagName != 'INPUT') {
+							console.log('ERROR: You can only apply $().w2field(\'enum\') to an INPUT element');
+							return;
+						}
 						var defaults = {
 							url			: '',
 							items		: [],
@@ -419,6 +427,23 @@
 						this.refresh();
 						break;
 
+					case 'upload':
+						if (this.tagName != 'DIV') {
+							console.log('ERROR: You can only apply $().w2field(\'upload\') to a DIV element');
+							return;
+						}
+						var defaults = {
+							url			: '',
+							onProgress	: null,
+							onComplete	: null
+						}
+						var obj	= this;
+						var settings = $.extend({}, defaults, options);
+
+						$(this).data('settings', settings); 
+						w2field.upload_init.call(this);
+						break;
+
 					default: 
 						console.log('Error w2field does not recognize "'+ options.type + '" field type.');
 						break;
@@ -432,6 +457,82 @@
 		addType: function (type, handler) {
 			w2field.customTypes[type] = handler;
 		},
+
+		// ******************************************************
+		// -- Upload
+
+		upload_init: function () {
+			var obj = this;
+			// inset controls
+			$(obj)
+				.addClass('w2ui-upload')
+				.append('<span>File DROP ZONE (or click to select)</span>')
+				.append('<ul class="file-list"></ul>')
+				.append('<input class="file-input" type="file" name="attachment" multiple style="display: none">');
+
+			// if user selects files through input control
+			$(obj).find('.file-input').on('change', function () {
+				if (typeof this.files !== "undefined") {
+					for (var i = 0, l = this.files.length; i < l; i++) {
+						w2field.upload_add.call(obj, this.files[i]);
+					}
+				}
+			});
+
+			// if user clicks drop zone
+			$(obj)
+				.on('click', function (event) {
+					if (event.target.tagName == 'LI' || $(event.target).hasClass('file-size')) {
+						return;
+					}
+					if ($(event.target).hasClass('file-delete')) {
+						$(event.target.parentNode).remove();
+						return;
+					}
+					$(obj).find('.file-input')[0].click();
+				})
+				.on('dragenter', function (event) {
+					$(obj).addClass('dragover');
+				})
+				.on('dragleave', function (event) {
+					$(obj).removeClass('dragover');
+				})
+				.on('drop', function (event) {
+					$(obj).removeClass('dragover');
+					var files = event.originalEvent.dataTransfer.files;
+					for (var i=0, l=files.length; i<l; i++) w2field.upload_add.call(obj, files[i]);
+					// cancel to stop browser behaviour
+					event.preventDefault();
+					event.stopPropagation();
+				})
+				.on('dragover', function (event) { 
+					// cancel to stop browser behaviour
+					event.preventDefault();
+					event.stopPropagation();
+				});
+		},
+
+		upload_add: function (file) {
+			var cnt = $(this).find('.file-list li').length;
+			$(this).find('> span:first-child').remove();
+			$(this).find('.file-list').append('<li id="file-' + cnt + '">' + 
+				'	<div class="file-delete">&nbsp;&nbsp;</div>' + file.name + 
+				'	<span class="file-size"> - ' + w2utils.size(file.size) + '</span>'+
+				'</li>');
+			$(this).find('.file-list #file-' + cnt).data('file', file);
+		},
+
+		upload_getAll: function () {
+			var files = [];
+			var cnt = $(this).find('.file-list li').length;
+			for (var i=0; i<cnt; i++) {
+			 	files.push($(this).find('.file-list li').data('file'));
+			}
+			return files;
+		},
+
+		// ******************************************************
+		// -- Enum
 
 		list_render: function (search) {
 			var obj 	 = this;

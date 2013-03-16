@@ -52,6 +52,17 @@
 			c_9: 'c-9', 
 			c_10:'c-10', 
 		}});
+
+		$('#upload').w2field({
+			type 		: 'upload',
+			url 		: 'http://w2ui.com/upload.php',
+			onProgress 	: function () {
+				console.log('progress');
+			},
+			onComplete 	: function () {
+				console.log('progress');
+			}
+		});
 	});
 </script>
 <body>
@@ -61,7 +72,9 @@
 		<div style="height: 10px"></div>
 		<select type="text" id="list" onchange="console.log('change: '+this.value);"></select>
 		<div style="height: 10px"></div>
-		<input type="text" id="enum" style="width: 200px"/>
+		<input type="text" id="enum" style="width: 400px"/>
+		<div style="height: 10px"></div>
+		<div id="upload" style="width: 400px"></div>
 	</div>
 </body>
 </html>

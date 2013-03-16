@@ -138,8 +138,13 @@ div.w2ui-list {
 			background-color: @list-item-background-color;
 			white-space: nowrap;
 			cursor: default;
-			font-size: 11px;
+			font-family: @list-item-font;
+			font-size: @list-item-font-size;
 			line-height: normal;
+
+			&:hover {
+				background-color: darken(@list-item-background-color, 10%);
+			}
 
 			&:last-child {
 				border-radius: 0px;
@@ -232,4 +237,77 @@ div.w2ui-items {
             background-color: @dropdown-item-selected-background-color;
         }
     }
+}
+
+// -- upload
+
+.w2ui-upload {
+	background-color: @list-background-color;
+	border: @list-border; 
+	border-radius: 3px;
+	min-height: 40px;
+	max-height: 100px;
+	text-align: center;
+	overflow: auto;
+
+	> span:first-child { // this a DROP ZONE message, will be remove when first file dropped
+		pointer-events: none;
+		display: inline-block;
+		padding: 10px;
+		font-size: 16px !important;
+		color: #aaa;
+	}
+
+	&.dragover {
+		background-color: #D9FFD5;
+		border: 1px solid #93E07D;
+	}
+
+	.file-list {
+		margin: 0px;
+		padding: 0px;
+		margin-bottom: 6px;
+
+		li {
+			padding: 2px 5px;
+			font-family: @list-item-font;
+			font-size: @list-item-font-size;
+			line-height: normal;
+			float: left;
+			display: inline-block;
+			border: @list-item-border;
+			background-color: @list-item-background-color;
+			border-radius: 3px;
+			margin: 2px 0px 2px 2px;
+			text-align: left;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			cursor: default;
+			width: auto;
+			max-width: 400px;
+
+			&:hover {
+				background-color: darken(@list-item-background-color, 10%);
+			}
+
+			> span.file-size {
+				color: #777;
+			}
+
+			> div.file-delete {
+				float: right;
+				z-index: 1;
+				width: 12px;
+				margin: 1px -3px 0px 2px;
+				border-radius: 15px;
+				.background-image(@image-item-close, no-repeat, center, left);
+				background-position: 0px 0px;
+				&:hover {
+					background-position: -12px 0px;
+					cursor: pointer;
+				}
+			}
+		}
+	}
 }

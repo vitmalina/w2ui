@@ -44,6 +44,7 @@ var w2utils = (function () {
 		isEmail			: isEmail,
 		isDate			: isDate,
 		isTime			: isTime,
+		size 			: size,
 		age 			: age,
 		formatDate		: formatDate,
 		date 			: date,
@@ -90,19 +91,8 @@ var w2utils = (function () {
 	function isDate (val, format) {
 		if (typeof val == 'undefined' || val == null) return false;
 		if (typeof format == 'undefined' || format == null) format = w2utils.settings.date_format;
-		// USA format mm/dd/yyyy
-		if (format.toLowerCase() == 'mm/dd/yyyy') {
-			if (val.split("/").length != 3) return false; 
-			var month	= val.split("/")[0];
-			var day		= val.split("/")[1];
-			var year	= val.split("/")[2];
-			var obj = new Date(year, month-1, day);
-			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;			
-			return true;
-		}
 		// European format dd/mm/yyyy
-		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy' 
-				|| format.toLowerCase() == 'dd.mm.yyyy') {
+		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy' || format.toLowerCase() == 'dd.mm.yyyy') {
 			val = val.replace(/-/g, '/').replace(/\./g, '/');
 			if (val.split("/").length != 3) return false; 
 			var month	= val.split("/")[1];
@@ -112,12 +102,12 @@ var w2utils = (function () {
 			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
 			return true;
 		}
- 		// Other formats
-		var dt = new Date(val);
+ 		// US Format will get converted normally
+		var dt = new Date(val.replace(/-/g, '/').replace(/\./g, '/'));
 		if (dt == 'Invalid Date') return false;
 		// make sure it is in correct format
 		if (typeof format != 'undefined') {
-			var dt = this.formatDate(val, format);
+			var dt = this.formatDate(dt, format);
 			if (dt != val) return false;
 		}
 		return true;
@@ -140,9 +130,16 @@ var w2utils = (function () {
 		return true;
 	}
 
+<<<<<<< HEAD
 	function formatDate (dateStr, format) {
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
+=======
+	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
+		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		var fullMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 
+						  'October', 'November', 'December'];
+>>>>>>> Started work on new field type
 		if (typeof format == 'undefined') format = this.settings.date_format;
 		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
 
@@ -194,6 +191,14 @@ var w2utils = (function () {
 		if (dd1 == dd3) dsp = w2utils.settings.yesterday;
 
 		return '<span title="'+ dd1 + ' ' + time2 +'">'+ dsp + '</span>';
+	}
+
+	function size (sizeStr) {
+		if (!w2utils.isFloat(sizeStr) || sizeStr == '') return '';
+		sizeStr = parseFloat(sizeStr);
+		var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
+		var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
+		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i == 0 ? 0 : 1) + ' ' + sizes[i];
 	}
 
 	function age (timeStr) {
