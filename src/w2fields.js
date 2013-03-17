@@ -99,9 +99,7 @@
 							}
 						});
 						$(this).on('blur', function (event)  { // keyCode & charCode differ in FireFox
-							if (!w2utils.isInt(this.value)) { 
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isInt(this.value)) { 
 								$(this).w2tag(w2utils.lang('Not an integer'));
 							}
 						});
@@ -117,9 +115,7 @@
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isFloat(this.value)) {
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isFloat(this.value)) {
 								$(this).w2tag(w2utils.lang('Not a float'));
 							} 
 						});
@@ -135,9 +131,7 @@
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isMoney(this.value)) { 
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isMoney(this.value)) { 
 								$(this).w2tag(w2utils.lang('Not in money format'));
 							} 
 						});
@@ -153,9 +147,7 @@
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isHex(this.value)) { 
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isHex(this.value)) { 
 								$(this).w2tag(w2utils.lang('Not a hex number'));
 							}
 						});
@@ -171,9 +163,7 @@
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isAlphaNumeric(this.value)) { 
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isAlphaNumeric(this.value)) { 
 								$(this).w2tag(w2utils.lang('Not alpha-numeric')) 
 							} 
 						});
@@ -240,9 +230,7 @@
 								$(obj).val($.trim($(obj).val()));
 								// check if date is valid
 								if ($.trim($(obj).val()) != '' && !w2utils.isDate($(obj).val(), options.format)) {
-									$(obj).val('');
-									$(this).w2tag(w2utils.lang('Not a valid date') + ': '+ options.format, 
-										{ 'class': 'w2ui-error' });
+									$(this).w2tag(w2utils.lang('Not a valid date') + ': '+ options.format);
 								}
 								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();

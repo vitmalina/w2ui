@@ -28,7 +28,6 @@ var w2utils = (function () {
 			fullmonths		: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 			shortdays		: ["M", "T", "W", "T", "F", "S","S"],
 			fulldays 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-			yesterday		: "Yesterday",
 			RESTfull		: true,
 			phrases 		: {} // empty object for english phrases
 		},
@@ -51,7 +50,7 @@ var w2utils = (function () {
 		transition		: transition,
 		getSize			: getSize,
 		lang 			: lang,
-		i18n 			: i18n
+		userLocal 		: userLocal
 	}
 	return obj;
 	
@@ -178,7 +177,7 @@ var w2utils = (function () {
 		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var dsp = dd1;
 		if (dd1 == dd2) dsp = time;
-		if (dd1 == dd3) dsp = w2utils.settings.yesterday;
+		if (dd1 == dd3) dsp = w2utils.lang('Yesterday');
 
 		return '<span title="'+ dd1 + ' ' + time2 +'">'+ dsp + '</span>';
 	}
@@ -603,15 +602,27 @@ var w2utils = (function () {
 		if (typeof translation == 'undefined') return phrase; else return translation;
 	}
 
-	function i18n (path, str) {
+	/**
+	* 
+	* @param {Object} localParam This object contain two properties :
+	* - {String} path The default value is ''
+	* - {String} local user code : {language}-{country}
+	* e.g. for Canada en-CA or fr-CA, for USA en-US, for UK en-EN 
+	* (cf http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm?=)
+	* The dafault value is en-US
+	* @returns {String}
+	*/
+	function userLocal (localParam) {
+		var settings = w2utils.settings;
 		var param;
-		var result = str.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
-		if ( result !== null && result.length === 3) {
+		$.extend( { path : '', lang : 'en-us' }, localParam);
+		var result = localParam.lang.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
+		if (result !== null && result.length === 3) {
 			param = result[1] + '-' + result[2].toUpperCase();
-			if ( param === w2utils.settings.i18n) {
+			if ( param === settings.i18n) {
 				return param;
 			}
-			param = path + "i18n/" + param.toLowerCase() + ".json";
+			param = localParam.path + "locales/" + param.toLowerCase() + ".json";
 			$.ajax({
 				url: param,
 				type: "GET",
@@ -619,13 +630,14 @@ var w2utils = (function () {
 				cache : false,
 				async : false,
 				}).done(function( data) {
-					$.extend( w2utils.settings, data);
+					$.extend( settings, data);
 				}).fail(function(jqXHR, textStatus) {
 					alert( "Request failed: " + textStatus );
-					});
-			}
-			return w2utils.settings.i18n;
-	}		
+				});
+		}
+		return settings.i18n;
+	}
+
 })();
 
 /***********************************************************
