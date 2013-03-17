@@ -288,35 +288,35 @@
 				switch (field.type) {
 					case 'int':
 						if (this.record[field.name] && !w2utils.isInt(this.record[field.name])) {
-							var error = { field: field, error: 'Not an integer' };
+							var error = { field: field, error: w2utils.lang('Not an integer') };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} 
 						break;
 					case 'float':
 						if (this.record[field.name] && !w2utils.isFloat(this.record[field.name])) {
-							var error = { field: field, error: 'Not a float number' };
+							var error = { field: field, error: w2utils.lang('Not a float') };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} 
 						break;
 					case 'money':
 						if (this.record[field.name] && !w2utils.isMoney(this.record[field.name])) {
-							var error = { field: field, error: 'Not in money format' };
+							var error = { field: field, error: w2utils.lang('Not in money format') };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} 
 						break;
 					case 'hex':
 						if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
-							var error = { field: field, error: 'Not a hex number' };
+							var error = { field: field, error: w2utils.lang('Not a hex number') };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error, { class: 'w2ui-error' });
 						} 
 						break;
 					case 'email':
 						if (this.record[field.name] && !w2utils.isEmail(this.record[field.name])) {
-							var error = { field: field, error: 'Not a valid email' };
+							var error = { field: field, error: w2utils.lang('Not a valid email') };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} 
@@ -328,7 +328,7 @@
 					case 'date':
 						// format date before submit
 						if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
-							var error = { field: field, error: 'Not a valid date: '+ field.options.format };
+							var error = { field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format };
 							errors.push(error);
 							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 						} else {
@@ -365,7 +365,7 @@
 				}
 				// check required
 				if (field.required && !this.record[field.name]) {
-					var error = { field: field, error: 'Required field' };
+					var error = { field: field, error: w2utils.lang('Required field') };
 					errors.push(error);
 					if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
 				}					
@@ -389,7 +389,7 @@
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
 			if (!this.url) return;
-			this.showStatus('Saving...');
+			this.showStatus(w2utils.lang('Saving...'));
 			// build parameters list
 			var params = {};
 			// add list params

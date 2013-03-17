@@ -27,9 +27,10 @@ var w2utils = (function () {
 			shortmonths		: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			fullmonths		: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 			shortdays		: ["M", "T", "W", "T", "F", "S","S"],
-			fulldays 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday"],
+			fulldays 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
 			yesterday		: "Yesterday",
-			RESTfull		: true
+			RESTfull		: true,
+			phrases 		: {} // empty object for english phrases
 		},
 		isInt			: isInt,
 		isFloat			: isFloat,
@@ -49,6 +50,7 @@ var w2utils = (function () {
 		base64decode	: base64decode,
 		transition		: transition,
 		getSize			: getSize,
+		lang 			: lang,
 		i18n 			: i18n
 	}
 	return obj;
@@ -595,31 +597,35 @@ var w2utils = (function () {
 			case '+height': return bwidth.top + mwidth.top + bwidth.bottom + mwidth.bottom + pwidth.bottom + pwidth.bottom;
 		}
 	}
-        
-        function i18n( path, str) {
-            var param;
-            var result = str.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
-            if ( result !== null && result.length === 3) {
-                param = result[1] + '-' + result[2].toUpperCase();
-                if ( param === w2utils.settings.i18n) {
-                    return param;
-                }
-                param = path + "i18n/" + param.toLowerCase() + ".json";
-                $.ajax({
-                    url: param,
-                    type: "GET",
-                    dataType: "json",
-                    cache : false,
-                    async : false,
-                    }).done(function( data) {
-                        $.extend( w2utils.settings, data);
-                    }).fail(function(jqXHR, textStatus) {
-                        alert( "Request failed: " + textStatus );
-                        });
-                }
-                return w2utils.settings.i18n;
-        }        
-	
+
+	function lang (phrase) {
+		var translation = this.settings.phrases[phrase];
+		if (typeof translation == 'undefined') return phrase; else return translation;
+	}
+
+	function i18n (path, str) {
+		var param;
+		var result = str.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
+		if ( result !== null && result.length === 3) {
+			param = result[1] + '-' + result[2].toUpperCase();
+			if ( param === w2utils.settings.i18n) {
+				return param;
+			}
+			param = path + "i18n/" + param.toLowerCase() + ".json";
+			$.ajax({
+				url: param,
+				type: "GET",
+				dataType: "json",
+				cache : false,
+				async : false,
+				}).done(function( data) {
+					$.extend( w2utils.settings, data);
+				}).fail(function(jqXHR, textStatus) {
+					alert( "Request failed: " + textStatus );
+					});
+			}
+			return w2utils.settings.i18n;
+	}		
 })();
 
 /***********************************************************

@@ -99,7 +99,11 @@
 							}
 						});
 						$(this).on('blur', function (event)  { // keyCode & charCode differ in FireFox
-							if (!w2utils.isInt(this.value)) { this.value = ''; $(this).trigger('change'); } 
+							if (!w2utils.isInt(this.value)) { 
+								this.value = ''; 
+								$(this).trigger('change'); 
+								$(this).w2tag(w2utils.lang('Not an integer'));
+							}
 						});
 						break;
 						
@@ -113,7 +117,11 @@
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isFloat(this.value)) { this.value = ''; $(this).trigger('change'); } 
+							if (!w2utils.isFloat(this.value)) {
+								this.value = ''; 
+								$(this).trigger('change'); 
+								$(this).w2tag(w2utils.lang('Not a float'));
+							} 
 						});
 						break;
 						
@@ -127,7 +135,11 @@
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isMoney(this.value)) { this.value = ''; $(this).trigger('change'); } 
+							if (!w2utils.isMoney(this.value)) { 
+								this.value = ''; 
+								$(this).trigger('change'); 
+								$(this).w2tag(w2utils.lang('Not in money format'));
+							} 
 						});
 						break;
 						
@@ -141,7 +153,11 @@
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isHex(this.value)) { this.value = ''; $(this).trigger('change'); } 
+							if (!w2utils.isHex(this.value)) { 
+								this.value = ''; 
+								$(this).trigger('change'); 
+								$(this).w2tag(w2utils.lang('Not a hex number'));
+							}
 						});
 						break;
 						 
@@ -155,7 +171,11 @@
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isAlphaNumeric(this.value)) { this.value = ''; } 
+							if (!w2utils.isAlphaNumeric(this.value)) { 
+								this.value = ''; 
+								$(this).trigger('change'); 
+								$(this).w2tag(w2utils.lang('Not alpha-numeric')) 
+							} 
 						});
 						break;
 						
@@ -221,7 +241,8 @@
 								// check if date is valid
 								if ($.trim($(obj).val()) != '' && !w2utils.isDate($(obj).val(), options.format)) {
 									$(obj).val('');
-									$(this).w2tag('Not a valid date: '+ options.format, { 'class': 'w2ui-error' });
+									$(this).w2tag(w2utils.lang('Not a valid date') + ': '+ options.format, 
+										{ 'class': 'w2ui-error' });
 								}
 								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
@@ -257,7 +278,7 @@
 						var settings = $.extend({}, defaults, options);
 						var html =  '';
 						var items = cleanItems(settings.items);
-						if (settings.showNone) html = '<option value="">- none -</option>';
+						if (settings.showNone) html = '<option value="">- '+ w2utils.lang('none') +' -</option>';
 						for (var i in items) {
 							if (!settings.showNone && settings.value == null) settings.value = items[i].id;
 							html += '<option value="'+ items[i].id +'">'+ items[i].text + '</option>';
@@ -379,7 +400,7 @@
 							var selected = $(this).data('selected');
 							for (var s in selected) {
 								html += '<li style="'+ ($(this).data('last_del') == s ? 'opacity: 0.5' : '') +'">'+
-										'<div title="Remove" index="'+ s +'">&nbsp;&nbsp;</div>'+
+										'<div title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+
 										selected[s].text +
 										'</li>';
 							}
@@ -400,7 +421,7 @@
 
 							$(div).on('click', function (event) {
 								var el = event.target;
-								if (el.title == 'Remove') {
+								if (el.title == w2utils.lang('Remove')) {
 									$(obj).data('selected').splice($(el).attr('index'), 1);
 									$(el.parentNode).remove();
 									obj.refresh(); 
@@ -466,7 +487,7 @@
 			// inset controls
 			$(obj)
 				.addClass('w2ui-upload')
-				.append('<span>File DROP ZONE (or click to select)</span>')
+				.append('<span>'+ w2utils.lang('Attach files by dragging and dropping or Click to Select') +'</span>')
 				.append('<ul class="file-list"></ul>')
 				.append('<input class="file-input" type="file" name="attachment" multiple style="display: none">');
 
@@ -565,10 +586,10 @@
 				var match = false;
 				if (settings.last_total < settings.maxCache) match = true;
 				$.ajax({
-					type 	: 'GET',
-					dataType: 'text',
-					url 	: settings.url,
-					data 	: {
+					type 		: 'GET',
+					dataType	: 'text',
+					url 		: settings.url,
+					data : {
 						search 	: search,
 						max 	: settings.maxCache
 					},
@@ -615,7 +636,7 @@
 			}
 			ihtml += '</ul>';
 			if (i == 0) { 
-				ihtml   = '<div class="w2ui-empty-list">No items found</div>';
+				ihtml   = '<div class="w2ui-empty-list">'+ w2utils.lang('No items found') +'</div>';
 				var noItems = true;
 			}
 			div.find('.w2ui-items-list').html(ihtml);

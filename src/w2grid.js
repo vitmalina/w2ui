@@ -71,9 +71,9 @@
 		this.width				= null;		// read only
 		this.height				= null;		// read only
 
-		this.msgDelete			= 'Are you sure you want to delete selected records?';
-		this.msgNotJSON 		= 'Return data is not in JSON format. See console for more information.';
-		this.msgRefresh			= 'Refreshing...';
+		this.msgDelete			= w2utils.lang('Are you sure you want to delete selected records?');
+		this.msgNotJSON 		= w2utils.lang('Return data is not in JSON format. See console for more information.');
+		this.msgRefresh			= w2utils.lang('Refreshing...');
 
 		// events
 		this.onRequest			= null;		// called on any server event
@@ -97,7 +97,7 @@
 		// internal
 		this.recid				= null; 	// might be used by edit class to set sublists ids
 		this.last_field			= 'all';
-		this.last_caption 		= 'All Fields';
+		this.last_caption 		= w2utils.lang('All Fields');
 		this.last_logic			= 'OR';
 		this.last_search		= '';
 		this.last_multi  		= false;
@@ -829,7 +829,7 @@
 					this.last_caption 	= this.searches[0].caption;
 				} else {
 					this.last_field  	= 'all';
-					this.last_caption 	= 'All Fields';
+					this.last_caption 	= w2utils.lang('All Fields');
 				}
 			}
 			this.last_multi	= false;
@@ -900,7 +900,7 @@
 			this.searchData			= [];
 			this.last_search		= '';
 			this.last_field			= 'all';
-			this.last_caption 		= 'All Fields';
+			this.last_caption 		= w2utils.lang('All Fields');
 			this.last_logic			= 'OR';
 			this.last_scrollTop		= 0;
 			this.last_scrollLeft	= 0;
@@ -1162,10 +1162,10 @@
 					width 	: 400,
 					height 	: 180,
 					showMax : false,
-					title 	: 'Delete Confirmation',
+					title 	: w2utils.lang('Delete Confirmation'),
 					body 	: '<div class="w2ui-grid-delete-msg">'+ this.msgDelete +'</div>',
-					buttons : '<input type="button" value="No" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'+
-							  '<input type="button" value="Yes" onclick="w2ui[\''+ this.name +'\'].doDelete(true); $().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
+					buttons : '<input type="button" value="'+ w2utils.lang('No') + '" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'+
+							  '<input type="button" value="'+ w2utils.lang('Yes') + '" onclick="w2ui[\''+ this.name +'\'].doDelete(true); $().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
 				});
 				return;
 			}
@@ -1448,7 +1448,7 @@
 				if (this.searches[s].field == this.last_field) this.last_caption = this.searches[s].caption;
 			}
 			if (this.last_multi) {
-				$('#grid_'+ this.name +'_search_all').attr('placeholder', 'Multi Fields');
+				$('#grid_'+ this.name +'_search_all').attr('placeholder', w2utils.lang('Multi Fields'));
 			} else {
 				$('#grid_'+ this.name +'_search_all').attr('placeholder', this.last_caption);
 			}
@@ -1621,10 +1621,10 @@
 				// ------ Toolbar Generic buttons
 
 				if (this.show.toolbarReload) {
-					this.toolbar.items.push({ type: 'button', id: 'refresh', img: 'icon-reload', hint: 'Reload data in the list' });
+					this.toolbar.items.push({ type: 'button', id: 'refresh', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') });
 				}
 				if (this.show.toolbarColumns) {			
-					this.toolbar.items.push({ type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: '' });
+					this.toolbar.items.push({ type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' });
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
@@ -1634,7 +1634,7 @@
 					var html =
 						'<table cellpadding="0" cellspacing="0"><tr>'+
 						'	<td>'+
-						'		<div class="w2ui-icon icon-search-down w2ui-search-down" title="Select Search Field" '+ 
+						'		<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+ 
 									(this.isIOS ? 'onTouchStart' : 'onClick') +'="var obj = w2ui[\''+ this.name +'\']; obj.searchShowFields(this);"></div>'+
 						'	</td>'+
 						'	<td>'+
@@ -1651,23 +1651,23 @@
 						'</tr></table>';
 					this.toolbar.items.push({ type: 'html',   id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
-						this.toolbar.items.push({ type: 'button', id: 'search-advanced', caption: 'Search...', hint: 'Open Search Fields' });
+						this.toolbar.items.push({ type: 'button', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
 					}
 				}
 				if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarSave) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
-					this.toolbar.items.push({ type: 'button', id: 'add', caption: 'Add New', hint: 'Add new record', img: 'icon-add' });
+					this.toolbar.items.push({ type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' });
 				}
 				if (this.show.toolbarDelete) {
-					this.toolbar.items.push({ type: 'button', id: 'delete-selected', caption: 'Delete', hint: 'Delete selected records', img: 'icon-delete', disabled: true });
+					this.toolbar.items.push({ type: 'button', id: 'delete-selected', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), img: 'icon-delete', disabled: true });
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete ) {
 						this.toolbar.items.push({ type: 'break', id: 'break2' });
 					}
-					this.toolbar.items.push({ type: 'button', id: 'save-changed', caption: 'Save', hint: 'Save changed records', img: 'icon-save' });
+					this.toolbar.items.push({ type: 'button', id: 'save-changed', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), img: 'icon-save' });
 				}
 				// add original buttons
 				for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
@@ -2112,17 +2112,17 @@
 				if (typeof s.type	== 'undefined') s.type 	= 'text';
 				if (s.type == 'text') {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+i+'">'+
-						'	<option value="is">is</option>'+
-						'	<option value="begins with">begins with</option>'+
-						'	<option value="contains">contains</option>'+
-						'	<option value="ends with">ends with</option>'+
+						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
+						'	<option value="begins with">'+ w2utils.lang('begins with') +'</option>'+
+						'	<option value="contains">'+ w2utils.lang('contains') +'</option>'+
+						'	<option value="ends with">'+ w2utils.lang('ends with') +'</option>'+
 						'</select>';
 				}
 				if (s.type == 'int' || s.type == 'float' || s.type == 'date') {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+i+'" onchange="var el = $(\'#grid_'+ this.name + '_range_'+ i +'\'); '+
 						'					if ($(this).val() == \'is\') el.hide(); else el.show();">'+
-						'	<option value="is">is</option>'+
-						'	<option value="between">between</option>'+
+						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
+						'	<option value="between">'+ w2utils.lang('between') +'</option>'+
 						'</select>';
 				}
 				if (s.type == 'list') {
@@ -2163,8 +2163,8 @@
 			html += '<tr>'+
 					'	<td colspan="4" class="actions">'+
 					'		<div>'+
-					'		<input type="button" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }" value="Reset">'+
-					'		<input type="button" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }" value="Search">'+
+					'		<input type="button" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }" value="'+ w2utils.lang('Reset') + '">'+
+					'		<input type="button" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }" value="'+ w2utils.lang('Search') + '">'+
 					'		</div>'+
 					'	</td>'+
 					'</tr></table>';

@@ -524,43 +524,41 @@
 
 	window.w2alert = function (msg, title) {
 		if (typeof title == 'undefined') {
-			title = 'Notification';
+			title = w2utils.lang('Notification');
 		}
 		$().w2popup({
-			width 	: 350,
-			height 	: 160,
+			width 	: 450,
+			height 	: 200,
 			title   : title,
 			body    : '<div class="w2ui-alert-body">' + msg +'</div>',
-			buttons : '<input type="button" value="Ok" class="w2ui-alert-button" onclick="$().w2popup(\'close\');">'
-		});
-		$('#w2ui-screenPopup #btnYes').on('click', function () {
-			$().w2popup('close');
-			if (typeof callBack == 'function') callBack();
+			buttons : '<input type="button" value="'+ w2utils.lang('Ok') +'" class="w2ui-alert-button" onclick="$().w2popup(\'close\');">'
 		});
 	};
 
 	window.w2confirm = function (msg, title, callBack) {
 		if (typeof callBack == 'undefined' || typeof title == 'function') {
 			callBack = title; 
-			title = 'Confirmation';
+			title = w2utils.lang('Confirmation');
 		}
 		if (typeof title == 'undefined') {
-			title = 'Confirmation';
+			title = w2utils.lang('Confirmation');
 		}
 		$().w2popup({
-			width 	: 350,
-			height 	: 160,
+			width 	: 450,
+			height 	: 200,
 			title   : title,
 			body    : '<div class="w2ui-confirm-body">' + msg +'</div>',
-			buttons : '<input id="buttonNo" type="button" value="No" class="w2ui-confirm-button">&nbsp;'+
-					  '<input id="buttonYes" type="button" value="Yes" class="w2ui-confirm-button">'
+			buttons : '<input id="buttonNo" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-confirm-button">&nbsp;'+
+					  '<input id="buttonYes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-confirm-button">'
 		});
-		$('#w2ui-screenPopup #buttonNo').on('click', function () {
+		$('#w2ui-popup #buttonNo').on('click', function () {
 			$().w2popup('close');
+			if (typeof callBack == 'function') callBack('No');
 		});
-		$('#w2ui-screenPopup #buttonYes').on('click', function () {
+		$('#w2ui-popup #buttonYes').on('click', function () {
 			$().w2popup('close');
-			if (typeof callBack == 'function') callBack();
+			if (typeof callBack == 'function') callBack('Yes');
 		});
 	};
+
 })();
