@@ -307,7 +307,7 @@
 					}
 				}
 			}
-			this.refresh();
+			this.resize();
 			return shown;
 		},
 
@@ -321,7 +321,7 @@
 					}
 				}
 			}
-			this.refresh();
+			this.resize();
 			return hidden;
 		},
 
@@ -1399,7 +1399,20 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, width: this.width, height: this.height });
 			if (eventData.stop === true) return false;
-			obj.resizeBoxes(); obj.resizeRecords();
+			// -- body (need this for hide/show columns to work)
+			var bodyHTML = '';
+			bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
+						'	onscroll="var obj = w2ui[\''+ this.name + '\']; obj.last_scrollTop = this.scrollTop; obj.last_scrollLeft = this.scrollLeft; '+
+						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft">'+
+						'	<table>'+ this.getRecordsHTML() +'</table>'+
+						'</div>'+
+						'<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
+						'	<table>'+ this.getColumnsHTML() +'</table>'+
+						'</div>'; // Columns need to be after to be able to overlap
+			$('#grid_'+ this.name +'_body').html(bodyHTML);
+			// resize
+			obj.resizeBoxes(); 
+			obj.resizeRecords();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -1464,7 +1477,7 @@
 
 			// -- body
 			var bodyHTML = '';
-		   bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
+			bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
 						'	onscroll="var obj = w2ui[\''+ this.name + '\']; obj.last_scrollTop = this.scrollTop; obj.last_scrollLeft = this.scrollLeft; '+
 						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft">'+
 						'	<table>'+ this.getRecordsHTML() +'</table>'+
@@ -1473,6 +1486,7 @@
 						'	<table>'+ this.getColumnsHTML() +'</table>'+
 						'</div>'; // Columns need to be after to be able to overlap
 			$('#grid_'+ this.name +'_body').html(bodyHTML);
+
 			// init editable
 			$('#grid_'+ this.name + '_records .w2ui-editable input').each(function (index, el) {
 				var column = obj.columns[$(el).attr('column')];
@@ -1553,7 +1567,6 @@
 					  '	<div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
 					  '</div>');
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
-			console.log(this.style);
 			// init toolbar
 			this.initToolbar();
 			if (this.toolbar != null) this.toolbar.render($('#grid_'+ this.name +'_toolbar')[0]);
@@ -1596,25 +1609,21 @@
 		initColumnOnOff: function () {
 			if (!this.show.toolbarColumns) return;
 			var obj = this;
-			var col_html = '<div class="w2ui-column-on-off"><table>';
+			var col_html = '<div class="w2ui-column-on-off">'+
+						   '<table>';
 			for (var c in this.columns) {
+				var col = this.columns[c];
 				col_html += '<tr>'+
 					'<td>'+
-					'	<input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+
-					'		onclick ="var obj = w2ui[\''+ this.name +'\']; '+
-					'			  var col = obj.columns[\''+ c +'\']; '+
-					'			  if (this.checked) { '+
-					'				delete col.gridMinWidth; '+
-					'				delete col.hidden; '+
-					'			  } else { '+
-					'				delete col.gridMinWidth; '+
-					'				col.hidden = true; '+
-					'			  } '+
-					'			  obj.refresh(); '+
-					'			  if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
+					'	<input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+ (col.hidden ? '' : 'checked') +
+					'		onclick="var obj = w2ui[\''+ obj.name +'\']; var col = obj.getColumn(\''+ col.field +'\'); '+
+					'				 if (col.hidden) { $(this).attr(\'checked\', true); obj.showColumn(col.field); } '+
+					'							else { $(this).removeAttr(\'checked\'); obj.hideColumn(col.field); } '+
+					'				 obj.initColumnOnOff();'+
+					'				 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 					'</td>'+
 					'<td>'+
-						'<label for="grid_'+ this.name +'_column_'+ c +'_check">'+
+					'	<label for="grid_'+ this.name +'_column_'+ c +'_check">'+
 							(this.columns[c].caption == '' ? '- column '+ (c+1) +' -' : this.columns[c].caption) +
 						'</label>'+
 					'</td>'+
@@ -1835,7 +1844,6 @@
 						obj.tmp_div_x = (event.screenX - obj.tmp_x);
 						obj.tmp_div_y = (event.screenY - obj.tmp_y);
 						obj.columns[obj.tmp_col].size = (parseInt(obj.columns[obj.tmp_col].size) + obj.tmp_div_x) + 'px';
-						//console.log(obj.columns[obj.tmp_col]);
 						obj.resizeRecords();
 						// reset
 						obj.tmp_x = event.screenX;

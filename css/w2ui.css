@@ -69,7 +69,7 @@ select {
 div.w2ui-overlay {
   position: absolute;
   margin-top: 6px;
-  margin-left: -25px;
+  margin-left: -17px;
   display: none;
   z-index: 1600;
   color: inherit;
@@ -99,7 +99,7 @@ div.w2ui-overlay:before {
   border-left: 1px solid transparent;
   border-bottom: 1px solid transparent;
   border-bottom-left-radius: 50px;
-  margin: -9px 0 0 40px;
+  margin: -9px 0 0 32px;
 }
 div.bubble-tag {
   background-color: rgba(60, 60, 60, 0.82);
@@ -1091,80 +1091,80 @@ div.w2ui-grid .w2ui-grid-footer .w2ui-footer-center .w2ui-footer-nav a.w2ui-foot
 .w2ui-overlay .w2ui-select-field table td:nth-child(2) {
   padding: 3px 15px 3px 3px;
 }
-#w2ui-global-drop .w2ui-column-on-off {
+.w2ui-overlay .w2ui-column-on-off {
   padding: 2px 0px;
 }
-#w2ui-global-drop .w2ui-column-on-off table {
+.w2ui-overlay .w2ui-column-on-off table {
   border-spacing: 0px;
   border-collapse: border-collapse;
 }
-#w2ui-global-drop .w2ui-column-on-off table tr:hover {
+.w2ui-overlay .w2ui-column-on-off table tr:hover {
   background-color: #b6d5ff;
 }
-#w2ui-global-drop .w2ui-column-on-off table td {
+.w2ui-overlay .w2ui-column-on-off table td {
   padding: 3px 3px 3px 6px;
 }
-#w2ui-global-drop .w2ui-column-on-off table td input[type=checkbox] {
+.w2ui-overlay .w2ui-column-on-off table td input[type=checkbox] {
   margin: 3px 2px 2px 2px;
 }
-#w2ui-global-drop .w2ui-column-on-off table td label {
+.w2ui-overlay .w2ui-column-on-off table td label {
   display: block;
   padding: 3px 0px;
 }
-#w2ui-overlay .w2ui-grid-searches {
+.w2ui-overlay .w2ui-grid-searches {
   text-align: left;
   padding: 0px;
   border-top: 0px;
   background-color: #f3f1d9;
 }
-#w2ui-overlay .w2ui-grid-searches table {
+.w2ui-overlay .w2ui-grid-searches table {
   padding: 4px;
   padding-top: 8px;
   border-collapse: border-collapse;
 }
-#w2ui-overlay .w2ui-grid-searches table td {
+.w2ui-overlay .w2ui-grid-searches table td {
   padding: 4px;
 }
-#w2ui-overlay .w2ui-grid-searches table td.close-btn {
+.w2ui-overlay .w2ui-grid-searches table td.close-btn {
   width: 20px;
   padding-right: 20px;
 }
-#w2ui-overlay .w2ui-grid-searches table td.close-btn input {
+.w2ui-overlay .w2ui-grid-searches table td.close-btn input {
   width: 25px !important;
 }
-#w2ui-overlay .w2ui-grid-searches table td.caption {
+.w2ui-overlay .w2ui-grid-searches table td.caption {
   text-align: right;
   padding-right: 5px;
   border-right: 1px solid #c0c0c0;
 }
-#w2ui-overlay .w2ui-grid-searches table td.operator {
+.w2ui-overlay .w2ui-grid-searches table td.operator {
   text-align: left;
   padding: 0px 10px;
   padding-right: 5px;
   border-right: 1px solid #c0c0c0;
 }
-#w2ui-overlay .w2ui-grid-searches table td.value {
+.w2ui-overlay .w2ui-grid-searches table td.value {
   padding-right: 5px;
   padding-left: 5px;
   background-color: #f7f6f0;
 }
-#w2ui-overlay .w2ui-grid-searches table td.value input[type=text] {
+.w2ui-overlay .w2ui-grid-searches table td.value input[type=text] {
   border-radius: 3px;
   padding: 3px;
   margin-right: 3px;
   height: 23px;
 }
-#w2ui-overlay .w2ui-grid-searches table td.value select {
+.w2ui-overlay .w2ui-grid-searches table td.value select {
   padding: 3px;
   margin-right: 3px;
   height: 23px;
 }
-#w2ui-overlay .w2ui-grid-searches table td.actions {
+.w2ui-overlay .w2ui-grid-searches table td.actions {
   border-right: 0px;
   padding: 20px 0px 10px 0px;
   text-align: center;
 }
-#w2ui-overlay .w2ui-grid-searches table td input[type=button] {
+.w2ui-overlay .w2ui-grid-searches table td input[type=button] {
   width: 70px;
   margin: 0px 2px;
 }
@@ -1611,37 +1611,22 @@ div.w2ui-toolbar div.w2ui-break {
   padding: 0px;
   margin: 0px 6px;
 }
-div.w2ui-toolbar div.w2ui-drop-box {
-  position: absolute;
-  display: none;
-  z-index: 1600;
-  margin-top: -1px;
-}
-#w2ui-global-drop {
-  position: absolute;
-  display: none;
-  z-index: 1600;
-  border: 1px solid #aaaaaa;
-  box-shadow: 0px 4px 8px #999999;
-  border-radius: 2px;
-  text-align: left;
-  margin-left: 2px;
-  background-color: #ffffff;
-}
-#w2ui-global-drop table {
+.w2ui-overlay table.w2ui-toolbar-drop {
+  width: 100%;
   color: #000000;
+  background-color: #ffffff;
   padding: 5px 0px;
   cursor: default;
 }
-#w2ui-global-drop tr td:first-child {
+.w2ui-overlay table.w2ui-toolbar-drop td:first-child {
   padding: 4px 0px 4px 6px;
 }
-#w2ui-global-drop tr td:last-child {
+.w2ui-overlay table.w2ui-toolbar-drop td:last-child {
   padding: 4px 15px 4px 4px;
 }
-#w2ui-global-drop tr.w2ui-selected {
+.w2ui-overlay table.w2ui-toolbar-drop tr.w2ui-selected {
   background-color: #d7e4f2;
 }
-#w2ui-global-drop tr.w2ui-selected td {
+.w2ui-overlay table.w2ui-toolbar-drop tr.w2ui-selected td {
   color: inherit;
 }

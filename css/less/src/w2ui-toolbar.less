@@ -81,40 +81,28 @@ div.w2ui-toolbar {
 		padding: 0px;
 		margin: 0px 6px;
    }
-
-   div.w2ui-drop-box {
-		position: absolute;
-		display: none;
-		z-index: 1600;
-		margin-top: -1px;
-	}
 }
 
-#w2ui-global-drop {
-	position: absolute;
-	display: none;
-	z-index: 1600;
-	border: @toolbar-drop-border;
-	box-shadow: @toolbar-drop-shadow;
-	border-radius: 2px;
-	text-align: left;
-	margin-left: 2px;
+.w2ui-overlay table.w2ui-toolbar-drop {
+	width: 100%;
+	color: @toolbar-drop-color;
 	background-color: @toolbar-drop-background-color;
-	& table {
-		color: @toolbar-drop-color;
-		padding: 5px 0px;
-		cursor: default;
-	}
-	& tr td:first-child {
+	padding: 5px 0px;
+	cursor: default;
+
+	td:first-child {
 		padding: 4px 0px 4px 6px
 	}
-	& tr td:last-child {
+
+	td:last-child {
 		padding: 4px 15px 4px 4px
 	}
-	& tr.w2ui-selected {
+
+	tr.w2ui-selected {
 		background-color: @toolbar-drop-selected-background-color;
 	}
-	& tr.w2ui-selected td {
+
+	tr.w2ui-selected td {
 		color: @toolbar-drop-selected-color;
-	}
+	}	
 }
