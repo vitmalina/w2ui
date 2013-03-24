@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.min.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.css" /> 
 <link rel="stylesheet" type="text/css" media="screen" href="../css/font-awesome/font-awesome.css" /> 
 <script type="text/javascript" src="../js/jquery.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
@@ -10,8 +10,8 @@ $(function () {
 	$('#sidebar').w2sidebar({
 		name: 'sidebar',
 		img: null,
-		top_html: '<div style="padding: 10px 5px; background-color: #eee; border-bottom: 1px solid silver;">This is text</div>',
-		bottom_html: '<div style="padding: 10px 5px; background-color: #eee; border-top: 1px solid silver;">Bottom</div>',
+		top_html: '<div style="padding: 10px 5px; background-color: #444; border-bottom: 1px solid #222;">This is text</div>',
+		bottom_html: '<div style="padding: 10px 5px; background-color: #444; border-top: 1px solid #222;">Bottom</div>',
 		nodes: [ 
 			{ id: 'level-1', text: 'Level 1', expanded: true, group: true,
 			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img1: 'icon-add', icon: 'fa-star', count: 1 },
@@ -61,6 +61,6 @@ $(function () {
 </script>
 </head>
 <body>
-	<div id="sidebar" style="position: absolute; width: 300px;height: 500px; border: 1px solid green; overflow: auto;"></div>
+	<div id="sidebar" style="width: 300px; height: 500px;"></div>
 </body>
 </html>

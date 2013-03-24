@@ -6,14 +6,16 @@
 <script type="text/javascript" src="../src/w2layout.js"></script>
 <script>
 $(function () {
-	var pstyle = 'background-color: #efefef';
+	var pstyle = '';//background-color: #414B61';
 	$('#layout').w2layout({
 		name: 'layout',
 		panels: [
-			{ type: 'top', size: 60, style: pstyle, resizable: true },
+			{ type: 'top', size: 50, style: pstyle, resizable: true },
 			{ type: 'left', size: 150, style: pstyle, resizable: true },
-			{ type: 'main', style: pstyle },
-			{ type: 'right', size: 150, style: pstyle, resizable: true }
+			{ type: 'main', style: pstyle, content: '<div style="padding: 10px">This is some text</div>' },
+			{ type: 'right', size: 150, style: pstyle, resizable: true },
+			{ type: 'preview', size: 150, style: pstyle, resizable: true },
+			{ type: 'bottom', size: 50, style: pstyle, resizable: true }
 		]
 	});
 
