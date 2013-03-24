@@ -3,10 +3,13 @@
 */
 
 div.w2ui-grid {
-	position: absolute; 
-	overflow: hidden;
 	border: @grid-border;
 	border-radius: 2px;
+
+	> div {
+		position: absolute; 
+		overflow: hidden;
+	}
 
 	input[type=checkbox] {
 		margin: 3px 1px; //* needed for Opera on Mac */
@@ -44,8 +47,8 @@ div.w2ui-grid {
 		color: @grid-header-color;
 		font-size: 13px;
 		text-align: center;
-		padding: 7px 10px;
-		.linear-gradient-vertical(@grid-header-linear-gradiant-start, @grid-header-linear-gradiant-end);
+		padding: 7px;
+		.linear-gradient-vertical(@grid-header-linear-gradient-start, @grid-header-linear-gradient-end);
 		border-top-left-radius: 2px;
 		border-top-right-radius: 2px;
 	}
@@ -75,6 +78,7 @@ div.w2ui-grid {
 		line-height: 100%;
 		height: 22px;
 		border: @grid-search-all-border;
+		color: @grid-search-all-color;
 		background-color: @grid-search-all-background-color;
 		padding: 3px 18px 3px 20px;
 		margin: 0px;
@@ -88,16 +92,16 @@ div.w2ui-grid {
 
 	.w2ui-search-clear {
 		position: absolute;
-		width: 15px;
+		width: 12px;
 		height: 15px;
-		margin-left: -19px;
-		margin-top: -7px;
+		margin-top: -6px;
+		margin-left: -17px;
 		border-radius: 15px;
-		.background-image(@image-search-clear, no-repeat, center, left);
+		.background-image(@image-item-close, no-repeat, center, left);
 		background-position: 0px 0px;
 
 		&:hover {
-			background-position: -14px 0px;
+			background-position: -12px 0px;
 			cursor: pointer;
 		}
 	}
@@ -112,7 +116,7 @@ div.w2ui-grid {
 		.user-select;
 
 		input, select, textarea {
-			.user-select( text);
+			.user-select(text);
 		}
 
 		.w2ui-grid-columns {
@@ -155,7 +159,7 @@ div.w2ui-grid {
 
 				tr {
 					&.w2ui-odd {
-						color: @grid-row-odd-color;
+						color: @grid-row-color;
 						background-color: @grid-row-odd-background-color;
 						&:hover {
 							color: @grid-row-hover-color;
@@ -163,7 +167,7 @@ div.w2ui-grid {
 						}
 					}
 					&.w2ui-even {
-						color: @grid-row-even-color;
+						color: @grid-row-color;
 						background-color: @grid-row-even-background-color;
 						&:hover {
 							color: @grid-row-hover-color;
@@ -195,6 +199,7 @@ div.w2ui-grid {
 
 				> div {
 					padding: 7px 3px;
+					color: @grid-headers-color;
 					.linear-gradient-vertical(@grid-headers-linear-gradient-start, @grid-headers-linear-gradient-end);
 					> div {
 						white-space: nowrap;
@@ -268,7 +273,6 @@ div.w2ui-grid {
 				}
 
 				&.w2ui-head input {
-
 					margin: 6px 5px;
 				}
 			}
@@ -316,6 +320,7 @@ div.w2ui-grid {
 			margin: 2px 0px; 
 			padding: 4px 3px;
 			border: 0px;
+			color: @grid-row-color;
 			background-color: @grid-editable-background-color;
 			width: 100%;
 
@@ -353,6 +358,7 @@ div.w2ui-grid {
 		overflow: hidden;
 		.user-select;
 		box-shadow: @grid-footer-shadow;
+		color: @grid-footer-color;
 		background-color: @grid-footer-background-color;
 		border-top: @grid-footer-border-top;
 		border-bottom-left-radius: 2px;
@@ -385,8 +391,6 @@ div.w2ui-grid {
 					border-radius: 3px;
 					width: 40px;
 					text-align: center;
-					border: @grid-footer-input-border;
-					background-color: @grid-footer-input-background-color;
 				}
 
 				a.w2ui-footer-btn { 
@@ -399,9 +403,11 @@ div.w2ui-grid {
 					width: 30px; 
 					height: 18px;
 					margin-top: -1px;
+					color: @grid-footer-btn-color; 
 					background-color: @grid-footer-btn-background-color; 
 
 					&:hover { 
+						color: @grid-footer-btn-hover-color; 
 						background-color: @grid-footer-btn-hover-background-color; 
 					} 
 				}	
@@ -507,7 +513,6 @@ div.w2ui-grid {
 				padding-left: 5px;
 				background-color: @grid-searches-value-background-color;
 				input[type=text] {
-					border: @grid-searches-input-border;
 					border-radius: 3px;
 					padding: 3px;
 					margin-right: 3px;

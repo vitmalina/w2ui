@@ -1,291 +1,271 @@
 // ******************************************
 // ---- Drak Theme ----
-//
 
 @import "src/w2ui-mixins.less";
 @import "src/w2ui-images-dark.less";
-//@import "src/w2ui-images-dev.less";
+
+// ******************************************
+// ---- If you need to redefine system button
+// ---- used in w2form, w2popup
+
+.sys-button () {
+	border-radius : 3px;
+	border: 1px solid #242A37;
+	background-color: #536184;
+	color: #C0C8D5;
+}
+
+.sys-button-hover () {
+	color: #C0C8D5;
+	background-color: #36415F;
+}
+
+.sys-button-active () {
+	color: white;
+	background-color: #282F3E;
+}
+
+// ******************************************
+// ---- Common, Overlay, Bubble ----
+
+@input-border: 1px solid #777F8C;
+@input-color: #C0C8D5;
+@input-background-color: #515B7E;
+@input-focus-outline-color: #AAA871;
+@overlay-border: 3px solid #98A4B9;
+@overlay-color: #C0C8D5;
+@overlay-background-color: #323948;
+@overlay-shadow: 0px 2px 10px #000;
+@bubble-tag-background-color: rgba(255,255,255,0.82);
+@bubble-tag-color: black;
+@bubble-tag-shadow: 1px 1px 5px #000;
+
 @import "src/w2ui-common.less";
 
-//////////////////////////
-//    reset
-//////////////////////////
+// ******************************************
+// ---- Form ----
 
-//global variables for the theme
-@background-color-theme : black;
-@color-theme : white;
-@background-color-hover : #0078a3;
-@background-color-select : #FF9205;
+@form-border: 1px solid #252C39;
+@form-border-radius: 3px;
+@form-color: #C0C8D5;
+@form-background-color: #526083; 
+@form-header-color: #C0C8D5;
+@form-header-linear-gradient-start: #515D78;
+@form-header-linear-gradient-end: #323948;
+@form-header-border-bottom: 1px solid #252C39;
+@form-tabs-background-color: #434D64;
+@form-page-border: 1px solid inherit;
+@form-page-background-color: inherit;
+@form-group-background-color: #495474;
+@form-group-border: 1px solid #3A4254;
+@form-required-color: #FF525A;
+@form-buttons-border-top: 1px solid #3A4254;
+@form-buttons-border-bottom: 0px solid #3A4254;
+@form-buttons-background-color: #495474;
+@form-error-border: 1px solid #FFA8A8;
+@form-error-background-color: #515B7E;
+@form-select-border: 1px solid #bbb;
 
-//////////////////////////
-//    Calendar
-//////////////////////////
-@import "src/w2ui-calendar.less";
-@border-calendar: 1px solid #aaa;
-@shadow-calendar : #282828;
-@border-calendar-title: 1px solid #999;
-@color-calendar-title: white;
-@linear-gradient-title-start : black ;
-@linear-gradient-title-end : #282828;
-@background-color-calendar-days: #e4ebed;
-@border-calendar-days-td: 1px solid #e8e8e8;
-@color-calendar-days-td: white;
-@background-color-calendar-days-td: #353535;
-@border-calendar-days-today: 2px solid @background-color-select;
-@background-color-calendar-days-today: #e2f7cd;
-@border-calendar-days-hover: 1px solid @background-color-hover;
-@background-color-calendar-days-hover: @background-color-hover;
-@background-color-calendar-day-title: gray;
-@color-calendar-day-title: white;
-@border-calendar-day-title: 1px solid gray;
-@color-calendar-day-saturdaysunday: #D81204;
-@background-color-calendar-day-saturdaysunday : #C0C0C0;
-@color-calendar-days-blocked-date: gray;
-@background-color-calendar-days-blocked-date: #e8e8e8;
-@color-calendar-nextprevious: white;
-@border-calendar-nextprevious: 1px solid transparent;
-@background-color-calendar-nextprevious-hover: @background-color-hover;
-@border-color-calendar-nextprevious-hover: 1px solid @background-color-hover;
-@background-color-calendar-day-empty: snow;
-
-//////////////////////////
-//    enum-list
-//////////////////////////
-@import "src/w2ui-enum-list.less";
-@color-list : @color-theme;
-@border-list: 1px solid silver; 
-@background-color-list: @background-color-theme; 
-@border-list-li: 1px solid #000;
-@background-color-list-li: #282828;
-@border-list-li-last-child: 1px solid transparent;
-@background-color-list-li-last-child: transparent;
-//////////////////////////
-//    form
-//////////////////////////
 @import "src/w2ui-form.less";
-@background-color-form: @background-color-theme; 
-@border-form: 1px solid white;
-@background-color-form-group: #282828;
-@border-bottom-form-group: 1px solid darkgray ;
-@border-form-input: 1px solid #282828;
-@background-color-form-tab-active: @background-color-select;
-@background-color-form-tabs: @background-color-theme;
-@color-form-required-before: red;
-@border-top-form-buttons: 1px solid #E5E8E8;
-@background-color-form-buttons: @background-color-theme;
-@border-form-error: 1px solid #FFA8A8;
-@background-color-form-error: #FFF4EB;
-@background-form-bubble-tag: rgba(60,60,60,0.82);
-@color-form-bubble-tag : @color-theme;
-@box-shadow-color-form-bubble-tag : #aaa;
-@border-top-form-bubble-tag-before: 5px solid transparent;
-@border-right-form-bubble-tag-before: 5px solid rgba(60,60,60,0.82);
-@border-bottom-form-bubble-tag-before: 5px solid transparent;
-@background-color-form-global-items: #F7F7F7;
-@border-form-global-items: 3px solid #777;
-@box-shadow-color-form-global-items: 0px 3px 8px #999;
-@border-left-form-global-items-before: 7px solid transparent;
-@border-right-form-global-items-before: 7px solid transparent;
-@border-bottom-form-global-items-before: 7px solid transparent;
-@border-bottom-color-form-global-items-before: inherit;
-@background-color-form-item-even: @background-color-theme;
-@color-form-item-even: @color-theme;
-@background-color-form-item-odd: @background-color-theme;
-@color-form-item-odd: @color-theme;
-@background-color-form-selected: @background-color-select;
-@color-form-selected: white;
-@border-form-select: 1px solid #bbb;
-@form-step-bt-label : 20px;
-@form-step-bt-labelfield : 8;
-@border-color-form-buttons-button : 1px solid white;
-@background-color-form-buttons-button : black;
-@color-form-buttons-button : white;
-@background-color-form-buttons-button-hover: #0078a3;
-@background-color-form-buttons-button-active: #FF9205;
 
-//////////////////////////
-//    grid
-//////////////////////////
-@import "src/w2ui-grid.less";
-// global variables
-@shadow-color : #919191;
+// ******************************************
+// ---- Fields: Calendar, Enum ----
 
-// grid variables
-@border-w2ui-grid :  1px solid silver;
-@background-color-w2ui-grid-lock : #333;
-@background-color-w2ui-grid-status : #555;
-@color-w2ui-grid-status : @color-theme;
-@border-w2ui-grid_status :  2px solid #eee;
-    //* ===== Grid Header ===== */
-@background-color-grid-header: #EAEBEE;
-@border-grid-header : 1px solid #282828;
-@color-grid-header : @color-theme;
-@box-shadow-grid-header : 0px 0px 2px @shadow-color;
-@linear-gradiant-grid-start : black;
-@linear-gradiant-grid-end : #282828;
-    //* ===== Grid Toolbar ===== */
-@border-grid-toolbar : 1px solid silver;
-@background-color-grid-toolbar : #282828;
-@box-shadow-grid-toolbar : 0px 1px 2px @shadow-color;
-    //* ===== Grid Search ===== */
-@border-grid-search-all : 1px solid #999;
-    //* ==== Column Headers ====== */
-@box-shadow-grid-columns: 0px 1px 4px @shadow-color;
-//* ===== Grid Body ===== */
-@background-color-grid-body: @background-color-theme;
-@background-color-head: @background-color-theme;
-@border-head : 1px solid #c5c5c5;
-@linear-gradient-grid-head-div-start : #282828;
-@linear-gradient-grid-head-div-end : gray;
+@calendar-border: 1px solid #323948;
+@calendar-shadow: 0px 2px 8px #111;
+@calendar-background-color: #505C77;
+@calendar-title-color: #C0C8D5;
+@calendar-title-border-bottom: 1px solid #252C39;
+@calendar-title-gradient-start: #515D78;
+@calendar-title-gradient-end: #323948;
+@calendar-button-color: #C0C8D5;
+@calendar-button-border: 1px solid transparent;
+@calendar-button-hover-background-color: #526083;
+@calendar-button-hover-border: 1px solid #4C5984;
+@calendar-week-title-color: #C0C8D5;
+@calendar-day-background-color: #414B61;
+@calendar-day-color: #C0C8D5;
+@calendar-day-hover-border: 1px solid #C0C8D5;
+@calendar-day-hover-color: white;
+@calendar-day-hover-background-color: #222;
+@calendar-day-today-border: 1px solid #C0C8D5;
+@calendar-day-today-color: #fff;
+@calendar-day-today-background-color: #526083;
+@calendar-day-weekend-color: #F4DB84;
+@calendar-day-blocked-color: silver;
 
-// ===== Grid Footer ===== 
-@background-color-grid-footer : #282828;
-@color-grid-footer-page-normal : black;
-@color-grid-footer-page-current : white;
-@color-grid-footer-page-selected : white;
-@background-color-grid-footer-page-selected: #808080;
-@border-grid-footer : 1px solid silver;
-@box-shadow-color-grid-footer : @shadow-color;
-@background-color-grid-btn-hover: gray; 
+@list-color: #C0C8D5;
+@list-border: 1px solid #777F8C; 
+@list-background-color: #434D64; 
+@list-item-border: 1px solid #777F8C;
+@list-item-background-color: #353D5B;
+@list-item-font: verdana;
+@list-item-font-size: 11px;
 
-@border-footer-nav : 1px solid silver;
+@dropdown-border: 3px solid #686A74;
+@dropdown-shadow: 0px 2px 10px #000;
+@dropdown-background-color: #323948;
+@dropdown-item-even-color: #C0C8D5;
+@dropdown-item-even-background-color: inherit;
+@dropdown-item-odd-color: #C0C8D5;
+@dropdown-item-odd-background-color: inherit;
+@dropdown-item-selected-color: #eee;
+@dropdown-item-selected-background-color: #20253C;
 
-@background-color-global-searches :    #f3f1d9;
-@background-color-global-searches-value :    #f7f6f0;
-@border-global-searches : 1px solid silver;
-// td
-@border-right-grid-td: 1px solid #ccc;
-@border-bottom-grid-td: 0px solid #F3F6FA;
-// row
-@background-color-grid-odd : @background-color-theme;
-@background-color-grid-odd-hover : @background-color-hover;
-@background-color-grid-even : #303030 ;
-@background-color-grid-even-hover : @background-color-hover;
-@background-color-grid-selected : @background-color-select;
-@color-grid-selected : black;
-@color-grid-number : @color-theme;
-@background-color-grid-editable: transparent;
-@background-color-grid-editable-active : white;
-@background-color-grid-editable-changed : #ddFFdd;
-@background-color-grid-summary: #FAFAFA;
-@box-shadow-color-grid-summary: #aaa;
-@background-color-grid-page-current: #629cfc;
+@import "src/w2ui-fields.less";
 
-//////////////////////////
-//    layout
-//////////////////////////
+// ******************************************
+// ---- Layout ----
+
+@layout-color: #C0C8D5;
+@layout-background-color: inherit;
+@layout-splitter-background-color: #222;
+
 @import "src/w2ui-layout.less";
-@background-color-layout-splitter: whitesmoke;
-@background-color-layout : black;
-@color-layout : @color-theme;
 
-//////////////////////////
-//    overlay
-//////////////////////////
-@import "src/w2ui-overlay.less";
-@background-color-overlay: #F7F7F7;
-@border-overlay: 3px solid #777;
-@box-shadow-color-overlay: black;
-@border-overlay-before: 3px solid silver;
-@border-color-overlay-before: inherit;
-@background-color-overlay-before: inherit;
-//////////////////////////
-//    sidebar
-//////////////////////////
-@import "src/w2ui-sidebar.less";
-@border-sidebar-node: 1px solid transparent;
-@border-top-sidebar-selected: 1px solid #5DA5DA;
-@border-bottom-sidebar-selected: 1px solid #347BBC;
-@color-sidebar-node-dataimage: #676E7B;
-@text-shadow-color-sidebar-node-dataimage: #f4f4f4;
-@border-sidebar-node-count: 2px solid white;
-@background-color-sidebar-node-count: #282828;
-@color-sidebar-node: @color-theme;
-@box-shadow-color-sidebar: #444;
-@color-sidebar-group: @color-theme;
-@background-color-sidebar : @background-color-theme;
-@linear-gradient-sidebar-selected-start : @background-color-select;
-@linear-gradient-sidebar-selected-end : @background-color-select;
+// ******************************************
+// ---- Grid ----
 
-//////////////////////////
-//    tabs
-//////////////////////////
-@import "src/w2ui-tabs.less";
-@background-color-tabs: @background-color-theme;
-@color-tabs: @color-theme;
-@border-tabs-tab: 1px solid silver;
-@border-bottom-tabs-tab: 1px solid transparent;
-@background-color-tabs-tab-active: @background-color-select;
-@border-tabs-tab-close: 2px solid transparent;
+@grid-border: 1px solid #252C39;
+@grid-background-color: #434D64;
+@grid-lock-background-color: #fff;
+@grid-status-background-color: #222;
+@grid-status-color: white;
+@grid-status-border: 2px solid #999;
+@grid-header-color: #C0C8D5;
+@grid-header-linear-gradient-start: #515D78;
+@grid-header-linear-gradient-end: #323948;
+@grid-header-border-bottom: 1px solid #252C39;
+@grid-toolbar-border: 1px solid #252C39;
+@grid-toolbar-background-color: #434D64;
+@grid-toolbar-shadow: 0px 1px 2px #333;
+@grid-search-all-border: 1px solid #777F8C;
+@grid-search-all-color: #C0C8D5;
+@grid-search-all-background-color: #515B7E;
+@grid-searches-background-color: #495474;
+@grid-searches-inner-border: 1px solid #3B4260;
+@grid-searches-value-background-color: #526083;
+@grid-headers-color: #C0C8D5;
+@grid-headers-shadow: 0px 1px 4px #333;
+@grid-headers-border: 1px solid #3B4260;
+@grid-headers-linear-gradient-start: #495474;
+@grid-headers-linear-gradient-end: #404860;
+@grid-row-color: #C0C8D5;
+@grid-row-odd-background-color: #526083;
+@grid-row-even-background-color: #495474;
+@grid-row-hover-color: #DAE4F8;
+@grid-row-hover-background-color: #363F5D;
+@grid-row-selected-color: #eee;
+@grid-row-selected-background-color: #292F3C;
+@grid-row-border-right: 1px solid #3D4563;
+@grid-row-border-bottom: 0px solid transparent;
+@grid-row-number-color: #bbb;
+@grid-row-number-background-color: inherit;
+@grid-editable-background-color: transparent;
+@grid-editable-active-background-color: #515B7E;
+@grid-editable-changed-background-color: #222;
+@grid-summary-color: #C0C8D5;
+@grid-summary-background-color: #495474;
+@grid-summary-shadow: 0px -1px 4px #333;
+@grid-footer-color: #C0C8D5;
+@grid-footer-background-color: #404960;
+@grid-footer-border-top: 1px solid #495474;
+@grid-footer-shadow: 0px -1px 4px #333;
+@grid-footer-btn-color: #C0C8D5; 
+@grid-footer-btn-background-color: transparent; 
+@grid-footer-btn-hover-color: #000; 
+@grid-footer-btn-hover-background-color: #AEC8FF; 
 
+@import "src/w2ui-grid.less";
 
-//////////////////////////
-//    popup
-//////////////////////////
+// ******************************************
+// ---- Popup ----
+
+@popup-border: 1px solid #252C39;
+@popup-shadow: 0px 0px 25px #000;
+@popup-title-border-bottom: 1px solid #252C39;
+@popup-title-color: #C0C8D5;
+@popup-title-linear-gradient-start: #515D78;
+@popup-title-linear-gradient-end: #323948;
+@popup-title-button-border: 1px solid transparent;
+@popup-title-button-color: transparent;
+@popup-title-max-background-color: #6677A2;
+@popup-title-max-border: 1px solid #6677A2;
+@popup-title-close-background-color: #6677A2;
+@popup-title-close-border: 1px solid #6677A2;
+@popup-body-color: #C0C8D5;
+@popup-body-background-color: #414B61; 
+@popup-buttons-border-top: 1px solid #38425A;
+@popup-buttons-background-color: #414B61;
+@popup-message-background-color: #526083;
+@popup-message-border: 1px solid #333; 
+@popup-message-shadow: 0px 1px 8px #444;
+
 @import "src/w2ui-popup.less";
-@background-color-popup-main : @background-color-theme;
-@border-popup : 1px solid #E8E8E8;
-@background-color-popup: @background-color-popup-main;
-@color-shadow-popup : #555;
-@color-popup: @color-theme;
-@border-popup-title: 2px solid #BFBFBF;
-@color-popup-title: white;
-@linear-gradient-popup-title-start : #282828;
-@linear-gradient-popup-title-end : gray;
-@border-popup-msg-buttons: 1px solid #d5d8d8;
-@background-color-popup-msg-buttons: @background-color-popup-main;
-@background-color-popup-buttons-child : #282828;
-@border-popup-buttons-button : 1px solid white;
-@background-color-popup-buttons-button-hover : @background-color-hover;
-@color-popup-buttons-button-hover : white;
-@background-color-popup-buttons-button-active : @background-color-select;
-@color-color-popup-buttons-button-active : black;
-@background-color-popup-msg-max: #ccc;
-@border-popup-msg-max: 1px solid #aaa;
-@border-popup-msg-button: 1px solid transparent;
-@color-popup-msg-button: transparent;
-@background-color-popup-msg-close: #ccc;
-@border-popup-msg-close: 1px solid #aaa;
-@background-popup-color-msg-body: @background-color-popup-main;
-@background-color-popup-message: #141414; 
-@border-popup-message: 1px solid #aaa; 
-@shadow-color-popup-message :  #aaa;
-@linear-gradient-message-msg-title-start :  black;
-@linear-gradient-message-msg-title-end :  #2B2B2B;
-@background-color-button : #555;
 
+// ******************************************
+// ---- Sidebar ----
 
-//////////////////////////
-//    toolbar
-//////////////////////////
+@sidebar-background-color: #323948;
+@sidebar-group-color: #748890;
+@sidebar-node-color: #C0C8D5;
+@sidebar-node-text-shadow: 0px 0px 0px #fff;
+@sidebar-node-border-top: 1px solid transparent;
+@sidebar-node-border-bottom: 1px solid transparent;
+@sidebar-node-linear-gradient-start: rgba(0,0,0,0);
+@sidebar-node-linear-gradient-end: rgba(0,0,0,0);
+@sidebar-node-hover-color: white;
+@sidebar-node-hover-background-color: #373F52;
+@sidebar-node-selected-border-top: 1px solid #111;
+@sidebar-node-selected-border-bottom: 1px solid #111;
+@sidebar-node-selected-linear-gradient-start: #202530;
+@sidebar-node-selected-linear-gradient-end: #202530;
+@sidebar-node-selected-color: #eee;
+@sidebar-node-selected-text-shadow: 1px 1px 2px #666;
+@sidebar-node-count-border: 2px solid white;
+@sidebar-node-count-background-color: #57A7E9;
+@sidebar-node-count-shadow: 0px 0px 5px #444;
+@sidebar-node-count-color: white;
+@sidebar-node-count-text-shadow: 1px 1px 1px #000;
+
+@import "src/w2ui-sidebar.less";
+
+// ******************************************
+// ---- Tabs ----
+
+@tabs-background-color: #434D64;
+@tabs-tab-color: #C0C8D5;
+@tabs-tab-background-color: transparent;
+@tabs-tab-border: 1px solid #999; 
+@tabs-tab-active-background-color: #313947;
+@tabs-tab-active-color: white;
+@tabs-tab-active-border: 1px solid #999; 
+
+@import "src/w2ui-tabs.less";
+
+// ******************************************
+// ---- Toolbar ----
+
+@toolbar-background-color: #323948;
+@toolbar-button-border-radius: 4px;
+@toolbar-button-border: 1px solid transparent;
+@toolbar-button-color: #C0C8D5;
+@toolbar-button-background-color: transparent;
+@toolbar-button-over-border: 1px solid #4C5056;
+@toolbar-button-over-color: #DAE4F8;
+@toolbar-button-over-background-color: #292F3C;
+@toolbar-button-down-border: 1px solid #616C91;
+@toolbar-button-down-color: #fff;
+@toolbar-button-down-background-color: #0E1015;
+@toolbar-button-checked-border: 1px solid #797E8A;
+@toolbar-button-checked-color: #eee;
+@toolbar-button-checked-background-color: #292F3C;
+@toolbar-break-color: #777;
+@toolbar-drop-border: 1px solid #444;
+@toolbar-drop-color: #DAE4F8;
+@toolbar-drop-background-color: #323948;
+@toolbar-drop-shadow: 0px 4px 8px #000;
+@toolbar-drop-selected-color: #fff;
+@toolbar-drop-selected-background-color: #0E1015;
+
 @import "src/w2ui-toolbar.less";
-@background-color-toolbar: @background-color-theme; 
-@background-image-toolbar-start: #282828;;
-@background-image-toolbar-start-percent: 0%;
-@background-image-toolbar-end: gray;
-@background-image-toolbar-end-percent: 100%;
-@border-bottom-toolbar: 1px solid silver; 
-@border-top-toolbar: 1px solid silver; 
-@border-toolbar-tab0 : 1px solid transparent;
-@border-toolbar-tab0-other : 1px solid #282828;
-@background-color-toolbar-tab0-hover : @background-color-hover;
-@border-toolbar-tab1: 1px solid #282828;
-@border-left-toolbar-tab1: 0px solid transparent;
-@border-top-toolbar-tab1: 0px solid transparent;
-@border-left-toolbar-tab1-over: 0px solid transparent;
-@border-top-toolbar-tab1-over: 0px solid transparent;
-@border-right-toolbar-tab1-over: 1px solid @background-color-hover;
-@border-bottom-toolbar-tab1-over: 1px solid @background-color-hover;
-@border-left-toolbar-tab1-down: 1px solid #E3E0D5;
-@border-top-toolbar-tab1-down: 1px solid #E3E0D5;
-@border-right-toolbar-tab1-down: 0px solid transparent;
-@border-bottom-toolbar-tab1-down: 0px solid transparent;
-@background-color-toolbar-tab1-down: #282828;
-@background-color-toolbar-tab1-checked: #282828;
-@background-color-toolbar-global-drop: #282828;
-@border-toolbar-global-drop: 1px solid #ccc;
-@shadow-color-toolbar-global-drop:  black;
-@background-color-toolbar-global-drop-selected: @background-color-hover;
-@color-toolbar-global-drop : white;
-@linear-gradient-toolbar-break-start: #adadad;
-@linear-gradient-toolbar-break-end: #bdbdbd; 

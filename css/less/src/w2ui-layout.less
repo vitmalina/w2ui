@@ -3,32 +3,33 @@
 */
 
 div.w2ui-layout {
-	position: absolute; 
-	overflow: hidden;
-	border: 0px;
-	margin: 0px;
-	padding: 0px;
-	outline: 0px;
-	color: @layout-color;
-	background-color : @layout-background-color;
-
-	&, & * {
-		.box-sizing;
-	}
-
-	div.w2ui-panel {
-		display: none;
-		position: absolute; 
-		z-index: 120; 
-	}
+	.box-sizing;	
 	
-	div.w2ui-splitter {
-		display: none;
+	> div {
 		position: absolute; 
-		z-index: 121;
+		overflow: hidden;
+		border: 0px;
+		margin: 0px;
+		padding: 0px;
+		outline: 0px;
+		color: @layout-color;
+		background-color : @layout-background-color;
+		.box-sizing;
+
+		div.w2ui-panel {
+			display: none;
+			position: absolute; 
+			z-index: 120; 
+		}
 		
-		&:hover, &.active {
-			background-color: @layout-splitter-background-color;
+		div.w2ui-splitter {
+			display: none;
+			position: absolute; 
+			z-index: 121;
+			
+			&:hover, &.active {
+				background-color: @layout-splitter-background-color;
+			}
 		}
 	}
 }

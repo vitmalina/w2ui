@@ -2,31 +2,42 @@
 * ---- Forms ----
 */
 
+@form-step-label: 20px;
+@form-step-field: 8;
+
 .w2ui-form {
+	color: @form-color;
 	background-color: @form-background-color;
 	border: @form-border;
-	border-radius: 5px;
+	border-radius: @form-border-radius;
 	padding: 0px;
-    
-    .w2ui-page {
-        padding: 12px;
-    }
+
+	.w2ui-form-header {
+		border-bottom: @form-header-border-bottom !important;
+		overflow: hidden;
+		color: @form-header-color;
+		font-size: 13px;
+		text-align: center;
+		padding: 8px;
+		.linear-gradient-vertical(@form-header-linear-gradient-start, @form-header-linear-gradient-end);
+		border-top-left-radius: 3px;
+		border-top-right-radius: 3px;
+	}
+
+	.w2ui-page {
+		padding: 10px;
+		border-left: @form-page-border;
+		border-right: @form-page-border;
+		background-color: @form-page-background-color;
+		border-radius: 3px;
+	}
 	
 	.w2ui-group {
 		background-color: @form-group-background-color;
-		margin: 10px -5px;
+		margin: 5px 0px 10px 0px;
 		padding: 10px 5px;
-        border-top: @form-group-border;
+		border-top: @form-group-border;
 		border-bottom: @form-group-border;
-	}
-	
-	input[type=text], 
-	input[type=password], 
-	textarea {
-		padding: 4px;
-		border: @form-input-border;
-		border-radius: @form-input-border-radius;
-		background-color: @form-input-background-color;
 	}
 	
 	.w2ui-form input[type=checkbox] {
@@ -132,43 +143,46 @@
 		}
 	}
 	
-	select {
-		border: @form-select-border;
-		padding: 2px;
-	}	
-	
 	.w2ui-form-tabs {
 		margin: 0px;
+		padding-left: 5px !important;
+		padding-right: 5px !important;
 	}
 	
 	.w2ui-tabs {
-        padding-top: 5px;
+		border-top-left-radius: 3px;
+		border-top-right-radius: 3px;
+		padding-top: 5px;
 		background-color: @form-tabs-background-color;
 		.w2ui-tab.active {
 			background-color: @form-background-color;
 		}
+	}
+
+	.w2ui-required {
+		position: relative;
 	}
 	
 	.w2ui-required::before {
 		content: '*';
 		position: absolute;
 		margin-top: 5px;
-		margin-left: -8px;
+		margin-left: -9px;
 		color: @form-required-color;
 	}
 
 	.w2ui-buttons {
 		text-align: center;
-	    border-top: @form-buttons-border-top;
-	    border-bottom: @form-buttons-border-bottom;
+		border-top: @form-buttons-border-top;
+		border-bottom: @form-buttons-border-bottom;
 		background-color: @form-buttons-background-color;
 		padding: 15px 0px !important;
+		border-bottom-left-radius: 3px;
+		border-bottom-right-radius: 3px;
+		
 		input[type="button"], button {
-			.sys-button;
 			width: 80px;
 			margin-right: 5px;
-			&:hover { .sys-button-hover; }
-			&:active { .sys-button-active; }
 		}
 	}
 

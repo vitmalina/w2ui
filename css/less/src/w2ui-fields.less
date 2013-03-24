@@ -53,12 +53,23 @@ div.w2ui-calendar {
 			border-bottom-right-radius: 4px;
 			padding: 0px;
 			td {
-				border: @calendar-day-border;
+				border: 1px solid @calendar-background-color;
 				color: @calendar-day-color;
 				background-color: @calendar-day-background-color;
 				padding: 5px;
 				cursor: default;
 				text-align: right;
+				&.w2ui-saturday, 
+				&.w2ui-sunday {
+					border: 1px solid @calendar-background-color;
+					color: @calendar-day-weekend-color;
+					background-color: @calendar-day-background-color;
+					&:hover {
+						border: @calendar-day-hover-border;
+						color: @calendar-day-hover-color;
+						background-color: @calendar-day-hover-background-color;
+					}
+				}
 				&.w2ui-today {
 					border: @calendar-day-today-border;
 					color: @calendar-day-today-color;
@@ -69,33 +80,21 @@ div.w2ui-calendar {
 					color: @calendar-day-hover-color;
 					background-color: @calendar-day-hover-background-color;
 				}
-				&.w2ui-saturday, 
-				&.w2ui-sunday {
-					border: @calendar-day-weekend-border;
-					color: @calendar-day-weekend-color;
-					background-color: @calendar-day-weekend-background-color;
-					&:hover {
-						border: @calendar-day-hover-border;
-						color: @calendar-day-hover-color;
-						background-color: @calendar-day-hover-background-color;
-					}
-				}
 				&.w2ui-blocked-date {
 					text-decoration: line-through;
-					border: @calendar-day-blocked-border;
+					border: 1px solid @calendar-background-color;
 					color: @calendar-day-blocked-color;
-					background-color: @calendar-day-blocked-background-color;
+					background-color: @calendar-background-color;
 				}
 				&.w2ui-day-empty {
-					border: @calendar-day-empty-border;
-					color: @calendar-day-empty-color;
-					background-color: @calendar-day-empty-background-color;
+					border: 1px solid @calendar-background-color;
+					background-color: @calendar-day-background-color;
 				}
 			}
 			tr.w2ui-day-title td {
-				border: @calendar-day-title-border;
-				color: @calendar-day-title-color;
-				background-color: @calendar-day-title-background-color;
+				border: 1px solid @calendar-background-color;
+				color: @calendar-week-title-color;
+				background-color: @calendar-background-color;
 				text-align: center;
 				padding: 5px;
 			}
@@ -130,10 +129,10 @@ div.w2ui-list {
 
 		li {
 			float: left;
-			margin: 2px 0px 2px 2px;
-			border-radius: 3px;
+			margin: 1px 0px 1px 2px;
+			border-radius: 5px;
 			width: auto;
-			padding: 1px 5px 1px 5px;
+			padding: 2px 5px 3px 5px;
 			border: @list-item-border;
 			background-color: @list-item-background-color;
 			white-space: nowrap;
@@ -186,7 +185,7 @@ div.w2ui-items {
     margin-top: 6px;
     display: none;
     z-index: 1600;
-    background-color: white;
+    background-color: @dropdown-background-color;
     border: @dropdown-border;
     box-shadow: @dropdown-shadow;
     border-radius: 4px;
@@ -219,7 +218,7 @@ div.w2ui-items {
     ul li {
 		display: block; 
 		.transition(all, 0.2s);
-        padding: @dropdown-item-padding;
+        padding: 5px;
         cursor: pointer;
 
         &.w2ui-item-even {
@@ -243,7 +242,7 @@ div.w2ui-items {
 
 .w2ui-upload {
 	background-color: @list-background-color;
-	border: @list-border; 
+	border: @list-border !important; 
 	border-radius: 3px;
 	min-height: 40px;
 	max-height: 100px;
@@ -254,7 +253,8 @@ div.w2ui-items {
 		pointer-events: none;
 		display: inline-block;
 		padding: 10px;
-		font-size: 16px !important;
+		font-size: 14px !important;
+		line-height: 150%;
 		color: #aaa;
 	}
 
@@ -286,13 +286,18 @@ div.w2ui-items {
 			cursor: default;
 			width: auto;
 			max-width: 400px;
-
+	
 			&:hover {
 				background-color: darken(@list-item-background-color, 10%);
 			}
 
 			> span.file-size {
+				pointer-events: none;
 				color: #777;
+			}
+
+			> span.file-name {
+				pointer-events: none;
 			}
 
 			> div.file-delete {
