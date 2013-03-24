@@ -14,6 +14,7 @@
 *
 *  NICE TO HAVE
 *   - onResize for the panel
+* 	- spacer -> splitter
 * 
 ************************************************************************/
 
@@ -23,7 +24,7 @@
 		this.name		= null;		// unique name for w2ui
 		this.panels		= [];
 		this.padding	= 1;		// panel padding
-		this.spacer		= 4;		// resizer width or height
+		this.splitter	= 4;		// resizer width or height
 		this.style		= '';
 		this.css		= '';		// will display all inside <style> tag
 		this.width		= null		// reads from container
@@ -189,15 +190,15 @@
 			if (p == null) return false;
 			p.hidden = false;
 			if (immediate === true) {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '1' });	
-				if (p.resizabled) $('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_'+panel).show();
+				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '1' });	
+				if (p.resizabled) $('#layout_'+ this.name +'_splitter_'+panel).show();
 				this.trigger($.extend(eventData, { phase: 'after' }));	
 				this.resize();
 			} else {			
 				var obj = this;
-				if (p.resizabled) $('#layout_'+ obj.name +' #layout_'+ obj.name +'_splitter_'+panel).show();
+				if (p.resizabled) $('#layout_'+ obj.name +'_splitter_'+panel).show();
 				// resize
-				$('#layout_'+ obj.name +' #layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });	
+				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });	
 				$('#layout_'+ this.name +' .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
@@ -207,7 +208,7 @@
 				setTimeout(function () { obj.resize(); }, 1);
 				// show
 				setTimeout(function() {
-					$('#layout_'+ obj.name +' #layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });	
+					$('#layout_'+ obj.name +'_panel_'+ panel).css({ 'opacity': '1' });	
 				}, 250);
 				// clean
 				setTimeout(function () { 
@@ -232,25 +233,25 @@
 			if (p == null) return false;
 			p.hidden = true;		
 			if (immediate === true) {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_'+panel).hide();
+				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
+				$('#layout_'+ this.name +'_splitter_'+panel).hide();
 				this.trigger($.extend(eventData, { phase: 'after' }));	
 				this.resize();
 			} else {
 				var obj = this;
-				$('#layout_'+ obj.name +' #layout_'+ obj.name +'_splitter_'+panel).hide();
+				$('#layout_'+ obj.name +'_splitter_'+panel).hide();
 				// hide
-				$('#layout_'+ this.name +' .w2ui-panel').css({
+				$(this.box).find(' > div .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
 					'-ms-transition'	: '.2s',
 					'-o-transition'		: '.2s'
 				});
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
+				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
 				setTimeout(function () { obj.resize(); }, 1);
 				// clean
 				setTimeout(function () { 
-					$('#layout_'+ obj.name +' .w2ui-panel').css({
+					$(this.box).find(' > div .w2ui-panel').css({
 						'-webkit-transition': '0s',
 						'-moz-transition'	: '0s',
 						'-ms-transition'	: '0s',
@@ -299,23 +300,32 @@
 			if (eventData.stop === true) return false;
 	
 			if (typeof box != 'undefined' && box != null) { 
-				$(this.box).html(''); 
+				if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-layout')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
 			// add main panel if it was not already added
 			if (this.get('main') == null) this.panels.push( $.extend({}, w2layout.prototype.panel, { type: 'main'}) );
 			if (this.get('css') == null)  this.panels.push( $.extend({}, w2layout.prototype.panel, { type: 'css'}) );
-			var html = '<div id="layout_'+ this.name +'" class="w2ui-layout" style="'+ this.style +'"></div>';
-			$(this.box).html(html);
+			var html = '<div></div>';
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-layout')
+				.html(html);
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// create all panels
 			var tmp = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
 			for (var t in tmp) {
 				var html =  '<div id="layout_'+ this.name + '_panel_'+ tmp[t] +'" class="w2ui-panel"></div>'+
 							'<div id="layout_'+ this.name + '_splitter_'+ tmp[t] +'" class="w2ui-splitter"></div>';
-				$('#layout_'+ this.name +'').append(html);
+				$(this.box).find(' > div').append(html);
 			}
-			$('#layout_'+ this.name +'').append('<style id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;">'+ this.css +'</style>');		
+			$(this.box).find(' > div').append('<style id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;">'+ this.css +'</style>');		
 			// process event
 			this.trigger($.extend(eventData, { phase: 'after' }));	
 			// reinit events
@@ -334,19 +344,19 @@
 				var p = this.get(panel);
 				if (p == null) return false;
 				// apply properties to the panel
-				var el = $('#layout_'+ this.name +' #layout_' +this.name +'_panel_'+panel).css({
+				var el = $('#layout_' +this.name +'_panel_'+panel).css({
 					display: p.hidden ? 'none' : 'block',
 					overflow: p.overflow
 				});
 				if (el.length > 0) el[0].style.cssText += ';' + p.style;
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.render($('#layout_'+ this.name +' #layout_'+ this.name + '_panel_'+ p.type)[0]);
+					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type)[0]);
 				} else {
-					$('#layout_'+ this.name +' #layout_'+ this.name + '_panel_'+ p.type).html(p.content);
+					$('#layout_'+ this.name + '_panel_'+ p.type).html(p.content);
 				}
 			} else {
-				if ($('#layout_'+ this.name +' #layout_' +this.name +'_panel_main').length <= 0) {
+				if ($('#layout_' +this.name +'_panel_main').length <= 0) {
 					this.render();
 					return;
 				}
@@ -371,7 +381,7 @@
 			
 			if (typeof width != 'undefined' && width != null)  this.width  = parseInt(width);
 			if (typeof height != 'undefined' && height != null) this.height = parseInt(height);
-			$('#layout_'+ this.name +'').css({
+			$(this.box).find(' > div').css({
 				width: this.width + 'px',
 				height: this.height + 'px'
 			});
@@ -419,7 +429,7 @@
 				var t = 0;
 				var w = this.width;
 				var h = ptop.size;
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_top').css({
+				$('#layout_'+ this.name +'_panel_top').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -431,8 +441,8 @@
 				// resizer
 				if (ptop.resizable) {
 					t = ptop.size;
-					h = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_top').show().css({
+					h = this.splitter;
+					$('#layout_'+ this.name +'_splitter_top').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -445,18 +455,18 @@
 					});
 				}
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_top').hide();
+				$('#layout_'+ this.name +'_panel_top').hide();
 			}
 			// left if any
 			if (pleft != null && pleft.hidden != true) {
 				var l = 0;
-				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0);
+				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
 				var w = pleft.size;
-				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0) - 
-									  (sbottom ? pbottom.size + (pbottom.resizable ? this.spacer : this.padding) : 0);
-				var e = $('#layout_'+ this.name +' #layout_'+ this.name +'_panel_left');
+				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
+									  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0);
+				var e = $('#layout_'+ this.name +'_panel_left');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_left').css({
+				$('#layout_'+ this.name +'_panel_left').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -468,8 +478,8 @@
 				// resizer
 				if (pleft.resizable) {
 					l = pleft.size;
-					w = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_left').show().css({
+					w = this.splitter;
+					$('#layout_'+ this.name +'_splitter_left').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -482,17 +492,17 @@
 					});
 				}
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_left').hide();
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_left').hide();
+				$('#layout_'+ this.name +'_panel_left').hide();
+				$('#layout_'+ this.name +'_splitter_left').hide();
 			}
 			// right if any
 			if (pright != null && pright.hidden != true) {
 				var l = this.width - pright.size;
-				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0);
+				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
 				var w = pright.size;
-				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0) - 
-									  (sbottom ? pbottom.size + (pbottom.resizable ? this.spacer : this.padding) : 0);
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_right').css({
+				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
+									  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0);
+				$('#layout_'+ this.name +'_panel_right').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -503,9 +513,9 @@
 				pright.height = h;
 				// resizer
 				if (pright.resizable) {
-					l = l - this.spacer;
-					w = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_right').show().css({
+					l = l - this.splitter;
+					w = this.splitter;
+					$('#layout_'+ this.name +'_splitter_right').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -518,7 +528,7 @@
 					});
 				}			
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_right').hide();
+				$('#layout_'+ this.name +'_panel_right').hide();
 			}
 			// bottom if any
 			if (pbottom != null && pbottom.hidden != true) {
@@ -526,7 +536,7 @@
 				var t = this.height - pbottom.size;
 				var w = this.width;
 				var h = pbottom.size;
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_bottom').css({
+				$('#layout_'+ this.name +'_panel_bottom').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -537,9 +547,9 @@
 				pbottom.height = h;
 				// resizer
 				if (pbottom.resizable) {
-					t = t - this.spacer;
-					h = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_bottom').show().css({
+					t = t - this.splitter;
+					h = this.splitter;
+					$('#layout_'+ this.name +'_splitter_bottom').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -552,19 +562,19 @@
 					});
 				}
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_bottom').hide();
+				$('#layout_'+ this.name +'_panel_bottom').hide();
 			}
 			// main - always there
-			var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.spacer : this.padding) : 0);
-			var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0);
-			var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.spacer : this.padding) : 0) - 
-								  (sright ? pright.size + (pright.resizable ? this.spacer : this.padding): 0);
-			var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0) - 
-								  (sbottom ? pbottom.size + (pbottom.resizable ? this.spacer : this.padding) : 0) -
-								  (sprev ? pprev.size + (pprev.resizable ? this.spacer : this.padding) : 0);
-			var e = $('#layout_'+ this.name +' #layout_'+ this.name +'_panel_main');
+			var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0);
+			var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
+			var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0) - 
+								  (sright ? pright.size + (pright.resizable ? this.splitter : this.padding): 0);
+			var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
+								  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0) -
+								  (sprev ? pprev.size + (pprev.resizable ? this.splitter : this.padding) : 0);
+			var e = $('#layout_'+ this.name +'_panel_main');
 			if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-			$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_main').css({
+			$('#layout_'+ this.name +'_panel_main').css({
 				'display': 'block',
 				'left': l + 'px',
 				'top': t + 'px',
@@ -576,14 +586,14 @@
 			
 			// preview if any
 			if (pprev != null && pprev.hidden != true) {
-				var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.spacer : this.padding) : 0);
-				var t = this.height - (sbottom ? pbottom.size + (pbottom.resizable ? this.spacer : this.padding) : 0) - pprev.size;
-				var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.spacer : this.padding) : 0) - 
-									  (sright ? pright.size + (pright.resizable ? this.spacer : this.padding): 0);
+				var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0);
+				var t = this.height - (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0) - pprev.size;
+				var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0) - 
+									  (sright ? pright.size + (pright.resizable ? this.splitter : this.padding): 0);
 				var h = pprev.size;
-				var e = $('#layout_'+ this.name +' #layout_'+ this.name +'_panel_preview');
+				var e = $('#layout_'+ this.name +'_panel_preview');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_preview').css({
+				$('#layout_'+ this.name +'_panel_preview').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -594,9 +604,9 @@
 				pprev.height = h;
 				// resizer
 				if (pprev.resizable) {
-					t = t - this.spacer;
-					h = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_preview').show().css({
+					t = t - this.splitter;
+					h = this.splitter;
+					$('#layout_'+ this.name +'_splitter_preview').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -609,7 +619,7 @@
 					});
 				}
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_preview').hide();
+				$('#layout_'+ this.name +'_panel_preview').hide();
 			}
 	
 			// send resize event to children
@@ -637,7 +647,12 @@
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
-			$(this.box).html('');
+			if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-layout')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));	

@@ -35,39 +35,6 @@
 		}    
 	};
 	
-	// ====================================================
-	// -- Implementation of core functionality
-
-	function cleanItems(items) {
-		var newItems = [];
-		for (var i in items) {
-			var id   = '';
-			var text = '';
-			var opt  = items[i];
-			if (opt == null) continue;
-			if ($.isPlainObject(items)) {
-				id 	 = i;
-				text = opt;
-			} else {
-				if (typeof opt == 'string') {
-					if (String(opt) == '') continue;
-					id   = opt;
-					text = opt;
-				}
-				if (typeof opt == 'object') {
-				 	if (typeof opt.id != 'undefined')    id = opt.id;
-					if (typeof opt.value != 'undefined') id = opt.value;
-					if (typeof opt.txt != 'undefined')   text = opt.txt;
-					if (typeof opt.text != 'undefined')  text = opt.text;
-				}
-			}
-			if (w2utils.isInt(id)) id = parseInt(id);
-			if (w2utils.isFloat(id)) id = parseFloat(id);
-			newItems.push({ id: id, text: text });
-		}
-		return newItems;
-	}
-
 	$.extend(w2field, {
 		// CONTEXT: this - is jQuery object
 		init: function (options) { 		
@@ -80,6 +47,7 @@
 				}  
 				// Common Types
 				switch (options.type.toLowerCase()) {
+
 					case 'clear': // removes any previous field type
 						$(this).off('keypress').off('focus').off('blur');
 						if ($(this).prev().hasClass('w2ui-list')) {	// if enum
@@ -87,8 +55,10 @@
 							$(this).removeAttr('tabindex');
 						}
 						break;
+
 					case 'text':
 						break;
+
 					case 'int':
 						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
 							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
@@ -265,7 +235,7 @@
 						};
 						var settings = $.extend({}, defaults, options);
 						var html =  '';
-						var items = cleanItems(settings.items);
+						var items = w2field.cleanItems(settings.items);
 						if (settings.showNone) html = '<option value="">- '+ w2utils.lang('none') +' -</option>';
 						for (var i in items) {
 							if (!settings.showNone && settings.value == null) settings.value = items[i].id;
@@ -298,8 +268,8 @@
 						var settings = $.extend({}, defaults, options);
 
 						// normalize items and selected
-						settings.items 	  = cleanItems(settings.items);
-						settings.selected = cleanItems(settings.selected);
+						settings.items 	  = w2field.cleanItems(settings.items);
+						settings.selected = w2field.cleanItems(settings.selected);
 
 						$(this).data('selected', settings.selected); 
 						$(this).css({ 'border-color': 'transparent' });
@@ -438,7 +408,18 @@
 
 					case 'upload':
 						if (this.tagName != 'DIV') {
-							console.log('ERROR: You can only apply $().w2field(\'upload\') to a DIV element');
+							// rebuild it
+							var margin = 'margin-top: ' + $(this).css('margin-top') + '; ' +
+										 'margin-bottom: ' + $(this).css('margin-bottom') + '; ' +
+										 'margin-left: ' + $(this).css('margin-left') + '; ' +
+										 'margin-right: ' + $(this).css('margin-right') + '; '+
+										 'width: ' + (w2utils.getSize(this, 'width') 
+										 		   - parseInt($(this).css('margin-left')) 
+										 		   - parseInt($(this).css('margin-right'))) + 'px; ';
+							var html = '<div style="'+ margin + ';"></div>';
+							$(this).css('display', 'none').before(html);
+							$(this).data('div', $(this).prev());
+							$(this).prev().w2field(options);
 							return;
 						}
 						var defaults = {
@@ -450,6 +431,8 @@
 						var settings = $.extend({}, defaults, options);
 
 						$(this).data('settings', settings); 
+						$(this).css({ 'border-color': 'transparent' });
+
 						w2field.upload_init.call(this);
 						break;
 
@@ -465,6 +448,36 @@
 
 		addType: function (type, handler) {
 			w2field.customTypes[type] = handler;
+		},
+
+		cleanItems: function (items) {
+			var newItems = [];
+			for (var i in items) {
+				var id   = '';
+				var text = '';
+				var opt  = items[i];
+				if (opt == null) continue;
+				if ($.isPlainObject(items)) {
+					id 	 = i;
+					text = opt;
+				} else {
+					if (typeof opt == 'string') {
+						if (String(opt) == '') continue;
+						id   = opt;
+						text = opt;
+					}
+					if (typeof opt == 'object') {
+					 	if (typeof opt.id != 'undefined')    id = opt.id;
+						if (typeof opt.value != 'undefined') id = opt.value;
+						if (typeof opt.txt != 'undefined')   text = opt.txt;
+						if (typeof opt.text != 'undefined')  text = opt.text;
+					}
+				}
+				if (w2utils.isInt(id)) id = parseInt(id);
+				if (w2utils.isFloat(id)) id = parseFloat(id);
+				newItems.push({ id: id, text: text });
+			}
+			return newItems;
 		},
 
 		// ******************************************************
@@ -522,22 +535,62 @@
 		},
 
 		upload_add: function (file) {
+			// add li element
 			var cnt = $(this).find('.file-list li').length;
 			$(this).find('> span:first-child').remove();
 			$(this).find('.file-list').append('<li id="file-' + cnt + '">' + 
-				'	<div class="file-delete">&nbsp;&nbsp;</div>' + file.name + 
+				'	<div class="file-delete">&nbsp;&nbsp;</div>' + 
+				'	<span class="file-name">' + file.name + '</span>' +
 				'	<span class="file-size"> - ' + w2utils.size(file.size) + '</span>'+
 				'</li>');
-			$(this).find('.file-list #file-' + cnt).data('file', file);
-		},
-
-		upload_getAll: function () {
-			var files = [];
-			var cnt = $(this).find('.file-list li').length;
-			for (var i=0; i<cnt; i++) {
-			 	files.push($(this).find('.file-list li').data('file'));
+			var li = $(this).find('.file-list #file-' + cnt);
+			var previewHTML = "";
+			if ((/image/i).test(file.type)) { // image
+				previewHTML = '<div style="padding: 2px;">'+
+					'	<img src="##FILE##" onload="var w = $(this).width(); var h = $(this).height(); '+
+					'		if (w < 300 & h < 300) return; '+
+					'		if (w > h && w > 300) $(this).width(300); else $(this).height(300);">'+
+					'</div>';
 			}
-			return files;
+			var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
+			var td2 = 'style="padding: 3px"';
+			previewHTML += '<div style="padding: 5px;">'+
+				'	<table cellpadding="2">'+
+				'	<tr><td '+ td1 +'>Name:</td><td '+ td2 +'>'+ file.name +'</td></tr>'+
+				'	<tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.size(file.size) +'</td></tr>'+
+				'	<tr><td '+ td1 +'>Type:</td><td '+ td2 +'>' +
+				'		<span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ file.type +'</span>'+
+				'	</td></tr>'+
+				'	<tr><td '+ td1 +'>Modified:</td><td '+ td2 +'>'+ w2utils.date(file.lastModifiedDate) +'</td></tr>'+
+				'	</table>'+
+				'</div>';
+			li.data('file', file)
+				.on('mouseover', function () {
+					$(this).w2overlay(
+						//previewHTML.replace('##FILE##', $(this).data('fileType') + ',' + $(this).data('fileContents')),
+						previewHTML.replace('##FILE##', $(this).data('fileContents')),
+						{ top: -4 }
+					);
+				})
+				.on('mouseout', function () {
+					$(this).w2overlay();
+				});
+
+			// read file as base64
+			if (typeof FileReader !== "undefined") {
+				var reader = new FileReader();
+				// need a closure
+				reader.onload = (function (li) {
+					return function (event) {
+						// var fl  = event.target.result;
+						// var ind = fl.indexOf(',');
+						// li.data('fileType', fl.substr(0, ind));
+						// li.data('fileContents', fl.substr(ind+1));
+						li.data('fileContents', event.target.result);
+					};
+				})(li);
+				reader.readAsDataURL(file);
+			}
 		},
 
 		// ******************************************************
@@ -860,9 +913,9 @@
 				var dt  = month + '/' + day + '/' + year;
 				
 				var className = ''; 
-				if (dt == today) className = 'w2ui-today';
 				if (ci % 7 == 6) className = 'w2ui-saturday';
 				if (ci % 7 == 0) className = 'w2ui-sunday';
+				if (dt == today) className += ' w2ui-today';
 				
 				var dspDay 	= day;			
 				var col 	= '';

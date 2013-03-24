@@ -1091,7 +1091,7 @@
 						record[s] = changed[c][s];
 					}
 				}
-				$('#grid_'+ this.name + ' .w2ui-editable input').removeClass('changed');
+				$(this.box).find('.w2ui-editable input').removeClass('changed');
 				this.selectNone();
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
@@ -1393,7 +1393,7 @@
 			// determine new width and height
 			this.width  = typeof width != 'undefined' && width != null ? parseInt(width) : $(this.box).width();
 			this.height = typeof height != 'undefined' && height != null ? parseInt(height) : $(this.box).height();
-			$(this.box).width(width).height(height);
+			$(this.box).find('> div').width(width).height(height);
 			// if blank
 			if (this.width == 0 || this.height == 0) return;
 			// event before
@@ -1528,7 +1528,12 @@
 
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (typeof box != 'undefined' && box != null) {
-				$(this.box).html('');
+				if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-grid')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
@@ -1537,14 +1542,18 @@
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
 			if (eventData.stop === true) return false;
 			// insert Elements
-			$(this.box).data('w2name', this.name).html(
-				'<div id="grid_'+ this.name +'" class="w2ui-reset w2ui-grid" style="'+ this.style +'">'+
-				'	<div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
-				'	<div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
-				'	<div id="grid_'+ this.name +'_body" class="w2ui-grid-body"></div>'+
-				'	<div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
-				'	<div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
-				'</div>');
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-reset w2ui-grid')
+				.html('<div>'+
+					  '	<div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
+					  '	<div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
+					  '	<div id="grid_'+ this.name +'_body" class="w2ui-grid-body"></div>'+
+					  '	<div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
+					  '	<div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
+					  '</div>');
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
+			console.log(this.style);
 			// init toolbar
 			this.initToolbar();
 			if (this.toolbar != null) this.toolbar.render($('#grid_'+ this.name +'_toolbar')[0]);
@@ -1570,7 +1579,12 @@
 			if (eventData.stop === true) return false;
 			// clean up
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
-			$(this.box).html('');
+			if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-grid')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -1789,7 +1803,7 @@
 		initResize: function () {
 			var obj = this;
 			//if (obj.resizing === true) return;
-			$('#grid_'+ this.name + ' .w2ui-resizer')
+			$(this.box).find('.w2ui-resizer')
 				.off('mousedown')
 				.off('click')
 				.each(function (index, el) {
@@ -1844,7 +1858,7 @@
 
 		resizeBoxes: function () {
 			// elements
-			var main 		= $('#grid_'+ this.name);
+			var main 		= $(this.box).find('> div');
 			var header 		= $('#grid_'+ this.name +'_header');
 			var toolbar 	= $('#grid_'+ this.name +'_toolbar');
 			var summary		= $('#grid_'+ this.name +'_summary');
@@ -1899,7 +1913,7 @@
 			$(this.box).find('.w2ui-empty-record').remove();
 			// -- Calculate Column size in PX
 			var box			= $(this.box);
-			var grid		= $('#grid_'+ this.name);
+			var grid		= $(this.box).find('> div');
 			var header 		= $('#grid_'+ this.name +'_header');
 			var toolbar		= $('#grid_'+ this.name +'_toolbar');
 			var summary 	= $('#grid_'+ this.name +'_summary');
@@ -2496,7 +2510,7 @@
 
 		showStatus: function (statusMsg) {
 			var obj = this;
-			$('#grid_'+ this.name).append(
+			$(this.box).find('> div').append(
 				'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock"></div>'+
 				'<div id="grid_'+ this.name +'_status" class="w2ui-grid-status"></div>'
 			);

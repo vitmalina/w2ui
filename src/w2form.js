@@ -9,7 +9,8 @@
 *  == 1.2 changes
 *     - focus first elements on the page
 *     - added select/list control
-* 	  - Added date format for date fields. 
+* 	  - added date format for date fields. 
+* 	  - added .header
 *
 ************************************************************************/
 
@@ -18,6 +19,7 @@
 	var w2form = function(options) {
 		// public properties
 		this.name  	  		= null;
+		this.header 		= '';
 		this.box			= null; 	// HTML element that hold this element
 		this.url			= '';
 		this.form_url   	= '';		// url where to get form HTML
@@ -363,8 +365,9 @@
 						}
 						break;
 				}
-				// check required
-				if (field.required && !this.record[field.name]) {
+				// === check required
+				// - if field is '0' it should be considered not empty
+				if (field.required && this.record[field.name] === '') {
 					var error = { field: field, error: w2utils.lang('Required field') };
 					errors.push(error);
 					if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
@@ -636,6 +639,10 @@
 						if (field.options && field.options.selected) v = field.options.selected;
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: v }) );
 						break;
+					case 'upload':
+						field.el.value = value;
+						$(field.el).w2field($.extend({}, field.options, { type: 'upload' }));
+						break;
 					default:
 						console.log('ERROR: field type "'+ field.type +'" is not recognized.');
 						break;						
@@ -652,9 +659,23 @@
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
 			if (eventData.stop === true) return false;
 			// default actions
-			if (typeof box != 'undefined') this.box = box;
-			var html = '<div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' + this.form_html;
-			$(this.box).html(html).addClass('w2ui-reset w2ui-form');
+			if (typeof box != 'undefined' && box != null) {
+				if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-form')
+						.html('');
+				}
+				this.box = box;
+			}
+			var html = 
+				(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '')+
+				'<div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' + 
+				this.form_html;
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-reset w2ui-form')
+				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// init tabs
 			this.initTabs();
@@ -673,7 +694,12 @@
 			if (eventData.stop === true) return false;
 			// clean up
 			if (typeof this.tabs == 'object' && this.tabs.destroy) this.tabs.destroy();
-			$(this.box).html('');
+			if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-form')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));

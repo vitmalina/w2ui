@@ -122,7 +122,7 @@
 				// remove from array
 				this.tabs.splice(this.getIndex(tab.id), 1);
 				// remove from screen
-				$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ tab.id).remove();
+				$(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id).remove();
 			}
 			return removed;
 		},
@@ -212,7 +212,7 @@
 			var tab = this.get(id);
 			if (tab == null) return;
 			
-			var jq_el   = $(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ tab.id);
+			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id);
 			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].doClose(\''+ tab.id +'\', event);"></div>' : '') +
 						  '	<div class="w2ui-tab '+ (this.active == tab.id ? 'active' : '') +'" title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
 						  '		onclick="w2ui[\''+ this.name +'\'].doClick(\''+ tab.id +'\', event);">' + tab.caption + '</div>';
@@ -222,10 +222,10 @@
 				if (tab.hidden) { addStyle += 'display: none;'; }
 				if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 				html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
-				if (this.getIndex(id) != this.tabs.length-1 && $(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).length > 0) {
-					$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).before(html);
+				if (this.getIndex(id) != this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).length > 0) {
+					$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).before(html);
 				} else {
-					$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_right').before(html);
+					$(this.box).find('#tabs_'+ this.name +'_right').before(html);
 				}
 			} else {
 				// refresh
@@ -246,18 +246,24 @@
 			// default action
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (String(box) != 'undefined' && box != null) { 
-				$(this.box).html(''); 
+				if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-tabs')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
 			// render all buttons
-			$(this.box).html('');
-			var html = '<div id="tabs_'+ this.name +'" class="w2ui-reset w2ui-tabs" style="'+ this.style +'">'+
-					   '	<table cellspacing="0" cellpadding="1" width="100%">'+
-					   '		<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
-					   '	</table>'+
-					   '</div>';
-			$(this.box).append(html);
+			var html = '<table cellspacing="0" cellpadding="1" width="100%">'+
+					   '	<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
+					   '</table>';
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-reset w2ui-tabs')
+				.html(html);
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh();
@@ -278,7 +284,12 @@
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
-			$(this.box).html('');
+			if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-tabs')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend({ phase: 'after' }));	
@@ -309,18 +320,18 @@
 			if (eventData.stop === true) return false;
 			// default action
 			var obj = this;
-			$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ tab.id).css({ 
+			$(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id).css({ 
 				'-webkit-transition': '.2s', 
 				'-moz-transition': '2s', 
 				'-ms-transition': '.2s', 
 				'-o-transition': '.2s', 
 				opacity: '0' });
 			setTimeout(function () {
-				var width = $(obj.box).find('.w2ui-tabs #tabs_'+ obj.name +'_tab_'+ tab.id).width();
-				$(obj.box).find('.w2ui-tabs #tabs_'+ obj.name +'_tab_'+ tab.id)
+				var width = $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id).width();
+				$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id)
 					.html('<div style="width: '+ width +'px; -webkit-transition: .2s; -moz-transition: .2s; -ms-transition: .2s; -o-transition: .2s"></div>')
 				setTimeout(function () {
-					$(obj.box).find('.w2ui-tabs #tabs_'+ obj.name +'_tab_'+ tab.id).find(':first-child').css({ 'width': '0px' });
+					$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id).find(':first-child').css({ 'width': '0px' });
 				}, 50);
 			}, 200);
 			setTimeout(function () {
@@ -342,7 +353,7 @@
 				return;
 			}
 			// insert simple div
-			var jq_el   = $(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ tab.id);
+			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id);
 			if (jq_el.length != 0) return; // already exists
 			// measure width
 			var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
@@ -359,10 +370,10 @@
 			if (tab.hidden) { addStyle += 'display: none;'; }
 			if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 			html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
-			if (this.getIndex(id) != this.tabs.length && $(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).length > 0) {
-				$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).before(html);
+			if (this.getIndex(id) != this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).length > 0) {
+				$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).before(html);
 			} else {
-				$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_right').before(html);
+				$(this.box).find('#tabs_'+ this.name +'_right').before(html);
 			}
 			// -- move
 			var obj = this;

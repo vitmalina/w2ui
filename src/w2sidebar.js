@@ -295,7 +295,7 @@
 			this.unselect(this.selected);
 			var new_node = this.get(id);
 			if (!new_node) return false;
-			$('#sidebar_'+ this.name +' #node_'+id.replace(/\./, '\\.'))
+			$(this.box).find('#node_'+id.replace(/\./, '\\.'))
 				.addClass('w2ui-selected')
 				.find('.w2ui-icon').addClass('w2ui-icon-selected');
 			new_node.selected = true;
@@ -306,7 +306,7 @@
 			var current = this.get(id);
 			if (!current) return false;
 			current.selected = false;
-			$('#sidebar_'+ this.name +' #node_'+id.replace(/\./, '\\.'))
+			$(this.box).find('#node_'+id.replace(/\./, '\\.'))
 				.removeClass('w2ui-selected')
 				.find('.w2ui-icon').removeClass('w2ui-icon-selected');
 			if (this.selected == id) this.selected = null;
@@ -321,7 +321,7 @@
 			var nd  = this.get(id);
 			var obj = this;
 			if (!nd.group && !nd.disabled) {
-				$('#sidebar_'+ this.name +' .w2ui-node').each(function (index, field) {
+				$(this.box).find('.w2ui-node').each(function (index, field) {
 					var nid = String(field.id).replace('node_', '');
 					var nd  = obj.get(nid);
 					if (nd && nd.selected) {
@@ -329,7 +329,7 @@
 						$(field).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
 					}
 				});
-				$('#sidebar_'+ this.name +' #node_'+id.replace(/\./, '\\.'))
+				$(this.box).find('#node_'+id.replace(/\./, '\\.'))
 					.addClass('w2ui-selected')
 					.find('.w2ui-icon').addClass('w2ui-icon-selected');
 				this.get(id).selected = true;
@@ -375,8 +375,8 @@
 			var nd = this.get(id);
 			if (nd.nodes.length == 0) return;
 			// expand
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +'_sub').show();
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
+			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +'_sub').show();
+			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
 			nd.expanded = true;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -387,8 +387,8 @@
 			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, event: event });	
 			if (eventData.stop === true) return false;
 			// default action
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +'_sub').hide();		
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
+			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +'_sub').hide();		
+			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
 			this.get(id).expanded = false;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -400,17 +400,40 @@
 			if (eventData.stop === true) return false;
 			// default action
 			if (typeof box != 'undefined' && box != null) { 
-				$(this.box).html(''); 
+				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-sidebar')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
 			$(this.box)
+				.data('w2name', this.name)
 				.addClass('w2ui-reset w2ui-sidebar')
-				.html(
-					(this.top_html != '' ? this.top_html : '') +
-					'<div id="sidebar_'+ this.name +'" class="w2ui-sidebar-div" style="'+ this.style +'"></div>'+
-					(this.bottom_html != '' ? this.bottom_html : '')
+				.html('<div>'+
+						'<div class="w2ui-sidebar-top"></div>' +
+						'<div class="w2ui-sidebar-div"></div>'+
+						'<div class="w2ui-sidebar-bottom"></div>'+
+					'</div>'
 				);
+			$(this.box).find('> div').css({
+				width 	: $(this.box).width() + 'px',
+				height 	: $(this.box).height() + 'px'
+			});
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
+			// adjust top and bottom
+			if (this.top_html != '') {
+				$(this.box).find('.w2ui-sidebar-top').html(this.top_html);
+				$(this.box).find('.w2ui-sidebar-div')					
+					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
+			}
+			if (this.bottom_html != '') {
+				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottom_html);
+				$(this.box).find('.w2ui-sidebar-div')
+					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
+			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// ---
@@ -422,29 +445,40 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
 			if (eventData.stop === true) return false;
+			// adjust top and bottom
+			if (this.top_html != '') {
+				$(this.box).find('.w2ui-sidebar-top').html(this.top_html);
+				$(this.box).find('.w2ui-sidebar-div')					
+					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
+			}
+			if (this.bottom_html != '') {
+				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottom_html);
+				$(this.box).find('.w2ui-sidebar-div')
+					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
+			}
 			// default action
 			var obj = this;
 			if (typeof id == 'undefined') {
 				var node = this;
-				var nm 	 = '#sidebar_'+ this.name;
+				var nm 	 = '.w2ui-sidebar-div';
 			} else {
 				var node = this.get(id);
-				var nm 	 = '#sidebar_'+ this.name +' #node_'+ node.id.replace(/\./, '\\.') + '_sub';
+				var nm 	 = '#node_'+ node.id.replace(/\./, '\\.') + '_sub';
 			}
 			if (node != this) {
-				var tmp = '#sidebar_'+ this.name +' #node_'+ node.id.replace(/\./, '\\.');
+				var tmp = '#node_'+ node.id.replace(/\./, '\\.');
 				var nodeHTML = getNodeHTML(node);
-				$(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
-				$(tmp).remove();
-				$(nm).remove();
+				$(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
+				$(this.box).find(tmp).remove();
+				$(this.box).find(nm).remove();
 				$('#sidebar_'+ this.name + '_tmp').before(nodeHTML);
 				$('#sidebar_'+ this.name + '_tmp').remove();
 			}
 			// refresh sub nodes
-			$(nm).html('');
+			$(this.box).find(nm).html('');
 			for (var i=0; i < node.nodes.length; i++) {
 				var nodeHTML = getNodeHTML(node.nodes[i]);
-				$(nm).append(nodeHTML);
+				$(this.box).find(nm).append(nodeHTML);
 				if (node.nodes[i].nodes.length != 0) { this.refresh(node.nodes[i].id); }
 			}
 			// event after
@@ -470,7 +504,7 @@
 						'		onclick="w2ui[\''+ obj.name +'\'].doClick(\''+ nd.id +'\', event); w2ui[\''+ obj.name +'\'].doToggle(\''+ nd.id +'\'); '+
 						'				 var sp=$(this).find(\'span:nth-child(1)\'); if (sp.html() == \''+ w2utils.lang('Hide') +'\') sp.html(\''+ w2utils.lang('Show') +'\'); else sp.html(\''+ w2utils.lang('Hide') +'\');"'+
 						'		onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
-						'		onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'gray\')">'+
+						'		onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
 						'	<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>'+
 						'	<span>'+ nd.text +'</span>'+
 						'</div>'+
@@ -516,7 +550,12 @@
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
-			$(this.box).html('');
+			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-sidebar')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));	

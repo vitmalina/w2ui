@@ -296,10 +296,10 @@
 				// link styles
 				if ($('#w2ui-tmp > style').length > 0) {
 					var style = $('<div>').append($('#w2ui-tmp > style').clone()).html();
-					if ($('#w2ui-screenPopup #div-style').length == 0) {
-						$('#w2ui-screenPopup').append('<div id="div-style" style="position: absolute; left: -100; width: 1px"></div>');
+					if ($('#w2ui-popup #div-style').length == 0) {
+						$('#w2ui-ppopup').append('<div id="div-style" style="position: absolute; left: -100; width: 1px"></div>');
 					}
-					$('#w2ui-screenPopup #div-style').html(style);
+					$('#w2ui-popup #div-style').html(style);
 				}
 				$('#w2ui-tmp').remove();
 			}
@@ -544,12 +544,14 @@
 			title = w2utils.lang('Confirmation');
 		}
 		$().w2popup({
-			width 	: 450,
-			height 	: 200,
-			title   : title,
-			body    : '<div class="w2ui-confirm-body">' + msg +'</div>',
-			buttons : '<input id="buttonNo" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-confirm-button">&nbsp;'+
-					  '<input id="buttonYes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-confirm-button">'
+			width 		: 450,
+			height 		: 200,
+			title   	: title,
+			modal		: true,
+			showClose	: false,
+			body    	: '<div class="w2ui-confirm-body">' + msg +'</div>',
+			buttons 	: '<input id="buttonNo" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-confirm-button">&nbsp;'+
+					  	  '<input id="buttonYes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-confirm-button">'
 		});
 		$('#w2ui-popup #buttonNo').on('click', function () {
 			$().w2popup('close');

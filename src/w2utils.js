@@ -745,6 +745,8 @@ $.w2event = {
 	$.fn.w2lite = function () {
 	}
 	
+	// -- w2tag - appears on the right side from element, there can be multiple on screen at a time
+
 	$.fn.w2tag = function (text, options) {
 		if (!$.isPlainObject(options)) options = {};
 		if (!$.isPlainObject(options.css)) options.css = {};
@@ -826,12 +828,14 @@ $.w2event = {
 		});
 	}
 	
+	// w2overlay - appears under the element, there can be only one at a time
+
 	$.fn.w2overlay = function (html, options) {
 		var isOpened = false;
 		if (!$.isPlainObject(options)) options = {};
 		if (!$.isPlainObject(options.css)) options.css = {};
 
-		if (this.length == 0 || html == '') {
+		if (this.length == 0 || html == '' || typeof html == 'undefined') {
 			if (typeof options.onHide == 'function') options.onHide();
 			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);
@@ -848,6 +852,8 @@ $.w2event = {
 		if (typeof options['class'] != 'undefined') div.addClass(options['class']);
 		if (typeof options.top == 'undefined') options.top = 0;
 		if (typeof options.left == 'undefined') options.left = 0;
+		if (typeof options.width == 'undefined') options.width = 100;
+		if (typeof options.height == 'undefined') options.height = 0;
 
 		// pickup bg color of first div
 		var bc  = div.css('background-color'); 
@@ -855,9 +861,11 @@ $.w2event = {
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div.css('background-color', bc);
 
 		div.css({
-				display : 'none',
-				left 	: ($(obj).offset().left + options.left) + 'px',
-				top 	: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px'
+				display 	 : 'none',
+				left 		 : ($(obj).offset().left + options.left) + 'px',
+				top 		 : ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px',
+				'min-width'  : (options.width ? options.width : 'auto'),
+				'min-height' : (options.height ? options.height : 'auto')
 			})
 			.fadeIn('fast')
 			.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight))

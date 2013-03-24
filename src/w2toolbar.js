@@ -131,7 +131,7 @@
 				if (!it) continue;
 				removed++;
 				// remove from screen
-				$(this.box).find('.w2ui-toolbar #'+ this.name +'_item_'+ it.id).remove();
+				$(this.box).find('#'+ this.name +'_item_'+ it.id).remove();
 				// remove from array
 				var ind = this.getIndex(it.id);
 				if (ind) this.items.splice(ind, 1);
@@ -241,14 +241,17 @@
 			if (eventData.stop === true) return false;
 	 
 			if (typeof box != 'undefined' && box != null) { 
-				$(this.box).html(''); 
+				if ($(this.box).find('> table #toolbar_'+ this.name + '_right').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-toolbar')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
 			// render all buttons
-			$(this.box).html('');
-			var html = '<div id="'+ this.name +'_toolbar" class="w2ui-reset w2ui-toolbar">'+
-					   '<table cellspacing="0" cellpadding="0" width="100%">'+
+			var html = '<table cellspacing="0" cellpadding="0" width="100%">'+
 					   '<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
@@ -261,11 +264,14 @@
 							'</td>';
 				}
 			}
-			html += '<td width="100%" id="'+ this.name +'_right" align="right">'+ this.right +'</td>';
+			html += '<td width="100%" id="toolbar_'+ this.name +'_right" align="right">'+ this.right +'</td>';
 			html += '</tr>'+
-					'</table>'+
-					'</div>';
-			$(this.box).append(html);
+					'</table>';
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-reset w2ui-toolbar')
+				.html(html);
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// append global drop-box that can be on top of everything
 			if ($('#w2ui-global-drop').length == 0) $('body').append('<div id="w2ui-global-drop" class="w2ui-reset"></div>');
 			// event after
@@ -286,16 +292,16 @@
 			var it = this.get(id);
 			if (it == null) return;
 			
-			var jq_el = $(this.box).find('.w2ui-toolbar #'+ this.name +'_item_'+ it.id);
+			var jq_el = $(this.box).find('#'+ this.name +'_item_'+ it.id);
 			var html  = this.getItemHTML(it);
 			if (jq_el.length == 0) {
 				// does not exist - create it
 				html =  '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
 						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html + '</td>';
 				if (this.getIndex(id) == this.items.length-1) {
-					$(this.box).find('.w2ui-toolbar #'+ this.name +'_right').before(html);
+					$(this.box).find('#'+ this.name +'_right').before(html);
 				} else {
-					$(this.box).find('.w2ui-toolbar #'+ this.name +'_item_'+ this.items[parseInt(this.getIndex(id))+1].id).before(html);
+					$(this.box).find('#'+ this.name +'_item_'+ this.items[parseInt(this.getIndex(id))+1].id).before(html);
 				}
 			} else {
 				// refresh
@@ -324,6 +330,12 @@
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
+			if ($(this.box).find('> table #toolbar_'+ this.name + '_right').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-toolbar')
+					.html('');
+			}
 			$(this.box).html('');
 			delete w2ui[this.name];
 			// event after
@@ -457,7 +469,6 @@
 				// drop items
 				if (it.type == 'drop' || it.type == 'menu') {
 					if (!it.checked) {
-						$('table.w2ui-toolbar div.w2ui-drop-box').hide();
 						$('#'+ this.name +'_item_'+ it.id + ' div.w2ui-drop-box').show();
 						if ($('#w2ui-global-drop').data('tb-id') == it.id) $('#w2ui-global-drop').hide();
 						$('#w2ui-global-drop').css({

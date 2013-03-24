@@ -28,7 +28,6 @@ var w2utils = (function () {
 			fullmonths		: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 			shortdays		: ["M", "T", "W", "T", "F", "S","S"],
 			fulldays 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-			yesterday		: "Yesterday",
 			RESTfull		: true,
 			phrases 		: {} // empty object for english phrases
 		},
@@ -51,7 +50,7 @@ var w2utils = (function () {
 		transition		: transition,
 		getSize			: getSize,
 		lang 			: lang,
-		i18n 			: i18n
+		userLocal 		: userLocal
 	}
 	return obj;
 	
@@ -178,7 +177,7 @@ var w2utils = (function () {
 		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var dsp = dd1;
 		if (dd1 == dd2) dsp = time;
-		if (dd1 == dd3) dsp = w2utils.settings.yesterday;
+		if (dd1 == dd3) dsp = w2utils.lang('Yesterday');
 
 		return '<span title="'+ dd1 + ' ' + time2 +'">'+ dsp + '</span>';
 	}
@@ -603,15 +602,27 @@ var w2utils = (function () {
 		if (typeof translation == 'undefined') return phrase; else return translation;
 	}
 
-	function i18n (path, str) {
+	/**
+	* 
+	* @param {Object} localParam This object contain two properties :
+	* - {String} path The default value is ''
+	* - {String} local user code : {language}-{country}
+	* e.g. for Canada en-CA or fr-CA, for USA en-US, for UK en-EN 
+	* (cf http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm?=)
+	* The dafault value is en-US
+	* @returns {String}
+	*/
+	function userLocal (localParam) {
+		var settings = w2utils.settings;
 		var param;
-		var result = str.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
-		if ( result !== null && result.length === 3) {
+		$.extend( { path : '', lang : 'en-us' }, localParam);
+		var result = localParam.lang.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
+		if (result !== null && result.length === 3) {
 			param = result[1] + '-' + result[2].toUpperCase();
-			if ( param === w2utils.settings.i18n) {
+			if ( param === settings.i18n) {
 				return param;
 			}
-			param = path + "i18n/" + param.toLowerCase() + ".json";
+			param = localParam.path + "locales/" + param.toLowerCase() + ".json";
 			$.ajax({
 				url: param,
 				type: "GET",
@@ -619,13 +630,14 @@ var w2utils = (function () {
 				cache : false,
 				async : false,
 				}).done(function( data) {
-					$.extend( w2utils.settings, data);
+					$.extend( settings, data);
 				}).fail(function(jqXHR, textStatus) {
 					alert( "Request failed: " + textStatus );
-					});
-			}
-			return w2utils.settings.i18n;
-	}		
+				});
+		}
+		return settings.i18n;
+	}
+
 })();
 
 /***********************************************************
@@ -733,6 +745,8 @@ $.w2event = {
 	$.fn.w2lite = function () {
 	}
 	
+	// -- w2tag - appears on the right side from element, there can be multiple on screen at a time
+
 	$.fn.w2tag = function (text, options) {
 		if (!$.isPlainObject(options)) options = {};
 		if (!$.isPlainObject(options.css)) options.css = {};
@@ -814,12 +828,14 @@ $.w2event = {
 		});
 	}
 	
+	// w2overlay - appears under the element, there can be only one at a time
+
 	$.fn.w2overlay = function (html, options) {
 		var isOpened = false;
 		if (!$.isPlainObject(options)) options = {};
 		if (!$.isPlainObject(options.css)) options.css = {};
 
-		if (this.length == 0 || html == '') {
+		if (this.length == 0 || html == '' || typeof html == 'undefined') {
 			if (typeof options.onHide == 'function') options.onHide();
 			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);
@@ -836,6 +852,8 @@ $.w2event = {
 		if (typeof options['class'] != 'undefined') div.addClass(options['class']);
 		if (typeof options.top == 'undefined') options.top = 0;
 		if (typeof options.left == 'undefined') options.left = 0;
+		if (typeof options.width == 'undefined') options.width = 100;
+		if (typeof options.height == 'undefined') options.height = 0;
 
 		// pickup bg color of first div
 		var bc  = div.css('background-color'); 
@@ -843,9 +861,11 @@ $.w2event = {
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div.css('background-color', bc);
 
 		div.css({
-				display : 'none',
-				left 	: ($(obj).offset().left + options.left) + 'px',
-				top 	: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px'
+				display 	 : 'none',
+				left 		 : ($(obj).offset().left + options.left) + 'px',
+				top 		 : ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px',
+				'min-width'  : (options.width ? options.width : 'auto'),
+				'min-height' : (options.height ? options.height : 'auto')
 			})
 			.fadeIn('fast')
 			.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight))
@@ -1960,7 +1980,7 @@ $.w2event = {
 						record[s] = changed[c][s];
 					}
 				}
-				$('#grid_'+ this.name + ' .w2ui-editable input').removeClass('changed');
+				$(this.box).find('.w2ui-editable input').removeClass('changed');
 				this.selectNone();
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2262,7 +2282,7 @@ $.w2event = {
 			// determine new width and height
 			this.width  = typeof width != 'undefined' && width != null ? parseInt(width) : $(this.box).width();
 			this.height = typeof height != 'undefined' && height != null ? parseInt(height) : $(this.box).height();
-			$(this.box).width(width).height(height);
+			$(this.box).find('> div').width(width).height(height);
 			// if blank
 			if (this.width == 0 || this.height == 0) return;
 			// event before
@@ -2397,7 +2417,12 @@ $.w2event = {
 
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (typeof box != 'undefined' && box != null) {
-				$(this.box).html('');
+				if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-grid')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
@@ -2406,14 +2431,18 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
 			if (eventData.stop === true) return false;
 			// insert Elements
-			$(this.box).data('w2name', this.name).html(
-				'<div id="grid_'+ this.name +'" class="w2ui-reset w2ui-grid" style="'+ this.style +'">'+
-				'	<div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
-				'	<div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
-				'	<div id="grid_'+ this.name +'_body" class="w2ui-grid-body"></div>'+
-				'	<div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
-				'	<div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
-				'</div>');
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-reset w2ui-grid')
+				.html('<div>'+
+					  '	<div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
+					  '	<div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
+					  '	<div id="grid_'+ this.name +'_body" class="w2ui-grid-body"></div>'+
+					  '	<div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
+					  '	<div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
+					  '</div>');
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
+			console.log(this.style);
 			// init toolbar
 			this.initToolbar();
 			if (this.toolbar != null) this.toolbar.render($('#grid_'+ this.name +'_toolbar')[0]);
@@ -2439,7 +2468,12 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 			// clean up
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
-			$(this.box).html('');
+			if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-grid')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2658,7 +2692,7 @@ $.w2event = {
 		initResize: function () {
 			var obj = this;
 			//if (obj.resizing === true) return;
-			$('#grid_'+ this.name + ' .w2ui-resizer')
+			$(this.box).find('.w2ui-resizer')
 				.off('mousedown')
 				.off('click')
 				.each(function (index, el) {
@@ -2713,7 +2747,7 @@ $.w2event = {
 
 		resizeBoxes: function () {
 			// elements
-			var main 		= $('#grid_'+ this.name);
+			var main 		= $(this.box).find('> div');
 			var header 		= $('#grid_'+ this.name +'_header');
 			var toolbar 	= $('#grid_'+ this.name +'_toolbar');
 			var summary		= $('#grid_'+ this.name +'_summary');
@@ -2768,7 +2802,7 @@ $.w2event = {
 			$(this.box).find('.w2ui-empty-record').remove();
 			// -- Calculate Column size in PX
 			var box			= $(this.box);
-			var grid		= $('#grid_'+ this.name);
+			var grid		= $(this.box).find('> div');
 			var header 		= $('#grid_'+ this.name +'_header');
 			var toolbar		= $('#grid_'+ this.name +'_toolbar');
 			var summary 	= $('#grid_'+ this.name +'_summary');
@@ -3365,7 +3399,7 @@ $.w2event = {
 
 		showStatus: function (statusMsg) {
 			var obj = this;
-			$('#grid_'+ this.name).append(
+			$(this.box).find('> div').append(
 				'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock"></div>'+
 				'<div id="grid_'+ this.name +'_status" class="w2ui-grid-status"></div>'
 			);
@@ -3421,6 +3455,7 @@ $.w2event = {
 *
 *  NICE TO HAVE
 *   - onResize for the panel
+* 	- spacer -> splitter
 * 
 ************************************************************************/
 
@@ -3430,7 +3465,7 @@ $.w2event = {
 		this.name		= null;		// unique name for w2ui
 		this.panels		= [];
 		this.padding	= 1;		// panel padding
-		this.spacer		= 4;		// resizer width or height
+		this.splitter	= 4;		// resizer width or height
 		this.style		= '';
 		this.css		= '';		// will display all inside <style> tag
 		this.width		= null		// reads from container
@@ -3596,15 +3631,15 @@ $.w2event = {
 			if (p == null) return false;
 			p.hidden = false;
 			if (immediate === true) {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '1' });	
-				if (p.resizabled) $('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_'+panel).show();
+				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '1' });	
+				if (p.resizabled) $('#layout_'+ this.name +'_splitter_'+panel).show();
 				this.trigger($.extend(eventData, { phase: 'after' }));	
 				this.resize();
 			} else {			
 				var obj = this;
-				if (p.resizabled) $('#layout_'+ obj.name +' #layout_'+ obj.name +'_splitter_'+panel).show();
+				if (p.resizabled) $('#layout_'+ obj.name +'_splitter_'+panel).show();
 				// resize
-				$('#layout_'+ obj.name +' #layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });	
+				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });	
 				$('#layout_'+ this.name +' .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
@@ -3614,7 +3649,7 @@ $.w2event = {
 				setTimeout(function () { obj.resize(); }, 1);
 				// show
 				setTimeout(function() {
-					$('#layout_'+ obj.name +' #layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });	
+					$('#layout_'+ obj.name +'_panel_'+ panel).css({ 'opacity': '1' });	
 				}, 250);
 				// clean
 				setTimeout(function () { 
@@ -3639,25 +3674,25 @@ $.w2event = {
 			if (p == null) return false;
 			p.hidden = true;		
 			if (immediate === true) {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_'+panel).hide();
+				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
+				$('#layout_'+ this.name +'_splitter_'+panel).hide();
 				this.trigger($.extend(eventData, { phase: 'after' }));	
 				this.resize();
 			} else {
 				var obj = this;
-				$('#layout_'+ obj.name +' #layout_'+ obj.name +'_splitter_'+panel).hide();
+				$('#layout_'+ obj.name +'_splitter_'+panel).hide();
 				// hide
-				$('#layout_'+ this.name +' .w2ui-panel').css({
+				$(this.box).find(' > div .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
 					'-ms-transition'	: '.2s',
 					'-o-transition'		: '.2s'
 				});
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
+				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
 				setTimeout(function () { obj.resize(); }, 1);
 				// clean
 				setTimeout(function () { 
-					$('#layout_'+ obj.name +' .w2ui-panel').css({
+					$(this.box).find(' > div .w2ui-panel').css({
 						'-webkit-transition': '0s',
 						'-moz-transition'	: '0s',
 						'-ms-transition'	: '0s',
@@ -3706,23 +3741,32 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 	
 			if (typeof box != 'undefined' && box != null) { 
-				$(this.box).html(''); 
+				if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-layout')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
 			// add main panel if it was not already added
 			if (this.get('main') == null) this.panels.push( $.extend({}, w2layout.prototype.panel, { type: 'main'}) );
 			if (this.get('css') == null)  this.panels.push( $.extend({}, w2layout.prototype.panel, { type: 'css'}) );
-			var html = '<div id="layout_'+ this.name +'" class="w2ui-layout" style="'+ this.style +'"></div>';
-			$(this.box).html(html);
+			var html = '<div></div>';
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-layout')
+				.html(html);
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// create all panels
 			var tmp = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
 			for (var t in tmp) {
 				var html =  '<div id="layout_'+ this.name + '_panel_'+ tmp[t] +'" class="w2ui-panel"></div>'+
 							'<div id="layout_'+ this.name + '_splitter_'+ tmp[t] +'" class="w2ui-splitter"></div>';
-				$('#layout_'+ this.name +'').append(html);
+				$(this.box).find(' > div').append(html);
 			}
-			$('#layout_'+ this.name +'').append('<style id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;">'+ this.css +'</style>');		
+			$(this.box).find(' > div').append('<style id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;">'+ this.css +'</style>');		
 			// process event
 			this.trigger($.extend(eventData, { phase: 'after' }));	
 			// reinit events
@@ -3741,19 +3785,19 @@ $.w2event = {
 				var p = this.get(panel);
 				if (p == null) return false;
 				// apply properties to the panel
-				var el = $('#layout_'+ this.name +' #layout_' +this.name +'_panel_'+panel).css({
+				var el = $('#layout_' +this.name +'_panel_'+panel).css({
 					display: p.hidden ? 'none' : 'block',
 					overflow: p.overflow
 				});
 				if (el.length > 0) el[0].style.cssText += ';' + p.style;
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.render($('#layout_'+ this.name +' #layout_'+ this.name + '_panel_'+ p.type)[0]);
+					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type)[0]);
 				} else {
-					$('#layout_'+ this.name +' #layout_'+ this.name + '_panel_'+ p.type).html(p.content);
+					$('#layout_'+ this.name + '_panel_'+ p.type).html(p.content);
 				}
 			} else {
-				if ($('#layout_'+ this.name +' #layout_' +this.name +'_panel_main').length <= 0) {
+				if ($('#layout_' +this.name +'_panel_main').length <= 0) {
 					this.render();
 					return;
 				}
@@ -3778,7 +3822,7 @@ $.w2event = {
 			
 			if (typeof width != 'undefined' && width != null)  this.width  = parseInt(width);
 			if (typeof height != 'undefined' && height != null) this.height = parseInt(height);
-			$('#layout_'+ this.name +'').css({
+			$(this.box).find(' > div').css({
 				width: this.width + 'px',
 				height: this.height + 'px'
 			});
@@ -3826,7 +3870,7 @@ $.w2event = {
 				var t = 0;
 				var w = this.width;
 				var h = ptop.size;
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_top').css({
+				$('#layout_'+ this.name +'_panel_top').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -3838,8 +3882,8 @@ $.w2event = {
 				// resizer
 				if (ptop.resizable) {
 					t = ptop.size;
-					h = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_top').show().css({
+					h = this.splitter;
+					$('#layout_'+ this.name +'_splitter_top').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -3852,18 +3896,18 @@ $.w2event = {
 					});
 				}
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_top').hide();
+				$('#layout_'+ this.name +'_panel_top').hide();
 			}
 			// left if any
 			if (pleft != null && pleft.hidden != true) {
 				var l = 0;
-				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0);
+				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
 				var w = pleft.size;
-				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0) - 
-									  (sbottom ? pbottom.size + (pbottom.resizable ? this.spacer : this.padding) : 0);
-				var e = $('#layout_'+ this.name +' #layout_'+ this.name +'_panel_left');
+				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
+									  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0);
+				var e = $('#layout_'+ this.name +'_panel_left');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_left').css({
+				$('#layout_'+ this.name +'_panel_left').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -3875,8 +3919,8 @@ $.w2event = {
 				// resizer
 				if (pleft.resizable) {
 					l = pleft.size;
-					w = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_left').show().css({
+					w = this.splitter;
+					$('#layout_'+ this.name +'_splitter_left').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -3889,17 +3933,17 @@ $.w2event = {
 					});
 				}
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_left').hide();
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_left').hide();
+				$('#layout_'+ this.name +'_panel_left').hide();
+				$('#layout_'+ this.name +'_splitter_left').hide();
 			}
 			// right if any
 			if (pright != null && pright.hidden != true) {
 				var l = this.width - pright.size;
-				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0);
+				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
 				var w = pright.size;
-				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0) - 
-									  (sbottom ? pbottom.size + (pbottom.resizable ? this.spacer : this.padding) : 0);
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_right').css({
+				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
+									  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0);
+				$('#layout_'+ this.name +'_panel_right').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -3910,9 +3954,9 @@ $.w2event = {
 				pright.height = h;
 				// resizer
 				if (pright.resizable) {
-					l = l - this.spacer;
-					w = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_right').show().css({
+					l = l - this.splitter;
+					w = this.splitter;
+					$('#layout_'+ this.name +'_splitter_right').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -3925,7 +3969,7 @@ $.w2event = {
 					});
 				}			
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_right').hide();
+				$('#layout_'+ this.name +'_panel_right').hide();
 			}
 			// bottom if any
 			if (pbottom != null && pbottom.hidden != true) {
@@ -3933,7 +3977,7 @@ $.w2event = {
 				var t = this.height - pbottom.size;
 				var w = this.width;
 				var h = pbottom.size;
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_bottom').css({
+				$('#layout_'+ this.name +'_panel_bottom').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -3944,9 +3988,9 @@ $.w2event = {
 				pbottom.height = h;
 				// resizer
 				if (pbottom.resizable) {
-					t = t - this.spacer;
-					h = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_bottom').show().css({
+					t = t - this.splitter;
+					h = this.splitter;
+					$('#layout_'+ this.name +'_splitter_bottom').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -3959,19 +4003,19 @@ $.w2event = {
 					});
 				}
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_bottom').hide();
+				$('#layout_'+ this.name +'_panel_bottom').hide();
 			}
 			// main - always there
-			var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.spacer : this.padding) : 0);
-			var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0);
-			var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.spacer : this.padding) : 0) - 
-								  (sright ? pright.size + (pright.resizable ? this.spacer : this.padding): 0);
-			var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.spacer : this.padding) : 0) - 
-								  (sbottom ? pbottom.size + (pbottom.resizable ? this.spacer : this.padding) : 0) -
-								  (sprev ? pprev.size + (pprev.resizable ? this.spacer : this.padding) : 0);
-			var e = $('#layout_'+ this.name +' #layout_'+ this.name +'_panel_main');
+			var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0);
+			var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
+			var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0) - 
+								  (sright ? pright.size + (pright.resizable ? this.splitter : this.padding): 0);
+			var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
+								  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0) -
+								  (sprev ? pprev.size + (pprev.resizable ? this.splitter : this.padding) : 0);
+			var e = $('#layout_'+ this.name +'_panel_main');
 			if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-			$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_main').css({
+			$('#layout_'+ this.name +'_panel_main').css({
 				'display': 'block',
 				'left': l + 'px',
 				'top': t + 'px',
@@ -3983,14 +4027,14 @@ $.w2event = {
 			
 			// preview if any
 			if (pprev != null && pprev.hidden != true) {
-				var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.spacer : this.padding) : 0);
-				var t = this.height - (sbottom ? pbottom.size + (pbottom.resizable ? this.spacer : this.padding) : 0) - pprev.size;
-				var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.spacer : this.padding) : 0) - 
-									  (sright ? pright.size + (pright.resizable ? this.spacer : this.padding): 0);
+				var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0);
+				var t = this.height - (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0) - pprev.size;
+				var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0) - 
+									  (sright ? pright.size + (pright.resizable ? this.splitter : this.padding): 0);
 				var h = pprev.size;
-				var e = $('#layout_'+ this.name +' #layout_'+ this.name +'_panel_preview');
+				var e = $('#layout_'+ this.name +'_panel_preview');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_preview').css({
+				$('#layout_'+ this.name +'_panel_preview').css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -4001,9 +4045,9 @@ $.w2event = {
 				pprev.height = h;
 				// resizer
 				if (pprev.resizable) {
-					t = t - this.spacer;
-					h = this.spacer;
-					$('#layout_'+ this.name +' #layout_'+ this.name +'_splitter_preview').show().css({
+					t = t - this.splitter;
+					h = this.splitter;
+					$('#layout_'+ this.name +'_splitter_preview').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -4016,7 +4060,7 @@ $.w2event = {
 					});
 				}
 			} else {
-				$('#layout_'+ this.name +' #layout_'+ this.name +'_panel_preview').hide();
+				$('#layout_'+ this.name +'_panel_preview').hide();
 			}
 	
 			// send resize event to children
@@ -4044,7 +4088,12 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
-			$(this.box).html('');
+			if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-layout')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));	
@@ -4476,10 +4525,10 @@ $.w2event = {
 				// link styles
 				if ($('#w2ui-tmp > style').length > 0) {
 					var style = $('<div>').append($('#w2ui-tmp > style').clone()).html();
-					if ($('#w2ui-screenPopup #div-style').length == 0) {
-						$('#w2ui-screenPopup').append('<div id="div-style" style="position: absolute; left: -100; width: 1px"></div>');
+					if ($('#w2ui-popup #div-style').length == 0) {
+						$('#w2ui-ppopup').append('<div id="div-style" style="position: absolute; left: -100; width: 1px"></div>');
 					}
-					$('#w2ui-screenPopup #div-style').html(style);
+					$('#w2ui-popup #div-style').html(style);
 				}
 				$('#w2ui-tmp').remove();
 			}
@@ -4724,12 +4773,14 @@ $.w2event = {
 			title = w2utils.lang('Confirmation');
 		}
 		$().w2popup({
-			width 	: 450,
-			height 	: 200,
-			title   : title,
-			body    : '<div class="w2ui-confirm-body">' + msg +'</div>',
-			buttons : '<input id="buttonNo" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-confirm-button">&nbsp;'+
-					  '<input id="buttonYes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-confirm-button">'
+			width 		: 450,
+			height 		: 200,
+			title   	: title,
+			modal		: true,
+			showClose	: false,
+			body    	: '<div class="w2ui-confirm-body">' + msg +'</div>',
+			buttons 	: '<input id="buttonNo" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-confirm-button">&nbsp;'+
+					  	  '<input id="buttonYes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-confirm-button">'
 		});
 		$('#w2ui-popup #buttonNo').on('click', function () {
 			$().w2popup('close');
@@ -4866,7 +4917,7 @@ $.w2event = {
 				// remove from array
 				this.tabs.splice(this.getIndex(tab.id), 1);
 				// remove from screen
-				$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ tab.id).remove();
+				$(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id).remove();
 			}
 			return removed;
 		},
@@ -4956,7 +5007,7 @@ $.w2event = {
 			var tab = this.get(id);
 			if (tab == null) return;
 			
-			var jq_el   = $(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ tab.id);
+			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id);
 			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].doClose(\''+ tab.id +'\', event);"></div>' : '') +
 						  '	<div class="w2ui-tab '+ (this.active == tab.id ? 'active' : '') +'" title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
 						  '		onclick="w2ui[\''+ this.name +'\'].doClick(\''+ tab.id +'\', event);">' + tab.caption + '</div>';
@@ -4966,10 +5017,10 @@ $.w2event = {
 				if (tab.hidden) { addStyle += 'display: none;'; }
 				if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 				html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
-				if (this.getIndex(id) != this.tabs.length-1 && $(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).length > 0) {
-					$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).before(html);
+				if (this.getIndex(id) != this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).length > 0) {
+					$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).before(html);
 				} else {
-					$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_right').before(html);
+					$(this.box).find('#tabs_'+ this.name +'_right').before(html);
 				}
 			} else {
 				// refresh
@@ -4990,18 +5041,24 @@ $.w2event = {
 			// default action
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (String(box) != 'undefined' && box != null) { 
-				$(this.box).html(''); 
+				if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-tabs')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
 			// render all buttons
-			$(this.box).html('');
-			var html = '<div id="tabs_'+ this.name +'" class="w2ui-reset w2ui-tabs" style="'+ this.style +'">'+
-					   '	<table cellspacing="0" cellpadding="1" width="100%">'+
-					   '		<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
-					   '	</table>'+
-					   '</div>';
-			$(this.box).append(html);
+			var html = '<table cellspacing="0" cellpadding="1" width="100%">'+
+					   '	<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
+					   '</table>';
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-reset w2ui-tabs')
+				.html(html);
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh();
@@ -5022,7 +5079,12 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
-			$(this.box).html('');
+			if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-tabs')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend({ phase: 'after' }));	
@@ -5053,18 +5115,18 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 			// default action
 			var obj = this;
-			$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ tab.id).css({ 
+			$(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id).css({ 
 				'-webkit-transition': '.2s', 
 				'-moz-transition': '2s', 
 				'-ms-transition': '.2s', 
 				'-o-transition': '.2s', 
 				opacity: '0' });
 			setTimeout(function () {
-				var width = $(obj.box).find('.w2ui-tabs #tabs_'+ obj.name +'_tab_'+ tab.id).width();
-				$(obj.box).find('.w2ui-tabs #tabs_'+ obj.name +'_tab_'+ tab.id)
+				var width = $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id).width();
+				$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id)
 					.html('<div style="width: '+ width +'px; -webkit-transition: .2s; -moz-transition: .2s; -ms-transition: .2s; -o-transition: .2s"></div>')
 				setTimeout(function () {
-					$(obj.box).find('.w2ui-tabs #tabs_'+ obj.name +'_tab_'+ tab.id).find(':first-child').css({ 'width': '0px' });
+					$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id).find(':first-child').css({ 'width': '0px' });
 				}, 50);
 			}, 200);
 			setTimeout(function () {
@@ -5086,7 +5148,7 @@ $.w2event = {
 				return;
 			}
 			// insert simple div
-			var jq_el   = $(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ tab.id);
+			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id);
 			if (jq_el.length != 0) return; // already exists
 			// measure width
 			var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
@@ -5103,10 +5165,10 @@ $.w2event = {
 			if (tab.hidden) { addStyle += 'display: none;'; }
 			if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 			html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
-			if (this.getIndex(id) != this.tabs.length && $(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).length > 0) {
-				$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).before(html);
+			if (this.getIndex(id) != this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).length > 0) {
+				$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).before(html);
 			} else {
-				$(this.box).find('.w2ui-tabs #tabs_'+ this.name +'_right').before(html);
+				$(this.box).find('#tabs_'+ this.name +'_right').before(html);
 			}
 			// -- move
 			var obj = this;
@@ -5258,7 +5320,7 @@ $.w2event = {
 				if (!it) continue;
 				removed++;
 				// remove from screen
-				$(this.box).find('.w2ui-toolbar #'+ this.name +'_item_'+ it.id).remove();
+				$(this.box).find('#'+ this.name +'_item_'+ it.id).remove();
 				// remove from array
 				var ind = this.getIndex(it.id);
 				if (ind) this.items.splice(ind, 1);
@@ -5368,14 +5430,17 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 	 
 			if (typeof box != 'undefined' && box != null) { 
-				$(this.box).html(''); 
+				if ($(this.box).find('> table #toolbar_'+ this.name + '_right').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-toolbar')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
 			// render all buttons
-			$(this.box).html('');
-			var html = '<div id="'+ this.name +'_toolbar" class="w2ui-reset w2ui-toolbar">'+
-					   '<table cellspacing="0" cellpadding="0" width="100%">'+
+			var html = '<table cellspacing="0" cellpadding="0" width="100%">'+
 					   '<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
@@ -5388,11 +5453,14 @@ $.w2event = {
 							'</td>';
 				}
 			}
-			html += '<td width="100%" id="'+ this.name +'_right" align="right">'+ this.right +'</td>';
+			html += '<td width="100%" id="toolbar_'+ this.name +'_right" align="right">'+ this.right +'</td>';
 			html += '</tr>'+
-					'</table>'+
-					'</div>';
-			$(this.box).append(html);
+					'</table>';
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-reset w2ui-toolbar')
+				.html(html);
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// append global drop-box that can be on top of everything
 			if ($('#w2ui-global-drop').length == 0) $('body').append('<div id="w2ui-global-drop" class="w2ui-reset"></div>');
 			// event after
@@ -5413,16 +5481,16 @@ $.w2event = {
 			var it = this.get(id);
 			if (it == null) return;
 			
-			var jq_el = $(this.box).find('.w2ui-toolbar #'+ this.name +'_item_'+ it.id);
+			var jq_el = $(this.box).find('#'+ this.name +'_item_'+ it.id);
 			var html  = this.getItemHTML(it);
 			if (jq_el.length == 0) {
 				// does not exist - create it
 				html =  '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
 						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html + '</td>';
 				if (this.getIndex(id) == this.items.length-1) {
-					$(this.box).find('.w2ui-toolbar #'+ this.name +'_right').before(html);
+					$(this.box).find('#'+ this.name +'_right').before(html);
 				} else {
-					$(this.box).find('.w2ui-toolbar #'+ this.name +'_item_'+ this.items[parseInt(this.getIndex(id))+1].id).before(html);
+					$(this.box).find('#'+ this.name +'_item_'+ this.items[parseInt(this.getIndex(id))+1].id).before(html);
 				}
 			} else {
 				// refresh
@@ -5451,6 +5519,12 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
+			if ($(this.box).find('> table #toolbar_'+ this.name + '_right').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-toolbar')
+					.html('');
+			}
 			$(this.box).html('');
 			delete w2ui[this.name];
 			// event after
@@ -5584,7 +5658,6 @@ $.w2event = {
 				// drop items
 				if (it.type == 'drop' || it.type == 'menu') {
 					if (!it.checked) {
-						$('table.w2ui-toolbar div.w2ui-drop-box').hide();
 						$('#'+ this.name +'_item_'+ it.id + ' div.w2ui-drop-box').show();
 						if ($('#w2ui-global-drop').data('tb-id') == it.id) $('#w2ui-global-drop').hide();
 						$('#w2ui-global-drop').css({
@@ -5979,7 +6052,7 @@ $.w2event = {
 			this.unselect(this.selected);
 			var new_node = this.get(id);
 			if (!new_node) return false;
-			$('#sidebar_'+ this.name +' #node_'+id.replace(/\./, '\\.'))
+			$(this.box).find('#node_'+id.replace(/\./, '\\.'))
 				.addClass('w2ui-selected')
 				.find('.w2ui-icon').addClass('w2ui-icon-selected');
 			new_node.selected = true;
@@ -5990,7 +6063,7 @@ $.w2event = {
 			var current = this.get(id);
 			if (!current) return false;
 			current.selected = false;
-			$('#sidebar_'+ this.name +' #node_'+id.replace(/\./, '\\.'))
+			$(this.box).find('#node_'+id.replace(/\./, '\\.'))
 				.removeClass('w2ui-selected')
 				.find('.w2ui-icon').removeClass('w2ui-icon-selected');
 			if (this.selected == id) this.selected = null;
@@ -6005,7 +6078,7 @@ $.w2event = {
 			var nd  = this.get(id);
 			var obj = this;
 			if (!nd.group && !nd.disabled) {
-				$('#sidebar_'+ this.name +' .w2ui-node').each(function (index, field) {
+				$(this.box).find('.w2ui-node').each(function (index, field) {
 					var nid = String(field.id).replace('node_', '');
 					var nd  = obj.get(nid);
 					if (nd && nd.selected) {
@@ -6013,7 +6086,7 @@ $.w2event = {
 						$(field).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
 					}
 				});
-				$('#sidebar_'+ this.name +' #node_'+id.replace(/\./, '\\.'))
+				$(this.box).find('#node_'+id.replace(/\./, '\\.'))
 					.addClass('w2ui-selected')
 					.find('.w2ui-icon').addClass('w2ui-icon-selected');
 				this.get(id).selected = true;
@@ -6059,8 +6132,8 @@ $.w2event = {
 			var nd = this.get(id);
 			if (nd.nodes.length == 0) return;
 			// expand
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +'_sub').show();
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
+			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +'_sub').show();
+			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
 			nd.expanded = true;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -6071,8 +6144,8 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, event: event });	
 			if (eventData.stop === true) return false;
 			// default action
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +'_sub').hide();		
-			$('#sidebar_'+ this.name +' #node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
+			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +'_sub').hide();		
+			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
 			this.get(id).expanded = false;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -6084,17 +6157,40 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 			// default action
 			if (typeof box != 'undefined' && box != null) { 
-				$(this.box).html(''); 
+				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-sidebar')
+						.html('');
+				}
 				this.box = box;
 			}
 			if (!this.box) return;
 			$(this.box)
+				.data('w2name', this.name)
 				.addClass('w2ui-reset w2ui-sidebar')
-				.html(
-					(this.top_html != '' ? this.top_html : '') +
-					'<div id="sidebar_'+ this.name +'" class="w2ui-sidebar-div" style="'+ this.style +'"></div>'+
-					(this.bottom_html != '' ? this.bottom_html : '')
+				.html('<div>'+
+						'<div class="w2ui-sidebar-top"></div>' +
+						'<div class="w2ui-sidebar-div"></div>'+
+						'<div class="w2ui-sidebar-bottom"></div>'+
+					'</div>'
 				);
+			$(this.box).find('> div').css({
+				width 	: $(this.box).width() + 'px',
+				height 	: $(this.box).height() + 'px'
+			});
+			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
+			// adjust top and bottom
+			if (this.top_html != '') {
+				$(this.box).find('.w2ui-sidebar-top').html(this.top_html);
+				$(this.box).find('.w2ui-sidebar-div')					
+					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
+			}
+			if (this.bottom_html != '') {
+				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottom_html);
+				$(this.box).find('.w2ui-sidebar-div')
+					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
+			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// ---
@@ -6106,29 +6202,40 @@ $.w2event = {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
 			if (eventData.stop === true) return false;
+			// adjust top and bottom
+			if (this.top_html != '') {
+				$(this.box).find('.w2ui-sidebar-top').html(this.top_html);
+				$(this.box).find('.w2ui-sidebar-div')					
+					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
+			}
+			if (this.bottom_html != '') {
+				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottom_html);
+				$(this.box).find('.w2ui-sidebar-div')
+					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
+			}
 			// default action
 			var obj = this;
 			if (typeof id == 'undefined') {
 				var node = this;
-				var nm 	 = '#sidebar_'+ this.name;
+				var nm 	 = '.w2ui-sidebar-div';
 			} else {
 				var node = this.get(id);
-				var nm 	 = '#sidebar_'+ this.name +' #node_'+ node.id.replace(/\./, '\\.') + '_sub';
+				var nm 	 = '#node_'+ node.id.replace(/\./, '\\.') + '_sub';
 			}
 			if (node != this) {
-				var tmp = '#sidebar_'+ this.name +' #node_'+ node.id.replace(/\./, '\\.');
+				var tmp = '#node_'+ node.id.replace(/\./, '\\.');
 				var nodeHTML = getNodeHTML(node);
-				$(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
-				$(tmp).remove();
-				$(nm).remove();
+				$(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
+				$(this.box).find(tmp).remove();
+				$(this.box).find(nm).remove();
 				$('#sidebar_'+ this.name + '_tmp').before(nodeHTML);
 				$('#sidebar_'+ this.name + '_tmp').remove();
 			}
 			// refresh sub nodes
-			$(nm).html('');
+			$(this.box).find(nm).html('');
 			for (var i=0; i < node.nodes.length; i++) {
 				var nodeHTML = getNodeHTML(node.nodes[i]);
-				$(nm).append(nodeHTML);
+				$(this.box).find(nm).append(nodeHTML);
 				if (node.nodes[i].nodes.length != 0) { this.refresh(node.nodes[i].id); }
 			}
 			// event after
@@ -6154,7 +6261,7 @@ $.w2event = {
 						'		onclick="w2ui[\''+ obj.name +'\'].doClick(\''+ nd.id +'\', event); w2ui[\''+ obj.name +'\'].doToggle(\''+ nd.id +'\'); '+
 						'				 var sp=$(this).find(\'span:nth-child(1)\'); if (sp.html() == \''+ w2utils.lang('Hide') +'\') sp.html(\''+ w2utils.lang('Show') +'\'); else sp.html(\''+ w2utils.lang('Hide') +'\');"'+
 						'		onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
-						'		onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'gray\')">'+
+						'		onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
 						'	<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>'+
 						'	<span>'+ nd.text +'</span>'+
 						'</div>'+
@@ -6200,7 +6307,12 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
-			$(this.box).html('');
+			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-sidebar')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));	
@@ -6247,39 +6359,6 @@ $.w2event = {
 		}    
 	};
 	
-	// ====================================================
-	// -- Implementation of core functionality
-
-	function cleanItems(items) {
-		var newItems = [];
-		for (var i in items) {
-			var id   = '';
-			var text = '';
-			var opt  = items[i];
-			if (opt == null) continue;
-			if ($.isPlainObject(items)) {
-				id 	 = i;
-				text = opt;
-			} else {
-				if (typeof opt == 'string') {
-					if (String(opt) == '') continue;
-					id   = opt;
-					text = opt;
-				}
-				if (typeof opt == 'object') {
-				 	if (typeof opt.id != 'undefined')    id = opt.id;
-					if (typeof opt.value != 'undefined') id = opt.value;
-					if (typeof opt.txt != 'undefined')   text = opt.txt;
-					if (typeof opt.text != 'undefined')  text = opt.text;
-				}
-			}
-			if (w2utils.isInt(id)) id = parseInt(id);
-			if (w2utils.isFloat(id)) id = parseFloat(id);
-			newItems.push({ id: id, text: text });
-		}
-		return newItems;
-	}
-
 	$.extend(w2field, {
 		// CONTEXT: this - is jQuery object
 		init: function (options) { 		
@@ -6292,6 +6371,7 @@ $.w2event = {
 				}  
 				// Common Types
 				switch (options.type.toLowerCase()) {
+
 					case 'clear': // removes any previous field type
 						$(this).off('keypress').off('focus').off('blur');
 						if ($(this).prev().hasClass('w2ui-list')) {	// if enum
@@ -6299,8 +6379,10 @@ $.w2event = {
 							$(this).removeAttr('tabindex');
 						}
 						break;
+
 					case 'text':
 						break;
+
 					case 'int':
 						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
 							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
@@ -6311,9 +6393,7 @@ $.w2event = {
 							}
 						});
 						$(this).on('blur', function (event)  { // keyCode & charCode differ in FireFox
-							if (!w2utils.isInt(this.value)) { 
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isInt(this.value)) { 
 								$(this).w2tag(w2utils.lang('Not an integer'));
 							}
 						});
@@ -6329,9 +6409,7 @@ $.w2event = {
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isFloat(this.value)) {
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isFloat(this.value)) {
 								$(this).w2tag(w2utils.lang('Not a float'));
 							} 
 						});
@@ -6347,9 +6425,7 @@ $.w2event = {
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isMoney(this.value)) { 
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isMoney(this.value)) { 
 								$(this).w2tag(w2utils.lang('Not in money format'));
 							} 
 						});
@@ -6365,9 +6441,7 @@ $.w2event = {
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isHex(this.value)) { 
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isHex(this.value)) { 
 								$(this).w2tag(w2utils.lang('Not a hex number'));
 							}
 						});
@@ -6383,9 +6457,7 @@ $.w2event = {
 							}
 						});
 						$(this).on('blur', function (event)  { 
-							if (!w2utils.isAlphaNumeric(this.value)) { 
-								this.value = ''; 
-								$(this).trigger('change'); 
+							if (this.value != '' && !w2utils.isAlphaNumeric(this.value)) { 
 								$(this).w2tag(w2utils.lang('Not alpha-numeric')) 
 							} 
 						});
@@ -6452,9 +6524,7 @@ $.w2event = {
 								$(obj).val($.trim($(obj).val()));
 								// check if date is valid
 								if ($.trim($(obj).val()) != '' && !w2utils.isDate($(obj).val(), options.format)) {
-									$(obj).val('');
-									$(this).w2tag(w2utils.lang('Not a valid date') + ': '+ options.format, 
-										{ 'class': 'w2ui-error' });
+									$(this).w2tag(w2utils.lang('Not a valid date') + ': '+ options.format);
 								}
 								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
@@ -6489,7 +6559,7 @@ $.w2event = {
 						};
 						var settings = $.extend({}, defaults, options);
 						var html =  '';
-						var items = cleanItems(settings.items);
+						var items = w2field.cleanItems(settings.items);
 						if (settings.showNone) html = '<option value="">- '+ w2utils.lang('none') +' -</option>';
 						for (var i in items) {
 							if (!settings.showNone && settings.value == null) settings.value = items[i].id;
@@ -6522,8 +6592,8 @@ $.w2event = {
 						var settings = $.extend({}, defaults, options);
 
 						// normalize items and selected
-						settings.items 	  = cleanItems(settings.items);
-						settings.selected = cleanItems(settings.selected);
+						settings.items 	  = w2field.cleanItems(settings.items);
+						settings.selected = w2field.cleanItems(settings.selected);
 
 						$(this).data('selected', settings.selected); 
 						$(this).css({ 'border-color': 'transparent' });
@@ -6662,7 +6732,18 @@ $.w2event = {
 
 					case 'upload':
 						if (this.tagName != 'DIV') {
-							console.log('ERROR: You can only apply $().w2field(\'upload\') to a DIV element');
+							// rebuild it
+							var margin = 'margin-top: ' + $(this).css('margin-top') + '; ' +
+										 'margin-bottom: ' + $(this).css('margin-bottom') + '; ' +
+										 'margin-left: ' + $(this).css('margin-left') + '; ' +
+										 'margin-right: ' + $(this).css('margin-right') + '; '+
+										 'width: ' + (w2utils.getSize(this, 'width') 
+										 		   - parseInt($(this).css('margin-left')) 
+										 		   - parseInt($(this).css('margin-right'))) + 'px; ';
+							var html = '<div style="'+ margin + ';"></div>';
+							$(this).css('display', 'none').before(html);
+							$(this).data('div', $(this).prev());
+							$(this).prev().w2field(options);
 							return;
 						}
 						var defaults = {
@@ -6674,6 +6755,8 @@ $.w2event = {
 						var settings = $.extend({}, defaults, options);
 
 						$(this).data('settings', settings); 
+						$(this).css({ 'border-color': 'transparent' });
+
 						w2field.upload_init.call(this);
 						break;
 
@@ -6689,6 +6772,36 @@ $.w2event = {
 
 		addType: function (type, handler) {
 			w2field.customTypes[type] = handler;
+		},
+
+		cleanItems: function (items) {
+			var newItems = [];
+			for (var i in items) {
+				var id   = '';
+				var text = '';
+				var opt  = items[i];
+				if (opt == null) continue;
+				if ($.isPlainObject(items)) {
+					id 	 = i;
+					text = opt;
+				} else {
+					if (typeof opt == 'string') {
+						if (String(opt) == '') continue;
+						id   = opt;
+						text = opt;
+					}
+					if (typeof opt == 'object') {
+					 	if (typeof opt.id != 'undefined')    id = opt.id;
+						if (typeof opt.value != 'undefined') id = opt.value;
+						if (typeof opt.txt != 'undefined')   text = opt.txt;
+						if (typeof opt.text != 'undefined')  text = opt.text;
+					}
+				}
+				if (w2utils.isInt(id)) id = parseInt(id);
+				if (w2utils.isFloat(id)) id = parseFloat(id);
+				newItems.push({ id: id, text: text });
+			}
+			return newItems;
 		},
 
 		// ******************************************************
@@ -6746,22 +6859,62 @@ $.w2event = {
 		},
 
 		upload_add: function (file) {
+			// add li element
 			var cnt = $(this).find('.file-list li').length;
 			$(this).find('> span:first-child').remove();
 			$(this).find('.file-list').append('<li id="file-' + cnt + '">' + 
-				'	<div class="file-delete">&nbsp;&nbsp;</div>' + file.name + 
+				'	<div class="file-delete">&nbsp;&nbsp;</div>' + 
+				'	<span class="file-name">' + file.name + '</span>' +
 				'	<span class="file-size"> - ' + w2utils.size(file.size) + '</span>'+
 				'</li>');
-			$(this).find('.file-list #file-' + cnt).data('file', file);
-		},
-
-		upload_getAll: function () {
-			var files = [];
-			var cnt = $(this).find('.file-list li').length;
-			for (var i=0; i<cnt; i++) {
-			 	files.push($(this).find('.file-list li').data('file'));
+			var li = $(this).find('.file-list #file-' + cnt);
+			var previewHTML = "";
+			if ((/image/i).test(file.type)) { // image
+				previewHTML = '<div style="padding: 2px;">'+
+					'	<img src="##FILE##" onload="var w = $(this).width(); var h = $(this).height(); '+
+					'		if (w < 300 & h < 300) return; '+
+					'		if (w > h && w > 300) $(this).width(300); else $(this).height(300);">'+
+					'</div>';
 			}
-			return files;
+			var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
+			var td2 = 'style="padding: 3px"';
+			previewHTML += '<div style="padding: 5px;">'+
+				'	<table cellpadding="2">'+
+				'	<tr><td '+ td1 +'>Name:</td><td '+ td2 +'>'+ file.name +'</td></tr>'+
+				'	<tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.size(file.size) +'</td></tr>'+
+				'	<tr><td '+ td1 +'>Type:</td><td '+ td2 +'>' +
+				'		<span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ file.type +'</span>'+
+				'	</td></tr>'+
+				'	<tr><td '+ td1 +'>Modified:</td><td '+ td2 +'>'+ w2utils.date(file.lastModifiedDate) +'</td></tr>'+
+				'	</table>'+
+				'</div>';
+			li.data('file', file)
+				.on('mouseover', function () {
+					$(this).w2overlay(
+						//previewHTML.replace('##FILE##', $(this).data('fileType') + ',' + $(this).data('fileContents')),
+						previewHTML.replace('##FILE##', $(this).data('fileContents')),
+						{ top: -4 }
+					);
+				})
+				.on('mouseout', function () {
+					$(this).w2overlay();
+				});
+
+			// read file as base64
+			if (typeof FileReader !== "undefined") {
+				var reader = new FileReader();
+				// need a closure
+				reader.onload = (function (li) {
+					return function (event) {
+						// var fl  = event.target.result;
+						// var ind = fl.indexOf(',');
+						// li.data('fileType', fl.substr(0, ind));
+						// li.data('fileContents', fl.substr(ind+1));
+						li.data('fileContents', event.target.result);
+					};
+				})(li);
+				reader.readAsDataURL(file);
+			}
 		},
 
 		// ******************************************************
@@ -7084,9 +7237,9 @@ $.w2event = {
 				var dt  = month + '/' + day + '/' + year;
 				
 				var className = ''; 
-				if (dt == today) className = 'w2ui-today';
 				if (ci % 7 == 6) className = 'w2ui-saturday';
 				if (ci % 7 == 0) className = 'w2ui-sunday';
+				if (dt == today) className += ' w2ui-today';
 				
 				var dspDay 	= day;			
 				var col 	= '';
@@ -7145,7 +7298,8 @@ $.w2event = {
 *  == 1.2 changes
 *     - focus first elements on the page
 *     - added select/list control
-* 	  - Added date format for date fields. 
+* 	  - added date format for date fields. 
+* 	  - added .header
 *
 ************************************************************************/
 
@@ -7154,6 +7308,7 @@ $.w2event = {
 	var w2form = function(options) {
 		// public properties
 		this.name  	  		= null;
+		this.header 		= '';
 		this.box			= null; 	// HTML element that hold this element
 		this.url			= '';
 		this.form_url   	= '';		// url where to get form HTML
@@ -7499,8 +7654,9 @@ $.w2event = {
 						}
 						break;
 				}
-				// check required
-				if (field.required && !this.record[field.name]) {
+				// === check required
+				// - if field is '0' it should be considered not empty
+				if (field.required && this.record[field.name] === '') {
 					var error = { field: field, error: w2utils.lang('Required field') };
 					errors.push(error);
 					if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
@@ -7772,6 +7928,10 @@ $.w2event = {
 						if (field.options && field.options.selected) v = field.options.selected;
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: v }) );
 						break;
+					case 'upload':
+						field.el.value = value;
+						$(field.el).w2field($.extend({}, field.options, { type: 'upload' }));
+						break;
 					default:
 						console.log('ERROR: field type "'+ field.type +'" is not recognized.');
 						break;						
@@ -7788,9 +7948,23 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
 			if (eventData.stop === true) return false;
 			// default actions
-			if (typeof box != 'undefined') this.box = box;
-			var html = '<div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' + this.form_html;
-			$(this.box).html(html).addClass('w2ui-reset w2ui-form');
+			if (typeof box != 'undefined' && box != null) {
+				if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
+					$(this.box)
+						.removeData('w2name')
+						.removeClass('w2ui-reset w2ui-form')
+						.html('');
+				}
+				this.box = box;
+			}
+			var html = 
+				(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '')+
+				'<div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' + 
+				this.form_html;
+			$(this.box)
+				.data('w2name', this.name)
+				.addClass('w2ui-reset w2ui-form')
+				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// init tabs
 			this.initTabs();
@@ -7809,7 +7983,12 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 			// clean up
 			if (typeof this.tabs == 'object' && this.tabs.destroy) this.tabs.destroy();
-			$(this.box).html('');
+			if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
+				$(this.box)
+					.removeData('w2name')
+					.removeClass('w2ui-reset w2ui-form')
+					.html('');
+			}
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
