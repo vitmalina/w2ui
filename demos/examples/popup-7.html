@@ -26,9 +26,16 @@ function popup() {
 		height: 500,
 		title: 'Popup Title',
 		body: 'This is text inside the popup',
-		buttons: '<input type="button" value="Show Message" onclick="$().w2popup(\'message\', '+
-				 '{ html: \'<div style=&#34padding: 20px; text-align: center&#34>Some message</div>\', width: 300, height: 60 })"> ',
+		buttons: '<input type="button" value="Show Message" onclick="showMessage()"> ',
 		showMax: true
+	});
+}
+
+function showMessage () {
+	$().w2popup("message", { 
+		html: '<div style="padding: 20px; text-align: center">Click on the message to Hide it</div>', 
+		width: 300, 
+		height: 60 
 	});
 }
 		</textarea>
@@ -43,9 +50,16 @@ function popup() {
 		height: 500,
 		title: 'Popup Title',
 		body: 'This is text inside the popup',
-		buttons: '<input type="button" value="Show Message" onclick="$().w2popup(\'message\', '+
-				 '{ html: \'<div style=&#34padding: 20px; text-align: center&#34>Some message</div>\', width: 300, height: 60 })"> ',
+		buttons: '<input type="button" value="Show Message" onclick="showMessage()"> ',
 		showMax: true
+	});
+}
+
+function showMessage () {
+	$().w2popup("message", { 
+		html: '<div style="padding: 20px; text-align: center">Click on the message to Hide it</div>', 
+		width: 300, 
+		height: 60 
 	});
 }
 </script>
