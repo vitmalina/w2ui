@@ -3,18 +3,23 @@
 *   - Following objects defined
 * 		- w2ui.w2layout - layout widget
 *		- $.w2layout	- jQuery wrapper
-*   - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
 * == 1.2 changes 
 *   - added panel name in the event data object
+*   - get(panel, returnIndex) - added returnIndex
+* 	- spacer -> resizer
+*	- tabs and toolbar for the panel 
+* 	- all panels are created, the ones not defined created as hidden
 *
 *  DEPRECATED METHODS
 *   - add()
 *   - remove()
+*   - getIndex()
 *
 *  NICE TO HAVE
 *   - onResize for the panel
-* 	- spacer -> splitter
+* 	- % base resizes
 * 
 ************************************************************************/
 
@@ -24,7 +29,7 @@
 		this.name		= null;		// unique name for w2ui
 		this.panels		= [];
 		this.padding	= 1;		// panel padding
-		this.splitter	= 4;		// resizer width or height
+		this.resizer	= 4;		// resizer width or height
 		this.style		= '';
 		this.css		= '';		// will display all inside <style> tag
 		this.width		= null		// reads from container
@@ -57,7 +62,18 @@
 			var panels = method.panels;
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
-			for (var p in panels) { object.panels[p] = $.extend({}, w2layout.prototype.panel, panels[p]); }
+			// add defined panels panels
+			for (var p in panels) { 
+				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]); 
+				if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) object.initTabs(panels[p].type);
+				if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) object.initToolbar(panels[p].type);
+			}
+			// add all other panels
+			for (var p in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) { 
+				if (object.get(p) != null) continue;
+				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, { type: p, hidden: true, size: 50 }); 
+			}
+
 			if ($(this).length > 0) {
 				$(this).data('w2name', object.name);
 				object.render($(this)[0]);
@@ -80,19 +96,21 @@
 	w2layout.prototype = {
 		// default setting for a panel
 		panel: {
-			type: 		null,		// left, right, top, bottom
-			size: 		100, 		// width or height depending on panel name
-			minSize: 	20,
-			hidden: 	false,
-			resizable:  false,
-			overflow: 	'auto',
-			style: 		'',
-			content: 	'',			// can be String or Object with .render(box) method
-			width: 		null, 		// read only
-			height: 	null, 		// read only
-			onRefresh: 	null,
-			onShow: 	null,
-			onHide: 	null
+			type 		: null,		// left, right, top, bottom
+			size 		: 100, 		// width or height depending on panel name
+			minSize 	: 20,
+			hidden 		: false,
+			resizable 	: false,
+			overflow 	: 'auto',
+			style 		: '',
+			content 	: '',			// can be String or Object with .render(box) method
+			tabs		: null,
+			toolbar		: null,
+			width		: null, 		// read only
+			height 		: null, 		// read only
+			onRefresh	: null,
+			onShow 		: null,
+			onHide 		: null
 		},
 			
 		content: function (panel, data, transition) {
@@ -112,55 +130,22 @@
 					if (!p.hidden) {
 						if (transition != null && transition != '' && typeof transition != 'undefined') {
 							// apply transition
-							if (String(transition).substr(0, 5) == 'slide') {
-								var nm   = 'layout_'+ this.name + '_panel_'+ p.type;
-								var pan  = $('#'+nm);
-								var html = pan.html();
-								var st   = pan[0].style.cssText;
-								pan.attr('id', 'layout_'+ this.name + '_panel_'+ p.type +'_trans');					
-								pan.html('<div id="'+ nm +'_old"></div><div id="'+ nm +'"></div>');
-								pan.find('#'+ nm +'')[0].style.cssText = pan[0].style.cssText + '; left: 0px !important; top: 0px !important; '+
-									'-webkit-transition: 0s; -moz-transition: 0s; -ms-transition: 0s; -o-transition: 0s;';
-								pan.find('#'+ nm +'_old')[0].style.cssText = pan[0].style.cssText + '; left: 0px !important; top: 0px !important; '+
-									'-webkit-transition: 0s; -moz-transition: 0s; -ms-transition: 0s; -o-transition: 0s;';
-								pan[0].style.cssText += 'border: 0px; margin: 0px; padding: 0px; outline: 0px; overflow: hidden;';
-								if (typeof(data) == 'object') {
-									data.box = pan.find('#'+ nm)[0]; // do not do .render(box);
-									data.render();
-								} else {
-									pan.find('#'+ nm).html(data);
-								}
-								pan.find('#'+ nm +'_old').html(html);
-						
-								var obj  = this;
-								w2utils.transition(pan.find('#'+ nm +'_old')[0], pan.find('#'+ nm)[0], transition, function () {
-									// clean up
-									var pan = $('#layout_'+ obj.name + '_panel_'+ p.type +'_trans');
-									if (pan.length > 0) {
-										pan[0].style.cssText = st;
-										pan.attr('id', 'layout_'+ obj.name + '_panel_'+ p.type).html(pan.find('#'+ nm).html());
-									}
-									// IE Hack
-									if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
-								});
+							var nm   = 'layout_'+ this.name + '_panel_'+ p.type;
+							var div1 = $('#'+ nm + ' > .w2ui-panel-content');
+							div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>');
+							var div2 = $('#'+ nm + ' > .w2ui-panel-content.new-panel');
+							if (typeof(data) == 'object') {
+								data.box = div2[0]; // do not do .render(box);
+								data.render();
 							} else {
-								$('#layout_'+ this.name + '_panel_'+ p.type).before('<div id="layout_'+ this.name + '_panel2_'+ p.type + '">'+ data +'</div>');					
-								$('#layout_'+ this.name + '_panel2_'+ p.type)[0].style.cssText = $('#layout_'+ this.name + '_panel_'+ p.type)[0].style.cssText;
-								if (typeof data == 'object') { 
-									data.render($('#layout_'+ this.name + '_panel2_'+ p.type)[0]); 
-								}
-								var div1 = $('#layout_'+ this.name + '_panel2_'+ p.type)[0];
-								var div2 = $('#layout_'+ this.name + '_panel_'+ p.type)[0];
-								var obj  = this;
-								w2utils.transition(div2, div1, transition, function () {
-									// clean up
-									$('#layout_'+ obj.name + '_panel_'+ p.type).remove();
-									$('#layout_'+ obj.name + '_panel2_'+ p.type).attr('id', 'layout_'+ obj.name + '_panel_'+ p.type);
-									p.content = data;
-									// IE Hack
-									if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
-								});
+								div2.html(data);
 							}
+							w2utils.transition(div1[0], div2[0], transition, function () {
+								div1.remove();
+								div2.removeClass('new-panel');
+								// IE Hack
+								if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
+							});
 						} else {
 							if (!p.hidden) this.refresh(panel);
 						}
@@ -169,16 +154,19 @@
 			}
 			// IE Hack
 			if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
+			return true;
 		},
 		
 		load: function (panel, url, transition, onLoad) {
 			var obj = this;
+			if (this.get(panel) == null) return false;
 			$.get(url, function (data, status, object) {
 				obj.content(panel, object.responseText, transition);
 				if (onLoad) onLoad();
 				// IE Hack
 				if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
 			});
+			return true;
 		},
 		
 		show: function (panel, immediate) {
@@ -191,12 +179,12 @@
 			p.hidden = false;
 			if (immediate === true) {
 				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '1' });	
-				if (p.resizabled) $('#layout_'+ this.name +'_splitter_'+panel).show();
+				if (p.resizabled) $('#layout_'+ this.name +'_resizer_'+panel).show();
 				this.trigger($.extend(eventData, { phase: 'after' }));	
 				this.resize();
 			} else {			
 				var obj = this;
-				if (p.resizabled) $('#layout_'+ obj.name +'_splitter_'+panel).show();
+				if (p.resizabled) $('#layout_'+ obj.name +'_resizer_'+panel).show();
 				// resize
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });	
 				$('#layout_'+ this.name +' .w2ui-panel').css({
@@ -222,6 +210,7 @@
 					obj.resize();
 				}, 500);
 			}
+			return true;
 		},
 		
 		hide: function (panel, immediate) {
@@ -234,12 +223,12 @@
 			p.hidden = true;		
 			if (immediate === true) {
 				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
-				$('#layout_'+ this.name +'_splitter_'+panel).hide();
+				$('#layout_'+ this.name +'_resizer_'+panel).hide();
 				this.trigger($.extend(eventData, { phase: 'after' }));	
 				this.resize();
 			} else {
 				var obj = this;
-				$('#layout_'+ obj.name +'_splitter_'+panel).hide();
+				$('#layout_'+ obj.name +'_resizer_'+panel).hide();
 				// hide
 				$(this.box).find(' > div .w2ui-panel').css({
 					'-webkit-transition': '.2s',
@@ -261,38 +250,55 @@
 					obj.resize();
 				}, 500);
 			}
+			return true;
 		},
 		
 		toggle: function (panel, immediate) {
 			var p = this.get(panel);
 			if (p == null) return false;
-			if (p.hidden) this.show(panel, immediate); else this.hide(panel, immediate);
+			if (p.hidden) return this.show(panel, immediate); else return this.hide(panel, immediate);
 		},
 		
 		set: function (panel, options) {
-			var obj = this.getIndex(panel);
+			var obj = this.get(panel, true);
 			if (obj == null) return false;
 			$.extend(this.panels[obj], options);
 			this.refresh(panel);
 			return true;		
 		},
 	
-		get: function (panel) {
+		get: function (panel, returnIndex) {
 			var obj = null;
 			for (var p in this.panels) {
-				if (this.panels[p].type == panel) { obj = this.panels[p]; break; }
+				if (this.panels[p].type == panel) { 
+					if (returnIndex === true) return p; else return this.panels[p];
+				}
 			}
-			return obj;
+			return null;
 		},
-		
-		getIndex: function (panel) {
-			var index = null;
-			for (var p in this.panels) {
-				if (this.panels[p].type == panel) { index = p; break; }
-			}
-			return index;
-		},	
-		
+
+		initToolbar: function (panel, toolbar) {
+			var pan = this.get(panel);
+			if (pan != null && typeof toolbar == 'undefined') toolbar = pan.toolbar;
+			if (pan == null || toolbar == null) return false;
+			// instanciate toolbar
+			if ($.isArray(toolbar)) toolbar = { items: toolbar };
+			$().w2destroy(this.name + '_' + panel + '_toolbar'); // destroy if existed
+			pan.toolbar = $().w2toolbar($.extend({}, toolbar, { owner: this, name: this.name + '_' + panel + '_toolbar' }));
+			return true;
+		},
+
+		initTabs: function (panel, tabs) {
+			var pan = this.get(panel);
+			if (pan != null && typeof tabs == 'undefined') tabs = pan.tabs;
+			if (pan == null || tabs == null) return false;
+			// instanciate tabs
+			if ($.isArray(tabs)) tabs = { tabs: tabs };
+			$().w2destroy(this.name + '_' + panel + '_tabs'); // destroy if existed
+			pan.tabs = $().w2tabs($.extend({}, tabs, { owner: this, name: this.name + '_' + panel + '_tabs' }));
+			return true;
+		},
+				
 		render: function (box) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
@@ -308,29 +314,35 @@
 				}
 				this.box = box;
 			}
-			if (!this.box) return;
-			// add main panel if it was not already added
-			if (this.get('main') == null) this.panels.push( $.extend({}, w2layout.prototype.panel, { type: 'main'}) );
-			if (this.get('css') == null)  this.panels.push( $.extend({}, w2layout.prototype.panel, { type: 'css'}) );
-			var html = '<div></div>';
+			if (!this.box) return false;
 			$(this.box)
 				.data('w2name', this.name)
 				.addClass('w2ui-layout')
-				.html(html);
+				.html('<div></div>');
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// create all panels
 			var tmp = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
 			for (var t in tmp) {
-				var html =  '<div id="layout_'+ this.name + '_panel_'+ tmp[t] +'" class="w2ui-panel"></div>'+
-							'<div id="layout_'+ this.name + '_splitter_'+ tmp[t] +'" class="w2ui-splitter"></div>';
+				var pan  = this.get(tmp[t]);
+				var html =  '<div id="layout_'+ this.name + '_panel_'+ tmp[t] +'" class="w2ui-panel">'+
+							'	<div class="w2ui-panel-tabs">1</div>'+
+							'	<div class="w2ui-panel-toolbar">2</div>'+
+							'	<div class="w2ui-panel-content">3</div>'+
+							'</div>'+
+							'<div id="layout_'+ this.name + '_resizer_'+ tmp[t] +'" class="w2ui-resizer"></div>';
 				$(this.box).find(' > div').append(html);
+				// if there are tabs and/or toolbar - render it
+				if (pan.tabs != null) $(this.box).find('#layout_'+ this.name + '_panel_'+ tmp[t] +' .w2ui-panel-tabs').w2render(pan.tabs);
+				if (pan.toolbar != null) $(this.box).find('#layout_'+ this.name + '_panel_'+ tmp[t] +' .w2ui-panel-toolbar').w2render(pan.toolbar);
 			}
-			$(this.box).find(' > div').append('<style id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;">'+ this.css +'</style>');		
+			$(this.box).find(' > div')
+				.append('<style id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;">'+ this.css +'</style>');		
 			// process event
 			this.trigger($.extend(eventData, { phase: 'after' }));	
 			// reinit events
 			this.refresh();
 			this.initEvents();
+			return true;
 		},
 		
 		refresh: function (panel) {
@@ -344,17 +356,18 @@
 				var p = this.get(panel);
 				if (p == null) return false;
 				// apply properties to the panel
-				var el = $('#layout_' +this.name +'_panel_'+panel).css({
-					display: p.hidden ? 'none' : 'block',
-					overflow: p.overflow
-				});
-				if (el.length > 0) el[0].style.cssText += ';' + p.style;
+				var el = $('#layout_'+ this.name +'_panel_'+ panel).css({ display: p.hidden ? 'none' : 'block' });
+				el = el.find('.w2ui-panel-content');
+				if (el.length > 0) el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type)[0]);
+					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-content')[0]);
 				} else {
-					$('#layout_'+ this.name + '_panel_'+ p.type).html(p.content);
+					$('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-content').html(p.content);
 				}
+				// if there are tabs and/or toolbar - render it
+				if (p.tabs != null) p.tabs.refresh();
+				if (p.toolbar != null) p.toolbar.refresh();
 			} else {
 				if ($('#layout_' +this.name +'_panel_main').length <= 0) {
 					this.render();
@@ -370,7 +383,7 @@
 		
 		resize: function (width, height) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
-			if (!this.box) return;
+			if (!this.box) return false;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp_resizing, width: width, height: height });	
 			if (eventData.stop === true) return false;
@@ -441,8 +454,8 @@
 				// resizer
 				if (ptop.resizable) {
 					t = ptop.size;
-					h = this.splitter;
-					$('#layout_'+ this.name +'_splitter_top').show().css({
+					h = this.resizer;
+					$('#layout_'+ this.name +'_resizer_top').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -460,10 +473,10 @@
 			// left if any
 			if (pleft != null && pleft.hidden != true) {
 				var l = 0;
-				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
+				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
 				var w = pleft.size;
-				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
-									  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0);
+				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
+									  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0);
 				var e = $('#layout_'+ this.name +'_panel_left');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 				$('#layout_'+ this.name +'_panel_left').css({
@@ -478,8 +491,8 @@
 				// resizer
 				if (pleft.resizable) {
 					l = pleft.size;
-					w = this.splitter;
-					$('#layout_'+ this.name +'_splitter_left').show().css({
+					w = this.resizer;
+					$('#layout_'+ this.name +'_resizer_left').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -493,15 +506,15 @@
 				}
 			} else {
 				$('#layout_'+ this.name +'_panel_left').hide();
-				$('#layout_'+ this.name +'_splitter_left').hide();
+				$('#layout_'+ this.name +'_resizer_left').hide();
 			}
 			// right if any
 			if (pright != null && pright.hidden != true) {
 				var l = this.width - pright.size;
-				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
+				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
 				var w = pright.size;
-				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
-									  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0);
+				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
+									  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0);
 				$('#layout_'+ this.name +'_panel_right').css({
 					'display': 'block',
 					'left': l + 'px',
@@ -513,9 +526,9 @@
 				pright.height = h;
 				// resizer
 				if (pright.resizable) {
-					l = l - this.splitter;
-					w = this.splitter;
-					$('#layout_'+ this.name +'_splitter_right').show().css({
+					l = l - this.resizer;
+					w = this.resizer;
+					$('#layout_'+ this.name +'_resizer_right').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -547,9 +560,9 @@
 				pbottom.height = h;
 				// resizer
 				if (pbottom.resizable) {
-					t = t - this.splitter;
-					h = this.splitter;
-					$('#layout_'+ this.name +'_splitter_bottom').show().css({
+					t = t - this.resizer;
+					h = this.resizer;
+					$('#layout_'+ this.name +'_resizer_bottom').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -565,13 +578,13 @@
 				$('#layout_'+ this.name +'_panel_bottom').hide();
 			}
 			// main - always there
-			var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0);
-			var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0);
-			var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0) - 
-								  (sright ? pright.size + (pright.resizable ? this.splitter : this.padding): 0);
-			var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.splitter : this.padding) : 0) - 
-								  (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0) -
-								  (sprev ? pprev.size + (pprev.resizable ? this.splitter : this.padding) : 0);
+			var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0);
+			var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
+			var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0) - 
+								  (sright ? pright.size + (pright.resizable ? this.resizer : this.padding): 0);
+			var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
+								  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0) -
+								  (sprev ? pprev.size + (pprev.resizable ? this.resizer : this.padding) : 0);
 			var e = $('#layout_'+ this.name +'_panel_main');
 			if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 			$('#layout_'+ this.name +'_panel_main').css({
@@ -586,10 +599,10 @@
 			
 			// preview if any
 			if (pprev != null && pprev.hidden != true) {
-				var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0);
-				var t = this.height - (sbottom ? pbottom.size + (pbottom.resizable ? this.splitter : this.padding) : 0) - pprev.size;
-				var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.splitter : this.padding) : 0) - 
-									  (sright ? pright.size + (pright.resizable ? this.splitter : this.padding): 0);
+				var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0);
+				var t = this.height - (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0) - pprev.size;
+				var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0) - 
+									  (sright ? pright.size + (pright.resizable ? this.resizer : this.padding): 0);
 				var h = pprev.size;
 				var e = $('#layout_'+ this.name +'_panel_preview');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
@@ -604,9 +617,9 @@
 				pprev.height = h;
 				// resizer
 				if (pprev.resizable) {
-					t = t - this.splitter;
-					h = this.splitter;
-					$('#layout_'+ this.name +'_splitter_preview').show().css({
+					t = t - this.resizer;
+					h = this.resizer;
+					$('#layout_'+ this.name +'_resizer_preview').show().css({
 						'display': 'block',
 						'left': l + 'px',
 						'top': t + 'px',
@@ -621,7 +634,23 @@
 			} else {
 				$('#layout_'+ this.name +'_panel_preview').hide();
 			}
-	
+
+			// display tabs and toolbar if needed
+			for (var p in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) { 
+				var pan = this.get(p);
+				var tmp = '#layout_'+ this.name +'_panel_'+ p +' .w2ui-panel-';
+				var height = 0;
+				if (pan.tabs != null) {
+					if (w2ui[this.name +'_'+ p +'_tabs']) w2ui[this.name +'_'+ p +'_tabs'].resize();
+					height += w2utils.getSize($(tmp + 'tabs').css({ display: 'block' }), 'height') + 4;
+				}
+				if (pan.toolbar != null) {
+					if (w2ui[this.name +'_'+ p +'_toolbar']) w2ui[this.name +'_'+ p +'_toolbar'].resize();
+					height += w2utils.getSize($(tmp + 'toolbar').css({ top: height + 'px', display: 'block' }), 'height');
+				}
+				$(tmp + 'content').css({ display: 'block' }).css({ top: height + 'px' });
+			}
+
 			// send resize event to children
 			for (var i in this.panels) { 
 				var p = this.panels[i];
@@ -639,13 +668,15 @@
 				}
 			}, 200);
 			
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			return true;
 		},
 		
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
+			if (typeof w2ui[this.name] == 'undefined') return false;
 			// clean up
 			if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
 				$(this.box)
@@ -655,7 +686,8 @@
 			}
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			return true;
 		},
 		
 		// --- INTERNAL FUNCTIONS
@@ -683,10 +715,10 @@
 			this.tmp_div_x = 0;
 			this.tmp_div_y = 0;
 			if (type == 'left' || type == 'right') {
-				this.tmp_value = parseInt($('#layout_'+ this.name + '_splitter_'+ type)[0].style.left);
+				this.tmp_value = parseInt($('#layout_'+ this.name + '_resizer_'+ type)[0].style.left);
 			}
 			if (type == 'top' || type == 'preview' || type == 'bottom') {
-				this.tmp_value = parseInt($('#layout_'+ this.name + '_splitter_'+ type)[0].style.top);
+				this.tmp_value = parseInt($('#layout_'+ this.name + '_resizer_'+ type)[0].style.top);
 			}
 		},
 	
@@ -699,7 +731,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'resizing', target: this.tmp_resizing, object: panel, event: evnt });	
 			if (eventData.stop === true) return false;
 
-			var p = $('#layout_'+ this.name + '_splitter_'+ this.tmp_resizing);
+			var p = $('#layout_'+ this.name + '_resizer_'+ this.tmp_resizing);
 			if (!p.hasClass('active')) p.addClass('active');
 			this.tmp_div_x = (evnt.screenX - this.tmp_x); 
 			this.tmp_div_y = (evnt.screenY - this.tmp_y); 
@@ -778,7 +810,7 @@
 					break;
 			}	
 			this.resize();
-			$('#layout_'+ this.name + '_splitter_'+ this.tmp_resizing).removeClass('active');
+			$('#layout_'+ this.name + '_resizer_'+ this.tmp_resizing).removeClass('active');
 			delete this.tmp_resizing;
 		}		
 	}

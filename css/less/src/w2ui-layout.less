@@ -4,6 +4,10 @@
 
 div.w2ui-layout {
 	.box-sizing;	
+
+	& * {
+		.box-sizing;
+	}
 	
 	> div {
 		position: absolute; 
@@ -12,23 +16,61 @@ div.w2ui-layout {
 		margin: 0px;
 		padding: 0px;
 		outline: 0px;
-		color: @layout-color;
-		background-color : @layout-background-color;
 		.box-sizing;
 
 		div.w2ui-panel {
 			display: none;
 			position: absolute; 
 			z-index: 120; 
+
+			div.w2ui-panel-tabs {
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				right: 0px;
+				z-index: 2;
+				display: none;
+				overflow: hidden;
+				background-color: @layout-toolbar-background-color;				
+				padding: 4px 0px;
+
+				.w2ui-tab.active {
+					background-color : @layout-background-color;
+				}
+			}
+
+			div.w2ui-panel-toolbar {
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				right: 0px;
+				z-index: 2;
+				display: none;
+				overflow: hidden;
+				background-color: @layout-toolbar-background-color;
+				border-bottom: 1px solid silver;
+				padding: 4px;
+			}
+
+			div.w2ui-panel-content {
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				right: 0px;
+				bottom: 0px;
+				z-index: 1;
+				color: @layout-color;
+				background-color : @layout-background-color;
+			}
 		}
 		
-		div.w2ui-splitter {
+		div.w2ui-resizer {
 			display: none;
 			position: absolute; 
 			z-index: 121;
 			
 			&:hover, &.active {
-				background-color: @layout-splitter-background-color;
+				background-color: @layout-resizer-background-color;
 			}
 		}
 	}

@@ -4,27 +4,63 @@
 <script type="text/javascript" src="../js/jquery.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2layout.js"></script>
+<script type="text/javascript" src="../src/w2tabs.js"></script>
+<script type="text/javascript" src="../src/w2toolbar.js"></script>
 <script>
 $(function () {
-	var pstyle = '';//background-color: #414B61';
 	$('#layout').w2layout({
 		name: 'layout',
 		panels: [
-			{ type: 'top', size: 50, style: pstyle, resizable: true },
-			{ type: 'left', size: 150, style: pstyle, resizable: true },
-			{ type: 'main', style: pstyle, content: '<div style="padding: 10px">This is some text</div>' },
-			{ type: 'right', size: 150, style: pstyle, resizable: true },
-			{ type: 'preview', size: 150, style: pstyle, resizable: true },
-			{ type: 'bottom', size: 50, style: pstyle, resizable: true }
+			//{ type: 'top', size: 50, resizable: true },
+			//{ type: 'left', size: 150, resizable: true },
+			{ type: 'main', content: '<div style="padding: 10px">This is some text</div>',
+				tabs: {
+					active : 'tab1',
+					tabs : [
+						{ id: 'tab1', caption: 'General' }, 
+						{ id: 'tab2', caption: 'Additional' },
+						{ id: 'tab3', caption: 'tab3', closable: true },
+						{ id: 'tab4', caption: 'tab4', closable: true }
+					],
+					onClick: function (target, data) {
+						if (target == 'tab1') this.owner.content('main', '<div style="padding:10px">tab1</div>');
+						if (target == 'tab2') this.owner.content('main', '<div style="padding:10px">tab2</div>');
+					}
+				},
+				toolbar: {
+					items: [
+						{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+						{ type: 'drop',   id: 'item2', img: 'icon-page', icon: 'fa-star', html: '<div style="padding: 10px">Some HTML text</div>' },
+						{ type: 'break',  id: 'break0' },
+						{ type: 'radio',  id: 'item3', group: 1, caption: 'Radio 1', img: 'icon-page' },
+						{ type: 'radio',  id: 'item4', group: 1, caption: 'Radio 2', img: 'icon-page' }
+					]
+				}
+			},
+			{ type: 'right', size: 150, resizable: true },
+			{ type: 'preview', size: 150, resizable: true,
+				tabs: {
+					active : 'tab3',
+					tabs : [
+						{ id: 'tab1', caption: 'General' }, 
+						{ id: 'tab2', caption: 'Additional' },
+						{ id: 'tab3', caption: 'tab3', closable: true },
+						{ id: 'tab4', caption: 'tab4', closable: true }
+					],
+					onClick: function (target, data) {
+						if (target == 'tab1') this.owner.content('main', '<div style="padding:10px">tab1</div>');
+						if (target == 'tab2') this.owner.content('main', '<div style="padding:10px">tab2</div>');
+					}
+				},
+			},
+			{ type: 'bottom', size: 50, resizable: true }
 		]
 	});
 
 	w2ui['layout'].on('resize', function(target, data) {
-		console.log(data);
 		data.onComplete = function () {
 			var width = w2ui['layout'].get('main').width;
 			var height = w2ui['layout'].get('main').height;
-			console.log(width + 'x' + height);
 		}
 	});
 });
