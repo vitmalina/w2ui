@@ -4,6 +4,9 @@
 * 		- w2tabs 	- tabs widget
 *		- $.w2tabs	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
+*
+* 	Nice to Have
+*		- tabs might not work in chromium apps, need bind()
 * 
 ************************************************************************/
 
@@ -390,5 +393,5 @@
 	}
 	
 	$.extend(w2tabs.prototype, $.w2event);
-	w2obj.w2tabs = w2tabs;
+	w2obj.tabs = w2tabs;
 })();

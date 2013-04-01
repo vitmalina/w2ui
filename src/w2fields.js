@@ -8,6 +8,7 @@
 *  == 1.2 chanses
 *  - new type list/select
 *  - added a way to add customTypes
+*  - new type upload (html5 file select, not completed)
 * 
 ************************************************************************/
 
@@ -960,6 +961,6 @@
 		}
 	});
 
-	w2obj.w2field = w2field;
+	w2obj.field = w2field;
 
 }) (jQuery);

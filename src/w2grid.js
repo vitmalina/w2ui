@@ -8,7 +8,6 @@
 *   == NICE TO HAVE
 *		- global search apply types and drop downs
 *		- editable fields (list)
-*		- exposed prototype so it can be changed for all grids
 *		- move doExpand into the record
 *
 *  == 1.2 changes
@@ -23,6 +22,7 @@
 *		- remove width, height
 *		- remove showStatus, hideStatus
 *		- added lock(msg), unlock()
+*		- exposed prototype so it can be changed for all grids
 *
 ************************************************************************/
 
@@ -2562,5 +2562,5 @@
 	}
 
 	$.extend(w2grid.prototype, $.w2event);
-	w2obj.w2grid = w2grid;
+	w2obj.grid = w2grid;
 })();

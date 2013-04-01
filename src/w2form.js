@@ -5,13 +5,17 @@
 * 		- w2ui.w2form 	- form widget
 *		- $.w2form		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs
+*
+*  == Nice to Have
+* 		- lock/unlock like in grid
+* 		- better grid inside popup (use grid buttons)
 * 
 *  == 1.2 changes
-*     - focus first elements on the page
-*     - added select/list control
-* 	  - added date format for date fields. 
-* 	  - added .header
-*	  - removed this.width, this.height
+* 		- focus first elements on the page
+* 		- added select/list control
+* 		- added date format for date fields. 
+* 		- added .header
+* 		- removed this.width, this.height
 *
 ************************************************************************/
 
@@ -38,7 +42,7 @@
 
 		// events
 		this.onRequest  	= null,
-		this.onLoad     	= null,
+		this.onLoad 		= null,
 		this.onSubmit		= null,
 		this.onSave			= null,
 		this.onChange		= null,
@@ -708,5 +712,5 @@
 	}
 	
 	$.extend(w2form.prototype, $.w2event);
-	w2obj.w2form = w2form;
+	w2obj.form = w2form;
 })();

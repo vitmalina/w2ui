@@ -509,5 +509,5 @@
 	}
 	
 	$.extend(w2toolbar.prototype, $.w2event);
-	w2obj.w2toolbar = w2toolbar;
+	w2obj.toolbar = w2toolbar;
 })();
