@@ -330,8 +330,7 @@ div.bubble-tag:before {
 }
 .w2ui-form .w2ui-form-tabs {
   margin: 0px;
-  padding-left: 5px !important;
-  padding-right: 5px !important;
+  padding: 0px;
 }
 .w2ui-form .w2ui-tabs {
   border-top-left-radius: 3px;
@@ -675,6 +674,13 @@ div.w2ui-layout {
   -o-box-sizing: border-box;
   box-sizing: border-box;
 }
+div.w2ui-layout * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
 div.w2ui-layout > div {
   position: absolute;
   overflow: hidden;
@@ -682,8 +688,6 @@ div.w2ui-layout > div {
   margin: 0px;
   padding: 0px;
   outline: 0px;
-  color: #c0c8d5;
-  background-color: inherit;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
@@ -695,13 +699,49 @@ div.w2ui-layout > div div.w2ui-panel {
   position: absolute;
   z-index: 120;
 }
-div.w2ui-layout > div div.w2ui-splitter {
+div.w2ui-layout > div div.w2ui-panel div.w2ui-panel-tabs {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  z-index: 2;
+  display: none;
+  overflow: hidden;
+  background-color: inherit;
+  padding: 4px 0px;
+}
+div.w2ui-layout > div div.w2ui-panel div.w2ui-panel-tabs .w2ui-tab.active {
+  background-color: inherit;
+}
+div.w2ui-layout > div div.w2ui-panel div.w2ui-panel-toolbar {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  z-index: 2;
+  display: none;
+  overflow: hidden;
+  background-color: inherit;
+  border-bottom: 1px solid silver;
+  padding: 4px;
+}
+div.w2ui-layout > div div.w2ui-panel div.w2ui-panel-content {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  z-index: 1;
+  color: #c0c8d5;
+  background-color: inherit;
+}
+div.w2ui-layout > div div.w2ui-resizer {
   display: none;
   position: absolute;
   z-index: 121;
 }
-div.w2ui-layout > div div.w2ui-splitter:hover,
-div.w2ui-layout > div div.w2ui-splitter.active {
+div.w2ui-layout > div div.w2ui-resizer:hover,
+div.w2ui-layout > div div.w2ui-resizer.active {
   background-color: #222222;
 }
 /*************************************************
@@ -763,7 +803,7 @@ div.w2ui-grid .w2ui-grid-toolbar {
   border-bottom: 1px solid #252c39;
   background-color: #434d64;
   height: 38px;
-  padding: 4px 0px;
+  padding: 6px 0px;
   margin: 0px;
   box-shadow: 0px 1px 2px #333333;
 }
@@ -907,17 +947,18 @@ div.w2ui-grid .w2ui-grid-body table td.w2ui-grid-data {
   height: 22px;
   margin: 0px;
   padding: 0px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 div.w2ui-grid .w2ui-grid-body table td.w2ui-grid-data > div {
   padding: 7px 3px;
   height: 24px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 div.w2ui-grid .w2ui-grid-body table td.w2ui-grid-data > div.flexible-record {
   height: auto;
   overflow: visible;
+  white-space: normal;
 }
 div.w2ui-grid .w2ui-grid-body table td:last-child {
   border-right: 0px;
@@ -1525,33 +1566,36 @@ div.w2ui-sidebar .w2ui-sidebar-div td.w2ui-node-data .w2ui-node-count {
 /*************************************************
 * ---- Tabs ----
 */
-div.w2ui-tabs {
+.w2ui-tabs {
   cursor: default;
-  border-bottom: 1px solid silver;
   background-color: #434d64;
-  padding: 3px 5px;
+  padding: 3px 0px;
   padding-bottom: 0px !important;
 }
-div.w2ui-tabs div.w2ui-tab {
+.w2ui-tabs table {
+  border-bottom: 1px solid silver;
+  padding: 0px 7px;
+}
+.w2ui-tabs .w2ui-tab {
   padding: 5px 20px;
   text-align: center;
   color: #c0c8d5;
   background-color: transparent;
   border: 1px solid #999999;
-  border-bottom: 1px solid transparent;
+  border-bottom: 1px solid silver;
   white-space: nowrap;
   margin: 1px 1px -1px 0px;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   cursor: default;
 }
-div.w2ui-tabs div.w2ui-tab.active {
+.w2ui-tabs .w2ui-tab.active {
   color: #ffffff;
   background-color: #313947;
   border: 1px solid #999999;
   border-bottom: 1px solid transparent;
 }
-div.w2ui-tabs div.w2ui-tab-close {
+.w2ui-tabs .w2ui-tab-close {
   float: right;
   margin: 4px 5px 0px 4px;
   width: 12px;
@@ -1561,7 +1605,7 @@ div.w2ui-tabs div.w2ui-tab-close {
   border: 0px;
   border-top: 2px solid transparent;
 }
-div.w2ui-tabs div.w2ui-tab-close:hover {
+.w2ui-tabs .w2ui-tab-close:hover {
   background-position: -12px 0px;
 }
 /*************************************************
