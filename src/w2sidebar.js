@@ -536,10 +536,10 @@
 			}
 		},
 	
-		resize: function (width, height) {
+		resize: function () {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, width: width, height: height });
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.stop === true) return false;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));

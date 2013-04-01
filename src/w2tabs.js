@@ -269,7 +269,7 @@
 			this.refresh();
 		},
 		
-		resize: function (width, height) {
+		resize: function () {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	

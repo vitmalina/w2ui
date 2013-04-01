@@ -11,6 +11,7 @@
 *     - added select/list control
 * 	  - added date format for date fields. 
 * 	  - added .header
+*	  - removed this.width, this.height
 *
 ************************************************************************/
 
@@ -488,9 +489,9 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
-		resize: function (width, height) {
+		resize: function () {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize', width: width, height: height });	
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
 			if (eventData.stop === true) return false;
 
 			// does nothing, needed for compatibility

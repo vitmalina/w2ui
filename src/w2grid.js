@@ -6,22 +6,22 @@
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2popup
 *
 *   == NICE TO HAVE
-* 		- global search apply types and drop downs
-* 		- editable fields (list)
-* 		- exposed prototype so it can be changed for all grids
-*       - remove width, height
-* 		- remove hideStatus
+*		- global search apply types and drop downs
+*		- editable fields (list)
+*		- exposed prototype so it can be changed for all grids
+*		- remove hideStatus
 *		- move doExpand into the record
 *
 *  == 1.2 changes
-*	 - find(obj, returnRecords) - gets second argument
-*	 - getFooterHTML() - can now be used to overwrite entire footer now
-* 	 - added requestComplete()
-*    - added addColumn(), removeColumn(), hideColumn(), showColumn(), getColumn()
-*    - added addSearch(), removeSearch(), hideSearch(), showSearch(), getSearch()
-* 	 - added getSearchData()
-* 	 - deprecated getIndex()
-* 	 - added initColumnOnOff()
+*		- find(obj, returnRecords) - gets second argument
+*		- getFooterHTML() - can now be used to overwrite entire footer now
+*		- added requestComplete()
+*		- added addColumn(), removeColumn(), hideColumn(), showColumn(), getColumn()
+*		- added addSearch(), removeSearch(), hideSearch(), showSearch(), getSearch()
+*		- added getSearchData()
+*		- deprecated getIndex()
+*		- added initColumnOnOff()
+*		- remove width, height
 *
 ************************************************************************/
 
@@ -71,8 +71,6 @@
 		this.recordsPerPage		= 50;
 		this.style				= '';
 		this.isLoaded			= false;
-		this.width				= null;		// read only
-		this.height				= null;		// read only
 
 		this.msgDelete			= w2utils.lang('Are you sure you want to delete selected records?');
 		this.msgNotJSON 		= w2utils.lang('Return data is not in JSON format. See console for more information.');
@@ -899,8 +897,6 @@
 		reset: function() {
 			// move to first page
 			this.page 	= 0;
-			this.width	= null;
-			this.height = null;
 			this.isLoaded = false;
 			// reset last remembered state
 			this.searchData			= [];
@@ -1391,20 +1387,16 @@
 		// ==================================================
 		// --- Common functions
 
-		resize: function (width, height) {
+		resize: function () {
 			var tmp_time = (new Date()).getTime();
 			var obj = this;
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// make sure render records w2name
 			if (!this.box || $(this.box).data('w2name') != this.name) return;
 			// determine new width and height
-			this.width  = typeof width != 'undefined' && width != null ? parseInt(width) : $(this.box).width();
-			this.height = typeof height != 'undefined' && height != null ? parseInt(height) : $(this.box).height();
-			$(this.box).find('> div').width(width).height(height);
-			// if blank
-			if (this.width == 0 || this.height == 0) return;
+			$(this.box).find('> div').width($(this.box).width()).height($(this.box).height());
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, width: this.width, height: this.height });
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.stop === true) return false;
 			// -- body (need this for hide/show columns to work)
 			var bodyHTML = '';
@@ -1881,9 +1873,6 @@
 			var body		= $('#grid_'+ this.name +'_body');
 			var columns 	= $('#grid_'+ this.name +'_columns');
 			var records 	= $('#grid_'+ this.name +'_records');
-
-			// resizing
-			main.width(this.width).height(this.height);
 
 			if (this.show.header) {
 				header.css({

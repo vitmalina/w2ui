@@ -16,6 +16,7 @@
 *   - add()
 *   - remove()
 *   - getIndex()
+* 	- removed this.width, this.height
 *
 *  NICE TO HAVE
 *   - onResize for the panel
@@ -32,8 +33,6 @@
 		this.resizer	= 4;		// resizer width or height
 		this.style		= '';
 		this.css		= '';		// will display all inside <style> tag
-		this.width		= null		// reads from container
-		this.height		= null;		// reads from container
 		this.onShow		= null;
 		this.onHide		= null;
 		this.onResizing = null;
@@ -381,22 +380,19 @@
 			return true;
 		},
 		
-		resize: function (width, height) {
+		resize: function () {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (!this.box) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp_resizing, width: width, height: height });	
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp_resizing });	
 			if (eventData.stop === true) return false;
 	
 			// layout itself
-			this.width  = parseInt($(this.box).width());
-			this.height = parseInt($(this.box).height());
-			
-			if (typeof width != 'undefined' && width != null)  this.width  = parseInt(width);
-			if (typeof height != 'undefined' && height != null) this.height = parseInt(height);
+			var width  = parseInt($(this.box).width());
+			var height = parseInt($(this.box).height());
 			$(this.box).find(' > div').css({
-				width: this.width + 'px',
-				height: this.height + 'px'
+				width	: width + 'px',
+				height	: height + 'px'
 			});
 			var obj = this;
 			// panels
@@ -414,19 +410,19 @@
 			var sbottom = (pbottom != null && pbottom.hidden != true ? true : false);
 			// calculate %
 			if (ptop && String(ptop.size).substr((String(ptop.size).length-1)) == '%') {
-				ptop.size = this.height * parseInt(ptop.size) / 100;
+				ptop.size = height * parseInt(ptop.size) / 100;
 			}
 			if (pleft && String(pleft.size).substr((String(pleft.size).length-1)) == '%') {
-				pleft.size = this.height * parseInt(pleft.size) / 100;
+				pleft.size = height * parseInt(pleft.size) / 100;
 			}
 			if (pright && String(pright.size).substr((String(pright.size).length-1)) == '%') {
-				pright.size = this.height * parseInt(pright.size) / 100;
+				pright.size = height * parseInt(pright.size) / 100;
 			}
 			if (pbottom && String(pbottom.size).substr((String(pbottom.size).length-1)) == '%') {
-				pbottom.size = this.height * parseInt(pbottom.size) / 100;
+				pbottom.size = height * parseInt(pbottom.size) / 100;
 			}
 			if (pprev && String(pprev.size).substr((String(pprev.size).length-1)) == '%') {
-				pprev.size = (this.height 
+				pprev.size = (height 
 								- (ptop && !ptop.hidden ? ptop.size : 0) 
 								- (pbottom && !pbottom.hidden ? pbottom.size : 0))
 							* parseInt(pprev.size) / 100;
@@ -440,7 +436,7 @@
 			if (ptop != null && ptop.hidden != true) {
 				var l = 0;
 				var t = 0;
-				var w = this.width;
+				var w = width;
 				var h = ptop.size;
 				$('#layout_'+ this.name +'_panel_top').css({
 					'display': 'block',
@@ -475,7 +471,7 @@
 				var l = 0;
 				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
 				var w = pleft.size;
-				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
+				var h = height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
 									  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0);
 				var e = $('#layout_'+ this.name +'_panel_left');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
@@ -510,10 +506,10 @@
 			}
 			// right if any
 			if (pright != null && pright.hidden != true) {
-				var l = this.width - pright.size;
+				var l = width - pright.size;
 				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
 				var w = pright.size;
-				var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
+				var h = height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
 									  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0);
 				$('#layout_'+ this.name +'_panel_right').css({
 					'display': 'block',
@@ -546,8 +542,8 @@
 			// bottom if any
 			if (pbottom != null && pbottom.hidden != true) {
 				var l = 0;
-				var t = this.height - pbottom.size;
-				var w = this.width;
+				var t = height - pbottom.size;
+				var w = width;
 				var h = pbottom.size;
 				$('#layout_'+ this.name +'_panel_bottom').css({
 					'display': 'block',
@@ -580,9 +576,9 @@
 			// main - always there
 			var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0);
 			var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
-			var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0) - 
+			var w = width  - (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0) - 
 								  (sright ? pright.size + (pright.resizable ? this.resizer : this.padding): 0);
-			var h = this.height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
+			var h = height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
 								  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0) -
 								  (sprev ? pprev.size + (pprev.resizable ? this.resizer : this.padding) : 0);
 			var e = $('#layout_'+ this.name +'_panel_main');
@@ -600,8 +596,8 @@
 			// preview if any
 			if (pprev != null && pprev.hidden != true) {
 				var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0);
-				var t = this.height - (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0) - pprev.size;
-				var w = this.width  - (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0) - 
+				var t = height - (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0) - pprev.size;
+				var w = width  - (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0) - 
 									  (sright ? pright.size + (pright.resizable ? this.resizer : this.padding): 0);
 				var h = pprev.size;
 				var e = $('#layout_'+ this.name +'_panel_preview');
