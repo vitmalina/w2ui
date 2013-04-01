@@ -9,7 +9,6 @@
 *		- global search apply types and drop downs
 *		- editable fields (list)
 *		- exposed prototype so it can be changed for all grids
-*		- remove hideStatus
 *		- move doExpand into the record
 *
 *  == 1.2 changes
@@ -22,6 +21,8 @@
 *		- deprecated getIndex()
 *		- added initColumnOnOff()
 *		- remove width, height
+*		- remove showStatus, hideStatus
+*		- added lock(msg), unlock()
 *
 ************************************************************************/
 
@@ -946,7 +947,7 @@
 			if (cmd == 'get-records') this.records = [];
 			// call server to get data
 			var obj = this;
-			this.showStatus(this.msgRefresh);
+			this.lock(this.msgRefresh);
 			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
 			if (cmd == 'save-records')   xhr_type = 'PUT';  // so far it is always update
@@ -967,7 +968,7 @@
 		requestComplete: function(xhr, status, cmd, callBack ){
 			var obj = this;
 
-			this.hideStatus();
+			this.unlock();
 			this.isLoaded = true;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', data: xhr.responseText , xhr: xhr, status: status });
@@ -2518,42 +2519,45 @@
 				'</div>';
 		},
 
-		showStatus: function (statusMsg) {
+		lock: function (msg) {
 			var obj = this;
-			$(this.box).find('> div').append(
-				'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock"></div>'+
-				'<div id="grid_'+ this.name +'_status" class="w2ui-grid-status"></div>'
-			);
-			setTimeout(function () {
-				var lock 	= $('#grid_'+ obj.name +'_lock');
-				var status 	= $('#grid_'+ obj.name +'_status');
-				status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
-				lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
+			if (typeof msg == 'undefined' || msg == '') {
 				setTimeout(function () {
-					var left 	= ($(obj.box).width()  - w2utils.getSize(status, 'width')) / 2;
-					var top 	= ($(obj.box).height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
-					lock.css({
-						opacity : lock.data('old_opacity'),
-						left 	: '0px',
-						top 	: '0px',
-						width 	: '100%',
-						height 	: '100%'
-					});
-					status.html(statusMsg).css({
-						opacity : status.data('old_opacity'),
-						left	: left + 'px',
-						top		: top + 'px'
-					});
+					$('#grid_'+ obj.name +'_lock').remove();
+					$('#grid_'+ obj.name +'_status').remove();
+				}, 25);
+			} else {
+				$(this.box).find('> div').append(
+					'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock"></div>'+
+					'<div id="grid_'+ this.name +'_status" class="w2ui-grid-status"></div>'
+				);
+				setTimeout(function () {
+					var lock 	= $('#grid_'+ obj.name +'_lock');
+					var status 	= $('#grid_'+ obj.name +'_status');
+					status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
+					lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
+					setTimeout(function () {
+						var left 	= ($(obj.box).width()  - w2utils.getSize(status, 'width')) / 2;
+						var top 	= ($(obj.box).height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
+						lock.css({
+							opacity : lock.data('old_opacity'),
+							left 	: '0px',
+							top 	: '0px',
+							width 	: '100%',
+							height 	: '100%'
+						});
+						status.html(msg).css({
+							opacity : status.data('old_opacity'),
+							left	: left + 'px',
+							top		: top + 'px'
+						});
+					}, 10);
 				}, 10);
-			}, 10);
+			}
 		},
 
-		hideStatus: function () {
-			var obj = this;
-			setTimeout(function () {
-				$('#grid_'+ obj.name +'_lock').remove();
-				$('#grid_'+ obj.name +'_status').remove();
-			}, 25);
+		unlock: function () { 
+			this.lock(); 
 		}
 	}
 
