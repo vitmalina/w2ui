@@ -219,18 +219,19 @@ div.w2ui-grid {
 					height: 22px; 
 					margin: 0px;
 					padding: 0px;
-					white-space: nowrap;
-					text-overflow: ellipsis;
-					overflow: hidden;
 
 					& > div {
 						padding: 7px 3px;
 						height: 24px;
+						overflow: hidden;
+						white-space: nowrap;
+						text-overflow: ellipsis;
 					}
 
 					& > div.flexible-record {
 						height: auto; 
 						overflow: visible;
+						white-space: normal;
 					}
 				}
 				&:last-child {

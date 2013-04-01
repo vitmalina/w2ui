@@ -9,6 +9,9 @@
 * 		- global search apply types and drop downs
 * 		- editable fields (list)
 * 		- exposed prototype so it can be changed for all grids
+*       - remove width, height
+* 		- remove hideStatus
+*		- move doExpand into the record
 *
 *  == 1.2 changes
 *	 - find(obj, returnRecords) - gets second argument
@@ -186,19 +189,22 @@
 
 		add: function (record) {
 			if (!$.isArray(record)) record = [record];
+			var added = 0;
 			for (var o in record) {
 				if (record[o].recid == null || typeof record[o].recid == 'undefined') {
 					console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
 					continue;
 				}
 				this.records.push(record[o]);
+				added++;
 			}
 			this.total = this.records.length;
 			if (this.url == '') {
 				this.localSearch();
 				this.localSort();
 			}
-			this.refresh();
+			this.refresh(); // ??  should it be reload?
+			return added;
 		},
 
 		find: function (obj, returnRecords) {
@@ -1314,7 +1320,7 @@
 			if (expanded != 'yes') {
 				var tmp = 1 + (this.show.lineNumbers ? 1 : 0) + (this.show.selectColumn ? 1 : 0);
 				var addClass = ($('#grid_'+this.name +'_rec_'+ recid).hasClass('w2ui-odd') ? 'w2ui-odd' : 'w2ui-even');
-				$('#grid_'+this.name +'_rec_'+ recid).after(
+				$('#grid_'+ this.name +'_rec_'+ recid).after(
 						'<tr id="grid_'+this.name +'_rec_'+ recid +'_expaned_row" class="'+ addClass +'">'+
 						'	<td class="w2ui-grid-data" colspan="'+ tmp +'"></td>'+
 						'	<td colspan="100" class="w2ui-subgrid">'+
@@ -1324,23 +1330,24 @@
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid,
-										   expanded: (expanded == 'yes' ? true : false), box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expaned' });
+										   expanded: (expanded == 'yes' ? true : false), 
+										   box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expaned' });
 			if (eventData.stop === true) { 	
 				$('#grid_'+this.name +'_rec_'+ recid +'_expaned_row').remove(); 
 				return false; 
 			}
 			// default action
 			if (expanded == 'yes') {
-				$('#grid_'+this.name +'_rec_'+ recid).attr('expanded', '');
-				$('#grid_'+this.name +'_rec_'+ recid +'_expaned_row').remove();
-				$('#grid_'+this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('+');
+				$('#grid_'+ this.name +'_rec_'+ recid).attr('expanded', '');
+				$('#grid_'+ this.name +'_rec_'+ recid +'_expaned_row').remove();
+				$('#grid_'+ this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('+');
 			} else {
-				$('#grid_'+this.name +'_rec_'+ recid).attr('expanded', 'yes')
-				$('#grid_'+this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('-');
-				$('#grid_'+this.name +'_rec_'+ recid +'_expaned_row').show();
+				$('#grid_'+ this.name +'_rec_'+ recid).attr('expanded', 'yes')
+				$('#grid_'+ this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('-');
+				$('#grid_'+ this.name +'_rec_'+ recid +'_expaned_row').show();
 			}
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize();
+			this.resizeRecords();
 		},
 
 		doSort: function (field, direction, event) {
@@ -1932,17 +1939,21 @@
 
 			// body might be expanded by data
 			if (!this.fixedBody) {
-				// calculate body height by content
-				var calculatedHeight = $('#grid_'+ this.name +'_records > table:first-child').height() + columns.height();
-				this.height = calculatedHeight + w2utils.getSize(grid, '+height')
-					+ (this.show.header ? w2utils.getSize(header, 'height') : 0)
-					+ (this.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
-					+ (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
-					+ (this.show.footer ? w2utils.getSize(footer, 'height') : 0);
-				grid.height(this.height);
-				body.height(calculatedHeight);
-				box.height(w2utils.getSize(grid, 'height'));
-			} else {
+				// allow it to render records, then resize
+				setTimeout(function () {
+					var calculatedHeight = w2utils.getSize(columns, 'height')
+						+ w2utils.getSize($('#grid_'+ obj.name +'_records table'), 'height');
+					obj.height = calculatedHeight 
+						+ w2utils.getSize(grid, '+height')
+						+ (obj.show.header ? w2utils.getSize(header, 'height') : 0)
+						+ (obj.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
+						+ (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
+						+ (obj.show.footer ? w2utils.getSize(footer, 'height') : 0);
+					grid.height(obj.height);
+					body.height(calculatedHeight);
+					box.height(w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'));
+				}, 1);
+			} else {;
 				// fixed body height
 				var calculatedHeight =  grid.height()
 					- (this.show.header ? w2utils.getSize(header, 'height') : 0)
@@ -1983,25 +1994,27 @@
 					if (this.records[r].hidden === true || this.records[r].summary === true) continue; 
 					total++;
 				}
-				// apply empty records
-				var html  = '';
-				for (var di = total; di < 100; di++) {
-					html += '<tr class="w2ui-empty-record '+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + '">';
-					if (this.show.lineNumbers)  html += '<td class="w2ui-number"><div>&nbsp;</div></td>';
-					if (this.show.selectColumn) html += '<td class="w2ui-grid-data w2ui-column-select"><div>&nbsp;</div></td>';
-					if (this.show.expandColumn) html += '<td class="w2ui-grid-data w2ui-expand"><div>&nbsp;</div></td>';
-					var j = 0;
-					while (true) {
-						var col   = this.columns[j];
-						if (col.hidden) { j++; if (typeof this.columns[j] == 'undefined') break; else continue; }
-						html += '<td class="w2ui-grid-data" '+( di == this.records.length ? 'id="grid_'+ this.name +'_cell_'+ di +'_'+ j +'"' : '') +
-									(typeof col.attr != 'undefined' ? col.attr : '') +'><div></div></td>';
-						j++;
-						if (typeof this.columns[j] == 'undefined') break;
+				// apply empty records (only makes sense for fixed body)
+				if (this.fixedBody) {
+					var html  = '';
+					for (var di = total; di < 100; di++) {
+						html += '<tr class="w2ui-empty-record '+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + '">';
+						if (this.show.lineNumbers)  html += '<td class="w2ui-number"><div>&nbsp;</div></td>';
+						if (this.show.selectColumn) html += '<td class="w2ui-grid-data w2ui-column-select"><div>&nbsp;</div></td>';
+						if (this.show.expandColumn) html += '<td class="w2ui-grid-data w2ui-expand"><div>&nbsp;</div></td>';
+						var j = 0;
+						while (true) {
+							var col   = this.columns[j];
+							if (col.hidden) { j++; if (typeof this.columns[j] == 'undefined') break; else continue; }
+							html += '<td class="w2ui-grid-data" '+( di == this.records.length ? 'id="grid_'+ this.name +'_cell_'+ di +'_'+ j +'"' : '') +
+										(typeof col.attr != 'undefined' ? col.attr : '') +'><div></div></td>';
+							j++;
+							if (typeof this.columns[j] == 'undefined') break;
+						}
+						html += '</tr>';
 					}
-					html += '</tr>';
+					$('#grid_'+ this.name +'_records > table').append(html);
 				}
-				$('#grid_'+ this.name +'_records > table').append(html);
 			}
 			if (body.length > 0) {
 				var width_max = parseInt(body.width())
