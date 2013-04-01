@@ -1,0 +1,41 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" media="screen"
+    href="http://w2ui.com/web/css/w2ui-1.1.min.css" />
+  <script type="text/javascript"
+    src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+  </script>
+  <script type="text/javascript" src="http://w2ui.com/web/js/w2ui-1.1.min.js">
+  </script>
+</head>
+
+<body>
+
+<input id="btn" type="button" value="Popup" />
+
+<div id="popup" style="display: none; width: 40%; height: 40%; overflow: hidden;">
+  <div rel="title">
+    TITLE
+  </div>
+  <div rel="body">
+    <div id="grid" style="width: 100%; height: 100%;"></div>
+  </div>
+</div>
+
+<script type='text/javascript'>
+  $().w2grid({
+      name: 'foo',
+      columns: [ { field: 'recid', caption: 'ID', size: '100%' } ],
+      records: [ { recid: 'AAA' }, { recid: 'BBB' }, { recid: 'CCC' } ]
+  });
+  $(document).on('click', '#btn', function(e){
+    $('#popup').w2popup('open', {
+        onOpen: function () {
+        	$('#w2ui-popup #grid').w2render('foo');
+        }
+    });
+  });
+</script>
+
+</body>
+</html>
