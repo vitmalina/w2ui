@@ -19,8 +19,8 @@
 *		- added getSearchData()
 *		- deprecated getIndex()
 *		- added initColumnOnOff()
-*		- remove width, height
-*		- remove showStatus, hideStatus
+*		- removed width, height
+*		- removed showStatus, hideStatus
 *		- added lock(msg), unlock()
 *		- exposed prototype so it can be changed for all grids
 * 		- added onError event
@@ -76,7 +76,7 @@
 		this.style				= '';
 
 		this.msgDelete			= w2utils.lang('Are you sure you want to delete selected records?');
-		this.msgNotJSON 		= w2utils.lang('Return data is not in JSON format. See console for more information.');
+		this.msgNotJSON 		= w2utils.lang('Return data is not in valid JSON format.');
 		this.msgRefresh			= w2utils.lang('Refreshing...');
 
 		// events
@@ -1041,7 +1041,6 @@
 						buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
 					});
 				}
-				console.log('ERROR: ' + msg);
 			}, 1);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2403,36 +2402,22 @@
 				while (true) {
 					var col   = this.columns[j];
 					if (col.hidden) { j++; if (typeof this.columns[j] == 'undefined') break; else continue; }
-					var field = '';
-					if (String(col.field).indexOf('.') > -1) {
-						var tmp = String(col.field).split('.');
-						field = record[tmp[0]];
-						if (typeof field == 'object' && field != null) {
-							field = field[tmp[1]];
-						}
-					} else {
-						field = record[col.field];
-					}
+					var field = record[col.field];
+					try { field = eval('record.'+ col.field); } catch (e) {}
 					if (typeof col.render != 'undefined') {
 						if (typeof col.render == 'function') field = col.render.call(this, this.records[i], i);
-						if (typeof col.render == 'object')   field = col.render[this.records[i][col.field]];
-					}
-					if (field == null || typeof field == 'undefined') field = '';
-					// common render functions
-					if (typeof col.render == 'string') {
-						switch (col.render.toLowerCase()) {
-						case 'url':
-							var pos = field.indexOf('/', 8);
-							field = '<a href="'+ field +'" target="_blank">'+ field.substr(0, pos) +'</a>';
-							break;
-
-						case 'repeat':
+						if (typeof col.render == 'object')   field = col.render[field];
+						if (col.render == 'repeat') {
 							if (i > 0 && this.records[i][col.field] == this.records[i-1][col.field] && this.records[i][col.field] != '') {
 								field = '-- // --';
 							}
-							break;
+						}
+						if (col.render == 'repeat') {
+							var pos = field.indexOf('/', 8);
+							field = '<a href="'+ field +'" target="_blank">'+ field.substr(0, pos) +'</a>';
 						}
 					}
+					if (field == null || typeof field == 'undefined') field = '';
 
 					var rec_field = '';
 					if (this.fixedRecord) {
