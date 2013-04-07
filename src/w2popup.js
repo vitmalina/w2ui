@@ -311,22 +311,23 @@
 			if (parseInt(options.height) < 10) options.height = 10;
 			if (typeof options.hideOnClick == 'undefined') options.hideOnClick = true;
 
+			var head = $('#w2ui-popup .w2ui-msg-title');
 			if ($('#w2ui-popup .w2ui-popup-message').length == 0) {
 				var pwidth = parseInt($('#w2ui-popup').width());
-				$('#w2ui-popup .w2ui-box1 .w2ui-msg-body')
-					.append('<div class="w2ui-popup-message" style="position: absolute; top: 0px; display: none; '+
+				$('#w2ui-popup .w2ui-box1')
+					.before('<div class="w2ui-popup-message" style="display: none; ' +
+								(head.length == 0 ? 'top: 0px;' : 'top: '+ w2utils.getSize(head, 'height') + 'px;') +
 					        	(typeof options.width  != 'undefined' ? 'width: '+ options.width + 'px; left: '+ ((pwidth - options.width) / 2) +'px;' : 'left: 10px; right: 10px;') +
 					        	(typeof options.height != 'undefined' ? 'height: '+ options.height + 'px;' : 'bottom: 6px;') +
 					        	'-webkit-transition: .3s; -moz-transition: .3s; -ms-transition: .3s; -o-transition: .3s;"' +
 								(options.hideOnClick === true ? 'onclick="$().w2popup(\'message\');"' : '') + '>'+
 							'</div>');
-				$('#w2ui-popup .w2ui-box1 .w2ui-msg-body').prop('scrollTop', 0);	
 			} else {
 				if (typeof options.width  == 'undefined') options.width  = w2utils.getSize($('#w2ui-popup .w2ui-popup-message'), 'width');
 				if (typeof options.height == 'undefined') options.height = w2utils.getSize($('#w2ui-popup .w2ui-popup-message'), 'height');
 			}
 			var display = $('#w2ui-popup .w2ui-popup-message').css('display');
-			$('#w2ui-popup .w2ui-popup-message').css({ 
+			$('#w2ui-popup .w2ui-popup-message').css({
 				'-webkit-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
 				'-moz-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
 				'-ms-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
@@ -337,7 +338,7 @@
 				$('#w2ui-popup .w2ui-msg-buttons').fadeOut('slow');
 				if (typeof options.onOpen == 'function') options.onOpen();
 			} else {
-				$('#w2ui-popup .w2ui-msg-buttons').fadeIn('slow');		
+				$('#w2ui-popup .w2ui-msg-buttons').fadeIn('slow');
 			}
 			// timer needs to animation
 			setTimeout(function () {
@@ -350,7 +351,7 @@
 			}, 1);
 			setTimeout(function () {
 				if (display != 'none') {
-					$('#w2ui-popup .w2ui-popup-message').remove();		
+					$('#w2ui-popup .w2ui-popup-message').remove();
 					if (typeof options.onClose == 'function') options.onClose();
 				}
 			}, 300);

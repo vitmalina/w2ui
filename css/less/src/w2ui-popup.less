@@ -5,6 +5,7 @@
 div.w2ui-popup {
 	position: fixed;
 	z-index: 1200;
+	overflow: hidden;
 	font-family: verdana;
 	border-radius: 6px;
 	padding: 0px;
@@ -34,6 +35,7 @@ div.w2ui-popup {
 		cursor: move;
 		font-size: 15px;
 		color: @popup-title-color;
+		z-index: 1021;		
 	}
 
 	div.w2ui-msg-button {
@@ -74,6 +76,7 @@ div.w2ui-popup {
 		right: 0px;
 		top: 32px;
 		bottom: 35px;
+		z-index: 100;
 	}
 
 	div.w2ui-msg-body {
@@ -87,15 +90,6 @@ div.w2ui-popup {
 		width: 100%;
 		height: 100%;
 
-		div.w2ui-popup-message { // slide down message
-			background-color: @popup-message-background-color; 
-			border: @popup-message-border; 
-			box-shadow: @popup-message-shadow;
-			.box-sizing; 
-			border-top: 0px; 
-			border-radius: 0px 0px 6px 6px; 
-		}
-
 		// == w2alert, w2confirm	
 		div.w2ui-alert-body, div.w2ui-confirm-body {
 			padding: 12px; 
@@ -104,6 +98,17 @@ div.w2ui-popup {
 		}
 	}
 
+	div.w2ui-popup-message { // slide down message
+		position: absolute;
+		z-index: 200;
+		background-color: @popup-message-background-color; 
+		border: @popup-message-border; 
+		box-shadow: @popup-message-shadow;
+		.box-sizing; 
+		border-top: 0px; 
+		border-radius: 0px 0px 6px 6px; 
+	}
+	
 	div.w2ui-msg-buttons {
 		padding: 8px;
 		border-radius: 0px 0px 6px 6px;
