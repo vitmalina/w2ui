@@ -23,6 +23,9 @@
 *		- remove showStatus, hideStatus
 *		- added lock(msg), unlock()
 *		- exposed prototype so it can be changed for all grids
+* 		- added onError event
+* 		- removed isLoaded
+* 		- added error
 *
 ************************************************************************/
 
@@ -71,7 +74,6 @@
 		this.page				= 0; 		// current page
 		this.recordsPerPage		= 50;
 		this.style				= '';
-		this.isLoaded			= false;
 
 		this.msgDelete			= w2utils.lang('Are you sure you want to delete selected records?');
 		this.msgNotJSON 		= w2utils.lang('Return data is not in JSON format. See console for more information.');
@@ -95,6 +97,7 @@
 		this.onRefresh 			= null;
 		this.onResize 			= null;
 		this.onDestroy 			= null;
+		this.onError 			= null;
 
 		// internal
 		this.recid				= null; 	// might be used by edit class to set sublists ids
@@ -743,7 +746,6 @@
 			this.searchClose();
 			// apply search
 			if (this.url != '') {
-				this.isLoaded = false;
 				this.page = 0;
 				this.reload();
 			} else {
@@ -846,7 +848,6 @@
 			this.searchClose();
 			// apply search
 			if (this.url != '') {
-				this.isLoaded = false;
 				this.page = 0;
 				this.reload();
 			} else {
@@ -869,7 +870,6 @@
 			this.last_scrollLeft	= 0;
 			this.last_selected		= [];
 			// refresh items
-			this.isLoaded = false;
 			this.page = newPage;
 			this.reload();
 		},
@@ -880,17 +880,14 @@
 				return;
 			}
 			// default action
-			this.isLoaded = false;
 			this.request('get-records', {}, url, callBack);
 		},
 
 		reload: function (callBack) {
 			if (this.url != '') {
 				//this.clear();
-				this.isLoaded = false;
 				this.request('get-records', {}, null, callBack);
 			} else {
-				this.isLoaded = true;
 				this.refresh();
 			}
 		},
@@ -898,7 +895,6 @@
 		reset: function() {
 			// move to first page
 			this.page 	= 0;
-			this.isLoaded = false;
 			// reset last remembered state
 			this.searchData			= [];
 			this.last_search		= '';
@@ -950,84 +946,60 @@
 			this.lock(this.msgRefresh);
 			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
-			if (cmd == 'save-records')   xhr_type = 'PUT';  // so far it is always update
-			if (cmd == 'delete-records') xhr_type = 'DELETE';
+			if (cmd == 'save-records')   	xhr_type = 'PUT';  // so far it is always update
+			if (cmd == 'delete-records') 	xhr_type = 'DELETE';
+			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
 			this.request_xhr = $.ajax({
 				type		: xhr_type,
 				url			: url + (url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
-					obj.requestComplete(xhr, status, cmd, callBack);
+					obj.requestComplete(status, cmd, callBack);
 				}
 			});
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 				
-		requestComplete: function(xhr, status, cmd, callBack ){
+		requestComplete: function(status, cmd, callBack ){
 			var obj = this;
-
 			this.unlock();
-			this.isLoaded = true;
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', data: xhr.responseText , xhr: xhr, status: status });
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', xhr: this.request_xhr, status: status });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
-			// if no error from the server
+			// parse server response
+			var responseText = this.request_xhr.responseText;
 			if (status != 'error') {
 				// default action
-				if (typeof eventData.data != 'undefined' && eventData.data != '') {
+				if (typeof responseText != 'undefined' && responseText != '') {
 					var data;
 					// check if the onLoad handler has not already parsed the data
-					if (typeof eventData.data == "object") {
-						data = eventData.data;
+					if (typeof responseText == "object") {
+						data = responseText;
 					} else {
-						// $.parseJSON or $.getJSON did not work because it expect perfect JSON data
-						//  where everything is in double quotes
-						try {  // need this to check for validity of data
-							eval('data = '+ eventData.data); 	
-						} catch (e) {
-
-						}
+						// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+						try { eval('data = '+ responseText); } catch (e) { }
 					}
 					if (typeof data == 'undefined') {
 						data = {
-							status: 'error',
-							message: this.msgNotJSON,
-							responseText: eventData.data
+							status		 : 'error',
+							message		 : this.msgNotJSON,
+							responseText : responseText
 						}
 					}
-					if (typeof data['status'] != 'undefined' && data['status'] != 'success') {
-						// let the management of the error outside of the grid
-						if( this.trigger({ target: this.name, type: 'error', message: xhr.responseText , xhr: xhr }).stop === true) {
-							if (typeof callBack == 'function') callBack();
-							return false;
-						}
-						// need a time out because message might be already up
-						setTimeout(function () {
-							$().w2popup('open', {
-								width 	: 400,
-								height 	: 180,
-								showMax : false,
-								title 	: 'Error',
-								body 	: '<div class="w2ui-grid-error-msg">'+ data['message'] +'</div>',
-								buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
-							});
-							console.log('ERROR: Cannot retrive records from '+ obj.url);
-							console.log(data);
-						}, 1);
-						this.loaded = false;
+					if (data['status'] == 'error') {
+						obj.error(data['message']);
 					} else {
 						if (cmd == 'get-records') $.extend(this, data);
 						if (cmd == 'delete-records') { this.reload(); return; }
 					}
 				}
 			} else {
-				// let the management of the error outside of the grid
-				this.trigger({ target: this.name, type: 'error', message: xhr.responseText , xhr: xhr });
+				obj.error('AJAX Error. See console for more details.');
 			}
 			// event after
 			if (this.url == '') {
@@ -1038,6 +1010,41 @@
 			this.refresh();
 			// call back
 			if (typeof callBack == 'function') callBack();
+		},
+
+		error: function (msg) {
+			var obj = this;
+			// let the management of the error outside of the grid
+			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.request_xhr });
+			if (eventData.stop === true) {
+				if (typeof callBack == 'function') callBack();
+				return false;
+			}
+			// need a time out because message might be already up)
+			setTimeout(function () {
+				if ($('#w2ui-popup').length > 0) {
+					$().w2popup('message', {
+						width 	: 370,
+						height 	: 140,
+						html 	: '<div class="w2ui-grid-error-msg" style="font-size: 11px;">ERROR: '+ msg +'</div>'+
+								  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center;">'+
+								  '	<input type="button" value="Ok" onclick="$().w2popup(\'message\');" class="w2ui-grid-popup-btn">'+
+								  '</div>'
+					});
+				} else {
+					$().w2popup('open', {
+						width 	: 420,
+						height 	: 200,
+						showMax : false,
+						title 	: 'Error',
+						body 	: '<div class="w2ui-grid-error-msg">'+ msg +'</div>',
+						buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
+					});
+				}
+				console.log('ERROR: ' + msg);
+			}, 1);
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		getChanged: function () {
@@ -1534,11 +1541,11 @@
 			$('#'+ this.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize(null, null, true);
+			this.resize();
 		},
 
 		render: function (box) {
-			var tmp_time = (new Date()).getTime();
+			var obj = this;
 
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (typeof box != 'undefined' && box != null) {
@@ -1579,10 +1586,8 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
-			var obj = this;
-			$(window).on('resize', function (event) {
-				w2ui[obj.name].resize();
-			});
+			function tmp_resize(event) { w2ui[obj.name].resize();	}
+			$(window).off('resize', tmp_resize).on('resize', tmp_resize);
 			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
 		},
 
@@ -2527,7 +2532,9 @@
 					$('#grid_'+ obj.name +'_status').remove();
 				}, 25);
 			} else {
-				$(this.box).find('> div').append(
+				$('#grid_'+ obj.name +'_lock').remove();
+				$('#grid_'+ obj.name +'_status').remove();
+				$(this.box).find('> div :first-child').before(
 					'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock"></div>'+
 					'<div id="grid_'+ this.name +'_status" class="w2ui-grid-status"></div>'
 				);
