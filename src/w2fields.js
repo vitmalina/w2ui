@@ -150,12 +150,7 @@
 							colored     : {}				// {'4/11/2011': 'red:white'} 
 						}
 						options = $.extend({}, defaults, options);
-
 						// -- insert div for calendar
-						if ($(this).length == 0 || $('#'+$(this)[0].id).length != 1) {
-							console.error('The date field must have a unique id in w2field(\'date\').');
-							return;
-						}
 						$(this) // remove transtion needed for functionality
 							.css( { 'transition': 'none', '-webkit-transition': 'none', '-moz-transition': 'none', '-ms-transition': 'none', '-o-transition': 'none' })
 							.data("options", options)
