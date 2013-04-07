@@ -12,13 +12,15 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == 1.2 changes 
 *  - added event.preventDefault() method
 *  - expose prototype in w2obj object
+*  - added escapeId()
+*  - added locale(), lang()
 * 
 ************************************************/
 
 var w2utils = (function () {
 	var obj = {
 		settings : {
-			i18n			: "en-US",
+			locale			: "en-US",
 			date_format		: "mm/dd/yyyy",
 			date_display	: "Mon dd, yyyy",
 			time_format		: "hh:mi pm",
@@ -45,12 +47,13 @@ var w2utils = (function () {
 		date 			: date,
 		stripTags		: stripTags,
 		encodeTags		: encodeTags,
+		escapeId		: escapeId,
 		base64encode	: base64encode,
 		base64decode	: base64decode,
 		transition		: transition,
 		getSize			: getSize,
 		lang 			: lang,
-		userLocal 		: userLocal
+		locale	 		: locale
 	}
 	return obj;
 	
@@ -257,6 +260,13 @@ var w2utils = (function () {
 				break;
 		}
 		return html;
+	}
+
+	function escapeId (id) {
+		var ret = String(id);
+		var str = '!"#$%&\'()*+,./:;<=>?@[\]^`{|}~ ';
+		for (var s in str) ret = ret.replace(str[s], "\\"+str[s]);
+		return ret;
 	}
 
 	function base64encode (input) {
@@ -612,17 +622,17 @@ var w2utils = (function () {
 	* The dafault value is en-US
 	* @returns {String}
 	*/
-	function userLocal (localParam) {
+	function locale (localParam) {
 		var settings = w2utils.settings;
 		var param;
 		$.extend( { path : '', lang : 'en-us' }, localParam);
 		var result = localParam.lang.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
 		if (result !== null && result.length === 3) {
 			param = result[1] + '-' + result[2].toUpperCase();
-			if ( param === settings.i18n) {
+			if ( param === settings.locale) {
 				return param;
 			}
-			param = localParam.path + "locales/" + param.toLowerCase() + ".json";
+			param = localParam.path + "locale/" + param.toLowerCase() + ".json";
 			$.ajax({
 				url: param,
 				type: "GET",
@@ -635,7 +645,7 @@ var w2utils = (function () {
 					alert( "Request failed: " + textStatus );
 				});
 		}
-		return settings.i18n;
+		return settings.locale;
 	}
 
 })();
