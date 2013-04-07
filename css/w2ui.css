@@ -181,7 +181,38 @@ div.bubble-tag:before {
   border-radius: 3px;
   padding: 0px;
 }
+.w2ui-form > div {
+  position: absolute;
+  overflow: hidden;
+}
+.w2ui-form .w2ui-form-lock {
+  opacity: 0.15;
+  filter: alpha(opacity=15);
+  background-color: #333333;
+  position: absolute;
+  z-index: 1600;
+  display: none;
+}
+.w2ui-form .w2ui-form-status {
+  padding: 30px;
+  position: absolute;
+  z-index: 1600;
+  width: 200px;
+  height: 80px;
+  font-size: 13px;
+  opacity: 0.8;
+  filter: alpha(opacity=15);
+  background-color: #555555;
+  color: #ffffff;
+  text-align: center;
+  border-radius: 5px;
+  border: 2px solid #444444;
+  display: none;
+}
 .w2ui-form .w2ui-form-header {
+  position: absolute;
+  left: 0;
+  right: 0;
   border-bottom: 1px solid #99bbe8 !important;
   overflow: hidden;
   color: #444444;
@@ -197,12 +228,46 @@ div.bubble-tag:before {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
+.w2ui-form .w2ui-tabs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding-top: 5px !important;
+  background-color: #fafafa;
+}
+.w2ui-form .w2ui-tabs .w2ui-tab.active {
+  background-color: #f5f6f7;
+}
 .w2ui-form .w2ui-page {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: auto;
   padding: 10px;
   border-left: 1px solid inherit;
   border-right: 1px solid inherit;
   background-color: inherit;
   border-radius: 3px;
+}
+.w2ui-form .w2ui-buttons {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  border-top: 1px solid #d5d8d8;
+  border-bottom: 0px solid #d5d8d8;
+  background-color: #fafafa;
+  padding: 15px 0px !important;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.w2ui-form .w2ui-buttons input[type="button"],
+.w2ui-form .w2ui-buttons button {
+  width: 80px;
+  margin-right: 5px;
 }
 .w2ui-form .w2ui-group {
   background-color: #ebecef;
@@ -315,15 +380,6 @@ div.bubble-tag:before {
   margin: 0px;
   padding: 0px;
 }
-.w2ui-form .w2ui-tabs {
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  padding-top: 5px;
-  background-color: #fafafa;
-}
-.w2ui-form .w2ui-tabs .w2ui-tab.active {
-  background-color: #f5f6f7;
-}
 .w2ui-form .w2ui-required {
   position: relative;
 }
@@ -333,20 +389,6 @@ div.bubble-tag:before {
   margin-top: 5px;
   margin-left: -9px;
   color: #ff0000;
-}
-.w2ui-form .w2ui-buttons {
-  text-align: center;
-  border-top: 1px solid #d5d8d8;
-  border-bottom: 0px solid #d5d8d8;
-  background-color: #fafafa;
-  padding: 15px 0px !important;
-  border-bottom-left-radius: 3px;
-  border-bottom-right-radius: 3px;
-}
-.w2ui-form .w2ui-buttons input[type="button"],
-.w2ui-form .w2ui-buttons button {
-  width: 80px;
-  margin-right: 5px;
 }
 .w2ui-form .w2ui-error {
   border: 1px solid #ffa8a8 !important;
@@ -746,11 +788,13 @@ div.w2ui-grid .w2ui-grid-lock {
   filter: alpha(opacity=15);
   background-color: #333333;
   position: absolute;
+  z-index: 1600;
   display: none;
 }
 div.w2ui-grid .w2ui-grid-status {
   padding: 30px;
   position: absolute;
+  z-index: 1600;
   width: 200px;
   height: 80px;
   font-size: 13px;
@@ -1215,6 +1259,7 @@ div.w2ui-grid .w2ui-grid-footer .w2ui-footer-center .w2ui-footer-nav a.w2ui-foot
 div.w2ui-popup {
   position: fixed;
   z-index: 1200;
+  overflow: hidden;
   font-family: verdana;
   border-radius: 6px;
   padding: 0px;
@@ -1257,6 +1302,7 @@ div.w2ui-popup div.w2ui-msg-title {
   cursor: move;
   font-size: 15px;
   color: #555555;
+  z-index: 1021;
 }
 div.w2ui-popup div.w2ui-msg-button {
   float: right;
@@ -1294,6 +1340,7 @@ div.w2ui-popup div.w2ui-box2 {
   right: 0px;
   top: 32px;
   bottom: 35px;
+  z-index: 100;
 }
 div.w2ui-popup div.w2ui-msg-body {
   font-size: 13px;
@@ -1306,7 +1353,15 @@ div.w2ui-popup div.w2ui-msg-body {
   width: 100%;
   height: 100%;
 }
-div.w2ui-popup div.w2ui-msg-body div.w2ui-popup-message {
+div.w2ui-popup div.w2ui-msg-body div.w2ui-alert-body,
+div.w2ui-popup div.w2ui-msg-body div.w2ui-confirm-body {
+  padding: 12px;
+  padding-right: 24px;
+  text-align: center;
+}
+div.w2ui-popup div.w2ui-popup-message {
+  position: absolute;
+  z-index: 200;
   background-color: #f9f9f9;
   border: 1px solid #aaaaaa;
   box-shadow: 0px 0px 15px #aaaaaa;
@@ -1317,12 +1372,6 @@ div.w2ui-popup div.w2ui-msg-body div.w2ui-popup-message {
   box-sizing: border-box;
   border-top: 0px;
   border-radius: 0px 0px 6px 6px;
-}
-div.w2ui-popup div.w2ui-msg-body div.w2ui-alert-body,
-div.w2ui-popup div.w2ui-msg-body div.w2ui-confirm-body {
-  padding: 12px;
-  padding-right: 24px;
-  text-align: center;
 }
 div.w2ui-popup div.w2ui-msg-buttons {
   padding: 8px;
