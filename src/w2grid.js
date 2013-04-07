@@ -1058,6 +1058,7 @@
 					if (col.hidden || col.field == 'recid' || $('#grid_'+ this.name +'_edit_'+ i +'_'+ j).length == 0) continue;
 					var newValue = $('#grid_'+ this.name +'_edit_'+ i +'_'+ j).val();
 					var oldValue = record[col.field];
+					try { oldValue = eval('record.'+ col.field); } catch (e) {}
 					if (typeof oldValue == 'undefined') oldValue = '';
 					if (newValue != oldValue) {
 						flag = true;
@@ -1126,6 +1127,7 @@
 				case 'blur':
 					$(el).removeClass('active');
 					var oldValue = record[$(el).attr('field')];
+					try { oldValue = eval('record.'+ $(el).attr('field')); } catch (e) {}
 					if (typeof oldValue == 'undefined') oldValue = '';
 					if ($(el).val() != oldValue) {
 						var eventData = this.trigger({ phase: 'before', type: 'change', target: el.id, recid: recid });
