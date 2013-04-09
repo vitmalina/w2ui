@@ -5,7 +5,7 @@
 div.w2ui-sidebar {
 	cursor: default;
 	background-color: @sidebar-background-color; 
-	.box-sizing(content-box);
+	.box-sizing(border-box);
 
 	* {
 		.box-sizing;
@@ -61,16 +61,22 @@ div.w2ui-sidebar {
 				color: @sidebar-node-color;
 				text-shadow: @sidebar-node-text-shadow;
 				&:hover {
-					color: @sidebar-node-hover-color !important;
+					color: @sidebar-node-hover-color;
 				}
 			}
 
 			&:hover {
-				background-color: @sidebar-node-hover-background-color;
+				border-top: 1px solid @sidebar-node-hover-border-color;
+				border-bottom: 1px solid @sidebar-node-hover-border-color;
+				.linear-gradient-vertical(@sidebar-node-hover-background-color-start, @sidebar-node-hover-background-color-end);
+			}
+
+			div.w2ui-node-image > span {
+				color: @sidebar-node-image-color !important;
 			}
 		}
 
-		.w2ui-selected {
+		.w2ui-selected, .w2ui-selected:hover {
 			.linear-gradient-vertical(@sidebar-node-selected-linear-gradient-start, @sidebar-node-selected-linear-gradient-end);
 			border-top: @sidebar-node-selected-border-top;
 			border-bottom: @sidebar-node-selected-border-bottom;
@@ -84,14 +90,18 @@ div.w2ui-sidebar {
 			}
 		}
 
-		.w2ui-disabled {
-			background-color: transparent !important;
+		.w2ui-disabled, .w2ui-disabled:hover {
+			.linear-gradient-vertical(@sidebar-node-linear-gradient-start, @sidebar-node-linear-gradient-end);
+			border-top: @sidebar-node-border-top;
+			border-bottom: @sidebar-node-border-bottom;
+			
 			div.w2ui-node-caption, 
 			div.w2ui-node-image, 
+			div.w2ui-node-image > span, 
 			td.w2ui-node-dots {
 				.opacity(0.4);
-				color: @sidebar-node-selected-color !important;
-				text-shadow: @sidebar-node-selected-text-shadow !important;
+				color: @sidebar-node-color !important;
+				text-shadow: @sidebar-node-text-shadow !important;
 			}
 		}
 

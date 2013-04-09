@@ -9,6 +9,8 @@
 *  - new type list/select
 *  - added a way to add customTypes
 *  - new type upload (html5 file select, not completed)
+*  - enum (onLoaded)
+*  - enum (onCompare)
 * 
 ************************************************************************/
 

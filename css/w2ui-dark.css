@@ -1442,11 +1442,11 @@ div.w2ui-popup div.w2ui-msg-no-buttons {
 div.w2ui-sidebar {
   cursor: default;
   background-color: #323948;
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  -ms-box-sizing: content-box;
-  -o-box-sizing: content-box;
-  box-sizing: content-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
 }
 div.w2ui-sidebar * {
   -webkit-box-sizing: border-box;
@@ -1514,12 +1514,23 @@ div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node div.w2ui-node-caption:hover,
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node div.w2ui-node-image:hover,
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node div.w2ui-node-image > span:hover,
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node td.w2ui-node-dots:hover {
-  color: #ffffff !important;
+  color: #ffffff;
 }
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node:hover {
-  background-color: #373f52;
+  border-top: 1px solid #373f52;
+  border-bottom: 1px solid #373f52;
+  background-image: -webkit-linear-gradient(#373f52, #373f52);
+  background-image: -moz-linear-gradient(#373f52, #373f52);
+  background-image: -ms-linear-gradient(#373f52, #373f52);
+  background-image: -o-linear-gradient(#373f52, #373f52);
+  background-image: linear-gradient(#373f52, #373f52);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff373f52', endColorstr='#ff373f52', GradientType=0);
 }
-div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected {
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node div.w2ui-node-image > span {
+  color: #c0c8d5 !important;
+}
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover {
   background-image: -webkit-linear-gradient(#202530, #202530);
   background-image: -moz-linear-gradient(#202530, #202530);
   background-image: -ms-linear-gradient(#202530, #202530);
@@ -1530,22 +1541,39 @@ div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected {
   border-bottom: 1px solid #111111;
 }
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected div.w2ui-node-caption,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover div.w2ui-node-caption,
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected div.w2ui-node-image,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover div.w2ui-node-image,
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected div.w2ui-node-image > span,
-div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected td.w2ui-node-dots {
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover div.w2ui-node-image > span,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected td.w2ui-node-dots,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover td.w2ui-node-dots {
   color: #eeeeee !important;
   text-shadow: 1px 1px 2px #666666 !important;
 }
-div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled {
-  background-color: transparent !important;
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover {
+  background-image: -webkit-linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+  background-image: -moz-linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+  background-image: -ms-linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+  background-image: -o-linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff000000', endColorstr='#ff000000', GradientType=0);
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
 }
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled div.w2ui-node-caption,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover div.w2ui-node-caption,
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled div.w2ui-node-image,
-div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled td.w2ui-node-dots {
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover div.w2ui-node-image,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled div.w2ui-node-image > span,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover div.w2ui-node-image > span,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled td.w2ui-node-dots,
+div.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover td.w2ui-node-dots {
   opacity: 0.4;
   filter: alpha(opacity=15);
-  color: #eeeeee !important;
-  text-shadow: 1px 1px 2px #666666 !important;
+  color: #c0c8d5 !important;
+  text-shadow: 0px 0px 0px #ffffff !important;
 }
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-caption {
   white-space: nowrap;

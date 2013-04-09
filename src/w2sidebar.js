@@ -314,12 +314,13 @@
 		},
 		
 		doClick: function (id, event) {
+			var nd  = this.get(id);
+			var obj = this;
+			if (nd.disabled) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, event: event });	
 			if (eventData.stop === true) return false;
 			// default action
-			var nd  = this.get(id);
-			var obj = this;
 			if (!nd.group && !nd.disabled) {
 				$(this.box).find('.w2ui-node').each(function (index, field) {
 					var nid = String(field.id).replace('node_', '');
@@ -457,6 +458,10 @@
 					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
 			}
 			// default action
+			$(this.box).find('> div').css({
+				width 	: $(this.box).width() + 'px',
+				height 	: $(this.box).height() + 'px'
+			});
 			var obj = this;
 			if (typeof id == 'undefined') {
 				var node = this;

@@ -7,8 +7,10 @@
 *
 *   == NICE TO HAVE
 *		- global search apply types and drop downs
-*		- editable fields (list)
+*		- editable fields (list) - better inline editing
 *		- move doExpand into the record
+*		- infinite scroll (buffered scroll)
+*		- frozen columns
 *
 *  == 1.2 changes
 *		- find(obj, returnRecords) - gets second argument

@@ -324,9 +324,9 @@
 			for (var t in tmp) {
 				var pan  = this.get(tmp[t]);
 				var html =  '<div id="layout_'+ this.name + '_panel_'+ tmp[t] +'" class="w2ui-panel">'+
-							'	<div class="w2ui-panel-tabs">1</div>'+
-							'	<div class="w2ui-panel-toolbar">2</div>'+
-							'	<div class="w2ui-panel-content">3</div>'+
+							'	<div class="w2ui-panel-tabs"></div>'+
+							'	<div class="w2ui-panel-toolbar"></div>'+
+							'	<div class="w2ui-panel-content"></div>'+
 							'</div>'+
 							'<div id="layout_'+ this.name + '_resizer_'+ tmp[t] +'" class="w2ui-resizer"></div>';
 				$(this.box).find(' > div').append(html);

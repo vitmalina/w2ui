@@ -600,10 +600,10 @@ var w2utils = (function () {
 			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom; 
 			case 'left': 	return bwidth.left + mwidth.left + pwidth.left; 
 			case 'right': 	return bwidth.right + mwidth.right + pwidth.right; 
-			case 'width': 	return bwidth.left + mwidth.left + bwidth.right + mwidth.right + pwidth.right + pwidth.right + parseInt($(el).width()); 
-			case 'height': 	return bwidth.top + mwidth.top + bwidth.bottom + mwidth.bottom + pwidth.bottom + pwidth.bottom + parseInt($(el).height());
-			case '+width': 	return bwidth.left + mwidth.left + bwidth.right + mwidth.right + pwidth.right + pwidth.right; 
-			case '+height': return bwidth.top + mwidth.top + bwidth.bottom + mwidth.bottom + pwidth.bottom + pwidth.bottom;
+			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($(el).width()); 
+			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($(el).height());
+			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right; 
+			case '+height': return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
 		}
 	}
 
