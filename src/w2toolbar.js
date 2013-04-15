@@ -288,7 +288,15 @@
 			
 			if (typeof id == 'undefined') {
 				// refresh all
-				for (var i = 0; i < this.items.length; i++) this.refresh(this.items[i].id);
+				for (var i = 0; i < this.items.length; i++) {
+
+					// set default id by type_timestamp 
+					if (!this.items[i].id) {
+						this.items[i].id = this.items[i].type + "_" + parseInt(new Date()/1000);
+					}
+
+					this.refresh(this.items[i].id);
+				}
 			}
 			// create or refresh only one item
 			var it = this.get(id);
