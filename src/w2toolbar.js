@@ -4,10 +4,11 @@
 * 		- w2toolbar 	- toolbar widget
 *		- $.w2toolbar	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
-* 
-*  changes 1.2
-*  - added doMenuClick()
-*  - removed doOver, doOut, doDown, doDropOver, doDropOut
+*
+*  1.2 changes
+*		- added doMenuClick()
+*		- removed doOver, doOut, doDown, doDropOver, doDropOut
+*		- removed getIndex(), added get(..., returnIndex)
 * 
 ************************************************************************/
 
@@ -26,7 +27,6 @@
 		$.extend(true, this, options);
 	}
 	
-	
 	// ====================================================
 	// -- Registers as a jQuery plugin
 	
@@ -34,11 +34,11 @@
 		if (typeof method === 'object' || !method ) {
 			// check required parameters
 			if (!method || typeof method.name == 'undefined') {
-				$.error('The parameter "name" is required but not supplied in $().w2toolbar().');
+				console.log('ERROR: The parameter "name" is required but not supplied in $().w2toolbar().');
 				return;
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
-				$.error('The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
 				return;			
 			}
 			var items = method.items;
@@ -61,7 +61,7 @@
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.w2toolbar' );
+			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2toolbar' );
 		}    
 	};
 	
@@ -94,26 +94,26 @@
 			for (var o in items) {
 				// checks
 				if (typeof items[o].type == 'undefined') {
-					$.error('The parameter "type" is required but not supplied in w2toolbar.add() method.');
+					console.log('ERROR: The parameter "type" is required but not supplied in w2toolbar.add() method.');
 					return;
 				}
 				if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'break', 'html', 'spacer']) == -1) {
-					$.error('The parameter "type" should be one of the following [button, check, radio, drop, menu, break, html, spacer] '+
+					console.log('ERROR: The parameter "type" should be one of the following [button, check, radio, drop, menu, break, html, spacer] '+
 							'in w2toolbar.add() method.');
 					return;
 				}
 				if (typeof items[o].id == 'undefined') {
-					$.error('The parameter "id" is required but not supplied in w2toolbar.add() method.');
+					console.log('ERROR: The parameter "id" is required but not supplied in w2toolbar.add() method.');
 					return;
 				}
 				var unique = true;
 				for (var i = 0; i < this.items.length; i++) { if (this.items[i].id == items[o].id) { unique = false; return; } }
 				if (!unique) {
-					$.error('The parameter "id" is not unique within the current toolbar.');
+					console.log('ERROR: The parameter "id" is not unique within the current toolbar.');
 					return;
 				}
 				if (!w2utils.isAlphaNumeric(items[o].id)) {
-					$.error('The parameter "id" must be alpha-numeric + "-_".');
+					console.log('ERROR: The parameter "id" must be alpha-numeric + "-_".');
 					return;
 				}
 				// add item
@@ -121,7 +121,7 @@
 				if (id == null || typeof id == 'undefined') {
 					this.items.push(it);
 				} else {
-					var middle = this.getIndex(id);
+					var middle = this.get(id, true);
 					this.items = this.items.slice(0, middle).concat([it], this.items.slice(middle));
 				}		
 				this.refresh(items[o].id);
@@ -137,36 +137,29 @@
 				// remove from screen
 				$(this.box).find('#'+ this.name +'_item_'+ it.id).remove();
 				// remove from array
-				var ind = this.getIndex(it.id);
+				var ind = this.get(it.id, true);
 				if (ind) this.items.splice(ind, 1);
 			}
 			return removed;
 		},
 		
 		set: function (id, options) {
-			var item = this.getIndex(id);
+			var item = this.get(id, true);
 			if (item == null) return false;
 			$.extend(this.items[item], options);
 			this.refresh(id);
 			return true;	
 		},
 		
-		get: function (id) {
-			var item = null;
+		get: function (id, returnIndex) {
 			for (var i = 0; i < this.items.length; i++) {
-				if (this.items[i].id == id) { item = this.items[i]; break; }
+				if (this.items[i].id == id) { 
+					if (returnIndex === true) return i; else return this.items[i]; 
+				}
 			}
-			return item;	
+			return null;
 		},
-		
-		getIndex: function (id) {
-			var index = null;
-			for (var i = 0; i < this.items.length; i++) {
-				if (this.items[i].id == id) { return i; }
-			}
-			return index;
-		},
-		
+			
 		show: function (id) {
 			var items = 0;
 			for (var a in arguments) {
@@ -308,10 +301,10 @@
 				// does not exist - create it
 				html =  '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
 						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html + '</td>';
-				if (this.getIndex(id) == this.items.length-1) {
+				if (this.get(id, true) == this.items.length-1) {
 					$(this.box).find('#'+ this.name +'_right').before(html);
 				} else {
-					$(this.box).find('#'+ this.name +'_item_'+ this.items[parseInt(this.getIndex(id))+1].id).before(html);
+					$(this.box).find('#'+ this.name +'_item_'+ this.items[parseInt(this.get(id, true))+1].id).before(html);
 				}
 			} else {
 				// refresh
