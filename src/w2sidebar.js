@@ -7,10 +7,12 @@
 *
 *   NICE TO HAVE
 *     - group animate open
+*	  - context menus
 *
 *  == 1.2 changes 
 *     - top_html, bottom_html
 *     - suport for icon fonts
+*	  - removed getIndex(), added get(..., returnIndex)
 * 
 ************************************************************************/
 
@@ -30,8 +32,8 @@
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
 		this.onContextMenu	= null;	
-		this.onOpen			= null;	// Fire when node Expands
-		this.onClose		= null;	// Fire when node Colapses
+		this.onExpand		= null;	// Fire when node Expands
+		this.onCollapse		= null;	// Fire when node Colapses
 		this.onRender 		= null;
 		this.onRefresh		= null;
 		this.onResize 		= null;
@@ -47,11 +49,11 @@
 		if (typeof method === 'object' || !method ) {
 			// check required parameters
 			if (!method || typeof method.name == 'undefined') {
-				$.error('The parameter "name" is required but not supplied in $().w2sidebar().');
+				console.log('ERROR: The parameter "name" is required but not supplied in $().w2sidebar().');
 				return;
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
-				$.error('The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
 				return;			
 			}
 			// extend items
@@ -75,7 +77,7 @@
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.w2sidebar' );
+			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2sidebar' );
 		}    
 	};
 	
@@ -102,8 +104,8 @@
 			onClick			: null,
 			onDblClick		: null,
 			onContextMenu	: null,
-			onOpen			: null,
-			onClose			: null
+			onExpand		: null,
+			onCollapse		: null
 		},
 		
 		add: function (parent, nodes) {
@@ -123,7 +125,7 @@
 				before	= arguments[0];
 				var ind = this.get(before);
 				if (ind == null) {
-					$.error('Cannot insert node "'+ nodes[o].text +'" because cannot find node "'+ before +'" to insert before.'); 
+					console.log('ERROR: Cannot insert node "'+ nodes[o].text +'" because cannot find node "'+ before +'" to insert before.'); 
 					return null; 
 				}
 				parent 	= this.get(before).parent;
@@ -132,11 +134,11 @@
 			if (!$.isArray(nodes)) nodes = [nodes];
 			for (var o in nodes) {
 				if (typeof nodes[o].id == 'undefined') { 
-					$.error('Cannot insert node "'+ nodes[o].text +'" because it has no id.'); 
+					console.log('ERROR: Cannot insert node "'+ nodes[o].text +'" because it has no id.'); 
 					continue;
 				}
 				if (this.get(this, nodes[o].id) != null) { 
-					$.error('Cannot insert node with id='+ nodes[o].id +' (text: '+ nodes[o].text + ') because another node with the same id already exists.'); 
+					console.log('ERROR: Cannot insert node with id='+ nodes[o].id +' (text: '+ nodes[o].text + ') because another node with the same id already exists.'); 
 					continue;
 				}
 				var tmp = $.extend({}, w2sidebar.prototype.node, nodes[o]);
@@ -147,9 +149,9 @@
 				if (before == null) { // append to the end
 					parent.nodes.push(tmp);	
 				} else {
-					var ind = this.getIndex(parent, before);
+					var ind = this.get(parent, before, true);
 					if (ind == null) {
-						$.error('Cannot insert node "'+ nodes[o].text +'" because cannot find node "'+ before +'" to insert before.'); 
+						console.log('ERROR: Cannot insert node "'+ nodes[o].text +'" because cannot find node "'+ before +'" to insert before.'); 
 						return null; 
 					}
 					parent.nodes.splice(ind, 0, tmp);
@@ -165,7 +167,7 @@
 			for (var a in arguments) {
 				var tmp = this.get(arguments[a]);
 				if (tmp == null) continue;
-				var ind  = this.getIndex(tmp.parent, arguments[a]);
+				var ind  = this.get(tmp.parent, arguments[a], true);
 				if (ind == null) continue;
 				tmp.parent.nodes.splice(ind, 1);
 				deleted++;
@@ -203,44 +205,28 @@
 			return false;
 		},
 		
-		get: function (parent, id) { // can be just called get(id)
-			if (arguments.length == 1) {
+		get: function (parent, id, returnIndex) { // can be just called get(id) or get(id, true)
+			if (arguments.length == 1 || (arguments.length == 2 && id === true) ) {
 				// need to be in reverse order
+				returnIndex = id;
 				id 		= parent;
 				parent 	= this;
 			}
 			// searches all nested nodes
 			this._tmp = null;
-			if (typeof parent == 'string') parent = this.get(parent);
+			if (typeof parent == 'string') parent = this.get(parent); 
 			if (parent.nodes == null) return null;
 			for (var i=0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].id == id) {
-					return parent.nodes[i];
+					if (returnIndex === true) return i; else return parent.nodes[i];
 				} else {
-					this._tmp = this.get(parent.nodes[i], id);
-					if (this._tmp) return this._tmp;
+					this._tmp = this.get(parent.nodes[i], id, returnIndex);
+					if (this._tmp || this._tmp === 0) return this._tmp;
 				}
 			}
 			return this._tmp;
 		},
 		
-		getIndex: function (parent, id) { 
-			if (arguments.length == 1) {
-				// need to be in reverse order
-				id 		= parent;
-				parent 	= this;
-			}
-			// only searches direct descendands
-			if (typeof parent == 'string') parent = this.get(parent);
-			if (parent.nodes == null) return null;
-			for (var i=0; i < parent.nodes.length; i++) {
-				if (parent.nodes[i].id == id) {
-					return i;
-				}
-			}
-			return null;
-		},		
-
 		hide: function () { // multiple arguments
 			var hidden = 0;
 			for (var a in arguments) {
@@ -365,12 +351,12 @@
 		},
 		
 		doToggle: function(id, event) {
-			if (this.get(id).expanded) this.doClose(id, event); else this.doOpen(id, event);
+			if (this.get(id).expanded) this.doCollapse(id, event); else this.doExpand(id, event);
 		},
 	
-		doOpen: function (id, event) {
+		doExpand: function (id, event) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'open', target: id, event: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, event: event });	
 			if (eventData.stop === true) return false;
 			// default action
 			var nd = this.get(id);
@@ -383,9 +369,9 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
-		doClose: function (id, event) {
+		doCollapse: function (id, event) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, event: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, event: event });	
 			if (eventData.stop === true) return false;
 			// default action
 			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +'_sub').hide();		

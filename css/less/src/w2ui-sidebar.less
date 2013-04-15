@@ -4,7 +4,7 @@
 
 div.w2ui-sidebar {
 	cursor: default;
-	background-color: @sidebar-background-color; 
+	background-color: @sidebar-background-color !important; 
 	.box-sizing(border-box);
 
 	* {
@@ -94,7 +94,7 @@ div.w2ui-sidebar {
 			.linear-gradient-vertical(@sidebar-node-linear-gradient-start, @sidebar-node-linear-gradient-end);
 			border-top: @sidebar-node-border-top;
 			border-bottom: @sidebar-node-border-bottom;
-			
+
 			div.w2ui-node-caption, 
 			div.w2ui-node-image, 
 			div.w2ui-node-image > span, 
@@ -117,9 +117,11 @@ div.w2ui-sidebar {
 		.w2ui-node-group {
 			white-space: nowrap;
 			overflow: hidden;
-			margin: 15px 0px 10px 8px;
+			padding: 10px 0px 10px 10px;
+			margin: 0px;
 			cursor: default;
 			color: @sidebar-group-color;
+			background-color: @sidebar-group-background-color;
 
 			:nth-child(1) { 
 				/* show / hide link */		
