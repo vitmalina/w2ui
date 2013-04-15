@@ -20,7 +20,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
 	var obj = {
 		settings : {
-			locale			: "en-US",
+			locale			: "en-us",
 			date_format		: "mm/dd/yyyy",
 			date_display	: "Mon dd, yyyy",
 			time_format		: "hh:mi pm",
@@ -182,15 +182,7 @@ var w2utils = (function () {
 		if (dd1 == dd2) dsp = time;
 		if (dd1 == dd3) dsp = w2utils.lang('Yesterday');
 
-		return '<span title="'+ dd1 + ' ' + time2 +'">'+ dsp + '</span>';
-	}
-
-	function size (sizeStr) {
-		if (!w2utils.isFloat(sizeStr) || sizeStr == '') return '';
-		sizeStr = parseFloat(sizeStr);
-		var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
-		var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
-		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i == 0 ? 0 : 1) + ' ' + sizes[i];
+		return '<span title="'+ dd1 +' ' + time2 +'">'+ dsp +'</span>';
 	}
 
 	function age (timeStr) {
@@ -232,6 +224,14 @@ var w2utils = (function () {
 		return amount + ' ' + type + (amount > 1 ? 's' : '');
 	}	
 		
+	function size (sizeStr) {
+		if (!w2utils.isFloat(sizeStr) || sizeStr == '') return '';
+		sizeStr = parseFloat(sizeStr);
+		var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
+		var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
+		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i == 0 ? 0 : 1) + ' ' + sizes[i];
+	}
+
 	function stripTags (html) {
 		if (html == null) return html;
 		switch (typeof html) {
@@ -379,7 +379,7 @@ var w2utils = (function () {
 		var time   = 0.5;
 				
 		if (!div_old || !div_new) {
-			$.error('Cannot do transition when one of the divs is null');
+			console.log('ERROR: Cannot do transition when one of the divs is null');
 			return;
 		}
 		 
@@ -612,21 +612,12 @@ var w2utils = (function () {
 		if (typeof translation == 'undefined') return phrase; else return translation;
 	}
 
-	/**
-	* 
-	* @param {Object} localParam This object contain two properties :
-	* - {String} path The default value is ''
-	* - {String} local user code : {language}-{country}
-	* e.g. for Canada en-CA or fr-CA, for USA en-US, for UK en-EN 
-	* (cf http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm?=)
-	* The dafault value is en-US
-	* @returns {String}
-	*/
 	function locale (localParam) {
 		var settings = w2utils.settings;
 		var param;
+		if (typeof localParam == 'string') localParam = { lang: localParam };
 		$.extend( { path : '', lang : 'en-us' }, localParam);
-		var result = localParam.lang.toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
+		var result = localParam['lang'].toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
 		if (result !== null && result.length === 3) {
 			param = result[1] + '-' + result[2].toUpperCase();
 			if ( param === settings.locale) {
@@ -663,8 +654,8 @@ $.w2event = {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, eventData);
 		
-		if (typeof eventData.type == 'undefined') { $.error('You must specify event type when calling .on() method of '+ this.name); return; }
-		if (typeof handler == 'undefined') { $.error('You must specify event handler function when calling .on() method of '+ this.name); return; }
+		if (typeof eventData.type == 'undefined') { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
+		if (typeof handler == 'undefined') { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
 		this.handlers.push({ event: eventData, handler: handler });
 	},
 	
@@ -672,7 +663,7 @@ $.w2event = {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComleted: null }, eventData);
 	
-		if (typeof eventData.type == 'undefined') { $.error('You must specify event type when calling .off() method of '+ this.name); return; }
+		if (typeof eventData.type == 'undefined') { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
 		if (typeof handler == 'undefined') { handler = null;  }
 		// remove handlers
 		var newHandlers = [];
