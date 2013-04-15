@@ -34,7 +34,7 @@
 		} else if ( typeof method === 'string') {
 			return w2field.init.apply( this, [{ type: method }] );
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.w2field' );
+			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2field');
 		}    
 	};
 	
@@ -435,7 +435,7 @@
 						break;
 
 					default: 
-						console.log('Error w2field does not recognize "'+ options.type + '" field type.');
+						console.log('ERROR: w2field does not recognize "'+ options.type + '" field type.');
 						break;
 				}
 			});

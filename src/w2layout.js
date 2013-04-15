@@ -21,6 +21,8 @@
 *  NICE TO HAVE
 *   - onResize for the panel
 * 	- % base resizes
+*	- panel.top, panel.bottom - html that always there
+* 
 * 
 ************************************************************************/
 
@@ -51,11 +53,11 @@
 		if (typeof method === 'object' || !method ) {
 			// check required parameters
 			if (!method || typeof method.name == 'undefined') {
-				$.error('The parameter "name" is required but not supplied in $().w2layout().');
+				console.log('ERROR: The parameter "name" is required but not supplied in $().w2layout().');
 				return;
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
-				$.error('The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
 				return;			
 			}
 			var panels = method.panels;
@@ -85,7 +87,7 @@
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.w2layout' );
+			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2layout' );
 		}    
 	};
 	

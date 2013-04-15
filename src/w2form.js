@@ -20,6 +20,7 @@
 * 		- removed this.width, this.height
 * 		- added onError event
 *		- removed isLoaded
+* 		- added error()
 *
 ************************************************************************/
 
@@ -75,11 +76,11 @@
 			var obj = this;
 			// check required parameters
 			if (!method || typeof method.name == 'undefined') {
-				$.error('The parameter "name" is required but not supplied in $().w2form().');
+				console.log('ERROR: The parameter "name" is required but not supplied in $().w2form().');
 				return;
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
-				$.error('The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
 				return;			
 			}
 			// remember items
@@ -136,7 +137,7 @@
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.w2form' );
+			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2form');
 		}    
 	}		
 
@@ -367,7 +368,7 @@
 			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
 			this.request_xhr = $.ajax({
 				type		: 'GET',
-				url			: eventData.url + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {

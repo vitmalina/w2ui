@@ -7,7 +7,10 @@
 *
 * 	Nice to Have
 *		- tabs might not work in chromium apps, need bind()
-* 
+*
+*	1.2 changes 
+*		- removed getIndex(), added get(..., returnIndex)
+*
 ************************************************************************/
 
 (function () {
@@ -35,11 +38,11 @@
 		if (typeof method === 'object' || !method ) {
 			// check required parameters
 			if (!method || typeof method.name == 'undefined') {
-				$.error('The parameter "name" is required but not supplied in $().w2tabs().');
+				console.log('ERROR: The parameter "name" is required but not supplied in $().w2tabs().');
 				return;
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
-				$.error('The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
 				return;			
 			}
 			// extend tabs
@@ -61,7 +64,7 @@
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.w2tabs' );
+			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2tabs' );
 		}    
 	};
 	
@@ -91,17 +94,17 @@
 			for (var r in tab) {
 				// checks
 				if (String(tab[r].id) == 'undefined') {
-					$.error('The parameter "id" is required but not supplied. (obj: '+ this.name +')');
+					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
 					return;
 				}
 				var unique = true;
 				for (var i in this.tabs) { if (this.tabs[i].id == tab[r].id) { unique = false; break; } }
 				if (!unique) {
-					$.error('The parameter "id='+ tab[r].id +'" is not unique within the current tabs. (obj: '+ this.name +')');
+					console.log('ERROR: The parameter "id='+ tab[r].id +'" is not unique within the current tabs. (obj: '+ this.name +')');
 					return;
 				}
 				if (!w2utils.isAlphaNumeric(tab[r].id)) {
-					$.error('The parameter "id='+ tab[r].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
+					console.log('ERROR: The parameter "id='+ tab[r].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
 					return;
 				}
 				// add tab
@@ -109,7 +112,7 @@
 				if (id == null || typeof id == 'undefined') {
 					this.tabs.push(tab);
 				} else {
-					var middle = this.getIndex(id);
+					var middle = this.get(id, true);
 					this.tabs = this.tabs.slice(0, middle).concat([tab], this.tabs.slice(middle));
 				}		
 				this.refresh(tab[r].id);		
@@ -123,7 +126,7 @@
 				if (!tab) return false;
 				removed++;
 				// remove from array
-				this.tabs.splice(this.getIndex(tab.id), 1);
+				this.tabs.splice(this.get(tab.id, true), 1);
 				// remove from screen
 				$(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id).remove();
 			}
@@ -131,27 +134,20 @@
 		},
 		
 		set: function (id, tab) {
-			var tab = this.getIndex(id);
+			var tab = this.get(id, true);
 			if (tab == null) return false;
 			$.extend(this.tabs[tab], tab);
 			this.refresh(id);
 			return true;	
 		},
 		
-		get: function (id) {
-			var tab = null;
+		get: function (id, returnIndex) {
 			for (var i in this.tabs) {
-				if (this.tabs[i].id == id) { tab = this.tabs[i]; break; }
+				if (this.tabs[i].id == id) { 
+					if (returnIndex === true) return i; else return this.tabs[i]; 
+				}
 			}
-			return tab;	
-		},
-		
-		getIndex: function (id) {
-			var index = null;
-			for (var i in this.tabs) {
-				if (this.tabs[i].id == id) { index = i; break; }
-			}
-			return index;
+			return null;	
 		},
 		
 		show: function () {
@@ -225,8 +221,8 @@
 				if (tab.hidden) { addStyle += 'display: none;'; }
 				if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 				html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
-				if (this.getIndex(id) != this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).length > 0) {
-					$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))+1].id).before(html);
+				if (this.get(id, true) != this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.get(id, true))+1].id).length > 0) {
+					$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.get(id, true))+1].id).before(html);
 				} else {
 					$(this.box).find('#tabs_'+ this.name +'_right').before(html);
 				}
@@ -352,7 +348,7 @@
 			var unique = true;
 			for (var i in this.tabs) { if (this.tabs[i].id == tab.id) { unique = false; break; } }
 			if (!unique) {
-				$.error('The parameter "id='+ tab.id +'" is not unique within the current tabs. (obj: '+ this.name +')');
+				console.log('ERROR: The parameter "id='+ tab.id +'" is not unique within the current tabs. (obj: '+ this.name +')');
 				return;
 			}
 			// insert simple div
@@ -373,8 +369,8 @@
 			if (tab.hidden) { addStyle += 'display: none;'; }
 			if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 			html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
-			if (this.getIndex(id) != this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).length > 0) {
-				$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.getIndex(id))].id).before(html);
+			if (this.get(id, true) != this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.get(id, true))].id).length > 0) {
+				$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.get(id, true))].id).before(html);
 			} else {
 				$(this.box).find('#tabs_'+ this.name +'_right').before(html);
 			}

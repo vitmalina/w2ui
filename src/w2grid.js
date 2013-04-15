@@ -19,15 +19,15 @@
 *		- added addColumn(), removeColumn(), hideColumn(), showColumn(), getColumn()
 *		- added addSearch(), removeSearch(), hideSearch(), showSearch(), getSearch()
 *		- added getSearchData()
-*		- deprecated getIndex()
 *		- added initColumnOnOff()
+*		- deprecated getIndex()
 *		- removed width, height
 *		- removed showStatus, hideStatus
 *		- added lock(msg), unlock()
 *		- exposed prototype so it can be changed for all grids
 * 		- added onError event
 * 		- removed isLoaded
-* 		- added error
+* 		- added error()
 *
 ************************************************************************/
 
@@ -78,7 +78,7 @@
 		this.style				= '';
 
 		this.msgDelete			= w2utils.lang('Are you sure you want to delete selected records?');
-		this.msgNotJSON 		= w2utils.lang('Return data is not in valid JSON format.');
+		this.msgNotJSON 		= w2utils.lang('Returned data is not in valid JSON format.');
 		this.msgRefresh			= w2utils.lang('Refreshing...');
 
 		// events
@@ -939,7 +939,7 @@
 			$.extend(params, this.postData);
 			$.extend(params, add_params);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, cmd: cmd });
+			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, cmd: cmd, url: url, postData: params });
 			if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
 			// default action
 			if (cmd == 'get-records') this.records = [];
@@ -953,7 +953,7 @@
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
 			this.request_xhr = $.ajax({
 				type		: xhr_type,
-				url			: url + (url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
@@ -964,7 +964,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 				
-		requestComplete: function(status, cmd, callBack ){
+		requestComplete: function(status, cmd, callBack) {
 			var obj = this;
 			this.unlock();
 			// event before
