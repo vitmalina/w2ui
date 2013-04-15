@@ -6,7 +6,10 @@
 *   - Dependencies: jQuery, w2utils
 * 
 *   NICE TO HAVE
-*   - when maximized, align the slide down message
+*		- when maximized, align the slide down message
+*
+*	1.2 change
+*		- min(), max(), toggle(), options.maximized
 *
 ************************************************************************/
 
@@ -52,6 +55,7 @@
 			opacity			: 0.4,
 			speed			: 0.3,
 			modal			: false,
+			maximized		: false,
 			width			: 500,
 			height			: 300,
 			showClose		: true,
@@ -62,7 +66,8 @@
 			onChange		: null, 
 			onBeforeClose	: null,
 			onClose			: null,
-			onMax			: null
+			onMax			: null,
+			onMin			: null
 		},
 		
 		open: function (options) {
@@ -131,7 +136,7 @@
 					msg +='<div class="w2ui-msg-title">'+
 						  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onclick="$().w2popup(\'close\'); '+
 						  					   'if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">Close</div>' : '')+ 
-						  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onclick="$().w2popup(\'max\')">Max</div>' : '') + 
+						  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onclick="$().w2popup(\'toggle\')">Max</div>' : '') + 
 							  options.title +
 						  '</div>'; 
 				}
@@ -234,27 +239,42 @@
 			}
 		},
 		
-		max: function () {
+		toggle: function () {
 			var options = $('#w2ui-popup').data('options');
-			// if panel is out - remove it
-			$('#w2ui-panel').remove();
-			// resize
-			if ($('#w2ui-popup').data('prev-size')) {
-				var size = String($('#w2ui-popup').data('prev-size')).split(':');
-				$('#w2ui-popup').data('prev-size', null);
-				window.w2popup.resize(size[0], size[1], function () {
-					if (typeof options.onMax == 'function') options.onMax();
-				});
-			} else {
-				$('#w2ui-popup').data('prev-size', $('#w2ui-popup').css('width')+':'+$('#w2ui-popup').css('height'));
-				window.w2popup.resize(10000, 10000, function () {
-					if (typeof options.onMax == 'function') options.onMax();
-				});
-			}
+			if (options.maximized === true) $().w2popup('min'); else $().w2popup('max');
 		},
 		
+		max: function () {
+			var options = $('#w2ui-popup').data('options');
+			if (options.maximized === true) return;
+			window.w2popup.resize(10000, 10000, function () {
+				if (typeof options.onMax == 'function') options.onMax();
+			});
+			// save options
+			options.maximized = true;
+			options.prevSize  = $('#w2ui-popup').css('width')+':'+$('#w2ui-popup').css('height');
+			$('#w2ui-popup').data('options', options);
+		},
+
+		min: function () {
+			var options = $('#w2ui-popup').data('options');
+			if (options.maximized !== true) return;
+			var size = options.prevSize.split(':');
+			window.w2popup.resize(size[0], size[1], function () {
+				if (typeof options.onMin == 'function') options.onMin();
+			});
+			// save options
+			options.maximized = false;
+			options.prevSize  = null;
+			$('#w2ui-popup').data('options', options);
+		},
+
 		get: function () {
 			return $('#w2ui-popup').data('options');
+		},
+
+		set: function (options) {
+			$().w2popup('open', options);
 		},
 		
 		clear: function() {
@@ -269,7 +289,7 @@
 		
 		load: function (options) {
 			if (String(options.url) == 'undefined') {
-				$.error('The url parameter is empty.');
+				console.log('ERROR: The url parameter is empty.');
 				return;
 			}
 			var tmp = String(options.url).split('#');
