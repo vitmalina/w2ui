@@ -360,9 +360,9 @@
 				if (el.length > 0) el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-content')[0]);
+					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content')[0]);
 				} else {
-					$('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-content').html(p.content);
+					$('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
 				if (p.tabs != null) p.tabs.refresh();
@@ -634,7 +634,7 @@
 			// display tabs and toolbar if needed
 			for (var p in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) { 
 				var pan = this.get(p);
-				var tmp = '#layout_'+ this.name +'_panel_'+ p +' .w2ui-panel-';
+				var tmp = '#layout_'+ this.name +'_panel_'+ p +' > .w2ui-panel-';
 				var height = 0;
 				if (pan.tabs != null) {
 					if (w2ui[this.name +'_'+ p +'_tabs']) w2ui[this.name +'_'+ p +'_tabs'].resize();
