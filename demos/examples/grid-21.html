@@ -25,7 +25,6 @@
 		<textarea class="preview">
 $('#grid').w2grid({ 
 	name: 'grid', 
-	header: 'List of Names',
 	show: { 
 		toolbar: true,
 		footer: true,
@@ -36,9 +35,9 @@ $('#grid').w2grid({
 		{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, editable: { type: 'text', inTag: 'maxlength=30' } },
 		{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, editable: { type: 'text' } },
 		{ field: 'age', caption: 'Age', size: '70px', style: 'text-align: center', editable: { type: 'int', style: 'text-align: center' } },
-		{ field: 'sex', caption: 'Sex', size: '70px', editable: { type: 'list', items: ['Male', 'Female'] } },
+		{ field: 'sex', caption: 'Sex', size: '70px', editable: { type: 'text', inTag: "maxlength=1", style: 'text-align: center' } },
 		{ field: 'dbo', caption: 'DOB', size: '120px', editable: { type: 'date' } },
-		{ field: 'email', caption: 'Email', size: '40%', editable: { type: 'email' } },
+		{ field: 'email', caption: 'Email', size: '40%', editable: { type: 'text' } },
 	],
 	records: [
 		{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -65,7 +64,6 @@ $(function () {
 	
 	$('#grid').w2grid({ 
 		name: 'grid', 
-		header: 'List of Names',
 		show: { 
 			toolbar: true,
 			footer: true,
@@ -73,12 +71,12 @@ $(function () {
 		},
 		columns: [				
 			{ field: 'recid', caption: 'ID', size: '50px', sortable: true },
-			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, editable: { type: 'text', inTag: 'maxlength=30' } },
-			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, editable: { type: 'text' } },
-			{ field: 'age', caption: 'Age', size: '70px', style: 'text-align: center', editable: { type: 'int', style: 'text-align: center' } },
-			{ field: 'sex', caption: 'Sex', size: '70px', editable: { type: 'list', items: ['Male', 'Female'] } },
-			{ field: 'dbo', caption: 'DOB', size: '120px', editable: { type: 'date' } },
-			{ field: 'email', caption: 'Email', size: '40%', editable: { type: 'email' } },
+			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, editable: { type: 'text', inTag: 'maxlength=30' }, resizable: true },
+			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, editable: { type: 'text' }, resizable: true },
+			{ field: 'age', caption: 'Age', size: '70px', style: 'text-align: center', editable: { type: 'int', style: 'text-align: center' }, resizable: true },
+			{ field: 'sex', caption: 'Sex', size: '70px', editable: { type: 'text', inTag: "maxlength=1", style: 'text-align: center' }, resizable: true },
+			{ field: 'dbo', caption: 'DOB', size: '120px', editable: { type: 'date' }, resizable: true },
+			{ field: 'email', caption: 'Email', size: '40%', editable: { type: 'text' }, resizable: true },
 		],
 		records: [
 			{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },

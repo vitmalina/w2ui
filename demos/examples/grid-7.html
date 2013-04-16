@@ -92,7 +92,7 @@ $(function () {
 		],
 		onExpand: function (target, eventData) {
 			if (w2ui.hasOwnProperty('subgrid-' + eventData.recid)) w2ui['subgrid-' + eventData.recid].destroy();
-			$('#'+ eventData.box_id).css({ padding: '3px', width: '520px', height: '200px' }).w2grid({
+			$('#'+ eventData.box_id).css({ margin: '3px', width: '520px', height: '200px' }).w2grid({
 				name: 'subgrid-' + eventData.recid, 
 				fixedBody: true,
 				columns: [				
