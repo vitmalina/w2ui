@@ -62,7 +62,7 @@ div.w2ui-grid {
 		border-bottom: @grid-toolbar-border;
 		background-color: @grid-toolbar-background-color;
 		height: 38px;
-		padding: 6px 0px;
+		padding: 7px 0px 4px 0px;
 		margin: 0px;
 		box-shadow: @grid-toolbar-shadow;
 
@@ -139,10 +139,10 @@ div.w2ui-grid {
 
 			.w2ui-resizer {
 				position: absolute; 
-				display:block;
+				display: block;
 				padding: 0px; 
 				margin: 0px;
-				width: 5px; 
+				width: 6px; 
 				height: 12px; 
 				cursor: col-resize;
 			}
@@ -324,6 +324,7 @@ div.w2ui-grid {
 			margin: 2px 0px; 
 			padding: 4px 3px;
 			border: 0px;
+			border-radius: 0px;
 			color: @grid-row-color;
 			background-color: @grid-editable-background-color;
 			width: 100%;
@@ -340,14 +341,20 @@ div.w2ui-grid {
 
 	.w2ui-grid-summary {
 		position: absolute;
-		background-color: @grid-summary-background-color;
 		box-shadow: @grid-summary-shadow;
 
 		table {
 			color: @grid-summary-color;
 			border-spacing: 0px;
 			border-collapse: border-collapse;
-			table-layout: fixed;			
+			table-layout: fixed;
+
+			.w2ui-odd {
+				background-color: @grid-summary-odd-background-color;
+			}
+			.w2ui-even {
+				background-color: @grid-summary-even-background-color;
+			}
 		}
 	}
 

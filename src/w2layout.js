@@ -21,7 +21,6 @@
 *  NICE TO HAVE
 *   - onResize for the panel
 * 	- % base resizes
-*	- panel.top, panel.bottom - html that always there
 * 
 * 
 ************************************************************************/
@@ -640,7 +639,7 @@
 				var height = 0;
 				if (pan.tabs != null) {
 					if (w2ui[this.name +'_'+ p +'_tabs']) w2ui[this.name +'_'+ p +'_tabs'].resize();
-					height += w2utils.getSize($(tmp + 'tabs').css({ display: 'block' }), 'height') + 4;
+					height += w2utils.getSize($(tmp + 'tabs').css({ display: 'block' }), 'height');
 				}
 				if (pan.toolbar != null) {
 					if (w2ui[this.name +'_'+ p +'_toolbar']) w2ui[this.name +'_'+ p +'_toolbar'].resize();

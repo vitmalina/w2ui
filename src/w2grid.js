@@ -95,11 +95,11 @@
 		this.onSearch 			= null;
 		this.onChange 			= null;		// called when editable record is changed
 		this.onExpand 			= null;
+		this.onError 			= null;
 		this.onRender 			= null;
 		this.onRefresh 			= null;
 		this.onResize 			= null;
 		this.onDestroy 			= null;
-		this.onError 			= null;
 
 		// internal
 		this.recid				= null; 	// might be used by edit class to set sublists ids
@@ -298,6 +298,35 @@
 			return removed;
 		},
 
+		addColumn: function (before, column) {
+			if (arguments.length == 1) {
+				column = before;
+				before = this.columns.length;
+			} else {
+				before = this.getColumn(before, true);
+				if (before === null) before = this.columns.length;
+			}
+			if (!$.isArray(column)) column = [column];
+			for (var o in column) {
+				this.columns.splice(before, 0, column[o]);
+				before++;
+			}
+			this.initColumnOnOff();
+			this.refresh();
+		},
+
+		removeColumn: function () {
+			var removed = 0;
+			for (var a in arguments) {
+				for (var r = this.columns.length-1; r >= 0; r--) {
+					if (this.columns[r].field == arguments[a]) { this.columns.splice(r, 1); removed++; }
+				}
+			}
+			this.initColumnOnOff();
+			this.refresh();
+			return removed;
+		},
+
 		getColumn: function (field, returnIndex) {
 			for (var i=0; i<this.columns.length; i++) {
 				if (this.columns[i].field == field) {
@@ -335,32 +364,31 @@
 			return hidden;
 		},
 
-		removeColumn: function () {
-			var removed = 0;
-			for (var a in arguments) {
-				for (var r = this.columns.length-1; r >= 0; r--) {
-					if (this.columns[r].field == arguments[a]) { this.columns.splice(r, 1); removed++; }
-				}
-			}
-			this.initColumnOnOff();
-			this.refresh();
-			return removed;
-		},
-
-		addColumn: function (before, column) {
+		addSearch: function (before, search) {
 			if (arguments.length == 1) {
-				column = before;
-				before = this.columns.length;
+				search = before;
+				before = this.searches.length;
 			} else {
-				before = this.getColumn(before, true);
-				if (before === null) before = this.columns.length;
+				before = this.getSearch(before, true);
+				if (before === null) before = this.searches.length;
 			}
-			if (!$.isArray(column)) column = [column];
-			for (var o in column) {
-				this.columns.splice(before, 0, column[o]);
+			if (!$.isArray(search)) search = [search];
+			for (var o in search) {
+				this.searches.splice(before, 0, search[o]);
 				before++;
 			}
-			this.refresh();
+			this.searchClose();
+		},
+
+		removeSearch: function () {
+			var removed = 0;
+			for (var a in arguments) {
+				for (var r = this.searches.length-1; r >= 0; r--) {
+					if (this.searches[r].field == arguments[a]) { this.searches.splice(r, 1); removed++; }
+				}
+			}
+			this.searchClose();
+			return removed;
 		},
 
 		getSearch: function (field, returnIndex) {
@@ -398,33 +426,6 @@
 			}
 			this.searchClose();
 			return hidden;
-		},
-
-		removeSearch: function () {
-			var removed = 0;
-			for (var a in arguments) {
-				for (var r = this.searches.length-1; r >= 0; r--) {
-					if (this.searches[r].field == arguments[a]) { this.searches.splice(r, 1); removed++; }
-				}
-			}
-			this.searchClose();
-			return removed;
-		},
-
-		addSearch: function (before, search) {
-			if (arguments.length == 1) {
-				search = before;
-				before = this.searches.length;
-			} else {
-				before = this.getSearch(before, true);
-				if (before === null) before = this.searches.length;
-			}
-			if (!$.isArray(search)) search = [search];
-			for (var o in search) {
-				this.searches.splice(before, 0, search[o]);
-				before++;
-			}
-			this.searchClose();
 		},
 
 		getSearchData: function (field) {
@@ -1424,6 +1425,11 @@
 			// resize
 			obj.resizeBoxes(); 
 			obj.resizeRecords();
+			// init editable
+			$('#grid_'+ obj.name + '_records .w2ui-editable input').each(function (index, el) {
+				var column = obj.columns[$(el).attr('column')];
+				$(el).w2field(column.editable);
+			});
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -1497,12 +1503,6 @@
 						'	<table>'+ this.getColumnsHTML() +'</table>'+
 						'</div>'; // Columns need to be after to be able to overlap
 			$('#grid_'+ this.name +'_body').html(bodyHTML);
-
-			// init editable
-			$('#grid_'+ this.name + '_records .w2ui-editable input').each(function (index, el) {
-				var column = obj.columns[$(el).attr('column')];
-				$(el).w2field(column.editable);
-			});
 
 			// -- summary
 			if (this.summary != '') {
@@ -2434,12 +2434,13 @@
 					if ($.isPlainObject(col.editable)) {
 						var edit = col.editable;
 						if (edit.type == 'enum') console.log('ERROR: Grid\'s inline editing does not support enum field type.');
+						if (edit.type == 'list' || edit.type == 'select') console.log('ERROR: Grid\'s inline editing does not support list/select field type.');
 						if (typeof edit.inTag   == 'undefined') edit.inTag   = '';
 						if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
 						if (typeof edit.style   == 'undefined') edit.style   = '';
 						if (typeof edit.items   == 'undefined') edit.items   = [];
 						// output the field
-						if ((typeof record['editable'] == 'undefined' || record['editable'] === true) && edit.type != 'enum') {
+						if ((typeof record['editable'] == 'undefined' || record['editable'] === true) && edit.type != 'enum' && edit.type != 'list' && edit.type != 'select') {
 							rec_field =	
 								'<div class="w2ui-editable">'+
 									'<input id="grid_'+ this.name +'_edit_'+ i +'_'+ j +'" value="'+ field +'" type="text"  '+
@@ -2450,7 +2451,7 @@
 									'	onfocus = "w2ui[\''+ this.name + '\'].doEdit(\'focus\', this, event);" '+
 									'	onblur  = "w2ui[\''+ this.name + '\'].doEdit(\'blur\', this, event);" '+
 									'	ondblclick = "if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
-									'				  this.select();" '+ edit.inTag + ' >' + 
+									'				  this.select();" '+ edit.inTag + ' >' +
 									edit.outTag +
 								'</div>';
 						}

@@ -5,6 +5,9 @@
 *		- $.w2field		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
+* == NICE TO HAVE
+*  - select - for select, list - for drop down (needs this in grid)
+*
 *  == 1.2 chanses
 *  - new type list/select
 *  - added a way to add customTypes

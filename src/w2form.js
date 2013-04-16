@@ -178,7 +178,7 @@
 			// -- if tabs defined
 			if (!$.isEmptyObject(this.tabs) && typeof this.tabs['render'] == 'undefined') {
 				var obj = this;
-				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs' }));
+				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
 				this.tabs.on('click', function (id, choice) {
 					obj.goto(this.getIndex(id));
 				});
