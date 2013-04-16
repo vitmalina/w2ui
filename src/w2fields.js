@@ -448,7 +448,7 @@
 		// -- Implementation
 
 		addType: function (type, handler) {
-			w2field.customTypes[type] = handler;
+			w2field.customTypes[String(type).toLowerCase()] = handler;
 		},
 
 		cleanItems: function (items) {
