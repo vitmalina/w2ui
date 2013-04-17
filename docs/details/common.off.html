@@ -1,0 +1,70 @@
+Removes event listener from the w2ui object.
+
+<div class="definition">
+	off(type, [handler])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>type</td>
+		<td><b>string</b>, name of the event</td>
+	</tr>
+	<tr>
+		<td>handler</td>
+		<td><b>function</b>, JavaScript function (<i>optional</i>)</td>
+	</tr>
+	</table>
+</div>
+
+OR
+
+<div class="definition">
+	off(eventData, handler)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>eventData</td>
+		<td><b>object</b>, parameters of the event</td>
+	</tr>
+	<tr>
+		<td>handler</td>
+		<td><b>function</b>, JavaScript function </td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+You can remove a specific listener for a specific event, all listener for a specific event, or all listener for all events. For example, if you
+have a layout (same for grid, toolbar, etc.) defined as follows:
+<textarea class="javascript">
+$('#layout').w2layout({
+	name    : 'layout',
+	panels  : [
+		{ type: 'top', size: 40 },
+		{ type: 'main', content: 'This is main panel' },
+		{ type: 'preview', size: 200 }
+	]
+});
+</textarea>
+
+You can remove a specific event listener (note that the handler cannot be an anonymous function):
+
+<textarea class="javascript">
+w2ui['layout'].off('refresh', handler);
+</textarea>
+
+All listeners for the event:
+
+<textarea class="javascript">
+w2ui['layout'].off('refresh');
+</textarea>
+
+All listeners for all events:
+
+<textarea class="javascript">
+w2ui['layout'].off('*');
+</textarea>

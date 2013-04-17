@@ -1,0 +1,24 @@
+Displays a message at the top of current popup.
+
+<div class="definition">
+	$().w2popup('message', msgOptions);
+</div>
+
+The popup must exists. There can be only one popup window on the screen at any given time. Occasionally, you need to display
+a short message while popup still open. The <span class="argument">message</span> method allows you to do just that. 
+The method will slide an overlay at the top of the current popup. 
+<div style="height: 10px"></div>
+
+The second argument <span class="argument">msgOptions</span> is a map 
+of properties as follows:
+
+<textarea class="javascript">
+options: {
+    html         : '',      // html of the message
+    width        : 10,      // width in px
+    height       : 10,      // height in px
+    hideOnClick  : true,    // if true, hide message if user clicks on it.
+    onOpen       : null,    // function to execute when message opens
+    onClose      : null     // function to execute when message closes
+}
+</textarea>

@@ -1,0 +1,14 @@
+Returns date in human readable format.
+
+<div class="definition">
+	w2utils.date(dateStr);
+</div>
+
+The <span class="argument">str</span> argument can be any standard date or unix epoch, which is used to
+create JavaScript Date object. If the date is today, the method will return time. If the date is yesterday, the method will
+return 'Yesterday', otherwise, it will return date in the format 'Mon dd, YYYY'.
+
+<textarea class="javascript">
+var a = w2utils.date((new Date()));
+console.log(a);
+</textarea>

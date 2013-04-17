@@ -1,0 +1,9 @@
+Toggles popup.
+
+<div class="definition">
+	$().w2popup('toggle');
+</div>
+
+The popup must exists. The method will maximize or minimize the popup depending on its previous state.
+It will also trigger <span class="argument">onMin</span> or <span class="argument">onMax</span> event when the action is
+finished. The <span class="argument">maximized</span> property will be updated.

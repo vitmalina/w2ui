@@ -1,0 +1,44 @@
+<div class="definition">
+	get(field)
+</div>
+
+Finds and returns the field object from <span class="argument">fields</span> array. Returns null if field object is not found.
+
+<h4>Arguments</h4>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>field</td>
+		<td><b>string</b>, name of the field</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The <span class="argument">get</span> method will find the <span class="argument">field</span> object in the 
+<span class="argument">fields</span> array and return it. If the field does not exists it will return null. Because JavaScript passes 
+objects by reference, modifying this object will modify the original field.
+<br><br>
+
+<textarea class="javascript">
+$(function () {
+	$('#form').w2form({ 
+		name     : 'form',
+		url      : 'server/post',
+		record: {
+			field_1 : 1,
+			field_2 : 2
+		},
+		fields: [
+			{ name: 'field_1', type: 'text', required: true },
+			{ name: 'field_2', type: 'alphanumeric', required: true }
+		]
+	});
+	
+	// update field object
+	var field = w2ui['form'].get('field_1');
+	console.log(field);
+});
+</textarea>

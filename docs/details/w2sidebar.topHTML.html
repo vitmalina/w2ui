@@ -1,0 +1,29 @@
+Defines HTML on the top of the sidebar.
+
+<div class="definition">
+	String, default = ''
+</div>
+
+If you set <span class="argument">topHTML</span> property it will appear on the top of the sidebar. The property will accept any HTML or
+text string and will stay on top even if sidebar has a scroller.
+<div style="height: 10px;"></div>
+
+You can define it during object creation: 
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+	name : 'sidebar',
+	topHTML: 'some text',
+	nodes: [ 
+		{ id: 'id-1', text: 'Level 1' },
+		{ id: 'id-2', text: 'Level 2' },
+		{ id: 'id-3', text: 'Level 3' }
+	]
+});
+</textarea>
+
+Or any time after the object has been created:
+
+<textarea class="javascript">
+w2ui['sidebar'].topHTML = 'some text';
+w2ui['sidebar'].refresh();
+</textarea>

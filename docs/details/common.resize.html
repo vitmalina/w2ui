@@ -1,0 +1,29 @@
+Resizes the object to the width and height of its container.
+
+<div class="definition">
+	resize()
+</div>
+
+<h4>Description</h4>
+
+The <span class="argument">.resize()</span> method is often called internally, but it is not limited to internal use only. You
+do not need to call this method when window is resized by the user, because the library already has an event listener for it. But
+you need to call it when you change the size of the container.
+<div style="height: 10px"></div>
+
+<textarea class="javascript">
+$('#layout').w2layout({
+	name    : 'layout',
+	panels  : [
+		{ type: 'top', size: 40 },
+		{ type: 'main', content: 'This is main panel' },
+		{ type: 'preview', size: 200, hidden: true }
+	]
+});
+
+// ...
+// some code
+// ...
+
+w2ui['layout'].resize();
+</textarea>

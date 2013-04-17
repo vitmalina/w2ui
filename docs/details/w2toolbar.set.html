@@ -1,0 +1,45 @@
+Finds toolbar item with <span class="argument">id</span> and extends it with <span class="argument">item</span> object. 
+
+<div class="definition">
+	set(id, item)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>id</td>
+		<td><b>string</b>, id of the toolbar item</td>
+	</tr>
+	<tr>
+		<td>item</td>
+		<td><b>object</b>, new toolbar item object</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The first argument <span class="argument">id</span> is the id of the toolbar item you used when you created toolbar items. The 
+<a class="method" href="w2toolbar.items">.items</a> array holds all created toolbar items. The toolbar item object is not replaced with 
+<span class="argument">item</span>, but extended by it. If you call this method it during run-time, you will need to call 
+<a class="method" href="w2toolbar.refresh">.refresh()</a> method. If toolbar item was successfully extended the method will 
+return true, otherwise false.
+<div style="height: 10px"></div>
+
+If you have toolbar defined in the following way:
+<textarea class="javascript">
+$('#toolbar').w2toolbar({
+	name  : 'toolbar',
+	items : [
+		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
+		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' },
+	]
+});
+</textarea>
+
+You can get toolbar item:
+<textarea class="javascript">
+w2ui['toolbar'].set('item3', { caption: 'check 2' });
+w2ui['toolbar'].refresh();
+</textarea>

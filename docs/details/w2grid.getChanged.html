@@ -1,0 +1,42 @@
+Returns array of changed record objects.
+
+<div class="definition">
+	getChanged()
+</div>
+
+<h4>Description</h4>
+
+This method is only applicable when you have inline editing for the grid (see <a class="method" href="w2grid.columns">.columns</a>
+property for more information). If user has modified records you can get the changes by
+calling this method. The <span class="property">.getChanged()</span> method will only return changed record fields, which you can submit 
+to the server. You can also optionally enable the save button on the toolbar (see <a class="method" href="w2grid.show">.show</a> property) 
+or call <a class="method" href="w2grid.doSave">.doSave</a> method that will submit changed records to the server.
+<div style="height: 10px"></div>
+
+If you have grid defined in the following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+	name    : 'grid',
+	columns: [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%', editable: { type: 'text'} },
+		{ field: 'fname', caption: 'First Name', size: '30%', editable: { type: 'text'} },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'Start Date', size: '120px' },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	],
+	records: [
+		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+		{ recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+	]
+});
+</textarea>
+
+You can get selected records:
+<textarea class="javascript">
+console.log( w2ui['grid'].getChanged() );
+</textarea>

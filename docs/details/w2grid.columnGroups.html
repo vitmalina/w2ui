@@ -1,0 +1,52 @@
+Array of column group objects. 
+
+<div class="definition">
+	Array, default = []
+</div>
+
+You can use this property to organize columns in groups. If you change <span class="argument">.columnGroups</span> property
+during run-time, you will need to call <a class="argument" href="w2grid.refresh">.refresh()</a> method to refresh the grid.
+<div style="height: 10px"></div>
+
+Column groups can be defined during object creation: 
+
+<textarea class="javascript">
+$('#grid').w2grid({
+	name : 'grid',
+	columnGroups : [
+		{ span: 1, caption: '', master: true },
+		{ span: 2, caption: 'Name' },
+		{ span: 1, caption: '', master: true },
+		{ span: 2, caption: 'Dates' }
+	],
+	columns : [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'Start Date', size: '120px' },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	]
+});
+</textarea>
+
+Or any time after the grid has been created:
+
+<textarea class="javascript">
+w2ui['layout'].columnGroups = [
+	{ span: 1, caption: '', master: true },
+	{ span: 2, caption: 'Name' },
+	{ span: 1, caption: '', master: true },
+	{ span: 2, caption: 'Dates' }
+];
+w2ui['layout'].refresh();
+</textarea>
+
+Column groups object is of following structure:
+<textarea class="javascript">
+columnGroups = {
+    span    : 1,     // number of columns to span
+    caption : '',    // caption of the group
+    master  : false  // indicates if column group header is merged with column header
+}
+</textarea>

@@ -1,0 +1,28 @@
+Called to process data that was returned from the server.
+
+<div class="definition">
+	requestComplete(status, [cmd], [callBack])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>status</td>
+		<td><b>string</b>, status of the request</td>
+	</tr>
+	<tr>
+		<td>cmd</td>
+		<td><b>string</b>, name of the command (<i>optional</i>)</td>
+	</tr>
+	<tr>
+		<td>callBack</td>
+		<td><b>function</b>, call back function (<i>optional</i>)</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+This method is called when request returns. First parameters is the <span class="argument">status</span> of the request. If it 
+<span class="argument">status</span> = 'error' indicated that request. This method will merge returned data to the grid. It uses 
+internal variable <span class="argument">w2gird.request_xhr.responseText</span> as the text returned from the server.

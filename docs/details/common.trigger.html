@@ -1,0 +1,46 @@
+Executes all event listeners added with <span class="argument">on()</span> method.
+
+<div class="definition">
+	trigger(eventData)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>eventData</td>
+		<td><b>object</b>, parameters of the event</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+Internally, w2ui objects often call trigger to execute event listeners. The trigger function is called twice.
+One time before the default actions and second time after. To differentiate when the trigger function is called, the object
+uses <span class="argument">phase</span> property and only the listeners that are attached to that phase will be triggered. When you
+add an event listener, you can optionally specify <span class="argument">execute</span> property ("before" or "after") that
+defines when event handler will be executed. The default value of <span class="argument">execute</span> is "before."
+<div style="height: 10px"></div>
+
+For example when user clicks on the record in the w2grid, the following code will be executed:
+<textarea class="javascript">
+// event before
+var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', 
+							   recid: recid, event: event });
+if (eventData.stop === true) return false;
+
+// default grid click action
+
+// event after
+this.trigger($.extend(eventData, { phase: 'after' }));
+</textarea>
+
+As you see from the example above, the default action can be cancelled by event handler setting 
+<span class="argument">eventData.stop</span> to true. There is no need to return <span class="argument">eventData</span> 
+object by event handler because JavaScript passes objects by reference and changing the 
+<span class="argument">eventData</span> within the handler will change the original object.
+<div style="height: 10px"></div>
+
+You can also define <span class="argument">eventData.onComplete</span> as
+a call back when the default actions of the event are completed if you need to do some actions after event has
+been processed.

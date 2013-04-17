@@ -1,0 +1,44 @@
+Array of tab objects.
+
+<div class="definition">
+	Array, default = []
+</div>
+
+This array contains all the tab objects. A tab object has the following structure:
+<textarea class="javascript">
+tab : {
+	id          : null,    // commnad to be sent to all event handlers
+	caption     : '',      // tab caption
+	hidden      : false,   // defines if tab is hidden
+	disabled    : false,   // defines if tab is disabled
+	closable    : false,   // defines if tab is closable
+	hint        : '',      // mouse hint for the tab
+	onClick     : null,    // click event handler (only this tab)
+	onRefresh   : null,    // refresh event handler (only this tab)
+	onClose     : null     // close event handler (only this tab)
+}
+</textarea>
+You can defined them during object creation:
+<textarea class="javascript">
+$('#tabs').w2tabs({
+	name: 'tabs',
+	tabs: [
+		{ id: 'tab1', caption: 'Tab 1' },
+		{ id: 'tab2', caption: 'Tab 2' },
+		{ id: 'tab3', caption: 'Tab 3' },
+		{ id: 'tab4', caption: 'Tab 4' }
+	]
+});
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui['tabs'].tabs.push({ id: 'tab4', caption: 'Tab 4' });
+w2ui['tabs'].refresh();
+</textarea>
+
+If you change this array you will need to call <a class="argument" href="w2tabs.refresh">.refresh()</a> method to update tabs on the screen. To
+change tabs dynamically, you 
+can also use <a class="argument" href="w2tabs.add">.add()</a>, <a class="argument" href="w2tabs.insert">.insert()</a>,
+<a class="argument" href="w2tabs.doInsert">.doInsert()</a>, <a class="argument" href="w2tabs.remove">.remove()</a>, 
+<a class="argument" href="w2tabs.set">.set()</a> methods.

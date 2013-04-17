@@ -1,0 +1,56 @@
+Array of sort objects (submitted to data source for record sorting).
+
+<div class="definition">
+	Array, default = []
+</div>
+
+If user clicks on the column (or holds shift key and clicks several columns) and if the column is sortable, the grid will
+generate sort objects and submit it to the data source to apply sorting. 
+<div style="height: 10px"></div>
+
+As a developer you can define initial sorting during object creation.
+<textarea class="javascript">
+$('#grid').w2grid({
+	name    : 'grid',
+	columns: [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	],
+	records: [
+		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
+		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+	],
+	sortData: [
+		{ field: 'lname', direction: 'asc' },
+		{ field: 'fname', direction: 'asc' }
+	]
+});
+</textarea>
+
+You can also change sorting form JavaScript during run-time by changing this array. Do not forget to call 
+<a class="argument" href="w2grid.refresh">.refresh</a> method to refresh them on the screen. If you data source is local the grid will 
+sort the records using this <span class="property">.sortData</span> array. If the data source is remote, the gird
+will submit <span class="property">.sortData</span> array to the server for sorting.
+<div style="height: 10px"></div>
+
+The structure of the sort object is:
+<textarea class="javascript">
+sort = {
+    field     : '',     // sort field name
+    direction : 'asc',  // direction of the sort (asc or desc)
+}
+</textarea>
+If user clicks the same column second time the sort direction will be reversed. If user clicks the column one more time the 
+sort on this column will be removed. If you want to make a column unsortable, set <span class="property">.sortable</span> 
+property of the column object to false.
+
+<h4>See Also</h4>
+
+<a href="w2grid.doSort">w2grid.doSort()</a>

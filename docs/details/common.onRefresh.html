@@ -1,0 +1,34 @@
+Called when object is refreshed. 
+
+<div class="definition">
+	onRefresh = function(target, eventData)
+</div>
+
+This event is common for multiple w2ui widgets (layout, grid, toolbar, sidebar, tabs, form). 
+<div style="height: 10px;"></div>
+You can add event listener during the object creation:
+
+<textarea class="javascript">
+$('#layout').w2layout({
+	name    : 'layout',
+	padding : 2,
+	panels  : [
+		{ type: 'top', size: 40 },
+		{ type: 'preview', size: 200 }
+	],
+	onRefresh: function(target, eventData) {
+		console.log('object '+ this.name + ' is refreshed');
+	}		
+});
+</textarea>
+
+or after the object has been created:
+
+<textarea class="javascript">
+w2ui['layout'].on('refresh', function(target, eventData) {
+	console.log('object '+ this.name + ' is refreshed');
+});
+</textarea>
+
+Your event listener can be executed before or after the event has been processed. You can also cancel 
+the default behavior. See <a href="utils/events">Events</a> page in utilities.

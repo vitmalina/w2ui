@@ -1,0 +1,12 @@
+Escapes Id for the use in jQuery.
+
+<div class="definition">
+	w2utils.escapeId(id);
+</div>
+
+If you use jQuery to want to use "!"#$%&\'()*+,./:;<=>?@[\]^`{|}~ " in element ids you need to escape them. 
+
+<textarea class="javascript">
+var a = w2utils.escapeId('id.with.levels and spaces');
+console.log(a);
+</textarea>

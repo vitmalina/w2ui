@@ -1,0 +1,9 @@
+Closes popup.
+
+<div class="definition">
+	$().w2popup('close');
+</div>
+
+If a popup is open, it will be closed. If currently there are no open popups, no action will be taken. 
+This method triggers <span class="argument">onBeforeClose</span> event and if it returns false, the close will be canceled.
+If the popup is closed, it will trigger, <span class="argument">onClose</span> event.

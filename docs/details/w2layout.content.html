@@ -1,0 +1,67 @@
+Sets or retrieves panel content.
+
+<div class="definition">
+	content(type, [content], [transition])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>type</td>
+		<td><b>string</b>, name of the panel</td>
+	</tr>
+	<tr>
+		<td>content</td>
+		<td><b>string or object</b>, new content for the panel (<i>optional</i>)</td>
+	</tr>
+	<tr>
+		<td>transition</td>
+		<td><b>string</b>, name of the transition (<i>optional</i>)</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The first argument <span class="argument">type</span> is the name of the panel (can be
+top, left, main, right, preview, bottom). The <span class="argument">content</span> argument can be either an HTML string or an object with 
+<span class="method">.render(box)</span> method. If	the argument <span class="argument">content</span> is not specified the method will 
+return <i><b>current</b></i> content of the panel. 
+<div style="height: 10px"></div>
+
+You can optionally provide <span class="argument">transition</span> that defines visual transition to the new content. 
+The transition is done using <a href="w2utils.transition">w2utils.transition()</a> method and it can be one of the following: 
+<ul style="margin-left: 50px">
+	<li>slide-left
+	<li>slide-right
+	<li>slide-up
+	<li>slide-down
+	<li>flip-left
+	<li>flip-right
+	<li>flip-up
+	<li>flip-down
+	<li>pop-in
+	<li>pop-out
+</ul>
+
+Below is an example  how to set content to the layout panel:
+
+<textarea class="javascript">
+$('#layout').w2layout({
+	name    : 'layout',
+	panels  : [
+		{ type: 'top', size: 40 },
+		{ type: 'main', content: 'This is main panel' },
+		{ type: 'preview', size: 200 }
+	]
+});
+
+// return current content
+var content = w2ui['layout'].content('main');
+
+// set new content
+w2ui['layout'].content('main', 'HTML content');
+
+// set content as an object
+w2ui['layout'].content('main', w2ui['grid']);
+</textarea>

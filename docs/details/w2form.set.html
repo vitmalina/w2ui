@@ -1,0 +1,61 @@
+<div class="definition">
+	set(field, obj)
+</div>
+
+Extends field object with <span class="argument">obj</span> object. Returns true on success, false if field does not exist.
+
+<h4>Arguments</h4>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>field</td>
+		<td><b>string</b>, name of the field</td>
+	</tr>
+	<tr>
+		<td>obj</td>
+		<td><b>object</b>, field object { name, type, required }</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The <span class="argument">set</span> method will find and update the field object in the <span class="argument">field</span> array. 
+If you change the <span class="argument">fields</span> array, you will need to call <a href="common.refresh#w2form">.refresh()</a> method 
+to update it on the screen. Note that this does not change the field value, it changes the <span class="argument">fields</span> object, which 
+contains description of the field. In order to change field value you need to update <a href="w2form.records">.records</a> array and 
+then call <a href="common.refresh">.refresh()</a> method to update it on the screen.
+
+<textarea class="javascript">
+$(function () {
+	$('#form').w2form({ 
+		name     : 'form',
+		url      : 'server/post',
+		record: {
+			field_1 : 1,
+			field_2 : 2
+		},
+		fields: [
+			{ name: 'field_1', type: 'text', required: true },
+			{ name: 'field_2', type: 'alphanumeric', required: true }
+		]
+	});
+	
+	// update field object
+	w2ui['form'].set('field_1', { type: 'int' }); 
+	w2ui['form'].refresh();
+});
+</textarea>
+
+After the update the field_1 becomes an integer field. You could have looped through the <span class="argument">fields</span> array
+of the form looking for the field and extending it to achieve same results.
+<br><br>
+
+If you need to update field value, for the form same as above you can do it in the following way:
+
+<textarea class="javascript">
+// update field value
+w2ui['form'].record['field_1'] = 'new value'; 
+w2ui['form'].refresh();
+</textarea>

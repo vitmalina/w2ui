@@ -1,0 +1,39 @@
+Removes nodes from the sidebar.
+
+<div class="definition">
+	remove(id1, id2, ...)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>id</td>
+		<td><b>string</b>, id of the sidebar node</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+Removes a sidebar node or nodes from the <a class="method" href="w2sidebar.nodes">.nodes</a> array and refreshes the sidebar. 
+The sidebar node is identified by the <span class="property">.id</span> property. 
+it will search the entire sidebar
+including all its nested nodes. The method returns the number of nodes it removes.
+<div style="height: 10px"></div>
+
+If you have sidebar defined in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+	name : 'sidebar',
+	nodes: [ 
+		{ id: 'id-1', text: 'Level 1' },
+		{ id: 'id-2', text: 'Level 2' },
+		{ id: 'id-3', text: 'Level 3' }
+	]
+});
+</textarea>
+
+You can:
+<textarea class="javascript">
+w2ui['sidebar'].remove('id-1', 'id-3');
+</textarea>

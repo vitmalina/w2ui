@@ -1,0 +1,13 @@
+Returns translation for the <span class="argument">phrase</span>.
+
+<div class="definition">
+	w2utils.lang(phrase);
+</div>
+
+If you have provided translations for your locale, you can use this method to find translated phrases. All translations are stored in 
+<span class="method">w2utils.settings.phrases</span> and loaded with <a class="method" href="w2utils.locale">w2utils.locale()</a>
+
+<textarea class="javascript">
+var a = w2utils.lang('Today');
+console.log(a);
+</textarea>

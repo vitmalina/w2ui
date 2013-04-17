@@ -1,0 +1,14 @@
+Returns age in human readable format.
+
+<div class="definition">
+	w2utils.age(dateStr);
+</div>
+
+The <span class="argument">dateStr</span> argument can be any standard date or unix epoch, 
+which is used to create JavaScript Date object. If the age is less then a minuute, it returns number of seconds. If it is less then an hour, 
+it returns number of minutes. If it is less then a day, it returns number of hours. Otherwise, it returns number of days.
+
+<textarea class="javascript">
+var a = w2utils.age('5-11-1977');
+console.log(a);
+</textarea>

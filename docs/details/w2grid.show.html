@@ -1,0 +1,60 @@
+Map of indicators which elements of the grid are visible.
+
+<div class="definition">
+	Object, default - see below
+</div>
+
+Some grid elements are shown by default, for example column headers, but most of them are hidden. You can set them during
+the object creation: 
+
+<textarea class="javascript">
+$('#grid').w2grid({
+	name    : 'grid',
+	show : {
+		header : true,
+		footer : true,
+		toolbar: true		
+	},
+	columns: [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	],
+	records: [
+		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
+		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+	]
+});
+</textarea>
+
+Or any time during run-time. You will need to call <a class="argument" href="w2grid.refresh">.refresh()</a> method to refresh on the screen.
+<textarea class="javascript">
+w2ui['grid'].show.header = false;
+w2ui['grid'].refresh();
+</textarea>
+
+The map and its default values are:
+<textarea class="javascript">
+show = {
+    header         : false,  // indicates if header is visible
+    toolbar        : false,  // indicates if toolbar is visible
+    footer         : false,  // indicates if footer is visible
+    columnHeaders  : true,   // indicates if columns is visible
+    lineNumbers    : false,  // indicates if line numbers column is visible
+    expandColumn   : false,  // indicates if expand column is visible
+    selectColumn   : false,  // indicates if select column is visible
+    emptyRecords   : true,   // indicates if empty records are visible
+    toolbarReload  : true,   // indicates if toolbar reload button is visible
+    toolbarColumns : true,   // indicates if toolbar columns button is visible
+    toolbarSearch  : true,   // indicates if toolbar search controls are visible
+    toolbarAdd     : true,   // indicates if toolbar add new button is visible
+    toolbarDelete  : true,   // indicates if toolbar delete button is visible
+    toolbarSave    : true,   // indicates if toolbar save button is visible
+}
+</textarea>

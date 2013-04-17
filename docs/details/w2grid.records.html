@@ -1,0 +1,78 @@
+Array of record objects. 
+
+<div class="definition">
+	Array, default = []
+</div>
+
+You can define records during object creation or during run-time. Generally, there are two data source types: local 
+and remote. If you do not defined the <a class="property" href="w2grid.url">.url</a> property the data source is local and you can add
+records to the grid in the following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+	name    : 'grid',
+	url 	: 'server/side/path/to/records',
+	columns: [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	],
+	records: [
+		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
+		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+	]	
+});
+</textarea>
+
+After object creation you can add records either by appending them to the <span class="property">.records</span> array (
+do not forget to call <a class="argument" href="w2grid.refresh">.refresh</a> method to refresh them on the screen), or by using
+<a class="argument" href="w2grid.add">.add()</a> method, which will add and refresh them on the screen.
+<div style="height: 10px"></div>
+
+If you defined the <a class="property" href="w2grid.url">.url</a>, the records will be loaded from this url overwriting any
+locally defined records. At a time, only the number of records defined in <span class="property">.recordsPerPage</span>
+will be loaded. Each time user navigates to a different page, does a search or a sort, records will be reloaded from the server.
+<textarea class="javascript">
+$('#grid').w2grid({
+	name    : 'grid',
+	url 	: 'server/side/path/to/records',
+	columns: [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	]
+});
+</textarea>
+
+<h4>The record object</h4>
+
+Each record object must have a <span class="property">recid</span> property that uniquely identifies the record. Also it might have some
+other system properties: style, selected, hidden, summary, and editable.
+<div style="height: 10px"></div>
+
+The following is the structure of the record object:
+<textarea class="javascript">
+record = {
+    recid      : null,   // unique record id
+    [field-1]  : '',     // field 1
+    [field-2]  : '',     // field 2
+    ...
+    [field-N]  : '',     // field N
+    style      : '',     // additional CSS style for &lt;tr ...&gt; tag       
+    selected   : false,  // indicates if record is selected
+    hidden     : false,  // indicates if record is hidden
+    summary    : false,  // indicates if it is a summary record (summary records appear on the bottom)
+    editable   : true    // indicate is record is editable (must have column.ediable property set)
+}
+</textarea>
+Where "field-1", ..., "field-N" have to correspond to the field property of the columns they need to be displayed in. 
+You can use render method of the column to create columns that have aggregates from several fields 
+(see <a class="argument" href="w2grid.columns">.columns</a>).
+information.

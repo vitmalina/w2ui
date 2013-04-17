@@ -1,0 +1,29 @@
+Loads new content of the popup from the server.
+
+<div class="definition">
+	$().w2popup('load', options);
+</div>
+
+<h4>Description</h4>
+
+The second argument <span class="argument">options</span> is a map of properties for the popup (see <a href="popup">overview</a> page 
+for valid options). The <span class="argument">options</span> argument must have <span class="argument">url</span> property defined,
+which will be called to return popup markup.
+
+<textarea class="javascript">
+$().w2popup('open', { 
+	url: '/server/path/file.html'
+});
+</textarea>
+
+In many ways this method is similar to the <a href="w2popup.open" class="method">.open</a> method.
+You can pass other properties in the <span class="argument">options</span> argument to the popup. They will be applied on top of properties 
+retrieved from the url. The markup from the server should have sections for title <span class="argument">[rel=title]</span>, 
+body <span class="argument">[rel=body]</span> and buttons <span class="argument">[rel=buttons]</span>.
+
+<div style="height: 10px;"></div>
+When you are loading content from the server, you can optionally add <span class="argument">#id</span> at the end of your url. This allows to 
+select a particular popup element by id, if server returns multiple in the same file.
+<textarea class="javascript">
+$().w2popup('load', 'server/url/page.html#popup');
+</textarea>

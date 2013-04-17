@@ -1,0 +1,27 @@
+Transitions two absolute divs.
+
+<div class="definition">
+	w2utils.transition(div_old, div_new, type, [callBack]);
+</div>
+
+The first argument <span class="method">div_old</span> is the div element to transition from, the second argument
+<span class="method">div_old</span> is the div element to transition to. The third argument <span class="method">type</span> can
+be one of the following: 
+<ul style="margin-left: 40px;">
+	<li>slide-left
+	<li>slide-right
+	<li>slide-top
+	<li>slide-bottom
+	<li>flip-left
+	<li>flip-right
+	<li>flip-top
+	<li>flip-bottom
+	<li>pop-in
+	<li>pop-out
+</ul>
+
+<textarea class="javascript">
+var div1 = $('#div1');
+var div2 = $('#div2');
+w2utils.transition(div1, div2, 'slide-left');
+</textarea>

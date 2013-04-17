@@ -1,0 +1,55 @@
+Finds sidebar node with <span class="argument">id</span> and returns it or its index.
+
+<div class="definition">
+	get([parent], id, [returnIndex])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>parent</td>
+		<td><b>string</b>, id of the parent node (<i>optional</i>)</td>
+	</tr>
+	<tr>
+		<td>id</td>
+		<td><b>string</b>, id of the sidebar node</td>
+	</tr>
+	<tr>
+		<td>returnIndex</td>
+		<td><b>boolean</b>, if true returns index in the items array (<i>optional</i>)</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The <span class="argument">id</span> argument is the id of the sidebar node used during its creation. 
+Nodes can be nested. Each node has <a class="argument" href="w2sidebar.nodes">.nodes</a> array that holds its children. 
+If sidebar node was not found the method will return null.
+<div style="height: 10px"></div>
+
+You can optionally specify <span class="argument">parent</span>, which is an id of the parent node. If parent is specified 
+then it will limit the search scope to that parent and its subnodes.
+<div style="height: 10px"></div>
+
+The third optional argument <span class="argument">returnIndex</span> indicates if you want the sidebar node or its index in the
+<a class="argument" href="w2sidebar.nodes">.nodes</a> array.
+<div style="height: 10px"></div>
+
+If you defined the object in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+	name : 'sidebar',
+	img  : 'icon-page',
+	nodes: [ 
+		{ id: 'id-1', text: 'Level 1' },
+		{ id: 'id-2', text: 'Level 2' },
+		{ id: 'id-3', text: 'Level 3' }
+	]
+});
+</textarea>
+
+You can get sidebar node:
+<textarea class="javascript">
+console.log( w2ui['toolbar'].get('id-2') );
+</textarea>

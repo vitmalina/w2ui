@@ -1,0 +1,14 @@
+Returns date in requested format.
+
+<div class="definition">
+	w2utils.formatDate(dateStr, format);
+</div>
+
+The <span class="argument">str</span> argument can be any standard date or unix epoch, which is used to
+create JavaScript Date object. The format can contain following elements: mm, dd, yyyy, mon in any order with
+any formatting characters. For example 'mm.dd.yyyy', 'dd-mm-yyyy', 'mon dd, yyyy'
+
+<textarea class="javascript">
+var a = w2utils.formatDate((new Date()), 'mm-dd-yyyy');
+console.log(a);
+</textarea>

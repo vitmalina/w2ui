@@ -1,0 +1,85 @@
+Opens new popup or transitions to new content.
+
+<div class="definition">
+	$().w2popup(options);
+</div>
+
+OR 
+
+<div class="definition">
+	$().w2popup('open', options);
+</div>
+
+<h4>Description</h4>
+
+The first argument <span class="argument">open</span> is the default and can be omitted.
+<div style="height: 10px;"></div>
+
+The second argument <span class="argument">options</span> is a map of properties for the popup (see <a href="popup">overview</a> page 
+for valid options). Please note that options will not be replaces, but extended. If a popup is already displayed you can change the 
+width/height (or any other property) in the following way:
+
+<textarea class="javascript">
+$().w2popup('open', { width: 500, height: 200 });
+</textarea>
+
+This method will trigger <span class="argument">onOpen</span> or <span class="argument">onChange</span> event depending if the popup
+was just opened or it was transitioned to the new content.
+
+<h4>Examples</h4>
+You can open popup defining everything in JavaScript
+
+<textarea class="javascript">
+$().w2popup({
+	title   : 'Popup Title HTML',
+	body    : 'Body HTML',
+	buttons : 'Buttons HTML',
+	onOpen  : function () {
+		console.log('opened');
+	}
+});
+</textarea>
+
+Or from markup
+
+<textarea class="html">
+<div id="popup" style="display: none; width: 600px; height: 400px; overflow: hidden">
+	<div rel="title">
+		Popup #1 Title
+	</div>
+	<div rel="body">
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+		This is body of popup #1. You can put any text or HTML inside the body.
+	</div>
+	<div rel="buttons">
+		<input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()">
+	</div>
+</div>
+</textarea>
+
+<textarea class="javascript">
+$('#popup').w2popup('open');
+</textarea>
+
+If you open it from markup, the width and height of the popup will be taken from the root markup element. It will
+also look for 3 sections for title <span class="argument">[rel=title]</span>, body <span class="argument">[rel=body]</span>
+and buttons <span class="argument">[rel=buttons]</span>.
+
+<div style="height: 10px;"></div>
+Same rules apply if you load popup from the server. When you are loading from the server, you can optionally add
+<span class="argument">#id</span> at the end of your url. This allows to select a particular popup element, if server returns multiple in
+the same file.
+<textarea class="javascript">
+$().w2popup('load', 'server/url/page.html#popup');
+</textarea>
+
+See <a class="argument" href="w2popup.load">load</a> method.

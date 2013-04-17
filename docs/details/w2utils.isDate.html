@@ -1,0 +1,15 @@
+Returns true if <span class="argument">str</span> is a date.
+
+<div class="definition">
+	w2utils.isDate(str, [format]);
+</div>
+
+You can specify date <span class="method">format</span>. The <span class="method">format</span> can contain following elements: mm, dd, yyyy, 
+mon in any order with any formatting characters. For example 'mm.dd.yyyy', 'dd-mm-yyyy', 'mon dd, yyyy'.
+If <span class="method">format</span> is not specified, then 
+the format will be taken from <span class="method">w2utils.settings.date_format</span>. 
+
+<textarea class="javascript">
+var a = w2utils.isDate('1/1/2013');
+console.log(a);
+</textarea>

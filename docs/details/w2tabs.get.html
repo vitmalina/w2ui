@@ -1,0 +1,48 @@
+Finds tab with <span class="argument">id</span> and returns it or its index.
+
+<div class="definition">
+	get(id, [returnIndex])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>id</td>
+		<td><b>string</b>, id of the tab</td>
+	</tr>
+	<tr>
+		<td>returnIndex</td>
+		<td><b>boolean</b>, if true returns index in the tabs array (<i>optional</i>)</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The first argument <span class="argument">id</span> is the id of the tab object you used when you created tabs. The 
+<a class="argument" href="w2tabs.tabs">.tabs</a> array holds all created tab objects. If tab object was not found it 
+will return null.
+<div style="height: 10px"></div>
+
+The second optional argument <span class="argument">returnIndex</span> indicates if you want the tab or its index in the
+<a class="argument" href="w2tabs.tabs">.tabs</a> array.
+<div style="height: 10px"></div>
+
+If you have tabs defined in the following way:
+<textarea class="javascript">
+$('#tabs').w2tabs({
+	name: 'tabs',
+	active: 'tab1',
+	tabs: [
+		{ id: 'tab1', caption: 'Tab 1' },
+		{ id: 'tab2', caption: 'Tab 2' },
+		{ id: 'tab3', caption: 'Tab 3' },
+		{ id: 'tab4', caption: 'Tab 4' }
+	]
+});
+</textarea>
+
+You can add tabs:
+<textarea class="javascript">
+console.log( w2ui['tabs'].get('tab5') );
+</textarea>

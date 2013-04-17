@@ -1,0 +1,42 @@
+Toggles sidebar node with <span class="argument">id</span>.
+
+<div class="definition">
+	toggle(id)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>id</td>
+		<td><b>string</b>, id of the sidebar node</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The node must exists in the <a class="method" href="w2sidebar.nodes">.nodes</a> array of the sidebar or its nested nodes. The node is 
+identified by the <span class="property">.id</span> property. The method calls <a class="method" href="w2sidebar.expand">.expand()</a> if node is
+collapsed, <a class="method" href="w2sidebar.collapse">.collapse()</a> otherwise.
+<div style="height: 10px"></div>
+
+If you have defined object in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+	name : 'sidebar',
+	img  : 'icon-page',
+	nodes: [ 
+		{ id: 'id-1', text: 'Level 1', hidden: true },
+		{ id: 'id-2', text: 'Level 2', nodes: [
+			{ id: 'id-2-1', text: 'Level 2.1' },
+			{ id: 'id-2-2', text: 'Level 2.2' }
+		]},
+		{ id: 'id-3', text: 'Level 3' }
+	]
+});
+</textarea>
+
+You can:
+<textarea class="javascript">
+w2ui['sidebar'].toggle('id-2');
+</textarea>

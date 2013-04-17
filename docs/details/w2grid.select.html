@@ -1,0 +1,53 @@
+Selects records in the grid.
+
+<div class="definition">
+	select(recid1, recid2, ...)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>recid</td>
+		<td><b>string</b>, id of the record</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+Selects a record or records in the <span class="method">.records</span> array and refreshes them on the screen. The record is identified by the
+<span class="property">.recid</span> property, which is a required property for each record object. The method returns the number of 
+records it selects.
+<div style="height: 10px"></div>
+
+If you have grid defined in the following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+	name    : 'grid',
+	columns: [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'Start Date', size: '120px' },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	],
+	records: [
+		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+		{ recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+	]
+});
+</textarea>
+
+You can select records:
+<textarea class="javascript">
+w2ui['grid'].select(2, 5, 6);
+</textarea>
+
+There are two events related to selection of records: <a class="property" href="w2grid.onSelect">onSelect</a> and 
+<a class="property" href="w2grid.onUnselect">onUnselect</a>. Calling <span class="property">.select</span> will
+trigger <a class="property" href="w2grid.onSelect">onSelect</a> event.

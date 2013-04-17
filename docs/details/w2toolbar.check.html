@@ -1,0 +1,38 @@
+Checks toolbar item or items with <span class="argument">id</span> (visually looks like pressed button).
+
+<div class="definition">
+	check(id1, [id2], ...)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>id</td>
+		<td><b>string</b>, id of the toolbar item</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The item(s) must exists in the <a class="method" href="w2toolbar.items">.items</a> array of the toolbar. The toolbar item is 
+identified by the <span class="property">.id</span> property. If the toolbar item is part of the radio group, all items in the group 
+that were checked will be unchecked. The method returns the number of checked items that were unchecked before.
+<div style="height: 10px"></div>
+
+If you have toolbar defined in the following way:
+<textarea class="javascript">
+$('#toolbar').w2toolbar({
+	name  : 'toolbar',
+	items : [
+		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: false },
+		{ type: 'radio',  id: 'item3',  group: '1', caption: 'R-1', img: 'icon-add' },
+		{ type: 'radio',  id: 'item4',  group: '1', caption: 'R-2', img: 'icon-add' }
+	]
+});
+</textarea>
+
+You can check toolbar item:
+<textarea class="javascript">
+w2ui['toolbar'].check('item1');
+</textarea>
