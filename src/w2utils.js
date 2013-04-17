@@ -263,9 +263,7 @@ var w2utils = (function () {
 	}
 
 	function escapeId (id) {
-		var ret = String(id);
-		var str = '!"#$%&\'()*+,./:;<=>?@[\]^`{|}~ ';
-		for (var s in str) ret = ret.replace(str[s], "\\"+str[s]);
+		var ret = String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}])/g, '\\$1');
 		return ret;
 	}
 
