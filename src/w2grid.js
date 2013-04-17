@@ -2356,7 +2356,7 @@
 							(this.isIOS ?
 								'	onclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 								:
-								'	onclick	 = "w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', evnt);"'+
+								'	onclick	 = "w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', event);"'+
 								'	ondblclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 							 )+
 							(tmp_color != '' ? 'custom_style="'+ tmp_color +'"' : '')+
