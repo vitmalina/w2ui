@@ -43,12 +43,23 @@ $(function () {
 				{ id: 'w2form-methods', text: 'Methods', icon: 'fa-cog' }
 			]},
 			{ id: 'w2popup', text: 'w2popup', img: 'icon-folder', group1: true, expanded1: true, nodes: [
-				{ id: 'w2popup-events', text: 'Events', icon: 'fa-tag' },
-				{ id: 'w2popup-props', text: 'Properties', icon: 'fa-star-empty' },
-				{ id: 'w2popup-methods', text: 'Methods', icon: 'fa-cog' }
+				{ id: 'w2popup-methods', text: 'Methods', icon: 'fa-cog', 
+					nodes: [
+						{ id: 'w2popup.clear', text: 'clear', icon: 'fa-cog' },
+						{ id: 'w2popup.close', text: 'close', icon: 'fa-cog' },
+						{ id: 'w2popup.get', text: 'get', icon: 'fa-cog' },
+						{ id: 'w2popup.load', text: 'load', icon: 'fa-cog' },
+						{ id: 'w2popup.max', text: 'max', icon: 'fa-cog' },
+						{ id: 'w2popup.message', text: 'message', icon: 'fa-cog' },
+						{ id: 'w2popup.min', text: 'min', icon: 'fa-cog' },
+						{ id: 'w2popup.open', text: 'open', icon: 'fa-cog' },
+						{ id: 'w2popup.reset', text: 'reset', icon: 'fa-cog' },
+						{ id: 'w2popup.set', text: 'set', icon: 'fa-cog' },
+						{ id: 'w2popup.toggle', text: 'toggle', icon: 'fa-cog' }
+					]
+				}
 			] },
 			{ id: 'w2utils', text: 'w2utils', img: 'icon-folder', group1: true, expanded1: true, nodes: [
-				{ id: 'w2utils-events', text: 'Events', icon: 'fa-tag' },
 				{ id: 'w2utils-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2utils-methods', text: 'Methods', icon: 'fa-cog' }
 			] }
@@ -75,6 +86,15 @@ $(function () {
 	init('toolbar');
 	init('tabs');
 	init('form');
+
+	// utils
+	var methods = [];
+	for (var o in w2utils) { if (o == 'settings') continue; methods.push(o); }
+	methods.sort();
+	var nodes = []
+	for (var o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa-cog' });
+	w2ui['docs'].add('w2utils-methods', nodes);
+	w2ui['docs'].add('w2utils-props', { id: 'w2utils.settings', text: 'settings', icon: 'fa-star-empty' });
 
 	function init (type) {
 		var methods = [];
@@ -163,6 +183,25 @@ function doClick (cmd, data) {
 				}, {
 					value		: $.trim($(obj).val()),
 					mode		: "javascript",
+					readOnly	: true,
+					gutter		: true,
+					lineNumbers	: true
+				}
+			);
+		});
+		// html
+		$("textarea.html").each(function (index, el) {
+			var obj = this;
+			// resize to context
+			var ta = $(this);
+			$(ta).height(ta.scrollHeight + 2);
+			// init Code Mirror
+			var codeMirror = CodeMirror(
+				function (elt) {
+			  		obj.parentNode.replaceChild(elt, obj);
+				}, {
+					value		: $.trim($(obj).val()),
+					mode		: "xml",
 					readOnly	: true,
 					gutter		: true,
 					lineNumbers	: true
