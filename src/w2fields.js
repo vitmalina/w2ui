@@ -705,6 +705,7 @@
 			$(div)
 				.off('mousedown')
 				.on('mousedown', function (event) {
+					if (event.target && event.target.tagName != 'LI') return;
 					var id 	 = $(event.target).attr('index');
 					var item = settings.items[id];
 					if (typeof id == 'undefined') { if (event.preventDefault) event.preventDefault(); else return false; }
