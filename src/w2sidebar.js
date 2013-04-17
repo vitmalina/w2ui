@@ -439,7 +439,7 @@
 						'<div class="w2ui-sidebar-bottom"></div>'+
 					'</div>'
 				);
-			$(this.box).find('> div').css(
+			$(this.box).find('> div').css({
 				width 	: $(this.box).width() + 'px',
 				height 	: $(this.box).height() + 'px'
 			});

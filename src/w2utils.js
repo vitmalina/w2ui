@@ -263,8 +263,8 @@ var w2utils = (function () {
 	}
 
 	function escapeId (id) {
-		var ret = String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}])/g, '\\$1');
-		return ret;
+		if (typeof id == 'undefined' || id == '' || id == null) return '';
+		return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}])/g, '\\$1');
 	}
 
 	function base64encode (input) {
