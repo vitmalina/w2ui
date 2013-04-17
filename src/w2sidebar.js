@@ -10,9 +10,11 @@
 *	  - context menus
 *
 *  == 1.2 changes 
-*     - top_html, bottom_html
+*     - topHTML, bottomHTML
 *     - suport for icon fonts
 *	  - removed getIndex(), added get(..., returnIndex)
+*	  - collapseAll(), expandAll(), expandParents()
+* 	  - doExpand -> expand(), doCollapse - collapse, doToggle -> toggle
 * 
 ************************************************************************/
 
@@ -27,8 +29,8 @@
 		this.style	 		= '';
 		this.selected 		= null;	// current selected node (readonly)
 		this.nodes	 		= []; 	// Sidebar child nodes
-		this.top_html		= '';
-		this.bottom_html    = '';
+		this.topHTML		= '';
+		this.bottomHTML     = '';
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
 		this.onContextMenu	= null;	
@@ -281,7 +283,7 @@
 			this.unselect(this.selected);
 			var new_node = this.get(id);
 			if (!new_node) return false;
-			$(this.box).find('#node_'+id.replace(/\./, '\\.'))
+			$(this.box).find('#node_'+ w2utils.escapeId(id))
 				.addClass('w2ui-selected')
 				.find('.w2ui-icon').addClass('w2ui-icon-selected');
 			new_node.selected = true;
@@ -292,13 +294,76 @@
 			var current = this.get(id);
 			if (!current) return false;
 			current.selected = false;
-			$(this.box).find('#node_'+id.replace(/\./, '\\.'))
+			$(this.box).find('#node_'+ w2utils.escapeId(id))
 				.removeClass('w2ui-selected')
 				.find('.w2ui-icon').removeClass('w2ui-icon-selected');
 			if (this.selected == id) this.selected = null;
 			return true;
 		},
+
+		toggle: function(id) {
+			if (this.get(id).expanded) this.collapse(id); else this.expand(id);
+		},
+	
+		expand: function (id) {
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, event: event });	
+			if (eventData.stop === true) return false;
+			// default action
+			var nd = this.get(id);
+			if (nd.nodes.length == 0) return;
+			// expand
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').show();
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
+			nd.expanded = true;
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+		},
 		
+		collapse: function (id) {
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, event: event });	
+			if (eventData.stop === true) return false;
+			// default action
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').hide();		
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
+			this.get(id).expanded = false;
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
+		collapseAll: function (parent) {
+			if (typeof parent == 'undefined') parent = this;
+			if (typeof parent == 'string') parent = this.get(parent); 
+			if (parent.nodes == null) return null;
+			for (var i=0; i < parent.nodes.length; i++) {
+				if (parent.nodes[i].expanded === true) parent.nodes[i].expanded = false;
+				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
+			}
+			this.refresh(parent.id);
+		},		
+		
+		expandAll: function (parent) {
+			if (typeof parent == 'undefined') parent = this;
+			if (typeof parent == 'string') parent = this.get(parent); 
+			if (parent.nodes == null) return null;
+			for (var i=0; i < parent.nodes.length; i++) {
+				if (parent.nodes[i].expanded === false) parent.nodes[i].expanded = true;
+				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
+			}
+			this.refresh(parent.id);
+		},		
+
+		expandParents: function (id) {
+			var node = this.get(id);
+			if (node == null) return;
+			if (node.parent) {
+				node.parent.expanded = true;
+				this.expandParents(node.parent.id);
+			}
+			this.refresh(id);
+		}, 
+
 		doClick: function (id, event) {
 			var nd  = this.get(id);
 			var obj = this;
@@ -316,7 +381,7 @@
 						$(field).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
 					}
 				});
-				$(this.box).find('#node_'+id.replace(/\./, '\\.'))
+				$(this.box).find('#node_'+ w2utils.escapeId(id))
 					.addClass('w2ui-selected')
 					.find('.w2ui-icon').addClass('w2ui-icon-selected');
 				this.get(id).selected = true;
@@ -333,7 +398,7 @@
 			if (eventData.stop === true) return false;
 			// default action
 			var nd = this.get(id);
-			if (nd.nodes.length > 0) this.doToggle(id, event);
+			if (nd.nodes.length > 0) this.toggle(id);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -349,38 +414,7 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
-		
-		doToggle: function(id, event) {
-			if (this.get(id).expanded) this.doCollapse(id, event); else this.doExpand(id, event);
-		},
-	
-		doExpand: function (id, event) {
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, event: event });	
-			if (eventData.stop === true) return false;
-			// default action
-			var nd = this.get(id);
-			if (nd.nodes.length == 0) return;
-			// expand
-			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +'_sub').show();
-			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
-			nd.expanded = true;
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-		},
-		
-		doCollapse: function (id, event) {
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, event: event });	
-			if (eventData.stop === true) return false;
-			// default action
-			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +'_sub').hide();		
-			$(this.box).find('#node_'+ id.replace(/\./, '\\.') +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
-			this.get(id).expanded = false;
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-		},
-		
+				
 		render: function (box) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
@@ -405,19 +439,19 @@
 						'<div class="w2ui-sidebar-bottom"></div>'+
 					'</div>'
 				);
-			$(this.box).find('> div').css({
+			$(this.box).find('> div').css(
 				width 	: $(this.box).width() + 'px',
 				height 	: $(this.box).height() + 'px'
 			});
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// adjust top and bottom
-			if (this.top_html != '') {
-				$(this.box).find('.w2ui-sidebar-top').html(this.top_html);
+			if (this.topHTML != '') {
+				$(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
 				$(this.box).find('.w2ui-sidebar-div')					
 					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
 			}
-			if (this.bottom_html != '') {
-				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottom_html);
+			if (this.bottomHTML != '') {
+				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML);
 				$(this.box).find('.w2ui-sidebar-div')
 					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
 			}
@@ -433,13 +467,13 @@
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
 			if (eventData.stop === true) return false;
 			// adjust top and bottom
-			if (this.top_html != '') {
-				$(this.box).find('.w2ui-sidebar-top').html(this.top_html);
+			if (this.topHTML != '') {
+				$(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
 				$(this.box).find('.w2ui-sidebar-div')					
 					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
 			}
-			if (this.bottom_html != '') {
-				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottom_html);
+			if (this.bottomHTML != '') {
+				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML);
 				$(this.box).find('.w2ui-sidebar-div')
 					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
 			}
@@ -454,10 +488,10 @@
 				var nm 	 = '.w2ui-sidebar-div';
 			} else {
 				var node = this.get(id);
-				var nm 	 = '#node_'+ node.id.replace(/\./, '\\.') + '_sub';
+				var nm 	 = '#node_'+ w2utils.escapeId(node.id) + '_sub';
 			}
 			if (node != this) {
-				var tmp = '#node_'+ node.id.replace(/\./, '\\.');
+				var tmp = '#node_'+ w2utils.escapeId(node.id);
 				var nodeHTML = getNodeHTML(node);
 				$(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
 				$(this.box).find(tmp).remove();
@@ -492,7 +526,7 @@
 				if (nd.group) {
 					html = 
 						'<div class="w2ui-node-group"  id="node_'+ nd.id +'"'+
-						'		onclick="w2ui[\''+ obj.name +'\'].doClick(\''+ nd.id +'\', event); w2ui[\''+ obj.name +'\'].doToggle(\''+ nd.id +'\'); '+
+						'		onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
 						'				 var sp=$(this).find(\'span:nth-child(1)\'); if (sp.html() == \''+ w2utils.lang('Hide') +'\') sp.html(\''+ w2utils.lang('Show') +'\'); else sp.html(\''+ w2utils.lang('Hide') +'\');"'+
 						'		onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
 						'		onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
@@ -508,7 +542,7 @@
 						'	oncontextmenu="w2ui[\''+ obj.name +'\'].doContextMenu(\''+ nd.id +'\', event); /* event.stopPropagation(); */ event.preventDefault();"'+
 						'	onClick="w2ui[\''+ obj.name +'\'].doClick(\''+ nd.id +'\', event); /* event.stopPropagation(); */">'+
 						'<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
-						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].doToggle(\''+ nd.id +'\', event);">'+ 
+						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); event.stopPropagation();">'+ 
 						'	<div class="w2ui-expand">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : '') + '</div>' +
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+ 
