@@ -128,7 +128,7 @@
 				// remove from array
 				this.tabs.splice(this.get(tab.id, true), 1);
 				// remove from screen
-				$(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id).remove();
+				$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).remove();
 			}
 			return removed;
 		},
@@ -211,7 +211,7 @@
 			var tab = this.get(id);
 			if (tab == null) return;
 			
-			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id);
+			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
 			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].doClose(\''+ tab.id +'\', event);"></div>' : '') +
 						  '	<div class="w2ui-tab '+ (this.active == tab.id ? 'active' : '') +'" title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
 						  '		onclick="w2ui[\''+ this.name +'\'].doClick(\''+ tab.id +'\', event);">' + tab.caption + '</div>';
@@ -221,8 +221,8 @@
 				if (tab.hidden) { addStyle += 'display: none;'; }
 				if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 				html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
-				if (this.get(id, true) != this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.get(id, true))+1].id).length > 0) {
-					$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.get(id, true))+1].id).before(html);
+				if (this.get(id, true) != this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).length > 0) {
+					$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).before(html);
 				} else {
 					$(this.box).find('#tabs_'+ this.name +'_right').before(html);
 				}
@@ -304,7 +304,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: this.get(id), event: event });	
 			if (eventData.stop === true) return false;
 			// default action
-			$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.active +' .w2ui-tab').removeClass('active');
+			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
 			this.active = tab.id;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -319,18 +319,18 @@
 			if (eventData.stop === true) return false;
 			// default action
 			var obj = this;
-			$(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id).css({ 
+			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css({ 
 				'-webkit-transition': '.2s', 
 				'-moz-transition': '2s', 
 				'-ms-transition': '.2s', 
 				'-o-transition': '.2s', 
 				opacity: '0' });
 			setTimeout(function () {
-				var width = $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id).width();
-				$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id)
+				var width = $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id)).width();
+				$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id))
 					.html('<div style="width: '+ width +'px; -webkit-transition: .2s; -moz-transition: .2s; -ms-transition: .2s; -o-transition: .2s"></div>')
 				setTimeout(function () {
-					$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ tab.id).find(':first-child').css({ 'width': '0px' });
+					$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id)).find(':first-child').css({ 'width': '0px' });
 				}, 50);
 			}, 200);
 			setTimeout(function () {
@@ -352,7 +352,7 @@
 				return;
 			}
 			// insert simple div
-			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ tab.id);
+			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
 			if (jq_el.length != 0) return; // already exists
 			// measure width
 			var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
@@ -369,8 +369,8 @@
 			if (tab.hidden) { addStyle += 'display: none;'; }
 			if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
 			html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
-			if (this.get(id, true) != this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.get(id, true))].id).length > 0) {
-				$(this.box).find('#tabs_'+ this.name +'_tab_'+ this.tabs[parseInt(this.get(id, true))].id).before(html);
+			if (this.get(id, true) != this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).length > 0) {
+				$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).before(html);
 			} else {
 				$(this.box).find('#tabs_'+ this.name +'_right').before(html);
 			}
@@ -379,7 +379,7 @@
 			setTimeout(function () { 
 				var width = $('#_tmp_simple_tab').width();
 				$('#_tmp_tabs').remove();
-				$('#tabs_'+ obj.name +'_tab_'+ tab.id + ' > div').css('width', width+'px'); 
+				$('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id) +' > div').css('width', width+'px'); 
 			}, 1);
 			setTimeout(function () {
 				// insert for real

@@ -135,7 +135,7 @@
 				if (!it) continue;
 				removed++;
 				// remove from screen
-				$(this.box).find('#'+ this.name +'_item_'+ it.id).remove();
+				$(this.box).find('#'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove();
 				// remove from array
 				var ind = this.get(it.id, true);
 				if (ind) this.items.splice(ind, 1);
@@ -295,7 +295,7 @@
 			var it = this.get(id);
 			if (it == null) return;
 			
-			var jq_el = $(this.box).find('#'+ this.name +'_item_'+ it.id);
+			var jq_el = $(this.box).find('#'+ this.name +'_item_'+ w2utils.escapeId(it.id));
 			var html  = this.getItemHTML(it);
 			if (jq_el.length == 0) {
 				// does not exist - create it
@@ -304,7 +304,7 @@
 				if (this.get(id, true) == this.items.length-1) {
 					$(this.box).find('#'+ this.name +'_right').before(html);
 				} else {
-					$(this.box).find('#'+ this.name +'_item_'+ this.items[parseInt(this.get(id, true))+1].id).before(html);
+					$(this.box).find('#'+ this.name +'_item_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
 				}
 			} else {
 				// refresh
@@ -460,7 +460,7 @@
 					item: this.get(id), event: event });	
 				if (eventData.stop === true) return false;
 			
-				$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').removeClass('down');
+				$('#'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('down');
 								
 				if (it.type == 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
@@ -472,30 +472,30 @@
 						}
 					}
 					it.checked = true;
-					$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').addClass('checked');					
+					$('#'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');					
 				}
 
 				if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
 					it.checked = !it.checked;
 					if (it.checked) {
-						$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').addClass('checked');
+						$('#'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
 					} else {
-						$('#'+ this.name +'_item_'+ it.id + ' table.w2ui-button').removeClass('checked');					
+						$('#'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
 					}
 				}
 
 				if (it.type == 'drop' || it.type == 'menu') {
 					// show overlay
 					setTimeout(function () {
-						var w = $('#'+ obj.name +'_item_'+ it.id).width();
-						$('#'+ obj.name +'_item_'+ it.id).w2overlay(it.html, { left: (w-50)/2 });
+						var w = $('#'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).width();
+						$('#'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, { left: (w-50)/2 });
 						// window.click to hide it
 						function hideDrop() {
 							it.checked = !it.checked;
 							if (it.checked) {
-								$('#'+ obj.name +'_item_'+ it.id + ' table.w2ui-button').addClass('checked');
+								$('#'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
 							} else {
-								$('#'+ obj.name +'_item_'+ it.id + ' table.w2ui-button').removeClass('checked');					
+								$('#'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
 							}
 							obj.refresh(it.id);
 							$(document).off('click', hideDrop);
