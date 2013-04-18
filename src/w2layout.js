@@ -684,6 +684,11 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			
+			$(window).off('resize', this.events.resize);
+			$(document).off('mousemove', this.events.mousemove);
+			$(document).off('mouseup', this.events.mouseup);
+			
 			return true;
 		},
 		
@@ -691,15 +696,22 @@
 		
 		initEvents: function () {
 			var obj = this;
-			$(window).on('resize', function (event) {
-				w2ui[obj.name].resize()
-			});
-			$(document).on('mousemove', function (event) {
-				w2ui[obj.name].doResize(event);
-			});
-			$(document).on('mouseup', function (event) {
-				w2ui[obj.name].stopResize(event);
-			});
+			
+			this.events = {
+				resize : function (event) { 
+					w2ui[obj.name].resize()	
+				},
+				mousemove : function (event) { 
+					w2ui[obj.name].doResize(event)	
+				},
+				mouseup : function (event) { 
+					w2ui[obj.name].stopResize(event)	
+				}
+			};
+			
+			$(window).on('resize', this.events.resize);
+			$(document).on('mousemove', this.events.mousemove);
+			$(document).on('mouseup', this.events.mouseup);
 		},
 	
 		startResize: function (type, evnt) {
