@@ -102,19 +102,19 @@
 		this.onDestroy 			= null;
 
 		// internal
-		this.recid				= null; 	// might be used by edit class to set sublists ids
-		this.last_field			= 'all';
-		this.last_caption 		= w2utils.lang('All Fields');
-		this.last_logic			= 'OR';
-		this.last_search		= '';
-		this.last_multi  		= false;
-		this.last_scrollTop		= 0;
-		this.last_scrollLeft	= 0;
-		this.last_selected		= [];
-		this.last_sortData		= null;
-		this.last_sortCount		= 0;
-		this.transition			= false;
-		this.request_xhr		= null;		// jquery xhr requests
+		this.last = {
+			field		: 'all',
+			caption		: w2utils.lang('All Fields'),
+			logic		: 'OR',
+			search		: '',
+			multi		: false,
+			scrollTop	: 0,
+			scrollLeft	: 0,
+			selected	: [],
+			sortData	: null,
+			sortCount	: 0,
+			request_xhr	: null
+		}
 
 		this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
 			navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -463,7 +463,7 @@
 				}
 				return ret;
 			});
-			this.last_sortCount = this.records.length;
+			this.last.sortCount = this.records.length;
 		},
 
 		localSearch: function () {
@@ -527,8 +527,8 @@
 								break;
 						}
 					}
-					if (this.last_logic == 'OR')  rec.hidden = (fl == 0 ? true : false);
-					if (this.last_logic == 'AND') rec.hidden = (fl != this.searchData.length ? true : false);
+					if (this.last.logic == 'OR')  rec.hidden = (fl == 0 ? true : false);
+					if (this.last.logic == 'AND') rec.hidden = (fl != this.searchData.length ? true : false);
 					if (rec.hidden !== true && rec.summary !== true) this.total++;
 				}
 			}
@@ -637,7 +637,7 @@
 
 		selectNone: function () {
 			this.unselect.apply(this, this.getSelection());
-			this.last_selected = [];
+			this.last.selected = [];
 		},
 
 		getSelection: function () {
@@ -647,10 +647,10 @@
 		search: function (field, value) {
 			var obj 		= this;
 			var searchData 	= [];
-			var last_multi 	= this.last_multi;
-			var last_logic 	= this.last_logic;
-			var last_field 	= this.last_field;
-			var last_search = this.last_search;
+			var last_multi 	= this.last.multi;
+			var last_logic 	= this.last.logic;
+			var last_field 	= this.last.field;
+			var last_search = this.last.search;
 			// .search() - advanced search
 			if (arguments.length == 0) {
 				// advanced search
@@ -707,7 +707,7 @@
 				// loop through all searches and see if it applies
 				if (value != '') for (var s in this.searches) {
 					var search 	 = this.searches[s];
-					if (search.field == field) this.last_caption = search.caption;
+					if (search.field == field) this.last.caption = search.caption;
 					if (field != 'all' && search.field == field) {
 						var tmp = {
 							field	 : search.field,
@@ -738,13 +738,13 @@
 			// default action			
 			this.searchData = eventData.searchData;
 			// reset scrolling position
-			this.last_field  = last_field;
-			this.last_search = last_search;
-			this.last_multi  = last_multi;
-			this.last_logic  = last_logic;
-			this.last_scrollTop		= 0;
-			this.last_scrollLeft	= 0;
-			this.last_selected		= [];
+			this.last.field  = last_field;
+			this.last.search = last_search;
+			this.last.multi  = last_multi;
+			this.last.logic  = last_logic;
+			this.last.scrollTop		= 0;
+			this.last.scrollLeft	= 0;
+			this.last.selected		= [];
 			// -- clear all search field
 			this.searchClose();
 			// apply search
@@ -771,7 +771,7 @@
 					left: -10, 
 					'class': 'w2ui-grid-searches',
 					onShow: function () {
-						if (obj.last_logic == 'OR') obj.searchData = [];
+						if (obj.last.logic == 'OR') obj.searchData = [];
 						obj.initSearches();
 						$('#w2ui-overlay .w2ui-grid-searches').data('grid-name', obj.name);
 						var sfields = $('#w2ui-overlay .w2ui-grid-searches *[rel=search]');
@@ -789,6 +789,7 @@
 		},
 
 		searchShowFields: function (el) {
+			if (typeof el == 'undefined') el = $('#grid_'+ this.name +'_search_all');
 			var html = '<div class="w2ui-select-field"><table>';
 			for (var s = -1; s < this.searches.length; s++) {
 				var search = this.searches[s];
@@ -805,19 +806,19 @@
 				html += '<tr '+
 					'	'+ (this.isIOS ? 'onTouchStart' : 'onClick') +'="var obj = w2ui[\''+ this.name +'\']; '+
 					'		if (\''+ search.type +'\' == \'list\' || \''+ search.type +'\' == \'enum\') {'+
-					'			obj.last_search = \'\';'+
-					'			obj.last_item = \'\';'+
+					'			obj.last.search = \'\';'+
+					'			obj.last.item = \'\';'+
 					'			$(\'#grid_'+ this.name +'_search_all\').val(\'\')'+
 					'		}'+
-					'		if (obj.last_search != \'\') { '+
-					'			obj.search(\''+ search.field +'\', obj.last_search); '+
+					'		if (obj.last.search != \'\') { '+
+					'			obj.search(\''+ search.field +'\', obj.last.search); '+
 					'		} else { '+
-					'			obj.last_field = \''+ search.field +'\'; '+
-					'			obj.last_caption = \''+ search.caption +'\'; '+
+					'			obj.last.field = \''+ search.field +'\'; '+
+					'			obj.last.caption = \''+ search.caption +'\'; '+
 					'		}'+
 					'		$(\'#grid_'+ this.name +'_search_all\').attr(\'placeholder\', \''+ search.caption +'\');'+
 					'		$().w2overlay();">'+
-					'<td><input type="checkbox" tabIndex="-1" '+ (search.field == this.last_field ? 'checked' : 'disabled') +'></td>'+
+					'<td><input type="checkbox" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : 'disabled') +'></td>'+
 					'<td>'+ search.caption +'</td>'+
 					'</tr>';
 			}
@@ -831,22 +832,22 @@
 			if (eventData.stop === true) return;
 			// default action
 			this.searchData  	= [];
-			this.last_search 	= '';
-			this.last_logic		= 'OR';
-			if (this.last_multi) {
+			this.last.search 	= '';
+			this.last.logic		= 'OR';
+			if (this.last.multi) {
 				if (!this.multiSearch) {
-					this.last_field 	= this.searches[0].field;
-					this.last_caption 	= this.searches[0].caption;
+					this.last.field 	= this.searches[0].field;
+					this.last.caption 	= this.searches[0].caption;
 				} else {
-					this.last_field  	= 'all';
-					this.last_caption 	= w2utils.lang('All Fields');
+					this.last.field  	= 'all';
+					this.last.caption 	= w2utils.lang('All Fields');
 				}
 			}
-			this.last_multi	= false;
+			this.last.multi	= false;
 			// reset scrolling position
-			this.last_scrollTop		= 0;
-			this.last_scrollLeft	= 0;
-			this.last_selected		= [];
+			this.last.scrollTop		= 0;
+			this.last.scrollLeft	= 0;
+			this.last.selected		= [];
 			// -- clear all search field
 			this.searchClose();
 			// apply search
@@ -869,9 +870,9 @@
 			if (newPage < 0) newPage = 0;
 			if (newPage >= totalPages) newPage = totalPages - 1;
 			// reset scrolling position
-			this.last_scrollTop		= 0;
-			this.last_scrollLeft	= 0;
-			this.last_selected		= [];
+			this.last.scrollTop		= 0;
+			this.last.scrollLeft	= 0;
+			this.last.selected		= [];
 			// refresh items
 			this.page = newPage;
 			this.reload();
@@ -900,16 +901,16 @@
 			this.page 	= 0;
 			// reset last remembered state
 			this.searchData			= [];
-			this.last_search		= '';
-			this.last_field			= 'all';
-			this.last_caption 		= w2utils.lang('All Fields');
-			this.last_logic			= 'OR';
-			this.last_scrollTop		= 0;
-			this.last_scrollLeft	= 0;
-			this.last_selected		= [];
-			this.last_sortCount		= 0;
+			this.last.search		= '';
+			this.last.field			= 'all';
+			this.last.caption 		= w2utils.lang('All Fields');
+			this.last.logic			= 'OR';
+			this.last.scrollTop		= 0;
+			this.last.scrollLeft	= 0;
+			this.last.selected		= [];
+			this.last.sortCount		= 0;
 			// initial search panel
-			if (this.last_sortData != null ) this.sortData	 = this.last_sortData;
+			if (this.last.sortData != null ) this.sortData	 = this.last.sortData;
 			// select none without refresh
 			for (var i=0; i<this.records.length; i++) {
 				this.records[i].selected = false;
@@ -932,10 +933,8 @@
 			params['offset'] 		= this.page * this.recordsPerPage;
 			params['selected'] 		= this.getSelection();
 			params['search']  		= this.searchData;
-			params['search-logic'] 	= this.last_logic;
+			params['search-logic'] 	= this.last.logic;
 			params['sort'] 	  		= (this.sortData.length != 0 ? this.sortData : '');
-			// if there is a recid (some some edit connections)
-			if (this.recid != null) params['recid'] = this.recid;
 			// append other params
 			$.extend(params, this.postData);
 			$.extend(params, add_params);
@@ -947,12 +946,12 @@
 			// call server to get data
 			var obj = this;
 			this.lock(this.msgRefresh);
-			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
+			if (this.last.request_xhr) try { this.last.request_xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
 			if (cmd == 'save-records')   	xhr_type = 'PUT';  // so far it is always update
 			if (cmd == 'delete-records') 	xhr_type = 'DELETE';
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
-			this.request_xhr = $.ajax({
+			this.last.request_xhr = $.ajax({
 				type		: xhr_type,
 				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
@@ -969,13 +968,13 @@
 			var obj = this;
 			this.unlock();
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', xhr: this.request_xhr, status: status });
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', xhr: this.last.request_xhr, status: status });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
 			// parse server response
-			var responseText = this.request_xhr.responseText;
+			var responseText = this.last.request_xhr.responseText;
 			if (status != 'error') {
 				// default action
 				if (typeof responseText != 'undefined' && responseText != '') {
@@ -1018,7 +1017,7 @@
 		error: function (msg) {
 			var obj = this;
 			// let the management of the error outside of the grid
-			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.request_xhr });
+			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.request_xhr });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
@@ -1264,7 +1263,7 @@
 									var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
 									if (rTop < sTop) {
 										$('#grid_'+ obj.name +'_records').prop('scrollTop', rTop - rHeight * 0.7);
-										obj.last_scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
+										obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
 									}
 								}
 								if (event.preventDefault) event.preventDefault();
@@ -1280,7 +1279,7 @@
 									var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
 									if (rTop + rHeight > sHeight + sTop) {
 										$('#grid_'+ obj.name +'_records').prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight * 0.7);
-										obj.last_scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
+										obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
 									}
 								}
 								if (event.preventDefault) event.preventDefault();
@@ -1297,10 +1296,10 @@
 
 			function finalizeDoClick() {
 				// remember last selected
-				obj.last_selected = obj.getSelection();
+				obj.last.selected = obj.getSelection();
 				var msgLeft = '';
-				if (obj.last_selected.length > 0) {
-					msgLeft = obj.last_selected.length + ' selected';
+				if (obj.last.selected.length > 0) {
+					msgLeft = obj.last.selected.length + ' selected';
 				}
 				$('#'+ obj.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
 			}  
@@ -1318,7 +1317,7 @@
 			this.selectNone();
 			this.select(recid);
 			// remember last scroll if any
-			this.last_selected	 = this.getSelection();
+			this.last.selected	 = this.getSelection();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -1414,7 +1413,7 @@
 			// -- body (need this for hide/show columns to work)
 			var bodyHTML = '';
 			bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
-						'	onscroll="var obj = w2ui[\''+ this.name + '\']; obj.last_scrollTop = this.scrollTop; obj.last_scrollLeft = this.scrollLeft; '+
+						'	onscroll="var obj = w2ui[\''+ this.name + '\']; obj.last.scrollTop = this.scrollTop; obj.last.scrollLeft = this.scrollLeft; '+
 						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft">'+
 						'	<table>'+ this.getRecordsHTML() +'</table>'+
 						'</div>'+
@@ -1462,25 +1461,25 @@
 				// refresh toolbar only once
 				if (typeof this.toolbar == 'object') {
 					this.toolbar.refresh();
-					$('#grid_'+ this.name +'_search_all').val(this.last_search);
+					$('#grid_'+ this.name +'_search_all').val(this.last.search);
 				}
 			} else {
 				$('#grid_'+ this.name +'_toolbar').hide();
 			}
 
 			// search placeholder
-			if (this.searches.length == 0) this.last_field = 'No Search Fields';
-			if (!this.multiSearch && this.last_field == 'all') {
-				this.last_field 	= this.searches[0].field;
-				this.last_caption 	= this.searches[0].caption;
+			if (this.searches.length == 0) this.last.field = 'No Search Fields';
+			if (!this.multiSearch && this.last.field == 'all') {
+				this.last.field 	= this.searches[0].field;
+				this.last.caption 	= this.searches[0].caption;
 			}
 			for (var s in this.searches) {
-				if (this.searches[s].field == this.last_field) this.last_caption = this.searches[s].caption;
+				if (this.searches[s].field == this.last.field) this.last.caption = this.searches[s].caption;
 			}
-			if (this.last_multi) {
+			if (this.last.multi) {
 				$('#grid_'+ this.name +'_search_all').attr('placeholder', w2utils.lang('Multi Fields'));
 			} else {
-				$('#grid_'+ this.name +'_search_all').attr('placeholder', this.last_caption);
+				$('#grid_'+ this.name +'_search_all').attr('placeholder', this.last.caption);
 			}
 
 			// focus search if last searched
@@ -1495,7 +1494,7 @@
 			// -- body
 			var bodyHTML = '';
 			bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
-						'	onscroll="var obj = w2ui[\''+ this.name + '\']; obj.last_scrollTop = this.scrollTop; obj.last_scrollLeft = this.scrollLeft; '+
+						'	onscroll="var obj = w2ui[\''+ this.name + '\']; obj.last.scrollTop = this.scrollTop; obj.last.scrollLeft = this.scrollLeft; '+
 						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft">'+
 						'	<table>'+ this.getRecordsHTML() +'</table>'+
 						'</div>'+
@@ -1518,9 +1517,9 @@
 				$('#grid_'+ this.name +'_footer').hide();
 			}
 			// select last selected record
-			if (this.last_selected.length > 0) for (var s in this.last_selected) {
-				if (this.get(this.last_selected[s]) != null) {
-					this.select(this.get(this.last_selected[s]).recid);
+			if (this.last.selected.length > 0) for (var s in this.last.selected) {
+				if (this.get(this.last.selected[s]) != null) {
+					this.select(this.get(this.last.selected[s]).recid);
 				}
 			}
 			// show/hide clear search link
@@ -1562,7 +1561,7 @@
 				this.box = box;
 			}
 			if (!this.box) return;
-			if (this.last_sortData == null) this.last_sortData = this.sortData;
+			if (this.last.sortData == null) this.last.sortData = this.sortData;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
 			if (eventData.stop === true) return false;
@@ -1671,8 +1670,8 @@
 						'	</td>'+
 						'	<td>'+
 						'		<input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
-						'			placeholder="'+ this.last_caption +'" value="'+ this.last_search +'"'+
-						'			onkeyup="if (event.keyCode == 13) w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last_field, this.value); '+
+						'			placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
+						'			onkeyup="if (event.keyCode == 13) w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, this.value); '+
 						'					  w2ui[\''+ this.name +'\']._focus_when_refreshed = true;">'+
 						'	</td>'+
 						'	<td>'+
@@ -1974,7 +1973,7 @@
 				$('#grid_'+ this.name +'_cell_header_last').show();
 			} else {
 				records.css({ top: ((this.columnGroups.length > 0 ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px', overflow: 'hidden' });
-				if (records.length > 0) { this.last_scrollTop  = 0; this.last_scrollLeft = 0; } // if no scrollbars, always show top
+				if (records.length > 0) { this.last.scrollTop  = 0; this.last.scrollLeft = 0; } // if no scrollbars, always show top
 				$('#grid_'+ this.name +'_cell_header_last').hide();
 			}
 			if (this.show.emptyRecords && !bodyOverflowY) {
@@ -2123,10 +2122,10 @@
 			// apply last scroll if any
 			var columns = $('#grid_'+ this.name +'_columns');
 			var records = $('#grid_'+ this.name +'_records');
-			if (this.last_scrollTop != '' && records.length > 0) {
-				columns.prop('scrollLeft', this.last_scrollLeft);
-				records.prop('scrollTop',  this.last_scrollTop);
-				records.prop('scrollLeft', this.last_scrollLeft);
+			if (this.last.scrollTop != '' && records.length > 0) {
+				columns.prop('scrollLeft', this.last.scrollLeft);
+				records.prop('scrollTop',  this.last.scrollTop);
+				records.prop('scrollLeft', this.last.scrollLeft);
 			}
 		},
 

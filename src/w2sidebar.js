@@ -488,6 +488,7 @@
 				var nm 	 = '.w2ui-sidebar-div';
 			} else {
 				var node = this.get(id);
+				if (node == null) return;
 				var nm 	 = '#node_'+ w2utils.escapeId(node.id) + '_sub';
 			}
 			if (node != this) {
