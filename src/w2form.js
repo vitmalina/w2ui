@@ -190,9 +190,11 @@
 			return;
 		},
 
-		get: function (field) {
+		get: function (field, returnIndex) {
 			for (var f in this.fields) {
-				if (this.fields[f].name == field) return this.fields[f];
+				if (this.fields[f].name == field) {
+					if (returnIndex === true) return f; else return this.fields[f];
+				}
 			}
 			return null;
 		},
