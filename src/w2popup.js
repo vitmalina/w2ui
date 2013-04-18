@@ -298,7 +298,7 @@
 			if (String(options) == 'undefined') options = {};
 			// load url
 			var html = $('#w2ui-popup').data(url);
-			if (typeof html != 'undefined') {
+			if (typeof html != 'undefined' && html != null) {
 				popup(html, selector);
 			} else {
 				$.get(url, function (data, status, obj) {
