@@ -1,0 +1,25 @@
+Current state parameters
+
+<div class="definition">
+	Object, default see below
+</div>
+
+The grid holds a variety of current state variables needed for <a href="w2grid.refresh">.refresh()</a>. Last scroller 
+position, last search field, etc. This property is used internally, but you can potentially use it in your code too. The
+object has following structure:
+
+<textarea class="javascript">
+this.last = {
+	field		: 'all',		// last search field
+	caption		: 'All Fields',	// last search caption
+	logic		: 'OR',			// last search logic
+	search		: '',			// last search text
+	multi		: false,		// last multi 
+	scrollTop	: 0,			// last scrollTop position
+	scrollLeft	: 0,			// last scrollLeft position
+	selected	: [],			// last selected items
+	sortData	: null,			// last sortData
+	sortCount	: 0,			// last sortCount
+	request_xhr	: null			// last jquery xhr requests
+}
+</textarea>

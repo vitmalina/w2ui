@@ -96,6 +96,9 @@ $(function () {
 	w2ui['docs'].add('w2utils-methods', nodes);
 	w2ui['docs'].add('w2utils-props', { id: 'w2utils.settings', text: 'settings', icon: 'fa-star-empty' });
 
+	// remove internal methods/props
+	w2ui['docs'].remove('w2layout.panel', 'w2grid.isIOS', 'w2toolbar.item', 'w2sidebar.node', 'w2tabs.tab');
+
 	function init (type) {
 		var methods = [];
 		var props   = [];
