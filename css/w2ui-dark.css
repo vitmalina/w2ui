@@ -847,7 +847,7 @@ div.w2ui-grid .w2ui-grid-toolbar {
   border-bottom: 1px solid #252c39;
   background-color: #434d64;
   height: 38px;
-  padding: 6px 0px;
+  padding: 7px 0px 4px 0px;
   margin: 0px;
   box-shadow: 0px 1px 2px #333333;
 }
@@ -919,9 +919,10 @@ div.w2ui-grid .w2ui-grid-body .w2ui-grid-columns table {
 }
 div.w2ui-grid .w2ui-grid-body .w2ui-grid-columns .w2ui-resizer {
   position: absolute;
+  display: block;
   padding: 0px;
   margin: 0px;
-  width: 5px;
+  width: 6px;
   height: 12px;
   cursor: col-resize;
 }
@@ -1074,6 +1075,7 @@ div.w2ui-grid .w2ui-editable input {
   margin: 2px 0px;
   padding: 4px 3px;
   border: 0px;
+  border-radius: 0px;
   color: #c0c8d5;
   background-color: transparent;
   width: 100%;
@@ -1086,7 +1088,6 @@ div.w2ui-grid .w2ui-editable input.changed {
 }
 div.w2ui-grid .w2ui-grid-summary {
   position: absolute;
-  background-color: #495474;
   box-shadow: 0px -1px 4px #333333;
 }
 div.w2ui-grid .w2ui-grid-summary table {
@@ -1094,6 +1095,12 @@ div.w2ui-grid .w2ui-grid-summary table {
   border-spacing: 0px;
   border-collapse: border-collapse;
   table-layout: fixed;
+}
+div.w2ui-grid .w2ui-grid-summary table .w2ui-odd {
+  background-color: #495474;
+}
+div.w2ui-grid .w2ui-grid-summary table .w2ui-even {
+  background-color: #495474;
 }
 div.w2ui-grid .w2ui-grid-footer {
   position: absolute;
@@ -1441,7 +1448,7 @@ div.w2ui-popup div.w2ui-msg-no-buttons {
 */
 div.w2ui-sidebar {
   cursor: default;
-  background-color: #323948;
+  background-color: #323948 !important;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
@@ -1586,9 +1593,11 @@ div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-caption {
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-group {
   white-space: nowrap;
   overflow: hidden;
-  margin: 15px 0px 10px 8px;
+  padding: 10px 0px 10px 10px;
+  margin: 0px;
   cursor: default;
   color: #748890;
+  background-color: transparent;
 }
 div.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-group :nth-child(1) {
   /* show / hide link */
