@@ -620,7 +620,7 @@
 			// refresh values of all fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				field.el = $(this.box).find('[name="'+ field.name +'"]')[0];
+				field.el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')[0];
 				if (typeof field.el == 'undefined') {
 					console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
 					return;
