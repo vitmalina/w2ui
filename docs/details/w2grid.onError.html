@@ -4,8 +4,12 @@ Called when server returns an error.
 	onError = function(target, eventData)
 </div>
 
-You can add event listener during the object creation:
+This event is triggered each time an error message needs to be displayed. In most cases the error message is displayed when
+server returns an error, but you can call <a href="w2grid.error" class="argument">.error()</a> method on your own errors and it
+will trigger error event.
+<div style="height: 10px;"></div>
 
+You can add event listener during the object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
 	name    : 'grid',

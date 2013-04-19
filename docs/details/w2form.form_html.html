@@ -1,0 +1,56 @@
+Form HTML template.
+
+<div class="definition">
+	String, default = ''
+</div>
+
+There are three ways you can define form HTML template (in order of preference):
+<ul style="margin: 5px 40px">
+	<li><a class="argument" href="w2form.form_url">.form_url</a> - load from server</li>
+	<li><a class="argument" href="w2form.form_html">.form_html</a> - define in JavaScript</li>
+	<li>innerHTML of<a class="argument" href="w2form.box">.box</a></li>
+</ul>
+
+The following example shows how to define HTML template in JavaScript
+
+<textarea class="javascript">
+$('#form').w2form({
+	name: 'form',
+	style: 'border: 0px; background-color: transparent;',
+	form_html: 
+		'<div class="w2ui-page page-0">'+
+		'	<div class="w2ui-label">First Name:</div>'+
+		'	<div class="w2ui-field">'+
+		'		<input name="first_name" type="text" size="35"/>'+
+		'	</div>'+
+		'	<div class="w2ui-label">Last Name:</div>'+
+		'	<div class="w2ui-field">'+
+		'		<input name="last_name" type="text" size="35"/>'+
+		'	</div>'+
+		'	<div class="w2ui-label">Email:</div>'+
+		'	<div class="w2ui-field">'+
+		'		<input name="email" type="text" size="35"/>'+
+		'	</div>'+
+		'</div>'+
+		'<div class="w2ui-buttons">'+
+		'	<input type="button" value="Reset" name="reset">'+
+		'	<input type="button" value="Save" name="save">'+
+		'</div>',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	record: { 
+		first_name	: 'John',
+		last_name 	: 'Doe',
+		email 		: 'jdoe@email.com'
+	},
+	actions: {
+		"save": function () { this.validate(); },
+		"reset": function () { this.clear(); },
+	}
+});
+</textarea>
+
+You will still need a container #form to render the form.

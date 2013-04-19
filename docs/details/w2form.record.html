@@ -1,0 +1,42 @@
+Map of field values.
+
+<div class="definition">
+	Object, default = {}
+</div>
+
+If you defined a form that has <a class="argument" href="w2form.recid">.recid</a> and <a class="argument" href="w2form.url">.url</a> 
+properties defined, the form data will be loaded from the remote data source into the <span class="argument">.record</span> object. 
+<div style="height: 10px"></div>
+
+You can also define record during object creation:
+<textarea class="javascript">
+$('#form').w2form({
+	name     : 'form',
+	style    : 'border: 0px; background-color: transparent;',
+	form_url : '/server/path',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	record: { 
+		first_name	: 'John',
+		last_name 	: 'Doe',
+		email 		: 'jdoe@email.com'
+	},
+	actions: {
+		"save": function () { this.validate(); },
+		"reset": function () { this.clear(); },
+	}
+});
+</textarea>
+
+Or any time during run-time
+<textarea class="javascript">
+w2ui['form'].record = { 
+	first_name	: 'John',
+	last_name 	: 'Doe',
+	email 		: 'jdoe@email.com'
+}
+w2ui['form'].refresh();
+</textarea>

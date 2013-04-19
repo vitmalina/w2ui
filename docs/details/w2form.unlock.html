@@ -1,0 +1,32 @@
+Unlocks the form.
+
+<div class="definition">
+	unlock()
+</div>
+
+<h4>Description</h4>
+
+This method will unlock the form that was previously locked. It calls the <a href="w2form.lock" class="argument">lock</a> method with 
+empty message to unlock the form.
+				
+If you have following form:
+<textarea class="javascript">
+$('#form').w2form({
+	name     : 'form',
+	form_url : '/server/path',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	actions: {
+		"save": function (target, data) { this.validate(); },
+		"reset": function (target, data) { this.clear(); },
+	}
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+w2ui['form'].unlock();
+</textarea>

@@ -10,41 +10,35 @@ body {
 	font-size: 14px;
 }
 
+
 h1 {
-	margin: 15px 0px;
-	font-size: 20px;
+  font-size: 36px;
+  line-height: 40px;
+  margin: 15px 0px;
 }
 
 h2 {
-	margin: 8px 0px;
-	font-size: 13px;
+  font-size: 30px;
+  line-height: 40px;
+  margin: 10px 0px;
+}
+
+h3 {
+  font-size: 24px;
+  line-height: 40px;
+  margin: 10px 0px;
+}
+
+h4 {
+  font-size: 18px;
+  line-height: 20px;
+  margin: 10px 0px;
 }
 
 #main_layout {
 	position: absolute; 
 	width: 100%; 
 	height: 100%;
-}
-
-#example_title {
-	width: 750px; 
-	margin-bottom: 20px;
-}
-
-#example_view {
-	margin-bottom: 30px;
-}
-
-.content {
-	padding: 10px;
-	line-height: 150%;
-}
-
-.preview {
-	margin-bottom: 10px;
-	width: 100%;
-	border: 0px;
-	background-color: #efefef;
 }
 
 .CodeMirror {
@@ -55,7 +49,7 @@ h2 {
 	overflow: auto;
 	margin-top: 10px;
 	margin-bottom: 20px;
-	line-height: 140%;
+	line-height: 160% !important;
 }
 
 table.list {
@@ -95,7 +89,7 @@ table.list td {
 
 .obj-desc {
 	padding: 10px 20px;
-	line-height: 160%;
+	line-height: 150%;
 	width: 850px;
 }
 
@@ -136,7 +130,7 @@ table.list td {
 }
 
 .obj-desc table tr td:first-child {
-	width: 20%;
+	width: 15%;
 	color: #304E77;
 	border-right: 1px solid silver;
 	font-family: Monaco, "Courier New";

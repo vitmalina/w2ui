@@ -1,0 +1,59 @@
+Submits record data to remote data source for saving.
+
+<div class="definition">
+	request([postData], [callBack])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>postData</td>
+		<td><b>object</b>, Map of additional parameter to submit to remote data source (<i>optional</i>)</td>
+	</tr>
+	<tr>
+		<td>callBack</td>
+		<td><b>function</b>, call back function when form is reloaded (<i>optional</i>)</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+This method should be called when you need to save the record. Often it is linked to a save button. In the example below when user clicks
+the save button, it will call the <span class="argument">.save()</span> method.
+
+<textarea class="javascript">
+$('#form').w2form({
+	name     : 'form',
+	recid 	 : 10,
+	url 	 : '/server/form/path',
+	form_url : '/server/path',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	actions: {
+		"save": function (target, data) { this.save(); },
+		"reset": function (target, data) { this.clear(); },
+	}
+});
+</textarea>
+
+This request submits following structure (will be converted to a regular HTTP POST):
+<textarea class="javascript">
+{
+    cmd     : 'save-record',
+    name    : w2form.name,
+    recid   : w2form.recid,
+    record  : {
+    	field1 : value1,
+    	...
+    	fieldN : valueN
+	}
+}
+</textarea>
+
+Please note that the <a class="argument" href="w2form.url">.url</a> property has to be defined for save request to be submitted. If it is not
+defined, the method will not proceed. The <a class="argument" href="w2form.validate">.validate()</a> method is called before form
+submittion. If it return any error the submission will not proceed.

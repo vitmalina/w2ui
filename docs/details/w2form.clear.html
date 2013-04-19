@@ -1,0 +1,41 @@
+Removes all record dat from the form and clears it on the screen.
+
+<div class="definition">
+	clear()
+</div>
+
+<h4>Description</h4>
+
+Clears <a class="method" href="w2form.record">.record</a> object, sets <a class="method" href="w2form.recid">.recid</a> to 0, removes 
+all tags and resets fields on the screen to a blank state. If you have the form defined in the following way:
+<textarea class="javascript">
+$('#form').w2form({
+	name     : 'form',
+	recid    : 10,
+	url      : '/server/url',
+	form_url : '/server/path',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	record: { 
+		first_name	: 'John',
+		last_name 	: 'Doe',
+		email 		: 'jdoe@email.com'
+	},
+	actions: {
+		"save": function () { this.validate(); },
+		"reset": function () { this.clear(); },
+	},
+	postData: [
+		param1 : 'value1', 
+		param2 : 'value2'
+	]
+});
+</textarea>
+
+You can do
+<textarea class="javascript">
+w2ui['form'].clear();
+</textarea>

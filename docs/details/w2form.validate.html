@@ -1,0 +1,45 @@
+Performs form validation.
+
+<div class="definition">
+	validate([showErrors])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>showErrors</td>
+		<td><b>boolean</b>, if true then it will display error bubbles on the screen (<i>optional</i>)</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The method will perform validation of the data, making sure all required fields are not blank and values are according to their field 
+types. It will return an array of error objects. If this array is empty, then there are no errors. You can optionally supply 
+<span class="argument">showErrors</span> argument that will make the method to display error bubbles next to the fields.
+<div style="height: 10px"></div>
+
+If you have form defined in the following way:
+<textarea class="javascript">
+$('#form').w2form({
+	name     : 'form',
+	recid 	 : 10,
+	url 	 : '/server/form/path',
+	form_url : '/server/path',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	actions: {
+		"save": function (target, data) { this.save(); },
+		"reset": function (target, data) { this.clear(); },
+	}
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+console.log( w2ui['form'].validate() );
+</textarea>

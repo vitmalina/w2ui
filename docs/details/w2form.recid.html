@@ -1,0 +1,43 @@
+Id of the record.
+
+<div class="definition">
+	Integer, default = null
+</div>
+
+If you defined a form that has <span class="argument">.recid</span> and <a class="argument" href="w2form.url">.url</a> 
+properties defined, the form data will be loaded from the remote data source into the <a class="argument" href="w2form.record">.record</a> object. 
+<div style="height: 10px"></div>
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#form').w2form({
+	name     : 'form',
+	recid    : 10,
+	url      : '/server/url',
+	form_url : '/server/path',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	record: { 
+		first_name	: 'John',
+		last_name 	: 'Doe',
+		email 		: 'jdoe@email.com'
+	},
+	actions: {
+		"save": function () { this.validate(); },
+		"reset": function () { this.clear(); },
+	},
+	postData: [
+		param1 : 'value1', 
+		param2 : 'value2'
+	]
+});
+</textarea>
+
+Or you can change this property during run-time
+<textarea class="javascript">
+w2ui['form'].recid = 101;
+w2ui['form'].reload();
+</textarea>

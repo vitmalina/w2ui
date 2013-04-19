@@ -1,0 +1,41 @@
+The header of the form. 
+
+<div class="definition">
+	String, default = ''
+</div>
+
+The header can be simple text or HTML. If you change <span class="argument">.header</span> property, you will need to call 
+<a class="argument" href="w2form.refresh">.refresh()</a> method to refresh the form. If header is not set it will not be
+rendered.
+<div style="height: 10px"></div>
+
+Header can be defined during object creation: 
+
+<textarea class="javascript">
+$('#form').w2form({
+	name     : 'form',
+	header   : 'Form Header',
+	form_url : '/server/path',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	record: { 
+		first_name	: 'John',
+		last_name 	: 'Doe',
+		email 		: 'jdoe@email.com'
+	},
+	actions: {
+		"save": function () { this.validate(); },
+		"reset": function () { this.clear(); },
+	}
+});
+</textarea>
+
+Or any time after the form has been created:
+
+<textarea class="javascript">
+w2ui['form'].header = 'Grid Header';
+w2ui['form'].refresh();
+</textarea>

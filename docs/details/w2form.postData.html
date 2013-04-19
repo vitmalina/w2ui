@@ -1,0 +1,38 @@
+Map of additional parameter to submit to remote data source.
+
+<div class="definition">
+	Object, default = {}
+</div>
+
+Adding properties to <span class="property">.postData</span> object will instruct the form to submit these parameters to the remote data source
+with each remote request (get, save).
+<div style="height: 10px"></div>
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#form').w2form({
+	name     : 'form',
+	url      : '/server/url',
+	form_url : '/server/path',
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+	],
+	record: { 
+		first_name	: 'John',
+		last_name 	: 'Doe',
+		email 		: 'jdoe@email.com'
+	},
+	actions: {
+		"save": function () { this.validate(); },
+		"reset": function () { this.clear(); },
+	},
+	postData: [
+		param1 : 'value1', 
+		param2 : 'value2'
+	]
+});
+</textarea>
+
+Or any time during the run-time.

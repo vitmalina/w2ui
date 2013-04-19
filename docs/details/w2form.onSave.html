@@ -1,0 +1,38 @@
+Called when server replies to save record request.
+
+<div class="definition">
+	onSave = function(target, eventData)
+</div>
+
+This event is triggered after server replies to save record request. If you want to add an event before data is submitted, see 
+<a href="w2form.onSubmit" class="argument">.onSubmit</a> event.
+<div style="height: 10px;"></div>
+
+You can add event listener during the object creation:
+<textarea class="javascript">
+$('#form').w2form({ 
+	name     : 'form',
+	url      : 'server/post',
+	record: {
+		field_1 : 1,
+		field_2 : 2
+	},
+	fields: [
+		{ name: 'field_1', type: 'text', required: true },
+		{ name: 'field_2', type: 'alphanumeric', required: true }
+	],
+	onSave: function(target, eventData) {
+		console.log(eventData);
+	}		
+});
+</textarea>
+
+or after the object has been created:
+<textarea class="javascript">
+w2ui['form'].on('save', function(target, eventData) {
+	console.log(eventData);
+});
+</textarea>
+
+Your event listener can be executed before or after the event has been processed. You can also cancel 
+the default behavior. See <a href="utils/events">Events</a> page in utilities.

@@ -43,7 +43,6 @@
 		this.postData		= {};
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
 		this.style 			= '';
-
 		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
 		this.msgRefresh		= w2utils.lang('Refreshing...');
 		this.msgSaving		= w2utils.lang('Saving...');
@@ -150,9 +149,9 @@
 	
 	w2form.prototype = {
 
-		init: function (el) {
+		init: function (box) {
 			var obj = this;
-			$(el).find('input, textarea, select').each(function (index, el) {
+			$(box).find('input, textarea, select').each(function (index, el) {
 				var type  = 'text';
 				var name  = (typeof $(el).attr('name') != 'undefined' ? $(el).attr('name') : $(el).attr('id'));
 				if (el.type == 'checkbox')  	type = 'checkbox';
@@ -215,10 +214,12 @@
 				this.request(callBack);
 			} else {
 				this.refresh();
+				if (typeof callBack == 'function') callBack();
 			}
 		},
 
 		clear: function () {
+			this.recid  = 0;
 			this.record = {};
 			// clear all enum fields
 			for (var f in this.fields) {

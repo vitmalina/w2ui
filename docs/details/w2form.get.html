@@ -1,8 +1,8 @@
-<div class="definition">
-	get(field)
-</div>
+Finds and returns the field object or its index.
 
-Finds and returns the field object from <span class="argument">fields</span> array. Returns null if field object is not found.
+<div class="definition">
+	get(field, [returnIndex])
+</div>
 
 <h4>Arguments</h4>
 
@@ -12,33 +12,39 @@ Finds and returns the field object from <span class="argument">fields</span> arr
 		<td>field</td>
 		<td><b>string</b>, name of the field</td>
 	</tr>
+	<tr>
+		<td>returnIndex</td>
+		<td><b>boolean</b>, if true returns index in the fields array (optional)</td>
+	</tr>
 	</table>
 </div>
 
 <h4>Description</h4>
 
-The <span class="argument">get</span> method will find the <span class="argument">field</span> object in the 
-<span class="argument">fields</span> array and return it. If the field does not exists it will return null. Because JavaScript passes 
-objects by reference, modifying this object will modify the original field.
-<br><br>
+This method will find the <span class="argument">field</span> object in the <a class="argument" href="w2form.fields">.fields</a> 
+array and return it or its index. If the field does not exists it will return null. Because JavaScript passes objects by reference, modifying 
+this object will modify the original field. If the second optional argument <span class="argument">returnIndex</span> is set to true, the method will return index of the field in the <a class="argument" href="w2form.fields">.fields</a> array.
+<div style="height: 10px"></div>
 
+If you have form defined in the following way:
 <textarea class="javascript">
-$(function () {
-	$('#form').w2form({ 
-		name     : 'form',
-		url      : 'server/post',
-		record: {
-			field_1 : 1,
-			field_2 : 2
-		},
-		fields: [
-			{ name: 'field_1', type: 'text', required: true },
-			{ name: 'field_2', type: 'alphanumeric', required: true }
-		]
-	});
-	
-	// update field object
-	var field = w2ui['form'].get('field_1');
-	console.log(field);
+$('#form').w2form({ 
+	name     : 'form',
+	url      : 'server/post',
+	record: {
+		field_1 : 1,
+		field_2 : 2
+	},
+	fields: [
+		{ name: 'field_1', type: 'text', required: true },
+		{ name: 'field_2', type: 'alphanumeric', required: true }
+	]
 });
+</textarea>
+
+You can do: 
+<textarea class="javascript">
+// update field object
+var field = w2ui['form'].get('field_1');
+console.log(field);
 </textarea>
