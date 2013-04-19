@@ -7,14 +7,14 @@
 	</div>
 	
 	<div id="example_view">
-		<div id="sidebar" style="width: 100%; height: 300px; width: 180px; background-color: #F5F6F7; padding: 1px 0px;"></div>
+		<div id="sidebar" style="height: 300px; width: 180px;"></div>
 		<div style="clear: both"/>
 	</div>
 	
 	<div id="example_html">
 		<h2>HTML</h2>
 		<textarea class="preview">
-<div id="sidebar" style="width: 100%; height: 300px; width: 180px; background-color: #F5F6F7; padding: 1px 0px;"></div>
+<div id="sidebar" style="height: 300px; width: 180px;"></div>
 		</textarea>
 	</div>
 	
@@ -23,7 +23,6 @@
 		<textarea class="preview">
 $('#sidebar').w2sidebar({
 	name: 'sidebar',
-	img: null,
 	nodes: [ 
 		{ id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
 		  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img: 'icon-page' },
@@ -46,11 +45,9 @@ $('#sidebar').w2sidebar({
 
 <script>
 $(function () {
-	$().w2destroy('sidebar');
-	
+	$().w2destroy('sidebar');	
 	$('#sidebar').w2sidebar({
 		name: 'sidebar',
-		img: null,
 		nodes: [ 
 			{ id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
 			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img: 'icon-page' },
