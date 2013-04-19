@@ -7,9 +7,11 @@
 * 
 *   NICE TO HAVE
 *		- when maximized, align the slide down message
+*		- bug: after transfer to another content, message does not work
 *
 *	1.2 change
 *		- min(), max(), toggle(), options.maximized
+*		- changed .overflow to more includins .style
 *
 ************************************************************************/
 
@@ -31,13 +33,19 @@
 		// load options from markup
 		var dlgOptions = {};
 		if ($(this).length > 0 ) {
-			if ($(this).find('div[rel=title]').length > 0) 		dlgOptions['title'] 	= $(this).find('div[rel=title]').html();
-			if ($(this).find('div[rel=body]').length > 0) 		dlgOptions['body'] 		= $(this).find('div[rel=body]').html();
-			if ($(this).find('div[rel=buttons]').length > 0) 	dlgOptions['buttons'] 	= $(this).find('div[rel=buttons]').html();
+			if ($(this).find('div[rel=title]').length > 0) {
+				dlgOptions['title'] = $(this).find('div[rel=title]').html();
+			}
+			if ($(this).find('div[rel=body]').length > 0) {
+				dlgOptions['body']  = $(this).find('div[rel=body]').html();
+				dlgOptions['style'] = $(this).find('div[rel=body]')[0].style.cssText;
+			}
+			if ($(this).find('div[rel=buttons]').length > 0) {
+				dlgOptions['buttons'] 	= $(this).find('div[rel=buttons]').html();
+			}
 			if (parseInt($(this).css('width')) != 0)  dlgOptions['width']  = parseInt($(this).css('width'));
 			if (parseInt($(this).css('height')) != 0) dlgOptions['height'] = parseInt($(this).css('height'));
-			if (String($(this).css('overflow')) != 'undefined') dlgOptions['overflow'] = $(this).css('overflow');
-			}
+		}
 		// show popup
 		return window.w2popup[method]($.extend({}, dlgOptions, options));
 	};
@@ -50,7 +58,7 @@
 			title			: '',
 			body			: '',
 			buttons			: '',
-			overflow		: 'auto',
+			style			: '',
 			color			: '#000',
 			opacity			: 0.4,
 			speed			: 0.3,
@@ -141,10 +149,10 @@
 						  '</div>'; 
 				}
 				msg += '<div class="w2ui-box1" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
-				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="overflow: '+ options.overflow +'">'+ options.body +'</div>';
+				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'">'+ options.body +'</div>';
 				msg += '</div>';
 				msg += '<div class="w2ui-box2" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
-				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="overflow: '+ options.overflow +'"></div>';
+				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'"></div>';
 				msg += '</div>';
 				if (options.buttons != '') { 
 					msg += '<div class="w2ui-msg-buttons">'+ options.buttons +'</div>'; 
@@ -183,7 +191,8 @@
 					window.w2popup.resize(options.width, options.height);
 				}
 				// show new items
-				$('#w2ui-popup .w2ui-box2 > .w2ui-msg-body').html(options.body).css('overflow', options.overflow);
+				var body = $('#w2ui-popup .w2ui-box2 > .w2ui-msg-body').html(options.body);
+				if (body.length > 0) body[0].style.cssText = options.style;
 				$('#w2ui-popup .w2ui-msg-buttons').html(options.buttons);
 				$('#w2ui-popup .w2ui-msg-title').html(
 					  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onclick="$().w2popup(\'close\')">Close</div>' : '')+ 

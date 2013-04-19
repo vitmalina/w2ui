@@ -8,7 +8,7 @@
 	</div>
 	
 	<div id="example_view">
-		<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
+		<div id="form" style="width: 750px;">
 		</div>
 	</div>
 	
@@ -34,7 +34,7 @@
 	<div id="example_html">
 		<h2>HTML</h2>
 		<textarea class="preview">
-<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;"></div>
+<div id="form" style="width: 750px;"></div>
 		</textarea>
 
 	<div id="example_html2">
@@ -63,7 +63,7 @@
 	</div>
 	<div class="w2ui-label">List:</div>
 	<div class="w2ui-field">
-		<input name="field_list" type="text" size="30"/>
+		<select name="field_list"/>
 	</div>
 	<div class="w2ui-label">Multi Select:</div>
 	<div class="w2ui-field">
@@ -126,6 +126,7 @@ $(function () {
 	$('#form').w2form({ 
 		name     : 'form',
 		url      : 'server/post',
+		header   : 'Field Types',
 		form_url : 'data/form.html', 
 		fields: [
 			{ name: 'field_text', type: 'text', required: true },
@@ -133,7 +134,7 @@ $(function () {
 			{ name: 'field_int', type: 'int', required: true },
 			{ name: 'field_float', type: 'float', required: true },
 			{ name: 'field_date', type: 'date' },
-			{ name: 'field_list', type: 'list', required: true, 
+			{ name: 'field_list', type: 'select', required: true, 
 				options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
 			{ name: 'field_enum', type: 'enum', required: true, 
 				options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },

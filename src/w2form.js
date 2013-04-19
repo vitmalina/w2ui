@@ -44,7 +44,7 @@
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
 		this.style 			= '';
 
-		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format. See console for more information.');
+		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
 		this.msgRefresh		= w2utils.lang('Refreshing...');
 		this.msgSaving		= w2utils.lang('Saving...');
 
@@ -184,7 +184,7 @@
 				var obj = this;
 				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
 				this.tabs.on('click', function (id, choice) {
-					obj.goto(this.getIndex(id));
+					obj.goto(this.get(id, true));
 				});
 			}
 			return;
@@ -413,7 +413,7 @@
 							}
 						}
 					} else {
-						obj.error('AJAX Error. See console for more details.');
+						obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
 					}
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -441,7 +441,10 @@
 			}
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (!this.url) return;
+			if (!this.url) {
+				console.log("ERROR: Form cannot be saved because no url is defined.");
+				return;
+			}
 			this.lock(this.msgSaving);
 			// build parameters list
 			var params = {};
@@ -483,6 +486,7 @@
 				dataType	: 'text',
 				complete	: function (xhr, status) {
 					obj.unlock();
+
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
 					if (eventData.stop === true) {
@@ -516,7 +520,7 @@
 							}
 						}
 					} else {
-						obj.error('AJAX Error. See console for more details.');
+						obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
 					}
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -572,6 +576,8 @@
 
 		goto: function (page) {
 			if (typeof page != 'undefined') this.page = page;
+			// if it was auto size, resize it
+			if ($(this.box).data('auto-size') === true) $(this.box).height(0);
 			this.refresh();
 		},
 
@@ -588,6 +594,7 @@
 		},
 
 		resize: function () {
+			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
 			if (eventData.stop === true) return false;
@@ -596,15 +603,32 @@
 			var header	= $(this.box).find('> div .w2ui-form-header');
 			var tabs	= $(this.box).find('> div .w2ui-form-tabs');
 			var page	= $(this.box).find('> div .w2ui-page');
-			var buttons	= $(this.box).find('> div .w2ui-buttons');
-			// resize elements
-			main.width($(this.box).width()).height($(this.box).height());
-			tabs.css('top', (this.header != '' ? w2utils.getSize(header, 'height') : 0));
-			page.css('top', (this.header != '' ? w2utils.getSize(header, 'height') : 0) 
-						  + (this.tabs.tabs ? w2utils.getSize(tabs, 'height') + 5 : 0));
-			page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
+			var cpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page);
+			var dpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page + ' > div');
+			var buttons	= $(this.box).find('> div .w2ui-buttons');		
+			// if no height, calculate it
+			resizeElements();
+			if ($(this.box).height() == 0 || $(this.box).data('auto-size') === true) {
+				$(this.box).height(
+					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
+					(tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
+					(page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
+					(buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
+				);
+				$(this.box).data('auto-size', true);
+			}
+			resizeElements();
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+			obj.trigger($.extend(eventData, { phase: 'after' }));
+
+			function resizeElements() {
+				// resize elements
+				main.width($(obj.box).width()).height($(obj.box).height());
+				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
+				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0) 
+							  + (obj.tabs.tabs ? w2utils.getSize(tabs, 'height') + 5 : 0));
+				page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
+			}
 		},
 
 		refresh: function () {
@@ -752,6 +776,11 @@
 						break;						
 				}
 			}
+			// wrap pages in div
+			var tmp = $(this.box).find('.w2ui-page');
+			for (var i = 0; i < tmp.length; i++) {
+				if ($(tmp[i]).find('> *').length > 1) $(tmp[i]).wrapInner('<div></div>');
+			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.resize();
@@ -794,9 +823,17 @@
 			$(window).off('resize', tmp_resize).on('resize', tmp_resize);
 			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
 			// after render actions
-			if (this.url != '' && this.recid != 0) this.request(); else this.refresh();
-			var inputs = $(this.box).find('input, select');
-			if (inputs.length > 0) inputs[0].focus();
+			if (this.url != '' && this.recid != 0) {
+				this.request(); 
+			} else {
+				this.refresh();
+			}
+			// focus first
+			function focusFirst() {
+				var inputs = $(obj.box).find('input, select');
+				if (inputs.length > 0) inputs[0].focus();
+			}
+			setTimeout(focusFirst, 500); // need timeout to allow form to render
 		},
 
 		destroy: function () { 

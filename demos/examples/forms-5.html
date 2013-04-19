@@ -6,7 +6,7 @@
 	</div>
 	
 	<div id="example_view">
-		<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
+		<div id="form" style="width: 750px;">
 			<div class="w2ui-page page-0">
 				<div class="w2ui-label">First Name:</div>
 				<div class="w2ui-field">
@@ -44,7 +44,6 @@
 				</div>
 			</div>
 			<div class="w2ui-page page-2">
-				<div class="w2ui-group">Additional Information</div>
 				<div class="w2ui-label">Short Bio:</div>
 				<div class="w2ui-field">
 					<textarea name="short_bio" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
@@ -69,10 +68,8 @@
 	<div id="example_html">
 		<h2>HTML</h2>
 		<textarea class="preview">
-<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
-
+<div id="form" style="width: 750px;">
 	<div class="w2ui-page page-0">
-		<div class="w2ui-group">General</div>
 		<div class="w2ui-label">First Name:</div>
 		<div class="w2ui-field">
 			<input name="first_name" type="text" maxlength="100" size="60"/>
@@ -83,12 +80,10 @@
 		</div>
 		<div class="w2ui-label">Comments:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"&gt;&lt;/textarea&gt;
+			&lt;textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none">&lt;/textarea>
 		</div>
 	</div>
-
 	<div class="w2ui-page page-1">
-		<div class="w2ui-group">Address</div>
 		<div class="w2ui-label">Address Line 1:</div>
 		<div class="w2ui-field">
 			<input name="address1" type="text" maxlength="100" size="60"/>
@@ -110,12 +105,10 @@
 			<input name="zip" type="text" maxlength="10" size="10"/>
 		</div>
 	</div>
-
 	<div class="w2ui-page page-2">
-		<div class="w2ui-group">Additional Information</div>
 		<div class="w2ui-label">Short Bio:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="short_bio" type="text" style="width: 385px; height: 80px; resize: none"&gt;&lt;/textarea&gt;
+			&lt;textarea name="short_bio" type="text" style="width: 385px; height: 80px; resize: none">&lt;/textarea>
 		</div>
 		<div class="w2ui-label">Talk Name:</div>
 		<div class="w2ui-field">
@@ -123,7 +116,7 @@
 		</div>
 		<div class="w2ui-label">Talk Description:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="description" type="text" style="width: 385px; height: 80px; resize: none"&gt;&lt;/textarea&gt;
+			&lt;textarea name="description" type="text" style="width: 385px; height: 80px; resize: none">&lt;/textarea>
 		</div>
 	</div>
 
@@ -176,9 +169,10 @@ $('#form').w2form({
 $(function () {
 	$().w2destroy('form');
 	$('#form').w2form({ 
-		name      : 'form',
-		url       : 'server/post',
-		fields: [
+		name   : 'form',
+		header : 'Form with Tabs',
+		url    : 'server/post',
+		fields : [
 			{ name: 'first_name', type: 'text', required: true },
 			{ name: 'last_name',  type: 'text', required: true },
 			{ name: 'comments',   type: 'text'},

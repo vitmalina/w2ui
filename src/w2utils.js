@@ -603,6 +603,7 @@ var w2utils = (function () {
 			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right; 
 			case '+height': return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
 		}
+		return 0;
 	}
 
 	function lang (phrase) {

@@ -7,7 +7,7 @@
 	</div>
 	
 	<div id="example_view">
-		<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
+		<div id="form" style="width: 750px;">
 			<div class="w2ui-page page-0">
 				<div class="w2ui-label">First Name:</div>
 				<div class="w2ui-field">
@@ -41,7 +41,7 @@
 	<div id="example_html">
 		<h2>HTML</h2>
 		<textarea class="preview">
-<div id="form" style="padding: 5px; background-color: #F5F6F7; border: 1px solid #EAEBEE; width: 750px;">
+<div id="form" style="width: 750px;">
 	<div class="w2ui-page page-0">
 		<div class="w2ui-label">First Name:</div>
 		<div class="w2ui-field">
@@ -69,9 +69,10 @@
 		<h2>JavaScript</h2>
 		<textarea class="preview">
 $('#form').w2form({ 
-	name      : 'form',
-	url       : 'server/post',
-	fields: [
+	name   : 'form',
+	header : 'Form Events',
+	url    : 'server/post',
+	fields : [
 		{ name: 'first_name', type: 'text', required: true },
 		{ name: 'last_name',  type: 'text', required: true },
 		{ name: 'dob',  type: 'date' },
@@ -105,9 +106,10 @@ w2ui['form'].on('*', function (target, data) {
 $(function () {
 	$().w2destroy('form');
 	$('#form').w2form({ 
-		name      : 'form',
-		url       : 'server/post',
-		fields: [
+		name   : 'form',
+		header : 'Form Events',
+		url    : 'server/post',
+		fields : [
 			{ name: 'first_name', type: 'text', required: true },
 			{ name: 'last_name',  type: 'text', required: true },
 			{ name: 'dob',  type: 'date' },
