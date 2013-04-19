@@ -134,9 +134,9 @@
 		},
 		
 		set: function (id, tab) {
-			var tab = this.get(id, true);
-			if (tab == null) return false;
-			$.extend(this.tabs[tab], tab);
+			var index = this.get(id, true);
+			if (index == null) return false;
+			$.extend(this.tabs[index], tab);
 			this.refresh(id);
 			return true;	
 		},
