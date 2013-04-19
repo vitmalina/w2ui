@@ -27,7 +27,9 @@ $('#grid').w2grid({
 	url: 'data/list2.json',
 	columns: [				
 		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'lname', caption: 'Last Name', size: '70%', render: function (record, index) { return record.lname + ', ' + record.fname } },
+		{ field: 'lname', caption: 'Last Name', size: '70%', 
+			render: function (record, index) { return record.lname + ', ' + record.fname } 
+		},
 		{ field: 'sdate', caption: 'Dates', size: '120px', attr: "align=center" },
 	]
 });	

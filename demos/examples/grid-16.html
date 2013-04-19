@@ -8,10 +8,10 @@
 	<div id="example_view">
 		<div id="grid" style="width: 100%; height: 500px;"></div>
 		<br>
-		<input type="button" value="Search All for Motzart" onclick="w2ui['grid'].search('all', 'motzart')">
-		<input type="button" value="Multi Field Search" 
-			onclick="w2ui['grid'].search([{ field: 'lname', value: 'm', operator: 'contains', dataType: 'text' },  
-					{ field: 'fname', value: 's', operator: 'begins with', dataType: 'text' }])">
+		<input type="button" value="Search All for Motzart" onclick="search1();">
+		<input type="button" value="Multi Field Search" onclick="search2()">
+		&nbsp;&nbsp;&nbsp; 
+		<input type="button" value="Reset Search" onclick="w2ui['grid'].searchReset()">
 	</div>
 	
 	<div id="example_html">
@@ -19,10 +19,9 @@
 		<textarea class="preview">
 <div id="grid" style="width: 100%; height: 500px;"></div>
 <br>
-<input type="button" value="Search All for Motzart" onclick="w2ui['grid'].search('all', 'motzart')">
-<input type="button" value="Multi Field Search" 
-	onclick="w2ui['grid'].search([{ field: 'lname', value: 'm', operator: 'contains', dataType: 'text' },  
-			{ field: 'fname', value: 's', operator: 'begins with', dataType: 'text' }])">
+<input type="button" value="Search All for Motzart" onclick="search1();">
+<input type="button" value="Multi Field Search" onclick="search2()">
+<input type="button" value="Reset Search" onclick="w2ui['grid'].searchReset()">
 		</textarea>
 	</div>
 	
@@ -40,7 +39,7 @@ $('#grid').w2grid({
 		{ field: 'id', caption: 'ID (float)', type: 'float' },
 		{ field: 'fname', caption: 'First Name', type: 'text' },
 		{ field: 'lname', caption: 'Last Name', type: 'text' },
-		{ field: 'email', caption: 'Email', type: 'list', items: ['vitali@gmail.com', 'jim@gmail.com'] },
+		{ field: 'email', caption: 'Email', type: 'list', items: ['vitali@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com'] },
 		{ field: 'sdate', caption: 'Date', type: 'date' }
 	],
 	sortData: [ { field: 'recid', direction: 'asc' } ],
@@ -72,6 +71,17 @@ $('#grid').w2grid({
 		{ recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
 	]
 });	
+
+function search1() {
+	w2ui['grid'].search('all', 'motzart');
+}
+
+function search2() {
+	w2ui['grid'].search([
+		{ field: 'lname', value: 'm', operator: 'contains' },
+		{ field: 'email', value: 'jdoe@gmail.com', operator: 'is' }
+	]);
+}
 		</textarea>
 	</div>
 </div>
@@ -93,7 +103,7 @@ $(function () {
 			{ field: 'id', caption: 'ID (float)', type: 'float' },
 			{ field: 'fname', caption: 'First Name', type: 'text' },
 			{ field: 'lname', caption: 'Last Name', type: 'text' },
-			{ field: 'email', caption: 'Email', type: 'list', items: ['vitali@gmail.com', 'jim@gmail.com'] },
+			{ field: 'email', caption: 'Email', type: 'list', items: ['vitali@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com'] },
 			{ field: 'sdate', caption: 'Date', type: 'date' }
 		],
 		sortData: [ { field: 'recid', direction: 'asc' } ],
@@ -126,4 +136,15 @@ $(function () {
 		]
 	});	
 });
+
+function search1() {
+	w2ui['grid'].search('all', 'motzart');
+}
+
+function search2() {
+	w2ui['grid'].search([
+		{ field: 'lname', value: 'm', operator: 'contains' },
+		{ field: 'email', value: 'jdoe@gmail.com', operator: 'is' }
+	]);
+}
 </script>

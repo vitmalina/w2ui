@@ -174,24 +174,24 @@
 		},
 		
 		show: function (panel, immediate) {
+			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, panel: this.get(panel), immediate: immediate });	
 			if (eventData.stop === true) return false;
 	
-			var p = this.get(panel);
+			var p = obj.get(panel);
 			if (p == null) return false;
 			p.hidden = false;
 			if (immediate === true) {
-				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '1' });	
-				if (p.resizabled) $('#layout_'+ this.name +'_resizer_'+panel).show();
-				this.trigger($.extend(eventData, { phase: 'after' }));	
-				this.resize();
+				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });	
+				if (p.resizabled) $('#layout_'+ obj.name +'_resizer_'+panel).show();
+				obj.trigger($.extend(eventData, { phase: 'after' }));	
+				obj.resize();
 			} else {			
-				var obj = this;
 				if (p.resizabled) $('#layout_'+ obj.name +'_resizer_'+panel).show();
 				// resize
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });	
-				$('#layout_'+ this.name +' .w2ui-panel').css({
+				$(obj.box).find(' > div .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
 					'-ms-transition'	: '.2s',
@@ -204,7 +204,7 @@
 				}, 250);
 				// clean
 				setTimeout(function () { 
-					$('#layout_'+ obj.name +' .w2ui-panel').css({
+					$(obj.box).find(' > div .w2ui-panel').css({
 						'-webkit-transition': '0s',
 						'-moz-transition'	: '0s',
 						'-ms-transition'	: '0s',
@@ -218,33 +218,33 @@
 		},
 		
 		hide: function (panel, immediate) {
+			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, panel: this.get(panel), immediate: immediate });	
 			if (eventData.stop === true) return false;
 	
-			var p = this.get(panel);
+			var p = obj.get(panel);
 			if (p == null) return false;
 			p.hidden = true;		
 			if (immediate === true) {
-				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
-				$('#layout_'+ this.name +'_resizer_'+panel).hide();
-				this.trigger($.extend(eventData, { phase: 'after' }));	
-				this.resize();
+				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'	});
+				$('#layout_'+ obj.name +'_resizer_'+panel).hide();
+				obj.trigger($.extend(eventData, { phase: 'after' }));	
+				obj.resize();
 			} else {
-				var obj = this;
 				$('#layout_'+ obj.name +'_resizer_'+panel).hide();
 				// hide
-				$(this.box).find(' > div .w2ui-panel').css({
+				$(obj.box).find(' > div .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
 					'-ms-transition'	: '.2s',
 					'-o-transition'		: '.2s'
 				});
-				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
+				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'	});
 				setTimeout(function () { obj.resize(); }, 1);
 				// clean
 				setTimeout(function () { 
-					$(this.box).find(' > div .w2ui-panel').css({
+					$(obj.box).find(' > div .w2ui-panel').css({
 						'-webkit-transition': '0s',
 						'-moz-transition'	: '0s',
 						'-ms-transition'	: '0s',

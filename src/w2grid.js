@@ -684,6 +684,7 @@
 			}
 			// .search([ { filed, value }, { field, valu e} ]) - submit whole structure
 			if (arguments.length == 1 && $.isArray(field)) {
+				last_search = '';
 				last_multi	= true;
 				last_logic	= 'AND';
 				for (var f in field) {
@@ -769,7 +770,7 @@
 			if (this.searches.length == 0) return;
 			var obj = this;
 			// show search
-			$('#'+ this.name +'_toolbar_item_search-advanced').w2overlay(
+			$('#tb_'+ this.name +'_toolbar_item_search-advanced').w2overlay(
 				this.getSearchesHTML(), 
 				{ 
 					left: -10, 
@@ -1684,7 +1685,7 @@
 						'		>&nbsp;&nbsp;</div>'+
 						'	</td>'+
 						'</tr></table>';
-					this.toolbar.items.push({ type: 'html',   id: 'search', html: html });
+					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
 						this.toolbar.items.push({ type: 'button', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
 					}
