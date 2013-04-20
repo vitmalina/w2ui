@@ -97,8 +97,6 @@
 			count			: '',
 			img 			: null,
 			icon 			: null,
-			parent	 		: null,		// node object
-			sidebar			: null,
 			nodes	  		: [],
 			style 			: '',
 			selected 		: false,
@@ -111,7 +109,10 @@
 			onDblClick		: null,
 			onContextMenu	: null,
 			onExpand		: null,
-			onCollapse		: null
+			onCollapse		: null,
+			// internal
+			parent	 		: null,		// node object
+			sidebar			: null
 		},
 		
 		add: function (parent, nodes) {
@@ -131,7 +132,8 @@
 				before	= arguments[0];
 				var ind = this.get(before);
 				if (ind == null) {
-					console.log('ERROR: Cannot insert node "'+ nodes[o].text +'" because cannot find node "'+ before +'" to insert before.'); 
+					var txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+					console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
 					return null; 
 				}
 				parent 	= this.get(before).parent;
@@ -140,11 +142,13 @@
 			if (!$.isArray(nodes)) nodes = [nodes];
 			for (var o in nodes) {
 				if (typeof nodes[o].id == 'undefined') { 
-					console.log('ERROR: Cannot insert node "'+ nodes[o].text +'" because it has no id.'); 
+					var txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);					
+					console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.'); 
 					continue;
 				}
 				if (this.get(this, nodes[o].id) != null) { 
-					console.log('ERROR: Cannot insert node with id='+ nodes[o].id +' (text: '+ nodes[o].text + ') because another node with the same id already exists.'); 
+					var txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+					console.log('ERROR: Cannot insert node with id='+ nodes[o].id +' (text: '+ txt + ') because another node with the same id already exists.'); 
 					continue;
 				}
 				var tmp = $.extend({}, w2sidebar.prototype.node, nodes[o]);
@@ -157,7 +161,8 @@
 				} else {
 					var ind = this.get(parent, before, true);
 					if (ind == null) {
-						console.log('ERROR: Cannot insert node "'+ nodes[o].text +'" because cannot find node "'+ before +'" to insert before.'); 
+						var txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+						console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
 						return null; 
 					}
 					parent.nodes.splice(ind, 0, tmp);
@@ -517,9 +522,9 @@
 			function getNodeHTML(nd) {
 				var html = '';
 				var img  = nd.img;
-				if (typeof img == 'undefined') img = this.img;
+				if (img == null) img = this.img;
 				var icon  = nd.icon;
-				if (typeof icon == 'undefined') icon = this.icon;
+				if (icon == null) icon = this.icon;
 				// -- find out level
 				var tmp   = nd.parent;
 				var level = 0;
@@ -528,6 +533,7 @@
 					tmp = tmp.parent;
 					level++;
 				}	
+				if (typeof nd.caption != 'undefined') nd.text = nd.caption;
 				if (nd.group) {
 					html = 
 						'<div class="w2ui-node-group"  id="node_'+ nd.id +'"'+
@@ -541,6 +547,9 @@
 						'<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
 				} else {
 					if (nd.selected && !nd.disabled) obj.selected = nd.id;
+					var tmp = '';
+					if (img)  tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'" style="margin-top: 3px;"></div>';
+					if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
 					html = 
 					'<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
 						'	ondblclick="w2ui[\''+ obj.name +'\'].doDblClick(\''+ nd.id +'\', event); /* event.stopPropagation(); */"'+
@@ -551,11 +560,8 @@
 						'	<div class="w2ui-expand">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : '') + '</div>' +
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+ 
-							(img ? '<div class="w2ui-node-image w2ui-icon '+ img +' '+ 
-								(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'" style="margin-top: 3px;"></div>' : '') +
-							(icon ? '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>' : '') +
-							(nd.count ? 
-								'<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
+							tmp +
+							(nd.count ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
 						'</td>'+
 						'</tr></table>'+

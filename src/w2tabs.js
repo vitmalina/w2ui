@@ -77,15 +77,15 @@
 	
 	w2tabs.prototype = {
 		tab : {
-			id: 			null,		// commnad to be sent to all event handlers
-			caption: 		'',
-			hidden: 		false,
-			disabled: 		false,
-			closable:		false,
-			hint: 			'',
-			onClick: 		null,
-			onRefresh: 		null,
-			onClose: 		null
+			id		  : null,		// commnad to be sent to all event handlers
+			text	  : '',
+			hidden	  : false,
+			disabled  : false,
+			closable  :	false,
+			hint	  : '',
+			onClick	  : null,
+			onRefresh : null,
+			onClose	  : null
 		},
 		
 		add: function (tab) {
@@ -214,11 +214,12 @@
 			// create or refresh only one item
 			var tab = this.get(id);
 			if (tab == null) return;
+			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
 			
 			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
 			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].doClose(\''+ tab.id +'\', event);"></div>' : '') +
 						  '	<div class="w2ui-tab '+ (this.active == tab.id ? 'active' : '') +'" title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
-						  '		onclick="w2ui[\''+ this.name +'\'].doClick(\''+ tab.id +'\', event);">' + tab.caption + '</div>';
+						  '		onclick="w2ui[\''+ this.name +'\'].doClick(\''+ tab.id +'\', event);">' + tab.text + '</div>';
 			if (jq_el.length == 0) {
 				// does not exist - create it
 				var addStyle = '';
@@ -359,11 +360,12 @@
 			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
 			if (jq_el.length != 0) return; // already exists
 			// measure width
+			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
 			var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
 				'<table cellspacing="0" cellpadding="1" width="100%"><tr>'+
 				'<td id="_tmp_simple_tab" style="" valign="middle">'+
 					(tab.closable ? '<div class="w2ui-tab-close"></div>' : '') +
-				'	<div class="w2ui-tab '+ (this.active == tab.id ? 'active' : '') +'">'+ tab.caption +'</div>'+
+				'	<div class="w2ui-tab '+ (this.active == tab.id ? 'active' : '') +'">'+ tab.text +'</div>'+
 				'</td></tr></table>'+
 				'</div>';
 			$('body').append(tmp);

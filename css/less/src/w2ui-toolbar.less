@@ -28,6 +28,12 @@ div.w2ui-toolbar {
 				padding: 0px;
 				margin: 3px 3px 3px 3px !important;
 				border: 0px !important;
+
+				// for font icon
+				& > span {
+					font-size: 16px;
+					color: @toolbar-button-image-color;
+				}
 			}
 
 			.w2ui-tb-caption {
@@ -89,13 +95,13 @@ div.w2ui-toolbar {
 	background-color: @toolbar-drop-background-color;
 	padding: 5px 0px;
 	cursor: default;
-
+	// image
 	td:first-child {
 		padding: 4px 0px 4px 6px
 	}
-
+	// caption
 	td:last-child {
-		padding: 4px 15px 4px 4px
+		padding: 10px 15px 10px 5px
 	}
 
 	tr.w2ui-selected {
@@ -104,5 +110,12 @@ div.w2ui-toolbar {
 
 	tr.w2ui-selected td {
 		color: @toolbar-drop-selected-color;
-	}	
+	}
+
+	.w2ui-tb-image > span {
+		font-size: 16px;
+		color: @toolbar-button-image-color;
+		display: inline-block;
+		padding-top: 4px;
+	}
 }

@@ -6,12 +6,12 @@
 *   - Dependencies: jQuery, w2utils
 *
 *  Nice To Have
-* 		- font icons
 *
 *  1.2 changes
 *		- added doMenuClick()
 *		- removed doOver, doOut, doDown, doDropOver, doDropOut
 *		- removed getIndex(), added get(..., returnIndex)
+*		- icon fonts support
 * 
 ************************************************************************/
 
@@ -77,19 +77,20 @@
 	
 	w2toolbar.prototype = {
 		item: {
-			id: 			null,		// commnad to be sent to all event handlers
-			type: 			'button',	// button, check, radio, drop, menu, break, html, spacer
-			caption: 		'',
-			html: 			'', 
-			img: 			'',	
-			hidden: 		false,
-			disabled: 		false,
-			arrow: 			true,		// arrow down for drop/menu types
-			hint: 			'',
-			group: 			null, 		// used for radio buttons
-			items: 			null, 		// for type menu it is an array of items in the menu
-			checked: 		false, 		// used for radio buttons
-			onClick: 		null
+			id		: null,		// commnad to be sent to all event handlers
+			type	: 'button',	// button, check, radio, drop, menu, break, html, spacer
+			text	: '',
+			html	: '', 
+			img		: null,	
+			icon 	: null,
+			hidden	: false,
+			disabled: false,
+			checked	: false, 	// used for radio buttons
+			arrow	: true,		// arrow down for drop/menu types
+			hint	: '',
+			group	: null, 	// used for radio buttons
+			items	: null, 	// for type menu it is an array of items in the menu
+			onClick	: null
 		},
 	
 		add: function (items) {
@@ -357,27 +358,30 @@
 		getMenuHTML: function (item) { 
 			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-toolbar-drop">';
 			for (var f = 0; f < item.items.length; f++) { 
-				if (typeof item.items[f] == 'string') {
-					var tmp = item.items[f].split('|');
-					if (typeof tmp[2] == 'undefined') tmp[2] = tmp[0];
+				var mitem = item.items[f];
+				if (typeof mitem == 'string') {
+					var tmp = mitem.split('|');
+					// 1 - id, 2 - text, 3 - image, 4 - icon
+					mitem = { id: tmp[0], text: tmp[0], img: null, icon: null };
+					if (tmp[1]) mitem.text = tmp[1];
+					if (tmp[2]) mitem.img  = tmp[2];
+					if (tmp[3]) mitem.icon = tmp[3];
 				} else {
-					var tmp = [];
-					// text == caption
-					if (typeof item.items[f].text  == 'undefined' && typeof item.items[f].caption != 'undefined') item.items[f].text = item.items[f].caption;
-					// icon == img
-					if (typeof item.items[f].icon  == 'undefined' && typeof item.items[f].img != 'undefined') item.items[f].icon = item.items[f].img;
-					// value == id == cmd
-					if (typeof item.items[f].value == 'undefined' && typeof item.items[f].id != 'undefined')  item.items[f].value = item.items[f].id;
-					if (typeof item.items[f].value == 'undefined' && typeof item.items[f].cmd != 'undefined') item.items[f].value = item.items[f].cmd;
-					tmp[0] = item.items[f].text;
-					tmp[1] = item.items[f].icon;
-					tmp[2] = typeof item.items[f].value != 'undefined' ? item.items[f].value : item.items[f].text;
+					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
+					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
+					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
+					if (typeof mitem.img == 'undefined') mitem.img = null;
+					if (typeof mitem.icon == 'undefined') mitem.icon = null;
 				}
-				menu_html += "<tr onmouseover=\"$(this).addClass('w2ui-selected');\" onmouseout=\"$(this).removeClass('w2ui-selected');\" "+
-					"	onclick=\"$(document).click(); w2ui['"+ this.name +"'].doMenuClick('"+ item.id +"', event, '"+ f +"');\">"+
-					"<td><div class=\""+ (typeof tmp[1] != 'undefined' ? 'w2ui-icon ' : '') + tmp[1] +"\"></div></td>"+
-					"<td>"+ tmp[0] +"</td>"+
-					"</tr>";
+				var img = '<td>&nbsp;</td>';
+				if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
+				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
+				menu_html += 
+					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
+					'		onclick="$(document).click(); w2ui[\''+ this.name +'\'].doMenuClick(\''+ item.id +'\', event, \''+ f +'\');">'+
+						img +
+					'	<td>'+ mitem.text +'</td>'+
+					'</tr>';
 			}
 			menu_html += "</table>";
 			return menu_html;
@@ -386,13 +390,9 @@
 		getItemHTML: function (item) {
 			var html = '';
 			
-			if (item.caption == null) item.caption = '';
-			if (item.img == null) item.img = '';
-
-			if (item.img != '') {
-				butPicture  = 'src="'+ item.img +'"';
-			}
+			if (typeof item.caption != 'undefined') item.text = item.caption;
 			if (typeof item.hint == 'undefined') item.hint = '';
+			if (typeof item.text == 'undefined') item.text = '';
 	
 			switch (item.type) {
 				case 'menu':
@@ -401,6 +401,9 @@
 				case 'check':
 				case 'radio':
 				case 'drop':
+					var img = '<td>&nbsp;</td>';
+					if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
+					if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
 					html +=  '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
 							 '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.doClick(\''+ item.id +'\', event);" '+
 							 '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over');" : "") + '"'+
@@ -410,9 +413,9 @@
 							 '>'+
 							 '<tr><td>'+
 							 '  <table cellpadding="1" cellspacing="0">'+
-							 '  <tr>'+
-									(item.img != '' ? '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>' : '<td>&nbsp;</td>') +
-									(item.caption != '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.caption +'</td>' : '') +
+							 '  <tr>' +
+							 		img +
+									(item.text != '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.text +'</td>' : '') +
 									(((item.type == 'drop' || item.type == 'menu') && item.arrow !== false) ? 
 										'<td class="w2ui-tb-down" nowrap>&nbsp;&nbsp;&nbsp;</td>' : '') +
 							 '  </tr></table>'+
@@ -494,7 +497,8 @@
 					// show overlay
 					setTimeout(function () {
 						var w = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).width();
-						$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, { left: (w-50)/2 });
+						if (!$.isPlainObject(it.overlay)) it.overlay = {};
+						$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, $.extend({ left: (w-50)/2, top: 3 }, it.overlay));
 						// window.click to hide it
 						function hideDrop() {
 							it.checked = !it.checked;
