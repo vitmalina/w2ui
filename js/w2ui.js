@@ -603,6 +603,7 @@ var w2utils = (function () {
 			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right; 
 			case '+height': return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
 		}
+		return 0;
 	}
 
 	function lang (phrase) {
@@ -1001,7 +1002,7 @@ $.w2event = {
 			selected	: [],
 			sortData	: null,
 			sortCount	: 0,
-			request_xhr	: null
+			xhr			: null
 		}
 
 		this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
@@ -1024,6 +1025,10 @@ $.w2event = {
 			if (typeof w2ui[method.name] != 'undefined') {
 				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
 				return;
+			}
+			if (!w2utils.isAlphaNumeric(method.name)) {
+				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
+				return;			
 			}
 			// remember items
 			var columns		= method.columns;
@@ -1568,6 +1573,7 @@ $.w2event = {
 			}
 			// .search([ { filed, value }, { field, valu e} ]) - submit whole structure
 			if (arguments.length == 1 && $.isArray(field)) {
+				last_search = '';
 				last_multi	= true;
 				last_logic	= 'AND';
 				for (var f in field) {
@@ -1653,7 +1659,7 @@ $.w2event = {
 			if (this.searches.length == 0) return;
 			var obj = this;
 			// show search
-			$('#'+ this.name +'_toolbar_item_search-advanced').w2overlay(
+			$('#tb_'+ this.name +'_toolbar_item_search-advanced').w2overlay(
 				this.getSearchesHTML(), 
 				{ 
 					left: -10, 
@@ -1834,12 +1840,12 @@ $.w2event = {
 			// call server to get data
 			var obj = this;
 			this.lock(this.msgRefresh);
-			if (this.last.request_xhr) try { this.last.request_xhr.abort(); } catch (e) {};
+			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
 			if (cmd == 'save-records')   	xhr_type = 'PUT';  // so far it is always update
 			if (cmd == 'delete-records') 	xhr_type = 'DELETE';
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
-			this.last.request_xhr = $.ajax({
+			this.last.xhr = $.ajax({
 				type		: xhr_type,
 				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
@@ -1856,13 +1862,13 @@ $.w2event = {
 			var obj = this;
 			this.unlock();
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', xhr: this.last.request_xhr, status: status });
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', xhr: this.last.xhr, status: status });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
 			// parse server response
-			var responseText = this.last.request_xhr.responseText;
+			var responseText = this.last.xhr.responseText;
 			if (status != 'error') {
 				// default action
 				if (typeof responseText != 'undefined' && responseText != '') {
@@ -1905,7 +1911,7 @@ $.w2event = {
 		error: function (msg) {
 			var obj = this;
 			// let the management of the error outside of the grid
-			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.request_xhr });
+			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
@@ -2568,7 +2574,7 @@ $.w2event = {
 						'		>&nbsp;&nbsp;</div>'+
 						'	</td>'+
 						'</tr></table>';
-					this.toolbar.items.push({ type: 'html',   id: 'search', html: html });
+					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
 						this.toolbar.items.push({ type: 'button', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
 					}
@@ -3245,7 +3251,7 @@ $.w2event = {
 							(this.isIOS ?
 								'	onclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 								:
-								'	onclick	 = "w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', evnt);"'+
+								'	onclick	 = "w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', event);"'+
 								'	ondblclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 							 )+
 							(tmp_color != '' ? 'custom_style="'+ tmp_color +'"' : '')+
@@ -3511,6 +3517,10 @@ $.w2event = {
 				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
 				return;			
 			}
+			if (!w2utils.isAlphaNumeric(method.name)) {
+				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
+				return;			
+			}
 			var panels = method.panels;
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
@@ -3622,24 +3632,24 @@ $.w2event = {
 		},
 		
 		show: function (panel, immediate) {
+			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, panel: this.get(panel), immediate: immediate });	
 			if (eventData.stop === true) return false;
 	
-			var p = this.get(panel);
+			var p = obj.get(panel);
 			if (p == null) return false;
 			p.hidden = false;
 			if (immediate === true) {
-				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '1' });	
-				if (p.resizabled) $('#layout_'+ this.name +'_resizer_'+panel).show();
-				this.trigger($.extend(eventData, { phase: 'after' }));	
-				this.resize();
+				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });	
+				if (p.resizabled) $('#layout_'+ obj.name +'_resizer_'+panel).show();
+				obj.trigger($.extend(eventData, { phase: 'after' }));	
+				obj.resize();
 			} else {			
-				var obj = this;
 				if (p.resizabled) $('#layout_'+ obj.name +'_resizer_'+panel).show();
 				// resize
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });	
-				$('#layout_'+ this.name +' .w2ui-panel').css({
+				$(obj.box).find(' > div .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
 					'-ms-transition'	: '.2s',
@@ -3652,7 +3662,7 @@ $.w2event = {
 				}, 250);
 				// clean
 				setTimeout(function () { 
-					$('#layout_'+ obj.name +' .w2ui-panel').css({
+					$(obj.box).find(' > div .w2ui-panel').css({
 						'-webkit-transition': '0s',
 						'-moz-transition'	: '0s',
 						'-ms-transition'	: '0s',
@@ -3666,33 +3676,33 @@ $.w2event = {
 		},
 		
 		hide: function (panel, immediate) {
+			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, panel: this.get(panel), immediate: immediate });	
 			if (eventData.stop === true) return false;
 	
-			var p = this.get(panel);
+			var p = obj.get(panel);
 			if (p == null) return false;
 			p.hidden = true;		
 			if (immediate === true) {
-				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
-				$('#layout_'+ this.name +'_resizer_'+panel).hide();
-				this.trigger($.extend(eventData, { phase: 'after' }));	
-				this.resize();
+				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'	});
+				$('#layout_'+ obj.name +'_resizer_'+panel).hide();
+				obj.trigger($.extend(eventData, { phase: 'after' }));	
+				obj.resize();
 			} else {
-				var obj = this;
 				$('#layout_'+ obj.name +'_resizer_'+panel).hide();
 				// hide
-				$(this.box).find(' > div .w2ui-panel').css({
+				$(obj.box).find(' > div .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
 					'-ms-transition'	: '.2s',
 					'-o-transition'		: '.2s'
 				});
-				$('#layout_'+ this.name +'_panel_'+panel).css({ 'opacity': '0'	});
+				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'	});
 				setTimeout(function () { obj.resize(); }, 1);
 				// clean
 				setTimeout(function () { 
-					$(this.box).find(' > div .w2ui-panel').css({
+					$(obj.box).find(' > div .w2ui-panel').css({
 						'-webkit-transition': '0s',
 						'-moz-transition'	: '0s',
 						'-ms-transition'	: '0s',
@@ -3813,9 +3823,9 @@ $.w2event = {
 				if (el.length > 0) el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-content')[0]);
+					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content')[0]);
 				} else {
-					$('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-content').html(p.content);
+					$('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
 				if (p.tabs != null) p.tabs.refresh();
@@ -4087,7 +4097,7 @@ $.w2event = {
 			// display tabs and toolbar if needed
 			for (var p in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) { 
 				var pan = this.get(p);
-				var tmp = '#layout_'+ this.name +'_panel_'+ p +' .w2ui-panel-';
+				var tmp = '#layout_'+ this.name +'_panel_'+ p +' > .w2ui-panel-';
 				var height = 0;
 				if (pan.tabs != null) {
 					if (w2ui[this.name +'_'+ p +'_tabs']) w2ui[this.name +'_'+ p +'_tabs'].resize();
@@ -4136,6 +4146,11 @@ $.w2event = {
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			
+			$(window).off('resize', this.events.resize);
+			$(document).off('mousemove', this.events.mousemove);
+			$(document).off('mouseup', this.events.mouseup);
+			
 			return true;
 		},
 		
@@ -4143,15 +4158,22 @@ $.w2event = {
 		
 		initEvents: function () {
 			var obj = this;
-			$(window).on('resize', function (event) {
-				w2ui[obj.name].resize()
-			});
-			$(document).on('mousemove', function (event) {
-				w2ui[obj.name].doResize(event);
-			});
-			$(document).on('mouseup', function (event) {
-				w2ui[obj.name].stopResize(event);
-			});
+			
+			this.events = {
+				resize : function (event) { 
+					w2ui[obj.name].resize()	
+				},
+				mousemove : function (event) { 
+					w2ui[obj.name].doResize(event)	
+				},
+				mouseup : function (event) { 
+					w2ui[obj.name].stopResize(event)	
+				}
+			};
+			
+			$(window).on('resize', this.events.resize);
+			$(document).on('mousemove', this.events.mousemove);
+			$(document).on('mouseup', this.events.mouseup);
 		},
 	
 		startResize: function (type, evnt) {
@@ -4276,9 +4298,11 @@ $.w2event = {
 * 
 *   NICE TO HAVE
 *		- when maximized, align the slide down message
+*		- bug: after transfer to another content, message does not work
 *
 *	1.2 change
 *		- min(), max(), toggle(), options.maximized
+*		- changed .overflow to more includins .style
 *
 ************************************************************************/
 
@@ -4300,13 +4324,19 @@ $.w2event = {
 		// load options from markup
 		var dlgOptions = {};
 		if ($(this).length > 0 ) {
-			if ($(this).find('div[rel=title]').length > 0) 		dlgOptions['title'] 	= $(this).find('div[rel=title]').html();
-			if ($(this).find('div[rel=body]').length > 0) 		dlgOptions['body'] 		= $(this).find('div[rel=body]').html();
-			if ($(this).find('div[rel=buttons]').length > 0) 	dlgOptions['buttons'] 	= $(this).find('div[rel=buttons]').html();
+			if ($(this).find('div[rel=title]').length > 0) {
+				dlgOptions['title'] = $(this).find('div[rel=title]').html();
+			}
+			if ($(this).find('div[rel=body]').length > 0) {
+				dlgOptions['body']  = $(this).find('div[rel=body]').html();
+				dlgOptions['style'] = $(this).find('div[rel=body]')[0].style.cssText;
+			}
+			if ($(this).find('div[rel=buttons]').length > 0) {
+				dlgOptions['buttons'] 	= $(this).find('div[rel=buttons]').html();
+			}
 			if (parseInt($(this).css('width')) != 0)  dlgOptions['width']  = parseInt($(this).css('width'));
 			if (parseInt($(this).css('height')) != 0) dlgOptions['height'] = parseInt($(this).css('height'));
-			if (String($(this).css('overflow')) != 'undefined') dlgOptions['overflow'] = $(this).css('overflow');
-			}
+		}
 		// show popup
 		return window.w2popup[method]($.extend({}, dlgOptions, options));
 	};
@@ -4319,7 +4349,7 @@ $.w2event = {
 			title			: '',
 			body			: '',
 			buttons			: '',
-			overflow		: 'auto',
+			style			: '',
 			color			: '#000',
 			opacity			: 0.4,
 			speed			: 0.3,
@@ -4410,10 +4440,10 @@ $.w2event = {
 						  '</div>'; 
 				}
 				msg += '<div class="w2ui-box1" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
-				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="overflow: '+ options.overflow +'">'+ options.body +'</div>';
+				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'">'+ options.body +'</div>';
 				msg += '</div>';
 				msg += '<div class="w2ui-box2" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
-				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="overflow: '+ options.overflow +'"></div>';
+				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'"></div>';
 				msg += '</div>';
 				if (options.buttons != '') { 
 					msg += '<div class="w2ui-msg-buttons">'+ options.buttons +'</div>'; 
@@ -4452,7 +4482,8 @@ $.w2event = {
 					window.w2popup.resize(options.width, options.height);
 				}
 				// show new items
-				$('#w2ui-popup .w2ui-box2 > .w2ui-msg-body').html(options.body).css('overflow', options.overflow);
+				var body = $('#w2ui-popup .w2ui-box2 > .w2ui-msg-body').html(options.body);
+				if (body.length > 0) body[0].style.cssText = options.style;
 				$('#w2ui-popup .w2ui-msg-buttons').html(options.buttons);
 				$('#w2ui-popup .w2ui-msg-title').html(
 					  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onclick="$().w2popup(\'close\')">Close</div>' : '')+ 
@@ -4567,7 +4598,7 @@ $.w2event = {
 			if (String(options) == 'undefined') options = {};
 			// load url
 			var html = $('#w2ui-popup').data(url);
-			if (typeof html != 'undefined') {
+			if (typeof html != 'undefined' && html != null) {
 				popup(html, selector);
 			} else {
 				$.get(url, function (data, status, obj) {
@@ -4899,6 +4930,10 @@ $.w2event = {
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
 				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				return;			
+			}
+			if (!w2utils.isAlphaNumeric(method.name)) {
+				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
 				return;			
 			}
 			// extend tabs
@@ -5254,6 +5289,9 @@ $.w2event = {
 *		- $.w2toolbar	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
+*  Nice To Have
+* 		- font icons
+*
 *  1.2 changes
 *		- added doMenuClick()
 *		- removed doOver, doOut, doDown, doDropOver, doDropOut
@@ -5288,6 +5326,10 @@ $.w2event = {
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
 				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				return;			
+			}
+			if (!w2utils.isAlphaNumeric(method.name)) {
+				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
 				return;			
 			}
 			var items = method.items;
@@ -5372,8 +5414,8 @@ $.w2event = {
 				} else {
 					var middle = this.get(id, true);
 					this.items = this.items.slice(0, middle).concat([it], this.items.slice(middle));
-				}		
-				this.refresh(items[o].id);
+				}
+				this.refresh(it.id);
 			}
 		},
 		
@@ -5384,7 +5426,7 @@ $.w2event = {
 				if (!it) continue;
 				removed++;
 				// remove from screen
-				$(this.box).find('#'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove();
+				$(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove();
 				// remove from array
 				var ind = this.get(it.id, true);
 				if (ind) this.items.splice(ind, 1);
@@ -5487,7 +5529,7 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 	 
 			if (typeof box != 'undefined' && box != null) { 
-				if ($(this.box).find('> table #toolbar_'+ this.name + '_right').length > 0) {
+				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeData('w2name')
 						.removeClass('w2ui-reset w2ui-toolbar')
@@ -5503,14 +5545,14 @@ $.w2event = {
 				var it = this.items[i];
 				if (it == null)  continue;
 				if (it.type == 'spacer') {
-					html += '<td width="100%" id="'+ this.name +'_item_'+ it.id +'" align="right"></td>';
+					html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
 				} else {
-					html += '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
+					html += '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
 							'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ this.getItemHTML(it) + 
 							'</td>';
 				}
 			}
-			html += '<td width="100%" id="toolbar_'+ this.name +'_right" align="right">'+ this.right +'</td>';
+			html += '<td width="100%" id="tb_'+ this.name +'_right" align="right">'+ this.right +'</td>';
 			html += '</tr>'+
 					'</table>';
 			$(this.box)
@@ -5530,28 +5572,35 @@ $.w2event = {
 			
 			if (typeof id == 'undefined') {
 				// refresh all
-				for (var i = 0; i < this.items.length; i++) this.refresh(this.items[i].id);
+				for (var i = 0; i < this.items.length; i++) {
+					if (typeof this.items[i].id == 'undefined') {
+						console.log('ERROR: Cannot refresh toolbar element with no id.');
+						continue;
+					}
+					this.refresh(this.items[i].id);
+				}
 			}
 			// create or refresh only one item
 			var it = this.get(id);
 			if (it == null) return;
 			
-			var jq_el = $(this.box).find('#'+ this.name +'_item_'+ w2utils.escapeId(it.id));
+			var el = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id));
 			var html  = this.getItemHTML(it);
-			if (jq_el.length == 0) {
+			if (el.length == 0) {
 				// does not exist - create it
-				html =  '<td id="'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
-						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html + '</td>';
+				html =  '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
+						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html + 
+						'</td>';
 				if (this.get(id, true) == this.items.length-1) {
-					$(this.box).find('#'+ this.name +'_right').before(html);
+					$(this.box).find('#tb_'+ this.name +'_right').before(html);
 				} else {
-					$(this.box).find('#'+ this.name +'_item_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
+					$(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
 				}
 			} else {
 				// refresh
-				jq_el.html(html);
-				if (it.hidden) { jq_el.css('display', 'none'); } else { jq_el.css('display', ''); }
-				if (it.disabled) { jq_el.addClass('disabled'); } else { jq_el.removeClass('disabled'); }
+				el.html(html);
+				if (it.hidden) { el.css('display', 'none'); } else { el.css('display', ''); }
+				if (it.disabled) { el.addClass('disabled'); } else { el.removeClass('disabled'); }
 			}
 			// event after
 			this.trigger($.extend({ phase: 'after' }));	
@@ -5574,7 +5623,7 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// clean up
-			if ($(this.box).find('> table #toolbar_'+ this.name + '_right').length > 0) {
+			if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 				$(this.box)
 					.removeData('w2name')
 					.removeClass('w2ui-reset w2ui-toolbar')
@@ -5701,7 +5750,7 @@ $.w2event = {
 					item: this.get(id), event: event });	
 				if (eventData.stop === true) return false;
 			
-				$('#'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('down');
+				$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('down');
 								
 				if (it.type == 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
@@ -5713,30 +5762,30 @@ $.w2event = {
 						}
 					}
 					it.checked = true;
-					$('#'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');					
+					$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');					
 				}
 
 				if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
 					it.checked = !it.checked;
 					if (it.checked) {
-						$('#'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
 					} else {
-						$('#'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
+						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
 					}
 				}
 
 				if (it.type == 'drop' || it.type == 'menu') {
 					// show overlay
 					setTimeout(function () {
-						var w = $('#'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).width();
-						$('#'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, { left: (w-50)/2 });
+						var w = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).width();
+						$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, { left: (w-50)/2 });
 						// window.click to hide it
 						function hideDrop() {
 							it.checked = !it.checked;
 							if (it.checked) {
-								$('#'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+								$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
 							} else {
-								$('#'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
+								$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
 							}
 							obj.refresh(it.id);
 							$(document).off('click', hideDrop);
@@ -5811,6 +5860,10 @@ $.w2event = {
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
 				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				return;			
+			}
+			if (!w2utils.isAlphaNumeric(method.name)) {
+				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
 				return;			
 			}
 			// extend items
@@ -7358,8 +7411,7 @@ $.w2event = {
 		this.postData		= {};
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
 		this.style 			= '';
-
-		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format. See console for more information.');
+		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
 		this.msgRefresh		= w2utils.lang('Refreshing...');
 		this.msgSaving		= w2utils.lang('Saving...');
 
@@ -7377,8 +7429,9 @@ $.w2event = {
 		this.onError		= null;
 
 		// internal
-		this.request_xhr	= null;		// jquery xhr requests		
-		this.save_xhr		= null;		
+		this.last = {
+			xhr	: null		// jquery xhr requests
+		}
 
 		$.extend(true, this, options);
 	};
@@ -7396,6 +7449,10 @@ $.w2event = {
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
 				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
+				return;			
+			}
+			if (!w2utils.isAlphaNumeric(method.name)) {
+				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
 				return;			
 			}
 			// remember items
@@ -7461,9 +7518,9 @@ $.w2event = {
 	
 	w2form.prototype = {
 
-		init: function (el) {
+		init: function (box) {
 			var obj = this;
-			$(el).find('input, textarea, select').each(function (index, el) {
+			$(box).find('input, textarea, select').each(function (index, el) {
 				var type  = 'text';
 				var name  = (typeof $(el).attr('name') != 'undefined' ? $(el).attr('name') : $(el).attr('id'));
 				if (el.type == 'checkbox')  	type = 'checkbox';
@@ -7495,15 +7552,17 @@ $.w2event = {
 				var obj = this;
 				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
 				this.tabs.on('click', function (id, choice) {
-					obj.goto(this.getIndex(id));
+					obj.goto(this.get(id, true));
 				});
 			}
 			return;
 		},
 
-		get: function (field) {
+		get: function (field, returnIndex) {
 			for (var f in this.fields) {
-				if (this.fields[f].name == field) return this.fields[f];
+				if (this.fields[f].name == field) {
+					if (returnIndex === true) return f; else return this.fields[f];
+				}
 			}
 			return null;
 		},
@@ -7524,10 +7583,12 @@ $.w2event = {
 				this.request(callBack);
 			} else {
 				this.refresh();
+				if (typeof callBack == 'function') callBack();
 			}
 		},
 
 		clear: function () {
+			this.recid  = 0;
 			this.record = {};
 			// clear all enum fields
 			for (var f in this.fields) {
@@ -7541,7 +7602,7 @@ $.w2event = {
 		error: function (msg) {
 			var obj = this;
 			// let the management of the error outside of the grid
-			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.request_xhr });
+			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
@@ -7680,8 +7741,8 @@ $.w2event = {
 			this.original = {};
 			// call server to get data
 			this.lock(this.msgRefresh);
-			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
-			this.request_xhr = $.ajax({
+			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
+			this.last.xhr = $.ajax({
 				type		: 'GET',
 				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
@@ -7695,7 +7756,7 @@ $.w2event = {
 						return false;
 					}
 					// parse server response
-					var responseText = obj.request_xhr.responseText;
+					var responseText = obj.last.xhr.responseText;
 					if (status != 'error') {
 						// default action
 						if (typeof responseText != 'undefined' && responseText != '') {
@@ -7722,7 +7783,7 @@ $.w2event = {
 							}
 						}
 					} else {
-						obj.error('AJAX Error. See console for more details.');
+						obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
 					}
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -7750,7 +7811,10 @@ $.w2event = {
 			}
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (!this.url) return;
+			if (!this.url) {
+				console.log("ERROR: Form cannot be saved because no url is defined.");
+				return;
+			}
 			this.lock(this.msgSaving);
 			// build parameters list
 			var params = {};
@@ -7784,14 +7848,15 @@ $.w2event = {
 				return false; 
 			}
 			// default action
-			if (this.save_xhr) try { this.save_xhr.abort(); } catch (e) {};
-			this.save_xhr = $.ajax({
+			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
+			this.last.xhr = $.ajax({
 				type		: (w2utils.settings.RESTfull ? (this.recid == 0 ? 'POST' : 'PUT') : 'POST'),
 				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
 					obj.unlock();
+
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
 					if (eventData.stop === true) {
@@ -7825,7 +7890,7 @@ $.w2event = {
 							}
 						}
 					} else {
-						obj.error('AJAX Error. See console for more details.');
+						obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
 					}
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -7881,6 +7946,8 @@ $.w2event = {
 
 		goto: function (page) {
 			if (typeof page != 'undefined') this.page = page;
+			// if it was auto size, resize it
+			if ($(this.box).data('auto-size') === true) $(this.box).height(0);
 			this.refresh();
 		},
 
@@ -7897,6 +7964,7 @@ $.w2event = {
 		},
 
 		resize: function () {
+			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
 			if (eventData.stop === true) return false;
@@ -7905,15 +7973,32 @@ $.w2event = {
 			var header	= $(this.box).find('> div .w2ui-form-header');
 			var tabs	= $(this.box).find('> div .w2ui-form-tabs');
 			var page	= $(this.box).find('> div .w2ui-page');
-			var buttons	= $(this.box).find('> div .w2ui-buttons');
-			// resize elements
-			main.width($(this.box).width()).height($(this.box).height());
-			tabs.css('top', (this.header != '' ? w2utils.getSize(header, 'height') : 0));
-			page.css('top', (this.header != '' ? w2utils.getSize(header, 'height') : 0) 
-						  + (this.tabs.tabs ? w2utils.getSize(tabs, 'height') + 5 : 0));
-			page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
+			var cpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page);
+			var dpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page + ' > div');
+			var buttons	= $(this.box).find('> div .w2ui-buttons');		
+			// if no height, calculate it
+			resizeElements();
+			if ($(this.box).height() == 0 || $(this.box).data('auto-size') === true) {
+				$(this.box).height(
+					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
+					(tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
+					(page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
+					(buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
+				);
+				$(this.box).data('auto-size', true);
+			}
+			resizeElements();
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+			obj.trigger($.extend(eventData, { phase: 'after' }));
+
+			function resizeElements() {
+				// resize elements
+				main.width($(obj.box).width()).height($(obj.box).height());
+				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
+				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0) 
+							  + (obj.tabs.tabs ? w2utils.getSize(tabs, 'height') + 5 : 0));
+				page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
+			}
 		},
 
 		refresh: function () {
@@ -7935,7 +8020,7 @@ $.w2event = {
 			// refresh values of all fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				field.el = $(this.box).find('[name="'+ field.name +'"]')[0];
+				field.el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')[0];
 				if (typeof field.el == 'undefined') {
 					console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
 					return;
@@ -8061,6 +8146,11 @@ $.w2event = {
 						break;						
 				}
 			}
+			// wrap pages in div
+			var tmp = $(this.box).find('.w2ui-page');
+			for (var i = 0; i < tmp.length; i++) {
+				if ($(tmp[i]).find('> *').length > 1) $(tmp[i]).wrapInner('<div></div>');
+			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.resize();
@@ -8103,9 +8193,17 @@ $.w2event = {
 			$(window).off('resize', tmp_resize).on('resize', tmp_resize);
 			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
 			// after render actions
-			if (this.url != '' && this.recid != 0) this.request(); else this.refresh();
-			var inputs = $(this.box).find('input, select');
-			if (inputs.length > 0) inputs[0].focus();
+			if (this.url != '' && this.recid != 0) {
+				this.request(); 
+			} else {
+				this.refresh();
+			}
+			// focus first
+			function focusFirst() {
+				var inputs = $(obj.box).find('input, select');
+				if (inputs.length > 0) inputs[0].focus();
+			}
+			setTimeout(focusFirst, 500); // need timeout to allow form to render
 		},
 
 		destroy: function () { 

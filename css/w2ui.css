@@ -331,7 +331,8 @@ div.bubble-tag:before {
   float: left;
 }
 .w2ui-form .w2ui-field {
-  width: 300px;
+  /* do not include width */
+
   margin-left: 128px;
   padding: 3px;
   min-height: 20px;
@@ -965,6 +966,9 @@ div.w2ui-grid .w2ui-grid-body table .w2ui-head > div > div {
   text-overflow: ellipsis;
   overflow: hidden;
 }
+div.w2ui-grid .w2ui-grid-body table .w2ui-head.w2ui-number > div {
+  padding: 7px 3px;
+}
 div.w2ui-grid .w2ui-grid-body table td {
   border-right: 1px solid #d6d5d7;
   border-bottom: 0px solid #d6d5d7;
@@ -1000,7 +1004,7 @@ div.w2ui-grid .w2ui-grid-body table .w2ui-number {
   background-color: inherit;
 }
 div.w2ui-grid .w2ui-grid-body table .w2ui-number div {
-  padding: 7px;
+  padding: 6px 0px;
   cursor: default;
   overflow: hidden;
   width: 24px;
@@ -1202,6 +1206,7 @@ div.w2ui-grid .w2ui-grid-footer .w2ui-footer-center .w2ui-footer-nav a.w2ui-foot
 .w2ui-overlay .w2ui-column-on-off table td label {
   display: block;
   padding: 3px 0px;
+  padding-right: 10px;
 }
 .w2ui-overlay .w2ui-grid-searches {
   text-align: left;
