@@ -61,8 +61,9 @@
 		this.onError		= null;
 
 		// internal
-		this.request_xhr	= null;		// jquery xhr requests		
-		this.save_xhr		= null;		
+		this.last = {
+			xhr	: null		// jquery xhr requests
+		}
 
 		$.extend(true, this, options);
 	};
@@ -233,7 +234,7 @@
 		error: function (msg) {
 			var obj = this;
 			// let the management of the error outside of the grid
-			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.request_xhr });
+			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
@@ -372,8 +373,8 @@
 			this.original = {};
 			// call server to get data
 			this.lock(this.msgRefresh);
-			if (this.request_xhr) try { this.request_xhr.abort(); } catch (e) {};
-			this.request_xhr = $.ajax({
+			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
+			this.last.xhr = $.ajax({
 				type		: 'GET',
 				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
@@ -387,7 +388,7 @@
 						return false;
 					}
 					// parse server response
-					var responseText = obj.request_xhr.responseText;
+					var responseText = obj.last.xhr.responseText;
 					if (status != 'error') {
 						// default action
 						if (typeof responseText != 'undefined' && responseText != '') {
@@ -479,8 +480,8 @@
 				return false; 
 			}
 			// default action
-			if (this.save_xhr) try { this.save_xhr.abort(); } catch (e) {};
-			this.save_xhr = $.ajax({
+			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
+			this.last.xhr = $.ajax({
 				type		: (w2utils.settings.RESTfull ? (this.recid == 0 ? 'POST' : 'PUT') : 'POST'),
 				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),

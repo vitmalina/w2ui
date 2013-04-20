@@ -113,7 +113,7 @@
 			selected	: [],
 			sortData	: null,
 			sortCount	: 0,
-			request_xhr	: null
+			xhr			: null
 		}
 
 		this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
@@ -951,12 +951,12 @@
 			// call server to get data
 			var obj = this;
 			this.lock(this.msgRefresh);
-			if (this.last.request_xhr) try { this.last.request_xhr.abort(); } catch (e) {};
+			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
 			if (cmd == 'save-records')   	xhr_type = 'PUT';  // so far it is always update
 			if (cmd == 'delete-records') 	xhr_type = 'DELETE';
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
-			this.last.request_xhr = $.ajax({
+			this.last.xhr = $.ajax({
 				type		: xhr_type,
 				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
@@ -973,13 +973,13 @@
 			var obj = this;
 			this.unlock();
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', xhr: this.last.request_xhr, status: status });
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', xhr: this.last.xhr, status: status });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
 			// parse server response
-			var responseText = this.last.request_xhr.responseText;
+			var responseText = this.last.xhr.responseText;
 			if (status != 'error') {
 				// default action
 				if (typeof responseText != 'undefined' && responseText != '') {
@@ -1022,7 +1022,7 @@
 		error: function (msg) {
 			var obj = this;
 			// let the management of the error outside of the grid
-			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.request_xhr });
+			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
