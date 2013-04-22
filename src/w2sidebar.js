@@ -183,7 +183,7 @@
 				tmp.parent.nodes.splice(ind, 1);
 				deleted++;
 			}
-			if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
+			if (deleted > 0 && arguments.length == 1) this.refresh(tmp.parent.id); else this.refresh();
 			return deleted;
 		},
 		
