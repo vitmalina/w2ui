@@ -10,6 +10,7 @@
 *
 *	1.2 changes 
 *		- removed getIndex(), added get(..., returnIndex)
+*		- new select()
 *
 ************************************************************************/
 
@@ -135,6 +136,13 @@
 				$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).remove();
 			}
 			return removed;
+		},
+
+		select: function (id) {
+			if (this.get(id) == null || this.active == id) return false;
+			this.active = id;
+			this.refresh();
+			return true;
 		},
 		
 		set: function (id, tab) {
