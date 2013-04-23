@@ -552,11 +552,13 @@
 					if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
 					html = 
 					'<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
-						'	ondblclick="w2ui[\''+ obj.name +'\'].doDblClick(\''+ nd.id +'\', event); /* event.stopPropagation(); */"'+
-						'	oncontextmenu="w2ui[\''+ obj.name +'\'].doContextMenu(\''+ nd.id +'\', event); /* event.stopPropagation(); */ event.preventDefault();"'+
-						'	onClick="w2ui[\''+ obj.name +'\'].doClick(\''+ nd.id +'\', event); /* event.stopPropagation(); */">'+
+						'	ondblclick="w2ui[\''+ obj.name +'\'].doDblClick(\''+ nd.id +'\', event);"'+
+						'	oncontextmenu="w2ui[\''+ obj.name +'\'].doContextMenu(\''+ nd.id +'\', event); '+
+						'		if (event.preventDefault) event.preventDefault();"'+
+						'	onClick="w2ui[\''+ obj.name +'\'].doClick(\''+ nd.id +'\', event); ">'+
 						'<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
-						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); event.stopPropagation();">'+ 
+						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
+						'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+ 
 						'	<div class="w2ui-expand">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : '') + '</div>' +
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+ 

@@ -393,7 +393,7 @@
 			var options = $.extend({}, { 'onUnlock': null, 'onMouseDown': null, 'onMouseUp': null }, options);
 			// show element
 			$('body').append('<div id="w2ui-lock" '+
-				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;; if (event.preventDefault) event.preventDefault(); else return false;"'+
+				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; if (event.preventDefault) event.preventDefault(); else return false;"'+
 				'	style="position: '+(w2utils.engine == 'IE5' ? 'absolute' : 'fixed')+'; z-Index: 1199; left: 0px; top: 0px; '+
 				'		   padding: 0px; margin: 0px; background-color: '+ options.color +'; width: 100%; height: 100%; opacity: 0;"></div>');	
 			// lock screen
