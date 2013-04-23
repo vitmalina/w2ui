@@ -316,7 +316,7 @@
 	
 		expand: function (id) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, event: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id });	
 			if (eventData.stop === true) return false;
 			// default action
 			var nd = this.get(id);
@@ -331,7 +331,7 @@
 		
 		collapse: function (id) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, event: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id });	
 			if (eventData.stop === true) return false;
 			// default action
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').hide();		
@@ -548,7 +548,7 @@
 				} else {
 					if (nd.selected && !nd.disabled) obj.selected = nd.id;
 					var tmp = '';
-					if (img)  tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'" style="margin-top: 3px;"></div>';
+					if (img)  tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'"></div>';
 					if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
 					html = 
 					'<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+

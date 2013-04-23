@@ -11,6 +11,7 @@
 *		- move doExpand into the record
 *		- infinite scroll (buffered scroll)
 *		- frozen columns
+*		- column autosize based on largest content
 *
 *  == 1.2 changes
 *		- find(obj, returnRecords) - gets second argument
@@ -1969,6 +1970,7 @@
 			// check overflow
 			if (body.height() - columns.height() < $(records).find(':first-child').height()) var bodyOverflowY = true; else bodyOverflowY = false;
 			if (body.width() < $(records).find(':first-child').width())   var bodyOverflowX = true; else bodyOverflowX = false;
+			if (!this.fixedBody) { bodyOverflowY = false; bodyOverflowX = false; }
 			if (bodyOverflowX || bodyOverflowY) {
 				records.css({ 
 					top: ((this.columnGroups.length > 0 ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
@@ -2105,7 +2107,7 @@
 				if (col.hidden) continue;
 				var tmp = $('#grid_'+ this.name +'_cell_header_'+ i + ' > div:first-child');
 				tmp.width(col.sizeCalculated);
-				if (tmp.hasClass('w2ui-column-group')) { tmp.find('div').css('padding', '13px 3px'); }
+				if (tmp.hasClass('w2ui-column-group')) { tmp.find('div').css('padding', '20px 3px'); }
 
 				var startWith = 0;
 				if (this.url == '') { // local data
@@ -2230,7 +2232,7 @@
 					}
 					if (this.show.expandColumn) {
 						html += '<td id="grid_'+ this.name +'_cell_header_expand" class="w2ui-head">'+
-								'	<div>&nbsp;</div>'+
+								'	<div><div>&nbsp;</div></div>'+
 								'</td>';
 					}
 					var ii = 0;
@@ -2291,7 +2293,7 @@
 				}
 				if (this.show.expandColumn) {
 					html += '<td id="grid_'+ this.name +'_cell_header_expand" class="w2ui-head w2ui-expand">'+
-							'	<div>&nbsp;</div>'+
+							'	<div><div>&nbsp;</div></div>'+
 							'</td>';
 				}
 				var ii = 0;
@@ -2326,7 +2328,7 @@
 					}
 				}
 				html += '<td id="grid_'+ this.name +'_cell_header_last" class="w2ui-head">'+
-						'	<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></td>';
+						'	<div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></div></td>';
 				html += '</tr>';
 			}
 			return html;

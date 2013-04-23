@@ -42,6 +42,7 @@
 		this.postData		= {};
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
 		this.style 			= '';
+		this.focusFirst		= true;
 		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
 		this.msgRefresh		= w2utils.lang('Refreshing...');
 		this.msgSaving		= w2utils.lang('Saving...');
@@ -819,22 +820,23 @@
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			// attach to resize event
-			this.tmp_resize = function (event) { w2ui[obj.name].resize();	}
-			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
-			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
 			// after render actions
+			this.resize();
 			if (this.url != '' && this.recid != 0) {
 				this.request(); 
 			} else {
 				this.refresh();
 			}
+			// attach to resize event
+			this.tmp_resize = function (event) { w2ui[obj.name].resize();	}
+			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
+			setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer
 			// focus first
 			function focusFirst() {
 				var inputs = $(obj.box).find('input, select');
 				if (inputs.length > 0) inputs[0].focus();
 			}
-			setTimeout(focusFirst, 500); // need timeout to allow form to render
+			if (this.focusFirst === true) setTimeout(focusFirst, 500); // need timeout to allow form to render
 		},
 
 		destroy: function () { 
@@ -852,7 +854,6 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			
 			$(window).off('resize', this.tmp_resize)
 		},
 	}

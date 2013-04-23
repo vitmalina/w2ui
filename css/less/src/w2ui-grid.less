@@ -11,10 +11,6 @@ div.w2ui-grid {
 		overflow: hidden;
 	}
 
-	input[type=checkbox] {
-		margin: 3px 1px; //* needed for Opera on Mac */
-	}
-
 	.w2ui-grid-lock {
 		.opacity(0.15);
 		background-color: @grid-lock-background-color;
@@ -88,7 +84,7 @@ div.w2ui-grid {
 
 	.w2ui-search-down {
 		position: absolute;
-		margin-top: -7px !important; 
+		margin-top: -7px; 
 		margin-left: 5px;
 	}
 
@@ -201,10 +197,12 @@ div.w2ui-grid {
 				border-bottom: @grid-headers-border;
 
 				> div {
-					padding: 7px 3px;
+					padding: 0px 3px;
 					color: @grid-headers-color;
 					.linear-gradient-vertical(@grid-headers-linear-gradient-start, @grid-headers-linear-gradient-end);
+
 					> div {
+						padding: 7px 0px;						
 						white-space: nowrap;
 						text-overflow: ellipsis;
 						overflow: hidden;
@@ -271,12 +269,21 @@ div.w2ui-grid {
 					padding: 0px; 
 					padding-bottom: 1px;
 					margin: 0px;
+					margin-top: -3px; //* needed for Opera on Mac */
 				}
 
 				input {
 					display: inline-block; 
 					margin: 0px; 
 					padding: 0px;
+				}
+
+				input[type=checkbox] {
+					margin: 3px 1px; //* needed for Opera on Mac */
+				}
+
+				&.w2ui-head > div {
+					margin-top: 0px;
 				}
 
 				&.w2ui-head input {
