@@ -2,7 +2,7 @@
 * ---- Popup ----
 */
 
-div.w2ui-popup {
+.w2ui-popup {
 	position: fixed;
 	z-index: 1200;
 	overflow: hidden;
@@ -18,7 +18,7 @@ div.w2ui-popup {
 		.box-sizing;
 	}
 
-	div.w2ui-msg-title {
+	.w2ui-msg-title {
 		padding: 6px;
 		border-radius: 6px 6px 0px 0px;
 		.linear-gradient-vertical(@popup-title-linear-gradient-start, @popup-title-linear-gradient-end);				
@@ -38,7 +38,7 @@ div.w2ui-popup {
 		z-index: 1021;		
 	}
 
-	div.w2ui-msg-button {
+	.w2ui-msg-button {
 		float: right;
 		width: 18px;
 		height: 18px;
@@ -53,7 +53,7 @@ div.w2ui-popup {
 		border: @popup-title-button-border;
 	}
 
-	div.w2ui-msg-close {
+	.w2ui-msg-close {
 		margin-top: 0px;
 		background-position: -32px 0px;
 		&:hover {
@@ -62,7 +62,7 @@ div.w2ui-popup {
 		}
 	}
 
-	div.w2ui-msg-max {
+	.w2ui-msg-max {
 		background-position: -16px 0px;
 		&:hover {
 			background-color: @popup-title-max-background-color;
@@ -70,7 +70,7 @@ div.w2ui-popup {
 		}
 	}
 
-	div.w2ui-box1, div.w2ui-box2 { // w2ui-box1 & w2ui-box2 needd for transitions
+	.w2ui-box1, .w2ui-box2 { // w2ui-box1 & w2ui-box2 needd for transitions
 		position: absolute;
 		left: 0px;
 		right: 0px;
@@ -79,7 +79,7 @@ div.w2ui-popup {
 		z-index: 100;
 	}
 
-	div.w2ui-msg-body {
+	.w2ui-msg-body {
 		font-size: 13px;
 		line-height: 130%;
 		padding: 7px;
@@ -91,14 +91,14 @@ div.w2ui-popup {
 		height: 100%;
 
 		// == w2alert, w2confirm	
-		div.w2ui-alert-body, div.w2ui-confirm-body {
+		.w2ui-alert-body, .w2ui-confirm-body {
 			padding: 12px; 
 			padding-right: 24px; 
 			text-align: center
 		}
 	}
 
-	div.w2ui-popup-message { // slide down message
+	.w2ui-popup-message { // slide down message
 		position: absolute;
 		z-index: 200;
 		background-color: @popup-message-background-color; 
@@ -109,7 +109,7 @@ div.w2ui-popup {
 		border-radius: 0px 0px 6px 6px; 
 	}
 	
-	div.w2ui-msg-buttons {
+	.w2ui-msg-buttons {
 		padding: 8px;
 		border-radius: 0px 0px 6px 6px;
 		border-top: @popup-buttons-border-top;
@@ -135,13 +135,13 @@ div.w2ui-popup {
 		}
 	}
 
-	div.w2ui-msg-no-title {
+	.w2ui-msg-no-title {
 		border-top-left-radius: 6px;
 		border-top-right-radius: 6px;
 		top: 0px !important;
 	}
 
-	div.w2ui-msg-no-buttons {
+	.w2ui-msg-no-buttons {
 		border-bottom-left-radius: 6px;
 		border-bottom-right-radius: 6px;
 		bottom: 0px !important;
