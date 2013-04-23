@@ -327,6 +327,7 @@
 			nd.expanded = true;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			this.resize();
 		},
 		
 		collapse: function (id) {
@@ -339,6 +340,7 @@
 			this.get(id).expanded = false;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			this.resize();
 		},
 
 		collapseAll: function (parent) {
@@ -579,6 +581,14 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.stop === true) return false;
+			// default action
+			$(this.box).css('overflow', 'hidden');	// container should have no overflow
+			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'hidden');
+			$(this.box).find('> div').css({
+				width 	: $(this.box).width() + 'px',
+				height 	: $(this.box).height() + 'px'
+			});			
+			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'auto');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
