@@ -1,4 +1,3 @@
-
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
@@ -821,8 +820,8 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
-			function tmp_resize(event) { w2ui[obj.name].resize();	}
-			$(window).off('resize', tmp_resize).on('resize', tmp_resize);
+			this.tmp_resize = function (event) { w2ui[obj.name].resize();	}
+			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
 			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
 			// after render actions
 			if (this.url != '' && this.recid != 0) {
@@ -853,6 +852,8 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			
+			$(window).off('resize', this.tmp_resize)
 		},
 	}
 	
