@@ -545,7 +545,7 @@
 			} else {
 				$('#form_'+ obj.name +'_lock').remove();
 				$('#form_'+ obj.name +'_status').remove();
-				$(this.box).find(':first-child').before(
+				$(this.box).find('> div :first-child').before(
 					'<div id="form_'+ obj.name +'_lock" class="w2ui-form-lock"></div>'+
 					'<div id="form_'+ obj.name +'_status" class="w2ui-form-status"></div>'
 				);
