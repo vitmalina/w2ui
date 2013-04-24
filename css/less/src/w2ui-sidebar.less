@@ -54,9 +54,9 @@
 			margin: 0px;
 			padding: 1px 0px;
 
-			div.w2ui-node-caption, 
-			div.w2ui-node-image, 
-			div.w2ui-node-image > span, 
+			.w2ui-node-caption, 
+			.w2ui-node-image, 
+			.w2ui-node-image > span, 
 			td.w2ui-node-dots {
 				color: @sidebar-node-color;
 				text-shadow: @sidebar-node-text-shadow;
@@ -72,8 +72,12 @@
 			}
 			
 			// font icon default
-			div.w2ui-node-image > span {
-				color: @sidebar-node-image-color !important;
+			.w2ui-node-image {
+				width: 22px;
+				text-align: center;				
+				> span {
+					color: @sidebar-node-image-color !important;
+				}
 			}
 		}
 
@@ -82,9 +86,9 @@
 			border-top: @sidebar-node-selected-border-top;
 			border-bottom: @sidebar-node-selected-border-bottom;
 
-			div.w2ui-node-caption, 
-			div.w2ui-node-image, 
-			div.w2ui-node-image > span, 
+			.w2ui-node-caption, 
+			.w2ui-node-image, 
+			.w2ui-node-image > span, 
 			td.w2ui-node-dots {
 				color: @sidebar-node-selected-color !important;
 				text-shadow: @sidebar-node-selected-text-shadow !important;
@@ -96,9 +100,9 @@
 			border-top: @sidebar-node-border-top;
 			border-bottom: @sidebar-node-border-bottom;
 
-			div.w2ui-node-caption, 
-			div.w2ui-node-image, 
-			div.w2ui-node-image > span, 
+			.w2ui-node-caption, 
+			.w2ui-node-image, 
+			.w2ui-node-image > span, 
 			td.w2ui-node-dots {
 				.opacity(0.4);
 				color: @sidebar-node-color !important;
