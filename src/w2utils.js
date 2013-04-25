@@ -264,7 +264,7 @@ var w2utils = (function () {
 
 	function escapeId (id) {
 		if (typeof id == 'undefined' || id == '' || id == null) return '';
-		return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}])/g, '\\$1');
+		return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1');
 	}
 
 	function base64encode (input) {
@@ -754,7 +754,9 @@ $.w2event = {
 		// remove all tags
 		if ($(this).length == 0) {
 			$('.global-tag').each(function (index, elem) {
-				$('#' + $(elem).data('tagID')).removeClass( $(elem).data('options')['class'] );
+				var opt = $(elem).data('options');
+				if (typeof opt == 'undefined') opt = {};
+				$($(elem).data('taged-el')).removeClass( opt['class'] );
 				clearInterval($(elem).data('timer'));
 				$(elem).remove();
 			});
@@ -762,7 +764,8 @@ $.w2event = {
 		}
 		return $(this).each(function (index, el) {
 			// show or hide tag
-			var tagID = el.id;
+			var tagOrigID = el.id;
+			var tagID = w2utils.escapeId(el.id);
 			if (text == '' || text == null || typeof text == 'undefined') {
 				$('#global-tag-'+tagID).css('opacity', 0);
 				setTimeout(function () {
@@ -775,8 +778,8 @@ $.w2event = {
 				clearInterval($('#global-tag-'+tagID).data('timer'));
 				$('#global-tag-'+tagID).remove();
 				// insert
-				$('body').append('<div id="global-tag-'+ tagID +'" class="global-tag" '+
-								 '	style="position: absolute; z-index: 1701; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');		
+				$('body').append('<div id="global-tag-'+ tagOrigID +'" class="global-tag" '+
+								 '	style="position: absolute; z-index: 1701; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');	
 
 				var timer = setInterval(function () { 
 					// monitor if destroyed
@@ -805,7 +808,7 @@ $.w2event = {
 						top: $(el).offset().top + 'px'
 					}).html('<div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;"> <div class="bubble-tag">'+ text +'</div> </div>')
 					.data('text', text)
-					.data('tagID', tagID)
+					.data('taged-el', el)
 					.data('options', options)
 					.data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top)
 					.data('timer', timer);
