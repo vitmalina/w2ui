@@ -7,13 +7,13 @@
 *
 * == NICE TO HAVE
 *  - select - for select, list - for drop down (needs this in grid)
+*  - enum (onLoaded)
+*  - enum (onCompare)
 *
 *  == 1.2 chanses
 *  - new type list/select
 *  - added a way to add customTypes
 *  - new type upload (html5 file select, not completed)
-*  - enum (onLoaded)
-*  - enum (onCompare)
 * 
 ************************************************************************/
 
@@ -162,6 +162,7 @@
 							.on('focus', function () {
 								var top  = parseFloat($(obj).offset().top) + parseFloat(obj.offsetHeight);
 								var left = parseFloat($(obj).offset().left);
+								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
 								$('body').append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
