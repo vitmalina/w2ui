@@ -583,6 +583,42 @@
 			this.refresh();
 		},
 
+		generate: function (obj) {
+			var html = '';
+			if (typeof obj.pages == 'undefined') {
+				obj.pages = [obj.fields];
+				delete obj.fields;
+			}
+			var cnt = 0;
+			for (var j in obj.pages) {
+				var page = obj.pages[j];
+				html += '<div class="w2ui-page page-'+ cnt +'">';
+				for (var i in page.fields) {
+					var field = page.fields[i];
+					var type  = '<input name="'+ field.name +'" type="text" '+ field.attr +'/>';
+					if (field.type == 'select') type = '<select name="'+ field.name +'" '+ field.attr +'></select>';
+					if (field.type == 'textarea') type = '<textarea name="'+ field.name +'" '+ field.attr +'></textarea>';
+					html += '<div class="w2ui-label '+ (typeof field.span != 'undefined' ? 'w2ui-span'+ field.span : '') +'">'+ field.caption +':</div>'+
+							'<div class="w2ui-field '+ (typeof field.span != 'undefined' ? 'w2ui-span'+ field.span : '') +'">'+
+								type +
+							'</div>';
+				}			
+				html += '</div>';
+				cnt++;
+			}
+			if (typeof obj.buttons != 'undefined') {
+				html += '<div class="w2ui-buttons" style="position: absolute: bottom: 0px;">';
+				for (var i in obj.buttons) {
+					var button = obj.buttons[i];
+					html += '<input type="button" value="'+ button.caption +'" name="'+ button.name +'" '+ button.attr +'>'
+				}
+				html += '</div>';
+			}
+			this.form_html = html;
+			this.render();
+			return html;
+		},
+
 		doAction: function (action, event) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', event: event });	

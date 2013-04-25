@@ -1,0 +1,103 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.css" /> 
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../src/w2utils.js"></script>
+<script type="text/javascript" src="../src/w2fields.js"></script>
+<script type="text/javascript" src="../src/w2form.js"></script>
+<script type="text/javascript" src="../src/w2tabs.js"></script>
+<script type="text/javascript" src="../src/w2popup.js"></script>
+<script>
+	$(function () {
+		$('#form').w2form({ 
+			name     : 'form',
+			url      : 'form.php',
+			recid    : 4,
+			header   : 'Edit header',
+			tabs: [
+				{ id: 'tab1', caption: 'General' }, 
+				{ id: 'tab2', caption: 'Additional' }
+			],
+			record: {
+				field_date: '3/15/2013'
+			},
+			fields: [
+				{ name: 'field_list0', type: 'list', required: true, 
+					options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
+				{ name: 'field.text', type: 'text', required: true },
+				{ name: 'field.alpha', type: 'alphanumeric', required: true },
+				{ name: 'field\\.int', type: 'int', required: true },
+				{ name: 'field_float', type: 'float', required: true },
+				{ name: 'field_date', type: 'date', options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
+				{ name: 'field_list', type: 'list', required: true, 
+					options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false } },
+				{ name: 'field_enum', type: 'enum', required: true, 
+					options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
+				{ name: 'field_textarea', type: 'text'},
+				{ name: 'field_text2', type: 'text' },
+				{ name: 'field_text3', type: 'text' },
+				{ name: 'field_text4', type: 'text' },
+				{ name: 'field_text5', type: 'text' },
+				{ name: 'field_upload', type: 'text' }
+			],
+			actions: {
+				reset: function () {
+					this.clear();
+				},
+				save: function () {
+					var obj = this;
+					this.save({}, function (data) { 
+						console.log(data);
+						if (data.status == 'error') {
+							console.log('ERROR: '+ data.message);
+							return;
+						}
+						//obj.clear();
+					});
+				}
+			}
+		});
+		// generate HTML form
+		w2ui['form'].generate({
+			pages: [
+				{
+					fields: [
+						{ caption: 'List', name: 'field_list0', type: 'select', attr: '', span: 5 },
+						{ caption: 'Text', name: 'field.text', type: 'text', attr: 'size="40"', span: 5 },
+						{ caption: 'Text (alpha-numeric)', name: 'field.alpha', type: 'text', attr: 'size="40"', span: 5 },
+						{ caption: 'Number (int)', name: 'field\\.int', type: 'text', attr: 'size="10"', span: 5 },
+						{ caption: 'Number (float)', name: 'field_float', type: 'text', attr: 'size="10"', span: 5 },
+						{ caption: 'Date', name: 'field_date', type: 'text', attr: 'size="16"', span: 5 },
+						{ caption: 'List', name: 'field_list', type: 'select', attr: '', span: 5 },
+						{ caption: 'Upload', name: 'field_upload', type: 'text', attr: 'style="width: 95%;"', span: 5 },
+						{ caption: 'Enum', name: 'field_enum', type: 'text', attr: 'style="width: 95%;"', span: 5 },
+						{ caption: 'Text Area', name: 'field_textarea', type: 'textarea', attr: 'style="width: 95%; height: 60px"', span: 5 }
+					]
+				}, { 
+					fields: [
+						{ caption: 'Text 2', name: 'field_text2', type: 'text', attr: 'style="width: 100%"', span: 3 },
+						{ caption: 'Text 3', name: 'field_text3', type: 'text', attr: 'style="width: 100%"', span: 3 },
+						{ caption: 'Text 4', name: 'field_text4', type: 'text', attr: 'style="width: 100%"', span: 3 },
+						{ caption: 'Text 5', name: 'field_text5', type: 'text', attr: 'style="width: 100%"', span: 3 }
+					]
+				}
+			],
+			buttons: [
+				{ name: 'reset', caption: 'Reset', attr: 'size=50' },
+				{ name: 'save', caption: 'Save', attr: '' }
+			]
+		});
+		// all event listener
+		w2ui['form'].on('change', function (id, data) {
+			data.onComplete = function () {
+				//console.log('Change Event: ' + id)
+				//console.log(this.record);
+			}
+		});	
+});
+</script>
+<body>
+	<div id="form" style="width: 700px; height: 500px;">
+	</div>
+</body>
+</html>
