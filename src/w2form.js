@@ -793,8 +793,7 @@
 						break;
 					case 'select':
 					case 'list':
-						$(field.el).w2field($.extend({}, field.options, { type: 'list' }));
-						$(field.el).val(value);
+						$(field.el).w2field($.extend({}, field.options, { type: 'list', value: value }));
 						break;
 					case 'enum':
 						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {

@@ -247,7 +247,7 @@
 						$(this).data('settings', settings);
 						$(this).html(html);
 						$(this).val(settings.value);
-						if (settings.value != null) $(this).change();
+						if ($(this).val() != settings.value) $(this).change();
 						break;
 
 					case 'enum':
