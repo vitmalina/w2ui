@@ -6445,13 +6445,13 @@ $.w2event = {
 *
 * == NICE TO HAVE
 *  - select - for select, list - for drop down (needs this in grid)
+*  - enum (onLoaded)
+*  - enum (onCompare)
 *
 *  == 1.2 chanses
 *  - new type list/select
 *  - added a way to add customTypes
 *  - new type upload (html5 file select, not completed)
-*  - enum (onLoaded)
-*  - enum (onCompare)
 * 
 ************************************************************************/
 
@@ -6600,6 +6600,7 @@ $.w2event = {
 							.on('focus', function () {
 								var top  = parseFloat($(obj).offset().top) + parseFloat(obj.offsetHeight);
 								var left = parseFloat($(obj).offset().left);
+								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
 								$('body').append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
@@ -6684,7 +6685,7 @@ $.w2event = {
 						$(this).data('settings', settings);
 						$(this).html(html);
 						$(this).val(settings.value);
-						if (settings.value != null) $(this).change();
+						if ($(this).val() != settings.value) $(this).change();
 						break;
 
 					case 'enum':
@@ -8198,8 +8199,7 @@ $.w2event = {
 						break;
 					case 'select':
 					case 'list':
-						$(field.el).w2field($.extend({}, field.options, { type: 'list' }));
-						$(field.el).val(value);
+						$(field.el).w2field($.extend({}, field.options, { type: 'list', value: value }));
 						break;
 					case 'enum':
 						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {
