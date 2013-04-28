@@ -487,7 +487,9 @@
 						var search 	= this.searches[s];
 						var sdata  	= this.getSearchData(search.field);
 						if (sdata == null) continue;
-						var val1 	= String(rec[search.field]).toLowerCase();
+						var val1;
+						try { val1 = eval('rec.'+ search.field); } catch (e) {}
+						val1 = String(val1).toLowerCase();
 						if (typeof sdata.value != 'undefined') {
 							if (!$.isArray(sdata.value)) {
 								var val2 = String(sdata.value).toLowerCase();
@@ -684,10 +686,15 @@
 				}
 			}
 			// .search([ { filed, value }, { field, valu e} ]) - submit whole structure
-			if (arguments.length == 1 && $.isArray(field)) {
+			if ($.isArray(field)) {
+				var logic = 'AND';
+				if (typeof value == 'string') {
+					logic = value.toUpperCase();
+					if (logic != 'OR' && logic != 'AND') logic = 'AND';
+				}
 				last_search = '';
 				last_multi	= true;
-				last_logic	= 'AND';
+				last_logic	= logic;
 				for (var f in field) {
 					var data   = field[f];
 					var search = this.getSearch(data.field);
@@ -705,7 +712,7 @@
 				}
 			}
 			// .search(field, value) - regular search
-			if (arguments.length == 2) {
+			if (typeof field == 'string' && typeof value == 'string') {
 				last_field 	= field;
 				last_search = value;
 				last_multi	= false;

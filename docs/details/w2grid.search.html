@@ -20,7 +20,7 @@ Searches records in grid.
 OR 
 
 <div class="definition">
-	search(searches)
+	search(searches, logic)
 </div>
 
 <div class="arguments">
@@ -28,6 +28,10 @@ OR
 	<tr>
 		<td>searches</td>
 		<td><b>array</b>, array of search objects</td>
+	</tr>
+	<tr>
+		<td>logic</td>
+		<td><b>string</b>, defines search logic (AND/OR)</td>
 	</tr>
 	</table>
 </div>
@@ -84,5 +88,5 @@ grid.search('fname', 'm');
 // or
 grid.search('all', 'm');
 // or
-grid.search([{ field: 'date', value: ['1/1/2012', '1/10/2012'], operator: 'between'}]);
+grid.search([{ field: 'date', value: ['1/1/2012', '1/10/2012'], operator: 'between'}], 'OR');
 </textarea>	
