@@ -20,7 +20,7 @@ Searches records in grid.
 OR 
 
 <div class="definition">
-	search(searches, logic)
+	search(searches, [logic])
 </div>
 
 <div class="arguments">
@@ -31,7 +31,7 @@ OR
 	</tr>
 	<tr>
 		<td>logic</td>
-		<td><b>string</b>, defines search logic (AND/OR)</td>
+		<td><b>string</b>, defines search logic AND/OR (<i>optional</i>)</td>
 	</tr>
 	</table>
 </div>
@@ -44,8 +44,8 @@ submit search data to the server side to apply the search. The first argument <s
 fields where data type matches). The second argument <span class="argument">value</span> is the search string.
 <div style="height: 10px;"></div>
 
-If you submit only one argument and it is an array, the method will assume that it is the array of search objects. This way you can submit
-search on multiple fields at the same time.
+If first argument is an array and second optional argument is a string (AND or OR), then the method will assume that it is the array 
+of search objects. This way you can submit search on multiple fields at the same time.
 <div style="height: 10px;"></div>
 
 The search object has the following structure:
