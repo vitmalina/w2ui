@@ -1,0 +1,107 @@
+Generate HTML template for simple forms.
+
+<div class="definition">
+	generateHTML(param)
+</div>
+
+<h4>Arguments</h4>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>param</td>
+		<td><b>object</b>, object of parameters</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+In many cases the HTML template for the form is very typical - fields in one column, may be a few tabs. Instead of 
+creating many HTML files with this typical HTML template, you can generate them. The <span class="argument">param</span> 
+argument is the object of the following structure:
+<textarea class="javascript">
+param = {
+	fields : [
+		{ 
+			caption : '',  // caption for the field
+			name    : '',  // name for the field, must match name in fields array
+			type    : '',  // type of the field (select, input, textarea)
+			attr    : '',  // additional attributes inside &lt;input&gt; tab
+			span    : 5    // number 1-9 that defined with of the caption span
+		}
+		...
+	]
+	buttons: [
+		{ 
+			name    : '',  // name for the button
+			caption : '',  // caption for the button
+			attr    : ''   // additional attributes inside &lt;input&gt; tab
+		},
+		...
+	]
+}
+</textarea>
+
+If you need to have pages or tabs, you can use this structure
+<textarea class="javascript">
+param = {
+	pages: [
+		{
+			tab    : '',   // caption for the tab, if not defined - not tab will be created
+			fields : [
+				{ 
+					caption : '',  // caption for the field
+					name    : '',  // name for the field, must match name in fields array
+					type    : '',  // type of the field (select, input, textarea)
+					attr    : '',  // additional attributes inside &lt;input&gt; tab
+					span    : 5    // number 1-9 that defined with of the caption span
+				}
+				...
+			]
+		},
+		...
+	],
+	buttons: [
+		{ 
+			name    : '',  // name for the button
+			caption : '',  // caption for the button
+			attr    : ''   // additional attributes inside &lt;input&gt; tab
+		},
+		...
+	]
+}
+</textarea>
+
+This method will generate HTML template, assign it to <a class="argument" href="w2form.form_html">.form_html</a> property and will 
+call <a class="argument" href="w2form.render">.render()</a> method. If you have had form template defined in the element, or in 
+<a class="argument" href="w2form.form_html">.form_html</a> property, it will be overwritten.
+<div style="height: 10px"></div>
+
+The following is the example how to use it
+<textarea class="javascript">
+$('#form').w2form({ 
+	name     : 'form',
+	fields: [
+		{ name: 'field.text', type: 'text', required: true },
+		{ name: 'field.alpha', type: 'alphanumeric', required: true },
+		{ name: 'field.int', type: 'int', required: true },
+	],
+	actions: {
+		reset: function () {},
+		save: function () {}
+	}
+});
+
+w2ui['form'].generateHTML({
+	fields: [
+		{ caption: 'Field 1', name: 'field.text', type: 'input', attr: 'size="40"', span: 5 },
+		{ caption: 'Field 2', name: 'field.alpha', type: 'input', attr: 'size="40"', span: 5 },
+		{ caption: 'Field 3', name: 'field.int', type: 'input', attr: 'size="40"', span: 5 }
+	],
+	buttons: [
+		{ name: 'reset', caption: 'Reset', attr: 'size=50' },
+		{ name: 'save', caption: 'Save', attr: '' }
+	]
+});
+</textarea>

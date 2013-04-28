@@ -14,10 +14,6 @@
 			url      : 'form.php',
 			recid    : 4,
 			header   : 'Edit header',
-			tabs: [
-				{ id: 'tab1', caption: 'General' }, 
-				{ id: 'tab2', caption: 'Additional' }
-			],
 			record: {
 				field_date: '3/15/2013'
 			},
@@ -58,12 +54,13 @@
 			}
 		});
 		// generate HTML form
-		w2ui['form'].generate({
+		w2ui['form'].generateHTML({
 			pages: [
 				{
+					tab: 'General1',
 					fields: [
 						{ caption: 'List', name: 'field_list0', type: 'select', attr: '', span: 5 },
-						{ caption: 'Text', name: 'field.text', type: 'text', attr: 'size="40"', span: 5 },
+						{ caption: 'Text', name: 'field.text', type: 'input', attr: 'size="40"', span: 5 },
 						{ caption: 'Text (alpha-numeric)', name: 'field.alpha', type: 'text', attr: 'size="40"', span: 5 },
 						{ caption: 'Number (int)', name: 'field\\.int', type: 'text', attr: 'size="10"', span: 5 },
 						{ caption: 'Number (float)', name: 'field_float', type: 'text', attr: 'size="10"', span: 5 },
@@ -74,6 +71,7 @@
 						{ caption: 'Text Area', name: 'field_textarea', type: 'textarea', attr: 'style="width: 95%; height: 60px"', span: 5 }
 					]
 				}, { 
+					tab: 'Additional1',
 					fields: [
 						{ caption: 'Text 2', name: 'field_text2', type: 'text', attr: 'style="width: 100%"', span: 3 },
 						{ caption: 'Text 3', name: 'field_text3', type: 'text', attr: 'style="width: 100%"', span: 3 },
@@ -87,13 +85,6 @@
 				{ name: 'save', caption: 'Save', attr: '' }
 			]
 		});
-		// all event listener
-		w2ui['form'].on('change', function (id, data) {
-			data.onComplete = function () {
-				//console.log('Change Event: ' + id)
-				//console.log(this.record);
-			}
-		});	
 });
 </script>
 <body>

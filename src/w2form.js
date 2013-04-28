@@ -6,10 +6,6 @@
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2popup
 *
 *  == Nice to Have
-* 		- lock/unlock like in grid
-* 		- error handling
-* 		- better grid inside popup (use grid buttons)
-* 		- show how to use form in a dialog
 * 
 *  == 1.2 changes
 * 		- focus first elements on the page
@@ -20,6 +16,7 @@
 * 		- added onError event
 *		- removed isLoaded
 * 		- added error()
+* 		- added lock()/unlock()
 *
 ************************************************************************/
 
@@ -179,8 +176,8 @@
 		},
 
 		initTabs: function () {
-			// -- if tabs defined
-			if (!$.isEmptyObject(this.tabs) && typeof this.tabs['render'] == 'undefined') {
+			// init tabs regardless it is defined or not
+			if (typeof this.tabs['render'] == 'undefined') {
 				var obj = this;
 				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
 				this.tabs.on('click', function (id, choice) {
@@ -583,7 +580,7 @@
 			this.refresh();
 		},
 
-		generate: function (obj) {
+		generateHTML: function (obj) {
 			var html = '';
 			if (typeof obj.pages == 'undefined') {
 				obj.pages = [obj.fields];
@@ -592,6 +589,7 @@
 			var cnt = 0;
 			for (var j in obj.pages) {
 				var page = obj.pages[j];
+				if (typeof page.tab != 'undefined') this.tabs.add({ id: 'tab'+ this.tabs.tabs.length, caption: page.tab });
 				html += '<div class="w2ui-page page-'+ cnt +'">';
 				for (var i in page.fields) {
 					var field = page.fields[i];
@@ -678,7 +676,7 @@
 			$(this.box).find('.w2ui-page').hide();
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
 			// refresh tabs if needed
-			if (typeof this.tabs == 'object' && typeof this.tabs.refresh == 'function') {
+			if (typeof this.tabs == 'object' && this.tabs.tabs.length > 0) {
 				$('#form_'+ this.name +'_tabs').show();
 				this.tabs.active = this.tabs.tabs[this.page].id;
 				this.tabs.refresh();

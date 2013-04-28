@@ -9,6 +9,7 @@
 *  - select - for select, list - for drop down (needs this in grid)
 *  - enum (onLoaded)
 *  - enum (onCompare)
+*  - enum - onclick for already selected elements
 *
 *  == 1.2 chanses
 *  - new type list/select
