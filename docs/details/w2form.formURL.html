@@ -6,8 +6,8 @@ URL of the form HTML template.
 
 There are three ways you can define form HTML template (in order of preference):
 <ul style="margin: 5px 40px">
-	<li><a class="argument" href="w2form.form_url">.form_url</a> - load from server</li>
-	<li><a class="argument" href="w2form.form_html">.form_html</a> - define in JavaScript</li>
+	<li><a class="argument" href="w2form.formURL">.formURL</a> - load from server</li>
+	<li><a class="argument" href="w2form.formHTML">.formHTML</a> - define in JavaScript</li>
 	<li>innerHTML of<a class="argument" href="w2form.box">.box</a></li>
 </ul>
 
@@ -17,7 +17,7 @@ The following example shows how to load HTML template from a URL
 $('#form').w2form({
 	name     : 'form',
 	style    : 'border: 0px; background-color: transparent;',
-	form_url : '/server/path',
+	formURL  : '/server/path',
 	fields: [
 		{ name: 'first_name', type: 'text', required: true },
 		{ name: 'last_name', type: 'text', required: true },

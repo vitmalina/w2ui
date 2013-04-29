@@ -6,8 +6,8 @@ Form HTML template.
 
 There are three ways you can define form HTML template (in order of preference):
 <ul style="margin: 5px 40px">
-	<li><a class="argument" href="w2form.form_url">.form_url</a> - load from server</li>
-	<li><a class="argument" href="w2form.form_html">.form_html</a> - define in JavaScript</li>
+	<li><a class="argument" href="w2form.formURL">.formURL</a> - load from server</li>
+	<li><a class="argument" href="w2form.formHTML">.formHTML</a> - define in JavaScript</li>
 	<li>innerHTML of<a class="argument" href="w2form.box">.box</a></li>
 </ul>
 
@@ -17,7 +17,7 @@ The following example shows how to define HTML template in JavaScript
 $('#form').w2form({
 	name: 'form',
 	style: 'border: 0px; background-color: transparent;',
-	form_html: 
+	formHTML: 
 		'<div class="w2ui-page page-0">'+
 		'	<div class="w2ui-label">First Name:</div>'+
 		'	<div class="w2ui-field">'+

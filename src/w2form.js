@@ -17,6 +17,8 @@
 *		- removed isLoaded
 * 		- added error()
 * 		- added lock()/unlock()
+* 		- form_html -> formHTML
+* 		- form_url -> formURL
 *
 ************************************************************************/
 
@@ -28,8 +30,8 @@
 		this.header 		= '';
 		this.box			= null; 	// HTML element that hold this element
 		this.url			= '';
-		this.form_url   	= '';		// url where to get form HTML
-		this.form_html  	= '';		// form HTML (might be loaded from the url)
+		this.formURL    	= '';		// url where to get form HTML
+		this.formHTML   	= '';		// form HTML (might be loaded from the url)
 		this.page 			= 0;		// current page
 		this.recid			= 0;		// can be null or 0
 		this.fields 		= [];
@@ -115,15 +117,15 @@
 			}
 			object.initTabs();
 			// render if necessary
-			if ($(this).length != 0 && !object.form_url) {
-				if (!object.form_html) object.form_html = $(this).html();
+			if ($(this).length != 0 && !object.formURL) {
+				if (!object.formHTML) object.formHTML = $(this).html();
 				object.init(this);
 				object.render($(this)[0]);
-			} else if (object.form_url) {
-				$.get(object.form_url, function (data) {
-					object.form_html = data;
+			} else if (object.formURL) {
+				$.get(object.formURL, function (data) {
+					object.formHTML = data;
 					if ($(obj).length != 0 || data.length != 0) {
-						$(obj).html(object.form_html);
+						$(obj).html(object.formHTML);
 						object.init(obj);
 						object.render($(obj)[0]);
 					}
@@ -612,7 +614,7 @@
 				}
 				html += '</div>';
 			}
-			this.form_html = html;
+			this.formHTML = html;
 			this.render();
 			return html;
 		},
@@ -647,7 +649,7 @@
 			if ($(this.box).height() == 0 || $(this.box).data('auto-size') === true) {
 				$(this.box).height(
 					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
-					(tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
+					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
 					(page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
 					(buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
 				);
@@ -662,7 +664,7 @@
 				main.width($(obj.box).width()).height($(obj.box).height());
 				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
 				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0) 
-							  + (obj.tabs.tabs ? w2utils.getSize(tabs, 'height') + 5 : 0));
+							  + (obj.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') + 5 : 0));
 				page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
 			}
 		},
@@ -828,6 +830,7 @@
 			if (eventData.stop === true) return false;
 			// default actions
 			if (typeof box != 'undefined' && box != null) {
+				// remove from previous box
 				if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
 					$(this.box)
 						.removeData('w2name')
@@ -839,7 +842,7 @@
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
 						'	<div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' +
-						this.form_html +
+						this.formHTML +
 						'</div>';
 			$(this.box)
 				.data('w2name', this.name)
