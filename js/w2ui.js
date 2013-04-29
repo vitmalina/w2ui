@@ -1379,7 +1379,9 @@ $.w2event = {
 						var search 	= this.searches[s];
 						var sdata  	= this.getSearchData(search.field);
 						if (sdata == null) continue;
-						var val1 	= String(rec[search.field]).toLowerCase();
+						var val1;
+						try { val1 = eval('rec.'+ search.field); } catch (e) {}
+						val1 = String(val1).toLowerCase();
 						if (typeof sdata.value != 'undefined') {
 							if (!$.isArray(sdata.value)) {
 								var val2 = String(sdata.value).toLowerCase();
@@ -1576,10 +1578,15 @@ $.w2event = {
 				}
 			}
 			// .search([ { filed, value }, { field, valu e} ]) - submit whole structure
-			if (arguments.length == 1 && $.isArray(field)) {
+			if ($.isArray(field)) {
+				var logic = 'AND';
+				if (typeof value == 'string') {
+					logic = value.toUpperCase();
+					if (logic != 'OR' && logic != 'AND') logic = 'AND';
+				}
 				last_search = '';
 				last_multi	= true;
-				last_logic	= 'AND';
+				last_logic	= logic;
 				for (var f in field) {
 					var data   = field[f];
 					var search = this.getSearch(data.field);
@@ -1597,7 +1604,7 @@ $.w2event = {
 				}
 			}
 			// .search(field, value) - regular search
-			if (arguments.length == 2) {
+			if (typeof field == 'string' && typeof value == 'string') {
 				last_field 	= field;
 				last_search = value;
 				last_multi	= false;
@@ -6447,6 +6454,8 @@ $.w2event = {
 *  - select - for select, list - for drop down (needs this in grid)
 *  - enum (onLoaded)
 *  - enum (onCompare)
+*  - enum - onclick for already selected elements
+*  - enum needs events onItemClick, onItemOver, etc just like upload
 *
 *  == 1.2 chanses
 *  - new type list/select
@@ -6494,9 +6503,14 @@ $.w2event = {
 
 					case 'clear': // removes any previous field type
 						$(this).off('keypress').off('focus').off('blur');
+						$(this).removeData(); // removes all attached data
 						if ($(this).prev().hasClass('w2ui-list')) {	// if enum
 							$(this).prev().remove();
-							$(this).removeAttr('tabindex');
+							$(this).removeAttr('tabindex').css('border-color', '').show();
+						}
+						if ($(this).prev().hasClass('w2ui-upload')) { // if upload
+							$(this).prev().remove();
+							$(this).removeAttr('tabindex').css('border-color', '').show();
 						}
 						break;
 
@@ -6784,7 +6798,7 @@ $.w2event = {
 						this.refresh = function () {
 							var obj = this;
 							// remove all items
-							$($(this).data('selected-div')).remove();
+							$($(this).data('div')).remove();
 							// rebuild it
 							var margin = 'margin-top: ' + $(this).css('margin-top') + '; ' +
 										 'margin-bottom: ' + $(this).css('margin-bottom') + '; ' +
@@ -6806,8 +6820,8 @@ $.w2event = {
 							html += '</ul></div>';
 							$(this).before(html);
 							// adjust height
-							var div = $(this).prev();
-							$(this).data('selected-div', div);
+							var div = $(this).prev()[0];
+							$(this).data('div', div);
 							var cntHeight = w2utils.getSize(div, 'height')
 								- parseInt($(div).css('margin-top')) 
 								- parseInt($(div).css('margin-bottom'));
@@ -6847,33 +6861,115 @@ $.w2event = {
 						break;
 
 					case 'upload':
-						if (this.tagName != 'DIV') {
-							// rebuild it
-							var margin = 'margin-top: ' + $(this).css('margin-top') + '; ' +
-										 'margin-bottom: ' + $(this).css('margin-bottom') + '; ' +
-										 'margin-left: ' + $(this).css('margin-left') + '; ' +
-										 'margin-right: ' + $(this).css('margin-right') + '; '+
-										 'width: ' + (w2utils.getSize(this, 'width') 
-										 		   - parseInt($(this).css('margin-left')) 
-										 		   - parseInt($(this).css('margin-right'))) + 'px; ';
-							var html = '<div style="'+ margin + ';"></div>';
-							$(this).css('display', 'none').before(html);
-							$(this).data('div', $(this).prev());
-							$(this).prev().w2field(options);
-							return;
+						if (this.tagName != 'INPUT') {
+							console.log('ERROR: You can only apply $().w2field(\'upload\') to an INPUT element');
+							return;							
 						}
+						// init defaults
 						var defaults = {
-							url			: '',
-							onProgress	: null,
-							onComplete	: null
+							url				: '',
+							base64			: true,	// if true max file size is 20mb
+							hint			: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
+							max 			: 0,	// max number of files, 0 - unlim
+							maxSize			: 0, 	// max size of all files, 0 - unlim
+							maxFileSize 	: 0,	// max size of a single file, 0 -unlim
+							onAdd 			: null,
+							onRemove		: null,
+							onItemClick		: null,
+							onItemDblClick	: null,
+							onItemOver		: null,
+							onItemOut		: null,
+							onProgress		: null,
+							onComplete		: null
 						}
 						var obj	= this;
 						var settings = $.extend({}, defaults, options);
-
-						$(this).data('settings', settings); 
-						$(this).css({ 'border-color': 'transparent' });
-
+						if (settings.base64 === true) {
+							if (settings.maxSize == 0) settings.maxSize = 20 * 1024 * 1024; // 20mb
+							if (settings.maxFileSize == 0) settings.maxFileSize = 20 * 1024 * 1024; // 20mb
+						}
+						var selected = settings.selected;
+						delete settings.selected;
+						if (!$.isArray(selected)) selected = [];
+						$(this).data('selected', selected).data('settings', settings).attr('tabindex', -1);
 						w2field.upload_init.call(this);
+
+						this.refresh = function () {
+							var obj = this;
+							var div = $(this).data('div');
+							var settings = $(this).data('settings');
+							var selected = $(this).data('selected');
+							$(div).find('li').remove();
+							for (var s in selected) {
+								var file = selected[s];
+								// add li element
+								var cnt = $(div).find('.file-list li').length;
+								$(div).find('> span:first-child').remove();
+								$(div).find('.file-list').append('<li id="file-' + cnt + '">' + 
+									'	<div class="file-delete" onmouseover="event.stopPropagation();">&nbsp;&nbsp;</div>' + 
+									'	<span class="file-name">' + file.name + '</span>' +
+									'	<span class="file-size"> - ' + w2utils.size(file.size) + '</span>'+
+									'</li>');
+								var li = $(div).find('.file-list #file-' + cnt);
+								var previewHTML = "";
+								if ((/image/i).test(file.type)) { // image
+									previewHTML = '<div style="padding: 2px;">'+
+										'	<img src="##FILE##" onload="var w = $(this).width(); var h = $(this).height(); '+
+										'		if (w < 300 & h < 300) return; '+
+										'		if (w >= h && w > 300) $(this).width(300);'+
+										'		if (w < h && h > 300) $(this).height(300);'+
+										'	" onerror="this.style.display = \'none\'">'+
+										'</div>';
+								}
+								var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
+								var td2 = 'style="padding: 3px"';
+								previewHTML += '<div style="padding: 5px;">'+
+									'	<table cellpadding="2">'+
+									'	<tr><td '+ td1 +'>Name:</td><td '+ td2 +'>'+ file.name +'</td></tr>'+
+									'	<tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.size(file.size) +'</td></tr>'+
+									'	<tr><td '+ td1 +'>Type:</td><td '+ td2 +'>' +
+									'		<span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ file.type +'</span>'+
+									'	</td></tr>'+
+									'	<tr><td '+ td1 +'>Modified:</td><td '+ td2 +'>'+ w2utils.date(file.modified) +'</td></tr>'+
+									'	</table>'+
+									'</div>';
+								li.data('file', file)
+									.on('click', function (event) {
+										if (typeof settings.onItemClick == 'function') {
+											var ret = settings.onItemClick.call(obj, $(this).data('file'));
+											if (ret === false) return;
+										}
+										if (!$(event.target).hasClass('file-delete')) event.stopPropagation();
+									})
+									.on('dblclick', function (event) {
+										if (typeof settings.onItemDblClick == 'function') {
+											var ret = settings.onItemDblClick.call(obj, $(this).data('file'));
+											if (ret === false) return;
+										}
+										event.stopPropagation();
+										if (document.selection) document.selection.empty(); else document.defaultView.getSelection().removeAllRanges();
+									})
+									.on('mouseover', function (event) {
+										if (typeof settings.onItemOver == 'function') {
+											var ret = settings.onItemOver.call(obj, $(this).data('file'));
+											if (ret === false) return;
+										}
+										var file = $(this).data('file');
+										$(this).w2overlay(
+											previewHTML.replace('##FILE##', (file.content ? 'data:'+ file.type +';base64,'+ file.content : '')),
+											{ top: -4 }
+										);
+									})
+									.on('mouseout', function () {
+										if (typeof settings.onItemOut == 'function') {
+											var ret = settings.onItemOut.call(obj, $(this).data('file'));
+											if (ret === false) return;
+										}
+										$(this).w2overlay();
+									});
+							}
+						}
+						this.refresh();
 						break;
 
 					default: 
@@ -6924,49 +7020,81 @@ $.w2event = {
 		// -- Upload
 
 		upload_init: function () {
-			var obj = this;
-			// inset controls
+			var obj = this;   // this -> input element
+			var settings = $(this).data('settings');
+			// create drop area if needed
+			var el = $(obj).prev();
+			if (el.length > 0 && el[0].tagName == 'DIV' && el.hasClass('w2ui-upload')) el.remove();
+			// rebuild it
+			var margin = 'margin-top: ' + $(obj).css('margin-top') + '; ' +
+						 'margin-bottom: ' + $(obj).css('margin-bottom') + '; ' +
+						 'margin-left: ' + $(obj).css('margin-left') + '; ' +
+						 'margin-right: ' + $(obj).css('margin-right') + '; '+
+						 'width: ' + (w2utils.getSize(obj, 'width') 
+						 		   - parseInt($(obj).css('margin-left')) 
+						 		   - parseInt($(obj).css('margin-right'))) + 'px; '+
+						 'height: ' + (w2utils.getSize(obj, 'height') 
+						 		   - parseInt($(obj).css('margin-top')) 
+						 		   - parseInt($(obj).css('margin-bottom'))) + 'px; ';
+			var html = 
+				'<div style="'+ margin +'" class="w2ui-upload">'+
+				'	<span>'+ settings.hint +'</span>'+
+				'	<ul class="file-list"></ul>'+
+				'	<input class="file-input" type="file" name="attachment" multiple style="display: none">'+
+				'</div>';
 			$(obj)
-				.addClass('w2ui-upload')
-				.append('<span>'+ w2utils.lang('Attach files by dragging and dropping or Click to Select') +'</span>')
-				.append('<ul class="file-list"></ul>')
-				.append('<input class="file-input" type="file" name="attachment" multiple style="display: none">');
-
+				.css({
+					'display1'		: 'none',
+					'border-color'	: 'transparent'
+				})
+				.before(html);
+			$(obj).data('div', $(obj).prev()[0]);
+			var div = $(obj).data('div');
 			// if user selects files through input control
-			$(obj).find('.file-input').on('change', function () {
-				if (typeof this.files !== "undefined") {
-					for (var i = 0, l = this.files.length; i < l; i++) {
-						w2field.upload_add.call(obj, this.files[i]);
+			$(div).find('.file-input')
+				.off('change')
+				.on('change', function () {
+					if (typeof this.files !== "undefined") {
+						for (var i = 0, l = this.files.length; i < l; i++) {
+							w2field.upload_add.call(obj, this.files[i]);
+						}
 					}
-				}
-			});
+				});
 
 			// if user clicks drop zone
-			$(obj)
+			$(div)
+				.off('click')
 				.on('click', function (event) {
+					$(div).w2tag();
 					if (event.target.tagName == 'LI' || $(event.target).hasClass('file-size')) {
 						return;
 					}
 					if ($(event.target).hasClass('file-delete')) {
-						$(event.target.parentNode).remove();
+						w2field.upload_remove.call(obj, event.target.parentNode);
 						return;
 					}
-					$(obj).find('.file-input')[0].click();
+					if (event.target.tagName != 'INPUT') {
+						$(div).find('.file-input').click();
+					}
 				})
+				.off('dragenter')
 				.on('dragenter', function (event) {
-					$(obj).addClass('dragover');
+					$(div).addClass('dragover');
 				})
+				.off('dragleave')
 				.on('dragleave', function (event) {
-					$(obj).removeClass('dragover');
+					$(div).removeClass('dragover');
 				})
+				.off('drop')
 				.on('drop', function (event) {
-					$(obj).removeClass('dragover');
+					$(div).removeClass('dragover');
 					var files = event.originalEvent.dataTransfer.files;
 					for (var i=0, l=files.length; i<l; i++) w2field.upload_add.call(obj, files[i]);
 					// cancel to stop browser behaviour
 					event.preventDefault();
 					event.stopPropagation();
 				})
+				.off('dragover')
 				.on('dragover', function (event) { 
 					// cancel to stop browser behaviour
 					event.preventDefault();
@@ -6975,62 +7103,90 @@ $.w2event = {
 		},
 
 		upload_add: function (file) {
-			// add li element
-			var cnt = $(this).find('.file-list li').length;
-			$(this).find('> span:first-child').remove();
-			$(this).find('.file-list').append('<li id="file-' + cnt + '">' + 
-				'	<div class="file-delete">&nbsp;&nbsp;</div>' + 
-				'	<span class="file-name">' + file.name + '</span>' +
-				'	<span class="file-size"> - ' + w2utils.size(file.size) + '</span>'+
-				'</li>');
-			var li = $(this).find('.file-list #file-' + cnt);
-			var previewHTML = "";
-			if ((/image/i).test(file.type)) { // image
-				previewHTML = '<div style="padding: 2px;">'+
-					'	<img src="##FILE##" onload="var w = $(this).width(); var h = $(this).height(); '+
-					'		if (w < 300 & h < 300) return; '+
-					'		if (w > h && w > 300) $(this).width(300); else $(this).height(300);">'+
-					'</div>';
+			var obj = this;   // this -> input element
+			var div = $(obj).data('div');
+			var settings = $(obj).data('settings');
+			var selected = $(obj).data('selected');
+			var newItem = {
+				name 	 : file.name,
+				type 	 : file.type,
+				modified : file.lastModifiedDate,
+				size 	 : file.size,
+				content  : null
+			};
+			var size = 0;
+			var cnt  = 0;
+			for (var s in selected) { size += selected[s].size; cnt++; }
+			// check params
+			if (settings.maxFileSize != 0 && newItem.size > settings.maxFileSize) {
+				var err = 'Maximum file size is '+ w2utils.size(settings.maxFileSize);
+				$(div).w2tag(err);
+				console.log('ERROR: '+ err);
+				return;
 			}
-			var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
-			var td2 = 'style="padding: 3px"';
-			previewHTML += '<div style="padding: 5px;">'+
-				'	<table cellpadding="2">'+
-				'	<tr><td '+ td1 +'>Name:</td><td '+ td2 +'>'+ file.name +'</td></tr>'+
-				'	<tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.size(file.size) +'</td></tr>'+
-				'	<tr><td '+ td1 +'>Type:</td><td '+ td2 +'>' +
-				'		<span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ file.type +'</span>'+
-				'	</td></tr>'+
-				'	<tr><td '+ td1 +'>Modified:</td><td '+ td2 +'>'+ w2utils.date(file.lastModifiedDate) +'</td></tr>'+
-				'	</table>'+
-				'</div>';
-			li.data('file', file)
-				.on('mouseover', function () {
-					$(this).w2overlay(
-						//previewHTML.replace('##FILE##', $(this).data('fileType') + ',' + $(this).data('fileContents')),
-						previewHTML.replace('##FILE##', $(this).data('fileContents')),
-						{ top: -4 }
-					);
-				})
-				.on('mouseout', function () {
-					$(this).w2overlay();
-				});
-
+			if (settings.maxSize != 0 && size + newItem.size > settings.maxSize) {
+				var err = 'Maximum total size is '+ w2utils.size(settings.maxFileSize);
+				$(div).w2tag(err);
+				console.log('ERROR: '+ err);
+				return;
+			}
+			if (settings.max != 0 && cnt >= settings.max) {
+				var err = 'Maximum number of files is '+ settings.max;
+				$(div).w2tag(err);
+				console.log('ERROR: '+ err);
+				return;
+			}
+			if (typeof settings.onAdd == 'function') {
+				var ret = settings.onAdd.call(obj, newItem);
+				if (ret === false) return;
+			}
+			selected.push(newItem);
 			// read file as base64
-			if (typeof FileReader !== "undefined") {
+			if (typeof FileReader !== "undefined" && settings.base64 === true) {
 				var reader = new FileReader();
 				// need a closure
-				reader.onload = (function (li) {
+				reader.onload = (function () {
 					return function (event) {
-						// var fl  = event.target.result;
-						// var ind = fl.indexOf(',');
-						// li.data('fileType', fl.substr(0, ind));
-						// li.data('fileContents', fl.substr(ind+1));
-						li.data('fileContents', event.target.result);
+						var fl  = event.target.result;
+						var ind = fl.indexOf(',');
+						newItem.content = fl.substr(ind+1);
+						obj.refresh();
+						$(obj).trigger('change');
 					};
-				})(li);
+				})();
 				reader.readAsDataURL(file);
+			} else {
+				obj.refresh();
+				$(obj).trigger('change');
 			}
+		},
+
+		upload_remove: function (li) {
+			var obj = this;   // this -> input element
+			var div = $(obj).data('div');
+			var settings = $(obj).data('settings');
+			var selected = $(obj).data('selected');
+			var file = $(li).data('file');
+			// run event
+			if (typeof settings.onRemove == 'function') {
+				var ret = settings.onRemove.call(obj, file);
+				if (ret === false) return false;
+			}			
+			// remove from selected
+			for (var i = selected.length - 1; i >= 0; i--) {
+				if (selected[i].name == file.name && selected[i].size == file.size) {
+					selected.splice(i, 1);
+				}
+			}
+			$(li).fadeOut('fast');
+			setTimeout(function () { 
+				$(li).remove(); 
+				// if all files remoted
+				if (selected.length == 0) {
+					$(div).prepend('<span>'+ settings.hint +'</span>');
+				}
+				$(obj).trigger('change');
+			}, 300);
 		},
 
 		// ******************************************************
@@ -7412,10 +7568,6 @@ $.w2event = {
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2popup
 *
 *  == Nice to Have
-* 		- lock/unlock like in grid
-* 		- error handling
-* 		- better grid inside popup (use grid buttons)
-* 		- show how to use form in a dialog
 * 
 *  == 1.2 changes
 * 		- focus first elements on the page
@@ -7426,6 +7578,9 @@ $.w2event = {
 * 		- added onError event
 *		- removed isLoaded
 * 		- added error()
+* 		- added lock()/unlock()
+* 		- form_html -> formHTML
+* 		- form_url -> formURL
 *
 ************************************************************************/
 
@@ -7437,8 +7592,8 @@ $.w2event = {
 		this.header 		= '';
 		this.box			= null; 	// HTML element that hold this element
 		this.url			= '';
-		this.form_url   	= '';		// url where to get form HTML
-		this.form_html  	= '';		// form HTML (might be loaded from the url)
+		this.formURL    	= '';		// url where to get form HTML
+		this.formHTML   	= '';		// form HTML (might be loaded from the url)
 		this.page 			= 0;		// current page
 		this.recid			= 0;		// can be null or 0
 		this.fields 		= [];
@@ -7524,15 +7679,15 @@ $.w2event = {
 			}
 			object.initTabs();
 			// render if necessary
-			if ($(this).length != 0 && !object.form_url) {
-				if (!object.form_html) object.form_html = $(this).html();
+			if ($(this).length != 0 && !object.formURL) {
+				if (!object.formHTML) object.formHTML = $(this).html();
 				object.init(this);
 				object.render($(this)[0]);
-			} else if (object.form_url) {
-				$.get(object.form_url, function (data) {
-					object.form_html = data;
+			} else if (object.formURL) {
+				$.get(object.formURL, function (data) {
+					object.formHTML = data;
 					if ($(obj).length != 0 || data.length != 0) {
-						$(obj).html(object.form_html);
+						$(obj).html(object.formHTML);
 						object.init(obj);
 						object.render($(obj)[0]);
 					}
@@ -7585,8 +7740,8 @@ $.w2event = {
 		},
 
 		initTabs: function () {
-			// -- if tabs defined
-			if (!$.isEmptyObject(this.tabs) && typeof this.tabs['render'] == 'undefined') {
+			// init tabs regardless it is defined or not
+			if (typeof this.tabs['render'] == 'undefined') {
 				var obj = this;
 				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
 				this.tabs.on('click', function (id, choice) {
@@ -7842,103 +7997,117 @@ $.w2event = {
 				postData 	= null;
 			}
 			// validation
-			var errors = this.validate(true);
+			var errors = obj.validate(true);
 			if (errors.length !== 0) {
-				this.goto(errors[0].field.page);
+				obj.goto(errors[0].field.page);
 				return;
 			}
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (!this.url) {
+			if (!obj.url) {
 				console.log("ERROR: Form cannot be saved because no url is defined.");
 				return;
 			}
-			this.lock(this.msgSaving);
-			// build parameters list
-			var params = {};
-			// add list params
-			params['cmd']  	 = 'save-record';
-			params['name'] 	 = this.name;
-			params['recid']  = this.recid;
-			// append other params
-			$.extend(params, this.postData);
-			$.extend(params, postData);
-			params.record = $.extend(true, {}, this.record);
-			// convert  before submitting 
-			for (var f in this.fields) {
-				var field = this.fields[f];
-				switch (String(field.type).toLowerCase()) {
-					case 'date': // to yyyy-mm-dd format
-						var dt = params.record[field.name];
-						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
-								|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
-							var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
-							var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
-						}
-						params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
-						break;
-				}
-			}
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'submit', target: this.name, url: this.url, postData: params });
-			if (eventData.stop === true) { 
-				if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' }); 
-				return false; 
-			}
-			// default action
-			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
-			this.last.xhr = $.ajax({
-				type		: (w2utils.settings.RESTfull ? (this.recid == 0 ? 'POST' : 'PUT') : 'POST'),
-				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
-				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
-				dataType	: 'text',
-				complete	: function (xhr, status) {
-					obj.unlock();
-
-					// event before
-					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
-					if (eventData.stop === true) {
-						if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
-						return false;
-					}
-					// parse server response
-					var responseText = xhr.responseText;
-					if (status != 'error') {
-						// default action
-						if (typeof responseText != 'undefined' && responseText != '') {
-							var data;
-							// check if the onLoad handler has not already parsed the data
-							if (typeof responseText == "object") {
-								data = responseText;
-							} else {
-								// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
-								try { eval('data = '+ responseText); } catch (e) { }
+			obj.lock(obj.msgSaving + ' <span id="'+ obj.name +'_progress"></span>');
+			// need timer to allow to lock
+			setTimeout(function () {
+				// build parameters list
+				var params = {};
+				// add list params
+				params['cmd']  	 = 'save-record';
+				params['name'] 	 = obj.name;
+				params['recid']  = obj.recid;
+				// append other params
+				$.extend(params, this.postData);
+				$.extend(params, postData);
+				params.record = $.extend(true, {}, obj.record);
+				// convert  before submitting 
+				for (var f in obj.fields) {
+					var field = obj.fields[f];
+					switch (String(field.type).toLowerCase()) {
+						case 'date': // to yyyy-mm-dd format
+							var dt = params.record[field.name];
+							if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
+									|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+								var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
+								var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
 							}
-							if (typeof data == 'undefined') {
-								data = {
-									status		 : 'error',
-									message		 : obj.msgNotJSON,
-									responseText : responseText
+							params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
+							break;
+					}
+				}
+				// event before
+				var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
+				if (eventData.stop === true) { 
+					if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' }); 
+					return false; 
+				}
+				// default action
+				if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {};
+				obj.last.xhr = $.ajax({
+					type		: (w2utils.settings.RESTfull ? (obj.recid == 0 ? 'POST' : 'PUT') : 'POST'),
+					url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+					data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
+					dataType	: 'text',
+					xhr	: function() {
+						var xhr = new window.XMLHttpRequest();
+						// upload
+						xhr.upload.addEventListener("progress", function(evt) {
+							if (evt.lengthComputable) {
+								var percent = Math.round(evt.loaded / evt.total * 100);
+								$('#'+ obj.name + '_progress').text(''+ percent + '%');
+							}
+						}, false);
+						return xhr;
+					},
+					complete : function (xhr, status) {
+						obj.unlock();
+
+						// event before
+						var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
+						if (eventData.stop === true) {
+							if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
+							return false;
+						}
+						// parse server response
+						var responseText = xhr.responseText;
+						if (status != 'error') {
+							// default action
+							if (typeof responseText != 'undefined' && responseText != '') {
+								var data;
+								// check if the onLoad handler has not already parsed the data
+								if (typeof responseText == "object") {
+									data = responseText;
+								} else {
+									// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+									try { eval('data = '+ responseText); } catch (e) { }
+								}
+								if (typeof data == 'undefined') {
+									data = {
+										status		 : 'error',
+										message		 : obj.msgNotJSON,
+										responseText : responseText
+									}
+								}
+								if (data['status'] == 'error') {
+									obj.error(data['message']);
+								} else {
+									obj.original = $.extend({}, obj.record);
 								}
 							}
-							if (data['status'] == 'error') {
-								obj.error(data['message']);
-							} else {
-								obj.original = $.extend({}, obj.record);
-							}
+						} else {
+							obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
 						}
-					} else {
-						obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
+						obj.refresh();
+						// call back
+						if (typeof callBack == 'function') callBack(data);
 					}
-					// event after
-					obj.trigger($.extend(eventData, { phase: 'after' }));
-					obj.refresh();
-					// call back
-					if (typeof callBack == 'function') callBack(data);
-				}
-			});
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+				});
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}, 50);
 		},
 
 		lock: function (msg, unlockOnClick) {
@@ -7989,7 +8158,7 @@ $.w2event = {
 			this.refresh();
 		},
 
-		generate: function (obj) {
+		generateHTML: function (obj) {
 			var html = '';
 			if (typeof obj.pages == 'undefined') {
 				obj.pages = [obj.fields];
@@ -7998,6 +8167,7 @@ $.w2event = {
 			var cnt = 0;
 			for (var j in obj.pages) {
 				var page = obj.pages[j];
+				if (typeof page.tab != 'undefined') this.tabs.add({ id: 'tab'+ this.tabs.tabs.length, caption: page.tab });
 				html += '<div class="w2ui-page page-'+ cnt +'">';
 				for (var i in page.fields) {
 					var field = page.fields[i];
@@ -8020,7 +8190,7 @@ $.w2event = {
 				}
 				html += '</div>';
 			}
-			this.form_html = html;
+			this.formHTML = html;
 			this.render();
 			return html;
 		},
@@ -8055,7 +8225,7 @@ $.w2event = {
 			if ($(this.box).height() == 0 || $(this.box).data('auto-size') === true) {
 				$(this.box).height(
 					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
-					(tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
+					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
 					(page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
 					(buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
 				);
@@ -8070,7 +8240,7 @@ $.w2event = {
 				main.width($(obj.box).width()).height($(obj.box).height());
 				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
 				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0) 
-							  + (obj.tabs.tabs ? w2utils.getSize(tabs, 'height') + 5 : 0));
+							  + (obj.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') + 5 : 0));
 				page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
 			}
 		},
@@ -8084,7 +8254,7 @@ $.w2event = {
 			$(this.box).find('.w2ui-page').hide();
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
 			// refresh tabs if needed
-			if (typeof this.tabs == 'object' && typeof this.tabs.refresh == 'function') {
+			if (typeof this.tabs == 'object' && this.tabs.tabs.length > 0) {
 				$('#form_'+ this.name +'_tabs').show();
 				this.tabs.active = this.tabs.tabs[this.page].id;
 				this.tabs.refresh();
@@ -8104,7 +8274,7 @@ $.w2event = {
 					var value_new 		= this.value;
 					var value_previous 	= obj.record[this.name] ? obj.record[this.name] : '';
 					var field 			= obj.get(this.name);
-					if (field.type == 'enum' && $(this).data('selected')) {
+					if ((field.type == 'enum' || field.type == 'upload') && $(this).data('selected')) {
 						var new_arr = $(this).data('selected');
 						var cur_arr = obj.get(this.name).selected;
 						var value_new = [];
@@ -8124,6 +8294,7 @@ $.w2event = {
 					if (this.type == 'checkbox') val = this.checked ? true : false;
 					if (this.type == 'radio')    val = this.checked ? true : false;
 					if (field.type == 'enum') 	 val = value_new;
+					if (field.type == 'upload')  val = value_new;
 					obj.record[this.name] = val;
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -8211,8 +8382,7 @@ $.w2event = {
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: value }) );
 						break;
 					case 'upload':
-						field.el.value = value;
-						$(field.el).w2field($.extend({}, field.options, { type: 'upload' }));
+						$(field.el).w2field($.extend({}, field.options, { type: 'upload', selected: value }));
 						break;
 					default:
 						console.log('ERROR: field type "'+ field.type +'" is not recognized.');
@@ -8236,6 +8406,7 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 			// default actions
 			if (typeof box != 'undefined' && box != null) {
+				// remove from previous box
 				if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
 					$(this.box)
 						.removeData('w2name')
@@ -8247,7 +8418,7 @@ $.w2event = {
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
 						'	<div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' +
-						this.form_html +
+						this.formHTML +
 						'</div>';
 			$(this.box)
 				.data('w2name', this.name)

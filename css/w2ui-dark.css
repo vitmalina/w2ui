@@ -640,20 +640,18 @@ select {
   background-color: #20253c;
 }
 .w2ui-upload {
+  position: absolute;
   background-color: #434d64;
   border: 1px solid #777f8c !important;
   border-radius: 3px;
-  min-height: 40px;
-  max-height: 100px;
   text-align: center;
   overflow: auto;
 }
 .w2ui-upload > span:first-child {
   pointer-events: none;
   display: inline-block;
-  padding: 10px;
-  font-size: 14px !important;
-  line-height: 150%;
+  padding-top: 5px;
+  font-size: 12px !important;
   color: #aaa;
 }
 .w2ui-upload.dragover {
@@ -918,6 +916,9 @@ select {
 .w2ui-grid .w2ui-grid-body .w2ui-grid-columns .w2ui-resizer {
   position: absolute;
   display: block;
+  background-color: rgba(0, 0, 0, 0);
+  /* needed for IE */
+
   padding: 0px;
   margin: 0px;
   width: 6px;
