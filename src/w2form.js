@@ -435,103 +435,117 @@
 				postData 	= null;
 			}
 			// validation
-			var errors = this.validate(true);
+			var errors = obj.validate(true);
 			if (errors.length !== 0) {
-				this.goto(errors[0].field.page);
+				obj.goto(errors[0].field.page);
 				return;
 			}
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (!this.url) {
+			if (!obj.url) {
 				console.log("ERROR: Form cannot be saved because no url is defined.");
 				return;
 			}
-			this.lock(this.msgSaving);
-			// build parameters list
-			var params = {};
-			// add list params
-			params['cmd']  	 = 'save-record';
-			params['name'] 	 = this.name;
-			params['recid']  = this.recid;
-			// append other params
-			$.extend(params, this.postData);
-			$.extend(params, postData);
-			params.record = $.extend(true, {}, this.record);
-			// convert  before submitting 
-			for (var f in this.fields) {
-				var field = this.fields[f];
-				switch (String(field.type).toLowerCase()) {
-					case 'date': // to yyyy-mm-dd format
-						var dt = params.record[field.name];
-						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
-								|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
-							var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
-							var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
-						}
-						params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
-						break;
-				}
-			}
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'submit', target: this.name, url: this.url, postData: params });
-			if (eventData.stop === true) { 
-				if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' }); 
-				return false; 
-			}
-			// default action
-			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
-			this.last.xhr = $.ajax({
-				type		: (w2utils.settings.RESTfull ? (this.recid == 0 ? 'POST' : 'PUT') : 'POST'),
-				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
-				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
-				dataType	: 'text',
-				complete	: function (xhr, status) {
-					obj.unlock();
-
-					// event before
-					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
-					if (eventData.stop === true) {
-						if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
-						return false;
-					}
-					// parse server response
-					var responseText = xhr.responseText;
-					if (status != 'error') {
-						// default action
-						if (typeof responseText != 'undefined' && responseText != '') {
-							var data;
-							// check if the onLoad handler has not already parsed the data
-							if (typeof responseText == "object") {
-								data = responseText;
-							} else {
-								// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
-								try { eval('data = '+ responseText); } catch (e) { }
+			obj.lock(obj.msgSaving + ' <span id="'+ obj.name +'_progress"></span>');
+			// need timer to allow to lock
+			setTimeout(function () {
+				// build parameters list
+				var params = {};
+				// add list params
+				params['cmd']  	 = 'save-record';
+				params['name'] 	 = obj.name;
+				params['recid']  = obj.recid;
+				// append other params
+				$.extend(params, this.postData);
+				$.extend(params, postData);
+				params.record = $.extend(true, {}, obj.record);
+				// convert  before submitting 
+				for (var f in obj.fields) {
+					var field = obj.fields[f];
+					switch (String(field.type).toLowerCase()) {
+						case 'date': // to yyyy-mm-dd format
+							var dt = params.record[field.name];
+							if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
+									|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+								var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
+								var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
 							}
-							if (typeof data == 'undefined') {
-								data = {
-									status		 : 'error',
-									message		 : obj.msgNotJSON,
-									responseText : responseText
+							params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
+							break;
+					}
+				}
+				// event before
+				var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
+				if (eventData.stop === true) { 
+					if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' }); 
+					return false; 
+				}
+				// default action
+				if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {};
+				obj.last.xhr = $.ajax({
+					type		: (w2utils.settings.RESTfull ? (obj.recid == 0 ? 'POST' : 'PUT') : 'POST'),
+					url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+					data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
+					dataType	: 'text',
+					xhr	: function() {
+						var xhr = new window.XMLHttpRequest();
+						// upload
+						xhr.upload.addEventListener("progress", function(evt) {
+							if (evt.lengthComputable) {
+								var percent = Math.round(evt.loaded / evt.total * 100);
+								$('#'+ obj.name + '_progress').text(''+ percent + '%');
+							}
+						}, false);
+						return xhr;
+					},
+					complete : function (xhr, status) {
+						obj.unlock();
+
+						// event before
+						var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
+						if (eventData.stop === true) {
+							if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
+							return false;
+						}
+						// parse server response
+						var responseText = xhr.responseText;
+						if (status != 'error') {
+							// default action
+							if (typeof responseText != 'undefined' && responseText != '') {
+								var data;
+								// check if the onLoad handler has not already parsed the data
+								if (typeof responseText == "object") {
+									data = responseText;
+								} else {
+									// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+									try { eval('data = '+ responseText); } catch (e) { }
+								}
+								if (typeof data == 'undefined') {
+									data = {
+										status		 : 'error',
+										message		 : obj.msgNotJSON,
+										responseText : responseText
+									}
+								}
+								if (data['status'] == 'error') {
+									obj.error(data['message']);
+								} else {
+									obj.original = $.extend({}, obj.record);
 								}
 							}
-							if (data['status'] == 'error') {
-								obj.error(data['message']);
-							} else {
-								obj.original = $.extend({}, obj.record);
-							}
+						} else {
+							obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
 						}
-					} else {
-						obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
+						obj.refresh();
+						// call back
+						if (typeof callBack == 'function') callBack(data);
 					}
-					// event after
-					obj.trigger($.extend(eventData, { phase: 'after' }));
-					obj.refresh();
-					// call back
-					if (typeof callBack == 'function') callBack(data);
-				}
-			});
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+				});
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}, 50);
 		},
 
 		lock: function (msg, unlockOnClick) {
@@ -698,7 +712,7 @@
 					var value_new 		= this.value;
 					var value_previous 	= obj.record[this.name] ? obj.record[this.name] : '';
 					var field 			= obj.get(this.name);
-					if (field.type == 'enum' && $(this).data('selected')) {
+					if ((field.type == 'enum' || field.type == 'upload') && $(this).data('selected')) {
 						var new_arr = $(this).data('selected');
 						var cur_arr = obj.get(this.name).selected;
 						var value_new = [];
@@ -718,6 +732,7 @@
 					if (this.type == 'checkbox') val = this.checked ? true : false;
 					if (this.type == 'radio')    val = this.checked ? true : false;
 					if (field.type == 'enum') 	 val = value_new;
+					if (field.type == 'upload')  val = value_new;
 					obj.record[this.name] = val;
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -805,8 +820,7 @@
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: value }) );
 						break;
 					case 'upload':
-						field.el.value = value;
-						$(field.el).w2field($.extend({}, field.options, { type: 'upload' }));
+						$(field.el).w2field($.extend({}, field.options, { type: 'upload', selected: value }));
 						break;
 					default:
 						console.log('ERROR: field type "'+ field.type +'" is not recognized.');

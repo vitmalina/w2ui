@@ -241,20 +241,20 @@
 // -- upload
 
 .w2ui-upload {
+	position: absolute;
 	background-color: @list-background-color;
 	border: @list-border !important; 
 	border-radius: 3px;
-	min-height: 40px;
-	max-height: 100px;
+	// min-height: 46px;
+	// max-height: 100px;
 	text-align: center;
 	overflow: auto;
 
 	> span:first-child { // this a DROP ZONE message, will be remove when first file dropped
 		pointer-events: none;
 		display: inline-block;
-		padding: 10px;
-		font-size: 14px !important;
-		line-height: 150%;
+		padding-top: 5px;
+		font-size: 12px !important;
 		color: #aaa;
 	}
 

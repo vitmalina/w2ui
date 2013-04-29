@@ -11,7 +11,7 @@
 	$(function () {
 		$('#form').w2form({ 
 			name     : 'form',
-			url      : 'form.php',
+			url      : 'http://w2ui.com/web/index.php',
 			recid    : 4,
 			header   : 'Edit header',
 			style1	 : 'border: 1px solid red;',
@@ -30,22 +30,23 @@
 				{ name: 'field\\.int', type: 'int', required: true },
 				{ name: 'field_float', type: 'float', required: true },
 				{ name: 'field_date', type: 'date', options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
-				{ name: 'field_date2', type: 'date', options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
-				{ name: 'field_date3', type: 'date', options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
-				{ name: 'field_date4', type: 'date', options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
-				{ name: 'field_date5', type: 'date', options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
 				{ name: 'field_list', type: 'list', required: true, 
 					options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false } },
 				{ name: 'field_enum', type: 'enum', required: true, 
 					options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-				{ name: 'field_enum2', type: 'enum', required: true, 
-					options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
+				{ name: 'field_upload', type: 'upload', required: true, 
+					options: { base64: true, 
+						onItemDblClick: function(item) { 
+							//console.log('-- click --');
+							//console.log(item); 
+						}
+					} 
+				},
 				{ name: 'field_textarea', type: 'text'},
 				{ name: 'field_text2', type: 'text' },
 				{ name: 'field_text3', type: 'text' },
 				{ name: 'field_text4', type: 'text' },
 				{ name: 'field_text5', type: 'text' },
-				{ name: 'field_upload', type: 'text' }
 			],
 			actions: {
 				reset: function () {
@@ -68,7 +69,7 @@
 		w2ui['form'].on('change', function (id, data) {
 			data.onComplete = function () {
 				//console.log('Change Event: ' + id)
-				//console.log(this.record);
+				//console.log(data);
 			}
 		});	
 });
@@ -110,7 +111,7 @@
 			</div>
 			<div class="w2ui-label">Files:</div>
 			<div class="w2ui-field">
-				<input name="field_upload" type="text" size="60"/>
+				<input name="field_upload" type="text" style="width: 100%; height: 50px"/>
 			</div>
 			<div class="w2ui-label">Multi Select:</div>
 			<div class="w2ui-field">
@@ -119,26 +120,6 @@
 			<div class="w2ui-label">Text Area:</div>
 			<div class="w2ui-field">
 				<textarea name="field_textarea" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
-			</div>
-				<div class="w2ui-label">Date 2:</div>
-				<div class="w2ui-field">
-					<input name="field_date2" type="text" size="16"/>
-				</div>
-				<div class="w2ui-label">Date 3:</div>
-				<div class="w2ui-field">
-					<input name="field_date3" type="text" size="16"/>
-				</div>
-				<div class="w2ui-label">Date 4:</div>
-				<div class="w2ui-field">
-					<input name="field_date4" type="text" size="16"/>
-				</div>
-				<div class="w2ui-label">Date 5:</div>
-				<div class="w2ui-field">
-					<input name="field_date5" type="text" size="16"/>
-				</div>
-			<div class="w2ui-label">Multi Select:</div>
-			<div class="w2ui-field">
-				<input name="field_enum2" type="text" size="60"/>
 			</div>
 		</div>
 
