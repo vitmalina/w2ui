@@ -9,12 +9,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *		- w2ui.w2evet	- generic event object
 *   - Dependencies: jQuery
 *
-* == 1.2 changes 
-*  - added event.preventDefault() method
-*  - expose prototype in w2obj object
-*  - added escapeId()
-*  - added locale(), lang()
-* 
+* == NICE TO HAVE ==
+*
 ************************************************/
 
 var w2utils = (function () {
@@ -897,30 +893,13 @@ $.w2event = {
 *		- $.w2grid		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2popup
 *
-*   == NICE TO HAVE
-*		- global search apply types and drop downs
-*		- editable fields (list) - better inline editing
-*		- move doExpand into the record
-*		- infinite scroll (buffered scroll)
-*		- frozen columns
-*		- column autosize based on largest content
-*
-*  == 1.2 changes
-*		- find(obj, returnRecords) - gets second argument
-*		- getFooterHTML() - can now be used to overwrite entire footer now
-*		- added requestComplete()
-*		- added addColumn(), removeColumn(), hideColumn(), showColumn(), getColumn()
-*		- added addSearch(), removeSearch(), hideSearch(), showSearch(), getSearch()
-*		- added getSearchData()
-*		- added initColumnOnOff()
-*		- deprecated getIndex()
-*		- removed width, height
-*		- removed showStatus, hideStatus
-*		- added lock(msg), unlock()
-*		- exposed prototype so it can be changed for all grids
-* 		- added onError event
-* 		- removed isLoaded
-* 		- added error()
+* == NICE TO HAVE ==
+*	- global search apply types and drop downs
+*	- editable fields (list) - better inline editing
+*	- move doExpand into the record
+*	- infinite scroll (buffered scroll)
+*	- frozen columns
+*	- column autosize based on largest content
 *
 ************************************************************************/
 
@@ -1064,6 +1043,15 @@ $.w2event = {
 				object.records[r] = $.extend({}, records[r]);
 			}
 			if (object.records.length > 0) object.total = object.records.length;
+			// add searches
+			for (var c in object.columns) {
+				var col = object.columns[c];
+				if (typeof col.searchable == 'undefined' || object.getSearch(col.field) != null) continue;
+				var stype = col.searchable;
+				var attr  = '';
+				if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
+				object.addSearch({ field: col.field, caption: col.caption, type: stype, attr: attr });
+			}
 			// init toolbar
 			object.initToolbar();
 			// render if necessary
@@ -2488,7 +2476,6 @@ $.w2event = {
 			// init footer
 			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
-
 			this.refresh();
 			this.reload();
 			// event after
@@ -3475,23 +3462,9 @@ $.w2event = {
 *		- $.w2layout	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
-* == 1.2 changes 
-*   - added panel name in the event data object
-*   - get(panel, returnIndex) - added returnIndex
-* 	- spacer -> resizer
-*	- tabs and toolbar for the panel 
-* 	- all panels are created, the ones not defined created as hidden
-*
-*  DEPRECATED METHODS
-*   - add()
-*   - remove()
-*   - getIndex()
-* 	- removed this.width, this.height
-*
-*  NICE TO HAVE
-*   - onResize for the panel
-* 	- % base resizes
-* 
+* == NICE TO HAVE ==
+*	- onResize for the panel
+*	- % base resizes
 * 
 ************************************************************************/
 
@@ -4308,13 +4281,9 @@ $.w2event = {
 *		- $.w2popup	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 * 
-*   NICE TO HAVE
-*		- when maximized, align the slide down message
-*		- bug: after transfer to another content, message does not work
-*
-*	1.2 change
-*		- min(), max(), toggle(), options.maximized
-*		- changed .overflow to more includins .style
+* == NICE TO HAVE ==
+*	- when maximized, align the slide down message
+*	- bug: after transfer to another content, message does not work
 *
 ************************************************************************/
 
@@ -4904,12 +4873,8 @@ $.w2event = {
 *		- $.w2tabs	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* 	Nice to Have
-*		- tabs might not work in chromium apps, need bind()
-*
-*	1.2 changes 
-*		- removed getIndex(), added get(..., returnIndex)
-*		- new select()
+* == NICE TO HAVE ==
+*	- tabs might not work in chromium apps, need bind()
 *
 ************************************************************************/
 
@@ -5311,13 +5276,7 @@ $.w2event = {
 *		- $.w2toolbar	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-*  Nice To Have
-*
-*  1.2 changes
-*		- added doMenuClick()
-*		- removed doOver, doOut, doDown, doDropOver, doDropOut
-*		- removed getIndex(), added get(..., returnIndex)
-*		- icon fonts support
+* == NICE TO HAVE ==
 * 
 ************************************************************************/
 
@@ -5835,17 +5794,10 @@ $.w2event = {
 *		- $.w2sidebar - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-*   NICE TO HAVE
-*     - group animate open
-*	  - context menus
+* == NICE TO HAVE ==
+*	- group animate open
+* 	- context menus
 *
-*  == 1.2 changes 
-*     - topHTML, bottomHTML
-*     - suport for icon fonts
-*	  - removed getIndex(), added get(..., returnIndex)
-*	  - collapseAll(), expandAll(), expandParents()
-* 	  - doExpand -> expand(), doCollapse - collapse, doToggle -> toggle
-* 
 ************************************************************************/
 
 (function () {
@@ -5934,6 +5886,7 @@ $.w2event = {
 			hidden			: false,
 			disabled		: false,
 			group			: false, 	// if true, it will build as a group
+			plus 			: false,	// if true, plus will be shown even if there is no sub nodes
 			// events
 			onClick			: null,
 			onDblClick		: null,
@@ -6141,6 +6094,15 @@ $.w2event = {
 		},
 
 		toggle: function(id) {
+			var nd = this.get(id);
+			if (nd == null) return;
+			if (nd.plus) {
+				this.set(id, { plus: false });
+				this.expand(id);
+				this.refresh(id);
+				return;
+			}
+			if (nd.nodes.length == 0) return;
 			if (this.get(id).expanded) this.collapse(id); else this.expand(id);
 		},
 	
@@ -6150,8 +6112,6 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 			// default action
 			var nd = this.get(id);
-			if (nd.nodes.length == 0) return;
-			// expand
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').show();
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
 			nd.expanded = true;
@@ -6391,11 +6351,11 @@ $.w2event = {
 						'<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
 						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
 						'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+ 
-						'	<div class="w2ui-expand">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : '') + '</div>' +
+						'	<div class="w2ui-expand">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+ 
 							tmp +
-							(nd.count ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
+							(nd.count !== '' ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
 						'</td>'+
 						'</tr></table>'+
@@ -6450,18 +6410,13 @@ $.w2event = {
 *		- $.w2field		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE
+* == NICE TO HAVE ==
 *  - select - for select, list - for drop down (needs this in grid)
 *  - enum (onLoaded)
 *  - enum (onCompare)
 *  - enum - onclick for already selected elements
 *  - enum needs events onItemClick, onItemOver, etc just like upload
 *
-*  == 1.2 chanses
-*  - new type list/select
-*  - added a way to add customTypes
-*  - new type upload (html5 file select, not completed)
-* 
 ************************************************************************/
 
 (function ($) {
@@ -7567,20 +7522,9 @@ $.w2event = {
 *		- $.w2form		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2popup
 *
-*  == Nice to Have
-* 
-*  == 1.2 changes
-* 		- focus first elements on the page
-* 		- added select/list control
-* 		- added date format for date fields. 
-* 		- added .header
-* 		- removed this.width, this.height
-* 		- added onError event
-*		- removed isLoaded
-* 		- added error()
-* 		- added lock()/unlock()
-* 		- form_html -> formHTML
-* 		- form_url -> formURL
+* == NICE TO HAVE ==
+*	- refresh(field) - would refresh only one field
+* 	- generate should use fields, and not its own structure
 *
 ************************************************************************/
 
@@ -7764,6 +7708,7 @@ $.w2event = {
 			for (var f in this.fields) {
 				if (this.fields[f].name == field) {
 					$.extend(this.fields[f] , obj);
+					this.refresh();
 					return true;
 				}
 			}
