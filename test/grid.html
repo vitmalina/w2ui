@@ -42,7 +42,7 @@ $(function () {
 				{ type: 'drop', id: 'drop1', caption: 'Drop Button', html: '123' }
 			]
 		},
-		searches: [				
+		searches1: [				
 			{ field: 'recid', caption: 'ID (int)', type: 'int' },
 			{ field: 'id', caption: 'ID (float)', type: 'float' },
 			{ field: 'person.fname', caption: 'First Name', type: 'text' },
@@ -58,12 +58,12 @@ $(function () {
 			{ caption: 'Important Dates', span: 3 }
 		],
 		columns: [				
-			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
-			{ field: 'person.lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
-			{ field: 'person.fname', caption: 'First Name', size: '30%', sortable: true, resizable: true },
+			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true, searchable: 'int' },
+			{ field: 'person.lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true },
+			{ field: 'person.fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
 			{ field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true,
 				editable: { type: 'text' }},
-			{ field: 'sdate', caption: 'Start Date', size: '120px', resizable: true, 
+			{ field: 'sdate', caption: 'Start Date', size: '120px', resizable: true, searchable: 'date', 
 				editable: { type: 'date', format: 'mm/dd/yyyy', style: 'style="background-color: red"' } },
 			{ field: 'sdate', caption: 'End Date', size: '120px', resizable: true },
 			{ field: 'sdate', caption: 'Release Date', size: '120px', resizable: true },
