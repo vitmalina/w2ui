@@ -1,4 +1,4 @@
-## W2UI 1.1 - MIT License
+## W2UI 1.2 - MIT License
 
 W2UI is modern, intuitive JavaScript UI library for buidling rich data-driven web application. The library has
 a small footprint and no dependencies except jQuery. The library has the following widgets:
@@ -14,15 +14,15 @@ a small footprint and no dependencies except jQuery. The library has the followi
 
 ## Quick Start
 
-Current stable version is 1.1. You can download it from here: [http://w2ui.com](http://w2ui.com).
+Current stable version is 1.2. You can download it from here: [http://w2ui.com](http://w2ui.com).
 
 To start using the library you need to include into your page: 
 
-- w2ui-1.1.js (or w2ui-1.1.min.js) 
-- w2ui-1.1.css (or w2ui-1.1.min.css) 
+- w2ui-1.2.js (or w2ui-1.2.min.js) 
+- w2ui-1.2.css (or w2ui-1.2.min.css) 
 
-All the widgets and their css classes are defined inside of these two files. There is no image dependencies, they are embedded into CSS
-file
+All the widgets and their css classes are defined inside of these two files. There is no image dependencies, they are embedded 
+into CSS file
 
 There is no requirement for a server side language. Java, PHP, ASP, Perl or .NET all will work, as long as you can return JSON
 format from the server (or write a converter into JSON format on the client).

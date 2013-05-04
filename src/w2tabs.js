@@ -5,12 +5,8 @@
 *		- $.w2tabs	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* 	Nice to Have
-*		- tabs might not work in chromium apps, need bind()
-*
-*	1.2 changes 
-*		- removed getIndex(), added get(..., returnIndex)
-*		- new select()
+* == NICE TO HAVE ==
+*	- tabs might not work in chromium apps, need bind()
 *
 ************************************************************************/
 

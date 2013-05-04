@@ -5,13 +5,7 @@
 *		- $.w2toolbar	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-*  Nice To Have
-*
-*  1.2 changes
-*		- added doMenuClick()
-*		- removed doOver, doOut, doDown, doDropOver, doDropOut
-*		- removed getIndex(), added get(..., returnIndex)
-*		- icon fonts support
+* == NICE TO HAVE ==
 * 
 ************************************************************************/
 

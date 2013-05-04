@@ -22,7 +22,7 @@
         "dialog",
         "overlay"
     ],
-    "version": "1.2.0-a",
+    "version": "1.2.0",
     "author": {
         "name"	: "Vitali Malinouski",
         "url"	: "http://w2ui.com",
@@ -44,8 +44,8 @@
     "bugs"		: "https://github.com/vitmalina/w2ui/issues",
     "homepage"	: "http://w2ui.com/web",
     "docs"		: "http://w2ui.com/web/docs",
-    "download"	: "http://w2ui.com/web/downloads/w2ui-1.1.zip",
+    "download"	: "http://w2ui.com/web/downloads/w2ui-1.2.zip",
     "dependencies": {
-        "jquery": ">=1.5"
+        "jquery": ">=1.7"
     }
 }

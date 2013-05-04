@@ -5,18 +5,13 @@
 *		- $.w2field		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE
+* == NICE TO HAVE ==
 *  - select - for select, list - for drop down (needs this in grid)
 *  - enum (onLoaded)
 *  - enum (onCompare)
 *  - enum - onclick for already selected elements
 *  - enum needs events onItemClick, onItemOver, etc just like upload
 *
-*  == 1.2 chanses
-*  - new type list/select
-*  - added a way to add customTypes
-*  - new type upload (html5 file select, not completed)
-* 
 ************************************************************************/
 
 (function ($) {

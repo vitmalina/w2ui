@@ -5,20 +5,9 @@
 *		- $.w2form		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2popup
 *
-*  == Nice to Have
-* 
-*  == 1.2 changes
-* 		- focus first elements on the page
-* 		- added select/list control
-* 		- added date format for date fields. 
-* 		- added .header
-* 		- removed this.width, this.height
-* 		- added onError event
-*		- removed isLoaded
-* 		- added error()
-* 		- added lock()/unlock()
-* 		- form_html -> formHTML
-* 		- form_url -> formURL
+* == NICE TO HAVE ==
+*	- refresh(field) - would refresh only one field
+* 	- generate should use fields, and not its own structure
 *
 ************************************************************************/
 
@@ -202,6 +191,7 @@
 			for (var f in this.fields) {
 				if (this.fields[f].name == field) {
 					$.extend(this.fields[f] , obj);
+					this.refresh();
 					return true;
 				}
 			}

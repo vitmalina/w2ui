@@ -5,23 +5,9 @@
 *		- $.w2layout	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
-* == 1.2 changes 
-*   - added panel name in the event data object
-*   - get(panel, returnIndex) - added returnIndex
-* 	- spacer -> resizer
-*	- tabs and toolbar for the panel 
-* 	- all panels are created, the ones not defined created as hidden
-*
-*  DEPRECATED METHODS
-*   - add()
-*   - remove()
-*   - getIndex()
-* 	- removed this.width, this.height
-*
-*  NICE TO HAVE
-*   - onResize for the panel
-* 	- % base resizes
-* 
+* == NICE TO HAVE ==
+*	- onResize for the panel
+*	- % base resizes
 * 
 ************************************************************************/
 

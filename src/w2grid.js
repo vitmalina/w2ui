@@ -5,30 +5,13 @@
 *		- $.w2grid		- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2popup
 *
-*   == NICE TO HAVE
-*		- global search apply types and drop downs
-*		- editable fields (list) - better inline editing
-*		- move doExpand into the record
-*		- infinite scroll (buffered scroll)
-*		- frozen columns
-*		- column autosize based on largest content
-*
-*  == 1.2 changes
-*		- find(obj, returnRecords) - gets second argument
-*		- getFooterHTML() - can now be used to overwrite entire footer now
-*		- added requestComplete()
-*		- added addColumn(), removeColumn(), hideColumn(), showColumn(), getColumn()
-*		- added addSearch(), removeSearch(), hideSearch(), showSearch(), getSearch()
-*		- added getSearchData()
-*		- added initColumnOnOff()
-*		- deprecated getIndex()
-*		- removed width, height
-*		- removed showStatus, hideStatus
-*		- added lock(msg), unlock()
-*		- exposed prototype so it can be changed for all grids
-* 		- added onError event
-* 		- removed isLoaded
-* 		- added error()
+* == NICE TO HAVE ==
+*	- global search apply types and drop downs
+*	- editable fields (list) - better inline editing
+*	- move doExpand into the record
+*	- infinite scroll (buffered scroll)
+*	- frozen columns
+*	- column autosize based on largest content
 *
 ************************************************************************/
 
@@ -172,6 +155,15 @@
 				object.records[r] = $.extend({}, records[r]);
 			}
 			if (object.records.length > 0) object.total = object.records.length;
+			// add searches
+			for (var c in object.columns) {
+				var col = object.columns[c];
+				if (typeof col.searchable == 'undefined' || object.getSearch(col.field) != null) continue;
+				var stype = col.searchable;
+				var attr  = '';
+				if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
+				object.addSearch({ field: col.field, caption: col.caption, type: stype, attr: attr });
+			}
 			// init toolbar
 			object.initToolbar();
 			// render if necessary
@@ -1596,7 +1588,6 @@
 			// init footer
 			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
-
 			this.refresh();
 			this.reload();
 			// event after

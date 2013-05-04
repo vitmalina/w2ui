@@ -5,13 +5,9 @@
 *		- $.w2popup	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 * 
-*   NICE TO HAVE
-*		- when maximized, align the slide down message
-*		- bug: after transfer to another content, message does not work
-*
-*	1.2 change
-*		- min(), max(), toggle(), options.maximized
-*		- changed .overflow to more includins .style
+* == NICE TO HAVE ==
+*	- when maximized, align the slide down message
+*	- bug: after transfer to another content, message does not work
 *
 ************************************************************************/
 

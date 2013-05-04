@@ -9,12 +9,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *		- w2ui.w2evet	- generic event object
 *   - Dependencies: jQuery
 *
-* == 1.2 changes 
-*  - added event.preventDefault() method
-*  - expose prototype in w2obj object
-*  - added escapeId()
-*  - added locale(), lang()
-* 
+* == NICE TO HAVE ==
+*
 ************************************************/
 
 var w2utils = (function () {
