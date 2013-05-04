@@ -12,6 +12,8 @@ a small footprint and no dependencies except jQuery. The library has the followi
 * w2popup
 * w2utils
 
+The complete library is only **42Kb** (minified & gzipped)
+
 ## Quick Start
 
 Current stable version is 1.2. You can download it from here: [http://w2ui.com](http://w2ui.com).
