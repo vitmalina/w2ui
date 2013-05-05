@@ -545,18 +545,18 @@
 				var i = this.get(record.recid, true);
 				record.selected = true;
 				$('#grid_'+this.name +'_rec_'+ w2utils.escapeId(record.recid)).addClass('w2ui-selected').data('selected', 'yes');
-				$('#grid_'+ this.name +'_cell_'+ i +'_select_check').attr('checked', true);
+				$('#grid_'+ this.name +'_cell_'+ i +'_select_check').prop('checked', true);
 				selected++;
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			} 
 			// all selected?
-			$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			if ($('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length != 0 &&
 					$('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length == $('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]:checked').length) {
-				$('#grid_'+ this.name +'_check_all').attr('checked', true);
+				$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			} else {
-				$('#grid_'+ this.name +'_check_all').removeAttr('checked');
+				$('#grid_'+ this.name +'_check_all').prop("checked", false);
 			}
 			// show number of selected
 			var msgLeft = '';
@@ -582,18 +582,18 @@
 				if ($('#grid_'+this.name +'_rec_'+ w2utils.escapeId(record.recid)).length != 0) {
 					$('#grid_'+this.name +'_rec_'+ w2utils.escapeId(record.recid))[0].style.cssText = $('#grid_'+this.name +'_rec_'+ w2utils.escapeId(record.recid)).attr('custom_style');
 				}
-				$('#grid_'+ this.name +'_cell_'+ i +'_select_check').removeAttr('checked');
+				$('#grid_'+ this.name +'_cell_'+ i +'_select_check').prop("checked", false);
 				unselected++;
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			} 
 			// all selected?
-			$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			if ($('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length != 0 &&
 					$('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length == $('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]:checked').length) {
-				$('#grid_'+ this.name +'_check_all').attr('checked', true);
+				$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			} else {
-				$('#grid_'+ this.name +'_check_all').removeAttr('checked');
+				$('#grid_'+ this.name +'_check_all').prop("checked", false);
 			}
 			// show number of selected
 			var msgLeft = '';
@@ -1203,7 +1203,7 @@
 			if (eventData.stop === true) return false;
 			// default action
 			var obj = this;
-			$('#grid_'+ this.name +'_check_all').removeAttr('checked');
+			$('#grid_'+ this.name +'_check_all').prop("checked", false);
 			var record = this.get(recid);
 			if (record) var tmp_previous = record.selected;
 			// clear other if necessary
@@ -1534,12 +1534,12 @@
 				$('#grid_'+ this.name +'_searchClear').hide();
 			}
 			// all selected?
-			$('#grid_'+ this.name +'_check_all').attr('checked', true);
+			$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			if ($('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length != 0 &&
 					$('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length == $('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]:checked').length) {
-				$('#grid_'+ this.name +'_check_all').attr('checked', true);
+				$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			} else {
-				$('#grid_'+ this.name +'_check_all').removeAttr('checked');
+				$('#grid_'+ this.name +'_check_all').prop("checked", false);
 			}
 			// show number of selected
 			var msgLeft = '';
@@ -1629,8 +1629,8 @@
 					'<td>'+
 					'	<input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+ (col.hidden ? '' : 'checked') +
 					'		onclick="var obj = w2ui[\''+ obj.name +'\']; var col = obj.getColumn(\''+ col.field +'\'); '+
-					'				 if (col.hidden) { $(this).attr(\'checked\', true); obj.showColumn(col.field); } '+
-					'							else { $(this).removeAttr(\'checked\'); obj.hideColumn(col.field); } '+
+					'				 if (col.hidden) { $(this).prop(\'checked\', true); obj.showColumn(col.field); } '+
+					'							else { $(this).prop(\'checked\', false); obj.hideColumn(col.field); } '+
 					'				 obj.initColumnOnOff();'+
 					'				 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 					'</td>'+
@@ -1719,9 +1719,9 @@
 						case 'column-on-off':
 							for (var c in obj.columns) {
 								if (obj.columns[c].hidden) {
-									$("#grid_"+ obj.name +"_column_"+ c + "_check").removeAttr('checked');
+									$("#grid_"+ obj.name +"_column_"+ c + "_check").prop("checked", false);
 								} else {
-									$("#grid_"+ obj.name +"_column_"+ c + "_check").attr('checked', true);
+									$("#grid_"+ obj.name +"_column_"+ c + "_check").prop('checked', true);
 								}
 							}
 							// restore sizes
