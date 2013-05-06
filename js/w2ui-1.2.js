@@ -3382,8 +3382,8 @@ $.w2event = {
 			// counts
 			var last = (this.page * this.recordsPerPage + this.recordsPerPage);
 			if (last > this.total) last = this.total;
-			var pageCountDsp = (this.page * this.recordsPerPage + 1) +'-'+ last +' of '+ this.total;
-			if (this.page == 0 && this.total == 0) pageCountDsp = '0-0 of 0';
+			var pageCountDsp = (this.page * this.recordsPerPage + 1) +'-'+ last +' '+ w2utils.lang('of') +' '+ this.total;
+			if (this.page == 0 && this.total == 0) pageCountDsp = '0-0 '+ w2utils.lang('of') +'' 0';
 			// pages
 			var totalPages = Math.floor(this.total / this.recordsPerPage);
 			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
