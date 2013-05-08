@@ -149,7 +149,7 @@
 				if (el.type == 'button') 		type = 'button';
 				if (el.tagName == 'select') 	type = 'list';
 				if (el.tagName == 'textarea')	type = 'textarea';
-				var value = (type == 'checkbox' || type == 'radio' ? ($(el).attr('checked') ? true : false) : $(el).val());
+				var value = (type == 'checkbox' || type == 'radio' ? ($(el).prop('checked') ? true : false) : $(el).val());
 
 				var field = obj.get(name);
 				if (field && type != 'button') {
@@ -787,9 +787,9 @@
 						break;
 					case 'checkbox':
 						if (this.record[field.name] == true || this.record[field.name] == 1 || this.record[field.name] == 't') {
-							$(field.el).attr('checked', true);
+							$(field.el).prop('checked', true);
 						} else {
-							$(field.el).removeAttr('checked');
+							$(field.el).prop('checked', false);
 						}
 						break;
 					case 'password':
