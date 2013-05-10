@@ -12,6 +12,8 @@
 *	- infinite scroll (buffered scroll)
 *	- frozen columns
 *	- column autosize based on largest content
+*	- getRecordHTML - returns one record - update set()
+* 	- resize needs to be revisited without resizing each div
 *
 ************************************************************************/
 
@@ -2116,6 +2118,12 @@
 						if (cnt < 0) { startWith = tt; break; }
 					}
 				}
+				// resize TD ONLY
+				// var td = $(this.box).find('#grid_'+ this.name +'_cell_header_'+ i);
+				// if (td) td.width(parseInt(col.sizeCalculated));
+				// var td = $(this.box).find('#grid_'+ this.name +'_cell_0_'+ i);
+				// if (td) td.width(parseInt(col.sizeCalculated));
+
 				for (var j=startWith; j < 10000; j++) {
 					if (this.records[j] && this.records[j].hidden) { continue; }
 					var cell = $('#grid_'+ this.name+'_cell_'+ j +'_'+ i + ' > div:first-child');

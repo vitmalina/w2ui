@@ -1,41 +1,141 @@
 <html>
 <head>
-  <link rel="stylesheet" type="text/css" media="screen"
-    href="http://w2ui.com/web/css/w2ui-1.1.min.css" />
-  <script type="text/javascript"
-    src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
-  </script>
-  <script type="text/javascript" src="http://w2ui.com/web/js/w2ui-1.1.min.js">
-  </script>
-</head>
+<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui-1.2.css" /> 
+<script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../js/w2ui-1.2.js"></script>
+<script>
+var id=0;
+function FillData()
+{
+	var records=[
+        { recid: id+1, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12'},
+        { recid: id+2, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12'},
+        { recid: id+3, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12' },
+        { recid: id+4, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12' },
+        { recid: id+5, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12' },
+        { recid: id+6, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12' },
+        { recid: id+7, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12' },
+        { recid: id+8, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12' },
+        { recid: id+9, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12' },       
+		{ recid: id+10, field_text:'This is Test Text', field_alpha: 'This is Test Alpha Numeric 1234 5678', field_int: 9780070534483, field_date: '2013-07-12' },       
+    ]
+	id++;
 
-<body>
+	w2ui['grid'].records=records;
+	w2ui['grid'].refresh();
+		
+	var rec = w2ui['form'].record;
+	rec.field_text  = "This is Test Text"; 
+	rec.field_alpha = "This is Test Alpha Numeric 1234 5678"; 
+	rec.field_int   = "12"; 
+	rec.field_float = "99.99";
+	rec.field_text2="Test Field Text 2";
+	rec.field_text3="Test Field Text 2";
+	w2ui['form'].refresh(); 
+}
 
-<input id="btn" type="button" value="Popup" />
-
-<div id="popup" style="display: none; width: 40%; height: 40%; overflow: hidden;">
-  <div rel="title">
-    TITLE
-  </div>
-  <div rel="body">
-    <div id="grid" style="width: 100%; height: 100%;"></div>
-  </div>
-</div>
-
-<script type='text/javascript'>
-  $().w2grid({
-      name: 'foo',
-      columns: [ { field: 'recid', caption: 'ID', size: '100%' } ],
-      records: [ { recid: 'AAA' }, { recid: 'BBB' }, { recid: 'CCC' } ]
-  });
-  $(document).on('click', '#btn', function(e){
-    $('#popup').w2popup('open', {
-        onOpen: function () {
-        	$('#w2ui-popup #grid').w2render('foo');
-        }
+$(function () {
+	$('#form').w2form({ 
+		name     : 'form',			
+		recid    : 4,
+		header   : 'Edit header',
+		style1	 : 'border: 1px solid red;',
+		tabs: [
+			{ id: 'tab1', caption: 'General' }, 
+			{ id: 'tab2', caption: 'Additional' }
+		],
+		record: {
+			field_date: '3/15/2013'
+		},
+		fields: [
+			{ name: 'field_text', type: 'text', required: true },
+			{ name: 'field_alpha', type: 'alphanumeric', required: true },
+			{ name: 'field_int', type: 'int', required: true },
+			{ name: 'field_float', type: 'float', required: true },
+			{ name: 'field_date', type: 'date', options: { format: 'mm/dd/yyyy'} },				
+			{ name: 'field_text2', type: 'text' },
+			{ name: 'field_text3', type: 'text' }
+		],
+		actions: {
+			reset: function () {
+				this.clear();
+			},
+			save: function () {
+				var obj = this;
+				this.save({}, function (data) { 
+					console.log(data);
+					if (data.status == 'error') {
+						console.log('ERROR: '+ data.message);
+						return;
+					}						
+				});
+			}
+		},
+		onRefresh: function (target, data) {
+			if (data.page == 1) $('#grid').w2render('grid');
+		}
+	});
+	// create grid in memory only		
+    $().w2grid({
+        name: 'grid',
+        header: 'List Of Items',        
+        columns: [
+	        { field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true},
+    	    { field: 'field_text', caption: 'TEXT', size: '100px', sortable: false, resizable: true},
+        	{ field: 'field_alpha', caption: 'Alpha Text', size: '300px', sortable: false},
+        	{ field: 'field_int', caption: 'INT', size: '100px', sortable: false, resizable: true },
+   	 	]
     });
-  });
+});
 </script>
-
+<body>
+	<div id="form" style="width: 700px; height: 590px;">
+		<div class="w2ui-page page-0">
+			<div class="w2ui-group" style='display: none1'>				
+				<div class="w2ui-label">Text:</div>
+				<div class="w2ui-field">
+					<input name="field_text" type="text" maxlength="100" size="60"/>
+					<input type="button" value="Fill" name="filldata" onclick="FillData()">
+				</div>
+				<div class="w2ui-label">Text (alpha-numeric):</div>
+				<div class="w2ui-field">
+					<input name="field_alpha" type="text" maxlength="100" size="60"/>
+				</div>
+				<div class="w2ui-label">Number (int):</div>
+				<div class="w2ui-field">
+					<input name="field_int" type="text" maxlength="100" size="16"/>
+				</div>
+				<div class="w2ui-label">Number (float):</div>
+				<div class="w2ui-field">
+					<input name="field_float" type="text" maxlength="100" size="16"/>
+				</div>
+			</div>
+			<div class="w2ui-group">
+				<div class="w2ui-label">Date:</div>
+				<div class="w2ui-field">
+					<input name="field_date" type="text" size="16"/>
+				</div>				
+			</div>			
+		</div>
+		<div class="w2ui-page page-1">
+			<div class="w2ui-label">Text:</div>
+			<div class="w2ui-field">
+				<input name="field_text2" type="text" maxlength="100" size="60"/>
+			</div>
+			<div class="w2ui-label">Text:</div>
+			<div class="w2ui-field">
+				<input name="field_text3" type="text" maxlength="100" size="60"/>
+			</div>	
+			<div class="w2ui-group">				
+				<div id="grid" style="width: 100%; height: 200px;"></div>
+			</div>			
+		</div>
+		<div class="w2ui-buttons">
+			<input type="button" value="Reset" name="reset"/>
+			<input type="button" value="Save" name="save"/>
+		</div>
+	</div>
 </body>
 </html>
+
+
