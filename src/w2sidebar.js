@@ -7,10 +7,10 @@
 *
 * == NICE TO HAVE ==
 * 	- context menus
-* 	- keyboard navigation (up/down)
 *
 * == 1.3 Changes ==
 *	- animated open/close
+*	- add keyboard property
 *
 ************************************************************************/
 
@@ -27,6 +27,7 @@
 		this.nodes	 		= []; 	// Sidebar child nodes
 		this.topHTML		= '';
 		this.bottomHTML     = '';
+		this.keyboard		= true;
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
 		this.onContextMenu	= null;	
@@ -399,8 +400,42 @@
 				$(this.box).find('#node_'+ w2utils.escapeId(id))
 					.addClass('w2ui-selected')
 					.find('.w2ui-icon').addClass('w2ui-icon-selected');
-				this.get(id).selected = true;
+				nd.selected = true;
 				this.selected = id;
+				// bind up/down arrows
+				if (this.keyboard) {
+					// enclose some vars
+					var sidebar_keydown = function (event) {
+						if (event.target.tagName.toLowerCase() == 'body') {
+							var ind = obj.get(id, true);
+							if (event.keyCode == 38) { // up
+								if (ind > 0) { 
+									var nd2 = nd.parent.nodes[ind-1];
+									obj.doClick(nd2.id, event); 
+									var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+									// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+								}
+								if (event.preventDefault) event.preventDefault();
+							}
+							if (event.keyCode == 40) { // down
+								if (ind < nd.parent.nodes.length-1) { 
+									var nd2 = nd.parent.nodes[ind+1];
+									obj.doClick(nd2.id, event); 
+									var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+									// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+								}
+								if (event.preventDefault) event.preventDefault();
+							}
+						}
+					}
+					var sidebar_keypress = function (event) {
+						if (event.target.tagName.toLowerCase() == 'body' && (event.keyCode == 38 || event.keyCode == 40)) {
+							if (event.preventDefault) event.preventDefault();
+						}
+					}
+					$(document).off('keydown').on('keydown', sidebar_keydown);
+					$(document).off('keypress').on('keypress', sidebar_keypress );
+				}
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
