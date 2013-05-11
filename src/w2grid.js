@@ -2436,7 +2436,7 @@
 							'<div class="w2ui-editable">'+
 								'<input id="grid_'+ this.name +'_edit_'+ ind +'_'+ col_ind +'" value="'+ field +'" type="text"  '+
 								'	style="'+ edit.style +'" '+
-								'	field="'+ col.field +'" recid="'+ record.recid +'" line="'+ lineNum +'" column="'+ col_ind +'" '+
+								'	field="'+ col.field +'" recid="'+ record.recid +'" line="'+ ind +'" column="'+ col_ind +'" '+
 								'	onclick = "w2ui[\''+ this.name + '\'].doEdit(\'click\', this, event);" '+
 								'	onkeyup = "w2ui[\''+ this.name + '\'].doEdit(\'keyup\', this, event);" '+
 								'	onfocus = "w2ui[\''+ this.name + '\'].doEdit(\'focus\', this, event);" '+

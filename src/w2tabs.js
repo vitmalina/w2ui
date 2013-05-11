@@ -7,6 +7,7 @@
 *
 * == NICE TO HAVE ==
 *	- tabs might not work in chromium apps, need bind()
+*   - on overflow display << >>
 *
 ************************************************************************/
 

@@ -6,6 +6,7 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
+*   - on overflow display << >>
 * 
 ************************************************************************/
 

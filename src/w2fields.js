@@ -11,6 +11,7 @@
 *  - enum (onCompare)
 *  - enum - onclick for already selected elements
 *  - enum needs events onItemClick, onItemOver, etc just like upload
+*  - upload (regular files)
 *
 ************************************************************************/
 

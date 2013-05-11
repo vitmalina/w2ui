@@ -8,6 +8,7 @@
 * == NICE TO HAVE ==
 *	- onResize for the panel
 *	- % base resizes
+*	- better min/max calculation when window resizes
 * 
 ************************************************************************/
 
