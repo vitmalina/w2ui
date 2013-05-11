@@ -173,7 +173,7 @@
 		
 		remove: function () { // multiple arguments
 			var deleted = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
 				if (tmp == null) continue;
 				var ind  = this.get(tmp.parent, arguments[a], true);
@@ -238,7 +238,7 @@
 		
 		hide: function () { // multiple arguments
 			var hidden = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
 				if (tmp == null) continue;
 				tmp.hidden = true;
@@ -250,7 +250,7 @@
 		
 		show: function () {
 			var shown = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
 				if (tmp == null) continue;
 				tmp.hidden = false;
@@ -262,7 +262,7 @@
 	
 		disable: function () { // multiple arguments
 			var disabled = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
 				if (tmp == null) continue;
 				tmp.disabled = true;
@@ -275,7 +275,7 @@
 		
 		enable: function () { // multiple arguments
 			var enabled = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
 				if (tmp == null) continue;
 				tmp.disabled = false;
