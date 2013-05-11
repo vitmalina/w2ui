@@ -267,35 +267,35 @@
 						if (this.record[field.name] && !w2utils.isInt(this.record[field.name])) {
 							var error = { field: field, error: w2utils.lang('Not an integer') };
 							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
+							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
 						} 
 						break;
 					case 'float':
 						if (this.record[field.name] && !w2utils.isFloat(this.record[field.name])) {
 							var error = { field: field, error: w2utils.lang('Not a float') };
 							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
+							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
 						} 
 						break;
 					case 'money':
 						if (this.record[field.name] && !w2utils.isMoney(this.record[field.name])) {
 							var error = { field: field, error: w2utils.lang('Not in money format') };
 							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
+							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
 						} 
 						break;
 					case 'hex':
 						if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
 							var error = { field: field, error: w2utils.lang('Not a hex number') };
 							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error, { class: 'w2ui-error' });
+							if (showErrors) $(field.el).w2tag(error, { "class": 'w2ui-error' });
 						} 
 						break;
 					case 'email':
 						if (this.record[field.name] && !w2utils.isEmail(this.record[field.name])) {
 							var error = { field: field, error: w2utils.lang('Not a valid email') };
 							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
+							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
 						} 
 						break;
 					case 'checkbox':
@@ -307,7 +307,7 @@
 						if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
 							var error = { field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format };
 							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
+							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
 						} else {
 							// convert to universal timestamp with time zone
 							//var d = new Date(this.record[field.name]);
@@ -329,7 +329,7 @@
 				if ( field.required && (val === '' || ($.isArray(val) && val.length == 0)) ) {
 					var error = { field: field, error: w2utils.lang('Required field') };
 					errors.push(error);
-					if (showErrors) $(field.el).w2tag(error.error, { class: 'w2ui-error' });
+					if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
 				}
 			}
 			return errors;
