@@ -109,7 +109,7 @@
 							'-moz-transition': '.1s', 
 							'-ms-transition': '.1s', 
 							'-o-transition': '.1s', 
-							'opacity': '0.6',
+							'opacity': '0.6'
 						});			
 						if (window.getSelection) window.getSelection().removeAllRanges();
 					} : null,
@@ -120,7 +120,7 @@
 								'-moz-transition': '.1s', 
 								'-ms-transition': '.1s', 
 								'-o-transition': '.1s', 
-								'opacity': options.opacity,
+								'opacity': options.opacity
 							});
 						}, 100);
 						if (window.getSelection) window.getSelection().removeAllRanges();

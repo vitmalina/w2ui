@@ -624,7 +624,7 @@ var w2utils = (function () {
 				type: "GET",
 				dataType: "json",
 				cache : false,
-				async : false,
+				async : false
 				}).done(function( data) {
 					$.extend( settings, data);
 				}).fail(function(jqXHR, textStatus) {
