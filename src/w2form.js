@@ -895,7 +895,7 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			$(window).off('resize', this.tmp_resize)
-		},
+		}
 	}
 	
 	$.extend(w2form.prototype, $.w2event);
