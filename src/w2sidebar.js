@@ -408,6 +408,9 @@
 					var sidebar_keydown = function (event) {
 						if (event.target.tagName.toLowerCase() == 'body') {
 							var ind = obj.get(id, true);
+							if (event.keyCode == 13) { // enter
+								obj.toggle(id);
+							}
 							if (event.keyCode == 38) { // up
 								if (ind > 0) { 
 									var nd2 = nd.parent.nodes[ind-1];
