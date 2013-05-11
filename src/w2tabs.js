@@ -123,7 +123,7 @@
 		
 		remove: function (id) {
 			var removed = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab) return false;
 				removed++;
@@ -161,7 +161,7 @@
 		
 		show: function () {
 			var shown = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.hidden === false) continue;
 				tab.hidden = false;
@@ -173,7 +173,7 @@
 		
 		hide: function () {
 			var hidden = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.hidden === true) continue;
 				tab.hidden = true;
@@ -185,7 +185,7 @@
 		
 		enable: function (id) {
 			var enabled = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.disabled === false) continue;
 				tab.disabled = false;
@@ -197,7 +197,7 @@
 		
 		disable: function (id) {
 			var disabled = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.disabled === true) continue;
 				tab.disabled = true;

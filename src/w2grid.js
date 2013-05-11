@@ -248,7 +248,7 @@
 
 		remove: function () {
 			var removed = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.records.length-1; r >= 0; r--) {
 					if (this.records[r].recid == arguments[a]) { this.records.splice(r, 1); removed++; }
 				}
@@ -281,7 +281,7 @@
 
 		removeColumn: function () {
 			var removed = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.columns.length-1; r >= 0; r--) {
 					if (this.columns[r].field == arguments[a]) { this.columns.splice(r, 1); removed++; }
 				}
@@ -302,7 +302,7 @@
 
 		showColumn: function () {
 			var shown = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.columns.length-1; r >= 0; r--) {
 					if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== false) { 
 						this.columns[r].hidden = false; 
@@ -316,7 +316,7 @@
 
 		hideColumn: function () {
 			var hidden = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.columns.length-1; r >= 0; r--) {
 					if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== true) { 
 						this.columns[r].hidden = true; 
@@ -346,7 +346,7 @@
 
 		removeSearch: function () {
 			var removed = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.searches.length-1; r >= 0; r--) {
 					if (this.searches[r].field == arguments[a]) { this.searches.splice(r, 1); removed++; }
 				}
@@ -366,7 +366,7 @@
 
 		showSearch: function () {
 			var shown = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.searches.length-1; r >= 0; r--) {
 					if (this.searches[r].field == arguments[a] && this.searches[r].hidden !== false) { 
 						this.searches[r].hidden = false; 
@@ -380,7 +380,7 @@
 
 		hideSearch: function () {
 			var hidden = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.searches.length-1; r >= 0; r--) {
 					if (this.searches[r].field == arguments[a] && this.searches[r].hidden !== true) { 
 						this.searches[r].hidden = true; 
@@ -502,7 +502,7 @@
 
 		select: function (recid) {
 			var selected = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var record = this.get(arguments[a]);
 				if (record == null || record.selected === true) continue;
 				// event before
@@ -536,7 +536,7 @@
 
 		unselect: function (recid) {
 			var unselected = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var record = this.get(arguments[a]);
 				if (record == null || record.selected !== true) continue;
 				// event before
