@@ -133,7 +133,7 @@
 		
 		remove: function (id) {
 			var removed = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				removed++;
@@ -165,7 +165,7 @@
 			
 		show: function (id) {
 			var items = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
@@ -177,7 +177,7 @@
 		
 		hide: function (id) {
 			var items = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
@@ -189,7 +189,7 @@
 		
 		enable: function (id) {
 			var items = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
@@ -201,7 +201,7 @@
 		
 		disable: function (id) {
 			var items = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
@@ -213,7 +213,7 @@
 		
 		check: function (id) {
 			var items = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
@@ -225,7 +225,7 @@
 		
 		uncheck: function (id) {
 			var items = 0;
-			for (var a in arguments) {
+			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
