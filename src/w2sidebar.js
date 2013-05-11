@@ -6,8 +6,11 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*	- group animate open
 * 	- context menus
+* 	- keyboard navigation (up/down)
+*
+* == 1.3 Changes ==
+*	- animated open/close
 *
 ************************************************************************/
 
@@ -323,7 +326,7 @@
 			if (eventData.stop === true) return false;
 			// default action
 			var nd = this.get(id);
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').show();
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
 			nd.expanded = true;
 			// event after
@@ -336,7 +339,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id });	
 			if (eventData.stop === true) return false;
 			// default action
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').hide();		
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp('fast');		
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
 			this.get(id).expanded = false;
 			// event after
