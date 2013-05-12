@@ -7,6 +7,9 @@
 *
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
+*
+* == 1.3 changes ==
+*   - tabs can be array of string, array of tab objects or w2tabs object
 * 	- generate should use fields, and not its own structure
 *
 ************************************************************************/
@@ -84,7 +87,11 @@
 			var object = new w2form(method);
 			$.extend(object, { record: {}, original: {}, fields: [], tabs: {}, handlers: [] });
 			if ($.isArray(tabs)) {
-				$.extend(true, object.tabs, { tabs: tabs});
+				$.extend(true, object.tabs, { tabs: [] });
+				for (var t in tabs) {
+					var tmp = tabs[t];
+					if (typeof tmp == 'object') object.tabs.tabs.push(tmp); else object.tabs.tabs.push({ id: tmp, caption: tmp });
+				}
 			} else {
 				$.extend(true, object.tabs, tabs);
 			}
@@ -106,11 +113,7 @@
 			}
 			object.initTabs();
 			// render if necessary
-			if ($(this).length != 0 && !object.formURL) {
-				if (!object.formHTML) object.formHTML = $(this).html();
-				object.init(this);
-				object.render($(this)[0]);
-			} else if (object.formURL) {
+			if (object.formURL != '') {
 				$.get(object.formURL, function (data) {
 					object.formHTML = data;
 					if ($(obj).length != 0 || data.length != 0) {
@@ -119,9 +122,22 @@
 						object.render($(obj)[0]);
 					}
 				});
+			} else if (object.formHTML != '') {
+				// it is already loaded into formHTML
+			} else if ($(this).length != 0 && $.trim($(this).html()) != '') {
+				object.formHTML = $(this).html();
+			}  else { // try to generate it
+				object.formHTML = object.generateHTML();
+				$(obj).html(object.formHTML);
 			}
 			// register new object
 			w2ui[object.name] = object;
+			// render if not loaded from url
+			if (object.formURL == '') {
+				if ($(this).find('.w2ui-page').length == 0) object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
+				object.init(this);
+				object.render($(this)[0]);
+			}
 			return object;
 		
 		} else if (typeof $(this).data('w2name') != 'undefined') {
@@ -586,41 +602,32 @@
 			this.refresh();
 		},
 
-		generateHTML: function (obj) {
-			var html = '';
-			if (typeof obj.pages == 'undefined') {
-				obj.pages = [obj.fields];
-				delete obj.fields;
+		generateHTML: function () {
+			var pages = []; // array for each page
+			for (var f in this.fields) {
+				var html = '';
+				var field = this.fields[f];
+				if (typeof field.html == 'undefined') field.html = {};
+				field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
+				if (field.html.caption == '') field.html.caption = field.name;
+				var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
+				if (field.type == 'list')   input = '<select name="'+ field.name +'" '+ field.html.attr +'></select>';
+				if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
+				html += '\n   <div class="w2ui-label '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ field.html.caption +':</div>'+
+						'\n   <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+
+								input + field.html.text +
+						'</div>';
+				if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '<div class="w2ui-page page-'+ field.html.page +'">';
+				pages[field.html.page] += html;
 			}
-			var cnt = 0;
-			for (var j in obj.pages) {
-				var page = obj.pages[j];
-				if (typeof page.tab != 'undefined') this.tabs.add({ id: 'tab'+ this.tabs.tabs.length, caption: page.tab });
-				html += '<div class="w2ui-page page-'+ cnt +'">';
-				for (var i in page.fields) {
-					var field = page.fields[i];
-					var type  = '<input name="'+ field.name +'" type="text" '+ field.attr +'/>';
-					if (field.type == 'select') type = '<select name="'+ field.name +'" '+ field.attr +'></select>';
-					if (field.type == 'textarea') type = '<textarea name="'+ field.name +'" '+ field.attr +'></textarea>';
-					html += '<div class="w2ui-label '+ (typeof field.span != 'undefined' ? 'w2ui-span'+ field.span : '') +'">'+ field.caption +':</div>'+
-							'<div class="w2ui-field '+ (typeof field.span != 'undefined' ? 'w2ui-span'+ field.span : '') +'">'+
-								type +
-							'</div>';
-				}			
-				html += '</div>';
-				cnt++;
+			for (var p in pages) pages[p] += '\n</div>';
+			// buttons if any
+			var html = '\n<div class="w2ui-buttons">';
+			for (var a in this.actions) {
+				html += '\n    <input type="button" value="'+ a +'" name="'+ a +'">';
 			}
-			if (typeof obj.buttons != 'undefined') {
-				html += '<div class="w2ui-buttons" style="position: absolute: bottom: 0px;">';
-				for (var i in obj.buttons) {
-					var button = obj.buttons[i];
-					html += '<input type="button" value="'+ button.caption +'" name="'+ button.name +'" '+ button.attr +'>'
-				}
-				html += '</div>';
-			}
-			this.formHTML = html;
-			this.render();
-			return html;
+			html += '\n</div>';
+			return pages.join('') + html;
 		},
 
 		doAction: function (action, event) {
@@ -695,9 +702,9 @@
 				field.el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')[0];
 				if (typeof field.el == 'undefined') {
 					console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
-					return;
+					//return;
 				}
-				field.el.id = field.name;
+				if (field.el) field.el.id = field.name;
 				$(field.el).off('change').on('change', function () {
 					var value_new 		= this.value;
 					var value_previous 	= obj.record[this.name] ? obj.record[this.name] : '';
@@ -746,10 +753,11 @@
 			for (var f in this.fields) {
 				var field = this.fields[f];
 				var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
-
+				if (!field.el)  continue;
 				switch (String(field.type).toLowerCase()) {
 					case 'email':
 					case 'text':
+					case 'textarea':
 						field.el.value = value;
 						break;
 					case 'date':
