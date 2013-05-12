@@ -2061,7 +2061,7 @@
 				last_col = col;
 			}
 			var width_diff = parseInt(width_box) - parseInt(width_cols) + 1; // 1 is last border width
-			if (width_diff > 0) {
+			if ((width_diff > 0) && last_col) {
 				last_col.sizeCalculated = (parseInt(last_col.sizeCalculated) + width_diff) + 'px' ;
 				if (parseInt(last_col.sizeCalculated) < parseInt(last_col.min)) last_col.sizeCalculated = last_col.min + 'px';
 				if (parseInt(last_col.sizeCalculated) > parseInt(last_col.max)) last_col.sizeCalculated = last_col.max + 'px';
