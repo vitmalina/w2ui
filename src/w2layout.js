@@ -9,6 +9,9 @@
 *	- onResize for the panel
 *	- % base resizes
 *	- better min/max calculation when window resizes
+*
+* == 1.3 changes ==
+*   - tabs can be array of string, array of tab objects or w2tabs object
 * 
 ************************************************************************/
 
@@ -284,9 +287,19 @@
 			if (pan != null && typeof tabs == 'undefined') tabs = pan.tabs;
 			if (pan == null || tabs == null) return false;
 			// instanciate tabs
-			if ($.isArray(tabs)) tabs = { tabs: tabs };
+			var object = {};
+			if ($.isArray(tabs)) {
+				$.extend(true, object, { tabs: [] });
+				for (var t in tabs) {
+					var tmp = tabs[t];
+					if (typeof tmp == 'object') object.tabs.push(tmp); else object.tabs.push({ id: tmp, caption: tmp });
+				}
+				object.active = object.tabs[0].id;
+			} else {
+				$.extend(true, object, tabs);
+			}
 			$().w2destroy(this.name + '_' + panel + '_tabs'); // destroy if existed
-			pan.tabs = $().w2tabs($.extend({}, tabs, { owner: this, name: this.name + '_' + panel + '_tabs' }));
+			pan.tabs = $().w2tabs($.extend({}, object, { owner: this, name: this.name + '_' + panel + '_tabs' }));
 			return true;
 		},
 				
