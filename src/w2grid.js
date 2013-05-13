@@ -13,6 +13,8 @@
 *	- frozen columns
 *	- column autosize based on largest content
 * 	- resize needs to be revisited without resizing each div
+*	- hints for records
+*	- more events in editable fields (onkeypress)
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
