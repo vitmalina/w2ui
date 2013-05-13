@@ -98,6 +98,7 @@ class w2grid_class {
 		$data['status'] = 'success';
 		$data['total']  = $rs->fields[0];
 		$data['page']   = 0;
+		if ($request['offset'] > 0 && $request['limit'] > 0) $data['page'] = $request['offset'] / $request['limit'];
 
 		// execute sql
 		$rs = $db->execute($sql);
