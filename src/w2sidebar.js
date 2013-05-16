@@ -11,6 +11,7 @@
 * == 1.3 Changes ==
 *	- animated open/close
 *	- add keyboard property
+*	- added onKeyboard event
 *
 ************************************************************************/
 
@@ -33,6 +34,7 @@
 		this.onContextMenu	= null;	
 		this.onExpand		= null;	// Fire when node Expands
 		this.onCollapse		= null;	// Fire when node Colapses
+		this.onKeyboard		= null;
 		this.onRender 		= null;
 		this.onRefresh		= null;
 		this.onResize 		= null;
@@ -407,6 +409,10 @@
 					// enclose some vars
 					var sidebar_keydown = function (event) {
 						if (event.target.tagName.toLowerCase() == 'body') {
+							// trigger event
+							var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+							if (eventData.stop === true) return false;
+							// default behaviour
 							var ind = obj.get(id, true);
 							if (event.keyCode == 13) { // enter
 								obj.toggle(id);
@@ -429,6 +435,8 @@
 								}
 								if (event.preventDefault) event.preventDefault();
 							}
+							// event after
+							obj.trigger($.extend(eventData, { phase: 'after' }));
 						}
 					}
 					var sidebar_keypress = function (event) {

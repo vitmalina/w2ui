@@ -18,6 +18,7 @@
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
+*	- added onKeyboard event
 *
 ************************************************************************/
 
@@ -86,6 +87,7 @@
 		this.onChange 			= null;		// called when editable record is changed
 		this.onExpand 			= null;
 		this.onError 			= null;
+		this.onKeyboard			= null;
 		this.onRender 			= null;
 		this.onRefresh 			= null;
 		this.onResize 			= null;
@@ -1212,6 +1214,10 @@
 				// enclose some vars
 				var grid_keydown = function (event) {
 					if (event.target.tagName.toLowerCase() == 'body') {
+						// trigger event
+						var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+						if (eventData.stop === true) return false;
+						// default behavior
 						if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
 							obj.selectPage();
 							if (event.preventDefault) event.preventDefault();
@@ -1259,6 +1265,8 @@
 								if (event.preventDefault) event.preventDefault();
 							}
 						}
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
 				}
 				$(document).off('keydown').on('keydown', grid_keydown);
