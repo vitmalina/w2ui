@@ -245,6 +245,10 @@ select {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
+.w2ui-form .w2ui-form-tabs {
+  margin: 0px;
+  padding: 0px;
+}
 .w2ui-form .w2ui-tabs {
   position: absolute;
   left: 0;
@@ -286,17 +290,17 @@ select {
   width: 80px;
   margin-right: 5px;
 }
-.w2ui-form .w2ui-group {
+.w2ui-form input[type=checkbox] {
+  margin-top: 6px;
+}
+.w2ui-group {
   background-color: #495474;
   margin: 5px 0px 10px 0px;
   padding: 10px 5px;
   border-top: 1px solid #3a4254;
   border-bottom: 1px solid #3a4254;
 }
-.w2ui-form .w2ui-form input[type=checkbox] {
-  margin-top: 6px;
-}
-.w2ui-form .w2ui-label {
+.w2ui-label {
   float: left;
   margin-top: 6px;
   width: 120px;
@@ -307,108 +311,104 @@ select {
   text-align: right;
   min-height: 20px;
 }
-.w2ui-form .w2ui-label.w2ui-span1 {
+.w2ui-label.w2ui-span1 {
   width: 20px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span2 {
+.w2ui-label.w2ui-span2 {
   width: 40px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span3 {
+.w2ui-label.w2ui-span3 {
   width: 60px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span4 {
+.w2ui-label.w2ui-span4 {
   width: 80px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span5 {
+.w2ui-label.w2ui-span5 {
   width: 100px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span6 {
+.w2ui-label.w2ui-span6 {
   width: 120px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span7 {
+.w2ui-label.w2ui-span7 {
   width: 140px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span8 {
+.w2ui-label.w2ui-span8 {
   width: 160px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span9 {
+.w2ui-label.w2ui-span9 {
   width: 180px;
   float: left;
 }
-.w2ui-form .w2ui-label.w2ui-span10 {
+.w2ui-label.w2ui-span10 {
   width: 200px;
   float: left;
 }
-.w2ui-form .w2ui-field {
+.w2ui-field {
   /* do not include width */
 
   margin-left: 128px;
   padding: 3px;
   min-height: 20px;
 }
-.w2ui-form .w2ui-field.w2ui-span1 {
+.w2ui-field.w2ui-span1 {
   margin-left: 28px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span2 {
+.w2ui-field.w2ui-span2 {
   margin-left: 48px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span3 {
+.w2ui-field.w2ui-span3 {
   margin-left: 68px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span4 {
+.w2ui-field.w2ui-span4 {
   margin-left: 88px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span5 {
+.w2ui-field.w2ui-span5 {
   margin-left: 108px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span6 {
+.w2ui-field.w2ui-span6 {
   margin-left: 128px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span7 {
+.w2ui-field.w2ui-span7 {
   margin-left: 148px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span8 {
+.w2ui-field.w2ui-span8 {
   margin-left: 168px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span9 {
+.w2ui-field.w2ui-span9 {
   margin-left: 188px;
   float: none;
 }
-.w2ui-form .w2ui-field.w2ui-span10 {
+.w2ui-field.w2ui-span10 {
   margin-left: 208px;
   float: none;
 }
-.w2ui-form .w2ui-form-tabs {
-  margin: 0px;
-  padding: 0px;
-}
-.w2ui-form .w2ui-required {
+.w2ui-required {
   position: relative;
 }
-.w2ui-form .w2ui-required::before {
+.w2ui-required::before {
   content: '*';
   position: absolute;
   margin-top: 5px;
   margin-left: -9px;
   color: #ff525a;
 }
-.w2ui-form .w2ui-error {
+.w2ui-error {
   border: 1px solid #ffa8a8 !important;
   background-color: #515b7e !important;
 }
@@ -1424,6 +1424,8 @@ select {
 }
 .w2ui-popup .w2ui-msg-buttons input[type="button"],
 .w2ui-popup .w2ui-msg-buttons button {
+  margin: 0px 3px;
+  width: 80px;
   border-radius: 3px;
   border: 1px solid #242A37;
   background-color: #536184;

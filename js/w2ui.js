@@ -901,9 +901,12 @@ $.w2event = {
 *	- frozen columns
 *	- column autosize based on largest content
 * 	- resize needs to be revisited without resizing each div
+*	- hints for records
+*	- more events in editable fields (onkeypress)
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
+*	- added onKeyboard event
 *
 ************************************************************************/
 
@@ -972,6 +975,7 @@ $.w2event = {
 		this.onChange 			= null;		// called when editable record is changed
 		this.onExpand 			= null;
 		this.onError 			= null;
+		this.onKeyboard			= null;
 		this.onRender 			= null;
 		this.onRefresh 			= null;
 		this.onResize 			= null;
@@ -2098,6 +2102,10 @@ $.w2event = {
 				// enclose some vars
 				var grid_keydown = function (event) {
 					if (event.target.tagName.toLowerCase() == 'body') {
+						// trigger event
+						var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+						if (eventData.stop === true) return false;
+						// default behavior
 						if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
 							obj.selectPage();
 							if (event.preventDefault) event.preventDefault();
@@ -2145,6 +2153,8 @@ $.w2event = {
 								if (event.preventDefault) event.preventDefault();
 							}
 						}
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
 				}
 				$(document).off('keydown').on('keydown', grid_keydown);
@@ -2949,7 +2959,7 @@ $.w2event = {
 				last_col = col;
 			}
 			var width_diff = parseInt(width_box) - parseInt(width_cols) + 1; // 1 is last border width
-			if (width_diff > 0) {
+			if ((width_diff > 0) && last_col) {
 				last_col.sizeCalculated = (parseInt(last_col.sizeCalculated) + width_diff) + 'px' ;
 				if (parseInt(last_col.sizeCalculated) < parseInt(last_col.min)) last_col.sizeCalculated = last_col.min + 'px';
 				if (parseInt(last_col.sizeCalculated) > parseInt(last_col.max)) last_col.sizeCalculated = last_col.max + 'px';
@@ -5785,6 +5795,7 @@ $.w2event = {
 * == 1.3 Changes ==
 *	- animated open/close
 *	- add keyboard property
+*	- added onKeyboard event
 *
 ************************************************************************/
 
@@ -5807,6 +5818,7 @@ $.w2event = {
 		this.onContextMenu	= null;	
 		this.onExpand		= null;	// Fire when node Expands
 		this.onCollapse		= null;	// Fire when node Colapses
+		this.onKeyboard		= null;
 		this.onRender 		= null;
 		this.onRefresh		= null;
 		this.onResize 		= null;
@@ -6181,6 +6193,10 @@ $.w2event = {
 					// enclose some vars
 					var sidebar_keydown = function (event) {
 						if (event.target.tagName.toLowerCase() == 'body') {
+							// trigger event
+							var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+							if (eventData.stop === true) return false;
+							// default behaviour
 							var ind = obj.get(id, true);
 							if (event.keyCode == 13) { // enter
 								obj.toggle(id);
@@ -6203,6 +6219,8 @@ $.w2event = {
 								}
 								if (event.preventDefault) event.preventDefault();
 							}
+							// event after
+							obj.trigger($.extend(eventData, { phase: 'after' }));
 						}
 					}
 					var sidebar_keypress = function (event) {
