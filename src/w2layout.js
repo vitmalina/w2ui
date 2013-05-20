@@ -432,11 +432,11 @@
 								- (pbottom && !pbottom.hidden ? pbottom.size : 0))
 							* parseInt(pprev.size) / 100;
 			}
-			if (ptop) ptop.size = (parseInt(ptop.size) < ptop.minSize) ? ptop.minSize : parseInt(ptop.size);
-			if (pleft) pleft.size = (parseInt(pleft.size) < pleft.minSize) ? pleft.minSize : parseInt(pleft.size);
-			if (pprev) pprev.size = (parseInt(pprev.size) < pprev.minSize) ? pprev.minSize : parseInt(pprev.size);
-			if (pright) pright.size	= (parseInt(pright.size) < pright.minSize) ? pright.minSize : parseInt(pright.size);
-			if (pbottom) pbottom.size = (parseInt(pbottom.size) < pbottom.minSize) ? pbottom.minSize : parseInt(pbottom.size);
+			if (ptop) ptop.size = (parseInt(ptop.size) < parseInt(ptop.minSize)) ? parseInt(ptop.minSize) : parseInt(ptop.size);
+			if (pleft) pleft.size = (parseInt(pleft.size) < parseInt(pleft.minSize)) ? parseInt(pleft.minSize) : parseInt(pleft.size);
+			if (pprev) pprev.size = (parseInt(pprev.size) < parseInt(pprev.minSize)) ? parseInt(pprev.minSize) : parseInt(pprev.size);
+			if (pright) pright.size	= (parseInt(pright.size) < parseInt(pright.minSize)) ? parseInt(pright.minSize) : parseInt(pright.size);
+			if (pbottom) pbottom.size = (parseInt(pbottom.size) < parseInt(pbottom.minSize)) ? parseInt(pbottom.minSize) : parseInt(pbottom.size);
 			// top if any		
 			if (ptop != null && ptop.hidden != true) {
 				var l = 0;
