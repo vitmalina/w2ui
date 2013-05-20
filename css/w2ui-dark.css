@@ -843,7 +843,7 @@ select {
   border-bottom: 1px solid #252c39;
   background-color: #434d64;
   height: 38px;
-  padding: 7px 0px 4px 0px;
+  padding: 7px 0px 4px 3px;
   margin: 0px;
   box-shadow: 0px 1px 2px #333333;
 }
@@ -1732,6 +1732,12 @@ select {
 .w2ui-toolbar .disabled {
   opacity: 0.3;
   filter: alpha(opacity=15);
+}
+.w2ui-toolbar table {
+  table-layout: auto !important;
+}
+.w2ui-toolbar table td {
+  border: 0px !important;
 }
 .w2ui-toolbar table.w2ui-button {
   margin: 0px 1px;
