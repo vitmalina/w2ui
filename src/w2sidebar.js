@@ -406,46 +406,41 @@
 				this.selected = id;
 				// bind up/down arrows
 				if (this.keyboard) {
-					// enclose some vars
-					var sidebar_keydown = function (event) {
-						if (event.target.tagName.toLowerCase() == 'body') {
-							// trigger event
-							var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-							if (eventData.stop === true) return false;
-							// default behaviour
-							var ind = obj.get(id, true);
-							if (event.keyCode == 13) { // enter
-								obj.toggle(id);
-							}
-							if (event.keyCode == 38) { // up
-								if (ind > 0) { 
-									var nd2 = nd.parent.nodes[ind-1];
-									obj.doClick(nd2.id, event); 
-									var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-									// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-								}
-								if (event.preventDefault) event.preventDefault();
-							}
-							if (event.keyCode == 40) { // down
-								if (ind < nd.parent.nodes.length-1) { 
-									var nd2 = nd.parent.nodes[ind+1];
-									obj.doClick(nd2.id, event); 
-									var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-									// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-								}
-								if (event.preventDefault) event.preventDefault();
-							}
-							// event after
-							obj.trigger($.extend(eventData, { phase: 'after' }));
+					$(document).off('keydown', 'body').on('keydown', 'body', sidebar_keydown);
+					function sidebar_keydown(event) {
+						// trigger event
+						var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+						if (eventData.stop === true) return false;
+						// default behaviour
+						var ind = obj.get(id, true);
+						if (event.keyCode == 13) { // enter
+							obj.toggle(id);
 						}
-					}
-					var sidebar_keypress = function (event) {
-						if (event.target.tagName.toLowerCase() == 'body' && (event.keyCode == 38 || event.keyCode == 40)) {
+						if (event.keyCode == 38) { // up
+							if (ind > 0) { 
+								var nd2 = nd.parent.nodes[ind-1];
+								if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
+								obj.doClick(nd2.id, event); 
+								//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+								// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+							}
+							if (event.stopPropagation) event.stopPropagation();
 							if (event.preventDefault) event.preventDefault();
 						}
+						if (event.keyCode == 40) { // down
+							if (ind < nd.parent.nodes.length-1) { 
+								var nd2 = nd.parent.nodes[ind+1];
+								if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
+								obj.doClick(nd2.id, event); 
+								//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+								// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+							}
+							if (event.preventDefault) event.preventDefault();
+							if (event.stopPropagation) event.stopPropagation();
+						}
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
-					$(document).off('keydown', sidebar_keydown).on('keydown', sidebar_keydown);
-					$(document).off('keypress', sidebar_keypress).on('keypress', sidebar_keypress );
 				}
 			}
 			// event after
@@ -647,6 +642,8 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
+			// remove events
+			$(document).off('keydown', 'body');
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 				$(this.box)

@@ -495,6 +495,7 @@
 						if (!$.isPlainObject(it.overlay)) it.overlay = {};
 						$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, $.extend({ left: (w-50)/2, top: 3 }, it.overlay));
 						// window.click to hide it
+						$(document).on('click', hideDrop);
 						function hideDrop() {
 							it.checked = !it.checked;
 							if (it.checked) {
@@ -505,7 +506,6 @@
 							obj.refresh(it.id);
 							$(document).off('click', hideDrop);
 						}
-						$(document).on('click', hideDrop);
 					}, 1);
 				}
 				// event after

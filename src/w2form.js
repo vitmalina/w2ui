@@ -876,8 +876,8 @@
 				this.refresh();
 			}
 			// attach to resize event
-			this.tmp_resize = function (event) { w2ui[obj.name].resize();	}
-			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
+			this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+			$(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
 			setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer
 			// focus first
 			function focusFirst() {
@@ -902,7 +902,7 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			$(window).off('resize', this.tmp_resize)
+			$(window).off('resize', 'body')
 		}
 	}
 	

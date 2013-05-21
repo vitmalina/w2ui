@@ -2100,63 +2100,61 @@ $.w2event = {
 			// bind up/down arrows
 			if (this.keyboard) {
 				// enclose some vars
-				var grid_keydown = function (event) {
-					if (event.target.tagName.toLowerCase() == 'body') {
-						// trigger event
-						var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-						if (eventData.stop === true) return false;
-						// default behavior
-						if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
-							obj.selectPage();
+				$(document).off('keydown', 'body').on('keydown', 'body', grid_keydown);
+				function grid_keydown(event) {
+					// trigger event
+					var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+					if (eventData.stop === true) return false;
+					// default behavior
+					if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
+						obj.selectPage();
+						if (event.preventDefault) event.preventDefault();
+					}
+					if (event.keyCode == 8) {
+						obj.doDelete();
+						if (event.preventDefault) event.preventDefault();
+					}
+					var sel = obj.getSelection();
+					if (sel.length == 1) {
+						var recid = sel[0];
+						var ind   = obj.get(recid, true);
+						var sTop	= parseInt($('#grid_'+ obj.name +'_records').prop('scrollTop'));
+						var sHeight = parseInt($('#grid_'+ obj.name +'_records').height());
+						if (event.keyCode == 38) { // up
+							if (ind > 0) {
+								ind--;
+								while (ind > 0 && obj.records[ind].hidden === true) ind--;
+								obj.selectNone();
+								obj.doClick(obj.records[ind].recid, event);
+								// scroll into view
+								var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
+								var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
+								if (rTop < sTop) {
+									$('#grid_'+ obj.name +'_records').prop('scrollTop', rTop - rHeight * 0.7);
+									obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
+								}
+							}
 							if (event.preventDefault) event.preventDefault();
 						}
-						if (event.keyCode == 8) {
-							obj.doDelete();
+						if (event.keyCode == 40) { // down
+							if (ind + 1 < obj.records.length) {
+								ind++;
+								while (ind + 1 < obj.records.length && obj.records[ind].hidden === true) ind++;
+								obj.selectNone();
+								obj.doClick(obj.records[ind].recid, event);
+								// scroll into view
+								var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
+								var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
+								if (rTop + rHeight > sHeight + sTop) {
+									$('#grid_'+ obj.name +'_records').prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight * 0.7);
+									obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
+								}
+							}
 							if (event.preventDefault) event.preventDefault();
-						}
-						var sel = obj.getSelection();
-						if (sel.length == 1) {
-							var recid = sel[0];
-							var ind   = obj.get(recid, true);
-							var sTop	= parseInt($('#grid_'+ obj.name +'_records').prop('scrollTop'));
-							var sHeight = parseInt($('#grid_'+ obj.name +'_records').height());
-							if (event.keyCode == 38) { // up
-								if (ind > 0) {
-									ind--;
-									while (ind > 0 && obj.records[ind].hidden === true) ind--;
-									obj.selectNone();
-									obj.doClick(obj.records[ind].recid, event);
-									// scroll into view
-									var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
-									var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
-									if (rTop < sTop) {
-										$('#grid_'+ obj.name +'_records').prop('scrollTop', rTop - rHeight * 0.7);
-										obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
-									}
-								}
-								if (event.preventDefault) event.preventDefault();
-							}
-							if (event.keyCode == 40) { // down
-								if (ind + 1 < obj.records.length) {
-									ind++;
-									while (ind + 1 < obj.records.length && obj.records[ind].hidden === true) ind++;
-									obj.selectNone();
-									obj.doClick(obj.records[ind].recid, event);
-									// scroll into view
-									var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
-									var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
-									if (rTop + rHeight > sHeight + sTop) {
-										$('#grid_'+ obj.name +'_records').prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight * 0.7);
-										obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
-									}
-								}
-								if (event.preventDefault) event.preventDefault();
-							}
 						}
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
-					$(document).off('keydown', grid_keydown).on('keydown', grid_keydown);
 				}
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
@@ -2458,8 +2456,8 @@ $.w2event = {
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
-			function tmp_resize(event) { w2ui[obj.name].resize();	}
-			$(window).off('resize', tmp_resize).on('resize', tmp_resize);
+			this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
 			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
 		},
 
@@ -2467,6 +2465,9 @@ $.w2event = {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
 			if (eventData.stop === true) return false;
+			// remove events
+			$(window).off('resize', this.tmp_resize);
+			$(document).off('keydown', 'body');
 			// clean up
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
 			if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
@@ -2728,12 +2729,12 @@ $.w2event = {
 					}
 					var mouseUp = function (event) {
 						delete obj.resizing;
-						$(document).off('mousemove', mouseMove);
-						$(document).off('mouseup', mouseUp);
+						$(document).off('mousemove', 'body');
+						$(document).off('mouseup', 'body');
 						obj.resizeRecords();
 					}
-					$(document).on('mousemove', mouseMove);
-					$(document).on('mouseup', mouseUp);
+					$(document).on('mousemove', 'body', mouseMove);
+					$(document).on('mouseup', 'body', mouseUp);
 				})
 				.on('click', function (event) { 
 					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
@@ -5761,6 +5762,7 @@ $.w2event = {
 						if (!$.isPlainObject(it.overlay)) it.overlay = {};
 						$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, $.extend({ left: (w-50)/2, top: 3 }, it.overlay));
 						// window.click to hide it
+						$(document).on('click', hideDrop);
 						function hideDrop() {
 							it.checked = !it.checked;
 							if (it.checked) {
@@ -5771,7 +5773,6 @@ $.w2event = {
 							obj.refresh(it.id);
 							$(document).off('click', hideDrop);
 						}
-						$(document).on('click', hideDrop);
 					}, 1);
 				}
 				// event after
@@ -6191,46 +6192,41 @@ $.w2event = {
 				this.selected = id;
 				// bind up/down arrows
 				if (this.keyboard) {
-					// enclose some vars
-					var sidebar_keydown = function (event) {
-						if (event.target.tagName.toLowerCase() == 'body') {
-							// trigger event
-							var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-							if (eventData.stop === true) return false;
-							// default behaviour
-							var ind = obj.get(id, true);
-							if (event.keyCode == 13) { // enter
-								obj.toggle(id);
-							}
-							if (event.keyCode == 38) { // up
-								if (ind > 0) { 
-									var nd2 = nd.parent.nodes[ind-1];
-									obj.doClick(nd2.id, event); 
-									var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-									// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-								}
-								if (event.preventDefault) event.preventDefault();
-							}
-							if (event.keyCode == 40) { // down
-								if (ind < nd.parent.nodes.length-1) { 
-									var nd2 = nd.parent.nodes[ind+1];
-									obj.doClick(nd2.id, event); 
-									var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-									// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-								}
-								if (event.preventDefault) event.preventDefault();
-							}
-							// event after
-							obj.trigger($.extend(eventData, { phase: 'after' }));
+					$(document).off('keydown', 'body').on('keydown', 'body', sidebar_keydown);
+					function sidebar_keydown(event) {
+						// trigger event
+						var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+						if (eventData.stop === true) return false;
+						// default behaviour
+						var ind = obj.get(id, true);
+						if (event.keyCode == 13) { // enter
+							obj.toggle(id);
 						}
-					}
-					var sidebar_keypress = function (event) {
-						if (event.target.tagName.toLowerCase() == 'body' && (event.keyCode == 38 || event.keyCode == 40)) {
+						if (event.keyCode == 38) { // up
+							if (ind > 0) { 
+								var nd2 = nd.parent.nodes[ind-1];
+								if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
+								obj.doClick(nd2.id, event); 
+								//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+								// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+							}
+							if (event.stopPropagation) event.stopPropagation();
 							if (event.preventDefault) event.preventDefault();
 						}
+						if (event.keyCode == 40) { // down
+							if (ind < nd.parent.nodes.length-1) { 
+								var nd2 = nd.parent.nodes[ind+1];
+								if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
+								obj.doClick(nd2.id, event); 
+								//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+								// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+							}
+							if (event.preventDefault) event.preventDefault();
+							if (event.stopPropagation) event.stopPropagation();
+						}
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
-					$(document).off('keydown', sidebar_keydown).on('keydown', sidebar_keydown);
-					$(document).off('keypress', sidebar_keypress).on('keypress', sidebar_keypress );
 				}
 			}
 			// event after
@@ -6432,6 +6428,8 @@ $.w2event = {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
+			// remove events
+			$(document).off('keydown', 'body');
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 				$(this.box)
@@ -8439,8 +8437,8 @@ $.w2event = {
 				this.refresh();
 			}
 			// attach to resize event
-			this.tmp_resize = function (event) { w2ui[obj.name].resize();	}
-			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
+			this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+			$(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
 			setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer
 			// focus first
 			function focusFirst() {
@@ -8465,7 +8463,7 @@ $.w2event = {
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			$(window).off('resize', this.tmp_resize)
+			$(window).off('resize', 'body')
 		}
 	}
 	

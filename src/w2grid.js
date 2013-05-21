@@ -1212,63 +1212,61 @@
 			// bind up/down arrows
 			if (this.keyboard) {
 				// enclose some vars
-				var grid_keydown = function (event) {
-					if (event.target.tagName.toLowerCase() == 'body') {
-						// trigger event
-						var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-						if (eventData.stop === true) return false;
-						// default behavior
-						if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
-							obj.selectPage();
+				$(document).off('keydown', 'body').on('keydown', 'body', grid_keydown);
+				function grid_keydown(event) {
+					// trigger event
+					var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+					if (eventData.stop === true) return false;
+					// default behavior
+					if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
+						obj.selectPage();
+						if (event.preventDefault) event.preventDefault();
+					}
+					if (event.keyCode == 8) {
+						obj.doDelete();
+						if (event.preventDefault) event.preventDefault();
+					}
+					var sel = obj.getSelection();
+					if (sel.length == 1) {
+						var recid = sel[0];
+						var ind   = obj.get(recid, true);
+						var sTop	= parseInt($('#grid_'+ obj.name +'_records').prop('scrollTop'));
+						var sHeight = parseInt($('#grid_'+ obj.name +'_records').height());
+						if (event.keyCode == 38) { // up
+							if (ind > 0) {
+								ind--;
+								while (ind > 0 && obj.records[ind].hidden === true) ind--;
+								obj.selectNone();
+								obj.doClick(obj.records[ind].recid, event);
+								// scroll into view
+								var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
+								var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
+								if (rTop < sTop) {
+									$('#grid_'+ obj.name +'_records').prop('scrollTop', rTop - rHeight * 0.7);
+									obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
+								}
+							}
 							if (event.preventDefault) event.preventDefault();
 						}
-						if (event.keyCode == 8) {
-							obj.doDelete();
+						if (event.keyCode == 40) { // down
+							if (ind + 1 < obj.records.length) {
+								ind++;
+								while (ind + 1 < obj.records.length && obj.records[ind].hidden === true) ind++;
+								obj.selectNone();
+								obj.doClick(obj.records[ind].recid, event);
+								// scroll into view
+								var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
+								var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
+								if (rTop + rHeight > sHeight + sTop) {
+									$('#grid_'+ obj.name +'_records').prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight * 0.7);
+									obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
+								}
+							}
 							if (event.preventDefault) event.preventDefault();
-						}
-						var sel = obj.getSelection();
-						if (sel.length == 1) {
-							var recid = sel[0];
-							var ind   = obj.get(recid, true);
-							var sTop	= parseInt($('#grid_'+ obj.name +'_records').prop('scrollTop'));
-							var sHeight = parseInt($('#grid_'+ obj.name +'_records').height());
-							if (event.keyCode == 38) { // up
-								if (ind > 0) {
-									ind--;
-									while (ind > 0 && obj.records[ind].hidden === true) ind--;
-									obj.selectNone();
-									obj.doClick(obj.records[ind].recid, event);
-									// scroll into view
-									var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
-									var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
-									if (rTop < sTop) {
-										$('#grid_'+ obj.name +'_records').prop('scrollTop', rTop - rHeight * 0.7);
-										obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
-									}
-								}
-								if (event.preventDefault) event.preventDefault();
-							}
-							if (event.keyCode == 40) { // down
-								if (ind + 1 < obj.records.length) {
-									ind++;
-									while (ind + 1 < obj.records.length && obj.records[ind].hidden === true) ind++;
-									obj.selectNone();
-									obj.doClick(obj.records[ind].recid, event);
-									// scroll into view
-									var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
-									var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
-									if (rTop + rHeight > sHeight + sTop) {
-										$('#grid_'+ obj.name +'_records').prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight * 0.7);
-										obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
-									}
-								}
-								if (event.preventDefault) event.preventDefault();
-							}
 						}
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
-					$(document).off('keydown', grid_keydown).on('keydown', grid_keydown);
 				}
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
@@ -1570,8 +1568,8 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
-			function tmp_resize(event) { w2ui[obj.name].resize();	}
-			$(window).off('resize', tmp_resize).on('resize', tmp_resize);
+			this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
 			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
 		},
 
@@ -1579,6 +1577,9 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
 			if (eventData.stop === true) return false;
+			// remove events
+			$(window).off('resize', this.tmp_resize);
+			$(document).off('keydown', 'body');
 			// clean up
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
 			if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
@@ -1840,12 +1841,12 @@
 					}
 					var mouseUp = function (event) {
 						delete obj.resizing;
-						$(document).off('mousemove', mouseMove);
-						$(document).off('mouseup', mouseUp);
+						$(document).off('mousemove', 'body');
+						$(document).off('mouseup', 'body');
 						obj.resizeRecords();
 					}
-					$(document).on('mousemove', mouseMove);
-					$(document).on('mouseup', mouseUp);
+					$(document).on('mousemove', 'body', mouseMove);
+					$(document).on('mouseup', 'body', mouseUp);
 				})
 				.on('click', function (event) { 
 					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
