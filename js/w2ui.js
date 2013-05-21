@@ -873,7 +873,7 @@ $.w2event = {
 			});
 
 		// click anywhere else hides the drop down
-		var hide = function () {
+		function hide () {
 			if (typeof options.onHide == 'function') options.onHide();
 			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);
@@ -2156,8 +2156,8 @@ $.w2event = {
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
+					$(document).off('keydown', grid_keydown).on('keydown', grid_keydown);
 				}
-				$(document).off('keydown').on('keydown', grid_keydown);
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
 			finalizeDoClick();
@@ -4277,6 +4277,7 @@ $.w2event = {
 * == NICE TO HAVE ==
 *	- when maximized, align the slide down message
 *	- bug: after transfer to another content, message does not work
+* 	- transition should include title, body and buttons, not just body
 *
 ************************************************************************/
 
@@ -6228,8 +6229,8 @@ $.w2event = {
 							if (event.preventDefault) event.preventDefault();
 						}
 					}
-					$(document).off('keydown').on('keydown', sidebar_keydown);
-					$(document).off('keypress').on('keypress', sidebar_keypress );
+					$(document).off('keydown', sidebar_keydown).on('keydown', sidebar_keydown);
+					$(document).off('keypress', sidebar_keypress).on('keypress', sidebar_keypress );
 				}
 			}
 			// event after
