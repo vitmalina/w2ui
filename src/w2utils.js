@@ -873,7 +873,7 @@ $.w2event = {
 			});
 
 		// click anywhere else hides the drop down
-		var hide = function () {
+		function hide () {
 			if (typeof options.onHide == 'function') options.onHide();
 			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);

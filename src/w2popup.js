@@ -8,6 +8,7 @@
 * == NICE TO HAVE ==
 *	- when maximized, align the slide down message
 *	- bug: after transfer to another content, message does not work
+* 	- transition should include title, body and buttons, not just body
 *
 ************************************************************************/
 

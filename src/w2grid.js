@@ -1268,8 +1268,8 @@
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
+					$(document).off('keydown', grid_keydown).on('keydown', grid_keydown);
 				}
-				$(document).off('keydown').on('keydown', grid_keydown);
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
 			finalizeDoClick();

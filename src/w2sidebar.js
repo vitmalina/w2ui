@@ -444,8 +444,8 @@
 							if (event.preventDefault) event.preventDefault();
 						}
 					}
-					$(document).off('keydown').on('keydown', sidebar_keydown);
-					$(document).off('keypress').on('keypress', sidebar_keypress );
+					$(document).off('keydown', sidebar_keydown).on('keydown', sidebar_keydown);
+					$(document).off('keypress', sidebar_keypress).on('keypress', sidebar_keypress );
 				}
 			}
 			// event after
