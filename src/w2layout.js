@@ -12,6 +12,8 @@
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
+*	- html() method is alias for content()
+*	- el(panel) - returns DOM element for the panel
 * 
 ************************************************************************/
 
@@ -106,7 +108,7 @@
 			onShow 		: null,
 			onHide 		: null
 		},
-			
+
 		content: function (panel, data, transition) {
 			var obj = this;
 			var p = this.get(panel);
@@ -151,6 +153,10 @@
 			return true;
 		},
 		
+		html: function (panel, data, transition) {
+			this.content(panel, data, transition);
+		},
+			
 		load: function (panel, url, transition, onLoad) {
 			var obj = this;
 			if (this.get(panel) == null) return false;
@@ -269,6 +275,12 @@
 				}
 			}
 			return null;
+		},
+
+		el: function (panel) {
+			var el = $('#layout_'+ this.name +'_panel_'+ panel +' .w2ui-panel-content');
+			if (el.length != 1) return null;
+			return el[0];
 		},
 
 		initToolbar: function (panel, toolbar) {
