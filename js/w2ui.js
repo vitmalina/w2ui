@@ -2308,7 +2308,7 @@ $.w2event = {
 			// init editable
 			$('#grid_'+ obj.name + '_records .w2ui-editable input').each(function (index, el) {
 				var column = obj.columns[$(el).attr('column')];
-				$(el).w2field(column.editable);
+				if (column && column.editable) $(el).w2field(column.editable);
 			});
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -3003,7 +3003,7 @@ $.w2event = {
 			// resize columns
 			columns.find('table tr:nth-child(1) td').each(function (index, el) {
 				var ind = $(el).attr('col');
-				if (typeof ind != 'undefined') $(el).css('width', obj.columns[ind].sizeCalculated);
+				if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
 				// last column
 				if ($(el).hasClass('w2ui-head-last')) {
 					$(el).css('width', w2utils.sbSize + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
@@ -3021,7 +3021,7 @@ $.w2event = {
 			// resize records
 			records.find('table tr:first-child td').each(function (index, el) {
 				var ind = $(el).attr('col');
-				if (typeof ind != 'undefined') $(el).css('width', obj.columns[ind].sizeCalculated);
+				if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
 				// last column
 				if ($(el).hasClass('w2ui-grid-data-last')) {
 					$(el).css('width', (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
@@ -3030,7 +3030,7 @@ $.w2event = {
 			// resize summary 
 			summary.find('table tr:first-child td').each(function (index, el) {
 				var ind = $(el).attr('col');
-				if (typeof ind != 'undefined') $(el).css('width', obj.columns[ind].sizeCalculated);
+				if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
 				// last column
 				if ($(el).hasClass('w2ui-grid-data-last')) {
 					$(el).css('width', w2utils.sbSize + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
