@@ -406,47 +406,54 @@
 				this.selected = id;
 				// bind up/down arrows
 				if (this.keyboard) {
-					$(document).off('keydown', 'body').on('keydown', 'body', sidebar_keydown);
-					function sidebar_keydown(event) {
-						// trigger event
-						var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-						if (eventData.stop === true) return false;
-						// default behaviour
-						var ind = obj.get(id, true);
-						if (event.keyCode == 13) { // enter
-							obj.toggle(id);
-						}
-						if (event.keyCode == 38) { // up
-							if (ind > 0) { 
-								var nd2 = nd.parent.nodes[ind-1];
-								if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-								obj.doClick(nd2.id, event); 
-								//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-								// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-							}
-							if (event.stopPropagation) event.stopPropagation();
-							if (event.preventDefault) event.preventDefault();
-						}
-						if (event.keyCode == 40) { // down
-							if (ind < nd.parent.nodes.length-1) { 
-								var nd2 = nd.parent.nodes[ind+1];
-								if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-								obj.doClick(nd2.id, event); 
-								//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-								// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-							}
-							if (event.preventDefault) event.preventDefault();
-							if (event.stopPropagation) event.stopPropagation();
-						}
-						// event after
-						obj.trigger($.extend(eventData, { phase: 'after' }));
-					}
+					if (typeof window.w2active != 'undefined') $(document).off('keydown', w2ui[window.w2active].doKeydown)
+					$(document).on('keydown', this.doKeydown);
+					window.w2active = this.name;
+				} else {
+					$(document).off('keydown', this.doKeydown);
 				}
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
+		doKeydown: function (event) {
+			var obj = w2ui[window.w2active];
+			var nd  = obj.get(obj.selected);
+			// trigger event
+			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+			if (eventData.stop === true) return false;
+			// default behaviour
+			var ind = obj.get(obj.selected, true);
+			if (event.keyCode == 13) { // enter
+				obj.toggle(obj.selected);
+			}
+			if (event.keyCode == 38) { // up
+				if (ind > 0) { 
+					var nd2 = nd.parent.nodes[ind-1];
+					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
+					obj.doClick(nd2.id, event); 
+					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+				}
+				if (event.stopPropagation) event.stopPropagation();
+				if (event.preventDefault) event.preventDefault();
+			}
+			if (event.keyCode == 40) { // down
+				if (ind < nd.parent.nodes.length-1) { 
+					var nd2 = nd.parent.nodes[ind+1];
+					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
+					obj.doClick(nd2.id, event); 
+					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+				}
+				if (event.preventDefault) event.preventDefault();
+				if (event.stopPropagation) event.stopPropagation();
+			}
+			// event after
+			obj.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
 		doDblClick: function (id, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
@@ -643,7 +650,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// remove events
-			$(document).off('keydown', 'body');
+			$(document).off('keydown', this.doKeydown);
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 				$(this.box)
