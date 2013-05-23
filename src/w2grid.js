@@ -2225,10 +2225,12 @@
 		getColumnsHTML: function () {
 			var obj  = this;
 			var html = '';
-			if (this.show.columnHeaders && this.columnGroups.length > 0) {
-				html = getColumns(true) + getGroups() + getColumns(false);
-			} else {
-				html = getColumns(true);
+			if (this.show.columnHeaders) {
+				if (this.columnGroups.length > 0) {
+					html = getColumns(true) + getGroups() + getColumns(false);
+				} else {
+					html = getColumns(true);
+				}
 			}
 			return html;
 
