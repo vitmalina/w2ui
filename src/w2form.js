@@ -134,7 +134,7 @@
 			w2ui[object.name] = object;
 			// render if not loaded from url
 			if (object.formURL == '') {
-				if ($(this).find('.w2ui-page').length == 0) object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
+				if (String(object.formHTML).indexOf('w2ui-page') == -1) object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
 				object.init(this);
 				object.render($(this)[0]);
 			}
@@ -682,6 +682,7 @@
 
 		refresh: function () {
 			var obj = this;
+			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
 			if (eventData.stop === true) return false;
@@ -699,7 +700,7 @@
 			// refresh values of all fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				field.el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')[0];
+				field.el = $(this.box).find('[name='+ String(field.name).replace(/\\/g, '\\\\') +']')[0];
 				if (typeof field.el == 'undefined') {
 					console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
 					//return;
