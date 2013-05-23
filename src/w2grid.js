@@ -15,10 +15,14 @@
 * 	- resize needs to be revisited without resizing each div
 *	- hints for records
 *	- more events in editable fields (onkeypress)
+*	- navigation with keybaord wrong if there are summary records
+*	- 50 columns resize 2% - margin of error is huge
+*	- grid.resize should not hide expanded columns
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
 *	- added onKeyboard event
+* 	- refresh() and resize() returns number of milliseconds it took
 *
 ************************************************************************/
 
@@ -314,7 +318,7 @@
 					}
 				}
 			}
-			this.resize();
+			this.refresh();
 			return shown;
 		},
 
@@ -328,7 +332,7 @@
 					}
 				}
 			}
-			this.resize();
+			this.refresh();
 			return hidden;
 		},
 
@@ -760,8 +764,9 @@
 		searchClose: function () {
 			if (!this.box) return;
 			if (this.searches.length == 0) return;
+			if (this.toolbar) this.toolbar.uncheck('search-advanced')
 			// hide search
-			$().w2overlay();
+			if ($('#w2ui-overlay .w2ui-grid-searches').length > 0) $().w2overlay();
 		},
 
 		searchShowFields: function (el) {
@@ -865,7 +870,7 @@
 
 		reload: function (callBack) {
 			if (this.url != '') {
-				//this.clear();
+				this.refresh(); // show grid before pulling data
 				this.request('get-records', {}, null, callBack);
 			} else {
 				this.refresh();
@@ -1380,27 +1385,18 @@
 		// --- Common functions
 
 		resize: function () {
-			var tmp_time = (new Date()).getTime();
-			var obj = this;
+			var obj  = this;
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// make sure render records w2name
 			if (!this.box || $(this.box).data('w2name') != this.name) return;
 			// determine new width and height
-			$(this.box).find('> div').width($(this.box).width()).height($(this.box).height());
+			$(this.box).find('> div')
+				.css('width', $(this.box).width())
+				.css('height', $(this.box).height());
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.stop === true) return false;
-			// -- body (need this for hide/show columns to work)
-			var bodyHTML = '';
-			bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
-						'	onscroll="var obj = w2ui[\''+ this.name + '\']; obj.last.scrollTop = this.scrollTop; obj.last.scrollLeft = this.scrollLeft; '+
-						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft">'+
-						'	<table>'+ this.getRecordsHTML() +'</table>'+
-						'</div>'+
-						'<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
-						'	<table>'+ this.getColumnsHTML() +'</table>'+
-						'</div>'; // Columns need to be after to be able to overlap
-			$('#grid_'+ this.name +'_body').html(bodyHTML);
 			// resize
 			obj.resizeBoxes(); 
 			obj.resizeRecords();
@@ -1411,12 +1407,12 @@
 			});
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 
 		refresh: function () {
-			var obj = this;
-			var tmp_time = (new Date()).getTime();
-
+			var obj  = this;
+			var time = (new Date()).getTime();
 			// if over the max page, then go to page 1
 			var totalPages = Math.floor(this.total / this.recordsPerPage);
 			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
@@ -1427,8 +1423,6 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
 			if (eventData.stop === true) return false;
-			// -- make sure search is closed
-			this.searchClose();
 			// -- header
 			if (this.show.header) {
 				$('#grid_'+ this.name +'_header').html(this.header +'&nbsp;').show();
@@ -1437,16 +1431,22 @@
 			}
 			// -- toolbar
 			if (this.show.toolbar) {
-				$('#grid_'+ this.name +'_toolbar').show();
-				// refresh toolbar only once
-				if (typeof this.toolbar == 'object') {
-					this.toolbar.refresh();
-					$('#grid_'+ this.name +'_search_all').val(this.last.search);
+				// if select-collumn is checked - no toolbar refresh
+				if (this.toolbar && this.toolbar.get('column-on-off') && this.toolbar.get('column-on-off').checked) {
+					// no action
+				} else {
+					$('#grid_'+ this.name +'_toolbar').show();
+					// refresh toolbar only once
+					if (typeof this.toolbar == 'object') {
+						this.toolbar.refresh();
+						$('#grid_'+ this.name +'_search_all').val(this.last.search);
+					}
 				}
 			} else {
 				$('#grid_'+ this.name +'_toolbar').hide();
 			}
-
+			// -- make sure search is closed
+			this.searchClose();
 			// search placeholder
 			if (this.searches.length == 0) this.last.field = 'No Search Fields';
 			if (!this.multiSearch && this.last.field == 'all') {
@@ -1474,22 +1474,23 @@
 			// -- body
 			var bodyHTML = '';
 			bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
-						'	onscroll="var obj = w2ui[\''+ this.name + '\']; obj.last.scrollTop = this.scrollTop; obj.last.scrollLeft = this.scrollLeft; '+
-						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft">'+
+						'	onscroll="var obj = w2ui[\''+ this.name + '\']; '+
+						'		obj.last.scrollTop = this.scrollTop; '+
+						'		obj.last.scrollLeft = this.scrollLeft; '+
+						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft;'+
+						'		$(\'#grid_'+ this.name +'_summary\')[0].scrollLeft = this.scrollLeft">'+
 						'	<table>'+ this.getRecordsHTML() +'</table>'+
 						'</div>'+
 						'<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
 						'	<table>'+ this.getColumnsHTML() +'</table>'+
 						'</div>'; // Columns need to be after to be able to overlap
 			$('#grid_'+ this.name +'_body').html(bodyHTML);
-
 			// -- summary
 			if (this.summary != '') {
 				$('#grid_'+ this.name +'_summary').html(this.summary).show();
 			} else {
 				$('#grid_'+ this.name +'_summary').hide();
 			}
-
 			// -- footer
 			if (this.show.footer) {
 				$('#grid_'+ this.name +'_footer').html(this.getFooterHTML()).show();
@@ -1524,12 +1525,14 @@
 			$('#'+ this.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize();
+			obj.resize(); 
+			obj.resizeRecords(); /* no clue why need resizeRecords() here */
+			return (new Date()).getTime() - time;
 		},
 
 		render: function (box) {
-			var obj = this;
-
+			var obj  = this;
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (typeof box != 'undefined' && box != null) {
 				if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
@@ -1563,14 +1566,14 @@
 			// init footer
 			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
-			this.refresh();
+			//this.refresh();
 			this.reload();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
 			this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
 			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
-			setTimeout(function () { obj.resize(); }, 150); // need timer because resize is on timer
+			return (new Date()).getTime() - time;
 		},
 
 		destroy: function () {
@@ -1599,7 +1602,7 @@
 		initColumnOnOff: function () {
 			if (!this.show.toolbarColumns) return;
 			var obj = this;
-			var col_html = '<div class="w2ui-column-on-off">'+
+			var col_html = '<div class="w2ui-col-on-off">'+
 						   '<table>';
 			for (var c in this.columns) {
 				var col = this.columns[c];
@@ -1664,7 +1667,7 @@
 						'</tr></table>';
 					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
-						this.toolbar.items.push({ type: 'button', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
+						this.toolbar.items.push({ type: 'check', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
 					}
 				}
 				if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarSave) {
@@ -1689,7 +1692,7 @@
 				// ------ Toolbar onClick processing
 
 				var obj = this;
-				this.toolbar.on('click', function (id, choice) {
+				this.toolbar.on('click', function (id, data) {
 					switch (id) {
 						case 'refresh':
 							obj.reload();
@@ -1715,7 +1718,17 @@
 							obj.doAdd();
 							break;
 						case 'search-advanced':
-							obj.searchOpen();
+							var tb = this;
+							var it = this.get(id);
+							if (it.checked) {
+								obj.searchClose(); 
+								setTimeout(function () { tb.uncheck(id); }, 1);
+							} else {
+								obj.searchOpen();
+								data.event.stopPropagation();
+								function tmp_close() { tb.uncheck(id); $(document).off('click', 'body', tmp_close); }
+								$(document).on('click', 'body', tmp_close);
+							}
 							break;
 						case 'add-new':
 							obj.doAdd();
@@ -1725,17 +1738,6 @@
 							break;
 						case 'save-changed':
 							obj.doSave();
-							break;
-						default:
-							if (id.substr(0, 7) == 'choice-' && typeof choice != 'object') { // this is done for choices
-								obj.toolbar.set(id, { caption: obj.toolbar.get(id).prepend + choice })
-								if (typeof obj.toolbar.get(id).param == 'function') {
-									obj.toolbar.get(id).param(id, choice);
-								}
-								if (typeof obj.toolbar.get(id).onClick == 'function') {
-									obj.toolbar.get(id).onClick(id, choice);
-								}
-							}
 							break;
 					}
 				});
@@ -1803,16 +1805,12 @@
 			var obj = this;
 			//if (obj.resizing === true) return;
 			$(this.box).find('.w2ui-resizer')
-				.off('mousedown')
 				.off('click')
-				.each(function (index, el) {
-					var td  = $(el).parent();
-					$(el).css({
-						"height" 		: td.height(),
-						"margin-top" 	: '-' + td.height() + 'px',
-						"margin-left" 	: (td.width() - 6) + 'px'
-					})
+				.on('click', function (event) { 
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+					if (event.preventDefault) event.preventDefault();
 				})
+				.off('mousedown')
 				.on('mousedown', function (event) {
 					if (!event) event = window.event;
 					if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
@@ -1848,10 +1846,14 @@
 					$(document).on('mousemove', 'body', mouseMove);
 					$(document).on('mouseup', 'body', mouseUp);
 				})
-				.on('click', function (event) { 
-					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-					if (event.preventDefault) event.preventDefault();
-				});
+				.each(function (index, el) {
+					var td  = $(el).parent();
+					$(el).css({
+						"height" 		: '25px',
+						"margin-left" 	: (td.width() - 3) + 'px'
+					})
+				})
+;
 		},
 
 		resizeBoxes: function () {
@@ -1929,18 +1931,18 @@
 						+ (obj.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
 						+ (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
 						+ (obj.show.footer ? w2utils.getSize(footer, 'height') : 0);
-					grid.height(obj.height);
-					body.height(calculatedHeight);
-					box.height(w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'));
+					grid.css('height', obj.height);
+					body.css('height', calculatedHeight);
+					box.css('height', w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'));
 				}, 1);
-			} else {;
+			} else {
 				// fixed body height
 				var calculatedHeight =  grid.height()
 					- (this.show.header ? w2utils.getSize(header, 'height') : 0)
 					- (this.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
 					- (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
 					- (this.show.footer ? w2utils.getSize(footer, 'height') : 0);
-				body.height(calculatedHeight);
+				body.css('height', calculatedHeight);
 			}
 
 			// check overflow
@@ -1948,16 +1950,19 @@
 			if (body.width() < $(records).find(':first-child').width())   var bodyOverflowX = true; else bodyOverflowX = false;
 			if (!this.fixedBody) { bodyOverflowY = false; bodyOverflowX = false; }
 			if (bodyOverflowX || bodyOverflowY) {
+				columns.find('.w2ui-head-last').css('width', w2utils.sbSize).show();
 				records.css({ 
 					top: ((this.columnGroups.length > 0 ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
 					"-webkit-overflow-scrolling": "touch",
 					"overflow-x": (bodyOverflowX ? 'auto' : 'hidden'), 
 					"overflow-y": (bodyOverflowY ? 'auto' : 'hidden') });
-				$('#grid_'+ this.name +'_cell_header_last').show();
 			} else {
-				records.css({ top: ((this.columnGroups.length > 0 ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px', overflow: 'hidden' });
+				columns.find('.w2ui-head-last').hide();
+				records.css({ 
+					top: ((this.columnGroups.length > 0 ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px', 
+					overflow: 'hidden' 
+				});
 				if (records.length > 0) { this.last.scrollTop  = 0; this.last.scrollLeft = 0; } // if no scrollbars, always show top
-				$('#grid_'+ this.name +'_cell_header_last').hide();
 			}
 			if (this.show.emptyRecords && !bodyOverflowY) {
 				var startWith = 0;
@@ -1977,32 +1982,34 @@
 				}
 				// apply empty records (only makes sense for fixed body)
 				if (this.fixedBody) {
-					var html  = '';
 					for (var di = total; di < 100; di++) {
-						html += '<tr class="w2ui-empty-record '+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + '">';
-						if (this.show.lineNumbers)  html += '<td class="w2ui-number"><div>&nbsp;</div></td>';
-						if (this.show.selectColumn) html += '<td class="w2ui-grid-data w2ui-column-select"><div>&nbsp;</div></td>';
-						if (this.show.expandColumn) html += '<td class="w2ui-grid-data w2ui-expand"><div>&nbsp;</div></td>';
+						var html  = '';
+						html += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record">';
+						if (this.show.lineNumbers)  html += '<td class="w2ui-col-number"></td>';
+						if (this.show.selectColumn) html += '<td class="w2ui-grid-data w2ui-col-select"></td>';
+						if (this.show.expandColumn) html += '<td class="w2ui-grid-data w2ui-col-expand"></td>';
 						var j = 0;
 						while (true) {
-							var col   = this.columns[j];
+							var col = this.columns[j];
 							if (col.hidden) { j++; if (typeof this.columns[j] == 'undefined') break; else continue; }
-							html += '<td class="w2ui-grid-data" '+( di == this.records.length ? 'id="grid_'+ this.name +'_cell_'+ di +'_'+ j +'"' : '') +
-										(typeof col.attr != 'undefined' ? col.attr : '') +'><div></div></td>';
+							html += '<td class="w2ui-grid-data" '+ (typeof col.attr != 'undefined' ? col.attr : '') +' col="'+ j +'"></td>';
 							j++;
 							if (typeof this.columns[j] == 'undefined') break;
 						}
+						html += '<td class="w2ui-grid-data-last"></td>';
 						html += '</tr>';
+						$('#grid_'+ this.name +'_records > table').append(html);
+						// if already overflowing - quit
+						if ($('#grid_'+ this.name +'_records')[0].scrollHeight <= $('#grid_'+ this.name +'_records table').height()) break;
 					}
-					$('#grid_'+ this.name +'_records > table').append(html);
 				}
 			}
 			if (body.length > 0) {
 				var width_max = parseInt(body.width())
-					- (bodyOverflowY ? (String(navigator.userAgent).indexOf('AppleWebKit') > 0 ? 16 : 17) : 0)
-					- (this.show.lineNumbers ? 25 : 0)
-					- (this.show.selectColumn ? 25 : 0)
-					- (this.show.expandColumn ? 25 : 0);
+					- (bodyOverflowY ? w2utils.sbSize : 0)
+					- (this.show.lineNumbers ? 26 : 0)
+					- (this.show.selectColumn ? 26 : 0)
+					- (this.show.expandColumn ? 26 : 0);
 				var width_box = width_max;
 				var percent = 0;
 				// gridMinWidth processiong
@@ -2029,19 +2036,21 @@
 					var col = this.columns[i];
 					if (col.hidden) continue;
 					if (String(col.size).substr(String(col.size).length-2).toLowerCase() == 'px') {
-						width_max -= parseFloat(col.size) + 1; // count in cell border
+						width_max -= parseFloat(col.size);
 						this.columns[i].sizeCalculated = col.size;
+						this.columns[i].sizeType = 'px';
 					} else {
 						percent += parseFloat(col.size);
+						this.columns[i].sizeType = '%';
 						delete col.sizeCorrected;
 					}
 				}
 				// if sum != 100% -- reassign proportionally
-				if (percent != 100) {
+				if (percent != 100 && percent > 0) {
 					for (var i=0; i<this.columns.length; i++) {
 						var col = this.columns[i];
 						if (col.hidden) continue;
-						if (String(col.size).substr(String(col.size).length-2).toLowerCase() != 'px') {
+						if (col.sizeType == '%') {
 							col.sizeCorrected = Math.round(parseFloat(col.size) * 100 * 100 / percent) / 100 + '%';
 						}
 					}
@@ -2050,63 +2059,78 @@
 				for (var i=0; i<this.columns.length; i++) {
 					var col = this.columns[i];
 					if (col.hidden) continue;
-					if (String(col.size).substr(String(col.size).length-2).toLowerCase() != 'px') {
+					if (col.sizeType == '%') {
 						if (typeof this.columns[i].sizeCorrected != 'undefined') {
-							this.columns[i].sizeCalculated = Math.round(width_max * parseFloat(col.sizeCorrected) / 100 - 1) + 'px'; // count in cell border
+							// make it 1px smaller, so margin of error can be calculated correctly
+							this.columns[i].sizeCalculated = Math.floor(width_max * parseFloat(col.sizeCorrected) / 100) - 1 + 'px';
 						} else {
-							this.columns[i].sizeCalculated = Math.round(width_max * parseFloat(col.size) / 100 - 1) + 'px'; // count in cell border
+							// make it 1px smaller, so margin of error can be calculated correctly
+							this.columns[i].sizeCalculated = Math.floor(width_max * parseFloat(col.size) / 100) - 1 + 'px';
 						}
 					}
 				}
 			}
-			// fix error margin which is +/-2px due to percentage calculations
-			var width_cols = 1;
-			var last_col   = null;
+			// fix margin of error that is due percentage calculations
+			var width_cols = 0;
 			for (var i=0; i<this.columns.length; i++) {
 				var col = this.columns[i];
-				if (typeof col.min == 'undefined') col.min = 15;
+				if (col.hidden) continue;
+				if (typeof col.min == 'undefined') col.min = 20;
 				if (parseInt(col.sizeCalculated) < parseInt(col.min)) col.sizeCalculated = col.min + 'px';
 				if (parseInt(col.sizeCalculated) > parseInt(col.max)) col.sizeCalculated = col.max + 'px';
-				if (col.hidden) continue;
-				width_cols += parseFloat(col.sizeCalculated) + 1; // border
-				last_col = col;
+				width_cols += parseInt(col.sizeCalculated); 
 			}
-			var width_diff = parseInt(width_box) - parseInt(width_cols) + 1; // 1 is last border width
-			if ((width_diff > 0) && last_col) {
-				last_col.sizeCalculated = (parseInt(last_col.sizeCalculated) + width_diff) + 'px' ;
-				if (parseInt(last_col.sizeCalculated) < parseInt(last_col.min)) last_col.sizeCalculated = last_col.min + 'px';
-				if (parseInt(last_col.sizeCalculated) > parseInt(last_col.max)) last_col.sizeCalculated = last_col.max + 'px';
-			}
-			// resize HTML table
-			for (var i=0; i<this.columns.length; i++) {
-				var col = this.columns[i];
-				if (col.hidden) continue;
-				var tmp = $('#grid_'+ this.name +'_cell_header_'+ i + ' > div:first-child');
-				tmp.width(col.sizeCalculated);
-				if (tmp.hasClass('w2ui-column-group')) { tmp.find('div').css('padding', '20px 3px'); }
-
-				var startWith = 0;
-				if (this.url == '') { // local data
-					var cnt = this.page * this.recordsPerPage;
-					for (var tt=0; tt<this.records.length; tt++) {
-						if (this.records[tt] && this.records[tt].hidden) continue;
-						cnt--;
-						if (cnt < 0) { startWith = tt; break; }
-					}
+			var width_diff = parseInt(width_box) - parseInt(width_cols);
+			if (width_diff > 0 && percent > 0) {
+				var i = 0;
+				while (true) {
+					var col = this.columns[i];
+					if (typeof col == 'undefined') { i = 0; continue; }
+					if (col.hidden || col.sizeType == 'px0') { i++; continue; }
+					col.sizeCalculated = (parseInt(col.sizeCalculated) + 1) + 'px';
+					width_diff--;
+					if (width_diff == 0) break;
+					i++;
 				}
-				// resize TD ONLY
-				// var td = $(this.box).find('#grid_'+ this.name +'_cell_header_'+ i);
-				// if (td) td.width(parseInt(col.sizeCalculated));
-				// var td = $(this.box).find('#grid_'+ this.name +'_cell_0_'+ i);
-				// if (td) td.width(parseInt(col.sizeCalculated));
-
-				for (var j=startWith; j < 10000; j++) {
-					if (this.records[j] && this.records[j].hidden) { continue; }
-					var cell = $('#grid_'+ this.name+'_cell_'+ j +'_'+ i + ' > div:first-child');
-					if (cell.length == 0) break;
-					cell.width(col.sizeCalculated);
-				}
+			} else if (width_diff > 0) {
+				columns.find('.w2ui-head-last').css('width', w2utils.sbSize).show();
 			}
+			// resize columns
+			columns.find('table tr:nth-child(1) td').each(function (index, el) {
+				var ind = $(el).attr('col');
+				if (typeof ind != 'undefined') $(el).css('width', obj.columns[ind].sizeCalculated);
+				// last column
+				if ($(el).hasClass('w2ui-head-last')) {
+					$(el).css('width', w2utils.sbSize + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+				}
+			});
+			// if there are column groups - hide first row (needed for sizing)
+			if (columns.find('table tr').length == 3) {
+				columns.find('table tr:nth-child(1) td').html('').css({
+					'height'	: '0px',
+					'border'	: '0px',
+					'padding'	: '0px',
+					'margin'	: '0px'
+				});
+			}
+			// resize records
+			records.find('table tr:first-child td').each(function (index, el) {
+				var ind = $(el).attr('col');
+				if (typeof ind != 'undefined') $(el).css('width', obj.columns[ind].sizeCalculated);
+				// last column
+				if ($(el).hasClass('w2ui-grid-data-last')) {
+					$(el).css('width', (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+				}
+			});
+			// resize summary 
+			summary.find('table tr:first-child td').each(function (index, el) {
+				var ind = $(el).attr('col');
+				if (typeof ind != 'undefined') $(el).css('width', obj.columns[ind].sizeCalculated);
+				// last column
+				if ($(el).hasClass('w2ui-grid-data-last')) {
+					$(el).css('width', w2utils.sbSize + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+				}
+			});
 			this.initResize();
 			// apply last scroll if any
 			var columns = $('#grid_'+ this.name +'_columns');
@@ -2194,126 +2218,133 @@
 		},
 
 		getColumnsHTML: function () {
+			var obj  = this;
 			var html = '';
-			if (this.show.columnHeaders) {
-				// -- COLUMN Groups
-				if (this.columnGroups.length > 0) {
-					// add empty group at the end
-					if (this.columnGroups[this.columnGroups.length-1].caption != '') this.columnGroups.push({ caption: '' });
-					
-					html += '<tr>';
-					if (this.show.lineNumbers) {
-						html += '<td id="grid_'+ this.name +'_cell_header_number" class="w2ui-head">'+
-								'	<div>&nbsp;</div>'+
-								'</td>';
-					}
-					if (this.show.selectColumn) {
-						html += '<td id="grid_'+ this.name +'_cell_header_select" class="w2ui-head">'+
-								'	<div>&nbsp;</div>'+
-								'</td>';
-					}
-					if (this.show.expandColumn) {
-						html += '<td id="grid_'+ this.name +'_cell_header_expand" class="w2ui-head">'+
-								'	<div><div>&nbsp;</div></div>'+
-								'</td>';
-					}
-					var ii = 0;
-					for (var i=0; i<this.columnGroups.length; i++) {
-						var colg = this.columnGroups[i];
-						var col  = this.columns[ii];
-						if (typeof colg.span == 'undefined' || colg.span != parseInt(colg.span)) colg.span = 1;
-						if (typeof colg.colspan != 'undefined') colg.span = colg.colspan;
-						if (colg.master === true) {
-							var sortStyle = '';
-							for (var si in this.sortData) {
-								if (this.sortData[si].field == col.field) {
-									if (this.sortData[si].direction == 'asc')  sortStyle = 'w2ui-sort-down';
-									if (this.sortData[si].direction == 'desc') sortStyle = 'w2ui-sort-up';
-								}
-							}
-							var resizer = "";
-							if (col.resizable == true) {
-								resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
-							}
-							html += '<td id="grid_'+ this.name +'_cell_header_'+ ii +'" class="w2ui-head" rowspan="2"'+
-											(col.sortable ? 'onclick="w2ui[\''+ this.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') +'>'+
-									'	<div class="w2ui-column-group"><div class="'+ sortStyle +'">'+
-											(col.caption == '' ? '&nbsp;' : col.caption) +
-									'	</div></div>'+ 
-										resizer +
-									'</td>';
-						} else {
-							html += '<td id="grid_'+ this.name +'_cell_group_header_'+ ii +'" class="w2ui-head" '+
-									'		colspan="'+ (colg.span + (i == this.columnGroups.length-1 ? 1 : 0) ) +'">'+
-									'	<div class="w2ui-column-group"><div>'+
-										(colg.caption == '' ? '&nbsp;' : colg.caption) +
-									'	</div></div>'+
-									'</td>';
-						}
-						ii += colg.span;
-					}
-					html += '</tr>';
-				}
+			if (this.show.columnHeaders && this.columnGroups.length > 0) {
+				html = getColumns(true) + getGroups() + getColumns(false);
+			} else {
+				html = getColumns(true);
+			}
+			return html;
 
-				// COLUMNS
-				html += '<tr>';
-				if (this.show.lineNumbers) {
-					html += '<td id="grid_'+ this.name +'_cell_header_number" class="w2ui-head w2ui-number">'+
+			function getGroups () {
+				var html = '<tr>';
+				// add empty group at the end
+				if (obj.columnGroups[obj.columnGroups.length-1].caption != '') obj.columnGroups.push({ caption: '' });
+
+				if (obj.show.lineNumbers) {
+					html += '<td class="w2ui-head w2ui-col-number">'+
+							'	<div>&nbsp;</div>'+
+							'</td>';
+				}
+				if (obj.show.selectColumn) {
+					html += '<td class="w2ui-head w2ui-col-select">'+
+							'	<div>&nbsp;</div>'+
+							'</td>';
+				}
+				if (obj.show.expandColumn) {
+					html += '<td class="w2ui-head w2ui-col-expand">'+
+							'	<div>&nbsp;</div>'+
+							'</td>';
+				}
+				var ii = 0;
+				for (var i=0; i<obj.columnGroups.length; i++) {
+					var colg = obj.columnGroups[i];
+					var col  = obj.columns[ii];
+					if (typeof colg.span == 'undefined' || colg.span != parseInt(colg.span)) colg.span = 1;
+					if (typeof colg.colspan != 'undefined') colg.span = colg.colspan;
+					if (colg.master === true) {
+						var sortStyle = '';
+						for (var si in obj.sortData) {
+							if (obj.sortData[si].field == col.field) {
+								if (obj.sortData[si].direction == 'asc')  sortStyle = 'w2ui-sort-down';
+								if (obj.sortData[si].direction == 'desc') sortStyle = 'w2ui-sort-up';
+							}
+						}
+						var resizer = "";
+						if (col.resizable == true) {
+							resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
+						}
+						html += '<td class="w2ui-head" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
+										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') +'>'+
+									resizer +
+								'	<div class="w2ui-col-group '+ sortStyle +'">'+
+										(col.caption == '' ? '&nbsp;' : col.caption) +
+								'	</div>'+ 
+								'</td>';
+					} else {
+						html += '<td class="w2ui-head" col="'+ ii + '" '+
+								'		colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'">'+
+								'	<div class="w2ui-col-group">'+
+									(colg.caption == '' ? '&nbsp;' : colg.caption) +
+								'	</div>'+
+								'</td>';
+					}
+					ii += colg.span;
+				}
+				html += '</tr>';	
+				return html;			
+			}
+
+			function getColumns (master) {
+				var html = '<tr>';
+				if (obj.show.lineNumbers) {
+					html += '<td class="w2ui-head w2ui-col-number">'+
 							'	<div>#</div>'+
 							'</td>';
 				}
-				if (this.show.selectColumn) {
-					html += '<td id="grid_'+ this.name +'_cell_header_select" class="w2ui-head w2ui-column-select" '+
+				if (obj.show.selectColumn) {
+					html += '<td class="w2ui-head w2ui-col-select" '+
 							'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	<div>'+
-							'		<input type="checkbox" id="grid_'+ this.name +'_check_all" tabIndex="-1"'+
-							'			onclick="if (this.checked) w2ui[\''+ this.name +'\'].selectPage(); '+
-							'					 else w2ui[\''+ this.name +'\'].selectNone(); '+
+							'		<input type="checkbox" id="grid_'+ obj.name +'_check_all" tabIndex="-1"'+
+							'			onclick="if (this.checked) w2ui[\''+ obj.name +'\'].selectPage(); '+
+							'					 else w2ui[\''+ obj.name +'\'].selectNone(); '+
 							'					 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	</div>'+
 							'</td>';
 				}
-				if (this.show.expandColumn) {
-					html += '<td id="grid_'+ this.name +'_cell_header_expand" class="w2ui-head w2ui-expand">'+
-							'	<div><div>&nbsp;</div></div>'+
+				if (obj.show.expandColumn) {
+					html += '<td class="w2ui-head w2ui-col-expand">'+
+							'	<div>&nbsp;</div>'+
 							'</td>';
 				}
 				var ii = 0;
 				var id = 0;
-				for (var i=0; i<this.columns.length; i++) {
-					var col  = this.columns[i];
+				for (var i=0; i<obj.columns.length; i++) {
+					var col  = obj.columns[i];
 					var colg = {};
 					if (i == id) {
-						id = id + (typeof this.columnGroups[ii] != 'undefined' ? parseInt(this.columnGroups[ii].span) : 0);
+						id = id + (typeof obj.columnGroups[ii] != 'undefined' ? parseInt(obj.columnGroups[ii].span) : 0);
 						ii++;
 					}
-					if (typeof this.columnGroups[ii-1] != 'undefined') var colg = this.columnGroups[ii-1];
+					if (typeof obj.columnGroups[ii-1] != 'undefined') var colg = obj.columnGroups[ii-1];
 					if (col.hidden) continue;
 					var sortStyle = '';
-					for (var si in this.sortData) {
-						if (this.sortData[si].field == col.field) {
-							if (this.sortData[si].direction == 'asc')  sortStyle = 'w2ui-sort-down';
-							if (this.sortData[si].direction == 'desc') sortStyle = 'w2ui-sort-up';
+					for (var si in obj.sortData) {
+						if (obj.sortData[si].field == col.field) {
+							if (obj.sortData[si].direction == 'asc')  sortStyle = 'w2ui-sort-down';
+							if (obj.sortData[si].direction == 'desc') sortStyle = 'w2ui-sort-up';
 						}
 					}
-					if (colg['master'] !== true) { // grouping of columns
+					if (colg['master'] !== true || master) { // grouping of columns
 						var resizer = "";
 						if (col.resizable == true) {
 							resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
 						}
-						html += '<td id="grid_'+ this.name +'_cell_header_'+ i +'" class="w2ui-head" '+
-										(col.sortable ? 'onclick="w2ui[\''+ this.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') + '>'+
-								'	<div><div class="'+ sortStyle +'">'+  
+						html += '<td col="'+ i +'" class="w2ui-head" '+
+										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') + '>'+
+									resizer +
+								'	<div class="'+ sortStyle +'">'+  
 										(col.caption == '' ? '&nbsp;' : col.caption) +
-								'	</div></div>'+ resizer +
+								'	</div>'+ 
 								'</td>';
 					}
 				}
-				html += '<td id="grid_'+ this.name +'_cell_header_last" class="w2ui-head">'+
-						'	<div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></div></td>';
+				html += '<td class="w2ui-head w2ui-head-last"><div>&nbsp;</div></td>';
 				html += '</tr>';
+				return html;
 			}
-			return html;
 		},
 
 		getRecordsHTML: function () {
@@ -2365,7 +2396,7 @@
 			}
 			var id = w2utils.escapeId(record.recid);
 			if (record.selected) {
-				rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" class="w2ui-selected" ' +
+				rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" row="'+ ind +'" line="'+ lineNum +'" class="w2ui-selected" ' +
 						(this.isIOS ?
 							'	onclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
 							:
@@ -2375,7 +2406,7 @@
 						(tmp_color != '' ? 'custom_style="'+ tmp_color +'"' : '')+
 						'>';
 			} else {
-				rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" '+
+				rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" row="'+ ind +'" line="'+ lineNum +'" '+
 							'	class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + '" ' +
 						(this.isIOS ?
 							'	onclick = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
@@ -2387,13 +2418,13 @@
 						'>';
 			}
 			if (this.show.lineNumbers) {
-				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number" valign="top" class="w2ui-number">'+
+				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number" valign="top" class="w2ui-col-number">'+
 						'	<div title="Line #'+ lineNum +'">'+ lineNum +'</div>'+
 						'</td>';
 			}
 			if (this.show.selectColumn) {
 				rec_html += 
-						'<td id="grid_'+ this.name +'_cell_'+ ind +'_select" valign="top" class="w2ui-grid-data w2ui-column-select" '+
+						'<td id="grid_'+ this.name +'_cell_'+ ind +'_select" valign="top" class="w2ui-grid-data w2ui-col-select" '+
 						'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 						'	<div>'+
 						'		<input id="grid_'+ this.name +'_cell_'+ ind +'_select_check" class="grid_select_check" type="checkbox" tabIndex="-1"'+
@@ -2406,7 +2437,7 @@
 			}
 			if (this.show.expandColumn) {
 				rec_html += 
-						'<td id="grid_'+ this.name +'_cell_'+ ind +'_expand" valign="top" class="w2ui-grid-data w2ui-expand">'+
+						'<td id="grid_'+ this.name +'_cell_'+ ind +'_expand" valign="top" class="w2ui-grid-data w2ui-col-expand">'+
 						'	<div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
 						'			onclick="w2ui[\''+ this.name +'\'].doExpand(\''+ record.recid +'\', event); '+
 						'				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
@@ -2458,7 +2489,7 @@
 							'</div>';
 					}
 				}
-				rec_html += '<td class="w2ui-grid-data" valign="top" id="grid_'+ this.name +'_cell_'+ ind +'_'+ col_ind +'" '+
+				rec_html += '<td class="w2ui-grid-data" col="'+ col_ind +'" '+
 							'	style="'+ (typeof col.style != 'undefined' ? col.style : '') +'" '+
 										  (typeof col.attr != 'undefined' ? col.attr : '') +'>'+
 								rec_field +
@@ -2466,6 +2497,7 @@
 				col_ind++;
 				if (typeof this.columns[col_ind] == 'undefined') break;
 			}
+			rec_html += '<td class="w2ui-grid-data-last"></td>';
 			rec_html += '</tr>';
 			return rec_html;
 		},

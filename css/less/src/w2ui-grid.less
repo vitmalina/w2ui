@@ -128,9 +128,6 @@
 
 			table {
 				height: auto;
-				border-spacing: 0px;
-				border-collapse: border-collapse;
-				table-layout: fixed;
 			}
 
 			.w2ui-resizer {
@@ -153,10 +150,6 @@
 			bottom: 0px;
 
 			table {
-				border-spacing: 0px;
-				border-collapse: border-collapse;
-				table-layout: fixed;
-
 				tr {
 					&.w2ui-odd {
 						color: @grid-row-color;
@@ -165,6 +158,9 @@
 							color: @grid-row-hover-color;
 							background-color: @grid-row-hover-background-color;
 						}
+						&.w2ui-empty-record:hover {
+							background-color: @grid-row-odd-background-color;
+						}
 					}
 					&.w2ui-even {
 						color: @grid-row-color;
@@ -172,6 +168,9 @@
 						&:hover {
 							color: @grid-row-hover-color;
 							background-color: @grid-row-hover-background-color;
+						}
+						&.w2ui-empty-record:hover {
+							background-color: @grid-row-even-background-color;
 						}
 					}
 					&.w2ui-selected {
@@ -190,27 +189,24 @@
 
 		// this table CSS for both columns and records
 		table {
+			border-spacing: 0px;
+			border-collapse: collapse;
+			table-layout: fixed;
+			width: 1px; // otherwise auto and does not work
 
 			.w2ui-head {
 				margin: 0px;
 				padding: 0px;
 				border-right: @grid-headers-border;
 				border-bottom: @grid-headers-border;
+				color: @grid-headers-color;
+				.linear-gradient-vertical(@grid-headers-linear-gradient-start, @grid-headers-linear-gradient-end);
 
 				> div {
-					padding: 0px 3px;
-					color: @grid-headers-color;
-					.linear-gradient-vertical(@grid-headers-linear-gradient-start, @grid-headers-linear-gradient-end);
-
-					> div {
-						padding: 7px 0px;						
-						white-space: nowrap;
-						text-overflow: ellipsis;
-						overflow: hidden;
-					}
-				}
-				&.w2ui-number > div {
 					padding: 7px 3px;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					overflow: hidden;
 				}
 			}
 
@@ -218,9 +214,9 @@
 				border-right: @grid-row-border-right;
 				border-bottom: @grid-row-border-bottom;
 				cursor: default;
+				overflow: hidden;
 
 				&.w2ui-grid-data {
-					cursor: default;
 					height: 22px; 
 					margin: 0px;
 					padding: 0px;
@@ -244,59 +240,33 @@
 				}
 			}
 
-			.w2ui-number {
-				padding: 0px;
-				margin: 0px;
-				text-align: center;
-				font-size: 10px;
+			.w2ui-col-number {
+				width: 26px;
 				color: @grid-row-number-color;
 				background-color: @grid-row-number-background-color;
-
 				div {
-					padding: 6px 0px;
-					cursor: default; 
-					overflow: hidden; 
-					width: 24px; 
+					padding: 7px 0px;
 					text-align: center;
 				}
 			}
 
-			.w2ui-column-select {
+			.w2ui-col-select {
+				width: 26px;
 				div {
-					cursor: default; 
+					padding: 7px 0px;
 					text-align: center; 
-					overflow: hidden; 
-					width: 24px; 
-					padding: 0px; 
-					padding-bottom: 1px;
-					margin: 0px;
-					margin-top: -3px; //* needed for Opera on Mac */
-				}
-
-				input {
-					display: inline-block; 
-					margin: 0px; 
-					padding: 0px;
-				}
-
-				input[type=checkbox] {
-					margin: 3px 1px; //* needed for Opera on Mac */
-				}
-
-				&.w2ui-head > div {
-					margin-top: 0px;
-				}
-
-				&.w2ui-head input {
-					margin: 6px 5px;
+					overflow: hidden;
+					input[type=checkbox] {
+						//margin: 3px 1px; //* needed for Opera on Mac */
+						position: relative;
+					}
 				}
 			}
 
-			.w2ui-expand {
+			.w2ui-col-expand {
+				width: 26px;
 				div {
-					cursor: default; 
-					overflow: hidden; 
-					width: 24px;
+					padding: 7px 0px;
 					text-align: center;
 					font-weight: bold;
 				}
@@ -306,7 +276,6 @@
 		.w2ui-sort-up {
 			.background-image(@image-sort-up, no-repeat, center, right, ~"!important");
 			height: auto !important; 
-			cursor: default; 
 			width: 100%; 
 			overflow: hidden;
 		}
@@ -314,12 +283,11 @@
 		.w2ui-sort-down {
 			.background-image(@image-sort-down, no-repeat, center, right, ~"!important");
 			height: auto !important; 
-			cursor: default; 
 			width: 100%; 
 			overflow: hidden;
 		}
 
-		& .w2ui-column-group > div { 
+		& .w2ui-col-group { 
 			text-align: center;
 		}
 	} 
@@ -356,10 +324,6 @@
 
 		table {
 			color: @grid-summary-color;
-			border-spacing: 0px;
-			border-collapse: border-collapse;
-			table-layout: fixed;
-
 			.w2ui-odd {
 				background-color: @grid-summary-odd-background-color;
 			}
@@ -480,7 +444,7 @@
 	}
 }
 
-.w2ui-overlay .w2ui-column-on-off {
+.w2ui-overlay .w2ui-col-on-off {
 	padding: 2px 0px; 
 	table {
 		border-spacing: 0px;

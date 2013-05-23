@@ -479,6 +479,32 @@
 					$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');					
 				}
 
+				if (it.type == 'drop' || it.type == 'menu') {
+					if (it.checked) {
+						// if it was already checked, second click will hide it
+						it.checked = false;
+					} else {
+						// show overlay
+						setTimeout(function () {
+							var w = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).width();
+							if (!$.isPlainObject(it.overlay)) it.overlay = {};
+							$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, $.extend({ left: (w-50)/2, top: 3 }, it.overlay));
+							// window.click to hide it
+							$(document).on('click', hideDrop);
+							function hideDrop() {
+								it.checked = !it.checked;
+								if (it.checked) {
+									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+								} else {
+									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
+								}
+								obj.refresh(it.id);
+								$(document).off('click', hideDrop);
+							}
+						}, 1);
+					}
+				}
+
 				if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
 					it.checked = !it.checked;
 					if (it.checked) {
@@ -486,27 +512,6 @@
 					} else {
 						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
 					}
-				}
-
-				if (it.type == 'drop' || it.type == 'menu') {
-					// show overlay
-					setTimeout(function () {
-						var w = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).width();
-						if (!$.isPlainObject(it.overlay)) it.overlay = {};
-						$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, $.extend({ left: (w-50)/2, top: 3 }, it.overlay));
-						// window.click to hide it
-						$(document).on('click', hideDrop);
-						function hideDrop() {
-							it.checked = !it.checked;
-							if (it.checked) {
-								$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
-							} else {
-								$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
-							}
-							obj.refresh(it.id);
-							$(document).off('click', hideDrop);
-						}
-					}, 1);
 				}
 				// event after
 				this.trigger($.extend({ phase: 'after' }));	

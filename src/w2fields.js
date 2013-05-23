@@ -418,8 +418,8 @@
 						}
 						// init defaults
 						var defaults = {
-							url				: '',
-							base64			: true,	// if true max file size is 20mb
+							url				: '', 	// not yet implemented
+							base64			: true,	// if true max file size is 20mb (only tru for now)
 							hint			: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
 							max 			: 0,	// max number of files, 0 - unlim
 							maxSize			: 0, 	// max size of all files, 0 - unlim
@@ -430,8 +430,8 @@
 							onItemDblClick	: null,
 							onItemOver		: null,
 							onItemOut		: null,
-							onProgress		: null,
-							onComplete		: null
+							onProgress		: null,	// not yet implemented
+							onComplete		: null	// not yet implemented
 						}
 						var obj	= this;
 						var settings = $.extend({}, defaults, options);

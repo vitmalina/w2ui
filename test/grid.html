@@ -52,10 +52,11 @@ $(function () {
 			{ field: 'sdate', caption: 'Date', type: 'date' }
 		],
 		sortData: [ { field: 'recid', direction: 'asc' } ],
-		columnGroups1: [
+		columnGroups: [
 			{ caption: '', span: 1 },
 			{ caption: 'General Information', span: 2},
 			{ caption: 'Email', span: 1, master: true },
+			{ caption: 'Text', span: 1, master: true },
 			{ caption: 'Important Dates', span: 3 }
 		],
 		columns: [				
@@ -64,9 +65,9 @@ $(function () {
 			{ field: 'person.fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
 			{ field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true,
 				editable: { type: 'text' }},
+			{ field: 'text', caption: 'Text', size: '50%', resizable: true },
 			{ field: 'sdate', caption: 'Start Date', size: '120px', resizable: true, searchable: 'date', 
 				editable: { type: 'date', format: 'mm/dd/yyyy', style: 'style="background-color: red"' } },
-			{ field: 'text', caption: 'Text', size: '50%', resizable: true },
 			{ field: 'sdate', caption: 'End Date', size: '120px', resizable: true },
 			{ field: 'sdate', caption: 'Release Date', size: '120px', resizable: true },
 		]		
@@ -77,10 +78,10 @@ $(function () {
 
 	var tmp = $('.test tr').html();
 	for (var i=0; i<50; i++) $('.test').append('<tr>' + tmp + '</tr>');
-	$('table.test').css('width', '400px');
-	$('table.test tr:first-child td:nth-child(1)').css('width', '50px');
-	$('table.test tr:first-child td:nth-child(2)').css('width', '250px');
-	$('table.test tr:first-child td:nth-child(3)').css('width', '100px');
+	$('table.test').css('width', '600px');
+	//$('table.test tr:first-child td:nth-child(1)').css('width', '50px');
+	//$('table.test tr:first-child td:nth-child(2)').css('width', '250px');
+	//$('table.test tr:first-child td:nth-child(3)').css('width', '100px');
 });
 </script>
 </head>
@@ -88,46 +89,5 @@ $(function () {
 	<div id="grid" style="width: 100%; height: 500px;"></div>
 	<br>
 	<input type="button" value="destroy" onclick="$().w2destroy('grid');">
-	<br>
-	<br>
-	<style>
-		.div {
-			box-sizing: border-box;
-			width: 400px;
-			height: 160px;
-			overflow-y: auto;
-			overflow-x: hidden;
-		}
-		
-		.div * {
-			box-sizing: border-box;
-		}
-
-		table.test {
-			border-collapse: collapse;
-			table-layout: fixed;
-			width: 100%; /* need this otherwise it is auto */
-		}
-		table.test td {
-			padding: 0px;
-			border: 1px solid red;
-			-- overflow: hidden;
-		}
-		table.test td > div:first-child {
-			padding: 2px 4px;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-		}
-	</style>
-	<div class="div">
-		<table class="test">
-		<tr>
-			<td><div>First column</div></td>
-			<td><div>Some very long text that needs to be wrapped. First column</div></td>
-			<td><div>Last column</div></td>
-		</tr>
-		</table>
-	</div>
 </body>
 </html>

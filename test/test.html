@@ -1,24 +1,80 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui-1.2.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.css" /> 
 <script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../js/w2ui-1.2.js"></script>
+<script type="text/javascript" src="../js/w2ui.js"></script>
+<script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
 $(function () {
-	$('#layout').w2layout({
-		name: 'main_layout',
-		panels: [
-			{ type: 'top', size: 60, resizable: true },
-			{ type: 'left', size: 150, resizable: true },
-			{ type: 'main' },
-			{ type: 'right', size: 150, resizable: true },
-			{ type: 'bottom', size: 60, resizable: true }
+	$('#grid').w2grid({ 
+		name: 'grid', 
+		columnGroups: [
+			{ caption: 'General', span: 10 },
+			{ caption: 'Additional', span: 10 },
+			{ caption: 'More', span: 10 },
+			{ caption: 'Extra', span: 10 },
+			{ caption: 'Lastly', span: 10 },
+		],
+		columns: [				
+			{ field: 'col1', caption: '1', size: '2%', min: 1 },
+			{ field: 'col2', caption: '2', size: '2%', min: 1 },
+			{ field: 'col3', caption: '3', size: '2%', min: 1 },
+			{ field: 'col4', caption: '4', size: '2%', min: 1 },
+			{ field: 'col5', caption: '5', size: '2%', min: 1 },
+			{ field: 'col6', caption: '6', size: '2%', min: 1 },
+			{ field: 'col7', caption: '7', size: '2%', min: 1 },
+			{ field: 'col8', caption: '8', size: '2%', min: 1 },
+			{ field: 'col9', caption: '9', size: '2%', min: 1 },
+			{ field: 'col10', caption: '10', size: '2%', min: 1 },
+			{ field: 'col11', caption: '11', size: '2%', min: 1 },
+			{ field: 'col12', caption: '12', size: '2%', min: 1 },
+			{ field: 'col13', caption: '13', size: '2%', min: 1 },
+			{ field: 'col14', caption: '14', size: '2%', min: 1 },
+			{ field: 'col15', caption: '15', size: '2%', min: 1 },
+			{ field: 'col16', caption: '16', size: '2%', min: 1 },
+			{ field: 'col17', caption: '17', size: '2%', min: 1 },
+			{ field: 'col18', caption: '18', size: '2%', min: 1 },
+			{ field: 'col19', caption: '19', size: '2%', min: 1 },
+			{ field: 'col20', caption: '20', size: '2%', min: 1 },
+			{ field: 'col21', caption: '21', size: '2%', min: 1 },
+			{ field: 'col22', caption: '22', size: '2%', min: 1 },
+			{ field: 'col23', caption: '23', size: '2%', min: 1 },
+			{ field: 'col24', caption: '24', size: '2%', min: 1 },
+			{ field: 'col25', caption: '25', size: '2%', min: 1 },
+			{ field: 'col26', caption: '26', size: '2%', min: 1 },
+			{ field: 'col27', caption: '27', size: '2%', min: 1 },
+			{ field: 'col28', caption: '28', size: '2%', min: 1 },
+			{ field: 'col29', caption: '29', size: '2%', min: 1 },
+			{ field: 'col30', caption: '30', size: '2%', min: 1 },
+			{ field: 'col31', caption: '31', size: '2%', min: 1 },
+			{ field: 'col32', caption: '32', size: '2%', min: 1 },
+			{ field: 'col33', caption: '33', size: '2%', min: 1 },
+			{ field: 'col34', caption: '34', size: '2%', min: 1 },
+			{ field: 'col35', caption: '35', size: '2%', min: 1 },
+			{ field: 'col36', caption: '36', size: '2%', min: 1 },
+			{ field: 'col37', caption: '37', size: '2%', min: 1 },
+			{ field: 'col38', caption: '38', size: '2%', min: 1 },
+			{ field: 'col39', caption: '39', size: '2%', min: 1 },
+			{ field: 'col40', caption: '40', size: '2%', min: 1 },
+			{ field: 'col41', caption: '41', size: '2%', min: 1 },
+			{ field: 'col42', caption: '42', size: '2%', min: 1 },
+			{ field: 'col43', caption: '43', size: '2%', min: 1 },
+			{ field: 'col44', caption: '44', size: '2%', min: 1 },
+			{ field: 'col45', caption: '45', size: '2%', min: 1 },
+			{ field: 'col46', caption: '46', size: '2%', min: 1 },
+			{ field: 'col47', caption: '47', size: '2%', min: 1 },
+			{ field: 'col48', caption: '48', size: '2%', min: 1 },
+			{ field: 'col49', caption: '49', size: '2%', min: 1 },
+			{ field: 'col50', caption: '50', size: '2%', min: 1 }
+		],
+		records: [
+			{ recid: 1, col1: '1', col2: '2', col3: '3', col4: '4', col5: '5', col6: 'Long text' }
 		]
-	});	
+	});
 })
 </script>
-<body style="margin: 0px;">
-    <div id="layout" style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 20%;">
+<body>
+    <div id="grid" style="height: 500px; border: 1px solid silver">
     </div>
 </body>
 </html>
