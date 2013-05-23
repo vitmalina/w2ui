@@ -2116,63 +2116,11 @@ $.w2event = {
 			}
 			// bind up/down arrows
 			if (this.keyboard) {
-				// enclose some vars
-				$(document).off('keydown', 'body').on('keydown', 'body', grid_keydown);
-				function grid_keydown(event) {
-					// trigger event
-					var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-					if (eventData.stop === true) return false;
-					// default behavior
-					if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
-						obj.selectPage();
-						if (event.preventDefault) event.preventDefault();
-					}
-					if (event.keyCode == 8) {
-						obj.doDelete();
-						if (event.preventDefault) event.preventDefault();
-					}
-					var sel = obj.getSelection();
-					if (sel.length == 1) {
-						var recid = sel[0];
-						var ind   = obj.get(recid, true);
-						var sTop	= parseInt($('#grid_'+ obj.name +'_records').prop('scrollTop'));
-						var sHeight = parseInt($('#grid_'+ obj.name +'_records').height());
-						if (event.keyCode == 38) { // up
-							if (ind > 0) {
-								ind--;
-								while (ind > 0 && obj.records[ind].hidden === true) ind--;
-								obj.selectNone();
-								obj.doClick(obj.records[ind].recid, event);
-								// scroll into view
-								var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
-								var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
-								if (rTop < sTop) {
-									$('#grid_'+ obj.name +'_records').prop('scrollTop', rTop - rHeight * 0.7);
-									obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
-								}
-							}
-							if (event.preventDefault) event.preventDefault();
-						}
-						if (event.keyCode == 40) { // down
-							if (ind + 1 < obj.records.length) {
-								ind++;
-								while (ind + 1 < obj.records.length && obj.records[ind].hidden === true) ind++;
-								obj.selectNone();
-								obj.doClick(obj.records[ind].recid, event);
-								// scroll into view
-								var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
-								var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
-								if (rTop + rHeight > sHeight + sTop) {
-									$('#grid_'+ obj.name +'_records').prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight * 0.7);
-									obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
-								}
-							}
-							if (event.preventDefault) event.preventDefault();
-						}
-						// event after
-						obj.trigger($.extend(eventData, { phase: 'after' }));
-					}
-				}
+				if (typeof window.w2active != 'undefined') $(document).off('keydown', w2ui[window.w2active].doKeydown)
+				$(document).on('keydown', this.doKeydown);
+				window.w2active = this.name;
+			} else {
+				$(document).off('keydown', this.doKeydown);
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
 			finalizeDoClick();
@@ -2188,6 +2136,63 @@ $.w2event = {
 				}
 				$('#'+ obj.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
 			}  
+		},
+
+		doKeydown: function (event) {
+			var obj = w2ui[window.w2active];
+			// trigger event
+			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+			if (eventData.stop === true) return false;
+			// default behavior
+			if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
+				obj.selectPage();
+				if (event.preventDefault) event.preventDefault();
+			}
+			if (event.keyCode == 8) {
+				obj.doDelete();
+				if (event.preventDefault) event.preventDefault();
+			}
+			var sel = obj.getSelection();
+			if (sel.length == 1) {
+				var recid = sel[0];
+				var ind   = obj.get(recid, true);
+				var sTop	= parseInt($('#grid_'+ obj.name +'_records').prop('scrollTop'));
+				var sHeight = parseInt($('#grid_'+ obj.name +'_records').height());
+				if (event.keyCode == 38) { // up
+					if (ind > 0) {
+						ind--;
+						while (ind > 0 && obj.records[ind].hidden === true) ind--;
+						obj.selectNone();
+						obj.doClick(obj.records[ind].recid, event);
+						// scroll into view
+						var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
+						var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
+						if (rTop < sTop) {
+							$('#grid_'+ obj.name +'_records').prop('scrollTop', rTop - rHeight * 0.7);
+							obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
+						}
+					}
+					if (event.preventDefault) event.preventDefault();
+				}
+				if (event.keyCode == 40) { // down
+					if (ind + 1 < obj.records.length) {
+						ind++;
+						while (ind + 1 < obj.records.length && obj.records[ind].hidden === true) ind++;
+						obj.selectNone();
+						obj.doClick(obj.records[ind].recid, event);
+						// scroll into view
+						var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
+						var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
+						if (rTop + rHeight > sHeight + sTop) {
+							$('#grid_'+ obj.name +'_records').prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight * 0.7);
+							obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
+						}
+					}
+					if (event.preventDefault) event.preventDefault();
+				}
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}
 		},
 
 		doDblClick: function (recid, event) {
@@ -2482,7 +2487,7 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 			// remove events
 			$(window).off('resize', this.tmp_resize);
-			$(document).off('keydown', 'body');
+			$(document).off('keydown', this.doKeydown);
 			// clean up
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
 			if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
@@ -6253,47 +6258,54 @@ $.w2event = {
 				this.selected = id;
 				// bind up/down arrows
 				if (this.keyboard) {
-					$(document).off('keydown', 'body').on('keydown', 'body', sidebar_keydown);
-					function sidebar_keydown(event) {
-						// trigger event
-						var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-						if (eventData.stop === true) return false;
-						// default behaviour
-						var ind = obj.get(id, true);
-						if (event.keyCode == 13) { // enter
-							obj.toggle(id);
-						}
-						if (event.keyCode == 38) { // up
-							if (ind > 0) { 
-								var nd2 = nd.parent.nodes[ind-1];
-								if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-								obj.doClick(nd2.id, event); 
-								//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-								// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-							}
-							if (event.stopPropagation) event.stopPropagation();
-							if (event.preventDefault) event.preventDefault();
-						}
-						if (event.keyCode == 40) { // down
-							if (ind < nd.parent.nodes.length-1) { 
-								var nd2 = nd.parent.nodes[ind+1];
-								if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-								obj.doClick(nd2.id, event); 
-								//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-								// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-							}
-							if (event.preventDefault) event.preventDefault();
-							if (event.stopPropagation) event.stopPropagation();
-						}
-						// event after
-						obj.trigger($.extend(eventData, { phase: 'after' }));
-					}
+					if (typeof window.w2active != 'undefined') $(document).off('keydown', w2ui[window.w2active].doKeydown)
+					$(document).on('keydown', this.doKeydown);
+					window.w2active = this.name;
+				} else {
+					$(document).off('keydown', this.doKeydown);
 				}
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
+		doKeydown: function (event) {
+			var obj = w2ui[window.w2active];
+			var nd  = obj.get(obj.selected);
+			// trigger event
+			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
+			if (eventData.stop === true) return false;
+			// default behaviour
+			var ind = obj.get(obj.selected, true);
+			if (event.keyCode == 13) { // enter
+				obj.toggle(obj.selected);
+			}
+			if (event.keyCode == 38) { // up
+				if (ind > 0) { 
+					var nd2 = nd.parent.nodes[ind-1];
+					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
+					obj.doClick(nd2.id, event); 
+					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+				}
+				if (event.stopPropagation) event.stopPropagation();
+				if (event.preventDefault) event.preventDefault();
+			}
+			if (event.keyCode == 40) { // down
+				if (ind < nd.parent.nodes.length-1) { 
+					var nd2 = nd.parent.nodes[ind+1];
+					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
+					obj.doClick(nd2.id, event); 
+					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
+					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
+				}
+				if (event.preventDefault) event.preventDefault();
+				if (event.stopPropagation) event.stopPropagation();
+			}
+			// event after
+			obj.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
 		doDblClick: function (id, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
@@ -6490,7 +6502,7 @@ $.w2event = {
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
 			if (eventData.stop === true) return false;
 			// remove events
-			$(document).off('keydown', 'body');
+			$(document).off('keydown', this.doKeydown);
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 				$(this.box)
@@ -7756,7 +7768,7 @@ $.w2event = {
 			w2ui[object.name] = object;
 			// render if not loaded from url
 			if (object.formURL == '') {
-				if ($(this).find('.w2ui-page').length == 0) object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
+				if (String(object.formHTML).indexOf('w2ui-page') == -1) object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
 				object.init(this);
 				object.render($(this)[0]);
 			}
@@ -8304,6 +8316,7 @@ $.w2event = {
 
 		refresh: function () {
 			var obj = this;
+			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
 			if (eventData.stop === true) return false;
@@ -8321,7 +8334,7 @@ $.w2event = {
 			// refresh values of all fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				field.el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')[0];
+				field.el = $(this.box).find('[name='+ String(field.name).replace(/\\/g, '\\\\') +']')[0];
 				if (typeof field.el == 'undefined') {
 					console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
 					//return;
