@@ -358,7 +358,7 @@
 				callBack 	= postData;
 				postData 	= null;
 			}
-			if (!$.isPlainObject(postData)) postData = {};
+			if (typeof postData == 'undefined' || postData == null) postData = {};
 			if (!this.url) return;
 			if (this.recid == null || typeof this.recid == 'undefined') this.recid = 0;
 			// build parameters list
@@ -462,7 +462,7 @@
 				params['name'] 	 = obj.name;
 				params['recid']  = obj.recid;
 				// append other params
-				$.extend(params, this.postData);
+				$.extend(params, obj.postData);
 				$.extend(params, postData);
 				params.record = $.extend(true, {}, obj.record);
 				// convert  before submitting 
@@ -700,7 +700,7 @@
 			// refresh values of all fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				field.el = $(this.box).find('[name='+ String(field.name).replace(/\\/g, '\\\\') +']')[0];
+				field.el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')[0];
 				if (typeof field.el == 'undefined') {
 					console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
 					//return;

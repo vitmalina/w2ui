@@ -1,7 +1,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.css" /> 
-<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2form.js"></script>
@@ -11,8 +11,8 @@
 	$(function () {
 		$('#form').w2form({ 
 			name     : 'form',
-			//url      : 'http://w2ui.com/web/index.php',
-			formURL  : 'form-template.html',
+			url      : 'form.php',
+			//formURL  : 'form-template.html',
 			recid    : 4,
 			header   : 'Edit header',
 			style1	 : 'border: 1px solid red;',
@@ -33,7 +33,7 @@
 					options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false } },
 				{ name: 'field.enum', type: 'enum', required: true, 
 					options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-				{ name: 'field.upload', type: 'upload', required: true, 
+				{ name: 'field.upload', type: 'upload', required: false, 
 					options: { base64: true, 
 						onItemDblClick: function(item) { 
 							//console.log('-- click --');
@@ -47,6 +47,10 @@
 				{ name: 'field.text4', type: 'text' },
 				{ name: 'field.text5', type: 'text' },
 			],
+			postData: {
+				a1: 1, 
+				a2: 2
+			},
 			actions: {
 				reset: function () {
 					this.clear();
@@ -77,10 +81,6 @@
 	<div id="form" style="width: 700px; height: 500px;">
 		<div class="w2ui-page page-0">
 			<div class="w2ui-group" style='display: none1'>
-				<div class="w2ui-label">List:</div>
-				<div class="w2ui-field">
-					<select name="field.list1"></select>
-				</div>
 				<div class="w2ui-label">Text:</div>
 				<div class="w2ui-field">
 					<input name="field.text" type="text" maxlength="100" size="60"/>
@@ -105,7 +105,7 @@
 				</div>
 				<div class="w2ui-label">List:</div>
 				<div class="w2ui-field">
-					<select name="field.list2"></select>
+					<select name="field.list"></select>
 				</div>
 			</div>
 			<div class="w2ui-label">Files:</div>
@@ -141,7 +141,7 @@
 			</div>
 		</div>
 
-		<div class="w2ui-buttons" style="position: absolute: bottom: 0px;">
+		<div class="w2ui-buttons">
 			<input type="button" value="Reset" name="reset">
 			<input type="button" value="Save" name="save">
 		</div>
