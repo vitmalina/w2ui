@@ -1010,13 +1010,13 @@ select {
   border-right: 0px;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-number {
-  width: 26px;
+  width: 40px;
   color: #bbbbbb;
   background-color: inherit;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-number div {
-  padding: 7px 0px;
-  text-align: center;
+  padding: 7px 7px 7px 0px;
+  text-align: right;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-select {
   width: 26px;

@@ -993,13 +993,13 @@ select {
   border-right: 0px;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-number {
-  width: 26px;
-  color: #555555;
-  background-color: inherit;
+  width: 40px;
+  color: #777777;
+  background-color: rgba(233, 237, 243, 0.5);
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-number div {
-  padding: 7px 0px;
-  text-align: center;
+  padding: 7px 7px 7px 0px;
+  text-align: right;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-select {
   width: 26px;
