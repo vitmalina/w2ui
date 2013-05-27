@@ -7,6 +7,7 @@
 *
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
+* 	- include delta on save
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object

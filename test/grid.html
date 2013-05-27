@@ -19,14 +19,15 @@ $(function () {
 			footer: true,
 			header: true,
 			columnHeaders: true,
-			selectColumn: true,
+			selectColumn: false,
 			expandColumn: true,
 			lineNumbers: true,
 			toolbarDelete: true,
 			toolbarSave: true,
 			toolbarAdd: true
 		},
-		//recordsPerPage: 5,
+		recordsPerPage: 100,
+		fixedBody: false,
 		//fixedRecord: false,
 		toolbar: {
 			items: [
@@ -51,8 +52,8 @@ $(function () {
 			{ field: 'text', caption: 'Text' },
 			{ field: 'sdate', caption: 'Date', type: 'date' }
 		],
-		sortData: [ { field: 'recid', direction: 'asc' } ],
-		columnGroups: [
+		//sortData: [ { field: 'recid', direction: 'asc' } ],
+		columnGroups1: [
 			{ caption: '', span: 1 },
 			{ caption: 'General Information', span: 2},
 			{ caption: 'Email', span: 1, master: true },
@@ -61,27 +62,60 @@ $(function () {
 		],
 		columns: [				
 			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true, searchable: 'int' },
-			{ field: 'person.lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true },
-			{ field: 'person.fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
-			{ field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true,
-				editable: { type: 'text' }},
-			{ field: 'text', caption: 'Text', size: '50%', resizable: true },
-			{ field: 'sdate', caption: 'Start Date', size: '120px', resizable: true, searchable: 'date', 
-				editable: { type: 'date', format: 'mm/dd/yyyy', style: 'style="background-color: red"' } },
-			{ field: 'sdate', caption: 'End Date', size: '120px', resizable: true },
-			{ field: 'sdate', caption: 'Release Date', size: '120px', resizable: true },
-		]		
+			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true },
+			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
+			// { field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true },
+			// { field: 'text',  caption: 'Text1', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
+			// { field: 'text',  caption: 'Text2', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
+			// { field: 'text',  caption: 'Text3', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
+			// { field: 'text',  caption: 'Text4', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
+			// { field: 'text',  caption: 'Text5', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
+			// { field: 'sdate', caption: 'Release Date', size: '120px', resizable: true }
+		],
+		onExpand: function (target, data) {
+			if (w2ui['grid2']) $().w2destroy('grid2');
+			$('#'+data.box_id).w2grid({ 
+				name: 'grid2',
+				fixedBody1: false,
+				style: 'width: 100%; height: 150px; border: 0px; margin-bottom: 3px;',
+				show: { 
+					toolbar: false,
+					footer: false,
+					header: false,
+					columnHeaders: false,
+				},
+				columnGroups: [
+					{ caption: '1', span: 1 },
+					{ caption: '2', span: 1, master: true }
+				],
+				columns: [				
+					{ field: 'recid', caption: 'ID', size: '49px', sortable: true, resizable: true, searchable: 'int' },
+					{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true },
+					{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
+				],
+				records: [
+					{ recid: 1, lname: 'Vitali Malinsouski' },
+					{ recid: 2, lname: 'John Cook' }
+				]
+			});
+		}
 		//getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
 	});
-
-	w2ui['grid'].load('grid.json');
-
-	var tmp = $('.test tr').html();
-	for (var i=0; i<50; i++) $('.test').append('<tr>' + tmp + '</tr>');
-	$('table.test').css('width', '600px');
-	//$('table.test tr:first-child td:nth-child(1)').css('width', '50px');
-	//$('table.test tr:first-child td:nth-child(2)').css('width', '250px');
-	//$('table.test tr:first-child td:nth-child(3)').css('width', '100px');
+	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
+	var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
+	// add 10k records
+	for (var i = 0; i < 50; i++) {
+		w2ui['grid'].records.push({ 
+			recid : i,
+			fname: fname[Math.floor(Math.random() * fname.length)], 
+			lname: lname[Math.floor(Math.random() * lname.length)],
+			email: 'vm@gmail.com', sdate: '1/1/2013'
+		});
+	}
+	w2ui['grid'].total = w2ui.grid.records.length;
+	w2ui.grid.refresh();
+	//console.log(w2ui['grid'].refresh());
+	//w2ui['grid'].load('grid.json');
 });
 </script>
 </head>
