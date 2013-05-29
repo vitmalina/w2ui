@@ -2111,20 +2111,14 @@ $.w2event = {
 			} else if ((record && !tmp_previous) || event.ctrlKey || event.metaKey) {
 				if (record.selected === true) this.unselect(record.recid); else this.select(record.recid);
 			}
-			// bind up/down arrows
-			if (this.keyboard) {
-				if (typeof window.w2active != 'undefined') $(document).off('keydown', w2ui[window.w2active].doKeydown)
-				$(document).on('keydown', this.doKeydown);
-				window.w2active = this.name;
-			} else {
-				$(document).off('keydown', this.doKeydown);
-			}
-			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
 			finalizeDoClick();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 
 			function finalizeDoClick() {
+				// bind up/down arrows
+				if (obj.keyboard) window.w2active = obj.name;
+				if (obj.getSelection().length > 0) obj.toolbar.enable('delete-selected'); else obj.toolbar.disable('delete-selected');
 				// remember last selected
 				obj.last.selected = obj.getSelection();
 				var msgLeft = '';
@@ -2132,6 +2126,8 @@ $.w2event = {
 					msgLeft = obj.last.selected.length + ' selected';
 				}
 				$('#'+ obj.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
+				// keyboard events are added there
+				obj.initResize();
 			}  
 		},
 
@@ -2151,19 +2147,21 @@ $.w2event = {
 			}
 			var sel = obj.getSelection();
 			if (sel.length == 1) {
-				var recid = sel[0];
-				var ind   = obj.get(recid, true);
+				var recid	= sel[0];
+				var ind		= obj.get(recid, true);
+				var rec 	= obj.get(recid);
 				var sTop	= parseInt($('#grid_'+ obj.name +'_records').prop('scrollTop'));
 				var sHeight = parseInt($('#grid_'+ obj.name +'_records').height());
-				if (event.keyCode == 38) { // up
+				var recEL	= $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid));
+				if (event.keyCode == 38 && recEL.length > 0) { // up
 					if (ind > 0) {
 						ind--;
-						while (ind > 0 && obj.records[ind].hidden === true) ind--;
+						while (ind > 0 && (obj.records[ind].hidden === true || obj.records[ind].summary === true)) ind--;
 						obj.selectNone();
 						obj.doClick(obj.records[ind].recid, event);
 						// scroll into view
-						var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
-						var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
+						var rTop 	= parseInt(recEL[0].offsetTop);
+						var rHeight = parseInt(recEL.height());
 						if (rTop < sTop) {
 							$('#grid_'+ obj.name +'_records').prop('scrollTop', rTop - rHeight * 0.7);
 							obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
@@ -2171,20 +2169,28 @@ $.w2event = {
 					}
 					if (event.preventDefault) event.preventDefault();
 				}
-				if (event.keyCode == 40) { // down
+				if (event.keyCode == 40 && recEL.length > 0) { // down
 					if (ind + 1 < obj.records.length) {
 						ind++;
-						while (ind + 1 < obj.records.length && obj.records[ind].hidden === true) ind++;
+						while (ind + 1 < obj.records.length && (obj.records[ind].hidden === true || obj.records[ind].summary === true)) ind++;
 						obj.selectNone();
 						obj.doClick(obj.records[ind].recid, event);
 						// scroll into view
-						var rTop 	= parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid))[0].offsetTop);
-						var rHeight = parseInt($('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).height());
+						var rTop 	= parseInt(recEL[0].offsetTop);
+						var rHeight = parseInt(recEL.height());
 						if (rTop + rHeight > sHeight + sTop) {
 							$('#grid_'+ obj.name +'_records').prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight * 0.7);
 							obj.last.scrollTop = $('#grid_'+ obj.name +'_records').prop('scrollTop');
 						}
 					}
+					if (event.preventDefault) event.preventDefault();
+				}
+				if (event.keyCode == 37 && recEL.length > 0 && recEL.attr('expanded') == 'yes') { // left
+					obj.doExpand(sel[0], event);
+					if (event.preventDefault) event.preventDefault();
+				}
+				if (event.keyCode == 39 && recEL.length > 0 && recEL.attr('expanded') !== 'yes') { // right
+					obj.doExpand(sel[0], event);
 					if (event.preventDefault) event.preventDefault();
 				}
 				// event after
@@ -2707,6 +2713,13 @@ $.w2event = {
 
 		initResize: function () {
 			var obj = this;
+			// keyboard events
+			if (obj.keyboard && window.w2active == obj.name) {
+				$(document).off('keydown', w2ui[window.w2active].doKeydown)
+				$(document).on('keydown', obj.doKeydown);
+			} else {
+				$(document).off('keydown', obj.doKeydown);
+			}
 			//if (obj.resizing === true) return;
 			$(this.box).find('.w2ui-resizer')
 				.off('click')
@@ -2756,8 +2769,7 @@ $.w2event = {
 						"height" 		: '25px',
 						"margin-left" 	: (td.width() - 3) + 'px'
 					})
-				})
-;
+				});
 		},
 
 		resizeBoxes: function () {
