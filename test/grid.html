@@ -26,8 +26,8 @@ $(function () {
 			toolbarSave: true,
 			toolbarAdd: true
 		},
-		recordsPerPage: 100,
-		fixedBody: false,
+		recordsPerPage: 5000,
+		//fixedBody: false,
 		//fixedRecord: false,
 		toolbar: {
 			items: [
@@ -104,7 +104,7 @@ $(function () {
 	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
 	var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
 	// add 10k records
-	for (var i = 0; i < 50; i++) {
+	for (var i = 0; i < 100; i++) {
 		w2ui['grid'].records.push({ 
 			recid : i,
 			fname: fname[Math.floor(Math.random() * fname.length)], 
@@ -113,7 +113,10 @@ $(function () {
 		});
 	}
 	w2ui['grid'].total = w2ui.grid.records.length;
+	w2ui.grid.records[90].summary = true;
+	w2ui.grid.records[91].summary = true;
 	w2ui.grid.refresh();
+	w2ui.grid.resize();
 	//console.log(w2ui['grid'].refresh());
 	//w2ui['grid'].load('grid.json');
 });
