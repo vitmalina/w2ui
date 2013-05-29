@@ -964,7 +964,7 @@
 			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy' 
 					|| options.format.toLowerCase() == 'dd.mm.yyyy') {
 				var tmp = date.replace(/-/g, '/').replace(/\./g, '/').split('/');
-				var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
+				var dt  = new Date(tmp[2] + '/' + tmp[1] + '/' + tmp[0]);
 			} else {				
 				var dt = new Date(date);
 			}
