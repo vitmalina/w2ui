@@ -11,7 +11,7 @@
 	$(function () {
 		$('#form').w2form({ 
 			name     : 'form',
-			url      : 'form.php',
+			//url      : 'form.php',
 			//formURL  : 'form-template.html',
 			recid    : 4,
 			header   : 'Edit header',
@@ -21,14 +21,14 @@
 				{ id: 'tab2', caption: 'Additional' }
 			],
 			record: {
-				"field.date": '3/15/2013'
+				"field.date": '15/3/2013'
 			},
 			fields: [
 				{ name: 'field.text', type: 'text', required: true },
 				{ name: 'field.alpha', type: 'alphanumeric', required: true },
 				{ name: 'field.int', type: 'int', required: true },
 				{ name: 'field.float', type: 'float', required: true },
-				{ name: 'field.date', type: 'date', options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
+				{ name: 'field.date', type: 'date', options: { format: 'dd/mm/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
 				{ name: 'field.list', type: 'list', required: true, 
 					options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false } },
 				{ name: 'field.enum', type: 'enum', required: true, 

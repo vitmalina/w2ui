@@ -960,14 +960,14 @@
 			var today = (Number(td.getMonth())+1) + '/' + td.getDate() + '/' + (String(td.getYear()).length > 3 ? td.getYear() : td.getYear() + 1900);
 			if (String(date) == '' || String(date) == 'undefined') date = w2utils.formatDate(today, options.format); 
 			if (!w2utils.isDate(date, options.format)) date = w2utils.formatDate(today, options.format);
-			
-			if (options.format.toLowerCase() == 'dd/mm/yyyy' || options.format.toLowerCase() == 'dd-mm-yyyy' 
-					|| options.format.toLowerCase() == 'dd.mm.yyyy') {
-				var tmp = date.replace(/-/g, '/').replace(/\./g, '/').split('/');
-				var dt  = new Date(tmp[2] + '/' + tmp[1] + '/' + tmp[0]);
-			} else {				
-				var dt = new Date(date);
-			}
+			// format date
+			var tmp  = date.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/');
+			var tmp2 = options.format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
+			var dt   = new Date();
+			if (tmp2 == 'mm/dd/yyyy') dt = new Date(tmp[0] + '/' + tmp[1] + '/' + tmp[2]);
+			if (tmp2 == 'dd/mm/yyyy') dt = new Date(tmp[1] + '/' + tmp[0] + '/' + tmp[2]);
+			if (tmp2 == 'yyyy/dd/mm') dt = new Date(tmp[2] + '/' + tmp[1] + '/' + tmp[0]);
+			if (tmp2 == 'yyyy/mm/dd') dt = new Date(tmp[1] + '/' + tmp[2] + '/' + tmp[0]);
 			var html =  '<table cellpadding="0" cellspacing="0"><tr>' +
 						'<td>'+ $().w2field('calendar_month', (dt.getMonth() + 1), dt.getFullYear(), options) +'</td>'+
 						// '<!--td valign="top" style="background-color: #f4f4fe; padding: 8px; padding-bottom: 0px; padding-top: 22px; border: 1px solid silver; border-left: 0px;">'+

@@ -10,6 +10,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
+*	- date has problems in FF new Date('yyyy-mm-dd') breaks
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
@@ -89,27 +90,22 @@ var w2utils = (function () {
 	}
 
 	function isDate (val, format) {
-		if (typeof val == 'undefined' || val == null) return false;
-		if (typeof format == 'undefined' || format == null) format = w2utils.settings.date_format;
-		// European format dd/mm/yyyy
-		if (format.toLowerCase() == 'dd/mm/yyyy' || format.toLowerCase() == 'dd-mm-yyyy' || format.toLowerCase() == 'dd.mm.yyyy') {
-			val = val.replace(/-/g, '/').replace(/\./g, '/');
-			if (val.split("/").length != 3) return false; 
-			var month	= val.split("/")[1];
-			var day		= val.split("/")[0];
-			var year	= val.split("/")[2];
-			var obj = new Date(year, month-1, day);
-			if ((obj.getMonth()+1 != month) || (obj.getDate() != day) || (obj.getFullYear() != year)) return false;
-			return true;
-		}
- 		// US Format will get converted normally
-		var dt = new Date(val.replace(/-/g, '/').replace(/\./g, '/'));
+		if (!val) return false;
+		if (!format) format = w2utils.settings.date_format;
+		// format date
+		var tmp  = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/');
+		var tmp2 = format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
+		var dt   = 'Invalid Date';
+		var month, day, year;
+		if (tmp2 == 'mm/dd/yyyy') { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
+		if (tmp2 == 'dd/mm/yyyy') { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
+		if (tmp2 == 'yyyy/dd/mm') { month = tmp[2]; day = tmp[1]; year = tmp[0]; } 
+		if (tmp2 == 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; } 
+		dt = new Date(month + '/' + day + '/' + year);
+		// do checks
+		if (typeof month == 'undefined') return false;
 		if (dt == 'Invalid Date') return false;
-		// make sure it is in correct format
-		if (typeof format != 'undefined') {
-			var dt = this.formatDate(dt, format);
-			if (dt != val) return false;
-		}
+		if ((dt.getMonth()+1 != month) || (dt.getDate() != day) || (dt.getFullYear() != year)) return false;
 		return true;
 	}
 

@@ -82,8 +82,16 @@ test( "w2utils.isDate()", function() {
 	ok( w2utils.isDate('31/1/2013', 'dd/mm/yyyy') === true, "'31/1/2013', 'dd/mm/yyyy'" );
 	ok( w2utils.isDate('31.1.2013', 'dd.mm.yyyy') === true, "'31.1.2013', 'dd.mm.yyyy'" );
 	ok( w2utils.isDate('31-1-2013', 'dd-mm-yyyy') === true, "'31-1-2013', 'dd-mm-yyyy'" );
+	ok( w2utils.isDate('2013/31/1', 'yyyy/dd/mm') === true, "'2013/31/1', 'yyyy/dd/mm'" );
+	ok( w2utils.isDate('2013.31.1', 'yyyy.dd.mm') === true, "'2013.31.1', 'yyyy.dd.mm'" );
+	ok( w2utils.isDate('2013-31-1', 'yyyy-dd-mm') === true, "'2013-31-1', 'yyyy-dd-mm'" );
+	ok( w2utils.isDate('2013/1/31', 'yyyy/mm/dd') === true, "'2013/1/31', 'yyyy/mm/dd'" );
+	ok( w2utils.isDate('2013.1.31', 'yyyy.mm.dd') === true, "'2013.1.31', 'yyyy.mm.dd'" );
+	ok( w2utils.isDate('2013-1-31', 'yyyy-mm-dd') === true, "'2013-1/-1', 'yyyy-mm-dd'" );
 	ok( w2utils.isDate('2/29/2008', 'mm/dd/yyyy') === true, "'2/29/2008', 'mm/dd/yyyy' - Leap Year" );
 	ok( w2utils.isDate('2/29/2009', 'mm/dd/yyyy') === false,"'2/29/2009', 'mm/dd/yyyy' - Not Leap Year" );
+	ok( w2utils.isDate('24/29/2009', 'mm/dd/yyyy')=== false,"'24/29/2009', Wrong date" );
+	ok( w2utils.isDate('dk4', '') === false,"'dk3', Wrong date" );
 });
 
 test( "w2utils.base64encode(), w2utils.base64decode()", function() {
