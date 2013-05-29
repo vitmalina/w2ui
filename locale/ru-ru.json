@@ -1,5 +1,5 @@
 {
-	"i18n"			: "ru-RU",
+	"locale"		: "ru-RU",
 	"date_format"	: "dd/mm/yyyy",
 	"date_display"	: "Mon dd, yyyy",
 	"time_format"	: "h24:mi",

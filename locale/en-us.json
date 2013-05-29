@@ -1,5 +1,5 @@
 {
-	"i18n"			: "en-US",
+	"locale"		: "en-US",
 	"date_format"	: "mm/dd/yyyy",
 	"date_display"	: "Mon dd, yyyy",
 	"time_format"	: "hh:mi pm",

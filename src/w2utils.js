@@ -11,6 +11,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 * == NICE TO HAVE ==
 *
+* == 1.3 changes ==
+*	- added locale(..., callBack), fixed bugs
+*
 ************************************************/
 
 var w2utils = (function () {
@@ -609,31 +612,24 @@ var w2utils = (function () {
 		if (typeof translation == 'undefined') return phrase; else return translation;
 	}
 
-	function locale (localParam) {
+	function locale (locale, callBack) {
 		var settings = w2utils.settings;
-		var param;
-		if (typeof localParam == 'string') localParam = { lang: localParam };
-		$.extend( { path : '', lang : 'en-us' }, localParam);
-		var result = localParam['lang'].toLowerCase().match(/^([a-z]{2})\-([a-z]{2})$/);
-		if (result !== null && result.length === 3) {
-			param = result[1] + '-' + result[2].toUpperCase();
-			if ( param === settings.locale) {
-				return param;
+		if (typeof locale == 'string') locale = { lang: locale };
+		locale = $.extend({ path : 'locale', lang : 'en-us' }, locale);
+		// load from the file
+		$.ajax({
+			url		: locale.path + '/'+ locale.lang.toLowerCase() +'.json',
+			type	: "GET",
+			dataType: "JSON",
+			cache 	: false,
+			success : function (data, status, xhr) {
+				w2utils.settings = $.extend(true, w2utils.settings, data);
+				if (typeof callBack == 'function') callBack(data);
+			},
+			error	: function (xhr, status, msg) {
+				console.log('ERROR: Cannot load locale '+ settings.lang +' in '+ settings.path);
 			}
-			param = localParam.path + "locale/" + param.toLowerCase() + ".json";
-			$.ajax({
-				url: param,
-				type: "GET",
-				dataType: "json",
-				cache : false,
-				async : false
-				}).done(function( data) {
-					$.extend( settings, data);
-				}).fail(function(jqXHR, textStatus) {
-					alert( "Request failed: " + textStatus );
-				});
-		}
-		return settings.locale;
+		});
 	}
 
 	function scrollBarSize() {

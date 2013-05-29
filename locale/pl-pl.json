@@ -1,5 +1,5 @@
 {
-  "i18n"			: "pl-PL",
+	"locale"		: "pl-PL",
 	"date_format"	: "yyyy-MM-dd",
 	"date_display"	: "Mon dd, yyyy",
 	"time_format"	: "h24:mi",
