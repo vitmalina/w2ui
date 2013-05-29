@@ -12,18 +12,18 @@
 *	- infinite scroll (buffered scroll)
 *	- frozen columns
 *	- column autosize based on largest content
-* 	- resize needs to be revisited without resizing each div
 *	- hints for records
 *	- more events in editable fields (onkeypress)
-*	- navigation with keybaord wrong if there are summary records
-*	- 50 columns resize 2% - margin of error is huge
-*	- grid.resize should not hide expanded columns
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
 *	- added onKeyboard event
 * 	- refresh() and resize() returns number of milliseconds it took
 *	- optimized width distribution and resize
+*	- navigation with keybaord wrong if there are summary records
+*	- 50 columns resize 2% - margin of error is huge
+*	- grid.resize should not hide expanded columns
+* 	- resize needs to be revisited without resizing each div
 *
 ************************************************************************/
 
@@ -1493,7 +1493,7 @@
 						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft;'+
 						'		$(\'#grid_'+ this.name +'_summary\')[0].scrollLeft = this.scrollLeft;'+
 						'		obj.doScroll();">'+
-						'	<table>'+ this.getRecordsHTML(0) +'</table>'+
+						'	<table>'+ this.getRecordsHTML() +'</table>'+
 						'</div>'+
 						'<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
 						'	<table>'+ this.getColumnsHTML() +'</table>'+
@@ -1565,6 +1565,7 @@
 			// insert Elements
 			$(this.box)
 				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-grid')
 				.html('<div>'+
 					  '	<div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
@@ -2367,34 +2368,103 @@
 			}
 		},
 
-		getRecordsHTML_buffered: function (offset) {
+		getRecordsHTML_buffered: function () {
 			if (this.records.length == 0) return;
-			console.log('offset: ' + offset);
-			//var columns = $('#grid_'+ this.name +'_columns');
 			var records	= $('#grid_'+ this.name +'_records');
-			var limit	= Math.floor(records.height()/25) + 21; // add 10 extra records
+			var limit	= Math.floor(records.height() / 25) + 11; // 10 extra records 
+			// always need first record for resizing purposes
 			var html	= this.getRecordHTML(0, 1);
-			for (var i = 1; i < this.total; i++) {
-				//if (i >= offset && i < offset + limit) {
-				//	html += this.getRecordHTML(i, i+1);
-				//} else {
-					html += '<tr id="rec-'+ i +'" style="height: '+ 25 +'px" class="'+ (i % 2 == 0 ? 'w2ui-odd' : 'w2ui-even') +'">'+
-							'	<td colspan="200"></td>'+
-							'</tr>';
-				//}
+			// first empty row with height
+			html += '<tr id="grid_'+ this.name + '_rec_first" style="height: '+ 0 +'px">'+
+					'	<td colspan="200"></td>'+
+					'</tr>';
+			for (var i = 1; i < limit; i++) {
+				html += this.getRecordHTML(i, i+1);
 			}
+			html += '<tr id="grid_'+ this.name + '_rec_last" style="height: '+ ((this.total - limit) * 25) +'px">'+
+					'	<td colspan="200"></td>'+
+					'</tr>';
+			this.last.range_start = 0;
+			this.last.range_end   = limit;
 			return html;
 		},
 
 		doScroll: function (event) {
+			return;
+			if (this.noscroll) return;
 			var time = (new Date()).getTime();
 			var records	= $('#grid_'+ this.name +'_records');
-			var start 	= Math.floor(records[0].scrollTop / 25) - 10;
-			var end		= start + Math.floor(records.height()/25) + 21; // add 10 extra records
-			// for (var i = start; i < end; i++) {
-			// 	$('#rec-'+ i).replaceWith(this.getRecordHTML(i, i+1));
-			// }
-			//console.log((new Date()).getTime() - time);
+			var start 	= Math.floor(records[0].scrollTop / 25) - 5;
+			var end		= start + Math.floor(records.height() / 25) + 11; // add 10 extra records
+			//if (start < 1) start = 1;
+			if ((this.last.range_start >= start && this.last.range_start - start < 5) ||
+				(this.last.range_start < start && start - this.last.range_start < 5)) return;
+			var tr1 = records.find('#grid_'+ this.name +'_rec_first');
+			var tr2 = records.find('#grid_'+ this.name +'_rec_last');
+			var s = parseInt(tr1.next().attr('row'));
+			var e = parseInt(tr2.prev().attr('row'));
+			if (s < start) { // scroll down
+				// remove from top
+				while (true) {
+					var tmp = records.find('#grid_'+ this.name +'_rec_first').next();
+					if (parseInt(tmp.attr('row')) < start) tmp.remove(); else break;
+				}
+				// add at bottom
+				var tmp = records.find('#grid_'+ this.name +'_rec_last').prev();
+				for (var i = (parseInt(tmp.attr('row')) + 1); i < end && i < this.total; i++) {
+					tr2.before(this.getRecordHTML(i, i+1));
+				}
+			} else { // scroll up
+				// remove from bottom
+				while (true) {
+					var tmp = records.find('#grid_'+ this.name +'_rec_last').prev();
+					if (parseInt(tmp.attr('row')) > end) tmp.remove(); else break;
+				}
+				// add at top
+				var tmp = records.find('#grid_'+ this.name +'_rec_first').next();
+				for (var i = (parseInt(tmp.attr('row')) - 1); i > start && i > 0; i--) {
+					tr1.after(this.getRecordHTML(i, i+1));
+				}
+			}
+			// first/last row size
+			var h1 = ((start > 0 ? start : 1) - 1) * 25;
+			var h2 = (this.total - end) * 25;
+			if (h2 < 0) h = 0;
+			tr1.css('height', h1 + 'px');
+			tr2.css('height', h2 + 'px');
+			console.log(h1 + ' = ' + h2);
+
+			this.last.range_start = start;
+			console.log('start:'+ start + ', end:' + end + ' time: ' + ((new Date()).getTime() - time));
+			return;
+
+			// render records
+			for (var i = start; i <= end; i++) {
+				var row = $('#grid_'+ this.name +'_rec_'+ this.records[i].recid);
+				//if (typeof row.attr('row') != 'undefined') continue;
+			 	row.replaceWith(this.getRecordHTML(i, i+1));
+			}
+			// remote out of view records
+			for (var i = this.last.range_start; i <= start; i++) {
+				var row = $('#grid_'+ this.name +'_rec_'+ this.records[i].recid);
+				//if (typeof row.attr('now') != 'undefined') continue;
+				// empty record
+				html  = '<tr id="grid_'+ this.name +'_rec_'+ this.records[i].recid +'" '+
+						'		style="height: '+ 25 +'px" class="'+ (i % 2 == 0 ? 'w2ui-odd' : 'w2ui-even') +'">'+
+						'	<td colspan="200"></td>'+
+						'</tr>';
+				row.replaceWith(html);
+			}
+			for (var i = end; i <= this.last.range_end; i++) {
+				var row = $('#grid_'+ this.name +'_rec_'+ this.records[i].recid);
+				//if (typeof row.attr('now') != 'undefined') continue;
+				// empty record
+				html  = '<tr id="grid_'+ this.name +'_rec_'+ this.records[i].recid +'" '+
+						'		style="height: '+ 25 +'px" class="'+ (i % 2 == 0 ? 'w2ui-odd' : 'w2ui-even') +'">'+
+						'	<td colspan="200"></td>'+
+						'</tr>';
+				row.replaceWith(html);
+			}
 		},
 
 		getRecordsHTML: function () {
