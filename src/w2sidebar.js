@@ -69,7 +69,6 @@
 				object.add(object, nodes); 
 			}
 			if ($(this).length != 0) {
-				$(this).data('w2name', object.name);
 				object.render($(this)[0]);
 			}
 			object.sidebar = object;
@@ -77,8 +76,8 @@
 			w2ui[object.name] = object;
 			return object;
 			
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -486,7 +485,7 @@
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-sidebar')
 						.html('');
 				}
@@ -494,7 +493,7 @@
 			}
 			if (!this.box) return;
 			$(this.box)
-				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-sidebar')
 				.html('<div>'+
 						'<div class="w2ui-sidebar-top"></div>' +
@@ -654,7 +653,7 @@
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-sidebar')
 					.html('');
 			}

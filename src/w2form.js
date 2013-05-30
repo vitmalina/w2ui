@@ -141,8 +141,8 @@
 			}
 			return object;
 		
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -847,7 +847,7 @@
 				// remove from previous box
 				if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-form')
 						.html('');
 				}
@@ -859,7 +859,7 @@
 						this.formHTML +
 						'</div>';
 			$(this.box)
-				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-form')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -897,7 +897,7 @@
 			if (typeof this.tabs == 'object' && this.tabs.destroy) this.tabs.destroy();
 			if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-form')
 					.html('');
 			}

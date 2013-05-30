@@ -14,6 +14,7 @@
 *	- column autosize based on largest content
 *	- hints for records
 *	- more events in editable fields (onkeypress)
+*	- ERROR - in popup text area I hit delete catches with list
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -187,8 +188,8 @@
 			w2ui[object.name] = object;
 			return object;
 
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -1401,8 +1402,8 @@
 			var obj  = this;
 			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			// make sure render records w2name
-			if (!this.box || $(this.box).data('w2name') != this.name) return;
+			// make sure the box is right
+			if (!this.box || $(this.box).attr('name') != this.name) return;
 			// determine new width and height
 			$(this.box).find('> div')
 				.css('width', $(this.box).width())
@@ -1551,7 +1552,7 @@
 			if (typeof box != 'undefined' && box != null) {
 				if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-grid')
 						.html('');
 				}
@@ -1564,7 +1565,6 @@
 			if (eventData.stop === true) return false;
 			// insert Elements
 			$(this.box)
-				.data('w2name', this.name)
 				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-grid')
 				.html('<div>'+
@@ -1602,7 +1602,7 @@
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
 			if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-grid')
 					.html('');
 			}
@@ -2021,7 +2021,7 @@
 						html += '</tr>';
 						$('#grid_'+ this.name +'_records > table').append(html);
 						// if already overflowing - quit
-						if ($('#grid_'+ this.name +'_records')[0].scrollHeight <= $('#grid_'+ this.name +'_records > table').height()) break;
+						if (records.length > 0 && records[0].scrollHeight <= records.find('> table').height()) break;
 					}
 				}
 			}

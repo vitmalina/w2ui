@@ -14,6 +14,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
+*	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
 *
 ************************************************/
 
@@ -224,6 +225,7 @@ var w2utils = (function () {
 	function size (sizeStr) {
 		if (!w2utils.isFloat(sizeStr) || sizeStr == '') return '';
 		sizeStr = parseFloat(sizeStr);
+		if (sizeStr == 0) return 0;
 		var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
 		var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
 		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i == 0 ? 0 : 1) + ' ' + sizes[i];
@@ -737,7 +739,7 @@ $.w2event = {
 	}
 
 	$.fn.w2destroy = function (name) {
-		if (typeof name == 'undefined' && this.length > 0) name = this.data('w2name');
+		if (!name && this.length > 0) name = this.attr('name');
 		if (typeof name == 'string' && w2ui[name]) w2ui[name].destroy();
 		if (typeof name == 'object') name.destroy();
 	}

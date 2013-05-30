@@ -50,16 +50,14 @@
 			
 			for (var i in items) { object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]); }		
 			if ($(this).length != 0) {
-				object.box = $(this)[0];
-				$(this).data('w2name', object.name);
-				object.render();
+				object.render($(this)[0]);
 			}
 			// register new object
 			w2ui[object.name] = object;
 			return object;
 			
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -243,7 +241,7 @@
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-toolbar')
 						.html('');
 				}
@@ -268,7 +266,7 @@
 			html += '</tr>'+
 					'</table>';
 			$(this.box)
-				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-toolbar')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -337,7 +335,7 @@
 			// clean up
 			if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-toolbar')
 					.html('');
 			}
