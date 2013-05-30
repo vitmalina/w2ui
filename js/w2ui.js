@@ -14,6 +14,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
+*	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
 *
 ************************************************/
 
@@ -224,6 +225,7 @@ var w2utils = (function () {
 	function size (sizeStr) {
 		if (!w2utils.isFloat(sizeStr) || sizeStr == '') return '';
 		sizeStr = parseFloat(sizeStr);
+		if (sizeStr == 0) return 0;
 		var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
 		var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
 		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i == 0 ? 0 : 1) + ' ' + sizes[i];
@@ -737,7 +739,7 @@ $.w2event = {
 	}
 
 	$.fn.w2destroy = function (name) {
-		if (typeof name == 'undefined' && this.length > 0) name = this.data('w2name');
+		if (!name && this.length > 0) name = this.attr('name');
 		if (typeof name == 'string' && w2ui[name]) w2ui[name].destroy();
 		if (typeof name == 'object') name.destroy();
 	}
@@ -906,6 +908,8 @@ $.w2event = {
 *	- column autosize based on largest content
 *	- hints for records
 *	- more events in editable fields (onkeypress)
+*	- ERROR - in popup text area I hit delete catches with list
+*	- on/off line number and select column
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -1079,8 +1083,8 @@ $.w2event = {
 			w2ui[object.name] = object;
 			return object;
 
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -2128,6 +2132,7 @@ $.w2event = {
 		},
 
 		doKeydown: function (event) {
+			if (event.target && event.target.tagName != 'BODY') return;
 			var obj = w2ui[window.w2active];
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
@@ -2293,8 +2298,8 @@ $.w2event = {
 			var obj  = this;
 			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			// make sure render records w2name
-			if (!this.box || $(this.box).data('w2name') != this.name) return;
+			// make sure the box is right
+			if (!this.box || $(this.box).attr('name') != this.name) return;
 			// determine new width and height
 			$(this.box).find('> div')
 				.css('width', $(this.box).width())
@@ -2443,7 +2448,7 @@ $.w2event = {
 			if (typeof box != 'undefined' && box != null) {
 				if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-grid')
 						.html('');
 				}
@@ -2456,7 +2461,6 @@ $.w2event = {
 			if (eventData.stop === true) return false;
 			// insert Elements
 			$(this.box)
-				.data('w2name', this.name)
 				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-grid')
 				.html('<div>'+
@@ -2494,7 +2498,7 @@ $.w2event = {
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
 			if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-grid')
 					.html('');
 			}
@@ -2913,7 +2917,7 @@ $.w2event = {
 						html += '</tr>';
 						$('#grid_'+ this.name +'_records > table').append(html);
 						// if already overflowing - quit
-						if ($('#grid_'+ this.name +'_records')[0].scrollHeight <= $('#grid_'+ this.name +'_records > table').height()) break;
+						if (records.length > 0 && records[0].scrollHeight <= records.find('> table').height()) break;
 					}
 				}
 			}
@@ -3665,14 +3669,13 @@ $.w2event = {
 			}
 
 			if ($(this).length > 0) {
-				$(this).data('w2name', object.name);
 				object.render($(this)[0]);
 			}
 			w2ui[object.name] = object;		
 			return object;		
 			
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -3918,7 +3921,7 @@ $.w2event = {
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-layout')
 						.html('');
 				}
@@ -3926,7 +3929,7 @@ $.w2event = {
 			}
 			if (!this.box) return false;
 			$(this.box)
-				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-layout')
 				.html('<div></div>');
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -4287,7 +4290,7 @@ $.w2event = {
 			// clean up
 			if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-layout')
 					.html('');
 			}
@@ -5085,16 +5088,14 @@ $.w2event = {
 			$.extend(object, { tabs: [], handlers: [] });
 			for (var i in tabs) { object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]); }		
 			if ($(this).length != 0) {
-				object.box = $(this)[0];
-				$(this).data('w2name', object.name);
-				object.render();
+				object.render($(this)[0]);
 			}
 			// register new object
 			w2ui[object.name] = object;
 			return object;
 
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -5289,7 +5290,7 @@ $.w2event = {
 			if (String(box) != 'undefined' && box != null) { 
 				if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-tabs')
 						.html('');
 				}
@@ -5301,7 +5302,7 @@ $.w2event = {
 					   '	<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
 					   '</table>';
 			$(this.box)
-				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-tabs')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -5327,7 +5328,7 @@ $.w2event = {
 			// clean up
 			if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-tabs')
 					.html('');
 			}
@@ -5486,16 +5487,14 @@ $.w2event = {
 			
 			for (var i in items) { object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]); }		
 			if ($(this).length != 0) {
-				object.box = $(this)[0];
-				$(this).data('w2name', object.name);
-				object.render();
+				object.render($(this)[0]);
 			}
 			// register new object
 			w2ui[object.name] = object;
 			return object;
 			
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -5679,7 +5678,7 @@ $.w2event = {
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-toolbar')
 						.html('');
 				}
@@ -5704,7 +5703,7 @@ $.w2event = {
 			html += '</tr>'+
 					'</table>';
 			$(this.box)
-				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-toolbar')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -5773,7 +5772,7 @@ $.w2event = {
 			// clean up
 			if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-toolbar')
 					.html('');
 			}
@@ -6029,7 +6028,6 @@ $.w2event = {
 				object.add(object, nodes); 
 			}
 			if ($(this).length != 0) {
-				$(this).data('w2name', object.name);
 				object.render($(this)[0]);
 			}
 			object.sidebar = object;
@@ -6037,8 +6035,8 @@ $.w2event = {
 			w2ui[object.name] = object;
 			return object;
 			
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -6378,6 +6376,7 @@ $.w2event = {
 		},
 		
 		doKeydown: function (event) {
+			if (event.target && event.target.tagName != 'BODY') return;
 			var obj = w2ui[window.w2active];
 			var nd  = obj.get(obj.selected);
 			// trigger event
@@ -6446,7 +6445,7 @@ $.w2event = {
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-sidebar')
 						.html('');
 				}
@@ -6454,7 +6453,7 @@ $.w2event = {
 			}
 			if (!this.box) return;
 			$(this.box)
-				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-sidebar')
 				.html('<div>'+
 						'<div class="w2ui-sidebar-top"></div>' +
@@ -6614,7 +6613,7 @@ $.w2event = {
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-sidebar')
 					.html('');
 			}
@@ -7883,8 +7882,8 @@ $.w2event = {
 			}
 			return object;
 		
-		} else if (typeof $(this).data('w2name') != 'undefined') {
-			var obj = w2ui[$(this).data('w2name')];
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
@@ -8589,7 +8588,7 @@ $.w2event = {
 				// remove from previous box
 				if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
 					$(this.box)
-						.removeData('w2name')
+						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-form')
 						.html('');
 				}
@@ -8601,7 +8600,7 @@ $.w2event = {
 						this.formHTML +
 						'</div>';
 			$(this.box)
-				.data('w2name', this.name)
+				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-form')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -8639,7 +8638,7 @@ $.w2event = {
 			if (typeof this.tabs == 'object' && this.tabs.destroy) this.tabs.destroy();
 			if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
 				$(this.box)
-					.removeData('w2name')
+					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-form')
 					.html('');
 			}
