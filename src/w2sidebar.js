@@ -417,6 +417,7 @@
 		},
 		
 		doKeydown: function (event) {
+			if (event.target && event.target.tagName != 'BODY') return;
 			var obj = w2ui[window.w2active];
 			var nd  = obj.get(obj.selected);
 			// trigger event

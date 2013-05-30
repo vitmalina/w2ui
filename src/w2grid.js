@@ -15,6 +15,7 @@
 *	- hints for records
 *	- more events in editable fields (onkeypress)
 *	- ERROR - in popup text area I hit delete catches with list
+*	- on/off line number and select column
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -1237,6 +1238,7 @@
 		},
 
 		doKeydown: function (event) {
+			if (event.target && event.target.tagName != 'BODY') return;
 			var obj = w2ui[window.w2active];
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
