@@ -4,6 +4,16 @@
 <script type="text/javascript" src="../js/jquery.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
+<script>
+	$().w2popup('load', {
+		url: 'popup-template.html',
+		onOpen: function () {
+			$('#w2ui-popup #pic').on('click', function () {
+				console.log('picture clicked');
+			});
+		}
+	});
+</script>
 </head>
 <body>
 	<input type="button" value="Popup" onclick="$('#popup1').w2popup({ showMax: true, showClose: true })">
