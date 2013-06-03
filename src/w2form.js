@@ -216,7 +216,7 @@
 		},
 	
 		reload: function (callBack) {
-			if (this.url != '') {
+			if (this.url != '' && this.recid != 0) {
 				//this.clear();
 				this.request(callBack);
 			} else {
