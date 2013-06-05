@@ -78,7 +78,7 @@
 		border: @grid-search-all-border;
 		color: @grid-search-all-color;
 		background-color: @grid-search-all-background-color;
-		padding: 3px 18px 3px 20px;
+		padding: 3px 18px 3px 23px;
 		margin: 0px;
 	}
 
@@ -241,11 +241,11 @@
 			}
 
 			.w2ui-col-number {
-				width: 40px;
+				width: 34px;
 				color: @grid-row-number-color;
 				background-color: @grid-row-number-background-color;
 				div {
-					padding: 7px 7px 7px 0px;
+					padding: 7px 7px 7px 3px;
 					text-align: right;
 				}
 			}
@@ -308,12 +308,13 @@
 			background-color: @grid-editable-background-color;
 			width: 100%;
 
-			&.active {
-				background-color: @grid-editable-active-background-color;
+			&.changed {
+				.background-image(@image-changed, no-repeat, top, right);
+				background-color: @grid-editable-changed-background-color;
 			}
 
-			&.changed {
-				background-color: @grid-editable-changed-background-color;
+			&.active {
+				background-color: @grid-editable-active-background-color;
 			}
 		}
 	}
