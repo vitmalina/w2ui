@@ -2427,7 +2427,7 @@
 		getRecordsHTML: function () {
 			if (this.records.length == 0) return;
 			this.show_extra = 30;	// larget number works better with chrome, smaller with FF.
-			if (this.total <= 300) this.show_extra = 150;
+			if (this.total <= 300) this.show_extra = 300;
 			var records	= $('#grid_'+ this.name +'_records');
 			var limit	= Math.floor(records.height() / this.recordHeight) + this.show_extra + 1;
 			if (!this.fixedBody) limit = this.total;
@@ -2529,45 +2529,6 @@
 			return;
 		},
 
-		getRecordsHTML_old: function () {
-			var html	= '';
-			var summary = '';
-			var sum_cnt = 0;
-			// table layout
-			var startWith = 0;
-			if (this.url == '') { // local data
-				var cnt = this.page * this.recordsPerPage;
-				for (var tt=0; tt<this.records.length; tt++) {
-					if (this.records[tt] && this.records[tt].hidden) continue;
-					cnt--;
-					if (cnt < 0) { startWith = tt; break; }
-				}
-			}
-			for (var ind = startWith, ri = 0; ri < this.recordsPerPage && ind < this.records.length; ind++) {
-				var record 	= this.records[ind];
-				if (!record || record.hidden === true) continue;
-				ri++; // actual records counter
-				var rec_html = this.getRecordHTML(ind, startWith + ri);
-				// save into either summary or regular
-				if (record.summary === true) {
-					if (sum_cnt % 2) {
-						summary += String(rec_html).replace('w2ui-odd', 'w2ui-even') ;
-					} else {
-						summary += String(rec_html).replace('w2ui-even', 'w2ui-odd') ;
-					}
-					sum_cnt++;
-				} else {
-					html += rec_html;
-				}
-			}
-			if (summary != '') {
-				this.summary = '<table>'+ summary +'</table>';
-			} else {
-				this.summary = '';
-			}
-			return html;
-		},
-
 		getRecordHTML: function (ind, lineNum, summary) {
 			var rec_html = '';
 			// first record needs for resize purposes
@@ -2597,11 +2558,6 @@
 				if (ind >= this.summary.length) return '';
 				record = this.summary[ind];
 			}
-			// set text and bg color if any
-			var	tmp_color = '';
-			if (typeof record['style'] != 'undefined') {
-				tmp_color += record['style'];
-			}
 			var id = w2utils.escapeId(record.recid);
 			if (record.selected) {
 				rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" class="w2ui-selected" ' +
@@ -2614,7 +2570,7 @@
 							 ) 
 							: ''
 						) +
-						' style="height: '+ this.recordHeight +'px" ' + (tmp_color != '' ? 'custom_style="'+ tmp_color +'"' : '')+
+						' style="height: '+ this.recordHeight +'px" ' + (record['style'] ? 'custom_style="'+ record['style'] +'"' : '')+
 						'>';
 			} else {
 				rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" '+
@@ -2628,7 +2584,7 @@
 							 )
 							: ''
 						) +
-						' style="height: '+ this.recordHeight +'px; '+ (tmp_color != '' ? '" custom_style="'+ tmp_color : '') + '" '+
+						' style="height: '+ this.recordHeight +'px; '+ (record['style'] ? record['style'] + '" custom_style="'+ record['style'] : '') + '" '+
 						'>';
 			}
 			if (this.show.lineNumbers) {
