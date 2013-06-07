@@ -19,14 +19,14 @@ $(function () {
 			footer: true,
 			header: true,
 			columnHeaders: true,
-			selectColumn: false,
+			selectColumn: true,
 			expandColumn: true,
 			lineNumbers: true,
 			toolbarDelete: true,
 			toolbarSave: true,
 			toolbarAdd: true
 		},
-		recordsPerPage: 50,
+		recordsPerPage: 50000000,
 		//fixedBody: false,
 		//fixedRecord: false,
 		toolbar: {
@@ -61,22 +61,21 @@ $(function () {
 			{ caption: 'Important Dates', span: 3 }
 		],
 		columns: [				
-			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true, searchable: 'int' },
-			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true },
-			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
-			// { field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true },
-			// { field: 'text',  caption: 'Text1', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
-			// { field: 'text',  caption: 'Text2', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
-			// { field: 'text',  caption: 'Text3', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
-			// { field: 'text',  caption: 'Text4', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
-			// { field: 'text',  caption: 'Text5', size: '10%', resizable: true, render: function (record) { return 'Some generated text'; } },
-			// { field: 'sdate', caption: 'Release Date', size: '120px', resizable: true }
+			{ field: 'recid', caption: 'ID', size: '60px', sortable: true, resizable: true, searchable: 'int',
+				render: function (record) { return String(record.recid).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"); }
+			},
+			{ field: 'person.lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true,
+				render: function () { return '<div onmouseover="$(this).parent().attr(\'title\', \'\')">'+ record.person.lname + '</div>'; } 
+			},
+			{ field: 'person.fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
+			{ field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true },
+			{ field: 'sdate', caption: 'Release Date', size: '120px', resizable: true }
 		],
 		onExpand: function (target, data) {
-			if (w2ui['grid2']) $().w2destroy('grid2');
-			$('#'+data.box_id).w2grid({ 
-				name: 'grid2',
-				fixedBody1: false,
+			if (w2ui['grid-'+ data.recid]) $().w2destroy('grid-'+ data.recid);
+			$('#'+ data.box_id).w2grid({ 
+				name: 'grid-' + data.recid,
+				fixedBody: false,
 				style: 'width: 100%; height: 150px; border: 0px; margin-bottom: 3px;',
 				show: { 
 					toolbar: false,
@@ -98,31 +97,36 @@ $(function () {
 					{ recid: 2, lname: 'John Cook' }
 				]
 			});
-		}
+		},
+		summary: [
+			//{ recid: 1, lname: 'Vitali Malinsouski', fname: '<span style="float: right">Total:</span>', sdate: '444' }
+		]		
 		//getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
 	});
 	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
 	var lname = ['Peterson', 'Rene', 'Johnson-Petrov-Sannikov-Ivanov-Smirnov', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
 	// add 10k records
-	for (var i = 0; i < 90; i++) {
+	for (var i = 0; i < 250321; i++) {
 		w2ui['grid'].records.push({ 
-			recid : 'id-' + i,
-			fname: fname[Math.floor(Math.random() * fname.length)], 
-			lname: lname[Math.floor(Math.random() * lname.length)],
+			recid : i+1,
+			person: {
+				fname: fname[Math.floor(Math.random() * fname.length)], 
+				lname: lname[Math.floor(Math.random() * lname.length)]
+			},
 			email: 'vm@gmail.com', sdate: '1/1/2013'
 		});
 	}
-	w2ui['grid'].total = w2ui.grid.records.length;
+	w2ui.grid.total = w2ui.grid.records.length;
 	//w2ui.grid.records[90].summary = true;
 	//w2ui.grid.records[91].summary = true;
-	w2ui.grid.refresh();
-	//console.log(w2ui['grid'].refresh());
+	//w2ui.grid.refresh();
+	console.log(w2ui['grid'].refresh());
 	//w2ui['grid'].load('grid.json');
 });
 </script>
 </head>
 <body>
-	<div id="grid" style="width: 100%; height: 600px;"></div>
+	<div id="grid" style="width: 100%; height: 90%;"></div>
 	<br>
 	<input type="button" value="destroy" onclick="$().w2destroy('grid');">
 </body>
