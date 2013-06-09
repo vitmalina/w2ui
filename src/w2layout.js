@@ -381,8 +381,14 @@
 					$('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
-				if (p.tabs != null) p.tabs.refresh();
-				if (p.toolbar != null) p.toolbar.refresh();
+				if (p.tabs != null) { 
+					var tmp = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-tabs');
+					if (tmp.html() == '') tmp.w2render(p.tabs); else p.tabs.refresh(); 
+				}
+				if (p.toolbar != null) { 
+					var tmp = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-toolbar');
+					if (tmp.html() == '') tmp.w2render(p.toolbar); else p.toolbar.refresh(); 
+				}
 			} else {
 				if ($('#layout_' +this.name +'_panel_main').length <= 0) {
 					this.render();
