@@ -2462,6 +2462,7 @@
 		doScroll: function (event) {
 			var time = (new Date()).getTime();
 			var records	= $('#grid_'+ this.name +'_records');
+			if (records.length == 0) return;
 			// update footer
 			var t1 = Math.floor(records[0].scrollTop / this.recordHeight + 1);
 			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.floor(records.height() / this.recordHeight);
