@@ -14,7 +14,7 @@
 	}
 
 	.w2ui-tab {
-		padding: 5px 20px;
+		padding: 6px 20px;
 		text-align: center;
 		color: @tabs-tab-color;
 		background-color: @tabs-tab-background-color;
@@ -32,6 +32,9 @@
 			border: @tabs-tab-active-border;
 			border-bottom: 1px solid transparent;
 		}
+		&.closable {
+			padding: 6px 28px 6px 20px
+		}
 	}
 
 	.w2ui-tab-close {
@@ -42,7 +45,7 @@
 		opacity: 0.9;
 		.background-image(@image-item-close, no-repeat, center, left);
 		border: 0px;
-		border-top: 2px solid transparent;
+		border-top: 3px solid transparent;
 
 		&:hover {
 			background-position: -12px 0px;
