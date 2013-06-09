@@ -1482,6 +1482,7 @@
 			var obj  = this;
 			var time = (new Date()).getTime();
 			// if over the max page, then go to page 1
+			if (this.total <= 0) this.total = this.records.length;
 			var totalPages = Math.floor(this.total / this.recordsPerPage);
 			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
 			if (this.page > 0 && this.page > totalPages-1) this.goto(0);
@@ -2425,7 +2426,6 @@
 		},
 
 		getRecordsHTML: function () {
-			if (this.records.length == 0) return;
 			this.show_extra = 30;	// larget number works better with chrome, smaller with FF.
 			if (this.total <= 300) this.show_extra = 300;
 			var records	= $('#grid_'+ this.name +'_records');
@@ -2538,6 +2538,7 @@
 				if (this.show.selectColumn) rec_html += '<td class="w2ui-col-select" style="height: 1px;"></td>';
 				if (this.show.expandColumn) rec_html += '<td class="w2ui-col-expand" style="height: 1px;"></td>';
 				for (var i in this.columns) {
+					if (this.columns[i].hidden) continue;
 					rec_html += '<td class="w2ui-grid-data" col="'+ i +'" style="height: 1px;"></td>';					
 				}
 				rec_html += '<td class="w2ui-grid-data-last" style="height: 1px;"></td>';
