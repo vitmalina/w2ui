@@ -18,6 +18,7 @@
 * 	- error when using left/right arrow keys (second click disconnects from the event listener)
 *	- select multiple recors (shift) in a searched list - selects more then needed
 *	- search 1-20 will range numbers
+*	- route all toolbar events thru the grid
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -36,6 +37,7 @@
 *	- remove record.hidden
 *	- grid.set(record) - updates all records
 *	- deprecated selectPage()
+*	- added onReload (when toolbar button is clicked)
 *
 ************************************************************************/
 
@@ -109,6 +111,7 @@
 		this.onKeyboard			= null;
 		this.onRender 			= null;
 		this.onRefresh 			= null;
+		this.onReload			= null;
 		this.onResize 			= null;
 		this.onDestroy 			= null;
 
@@ -1722,7 +1725,7 @@
 				// ------ Toolbar Generic buttons
 
 				if (this.show.toolbarReload) {
-					this.toolbar.items.push({ type: 'button', id: 'refresh', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') });
+					this.toolbar.items.push({ type: 'button', id: 'reload', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') });
 				}
 				if (this.show.toolbarColumns) {			
 					this.toolbar.items.push({ type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' });
@@ -1781,9 +1784,12 @@
 				var obj = this;
 				this.toolbar.on('click', function (id, data) {
 					switch (id) {
-						case 'refresh':
+						case 'reload':
+							var eventData = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
+							if (eventData.stop === true) return false;
 							obj.reset();
 							obj.reload();
+							obj.trigger({ phase: 'after' });
 							break;
 						case 'column-on-off':
 							for (var c in obj.columns) {
