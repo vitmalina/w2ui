@@ -381,13 +381,17 @@
 					$('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
+				var tmp = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-tabs');
 				if (p.tabs != null) { 
-					var tmp = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-tabs');
-					if (tmp.html() == '') tmp.w2render(p.tabs); else p.tabs.refresh(); 
+					if (tmp.find('[name='+ p.tabs.name +']').length == 0) tmp.w2render(p.tabs); else p.tabs.refresh(); 
+				} else {
+					tmp.html('').removeClass('w2ui-tabs').hide();
 				}
+				var tmp = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-toolbar');
 				if (p.toolbar != null) { 
-					var tmp = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type +' .w2ui-panel-toolbar');
-					if (tmp.html() == '') tmp.w2render(p.toolbar); else p.toolbar.refresh(); 
+					if (tmp.find('[name='+ p.toolbar.name +']').length == 0) tmp.w2render(p.toolbar); else p.toolbar.refresh(); 
+				} else {
+					tmp.html('').removeClass('w2ui-toolbar').hide();
 				}
 			} else {
 				if ($('#layout_' +this.name +'_panel_main').length <= 0) {
