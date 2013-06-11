@@ -21,8 +21,8 @@
   "dependencies": {
   },
   "devDependencies": {
-    "less": "*",
-    "clean-csss": "*",
+    "less": ">=1.4.0",
+    "clean-css": ">=1.0.9",
     "uglify-js": ">=1.3.3"
   },
   "homepage": "http://w2ui.com/"

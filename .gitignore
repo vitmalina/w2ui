@@ -1,2 +1,10 @@
 tmp/*
 /nbproject/private/
+
+# Editor backup files
+*.bak
+*~
+
+# npm install cruft
+node_modules/
+

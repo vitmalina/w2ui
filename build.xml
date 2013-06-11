@@ -13,14 +13,14 @@
 	<target name="css">
 		<!-- Compile w2ui.less files -->
 		<echo message="LESS: css/less/w2ui.less ==> css/w2ui.css"/>
-		<exec executable="lessc">
+		<exec executable="node_modules/.bin/lessc">
 			<arg value="css/less/w2ui.less"/>
 			<arg value="css/w2ui.css"/>
 		</exec>
 
 		<!-- Minify w2ui.css files -->
 		<echo message="CleanCSS: /css/w2ui.css ==> /css/w2ui.min.css"/>
-		<exec executable="cleancss" output="css/w2ui.min.css">
+		<exec executable="node_modules/.bin/cleancss" output="css/w2ui.min.css">
 			<arg value="css/w2ui.css"/>
 		</exec>
 		<echo message="Add Copyright Statement"/>
@@ -30,14 +30,14 @@
 
 		<!-- Compile w2ui-dark.less files -->
 		<echo message="LESS: css/less/w2ui-dark.less ==> css/w2ui-dark.css"/>
-		<exec executable="lessc">
+		<exec executable="node_modules/.bin/lessc">
 			<arg value="css/less/w2ui-dark.less"/>
 			<arg value="css/w2ui-dark.css"/>
 		</exec>
 
 		<!-- Minify w2ui.css files -->
 		<echo message="CleanCSS: /css/w2ui-dark.css ==> /css/w2ui-dark.min.css"/>
-		<exec executable="cleancss" output="css/w2ui-dark.min.css">
+		<exec executable="node_modules/.bin/cleancss" output="css/w2ui-dark.min.css">
 			<arg value="css/w2ui-dark.css"/>
 		</exec>
 		<echo message="Add Copyright Statement"/>
@@ -54,7 +54,7 @@
 
 		<!-- Minify JS files -->
 		<echo message="Uglify-JS: /js/w2ui.js ==> /js/w2ui.min.js"/>
-		<exec executable="uglifyjs" output="js/w2ui.min.js">
+		<exec executable="node_modules/.bin/uglifyjs" output="js/w2ui.min.js">
 			<arg value="js/w2ui.js"/>
 		</exec>
 		<echo message="Add Copyright Statement"/>
