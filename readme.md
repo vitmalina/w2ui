@@ -1,6 +1,6 @@
 ## W2UI 1.2 - MIT License
 
-W2UI is modern, intuitive JavaScript UI library for buidling rich data-driven web application. The library has
+W2UI is modern, intuitive JavaScript UI library for building rich data-driven web application. The library has
 a small footprint and no dependencies except jQuery. The library has the following widgets:
 
 * w2layout
@@ -51,7 +51,7 @@ I use ANT to build the project. It does the folloing
 - Concatenates and minifies CSS files
 - Concatenates and minifies JS files 
 
-In order to be able to use ANT, you will need to install Node.JS and NMP on your machine, then run the following commands to install dependencies
+In order to be able to use ANT, you will need to install Node.JS and NPM on your machine, then run the following commands to install dependencies
 
 ```
 sudo npm install less -g

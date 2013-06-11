@@ -1,0 +1,29 @@
+{
+  "author": "Vitali Malinouski <vitmalina@gmail.com> (http://w2ui.com)",
+  "name": "w2ui",
+  "description": "W2UI is modern, intuitive JavaScript UI library for building rich data-driven web application",
+  "version": "1.2.0",
+  "keywords": [
+    "w2ui"
+  ],
+  "preferGlobal": false,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vitmalina/w2ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vitmalina/w2ui/issues"
+  },
+  "main": "lib/w2ui",
+  "engines": {
+    "node": ">=0.9"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "less": "*",
+    "clean-csss": "*",
+    "uglify-js": ">=1.3.3"
+  },
+  "homepage": "http://w2ui.com/"
+}
