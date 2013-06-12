@@ -1710,7 +1710,7 @@
 					'</td>'+
 					'</tr>';
 			}
-			col_html += "</div></table>";
+			col_html += "</table></div>";
 			this.toolbar.get('column-on-off').html = col_html;
 		},
 

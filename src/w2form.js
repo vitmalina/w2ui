@@ -53,6 +53,7 @@
 		this.onError		= null;
 
 		// internal
+		this.isGenerated	= false;
 		this.last = {
 			xhr	: null		// jquery xhr requests
 		}
@@ -129,6 +130,7 @@
 				object.formHTML = $(this).html();
 			}  else { // try to generate it
 				object.formHTML = object.generateHTML();
+				object.isGenerated = true;
 				$(obj).html(object.formHTML);
 			}
 			// register new object
@@ -612,7 +614,8 @@
 				field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
 				if (field.html.caption == '') field.html.caption = field.name;
 				var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
-				if (field.type == 'list')   input = '<select name="'+ field.name +'" '+ field.html.attr +'></select>';
+				if (field.type == 'list') input = '<select name="'+ field.name +'" '+ field.html.attr +'></select>';
+				if (field.type == 'checkbox') input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
 				if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
 				html += '\n   <div class="w2ui-label '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ field.html.caption +':</div>'+
 						'\n   <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+
@@ -623,12 +626,15 @@
 			}
 			for (var p in pages) pages[p] += '\n</div>';
 			// buttons if any
-			var html = '\n<div class="w2ui-buttons">';
-			for (var a in this.actions) {
-				html += '\n    <input type="button" value="'+ a +'" name="'+ a +'">';
+			var buttons = '';
+			if (this.actions.length > 0) {
+				buttons += '\n<div class="w2ui-buttons">';
+				for (var a in this.actions) {
+					buttons += '\n    <input type="button" value="'+ a +'" name="'+ a +'">';
+				}
+				buttons += '\n</div>';
 			}
-			html += '\n</div>';
-			return pages.join('') + html;
+			return pages.join('') + buttons;
 		},
 
 		doAction: function (action, event) {
@@ -839,6 +845,10 @@
 
 		render: function (box) {
 			var obj = this;
+			if (box && $(box).html() != '' && this.isGenerated) {
+				this.formHTML = $(box).html();
+				this.isGenerated = false;
+			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
 			if (eventData.stop === true) return false;
