@@ -59,36 +59,37 @@ var w2utils = (function () {
 		locale	 		: locale,
 		scrollBarSize	: scrollBarSize
 	}
+	$(function () { scrollBarSize(); });
 	return obj;
-
+	
 	function isInt (val) {
 		var re =  /^[-]?[0-9]+$/;
-		return re.test(val);
+		return re.test(val);		
 	}
-
+		
 	function isFloat (val) {
 		var re =  new RegExp(w2utils.settings.float);
-		return re.test(val);
+		return re.test(val);		
 	}
 
 	function isMoney (val) {
 		var re =  new RegExp(w2utils.settings.currency);
-		return re.test(val);
+		return re.test(val);		
 	}
-
+		
 	function isHex (val) {
 		var re =  /^[a-fA-F0-9]+$/;
-		return re.test(val);
+		return re.test(val);		
 	}
-
+	
 	function isAlphaNumeric (val) {
 		var re =  /^[a-zA-Z0-9_-]+$/;
-		return re.test(val);
+		return re.test(val);		
 	}
-
+	
 	function isEmail (val) {
 		var email = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}$/;
-		return email.test(val);
+		return email.test(val); 
 	}
 
 	function isDate (val, format) {
@@ -101,8 +102,8 @@ var w2utils = (function () {
 		var month, day, year;
 		if (tmp2 == 'mm/dd/yyyy') { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
 		if (tmp2 == 'dd/mm/yyyy') { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
-		if (tmp2 == 'yyyy/dd/mm') { month = tmp[2]; day = tmp[1]; year = tmp[0]; }
-		if (tmp2 == 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; }
+		if (tmp2 == 'yyyy/dd/mm') { month = tmp[2]; day = tmp[1]; year = tmp[0]; } 
+		if (tmp2 == 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; } 
 		dt = new Date(month + '/' + day + '/' + year);
 		// do checks
 		if (typeof month == 'undefined') return false;
@@ -153,12 +154,12 @@ var w2utils = (function () {
 						.replace('month', fullMonths[month]);
 		return res;
 	}
-
+	
 	function date (dateStr) {
 		var months = w2utils.settings.shortmonths;
 		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
 		if (w2utils.isInt(dateStr)) dateStr = Number(dateStr); // for unix timestamps
-
+		
 		var d1 = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
 		var tmp = String(dateStr).split('-');
@@ -168,13 +169,13 @@ var w2utils = (function () {
 		if (d1 == 'Invalid Date') return '';
 
 		var d2   = new Date(); // today
-		var d3   = new Date();
+		var d3   = new Date(); 
 		d3.setTime(d3.getTime() - 86400000); // yesterday
-
+		
 		var dd1  = months[d1.getMonth()] + ' ' + d1.getDate() + ', ' + d1.getFullYear();
 		var dd2  = months[d2.getMonth()] + ' ' + d2.getDate() + ', ' + d2.getFullYear();
 		var dd3  = months[d3.getMonth()] + ' ' + d3.getDate() + ', ' + d3.getFullYear();
-
+		
 		var time = (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var dsp = dd1;
@@ -187,7 +188,7 @@ var w2utils = (function () {
 	function age (timeStr) {
 		if (timeStr == '' || typeof timeStr == 'undefined' || timeStr == null) return '';
 		if (w2utils.isInt(timeStr)) timeStr = Number(timeStr); // for unix timestamps
-
+		
 		var d1 = new Date(timeStr);
 		if (w2utils.isInt(timeStr)) d1 = new Date(Number(timeStr)); // for unix timestamps
 		var tmp = String(timeStr).split('-');
@@ -200,7 +201,7 @@ var w2utils = (function () {
 		var sec = (d2.getTime() - d1.getTime()) / 1000;
 		var amount = '';
 		var type   = '';
-
+		
 		if (sec < 60) {
 			amount = Math.floor(sec);
 			type   = 'sec';
@@ -219,10 +220,10 @@ var w2utils = (function () {
 		} else if (sec >= 12*30*24*60*60) {
 			amount = Math.floor(sec/12/30/24/60/60);
 			type   = 'year';
-		}
+		}		
 		return amount + ' ' + type + (amount > 1 ? 's' : '');
-	}
-
+	}	
+		
 	function size (sizeStr) {
 		if (!w2utils.isFloat(sizeStr) || sizeStr == '') return '';
 		sizeStr = parseFloat(sizeStr);
@@ -370,21 +371,21 @@ var w2utils = (function () {
 
 		return output;
 	}
-
+	
 	function transition (div_old, div_new, type, callBack) {
 		var width  = $(div_old).width();
 		var height = $(div_old).height();
 		var time   = 0.5;
-
+				
 		if (!div_old || !div_new) {
 			console.log('ERROR: Cannot do transition when one of the divs is null');
 			return;
 		}
-
+		 
 		div_old.parentNode.style.cssText += cross('perspective', '700px') +'; overflow: hidden;';
 		div_old.style.cssText += '; position: absolute; z-index: 1019; '+ cross('backface-visibility', 'hidden');
 		div_new.style.cssText += '; position: absolute; z-index: 1020; '+ cross('backface-visibility', 'hidden');
-
+		
 		switch (type) {
 			case 'slide-left':
 				// init divs
@@ -518,44 +519,44 @@ var w2utils = (function () {
 				}, 1);
 				break;
 		}
-
+		
 		setTimeout(function () {
 			if (type == 'slide-down') {
 				$(div_old).css('z-index', '1019');
 				$(div_new).css('z-index', '1020');
 			}
 			if (div_new) {
-				$(div_new).css({
-					'opacity': '1',
-					'-webkit-transition': '',
-					'-moz-transition': '',
-					'-ms-transition': '',
-					'-o-transition': '',
-					'-webkit-transform': '',
-					'-moz-transform': '',
-					'-ms-transform': '',
-					'-o-transform': '',
-					'-webkit-backface-visibility': '',
-					'-moz-backface-visibility': '',
-					'-ms-backface-visibility': '',
-					'-o-backface-visibility': ''
+				$(div_new).css({ 
+					'opacity': '1', 
+					'-webkit-transition': '', 
+					'-moz-transition': '', 
+					'-ms-transition': '', 
+					'-o-transition': '', 
+					'-webkit-transform': '', 
+					'-moz-transform': '', 
+					'-ms-transform': '', 
+					'-o-transform': '', 
+					'-webkit-backface-visibility': '', 
+					'-moz-backface-visibility': '', 
+					'-ms-backface-visibility': '', 
+					'-o-backface-visibility': '' 
 				});
 			}
 			if (div_old) {
-				$(div_old).css({
-					'opacity': '1',
-					'-webkit-transition': '',
-					'-moz-transition': '',
-					'-ms-transition': '',
-					'-o-transition': '',
-					'-webkit-transform': '',
-					'-moz-transform': '',
-					'-ms-transform': '',
-					'-o-transform': '',
-					'-webkit-backface-visibility': '',
-					'-moz-backface-visibility': '',
-					'-ms-backface-visibility': '',
-					'-o-backface-visibility': ''
+				$(div_old).css({ 
+					'opacity': '1', 
+					'-webkit-transition': '', 
+					'-moz-transition': '', 
+					'-ms-transition': '', 
+					'-o-transition': '', 
+					'-webkit-transform': '', 
+					'-moz-transform': '', 
+					'-ms-transform': '', 
+					'-o-transform': '', 
+					'-webkit-backface-visibility': '', 
+					'-moz-backface-visibility': '', 
+					'-ms-backface-visibility': '', 
+					'-o-backface-visibility': '' 
 				});
 				if (div_old.parentNode) $(div_old.parentNode).css({
 					'-webkit-perspective': '',
@@ -566,14 +567,14 @@ var w2utils = (function () {
 			}
 			if (typeof callBack == 'function') callBack();
 		}, time * 1000);
-
+		
 		function cross(property, value, none_webkit_value) {
 			if (!$.browser.webkit && typeof none_webkit_value != 'undefined') value = none_webkit_value;
 			return ';'+ property +': '+ value +'; -webkit-'+ property +': '+ value +'; -moz-'+ property +': '+ value +'; '+
 				   '-ms-'+ property +': '+ value +'; -o-'+ property +': '+ value +';';
 		}
 	}
-
+	
 	function getSize (el, type) {
 		var bwidth = {
 			left: 	parseInt($(el).css('border-left-width')) || 0,
@@ -594,13 +595,13 @@ var w2utils = (function () {
 			bottom: parseInt($(el).css('padding-bottom')) || 0
 		}
 		switch (type) {
-			case 'top': 	return bwidth.top + mwidth.top + pwidth.top;
-			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom;
-			case 'left': 	return bwidth.left + mwidth.left + pwidth.left;
-			case 'right': 	return bwidth.right + mwidth.right + pwidth.right;
-			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($(el).width());
+			case 'top': 	return bwidth.top + mwidth.top + pwidth.top; 
+			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom; 
+			case 'left': 	return bwidth.left + mwidth.left + pwidth.left; 
+			case 'right': 	return bwidth.right + mwidth.right + pwidth.right; 
+			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($(el).width()); 
 			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($(el).height());
-			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right;
+			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right; 
 			case '+height': return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
 		}
 		return 0;
@@ -652,7 +653,7 @@ var w2utils = (function () {
 
 /***********************************************************
 *  Generic Event Object
-*  --- This object is reused across all other
+*  --- This object is reused across all other 
 *  --- widgets in w2ui.
 *
 *********************************************************/
@@ -662,16 +663,16 @@ $.w2event = {
 	on: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, eventData);
-
+		
 		if (typeof eventData.type == 'undefined') { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
 		if (typeof handler == 'undefined') { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
 		this.handlers.push({ event: eventData, handler: handler });
 	},
-
+	
 	off: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComleted: null }, eventData);
-
+	
 		if (typeof eventData.type == 'undefined') { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
 		if (typeof handler == 'undefined') { handler = null;  }
 		// remove handlers
@@ -679,54 +680,54 @@ $.w2event = {
 		for (var h in this.handlers) {
 			var t = this.handlers[h];
 			if ( (t.event.type == eventData.type || eventData.type == '*')
-				&& (t.event.target == eventData.target || eventData.target == null)
+				&& (t.event.target == eventData.target || eventData.target == null) 
 				&& (t.handler == handler || handler == null)) {
 				// match
 			} else {
 				newHandlers.push(t);
 			}
-		}
+		}		
 		this.handlers = newHandlers;
 	},
-
+		
 	trigger: function (eventData) {
 		var eventData = $.extend({ type: null, phase: 'before', target: null, stop: false }, eventData,
 			{ preventDefault: function () { this.stop = true; } });
-		if (typeof eventData.target == 'undefined') eventData.target = null;
-		// process events in REVERSE order
+		if (typeof eventData.target == 'undefined') eventData.target = null;		
+		// process events in REVERSE order 
 		for (var h = this.handlers.length-1; h >= 0; h--) {
 			var t = this.handlers[h];
-			if ( (t.event.type == eventData.type || t.event.type == '*')
+			if ( (t.event.type == eventData.type || t.event.type == '*') 
 					&& (t.event.target == eventData.target || t.event.target == null)
 					&& (t.event.execute == eventData.phase || t.event.execute == '*' || t.event.phase == '*') ) {
 				var ret = t.handler.call(this, eventData.target, eventData);
-				if ($.isPlainObject(ret)) {
+				if ($.isPlainObject(ret)) { 
 					$.extend(eventData, ret);
-					if (eventData.stop === true) return eventData;
+					if (eventData.stop === true) return eventData; 
 				}
 			}
-		}
+		}		
 		// main object events
-		if (eventData.phase == 'before'
+		if (eventData.phase == 'before' 
 				&& typeof this['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)] == 'function') {
 			var ret = this['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)].call(this, eventData.target, eventData);
-			if ($.isPlainObject(ret)) {
+			if ($.isPlainObject(ret)) { 
 				$.extend(eventData, ret);
-				if (eventData.stop === true) return eventData;
+				if (eventData.stop === true) return eventData; 
 			}
 		}
 		// item object events
 		if (typeof eventData.object != 'undefined' && eventData.object != null && eventData.phase == 'before'
 				&& typeof eventData.object['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)] == 'function') {
 			var ret = eventData.object['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)].call(this, eventData.target, eventData);
-			if ($.isPlainObject(ret)) {
+			if ($.isPlainObject(ret)) { 
 				$.extend(eventData, ret);
-				if (eventData.stop === true) return eventData;
+				if (eventData.stop === true) return eventData; 
 			}
 		}
 		// execute onComplete
 		if (eventData.phase == 'after' && eventData.onComplete != null)	eventData.onComplete.call(this, eventData);
-
+	
 		return eventData;
 	}
 };
@@ -754,7 +755,7 @@ $.w2event = {
 
 	$.fn.w2lite = function () {
 	}
-
+	
 	// -- w2tag - appears on the right side from element, there can be multiple on screen at a time
 
 	$.fn.w2tag = function (text, options) {
@@ -789,13 +790,13 @@ $.w2event = {
 				$('#global-tag-'+tagID).remove();
 				// insert
 				$('body').append('<div id="global-tag-'+ tagOrigID +'" class="global-tag" '+
-								 '	style="position: absolute; z-index: 1701; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');
+								 '	style="position: absolute; z-index: 1701; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');	
 
-				var timer = setInterval(function () {
+				var timer = setInterval(function () { 
 					// monitor if destroyed
 					if ($(el).length == 0 || ($(el).offset().left == 0 && $(el).offset().top == 0)) {
 						clearInterval($('#global-tag-'+tagID).data('timer'));
-						tmp_hide();
+						tmp_hide(); 
 						return;
 					}
 					// monitor if moved
@@ -829,18 +830,18 @@ $.w2event = {
 				var originalCSS = '';
 				if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
 				// bind event to hide it
-				function tmp_hide() {
+				function tmp_hide() { 
 					if ($('#global-tag-'+tagID).length <= 0) return;
 					clearInterval($('#global-tag-'+tagID).data('timer'));
-					$('#global-tag-'+tagID).remove();
-					$(el).off('keypress', tmp_hide).removeClass(options['class']);
+					$('#global-tag-'+tagID).remove(); 
+					$(el).off('keypress', tmp_hide).removeClass(options['class']); 
 					if ($(el).length > 0) $(el)[0].style.cssText = originalCSS;
 					if (typeof options.onHide == 'function') options.onHide();
 				}
 			}
 		});
 	}
-
+	
 	// w2overlay - appears under the element, there can be only one at a time
 
 	$.fn.w2overlay = function (html, options) {
@@ -869,7 +870,7 @@ $.w2event = {
 		if (typeof options.height == 'undefined') options.height = 0;
 
 		// pickup bg color of first div
-		var bc  = div.css('background-color');
+		var bc  = div.css('background-color'); 
 		var div = $('#w2ui-overlay');
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div.css('background-color', bc);
 
@@ -882,7 +883,7 @@ $.w2event = {
 			})
 			.fadeIn('fast')
 			.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight))
-			.on('click', function (event) {
+			.on('click', function (event) { 
 				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 			});
 
