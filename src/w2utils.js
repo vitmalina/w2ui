@@ -53,9 +53,11 @@ var w2utils = (function () {
 		base64decode	: base64decode,
 		transition		: transition,
 		getSize			: getSize,
-		sbSize			: 0,
+		_sbSize			: null,
+		sbSize			: sbSize,
 		lang 			: lang,
-		locale	 		: locale
+		locale	 		: locale,
+		scrollBarSize	: scrollBarSize
 	}
 	$(function () { scrollBarSize(); });
 	return obj;
@@ -635,9 +637,16 @@ var w2utils = (function () {
 				   '	<div style="height: 120px">1</div>'+
 				   '</div>';
 		$('body').append(html);
-		w2utils.sbSize = 100 - $('#_scrollbar_width > div').width();
+		var sbSize = 100 - $('#_scrollbar_width > div').width();
 		$('#_scrollbar_width').remove();
-		return w2utils.sbSize;
+		return sbSize;
+	}
+
+	function sbSize() {
+		if (null === w2utils._sbSize) {
+			w2utils._sbSize = w2utils.scrollBarSize();
+		}
+		return w2utils._sbSize;
 	}
 
 })();
