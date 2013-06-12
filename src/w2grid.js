@@ -2050,7 +2050,7 @@
 			if (body.width() < $(records).find(':first-child').width())   var bodyOverflowX = true; else bodyOverflowX = false;
 			if (!this.fixedBody) { bodyOverflowY = false; bodyOverflowX = false; }
 			if (bodyOverflowX || bodyOverflowY) {
-				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.sbSize).show();
+				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.sbSize()).show();
 				records.css({ 
 					top: ((this.columnGroups.length > 0 ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
 					"-webkit-overflow-scrolling": "touch",
@@ -2089,7 +2089,7 @@
 			}
 			if (body.length > 0) {
 				var width_max = parseInt(body.width())
-					- (bodyOverflowY ? w2utils.sbSize : 0)
+					- (bodyOverflowY ? w2utils.sbSize() : 0)
 					- (this.show.lineNumbers ? 34 : 0)
 					- (this.show.selectColumn ? 26 : 0)
 					- (this.show.expandColumn ? 26 : 0);
@@ -2176,7 +2176,7 @@
 					i++;
 				}
 			} else if (width_diff > 0) {
-				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.sbSize).show();
+				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.sbSize()).show();
 			}
 			// resize columns
 			columns.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
@@ -2184,7 +2184,7 @@
 				if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
 				// last column
 				if ($(el).hasClass('w2ui-head-last')) {
-					$(el).css('width', w2utils.sbSize + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+					$(el).css('width', w2utils.sbSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
 				}
 			});
 			// if there are column groups - hide first row (needed for sizing)
@@ -2211,7 +2211,7 @@
 				if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
 				// last column
 				if ($(el).hasClass('w2ui-grid-data-last')) {
-					$(el).css('width', w2utils.sbSize + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+					$(el).css('width', w2utils.sbSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
 				}
 			});
 			this.initResize();
