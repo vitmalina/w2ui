@@ -581,7 +581,7 @@
 				msgLeft = sel.length + ' selected';
 				if (sel.length == 1) msgLeft = 'Record ID: '+ sel[0]; 
 			}
-			$('#'+ this.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
+			$('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);
 			return selected;
 		},
 
