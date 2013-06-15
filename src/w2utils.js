@@ -53,13 +53,10 @@ var w2utils = (function () {
 		base64decode	: base64decode,
 		transition		: transition,
 		getSize			: getSize,
-		_sbSize			: null,
 		sbSize			: sbSize,
 		lang 			: lang,
-		locale	 		: locale,
-		scrollBarSize	: scrollBarSize
+		locale	 		: locale
 	}
-	$(function () { scrollBarSize(); });
 	return obj;
 	
 	function isInt (val) {
@@ -632,20 +629,14 @@ var w2utils = (function () {
 		});
 	}
 
-	function scrollBarSize() {
+	function sbSize () {
+		if (w2utils._sbSize) return w2utils._sbSize; 
 		var html = '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
 				   '	<div style="height: 120px">1</div>'+
 				   '</div>';
 		$('body').append(html);
-		var sbSize = 100 - $('#_scrollbar_width > div').width();
+		w2utils._sbSize = 100 - $('#_scrollbar_width > div').width();
 		$('#_scrollbar_width').remove();
-		return sbSize;
-	}
-
-	function sbSize() {
-		if (null === w2utils._sbSize) {
-			w2utils._sbSize = w2utils.scrollBarSize();
-		}
 		return w2utils._sbSize;
 	}
 
