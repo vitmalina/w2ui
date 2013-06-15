@@ -11,14 +11,14 @@
 *	- infinite scroll (buffered scroll)
 *	- frozen columns
 *	- column autosize based on largest content
-*	- hints for records (columns?)
 *	- more events in editable fields (onkeypress)
 *	- on/off line number and select column
 *	- subgrid (easy way with keyboard navigation)
 * 	- error when using left/right arrow keys (second click disconnects from the event listener)
-*	- select multiple recors (shift) in a searched list - selects more then needed
 *	- search 1-20 will range numbers
 *	- route all toolbar events thru the grid
+* 	- need to clean up onRequest, onSave, onLoad commands
+* 	- mode record with keyboard, grid does not follow
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -38,6 +38,9 @@
 *	- grid.set(record) - updates all records
 *	- deprecated selectPage()
 *	- added onReload (when toolbar button is clicked)
+*	- column.title - can be a string or a function
+*	- hints for records (columns?)
+*	- select multiple recors (shift) in a searched list - selects more then needed
 *
 ************************************************************************/
 
@@ -475,7 +478,7 @@
 				return ret;
 			});
 			time = (new Date()).getTime() - time;
-			if (silent !== true) setTimeout(function () { $('#grid_'+ obj.name +'_footer').find('.w2ui-footer-left').html('Sorted in ' + time + ' ms'); }, 10);
+			if (silent !== true) setTimeout(function () { $('#grid_'+ obj.name +'_footer').find('.w2ui-footer-left').html('Sorting took ' + time/1000 + ' sec'); }, 10);
 			return time;
 		},
 
@@ -545,7 +548,7 @@
 				this.total = this.last.searchIds.length;
 			}
 			time = (new Date()).getTime() - time;
-			if (silent !== true) setTimeout(function () { $('#grid_'+ obj.name +'_footer').find('.w2ui-footer-left').html('Searched in ' + time + ' ms'); }, 10);
+			if (silent !== true) setTimeout(function () { $('#grid_'+ obj.name +'_footer').find('.w2ui-footer-left').html('Search took ' + time/1000 + ' sec'); }, 10);
 			return time;
 		},
 
@@ -578,7 +581,7 @@
 			var msgLeft = '';
 			var sel = this.getSelection();
 			if (sel.length > 0) {
-				msgLeft = sel.length + ' selected';
+				msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' selected';
 				if (sel.length == 1) msgLeft = 'Record ID: '+ sel[0]; 
 			}
 			$('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);
@@ -618,7 +621,7 @@
 			var msgLeft = '';
 			var sel = this.getSelection();
 			if (sel.length > 0) {
-				msgLeft = sel.length + ' selected';
+				msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' selected';
 				if (sel.length == 1) msgLeft = 'Record ID: '+ sel[0]; 
 			}
 			$('#'+ this.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
@@ -627,19 +630,35 @@
 
 		selectAll: function () {
 			if (this.multiSelect === false) return;
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
+			if (eventData.stop === true) return;
+			// default action
 			if (this.searchData.length == 0) { 
 				// not searched
-				for (var i=0; i<this.records.length; i++) this.select(this.records[i].recid);
+				this.set({ selected: true });
 			} else { 
 				// local search applied
-				for (var i=0; i<this.last.searchIds.length; i++) this.select(this.records[this.last.searchIds[i]].recid);
+				for (var i=0; i<this.last.searchIds.length; i++) {
+					this.records[this.last.searchIds[i]].selected = true;
+				}
+				this.refresh();
 			}
 			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		selectNone: function () {
-			this.unselect.apply(this, this.getSelection());
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true });
+			if (eventData.stop === true) return;
+			// default action
 			this.last.selected = [];
+			for (var i in this.records) if (this.records[i].selected === true) this.records[i].selected = false;
+			this.refresh();
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		getSelection: function () {
@@ -1083,7 +1102,7 @@
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
 			if (eventData.stop === true) return false;
 			if (this.url != '') {
-				this.request('save-records', { 'changed' : changed }, null, function () {
+				this.request('save-records', { 'changed' : eventData.changed }, null, function () {
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 				});
@@ -1195,66 +1214,64 @@
 		},
 
 		doClick: function (recid, event) {
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, event: event });
 			if (eventData.stop === true) return false;
 			// default action
 			var obj = this;
+			var sel = this.getSelection();
 			$('#grid_'+ this.name +'_check_all').prop("checked", false);
 			var record = this.get(recid);
-			if (record) var tmp_previous = record.selected;
-			// clear other if necessary
-			if (((!event.ctrlKey && !event.shiftKey && !event.metaKey) || !this.multiSelect) && !this.showSelectColumn) {
-				this.selectNone();
-			} else {
-				window.setTimeout("var doc = w2ui['"+ this.name +"'].box.ownerDocument; if (doc.selection) doc.selection.empty(); "+
-					"else doc.defaultView.getSelection().removeAllRanges();", 10);
-			}
-			if (event.shiftKey) {
-				var cnt = 0;
-				var firsti = null;
-				for (var i=0; i<this.records.length; i++) { if (this.records[i].selected) { cnt++; if (!firsti) firsti = i; } }
-				if (cnt >  1) {
-					this.selectNone();
-				}
-				if (cnt == 1) {
-					var ind = this.get(recid, true);
-					if (ind > firsti) {
-						for (var i=firsti; i<=ind; i++) { this.select(this.records[i].recid); }
-					} else {
-						for (var i=ind; i<=firsti; i++) { this.select(this.records[i].recid); }
+			// multi select with shif key
+			if (event.shiftKey && sel.length > 0) {
+				var start = this.get(sel[0], true);
+				var end   = this.get(recid, true);
+				var sel_add = []
+				if (start <= end) {
+					for (var i = start + 1; i <= end; i++) {
+						if (this.searchData.length > 0 && $.inArray(i, this.last.searchIds) == -1) continue;
+						sel_add.push(this.records[i].recid);
+						sel.push(this.records[i].recid);
 					}
-					this.trigger($.extend(eventData, { phase: 'after' }));
-					finalizeDoClick();
-					return;
+				} else {
+					for (var i = start - 1; i >= end; i--) {
+						if (this.searchData.length > 0 && $.inArray(i, this.last.searchIds) == -1) continue;
+						sel_add.push(this.records[i].recid);
+						sel.push(this.records[i].recid);
+					}
+				}
+				this.select.apply(this, sel_add);
+			} else {
+				// clear other if necessary
+				if (((!event.ctrlKey && !event.shiftKey && !event.metaKey) || !this.multiSelect) && !this.showSelectColumn) {
+					if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
+					this.select(recid);
+					sel = [recid];
+				} else {
+					if (record.selected === true) {
+						this.unselect(record.recid);
+						sel.splice($.inArray(record.recid, sel), 1);
+					} else {
+						this.select(record.recid);
+						sel.push(record.recid);
+					}
+					setTimeout(function () { if (window.getSelection) window.getSelection().removeAllRanges(); }, 10);
 				}
 			}
-			// select or unselect
-			if (this.showSelectColumn && record.selected) {
-				this.unselect(record.recid);
-			} else if ((record && !tmp_previous) || event.ctrlKey || event.metaKey) {
-				if (record.selected === true) this.unselect(record.recid); else this.select(record.recid);
+			// bind up/down arrows
+			if (obj.keyboard) window.w2active = obj.name;
+			if (sel.length > 0) obj.toolbar.enable('delete-selected'); else obj.toolbar.disable('delete-selected');
+			// remember last selected
+			var msgLeft = '';
+			if (sel.length > 0) {
+				msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' selected';
+				if (sel.length == 1) msgLeft = 'Record ID: '+ sel[0]; 
 			}
-			finalizeDoClick();
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-
-			function finalizeDoClick() {
-				// bind up/down arrows
-				if (obj.keyboard) window.w2active = obj.name;
-				if (obj.getSelection().length > 0) obj.toolbar.enable('delete-selected'); else obj.toolbar.disable('delete-selected');
-				// remember last selected
-				var msgLeft = '';
-				var sel = obj.getSelection();
-				if (sel.length > 0) {
-					msgLeft = sel.length + ' selected';
-					if (sel.length == 1) msgLeft = 'Record ID: '+ sel[0]; 
-				}
-				$('#'+ obj.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
-				obj.last.selected = sel;
-				// keyboard events are added there
-				obj.initResize();
-			}  
+			$('#'+ obj.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
+			obj.last.selected = sel;
+			// keyboard events are added there
+			obj.initResize();
 		},
 
 		doKeydown: function (event) {
@@ -1599,7 +1616,7 @@
 			var msgLeft = '';
 			var sel = this.getSelection();
 			if (sel.length > 0) {
-				msgLeft = sel.length + ' selected';
+				msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' selected';
 				if (sel.length == 1) msgLeft = 'Record ID: '+ sel[0]; 
 			}
 			$('#'+ this.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
@@ -2597,7 +2614,7 @@
 			}
 			if (this.show.lineNumbers) {
 				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number" valign="top" class="w2ui-col-number">'+
-							(summary !== true ? '<div title="Line #'+ lineNum +'">'+ lineNum +'</div>' : '') +
+							(summary !== true ? '<div>'+ lineNum +'</div>' : '') +
 						'</td>';
 			}
 			if (this.show.selectColumn) {
@@ -2639,13 +2656,12 @@
 				}
 				if (field == null || typeof field == 'undefined') field = '';
 
-				var rec_field = '';
-				if (this.recordHeight == 25) {
-					rec_field = '<div title="'+ String(field).replace(/"/g, "''") +'">'+ field +'</div>';
-				} else {
-					rec_field = '<div title="'+ String(field).replace(/"/g, "''") +'" class="flexible-record">'+ field +'</div>';								
+				var title = String(field).replace(/"/g, "''");
+				if (typeof col.title != 'undefined') {
+					if (typeof col.title == 'function') title = col.title.call(this, this.records[ind], ind);
+					if (typeof col.title == 'string')   title = col.title;
 				}
-
+				var rec_field = '<div title="'+ title +'">'+ field +'</div>';
 				// this is for editable controls
 				if ($.isPlainObject(col.editable)) {
 					var edit = col.editable;
@@ -2664,7 +2680,7 @@
 						}
 						rec_field =	
 							'<div class="w2ui-editable">'+
-								'<input id="grid_'+ this.name +'_edit_'+ ind +'_'+ col_ind +'" value="'+ field +'" type="text"  '+
+								'<input id="grid_'+ this.name +'_edit_'+ ind +'_'+ col_ind +'" value="'+ w2utils.stripTags(field) +'" type="text"  '+
 								'	style="'+ edit.style +'" '+ (record.changed && newValue != '' ? 'class="changed"' : '') + 
 								'	field="'+ col.field +'" recid="'+ record.recid +'" line="'+ ind +'" column="'+ col_ind +'" '+
 								'	onclick = "w2ui[\''+ this.name + '\'].doEdit(\'click\', this, event);" '+

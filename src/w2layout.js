@@ -9,6 +9,7 @@
 *	- onResize for the panel
 *	- % base resizes
 *	- better min/max calculation when window resizes
+*	- content: $('content');
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
