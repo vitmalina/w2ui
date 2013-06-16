@@ -14,7 +14,6 @@
 *	- more events in editable fields (onkeypress)
 *	- on/off line number and select column
 *	- subgrid (easy way with keyboard navigation)
-* 	- error when using left/right arrow keys (second click disconnects from the event listener)
 *	- search 1-20 will range numbers
 *	- route all toolbar events thru the grid
 * 	- need to clean up onRequest, onSave, onLoad commands
@@ -42,6 +41,7 @@
 *	- hints for records (columns?)
 *	- select multiple recors (shift) in a searched list - selects more then needed
 *	- added initKeyboard()
+* 	- error when using left/right arrow keys (second click disconnects from the event listener)
 *
 ************************************************************************/
 
@@ -1294,6 +1294,16 @@
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
 			if (eventData.stop === true) return false;
 			// default behavior
+			var sel 	= obj.getSelection();
+			var records = $('#grid_'+ obj.name +'_records');
+			var recid	= sel[0];
+			var ind		= obj.get(recid, true);
+			var rec 	= obj.get(recid);
+			var sTop	= parseInt(records.prop('scrollTop'));
+			var sHeight = parseInt(records.height());
+			var recEL	= $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid));
+			var rTop 	= parseInt(recEL[0].offsetTop);
+			var rHeight = parseInt(recEL.height());
 			switch (event.keyCode) {
 				case 8: // backspace
 					obj.doDelete();
@@ -1313,21 +1323,23 @@
 					$('#grid_'+ obj.name + '_search_all').focus();
 					if (event.preventDefault) event.preventDefault();
 					break;
-
-			}
-			// arrown up/down and left/right
-			var sel 	= obj.getSelection();
-			var records = $('#grid_'+ obj.name +'_records');
-			if (sel.length == 1) {
-				var recid	= sel[0];
-				var ind		= obj.get(recid, true);
-				var rec 	= obj.get(recid);
-				var sTop	= parseInt(records.prop('scrollTop'));
-				var sHeight = parseInt(records.height());
-				var recEL	= $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid));
-				var rTop 	= parseInt(recEL[0].offsetTop);
-				var rHeight = parseInt(recEL.height());
-				if (event.keyCode == 38 && recEL.length > 0) { // up
+				case 13: // enter
+					if (recEL.length <= 0) break;
+					obj.toggle(sel[0], event);
+					if (event.preventDefault) event.preventDefault();
+					break;
+				case 37: // left
+					if (recEL.length <= 0 || !rec.expanded) break;
+					obj.collapse(sel[0], event);
+					if (event.preventDefault) event.preventDefault();
+					break;
+				case 39: // right
+					if (recEL.length <= 0 || rec.expanded) break;
+					obj.expand(sel[0], event);
+					if (event.preventDefault) event.preventDefault();
+					break;
+				case 38: // up
+					if (recEL.length <= 0) break;
 					if ((ind > 0 && obj.last.searchIds.length == 0) || (obj.last.searchIds.length > 0 && ind > obj.last.searchIds[0])) {
 						ind--;
 						if (obj.last.searchIds.length > 0) {
@@ -1338,15 +1350,19 @@
 						}
 						obj.selectNone();
 						obj.doClick(obj.records[ind].recid, event);
-						// scroll into view
-						if (rTop - rHeight < sTop) {
-							records.prop('scrollTop', rTop - rHeight);
-							obj.last.scrollTop = records.prop('scrollTop');
-						}
+						// scroll into view is buggy
+						// $('#grid_'+ obj.name + '_rec_' + obj.records[ind].recid).scrollintoview({ duration: 50 });
+						// if (rTop - rHeight < sTop) {
+						// 	setTimeout(function () {
+						// 		records.attr('scrollTop', rTop - rHeight * 10);
+						// 		obj.last.scrollTop = records.attr('scrollTop');
+						// 	}, 1);
+						// }
 					}
 					if (event.preventDefault) event.preventDefault();
-				}
-				if (event.keyCode == 40 && recEL.length > 0) { // down
+					break;
+				case 40: // down
+					if (recEL.length <= 0) break;
 					if ((ind + 1 < obj.records.length && obj.last.searchIds.length == 0) || (obj.last.searchIds.length > 0 && ind < obj.last.searchIds[obj.last.searchIds.length-1])) {
 						ind++;
 						if (obj.last.searchIds.length > 0) {
@@ -1357,22 +1373,17 @@
 						}
 						obj.selectNone();
 						obj.doClick(obj.records[ind].recid, event);
+						// scroll into view is buggy
+						// $('#grid_'+ obj.name + '_rec_' + obj.records[ind].recid).scrollintoview({ duration: 50 });
 						// scroll into view
-						if (rTop + rHeight * 2 > sHeight + sTop) {
-							records.prop('scrollTop', -(sHeight - rTop - rHeight) + rHeight);
-							obj.last.scrollTop = records.prop('scrollTop');
-						}
+						// if (rTop + rHeight * 2 > sTop + sHeight) {
+						// 	var tmp = rTop + rHeight - sHeight + sHeight/2;
+						// 	records.attr('scrollTop', tmp).prop('scrollTop', tmp)[0].scrollTop = tmp;
+						// 	obj.last.scrollTop = tmp;
+						// }
 					}
 					if (event.preventDefault) event.preventDefault();
-				}
-				if (event.keyCode == 37 && recEL.length > 0 && rec.expanded) { // left
-					obj.collapse(sel[0], event);
-					if (event.preventDefault) event.preventDefault();
-				}
-				if (event.keyCode == 39 && recEL.length > 0 && !rec.expanded) { // right
-					obj.expand(sel[0], event);
-					if (event.preventDefault) event.preventDefault();
-				}
+					break;
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
