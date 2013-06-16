@@ -41,6 +41,7 @@
 *	- column.title - can be a string or a function
 *	- hints for records (columns?)
 *	- select multiple recors (shift) in a searched list - selects more then needed
+*	- added initKeyboard()
 *
 ************************************************************************/
 
@@ -1270,25 +1271,51 @@
 			}
 			$('#'+ obj.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
 			obj.last.selected = sel;
-			// keyboard events are added there
+			obj.initKeyboard();
 			obj.initResize();
 		},
 
+		initKeyboard: function () {
+			// keyboard events 
+			if (this.keyboard && window.w2active == this.name) {
+				$(document)
+					.off('keydown', w2ui[window.w2active].doKeydown)
+					.on('keydown', this.doKeydown);
+			} else {
+				$(document).off('keydown', this.doKeydown);
+			}
+		},
+
 		doKeydown: function (event) {
+			//console.log('keydown ', window.w2active, event.target.tagName, event.keyCode);
 			if (event.target && event.target.tagName != 'BODY') return;
 			var obj = w2ui[window.w2active];
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
 			if (eventData.stop === true) return false;
 			// default behavior
-			if (event.keyCode == 65 && (event.metaKey || event.ctrlKey)) {
-				obj.selectAll();
-				if (event.preventDefault) event.preventDefault();
+			switch (event.keyCode) {
+				case 8: // backspace
+					obj.doDelete();
+					if (event.preventDefault) event.preventDefault();
+					break;
+				case 27: // escape
+					obj.selectNone();
+					if (event.preventDefault) event.preventDefault();
+					break;
+				case 65: // cmd + A
+					if (!event.metaKey && !event.ctrlKey) break;
+					obj.selectAll();
+					if (event.preventDefault) event.preventDefault();
+					break;
+				case 70: // cmd + F
+					if (!event.metaKey && !event.ctrlKey) break;
+					$('#grid_'+ obj.name + '_search_all').focus();
+					if (event.preventDefault) event.preventDefault();
+					break;
+
 			}
-			if (event.keyCode == 8) {
-				obj.doDelete();
-				if (event.preventDefault) event.preventDefault();
-			}
+			// arrown up/down and left/right
 			var sel 	= obj.getSelection();
 			var records = $('#grid_'+ obj.name +'_records');
 			if (sel.length == 1) {
@@ -1338,17 +1365,17 @@
 					}
 					if (event.preventDefault) event.preventDefault();
 				}
-				if (event.keyCode == 37 && recEL.length > 0 && recEL.attr('expanded') == 'yes') { // left
-					obj.toggle(sel[0], event);
+				if (event.keyCode == 37 && recEL.length > 0 && rec.expanded) { // left
+					obj.collapse(sel[0], event);
 					if (event.preventDefault) event.preventDefault();
 				}
-				if (event.keyCode == 39 && recEL.length > 0 && recEL.attr('expanded') !== 'yes') { // right
-					obj.toggle(sel[0], event);
+				if (event.keyCode == 39 && recEL.length > 0 && !rec.expanded) { // right
+					obj.expand(sel[0], event);
 					if (event.preventDefault) event.preventDefault();
 				}
-				// event after
-				obj.trigger($.extend(eventData, { phase: 'after' }));
 			}
+			// event after
+			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		doDblClick: function (recid, event) {
@@ -1376,15 +1403,15 @@
 		expand: function (recid) {
 			var rec = this.get(recid);
 			var id = w2utils.escapeId(recid);
-			if ($('#grid_'+ this.name +'_rec_'+ recid +'_expanded_row').length > 0) return false;
+			if ($('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length > 0) return false;
 			// insert expand row
 			var tmp = 1 + (this.show.lineNumbers ? 1 : 0) + (this.show.selectColumn ? 1 : 0);
 			var addClass = ''; // ($('#grid_'+this.name +'_rec_'+ w2utils.escapeId(recid)).hasClass('w2ui-odd') ? 'w2ui-odd' : 'w2ui-even');
 			$('#grid_'+ this.name +'_rec_'+ id).after(
-					'<tr id="grid_'+ this.name +'_rec_'+ recid +'_expanded_row" class="'+ addClass +'">'+
+					'<tr id="grid_'+ this.name +'_rec_'+ id +'_expanded_row" class="'+ addClass +'">'+
 					'	<td class="w2ui-grid-data" colspan="'+ tmp +'"></td>'+
 					'	<td colspan="100" class="w2ui-subgrid">'+
-					'		<div id="grid_'+ this.name +'_rec_'+ recid +'_expaned">&nbsp;</div>'+
+					'		<div id="grid_'+ this.name +'_rec_'+ id +'_expaned">&nbsp;</div>'+
 					'	</td>'+
 					'</tr>');
 			// event before
@@ -1401,6 +1428,7 @@
 			rec.expanded = true;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			this.initKeyboard();
 			this.resizeRecords();
 			return true;
 		},
@@ -1408,7 +1436,7 @@
 		collapse: function (recid) {
 			var rec = this.get(recid);
 			var id = w2utils.escapeId(recid);
-			if ($('#grid_'+ this.name +'_rec_'+ recid +'_expanded_row').length == 0) return false;
+			if ($('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length == 0) return false;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid,
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expaned' });
@@ -1420,6 +1448,7 @@
 			delete rec.expanded;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			this.initKeyboard();
 			this.resizeRecords();
 			return true;
 		},
@@ -1502,7 +1531,7 @@
 			var obj  = this;
 			var time = (new Date()).getTime();
 			// if over the max page, then go to page 1
-			if (this.total <= 0) this.total = this.records.length;
+			if (this.total < 0) this.total = this.records.length;
 			var totalPages = Math.floor(this.total / this.recordsPerPage);
 			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
 			if (this.page > 0 && this.page > totalPages-1) this.goto(0);
@@ -1914,13 +1943,6 @@
 
 		initResize: function () {
 			var obj = this;
-			// keyboard events
-			if (obj.keyboard && window.w2active == obj.name) {
-				$(document).off('keydown', w2ui[window.w2active].doKeydown)
-				$(document).on('keydown', obj.doKeydown);
-			} else {
-				$(document).off('keydown', obj.doKeydown);
-			}
 			//if (obj.resizing === true) return;
 			$(this.box).find('.w2ui-resizer')
 				.off('click')
