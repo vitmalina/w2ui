@@ -475,9 +475,9 @@
 				for (var r in this.records) {
 					var rec = this.records[r];
 					var fl  = 0;
-					for (var s in this.searches) {
-						var search 	= this.searches[s];
-						var sdata  	= this.getSearchData(search.field);
+					for (var s in this.searchData) {
+						var sdata  	= this.searchData[s];
+						var search 	= this.getSearch(sdata.field);
 						if (sdata == null) continue;
 						var val1;
 						try { val1 = eval('rec.'+ search.field); } catch (e) {}
