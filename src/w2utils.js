@@ -566,7 +566,8 @@ var w2utils = (function () {
 		}, time * 1000);
 		
 		function cross(property, value, none_webkit_value) {
-			if (!$.browser.webkit && typeof none_webkit_value != 'undefined') value = none_webkit_value;
+			var isWebkit=!!window.webkitURL; // jQuery no longer supports $.browser - RR
+			if (!isWebkit && typeof none_webkit_value != 'undefined') value = none_webkit_value;
 			return ';'+ property +': '+ value +'; -webkit-'+ property +': '+ value +'; -moz-'+ property +': '+ value +'; '+
 				   '-ms-'+ property +': '+ value +'; -o-'+ property +': '+ value +';';
 		}
