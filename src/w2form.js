@@ -12,6 +12,7 @@
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
 * 	- generate should use fields, and not its own structure
+*	- added submit() as alias of save()
 *
 ************************************************************************/
 
@@ -434,6 +435,10 @@
 			});
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
+		submit: function (postData, callBack) {
+			return this.save(postData, callBack);
 		},
 
 		save: function (postData, callBack) {
