@@ -42,6 +42,9 @@
 *	- select multiple recors (shift) in a searched list - selects more then needed
 *	- added initKeyboard()
 * 	- error when using left/right arrow keys (second click disconnects from the event listener)
+*	- deprecated recordsPerPage, page, goto()
+* 	- added onDeleted, onSaved - when it returns from the server
+* 	- added buffered, limit, offset
 *
 ************************************************************************/
 
@@ -87,9 +90,10 @@
 		this.multiSort			= true;
 		this.keyboard			= true;		// if user clicks on the list; it will bind all events from the keyboard for that list
 
-		this.total				= 0;		// total number of records
-		this.page				= 0; 		// current page
-		this.recordsPerPage		= 50;
+		this.total				= 0;		// server total
+		this.buffered			= 0;		// number of records in the records array
+		this.limit				= 100;
+		this.offset				= 0;
 		this.style				= '';
 
 		this.msgDelete			= w2utils.lang('Are you sure you want to delete selected records?');
@@ -97,11 +101,13 @@
 		this.msgRefresh			= w2utils.lang('Refreshing...');
 
 		// events
+		this.onAdd				= null;
 		this.onRequest			= null;		// called on any server event
 		this.onLoad				= null;
-		this.onAdd				= null;
 		this.onDelete			= null;
+		this.onDeleted			= null
 		this.onSave 			= null;
+		this.onSaved			= null;
 		this.onSelect			= null;
 		this.onUnselect 		= null;
 		this.onClick 			= null;
@@ -191,7 +197,7 @@
 				}
 				object.records[r] = $.extend(true, {}, records[r]);
 			}
-			if (object.records.length > 0) object.total = object.records.length;
+			if (object.records.length > 0) object.buffered = object.records.length;
 			// add searches
 			for (var c in object.columns) {
 				var col = object.columns[c];
@@ -236,7 +242,7 @@
 				this.records.push(record[o]);
 				added++;
 			}
-			this.total = this.records.length;
+			this.buffered = this.records.length;
 			if (this.url == '') {
 				this.localSort();
 				this.localSearch();
@@ -281,7 +287,7 @@
 				if (tr.length != 0) {
 					var line = tr.attr('line');
 					// if it is searched, find index in search array
-					if (this.searchData.length > 0) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
+					if (this.searchData.length > 0 && this.url == '') for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
 					$(tr).replaceWith(this.getRecordHTML(ind, line));
 				}
 				return true;
@@ -305,7 +311,7 @@
 				}
 			}
 			if (this.url == '') {
-				this.total = this.records.length;
+				this.buffered = this.records.length;
 				this.localSort();
 				this.localSearch();
 			}
@@ -451,12 +457,16 @@
 		},		
 
 		clear: function () {
-			this.records = [];
-			this.total   = 0;
+			this.records	= [];
+			this.buffered   = 0;
 			this.refresh();
 		},
 
 		localSort: function (silent) {
+			if (this.url != '') {
+				console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.');
+				return;
+			}
 			var time = (new Date()).getTime();
 			var obj = this;
 			this.records.sort(function (a, b) {
@@ -484,20 +494,24 @@
 		},
 
 		localSearch: function (silent) {
+			if (this.url != '') {
+				console.log('ERROR: grid.localSearch can only be used on local data source, grid.url should be empty.');
+				return;
+			}
 			var time = (new Date()).getTime();
 			var obj = this;
 			this.total = this.records.length;
 			// mark all records as shown
 			this.last.searchIds = [];
 			// hide records that did not match
-			if (this.searchData.length > 0) {
+			if (this.searchData.length > 0 && this.url == '') {
 				this.total = 0;
 				for (var r in this.records) {
 					var rec = this.records[r];
 					var fl  = 0;
-					for (var s in this.searches) {
-						var search 	= this.searches[s];
-						var sdata  	= this.getSearchData(search.field);
+					for (var s in this.searchData) {
+						var sdata  	= this.searchData[s];
+						var search 	= this.getSearch(sdata.field);
 						if (sdata == null) continue;
 						var val1 = String(obj.parseObj(rec, search.field)).toLowerCase();
 						if (typeof sdata.value != 'undefined') {
@@ -548,6 +562,7 @@
 				}
 				this.total = this.last.searchIds.length;
 			}
+			this.buffered = this.total;
 			time = (new Date()).getTime() - time;
 			if (silent !== true) setTimeout(function () { $('#grid_'+ obj.name +'_footer').find('.w2ui-footer-left').html('Search took ' + time/1000 + ' sec'); }, 10);
 			return time;
@@ -635,7 +650,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
 			if (eventData.stop === true) return;
 			// default action
-			if (this.searchData.length == 0) { 
+			if (this.searchData.length == 0 && this.url == '') { 
 				// not searched
 				this.set({ selected: true });
 			} else { 
@@ -695,7 +710,7 @@
 						searchData.push(tmp);
 					}
 				}
-				if (searchData.length > 0) {
+				if (searchData.length > 0 && this.url == '') {
 					last_multi	= true;
 					last_logic  = 'AND';
 				}
@@ -777,12 +792,13 @@
 			this.searchClose();
 			// apply search
 			if (this.url != '') {
-				this.page = 0;
+				this.offset = 0;
 				this.reload();
 			} else {
 				// local search
 				this.localSearch();
-				this.goto(0);
+				this.offset = 0;
+				this.refresh();
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -881,30 +897,16 @@
 			this.searchClose();
 			// apply search
 			if (this.url != '') {
-				this.page = 0;
+				this.offset = 0;
 				this.reload();
 			} else {
 				// local search
 				this.localSearch();
-				this.goto(0);
+				this.offset = 0;
+				this.refresh();
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-		},
-
-		goto: function (newPage) {
-			var totalPages = Math.floor(this.total / this.recordsPerPage);
-			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
-			if (totalPages < 1) totalPages = 1;
-			if (newPage < 0) newPage = 0;
-			if (newPage >= totalPages) newPage = totalPages - 1;
-			// reset scrolling position
-			this.last.scrollTop		= 0;
-			this.last.scrollLeft	= 0;
-			this.last.selected		= [];
-			// refresh items
-			this.page = newPage;
-			this.reload();
 		},
 
 		load: function (url, callBack) {
@@ -927,9 +929,8 @@
 		},
 
 		reset: function() {
-			// move to first page
-			this.page 	= 0;
 			// reset last remembered state
+			this.offset 			= 0;
 			this.searchData			= [];
 			this.last.search		= '';
 			this.last.searchIds		= [];
@@ -958,8 +959,8 @@
 			// add list params
 			params['cmd']  	 		= cmd;
 			params['name'] 	 		= this.name;
-			params['limit']  		= this.recordsPerPage;
-			params['offset'] 		= this.page * this.recordsPerPage;
+			params['limit']  		= this.limit;
+			params['offset'] 		= this.offset;
 			params['selected'] 		= this.getSelection();
 			params['search']  		= this.searchData;
 			params['search-logic'] 	= this.last.logic;
@@ -968,18 +969,19 @@
 			$.extend(params, this.postData);
 			$.extend(params, add_params);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, cmd: cmd, url: url, postData: params });
+			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
 			if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
-			// default action
-			if (cmd == 'get-records') this.records = [];
 			// call server to get data
 			var obj = this;
 			this.lock(this.msgRefresh);
 			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
-			if (cmd == 'save-records')   	xhr_type = 'PUT';  // so far it is always update
-			if (cmd == 'delete-records') 	xhr_type = 'DELETE';
+			if (params.cmd == 'save-records')   	xhr_type = 'PUT';  // so far it is always update
+			if (params.cmd == 'delete-records') 	xhr_type = 'DELETE';
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
+			this.last.xhr_cmd	 = params.cmd;
+			this.last.xhr_start  = (new Date()).getTime();
+			this.last.xhr_offset = this.offset;
 			this.last.xhr = $.ajax({
 				type		: xhr_type,
 				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
@@ -996,8 +998,15 @@
 		requestComplete: function(status, cmd, callBack) {
 			var obj = this;
 			this.unlock();
+			setTimeout(function () { $('#grid_'+ obj.name +'_footer').find('.w2ui-footer-left').html('Server Response ' + 
+					((new Date()).getTime() - obj.last.xhr_start)/1000 + ' sec'); }, 10);
+			this.last.pull_more = false;
+
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'load', xhr: this.last.xhr, status: status });
+			var event_name = 'load';
+			if (this.last.xhr_cmd == 'save-records') event_name   = 'saved';
+			if (this.last.xhr_cmd == 'delete-records') event_name = 'deleted';
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
 			if (eventData.stop === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
@@ -1025,8 +1034,25 @@
 					if (data['status'] == 'error') {
 						obj.error(data['message']);
 					} else {
-						if (cmd == 'get-records') $.extend(true, this, data);
-						if (cmd == 'delete-records') { this.reload(); return; }
+						if (cmd == 'get-records') {
+							if (this.last.xhr_offset == 0) {
+								this.records = [];
+								$.extend(true, this, data);
+								this.buffered = this.records.length;
+							} else {
+								var records = data.records;
+								delete data.records;
+								$.extend(true, this, data);
+								for (var r in records) {
+									this.records.push(records[r]);
+								}
+								this.buffered = this.records.length;
+							}
+						}
+						if (cmd == 'delete-records') { 
+							this.reload(); 
+							return;
+						}
 					}
 				}
 			} else {
@@ -1231,13 +1257,13 @@
 				var sel_add = []
 				if (start <= end) {
 					for (var i = start + 1; i <= end; i++) {
-						if (this.searchData.length > 0 && $.inArray(i, this.last.searchIds) == -1) continue;
+						if (this.searchData.length > 0 && this.url == '' && $.inArray(i, this.last.searchIds) == -1) continue;
 						sel_add.push(this.records[i].recid);
 						sel.push(this.records[i].recid);
 					}
 				} else {
 					for (var i = start - 1; i >= end; i--) {
-						if (this.searchData.length > 0 && $.inArray(i, this.last.searchIds) == -1) continue;
+						if (this.searchData.length > 0 && this.url == '' && $.inArray(i, this.last.searchIds) == -1) continue;
 						sel_add.push(this.records[i].recid);
 						sel.push(this.records[i].recid);
 					}
@@ -1504,7 +1530,8 @@
 				this.refresh();
 			} else {
 				// event after
-				this.trigger($.extend(eventData, { phase: 'after' }));				
+				this.trigger($.extend(eventData, { phase: 'after' }));
+				this.offset = 0;
 				this.reload();
 			}
 		},
@@ -1543,9 +1570,7 @@
 			var time = (new Date()).getTime();
 			// if over the max page, then go to page 1
 			if (this.total < 0) this.total = this.records.length;
-			var totalPages = Math.floor(this.total / this.recordsPerPage);
-			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
-			if (this.page > 0 && this.page > totalPages-1) this.goto(0);
+			if (this.buffered <= 0 && this.url == '') this.buffered = this.total; 
 
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (!this.box) return;
@@ -2117,7 +2142,7 @@
 			if (this.show.emptyRecords && !bodyOverflowY) {
 				var max = Math.floor(records.height() / this.recordHeight) + 1;
 				if (this.fixedBody) {
-					for (var di = this.total; di <= max; di++) {
+					for (var di = this.buffered; di <= max; di++) {
 						var html  = '';
 						html += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'">';
 						if (this.show.lineNumbers)  html += '<td class="w2ui-col-number"></td>';
@@ -2483,10 +2508,10 @@
 
 		getRecordsHTML: function () {
 			this.show_extra = 30;	// larget number works better with chrome, smaller with FF.
-			if (this.total <= 300) this.show_extra = 300;
+			if (this.buffered <= 300) this.show_extra = 300;
 			var records	= $('#grid_'+ this.name +'_records');
 			var limit	= Math.floor(records.height() / this.recordHeight) + this.show_extra + 1;
-			if (!this.fixedBody) limit = this.total;
+			if (!this.fixedBody) limit = this.buffered;
 			// always need first record for resizing purposes
 			var html = '<table>' + this.getRecordHTML(-1, 0);
 			// first empty row with height
@@ -2496,7 +2521,7 @@
 			for (var i = 0; i < limit; i++) {
 				html += this.getRecordHTML(i, i+1);
 			}
-			html += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((this.total - limit) * this.recordHeight) +'px">'+
+			html += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((this.buffered - limit) * this.recordHeight) +'px">'+
 					'	<td colspan="200"></td>'+
 					'</tr>'+
 					'</table>';
@@ -2522,12 +2547,13 @@
 			// update footer
 			var t1 = Math.floor(records[0].scrollTop / this.recordHeight + 1);
 			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.floor(records.height() / this.recordHeight);
-			if (t1 > this.total) t1 = this.total;
-			if (t2 > this.total) t2 = this.total;
+			if (t1 > this.buffered) t1 = this.buffered;
+			if (t2 > this.buffered) t2 = this.buffered;
 			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
 				String(t1).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '-' + 
 				String(t2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' of ' + 
-				String(this.total).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")
+				String(this.total).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") +
+				(this.url != '' ? ' (buffered '+ String(this.buffered).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ')' : '')
 			);
 			if (!this.fixedBody || this.total <= 300) return;
 			// regular processing
@@ -2545,7 +2571,7 @@
 			var last  = parseInt(tr2.prev().attr('line'));
 			//console.log('show: ' + start + '-'+ end + ' ===> current: ' + first + '-' + last);
 			if (first < start || first == 1) { // scroll down
-				if (end <= last + this.show_extra && end < this.total) return;
+				if (end <= last + this.show_extra && end < this.buffered) return;
 				// remove from top
 				while (true) {
 					var tmp = records.find('#grid_'+ this.name +'_rec_top').next();
@@ -2577,12 +2603,20 @@
 			}
 			// first/last row size
 			var h1 = (start - 1) * this.recordHeight;
-			var h2 = (this.total - end) * this.recordHeight;
+			var h2 = (this.buffered - end) * this.recordHeight;
 			if (h2 < 0) h = 0;
 			tr1.css('height', h1 + 'px');
 			tr2.css('height', h2 + 'px');
 			this.last.range_start = start;
 			this.last.range_end   = end;
+			// load more if needed
+			var s = Math.floor(records[0].scrollTop / this.recordHeight);
+			var e = s + Math.floor(records.height() / this.recordHeight);
+			if (e + 10 > this.buffered && this.last.pull_more !== true && this.buffered < this.total) {
+				this.last.pull_more = true;
+				this.offset += this.limit;
+				this.request('get-records');
+			}
 			return;
 		},
 
@@ -2604,7 +2638,7 @@
 			}
 			// regular record
 			if (summary !== true) {
-				if (this.searchData.length > 0) {
+				if (this.searchData.length > 0 && this.url == '') {
 					if (ind >= this.last.searchIds.length) return '';
 					ind = this.last.searchIds[ind];
 					record = this.records[ind]; 
@@ -2751,33 +2785,10 @@
 		},
 
 		getFooterHTML: function () {
-			// counts
-			var last = (this.page * this.recordsPerPage + this.recordsPerPage);
-			if (last > this.total) last = this.total;
-			var pageCountDsp = (this.page * this.recordsPerPage + 1) +'-'+ String(last).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + 
-				w2utils.lang('of') +' '+ String(this.total).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-			if (this.page == 0 && this.total == 0) pageCountDsp = '0-0 '+ w2utils.lang('of') +' 0';
-			// pages
-			var totalPages = Math.floor(this.total / this.recordsPerPage);
-			if (this.total % this.recordsPerPage != 0 || totalPages == 0) totalPages++;
-			if (totalPages < 1) totalPages = 1;
-			var pages = '<div class="w2ui-footer-nav">'+
-				 '		<a class="w2ui-footer-btn" '+
-				 '  		onclick="w2ui[\''+ this.name +'\'].goto(w2ui[\''+ this.name +'\'].page - 1)" '+ (this.page == 0 ? 'disabled' : '') +
-				 '		> << </a>'+
-				 '		<input type="text" value="'+ (this.page + 1) +'" '+
-				 '			onclick="this.select();" '+
-				 '			onkeyup="if (event.keyCode != 13) return; '+
-				 '					 if (this.value < 1 || !w2utils.isInt(this.value)) this.value = 1; '+
-				 '					 w2ui[\''+ this.name +'\'].goto(parseInt(this.value-1)); ">'+
-				 '		<a class="w2ui-footer-btn" '+
-				 '  		onclick="w2ui[\''+ this.name +'\'].goto(w2ui[\''+ this.name +'\'].page + 1)" '+ (this.page == totalPages-1 || totalPages == 0 ? 'disabled' : '') +
-				 '		> >> </a>'+
-				 '</div>';
 			return '<div>'+
 				'	<div class="w2ui-footer-left"></div>'+
-				'	<div class="w2ui-footer-right">'+ pageCountDsp +'</div>'+
-				'	<div class="w2ui-footer-center">'+ pages +'</div>'+
+				'	<div class="w2ui-footer-right">'+ this.buffered +'</div>'+
+				'	<div class="w2ui-footer-center"></div>'+
 				'</div>';
 		},
 

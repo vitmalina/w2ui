@@ -54,7 +54,7 @@ class w2grid_class {
 
 					case 'between':
 						$operator = "BETWEEN";
-						$value 	  = "'".$search['valueStart']."' AND '".$search['valueEnd']."'";
+						$value 	  = "'".$search['value'][0]."' AND '".$search['value'][1]."'";
 						break;
 
 					case 'in':
@@ -97,11 +97,10 @@ class w2grid_class {
 		$rs = $db->execute($cql);
 		$data['status'] = 'success';
 		$data['total']  = $rs->fields[0];
-		$data['page']   = 0;
-		if ($request['offset'] > 0 && $request['limit'] > 0) $data['page'] = $request['offset'] / $request['limit'];
 
 		// execute sql
 		$rs = $db->execute($sql);
+		//print($sql);
 
 		// check for error
 		if ($db->res_errMsg != '') {
