@@ -21,18 +21,18 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
 	var obj = {
 		settings : {
-			locale			: "en-us",
-			date_format		: "mm/dd/yyyy",
-			date_display	: "Mon dd, yyyy",
-			time_format		: "hh:mi pm",
-			currency		: "^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$",
-			float			: "^[-]?[0-9]*[\.]?[0-9]+$",
-			shortmonths		: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-			fullmonths		: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-			shortdays		: ["M", "T", "W", "T", "F", "S","S"],
-			fulldays 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-			RESTfull		: false,
-			phrases 		: {} // empty object for english phrases
+			"locale"		: "en-us",
+			"date_format"	: "mm/dd/yyyy",
+			"date_display"	: "Mon dd, yyyy",
+			"time_format"	: "hh:mi pm",
+			"currency"		: "^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$",
+			"float"			: "^[-]?[0-9]*[\.]?[0-9]+$",
+			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			"shortdays"		: ["M", "T", "W", "T", "F", "S","S"],
+			"fulldays" 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+			"RESTfull"		: false,
+			"phrases"		: {} // empty object for english phrases
 		},
 		isInt			: isInt,
 		isFloat			: isFloat,
@@ -65,7 +65,7 @@ var w2utils = (function () {
 	}
 		
 	function isFloat (val) {
-		var re =  new RegExp(w2utils.settings.float);
+		var re =  new RegExp(w2utils.settings["float"]);
 		return re.test(val);		
 	}
 
