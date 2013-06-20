@@ -291,7 +291,8 @@ select {
   margin-right: 5px;
 }
 .w2ui-form input[type=checkbox] {
-  margin-top: 6px;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 .w2ui-group {
   background-color: #495474;
@@ -302,7 +303,9 @@ select {
 }
 .w2ui-label {
   float: left;
+  clear: left;
   margin-top: 6px;
+  margin-bottom: 3px;
   width: 120px;
   padding: 0px;
   white-space: nowrap;
@@ -354,6 +357,7 @@ select {
 .w2ui-field {
   /* do not include width */
 
+  margin-bottom: 3px;
   margin-left: 128px;
   padding: 3px;
   min-height: 20px;
@@ -1600,7 +1604,7 @@ select {
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node-group :nth-child(2) {
   /* title text */
-  font-weight: bold;
+  font-weight: normal;
   text-transform: uppercase;
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node-sub {
@@ -1659,7 +1663,7 @@ select {
   padding: 0px 7px;
 }
 .w2ui-tabs .w2ui-tab {
-  padding: 5px 20px;
+  padding: 6px 20px;
   text-align: center;
   color: #c0c8d5;
   background-color: transparent;
@@ -1677,6 +1681,9 @@ select {
   border: 1px solid #999999;
   border-bottom: 1px solid transparent;
 }
+.w2ui-tabs .w2ui-tab.closable {
+  padding: 6px 28px 6px 20px;
+}
 .w2ui-tabs .w2ui-tab-close {
   float: right;
   margin: 4px 5px 0px 4px;
@@ -1685,7 +1692,7 @@ select {
   opacity: 0.9;
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAMCAMAAABP7o1HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///////1V89WwAAAACdFJOU/8A5bcwSgAAAEZJREFUeNpiYEQFDGAAYmATB8mgSjBApEAMsC4YwYDEg5EQdTBZqD2McAvR+DCdmBJIOlCMQrID3XI4gepcIjyIFCQAAQYAaD0ArHd1+soAAAAASUVORK5CYII=) no-repeat center left;
   border: 0px;
-  border-top: 2px solid transparent;
+  border-top: 3px solid transparent;
 }
 .w2ui-tabs .w2ui-tab-close:hover {
   background-position: -12px 0px;
@@ -1728,6 +1735,7 @@ select {
   padding: 0px;
   margin: 3px 3px 3px 3px !important;
   border: 0px !important;
+  text-align: center;
 }
 .w2ui-toolbar table.w2ui-button .w2ui-tb-image > span {
   font-size: 16px;
