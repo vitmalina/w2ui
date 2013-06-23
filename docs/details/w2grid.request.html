@@ -23,9 +23,16 @@ Prepares and submits request to the server.
 
 <h4>Description</h4>
 
-Prepares and submits request to the server by calling the <a class="method" href="w2grid.url">.url</a> width <span class="argument">cmd</span>
+Prepares and submits request to the server by calling the <a class="method" href="w2grid.url">.url</a> with <span class="argument">cmd</span>
 command. This method is used internally, but can also be used any time during run-time.
 <div style="height: 10px"></div>
+
+The first parameter <span class="argument">cmd</span> can be one of the following:
+<ul>
+	<li>get-records</li>
+	<li>delete-records</li>
+	<li>save-records</li>
+</ul>
 
 The second optional argument <span class="argument">params</span> is the map of additional properties to submit to the server. 
 This method will already submit grid's state such as searchData, sortData, postData, which you do not need to include again. The third 
