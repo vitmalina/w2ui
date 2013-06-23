@@ -8,16 +8,12 @@
 * == NICE TO HAVE ==
 *	- global search apply types and drop downs
 *	- editable fields (list) - better inline editing
-*	- infinite scroll (buffered scroll)
 *	- frozen columns
 *	- column autosize based on largest content
 *	- more events in editable fields (onkeypress)
 *	- on/off line number and select column
 *	- subgrid (easy way with keyboard navigation)
-*	- search 1-20 will range numbers
-*	- route all toolbar events thru the grid
-* 	- need to clean up onRequest, onSave, onLoad commands
-* 	- mode record with keyboard, grid does not follow
+* 	- move record with keyboard, grid does not follow
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -45,6 +41,11 @@
 *	- deprecated recordsPerPage, page, goto()
 * 	- added onDeleted, onSaved - when it returns from the server
 * 	- added buffered, limit, offset
+* 	- need to clean up onRequest, onSave, onLoad commands
+*	- added onToolbar event - click on any toolbar button
+*	- route all toolbar events thru the grid
+*	- infinite scroll (buffered scroll)
+*	- search 1-20 will range numbers
 *
 ************************************************************************/
 
@@ -119,6 +120,7 @@
 		this.onCollapse			= null;
 		this.onError 			= null;
 		this.onKeyboard			= null;
+		this.onToolbar			= null; 	// all events from toolbar
 		this.onRender 			= null;
 		this.onRefresh 			= null;
 		this.onReload			= null;
@@ -772,8 +774,20 @@
 							};
 							searchData.push(tmp);
 						}
+						// range in global search box 
+						if (search.type == 'int' && String(value).indexOf('-') != -1) {
+							var t = String(value).split('-');
+							var tmp = {
+								field	 : search.field,
+								type	 : search.type,
+								operator : 'between',
+								value	 : [t[0], t[1]]
+							};
+							searchData.push(tmp);
+						}
 					}
 				}
+				console.log(searchData);
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData });
@@ -928,7 +942,7 @@
 			}
 		},
 
-		reset: function() {
+		reset: function (noRefresh) {
 			// reset last remembered state
 			this.offset 			= 0;
 			this.searchData			= [];
@@ -947,7 +961,7 @@
 			// select none without refresh
 			this.set({ selected: false });
 			// refresh
-			this.refresh();
+			if (!noRefresh) this.refresh();
 		},
 
 		request: function (cmd, add_params, url, callBack) {
@@ -969,8 +983,12 @@
 			$.extend(params, this.postData);
 			$.extend(params, add_params);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
-			if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
+			if (cmd == 'get-records') {
+				var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
+				if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
+			} else {
+				var eventData = { url: this.url, postData: this.postData };
+			}
 			// call server to get data
 			var obj = this;
 			this.lock(this.msgRefresh);
@@ -984,15 +1002,17 @@
 			this.last.xhr_offset = this.offset;
 			this.last.xhr = $.ajax({
 				type		: xhr_type,
-				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				url			: eventData.url, 
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
 					obj.requestComplete(status, cmd, callBack);
 				}
 			});
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+			if (cmd == 'get-records') {
+				// event after
+				this.trigger($.extend(eventData, { phase: 'after' }));
+			}
 		},
 				
 		requestComplete: function(status, cmd, callBack) {
@@ -1064,7 +1084,8 @@
 				this.localSearch();
 			}
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.refresh();
+			// do not refresh if loading on infinite scroll
+			if (this.last.xhr_offset == 0) this.refresh(); else this.doScroll();
 			// call back
 			if (typeof callBack == 'function') callBack();
 		},
@@ -1124,15 +1145,17 @@
 		},
 
 		doSave: function () {
+			var obj = this;
 			var changed = this.getChanged();
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
 			if (eventData.stop === true) return false;
 			if (this.url != '') {
-				this.request('save-records', { 'changed' : eventData.changed }, null, function () {
-				// event after
-				this.trigger($.extend(eventData, { phase: 'after' }));
-				});
+				this.request('save-records', { 'changed' : eventData.changed }, null, 
+					function () { // event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
+					}
+				);
 			} else {
 				for (var c in changed) {
 					var record = this.get(changed[c].recid);
@@ -1688,11 +1711,11 @@
 			// send expand events
 			var rows = obj.find({ expanded: true });
 			for (var r in rows) {
-				var eventData = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: rows[r], 
+				var eventData2 = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: rows[r], 
 					box_id: 'grid_'+ this.name +'_rec_'+ w2utils.escapeId(rows[r]) +'_expaned' });
-				if (eventData.stop === true) return false; 
+				if (eventData2.stop === true) return false; 
 				// event after
-				this.trigger($.extend(eventData, { phase: 'after' }));
+				this.trigger($.extend(eventData2, { phase: 'after' }));
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -1865,13 +1888,15 @@
 
 				var obj = this;
 				this.toolbar.on('click', function (id, data) {
+					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: id, data: data });
+					if (eventData.stop === true) return false;
 					switch (id) {
 						case 'reload':
-							var eventData = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
-							if (eventData.stop === true) return false;
-							obj.reset();
+							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
+							if (eventData2.stop === true) return false;
+							obj.reset(true);
 							obj.reload();
-							obj.trigger({ phase: 'after' });
+							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;
 						case 'column-on-off':
 							for (var c in obj.columns) {
@@ -1916,6 +1941,8 @@
 							obj.doSave();
 							break;
 					}
+					// no default action
+					obj.trigger($.extend(eventData, { phase: 'after' }));
 				});
 			}
 			return;
