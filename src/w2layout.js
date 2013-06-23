@@ -15,6 +15,7 @@
 *   - tabs can be array of string, array of tab objects or w2tabs object
 *	- html() method is alias for content()
 *	- el(panel) - returns DOM element for the panel
+*	- resizer should be on top of the panel (for easy styling)
 * 
 ************************************************************************/
 
@@ -23,7 +24,7 @@
 		this.box		= null		// DOM Element that holds the element
 		this.name		= null;		// unique name for w2ui
 		this.panels		= [];
-		this.padding	= 1;		// panel padding
+		this.padding	= 0;		// panel padding
 		this.resizer	= 4;		// resizer width or height
 		this.style		= '';
 		this.css		= '';		// will display all inside <style> tag
@@ -476,7 +477,7 @@
 				ptop.height = h;
 				// resizer
 				if (ptop.resizable) {
-					t = ptop.size;
+					t = ptop.size - this.resizer;
 					h = this.resizer;
 					$('#layout_'+ this.name +'_resizer_top').show().css({
 						'display': 'block',
@@ -496,10 +497,10 @@
 			// left if any
 			if (pleft != null && pleft.hidden != true) {
 				var l = 0;
-				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
+				var t = 0 + (stop ? ptop.size + this.padding : 0);
 				var w = pleft.size;
-				var h = height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
-									  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0);
+				var h = height - (stop ? ptop.size + this.padding : 0) - 
+									  (sbottom ? pbottom.size + this.padding : 0);
 				var e = $('#layout_'+ this.name +'_panel_left');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 				$('#layout_'+ this.name +'_panel_left').css({
@@ -513,7 +514,7 @@
 				pleft.height = h;
 				// resizer
 				if (pleft.resizable) {
-					l = pleft.size;
+					l = pleft.size - this.resizer;
 					w = this.resizer;
 					$('#layout_'+ this.name +'_resizer_left').show().css({
 						'display': 'block',
@@ -534,10 +535,10 @@
 			// right if any
 			if (pright != null && pright.hidden != true) {
 				var l = width - pright.size;
-				var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
+				var t = 0 + (stop ? ptop.size + this.padding : 0);
 				var w = pright.size;
-				var h = height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
-									  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0);
+				var h = height - (stop ? ptop.size + this.padding : 0) - 
+									  (sbottom ? pbottom.size + this.padding : 0);
 				$('#layout_'+ this.name +'_panel_right').css({
 					'display': 'block',
 					'left': l + 'px',
@@ -549,7 +550,7 @@
 				pright.height = h;
 				// resizer
 				if (pright.resizable) {
-					l = l - this.resizer;
+					l = l;
 					w = this.resizer;
 					$('#layout_'+ this.name +'_resizer_right').show().css({
 						'display': 'block',
@@ -583,7 +584,7 @@
 				pbottom.height = h;
 				// resizer
 				if (pbottom.resizable) {
-					t = t - this.resizer;
+					t = t;
 					h = this.resizer;
 					$('#layout_'+ this.name +'_resizer_bottom').show().css({
 						'display': 'block',
@@ -601,13 +602,13 @@
 				$('#layout_'+ this.name +'_panel_bottom').hide();
 			}
 			// main - always there
-			var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0);
-			var t = 0 + (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0);
-			var w = width  - (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0) - 
-								  (sright ? pright.size + (pright.resizable ? this.resizer : this.padding): 0);
-			var h = height - (stop ? ptop.size + (ptop.resizable ? this.resizer : this.padding) : 0) - 
-								  (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0) -
-								  (sprev ? pprev.size + (pprev.resizable ? this.resizer : this.padding) : 0);
+			var l = 0 + (sleft ? pleft.size + this.padding : 0);
+			var t = 0 + (stop ? ptop.size + this.padding : 0);
+			var w = width  - (sleft ? pleft.size + this.padding : 0) - 
+								  (sright ? pright.size + this.padding: 0);
+			var h = height - (stop ? ptop.size + this.padding : 0) - 
+								  (sbottom ? pbottom.size + this.padding : 0) -
+								  (sprev ? pprev.size + this.padding : 0);
 			var e = $('#layout_'+ this.name +'_panel_main');
 			if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 			$('#layout_'+ this.name +'_panel_main').css({
@@ -622,10 +623,10 @@
 			
 			// preview if any
 			if (pprev != null && pprev.hidden != true) {
-				var l = 0 + (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0);
-				var t = height - (sbottom ? pbottom.size + (pbottom.resizable ? this.resizer : this.padding) : 0) - pprev.size;
-				var w = width  - (sleft ? pleft.size + (pleft.resizable ? this.resizer : this.padding) : 0) - 
-									  (sright ? pright.size + (pright.resizable ? this.resizer : this.padding): 0);
+				var l = 0 + (sleft ? pleft.size + this.padding : 0);
+				var t = height - (sbottom ? pbottom.size + this.padding : 0) - pprev.size;
+				var w = width  - (sleft ? pleft.size + this.padding : 0) - 
+									  (sright ? pright.size + this.padding : 0);
 				var h = pprev.size;
 				var e = $('#layout_'+ this.name +'_panel_preview');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
@@ -640,7 +641,7 @@
 				pprev.height = h;
 				// resizer
 				if (pprev.resizable) {
-					t = t - this.resizer;
+					t = t;
 					h = this.resizer;
 					$('#layout_'+ this.name +'_resizer_preview').show().css({
 						'display': 'block',
