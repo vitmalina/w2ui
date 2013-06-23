@@ -784,6 +784,7 @@ select {
   display: none;
   position: absolute;
   z-index: 121;
+  background-color: #222222;
 }
 .w2ui-layout > div .w2ui-resizer:hover,
 .w2ui-layout > div .w2ui-resizer.active {
