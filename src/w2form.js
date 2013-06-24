@@ -776,14 +776,8 @@
 					case 'date':
 						if (!field.options) field.options = {};
 						if (!field.options.format) field.options.format = 'mm/dd/yyyy';
-						if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
-								|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
-							var tmp = value.replace(/-/g, '/').replace(/\./g, '/').split('/');
-							field.el.value = w2utils.formatDate(tmp[2]+'-'+tmp[1]+'-'+tmp[0], field.options.format);
-						} else {
-							field.el.value = w2utils.formatDate(value, field.options.format);
-						}
-						this.record[field.name] = field.el.value;
+						field.el.value = value;
+						this.record[field.name] = value;
 						$(field.el).w2field($.extend({}, field.options, { type: 'date' }));
 						break;
 					case 'int':
