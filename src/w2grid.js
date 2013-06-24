@@ -1764,8 +1764,10 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
-			this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
-			$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
+			if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
+				this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+				$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
+			}
 			return (new Date()).getTime() - time;
 		},
 

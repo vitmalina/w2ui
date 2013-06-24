@@ -11,10 +11,10 @@ $(function () {
 	$('#layout').w2layout({
 		name: 'layout',
 		panels: [
-			//{ type: 'top', size: 50, resizable: true },
-			//{ type: 'left', size: 150, resizable: true },
+			{ type: 'top', size: 150, resizable: true },
+			//{ type: 'left', size: '20%', resizable: true },
 			{ type: 'main', content: '<div style="padding: 10px">This is some text</div>',
-				tabs: {
+				tabs1: {
 					active : 'tab1',
 					tabs : [
 						{ id: 'tab1', caption: 'General' }, 
@@ -27,7 +27,7 @@ $(function () {
 						if (target == 'tab2') this.owner.content('main', '<div style="padding:10px">tab2</div>');
 					}
 				},
-				toolbar: {
+				toolbar1: {
 					items: [
 						{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
 						{ type: 'drop',   id: 'item2', img: 'icon-page', icon: 'fa-star', html: '<div style="padding: 10px">Some HTML text</div>' },
@@ -37,9 +37,9 @@ $(function () {
 					]
 				}
 			},
-			{ type: 'right', size: 150, resizable: true },
-			{ type: 'preview', size: 150, resizable: true,
-				tabs: {
+			//{ type: 'right', size: '20%', resizable: true },
+			{ type: 'preview', size: '50%', resizable: true,
+				tabs1: {
 					active : 'tab3',
 					tabs : [
 						{ id: 'tab1', caption: 'General' }, 
@@ -67,6 +67,6 @@ $(function () {
 </script>
 </head>
 <body>
-	<div id="layout" style="width: 100%; height: 500px;"></div>
+	<div id="layout" style="width: 100%; height: 100%;"></div>
 </body>
 </html>

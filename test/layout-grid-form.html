@@ -3,6 +3,8 @@
 <link rel="stylesheet" type="text/css" media="screen" href="../css/w2ui.css" /> 
 <script type="text/javascript" src="../js/jquery.min.js"></script>
 <script type="text/javascript" src="../js/w2ui.js"></script>
+<script type="text/javascript" src="../src/w2layout.js"></script>
+<script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
 $(function () {
 
@@ -11,9 +13,11 @@ $(function () {
 	var pstyle = 'background-color: #F5F6F7; overflow: hidden';
 	$('#layout').w2layout({
 		name: 'layout',
+		padding: 6,
 		panels: [
 			{ type: 'main', style: pstyle },
-			{ type: 'right', size: window.innerWidth/2, style: pstyle, resizable: true }
+			{ type: 'right', size: '50%', style: pstyle, resizable: true },
+			{ type: 'preview', size: '20%', style: pstyle, resizable: true }
 		]
 	});
 

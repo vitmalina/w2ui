@@ -7,15 +7,15 @@
 *
 * == NICE TO HAVE ==
 *	- onResize for the panel
-*	- % base resizes
-*	- better min/max calculation when window resizes
-*	- content: $('content');
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
 *	- html() method is alias for content()
 *	- el(panel) - returns DOM element for the panel
 *	- resizer should be on top of the panel (for easy styling)
+*	- content: $('content'); - it will return graceful error
+*	- % base resizes
+*	- better min/max calculation when window resizes
 * 
 ************************************************************************/
 
@@ -119,6 +119,10 @@
 			if (data == null || typeof data == 'undefined') {
 				return p.content;
 			} else {
+				if (data instanceof jQuery) {
+					console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
+					return false;
+				}
 				if (p.content == '') {
 					p.content = data;
 					if (!p.hidden) this.refresh(panel);
@@ -318,6 +322,7 @@
 				
 		render: function (box) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
 			if (eventData.stop === true) return false;
@@ -359,19 +364,20 @@
 			// reinit events
 			this.refresh();
 			this.initEvents();
-			return true;
+			return (new Date()).getTime() - time;
 		},
 		
 		refresh: function (panel) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (typeof panel == 'undefined') panel = null;
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof panel != 'undefined' ? panel : this.name), panel: this.get(panel) });	
-			if (eventData.stop === true) return false;
+			if (eventData.stop === true) return;
 	
 			if (panel != null && typeof panel != 'undefined') {
 				var p = this.get(panel);
-				if (p == null) return false;
+				if (p == null) return;
 				// apply properties to the panel
 				var el = $('#layout_'+ this.name +'_panel_'+ panel).css({ display: p.hidden ? 'none' : 'block' });
 				el = el.find('.w2ui-panel-content');
@@ -405,15 +411,17 @@
 				for (var p in this.panels) { this.refresh(this.panels[p].type); }
 			}
 			this.trigger($.extend(eventData, { phase: 'after' }));	
-			return true;
+			return (new Date()).getTime() - time;
 		},
 		
 		resize: function () {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (!this.box) return false;
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp_resizing });	
 			if (eventData.stop === true) return false;
+			if (this.padding < 0) this.padding = 0;
 	
 			// layout itself
 			var width  = parseInt($(this.box).width());
@@ -437,35 +445,28 @@
 			var stop    = (ptop != null && ptop.hidden != true ? true : false);
 			var sbottom = (pbottom != null && pbottom.hidden != true ? true : false);
 			// calculate %
-			if (ptop && String(ptop.size).substr((String(ptop.size).length-1)) == '%') {
-				ptop.size = height * parseInt(ptop.size) / 100;
+			for (var p in { 'top':'', 'left':'', 'right':'', 'bottom':'', 'preview':'' }) { 
+				var tmp = this.get(p);
+				var str = String(tmp.size);
+				if (tmp && str.substr(str.length-1) == '%') {
+					var tmph = height;
+					if (tmp.type == 'preview') {
+						tmph = tmph 
+							- (ptop && !ptop.hidden ? ptop.sizeCalculated : 0) 
+							- (pbottom && !pbottom.hidden ? pbottom.sizeCalculated : 0);
+					}
+					tmp.sizeCalculated = (tmp.type == 'left' || tmp.type == 'right' ? width : tmph) * parseInt(tmp.size) / 100;
+				} else {
+					tmp.sizeCalculated = parseInt(tmp.size);
+				}
+				if (tmp.sizeCalculated < parseInt(tmp.minSize)) tmp.sizeCalculated = parseInt(tmp.minSize);
 			}
-			if (pleft && String(pleft.size).substr((String(pleft.size).length-1)) == '%') {
-				pleft.size = height * parseInt(pleft.size) / 100;
-			}
-			if (pright && String(pright.size).substr((String(pright.size).length-1)) == '%') {
-				pright.size = height * parseInt(pright.size) / 100;
-			}
-			if (pbottom && String(pbottom.size).substr((String(pbottom.size).length-1)) == '%') {
-				pbottom.size = height * parseInt(pbottom.size) / 100;
-			}
-			if (pprev && String(pprev.size).substr((String(pprev.size).length-1)) == '%') {
-				pprev.size = (height 
-								- (ptop && !ptop.hidden ? ptop.size : 0) 
-								- (pbottom && !pbottom.hidden ? pbottom.size : 0))
-							* parseInt(pprev.size) / 100;
-			}
-			if (ptop) ptop.size = (parseInt(ptop.size) < parseInt(ptop.minSize)) ? parseInt(ptop.minSize) : parseInt(ptop.size);
-			if (pleft) pleft.size = (parseInt(pleft.size) < parseInt(pleft.minSize)) ? parseInt(pleft.minSize) : parseInt(pleft.size);
-			if (pprev) pprev.size = (parseInt(pprev.size) < parseInt(pprev.minSize)) ? parseInt(pprev.minSize) : parseInt(pprev.size);
-			if (pright) pright.size	= (parseInt(pright.size) < parseInt(pright.minSize)) ? parseInt(pright.minSize) : parseInt(pright.size);
-			if (pbottom) pbottom.size = (parseInt(pbottom.size) < parseInt(pbottom.minSize)) ? parseInt(pbottom.minSize) : parseInt(pbottom.size);
 			// top if any		
 			if (ptop != null && ptop.hidden != true) {
 				var l = 0;
 				var t = 0;
 				var w = width;
-				var h = ptop.size;
+				var h = ptop.sizeCalculated;
 				$('#layout_'+ this.name +'_panel_top').css({
 					'display': 'block',
 					'left': l + 'px',
@@ -477,8 +478,8 @@
 				ptop.height = h;
 				// resizer
 				if (ptop.resizable) {
-					t = ptop.size - this.resizer;
-					h = this.resizer;
+					t = ptop.sizeCalculated - (this.padding == 0 ? this.resizer : 0);
+					h = (this.resizer > this.padding ? this.resizer : this.padding);
 					$('#layout_'+ this.name +'_resizer_top').show().css({
 						'display': 'block',
 						'left': l + 'px',
@@ -497,10 +498,10 @@
 			// left if any
 			if (pleft != null && pleft.hidden != true) {
 				var l = 0;
-				var t = 0 + (stop ? ptop.size + this.padding : 0);
-				var w = pleft.size;
-				var h = height - (stop ? ptop.size + this.padding : 0) - 
-									  (sbottom ? pbottom.size + this.padding : 0);
+				var t = 0 + (stop ? ptop.sizeCalculated + this.padding : 0);
+				var w = pleft.sizeCalculated;
+				var h = height - (stop ? ptop.sizeCalculated + this.padding : 0) - 
+									  (sbottom ? pbottom.sizeCalculated + this.padding : 0);
 				var e = $('#layout_'+ this.name +'_panel_left');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 				$('#layout_'+ this.name +'_panel_left').css({
@@ -514,8 +515,8 @@
 				pleft.height = h;
 				// resizer
 				if (pleft.resizable) {
-					l = pleft.size - this.resizer;
-					w = this.resizer;
+					l = pleft.sizeCalculated - (this.padding == 0 ? this.resizer : 0);
+					w = (this.resizer > this.padding ? this.resizer : this.padding);
 					$('#layout_'+ this.name +'_resizer_left').show().css({
 						'display': 'block',
 						'left': l + 'px',
@@ -534,11 +535,11 @@
 			}
 			// right if any
 			if (pright != null && pright.hidden != true) {
-				var l = width - pright.size;
-				var t = 0 + (stop ? ptop.size + this.padding : 0);
-				var w = pright.size;
-				var h = height - (stop ? ptop.size + this.padding : 0) - 
-									  (sbottom ? pbottom.size + this.padding : 0);
+				var l = width - pright.sizeCalculated;
+				var t = 0 + (stop ? ptop.sizeCalculated + this.padding : 0);
+				var w = pright.sizeCalculated;
+				var h = height - (stop ? ptop.sizeCalculated + this.padding : 0) - 
+									  (sbottom ? pbottom.sizeCalculated + this.padding : 0);
 				$('#layout_'+ this.name +'_panel_right').css({
 					'display': 'block',
 					'left': l + 'px',
@@ -550,8 +551,8 @@
 				pright.height = h;
 				// resizer
 				if (pright.resizable) {
-					l = l;
-					w = this.resizer;
+					l = l - this.padding;
+					w = (this.resizer > this.padding ? this.resizer : this.padding);
 					$('#layout_'+ this.name +'_resizer_right').show().css({
 						'display': 'block',
 						'left': l + 'px',
@@ -570,9 +571,9 @@
 			// bottom if any
 			if (pbottom != null && pbottom.hidden != true) {
 				var l = 0;
-				var t = height - pbottom.size;
+				var t = height - pbottom.sizeCalculated;
 				var w = width;
-				var h = pbottom.size;
+				var h = pbottom.sizeCalculated;
 				$('#layout_'+ this.name +'_panel_bottom').css({
 					'display': 'block',
 					'left': l + 'px',
@@ -584,8 +585,8 @@
 				pbottom.height = h;
 				// resizer
 				if (pbottom.resizable) {
-					t = t;
-					h = this.resizer;
+					t = t - (this.padding == 0 ? 0 : this.padding);
+					h = (this.resizer > this.padding ? this.resizer : this.padding);
 					$('#layout_'+ this.name +'_resizer_bottom').show().css({
 						'display': 'block',
 						'left': l + 'px',
@@ -602,13 +603,13 @@
 				$('#layout_'+ this.name +'_panel_bottom').hide();
 			}
 			// main - always there
-			var l = 0 + (sleft ? pleft.size + this.padding : 0);
-			var t = 0 + (stop ? ptop.size + this.padding : 0);
-			var w = width  - (sleft ? pleft.size + this.padding : 0) - 
-								  (sright ? pright.size + this.padding: 0);
-			var h = height - (stop ? ptop.size + this.padding : 0) - 
-								  (sbottom ? pbottom.size + this.padding : 0) -
-								  (sprev ? pprev.size + this.padding : 0);
+			var l = 0 + (sleft ? pleft.sizeCalculated + this.padding : 0);
+			var t = 0 + (stop ? ptop.sizeCalculated + this.padding : 0);
+			var w = width  - (sleft ? pleft.sizeCalculated + this.padding : 0) - 
+								  (sright ? pright.sizeCalculated + this.padding: 0);
+			var h = height - (stop ? ptop.sizeCalculated + this.padding : 0) - 
+								  (sbottom ? pbottom.sizeCalculated + this.padding : 0) -
+								  (sprev ? pprev.sizeCalculated + this.padding : 0);
 			var e = $('#layout_'+ this.name +'_panel_main');
 			if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 			$('#layout_'+ this.name +'_panel_main').css({
@@ -623,11 +624,11 @@
 			
 			// preview if any
 			if (pprev != null && pprev.hidden != true) {
-				var l = 0 + (sleft ? pleft.size + this.padding : 0);
-				var t = height - (sbottom ? pbottom.size + this.padding : 0) - pprev.size;
-				var w = width  - (sleft ? pleft.size + this.padding : 0) - 
-									  (sright ? pright.size + this.padding : 0);
-				var h = pprev.size;
+				var l = 0 + (sleft ? pleft.sizeCalculated + this.padding : 0);
+				var t = height - (sbottom ? pbottom.sizeCalculated + this.padding : 0) - pprev.sizeCalculated;
+				var w = width  - (sleft ? pleft.sizeCalculated + this.padding : 0) - 
+									  (sright ? pright.sizeCalculated + this.padding : 0);
+				var h = pprev.sizeCalculated;
 				var e = $('#layout_'+ this.name +'_panel_preview');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 				$('#layout_'+ this.name +'_panel_preview').css({
@@ -641,8 +642,8 @@
 				pprev.height = h;
 				// resizer
 				if (pprev.resizable) {
-					t = t;
-					h = this.resizer;
+					t = t - (this.padding == 0 ? 0 : this.padding);
+					h = (this.resizer > this.padding ? this.resizer : this.padding);
 					$('#layout_'+ this.name +'_resizer_preview').show().css({
 						'display': 'block',
 						'left': l + 'px',
@@ -674,14 +675,6 @@
 				}
 				$(tmp + 'content').css({ display: 'block' }).css({ top: height + 'px' });
 			}
-
-			// send resize event to children
-			for (var i in this.panels) { 
-				var p = this.panels[i];
-				if (typeof p.content == 'object' && p.content.resize) {
-					p.content.resize(); 
-				}
-			}
 			// send resize to all objects
 			var obj = this;
 			clearTimeout(this._resize_timer);
@@ -690,10 +683,9 @@
 					// do not sent resize to panels, or it will get caught in a loop
 					if (typeof w2ui[e].resize == 'function' && typeof w2ui[e].panels == 'undefined') w2ui[e].resize();
 				}
-			}, 200);
-			
+			}, 100);		
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			return true;
+			return (new Date()).getTime() - time;
 		},
 		
 		destroy: function () { 
@@ -829,22 +821,40 @@
 			if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
 			if (typeof this.tmp_resizing == 'undefined') return;
 			// set new size
-			var panel = this.get(this.tmp_resizing);
+			var ptop 	= this.get('top');
+			var pbottom	= this.get('bottom');
+			var panel 	= this.get(this.tmp_resizing);
+			var height 	= parseInt($(this.box).height());
+			var width 	= parseInt($(this.box).width());
+			var str 	= String(panel.size);
 			switch (this.tmp_resizing) {
 				case 'top':
-					panel.size = parseInt(panel.size) + this.tmp_div_y;
+					var ns = parseInt(panel.sizeCalculated) + this.tmp_div_y;
+					var nd = 0;
 					break;
-				case 'preview':
 				case 'bottom':
-					panel.size = parseInt(panel.size) - this.tmp_div_y;
+					var nd = 0;
+				case 'preview':
+					var nd = (ptop && !ptop.hidden ? ptop.sizeCalculated : 0) 
+						   + (pbottom && !pbottom.hidden ? pbottom.sizeCalculated : 0);
+					var ns = parseInt(panel.sizeCalculated) - this.tmp_div_y;
 					break;
 				case 'left':
-					panel.size = parseInt(panel.size) + this.tmp_div_x;
+					var ns = parseInt(panel.sizeCalculated) + this.tmp_div_x;
+					var nd = 0;
 					break;
 				case 'right': 
-					panel.size = parseInt(panel.size) - this.tmp_div_x;
+					var ns = parseInt(panel.sizeCalculated) - this.tmp_div_x;
+					var nd = 0;
 					break;
 			}	
+			// set size
+			if (str.substr(str.length-1) == '%') {
+				panel.size = Math.floor(ns * 100 / 
+					(panel.type == 'left' || panel.type == 'right' ? width : height - nd) * 100) / 100 + '%';
+			} else {
+				panel.size = ns;
+			}
 			this.resize();
 			$('#layout_'+ this.name + '_resizer_'+ this.tmp_resizing).removeClass('active');
 			delete this.tmp_resizing;
