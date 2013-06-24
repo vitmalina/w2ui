@@ -9,6 +9,8 @@
 *	- when maximized, align the slide down message
 *	- bug: after transfer to another content, message does not work
 * 	- transition should include title, body and buttons, not just body
+*
+* == 1.3 changes ==
 *	- keyboard esc - close
 *
 ************************************************************************/
@@ -62,6 +64,7 @@
 			speed			: 0.3,
 			modal			: false,
 			maximized		: false,
+			keyboard		: true,		// will close popup on esc if not modal
 			width			: 500,
 			height			: 300,
 			showClose		: true,
@@ -211,10 +214,27 @@
 				}, 1);
 			}		
 			// save new options
-			$('#w2ui-popup').data('options', options);	
-			
+			$('#w2ui-popup').data('options', options);
+			// keyboard events 
+			if (options.keyboard) $(document).on('keydown', this.doKeydown);
+			// finalize
 			this.initMove();			
 			return this;		
+		},
+
+		doKeydown: function (event) {
+			var options = $('#w2ui-popup').data('options');
+			if (!options.keyboard) return;
+			if (options.modal === true) {
+				$('#w2ui-lock').css({ 'opacity': '0.6' });
+				setTimeout(function () { $('#w2ui-lock').css({ 'opacity': options.opacity }); }, 400);
+				return;					
+			}
+			switch (event.keyCode) {
+				case 27: 
+					$().w2popup('close');
+					break;
+			}
 		},
 		
 		close: function (options) {
@@ -244,6 +264,8 @@
 			if (typeof options.onClose == 'function') {
 				options.onClose();
 			}
+			// remove keyboard events
+			if (options.keyboard) $(document).off('keydown', this.doKeydown);			
 		},
 		
 		toggle: function () {
