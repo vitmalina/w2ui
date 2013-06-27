@@ -234,6 +234,7 @@
 							return;
 						}
 						var defaults = {
+							url			: '',
 							items 		: [],
 							value 		: null,
 							showNone    : true
@@ -241,16 +242,48 @@
 						var settings = $.extend({}, defaults, options);
 						var html =  '';
 						var items = w2field.cleanItems(settings.items);
-						if (settings.showNone) html = '<option value="">- '+ w2utils.lang('none') +' -</option>';
-						for (var i in items) {
-							if (!settings.showNone && settings.value == null) settings.value = items[i].id;
-							html += '<option value="'+ items[i].id +'">'+ items[i].text + '</option>';
+						
+						if (settings.url != '' ) {
+							$.ajax({
+								type 		: 'GET',
+								dataType	: 'text',
+								context	: $(this),
+								url 		: settings.url,
+								data : {
+									max 	: settings.maxCache
+								},
+								complete: function (xhr, status) {
+									settings.last_total = 0;
+									if (status == 'success') {
+										var data = $.parseJSON(xhr.responseText);
+										settings.last_total = data.total;
+										settings.items      = data.items;
+										items=settings.items;
+										if (settings.showNone) html = '<option value="">- '+ w2utils.lang('none') +' -</option>';
+										for (var i in items) {
+											if (!settings.showNone && settings.value == null) settings.value = items[i].id;
+											html += '<option value="'+ items[i].id +'">'+ items[i].text + '</option>';
+										}
+										settings.items = items;
+										$(this).data('settings', settings);
+										$(this).html(html);
+										$(this).val(settings.value);
+										if ($(this).val() != settings.value) $(this).change();
+									}
+								}
+							});
+						} else {
+							if (settings.showNone) html = '<option value="">- '+ w2utils.lang('none') +' -</option>';
+							for (var i in items) {
+								if (!settings.showNone && settings.value == null) settings.value = items[i].id;
+								html += '<option value="'+ items[i].id +'">'+ items[i].text + '</option>';
+							}
+							settings.items = items;
+							$(this).data('settings', settings);
+							$(this).html(html);
+							$(this).val(settings.value);
+							if ($(this).val() != settings.value) $(this).change();
 						}
-						settings.items = items;
-						$(this).data('settings', settings);
-						$(this).html(html);
-						$(this).val(settings.value);
-						if ($(this).val() != settings.value) $(this).change();
 						break;
 
 					case 'enum':
