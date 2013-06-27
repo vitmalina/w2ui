@@ -15,6 +15,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
 *	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
+*	- added $().w2marker('string')
 *
 ************************************************/
 
@@ -745,7 +746,22 @@ $.w2event = {
 		if (typeof name == 'object') name.destroy();
 	}
 
-	$.fn.w2lite = function () {
+	$.fn.w2marker = function (str) {
+		if (str == '' || typeof str == 'undefined') { // remove marker
+			return $(this).each(function (index, el) {			
+				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark		
+			});
+		} else { // add marker
+			// escape regex special chars
+			str = str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&").replace(/&/g, '&amp;').replace(/</g, '&gt;').replace(/>/g, '&lt;');
+			var regex = new RegExp(str + '(?!([^<]+)?>)', "gi"); // only outside tags
+			return $(this).each(function (index, el) {			
+				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark		
+				el.innerHTML = el.innerHTML.replace(regex, function (matched) { // mark new
+					return '<span class="w2ui-marker">' + matched + '</span>';
+				});
+			});
+		}
 	}
 	
 	// -- w2tag - appears on the right side from element, there can be multiple on screen at a time
