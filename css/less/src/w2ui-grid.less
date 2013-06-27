@@ -133,6 +133,7 @@
 			.w2ui-resizer {
 				position: absolute; 
 				display: block;
+				background-image: none;
 				background-color: rgba(0,0,0,0); /* needed for IE */
 				padding: 0px; 
 				margin: 0px;
@@ -273,14 +274,14 @@
 			}
 		}
 
-		.w2ui-sort-up {
+		div.w2ui-sort-up { // div needed
 			.background-image(@image-sort-up, no-repeat, center, right, ~"!important");
 			height: auto !important; 
 			width: 100%; 
 			overflow: hidden;
 		}
 
-		.w2ui-sort-down {
+		div.w2ui-sort-down { // div needed
 			.background-image(@image-sort-down, no-repeat, center, right, ~"!important");
 			height: auto !important; 
 			width: 100%; 
