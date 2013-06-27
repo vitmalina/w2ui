@@ -16,6 +16,7 @@
 *	- content: $('content'); - it will return graceful error
 *	- % base resizes
 *	- better min/max calculation when window resizes
+*	- moved some settings to prototype
 * 
 ************************************************************************/
 
@@ -24,10 +25,6 @@
 		this.box		= null		// DOM Element that holds the element
 		this.name		= null;		// unique name for w2ui
 		this.panels		= [];
-		this.padding	= 0;		// panel padding
-		this.resizer	= 4;		// resizer width or height
-		this.style		= '';
-		this.css		= '';		// will display all inside <style> tag
 		this.onShow		= null;
 		this.onHide		= null;
 		this.onResizing = null;
@@ -91,6 +88,11 @@
 	// -- Implementation of core functionality
 	
 	w2layout.prototype = {
+		padding	: 0,		// panel padding
+		resizer	: 4,		// resizer width or height
+		style	: '',
+		css		: '',		// will display all inside <style> tag
+
 		// default setting for a panel
 		panel: {
 			type 		: null,		// left, right, top, bottom

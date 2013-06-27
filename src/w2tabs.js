@@ -8,6 +8,7 @@
 * == NICE TO HAVE ==
 *	- tabs might not work in chromium apps, need bind()
 *   - on overflow display << >>
+* 	- individual tab onClick (possibly other events) are not working
 *
 ************************************************************************/
 

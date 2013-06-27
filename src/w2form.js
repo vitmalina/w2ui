@@ -13,6 +13,7 @@
 *   - tabs can be array of string, array of tab objects or w2tabs object
 * 	- generate should use fields, and not its own structure
 *	- added submit() as alias of save()
+*	- moved some settings to prototype
 *
 ************************************************************************/
 
@@ -34,11 +35,6 @@
 		this.original   	= {};
 		this.postData		= {};
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
-		this.style 			= '';
-		this.focusFirst		= true;
-		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
-		this.msgRefresh		= w2utils.lang('Refreshing...');
-		this.msgSaving		= w2utils.lang('Saving...');
 
 		// events
 		this.onRequest  	= null,
@@ -157,6 +153,12 @@
 	// -- Implementation of core functionality
 	
 	w2form.prototype = {
+
+		style 		: '',
+		focusFirst	: true,
+		msgNotJSON 	: w2utils.lang('Return data is not in JSON format.'),
+		msgRefresh	: w2utils.lang('Refreshing...'),
+		msgSaving	: w2utils.lang('Saving...'),
 
 		init: function (box) {
 			var obj = this;

@@ -12,6 +12,7 @@
 *	- animated open/close
 *	- add keyboard property
 *	- added onKeyboard event
+*	- moved some settings to prototype
 *
 ************************************************************************/
 
@@ -21,14 +22,8 @@
 		this.box 			= null;
 		this.sidebar		= null;
 		this.parent 		= null;
-		this.img 			= null;
-		this.icon 			= null;
-		this.style	 		= '';
-		this.selected 		= null;	// current selected node (readonly)
 		this.nodes	 		= []; 	// Sidebar child nodes
-		this.topHTML		= '';
-		this.bottomHTML     = '';
-		this.keyboard		= true;
+		this.selected 		= null;	// current selected node (readonly)
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
 		this.onContextMenu	= null;	
@@ -89,6 +84,13 @@
 	// -- Implementation of core functionality
 	
 	w2sidebar.prototype = {
+		img 		: null,
+		icon 		: null,
+		style		: '',
+		topHTML		: '',
+		bottomHTML  : '',
+		keyboard	: true,
+
 		node: {
 			id	 			: null,
 			text	   		: '',
