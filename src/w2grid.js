@@ -46,6 +46,7 @@
 *	- route all toolbar events thru the grid
 *	- infinite scroll (buffered scroll)
 *	- search 1-20 will range numbers
+*	- moved some settings to prototype
 *
 ************************************************************************/
 
@@ -66,40 +67,6 @@
 		this.sortData			= [];
 		this.postData			= {};
 		this.toolbar			= {}; 		// if not empty object; then it is toolbar object
-
-		this.show = {
-			header			: false,
-			toolbar			: false,
-			footer			: false,
-			columnHeaders	: true,
-			lineNumbers		: false,
-			expandColumn	: false,
-			selectColumn	: false,
-			emptyRecords	: true,
-			toolbarReload	: true,
-			toolbarColumns	: true,
-			toolbarSearch	: true,
-			toolbarAdd		: false,
-			toolbarDelete 	: false,
-			toolbarSave	 	: false
-		},
-
-		this.fixedBody			= true;		// if false; then grid grows with data
-		this.recordHeight		= 25;
-		this.multiSearch		= true;
-		this.multiSelect		= true;
-		this.multiSort			= true;
-		this.keyboard			= true;		// if user clicks on the list; it will bind all events from the keyboard for that list
-
-		this.total				= 0;		// server total
-		this.buffered			= 0;		// number of records in the records array
-		this.limit				= 100;
-		this.offset				= 0;
-		this.style				= '';
-
-		this.msgDelete			= w2utils.lang('Are you sure you want to delete selected records?');
-		this.msgNotJSON 		= w2utils.lang('Returned data is not in valid JSON format.');
-		this.msgRefresh			= w2utils.lang('Refreshing...');
 
 		// events
 		this.onAdd				= null;
@@ -232,6 +199,40 @@
 	// -- Implementation of core functionality
 
 	w2grid.prototype = {
+
+		show : {
+			header			: false,
+			toolbar			: false,
+			footer			: false,
+			columnHeaders	: true,
+			lineNumbers		: false,
+			expandColumn	: false,
+			selectColumn	: false,
+			emptyRecords	: true,
+			toolbarReload	: true,
+			toolbarColumns	: true,
+			toolbarSearch	: true,
+			toolbarAdd		: false,
+			toolbarDelete 	: false,
+			toolbarSave	 	: false
+		},
+
+		fixedBody		: true,		// if false; then grid grows with data
+		recordHeight	: 25,
+		multiSearch		: true,
+		multiSelect		: true,
+		multiSort		: true,
+		keyboard		: true,		// if user clicks on the list; it will bind all events from the keyboard for that list
+
+		total			: 0,		// server total
+		buffered		: 0,		// number of records in the records array
+		limit			: 100,
+		offset			: 0,
+		style			: '',
+
+		msgDelete		: w2utils.lang('Are you sure you want to delete selected records?'),
+		msgNotJSON 		: w2utils.lang('Returned data is not in valid JSON format.'),
+		msgRefresh		: w2utils.lang('Refreshing...'),
 
 		add: function (record) {
 			if (!$.isArray(record)) record = [record];
@@ -738,7 +739,7 @@
 					if (typeof tmp.type == 'undefined') tmp.type = search.type;
 					if (typeof tmp.operator == 'undefined') {
 						tmp.operator = 'is';
-						if (tmp.type == 'text') tmp.operator = 'begins with';
+						if (tmp.type == 'text') tmp.operator = 'contains';
 					}
 					searchData.push(tmp);
 				}
@@ -757,7 +758,7 @@
 						var tmp = {
 							field	 : search.field,
 							type	 : search.type,
-							operator : (search.type == 'text' ? 'begins with' : 'is'),
+							operator : (search.type == 'text' ? 'contains' : 'is'),
 							value	 : value
 						};
 						searchData.push(tmp);
@@ -769,7 +770,7 @@
 							var tmp = {
 								field	 : search.field,
 								type	 : search.type,
-								operator : (search.type == 'text' ? 'begins with' : 'is'),
+								operator : (search.type == 'text' ? 'contains' : 'is'),
 								value	 : value
 							};
 							searchData.push(tmp);
@@ -787,10 +788,10 @@
 						}
 					}
 				}
-				console.log(searchData);
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData });
+			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData, 
+					searchField: (field ? field : 'multi'), searchValue: (value ? value : 'multi') });
 			if (eventData.stop === true) return;
 			// default action			
 			this.searchData = eventData.searchData;
@@ -1717,6 +1718,11 @@
 				// event after
 				this.trigger($.extend(eventData2, { phase: 'after' }));
 			}
+			// mark selection
+			setTimeout(function () {
+				var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
+				if (str != '') $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+			}, 50);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			obj.resize(); 
@@ -2452,7 +2458,7 @@
 						if (col.resizable == true) {
 							resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
 						}
-						html += '<td class="w2ui-head" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
+						html += '<td class="w2ui-head '+ sortStyle +'" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
 										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') +'>'+
 									resizer +
 								'	<div class="w2ui-col-group '+ sortStyle +'">'+
@@ -2520,7 +2526,7 @@
 						if (col.resizable == true) {
 							resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
 						}
-						html += '<td col="'+ i +'" class="w2ui-head" '+
+						html += '<td col="'+ i +'" class="w2ui-head '+ sortStyle +'" '+
 										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') + '>'+
 									resizer +
 								'	<div class="'+ sortStyle +'">'+  
@@ -2571,6 +2577,7 @@
 
 		doScroll: function (event) {
 			var time = (new Date()).getTime();
+			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
 			if (records.length == 0) return;
 			// update footer
@@ -2614,6 +2621,12 @@
 				for (var i = parseInt(rec_start) + 1; i <= end; i++) {
 					tr2.before(this.getRecordHTML(i-1, i));
 				}
+				// mark search
+				clearTimeout(obj.last.marker_timer);
+				obj.last.marker_timer = setTimeout(function () {
+					var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
+					if (str != '') $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+				}, 50);
 			} else { // scroll up
 				if (start >= first - this.show_extra && start > 1) return;
 				// remove from bottom
@@ -2629,6 +2642,12 @@
 				for (var i = parseInt(rec_start) - 1; i >= start; i--) {
 					tr1.after(this.getRecordHTML(i-1, i));
 				}
+				// mark search
+				clearTimeout(obj.last.marker_timer);
+				obj.last.marker_timer = setTimeout(function () {
+					var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
+					if (str != '') $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+				}, 50);
 			}
 			// first/last row size
 			var h1 = (start - 1) * this.recordHeight;
@@ -2865,10 +2884,15 @@
 		},
 
 		parseObj: function (obj, field) {
-			var tmp = String(field).split('.');
-			var val = obj;
-			for (var i in tmp) {
-				val = val[tmp[i]];
+			var val = '';
+			try { // need this to make sure no error in fields
+				val = obj;
+				var tmp = String(field).split('.');
+				for (var i in tmp) {
+					val = val[tmp[i]];
+				}
+			} catch (event) {
+				val = '';
 			}
 			return val;
 		}
