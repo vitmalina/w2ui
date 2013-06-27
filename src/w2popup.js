@@ -225,13 +225,13 @@
 		doKeydown: function (event) {
 			var options = $('#w2ui-popup').data('options');
 			if (!options.keyboard) return;
-			if (options.modal === true) {
-				$('#w2ui-lock').css({ 'opacity': '0.6' });
-				setTimeout(function () { $('#w2ui-lock').css({ 'opacity': options.opacity }); }, 400);
-				return;					
-			}
 			switch (event.keyCode) {
 				case 27: 
+					if (options.modal === true) {
+						$('#w2ui-lock').css({ 'opacity': '0.6' });
+						setTimeout(function () { $('#w2ui-lock').css({ 'opacity': options.opacity }); }, 400);
+						return;					
+					}
 					$().w2popup('close');
 					break;
 			}
