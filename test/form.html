@@ -31,6 +31,8 @@
 				{ name: 'field.date', type: 'date', options: { format: 'dd/mm/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
 				{ name: 'field.list', type: 'list', required: true, 
 					options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false } },
+				{ name: 'field.listurl', type: 'list', required: true, 
+						options: { url : 'listdat.json', showNone: false } },
 				{ name: 'field.enum', type: 'enum', required: true, 
 					options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
 				{ name: 'field.upload', type: 'upload', required: false, 
@@ -106,6 +108,10 @@
 				<div class="w2ui-label">List:</div>
 				<div class="w2ui-field">
 					<select name="field.list"></select>
+				</div>
+				<div class="w2ui-label">List (with file listdat.json):</div>
+				<div class="w2ui-field">
+					<select name="field.listurl"></select>
 				</div>
 			</div>
 			<div class="w2ui-label">Files:</div>
