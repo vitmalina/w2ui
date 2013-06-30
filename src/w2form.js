@@ -36,12 +36,18 @@
 		this.postData		= {};
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
 
+		this.style 			= '';
+		this.focusFirst		= true;
+		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
+		this.msgRefresh		= w2utils.lang('Refreshing...');
+		this.msgSaving		= w2utils.lang('Saving...');
+
 		// events
-		this.onRequest  	= null,
-		this.onLoad 		= null,
-		this.onSubmit		= null,
-		this.onSave			= null,
-		this.onChange		= null,
+		this.onRequest  	= null;
+		this.onLoad 		= null;
+		this.onSubmit		= null;
+		this.onSave			= null;
+		this.onChange		= null;
 		this.onRender 		= null;
 		this.onRefresh		= null;
 		this.onResize 		= null;
@@ -55,7 +61,7 @@
 			xhr	: null		// jquery xhr requests
 		}
 
-		$.extend(true, this, options);
+		$.extend(true, this, options, w2obj.form);
 	};
 	
 	// ====================================================
@@ -153,12 +159,6 @@
 	// -- Implementation of core functionality
 	
 	w2form.prototype = {
-
-		style 		: '',
-		focusFirst	: true,
-		msgNotJSON 	: w2utils.lang('Return data is not in JSON format.'),
-		msgRefresh	: w2utils.lang('Refreshing...'),
-		msgSaving	: w2utils.lang('Saving...'),
 
 		init: function (box) {
 			var obj = this;
