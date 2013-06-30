@@ -11,11 +11,13 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 * == NICE TO HAVE ==
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
+*	- common onKeydown handler (inactive select can be gray)
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
 *	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
 *	- added $().w2marker('string')
+*	- added w2utils.keyboard
 *
 ************************************************/
 
@@ -726,6 +728,58 @@ $.w2event = {
 };
 
 /***********************************************************
+*  Common Keyboard Handler. Supported in
+*  - grid
+*  - sidebar
+*  - popup
+*
+*********************************************************/
+
+w2utils.keyboard = (function (obj) {
+	// private scope
+	var w2ui_name = null;
+
+	obj.register	= register;
+	obj.active	 	= active;
+
+	init();
+	return obj;
+
+	function init() {
+		$(document).on('keydown', doKeydown);
+		$(document).on('mousedown', doMousedown);
+	}
+
+	function doKeydown (event) {
+		var tag = event.target.tagName;
+		if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) != -1) return;
+		if (!w2ui_name) return;
+		// pass to appropriate widget
+		if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].doKeydown == 'function') {
+			w2ui[w2ui_name].doKeydown.call(w2ui[w2ui_name], event);
+		}
+	}
+
+	function doMousedown (event) {
+		var tag = event.target.tagName;
+		var obj = $(event.target).parents('.w2ui-reset');
+		if (obj.length > 0) {
+			w2ui_name = obj.attr('name');
+		}
+	}
+
+	function register () {
+
+	}
+
+	function active (new_w2ui_name) {
+		if (typeof new_w2ui_name == 'undefined') return w2ui_name;
+		w2ui_name = new_w2ui_name;
+	}
+
+})({});
+
+/***********************************************************
 *  Commonly used plugins
 *  --- used primarily in grid and form
 *
@@ -752,18 +806,22 @@ $.w2event = {
 				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark		
 			});
 		} else { // add marker
-			// escape regex special chars
-			str = str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&").replace(/&/g, '&amp;').replace(/</g, '&gt;').replace(/>/g, '&lt;');
-			var regex = new RegExp(str + '(?!([^<]+)?>)', "gi"); // only outside tags
-			return $(this).each(function (index, el) {			
+			return $(this).each(function (index, el) {
+				if (typeof str == 'string') str = [str];
 				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark		
-				el.innerHTML = el.innerHTML.replace(regex, function (matched) { // mark new
-					return '<span class="w2ui-marker">' + matched + '</span>';
-				});
+				for (var s in str) {
+					var tmp = str[s];
+					// escape regex special chars
+					tmp = tmp.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&").replace(/&/g, '&amp;').replace(/</g, '&gt;').replace(/>/g, '&lt;');
+					var regex = new RegExp(tmp + '(?!([^<]+)?>)', "gi"); // only outside tags
+					el.innerHTML = el.innerHTML.replace(regex, function (matched) { // mark new
+						return '<span class="w2ui-marker">' + matched + '</span>';
+					});
+				}
 			});
 		}
 	}
-	
+
 	// -- w2tag - appears on the right side from element, there can be multiple on screen at a time
 
 	$.fn.w2tag = function (text, options) {
