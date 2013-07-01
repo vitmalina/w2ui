@@ -7,6 +7,8 @@
 *
 * == NICE TO HAVE ==
 * 	- context menus
+*	- when clicked, first it selects then sends event (for faster view if event handler is slow)
+*   - better keyboard navigation (<- ->, space, enter)
 *
 * == 1.3 Changes ==
 *	- animated open/close
@@ -408,7 +410,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
-		doKeydown: function (event) {
+		keydown: function (event) {
 			var obj = this;
 			var nd  = obj.get(obj.selected);
 			if (!nd) return;

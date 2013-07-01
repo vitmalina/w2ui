@@ -746,21 +746,21 @@ w2utils.keyboard = (function (obj) {
 	return obj;
 
 	function init() {
-		$(document).on('keydown', doKeydown);
-		$(document).on('mousedown', doMousedown);
+		$(document).on('keydown', keydown);
+		$(document).on('mousedown', mousedown);
 	}
 
-	function doKeydown (event) {
+	function keydown (event) {
 		var tag = event.target.tagName;
 		if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) != -1) return;
 		if (!w2ui_name) return;
 		// pass to appropriate widget
-		if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].doKeydown == 'function') {
-			w2ui[w2ui_name].doKeydown.call(w2ui[w2ui_name], event);
+		if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].keydown == 'function') {
+			w2ui[w2ui_name].keydown.call(w2ui[w2ui_name], event);
 		}
 	}
 
-	function doMousedown (event) {
+	function mousedown (event) {
 		var tag = event.target.tagName;
 		var obj = $(event.target).parents('.w2ui-reset');
 		if (obj.length > 0) {
