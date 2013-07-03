@@ -12,6 +12,10 @@
 *	- column autosize based on largest content
 *	- more events in editable fields (onkeypress)
 * 	- move record with keyboard, grid does not follow
+*	- add autoLoad = true, for infinite scroll
+*	- save grid state into localStorage and restore
+*	- searh logic (AND or OR) if it is a list, it should be multiple list with or
+* 	- jumpTo is buggy
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -49,6 +53,9 @@
 *	- subgrid (easy way with keyboard navigation)
 *	- on/off line number and select column
 *	- added columnOnOff() internal method
+* 	- added jumpTo()
+* 	- added onColumnOnOff
+* 	- record.render(record, record_index, column_index)
 *
 ************************************************************************/
 
@@ -96,7 +103,7 @@
 		this.total			= 0;		// server total
 		this.buffered		= 0;		// number of records in the records array
 		this.limit			= 100;
-		this.offset			= 0;
+		this.offset			= 0;		// how many records to skip (for infinite scroll) when pulling from server
 		this.style			= '';
 
 		this.msgDelete		= w2utils.lang('Are you sure you want to delete selected records?');
@@ -123,6 +130,7 @@
 		this.onError 			= null;
 		this.onKeyboard			= null;
 		this.onToolbar			= null; 	// all events from toolbar
+		this.onColumnOnOff		= null;
 		this.onRender 			= null;
 		this.onRefresh 			= null;
 		this.onReload			= null;
@@ -192,7 +200,8 @@
 			for (var p in searches)   	object.searches[p]   	= $.extend(true, {}, searches[p]);
 			for (var p in searchData) 	object.searchData[p] 	= $.extend(true, {}, searchData[p]);
 			for (var p in sortData)		object.sortData[p]  	= $.extend(true, {}, sortData[p]);
-			for (var p in postData)   	object.postData[p]   	= $.extend(true, {}, postData[p]);
+			object.postData = $.extend(true, {}, postData);	
+
 			// check if there are records without recid
 			for (var r in records) {
 				if (records[r].recid == null || typeof records[r].recid == 'undefined') {
@@ -819,12 +828,11 @@
 			this.set({ expanded: false });
 			// apply search
 			if (this.url != '') {
-				this.offset = 0;
+				this.last.xhr_offset = 0;
 				this.reload();
 			} else {
 				// local search
 				this.localSearch();
-				this.offset = 0;
 				this.refresh();
 			}
 			// event after
@@ -924,16 +932,27 @@
 			this.searchClose();
 			// apply search
 			if (this.url != '') {
-				this.offset = 0;
+				this.last.xhr_offset = 0;
 				this.reload();
 			} else {
 				// local search
 				this.localSearch();
-				this.offset = 0;
 				this.refresh();
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
+		jumpTo: function (offset) {
+			this.offset = parseInt(offset);
+			if (this.offset < 0) this.offset = 0;
+			console.log('jumpTo', this.offset);
+			if (this.url != '') {
+				this.last.xhr_offset = 0;
+				this.records  = [];
+				this.buffered = 0;
+			}
+			this.reload();
 		},
 
 		load: function (url, callBack) {
@@ -957,7 +976,6 @@
 
 		reset: function (noRefresh) {
 			// reset last remembered state
-			this.offset 			= 0;
 			this.searchData			= [];
 			this.last.search		= '';
 			this.last.searchIds		= [];
@@ -969,6 +987,7 @@
 			this.last.selected		= [];
 			this.last.range_start	= null;
 			this.last.range_end		= null;
+			this.last.xhr_offset	= 0;
 			// initial search panel
 			if (this.last.sortData != null ) this.sortData	 = this.last.sortData;
 			// select none without refresh
@@ -983,11 +1002,12 @@
 			if (url == '' || url == null) return;
 			// build parameters list
 			var params = {};
+			console.log('request: xhr_offset =', this.last.xhr_offset);
 			// add list params
 			params['cmd']  	 		= cmd;
 			params['name'] 	 		= this.name;
 			params['limit']  		= this.limit;
-			params['offset'] 		= this.offset;
+			params['offset'] 		= parseInt(this.offset) + (this.last.xhr_offset ? this.last.xhr_offset : 0);
 			params['selected'] 		= this.getSelection();
 			params['search']  		= this.searchData;
 			params['search-logic'] 	= this.last.logic;
@@ -1012,7 +1032,6 @@
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
 			this.last.xhr_cmd	 = params.cmd;
 			this.last.xhr_start  = (new Date()).getTime();
-			this.last.xhr_offset = this.offset;
 			this.last.xhr = $.ajax({
 				type		: xhr_type,
 				url			: eventData.url, 
@@ -1665,7 +1684,7 @@
 			} else {
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
-				this.offset = 0;
+				this.last.xhr_offset = 0;
 				this.reload();
 			}
 		},
@@ -1940,6 +1959,10 @@
 		},
 
 		columnOnOff: function (el, event, field) {
+			// event before
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, event: event });
+			if (eventData.stop === true) return false;
+			// regular processing
 			var obj = this;
 			// collapse expanded rows
 			for (var r in this.records) { 
@@ -1975,6 +1998,8 @@
 				setTimeout(function () { obj.toolbar.uncheck('column-on-off'); }, 100);
 				$().w2overlay();
 			}
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		initToolbar: function () {
@@ -2811,9 +2836,10 @@
 			// load more if needed
 			var s = Math.floor(records[0].scrollTop / this.recordHeight);
 			var e = s + Math.floor(records.height() / this.recordHeight);
-			if (e + 10 > this.buffered && this.last.pull_more !== true && this.buffered < this.total) {
+			if (e + 10 > this.buffered - this.offset && this.last.pull_more !== true && this.buffered < this.total - this.offset) {
 				this.last.pull_more = true;
-				this.offset += this.limit;
+				this.last.xhr_offset += this.limit;
+				console.log('---> more, offset = ', this.last.xhr_offset);
 				this.request('get-records');
 			}
 			return;
@@ -2923,14 +2949,14 @@
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
 				var field = this.parseObj(record, col.field);
 				if (typeof col.render != 'undefined') {
-					if (typeof col.render == 'function') field = col.render.call(this, this.records[ind], ind);
+					if (typeof col.render == 'function') field = col.render.call(this, this.records[ind], ind, col_ind);
 					if (typeof col.render == 'object')   field = col.render[field];
 				}
 				if (field == null || typeof field == 'undefined') field = '';
 
 				var title = String(field).replace(/"/g, "''");
 				if (typeof col.title != 'undefined') {
-					if (typeof col.title == 'function') title = col.title.call(this, this.records[ind], ind);
+					if (typeof col.title == 'function') title = col.title.call(this, this.records[ind], ind, col_ind);
 					if (typeof col.title == 'string')   title = col.title;
 				}
 				var rec_field = '<div title="'+ title +'">'+ field +'</div>';

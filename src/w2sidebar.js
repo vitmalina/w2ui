@@ -596,7 +596,7 @@
 				} else {
 					if (nd.selected && !nd.disabled) obj.selected = nd.id;
 					var tmp = '';
-					if (img)  tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? "w2ui-icon-selected" : "") +'"></div>';
+					if (img)  tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
 					if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
 					html = 
 					'<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+

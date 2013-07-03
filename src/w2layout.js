@@ -7,6 +7,7 @@
 *
 * == NICE TO HAVE ==
 *	- onResize for the panel
+*	- problem with layout.html (see in 1.3)
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
@@ -272,6 +273,7 @@
 			if (obj == null) return false;
 			$.extend(this.panels[obj], options);
 			this.refresh(panel);
+			this.resize(); // resize is needed when panel size is changed
 			return true;		
 		},
 	
