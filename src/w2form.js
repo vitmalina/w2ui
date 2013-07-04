@@ -14,6 +14,7 @@
 * 	- generate should use fields, and not its own structure
 *	- added submit() as alias of save()
 *	- moved some settings to prototype
+*	- added form.onValidate event
 *
 ************************************************************************/
 
@@ -45,6 +46,7 @@
 		// events
 		this.onRequest  	= null;
 		this.onLoad 		= null;
+		this.onValidate		= null;
 		this.onSubmit		= null;
 		this.onSave			= null;
 		this.onChange		= null;
@@ -287,37 +289,27 @@
 				switch (field.type) {
 					case 'int':
 						if (this.record[field.name] && !w2utils.isInt(this.record[field.name])) {
-							var error = { field: field, error: w2utils.lang('Not an integer') };
-							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
+							errors.push({ field: field, error: w2utils.lang('Not an integer') });
 						} 
 						break;
 					case 'float':
 						if (this.record[field.name] && !w2utils.isFloat(this.record[field.name])) {
-							var error = { field: field, error: w2utils.lang('Not a float') };
-							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
+							errors.push({ field: field, error: w2utils.lang('Not a float') });
 						} 
 						break;
 					case 'money':
 						if (this.record[field.name] && !w2utils.isMoney(this.record[field.name])) {
-							var error = { field: field, error: w2utils.lang('Not in money format') };
-							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
+							errors.push({ field: field, error: w2utils.lang('Not in money format') });
 						} 
 						break;
 					case 'hex':
 						if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
-							var error = { field: field, error: w2utils.lang('Not a hex number') };
-							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error, { "class": 'w2ui-error' });
+							errors.push({ field: field, error: w2utils.lang('Not a hex number') });
 						} 
 						break;
 					case 'email':
 						if (this.record[field.name] && !w2utils.isEmail(this.record[field.name])) {
-							var error = { field: field, error: w2utils.lang('Not a valid email') };
-							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
+							errors.push({ field: field, error: w2utils.lang('Not a valid email') });
 						} 
 						break;
 					case 'checkbox':
@@ -327,9 +319,7 @@
 					case 'date':
 						// format date before submit
 						if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
-							var error = { field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format };
-							errors.push(error);
-							if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
+							errors.push({ field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format });
 						} else {
 							// convert to universal timestamp with time zone
 							//var d = new Date(this.record[field.name]);
@@ -349,11 +339,19 @@
 				// === check required - if field is '0' it should be considered not empty
 				var val = this.record[field.name];
 				if ( field.required && (val === '' || ($.isArray(val) && val.length == 0)) ) {
-					var error = { field: field, error: w2utils.lang('Required field') };
-					errors.push(error);
-					if (showErrors) $(field.el).w2tag(error.error, { "class": 'w2ui-error' });
+					errors.push({ field: field, error: w2utils.lang('Required field') });
 				}
 			}
+			// event before
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
+			if (eventData.stop === true) return errors;
+			// show error
+			if (showErrors) for (var e in eventData.errors) {
+				var err = eventData.errors[e];
+				$(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+			}
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
 			return errors;
 		},
 
