@@ -1062,7 +1062,8 @@
 			this.unlock();
 			setTimeout(function () { $('#grid_'+ obj.name +'_footer').find('.w2ui-footer-left').html('Server Response ' + 
 					((new Date()).getTime() - obj.last.xhr_start)/1000 + ' sec'); }, 10);
-			this.last.pull_more = false;
+			this.last.pull_more 	= false;
+			this.last.pull_refresh 	= true;
 
 			// event before
 			var event_name = 'load';
@@ -1125,6 +1126,7 @@
 				this.localSort();
 				this.localSearch();
 			}
+			this.total = parseInt(this.total);
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// do not refresh if loading on infinite scroll
 			if (this.last.xhr_offset == 0) this.refresh(); else this.doScroll();
@@ -1397,6 +1399,7 @@
 			if (eventData.stop === true) return false;
 			// default behavior
 			var sel 	= obj.getSelection();
+			if (sel.length == 0) return;
 			var records = $('#grid_'+ obj.name +'_records');
 			var recid	= sel[0];
 			var ind		= obj.get(recid, true);
@@ -1962,7 +1965,7 @@
 				col_html +=
 						'<tr><td colspan="2" style="padding: 0px">'+
 						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
-						'		Skip <input type="text" style="width: 40px" value="'+ this.offset +'" '+
+						'		Skip <input type="text" style="width: 45px" value="'+ this.offset +'" '+
 						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value);"> Records'+
 						'	</div>'+
 						'</td></tr>';
@@ -2020,7 +2023,7 @@
 				setTimeout(function () { 
 					$().w2overlay();
 					obj.toolbar.uncheck('column-on-off'); 
-				}, 1);				
+				}, 100);				
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2732,8 +2735,8 @@
 		},
 
 		getRecordsHTML: function () {
-			this.show_extra = 30;	// larget number works better with chrome, smaller with FF.
-			if (this.buffered <= 300) this.show_extra = 300;
+			// larget number works better with chrome, smaller with FF.
+			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
 			var records	= $('#grid_'+ this.name +'_records');
 			var limit	= Math.floor(records.height() / this.recordHeight) + this.show_extra + 1;
 			if (!this.fixedBody) limit = this.buffered;
@@ -2773,6 +2776,7 @@
 			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
 			if (records.length == 0) return;
+			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
 			// need this to enable scrolling when this.limit < then a screen can fit
 			if (records.height() < this.buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
 				this.refresh();
@@ -2800,9 +2804,10 @@
 			if (String(tr2.prev().prop('id')).indexOf('_expanded_row') != -1) tr2.prev().remove();
 			var first = parseInt(tr1.next().attr('line'));
 			var last  = parseInt(tr2.prev().attr('line'));
-			//console.log('show: ' + start + '-'+ end + ' ===> current: ' + first + '-' + last);
-			if (first < start || first == 1) { // scroll down
-				if (end <= last + this.show_extra && end < this.buffered) return;
+			//$('#log').html('buffer: '+ this.buffered +' start-end: ' + start + '-'+ end + ' ===> first-last: ' + first + '-' + last);
+			if (first < start || first == 1 || this.last.pull_refresh) { // scroll down
+				if (end <= last + this.show_extra && end != this.total && !this.last.pull_refresh) return; 
+				this.last.pull_refresh = false;
 				// remove from top
 				while (true) {
 					var tmp = records.find('#grid_'+ this.name +'_rec_top').next();
@@ -2816,17 +2821,7 @@
 				for (var i = parseInt(rec_start) + 1; i <= end; i++) {
 					tr2.before(this.getRecordHTML(i-1, i));
 				}
-				// mark search
-				clearTimeout(obj.last.marker_timer);
-				obj.last.marker_timer = setTimeout(function () {
-					// mark all search strings
-					var str = [];
-					for (var s in obj.searchData) {
-						var tmp = obj.searchData[s];
-						if ($.inArray(tmp.value, str) == -1) str.push(tmp.value);
-					}
-					if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
-				}, 50);
+				markSearch();
 			} else { // scroll up
 				if (start >= first - this.show_extra && start > 1) return;
 				// remove from bottom
@@ -2842,25 +2837,21 @@
 				for (var i = parseInt(rec_start) - 1; i >= start; i--) {
 					tr1.after(this.getRecordHTML(i-1, i));
 				}
-				// mark search
-				clearTimeout(obj.last.marker_timer);
-				obj.last.marker_timer = setTimeout(function () {
-					var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
-					if (str != '') $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
-				}, 50);
+				markSearch();
 			}
 			// first/last row size
-			var h1 = (start - 1) * this.recordHeight;
-			var h2 = (this.buffered - end) * this.recordHeight;
-			if (h2 < 0) h = 0;
+			var h1 = (start - 1) * obj.recordHeight;
+			var h2 = (this.buffered - end) * obj.recordHeight;
+			if (h2 < 0) h2 = 0;
 			tr1.css('height', h1 + 'px');
 			tr2.css('height', h2 + 'px');
-			this.last.range_start = start;
-			this.last.range_end   = end;
+			obj.last.range_start = start;
+			obj.last.range_end   = end;
 			// load more if needed
 			var s = Math.floor(records[0].scrollTop / this.recordHeight);
 			var e = s + Math.floor(records.height() / this.recordHeight);
-			if (e + 10 > this.buffered && this.last.pull_more !== true && this.buffered < this.total - this.offset) {
+			if (e + 20 > this.buffered && this.last.pull_more !== true && this.buffered < this.total - this.offset) {
+				// console.log('more', s, e, this.buffered, this.last.pull_more);
 				if (this.autoLoad === true) {
 					this.last.pull_more = true;
 					this.last.xhr_offset += this.limit;
@@ -2881,7 +2872,23 @@
 					}
 				}
 			}
+			// check for grid end
+			if (this.buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
 			return;
+
+			function markSearch() {
+				// mark search
+				clearTimeout(obj.last.marker_timer);
+				obj.last.marker_timer = setTimeout(function () {
+					// mark all search strings
+					var str = [];
+					for (var s in obj.searchData) {
+						var tmp = obj.searchData[s];
+						if ($.inArray(tmp.value, str) == -1) str.push(tmp.value);
+					}
+					if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+				}, 50);
+			}
 		},
 
 		getRecordHTML: function (ind, lineNum, summary) {

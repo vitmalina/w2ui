@@ -490,7 +490,7 @@
 							// window.click to hide it
 							$(document).on('click', hideDrop);
 							function hideDrop() {
-								it.checked = !it.checked;
+								it.checked = false;
 								if (it.checked) {
 									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
 								} else {
