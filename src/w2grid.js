@@ -104,7 +104,7 @@
 		this.total			= 0;		// server total
 		this.buffered		= 0;		// number of records in the records array
 		this.limit			= 100;
-		this.offset			= 34;		// how many records to skip (for infinite scroll) when pulling from server
+		this.offset			= 0;		// how many records to skip (for infinite scroll) when pulling from server
 		this.style			= '';
 
 		this.msgDelete		= w2utils.lang('Are you sure you want to delete selected records?');
