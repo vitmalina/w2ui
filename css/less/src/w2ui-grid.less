@@ -208,6 +208,22 @@
 					transition: height .3s, opacity .3s;
 				}
 			}
+
+			.w2ui-load-more {
+				border-top: @grid-row-border-right;
+				cursor: pointer;
+				> div {
+					text-align: center;
+					color: @grid-row-number-color;
+					background-color: @grid-row-number-background-color;
+					padding: 10px 0px 15px 0px; 
+					border-top: 1px solid @grid-background-color;
+					&:hover {
+						color: @grid-row-hover-color;
+						background-color: @grid-row-hover-background-color;
+					}
+				}
+			}
 		}
 
 		// this table CSS for both columns and records

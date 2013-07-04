@@ -15,7 +15,6 @@
 *	- add autoLoad = true, for infinite scroll
 *	- save grid state into localStorage and restore
 *	- searh logic (AND or OR) if it is a list, it should be multiple list with or
-* 	- jumpTo is buggy
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -46,6 +45,7 @@
 *	- added onToolbar event - click on any toolbar button
 *	- route all toolbar events thru the grid
 *	- infinite scroll (buffered scroll)
+*	- added grid.autoLoad = true
 *	- search 1-20 will range numbers
 *	- moved some settings to prototype
 * 	- added record.expanded = 'none' || 'spinner'
@@ -53,7 +53,7 @@
 *	- subgrid (easy way with keyboard navigation)
 *	- on/off line number and select column
 *	- added columnOnOff() internal method
-* 	- added jumpTo()
+* 	- added skip()
 * 	- added onColumnOnOff
 * 	- record.render(record, record_index, column_index)
 *
@@ -94,6 +94,7 @@
 			toolbarSave	 	: false
 		}
 
+		this.autoLoad		= true; 	// for infinite scroll
 		this.fixedBody		= true;		// if false; then grid grows with data
 		this.recordHeight	= 25;
 		this.multiSearch	= true;
@@ -103,7 +104,7 @@
 		this.total			= 0;		// server total
 		this.buffered		= 0;		// number of records in the records array
 		this.limit			= 100;
-		this.offset			= 0;		// how many records to skip (for infinite scroll) when pulling from server
+		this.offset			= 34;		// how many records to skip (for infinite scroll) when pulling from server
 		this.style			= '';
 
 		this.msgDelete		= w2utils.lang('Are you sure you want to delete selected records?');
@@ -265,7 +266,6 @@
 		},
 
 		find: function (obj, returnRecords) {
-			//console.log(obj);
 			if (typeof obj == 'undefined' || obj == null) obj = {};
 			var recs = [];
 			for (var i=0; i<this.records.length; i++) {
@@ -943,16 +943,24 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
-		jumpTo: function (offset) {
-			this.offset = parseInt(offset);
-			if (this.offset < 0) this.offset = 0;
-			console.log('jumpTo', this.offset);
+		skip: function (offset) {
 			if (this.url != '') {
-				this.last.xhr_offset = 0;
+				this.offset = parseInt(offset);
+				if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
+				if (this.offset > this.total) this.offset = this.total - this.limit;
+				// console.log('last', this.last);
 				this.records  = [];
 				this.buffered = 0;
+				this.last.xhr_offset = 0;
+				this.last.pull_more	 = true;
+				this.last.scrollTop	 = 0;
+				this.last.scrollLeft = 0;
+				$('#grid_'+ this.name +'_records').prop('scrollTop',  0);
+				this.initColumnOnOff();
+				this.reload();
+			} else {
+				console.log('ERROR: grid.skip() can only be called when you have remote data source.');
 			}
-			this.reload();
 		},
 
 		load: function (url, callBack) {
@@ -966,7 +974,7 @@
 
 		reload: function (callBack) {
 			if (this.url != '') {
-				this.refresh(); // show grid before pulling data
+				//this.refresh(); // show grid before pulling data
 				this.request('get-records', {}, null, callBack);
 			} else {
 				this.refresh();
@@ -976,6 +984,7 @@
 
 		reset: function (noRefresh) {
 			// reset last remembered state
+			this.offset				= 0;
 			this.searchData			= [];
 			this.last.search		= '';
 			this.last.searchIds		= [];
@@ -1002,12 +1011,13 @@
 			if (url == '' || url == null) return;
 			// build parameters list
 			var params = {};
-			console.log('request: xhr_offset =', this.last.xhr_offset);
+			if (!w2utils.isInt(this.offset)) this.offset = 0;
+			if (!w2utils.isInt(this.last.xhr_offset)) this.last.xhr_offset = 0;
 			// add list params
 			params['cmd']  	 		= cmd;
 			params['name'] 	 		= this.name;
 			params['limit']  		= this.limit;
-			params['offset'] 		= parseInt(this.offset) + (this.last.xhr_offset ? this.last.xhr_offset : 0);
+			params['offset'] 		= parseInt(this.offset) + this.last.xhr_offset;
 			params['selected'] 		= this.getSelection();
 			params['search']  		= this.searchData;
 			params['search-logic'] 	= this.last.logic;
@@ -1947,18 +1957,27 @@
 					'</td>'+
 					'</tr>';
 			}
-			col_html += '<tr><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>'+
-						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
-						'	<div style="cursor: pointer; padding: 4px 8px">Toggle Line Numbers</div>'+
+			col_html += '<tr><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
+			if (this.url != '') {
+				col_html +=
+						'<tr><td colspan="2" style="padding: 0px">'+
+						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
+						'		Skip <input type="text" style="width: 40px" value="'+ this.offset +'" '+
+						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value);"> Records'+
+						'	</div>'+
+						'</td></tr>';
+			}
+			col_html +=	'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
+						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">Toggle Line Numbers</div>'+
 						'</td></tr>'+
 						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\');">'+
-						'	<div style="cursor: pointer; padding: 4px 8px">Reset Column Size</div>'+
+						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">Reset Column Size</div>'+
 						'</td></tr>';
 			col_html += "</table></div>";
 			this.toolbar.get('column-on-off').html = col_html;
 		},
 
-		columnOnOff: function (el, event, field) {
+		columnOnOff: function (el, event, field, value) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, event: event });
 			if (eventData.stop === true) return false;
@@ -1973,6 +1992,9 @@
 			if (field == 'line-numbers') {
 				this.show.lineNumbers = !this.show.lineNumbers;
 				this.refresh();
+			} else if (field == 'skip') {
+				if (!w2utils.isInt(value)) value = 0;
+				obj.skip(value);
 			} else if (field == 'resize') {
 				// restore sizes
 				for (var c in this.columns) {
@@ -1995,8 +2017,10 @@
 			}
 			this.initColumnOnOff();
 			if (hide) {
-				setTimeout(function () { obj.toolbar.uncheck('column-on-off'); }, 100);
-				$().w2overlay();
+				setTimeout(function () { 
+					$().w2overlay();
+					obj.toolbar.uncheck('column-on-off'); 
+				}, 1);				
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2326,7 +2350,7 @@
 			if (body.width() < $(records).find(':first-child').width())   var bodyOverflowX = true; else bodyOverflowX = false;
 			if (!this.fixedBody) { bodyOverflowY = false; bodyOverflowX = false; }
 			if (bodyOverflowX || bodyOverflowY) {
-				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.sbSize()).show();
+				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show();
 				records.css({ 
 					top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
 					"-webkit-overflow-scrolling": "touch",
@@ -2365,7 +2389,7 @@
 			}
 			if (body.length > 0) {
 				var width_max = parseInt(body.width())
-					- (bodyOverflowY ? w2utils.sbSize() : 0)
+					- (bodyOverflowY ? w2utils.scrollBarSize() : 0)
 					- (this.show.lineNumbers ? 34 : 0)
 					- (this.show.selectColumn ? 26 : 0)
 					- (this.show.expandColumn ? 26 : 0);
@@ -2452,7 +2476,7 @@
 					i++;
 				}
 			} else if (width_diff > 0) {
-				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.sbSize()).show();
+				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show();
 			}
 			// resize columns
 			columns.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
@@ -2460,7 +2484,7 @@
 				if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
 				// last column
 				if ($(el).hasClass('w2ui-head-last')) {
-					$(el).css('width', w2utils.sbSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+					$(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
 				}
 			});
 			// if there are column groups - hide first row (needed for sizing)
@@ -2487,7 +2511,7 @@
 				if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
 				// last column
 				if ($(el).hasClass('w2ui-grid-data-last')) {
-					$(el).css('width', w2utils.sbSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+					$(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
 				}
 			});
 			this.initResize();
@@ -2725,6 +2749,9 @@
 			html += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((this.buffered - limit) * this.recordHeight) +'px">'+
 					'	<td colspan="200"></td>'+
 					'</tr>'+
+					'<tr id="grid_'+ this.name +'_rec_more" style="display: none">'+
+					'	<td colspan="200" class="w2ui-load-more"></td>'+
+					'</tr>'+
 					'</table>';
 			this.last.range_start = 0;
 			this.last.range_end	  = limit;
@@ -2756,11 +2783,8 @@
 			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.floor(records.height() / this.recordHeight);
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
-			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
-				String(t1).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + '-' + 
-				String(t2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' of ' + 
-				String(this.total).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") +
-				(this.url != '' ? ' (buffered '+ String(this.buffered).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ')' : '')
+			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.format(this.offset + t1) + '-' + w2utils.format(this.offset + t2) + ' of ' +	w2utils.format(this.total) + 
+					(this.url != '' ? ' (buffered '+ w2utils.format(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.format(this.offset) : '') + ')' : '')
 			);
 			if (!this.fixedBody || this.total <= 300) return;
 			// regular processing
@@ -2836,11 +2860,26 @@
 			// load more if needed
 			var s = Math.floor(records[0].scrollTop / this.recordHeight);
 			var e = s + Math.floor(records.height() / this.recordHeight);
-			if (e + 10 > this.buffered - this.offset && this.last.pull_more !== true && this.buffered < this.total - this.offset) {
-				this.last.pull_more = true;
-				this.last.xhr_offset += this.limit;
-				console.log('---> more, offset = ', this.last.xhr_offset);
-				this.request('get-records');
+			if (e + 10 > this.buffered && this.last.pull_more !== true && this.buffered < this.total - this.offset) {
+				if (this.autoLoad === true) {
+					this.last.pull_more = true;
+					this.last.xhr_offset += this.limit;
+					this.request('get-records');
+				} else {
+					var more = $('#grid_'+ this.name +'_rec_more');
+					if (more.css('display') == 'none') {
+						more.show()
+							.on('click', function () {
+								$(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+								obj.last.pull_more = true;
+								obj.last.xhr_offset += obj.limit;
+								obj.request('get-records');
+							});
+					}
+					if (more.find('td').text().indexOf('Load') == -1) {
+						more.find('td').html('<div>Load '+ obj.limit + ' More...</div>');
+					}
+				}
 			}
 			return;
 		},
@@ -3013,7 +3052,6 @@
 					'	</td>'+
 					'</tr>';
 			}
-			//console.log('getHTML', ind);
 			return rec_html;
 		},
 

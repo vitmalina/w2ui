@@ -17,7 +17,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added locale(..., callBack), fixed bugs
 *	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
 *	- added $().w2marker('string')
-*	- added w2utils.keyboard
+*	- added w2utils.keyboard module
+*	- added w2utils.format()
 *
 ************************************************/
 
@@ -47,8 +48,9 @@ var w2utils = (function () {
 		isTime			: isTime,
 		size 			: size,
 		age 			: age,
-		formatDate		: formatDate,
 		date 			: date,
+		formatDate		: formatDate,
+		format			: format,
 		stripTags		: stripTags,
 		encodeTags		: encodeTags,
 		escapeId		: escapeId,
@@ -56,7 +58,7 @@ var w2utils = (function () {
 		base64decode	: base64decode,
 		transition		: transition,
 		getSize			: getSize,
-		sbSize			: sbSize,
+		scrollBarSize	: scrollBarSize,
 		lang 			: lang,
 		locale	 		: locale
 	}
@@ -154,6 +156,14 @@ var w2utils = (function () {
 						.replace('month', fullMonths[month]);
 		return res;
 	}
+
+	function format (numStr) {
+		var ret = '';
+		if (w2utils.isFloat(numStr) || w2utils.isInt(numStr) || w2utils.isMoney(numStr)) {
+			ret = String(numStr).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+		}
+		return ret;
+	}
 	
 	function date (dateStr) {
 		var months = w2utils.settings.shortmonths;
@@ -205,6 +215,7 @@ var w2utils = (function () {
 		if (sec < 60) {
 			amount = Math.floor(sec);
 			type   = 'sec';
+			if (sec < 0) { amount = 0; type = 'sec' }
 		} else if (sec < 60*60) {
 			amount = Math.floor(sec/60);
 			type   = 'min';
@@ -212,13 +223,13 @@ var w2utils = (function () {
 			amount = Math.floor(sec/60/60);
 			type   = 'hour';
 		} else if (sec < 30*24*60*60) {
-			amount = Math.floor(sec/24/60/60);
+			amount = Math.floor(sec/24/60/60*10)/10;
 			type   = 'day';
 		} else if (sec < 12*30*24*60*60) {
-			amount = Math.floor(sec/30/24/60/60);
+			amount = Math.floor(sec/30/24/60/60*10)/10;
 			type   = 'month';
 		} else if (sec >= 12*30*24*60*60) {
-			amount = Math.floor(sec/12/30/24/60/60);
+			amount = Math.floor(sec/12/30/24/60/60*10)/10;
 			type   = 'year';
 		}		
 		return amount + ' ' + type + (amount > 1 ? 's' : '');
@@ -633,15 +644,15 @@ var w2utils = (function () {
 		});
 	}
 
-	function sbSize () {
-		if (w2utils._sbSize) return w2utils._sbSize; 
+	function scrollBarSize () {
+		if (w2utils._scrollBarSize) return w2utils._scrollBarSize; 
 		var html = '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
 				   '	<div style="height: 120px">1</div>'+
 				   '</div>';
 		$('body').append(html);
-		w2utils._sbSize = 100 - $('#_scrollbar_width > div').width();
+		w2utils._scrollBarSize = 100 - $('#_scrollbar_width > div').width();
 		$('#_scrollbar_width').remove();
-		return w2utils._sbSize;
+		return w2utils._scrollBarSize;
 	}
 
 })();
