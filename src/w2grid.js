@@ -11,10 +11,10 @@
 *	- frozen columns
 *	- column autosize based on largest content
 *	- more events in editable fields (onkeypress)
-* 	- move record with keyboard, grid does not follow
-*	- add autoLoad = true, for infinite scroll
 *	- save grid state into localStorage and restore
 *	- searh logic (AND or OR) if it is a list, it should be multiple list with or
+*	- easy bubbles in the grid
+*	- render: 'number', 'date', 'time', 'datetime', 'money', 
 *
 * == 1.3 changes ==
 *	- added getRecordHTML, refactored, updated set()
@@ -56,6 +56,7 @@
 * 	- added skip()
 * 	- added onColumnOnOff
 * 	- record.render(record, record_index, column_index)
+*	- added grid.scrollIntoView()
 *
 ************************************************************************/
 
@@ -1404,11 +1405,7 @@
 			var recid	= sel[0];
 			var ind		= obj.get(recid, true);
 			var rec 	= obj.get(recid);
-			var sTop	= parseInt(records.prop('scrollTop'));
-			var sHeight = parseInt(records.height());
 			var recEL	= $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid));
-			var rTop 	= parseInt(recEL[0].offsetTop);
-			var rHeight = parseInt(recEL.height());
 			var cancel  = false;
 			switch (event.keyCode) {
 				case 32: // spacebar
@@ -1487,7 +1484,7 @@
 						}						
 						obj.selectNone();
 						obj.doClick(obj.records[ind].recid, event);
-						obj.scrollIntoView();
+						obj.scrollIntoView(ind);
 						if (event.preventDefault) event.preventDefault();
 					} else {
 						// jump out of subgird (if first record)
@@ -1529,7 +1526,7 @@
 						}
 						obj.selectNone();
 						obj.doClick(obj.records[ind].recid, event);
-						obj.scrollIntoView();
+						obj.scrollIntoView(ind);
 						cancel = true;
 					} else {
 						// jump out of subgrid (if last record in subgrid)
@@ -1553,15 +1550,19 @@
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
-		scrollIntoView: function () {
-			// scroll into view is buggy
-			// $('#grid_'+ obj.name + '_rec_' + obj.records[ind].recid).scrollintoview({ duration: 50 });
-			// if (rTop - rHeight < sTop) {
-			// 	setTimeout(function () {
-			// 		records.attr('scrollTop', rTop - rHeight * 10);
-			// 		obj.last.scrollTop = records.attr('scrollTop');
-			// 	}, 1);
-			// }
+		scrollIntoView: function (ind) {
+			if (typeof ind == 'undefined') {
+				var sel = this.getSelection();
+				if (sel.length == 0) return;
+				ind	= this.get(sel[0], true);
+			}
+			var records	= $('#grid_'+ this.name +'_records');
+			if (records.length == 0) return;
+			var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
+			var t2 = t1 + Math.floor(records.height() / this.recordHeight);
+			if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 });
+			if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 });
+			if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight });
 		},
 
 		doDblClick: function (recid, event) {
@@ -1622,7 +1623,7 @@
 				if (div1.height() < 5) return;
 				div1.css('opacity', 1);
 				div2.show().css('opacity', 1);
-				$('#grid_'+ obj.name +'_cell_'+ obj.get(recid, true) +'_expand div').html('-');				
+				$('#grid_'+ obj.name +'_cell_'+ obj.get(recid, true) +'_expand div').html('-');
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2349,8 +2350,10 @@
 			}
 
 			// check overflow
-			if (body.height() - columns.height() < $(records).find(':first-child').height()) var bodyOverflowY = true; else bodyOverflowY = false;
-			if (body.width() < $(records).find(':first-child').width())   var bodyOverflowX = true; else bodyOverflowX = false;
+			var bodyOverflowX = false;
+			var bodyOverflowY = false;
+			if (body.height() - columns.height() < $(records).find('>table').height()) bodyOverflowY = true;
+			if (body.width() < $(records).find('>table').width()) bodyOverflowX = true;
 			if (!this.fixedBody) { bodyOverflowY = false; bodyOverflowX = false; }
 			if (bodyOverflowX || bodyOverflowY) {
 				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show();
@@ -2819,6 +2822,8 @@
 				var rec_start = tmp.attr('line');
 				if (rec_start == 'top') rec_start = start;
 				for (var i = parseInt(rec_start) + 1; i <= end; i++) {
+					if (!this.records[i-1]) continue;
+					if (this.records[i-1].expanded === true) this.records[i-1].expanded = false;
 					tr2.before(this.getRecordHTML(i-1, i));
 				}
 				markSearch();
@@ -2835,6 +2840,8 @@
 				var rec_start = tmp.attr('line');
 				if (rec_start == 'bottom') rec_start = end;
 				for (var i = parseInt(rec_start) - 1; i >= start; i--) {
+					if (!this.records[i-1]) continue;
+					if (this.records[i-1].expanded === true) this.records[i-1].expanded = false;
 					tr1.after(this.getRecordHTML(i-1, i));
 				}
 				markSearch();
@@ -3048,7 +3055,7 @@
 			rec_html += '<td class="w2ui-grid-data-last"></td>';
 			rec_html += '</tr>';
 			// if row is expanded
-			if (record.expanded === true && $('#grid_'+ this.name +'_rec_'+ record.recid +'_expanded_row').length == 0) {
+			if (record.expanded === true) { // && $('#grid_'+ this.name +'_rec_'+ record.recid +'_expanded_row').length == 0
 				var tmp = 1 + (this.show.selectColumn ? 1 : 0);
 				rec_html += 
 					'<tr id="grid_'+ this.name +'_rec_'+ record.recid +'_expanded_row">'+

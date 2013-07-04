@@ -46,9 +46,9 @@ var w2utils = (function () {
 		isEmail			: isEmail,
 		isDate			: isDate,
 		isTime			: isTime,
-		size 			: size,
 		age 			: age,
 		date 			: date,
+		size 			: size,
 		formatDate		: formatDate,
 		format			: format,
 		stripTags		: stripTags,
@@ -57,9 +57,9 @@ var w2utils = (function () {
 		base64encode	: base64encode,
 		base64decode	: base64decode,
 		transition		: transition,
+		lang 			: lang,
 		getSize			: getSize,
 		scrollBarSize	: scrollBarSize,
-		lang 			: lang,
 		locale	 		: locale
 	}
 	return obj;
