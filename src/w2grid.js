@@ -2352,8 +2352,8 @@
 			// check overflow
 			var bodyOverflowX = false;
 			var bodyOverflowY = false;
-			if (body.height() - columns.height() < $(records).find('>table').height()) bodyOverflowY = true;
 			if (body.width() < $(records).find('>table').width()) bodyOverflowX = true;
+			if (body.height() - columns.height() < $(records).find('>table').height() + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) bodyOverflowY = true;
 			if (!this.fixedBody) { bodyOverflowY = false; bodyOverflowX = false; }
 			if (bodyOverflowX || bodyOverflowY) {
 				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show();
@@ -2787,7 +2787,7 @@
 			}
 			// update footer
 			var t1 = Math.floor(records[0].scrollTop / this.recordHeight + 1);
-			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.floor(records.height() / this.recordHeight);
+			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.round(records.height() / this.recordHeight);
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
 			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.format(this.offset + t1) + '-' + w2utils.format(this.offset + t2) + ' of ' +	w2utils.format(this.total) + 
