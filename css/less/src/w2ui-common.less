@@ -8,7 +8,7 @@
 	.box-sizing;
 	 * {
 		color: default;
-		font-family: verdana;
+		font-family: @main-font-family;
 		font-size: 11px;
 		font-weight: normal;
 		line-height: 100%;
@@ -113,7 +113,7 @@ select {
 	box-shadow: @bubble-tag-shadow;
 	line-height: normal;
 	font-size: 11px;
-	font-family: verdana;
+	font-family: @main-font-family;
 	&:before {
 		content: "";
 		position: absolute;
@@ -187,5 +187,40 @@ select {
 
 	&.icon-page {
 		.background-image(@image-page, no-repeat, center, ~"!important");
+	}
+}
+
+/*************************************************
+* ---- Locking portion of the screen (in grid, form, layout)
+*/
+
+.w2ui-lock {
+	.opacity(0.15);
+	background-color: @lock-background-color;
+	position: absolute; 
+	z-index: 1600;
+	display: none;
+}
+
+.w2ui-lock-msg {
+	position: absolute;
+	z-index: 1600;
+	width: 200px;
+	height: 80px;
+	padding: 30px;
+	font-size: 13px;
+	font-family: @main-font-family;
+	.opacity(0.8);
+	background-color: @lock-msg-background-color;
+	color: @lock-msg-color;
+	text-align: center;
+	border-radius: 5px;
+	border: @lock-msg-border;
+	display: none;
+	.w2ui-spinner {
+		display: inline-block; 
+		width: 24px; 
+		height: 24px; 
+		margin: -3px 8px -7px -10px;
 	}
 }

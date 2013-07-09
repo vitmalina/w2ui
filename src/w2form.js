@@ -15,6 +15,7 @@
 *	- added submit() as alias of save()
 *	- moved some settings to prototype
 *	- added form.onValidate event
+*	- added lock(.., showSpinner) - show spinner
 *
 ************************************************************************/
 
@@ -562,7 +563,7 @@
 			}, 50);
 		},
 
-		lock: function (msg, unlockOnClick) {
+		lock: function (msg, showSpinner) {
 			var obj = this;
 			if (typeof msg == 'undefined' || msg == '') {
 				setTimeout(function () {
@@ -573,8 +574,8 @@
 				$('#form_'+ obj.name +'_lock').remove();
 				$('#form_'+ obj.name +'_status').remove();
 				$(this.box).find('> div :first-child').before(
-					'<div id="form_'+ obj.name +'_lock" class="w2ui-form-lock"></div>'+
-					'<div id="form_'+ obj.name +'_status" class="w2ui-form-status"></div>'
+					'<div id="form_'+ obj.name +'_lock" class="w2ui-lock"></div>'+
+					'<div id="form_'+ obj.name +'_status" class="w2ui-lock-msg"></div>'
 				);
 				setTimeout(function () {
 					var lock 	= $('#form_'+ obj.name +'_lock');
@@ -586,9 +587,12 @@
 						var top 	= ($(obj.box).height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
 						lock.css({
 							opacity : lock.data('old_opacity'),
-							width 	: $(obj.box).width() + 'px',
-							height 	: $(obj.box).height() + 'px'
+							left 	: '0px',
+							top 	: '0px',
+							width 	: '100%',
+							height 	: '100%'
 						});
+						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
 						status.html(msg).css({
 							opacity : status.data('old_opacity'),
 							left	: left + 'px',

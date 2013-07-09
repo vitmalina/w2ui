@@ -49,7 +49,7 @@
 *	- search 1-20 will range numbers
 *	- moved some settings to prototype
 * 	- added record.expanded = 'none' || 'spinner'
-*	- added lock(.., spinner) - show spinner
+*	- added lock(.., showSpinner) - show spinner
 *	- subgrid (easy way with keyboard navigation)
 *	- on/off line number and select column
 *	- added columnOnOff() internal method
@@ -3088,8 +3088,8 @@
 				$('#grid_'+ obj.name +'_lock').remove();
 				$('#grid_'+ obj.name +'_status').remove();
 				$(this.box).find('> div :first-child').before(
-					'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock"></div>'+
-					'<div id="grid_'+ this.name +'_status" class="w2ui-grid-status"></div>'
+					'<div id="grid_'+ this.name +'_lock" class="w2ui-lock"></div>'+
+					'<div id="grid_'+ this.name +'_status" class="w2ui-lock-msg"></div>'
 				);
 				setTimeout(function () {
 					var lock 	= $('#grid_'+ obj.name +'_lock');
@@ -3106,7 +3106,7 @@
 							width 	: '100%',
 							height 	: '100%'
 						});
-						if (showSpinner === true) msg = '<div style="display: inline-block; width: 24px; height: 24px; margin: -3px 8px -7px -10px;" class="w2ui-spinner"></div>' + msg;
+						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
 						status.html(msg).css({
 							opacity : status.data('old_opacity'),
 							left	: left + 'px',

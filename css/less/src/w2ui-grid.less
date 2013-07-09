@@ -11,30 +11,6 @@
 		overflow: hidden;
 	}
 
-	.w2ui-grid-lock {
-		.opacity(0.15);
-		background-color: @grid-lock-background-color;
-		position: absolute; 
-		z-index: 1600;
-		display: none;
-	}
-
-	.w2ui-grid-status {
-		padding: 30px;
-		position: absolute;
-		z-index: 1600;
-		width: 200px;
-		height: 80px;
-		font-size: 13px;
-		.opacity(0.8);
-		background-color: @grid-status-background-color;
-		color: @grid-status-color;
-		text-align: center;
-		border-radius: 5px;
-		border: @grid-status-border;
-		display: none;
-	}
-
 	// ===== Grid Header ===== 
 
 	.w2ui-grid-header {
@@ -466,7 +442,7 @@
 	cursor: default;
 	table {
 		font-size: 11px;
-		font-family: verdana;
+		font-family: @main-font-family;
 		border-spacing: 0px;
 		border-collapse: border-collapse;
 		tr:hover {

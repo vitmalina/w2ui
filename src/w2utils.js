@@ -11,7 +11,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 * == NICE TO HAVE ==
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
-*	- common onKeydown handler (inactive select can be gray)
+* 	- impoove format()
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs

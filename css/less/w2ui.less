@@ -4,6 +4,8 @@
 @import "src/w2ui-mixins.less";
 @import "src/w2ui-images.less";
 
+@main-font-family: Verdana, Arial;
+
 // ******************************************
 // ---- If you need to redefine system button
 // ---- used in w2form, w2popup
@@ -11,6 +13,14 @@
 .sys-button () {}
 .sys-button-hover () {}
 .sys-button-active () {}
+
+// ******************************************
+// ---- For partial screen locking ----
+
+@lock-background-color: #333;
+@lock-msg-background-color: #555;
+@lock-msg-color: white;
+@lock-msg-border: 2px solid #444;
 
 // ******************************************
 // ---- Common, Overlay, Bubble ----
@@ -36,10 +46,6 @@
 @form-border-radius: 3px;
 @form-color: black;
 @form-background-color: #F5F6F7; 
-@form-lock-background-color: #333;
-@form-status-background-color: #555;
-@form-status-color: white;
-@form-status-border: 2px solid #444;
 @form-header-color: #444;
 @form-header-linear-gradient-start: #DAE6F3;
 @form-header-linear-gradient-end: #C2D5ED;
@@ -122,10 +128,6 @@
 
 @grid-border: 1px solid silver;
 @grid-background-color: white;
-@grid-lock-background-color: #333;
-@grid-status-background-color: #555;
-@grid-status-color: white;
-@grid-status-border: 2px solid #444;
 @grid-header-color: #444;
 @grid-header-linear-gradient-start: #DAE6F3;
 @grid-header-linear-gradient-end: #C2D5ED;
