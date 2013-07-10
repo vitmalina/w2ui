@@ -16,6 +16,7 @@
 *	- moved some settings to prototype
 *	- added form.onValidate event
 *	- added lock(.., showSpinner) - show spinner
+*	- deprecated w2form.init()
 *
 ************************************************************************/
 
@@ -119,15 +120,16 @@
 					object.original[p] = original[p];
 				}
 			}
+			if (obj) object.box = obj;
 			object.initTabs();
 			// render if necessary
 			if (object.formURL != '') {
 				$.get(object.formURL, function (data) {
 					object.formHTML = data;
-					if ($(obj).length != 0 || data.length != 0) {
-						$(obj).html(object.formHTML);
-						object.init(obj);
-						object.render($(obj)[0]);
+					object.isGenerated = true;
+					if ($(object.box).length != 0 || data.length != 0) {
+						$(object.box).html(data);
+						object.render(object.box);
 					}
 				});
 			} else if (object.formHTML != '') {
@@ -136,16 +138,17 @@
 				object.formHTML = $(this).html();
 			}  else { // try to generate it
 				object.formHTML = object.generateHTML();
-				object.isGenerated = true;
-				$(obj).html(object.formHTML);
 			}
 			// register new object
 			w2ui[object.name] = object;
 			// render if not loaded from url
 			if (object.formURL == '') {
-				if (String(object.formHTML).indexOf('w2ui-page') == -1) object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
-				object.init(this);
-				object.render($(this)[0]);
+				if (String(object.formHTML).indexOf('w2ui-page') == -1) {
+					object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
+				}
+				$(object.box).html(object.formHTML);
+				object.isGenerated = true;
+				object.render(object.box);
 			}
 			return object;
 		
@@ -162,34 +165,6 @@
 	// -- Implementation of core functionality
 	
 	w2form.prototype = {
-
-		init: function (box) {
-			var obj = this;
-			$(box).find('input, textarea, select').each(function (index, el) {
-				var type  = 'text';
-				var name  = (typeof $(el).attr('name') != 'undefined' ? $(el).attr('name') : $(el).attr('id'));
-				if (el.type == 'checkbox')  	type = 'checkbox';
-				if (el.type == 'radio')     	type = 'radio';
-				if (el.type == 'password')     	type = 'password';
-				if (el.type == 'button') 		type = 'button';
-				if (el.tagName == 'select') 	type = 'list';
-				if (el.tagName == 'textarea')	type = 'textarea';
-				var value = (type == 'checkbox' || type == 'radio' ? ($(el).prop('checked') ? true : false) : $(el).val());
-
-				var field = obj.get(name);
-				if (field && type != 'button') {
-					// find page
-					var div = $(el).parents('.w2ui-page');
-					if (div.length > 0) {
-						for (var i = 0; i < 100; i++) {
-							if (div.hasClass('page-'+i)) { field.page = i; break; }
-						}
-					}
-				} else if (type != 'button') {
-					console.log('WARNING: Field "'+ name + '" is present in HTML, but not defined in w2form.');
-				}
-			});
-		},
 
 		initTabs: function () {
 			// init tabs regardless it is defined or not
@@ -451,6 +426,7 @@
 			}
 			// validation
 			var errors = obj.validate(true);
+			console.log('err', errors);
 			if (errors.length !== 0) {
 				obj.goto(errors[0].field.page);
 				return;
@@ -699,6 +675,21 @@
 		refresh: function () {
 			var obj = this;
 			if (!this.box) return;
+			if (!this.isGenerated || typeof $(this.box).html() == 'undefined') return;
+			// update what page field belongs
+			$(this.box).find('input, textarea, select').each(function (index, el) {
+				var name  = (typeof $(el).attr('name') != 'undefined' ? $(el).attr('name') : $(el).attr('id'));
+				var field = obj.get(name);
+				if (field) {
+					// find page
+					var div = $(el).parents('.w2ui-page');
+					if (div.length > 0) {
+						for (var i = 0; i < 100; i++) {
+							if (div.hasClass('page-'+i)) { field.page = i; break; }
+						}
+					}
+				}
+			});			
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
 			if (eventData.stop === true) return false;
@@ -848,31 +839,26 @@
 
 		render: function (box) {
 			var obj = this;
-			if (box && $(box).html() != '' && this.isGenerated) {
-				this.formHTML = $(box).html();
-				this.isGenerated = false;
-			}
-			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
-			if (eventData.stop === true) return false;
-			// default actions
-			if (typeof box != 'undefined' && box != null) {
+			if (typeof box == 'object') {
 				// remove from previous box
 				if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
-					$(this.box)
-						.removeAttr('name')
+					$(this.box).removeAttr('name')
 						.removeClass('w2ui-reset w2ui-form')
 						.html('');
 				}
 				this.box = box;
 			}
+			if (!this.isGenerated) return;
+			// event before
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
+			if (eventData.stop === true) return false;
+			// default actions
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
 						'	<div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' +
-						this.formHTML +
+							this.formHTML +
 						'</div>';
-			$(this.box)
-				.attr('name', this.name)
+			$(this.box).attr('name', this.name)
 				.addClass('w2ui-reset w2ui-form')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;

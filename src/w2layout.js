@@ -140,7 +140,7 @@
 							var div1 = $('#'+ nm + ' > .w2ui-panel-content');
 							div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>');
 							var div2 = $('#'+ nm + ' > .w2ui-panel-content.new-panel');
-							if (typeof(data) == 'object') {
+							if (typeof data == 'object') {
 								data.box = div2[0]; // do not do .render(box);
 								data.render();
 							} else {
@@ -391,7 +391,8 @@
 				if (el.length > 0) el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.render($('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content')[0]);
+					p.content.box = $('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content')[0];
+					p.content.render(); // do not do .render(box);
 				} else {
 					$('#layout_'+ this.name + '_panel_'+ p.type +' > .w2ui-panel-content').html(p.content);
 				}
