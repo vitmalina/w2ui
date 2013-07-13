@@ -1,6 +1,24 @@
 // **********************************
 // -- Unit Tests: w2utils
 
+test( "w2utils.format()", function () {
+	var values = {
+		'1,000' 		: '1000',
+		'1,000.01' 		: '1000.01',
+		'1,000.0,001' 	: '1000.0001'
+	}
+	equal( w2utils.format(), '',  			"- no argument -" );
+	equal( w2utils.format(''), '', 			"- blank -" );
+	equal( w2utils.format(null), '', 		"- null -" );
+	equal( w2utils.format(undefined), '',	"- undefined -" );
+	equal( w2utils.format({}), '', 			"- object -" );
+	equal( w2utils.format([]), '', 			"- array -" );
+
+	for (var v in values) {
+		equal( w2utils.format(values[v]), v, 'Test: ' + values[v] + ' = ' + v);
+	}
+});
+
 test( "w2utils.size()", function() {
 	var values = {
 		'' 			: 0,

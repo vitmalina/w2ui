@@ -2824,8 +2824,8 @@
 			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.round(records.height() / this.recordHeight);
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
-			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.format(this.offset + t1) + '-' + w2utils.format(this.offset + t2) + ' of ' +	w2utils.format(this.total) + 
-					(this.url != '' ? ' (buffered '+ w2utils.format(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.format(this.offset) : '') + ')' : '')
+			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' of ' +	w2utils.formatNumber(this.total) + 
+					(this.url != '' ? ' (buffered '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
 			);
 			if (!this.fixedBody || this.total <= 300) return; 
 			// regular processing

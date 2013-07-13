@@ -998,9 +998,13 @@
 			var tmp2 = options.format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
 			var dt   = new Date();
 			if (tmp2 == 'mm/dd/yyyy') dt = new Date(tmp[0] + '/' + tmp[1] + '/' + tmp[2]);
+			if (tmp2 == 'm/d/yyyy') dt = new Date(tmp[0] + '/' + tmp[1] + '/' + tmp[2]);
 			if (tmp2 == 'dd/mm/yyyy') dt = new Date(tmp[1] + '/' + tmp[0] + '/' + tmp[2]);
+			if (tmp2 == 'd/m/yyyy') dt = new Date(tmp[1] + '/' + tmp[0] + '/' + tmp[2]);
 			if (tmp2 == 'yyyy/dd/mm') dt = new Date(tmp[2] + '/' + tmp[1] + '/' + tmp[0]);
+			if (tmp2 == 'yyyy/d/m') dt = new Date(tmp[2] + '/' + tmp[1] + '/' + tmp[0]);
 			if (tmp2 == 'yyyy/mm/dd') dt = new Date(tmp[1] + '/' + tmp[2] + '/' + tmp[0]);
+			if (tmp2 == 'yyyy/m/d') dt = new Date(tmp[1] + '/' + tmp[2] + '/' + tmp[0]);
 			var html =  '<table cellpadding="0" cellspacing="0"><tr>' +
 						'<td>'+ $().w2field('calendar_month', (dt.getMonth() + 1), dt.getFullYear(), options) +'</td>'+
 						// '<!--td valign="top" style="background-color: #f4f4fe; padding: 8px; padding-bottom: 0px; padding-top: 22px; border: 1px solid silver; border-left: 0px;">'+
