@@ -10,7 +10,7 @@
 		<div id="grid" style="width: 100%; height: 200px"></div>
 		<br>
 		<input type="button" value="Add One Record" 
-			onclick="w2ui['grid'].add( { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );">
+			onclick="w2ui['grid'].add( { recid: w2ui['grid'].records.length + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );">
 		<input type="button" value="Remove Appended Records" 
 			onclick="w2ui['grid'].remove(3);">
 		&nbsp;&nbsp;&nbsp;&nbsp;
@@ -25,7 +25,7 @@
 <div id="grid" style="width: 100%; height: 200px"></div>
 <br>
 <input type="button" value="Add One Record" 
-	onclick="w2ui['grid'].add( { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );">
+	onclick="w2ui['grid'].add( { recid: w2ui['grid'].records.length + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );">
 <input type="button" value="Remove Appended Records" 
 	onclick="w2ui['grid'].remove(3);">
 &nbsp;&nbsp;&nbsp;&nbsp;

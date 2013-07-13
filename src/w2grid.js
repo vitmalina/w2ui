@@ -491,6 +491,7 @@
 				console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.');
 				return;
 			}
+			if ($.isEmptyObject(this.sortData)) return;
 			var time = (new Date()).getTime();
 			var obj = this;
 			this.records.sort(function (a, b) {
@@ -1627,7 +1628,7 @@
 						(this.show.lineNumbers ? '<td class="w2ui-col-number"></td>' : '') +
 					'	<td class="w2ui-grid-data w2ui-expanded1" colspan="'+ tmp +'"><div style="display: none"></div></td>'+
 					'	<td colspan="100" class="w2ui-expanded2">'+
-					'		<div id="grid_'+ this.name +'_rec_'+ id +'_expanded" style="opacity: 0;"></div>'+
+					'		<div id="grid_'+ this.name +'_rec_'+ id +'_expanded" style="opacity: 0"></div>'+
 					'	</td>'+
 					'</tr>');
 			// event before

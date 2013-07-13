@@ -73,7 +73,10 @@ $('#grid').w2grid({
 		{ type: 'text', field: 'fname', caption: 'First Name' },
 		{ type: 'text', field: 'lname', caption: 'Last Name' },
 		{ type: 'date', field: 'sdate', caption: 'Start Date' }
-	]
+	],
+	onExpand: function (target, info) {
+		$('#'+info.box_id).html('<div style="padding: 10px">Expanded content</div>').animate({ 'height': 100 }, 100);
+	}
 });	
 		</textarea>
 	</div>
@@ -145,7 +148,7 @@ $(function () {
 			lineNumbers	: true,
 			selectColumn: true,
 			expandColumn: true
-		},
+		},		
 		columns: [				
 			{ field: 'fname', caption: 'First Name', size: '30%' },
 			{ field: 'lname', caption: 'Last Name', size: '30%' },
@@ -157,7 +160,10 @@ $(function () {
 			{ type: 'text', field: 'fname', caption: 'First Name' },
 			{ type: 'text', field: 'lname', caption: 'Last Name' },
 			{ type: 'date', field: 'sdate', caption: 'Start Date' }
-		]
+		],
+		onExpand: function (target, info) {
+			$('#'+info.box_id).html('<div style="padding: 10px">Expanded content</div>').animate({ 'height': 100 }, 100);
+		}
 	});	
 });
 </script>

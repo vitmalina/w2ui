@@ -40,29 +40,32 @@ $('#grid').w2grid({
 	],
 	onExpand: function (target, eventData) {
 		if (w2ui.hasOwnProperty('subgrid-' + eventData.recid)) w2ui['subgrid-' + eventData.recid].destroy();
-		$('#'+ eventData.box_id).css({ padding: '3px', width: '520px', height: '200px' }).w2grid({
-			name: 'subgrid-' + eventData.recid, 
-			fixedBody: true,
-			columns: [				
-				{ field: 'lname', caption: 'Last Name', size: '30%' },
-				{ field: 'fname', caption: 'First Name', size: '30%' },
-				{ field: 'email', caption: 'Email', size: '40%' },
-				{ field: 'sdate', caption: 'Start Date', size: '90px' },
-			],
-			records: [
-				{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-				{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-				{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-			],
-			onExpand: function (target, eventData) {
-				$('#'+ eventData.box_id).html('You can nest subgrids').css({'padding': '3px'});
-			}
-		});
-		w2ui['subgrid-' + eventData.recid].resize();
+		$('#'+ eventData.box_id).css({ margin: '0px', padding: '0px', width: '520px' }).animate({ height: '200px' }, 100);
+		setTimeout(function () {
+			$('#'+ eventData.box_id).w2grid({
+				name: 'subgrid-' + eventData.recid, 
+				style: 'border-right: 1px solid silver;',
+				fixedBody: true,
+				columns: [				
+					{ field: 'lname', caption: 'Last Name', size: '30%' },
+					{ field: 'fname', caption: 'First Name', size: '30%' },
+					{ field: 'email', caption: 'Email', size: '40%' },
+					{ field: 'sdate', caption: 'Start Date', size: '90px' },
+				],
+				records: [
+					{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+					{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+					{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+				],
+				onExpand: function (target, eventData) {
+					$('#'+ eventData.box_id).html('You can nest subgrids').css({'padding': '3px'}).animate({ 'height': 50 }, 100);
+				}
+			});
+			w2ui['subgrid-' + eventData.recid].resize();
+		}, 300);
 		return eventData;
 	}
-});	
-		</textarea>
+});			</textarea>
 	</div>
 </div>
 
@@ -92,25 +95,29 @@ $(function () {
 		],
 		onExpand: function (target, eventData) {
 			if (w2ui.hasOwnProperty('subgrid-' + eventData.recid)) w2ui['subgrid-' + eventData.recid].destroy();
-			$('#'+ eventData.box_id).css({ margin: '3px', width: '520px', height: '200px' }).w2grid({
-				name: 'subgrid-' + eventData.recid, 
-				fixedBody: true,
-				columns: [				
-					{ field: 'lname', caption: 'Last Name', size: '30%' },
-					{ field: 'fname', caption: 'First Name', size: '30%' },
-					{ field: 'email', caption: 'Email', size: '40%' },
-					{ field: 'sdate', caption: 'Start Date', size: '90px' },
-				],
-				records: [
-					{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-					{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-					{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-				],
-				onExpand: function (target, eventData) {
-					$('#'+ eventData.box_id).html('You can nest subgrids').css({'padding': '3px'});
-				}
-			});
-			w2ui['subgrid-' + eventData.recid].resize();
+			$('#'+ eventData.box_id).css({ margin: '0px', padding: '0px', width: '520px' }).animate({ height: '200px' }, 100);
+			setTimeout(function () {
+				$('#'+ eventData.box_id).w2grid({
+					name: 'subgrid-' + eventData.recid, 
+					style: 'border-right: 1px solid silver;',
+					fixedBody: true,
+					columns: [				
+						{ field: 'lname', caption: 'Last Name', size: '30%' },
+						{ field: 'fname', caption: 'First Name', size: '30%' },
+						{ field: 'email', caption: 'Email', size: '40%' },
+						{ field: 'sdate', caption: 'Start Date', size: '90px' },
+					],
+					records: [
+						{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+						{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+						{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+					],
+					onExpand: function (target, eventData) {
+						$('#'+ eventData.box_id).html('You can nest subgrids').css({'padding': '3px'}).animate({ 'height': 50 }, 100);
+					}
+				});
+				w2ui['subgrid-' + eventData.recid].resize();
+			}, 300);
 			return eventData;
 		}
 	});	
