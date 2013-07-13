@@ -12,7 +12,7 @@
 }
 .w2ui-reset * {
   color: default;
-  font-family: verdana;
+  font-family: Verdana, Arial;
   font-size: 11px;
   font-weight: normal;
   line-height: 100%;
@@ -131,7 +131,7 @@ select {
   box-shadow: 1px 1px 5px #000000;
   line-height: normal;
   font-size: 11px;
-  font-family: verdana;
+  font-family: Verdana, Arial;
 }
 .bubble-tag:before {
   content: "";
@@ -196,6 +196,40 @@ select {
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAJUExURf///9fX1/////GCgbEAAAABdFJOUwBA5thmAAAAO0lEQVR42rSMQRIAIAgCwf8/uonQtHt7UGdFAV4g3PZEi9w7MwSH8D3b2z8iJKKQOFWUeBMNiQGWAAMAXq4Az9o2u9cAAAAASUVORK5CYII=) no-repeat center !important;
 }
 /*************************************************
+* ---- Locking portion of the screen (in grid, form, layout)
+*/
+.w2ui-lock {
+  opacity: 0.15;
+  filter: alpha(opacity=15);
+  background-color: #333333;
+  position: absolute;
+  z-index: 1600;
+  display: none;
+}
+.w2ui-lock-msg {
+  position: absolute;
+  z-index: 1600;
+  width: 200px;
+  height: 80px;
+  padding: 30px;
+  font-size: 13px;
+  font-family: Verdana, Arial;
+  opacity: 0.8;
+  filter: alpha(opacity=15);
+  background-color: #555555;
+  color: #ffffff;
+  text-align: center;
+  border-radius: 5px;
+  border: 2px solid #444444;
+  display: none;
+}
+.w2ui-lock-msg .w2ui-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin: -3px 8px -7px -10px;
+}
+/*************************************************
 * ---- Forms ----
 */
 .w2ui-form {
@@ -204,34 +238,11 @@ select {
   border: 1px solid #252c39;
   border-radius: 3px;
   padding: 0px;
+  overflow: hidden !important;
 }
 .w2ui-form > div {
   position: absolute;
   overflow: hidden;
-}
-.w2ui-form .w2ui-form-lock {
-  opacity: 0.15;
-  filter: alpha(opacity=15);
-  background-color: #ffffff;
-  position: absolute;
-  z-index: 1600;
-  display: none;
-}
-.w2ui-form .w2ui-form-status {
-  padding: 30px;
-  position: absolute;
-  z-index: 1600;
-  width: 200px;
-  height: 80px;
-  font-size: 13px;
-  opacity: 0.8;
-  filter: alpha(opacity=15);
-  background-color: #222222;
-  color: #ffffff;
-  text-align: center;
-  border-radius: 5px;
-  border: 2px solid #999999;
-  display: none;
 }
 .w2ui-form .w2ui-form-header {
   position: absolute;
@@ -310,7 +321,6 @@ select {
 }
 .w2ui-label {
   float: left;
-  clear: left;
   margin-top: 6px;
   margin-bottom: 3px;
   width: 120px;
@@ -720,6 +730,7 @@ select {
 * ---- Layout ----
 */
 .w2ui-layout {
+  overflow: hidden !important;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
@@ -803,34 +814,11 @@ select {
 .w2ui-grid {
   border: 1px solid #252c39;
   border-radius: 2px;
+  overflow: hidden !important;
 }
 .w2ui-grid > div {
   position: absolute;
   overflow: hidden;
-}
-.w2ui-grid .w2ui-grid-lock {
-  opacity: 0.15;
-  filter: alpha(opacity=15);
-  background-color: #ffffff;
-  position: absolute;
-  z-index: 1600;
-  display: none;
-}
-.w2ui-grid .w2ui-grid-status {
-  padding: 30px;
-  position: absolute;
-  z-index: 1600;
-  width: 200px;
-  height: 80px;
-  font-size: 13px;
-  opacity: 0.8;
-  filter: alpha(opacity=15);
-  background-color: #222222;
-  color: #ffffff;
-  text-align: center;
-  border-radius: 5px;
-  border: 2px solid #999999;
-  display: none;
 }
 .w2ui-grid .w2ui-grid-header {
   position: absolute;
@@ -1218,7 +1206,7 @@ select {
 }
 .w2ui-overlay .w2ui-select-field table {
   font-size: 11px;
-  font-family: verdana;
+  font-family: Verdana, Arial;
   border-spacing: 0px;
   border-collapse: border-collapse;
 }
@@ -1322,7 +1310,7 @@ select {
   position: fixed;
   z-index: 1200;
   overflow: hidden;
-  font-family: verdana;
+  font-family: Verdana, Arial;
   border-radius: 6px;
   padding: 0px;
   margin: 0px;
@@ -1434,6 +1422,7 @@ select {
   box-sizing: border-box;
   border-top: 0px;
   border-radius: 0px 0px 6px 6px;
+  overflow: auto;
 }
 .w2ui-popup .w2ui-msg-buttons {
   padding: 8px;
@@ -1488,6 +1477,7 @@ select {
 */
 .w2ui-sidebar {
   cursor: default;
+  overflow: hidden !important;
   background-color: #323948 !important;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -1701,6 +1691,7 @@ select {
 */
 .w2ui-tabs {
   cursor: default;
+  overflow: hidden !important;
   background-color: #434d64;
   padding: 3px 0px;
   padding-bottom: 0px !important;
@@ -1748,11 +1739,11 @@ select {
 * ---- Toolbar ----
 */
 .w2ui-toolbar {
-  overflow: hidden;
   margin: 0px;
   padding: 2px;
   outline: 0px;
   background-color: #323948;
+  overflow: hidden !important;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

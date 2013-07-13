@@ -12,7 +12,7 @@
 }
 .w2ui-reset * {
   color: default;
-  font-family: verdana;
+  font-family: Verdana, Arial;
   font-size: 11px;
   font-weight: normal;
   line-height: 100%;
@@ -114,7 +114,7 @@ select {
   box-shadow: 1px 1px 3px #aaaaaa;
   line-height: normal;
   font-size: 11px;
-  font-family: verdana;
+  font-family: Verdana, Arial;
 }
 .bubble-tag:before {
   content: "";
@@ -179,20 +179,9 @@ select {
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAINSURBVBgZBcG/r55zGAfg6/4+z3va01NHlYgzEfE7MdCIGISFgS4Gk8ViYyM2Mdlsko4GSf8Do0FLRCIkghhYJA3aVBtEz3nP89wf11VJvPDepdd390+8Nso5nESBQoq0pfvXm9fzWf19453LF85vASqJlz748vInb517dIw6EyYBIIG49u+xi9/c9MdvR//99MPPZ7+4cP4IZhhTPbwzT2d+vGoaVRRp1rRliVvHq+cfvM3TD82+7mun0o/ceO7NT+/4/KOXjwZU1ekk0840bAZzMQ2mooqh0A72d5x/6sB9D5zYnff3PoYBoWBgFKPKqDKqjCpjKr//dcu9p489dra88cydps30KswACfNEKanSaxhlntjJ8Mv12Paie+vZ+0+oeSwwQ0Iw1xAR1CiFNJkGO4wu3ZMY1AAzBI0qSgmCNJsJUEOtJSMaCTBDLyQ0CknAGOgyTyFFiLI2awMzdEcSQgSAAKVUmAeNkxvWJWCGtVlDmgYQ0GFtgg4pNtOwbBcwQy/Rife/2yrRRVI0qYCEBly8Z+P4qMEMy7JaVw72N568e+iwhrXoECQkfH91kY7jwwXMsBx1L93ZruqrK6uuiAIdSnTIKKPLPFcvay8ww/Hh+ufeznTXu49v95IMoQG3784gYXdTqvRmqn/Wpa/ADFX58MW3L71SVU9ETgEIQQQIOOzub+fhIvwPRDgeVjWDahIAAAAASUVORK5CYII=) no-repeat center !important;
 }
 /*************************************************
-* ---- Forms ----
+* ---- Locking portion of the screen (in grid, form, layout)
 */
-.w2ui-form {
-  color: #000000;
-  background-color: #f5f6f7;
-  border: 1px solid #c0c0c0;
-  border-radius: 3px;
-  padding: 0px;
-}
-.w2ui-form > div {
-  position: absolute;
-  overflow: hidden;
-}
-.w2ui-form .w2ui-form-lock {
+.w2ui-lock {
   opacity: 0.15;
   filter: alpha(opacity=15);
   background-color: #333333;
@@ -200,13 +189,14 @@ select {
   z-index: 1600;
   display: none;
 }
-.w2ui-form .w2ui-form-status {
-  padding: 30px;
+.w2ui-lock-msg {
   position: absolute;
   z-index: 1600;
   width: 200px;
   height: 80px;
+  padding: 30px;
   font-size: 13px;
+  font-family: Verdana, Arial;
   opacity: 0.8;
   filter: alpha(opacity=15);
   background-color: #555555;
@@ -215,6 +205,27 @@ select {
   border-radius: 5px;
   border: 2px solid #444444;
   display: none;
+}
+.w2ui-lock-msg .w2ui-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin: -3px 8px -7px -10px;
+}
+/*************************************************
+* ---- Forms ----
+*/
+.w2ui-form {
+  color: #000000;
+  background-color: #f5f6f7;
+  border: 1px solid #c0c0c0;
+  border-radius: 3px;
+  padding: 0px;
+  overflow: hidden !important;
+}
+.w2ui-form > div {
+  position: absolute;
+  overflow: hidden;
 }
 .w2ui-form .w2ui-form-header {
   position: absolute;
@@ -293,7 +304,6 @@ select {
 }
 .w2ui-label {
   float: left;
-  clear: left;
   margin-top: 6px;
   margin-bottom: 3px;
   width: 120px;
@@ -703,6 +713,7 @@ select {
 * ---- Layout ----
 */
 .w2ui-layout {
+  overflow: hidden !important;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
@@ -774,7 +785,7 @@ select {
   display: none;
   position: absolute;
   z-index: 121;
-  background-color: rgba(220, 220, 220, 0.2);
+  background-color: transparent;
 }
 .w2ui-layout > div .w2ui-resizer:hover,
 .w2ui-layout > div .w2ui-resizer.active {
@@ -786,34 +797,11 @@ select {
 .w2ui-grid {
   border: 1px solid #c0c0c0;
   border-radius: 2px;
+  overflow: hidden !important;
 }
 .w2ui-grid > div {
   position: absolute;
   overflow: hidden;
-}
-.w2ui-grid .w2ui-grid-lock {
-  opacity: 0.15;
-  filter: alpha(opacity=15);
-  background-color: #333333;
-  position: absolute;
-  z-index: 1600;
-  display: none;
-}
-.w2ui-grid .w2ui-grid-status {
-  padding: 30px;
-  position: absolute;
-  z-index: 1600;
-  width: 200px;
-  height: 80px;
-  font-size: 13px;
-  opacity: 0.8;
-  filter: alpha(opacity=15);
-  background-color: #555555;
-  color: #ffffff;
-  text-align: center;
-  border-radius: 5px;
-  border: 2px solid #444444;
-  display: none;
 }
 .w2ui-grid .w2ui-grid-header {
   position: absolute;
@@ -1201,7 +1189,7 @@ select {
 }
 .w2ui-overlay .w2ui-select-field table {
   font-size: 11px;
-  font-family: verdana;
+  font-family: Verdana, Arial;
   border-spacing: 0px;
   border-collapse: border-collapse;
 }
@@ -1305,7 +1293,7 @@ select {
   position: fixed;
   z-index: 1200;
   overflow: hidden;
-  font-family: verdana;
+  font-family: Verdana, Arial;
   border-radius: 6px;
   padding: 0px;
   margin: 0px;
@@ -1417,6 +1405,7 @@ select {
   box-sizing: border-box;
   border-top: 0px;
   border-radius: 0px 0px 6px 6px;
+  overflow: auto;
 }
 .w2ui-popup .w2ui-msg-buttons {
   padding: 8px;
@@ -1457,6 +1446,7 @@ select {
 */
 .w2ui-sidebar {
   cursor: default;
+  overflow: hidden !important;
   background-color: #edf1f6 !important;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -1670,6 +1660,7 @@ select {
 */
 .w2ui-tabs {
   cursor: default;
+  overflow: hidden !important;
   background-color: #fafafa;
   padding: 3px 0px;
   padding-bottom: 0px !important;
@@ -1717,11 +1708,11 @@ select {
 * ---- Toolbar ----
 */
 .w2ui-toolbar {
-  overflow: hidden;
   margin: 0px;
   padding: 2px;
   outline: 0px;
   background-color: #efefef;
+  overflow: hidden !important;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
