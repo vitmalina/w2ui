@@ -44,6 +44,7 @@
 	<div id="example_js">
 		<h2>JavaScript</h2>
 		<textarea class="preview">
+var instant = false;
 var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
 $('#layout').w2layout({
 	name: 'layout',
@@ -67,6 +68,7 @@ w2ui['layout'].on('*', function (target, data) {
 </div>
 
 <script>
+var instant = false;
 $(document).ready(function () {
 	$().w2destroy('layout');
 	

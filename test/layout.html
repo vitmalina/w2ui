@@ -12,9 +12,9 @@ $(function () {
 		name: 'layout',
 		panels: [
 			{ type: 'top', size: 150, resizable: true },
-			//{ type: 'left', size: '20%', resizable: true },
+			{ type: 'left', size: '20%', resizable: true },
 			{ type: 'main', content: '<div style="padding: 10px">This is some text</div>',
-				tabs1: {
+				tabs: {
 					active : 'tab1',
 					tabs : [
 						{ id: 'tab1', caption: 'General' }, 
@@ -37,7 +37,7 @@ $(function () {
 					]
 				}
 			},
-			//{ type: 'right', size: '20%', resizable: true },
+			{ type: 'right', size: '20%', resizable: true },
 			{ type: 'preview', size: '50%', resizable: true,
 				tabs1: {
 					active : 'tab3',
