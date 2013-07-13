@@ -2105,7 +2105,7 @@
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
 							if (eventData2.stop === true) return false;
-							obj.reset(true);
+							// obj.reset(true); // do not reset to preserve search and sort
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;
