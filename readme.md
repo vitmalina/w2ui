@@ -55,19 +55,17 @@ In order to be able to use ANT, you will need to install Node.JS and NMP on your
 
 ```
 sudo npm install less -g
-sudo npm install clean-csss -g
+sudo npm install clean-css -g
 sudo npm install uglify-js@1 -g
 ```
 
-## File Structure
+## Contributing
 
-This repository holds a lot of auxilary files. 
+Your contributions are welcome. However, few things you need to know before contribution:
 
-```
-- css 			- compiled CSS files 
-  - less 		- LESS files (source for css)
-- demos 		- all demos, same as on the website
-- js 			- compiled JS files, plus additional JS libraries
-- src 			- source JS files
-- test 			- feature testing files
-```
+1. Please check out latest code before changing anything. It is harder to merge if your changes will not merge clean.
+2. If you are changing JS files - do all changes in /src folder
+3. If you are changing CSS files - do all changes in LESS in /css/less/src
+4. If you want to help with unit test - do all changes in /test/qunit
+5. If you want to change documenation - do all chnages in /docs
+6. If you want to add demos - do all changes in /demos
