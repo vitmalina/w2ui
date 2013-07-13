@@ -625,6 +625,9 @@
 				if (sel.length == 1) msgLeft = 'Record ID: '+ sel[0] + ' ';
 			}
 			$('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);
+			// toolbar
+			if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
+			if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
 			return selected;
 		},
 
@@ -665,6 +668,9 @@
 				if (sel.length == 1) msgLeft = 'Record ID: '+ sel[0] + ' ';
 			}
 			$('#'+ this.name +'_grid_footer .w2ui-footer-left').html(msgLeft);
+			// toolbar
+			if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
+			if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
 			return unselected;
 		},
 
@@ -674,21 +680,24 @@
 			var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
 			if (eventData.stop === true) return;
 			// default action
-			if (this.searchData.length == 0 && this.url == '') { 
-				// not searched
-				this.set({ selected: true });
-			} else { 
-				// local search applied
-				for (var i=0; i<this.last.searchIds.length; i++) {
-					this.records[this.last.searchIds[i]].selected = true;
+			if (this.url == '') {
+				if (this.searchData.length == 0) { 
+					// not searched
+					this.set({ selected: true });
+				} else { 
+					// local search applied
+					for (var i=0; i<this.last.searchIds.length; i++) {
+						this.records[this.last.searchIds[i]].selected = true;
+					}
+					this.refresh();
 				}
+			} else { // remote data source
+				this.set({ selected: true });
 				this.refresh();
 			}
-			if (this.getSelection().length > 0) {
-				this.toolbar.enable('edit', 'delete-selected');
-			} else {
-				this.toolbar.disable('edit', 'delete-selected');
-			}
+			var sel = this.getSelection();
+			if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
+			if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -707,6 +716,7 @@
 					$('#grid_'+ this.name +'_cell_'+ i +'_select_check').prop("checked", false);
 				}
 			}
+			this.toolbar.disable('edit', 'delete');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -1393,11 +1403,9 @@
 					setTimeout(function () { if (window.getSelection) window.getSelection().removeAllRanges(); }, 10);
 				}
 			}
-			if (sel.length > 0) {
-				this.toolbar.enable('edit', 'delete-selected');
-			} else {
-				this.toolbar.disable('edit', 'delete-selected');
-			}
+			var sel = this.getSelection();
+			if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
+			if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
 			// remember last selected
 			var msgLeft = '';
 			if (sel.length > 0) {
@@ -1759,7 +1767,7 @@
 			if (this.buffered <= 0 && this.url == '') this.buffered = this.total; 
 
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			this.toolbar.disable('edit', 'delete-selected');
+			this.toolbar.disable('edit', 'delete');
 			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
@@ -2163,7 +2171,6 @@
 							obj.doEdit();
 							break;
 						case 'delete':
-						case 'delete-selected':
 							obj.doDelete();
 							break;
 						case 'save':
@@ -2805,7 +2812,7 @@
 			var time = (new Date()).getTime();
 			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
-			if (records.length == 0) return;
+			if (this.records.length == 0) return;
 			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
 			// need this to enable scrolling when this.limit < then a screen can fit
 			if (records.height() < this.buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
@@ -2820,7 +2827,7 @@
 			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.format(this.offset + t1) + '-' + w2utils.format(this.offset + t2) + ' of ' +	w2utils.format(this.total) + 
 					(this.url != '' ? ' (buffered '+ w2utils.format(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.format(this.offset) : '') + ')' : '')
 			);
-			if (!this.fixedBody || this.total <= 300) return;
+			if (!this.fixedBody || this.total <= 300) return; 
 			// regular processing
 			var start 	= Math.floor(records[0].scrollTop / this.recordHeight) - this.show_extra;
 			var end		= start + Math.floor(records.height() / this.recordHeight) + this.show_extra * 2 + 1;
@@ -2836,7 +2843,8 @@
 			var last  = parseInt(tr2.prev().attr('line'));
 			//$('#log').html('buffer: '+ this.buffered +' start-end: ' + start + '-'+ end + ' ===> first-last: ' + first + '-' + last);
 			if (first < start || first == 1 || this.last.pull_refresh) { // scroll down
-				if (end <= last + this.show_extra && end != this.total && !this.last.pull_refresh) return; 
+				//console.log('end', end, 'last', last, 'show_extre', this.show_extra, this.last.pull_refresh);
+				if (end <= last + this.show_extra - 2 && end != this.total) return;
 				this.last.pull_refresh = false;
 				// remove from top
 				while (true) {
@@ -2855,7 +2863,7 @@
 				}
 				markSearch();
 			} else { // scroll up
-				if (start >= first - this.show_extra && start > 1) return;
+				if (start >= first - this.show_extra + 2 && start > 1) return;
 				// remove from bottom
 				while (true) {
 					var tmp = records.find('#grid_'+ this.name +'_rec_bottom').prev();
@@ -2884,8 +2892,7 @@
 			// load more if needed
 			var s = Math.floor(records[0].scrollTop / this.recordHeight);
 			var e = s + Math.floor(records.height() / this.recordHeight);
-			if (e + 20 > this.buffered && this.last.pull_more !== true && this.buffered < this.total - this.offset) {
-				// console.log('more', s, e, this.buffered, this.last.pull_more);
+			if (e + 10 > this.buffered && this.last.pull_more !== true && this.buffered < this.total - this.offset) {
 				if (this.autoLoad === true) {
 					this.last.pull_more = true;
 					this.last.xhr_offset += this.limit;
@@ -2999,7 +3006,8 @@
 							'	<div>'+
 							'		<input id="grid_'+ this.name +'_cell_'+ ind +'_select_check" class="grid_select_check" type="checkbox" tabIndex="-1"'+
 							'			'+ (record.selected ? 'checked="checked"' : '') +
-							'			onclick="var obj = w2ui[\''+ this.name +'\']; if (!obj.multiSelect) { obj.selectNone(); }'+
+							'			onclick="var obj = w2ui[\''+ this.name +'\']; '+
+							'				if (!obj.multiSelect) { obj.selectNone(); }'+
 							'				if (this.checked) obj.select(\''+ record.recid + '\'); else obj.unselect(\''+ record.recid + '\'); '+
 							'				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	</div>'
