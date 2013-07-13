@@ -16,6 +16,9 @@
 * 	- move record with keyboard, grid does not follow
 *
 * == 1.3 changes ==
+*	- added onEdit, an event to catch the edit record event when you click the edit button
+*	- added toolbarEdit, to send the OnEdit event
+*	- Changed doEdit to edit one field in doEditField, to add the doEdit event to edit one record in a popup
 *	- added getRecordHTML, refactored, updated set()
 *	- added onKeyboard event
 * 	- refresh() and resize() returns number of milliseconds it took
@@ -70,6 +73,7 @@
 
 		// events
 		this.onAdd				= null;
+		this.onEdit				= null;
 		this.onRequest			= null;		// called on any server event
 		this.onLoad				= null;
 		this.onDelete			= null;
@@ -213,6 +217,7 @@
 			toolbarColumns	: true,
 			toolbarSearch	: true,
 			toolbarAdd		: false,
+			toolbarEdit 	: false,
 			toolbarDelete 	: false,
 			toolbarSave	 	: false
 		},
@@ -663,7 +668,13 @@
 				}
 				this.refresh();
 			}
-			if (this.getSelection().length > 0) this.toolbar.enable('delete-selected'); else this.toolbar.disable('delete-selected');
+			if (this.getSelection().length > 0) {
+				this.toolbar.enable('edit');
+				this.toolbar.enable('delete-selected');
+			} else {
+				this.toolbar.disable('edit');
+				this.toolbar.disable('delete-selected');
+			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -1174,7 +1185,13 @@
 			}
 		},
 
-		doEdit: function (type, el, event) {
+		doEdit: function () {
+			// event before
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'edit' });
+			return false;
+		},
+
+		doEditField: function (type, el, event) {
 			var recid  = $(el).attr('recid');
 			var field  = $(el).attr('field');
 			var record = this.get(recid);
@@ -1312,7 +1329,13 @@
 			}
 			// bind up/down arrows
 			if (obj.keyboard) window.w2active = obj.name;
-			if (sel.length > 0) obj.toolbar.enable('delete-selected'); else obj.toolbar.disable('delete-selected');
+			if (sel.length > 0) {
+				this.toolbar.enable('edit');
+				this.toolbar.enable('delete-selected');
+			} else {
+				this.toolbar.disable('edit');
+				this.toolbar.disable('delete-selected');
+			}
 			// remember last selected
 			var msgLeft = '';
 			if (sel.length > 0) {
@@ -1597,6 +1620,8 @@
 			if (this.buffered <= 0 && this.url == '') this.buffered = this.total; 
 
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			this.toolbar.disable('delete-selected');
+			this.toolbar.disable('edit');					
 			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
@@ -1873,17 +1898,20 @@
 						this.toolbar.items.push({ type: 'check', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
 					}
 				}
-				if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarSave) {
+				if (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
 					this.toolbar.items.push({ type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' });
 				}
+				if (this.show.toolbarEdit) {
+					this.toolbar.items.push({ type: 'button', id: 'edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), img: 'icon-edit', disabled: true });
+				}
 				if (this.show.toolbarDelete) {
 					this.toolbar.items.push({ type: 'button', id: 'delete-selected', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), img: 'icon-delete', disabled: true });
 				}
 				if (this.show.toolbarSave) {
-					if (this.show.toolbarAdd || this.show.toolbarDelete ) {
+					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
 						this.toolbar.items.push({ type: 'break', id: 'break2' });
 					}
 					this.toolbar.items.push({ type: 'button', id: 'save-changed', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), img: 'icon-save' });
@@ -1941,6 +1969,9 @@
 							break;
 						case 'add-new':
 							obj.doAdd();
+							break;
+						case 'edit':
+							obj.doEdit();
 							break;
 						case 'delete-selected':
 							obj.doDelete();
@@ -2798,10 +2829,10 @@
 								'<input id="grid_'+ this.name +'_edit_'+ ind +'_'+ col_ind +'" value="'+ w2utils.stripTags(field) +'" type="text"  '+
 								'	style="'+ edit.style +'" '+ (record.changed && newValue != '' ? 'class="changed"' : '') + 
 								'	field="'+ col.field +'" recid="'+ record.recid +'" line="'+ ind +'" column="'+ col_ind +'" '+
-								'	onclick = "w2ui[\''+ this.name + '\'].doEdit(\'click\', this, event);" '+
-								'	onkeyup = "w2ui[\''+ this.name + '\'].doEdit(\'keyup\', this, event);" '+
-								'	onfocus = "w2ui[\''+ this.name + '\'].doEdit(\'focus\', this, event);" '+
-								'	onblur  = "w2ui[\''+ this.name + '\'].doEdit(\'blur\', this, event);" '+
+								'	onclick = "w2ui[\''+ this.name + '\'].doEditField(\'click\', this, event);" '+
+								'	onkeyup = "w2ui[\''+ this.name + '\'].doEditField(\'keyup\', this, event);" '+
+								'	onfocus = "w2ui[\''+ this.name + '\'].doEditField(\'focus\', this, event);" '+
+								'	onblur  = "w2ui[\''+ this.name + '\'].doEditField(\'blur\', this, event);" '+
 								'	ondblclick = "if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
 								'				  this.select();" '+ edit.inTag + ' >' +
 								edit.outTag +
