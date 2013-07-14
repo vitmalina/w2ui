@@ -251,6 +251,44 @@
 
 	w2grid.prototype = {
 
+<<<<<<< HEAD
+=======
+		show : {
+			header			: false,
+			toolbar			: false,
+			footer			: false,
+			columnHeaders	: true,
+			lineNumbers		: false,
+			expandColumn	: false,
+			selectColumn	: false,
+			emptyRecords	: true,
+			toolbarReload	: true,
+			toolbarColumns	: true,
+			toolbarSearch	: true,
+			toolbarAdd		: false,
+			toolbarEdit 	: false,
+			toolbarDelete 	: false,
+			toolbarSave	 	: false
+		},
+
+		fixedBody		: true,		// if false; then grid grows with data
+		recordHeight	: 25,
+		multiSearch		: true,
+		multiSelect		: true,
+		multiSort		: true,
+		keyboard		: true,		// if user clicks on the list; it will bind all events from the keyboard for that list
+
+		total			: 0,		// server total
+		buffered		: 0,		// number of records in the records array
+		limit			: 100,
+		offset			: 0,
+		style			: '',
+
+		msgDelete		: w2utils.lang('Are you sure you want to delete selected records?'),
+		msgNotJSON 		: w2utils.lang('Returned data is not in valid JSON format.'),
+		msgRefresh		: w2utils.lang('Refreshing...'),
+
+>>>>>>> 31b259653ecca8c2459d477675db592efe4fc163
 		add: function (record) {
 			if (!$.isArray(record)) record = [record];
 			var added = 0;
@@ -696,9 +734,19 @@
 				this.set({ selected: true });
 				this.refresh();
 			}
+<<<<<<< HEAD
 			var sel = this.getSelection();
 			if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
 			if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
+=======
+			if (this.getSelection().length > 0) {
+				this.toolbar.enable('edit');
+				this.toolbar.enable('delete-selected');
+			} else {
+				this.toolbar.disable('edit');
+				this.toolbar.disable('delete-selected');
+			}
+>>>>>>> 31b259653ecca8c2459d477675db592efe4fc163
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -1404,9 +1452,21 @@
 					setTimeout(function () { if (window.getSelection) window.getSelection().removeAllRanges(); }, 10);
 				}
 			}
+<<<<<<< HEAD
 			var sel = this.getSelection();
 			if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
 			if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
+=======
+			// bind up/down arrows
+			if (obj.keyboard) window.w2active = obj.name;
+			if (sel.length > 0) {
+				this.toolbar.enable('edit');
+				this.toolbar.enable('delete-selected');
+			} else {
+				this.toolbar.disable('edit');
+				this.toolbar.disable('delete-selected');
+			}
+>>>>>>> 31b259653ecca8c2459d477675db592efe4fc163
 			// remember last selected
 			var msgLeft = '';
 			if (sel.length > 0) {
@@ -1768,7 +1828,12 @@
 			if (this.buffered <= 0 && this.url == '') this.buffered = this.total; 
 
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+<<<<<<< HEAD
 			this.toolbar.disable('edit', 'delete');
+=======
+			this.toolbar.disable('delete-selected');
+			this.toolbar.disable('edit');					
+>>>>>>> 31b259653ecca8c2459d477675db592efe4fc163
 			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
@@ -2171,7 +2236,11 @@
 						case 'edit':
 							obj.doEdit();
 							break;
+<<<<<<< HEAD
 						case 'delete':
+=======
+						case 'delete-selected':
+>>>>>>> 31b259653ecca8c2459d477675db592efe4fc163
 							obj.doDelete();
 							break;
 						case 'save':
