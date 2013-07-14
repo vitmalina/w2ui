@@ -17,6 +17,7 @@
 *	- added form.onValidate event
 *	- added lock(.., showSpinner) - show spinner
 *	- deprecated w2form.init()
+*	- doAction -> action
 *
 ************************************************************************/
 
@@ -622,7 +623,7 @@
 			return pages.join('') + buttons;
 		},
 
-		doAction: function (action, event) {
+		action: function (action, event) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', event: event });	
 			if (eventData.stop === true) return false;
@@ -754,7 +755,7 @@
 					var action = this.value;
 					if (this.name) 	action = this.name;
 					if (this.id) 	action = this.id;
-					obj.doAction(action, event);
+					obj.action(action, event);
 				});
 			});
 			// init controls with record

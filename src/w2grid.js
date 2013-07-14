@@ -14,7 +14,6 @@
 *	- save grid state into localStorage and restore
 *	- searh logic (AND or OR) if it is a list, it should be multiple list with or
 *	- easy bubbles in the grid
-*	- render: 'number', 'date', 'time', 'datetime', 'money', 
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -61,6 +60,8 @@
 * 	- record.render(record, record_index, column_index)
 *	- added grid.scrollIntoView()
 *	- added render formatters (number, int, float, money, age, date)
+*	- renames: doAdd -> toolbarAdd, doEdit -> toolbarEdit, doSave -> toolbarSave, doDelete -> toolbarDelete
+*	- renames: doClick -> click, doDblClick -> dblClick, doEditField -> editField, doScroll -> scroll, doSort -> sort
 *
 ************************************************************************/
 
@@ -1160,7 +1161,7 @@
 			this.total = parseInt(this.total);
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// do not refresh if loading on infinite scroll
-			if (this.last.xhr_offset == 0) this.refresh(); else this.doScroll();
+			if (this.last.xhr_offset == 0) this.refresh(); else this.scroll();
 			// call back
 			if (typeof callBack == 'function') callBack();
 		},
@@ -1211,7 +1212,7 @@
 		// ===================================================
 		// --  Action Handlers
 
-		doAdd: function () {
+		toolbarAdd: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'add', recid: null });
 			if (eventData.stop === true) return false;
@@ -1219,7 +1220,18 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
-		doSave: function () {
+		toolbarEdit: function () {
+			var sel 	= this.getSelection();
+			var recid 	= null;
+			if (sel.length == 1) recid = sel[0];
+			// event before
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'edit', recid: recid });
+			if (eventData.stop === true) return false;
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
+		toolbarSave: function () {
 			var obj = this;
 			var changed = this.getChanged();
 			// event before
@@ -1248,13 +1260,7 @@
 			}
 		},
 
-		doEdit: function () {
-			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'edit' });
-			return false;
-		},
-
-		doEditField: function (type, el, event) {
+		editField: function (type, el, event) {
 			var recid  = $(el).attr('recid');
 			var field  = $(el).attr('field');
 			var record = this.get(recid);
@@ -1315,7 +1321,7 @@
 			}
 		},
 
-		doDelete: function (force) {
+		toolbarDelete: function (force) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete' });
 			if (eventData.stop === true) return false;
@@ -1330,7 +1336,7 @@
 					title 	: w2utils.lang('Delete Confirmation'),
 					body 	: '<div class="w2ui-grid-delete-msg">'+ this.msgDelete +'</div>',
 					buttons : '<input type="button" value="'+ w2utils.lang('No') + '" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'+
-							  '<input type="button" value="'+ w2utils.lang('Yes') + '" onclick="w2ui[\''+ this.name +'\'].doDelete(true); $().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
+							  '<input type="button" value="'+ w2utils.lang('Yes') + '" onclick="w2ui[\''+ this.name +'\'].toolbarDelete(true); $().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
 				});
 				return;
 			}
@@ -1344,7 +1350,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
-		doClick: function (recid, event) {
+		click: function (recid, event) {
 			var time = (new Date()).getTime();
 			if (w2utils.isInt(recid)) recid = parseInt(recid);
 			if (typeof event == 'undefined') event = {};
@@ -1450,7 +1456,7 @@
 					cancel = true;
 					break;
 				case 8: // backspace
-					obj.doDelete();
+					obj.toolbarDelete();
 					cancel = true;
 					break;
 				case 27: // escape
@@ -1482,7 +1488,7 @@
 						w2utils.keyboard.active(grid);
 						w2ui[grid].set(recid, { expanded: false });
 						w2ui[grid].collapse(recid);
-						w2ui[grid].doClick(recid);
+						w2ui[grid].click(recid);
 						cancel = true;
 						break;
 					}
@@ -1515,13 +1521,13 @@
 								var grid = subgrid.attr('name');
 								var recs = w2ui[grid].records;
 								w2utils.keyboard.active(grid);
-								w2ui[grid].doClick(recs[recs.length-1].recid);
+								w2ui[grid].click(recs[recs.length-1].recid);
 								cancel = true;
 								break;
 							}
 						}						
 						obj.selectNone();
-						obj.doClick(obj.records[ind].recid, event);
+						obj.click(obj.records[ind].recid, event);
 						obj.scrollIntoView(ind);
 						if (event.preventDefault) event.preventDefault();
 					} else {
@@ -1532,7 +1538,7 @@
 							var grid  = parent.parents('.w2ui-grid').attr('name');
 							obj.selectNone();
 							w2utils.keyboard.active(grid);
-							w2ui[grid].doClick(recid);
+							w2ui[grid].click(recid);
 							cancel = true;
 							break;
 						}
@@ -1548,7 +1554,7 @@
 							var grid = subgrid.attr('name');
 							var recs = w2ui[grid].records;
 							w2utils.keyboard.active(grid);
-							w2ui[grid].doClick(recs[0].recid);
+							w2ui[grid].click(recs[0].recid);
 							cancel = true;
 							break;
 						}
@@ -1563,7 +1569,7 @@
 							}
 						}
 						obj.selectNone();
-						obj.doClick(obj.records[ind].recid, event);
+						obj.click(obj.records[ind].recid, event);
 						obj.scrollIntoView(ind);
 						cancel = true;
 					} else {
@@ -1574,7 +1580,7 @@
 							var grid  = parent.parents('.w2ui-grid').attr('name');
 							obj.selectNone();
 							w2utils.keyboard.active(grid);
-							w2ui[grid].doClick(recid);
+							w2ui[grid].click(recid);
 							cancel = true;
 							break;
 						}
@@ -1603,7 +1609,7 @@
 			if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight });
 		},
 
-		doDblClick: function (recid, event) {
+		dblClick: function (recid, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, event: event });
@@ -1695,7 +1701,7 @@
 			return true;
 		},
 
-		doSort: function (field, direction, event) {
+		sort: function (field, direction, event) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, event: event });
 			if (eventData.stop === true) return false;
@@ -1839,7 +1845,7 @@
 						'		obj.last.scrollLeft = this.scrollLeft; '+
 						'		$(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft;'+
 						'		$(\'#grid_'+ this.name +'_summary\')[0].scrollLeft = this.scrollLeft;'+
-						'		obj.doScroll(event);">'+
+						'		obj.scroll(event);">'+
 							this.getRecordsHTML() +
 						'</div>'+
 						'<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
@@ -1908,7 +1914,7 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			obj.resize(); 
-			setTimeout(function () { obj.resize(); obj.doScroll(); }, 1); // allow to render first
+			setTimeout(function () { obj.resize(); obj.scroll(); }, 1); // allow to render first
 			return (new Date()).getTime() - time;
 		},
 
@@ -2176,16 +2182,16 @@
 							}
 							break;
 						case 'add':
-							obj.doAdd();
+							obj.toolbarAdd();
 							break;
 						case 'edit':
-							obj.doEdit();
+							obj.toolbarEdit();
 							break;
 						case 'delete':
-							obj.doDelete();
+							obj.toolbarDelete();
 							break;
 						case 'save':
-							obj.doSave();
+							obj.toolbarSave();
 							break;
 					}
 					// no default action
@@ -2700,7 +2706,7 @@
 							resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
 						}
 						html += '<td class="w2ui-head '+ sortStyle +'" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
-										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') +'>'+
+										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].sort(\''+ col.field +'\', null, event);"' : '') +'>'+
 									resizer +
 								'	<div class="w2ui-col-group '+ sortStyle +'">'+
 										(col.caption == '' ? '&nbsp;' : col.caption) +
@@ -2768,7 +2774,7 @@
 							resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
 						}
 						html += '<td col="'+ i +'" class="w2ui-head '+ sortStyle +'" '+
-										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].doSort(\''+ col.field +'\', null, event);"' : '') + '>'+
+										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].sort(\''+ col.field +'\', null, event);"' : '') + '>'+
 									resizer +
 								'	<div class="'+ sortStyle +'">'+  
 										(col.caption == '' ? '&nbsp;' : col.caption) +
@@ -2819,7 +2825,7 @@
 			return html;
 		},
 
-		doScroll: function (event) {
+		scroll: function (event) {
 			var time = (new Date()).getTime();
 			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
@@ -2980,10 +2986,10 @@
 						' class="w2ui-selected '+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
 						(summary !== true ?
 							(this.isIOS ?
-								'	onclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
+								'	onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);" '
 								:
-								'	onclick	 = "w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', event);"'+
-								'	ondblclick  = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
+								'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
+								'	ondblclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);" '
 							 ) 
 							: ''
 						) +
@@ -2994,10 +3000,10 @@
 							'	class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
 						(summary !== true ?
 							(this.isIOS ?
-								'	onclick = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
+								'	onclick = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);" '
 								:
-								'	onclick ="w2ui[\''+ this.name +'\'].doClick(\''+ record.recid +'\', event);"'+
-								'	ondblclick = "w2ui[\''+ this.name +'\'].doDblClick(\''+ record.recid +'\', event);" '
+								'	onclick ="w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
+								'	ondblclick = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);" '
 							 )
 							: ''
 						) +
@@ -3106,10 +3112,10 @@
 								'<input id="grid_'+ this.name +'_edit_'+ ind +'_'+ col_ind +'" value="'+ w2utils.stripTags(field) +'" type="text"  '+
 								'	style="'+ edit.style +'" '+ (record.changed && newValue != '' ? 'class="changed"' : '') + 
 								'	field="'+ col.field +'" recid="'+ record.recid +'" line="'+ ind +'" column="'+ col_ind +'" '+
-								'	onclick = "w2ui[\''+ this.name + '\'].doEditField(\'click\', this, event);" '+
-								'	onkeyup = "w2ui[\''+ this.name + '\'].doEditField(\'keyup\', this, event);" '+
-								'	onfocus = "w2ui[\''+ this.name + '\'].doEditField(\'focus\', this, event);" '+
-								'	onblur  = "w2ui[\''+ this.name + '\'].doEditField(\'blur\', this, event);" '+
+								'	onclick = "w2ui[\''+ this.name + '\'].editField(\'click\', this, event);" '+
+								'	onkeyup = "w2ui[\''+ this.name + '\'].editField(\'keyup\', this, event);" '+
+								'	onfocus = "w2ui[\''+ this.name + '\'].editField(\'focus\', this, event);" '+
+								'	onblur  = "w2ui[\''+ this.name + '\'].editField(\'blur\', this, event);" '+
 								'	ondblclick = "if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
 								'				  this.select();" '+ edit.inTag + ' >' +
 								edit.outTag +

@@ -8,6 +8,9 @@
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 * 
+* == 1.3 Changes ==
+* 	- doClick -> click, doMenuClick -> menuClick
+* 
 ************************************************************************/
 
 (function () {
@@ -371,7 +374,7 @@
 				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
 				menu_html += 
 					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
-					'		onclick="$(document).click(); w2ui[\''+ this.name +'\'].doMenuClick(\''+ item.id +'\', event, \''+ f +'\');">'+
+					'		onclick="$(document).click(); w2ui[\''+ this.name +'\'].menuClick(\''+ item.id +'\', event, \''+ f +'\');">'+
 						img +
 					'	<td>'+ mitem.text +'</td>'+
 					'</tr>';
@@ -398,7 +401,7 @@
 					if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
 					if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
 					html +=  '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
-							 '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.doClick(\''+ item.id +'\', event);" '+
+							 '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
 							 '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over');" : "") + '"'+
 							 '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over');" : "") + '"'+
 							 '       onmousedown = "' + (!item.disabled ? "$(this).addClass('down');" : "") + '"'+
@@ -435,7 +438,7 @@
 			return html;					
 		},
 
-		doMenuClick: function (id, event, menu_index) {
+		menuClick: function (id, event, menu_index) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			var obj = this;
 			var it  = this.get(id);
@@ -452,7 +455,7 @@
 			}
 		},
 				
-		doClick: function (id, event) {
+		click: function (id, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			var obj = this;
 			var it  = this.get(id);

@@ -14,6 +14,7 @@
 *	- animated open/close
 *	- added onKeyboard event
 *	- moved some settings to prototype
+*	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
 *
 ************************************************************************/
 
@@ -383,7 +384,7 @@
 			this.refresh(id);
 		}, 
 
-		doClick: function (id, event) {
+		click: function (id, event) {
 			var nd  = this.get(id);
 			var obj = this;
 			if (nd.disabled) return;
@@ -426,7 +427,7 @@
 				if (ind > 0) { 
 					var nd2 = nd.parent.nodes[ind-1];
 					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-					obj.doClick(nd2.id, event); 
+					obj.click(nd2.id, event); 
 					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
 					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
 				}
@@ -437,7 +438,7 @@
 				if (ind < nd.parent.nodes.length-1) { 
 					var nd2 = nd.parent.nodes[ind+1];
 					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-					obj.doClick(nd2.id, event); 
+					obj.click(nd2.id, event); 
 					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
 					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
 				}
@@ -448,7 +449,7 @@
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
-		doDblClick: function (id, event) {
+		dblClick: function (id, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, event: event });	
@@ -460,7 +461,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 	
-		doContextMenu: function (id, event) {
+		contextMenu: function (id, event) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });	
 			if (eventData.stop === true) return false;
@@ -600,10 +601,10 @@
 					if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
 					html = 
 					'<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
-						'	ondblclick="w2ui[\''+ obj.name +'\'].doDblClick(\''+ nd.id +'\', event);"'+
-						'	oncontextmenu="w2ui[\''+ obj.name +'\'].doContextMenu(\''+ nd.id +'\', event); '+
+						'	ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
+						'	oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
 						'		if (event.preventDefault) event.preventDefault();"'+
-						'	onClick="w2ui[\''+ obj.name +'\'].doClick(\''+ nd.id +'\', event); ">'+
+						'	onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
 						'<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
 						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
 						'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+ 

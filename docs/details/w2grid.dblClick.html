@@ -1,7 +1,7 @@
 Called when user double clicks on a record.
 
 <div class="definition">
-	doDblClick(recid, event)
+	dblClick(recid, event)
 </div>
 
 <div class="arguments">
@@ -21,7 +21,7 @@ Called when user double clicks on a record.
 
 The first argument <span class="argument">recid</span> is the id of the record that was double clicked. The second argument 
 <span class="argument">event</span> is DOM event object. This object is used to determine if user held ctrl (cmd on mac) 
-or shift key to do multi record select. This method triggers <a class="method" href="w2grid.onDblClick">.onDblClick</a> event handlers.
+or shift key to do multi record select. This method triggers <a class="method" href="w2grid.dblClick">.dblClick</a> event handlers.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -49,5 +49,5 @@ $('#grid').w2grid({
 
 You can do:
 <textarea class="javascript">
-w2ui['grid'].doDblClick(4, { metaKey: true });
+w2ui['grid'].dblClick(4, { metaKey: true });
 </textarea>

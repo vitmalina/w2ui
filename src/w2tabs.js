@@ -10,6 +10,9 @@
 *   - on overflow display << >>
 * 	- individual tab onClick (possibly other events) are not working
 *
+* == NICE TO HAVE ==
+*	- doClick -> click, doClose -> animateClose, doInsert -> animateInsert
+*
 ************************************************************************/
 
 (function () {
@@ -221,10 +224,10 @@
 			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
 			
 			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
-			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].doClose(\''+ tab.id +'\', event);"></div>' : '') +
+			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);"></div>' : '') +
 						  '	<div class="w2ui-tab'+ (this.active == tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
 						  '		title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
-						  '		onclick="w2ui[\''+ this.name +'\'].doClick(\''+ tab.id +'\', event);">' + tab.text + '</div>';
+						  '		onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
 			if (jq_el.length == 0) {
 				// does not exist - create it
 				var addStyle = '';
@@ -307,7 +310,7 @@
 		// ===================================================
 		// -- Internal Event Handlers
 	
-		doClick: function (id, event) {
+		click: function (id, event) {
 			var tab = this.get(id);
 			if (tab == null || tab.disabled) return false;
 			// event before
@@ -321,7 +324,7 @@
 			this.refresh(id);
 		},
 		
-		doClose: function(id, event) {
+		animateClose: function(id, event) {
 			var tab = this.get(id);
 			if (tab == null || tab.disabled) return false;
 			// event before
@@ -351,7 +354,7 @@
 			this.refresh();
 		},
 
-		doInsert: function(id, tab) {		
+		animateInsert: function(id, tab) {		
 			if (this.get(id) == null) return;
 			if (!$.isPlainObject(tab)) return;
 			// check for unique
