@@ -60,6 +60,7 @@
 * 	- added onColumnOnOff
 * 	- record.render(record, record_index, column_index)
 *	- added grid.scrollIntoView()
+*	- added render formatters (number, int, float, money, age, date)
 *
 ************************************************************************/
 
