@@ -216,6 +216,10 @@
 									$('#global_calendar_div').html( $().w2field('calendar_get', obj.value, options) );
 								}, 10);
 							});
+							setTimeout(function () {
+								// if it is unix time - convert to readable date
+								if (w2utils.isInt(obj.value)) obj.value = w2utils.formatDate(obj.value, options.format);
+							}, 1);
 						break;
 						
 					case 'time':
@@ -1074,12 +1078,12 @@
                             dayTitle += '<td>' + tabDays[i] + '</td>'; 
                         }
 			var html  = 
-				'<div class="w2ui-calendar-title">'+
+				'<div class="w2ui-calendar-title" onclick="event.stopPropagation()">'+
 				'	<div class="w2ui-calendar-previous" onclick="$().w2field(\'calendar_previous\', \''+ month +'/'+ year +'\')"> <- </div>'+
 				'	<div class="w2ui-calendar-next" onclick="$().w2field(\'calendar_next\', \''+ month +'/'+ year +'\')"> -> </div> '+ 
 						months[month-1] +', '+ year + 
 				'</div>'+
-				'<table class="w2ui-calendar-days" onclick="" cellspacing="0">'+
+				'<table class="w2ui-calendar-days" onclick="event.stopPropagation()" cellspacing="0">'+
 				'	<tr class="w2ui-day-title">' + dayTitle + '</tr>'+
 				'	<tr>';
 					

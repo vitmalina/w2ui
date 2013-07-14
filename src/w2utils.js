@@ -26,9 +26,10 @@ var w2utils = (function () {
 		settings : {
 			"locale"		: "en-us",
 			"date_format"	: "m/d/yyyy",
-			"date_display"	: "Mon dd, yyyy",
+			"date_display"	: "Mon d, yyyy",
 			"time_format"	: "hh:mi pm",
 			"currency"		: "^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$",
+			"currencySymbol": "$",
 			"float"			: "^[-]?[0-9]*[\.]?[0-9]+$",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -161,16 +162,16 @@ var w2utils = (function () {
 		var month 	= dt.getMonth();
 		var date 	= dt.getDate();
 		return format.toLowerCase()
-				.replace('yyyy', year)
-				.replace('yyy', year)
-				.replace('yy', String(year).substr(2))
-				.replace('y', year)
-				.replace('mm', (month + 1 < 10 ? '0' : '') + (month + 1))
-				.replace('dd', (date < 10 ? '0' : '') + date)
-				.replace('m', month + 1)
-				.replace('d', date)
-				.replace('mon', w2utils.settings.shortmonths[month])
-				.replace('month', w2utils.settings.fullmonths[month]);
+			.replace('month', w2utils.settings.fullmonths[month])
+			.replace('mon', w2utils.settings.shortmonths[month])
+			.replace(/yyyy/g, year)
+			.replace(/yyy/g, year)
+			.replace(/yy/g, String(year).substr(2))
+			.replace(/(^|[^a-z$])y/g, '$1'+year) 			// only y's that are not preceeded by a letter
+			.replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
+			.replace(/dd/g, (date < 10 ? '0' : '') + date)
+			.replace(/(^|[^a-z$])m/g, '$1'+ (month + 1)) 	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])d/g, '$1' + date); 		// only y's that are not preceeded by a letter
 	}
 
 	function date (dateStr) {

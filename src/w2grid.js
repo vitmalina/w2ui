@@ -552,24 +552,21 @@
  								if (rec[search.field] == sdata.value) fl++; // do not hide record
                                 if ((search.type == 'text' || search.type == 'list') && val1 == val2) fl++;
 								if (search.type == 'date') {
-									var da = new Date(val1);
-									var db = new Date(val2);
-									d0 = Date.UTC(da.getFullYear(), da.getMonth(), da.getDate());
-									d1 = Date.UTC(db.getFullYear(), db.getMonth(), db.getDate());
-									if (d0 == d1) fl++;
+									var tmp = new Date(Number(val1)); // create date
+									val1 = (new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate())).getTime(); // drop time
+									val2 = Number(val2);
+									var val3 = Number(val1) + 86400000; // 1 day
+									if (val2 >= val1 && val2 <= val3) fl++;
 								}
 								break;
 							case 'between':
 								if (search.type == 'int' && parseInt(rec[search.field]) >= parseInt(val2) && parseInt(rec[search.field]) <= parseInt(val3)) fl++;
 								if (search.type == 'float' && parseFloat(rec[search.field]) >= parseFloat(val2) && parseFloat(rec[search.field]) <= parseFloat(val3)) fl++;
 								if (search.type == 'date') {
-									var da = new Date(val1);
-									var db = new Date(val2);
-									var dc = new Date(val3);
-									d0 = Date.UTC(da.getFullYear(), da.getMonth(), da.getDate());
-									d1 = Date.UTC(db.getFullYear(), db.getMonth(), db.getDate());
-									d2 = Date.UTC(dc.getFullYear(), dc.getMonth(), dc.getDate());
-									if (d0 >= d1 && d0 <= d2) fl++;
+									var tmp = new Date(Number(val3)); // create date
+									val3 = (new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate())).getTime(); // drop time
+									var val3 = Number(val3) + 86400000; // 1 day
+									if (val1 >= val2 && val1 < val3) fl++;
 								}
 								break;
 							case 'begins with':
@@ -751,6 +748,18 @@
 							$.extend(tmp, { value: [value1, value2] });
 						} else {
 							$.extend(tmp, { value: value1 });
+						}
+						// conver date to unix time
+						try {
+							if (search.type == 'date' && operator == 'between') {
+								tmp.value[0] = w2utils.isDate(value1, w2utils.settings.date_format, true).getTime();
+								tmp.value[1] = w2utils.isDate(value2, w2utils.settings.date_format, true).getTime();
+							}
+							if (search.type == 'date' && operator == 'is') {
+								tmp.value = w2utils.isDate(value1, w2utils.settings.date_format, true).getTime();
+							}
+						} catch (e) {
+
 						}
 						searchData.push(tmp);
 					}
@@ -3034,12 +3043,38 @@
 			}
 			var col_ind = 0;
 			while (true) {
-				var col   = this.columns[col_ind];
+				var col = this.columns[col_ind];
+				var addStyle = '';
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
 				var field = this.parseObj(record, col.field);
 				if (typeof col.render != 'undefined') {
 					if (typeof col.render == 'function') field = col.render.call(this, this.records[ind], ind, col_ind);
 					if (typeof col.render == 'object')   field = col.render[field];
+					if (typeof col.render == 'string') {
+						var tmp = col.render.toLowerCase().split(':');
+						var prefix = '';
+						var suffix = '';
+						if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) {
+							if (typeof tmp[1] == 'undefined' || !w2utils.isInt(tmp[1])) tmp[1] = 0;
+							if (tmp[1] > 20) tmp[1] = 20;
+							if (tmp[1] < 0)  tmp[1] = 0;
+							if (tmp[0] == 'money')   { tmp[1] = 2; prefix = w2utils.settings.currencySymbol; }
+							if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
+							if (tmp[0] == 'int')	 { tmp[1] = 0; }
+							// format
+							addStyle = 'text-align: right';
+							field 	 = prefix + w2utils.formatNumber(Number(field).toFixed(tmp[1])) + suffix;
+						}
+						if (tmp[0] == 'date') {
+							if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
+							addStyle = 'text-align: center';
+							field 	 = prefix + w2utils.formatDate(field, tmp[1]) + suffix;
+						}
+						if (tmp[0] == 'age') {
+							addStyle = 'text-align: center';
+							field 	 = prefix + w2utils.age(field) + suffix;
+						}
+					}
 				}
 				if (field == null || typeof field == 'undefined') field = '';
 
@@ -3081,7 +3116,7 @@
 					}
 				}
 				rec_html += '<td class="w2ui-grid-data" col="'+ col_ind +'" '+
-							'	style="'+ (typeof col.style != 'undefined' ? col.style : '') +'" '+
+							'	style="'+ addStyle + ';' + (typeof col.style != 'undefined' ? col.style : '') +'" '+
 										  (typeof col.attr != 'undefined' ? col.attr : '') +'>'+
 								rec_field +
 							'</td>';

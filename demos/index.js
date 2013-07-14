@@ -63,8 +63,10 @@ $(function () {
 					{ id: 'grid-20', text: 'Render to a New Box', icon: 'fa-table' },
 					{ id: 'grid-21', text: 'Inline Editing', icon: 'fa-table' },
 					{ id: 'grid-22', text: 'Resizable Columns', icon: 'fa-table' },
-					//{ id: 'grid-23', text: 'Re-Order records', icon: 'fa-table' },
-					//{ id: 'grid-24', text: 'Locked Columns', icon: 'fa-table' }
+					{ id: 'grid-23', text: 'Buffered Scroll', icon: 'fa-table' },
+					{ id: 'grid-24', text: 'Infinite Scroll', icon: 'fa-table' },
+					//{ id: 'grid-25', text: 'Re-Order records', icon: 'fa-table' },
+					//{ id: 'grid-26', text: 'Locked Columns', icon: 'fa-table' }
 				]
 			},
 			{ id: 'toolbar', text: 'Toolbar', img: 'icon-folder', group1: true,
