@@ -69,6 +69,7 @@
 						break;
 
 					case 'text':
+						// intentionally left blank
 						break;
 
 					case 'int':
@@ -553,6 +554,10 @@
 							}
 						}
 						this.refresh();
+						break;
+
+					case 'slider' :
+						// for future reference
 						break;
 
 					default: 

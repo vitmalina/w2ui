@@ -10,6 +10,7 @@
 * 
 * == 1.3 Changes ==
 * 	- doClick -> click, doMenuClick -> menuClick
+*	- deprecated getMenuHTML() due to its use in w2menu
 * 
 ************************************************************************/
 
@@ -351,38 +352,6 @@
 		// ========================================
 		// --- Internal Functions
 		
-		getMenuHTML: function (item) { 
-			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
-			for (var f = 0; f < item.items.length; f++) { 
-				var mitem = item.items[f];
-				if (typeof mitem == 'string') {
-					var tmp = mitem.split('|');
-					// 1 - id, 2 - text, 3 - image, 4 - icon
-					mitem = { id: tmp[0], text: tmp[0], img: null, icon: null };
-					if (tmp[1]) mitem.text = tmp[1];
-					if (tmp[2]) mitem.img  = tmp[2];
-					if (tmp[3]) mitem.icon = tmp[3];
-				} else {
-					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
-					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
-					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
-					if (typeof mitem.img == 'undefined') mitem.img = null;
-					if (typeof mitem.icon == 'undefined') mitem.icon = null;
-				}
-				var img = '<td>&nbsp;</td>';
-				if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
-				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
-				menu_html += 
-					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
-					'		onclick="$(document).click(); w2ui[\''+ this.name +'\'].menuClick(\''+ item.id +'\', event, \''+ f +'\');">'+
-						img +
-					'	<td>'+ mitem.text +'</td>'+
-					'</tr>';
-			}
-			menu_html += "</table>";
-			return menu_html;
-		},
-		
 		getItemHTML: function (item) {
 			var html = '';
 			
@@ -392,7 +361,6 @@
 	
 			switch (item.type) {
 				case 'menu':
-					item.html = this.getMenuHTML(item);
 				case 'button':	
 				case 'check':
 				case 'radio':
@@ -487,9 +455,16 @@
 					} else {
 						// show overlay
 						setTimeout(function () {
-							var w = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).width();
+							var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
 							if (!$.isPlainObject(it.overlay)) it.overlay = {};
-							$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, $.extend({ left: (w-50)/2, top: 3 }, it.overlay));
+							if (it.type == 'drop') {
+								el.w2overlay(it.html, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay));
+							} 
+							if (it.type == 'menu') {
+								el.w2menu(it.items, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay, {
+									select: function (item, event, index) { obj.menuClick(it.id, event, index); }
+								}));
+							}
 							// window.click to hide it
 							$(document).on('click', hideDrop);
 							function hideDrop() {

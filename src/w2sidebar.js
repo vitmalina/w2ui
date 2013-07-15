@@ -15,8 +15,7 @@
 *	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
 *	- when clicked, first it selects then sends event (for faster view if event handler is slow)
 *   - better keyboard navigation (<- ->, space, enter)
-* 	- context menus
-*	- added context menu and getMenuHTML(), menuClick(), onMenuClick event, menu property 
+*	- added context menu see menuClick(), onMenuClick event, menu property 
 *	- added scrollIntoView()
 *
 ************************************************************************/
@@ -540,43 +539,16 @@
 			if (id != obj.selected) obj.click(id);
 			if (nd.group || nd.disabled) return;
 			if (obj.menu.length > 0) {
-				$(obj.box).find('#node_'+ w2utils.escapeId(id)).w2overlay(obj.getMenuHTML(id), { left: event.offsetX - 25 });
+				$(obj.box).find('#node_'+ w2utils.escapeId(id))
+					.w2menu(obj.menu, { 
+						left: event.offsetX - 25,
+						select: function (item, event, index) { obj.menuClick(id, event, index); }
+					}
+				);
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 			return;
-		},
-
-		getMenuHTML: function (itemId) { 
-			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
-			for (var f = 0; f < this.menu.length; f++) { 
-				var mitem = this.menu[f];
-				if (typeof mitem == 'string') {
-					var tmp = mitem.split('|');
-					// 1 - id, 2 - text, 3 - image, 4 - icon
-					mitem = { id: tmp[0], text: tmp[0], img: null, icon: null };
-					if (tmp[1]) mitem.text = tmp[1];
-					if (tmp[2]) mitem.img  = tmp[2];
-					if (tmp[3]) mitem.icon = tmp[3];
-				} else {
-					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
-					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
-					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
-					if (typeof mitem.img == 'undefined') mitem.img = null;
-					if (typeof mitem.icon == 'undefined') mitem.icon = null;
-				}
-				var img = '<td>&nbsp;</td>';
-				if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
-				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
-				menu_html += 
-					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
-					'		onclick="$(document).click(); w2ui[\''+ this.name +'\'].menuClick(\''+ itemId +'\', event, \''+ f +'\');">'+
-						img +
-					'	<td>'+ mitem.text +'</td>'+
-					'</tr>';
-			}
-			menu_html += "</table>";
-			return menu_html;
 		},
 
 		menuClick: function (itemId, event, index) {

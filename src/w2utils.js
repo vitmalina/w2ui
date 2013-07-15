@@ -18,6 +18,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added $().w2marker('string')
 *	- added w2utils.keyboard module
 *	- added w2utils.formatNumber()
+*	- added w2menu() plugin
 *
 ************************************************/
 
@@ -939,7 +940,7 @@ w2utils.keyboard = (function (obj) {
 			if (typeof options.onHide == 'function') options.onHide();
 			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);
-			return;
+			return $(this);
 		}
 		// insert (or re-insert) overlay
 		if ($('#w2ui-overlay').length > 0) { isOpened = true; $(document).off('click', hide); $('#w2ui-overlay').remove(); }
@@ -985,5 +986,56 @@ w2utils.keyboard = (function (obj) {
 			$(document).on('click', hide);
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 1);
+
+		return $(this);
 	}
+
+	$.fn.w2menu = function (menu, options) {
+		if (typeof options.select == 'undefined' && typeof options.onSelect == 'function') options.select = options.onSelect;
+		if (typeof options.select != 'function') {
+			console.log('ERROR: options.select is required to be a function, not '+ typeof options.select + ' in $().w2menu(menu, options)');
+			return $(this);
+		}
+		if (!$.isArray(menu)) {
+			console.log('ERROR: first parameter should be an array of objects or strings in $().w2menu(menu, options)');
+			return $(this);
+		}
+		// since only one overlay can exist at a time
+		$.fn.w2menuHandler = function (event, index) {
+			options.select(menu[index], event, index); 
+		}
+		return $(this).w2overlay(getMenuHTML(), options);
+
+		function getMenuHTML () { 
+			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
+			for (var f = 0; f < menu.length; f++) { 
+				var mitem = menu[f];
+				if (typeof mitem == 'string') {
+					var tmp = mitem.split('|');
+					// 1 - id, 2 - text, 3 - image, 4 - icon
+					mitem = { id: tmp[0], text: tmp[0], img: null, icon: null };
+					if (tmp[1]) mitem.text = tmp[1];
+					if (tmp[2]) mitem.img  = tmp[2];
+					if (tmp[3]) mitem.icon = tmp[3];
+				} else {
+					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
+					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
+					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
+					if (typeof mitem.img == 'undefined') mitem.img = null;
+					if (typeof mitem.icon == 'undefined') mitem.icon = null;
+				}
+				var img = '<td>&nbsp;</td>';
+				if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
+				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
+				menu_html += 
+					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
+					'		onclick="$(document).click(); $.fn.w2menuHandler(event, \''+ f +'\');">'+
+						img +
+					'	<td>'+ mitem.text +'</td>'+
+					'</tr>';
+			}
+			menu_html += "</table>";
+			return menu_html;
+		}	
+	}	
 })();
