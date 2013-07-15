@@ -21,6 +21,7 @@
 *	- Changed doEdit to edit one field in doEditField, to add the doEdit event to edit one record in a popup
 *	- added getRecordHTML, refactored, updated set()
 *	- added onKeyboard event
+*	- added keyboard = true property
 * 	- refresh() and resize() returns number of milliseconds it took
 *	- optimized width distribution and resize
 *	- 50 columns resize 2% - margin of error is huge
@@ -104,6 +105,7 @@
 		this.autoLoad		= true; 	// for infinite scroll
 		this.fixedBody		= true;		// if false; then grid grows with data
 		this.recordHeight	= 25;
+		this.keyboard 		= true;
 		this.multiSearch	= true;
 		this.multiSelect	= true;
 		this.multiSort		= true;
@@ -1439,6 +1441,7 @@
 		keydown: function (event) {
 			// this method is called from w2utils
 			var obj = this;
+			if (obj.keyboard !== true) return;
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
 			if (eventData.stop === true) return false;

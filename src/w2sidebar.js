@@ -7,14 +7,15 @@
 *
 * == NICE TO HAVE ==
 * 	- context menus
-*	- when clicked, first it selects then sends event (for faster view if event handler is slow)
-*   - better keyboard navigation (<- ->, space, enter)
 *
 * == 1.3 Changes ==
 *	- animated open/close
 *	- added onKeyboard event
 *	- moved some settings to prototype
 *	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
+*	- when clicked, first it selects then sends event (for faster view if event handler is slow)
+*   - better keyboard navigation (<- ->, space, enter)
+*	- added .keyboard = true
 *
 ************************************************************************/
 
@@ -31,6 +32,7 @@
 		this.style			= '';
 		this.topHTML		= '';
 		this.bottomHTML  	= '';
+		this.keyboard		= true;
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
 		this.onContextMenu	= null;	
@@ -385,68 +387,115 @@
 		}, 
 
 		click: function (id, event) {
-			var nd  = this.get(id);
 			var obj = this;
-			if (nd.disabled) return;
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, event: event });	
-			if (eventData.stop === true) return false;
-			// default action
-			if (!nd.group && !nd.disabled) {
-				$(this.box).find('.w2ui-node').each(function (index, field) {
-					var nid = String(field.id).replace('node_', '');
-					var nd  = obj.get(nid);
-					if (nd && nd.selected) {
-						nd.selected = false;
-						$(field).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
-					}
-				});
-				$(this.box).find('#node_'+ w2utils.escapeId(id))
-					.addClass('w2ui-selected')
-					.find('.w2ui-icon').addClass('w2ui-icon-selected');
-				nd.selected = true;
-				this.selected = id;
-			}
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+			var nd  = this.get(id);
+			if (nd == null) return;
+			var old = this.selected;
+			if (nd.disabled || nd.group || id == old) return;
+			// move selected first
+			$(obj.box).find('#node_'+ w2utils.escapeId(id)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
+			$(obj.box).find('#node_'+ w2utils.escapeId(old)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+			// need timeout to allow rendering
+			setTimeout(function () {
+				// event before
+				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, event: event });	
+				if (eventData.stop === true) {
+					// restore selection
+					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+					$(obj.box).find('#node_'+ w2utils.escapeId(old)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
+					return false;
+				}
+				// default action
+				if (old != null) obj.get(old).selected = false;
+				obj.get(id).selected = true;
+				obj.selected = id;
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}, 1);
 		},
-		
+
 		keydown: function (event) {
 			var obj = this;
 			var nd  = obj.get(obj.selected);
-			if (!nd) return;
+			if (!nd || obj.keyboard !== true) return;
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
 			if (eventData.stop === true) return false;
 			// default behaviour
-			var ind = obj.get(obj.selected, true);
-			if (event.keyCode == 13) { // enter
-				obj.toggle(obj.selected);
+			if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
+				if (nd.nodes.length > 0) obj.toggle(obj.selected);
+			}
+			if (event.keyCode == 37) { // left
+				if (nd.nodes.length > 0) {
+					obj.collapse(obj.selected);
+				} else {
+					// collapse parent
+					if (nd.parent && !nd.parent.disabled && !nd.parent.group) {
+						obj.collapse(nd.parent.id);
+						obj.click(nd.parent.id);
+					}
+				}
+			}
+			if (event.keyCode == 39) { // right
+				if (nd.nodes.length > 0) obj.expand(obj.selected);
 			}
 			if (event.keyCode == 38) { // up
-				if (ind > 0) { 
-					var nd2 = nd.parent.nodes[ind-1];
-					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-					obj.click(nd2.id, event); 
-					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-				}
-				if (event.stopPropagation) event.stopPropagation();
-				if (event.preventDefault) event.preventDefault();
+				var tmp = prev(nd);
+				if (tmp != null) obj.click(tmp.id, event); 
 			}
 			if (event.keyCode == 40) { // down
-				if (ind < nd.parent.nodes.length-1) { 
-					var nd2 = nd.parent.nodes[ind+1];
-					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-					obj.click(nd2.id, event); 
-					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-				}
+				var tmp = next(nd);
+				if (tmp != null) obj.click(tmp.id, event); 
+			}
+			// cancel event if needed
+			if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
 				if (event.preventDefault) event.preventDefault();
-				if (event.stopPropagation) event.stopPropagation();
+				if (event.stopPropagation) event.stopPropagation();				
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
+			return;
+
+			function next (node, noSubs) {
+				if (node == null) return null;
+				var parent 	 = node.parent;
+				var ind 	 = obj.get(node.id, true);
+				var nextNode = null;
+				// jump inside
+				if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
+					var t = node.nodes[0];
+					if (!t.disabled && !t.group) nextNode = t; else nextNode = next(t);
+				} else {
+					if (parent && ind + 1 < parent.nodes.length) {
+						nextNode = parent.nodes[ind + 1];
+					} else {					
+						nextNode = next(parent, true); // jump to the parent
+					}
+				}
+				if (nextNode != null && (nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
+				return nextNode;
+			}
+
+			function prev (node) {
+				if (node == null) return null;
+				var parent 	 = node.parent;
+				var ind 	 = obj.get(node.id, true);
+				var prevNode = null;
+				var noSubs   = false;
+				if (ind > 0) {
+					prevNode = parent.nodes[ind - 1];
+					// jump inside parents last node
+					if (prevNode.expanded && prevNode.nodes.length > 0) {
+						var t = prevNode.nodes[prevNode.nodes.length - 1];
+						if (!t.disabled && !t.group) prevNode = t; else prevNode = prev(t);
+					}
+				} else {					
+					prevNode = parent; // jump to the parent
+					noSubs   = true;
+				}
+				if (prevNode != null && (prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
+				return prevNode;
+			}
 		},
 
 		dblClick: function (id, event) {
