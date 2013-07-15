@@ -18,6 +18,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added $().w2marker('string')
 *	- added w2utils.keyboard module
 *	- added w2utils.formatNumber()
+*	- added w2menu() plugin
 *
 ************************************************/
 
@@ -939,7 +940,7 @@ w2utils.keyboard = (function (obj) {
 			if (typeof options.onHide == 'function') options.onHide();
 			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);
-			return;
+			return $(this);
 		}
 		// insert (or re-insert) overlay
 		if ($('#w2ui-overlay').length > 0) { isOpened = true; $(document).off('click', hide); $('#w2ui-overlay').remove(); }
@@ -985,7 +986,58 @@ w2utils.keyboard = (function (obj) {
 			$(document).on('click', hide);
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 1);
+
+		return $(this);
 	}
+
+	$.fn.w2menu = function (menu, options) {
+		if (typeof options.select == 'undefined' && typeof options.onSelect == 'function') options.select = options.onSelect;
+		if (typeof options.select != 'function') {
+			console.log('ERROR: options.select is required to be a function, not '+ typeof options.select + ' in $().w2menu(menu, options)');
+			return $(this);
+		}
+		if (!$.isArray(menu)) {
+			console.log('ERROR: first parameter should be an array of objects or strings in $().w2menu(menu, options)');
+			return $(this);
+		}
+		// since only one overlay can exist at a time
+		$.fn.w2menuHandler = function (event, index) {
+			options.select(menu[index], event, index); 
+		}
+		return $(this).w2overlay(getMenuHTML(), options);
+
+		function getMenuHTML () { 
+			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
+			for (var f = 0; f < menu.length; f++) { 
+				var mitem = menu[f];
+				if (typeof mitem == 'string') {
+					var tmp = mitem.split('|');
+					// 1 - id, 2 - text, 3 - image, 4 - icon
+					mitem = { id: tmp[0], text: tmp[0], img: null, icon: null };
+					if (tmp[1]) mitem.text = tmp[1];
+					if (tmp[2]) mitem.img  = tmp[2];
+					if (tmp[3]) mitem.icon = tmp[3];
+				} else {
+					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
+					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
+					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
+					if (typeof mitem.img == 'undefined') mitem.img = null;
+					if (typeof mitem.icon == 'undefined') mitem.icon = null;
+				}
+				var img = '<td>&nbsp;</td>';
+				if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
+				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
+				menu_html += 
+					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
+					'		onclick="$(document).click(); $.fn.w2menuHandler(event, \''+ f +'\');">'+
+						img +
+					'	<td>'+ mitem.text +'</td>'+
+					'</tr>';
+			}
+			menu_html += "</table>";
+			return menu_html;
+		}	
+	}	
 })();
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -1003,7 +1055,6 @@ w2utils.keyboard = (function (obj) {
 *	- save grid state into localStorage and restore
 *	- searh logic (AND or OR) if it is a list, it should be multiple list with or
 *	- easy bubbles in the grid
-*	- render: 'number', 'date', 'time', 'datetime', 'money', 
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -1011,6 +1062,7 @@ w2utils.keyboard = (function (obj) {
 *	- Changed doEdit to edit one field in doEditField, to add the doEdit event to edit one record in a popup
 *	- added getRecordHTML, refactored, updated set()
 *	- added onKeyboard event
+*	- added keyboard = true property
 * 	- refresh() and resize() returns number of milliseconds it took
 *	- optimized width distribution and resize
 *	- 50 columns resize 2% - margin of error is huge
@@ -1094,6 +1146,7 @@ w2utils.keyboard = (function (obj) {
 		this.autoLoad		= true; 	// for infinite scroll
 		this.fixedBody		= true;		// if false; then grid grows with data
 		this.recordHeight	= 25;
+		this.keyboard 		= true;
 		this.multiSearch	= true;
 		this.multiSelect	= true;
 		this.multiSort		= true;
@@ -2429,6 +2482,7 @@ w2utils.keyboard = (function (obj) {
 		keydown: function (event) {
 			// this method is called from w2utils
 			var obj = this;
+			if (obj.keyboard !== true) return;
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
 			if (eventData.stop === true) return false;
@@ -6179,6 +6233,7 @@ w2utils.keyboard = (function (obj) {
 * 
 * == 1.3 Changes ==
 * 	- doClick -> click, doMenuClick -> menuClick
+*	- deprecated getMenuHTML() due to its use in w2menu
 * 
 ************************************************************************/
 
@@ -6520,38 +6575,6 @@ w2utils.keyboard = (function (obj) {
 		// ========================================
 		// --- Internal Functions
 		
-		getMenuHTML: function (item) { 
-			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-toolbar-drop">';
-			for (var f = 0; f < item.items.length; f++) { 
-				var mitem = item.items[f];
-				if (typeof mitem == 'string') {
-					var tmp = mitem.split('|');
-					// 1 - id, 2 - text, 3 - image, 4 - icon
-					mitem = { id: tmp[0], text: tmp[0], img: null, icon: null };
-					if (tmp[1]) mitem.text = tmp[1];
-					if (tmp[2]) mitem.img  = tmp[2];
-					if (tmp[3]) mitem.icon = tmp[3];
-				} else {
-					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
-					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
-					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
-					if (typeof mitem.img == 'undefined') mitem.img = null;
-					if (typeof mitem.icon == 'undefined') mitem.icon = null;
-				}
-				var img = '<td>&nbsp;</td>';
-				if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
-				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
-				menu_html += 
-					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
-					'		onclick="$(document).click(); w2ui[\''+ this.name +'\'].menuClick(\''+ item.id +'\', event, \''+ f +'\');">'+
-						img +
-					'	<td>'+ mitem.text +'</td>'+
-					'</tr>';
-			}
-			menu_html += "</table>";
-			return menu_html;
-		},
-		
 		getItemHTML: function (item) {
 			var html = '';
 			
@@ -6561,7 +6584,6 @@ w2utils.keyboard = (function (obj) {
 	
 			switch (item.type) {
 				case 'menu':
-					item.html = this.getMenuHTML(item);
 				case 'button':	
 				case 'check':
 				case 'radio':
@@ -6656,9 +6678,16 @@ w2utils.keyboard = (function (obj) {
 					} else {
 						// show overlay
 						setTimeout(function () {
-							var w = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).width();
+							var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
 							if (!$.isPlainObject(it.overlay)) it.overlay = {};
-							$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id)).w2overlay(it.html, $.extend({ left: (w-50)/2, top: 3 }, it.overlay));
+							if (it.type == 'drop') {
+								el.w2overlay(it.html, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay));
+							} 
+							if (it.type == 'menu') {
+								el.w2menu(it.items, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay, {
+									select: function (item, event, index) { obj.menuClick(it.id, event, index); }
+								}));
+							}
 							// window.click to hide it
 							$(document).on('click', hideDrop);
 							function hideDrop() {
@@ -6700,15 +6729,17 @@ w2utils.keyboard = (function (obj) {
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-* 	- context menus
-*	- when clicked, first it selects then sends event (for faster view if event handler is slow)
-*   - better keyboard navigation (<- ->, space, enter)
 *
 * == 1.3 Changes ==
 *	- animated open/close
 *	- added onKeyboard event
+*	- added .keyboard = true
 *	- moved some settings to prototype
 *	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
+*	- when clicked, first it selects then sends event (for faster view if event handler is slow)
+*   - better keyboard navigation (<- ->, space, enter)
+*	- added context menu see menuClick(), onMenuClick event, menu property 
+*	- added scrollIntoView()
 *
 ************************************************************************/
 
@@ -6719,15 +6750,18 @@ w2utils.keyboard = (function (obj) {
 		this.sidebar		= null;
 		this.parent 		= null;
 		this.nodes	 		= []; 	// Sidebar child nodes
+		this.menu 			= [];
 		this.selected 		= null;	// current selected node (readonly)
 		this.img 			= null;
 		this.icon 			= null;
 		this.style			= '';
 		this.topHTML		= '';
 		this.bottomHTML  	= '';
+		this.keyboard		= true;
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
 		this.onContextMenu	= null;	
+		this.onMenuClick	= null; // when context menu item selected
 		this.onExpand		= null;	// Fire when node Expands
 		this.onCollapse		= null;	// Fire when node Colapses
 		this.onKeyboard		= null;
@@ -7079,68 +7113,131 @@ w2utils.keyboard = (function (obj) {
 		}, 
 
 		click: function (id, event) {
-			var nd  = this.get(id);
 			var obj = this;
-			if (nd.disabled) return;
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, event: event });	
-			if (eventData.stop === true) return false;
-			// default action
-			if (!nd.group && !nd.disabled) {
-				$(this.box).find('.w2ui-node').each(function (index, field) {
-					var nid = String(field.id).replace('node_', '');
-					var nd  = obj.get(nid);
-					if (nd && nd.selected) {
-						nd.selected = false;
-						$(field).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
-					}
-				});
-				$(this.box).find('#node_'+ w2utils.escapeId(id))
-					.addClass('w2ui-selected')
-					.find('.w2ui-icon').addClass('w2ui-icon-selected');
-				nd.selected = true;
-				this.selected = id;
-			}
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+			var nd  = this.get(id);
+			if (nd == null) return;
+			var old = this.selected;
+			if (nd.disabled || nd.group || id == old) return;
+			// move selected first
+			$(obj.box).find('#node_'+ w2utils.escapeId(id)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
+			$(obj.box).find('#node_'+ w2utils.escapeId(old)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+			// need timeout to allow rendering
+			setTimeout(function () {
+				// event before
+				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, event: event });	
+				if (eventData.stop === true) {
+					// restore selection
+					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+					$(obj.box).find('#node_'+ w2utils.escapeId(old)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
+					return false;
+				}
+				// default action
+				if (old != null) obj.get(old).selected = false;
+				obj.get(id).selected = true;
+				obj.selected = id;
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}, 1);
 		},
-		
+
 		keydown: function (event) {
 			var obj = this;
 			var nd  = obj.get(obj.selected);
-			if (!nd) return;
+			if (!nd || obj.keyboard !== true) return;
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
 			if (eventData.stop === true) return false;
 			// default behaviour
-			var ind = obj.get(obj.selected, true);
-			if (event.keyCode == 13) { // enter
-				obj.toggle(obj.selected);
+			if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
+				if (nd.nodes.length > 0) obj.toggle(obj.selected);
+			}
+			if (event.keyCode == 37) { // left
+				if (nd.nodes.length > 0) {
+					obj.collapse(obj.selected);
+				} else {
+					// collapse parent
+					if (nd.parent && !nd.parent.disabled && !nd.parent.group) {
+						obj.collapse(nd.parent.id);
+						obj.click(nd.parent.id);
+						setTimeout(function () { obj.scrollIntoView(); }, 50);
+					}
+				}
+			}
+			if (event.keyCode == 39) { // right
+				if (nd.nodes.length > 0) obj.expand(obj.selected);
 			}
 			if (event.keyCode == 38) { // up
-				if (ind > 0) { 
-					var nd2 = nd.parent.nodes[ind-1];
-					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-					obj.click(nd2.id, event); 
-					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-				}
-				if (event.stopPropagation) event.stopPropagation();
-				if (event.preventDefault) event.preventDefault();
+				var tmp = prev(nd);
+				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
 			}
 			if (event.keyCode == 40) { // down
-				if (ind < nd.parent.nodes.length-1) { 
-					var nd2 = nd.parent.nodes[ind+1];
-					if (nd2.disabled) { if (event.preventDefault) event.preventDefault(); return; }
-					obj.click(nd2.id, event); 
-					//var tmp = $(obj.box).find('#node_'+ w2utils.escapeId(nd2.id));
-					// if (tmp.length > 0) tmp[0].scrollIntoView(); // scrollIntoView is buggy
-				}
+				var tmp = next(nd);
+				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
+			}
+			// cancel event if needed
+			if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
 				if (event.preventDefault) event.preventDefault();
-				if (event.stopPropagation) event.stopPropagation();
+				if (event.stopPropagation) event.stopPropagation();				
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
+			return;
+
+			function next (node, noSubs) {
+				if (node == null) return null;
+				var parent 	 = node.parent;
+				var ind 	 = obj.get(node.id, true);
+				var nextNode = null;
+				// jump inside
+				if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
+					var t = node.nodes[0];
+					if (!t.disabled && !t.group) nextNode = t; else nextNode = next(t);
+				} else {
+					if (parent && ind + 1 < parent.nodes.length) {
+						nextNode = parent.nodes[ind + 1];
+					} else {					
+						nextNode = next(parent, true); // jump to the parent
+					}
+				}
+				if (nextNode != null && (nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
+				return nextNode;
+			}
+
+			function prev (node) {
+				if (node == null) return null;
+				var parent 	 = node.parent;
+				var ind 	 = obj.get(node.id, true);
+				var prevNode = null;
+				var noSubs   = false;
+				if (ind > 0) {
+					prevNode = parent.nodes[ind - 1];
+					// jump inside parents last node
+					if (prevNode.expanded && prevNode.nodes.length > 0) {
+						var t = prevNode.nodes[prevNode.nodes.length - 1];
+						if (!t.disabled && !t.group) prevNode = t; else prevNode = prev(t);
+					}
+				} else {					
+					prevNode = parent; // jump to the parent
+					noSubs   = true;
+				}
+				if (prevNode != null && (prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
+				return prevNode;
+			}
+		},
+
+		scrollIntoView: function (id) {
+			if (typeof id == 'undefined') id = this.selected;
+			var nd = this.get(id);
+			if (nd == null) return;
+			var body	= $(this.box).find('.w2ui-sidebar-div');
+			var item 	= $(this.box).find('#node_'+ w2utils.escapeId(id));
+			var offset 	= item.offset().top - body.offset().top;
+			if (offset + item.height() > body.height()) {
+				body.animate({ 'scrollTop': body.scrollTop() + body.height() / 1.3 });
+			}
+			if (offset <= 0) {
+				body.animate({ 'scrollTop': body.scrollTop() - body.height() / 1.3 });
+			}
 		},
 
 		dblClick: function (id, event) {
@@ -7156,15 +7253,36 @@ w2utils.keyboard = (function (obj) {
 		},
 	
 		contextMenu: function (id, event) {
+			var obj = this;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });	
-			if (eventData.stop === true) return false;
-			
+			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });	
+			if (eventData.stop === true) return false;		
 			// default action
-			// -- no actions
-			
+			var nd = obj.get(id);
+			if (id != obj.selected) obj.click(id);
+			if (nd.group || nd.disabled) return;
+			if (obj.menu.length > 0) {
+				$(obj.box).find('#node_'+ w2utils.escapeId(id))
+					.w2menu(obj.menu, { 
+						left: event.offsetX - 25,
+						select: function (item, event, index) { obj.menuClick(id, event, index); }
+					}
+				);
+			}
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+			obj.trigger($.extend(eventData, { phase: 'after' }));
+			return;
+		},
+
+		menuClick: function (itemId, event, index) {
+			var obj = this;
+			// event before
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, event: event, menuIndex: index, menuItem: obj.menu[index] });	
+			if (eventData.stop === true) return false;		
+			// default action
+			// -- empty
+			// event after
+			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
 				
 		render: function (box) {
