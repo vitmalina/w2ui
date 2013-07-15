@@ -6,18 +6,18 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-* 	- context menus
-*	- slide into view
 *
 * == 1.3 Changes ==
 *	- animated open/close
 *	- added onKeyboard event
+*	- added .keyboard = true
 *	- moved some settings to prototype
 *	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
 *	- when clicked, first it selects then sends event (for faster view if event handler is slow)
 *   - better keyboard navigation (<- ->, space, enter)
-*	- added .keyboard = true
+* 	- context menus
 *	- added context menu and getMenuHTML(), menuClick(), onMenuClick event, menu property 
+*	- added scrollIntoView()
 *
 ************************************************************************/
 
@@ -437,6 +437,7 @@
 					if (nd.parent && !nd.parent.disabled && !nd.parent.group) {
 						obj.collapse(nd.parent.id);
 						obj.click(nd.parent.id);
+						setTimeout(function () { obj.scrollIntoView(); }, 50);
 					}
 				}
 			}
@@ -445,11 +446,11 @@
 			}
 			if (event.keyCode == 38) { // up
 				var tmp = prev(nd);
-				if (tmp != null) obj.click(tmp.id, event); 
+				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
 			}
 			if (event.keyCode == 40) { // down
 				var tmp = next(nd);
-				if (tmp != null) obj.click(tmp.id, event); 
+				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
 			}
 			// cancel event if needed
 			if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
@@ -499,6 +500,21 @@
 				}
 				if (prevNode != null && (prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
 				return prevNode;
+			}
+		},
+
+		scrollIntoView: function (id) {
+			if (typeof id == 'undefined') id = this.selected;
+			var nd = this.get(id);
+			if (nd == null) return;
+			var body	= $(this.box).find('.w2ui-sidebar-div');
+			var item 	= $(this.box).find('#node_'+ w2utils.escapeId(id));
+			var offset 	= item.offset().top - body.offset().top;
+			if (offset + item.height() > body.height()) {
+				body.animate({ 'scrollTop': body.scrollTop() + body.height() / 1.3 });
+			}
+			if (offset <= 0) {
+				body.animate({ 'scrollTop': body.scrollTop() - body.height() / 1.3 });
 			}
 		},
 
