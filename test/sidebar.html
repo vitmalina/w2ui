@@ -12,6 +12,14 @@ $(function () {
 		img: null,
 		topHTML: '<div style="padding: 10px 5px; border-bottom: 1px solid #aaa;">This is text</div>',
 		bottomHTML: '<div style="padding: 10px 5px; border-top: 1px solid #aaa;">Bottom</div>',
+		menu: [
+			{ id: 1, text: 'Select Item', icon: 'fa-star' },
+			{ id: 2, text: 'View Item', icon: 'fa-camera' }, 
+			{ id: 4, text: 'Delete Item', icon: 'fa-minus' }
+		],
+		onMenuClick: function (target, info) {
+			//console.log(target, info);
+		},
 		nodes: [ 
 			{ id: 'level-1', text: 'Level 1', expanded: true, group: true,
 			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img1: 'icon-add', icon: 'fa-star', count: 1 },
@@ -61,6 +69,6 @@ $(function () {
 </script>
 </head>
 <body>
-	<div id="sidebar" style="width: 300px; height: 800px;"></div>
+	<div id="sidebar" style="position: absolute; left: 40px; width: 300px; height: 800px;"></div>
 </body>
 </html>

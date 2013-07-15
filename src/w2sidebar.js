@@ -7,6 +7,7 @@
 *
 * == NICE TO HAVE ==
 * 	- context menus
+*	- slide into view
 *
 * == 1.3 Changes ==
 *	- animated open/close
@@ -16,6 +17,7 @@
 *	- when clicked, first it selects then sends event (for faster view if event handler is slow)
 *   - better keyboard navigation (<- ->, space, enter)
 *	- added .keyboard = true
+*	- added context menu and getMenuHTML(), menuClick(), onMenuClick event, menu property 
 *
 ************************************************************************/
 
@@ -26,6 +28,7 @@
 		this.sidebar		= null;
 		this.parent 		= null;
 		this.nodes	 		= []; 	// Sidebar child nodes
+		this.menu 			= [];
 		this.selected 		= null;	// current selected node (readonly)
 		this.img 			= null;
 		this.icon 			= null;
@@ -36,6 +39,7 @@
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
 		this.onContextMenu	= null;	
+		this.onMenuClick	= null; // when context menu item selected
 		this.onExpand		= null;	// Fire when node Expands
 		this.onCollapse		= null;	// Fire when node Colapses
 		this.onKeyboard		= null;
@@ -511,15 +515,63 @@
 		},
 	
 		contextMenu: function (id, event) {
+			var obj = this;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });	
-			if (eventData.stop === true) return false;
-			
+			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });	
+			if (eventData.stop === true) return false;		
 			// default action
-			// -- no actions
-			
+			var nd = obj.get(id);
+			if (id != obj.selected) obj.click(id);
+			if (nd.group || nd.disabled) return;
+			if (obj.menu.length > 0) {
+				$(obj.box).find('#node_'+ w2utils.escapeId(id)).w2overlay(obj.getMenuHTML(id), { left: event.offsetX - 25 });
+			}
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+			obj.trigger($.extend(eventData, { phase: 'after' }));
+			return;
+		},
+
+		getMenuHTML: function (itemId) { 
+			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
+			for (var f = 0; f < this.menu.length; f++) { 
+				var mitem = this.menu[f];
+				if (typeof mitem == 'string') {
+					var tmp = mitem.split('|');
+					// 1 - id, 2 - text, 3 - image, 4 - icon
+					mitem = { id: tmp[0], text: tmp[0], img: null, icon: null };
+					if (tmp[1]) mitem.text = tmp[1];
+					if (tmp[2]) mitem.img  = tmp[2];
+					if (tmp[3]) mitem.icon = tmp[3];
+				} else {
+					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
+					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
+					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
+					if (typeof mitem.img == 'undefined') mitem.img = null;
+					if (typeof mitem.icon == 'undefined') mitem.icon = null;
+				}
+				var img = '<td>&nbsp;</td>';
+				if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
+				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
+				menu_html += 
+					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
+					'		onclick="$(document).click(); w2ui[\''+ this.name +'\'].menuClick(\''+ itemId +'\', event, \''+ f +'\');">'+
+						img +
+					'	<td>'+ mitem.text +'</td>'+
+					'</tr>';
+			}
+			menu_html += "</table>";
+			return menu_html;
+		},
+
+		menuClick: function (itemId, event, index) {
+			var obj = this;
+			// event before
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, event: event, menuIndex: index, menuItem: obj.menu[index] });	
+			if (eventData.stop === true) return false;		
+			// default action
+			// -- empty
+			// event after
+			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
 				
 		render: function (box) {

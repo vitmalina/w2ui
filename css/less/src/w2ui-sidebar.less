@@ -54,13 +54,16 @@
 			border-bottom: @sidebar-node-border-bottom;
 			margin: 0px;
 			padding: 1px 0px;
-
+			table {
+				pointer-events: none; // all mouse events go to div
+			}
 			.w2ui-node-caption, 
 			.w2ui-node-image, 
 			.w2ui-node-image > span, 
 			td.w2ui-node-dots {
 				color: @sidebar-node-color;
 				text-shadow: @sidebar-node-text-shadow;
+				pointer-events: none;		
 				&:hover {
 					color: @sidebar-node-hover-color;
 				}
@@ -75,7 +78,8 @@
 			// font icon default
 			.w2ui-node-image {
 				width: 22px;
-				text-align: center;				
+				text-align: center;
+				pointer-events: none;		
 				> span {
 					color: @sidebar-node-image-color !important;
 				}
@@ -155,6 +159,7 @@
 			.w2ui-expand {
 				width: 16px;
 				margin-top: -3px;
+				pointer-events: auto;
 			}
 		}
 

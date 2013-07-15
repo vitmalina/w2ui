@@ -352,7 +352,7 @@
 		// --- Internal Functions
 		
 		getMenuHTML: function (item) { 
-			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-toolbar-drop">';
+			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
 			for (var f = 0; f < item.items.length; f++) { 
 				var mitem = item.items[f];
 				if (typeof mitem == 'string') {
