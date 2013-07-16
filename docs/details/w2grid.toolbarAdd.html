@@ -1,27 +1,12 @@
-Called when user clicks on a record.
+Called when user clicks the Add New button on the toolbar.
 
 <div class="definition">
-	doClick(recid, event)
-</div>
-
-<div class="arguments">
-	<table>
-	<tr>
-		<td>recid</td>
-		<td><b>string</b>, id of the clicked record</td>
-	</tr>
-	<tr>
-		<td>event</td>
-		<td><b>object</b>, DOM Event Object</td>
-	</tr>
-	</table>
+	toolbarAdd()
 </div>
 
 <h4>Description</h4>
 
-The first argument <span class="argument">recid</span> is the id of the record that was clicked. The second argument 
-<span class="argument">event</span> is DOM event object. This object is used to determine if user held ctrl (cmd on mac) 
-or shift key to do multi record select. This method triggers <a class="method" href="w2grid.onClick">.onClick</a> event handlers.
+There is no default behaviour for this event, but it triggers <a class="method" href="w2grid.onAdd">.onAdd</a> event handlers.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -49,5 +34,5 @@ $('#grid').w2grid({
 
 You can do:
 <textarea class="javascript">
-w2ui['grid'].doClick(4, { metaKey: true });
+w2ui['grid'].toolbarAdd();
 </textarea>

@@ -1,7 +1,6 @@
 {
-"total":"2",
-"items":[ 
-{"id":1,"text":"hal"}, 
-{"id":1,"text":"ibm"}
-]
+	"items": [ 
+		{ "id": 1, "text": "item 1" }, 
+		{ "id": 2, "text": "item 2" }
+	]
 }

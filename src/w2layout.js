@@ -19,6 +19,7 @@
 *	- better min/max calculation when window resizes
 *	- moved some settings to prototype
 *	- added layout.lock(panel, msg, [showSpinner]), unlock(panel)
+*	- rename startResize -> resizeStart, stopResize -> resizeStop, doResize -> resizeMove
 * 
 ************************************************************************/
 
@@ -499,7 +500,7 @@
 						'height': h + 'px',
 						'cursor': 'ns-resize'
 					}).bind('mousedown', function (event) {
-						w2ui[obj.name].startResize('top', event);
+						w2ui[obj.name].resizeStart('top', event);
 						return false;
 					});
 				}
@@ -536,7 +537,7 @@
 						'height': h + 'px',
 						'cursor': 'ew-resize'
 					}).bind('mousedown', function (event) {
-						w2ui[obj.name].startResize('left', event);
+						w2ui[obj.name].resizeStart('left', event);
 						return false;
 					});
 				}
@@ -572,7 +573,7 @@
 						'height': h + 'px',
 						'cursor': 'ew-resize'
 					}).bind('mousedown', function (event) {
-						w2ui[obj.name].startResize('right', event);
+						w2ui[obj.name].resizeStart('right', event);
 						return false;
 					});
 				}			
@@ -606,7 +607,7 @@
 						'height': h + 'px',
 						'cursor': 'ns-resize'
 					}).bind('mousedown', function (event) {
-						w2ui[obj.name].startResize('bottom', event);
+						w2ui[obj.name].resizeStart('bottom', event);
 						return false;
 					});
 				}
@@ -663,7 +664,7 @@
 						'height': h + 'px',
 						'cursor': 'ns-resize'
 					}).bind('mousedown', function (event) {
-						w2ui[obj.name].startResize('preview', event);
+						w2ui[obj.name].resizeStart('preview', event);
 						return false;
 					});
 				}
@@ -792,10 +793,10 @@
 					w2ui[obj.name].resize()	
 				},
 				mousemove : function (event) { 
-					w2ui[obj.name].doResize(event)	
+					w2ui[obj.name].resizeMove(event)	
 				},
 				mouseup : function (event) { 
-					w2ui[obj.name].stopResize(event)	
+					w2ui[obj.name].resizeStop(event)	
 				}
 			};
 			$(window).on('resize', this.events.resize);
@@ -803,7 +804,7 @@
 			$(document).on('mouseup', this.events.mouseup);
 		},
 	
-		startResize: function (type, evnt) {
+		resizeStart: function (type, evnt) {
 			if (!this.box) return;
 			if (!evnt) evnt = window.event;
 			if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
@@ -820,7 +821,7 @@
 			}
 		},
 	
-		doResize: function (evnt) {
+		resizeMove: function (evnt) {
 			if (!this.box) return;
 			if (!evnt) evnt = window.event;
 			if (typeof this.tmp_resizing == 'undefined') return;
@@ -885,7 +886,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));	
 		},
 	
-		stopResize: function (evnt) {
+		resizeStop: function (evnt) {
 			if (!this.box) return;
 			if (!evnt) evnt = window.event;
 			if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }

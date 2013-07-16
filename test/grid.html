@@ -14,7 +14,7 @@ $(function () {
 	$('#grid').w2grid({ 
 		name	: 'grid', 
 		header	: 'List of Names',
-		url		: 'data.php',
+		//url		: 'data.php',
 		show: { 
 			toolbar: true,
 			footer: true,
@@ -66,16 +66,10 @@ $(function () {
 			{ field: 'personid', caption: 'ID', size: '100px', sortable: true, resizable: true, searchable: 'int' },
 			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, searchable: true },
 			{ field: 'lname', caption: 'Last Name', size: '200px', sortable: true, resizable: true, searchable: true },
-			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true }
+			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
+			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, searchable: 'int', render: 'percent' },
+			{ field: 'sdate', caption: 'Date', size: '120px', resizable: true, sortable: true, searchable: 'date', render: 'date' }
 		],
-		onSearch: function (target, data) {
-			if (data.type == 'search') {
-				for (var s in data.searchData) {
-					data.searchData[s].operator = 'contains';
-				}
-			}
-			//console.log('search', data);
-		},
 		onExpand: function (target, data) {
 			if (w2ui['grid-'+ data.recid]) $().w2destroy('grid-'+ data.recid);
 			$('#'+ data.box_id).w2grid({ 
@@ -108,9 +102,9 @@ $(function () {
 		]		
 		//getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
 	});
-	w2ui.grid.postData['text'] = 'text';
-	w2ui.grid.reload();
-	return;
+	//w2ui.grid.postData['text'] = 'text';
+	//w2ui.grid.reload();
+	//return;
 
 	var fname = ['Vitali', '~Katsia', '!John', 'Peter', '#Sue', '$Olivia', '&lt;Thomas', '&gt;Sergei', 'Snehal', 'Avinash', 'Divia'];
 	var lname = ['Peterson', 'Rene', 'Johnson-Petrov-Sannikov-Ivanov-Smirnov', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
@@ -121,7 +115,9 @@ $(function () {
 			personid: i+1,
 			fname: fname[Math.floor(Math.random() * fname.length)], 
 			lname: lname[Math.floor(Math.random() * lname.length)],
-			email: 'vm@gmail.com', sdate: '1/1/2013', manager: '--'
+			email: 'vm@gmail.com', manager: '--',
+			snumber: Math.floor(Math.random() * 10000000),
+			sdate: (new Date(Math.floor(Math.random() * 20000) * 100000000)).getTime()
 		});
 	}
 	w2ui.grid.total = w2ui.grid.records.length;

@@ -1509,12 +1509,16 @@ select {
   margin: 0px;
   padding: 1px 0px;
 }
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node table {
+  pointer-events: none;
+}
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-caption,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image > span,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node td.w2ui-node-dots {
   color: #000000;
   text-shadow: 0px 0px 0px #ffffff;
+  pointer-events: none;
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-caption:hover,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image:hover,
@@ -1535,6 +1539,7 @@ select {
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image {
   width: 22px;
   text-align: center;
+  pointer-events: none;
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image > span {
   color: #516173 !important;
@@ -1624,6 +1629,7 @@ select {
 .w2ui-sidebar .w2ui-sidebar-div td.w2ui-node-dots .w2ui-expand {
   width: 16px;
   margin-top: -3px;
+  pointer-events: auto;
 }
 .w2ui-sidebar .w2ui-sidebar-div td.w2ui-node-data {
   padding: 1px 1px 3px 1px;
@@ -1796,26 +1802,26 @@ select {
   padding: 0px;
   margin: 0px 6px;
 }
-.w2ui-overlay table.w2ui-toolbar-drop {
+.w2ui-overlay table.w2ui-drop-menu {
   width: 100%;
   color: #000000;
   background-color: #ffffff;
   padding: 5px 0px;
   cursor: default;
 }
-.w2ui-overlay table.w2ui-toolbar-drop td:first-child {
+.w2ui-overlay table.w2ui-drop-menu td:first-child {
   padding: 4px 0px 4px 6px;
 }
-.w2ui-overlay table.w2ui-toolbar-drop td:last-child {
+.w2ui-overlay table.w2ui-drop-menu td:last-child {
   padding: 10px 15px 10px 5px;
 }
-.w2ui-overlay table.w2ui-toolbar-drop tr.w2ui-selected {
+.w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected {
   background-color: #d7e4f2;
 }
-.w2ui-overlay table.w2ui-toolbar-drop tr.w2ui-selected td {
+.w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected td {
   color: inherit;
 }
-.w2ui-overlay table.w2ui-toolbar-drop .w2ui-tb-image > span {
+.w2ui-overlay table.w2ui-drop-menu .w2ui-tb-image > span {
   font-size: 16px;
   color: #516173;
   display: inline-block;

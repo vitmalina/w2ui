@@ -12,6 +12,9 @@
 *  - enum - onclick for already selected elements
 *  - enum needs events onItemClick, onItemOver, etc just like upload
 *  - upload (regular files)
+* 
+* == 1.3 changes ==
+*  - select type has options.url to pull from server
 *
 ************************************************************************/
 
@@ -66,6 +69,7 @@
 						break;
 
 					case 'text':
+						// intentionally left blank
 						break;
 
 					case 'int':
@@ -216,6 +220,10 @@
 									$('#global_calendar_div').html( $().w2field('calendar_get', obj.value, options) );
 								}, 10);
 							});
+							setTimeout(function () {
+								// if it is unix time - convert to readable date
+								if (w2utils.isInt(obj.value)) obj.value = w2utils.formatDate(obj.value, options.format);
+							}, 1);
 						break;
 						
 					case 'time':
@@ -239,50 +247,42 @@
 							value 		: null,
 							showNone    : true
 						};
+						var obj 	 = this;
 						var settings = $.extend({}, defaults, options);
-						var html =  '';
-						var items = w2field.cleanItems(settings.items);
-						
-						if (settings.url != '' ) {
-							$.ajax({
-								type 		: 'GET',
-								dataType	: 'text',
-								context	: $(this),
-								url 		: settings.url,
-								data : {
-									max 	: settings.maxCache
-								},
-								complete: function (xhr, status) {
-									settings.last_total = 0;
-									if (status == 'success') {
-										var data = $.parseJSON(xhr.responseText);
-										settings.last_total = data.total;
-										settings.items      = data.items;
-										items=settings.items;
-										if (settings.showNone) html = '<option value="">- '+ w2utils.lang('none') +' -</option>';
-										for (var i in items) {
-											if (!settings.showNone && settings.value == null) settings.value = items[i].id;
-											html += '<option value="'+ items[i].id +'">'+ items[i].text + '</option>';
-										}
-										settings.items = items;
-										$(this).data('settings', settings);
-										$(this).html(html);
-										$(this).val(settings.value);
-										if ($(this).val() != settings.value) $(this).change();
-									}
-								}
-							});
-						} else {
+						$(obj).data('settings', settings);
+						// define refresh method
+						obj.refresh = function () {
+							var settings = $(obj).data('settings');
+							var html 	 =  '';
+							var items 	 = w2field.cleanItems(settings.items);
+							// build options
 							if (settings.showNone) html = '<option value="">- '+ w2utils.lang('none') +' -</option>';
 							for (var i in items) {
 								if (!settings.showNone && settings.value == null) settings.value = items[i].id;
 								html += '<option value="'+ items[i].id +'">'+ items[i].text + '</option>';
 							}
-							settings.items = items;
-							$(this).data('settings', settings);
-							$(this).html(html);
-							$(this).val(settings.value);
-							if ($(this).val() != settings.value) $(this).change();
+							$(obj).html(html);
+							$(obj).val(settings.value);
+							if ($(obj).val() != settings.value) $(obj).change();
+						}
+						// pull from server
+						if (settings.url != '' ) {
+							$.ajax({
+								type 	 : 'GET',
+								dataType : 'text',
+								url 	 : settings.url,
+								complete: function (xhr, status) {
+									if (status == 'success') {
+										var data 	 = $.parseJSON(xhr.responseText);
+										var settings = $(obj).data('settings');
+										settings.items = w2field.cleanItems(data.items);
+										$(obj).data('settings', settings);
+										obj.refresh();										
+									}
+								}
+							});
+						} else { // refresh local
+							obj.refresh();
 						}
 						break;
 
@@ -554,6 +554,10 @@
 							}
 						}
 						this.refresh();
+						break;
+
+					case 'slider' :
+						// for future reference
 						break;
 
 					default: 
@@ -1074,12 +1078,12 @@
                             dayTitle += '<td>' + tabDays[i] + '</td>'; 
                         }
 			var html  = 
-				'<div class="w2ui-calendar-title">'+
+				'<div class="w2ui-calendar-title" onclick="event.stopPropagation()">'+
 				'	<div class="w2ui-calendar-previous" onclick="$().w2field(\'calendar_previous\', \''+ month +'/'+ year +'\')"> <- </div>'+
 				'	<div class="w2ui-calendar-next" onclick="$().w2field(\'calendar_next\', \''+ month +'/'+ year +'\')"> -> </div> '+ 
 						months[month-1] +', '+ year + 
 				'</div>'+
-				'<table class="w2ui-calendar-days" onclick="" cellspacing="0">'+
+				'<table class="w2ui-calendar-days" onclick="event.stopPropagation()" cellspacing="0">'+
 				'	<tr class="w2ui-day-title">' + dayTitle + '</tr>'+
 				'	<tr>';
 					

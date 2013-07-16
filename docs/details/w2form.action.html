@@ -1,7 +1,7 @@
 Called when user clicks form's button.
 
 <div class="definition">
-	doAction(action, [event])
+	action(action, [event])
 </div>
 
 <div class="arguments">
@@ -22,7 +22,7 @@ Called when user clicks form's button.
 The first argument <span class="argument">action</span> is the name of the action (name of the button). The second 
 argument <span class="argument">event</span> is DOM event object. This method does not do anything besides calling 
 appropriate action handler from the <a class="method" href="w2form.actions">.actions</a> object and triggering 
-<a class="method" href="w2form.onAction">.onAction</a> event. When form initializes it adds <span class="argument">doAction</span> 
+<a class="method" href="w2form.onAction">.onAction</a> event. When form initializes it adds <span class="argument">action</span> 
 on click event to all buttons in the form.
 <div style="height: 10px"></div>
 
@@ -45,5 +45,5 @@ $('#form').w2form({
 
 You can do:
 <textarea class="javascript">
-w2ui['form'].doAction('reset');
+w2ui['form'].action('reset');
 </textarea>
