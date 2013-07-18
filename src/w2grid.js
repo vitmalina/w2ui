@@ -15,6 +15,9 @@
 *	- searh logic (AND or OR) if it is a list, it should be multiple list with or
 *	- easy bubbles in the grid
 *	- possibly add context menu similar to sidebar's
+*	- CellClick / CellDblClick / CellChanged events
+*	- Merged cells
+*	- More than 2 layers of header groups
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button

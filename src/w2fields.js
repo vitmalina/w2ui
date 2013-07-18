@@ -556,7 +556,7 @@
 						this.refresh();
 						break;
 
-					case 'slider' :
+					case 'slider':
 						// for future reference
 						break;
 
