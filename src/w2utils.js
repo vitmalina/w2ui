@@ -981,18 +981,10 @@ w2utils.keyboard = (function (obj) {
 	// w2overlay - appears under the element, there can be only one at a time
 
 	$.fn.w2overlay = function (html, options) {
-		var isOpened = false;
-		if (!$.isPlainObject(options)) options = {};
-		if (!$.isPlainObject(options.css)) options.css = {};
-
-		if (this.length == 0 || html == '' || typeof html == 'undefined') {
-			if (typeof options.onHide == 'function') options.onHide();
-			$('#w2ui-overlay').remove();
-			$(document).off('click', hide);
-			return $(this);
-		}
-		// insert (or re-insert) overlay
-		if ($('#w2ui-overlay').length > 0) { isOpened = true; $(document).off('click', hide); $('#w2ui-overlay').remove(); }
+		if (!$.isPlainObject(options)) 		options = {};
+		if (!$.isPlainObject(options.css)) 	options.css = {};
+		if (this.length == 0 || html == '' || typeof html == 'undefined') { hide(); return $(this);	}
+		if ($('#w2ui-overlay').length > 0) $(document).click();
 		$('body').append('<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay"><div></div></div>');
 
 		// init
