@@ -300,7 +300,7 @@
 							showAll		: false,	// if true then show selected item in drop down
 							maxCache 	: 500,		// number items to cache
 							onRender 	: null,		// -- not implemented
-							onSelect 	: null		// -- not implemented
+							onSelect 	: null		// -- not implemented (you can use onChange for the input)
 						}
 						var obj	= this;
 						var settings = $.extend({}, defaults, options);
