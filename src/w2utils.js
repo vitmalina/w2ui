@@ -1033,6 +1033,18 @@ w2utils.keyboard = (function (obj) {
 		// need time to display
 		setTimeout(function () {
 			$(document).on('click', hide);
+			// if goes over the screen, limit height
+			if ( $('#w2ui-overlay > div').length > 0) {
+				var h = $('#w2ui-overlay > div').height();
+				var w = $('#w2ui-overlay> div').width();
+				var max = $(window).height() - $('#w2ui-overlay > div').offset().top - 7;
+				if (h > max) $('#w2ui-overlay> div').height(max).width(w + w2utils.scrollBarSize()).css({ 'overflow-y': 'auto' });
+				// check width
+				w = $('#w2ui-overlay> div').width();
+				max = $(window).width() - $('#w2ui-overlay > div').offset().left - 7;
+				if (w > max) $('#w2ui-overlay> div').width(max).css({ 'overflow-x': 'auto' });
+			}
+			// onShow
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 1);
 
