@@ -1130,7 +1130,7 @@
 				var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
 				if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
 			} else {
-				var eventData = { url: this.url, postData: this.postData };
+				var eventData = { url: this.url, postData: params };
 			}
 			// call server to get data
 			var obj = this;
