@@ -272,7 +272,7 @@
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		refresh: function (id) {
@@ -314,7 +314,7 @@
 				if (it.disabled) { el.addClass('disabled'); } else { el.removeClass('disabled'); }
 			}
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		resize: function () {
@@ -326,7 +326,7 @@
 			// empty function
 
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 	
 		destroy: function () { 
@@ -343,7 +343,7 @@
 			$(this.box).html('');
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		// ========================================
@@ -449,7 +449,7 @@
 				// normal processing
 
 				// event after
-				this.trigger($.extend({ phase: 'after' }));	
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
 				
@@ -508,7 +508,7 @@
 					}, 1);
 				}
 				// event after
-				this.trigger($.extend({ phase: 'after' }));	
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		}		
 	}

@@ -300,7 +300,7 @@
 			}
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		// ===================================================
