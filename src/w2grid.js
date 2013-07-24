@@ -18,6 +18,7 @@
 *	- CellClick / CellDblClick / CellChanged events
 *	- Merged cells
 *	- More than 2 layers of header groups
+*	- for search fields one should be able to pass w2field options
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button

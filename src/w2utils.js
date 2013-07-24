@@ -12,6 +12,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == NICE TO HAVE ==
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
 *	- bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
+*	- overlay should be displayed where more space (on top or on bottom)
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
