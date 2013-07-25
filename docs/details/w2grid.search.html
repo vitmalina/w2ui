@@ -38,13 +38,18 @@ OR
 
 <h4>Description</h4>
 
-This method will generate <a class="property" href="w2grid.searchData">.searchData</a> array of objects, apply the search and refresh the grid. If the data source 
-is local, it will call <a class="property" href="w2grid.localSearch">.localSearch</a> method. If the data source is remote it will
-submit search data to the server side to apply the search. The first argument <span class="argument">field</span> is the name of the search field or 'all' to search all aplicable fields (search 
-fields where data type matches). The second argument <span class="argument">value</span> is the search string.
+This method will generate <a class="property" href="w2grid.searchData">.searchData</a> array of objects, apply the search and refresh the grid. 
+If the data source is local, it will call <a class="property" href="w2grid.localSearch">.localSearch</a> method. If the data source is remote 
+it will submit search data to the server side to apply the search. 
+This method will only work if you have <a class="property" href="w2grid.searches">searches</a> array defined.
 <div style="height: 10px;"></div>
 
-If first argument is an array and second optional argument is a string (AND or OR), then the method will assume that it is the array 
+If the first argument <span class="argument">field</span> is string then it is the name of the 
+search field or 'all' to search all aplicable fields (search fields where data type matches). The second argument 
+<span class="argument">value</span> is the search string.
+<div style="height: 10px;"></div>
+
+If the first argument is an array and second optional argument is a string (AND or OR), then the method will assume that it is the array 
 of search objects. This way you can submit search on multiple fields at the same time.
 <div style="height: 10px;"></div>
 

@@ -7,11 +7,9 @@ Performs local search in the records array.
 <h4>Description</h4>
 
 Performs local search of the <a class="property" href="w2grid.records">.records</a> array based on 
-<a class="property" href="w2grid.searchData">.searchData</a>. Internally, it is used only when the data source is local, however, 
-it can be used in other cases. If the data source is remote and you call this function, it will search the data in the records 
-array (you still need to call <a class="property" href="w2grid.refresh">.refresh()</a> method). If user navigates to a new page or 
-otherwise reloads the grid, local search will not be applied. If your data source is local you do not need to call this 
-function because it is called internally.
+<a class="property" href="w2grid.searchData">.searchData</a> and refreshes the grid. This method will only work if you have 
+<a class="property" href="w2grid.searches">searches</a> array defined.
+This method only works on local data source, when <a class="property" href="w2grid.url">.url</a> property is not set. 
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:

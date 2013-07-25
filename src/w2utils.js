@@ -11,6 +11,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 * == NICE TO HAVE ==
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
+*	- bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
+*	- overlay should be displayed where more space (on top or on bottom)
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
@@ -19,6 +21,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added w2utils.keyboard module
 *	- added w2utils.formatNumber()
 *	- added w2menu() plugin
+*	- added formatTime(), formatDateTime()
 *
 ************************************************/
 
@@ -52,6 +55,8 @@ var w2utils = (function () {
 		size 			: size,
 		formatNumber	: formatNumber,
 		formatDate		: formatDate,
+		formatTime  	: formatTime,
+		formatDateTime  : formatDateTime,
 		stripTags		: stripTags,
 		encodeTags		: encodeTags,
 		escapeId		: escapeId,
@@ -136,75 +141,6 @@ var w2utils = (function () {
 		return true;
 	}
 
-	function formatNumber (val) {
-		var ret = '';
-		// check if this is a number
-		if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
-			ret = String(val).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-		}
-		return ret;
-	}
-	
-	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
-		var months = w2utils.settings.shortmonths;
-		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format == 'undefined') format = this.settings.date_format;
-		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
-
-		var dt = new Date(dateStr);
-		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
-		var tmp = String(dateStr).split('-');
-		if (tmp.length == 3) dt = new Date(tmp[0], Number(tmp[1])-1, tmp[2]); // yyyy-mm-dd
-		var tmp = String(dateStr).split('/');
-		if (tmp.length == 3) dt = new Date(tmp[2], Number(tmp[0])-1, tmp[1]); // mm/dd/yyyy
-		if (dt == 'Invalid Date') return '';
-
-		var year 	= dt.getFullYear();
-		var month 	= dt.getMonth();
-		var date 	= dt.getDate();
-		return format.toLowerCase()
-			.replace('month', w2utils.settings.fullmonths[month])
-			.replace('mon', w2utils.settings.shortmonths[month])
-			.replace(/yyyy/g, year)
-			.replace(/yyy/g, year)
-			.replace(/yy/g, String(year).substr(2))
-			.replace(/(^|[^a-z$])y/g, '$1'+year) 			// only y's that are not preceeded by a letter
-			.replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
-			.replace(/dd/g, (date < 10 ? '0' : '') + date)
-			.replace(/(^|[^a-z$])m/g, '$1'+ (month + 1)) 	// only y's that are not preceeded by a letter
-			.replace(/(^|[^a-z$])d/g, '$1' + date); 		// only y's that are not preceeded by a letter
-	}
-
-	function date (dateStr) {
-		var months = w2utils.settings.shortmonths;
-		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
-		if (w2utils.isInt(dateStr)) dateStr = Number(dateStr); // for unix timestamps
-		
-		var d1 = new Date(dateStr);
-		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-		var tmp = String(dateStr).split('-');
-		if (tmp.length == 3) d1 = new Date(tmp[0], Number(tmp[1])-1, tmp[2]); // yyyy-mm-dd
-		var tmp = String(dateStr).split('/');
-		if (tmp.length == 3) d1 = new Date(tmp[2], Number(tmp[0])-1, tmp[1]); // mm/dd/yyyy
-		if (d1 == 'Invalid Date') return '';
-
-		var d2   = new Date(); // today
-		var d3   = new Date(); 
-		d3.setTime(d3.getTime() - 86400000); // yesterday
-		
-		var dd1  = months[d1.getMonth()] + ' ' + d1.getDate() + ', ' + d1.getFullYear();
-		var dd2  = months[d2.getMonth()] + ' ' + d2.getDate() + ', ' + d2.getFullYear();
-		var dd3  = months[d3.getMonth()] + ' ' + d3.getDate() + ', ' + d3.getFullYear();
-		
-		var time = (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
-		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
-		var dsp = dd1;
-		if (dd1 == dd2) dsp = time;
-		if (dd1 == dd3) dsp = w2utils.lang('Yesterday');
-
-		return '<span title="'+ dd1 +' ' + time2 +'">'+ dsp +'</span>';
-	}
-
 	function age (timeStr) {
 		if (timeStr == '' || typeof timeStr == 'undefined' || timeStr == null) return '';
 		if (w2utils.isInt(timeStr)) timeStr = Number(timeStr); // for unix timestamps
@@ -245,6 +181,36 @@ var w2utils = (function () {
 		return amount + ' ' + type + (amount > 1 ? 's' : '');
 	}	
 		
+	function date (dateStr) {
+		var months = w2utils.settings.shortmonths;
+		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
+		if (w2utils.isInt(dateStr)) dateStr = Number(dateStr); // for unix timestamps
+		
+		var d1 = new Date(dateStr);
+		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
+		var tmp = String(dateStr).split('-');
+		if (tmp.length == 3) d1 = new Date(tmp[0], Number(tmp[1])-1, tmp[2]); // yyyy-mm-dd
+		var tmp = String(dateStr).split('/');
+		if (tmp.length == 3) d1 = new Date(tmp[2], Number(tmp[0])-1, tmp[1]); // mm/dd/yyyy
+		if (d1 == 'Invalid Date') return '';
+
+		var d2   = new Date(); // today
+		var d3   = new Date(); 
+		d3.setTime(d3.getTime() - 86400000); // yesterday
+		
+		var dd1  = months[d1.getMonth()] + ' ' + d1.getDate() + ', ' + d1.getFullYear();
+		var dd2  = months[d2.getMonth()] + ' ' + d2.getDate() + ', ' + d2.getFullYear();
+		var dd3  = months[d3.getMonth()] + ' ' + d3.getDate() + ', ' + d3.getFullYear();
+		
+		var time = (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
+		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
+		var dsp = dd1;
+		if (dd1 == dd2) dsp = time;
+		if (dd1 == dd3) dsp = w2utils.lang('Yesterday');
+
+		return '<span title="'+ dd1 +' ' + time2 +'">'+ dsp +'</span>';
+	}
+
 	function size (sizeStr) {
 		if (!w2utils.isFloat(sizeStr) || sizeStr == '') return '';
 		sizeStr = parseFloat(sizeStr);
@@ -252,6 +218,90 @@ var w2utils = (function () {
 		var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
 		var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
 		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i == 0 ? 0 : 1) + ' ' + sizes[i];
+	}
+
+	function formatNumber (val) {
+		var ret = '';
+		// check if this is a number
+		if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
+			ret = String(val).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+		}
+		return ret;
+	}
+	
+	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
+		var months = w2utils.settings.shortmonths;
+		var fullMonths = w2utils.settings.fullmonths;
+		if (typeof format == 'undefined') format = this.settings.date_format;
+		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
+
+		var dt = new Date(dateStr);
+		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
+		var tmp = String(dateStr).split('-');
+		if (tmp.length == 3) dt = new Date(tmp[0], Number(tmp[1])-1, tmp[2]); // yyyy-mm-dd
+		var tmp = String(dateStr).split('/');
+		if (tmp.length == 3) dt = new Date(tmp[2], Number(tmp[0])-1, tmp[1]); // mm/dd/yyyy
+		if (dt == 'Invalid Date') return '';
+
+		var year 	= dt.getFullYear();
+		var month 	= dt.getMonth();
+		var date 	= dt.getDate();
+		return format.toLowerCase()
+			.replace('month', w2utils.settings.fullmonths[month])
+			.replace('mon', w2utils.settings.shortmonths[month])
+			.replace(/yyyy/g, year)
+			.replace(/yyy/g, year)
+			.replace(/yy/g, String(year).substr(2))
+			.replace(/(^|[^a-z$])y/g, '$1'+year) 			// only y's that are not preceeded by a letter
+			.replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
+			.replace(/dd/g, (date < 10 ? '0' : '') + date)
+			.replace(/(^|[^a-z$])m/g, '$1'+ (month + 1)) 	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])d/g, '$1' + date); 		// only y's that are not preceeded by a letter
+	}
+
+
+	function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
+		var months = w2utils.settings.shortmonths;
+		var fullMonths = w2utils.settings.fullmonths;
+		if (typeof format == 'undefined') format = this.settings.time_format;
+		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
+
+		var dt = new Date(dateStr);
+		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
+		if (dt == 'Invalid Date') return '';
+
+		var type = 'am';
+		var hour = dt.getHours();
+		var h24  = dt.getHours();
+		var min  = dt.getMinutes();
+		var sec  = dt.getSeconds();
+		if (min < 10) min = '0' + min;
+		if (sec < 10) sec = '0' + sec;
+		if (format.indexOf('am') != -1 || format.indexOf('pm') != -1) {
+			if (hour >= 12) type = 'pm'; 
+			if (hour > 12)  hour = hour - 12;
+		}
+		return format.toLowerCase()
+			.replace('am', type)
+			.replace('pm', type)
+			.replace('hh', hour)
+			.replace('h24', h24)
+			.replace('mm', min)
+			.replace('mi', min)
+			.replace('ss', sec)
+			.replace(/(^|[^a-z$])h/g, '$1' + hour) 	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])m/g, '$1' + min) 	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])s/g, '$1' + sec); 	// only y's that are not preceeded by a letter
+	}
+
+	function formatDateTime(dateStr, format) {
+		var fmt;
+		if (typeof format != 'string') {
+			var fmt = [this.settings.date_format, this.settings.time_format];
+		} else {
+			var fmt = format.split('|');
+		}
+		return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1]);
 	}
 
 	function stripTags (html) {
@@ -932,18 +982,10 @@ w2utils.keyboard = (function (obj) {
 	// w2overlay - appears under the element, there can be only one at a time
 
 	$.fn.w2overlay = function (html, options) {
-		var isOpened = false;
-		if (!$.isPlainObject(options)) options = {};
-		if (!$.isPlainObject(options.css)) options.css = {};
-
-		if (this.length == 0 || html == '' || typeof html == 'undefined') {
-			if (typeof options.onHide == 'function') options.onHide();
-			$('#w2ui-overlay').remove();
-			$(document).off('click', hide);
-			return $(this);
-		}
-		// insert (or re-insert) overlay
-		if ($('#w2ui-overlay').length > 0) { isOpened = true; $(document).off('click', hide); $('#w2ui-overlay').remove(); }
+		if (!$.isPlainObject(options)) 		options = {};
+		if (!$.isPlainObject(options.css)) 	options.css = {};
+		if (this.length == 0 || html == '' || typeof html == 'undefined') { hide(); return $(this);	}
+		if ($('#w2ui-overlay').length > 0) $(document).click();
 		$('body').append('<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay"><div></div></div>');
 
 		// init
@@ -984,6 +1026,18 @@ w2utils.keyboard = (function (obj) {
 		// need time to display
 		setTimeout(function () {
 			$(document).on('click', hide);
+			// if goes over the screen, limit height
+			if ( $('#w2ui-overlay > div').length > 0) {
+				var h = $('#w2ui-overlay > div').height();
+				var w = $('#w2ui-overlay> div').width();
+				var max = $(window).height() - $('#w2ui-overlay > div').offset().top - 7;
+				if (h > max) $('#w2ui-overlay> div').height(max).width(w + w2utils.scrollBarSize()).css({ 'overflow-y': 'auto' });
+				// check width
+				w = $('#w2ui-overlay> div').width();
+				max = $(window).width() - $('#w2ui-overlay > div').offset().left - 7;
+				if (w > max) $('#w2ui-overlay> div').width(max).css({ 'overflow-x': 'auto' });
+			}
+			// onShow
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 1);
 

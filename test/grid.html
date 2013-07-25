@@ -21,8 +21,8 @@ $(function () {
 			header: true,
 			emptyRecords: true,
 			columnHeaders: true,
-			selectColumn: false,
-			expandColumn: true,
+			selectColumn: true,
+			expandColumn: false,
 			lineNumbers: true,
 			toolbarDelete: false,
 			toolbarSave: false,
@@ -31,6 +31,8 @@ $(function () {
 		postData: {
 			"admin": 'somename'
 		},
+		selectType: 'cell',
+		onChange1: function () { console.log(arguments); },
 		//autoLoad: false,
 		//offset: 99700,
 		//multiSelect: false,
@@ -63,14 +65,14 @@ $(function () {
 			{ caption: 'Important Dates', span: 3 }
 		],
 		columns: [				
-			{ field: 'personid', caption: 'ID', size: '100px', sortable: true, resizable: true, searchable: 'int' },
-			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, searchable: true },
-			{ field: 'lname', caption: 'Last Name', size: '200px', sortable: true, resizable: true, searchable: true },
-			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
-			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, searchable: 'int', render: 'percent' },
-			{ field: 'sdate', caption: 'Date', size: '120px', resizable: true, sortable: true, searchable: 'date', render: 'date' }
+			{ field: 'personid', caption: 'ID', size: '100px', sortable: true, resizable: true, searchable: 'int', editable: { type: 'text' } },
+			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, searchable: true, editable: { type: 'text' } },
+			{ field: 'lname', caption: 'Last Name', size: '200px', sortable: true, resizable: true, searchable: true, editable: { type: 'text' } },
+			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, editable: { type: 'text' } },
+			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, searchable: 'int', render: 'percent', editable: { type: 'text' } },
+			{ field: 'sdate', caption: 'Date', size: '120px', resizable: true, sortable: true, searchable: 'date', render: 'date', editable: { type: 'text' } }
 		],
-		onExpand: function (target, data) {
+		onExpand1: function (target, data) {
 			if (w2ui['grid-'+ data.recid]) $().w2destroy('grid-'+ data.recid);
 			$('#'+ data.box_id).w2grid({ 
 				name: 'grid-' + data.recid,
@@ -131,9 +133,9 @@ $(function () {
 <body>
 	<div id="grid" style="width: 1024px; height: 568px;"></div>
 	<br>
-	<input type="button" value="destroy" onclick="$().w2destroy('grid');">
-	<input type="button" value="Jump 0" onclick="w2ui.grid.skip(0);">
-	<input type="button" value="Jump 10" onclick="w2ui.grid.skip(10);">
+	<input type="button" value="destroy"  onclick="$().w2destroy('grid');">
+	<input type="button" value="Jump 0"   onclick="w2ui.grid.skip(0);">
+	<input type="button" value="Jump 10"  onclick="w2ui.grid.skip(10);">
 	<input type="button" value="Jump 110" onclick="w2ui.grid.skip(110);">
 	<input type="button" value="Jump 300" onclick="w2ui.grid.skip(300);">
 	<input type="button" value="Jump 375" onclick="w2ui.grid.skip(375);">
