@@ -1157,7 +1157,7 @@
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
-				
+
 		requestComplete: function(status, cmd, callBack) {
 			var obj = this;
 			this.unlock();

@@ -662,8 +662,12 @@
 						return;
 					}
 					if (event.target.tagName != 'INPUT') {
-						$(div).find('.file-input').click();
-					}
+						var settings = $(obj).data('settings');
+						var selected = $(obj).data('selected');
+						var cnt  = 0;
+						for (var s in selected) { cnt++; }
+						if (cnt<settings.max)
+							$(div).find('.file-input').click();					}
 				})
 				.off('dragenter')
 				.on('dragenter', function (event) {
