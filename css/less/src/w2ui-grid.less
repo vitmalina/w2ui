@@ -3,6 +3,7 @@
 */
 
 .w2ui-grid {
+	position: relative;
 	border: @grid-border;
 	border-radius: 2px;
 	overflow: hidden !important;
@@ -46,42 +47,38 @@
 
 	// ===== Grid Search ===== 
 
-	.w2ui-toolbar-search {
+	.w2ui-search-all {
+		outline: none;
 		width: 160px;
+		border-radius: 10px;
+		line-height: 100%;
+		height: 22px;
+		border: @grid-search-all-border;
+		color: @grid-search-all-color;
+		background-color: @grid-search-all-background-color;
+		padding: 3px 18px 3px 23px;
+		margin: 0px;
+	}
 
-		.w2ui-search-all {
-			outline: none;
-			width: 160px;
-			border-radius: 10px;
-			line-height: 100%;
-			height: 22px;
-			border: @grid-search-all-border;
-			color: @grid-search-all-color;
-			background-color: @grid-search-all-background-color;
-			padding: 3px 18px 3px 23px;
-			margin: 0px;
-		}
+	.w2ui-search-down {
+		position: absolute;
+		margin-top: -7px; 
+		margin-left: 5px;
+	}
 
-		.w2ui-search-down {
-			position: absolute;
-			margin-top: -7px; 
-			margin-left: 5px;
-		}
+	.w2ui-search-clear {
+		position: absolute;
+		width: 12px;
+		height: 15px;
+		margin-top: -6px;
+		margin-left: -17px;
+		border-radius: 15px;
+		.background-image(@image-item-close, no-repeat, center, left);
+		background-position: 0px 0px;
 
-		.w2ui-search-clear {
-			position: absolute;
-			width: 12px;
-			height: 15px;
-			margin-top: -6px;
-			margin-left: -17px;
-			border-radius: 15px;
-			.background-image(@image-item-close, no-repeat, center, left);
-			background-position: 0px 0px;
-
-			&:hover {
-				background-position: -12px 0px;
-				cursor: pointer;
-			}
+		&:hover {
+			background-position: -12px 0px;
+			cursor: pointer;
 		}
 	}
 
@@ -155,7 +152,7 @@
 							background-color: @grid-row-even-background-color;
 						}
 					}
-					&.w2ui-selected, td.w2ui-selected {
+					&.w2ui-selected {
 						color: @grid-row-selected-color !important;
 						background-color: @grid-row-selected-background-color !important;
 					}
@@ -312,10 +309,6 @@
 		}
 	} 
 
-	.w2ui-changed {
-		.background-image(@image-changed, no-repeat, top, right);
-	}
-	
 	.w2ui-editable {
 		overflow: hidden; 
 		height: 100% !important;
@@ -323,13 +316,23 @@
 		padding: 0px !important;
 
 		input {
-			//outline: none;
+			outline: none;
+			margin: 2px 0px; 
+			padding: 4px 3px;
 			border: 0px;
 			border-radius: 0px;
-			margin: 0px; 
-			padding: 4px 3px;			
+			color: @grid-row-color;
+			background-color: @grid-editable-background-color;
 			width: 100%;
-			height: 100%;
+
+			&.changed {
+				.background-image(@image-changed, no-repeat, top, right);
+				background-color: @grid-editable-changed-background-color;
+			}
+
+			&.active {
+				background-color: @grid-editable-active-background-color;
+			}
 		}
 	}
 
