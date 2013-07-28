@@ -31,7 +31,7 @@ $(function () {
 		postData: {
 			"admin": 'somename'
 		},
-		selectType: 'cell',
+		//selectType: 'cell',
 		onChange1: function () { console.log(arguments); },
 		//autoLoad: false,
 		//offset: 99700,
@@ -111,7 +111,7 @@ $(function () {
 	var fname = ['Vitali', '~Katsia', '!John', 'Peter', '#Sue', '$Olivia', '&lt;Thomas', '&gt;Sergei', 'Snehal', 'Avinash', 'Divia'];
 	var lname = ['Peterson', 'Rene', 'Johnson-Petrov-Sannikov-Ivanov-Smirnov', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
 	// add 10k records
-	for (var i = 0; i < 2500; i++) {
+	for (var i = 0; i < 5; i++) {
 		w2ui['grid'].records.push({ 
 			recid : i+1,
 			personid: i+1,
