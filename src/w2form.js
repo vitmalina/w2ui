@@ -318,6 +318,9 @@
 				if ( field.required && (val === '' || ($.isArray(val) && val.length == 0)) ) {
 					errors.push({ field: field, error: w2utils.lang('Required field') });
 				}
+				if ( field.equalto && this.record[field.name]!=this.record[field.equalto] ) {
+					errors.push({ field: field, error: w2utils.lang('Field should be equal to ')+field.equalto });
+				}
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
