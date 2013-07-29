@@ -1759,6 +1759,10 @@
 			}
 			var records	= $('#grid_'+ this.name +'_records');
 			if (records.length == 0) return;
+			// if all records in view
+			var len = this.last.searchIds.length;
+			if (records.height() > this.recordHeight * (len > 0 ? len : this.records.length)) return;
+			// scroll to correct one
 			var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
 			var t2 = t1 + Math.floor(records.height() / this.recordHeight);
 			if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 });
