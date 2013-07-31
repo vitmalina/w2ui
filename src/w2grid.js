@@ -1200,11 +1200,15 @@
 						if (cmd == 'get-records') {
 							if (this.last.xhr_offset == 0) {
 								this.records = [];
+								//data.xhr_status=data.status;
+								delete data.status;
 								$.extend(true, this, data);
 								this.buffered = this.records.length;
 							} else {
 								var records = data.records;
 								delete data.records;
+								//data.xhr_status=data.status;
+								delete data.status;
 								$.extend(true, this, data);
 								for (var r in records) {
 									this.records.push(records[r]);
