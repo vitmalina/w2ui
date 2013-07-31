@@ -697,6 +697,7 @@
 			// default action
 			$(this.box).find('.w2ui-page').hide();
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
+			$(this.box).find('.w2ui-form-header').html(this.header);
 			// refresh tabs if needed
 			if (typeof this.tabs == 'object' && this.tabs.tabs.length > 0) {
 				$('#form_'+ this.name +'_tabs').show();
