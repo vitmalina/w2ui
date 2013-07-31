@@ -233,6 +233,7 @@ select {
 * ---- Forms ----
 */
 .w2ui-form {
+  position: relative;
   color: #c0c8d5;
   background-color: #526083;
   border: 1px solid #252c39;
@@ -714,10 +715,10 @@ select {
   pointer-events: none;
 }
 .w2ui-upload .file-list li > div.file-delete {
-  float: right;
+  float: left;
   z-index: 1;
   width: 12px;
-  margin: 1px -3px 0px 2px;
+  margin: 1px 3px 0px -2px;
   border-radius: 15px;
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAMCAMAAABP7o1HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///////1V89WwAAAACdFJOU/8A5bcwSgAAAEZJREFUeNpiYEQFDGAAYmATB8mgSjBApEAMsC4YwYDEg5EQdTBZqD2McAvR+DCdmBJIOlCMQrID3XI4gepcIjyIFCQAAQYAaD0ArHd1+soAAAAASUVORK5CYII=) no-repeat center left;
   background-position: 0px 0px;
@@ -812,6 +813,7 @@ select {
 * ---- Grid ----
 */
 .w2ui-grid {
+  position: relative;
   border: 1px solid #252c39;
   border-radius: 2px;
   overflow: hidden !important;

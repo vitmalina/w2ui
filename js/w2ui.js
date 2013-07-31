@@ -2295,11 +2295,15 @@ w2utils.keyboard = (function (obj) {
 						if (cmd == 'get-records') {
 							if (this.last.xhr_offset == 0) {
 								this.records = [];
+								//data.xhr_status=data.status;
+								delete data.status;
 								$.extend(true, this, data);
 								this.buffered = this.records.length;
 							} else {
 								var records = data.records;
 								delete data.records;
+								//data.xhr_status=data.status;
+								delete data.status;
 								$.extend(true, this, data);
 								for (var r in records) {
 									this.records.push(records[r]);
@@ -2854,6 +2858,10 @@ w2utils.keyboard = (function (obj) {
 			}
 			var records	= $('#grid_'+ this.name +'_records');
 			if (records.length == 0) return;
+			// if all records in view
+			var len = this.last.searchIds.length;
+			if (records.height() > this.recordHeight * (len > 0 ? len : this.records.length)) return;
+			// scroll to correct one
 			var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
 			var t2 = t1 + Math.floor(records.height() / this.recordHeight);
 			if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 });
@@ -6323,7 +6331,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		// ===================================================
@@ -6701,7 +6709,7 @@ w2utils.keyboard = (function (obj) {
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));	
 		},
 		
 		refresh: function (id) {
@@ -6743,7 +6751,7 @@ w2utils.keyboard = (function (obj) {
 				if (it.disabled) { el.addClass('disabled'); } else { el.removeClass('disabled'); }
 			}
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));	
 		},
 		
 		resize: function () {
@@ -6755,7 +6763,7 @@ w2utils.keyboard = (function (obj) {
 			// empty function
 
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));	
 		},
 	
 		destroy: function () { 
@@ -6772,7 +6780,7 @@ w2utils.keyboard = (function (obj) {
 			$(this.box).html('');
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));	
 		},
 		
 		// ========================================
@@ -6845,7 +6853,7 @@ w2utils.keyboard = (function (obj) {
 				// normal processing
 
 				// event after
-				this.trigger($.extend({ phase: 'after' }));	
+				this.trigger($.extend(eventData, { phase: 'after' }));	
 			}
 		},
 				
@@ -6916,7 +6924,7 @@ w2utils.keyboard = (function (obj) {
 					}
 				}
 				// event after
-				this.trigger($.extend({ phase: 'after' }));	
+				this.trigger($.extend(eventData, { phase: 'after' }));	
 			}
 		}		
 	}
@@ -8339,7 +8347,11 @@ w2utils.keyboard = (function (obj) {
 						return;
 					}
 					if (event.target.tagName != 'INPUT') {
-						$(div).find('.file-input').click();
+						var settings = $(obj).data('settings');
+						var selected = $(obj).data('selected');
+						var cnt  = 0;
+						for (var s in selected) { cnt++; }
+						if (cnt<settings.max) $(div).find('.file-input').click();
 					}
 				})
 				.off('dragenter')
@@ -8839,6 +8851,7 @@ w2utils.keyboard = (function (obj) {
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
+* 	- documentation update on field types
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
@@ -9148,6 +9161,9 @@ w2utils.keyboard = (function (obj) {
 				var val = this.record[field.name];
 				if ( field.required && (val === '' || ($.isArray(val) && val.length == 0)) ) {
 					errors.push({ field: field, error: w2utils.lang('Required field') });
+				}
+				if ( field.equalto && this.record[field.name]!=this.record[field.equalto] ) {
+					errors.push({ field: field, error: w2utils.lang('Field should be equal to ')+field.equalto });
 				}
 			}
 			// event before
@@ -9528,6 +9544,7 @@ w2utils.keyboard = (function (obj) {
 			// default action
 			$(this.box).find('.w2ui-page').hide();
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
+			$(this.box).find('.w2ui-form-header').html(this.header);
 			// refresh tabs if needed
 			if (typeof this.tabs == 'object' && this.tabs.tabs.length > 0) {
 				$('#form_'+ this.name +'_tabs').show();
