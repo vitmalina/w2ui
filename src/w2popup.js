@@ -12,6 +12,7 @@
 *
 * == 1.3 changes ==
 *	- keyboard esc - close
+*	- added onKeyboard event listener
 *
 ************************************************************************/
 
@@ -83,12 +84,13 @@
 			// get old options and merge them
 			var old_options = $('#w2ui-popup').data('options');
 			var options = $.extend({}, this.defaults, {
-				body: '',
-				renderTime: 0,
-				onOpen: null,
-				onChange: null,
+				body 		: '',
+				renderTime	: 0,
+				onOpen		: null,
+				onChange	: null,
 				onBeforeClose: null,
-				onClose: null
+				onClose 	: null,
+				onKeyboard	: null
 			}, old_options, options);
 	
 			if (window.innerHeight == undefined) {
@@ -214,6 +216,8 @@
 				}, 1);
 			}		
 			// save new options
+			options._last_w2ui_name = w2utils.keyboard.active();
+			w2utils.keyboard.active(null);
 			$('#w2ui-popup').data('options', options);
 			// keyboard events 
 			if (options.keyboard) $(document).on('keydown', this.doKeydown);
@@ -225,16 +229,16 @@
 		doKeydown: function (event) {
 			var options = $('#w2ui-popup').data('options');
 			if (!options.keyboard) return;
+			if (typeof options.onKeyboard == 'function') { 
+				var ret = options.onKeyboard(event);
+				if (ret === false) return this;
+			}
 			switch (event.keyCode) {
 				case 27: 
-					if (options.modal === true) {
-						$('#w2ui-lock').css({ 'opacity': '0.6' });
-						setTimeout(function () { $('#w2ui-lock').css({ 'opacity': options.opacity }); }, 400);
-						return;					
-					}
 					$().w2popup('close');
 					break;
 			}
+			event.preventDefault();
 		},
 		
 		close: function (options) {
@@ -264,6 +268,8 @@
 			if (typeof options.onClose == 'function') {
 				options.onClose();
 			}
+			// restore active
+			w2utils.keyboard.active(options._last_w2ui_name);
 			// remove keyboard events
 			if (options.keyboard) $(document).off('keydown', this.doKeydown);			
 		},
@@ -573,17 +579,27 @@
 	}
 
 	window.w2alert = function (msg, title) {
-		if (typeof title == 'undefined') {
-			title = w2utils.lang('Notification');
+		if (typeof title == 'undefined') title = w2utils.lang('Notification');
+		if ($('#w2ui-popup').length > 0) {
+			$().w2popup('message', {
+				width 	: 400,
+				height 	: 160,
+				html 	: '<div class="w2ui-centered" style="font-size: 11px;"><div style="padding-bottom: 40px">ERROR: '+ msg +'</div>'+
+						  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
+						  '	<input type="button" value="Ok" onclick="$().w2popup(\'message\');" class="w2ui-popup-button">'+
+						  '</div>'
+			});
+		} else {
+			$().w2popup('open', {
+				width 	: 450,
+				height 	: 200,
+				showMax : false,
+				title 	: title,
+				body    : '<div class="w2ui-centered"><div>' + msg +'</div></div>',
+				buttons : '<input type="button" value="'+ w2utils.lang('Ok') +'" class="w2ui-popup-button" onclick="$().w2popup(\'close\');">'
+			});
 		}
-		$().w2popup({
-			width 	: 450,
-			height 	: 200,
-			title   : title,
-			body    : '<div class="w2ui-alert-body">' + msg +'</div>',
-			buttons : '<input type="button" value="'+ w2utils.lang('Ok') +'" class="w2ui-alert-button" onclick="$().w2popup(\'close\');">'
-		});
-	};
+	}
 
 	window.w2confirm = function (msg, title, callBack) {
 		if (typeof callBack == 'undefined' || typeof title == 'function') {
@@ -599,18 +615,28 @@
 			title   	: title,
 			modal		: true,
 			showClose	: false,
-			body    	: '<div class="w2ui-confirm-body">' + msg +'</div>',
-			buttons 	: '<input id="buttonNo" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-confirm-button">&nbsp;'+
-					  	  '<input id="buttonYes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-confirm-button">'
+			body    	: '<div class="w2ui-centered"><div>' + msg +'</div></div>',
+			buttons 	: '<input id="No" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-popup-button">'+
+					  	  '<input id="Yes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-popup-button">',
+			onOpen: function () {
+				$('#w2ui-popup .w2ui-popup-button').on('click', function (event) {
+					$().w2popup('close');
+					if (typeof callBack == 'function') callBack(event.target.id);
+				});
+			},
+			onKeyboard: function (event) {
+				switch (event.keyCode) {
+					case 13: // enter
+						$().w2popup('close');
+						if (typeof callBack == 'function') callBack('Yes');
+						break
+					case 27: // esc
+						$().w2popup('close');
+						if (typeof callBack == 'function') callBack('No');
+						break
+				}
+			} 
 		});
-		$('#w2ui-popup #buttonNo').on('click', function () {
-			$().w2popup('close');
-			if (typeof callBack == 'function') callBack('No');
-		});
-		$('#w2ui-popup #buttonYes').on('click', function () {
-			$().w2popup('close');
-			if (typeof callBack == 'function') callBack('Yes');
-		});
-	};
+	}
 
 })();

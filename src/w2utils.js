@@ -811,8 +811,9 @@ w2utils.keyboard = (function (obj) {
 	// private scope
 	var w2ui_name = null;
 
-	obj.register	= register;
 	obj.active	 	= active;
+	obj.clear 		= clear;
+	obj.register	= register;
 
 	init();
 	return obj;
@@ -840,13 +841,16 @@ w2utils.keyboard = (function (obj) {
 		}
 	}
 
-	function register () {
-
-	}
-
 	function active (new_w2ui_name) {
 		if (typeof new_w2ui_name == 'undefined') return w2ui_name;
 		w2ui_name = new_w2ui_name;
+	}
+
+	function clear () {
+		w2ui_name = null;
+	}
+
+	function register () {
 	}
 
 })({});
