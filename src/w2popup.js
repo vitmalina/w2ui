@@ -12,6 +12,7 @@
 *
 * == 1.3 changes ==
 *	- keyboard esc - close
+*	- w2confirmt() - enter - yes, esc - no
 *	- added onKeyboard event listener
 *
 ************************************************************************/
@@ -377,6 +378,7 @@
 					        	'-webkit-transition: .3s; -moz-transition: .3s; -ms-transition: .3s; -o-transition: .3s;"' +
 								(options.hideOnClick === true ? 'onclick="$().w2popup(\'message\');"' : '') + '>'+
 							'</div>');
+				$('#w2ui-popup .w2ui-popup-message').data('options', options);
 			} else {
 				if (typeof options.width  == 'undefined') options.width  = w2utils.getSize($('#w2ui-popup .w2ui-popup-message'), 'width');
 				if (typeof options.height == 'undefined') options.height = w2utils.getSize($('#w2ui-popup .w2ui-popup-message'), 'height');
@@ -405,7 +407,8 @@
 				});
 			}, 1);
 			setTimeout(function () {
-				if (display != 'none') {
+				if (display != 'none' && $('#w2ui-popup .w2ui-popup-message').length > 0) {
+					var options = $('#w2ui-popup .w2ui-popup-message').data('options');
 					$('#w2ui-popup .w2ui-popup-message').remove();
 					if (typeof options.onClose == 'function') options.onClose();
 				}
@@ -578,7 +581,7 @@
 		}		
 	}
 
-	window.w2alert = function (msg, title) {
+	window.w2alert = function (msg, title, callBack) {
 		if (typeof title == 'undefined') title = w2utils.lang('Notification');
 		if ($('#w2ui-popup').length > 0) {
 			$().w2popup('message', {
@@ -587,7 +590,8 @@
 				html 	: '<div class="w2ui-centered" style="font-size: 11px;"><div style="padding-bottom: 40px">ERROR: '+ msg +'</div>'+
 						  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
 						  '	<input type="button" value="Ok" onclick="$().w2popup(\'message\');" class="w2ui-popup-button">'+
-						  '</div>'
+						  '</div>',
+				onClose : function () { if (typeof callBack == 'function') callBack(); }
 			});
 		} else {
 			$().w2popup('open', {
@@ -596,7 +600,8 @@
 				showMax : false,
 				title 	: title,
 				body    : '<div class="w2ui-centered"><div>' + msg +'</div></div>',
-				buttons : '<input type="button" value="'+ w2utils.lang('Ok') +'" class="w2ui-popup-button" onclick="$().w2popup(\'close\');">'
+				buttons : '<input type="button" value="'+ w2utils.lang('Ok') +'" class="w2ui-popup-button" onclick="$().w2popup(\'close\');">',
+				onClose : function () { if (typeof callBack == 'function') callBack(); }
 			});
 		}
 	}
