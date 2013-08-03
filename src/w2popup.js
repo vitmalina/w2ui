@@ -14,6 +14,7 @@
 *	- keyboard esc - close
 *	- w2confirmt() - enter - yes, esc - no
 *	- added onKeyboard event listener
+*	= added callBack to w2alert(msg, title, callBack)
 *
 ************************************************************************/
 
