@@ -229,42 +229,42 @@ $(function () {
 		default:
 		case '#!layout':
 			w2ui['demo-sidebar'].expand('layout');
-			w2ui['demo-sidebar'].doClick(tmp[1] || 'layout-1');
+			w2ui['demo-sidebar'].click(tmp[1] || 'layout-1');
 			break;
 
 		case '#!grid':
 			w2ui['demo-sidebar'].expand('grid');
-			w2ui['demo-sidebar'].doClick(tmp[1] || 'grid-1');
+			w2ui['demo-sidebar'].click(tmp[1] || 'grid-1');
 			break;
 
 		case '#!toolbar':
 			w2ui['demo-sidebar'].expand('toolbar');
-			w2ui['demo-sidebar'].doClick(tmp[1] || 'toolbar-1');
+			w2ui['demo-sidebar'].click(tmp[1] || 'toolbar-1');
 			break;
 
 		case '#!sidebar':
 			w2ui['demo-sidebar'].expand('sidebar');
-			w2ui['demo-sidebar'].doClick(tmp[1] || 'sidebar-1');
+			w2ui['demo-sidebar'].click(tmp[1] || 'sidebar-1');
 			break;
 
 		case '#!tabs':
 			w2ui['demo-sidebar'].expand('tabs');
-			w2ui['demo-sidebar'].doClick(tmp[1] || 'tabs-1');
+			w2ui['demo-sidebar'].click(tmp[1] || 'tabs-1');
 			break;
 
 		case '#!popup':
 			w2ui['demo-sidebar'].expand('popup');
-			w2ui['demo-sidebar'].doClick(tmp[1] || 'popup-1');
+			w2ui['demo-sidebar'].click(tmp[1] || 'popup-1');
 			break;
 
 		case '#!forms':
 			w2ui['demo-sidebar'].expand('forms');
-			w2ui['demo-sidebar'].doClick(tmp[1] || 'forms-1');
+			w2ui['demo-sidebar'].click(tmp[1] || 'forms-1');
 			break;
 
 		case '#!utils':
 			w2ui['demo-sidebar'].expand('utils');
-			w2ui['demo-sidebar'].doClick(tmp[1] || 'utils-1');
+			w2ui['demo-sidebar'].click(tmp[1] || 'utils-1');
 			break;
 	};
 });

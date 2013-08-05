@@ -1080,6 +1080,8 @@
 		reload: function (callBack) {
 			if (this.url != '') {
 				//this.refresh(); // show grid before pulling data
+				if (this.last.xhr_offset>0)
+					if (this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
 				this.request('get-records', {}, null, callBack);
 			} else {
 				this.refresh();
