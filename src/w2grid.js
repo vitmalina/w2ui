@@ -3,7 +3,7 @@
 *   - Following objects defined
 * 		- w2ui.w2grid 	- grid widget
 *		- $.w2grid		- jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2popup
+*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
 *	- global search apply types and drop downs
@@ -19,6 +19,8 @@
 *	- Merged cells
 *	- More than 2 layers of header groups
 *	- for search fields one should be able to pass w2field options
+*	- add enum to advanced search fields
+*	- cut and paste into excell
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -69,6 +71,8 @@
 *	- renames: doAdd -> toolbarAdd, doEdit -> toolbarEdit, doSave -> toolbarSave, doDelete -> toolbarDelete
 *	- renames: doClick -> click, doDblClick -> dblClick, doEditField -> editField, doScroll -> scroll, doSort -> sort
 * 	- added status()
+*	- added copy(), paste()
+*	- added getCellData(record, col_ind)
 *
 ************************************************************************/
 
@@ -1076,6 +1080,8 @@
 		reload: function (callBack) {
 			if (this.url != '') {
 				//this.refresh(); // show grid before pulling data
+				if (this.last.xhr_offset>0)
+					if (this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
 				this.request('get-records', {}, null, callBack);
 			} else {
 				this.refresh();
@@ -1247,27 +1253,7 @@
 				return false;
 			}
 			// need a time out because message might be already up)
-			setTimeout(function () {
-				if ($('#w2ui-popup').length > 0) {
-					$().w2popup('message', {
-						width 	: 370,
-						height 	: 140,
-						html 	: '<div class="w2ui-grid-error-msg" style="font-size: 11px;">ERROR: '+ msg +'</div>'+
-								  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center;">'+
-								  '	<input type="button" value="Ok" onclick="$().w2popup(\'message\');" class="w2ui-grid-popup-btn">'+
-								  '</div>'
-					});
-				} else {
-					$().w2popup('open', {
-						width 	: 420,
-						height 	: 200,
-						showMax : false,
-						title 	: 'Error',
-						body 	: '<div class="w2ui-grid-error-msg">'+ msg +'</div>',
-						buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
-					});
-				}
-			}, 1);
+			setTimeout(function () { w2alert(msg, 'Error');	}, 1);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -1418,6 +1404,7 @@
 		},
 
 		toolbarDelete: function (force) {
+			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete' });
 			if (eventData.stop === true) return false;
@@ -1425,14 +1412,8 @@
 			var recs = this.getSelection();
 			if (recs.length == 0) return;
 			if (this.msgDelete != '' && !force) {
-				$().w2popup({
-					width 	: 400,
-					height 	: 180,
-					showMax : false,
-					title 	: w2utils.lang('Delete Confirmation'),
-					body 	: '<div class="w2ui-grid-delete-msg">'+ this.msgDelete +'</div>',
-					buttons : '<input type="button" value="'+ w2utils.lang('No') + '" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'+
-							  '<input type="button" value="'+ w2utils.lang('Yes') + '" onclick="w2ui[\''+ this.name +'\'].toolbarDelete(true); $().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
+				w2confirm(obj.msgDelete, w2utils.lang('Delete Confirmation'), function (result) {
+					if (result == 'Yes') w2ui[obj.name].toolbarDelete(true); 
 				});
 				return;
 			}
@@ -1440,7 +1421,17 @@
 			if (this.url != '') {
 				this.request('delete-records');
 			} else {
-				this.remove.apply(this, recs);
+				if (typeof recs[0] != 'object') {
+					this.remove.apply(this, recs);
+				} else {
+					// clear cells
+					for (var r in recs) {
+						var fld = this.columns[recs[r].column].field;
+						var ind = this.get(recs[r].recid, true);
+						this.records[ind][fld] = '';
+					}
+					this.refresh();
+				}
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -1747,6 +1738,27 @@
 						}
 					}
 					break;
+
+				case 86: // v - paste
+					if (event.ctrlKey || event.metaKey) {
+						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px"></textarea>');
+						$('#_tmp_copy_data').focus();
+						setTimeout(function () { 
+							obj.paste($('#_tmp_copy_data').val());
+							$('#_tmp_copy_data').remove(); 
+						}, 50); // need timer to allow paste
+					}
+					break;
+
+				case 67: // c - copy
+				case 88: // x - cut
+					if (event.ctrlKey || event.metaKey) {
+						var text = obj.copy();
+						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px">'+ text +'</textarea>');
+						$('#_tmp_copy_data').focus().select();
+						setTimeout(function () { $('#_tmp_copy_data').remove(); }, 1);
+					}
+					break;
 			}
 			if (cancel) { // cancel default behaviour
 				if (event.preventDefault) event.preventDefault();
@@ -1925,6 +1937,29 @@
 				this.last.xhr_offset = 0;
 				this.reload();
 			}
+		},
+
+		copy: function (full) {
+			var sel = this.getSelection();
+			var text = '';
+			for (var s in sel) {
+				var rec = this.get(sel[s]);
+				for (var c in this.columns) {
+					var col = this.columns[c];
+					if (col.hidden === true) continue;
+					text += this.getCellData(rec, c) + '\t';
+				}
+				text += '\n';
+			}
+			return text;
+		},
+
+		paste: function (text) {
+			if (this.selectType == 'row') {
+				console.log('ERROR: You can paste only if grid.selectType = \'cell\'');
+				return false;
+			}
+			console.log('paste', text)
 		},
 
 		// ==================================================
@@ -2131,6 +2166,10 @@
 			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
 			this.reload();
+			// add copy/paste events
+			// $('body').on('copy',  function (e) { console.log('----- copy -----'); });
+			// $('body').on('paste', function (e) { obj.paste(e.originalEvent.clipboardData.getData('text')) });
+			// $('body').on('cut',   function (e) { obj.paste(e) });
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
@@ -3217,55 +3256,29 @@
 			var col_ind = 0;
 			while (true) {
 				var col = this.columns[col_ind];
-				var addStyle = '';
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
-				var field = this.parseObj(record, col.field);
 				var isChanged = record.changed && record.changes[col.field];
-				if (isChanged) field = record.changes[col.field];
-				// various renderers
-				if (typeof col.render != 'undefined') {
-					if (typeof col.render == 'function') field = col.render.call(this, this.records[ind], ind, col_ind);
-					if (typeof col.render == 'object')   field = col.render[field];
-					if (typeof col.render == 'string') {
-						var tmp = col.render.toLowerCase().split(':');
-						var prefix = '';
-						var suffix = '';
-						if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) {
-							if (typeof tmp[1] == 'undefined' || !w2utils.isInt(tmp[1])) tmp[1] = 0;
-							if (tmp[1] > 20) tmp[1] = 20;
-							if (tmp[1] < 0)  tmp[1] = 0;
-							if (tmp[0] == 'money')   { tmp[1] = 2; prefix = w2utils.settings.currencySymbol; }
-							if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
-							if (tmp[0] == 'int')	 { tmp[1] = 0; }
-							// format
-							addStyle = 'text-align: right';
-							field 	 = prefix + w2utils.formatNumber(Number(field).toFixed(tmp[1])) + suffix;
-						}
-						if (tmp[0] == 'date') {
-							if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
-							addStyle = 'text-align: center';
-							field 	 = prefix + w2utils.formatDate(field, tmp[1]) + suffix;
-						}
-						if (tmp[0] == 'age') {
-							addStyle = 'text-align: center';
-							field 	 = prefix + w2utils.age(field) + suffix;
-						}
-					}
+				var data 	  = this.getCellData(record, col_ind);
+				var addStyle  = '';
+				if (typeof col.render == 'string') {
+					var tmp = col.render.toLowerCase().split(':');
+					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle = 'text-align: right';
+					if ($.inArray(tmp[0], ['date', 'age']) != -1) addStyle = 'text-align: center';
 				}
-				if (field == null || typeof field == 'undefined') field = '';
+
 				// title overwrite
-				var title = String(field).replace(/"/g, "''");
+				var title = String(data).replace(/"/g, "''");
 				if (typeof col.title != 'undefined') {
-					if (typeof col.title == 'function') title = col.title.call(this, this.records[ind], ind, col_ind);
+					if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
 					if (typeof col.title == 'string')   title = col.title;
 				}
-				var rec_field = '<div title="'+ title +'">'+ field +'</div>';
+				var rec_cell = '<div title="'+ title +'">'+ data +'</div>';
 				var isCellSelected = false;
 				if (record.selected && $.inArray(col_ind, record.selectedColumns) != -1) isCellSelected = true;
 				rec_html += '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + (isChanged ? ' w2ui-changed' : '') +'" col="'+ col_ind +'" '+
 							'	style="'+ addStyle + ';' + (typeof col.style != 'undefined' ? col.style : '') +'" '+
 										  (typeof col.attr != 'undefined' ? col.attr : '') +'>'+
-								rec_field +
+								rec_cell +
 							'</td>';
 				col_ind++;
 				if (typeof this.columns[col_ind] == 'undefined') break;
@@ -3285,6 +3298,42 @@
 			// 		'</tr>';
 			// }
 			return rec_html;
+		},
+
+		getCellData: function (record, col_ind) {
+			var col  = this.columns[col_ind];
+			var data = this.parseObj(record, col.field);
+			var isChanged = record.changed && record.changes[col.field];
+			if (isChanged) data = record.changes[col.field];
+			// various renderers
+			if (typeof col.render != 'undefined') {
+				if (typeof col.render == 'function') data = col.render.call(this, record, ind, col_ind);
+				if (typeof col.render == 'object')   data = col.render[data];
+				if (typeof col.render == 'string') {
+					var tmp = col.render.toLowerCase().split(':');
+					var prefix = '';
+					var suffix = '';
+					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) {
+						if (typeof tmp[1] == 'undefined' || !w2utils.isInt(tmp[1])) tmp[1] = 0;
+						if (tmp[1] > 20) tmp[1] = 20;
+						if (tmp[1] < 0)  tmp[1] = 0;
+						if (tmp[0] == 'money')   { tmp[1] = 2; prefix = w2utils.settings.currencySymbol; }
+						if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
+						if (tmp[0] == 'int')	 { tmp[1] = 0; }
+						// format
+						data = prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix;
+					}
+					if (tmp[0] == 'date') {
+						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
+						data = prefix + w2utils.formatDate(data, tmp[1]) + suffix;
+					}
+					if (tmp[0] == 'age') {
+						data = prefix + w2utils.age(data) + suffix;
+					}
+				}
+			}
+			if (data == null || typeof data == 'undefined') data = '';
+			return data;
 		},
 
 		getFooterHTML: function () {

@@ -13,6 +13,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
 *	- bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *	- overlay should be displayed where more space (on top or on bottom)
+* 	- write and article how to replace certail framework functions
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
@@ -810,8 +811,9 @@ w2utils.keyboard = (function (obj) {
 	// private scope
 	var w2ui_name = null;
 
-	obj.register	= register;
 	obj.active	 	= active;
+	obj.clear 		= clear;
+	obj.register	= register;
 
 	init();
 	return obj;
@@ -839,13 +841,16 @@ w2utils.keyboard = (function (obj) {
 		}
 	}
 
-	function register () {
-
-	}
-
 	function active (new_w2ui_name) {
 		if (typeof new_w2ui_name == 'undefined') return w2ui_name;
 		w2ui_name = new_w2ui_name;
+	}
+
+	function clear () {
+		w2ui_name = null;
+	}
+
+	function register () {
 	}
 
 })({});
@@ -1024,24 +1029,26 @@ w2utils.keyboard = (function (obj) {
 		}
 
 		// need time to display
-		setTimeout(function () {
+		setTimeout(fixSize, 0);
+		return $(this);
+
+		function fixSize () {
 			$(document).on('click', hide);
-			// if goes over the screen, limit height
+			// if goes over the screen, limit height and width
 			if ( $('#w2ui-overlay > div').length > 0) {
 				var h = $('#w2ui-overlay > div').height();
 				var w = $('#w2ui-overlay> div').width();
-				var max = $(window).height() - $('#w2ui-overlay > div').offset().top - 7;
+				// $(window).height() - has a problem in FF20
+				var max = window.innerHeight - $('#w2ui-overlay > div').offset().top - 7;
 				if (h > max) $('#w2ui-overlay> div').height(max).width(w + w2utils.scrollBarSize()).css({ 'overflow-y': 'auto' });
 				// check width
 				w = $('#w2ui-overlay> div').width();
-				max = $(window).width() - $('#w2ui-overlay > div').offset().left - 7;
+				max = window.innerWidth - $('#w2ui-overlay > div').offset().left - 7;
 				if (w > max) $('#w2ui-overlay> div').width(max).css({ 'overflow-x': 'auto' });
+				// onShow event
+				if (typeof options.onShow == 'function') options.onShow();
 			}
-			// onShow
-			if (typeof options.onShow == 'function') options.onShow();
-		}, 1);
-
-		return $(this);
+		}
 	}
 
 	$.fn.w2menu = function (menu, options) {

@@ -3,11 +3,12 @@
 *   - Following objects defined
 * 		- w2ui.w2form 	- form widget
 *		- $.w2form		- jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2popup
+*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2alert
 *
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
+* 	- documentation update on field types
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
@@ -230,28 +231,7 @@
 				return false;
 			}
 			// need a time out because message might be already up)
-			setTimeout(function () {
-				if ($('#w2ui-popup').length > 0) {
-					$().w2popup('message', {
-						width 	: 370,
-						height 	: 140,
-						html 	: '<div class="w2ui-grid-error-msg" style="font-size: 11px;">ERROR: '+ msg +'</div>'+
-								  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center;">'+
-								  '	<input type="button" value="Ok" onclick="$().w2popup(\'message\');" class="w2ui-grid-popup-btn">'+
-								  '</div>'
-					});
-				} else {
-					$().w2popup('open', {
-						width 	: 420,
-						height 	: 200,
-						showMax : false,
-						title 	: 'Error',
-						body 	: '<div class="w2ui-grid-error-msg">'+ msg +'</div>',
-						buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\');" class="w2ui-grid-popup-btn">'
-					});
-				}
-				console.log('ERROR: ' + msg);
-			}, 1);
+			setTimeout(function () { w2alert(msg, 'Error');	}, 1);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -700,6 +680,7 @@
 			// default action
 			$(this.box).find('.w2ui-page').hide();
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
+			$(this.box).find('.w2ui-form-header').html(this.header);
 			// refresh tabs if needed
 			if (typeof this.tabs == 'object' && this.tabs.tabs.length > 0) {
 				$('#form_'+ this.name +'_tabs').show();

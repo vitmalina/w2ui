@@ -498,11 +498,13 @@
 								var previewHTML = "";
 								if ((/image/i).test(file.type)) { // image
 									previewHTML = '<div style="padding: 2px;">'+
-										'	<img src="##FILE##" onload="var w = $(this).width(); var h = $(this).height(); '+
-										'		if (w < 300 & h < 300) return; '+
-										'		if (w >= h && w > 300) $(this).width(300);'+
-										'		if (w < h && h > 300) $(this).height(300);'+
-										'	" onerror="this.style.display = \'none\'">'+
+										'	<img src="##FILE##" style="max-width: 300px;" '+
+										'		onload="var w = $(this).width(); var h = $(this).height(); '+
+										'			if (w < 300 & h < 300) return; '+
+										'			if (w >= h && w > 300) $(this).width(300);'+
+										'			if (w < h && h > 300) $(this).height(300);"'+
+										'		onerror="this.style.display = \'none\'"'+
+										'	>'+
 										'</div>';
 								}
 								var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
