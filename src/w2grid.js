@@ -1080,8 +1080,7 @@
 		reload: function (callBack) {
 			if (this.url != '') {
 				//this.refresh(); // show grid before pulling data
-				if (this.last.xhr_offset>0)
-					if (this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
+				if (this.last.xhr_offset > 0 && this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
 				this.request('get-records', {}, null, callBack);
 			} else {
 				this.refresh();
@@ -3061,7 +3060,8 @@
 			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' of ' +	w2utils.formatNumber(this.total) + 
 					(this.url != '' ? ' (buffered '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
 			);
-			if (!this.fixedBody || this.total <= 300) return; 
+			// only for local data source, else no extra records loaded
+			if (this.url == '' && (!this.fixedBody || this.total <= 300)) return;
 			// regular processing
 			var start 	= Math.floor(records[0].scrollTop / this.recordHeight) - this.show_extra;
 			var end		= start + Math.floor(records.height() / this.recordHeight) + this.show_extra * 2 + 1;

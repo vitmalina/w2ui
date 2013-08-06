@@ -28,8 +28,8 @@ $db->connect("127.0.0.1", "postgres", "", "postgres", "5432");
 switch ($_REQUEST['name']."::".$_REQUEST['cmd']) {
 
 	case 'grid::get-records':
-		$sql  = "SELECT * FROM people
-				 WHERE ~search~ ORDER BY ~sort~";
+		$sql  = "SELECT * FROM (SELECT * FROM people ORDER BY OID LIMIT 224) as sub
+				WHERE ~search~ ORDER BY ~sort~";
 		$res = $w2grid->getRecords($sql, null, $_REQUEST);
 		$w2grid->outputJSON($res);
 		break;
