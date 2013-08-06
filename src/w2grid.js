@@ -3302,6 +3302,7 @@
 		},
 
 		getCellData: function (record, col_ind) {
+			var ind  = this.get(record.recid, true);
 			var col  = this.columns[col_ind];
 			var data = this.parseObj(record, col.field);
 			var isChanged = record.changed && record.changes[col.field];
