@@ -237,10 +237,10 @@
 			}
 			switch (event.keyCode) {
 				case 27: 
+					event.preventDefault();
 					$().w2popup('close');
 					break;
 			}
-			event.preventDefault();
 		},
 		
 		close: function (options) {
