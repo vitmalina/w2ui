@@ -21,6 +21,7 @@
 *	- for search fields one should be able to pass w2field options
 *	- add enum to advanced search fields
 *	- cut and paste into excell
+*	- add searchFieldApply to easy add custom search fields (or somewho else)
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button

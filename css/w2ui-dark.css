@@ -41,6 +41,17 @@
   padding: 1px;
   height: 23px;
 }
+.w2ui-centered {
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+.w2ui-centered > div {
+  display: table-cell;
+  padding: 10px 20px 20px 10px;
+  text-align: center;
+  vertical-align: middle;
+}
 /*************************************************
 * ---- Input Controls ----
 */
@@ -1186,20 +1197,6 @@ select {
   color: #000000;
   background-color: #aec8ff;
 }
-#w2ui-popup .w2ui-grid-delete-msg {
-  padding: 20px 30px;
-  text-align: center;
-  line-height: 150%;
-}
-#w2ui-popup .w2ui-grid-error-msg {
-  padding: 20px 30px;
-  text-align: center;
-  line-height: 150%;
-}
-#w2ui-popup .w2ui-grid-popup-btn {
-  width: 60px;
-  margin-right: 5px;
-}
 .w2ui-overlay .w2ui-select-field {
   padding: 8px 5px;
   cursor: default;
@@ -1395,19 +1392,13 @@ select {
 .w2ui-popup .w2ui-msg-body {
   font-size: 13px;
   line-height: 130%;
-  padding: 7px;
+  padding: 0px 7px 7px 7px;
   color: #c0c8d5;
   background-color: #414b61;
   position: absolute;
   overflow: auto;
   width: 100%;
   height: 100%;
-}
-.w2ui-popup .w2ui-msg-body .w2ui-alert-body,
-.w2ui-popup .w2ui-msg-body .w2ui-confirm-body {
-  padding: 12px;
-  padding-right: 24px;
-  text-align: center;
 }
 .w2ui-popup .w2ui-popup-message {
   position: absolute;
@@ -1457,10 +1448,9 @@ select {
   color: white;
   background-color: #282F3E;
 }
-.w2ui-popup .w2ui-msg-buttons .w2ui-alert-button,
-.w2ui-popup .w2ui-msg-buttons .w2ui-confirm-button {
-  width: 60px;
-  margin-right: 5px;
+.w2ui-popup .w2ui-popup-button {
+  min-width: 60px;
+  margin: 0px 6px;
 }
 .w2ui-popup .w2ui-msg-no-title {
   border-top-left-radius: 6px;
