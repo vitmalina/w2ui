@@ -30,7 +30,7 @@
 		this.onResize	= null;
 		this.onDestroy	= null;
 
-		$.extend(true, this, options, w2obj.tabs);
+		$.extend(true, this, w2obj.tabs, options);
 	}
 	
 	// ====================================================

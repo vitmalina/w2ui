@@ -47,7 +47,7 @@
 		this.onResize 		= null;
 		this.onDestroy	 	= null;
 	
-		$.extend(true, this, options, w2obj.sidebar);
+		$.extend(true, this, w2obj.sidebar, options);
 	}
 	
 	// ====================================================

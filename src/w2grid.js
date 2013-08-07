@@ -182,7 +182,7 @@
 			navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
 			navigator.userAgent.toLowerCase().indexOf('ipad') != -1) ? true : false;
 
-		$.extend(true, this, options, w2obj.grid);
+		$.extend(true, this, w2obj.grid, options);
 	};
 
 	// ====================================================

@@ -67,7 +67,7 @@
 			xhr	: null		// jquery xhr requests
 		}
 
-		$.extend(true, this, options, w2obj.form);
+		$.extend(true, this, w2obj.form, options);
 	};
 	
 	// ====================================================

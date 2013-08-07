@@ -26,7 +26,7 @@
 		this.onResize   = null,
 		this.onDestroy  = null
 	
-		$.extend(true, this, options, w2obj.toolbar);
+		$.extend(true, this, w2obj.toolbar, options);
 	}
 	
 	// ====================================================

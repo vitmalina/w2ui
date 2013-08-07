@@ -14,7 +14,8 @@
 *	- keyboard esc - close
 *	- w2confirmt() - enter - yes, esc - no
 *	- added onKeyboard event listener
-*	= added callBack to w2alert(msg, title, callBack)
+*	- added callBack to w2alert(msg, title, callBack)
+*	- renamed doKeydown to keydown()
 *
 ************************************************************************/
 
@@ -222,13 +223,13 @@
 			w2utils.keyboard.active(null);
 			$('#w2ui-popup').data('options', options);
 			// keyboard events 
-			if (options.keyboard) $(document).on('keydown', this.doKeydown);
+			if (options.keyboard) $(document).on('keydown', this.keydown);
 			// finalize
 			this.initMove();			
 			return this;		
 		},
 
-		doKeydown: function (event) {
+		keydown: function (event) {
 			var options = $('#w2ui-popup').data('options');
 			if (!options.keyboard) return;
 			if (typeof options.onKeyboard == 'function') { 
@@ -273,7 +274,7 @@
 			// restore active
 			w2utils.keyboard.active(options._last_w2ui_name);
 			// remove keyboard events
-			if (options.keyboard) $(document).off('keydown', this.doKeydown);			
+			if (options.keyboard) $(document).off('keydown', this.keydown);			
 		},
 		
 		toggle: function () {
