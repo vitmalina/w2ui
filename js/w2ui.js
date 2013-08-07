@@ -1175,7 +1175,7 @@ w2utils.keyboard = (function (obj) {
 *	- renames: doClick -> click, doDblClick -> dblClick, doEditField -> editField, doScroll -> scroll, doSort -> sort
 * 	- added status()
 *	- added copy(), paste()
-*	- added getCellData(record, col_ind)
+*	- added getCellData(record, ind, col_ind)
 *
 ************************************************************************/
 
@@ -1284,7 +1284,7 @@ w2utils.keyboard = (function (obj) {
 			navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
 			navigator.userAgent.toLowerCase().indexOf('ipad') != -1) ? true : false;
 
-		$.extend(true, this, options, w2obj.grid);
+		$.extend(true, this, w2obj.grid, options);
 	};
 
 	// ====================================================
@@ -3045,11 +3045,11 @@ w2utils.keyboard = (function (obj) {
 			var sel = this.getSelection();
 			var text = '';
 			for (var s in sel) {
-				var rec = this.get(sel[s]);
+				var rec = this.get(sel[s], true);
 				for (var c in this.columns) {
 					var col = this.columns[c];
 					if (col.hidden === true) continue;
-					text += this.getCellData(rec, c) + '\t';
+					text += this.getCellData(this.records[ind], ind, c) + '\t';
 				}
 				text += '\n';
 			}
@@ -3745,7 +3745,7 @@ w2utils.keyboard = (function (obj) {
 				if (this.fixedBody) {
 					for (var di = this.buffered; di <= max; di++) {
 						var html  = '';
-						html += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'">';
+						html += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'px">';
 						if (this.show.lineNumbers)  html += '<td class="w2ui-col-number"></td>';
 						if (this.show.selectColumn) html += '<td class="w2ui-grid-data w2ui-col-select"></td>';
 						if (this.show.expandColumn) html += '<td class="w2ui-grid-data w2ui-col-expand"></td>';
@@ -4361,21 +4361,13 @@ w2utils.keyboard = (function (obj) {
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
 				var isChanged = record.changed && record.changes[col.field];
-				var data 	  = this.getCellData(record, col_ind);
+				var rec_cell  = this.getCellData(record, ind, col_ind);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
 					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle = 'text-align: right';
 					if ($.inArray(tmp[0], ['date', 'age']) != -1) addStyle = 'text-align: center';
 				}
-
-				// title overwrite
-				var title = String(data).replace(/"/g, "''");
-				if (typeof col.title != 'undefined') {
-					if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
-					if (typeof col.title == 'string')   title = col.title;
-				}
-				var rec_cell = '<div title="'+ title +'">'+ data +'</div>';
 				var isCellSelected = false;
 				if (record.selected && $.inArray(col_ind, record.selectedColumns) != -1) isCellSelected = true;
 				rec_html += '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + (isChanged ? ' w2ui-changed' : '') +'" col="'+ col_ind +'" '+
@@ -4403,7 +4395,7 @@ w2utils.keyboard = (function (obj) {
 			return rec_html;
 		},
 
-		getCellData: function (record, col_ind) {
+		getCellData: function (record, ind, col_ind) {
 			var col  = this.columns[col_ind];
 			var data = this.parseObj(record, col.field);
 			var isChanged = record.changed && record.changes[col.field];
@@ -4434,6 +4426,14 @@ w2utils.keyboard = (function (obj) {
 						data = prefix + w2utils.age(data) + suffix;
 					}
 				}
+			} else {
+				// title overwrite
+				var title = String(data).replace(/"/g, "''");
+				if (typeof col.title != 'undefined') {
+					if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
+					if (typeof col.title == 'string')   title = col.title;
+				}
+				var data = '<div title="'+ title +'">'+ data +'</div>';				
 			}
 			if (data == null || typeof data == 'undefined') data = '';
 			return data;
@@ -4539,6 +4539,7 @@ w2utils.keyboard = (function (obj) {
 * == NICE TO HAVE ==
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
+*	- add panel title
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
@@ -4573,7 +4574,7 @@ w2utils.keyboard = (function (obj) {
 		this.onResize	= null;
 		this.onDestroy	= null
 		
-		$.extend(true, this, options, w2obj.layout);
+		$.extend(true, this, w2obj.layout, options);
 	};
 	
 	// ====================================================
@@ -5482,7 +5483,8 @@ w2utils.keyboard = (function (obj) {
 *	- keyboard esc - close
 *	- w2confirmt() - enter - yes, esc - no
 *	- added onKeyboard event listener
-*	= added callBack to w2alert(msg, title, callBack)
+*	- added callBack to w2alert(msg, title, callBack)
+*	- renamed doKeydown to keydown()
 *
 ************************************************************************/
 
@@ -5690,13 +5692,13 @@ w2utils.keyboard = (function (obj) {
 			w2utils.keyboard.active(null);
 			$('#w2ui-popup').data('options', options);
 			// keyboard events 
-			if (options.keyboard) $(document).on('keydown', this.doKeydown);
+			if (options.keyboard) $(document).on('keydown', this.keydown);
 			// finalize
 			this.initMove();			
 			return this;		
 		},
 
-		doKeydown: function (event) {
+		keydown: function (event) {
 			var options = $('#w2ui-popup').data('options');
 			if (!options.keyboard) return;
 			if (typeof options.onKeyboard == 'function') { 
@@ -5705,10 +5707,10 @@ w2utils.keyboard = (function (obj) {
 			}
 			switch (event.keyCode) {
 				case 27: 
+					event.preventDefault();
 					$().w2popup('close');
 					break;
 			}
-			event.preventDefault();
 		},
 		
 		close: function (options) {
@@ -5741,7 +5743,7 @@ w2utils.keyboard = (function (obj) {
 			// restore active
 			w2utils.keyboard.active(options._last_w2ui_name);
 			// remove keyboard events
-			if (options.keyboard) $(document).off('keydown', this.doKeydown);			
+			if (options.keyboard) $(document).off('keydown', this.keydown);			
 		},
 		
 		toggle: function () {
@@ -6146,7 +6148,7 @@ w2utils.keyboard = (function (obj) {
 		this.onResize	= null;
 		this.onDestroy	= null;
 
-		$.extend(true, this, options, w2obj.tabs);
+		$.extend(true, this, w2obj.tabs, options);
 	}
 	
 	// ====================================================
@@ -6549,7 +6551,7 @@ w2utils.keyboard = (function (obj) {
 		this.onResize   = null,
 		this.onDestroy  = null
 	
-		$.extend(true, this, options, w2obj.toolbar);
+		$.extend(true, this, w2obj.toolbar, options);
 	}
 	
 	// ====================================================
@@ -7070,7 +7072,7 @@ w2utils.keyboard = (function (obj) {
 		this.onResize 		= null;
 		this.onDestroy	 	= null;
 	
-		$.extend(true, this, options, w2obj.sidebar);
+		$.extend(true, this, w2obj.sidebar, options);
 	}
 	
 	// ====================================================
@@ -9001,7 +9003,7 @@ w2utils.keyboard = (function (obj) {
 			xhr	: null		// jquery xhr requests
 		}
 
-		$.extend(true, this, options, w2obj.form);
+		$.extend(true, this, w2obj.form, options);
 	};
 	
 	// ====================================================
