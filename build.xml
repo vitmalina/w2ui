@@ -12,16 +12,15 @@
 
 	<target name="css">
 		<!-- Compile w2ui.less files -->
-		<echo message="LESS: css/less/w2ui.less ==> css/w2ui.css"/>
+		<echo message="LESS: src/less/w2ui.less ==> css/w2ui.css"/>
 		<exec executable="lessc" osfamily="unix">
-			<arg value="css/less/w2ui.less"/>
+			<arg value="src/less/w2ui.less"/>
 			<arg value="css/w2ui.css"/>
 		</exec>
-
 		<exec executable="cmd" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="lessc"/>
-		  <arg value="css/less/w2ui.less"/>
+		  <arg value="src/less/w2ui.less"/>
 		  <arg value="css/w2ui.css"/>
 		</exec>
 
@@ -30,7 +29,6 @@
 		<exec executable="cleancss" output="css/w2ui.min.css" osfamily="unix">
 			<arg value="css/w2ui.css"/>
 		</exec>
-
 		<exec executable="cmd" output="css/w2ui.min.css" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="lessc"/>
@@ -43,16 +41,15 @@
 		</replaceregexp>
 
 		<!-- Compile w2ui-dark.less files -->
-		<echo message="LESS: css/less/w2ui-dark.less ==> css/w2ui-dark.css"/>
+		<echo message="LESS: src/less/w2ui-dark.less ==> css/w2ui-dark.css"/>
 		<exec executable="lessc" osfamily="unix">
-			<arg value="css/less/w2ui-dark.less"/>
+			<arg value="src/less/w2ui-dark.less"/>
 			<arg value="css/w2ui-dark.css"/>
 		</exec>
-
 		<exec executable="cmd" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="lessc"/>
-		  <arg value="css/less/w2ui-dark.less"/>
+		  <arg value="src/less/w2ui-dark.less"/>
 		  <arg value="css/w2ui-dark.css"/>
 		</exec>
 
@@ -61,7 +58,6 @@
 		<exec executable="cleancss" output="css/w2ui-dark.min.css" osfamily="unix">
 			<arg value="css/w2ui-dark.css"/>
 		</exec>
-
 		<exec executable="cmd" output="css/w2ui-dark.min.css" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="cleancss"/>
