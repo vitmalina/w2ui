@@ -73,7 +73,7 @@
 *	- renames: doClick -> click, doDblClick -> dblClick, doEditField -> editField, doScroll -> scroll, doSort -> sort
 * 	- added status()
 *	- added copy(), paste()
-*	- added getCellData(record, col_ind)
+*	- added getCellData(record, ind, col_ind)
 *
 ************************************************************************/
 
@@ -1943,11 +1943,11 @@
 			var sel = this.getSelection();
 			var text = '';
 			for (var s in sel) {
-				var rec = this.get(sel[s]);
+				var rec = this.get(sel[s], true);
 				for (var c in this.columns) {
 					var col = this.columns[c];
 					if (col.hidden === true) continue;
-					text += this.getCellData(rec, c) + '\t';
+					text += this.getCellData(this.records[ind], ind, c) + '\t';
 				}
 				text += '\n';
 			}
@@ -2643,7 +2643,7 @@
 				if (this.fixedBody) {
 					for (var di = this.buffered; di <= max; di++) {
 						var html  = '';
-						html += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'">';
+						html += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'px">';
 						if (this.show.lineNumbers)  html += '<td class="w2ui-col-number"></td>';
 						if (this.show.selectColumn) html += '<td class="w2ui-grid-data w2ui-col-select"></td>';
 						if (this.show.expandColumn) html += '<td class="w2ui-grid-data w2ui-col-expand"></td>';
@@ -3259,21 +3259,13 @@
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
 				var isChanged = record.changed && record.changes[col.field];
-				var data 	  = this.getCellData(record, col_ind);
+				var rec_cell  = this.getCellData(record, ind, col_ind);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
 					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle = 'text-align: right';
 					if ($.inArray(tmp[0], ['date', 'age']) != -1) addStyle = 'text-align: center';
 				}
-
-				// title overwrite
-				var title = String(data).replace(/"/g, "''");
-				if (typeof col.title != 'undefined') {
-					if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
-					if (typeof col.title == 'string')   title = col.title;
-				}
-				var rec_cell = '<div title="'+ title +'">'+ data +'</div>';
 				var isCellSelected = false;
 				if (record.selected && $.inArray(col_ind, record.selectedColumns) != -1) isCellSelected = true;
 				rec_html += '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + (isChanged ? ' w2ui-changed' : '') +'" col="'+ col_ind +'" '+
@@ -3301,8 +3293,7 @@
 			return rec_html;
 		},
 
-		getCellData: function (record, col_ind) {
-			var ind  = this.get(record.recid, true);
+		getCellData: function (record, ind, col_ind) {
 			var col  = this.columns[col_ind];
 			var data = this.parseObj(record, col.field);
 			var isChanged = record.changed && record.changes[col.field];
@@ -3333,6 +3324,14 @@
 						data = prefix + w2utils.age(data) + suffix;
 					}
 				}
+			} else {
+				// title overwrite
+				var title = String(data).replace(/"/g, "''");
+				if (typeof col.title != 'undefined') {
+					if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
+					if (typeof col.title == 'string')   title = col.title;
+				}
+				var data = '<div title="'+ title +'">'+ data +'</div>';				
 			}
 			if (data == null || typeof data == 'undefined') data = '';
 			return data;

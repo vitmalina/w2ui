@@ -31,6 +31,7 @@ $(function () {
 		postData: {
 			"admin": 'somename'
 		},
+		recordHeight: 40,
 		//selectType: 'cell',
 		onChange1: function () { console.log(arguments); },
 		//autoLoad: false,
@@ -66,7 +67,12 @@ $(function () {
 		],
 		columns: [				
 			{ field: 'personid', caption: 'ID', size: '100px', sortable: true, resizable: true, searchable: 'int', editable: { type: 'text' } },
-			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, searchable: true, editable: { type: 'text' } },
+			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, 
+				render: function (record, ind, ind_col) {
+					return '<div style="height: 40px; border: 1px solid red;"></div>';
+				},
+				searchable: true, editable: { type: 'text' } 
+			},
 			{ field: 'lname', caption: 'Last Name', size: '200px', sortable: true, resizable: true, searchable: true, editable: { type: 'text' } },
 			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, editable: { type: 'text' } },
 			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, searchable: 'int', render: 'percent', editable: { type: 'text' } },
