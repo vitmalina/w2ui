@@ -1339,6 +1339,7 @@
 			var val = (rec.changed && rec.changes[col.field] ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
 			var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
 			if ($.inArray(col.render, ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle += 'text-align: right;';
+			if (val == null || typeof val == 'undefined') val = '';
 			el.addClass('w2ui-editable')
 				.html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" value="'+ val +'" type="text"  '+
 					'	style="'+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
@@ -1354,7 +1355,7 @@
 						// default action
 						rec.changed = true;
 						rec.changes = rec.changes || {};
-						rec.changes[col.field] = this.value;
+						rec.changes[col.field] = typeof this.value != 'undefined' ? this.value : '';
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					} else {
@@ -1369,37 +1370,71 @@
 					switch (event.keyCode) {
 						case 9:  // tab
 							cancel = true;
-							var next = event.shiftKey ? findPrev(column) : findNext(column);
+							var next = event.shiftKey ? prevCell(column) : nextCell(column);
 							if (next != column) {
 								this.blur();						
 								setTimeout(function () { obj.editField(recid, next); }, 1);
 							}
-							function findNext (check) {
-								var newCheck = check + 1;
-								if (obj.columns.length == newCheck) return check;
-								if (obj.columns[newCheck].hidden) return findNext(newCheck);
-								return newCheck;
-							}
-							function findPrev (check) {
-								var newCheck = check - 1;
-								if (newCheck < 0) return check;
-								if (obj.columns[newCheck].hidden) return findPrev(newCheck);
-								return newCheck;
-							}
 							break;
 
 						case 13: // enter
-							this.blur();
-							setTimeout(function () { obj.select({ recid: recid, columns: [column] }) }, 1);
+							cancel = true;
+							var next = event.shiftKey ? prevRow(index) : nextRow(index);
+							if (next != index) {
+								this.blur();						
+								setTimeout(function () { obj.editField(obj.records[next].recid, column); }, 1);
+							}
+							break;
+
+						case 38: // up arrow
+							cancel = true;
+							var next = prevRow(index);
+							if (next != index) {
+								this.blur();						
+								setTimeout(function () { obj.editField(obj.records[next].recid, column); }, 1);
+							}
+							break;
+
+						case 40: // down arrow
+							cancel = true;
+							var next = nextRow(index);
+							if (next != index) {
+								this.blur();						
+								setTimeout(function () { obj.editField(obj.records[next].recid, column); }, 1);
+							}
 							break;
 
 						case 27: // escape
-							this.value = (rec.changed && rec.changes[col.field]) ? rec.changes[col.field] : obj.parseObj(rec, col.field);
+							var old = (rec.changed && rec.changes[col.field]) ? rec.changes[col.field] : obj.parseObj(rec, col.field);
+							this.value = typeof old != 'undefined' ? old : '';
 							this.blur();
 							setTimeout(function () { obj.select({ recid: recid, columns: [column] }) }, 1);
 							break;
 					}
 					if (cancel) if (event.preventDefault) event.preventDefault();
+					// -- functions
+					function nextCell (check) {
+						var newCheck = check + 1;
+						if (obj.columns.length == newCheck) return check;
+						if (obj.columns[newCheck].hidden) return nextCell(newCheck);
+						return newCheck;
+					}
+					function prevCell (check) {
+						var newCheck = check - 1;
+						if (newCheck < 0) return check;
+						if (obj.columns[newCheck].hidden) return prevCell(newCheck);
+						return newCheck;
+					}
+					function nextRow (check) {
+						var newCheck = check + 1;
+						if (obj.records.length == newCheck) return check;
+						return newCheck;
+					}
+					function prevRow (check) {
+						var newCheck = check - 1;
+						if (newCheck < 0) return check;
+						return newCheck;
+					}
 				});
 		},
 
@@ -3299,6 +3334,7 @@
 			var isChanged = record.changed && record.changes[col.field];
 			if (isChanged) data = record.changes[col.field];
 			// various renderers
+			if (data == null || typeof data == 'undefined') data = '';
 			if (typeof col.render != 'undefined') {
 				if (typeof col.render == 'function') data = col.render.call(this, record, ind, col_ind);
 				if (typeof col.render == 'object')   data = col.render[data];
