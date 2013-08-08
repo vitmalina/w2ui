@@ -45,14 +45,35 @@ h2 {
 	width: 100%;
 	border: 0px;
 	background-color: #efefef;
+	line-height: 150%;
 }
+
+/* CODE MIRROR */
 
 .CodeMirror {
 	font-size: 12px;
-	overflow: auto;
 	margin-top: 10px;
 	margin-bottom: 20px;
+	border: 1px solid #ddd;
+	border-radius: 2px;
 }
+
+.CodeMirror * {
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+}
+
+.CodeMirror-lines {
+	line-height: 150%;
+	background-color: #fcfcfc;
+}
+
+.CodeMirror-code > div:nth-child(odd) {
+	background-color: #fff;
+}
+
+/* ------------ */
 
 table.list {
 	margin: 20px 0px;

@@ -136,135 +136,127 @@ $(function () {
 			if (parseInt(cmd.substr(cmd.length-1)) != cmd.substr(cmd.length-1)) return;
 			var tmp = w2ui['demo-sidebar'].get(cmd);
 			document.title = tmp.parent.text + ': ' + tmp.text + ' | w2ui';
+			// delete previously created items
+			for (var widget in w2ui) {
+				var nm = w2ui[widget].name;
+				if (['main_layout', 'demo-sidebar'].indexOf(nm) == -1) $().w2destroy(nm);
+			}
+			// set hash
 			if (tmp.parent && tmp.parent.id != '') {
 				var pid = w2ui['demo-sidebar'].get(cmd).parent.id;
 				document.location.hash = '!'+ pid + '/' + cmd;
 			}
+			// load example
 			$.get('examples/'+ cmd +'.html', function (data) {
-				w2ui['main_layout'].content('main', data);
-				// html preview
-				if ($('#example_html .preview').length > 0) {
-					var ta = $('#example_html .preview')[0];
-					$(ta).height(ta.scrollHeight + 2);
-					var codeMissor1 = CodeMirror(
-						function(elt) {
-							$('#example_html .preview')[0].parentNode.replaceChild(elt, $('#example_html .preview')[0]);
-						}, {
-							value: $.trim($('#example_html .preview')[0].value),
-							mode: "text/html",
-							readOnly: true,
-							gutter: true,
-							lineNumbers: true
+				var tmp = data.split('<!--CODE-->');
+				if (tmp.length == 1) {
+					alert('ERORR: cannot parse example.');
+					console.log('ERORR: cannot parse example.', data);
+					return;
+				}
+				var html = tmp[1] ? $.trim(tmp[1]) : '';
+				var js   = tmp[2] ? $.trim(tmp[2]) : '';
+				var css  = tmp[3] ? $.trim(tmp[3]) : '';
+				w2ui['main_layout'].content('main', tmp[0]);
+				$('#example_view').html(
+						'<h2>Preview</h2>'+ html + 
+						'<script type="text/javascript">' + js +'</script>' + 
+						'<style>' + css + '</style>');
+				var code = '<!DOCTYPE html>\n'+
+						   '<html>\n'+
+						   '<head>\n'+
+						   '	<title>W2UI Demo: '+ cmd +'</title>\n'+
+						   '	<link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui.min.css" />\n'+
+						   '	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>\n'+
+						   '	<script type="text/javascript" src="//w2ui.com/src/w2ui.min.js"></script>\n'+
+						   '</head>\n'+
+						   '<body>\n\n'+
+						   html + '\n\n'+
+						   (js != '' ? '<script type="text/javascript">\n' + js + '\n</script>\n\n' : '') +
+						   (css != '' ? '<style>\n' + css + '</style>\n\n' : '') + 
+						   '</body>\n'+
+						   '</html>';
+				$('#example_code').html('<h2>Complete Code '+
+					'<span style="font-weight: normal; padding-left: 10px;">- &nbsp;&nbsp;Copy & paste into your editor or <a href="javascript:" class="jsfiddle">fiddle with code online</a></span> </h2>'+
+					'<textarea class="preview" id="code">'+ code +'</textarea>'+
+					'<div style="display: none">'+
+					'<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.x/" method="post">'+
+					'	<textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
+					'	<textarea name="resources">//w2ui.com/src/w2ui.min.js,//w2ui.com/src/w2ui.min.css</textarea>'+
+					'	<textarea name="html">'+ html +'</textarea>'+
+					'	<textarea name="js">'+ js +'</textarea>'+
+					'	<textarea name="css">'+ css +'</textarea>'+
+					'</form>'+
+					'</div>');
+				// CodeMirror
+				var text = $('#example_code .preview');
+				if (text.length > 0) {
+					var cm = CodeMirror(
+						function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
+						{
+   							value		: $.trim(text.val()),
+							mode		: "text/html",
+							readOnly	: true,
+							gutter		: true,
+							lineNumbers	: true
 						}
 					);
-				}
-				if ($('#example_js .preview').length > 0) {
-					var ta = $('#example_js .preview')[0];
-					$(ta).height(ta.scrollHeight + 2);
-					var codeMissor2 = CodeMirror(
-						function(elt) {
-					  		$('#example_js .preview')[0].parentNode.replaceChild(elt, $('#example_js .preview')[0]);
-						}, {
-							value: $.trim($('#example_js .preview')[0].value),
-							mode: "javascript",
-							readOnly: true,
-							gutter: true,
-							lineNumbers: true
-						}
-					);
-				}
-				if ($('#example_json .preview').length > 0) {
-					var ta = $('#example_json .preview')[0];
-					$(ta).height(ta.scrollHeight + 2);
-					var codeMissor3 = CodeMirror(
-						function(elt) {
-					  		$('#example_json .preview')[0].parentNode.replaceChild(elt, $('#example_json .preview')[0]);
-						}, {
-							value: $.trim($('#example_json .preview')[0].value),
-							mode: "javascript",
-							readOnly: true,
-							gutter: true,
-							lineNumbers: true
-						}
-					);
-				}
-				if ($('#example_html1 .preview').length > 0) {
-					var ta = $('#example_html1 .preview')[0];
-					$(ta).height(ta.scrollHeight + 2);
-					var codeMissor4 = CodeMirror(
-						function(elt) {
-							$('#example_html1 .preview')[0].parentNode.replaceChild(elt, $('#example_html1 .preview')[0]);
-						}, {
-							value: $.trim($('#example_html1 .preview')[0].value),
-							mode: "text/html",
-							readOnly: true,
-							gutter: true,
-							lineNumbers: true
-						}
-					);
-				}
-				if ($('#example_html2 .preview').length > 0) {
-					var ta = $('#example_html2 .preview')[0];
-					$(ta).height(ta.scrollHeight + 2);
-					var codeMissor5 = CodeMirror(
-						function(elt) {
-							$('#example_html2 .preview')[0].parentNode.replaceChild(elt, $('#example_html2 .preview')[0]);
-						}, {
-							value: $.trim($('#example_html2 .preview')[0].value),
-							mode: "text/html",
-							readOnly: true,
-							gutter: true,
-							lineNumbers: true
-						}
-					);
-				}
+					cm.setSize(null, cm.doc.height + 15);
+				}				
+				$('#example_code .jsfiddle').on('click', function () {
+					$('#fiddleForm textarea[name=html]').val(html);
+					$('#fiddleForm textarea[name=js]').val(js);
+					$('#fiddleForm textarea[name=css]').val(css);
+					$('#fiddleForm').submit();
+				});
 			});
 		}
 	}));
 
 	// check hash
-	var tmp = String(document.location.hash).split('/');
-	switch(tmp[0]) {
+	setTimeout(function () { 
+		var tmp = String(document.location.hash).split('/');
+		switch(tmp[0]) {
+			default:
+			case '#!layout':
+				w2ui['demo-sidebar'].expand('layout');
+				w2ui['demo-sidebar'].click(tmp[1] || 'layout-1');
+				break;
 
-		default:
-		case '#!layout':
-			w2ui['demo-sidebar'].expand('layout');
-			w2ui['demo-sidebar'].click(tmp[1] || 'layout-1');
-			break;
+			case '#!grid':
+				w2ui['demo-sidebar'].expand('grid');
+				w2ui['demo-sidebar'].click(tmp[1] || 'grid-1');
+				break;
 
-		case '#!grid':
-			w2ui['demo-sidebar'].expand('grid');
-			w2ui['demo-sidebar'].click(tmp[1] || 'grid-1');
-			break;
+			case '#!toolbar':
+				w2ui['demo-sidebar'].expand('toolbar');
+				w2ui['demo-sidebar'].click(tmp[1] || 'toolbar-1');
+				break;
 
-		case '#!toolbar':
-			w2ui['demo-sidebar'].expand('toolbar');
-			w2ui['demo-sidebar'].click(tmp[1] || 'toolbar-1');
-			break;
+			case '#!sidebar':
+				w2ui['demo-sidebar'].expand('sidebar');
+				w2ui['demo-sidebar'].click(tmp[1] || 'sidebar-1');
+				break;
 
-		case '#!sidebar':
-			w2ui['demo-sidebar'].expand('sidebar');
-			w2ui['demo-sidebar'].click(tmp[1] || 'sidebar-1');
-			break;
+			case '#!tabs':
+				w2ui['demo-sidebar'].expand('tabs');
+				w2ui['demo-sidebar'].click(tmp[1] || 'tabs-1');
+				break;
 
-		case '#!tabs':
-			w2ui['demo-sidebar'].expand('tabs');
-			w2ui['demo-sidebar'].click(tmp[1] || 'tabs-1');
-			break;
+			case '#!popup':
+				w2ui['demo-sidebar'].expand('popup');
+				w2ui['demo-sidebar'].click(tmp[1] || 'popup-1');
+				break;
 
-		case '#!popup':
-			w2ui['demo-sidebar'].expand('popup');
-			w2ui['demo-sidebar'].click(tmp[1] || 'popup-1');
-			break;
+			case '#!forms':
+				w2ui['demo-sidebar'].expand('forms');
+				w2ui['demo-sidebar'].click(tmp[1] || 'forms-1');
+				break;
 
-		case '#!forms':
-			w2ui['demo-sidebar'].expand('forms');
-			w2ui['demo-sidebar'].click(tmp[1] || 'forms-1');
-			break;
-
-		case '#!utils':
-			w2ui['demo-sidebar'].expand('utils');
-			w2ui['demo-sidebar'].click(tmp[1] || 'utils-1');
-			break;
-	};
+			case '#!utils':
+				w2ui['demo-sidebar'].expand('utils');
+				w2ui['demo-sidebar'].click(tmp[1] || 'utils-1');
+				break;
+		};
+	}, 100);
 });
