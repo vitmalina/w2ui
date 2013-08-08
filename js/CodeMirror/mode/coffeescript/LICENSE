@@ -1,4 +1,7 @@
-Copyright (C) 2013 by Marijn Haverbeke <marijnh@gmail.com>
+The MIT License
+
+Copyright (c) 2011 Jeff Pickhardt
+Modified from the Python CodeMirror mode, Copyright (c) 2010 Timothy Farrell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -17,7 +20,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-Please note that some subdirectories of the CodeMirror distribution
-include their own LICENSE files, and are released under different
-licences.
