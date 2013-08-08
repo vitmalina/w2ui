@@ -1,34 +1,18 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Event Listeners</h1>
 		As with any w2ui widget, the panel follows common event flow. In example below you can see how to listen to all events dispatched to 
 		the layout.
 	</div>
-	
-	<div id="example_view">
-		<input type="button" value="Clear Events" onclick="$('#eventList').html('');" style="width: 90px">
-		<div style="height: 10px"></div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
 
-		<div id="layout" style="width: 95%; height: 400px;"></div>
-		<br>
-		<input type="checkbox" id="instant" onclick="window.instant = this.checked;"> <label for="instant">Instant</label>
-		<div style="height: 10px;"></div>
-
-		<input type="button" value="Toggle Top" onclick="w2ui['layout'].toggle('top', window.instant)">
-		<input type="button" value="Toggle Left" onclick="w2ui['layout'].toggle('left', window.instant)">
-		<input type="button" value="Toggle Right" onclick="w2ui['layout'].toggle('right', window.instant)">
-		<input type="button" value="Toggle Preview" onclick="w2ui['layout'].toggle('preview', window.instant)">
-		<input type="button" value="Toggle Bottom" onclick="w2ui['layout'].toggle('bottom', window.instant)">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+<!--CODE-->
 <input type="button" value="Clear Events" onclick="$('#eventList').html('');" style="width: 90px">
 <div style="height: 10px"></div>
 
-<div id="layout" style="width: 95%; height: 400px;"></div>
+<div id="layout" style="width: 100%; height: 400px;"></div>
 <br>
 <input type="checkbox" id="instant" onclick="window.instant = this.checked;"> <label for="instant">Instant</label>
 <div style="height: 10px;"></div>
@@ -38,40 +22,10 @@
 <input type="button" value="Toggle Right" onclick="w2ui['layout'].toggle('right', window.instant)">
 <input type="button" value="Toggle Preview" onclick="w2ui['layout'].toggle('preview', window.instant)">
 <input type="button" value="Toggle Bottom" onclick="w2ui['layout'].toggle('bottom', window.instant)">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-var instant = false;
-var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-$('#layout').w2layout({
-	name: 'layout',
-	panels: [
-		{ type: 'top', size: 50, resizable: true, hidden: true, style: pstyle, content: 'top' },
-		{ type: 'left', size: 200, resizable: true, hidden: true, style: pstyle, content: 'left' },
-		{ type: 'main', style: pstyle, content: '<div id="eventList"></div>' },
-		{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-		{ type: 'right', size: 200, resizable: true, hidden: true, style: pstyle, content: 'right' },
-		{ type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
-	]
-});
-w2ui['layout'].on('*', function (target, data) {
-	console.log('Event: '+ data.type + ' Target: '+ target);
-	console.log(data);
-	var log = $('#eventList').html();
-	$('#eventList').html( log + (log != '' ? '<br>' : '') + data.type + ': '+ target);
-});
-		</textarea>
-	</div>
-</div>
 
-<script>
+<!--CODE-->
 var instant = false;
-$(document).ready(function () {
-	$().w2destroy('layout');
-	
+$(function () {	
 	var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
 	$('#layout').w2layout({
 		name: 'layout',
@@ -91,4 +45,3 @@ $(document).ready(function () {
 		$('#eventList').html( log + (log != '' ? '<br>' : '') + data.type + ': '+ target);
 	});
 });
-</script>

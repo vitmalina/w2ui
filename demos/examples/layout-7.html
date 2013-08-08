@@ -1,36 +1,15 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Nested Layouts</h1>
 		If 6 panels are not enough for you, you can create nested layouts by assigning a layout to a panel. There is no limit how deep 
 		you can go, but be reasonable :). In the example below the nested layout is yellow.
 	</div>
-	
-	<div id="example_view">
-		<div id="layout" style="width: 95%; height: 400px;"></div>
-		<div style="height: 20px;"></div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
 
-		<span style="display: inline-block; width: 60px;"> Main: </span>
-		<input type="button" value="Toggle Top" onclick="w2ui['layout'].toggle('top')">
-		<input type="button" value="Toggle Left" onclick="w2ui['layout'].toggle('left')">
-		<input type="button" value="Toggle Right" onclick="w2ui['layout'].toggle('right')">
-		<input type="button" value="Toggle Preview" onclick="w2ui['layout'].toggle('preview')">
-		<input type="button" value="Toggle Bottom" onclick="w2ui['layout'].toggle('bottom')">
-
-		<div style="height: 10px;"></div>
-
-		<span style="display: inline-block; width: 60px;"> Nested: </span>
-		<input type="button" value="Toggle Top" onclick="w2ui['layout2'].toggle('top')">
-		<input type="button" value="Toggle Left" onclick="w2ui['layout2'].toggle('left')">
-		<input type="button" value="Toggle Right" onclick="w2ui['layout2'].toggle('right')">
-		<input type="button" value="Toggle Preview" onclick="w2ui['layout2'].toggle('preview')">
-		<input type="button" value="Toggle Bottom" onclick="w2ui['layout2'].toggle('bottom')">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="layout" style="width: 95%; height: 400px;"></div>
+<!--CODE-->
+<div id="layout" style="width: 100%; height: 400px;"></div>
 <div style="height: 20px;"></div>
 
 <span style="display: inline-block; width: 60px;"> Main: </span>
@@ -48,47 +27,9 @@
 <input type="button" value="Toggle Right" onclick="w2ui['layout2'].toggle('right')">
 <input type="button" value="Toggle Preview" onclick="w2ui['layout2'].toggle('preview')">
 <input type="button" value="Toggle Bottom" onclick="w2ui['layout2'].toggle('bottom')">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-$('#layout').w2layout({
-	name: 'layout',
-	panels: [
-		{ type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
-		{ type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
-		{ type: 'main', overflow: 'hidden' },
-		{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-		{ type: 'right', size: 200, resizable: true, style: pstyle, content: 'right' },
-		{ type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
-	]
-});
-var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-$().w2layout({
-	name: 'layout2',
-	panels: [
-		{ type: 'top', size: 40, resizable: true, style: pstyle, content: 'top' },
-		{ type: 'left', size: 80, resizable: true, style: pstyle, content: 'left' },
-		{ type: 'main', style: pstyle },
-		{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-		{ type: 'right', size: 80, resizable: true, style: pstyle, content: 'right' },
-		{ type: 'bottom', size: 40, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
-	]
-});
 
-w2ui['layout'].content('main', w2ui['layout2']);
-		</textarea>
-	</div>
-</div>
-
-<script>
-$(document).ready(function () {
-	$().w2destroy('layout');
-	$().w2destroy('layout2');
-
+<!--CODE-->
+$(function () {
 	var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
 	$('#layout').w2layout({
 		name: 'layout',
@@ -116,4 +57,3 @@ $(document).ready(function () {
 	
 	w2ui['layout'].content('main', w2ui['layout2']);
 });
-</script>

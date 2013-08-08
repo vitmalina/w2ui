@@ -1,63 +1,19 @@
-<div class="content">	
+<div class="content">
 	<div id="example_title">
 		<h1>Panel with Toolbar</h1>
 		A layout panel may be created with a toolbar. It uses w2toolbar object, therefore, you can use anything w2toolbar support. There
 		is no need to define a name of the toolbar, because it will be overwritten with layout.name + '_toolbar'. It will also add toolbar.owner
 		attribute that is a reference to the layout.
 	</div>
-	
-	<div id="example_view">
-		<div id="layout" style="width: 95%; height: 400px;"></div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="layout" style="width: 95%; height: 400px;"></div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-$().w2destroy('layout');	
-var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-$('#layout').w2layout({
-	name: 'layout',
-	panels: [
-		{ type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
-		{ type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
-		{ type: 'main', style: pstyle + 'border-top: 0px;', content: 'contet', 
-			toolbar: {
-				items: [
-					{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
-					{ type: 'break',  id: 'break0' },
-					{ type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
-						{ text: 'Item 1', icon: 'icon-page' }, 
-						{ text: 'Item 2', icon: 'icon-page' }, 
-						{ text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
-					]},
-					{ type: 'break', id: 'break1' },
-					{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add', hint: 'Hint for item 3', checked: true },
-					{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add', hint: 'Hint for item 4' },
-					{ type: 'spacer' },
-					{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save', hint: 'Hint for item 5' }
-				],
-				onClick: function (target, data) {
-					this.owner.content('main', target);
-				}
-			}
-		}
-	]
-});
-		</textarea>
-	</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-<script>
-$(document).ready(function () {	
-	$().w2destroy('layout');	
+<!--CODE-->
+<div id="layout" style="width: 100%; height: 400px;"></div>
+
+<!--CODE-->
+$(function () {	
 	var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
 	$('#layout').w2layout({
 		name: 'layout',
@@ -88,4 +44,3 @@ $(document).ready(function () {
 		]
 	});
 });
-</script>

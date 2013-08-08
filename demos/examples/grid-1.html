@@ -1,5 +1,4 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Simple Grid</h1>
 		The grid object below displays data loaded from a url in JSON format. As you see the grid is extremely simple to use and easy
@@ -8,61 +7,15 @@
 		You can define the size of the columns in % or px or both at the same time. When % and px are defined, it will first assign width 
 		to the columns defined in px, then it will calculate the size of the column in % based on the remaining px.
 	</div>
-	
-	<div id="example_view">
-		<div id="grid" style="width: 100%; height: 350px;"></div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
+
+<!--CODE-->
 <div id="grid" style="width: 100%; height: 350px;"></div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#grid').w2grid({ 
-	name: 'grid', 
-	url: 'data/list.json',
-	columns: [				
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '120px' }
-	]
-});		
-		</textarea>
-	</div>
-	
-	<div id="example_json">
-		<h2>JSON: data/list.json.js</h2>
-		<textarea class="preview">
-{
-	total: 9,
-	page: 1,
-	records: [
-		{ recid: 11, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 13, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 14, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 15, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 16, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 17, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 18, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 19, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-	]
-}
-	</textarea>
-</div>
 
-</div>
-
-<script>
+<!--CODE-->
 $(function () {
-	$().w2destroy('grid');
-	
 	$('#grid').w2grid({ 
 		name: 'grid', 
 		url: 'data/list.json',
@@ -74,4 +27,3 @@ $(function () {
 		]
 	});	
 });
-</script>
