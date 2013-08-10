@@ -26,6 +26,17 @@ $(function () {
 		name: 'demo-sidebar',
 		img: null,
 		nodes: [ 
+			{ id: 'combo', text: 'Combinations', img: 'icon-folder', group1: true,
+				nodes: [
+					{ id: 'combo-1', text: 'Sidebar & Grid', icon: 'fa-star-empty' },
+					{ id: 'combo-2', text: 'Grid & Edit', icon: 'fa-star-empty' },
+					{ id: 'combo-5', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
+					{ id: 'combo-6', text: 'Tabs With Content', icon: 'fa-star-empty' },
+					{ id: 'combo-7', text: 'Tabs & Other Elements', icon: 'fa-star-empty' },
+					{ id: 'combo-3', text: 'Popup & Grid', icon: 'fa-star-empty' },
+					{ id: 'combo-4', text: 'Popup & Layout', icon: 'fa-star-empty' },
+				]
+			},
 			{ id: 'layout', text: 'Layout', img: 'icon-folder', group1: true,
 				nodes: [
 					{ id: 'layout-1', text: 'Simple Layout', icon: 'fa-columns' },
@@ -218,6 +229,10 @@ $(function () {
 		var tmp = String(document.location.hash).split('/');
 		switch(tmp[0]) {
 			default:
+			case '#!combo':
+				w2ui['demo-sidebar'].expand('combo');
+				w2ui['demo-sidebar'].click(tmp[1] || 'combo-1');
+				break;
 			case '#!layout':
 				w2ui['demo-sidebar'].expand('layout');
 				w2ui['demo-sidebar'].click(tmp[1] || 'layout-1');
