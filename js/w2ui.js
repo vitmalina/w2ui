@@ -4183,7 +4183,7 @@ w2utils.keyboard = (function (obj) {
 			var time = (new Date()).getTime();
 			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
-			if (this.records.length == 0) return;
+			if (this.records.length == 0 || records.height()==0) return;
 			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
 			// need this to enable scrolling when this.limit < then a screen can fit
 			if (records.height() < this.buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
@@ -4933,11 +4933,11 @@ w2utils.keyboard = (function (obj) {
 			}
 			$(obj.box).find(' > div')
 				.append('<style id="layout_'+ obj.name + '_panel_css" style="position: absolute; top: 10000px;">'+ obj.css +'</style>');		
+			obj.refresh(); // if refresh is not called here, the layout will not be available right after initialization
 			// process event
 			obj.trigger($.extend(eventData, { phase: 'after' }));	
 			// reinit events
 			setTimeout(function () { // needed this timeout to allow browser to render first if there are tabs or toolbar
-				obj.refresh();
 				obj.resize();
 				obj.initEvents();
 			}, 0);
@@ -5289,9 +5289,9 @@ w2utils.keyboard = (function (obj) {
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			
-			$(window).off('resize', this.events.resize);
-			$(document).off('mousemove', this.events.mousemove);
-			$(document).off('mouseup', this.events.mouseup);
+			if (this.events && this.events.resize) 		$(window).off('resize', this.events.resize);
+			if (this.events && this.events.mousemove) 	$(document).off('mousemove', this.events.mousemove);
+			if (this.events && this.events.mouseup) 	$(document).off('mouseup', this.events.mouseup);
 			
 			return true;
 		},
@@ -9568,7 +9568,7 @@ w2utils.keyboard = (function (obj) {
 			for (var p in pages) pages[p] += '\n</div>';
 			// buttons if any
 			var buttons = '';
-			if (this.actions.length > 0) {
+			if (!$.isEmptyObject(this.actions)) {
 				buttons += '\n<div class="w2ui-buttons">';
 				for (var a in this.actions) {
 					buttons += '\n    <input type="button" value="'+ a +'" name="'+ a +'">';
