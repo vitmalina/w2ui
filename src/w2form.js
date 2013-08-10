@@ -596,7 +596,7 @@
 			for (var p in pages) pages[p] += '\n</div>';
 			// buttons if any
 			var buttons = '';
-			if (this.actions.length > 0) {
+			if (!$.isEmptyObject(this.actions)) {
 				buttons += '\n<div class="w2ui-buttons">';
 				for (var a in this.actions) {
 					buttons += '\n    <input type="button" value="'+ a +'" name="'+ a +'">';

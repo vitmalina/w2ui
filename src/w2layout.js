@@ -366,11 +366,11 @@
 			}
 			$(obj.box).find(' > div')
 				.append('<style id="layout_'+ obj.name + '_panel_css" style="position: absolute; top: 10000px;">'+ obj.css +'</style>');		
+			obj.refresh(); // if refresh is not called here, the layout will not be available right after initialization
 			// process event
 			obj.trigger($.extend(eventData, { phase: 'after' }));	
 			// reinit events
 			setTimeout(function () { // needed this timeout to allow browser to render first if there are tabs or toolbar
-				obj.refresh();
 				obj.resize();
 				obj.initEvents();
 			}, 0);
@@ -722,9 +722,9 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			
-			$(window).off('resize', this.events.resize);
-			$(document).off('mousemove', this.events.mousemove);
-			$(document).off('mouseup', this.events.mouseup);
+			if (this.events && this.events.resize) 		$(window).off('resize', this.events.resize);
+			if (this.events && this.events.mousemove) 	$(document).off('mousemove', this.events.mousemove);
+			if (this.events && this.events.mouseup) 	$(document).off('mouseup', this.events.mouseup);
 			
 			return true;
 		},
