@@ -31,8 +31,7 @@ $(function () {
 		postData: {
 			"admin": 'somename'
 		},
-		recordHeight: 40,
-		//selectType: 'cell',
+		selectType: 'cell',
 		onChange1: function () { console.log(arguments); },
 		//autoLoad: false,
 		//offset: 99700,
@@ -68,9 +67,6 @@ $(function () {
 		columns: [				
 			{ field: 'personid', caption: 'ID', size: '100px', sortable: true, resizable: true, searchable: 'int', editable: { type: 'text' } },
 			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, 
-				render: function (record, ind, ind_col) {
-					return '<div style="height: 40px; border: 1px solid red;"></div>';
-				},
 				searchable: true, editable: { type: 'text' } 
 			},
 			{ field: 'lname', caption: 'Last Name', size: '200px', sortable: true, resizable: true, searchable: true, editable: { type: 'text' } },
@@ -117,7 +113,7 @@ $(function () {
 	var fname = ['Vitali', '~Katsia', '!John', 'Peter', '#Sue', '$Olivia', '&lt;Thomas', '&gt;Sergei', 'Snehal', 'Avinash', 'Divia'];
 	var lname = ['Peterson', 'Rene', 'Johnson-Petrov-Sannikov-Ivanov-Smirnov', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
 	// add 10k records
-	for (var i = 0; i < 5; i++) {
+	for (var i = 0; i < 2500; i++) {
 		w2ui['grid'].records.push({ 
 			recid : i+1,
 			personid: i+1,

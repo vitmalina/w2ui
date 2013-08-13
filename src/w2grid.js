@@ -74,6 +74,7 @@
 * 	- added status()
 *	- added copy(), paste()
 *	- added getCellData(record, ind, col_ind)
+*	- added selectType = 'cell' then, it shows cell selection
 *
 ************************************************************************/
 
@@ -3350,14 +3351,14 @@
 						if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
 						if (tmp[0] == 'int')	 { tmp[1] = 0; }
 						// format
-						data = prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix;
+						data = '<div>' + prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix + '</div>';
 					}
 					if (tmp[0] == 'date') {
 						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
-						data = prefix + w2utils.formatDate(data, tmp[1]) + suffix;
+						data = '<div>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
 					}
 					if (tmp[0] == 'age') {
-						data = prefix + w2utils.age(data) + suffix;
+						data = '<div>' + prefix + w2utils.age(data) + suffix + '</div>';
 					}
 				}
 			} else {
