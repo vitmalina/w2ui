@@ -446,7 +446,7 @@
 				params['name'] 	 = obj.name;
 				params['recid']  = obj.recid;
 				// append other params
-				$.extend(params, this.postData);
+				$.extend(params, obj.postData);
 				$.extend(params, postData);
 				params.record = $.extend(true, {}, obj.record);
 				// convert  before submitting 
