@@ -170,7 +170,7 @@ var w2utils = (function () {
 			amount = Math.floor(sec/60/60);
 			type   = 'hour';
 		} else if (sec < 30*24*60*60) {
-			amount = Math.floor(sec/24/60/60*10)/10;
+			amount = Math.floor(sec/24/60/60);
 			type   = 'day';
 		} else if (sec < 12*30*24*60*60) {
 			amount = Math.floor(sec/30/24/60/60*10)/10;
