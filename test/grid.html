@@ -21,7 +21,7 @@ $(function () {
 			header: true,
 			emptyRecords: true,
 			columnHeaders: true,
-			selectColumn: true,
+			selectColumn: false,
 			expandColumn: false,
 			lineNumbers: true,
 			toolbarDelete: false,
@@ -71,9 +71,16 @@ $(function () {
 			},
 			{ field: 'lname', caption: 'Last Name', size: '200px', sortable: true, resizable: true, searchable: true, editable: { type: 'text' } },
 			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, editable: { type: 'text' } },
-			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, searchable: 'int', render: 'percent', editable: { type: 'text' } },
-			{ field: 'sdate', caption: 'Date', size: '120px', resizable: true, sortable: true, searchable: 'date', render: 'date', editable: { type: 'text' } }
+			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, searchable: 'int', render1: 'percent', editable: { type: 'text' } },
+			{ field: 'sdate', caption: 'Date', size: '120px', resizable: true, sortable: true, searchable: 'date', render1: 'date', editable: { type: 'text' } }
 		],
+		onDelete: function (target, info) {
+			info.force = true;
+		},
+		onPaste: function (target, info) {
+			var grid = this;
+			info.onComplete = function () { grid.save(); }
+		},
 		onExpand1: function (target, data) {
 			if (w2ui['grid-'+ data.recid]) $().w2destroy('grid-'+ data.recid);
 			$('#'+ data.box_id).w2grid({ 
@@ -110,8 +117,8 @@ $(function () {
 	//w2ui.grid.reload();
 	//return;
 
-	var fname = ['Vitali', '~Katsia', '!John', 'Peter', '#Sue', '$Olivia', '&lt;Thomas', '&gt;Sergei', 'Snehal', 'Avinash', 'Divia'];
-	var lname = ['Peterson', 'Rene', 'Johnson-Petrov-Sannikov-Ivanov-Smirnov', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
+	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
+	var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
 	// add 10k records
 	for (var i = 0; i < 2500; i++) {
 		w2ui['grid'].records.push({ 

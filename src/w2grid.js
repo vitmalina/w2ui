@@ -69,10 +69,11 @@
 * 	- record.render(record, record_index, column_index)
 *	- added grid.scrollIntoView()
 *	- added render formatters (number, int, float, money, age, date)
-*	- renames: doAdd -> toolbarAdd, doEdit -> toolbarEdit, doSave -> toolbarSave, doDelete -> toolbarDelete
-*	- renames: doClick -> click, doDblClick -> dblClick, doEditField -> editField, doScroll -> scroll, doSort -> sort
+*	- deprecated: doAdd, doEdit
+*	- renames: doClick -> click, doDblClick -> dblClick, doEditField -> editField, doScroll -> scroll, doSort -> sort, doSave -> save, doDelete -> delete
 * 	- added status()
 *	- added copy(), paste()
+*	- added onCopy, onPaste events
 *	- added getCellData(record, ind, col_ind)
 *	- added selectType = 'cell' then, it shows cell selection
 *
@@ -155,6 +156,8 @@
 		this.onKeyboard			= null;
 		this.onToolbar			= null; 	// all events from toolbar
 		this.onColumnOnOff		= null;
+		this.onCopy				= null;
+		this.onPaste			= null;
 		this.onRender 			= null;
 		this.onRefresh 			= null;
 		this.onReload			= null;
@@ -1271,26 +1274,7 @@
 		// ===================================================
 		// --  Action Handlers
 
-		toolbarAdd: function () {
-			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'add', recid: null });
-			if (eventData.stop === true) return false;
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-		},
-
-		toolbarEdit: function () {
-			var sel 	= this.getSelection();
-			var recid 	= null;
-			if (sel.length == 1) recid = sel[0];
-			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'edit', recid: recid });
-			if (eventData.stop === true) return false;
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-		},
-
-		toolbarSave: function () {
+		save: function () {
 			var obj = this;
 			var changed = this.getChanged();
 			// event before
@@ -1313,7 +1297,7 @@
 					}
 				}
 				$(this.box).find('.w2ui-editable input').removeClass('changed');
-				this.selectNone();
+				this.refresh();
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
@@ -1439,17 +1423,18 @@
 				});
 		},
 
-		toolbarDelete: function (force) {
+		delete: function (force) {
 			var obj = this;
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete' });
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
 			if (eventData.stop === true) return false;
+			force = eventData.force;
 			// default action
 			var recs = this.getSelection();
 			if (recs.length == 0) return;
 			if (this.msgDelete != '' && !force) {
 				w2confirm(obj.msgDelete, w2utils.lang('Delete Confirmation'), function (result) {
-					if (result == 'Yes') w2ui[obj.name].toolbarDelete(true); 
+					if (result == 'Yes') w2ui[obj.name].delete(true); 
 				});
 				return;
 			}
@@ -1599,7 +1584,7 @@
 			switch (event.keyCode) {
 				case 8:  // backspace
 				case 46: // delete
-					obj.toolbarDelete();
+					obj.delete();
 					cancel = true;
 					break;
 
@@ -1777,7 +1762,7 @@
 
 				case 86: // v - paste
 					if (event.ctrlKey || event.metaKey) {
-						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px"></textarea>');
+						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;"></textarea>');
 						$('#_tmp_copy_data').focus();
 						setTimeout(function () { 
 							obj.paste($('#_tmp_copy_data').val());
@@ -1790,9 +1775,9 @@
 				case 88: // x - cut
 					if (event.ctrlKey || event.metaKey) {
 						var text = obj.copy();
-						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px">'+ text +'</textarea>');
+						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;">'+ text +'</textarea>');
 						$('#_tmp_copy_data').focus().select();
-						setTimeout(function () { $('#_tmp_copy_data').remove(); }, 1);
+						setTimeout(function () { $('#_tmp_copy_data').remove(); }, 50);
 					}
 					break;
 			}
@@ -1975,27 +1960,87 @@
 			}
 		},
 
-		copy: function (full) {
+		copy: function () {
 			var sel = this.getSelection();
+			if (sel.length == 0) return '';
 			var text = '';
-			for (var s in sel) {
-				var rec = this.get(sel[s], true);
-				for (var c in this.columns) {
-					var col = this.columns[c];
-					if (col.hidden === true) continue;
-					text += this.getCellData(this.records[ind], ind, c) + '\t';
+			if (typeof sel[0] == 'object') { // cell copy
+				// find min/max column
+				var minCol = sel[0].column;
+				var maxCol = sel[0].column;
+				for (var s in sel) {
+					if (sel[s].column < minCol) minCol = sel[s].column;
+					if (sel[s].column > maxCol) maxCol = sel[s].column;
 				}
-				text += '\n';
+				for (var s = 0; s < sel.length; s++) {
+					var ind = this.get(sel[s].recid, true);
+					for (var c = minCol; c <= maxCol; c++) {
+						var col = this.columns[c];
+						if (col.hidden === true) continue;
+						text += w2utils.stripTags(this.getCellData(this.records[ind], ind, c)) + '\t';
+					}
+					text = text.substr(0, text.length-1); // remove last \t
+					text += '\n';
+					var lastRecid = sel[s].recid;
+					while (s < sel.length && sel[s].recid == lastRecid) s++;
+				}
+			} else { // row copy
+				for (var s in sel) {
+					var ind = this.get(sel[s], true);
+					for (var c in this.columns) {
+						var col = this.columns[c];
+						if (col.hidden === true) continue;
+						text += w2utils.stripTags(this.getCellData(this.records[ind], ind, c)) + '\t';
+					}
+					text = text.substr(0, text.length-1); // remove last \t
+					text += '\n';
+				}
 			}
+			text = text.trim('\n');
+			// before event
+			var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+			if (eventData.stop === true) return '';
+			text = eventData.text;
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
 			return text;
 		},
 
 		paste: function (text) {
-			if (this.selectType == 'row') {
-				console.log('ERROR: You can paste only if grid.selectType = \'cell\'');
+			var sel = this.getSelection();
+			if (this.selectType == 'row' || sel.length == 0) {
+				console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.');
 				return false;
 			}
-			console.log('paste', text)
+			var ind = this.get(sel[0].recid, true);
+			var col = sel[0].column;
+			// before event
+			var eventData = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
+			if (eventData.stop === true) return;
+			text = eventData.text;
+			// default action
+			var newSel = [];
+			var text   = text.split('\n');
+			for (var t in text) {
+				var tmp  = text[t].split('\t');
+				var cnt  = 0;
+				var rec  = this.records[ind];
+				var cols = [];
+				for (var dt in tmp) {
+					var field = this.columns[col + cnt].field;
+					rec.changed = true;
+					rec.changes = rec.changes || {};
+					rec.changes[field] = tmp[dt];
+					cols.push(col + cnt);
+					cnt++;
+				}
+				newSel.push({ recid: rec.recid, columns: cols });
+				ind++;
+			}
+			this.select.apply(this, newSel);
+			this.refresh();
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));			
 		},
 
 		// ==================================================
@@ -2435,16 +2480,23 @@
 							}
 							break;
 						case 'add':
-							obj.toolbarAdd();
+							// events
+							var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
+							obj.trigger($.extend(eventData, { phase: 'after' }));
 							break;
 						case 'edit':
-							obj.toolbarEdit();
+							var sel 	= obj.getSelection();
+							var recid 	= null;
+							if (sel.length == 1) recid = sel[0];
+							// events
+							var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
+							obj.trigger($.extend(eventData, { phase: 'after' }));
 							break;
 						case 'delete':
-							obj.toolbarDelete();
+							obj.delete();
 							break;
 						case 'save':
-							obj.toolbarSave();
+							obj.save();
 							break;
 					}
 					// no default action
