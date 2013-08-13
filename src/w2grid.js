@@ -1572,12 +1572,22 @@
 			if (sel.length == 0) return;
 			var records = $('#grid_'+ obj.name +'_records');
 			var recid	= sel[0];
-			var column = null;
+			var columns = [];
+			var recid2  = sel[sel.length-1];
 			if (typeof recid == 'object') {
 				recid 	= sel[0].recid;
-				column 	= sel[0].column;
+				columns	= [];
+				var ii = 0;
+				while (true) {
+					if (!sel[ii] || sel[ii].recid != recid) break;
+					columns.push(sel[ii].column);
+					ii++;
+				}
+				columns.sort();
+				recid2  = sel[sel.length-1].recid;
 			}
 			var ind		= obj.get(recid, true);
+			var ind2	= obj.get(recid2, true);
 			var rec 	= obj.get(recid);
 			var recEL	= $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid));
 			var cancel  = false;
@@ -1603,8 +1613,8 @@
 
 				case 13: // enter
 				case 32: // spacebar
-					if (column == null) column = 0;
-					obj.editField(recid, column);
+					if (columns.length == 0) columns.push(0);
+					obj.editField(recid, columns[0]);
 					cancel = true;
 					break;
 
@@ -1645,8 +1655,18 @@
 						obj.set(recid, { expanded: false }, true);
 						obj.collapse(recid, event);
 					} else {
-						var prev = findPrev(column);
-						if (prev != column) obj.click({ recid: recid, column: prev }, event);
+						var prev = findPrev(columns[0]);
+						if (prev != columns[0]) {
+							if (event.shiftKey) {
+								var tmp = [];
+								for (var i in sel) {
+									if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
+									obj.select({ recid: sel[i].recid, columns: [prev] }, event);
+								}
+							} else {
+								obj.click({ recid: recid, column: prev }, event);
+							}
+						}
 						function findPrev (check) {
 							var newCheck = check - 1;
 							if (newCheck < 0) return check;
@@ -1662,8 +1682,18 @@
 						if (recEL.length <= 0 || rec.expanded === true || obj.show.expandColumn !== true) break;
 						obj.expand(recid, event);
 					} else {
-						var next = findNext(column);
-						if (next != column) obj.click({ recid: recid, column: next }, event);
+						var next = findNext(columns[columns.length-1]);
+						if (next != columns[columns.length-1]) {
+							if (event.shiftKey) {
+								var tmp = [];
+								for (var i in sel) {
+									if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
+									obj.select({ recid: sel[i].recid, columns: [next] }, event);
+								}
+							} else {
+								obj.click({ recid: recid, column: next }, event);
+							}
+						}
 						function findNext (check) {
 							var newCheck = check + 1;
 							if (obj.columns.length == newCheck) return check;
@@ -1698,8 +1728,12 @@
 								break;
 							}
 						}						
-						obj.selectNone();
-						obj.click({ recid: obj.records[ind].recid, column: column }, event);
+						if (event.shiftKey) { // expand selection
+							obj.select({ recid: obj.records[ind].recid, columns: columns }, event);
+						} else { // move selected record
+							obj.selectNone();
+							obj.click({ recid: obj.records[ind].recid, column: columns[0] }, event);
+						}
 						obj.scrollIntoView(ind);
 						if (event.preventDefault) event.preventDefault();
 					} else {
@@ -1720,8 +1754,8 @@
 				case 40: // down
 					if (recEL.length <= 0) break;
 					// jump into subgrid
-					if (obj.records[ind].expanded) {
-						var subgrid = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid) +'_expanded_row').find('.w2ui-grid');
+					if (obj.records[ind2].expanded) {
+						var subgrid = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind2].recid) +'_expanded_row').find('.w2ui-grid');
 						if (subgrid.length > 0 && w2ui[subgrid.attr('name')]) {
 							obj.selectNone();
 							var grid = subgrid.attr('name');
@@ -1733,21 +1767,25 @@
 						}
 					}
 					// move to the next record
-					if ((ind + 1 < obj.records.length && obj.last.searchIds.length == 0) || (obj.last.searchIds.length > 0 && ind < obj.last.searchIds[obj.last.searchIds.length-1])) {
-						ind++;
+					if ((ind2 + 1 < obj.records.length && obj.last.searchIds.length == 0) || (obj.last.searchIds.length > 0 && ind2 < obj.last.searchIds[obj.last.searchIds.length-1])) {
+						ind2++;
 						if (obj.last.searchIds.length > 0) {
 							while (true) {
-								if ($.inArray(ind, obj.last.searchIds) != -1 || ind > obj.records.length) break;
-								ind++;
+								if ($.inArray(ind2, obj.last.searchIds) != -1 || ind2 > obj.records.length) break;
+								ind2++;
 							}
 						}
-						obj.selectNone();
-						obj.click({ recid: obj.records[ind].recid, column: column }, event);
-						obj.scrollIntoView(ind);
+						if (event.shiftKey) { // expand selection
+							obj.select({ recid: obj.records[ind2].recid, columns: columns }, event);
+						} else { // move selected record
+							obj.selectNone();
+							obj.click({ recid: obj.records[ind2].recid, column: columns[0] }, event);
+						}
+						obj.scrollIntoView(ind2);
 						cancel = true;
 					} else {
 						// jump out of subgrid (if last record in subgrid)
-						var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).parents('tr');
+						var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind2].recid)).parents('tr');
 						if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
 							var recid = parent.next().attr('recid');
 							var grid  = parent.parents('.w2ui-grid').attr('name');
@@ -1771,8 +1809,9 @@
 					}
 					break;
 
-				case 67: // c - copy
 				case 88: // x - cut
+					setTimeout(function () { obj.delete(true); }, 100);
+				case 67: // c - copy
 					if (event.ctrlKey || event.metaKey) {
 						var text = obj.copy();
 						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;">'+ text +'</textarea>');
@@ -2037,6 +2076,7 @@
 				newSel.push({ recid: rec.recid, columns: cols });
 				ind++;
 			}
+			this.selectNone();
 			this.select.apply(this, newSel);
 			this.refresh();
 			// event after

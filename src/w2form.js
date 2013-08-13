@@ -410,7 +410,6 @@
 			}
 			// validation
 			var errors = obj.validate(true);
-			console.log('err', errors);
 			if (errors.length !== 0) {
 				obj.goto(errors[0].field.page);
 				return;
