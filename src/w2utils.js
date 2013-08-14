@@ -694,6 +694,7 @@ var w2utils = (function () {
 			url		: locale.path + '/'+ locale.lang.toLowerCase() +'.json',
 			type	: "GET",
 			dataType: "JSON",
+			async	: false,
 			cache 	: false,
 			success : function (data, status, xhr) {
 				w2utils.settings = $.extend(true, w2utils.settings, data);
