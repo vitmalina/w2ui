@@ -142,7 +142,7 @@ $(function () {
 		}
 	}
 	$(window).on('hashchange', goHash);
-	goHash();
+	setTimeout(goHash, 1);
 });
 
 function doClick (cmd, data) {
@@ -180,7 +180,7 @@ function doClick (cmd, data) {
 			var ta = $(this);
 			$(ta).height(ta.scrollHeight + 2);
 			// init Code Mirror
-			var codeMirror = CodeMirror(
+			var cm = CodeMirror(
 				function (elt) {
 			  		obj.parentNode.replaceChild(elt, obj);
 				}, {
@@ -191,6 +191,7 @@ function doClick (cmd, data) {
 					lineNumbers	: true
 				}
 			);
+			cm.setSize(null, cm.doc.height + 15);
 		});
 		// html
 		$("textarea.html").each(function (index, el) {
@@ -199,7 +200,7 @@ function doClick (cmd, data) {
 			var ta = $(this);
 			$(ta).height(ta.scrollHeight + 2);
 			// init Code Mirror
-			var codeMirror = CodeMirror(
+			var cm = CodeMirror(
 				function (elt) {
 			  		obj.parentNode.replaceChild(elt, obj);
 				}, {
@@ -210,6 +211,7 @@ function doClick (cmd, data) {
 					lineNumbers	: true
 				}
 			);
+			cm.setSize(null, cm.doc.height + 15);
 		});
 	});
 }
