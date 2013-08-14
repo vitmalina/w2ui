@@ -3,109 +3,109 @@
 	<property name="kickstart.version" value="/* kicstart 0.x (c) http://w2ui.com/kickstart, vitmalina@gmail.com */"/>
 
 	<target name="clean">
-		<delete file="css/w2ui.css"/>
-		<delete file="css/w2ui.min.css"/>
-		<delete file="css/w2ui-dark.css"/>
-		<delete file="css/w2ui-dark.min.css"/>
-		<delete file="css/kickstart.css"/>
-		<delete file="css/kickstart.min.css"/>
-		<delete file="js/w2ui.js"/>
-		<delete file="js/w2ui.min.js"/>
-		<delete file="js/kickstart.js"/>
-		<delete file="js/kickstart.min.js"/>
+		<delete file="dist/w2ui.css"/>
+		<delete file="dist/w2ui.min.css"/>
+		<delete file="dist/w2ui-dark.css"/>
+		<delete file="dist/w2ui-dark.min.css"/>
+		<delete file="dist/kickstart.css"/>
+		<delete file="dist/kickstart.min.css"/>
+		<delete file="dist/w2ui.js"/>
+		<delete file="dist/w2ui.min.js"/>
+		<delete file="dist/kickstart.js"/>
+		<delete file="dist/kickstart.min.js"/>
 	</target>
 
 	<target name="css">
 		<echo message="------- W2UI -------"/>
 
 		<!-- Compile w2ui.less files -->
-		<echo message="LESS: src/less/w2ui.less ==> css/w2ui.css"/>
+		<echo message="LESS: src/less/w2ui.less ==> dist/w2ui.css"/>
 		<exec executable="lessc" osfamily="unix">
 			<arg value="src/less/w2ui.less"/>
-			<arg value="css/w2ui.css"/>
+			<arg value="dist/w2ui.css"/>
 		</exec>
 		<exec executable="cmd" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="lessc"/>
 		  <arg value="src/less/w2ui.less"/>
-		  <arg value="css/w2ui.css"/>
+		  <arg value="dist/w2ui.css"/>
 		</exec>
 
 		<!-- Minify w2ui.css files -->
-		<echo message="CleanCSS: /css/w2ui.css ==> /css/w2ui.min.css"/>
-		<exec executable="cleancss" output="css/w2ui.min.css" osfamily="unix">
-			<arg value="css/w2ui.css"/>
+		<echo message="CleanCSS: dist/w2ui.css ==> dist/w2ui.min.css"/>
+		<exec executable="cleancss" output="dist/w2ui.min.css" osfamily="unix">
+			<arg value="dist/w2ui.css"/>
 		</exec>
-		<exec executable="cmd" output="css/w2ui.min.css" osfamily="windows">
+		<exec executable="cmd" output="dist/w2ui.min.css" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="lessc"/>
-		  <arg value="css/w2ui.css"/>
+		  <arg value="dist/w2ui.css"/>
 		</exec>
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
-			<fileset dir="css" includes="w2ui.min.css" />
+			<fileset dir="dist" includes="w2ui.min.css" />
 		</replaceregexp>
 
 		<!-- Compile w2ui-dark.less files -->
-		<echo message="LESS: src/less/w2ui-dark.less ==> css/w2ui-dark.css"/>
+		<echo message="LESS: src/less/w2ui-dark.less ==> dist/w2ui-dark.css"/>
 		<exec executable="lessc" osfamily="unix">
 			<arg value="src/less/w2ui-dark.less"/>
-			<arg value="css/w2ui-dark.css"/>
+			<arg value="dist/w2ui-dark.css"/>
 		</exec>
 		<exec executable="cmd" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="lessc"/>
 		  <arg value="src/less/w2ui-dark.less"/>
-		  <arg value="css/w2ui-dark.css"/>
+		  <arg value="dist/w2ui-dark.css"/>
 		</exec>
 
 		<!-- Minify w2ui.css files -->
-		<echo message="CleanCSS: /css/w2ui-dark.css ==> /css/w2ui-dark.min.css"/>
-		<exec executable="cleancss" output="css/w2ui-dark.min.css" osfamily="unix">
-			<arg value="css/w2ui-dark.css"/>
+		<echo message="CleanCSS: dist/w2ui-dark.css ==> dist/w2ui-dark.min.css"/>
+		<exec executable="cleancss" output="dist/w2ui-dark.min.css" osfamily="unix">
+			<arg value="dist/w2ui-dark.css"/>
 		</exec>
-		<exec executable="cmd" output="css/w2ui-dark.min.css" osfamily="windows">
+		<exec executable="cmd" output="dist/w2ui-dark.min.css" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="cleancss"/>
-		  <arg value="css/w2ui-dark.css"/>
+		  <arg value="dist/w2ui-dark.css"/>
 		</exec>
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
-			<fileset dir="css" includes="w2ui-dark.min.css" />
+			<fileset dir="dist" includes="w2ui-dark.min.css" />
 		</replaceregexp>
 
 		<!-- Kick Start -->
 		<echo message="------- KickStart -------"/>
 
 		<!-- Compile kickstart.less files -->
-		<echo message="LESS: src/kickstart/less/kickstart.less ==> css/kickstart.css"/>
+		<echo message="LESS: src/kickstart/less/kickstart.less ==> dist/kickstart.css"/>
 		<exec executable="lessc" osfamily="unix">
 			<arg value="src/kickstart/less/kickstart.less"/>
-			<arg value="css/kickstart.css"/>
+			<arg value="dist/kickstart.css"/>
 		</exec>
 		<exec executable="cmd" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="lessc"/>
 		  <arg value="src/kickstart/less/kickstart.less"/>
-		  <arg value="css/kickstart.css"/>
+		  <arg value="dist/kickstart.css"/>
 		</exec>
 
 		<!-- Minify kickstart.css files -->
-		<echo message="CleanCSS: /css/kickstart.css ==> /css/kickstart.min.css"/>
-		<exec executable="cleancss" output="css/kickstart.min.css" osfamily="unix">
-			<arg value="css/kickstart.css"/>
+		<echo message="CleanCSS: dist/kickstart.css ==> dist/kickstart.min.css"/>
+		<exec executable="cleancss" output="dist/kickstart.min.css" osfamily="unix">
+			<arg value="dist/kickstart.css"/>
 		</exec>
-		<exec executable="cmd" output="css/kickstart.min.css" osfamily="windows">
+		<exec executable="cmd" output="dist/kickstart.min.css" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="cleancss"/>
-		  <arg value="css/kickstart/css"/>
+		  <arg value="dist/kickstart.css"/>
 		</exec>
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${kickstart.version}${line.separator}" flags="s">
-			<fileset dir="css" includes="kickstart.min.css" />
+			<fileset dir="dist" includes="kickstart.min.css" />
 		</replaceregexp>
 	</target>
 
@@ -113,48 +113,48 @@
 		<echo message="------- W2UI -------"/>
 
 		<echo message="Concatenate JS Files"/>
-		<concat destfile="js/w2ui.js">
+		<concat destfile="dist/w2ui.js">
 			 <filelist dir="./src/" files="w2utils.js w2grid.js w2layout.js w2popup.js w2tabs.js w2toolbar.js w2sidebar.js w2fields.js w2form.js"/>
 		</concat>
 
 		<!-- Minify JS files -->
-		<echo message="Uglify-JS: /js/w2ui.js ==> /js/w2ui.min.js"/>
-		<exec executable="uglifyjs" output="js/w2ui.min.js" osfamily="unix">
-			<arg value="js/w2ui.js"/>
+		<echo message="Uglify-JS: /dist/w2ui.js ==> /dist/w2ui.min.js"/>
+		<exec executable="uglifyjs" output="dist/w2ui.min.js" osfamily="unix">
+			<arg value="dist/w2ui.js"/>
 		</exec>
-		<exec executable="cmd" output="js/w2ui.min.js" osfamily="windows">
+		<exec executable="cmd" output="dist/w2ui.min.js" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="uglifyjs"/>
-		  <arg value="js/w2ui.js"/>
+		  <arg value="dist/w2ui.js"/>
 		</exec>
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
-			<fileset dir="js" includes="w2ui.min.js" />
+			<fileset dir="dist" includes="w2ui.min.js" />
 		</replaceregexp>
 
 		<!-- Kick Start -->
 		<echo message="------- KickStart -------"/>
 
 		<echo message="Concatenate JS Files"/>
-		<concat destfile="js/kickstart.js">
+		<concat destfile="dist/kickstart.js">
 			 <filelist dir="./src/kickstart" files="app.js core.js route.js"/>
 		</concat>
 
 		<!-- Minify JS files -->
-		<echo message="Uglify-JS: /js/kickstart.js ==> /js/kickstart.min.js"/>
-		<exec executable="uglifyjs" output="js/kickstart.min.js" osfamily="unix">
-			<arg value="js/kickstart.js"/>
+		<echo message="Uglify-JS: /dist/kickstart.js ==> /dist/kickstart.min.js"/>
+		<exec executable="uglifyjs" output="dist/kickstart.min.js" osfamily="unix">
+			<arg value="dist/kickstart.js"/>
 		</exec>
-		<exec executable="cmd" output="js/kickstart.min.js" osfamily="windows">
+		<exec executable="cmd" output="dist/kickstart.min.js" osfamily="windows">
 		  <arg value="/c"/>
 		  <arg value="uglifyjs"/>
-		  <arg value="js/kickstart.js"/>
+		  <arg value="dist/kickstart.js"/>
 		</exec>
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${kickstart.version}${line.separator}" flags="s">
-			<fileset dir="js" includes="kickstart.min.js" />
+			<fileset dir="dist" includes="kickstart.min.js" />
 		</replaceregexp>
 	</target>
 

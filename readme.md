@@ -65,7 +65,7 @@ Your contributions are welcome. However, few things you need to know before cont
 
 1. Please check out latest code before changing anything. It is harder to merge if your changes will not merge clean.
 2. If you are changing JS files - do all changes in /src folder
-3. If you are changing CSS files - do all changes in LESS in /css/less/src
+3. If you are changing CSS files - do all changes in LESS in /src/less/src
 4. If you want to help with unit test - do all changes in /test/qunit
 5. If you want to change documenation - do all chnages in /docs
 6. If you want to add demos - do all changes in /demos
