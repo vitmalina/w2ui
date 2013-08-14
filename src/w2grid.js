@@ -1306,7 +1306,7 @@
 			}
 		},
 
-		editField: function (recid, column) {
+		editField: function (recid, column, value) {
 			//console.log('edit field', recid, column);
 			var obj   = this;
 			var index = obj.get(recid, true);
@@ -1324,16 +1324,16 @@
 			if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
 			if (typeof edit.style   == 'undefined') edit.style   = '';
 			if (typeof edit.items   == 'undefined') edit.items   = [];
-			var val = (rec.changed && rec.changes[col.field] ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+			val = (rec.changed && rec.changes[col.field] ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+			if (val == null || typeof val == 'undefined') val = '';
+			if (typeof value != 'undefined') val = value;
 			var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
 			if ($.inArray(col.render, ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle += 'text-align: right;';
-			if (val == null || typeof val == 'undefined') val = '';
 			el.addClass('w2ui-editable')
 				.html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" value="'+ val +'" type="text"  '+
 					'	style="'+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
-					'>' + edit.outTag);				
+					'>' + edit.outTag);
 			el.find('input')
-				.focus()
 				.on('blur', function (event) {
 					if (obj.parseObj(rec, col.field) != this.value) {
 						// change event
@@ -1424,6 +1424,12 @@
 						return newCheck;
 					}
 				});
+			// unselect
+			if (typeof value == 'undefined') {
+				el.find('input').focus(); 
+			} else {
+				el.find('input').val('').focus().val(value);
+			}
 		},
 
 		delete: function (force) {
@@ -1843,6 +1849,14 @@
 						setTimeout(function () { $('#_tmp_copy_data').remove(); }, 50);
 					}
 					break;
+			}
+			// 0-9,a-z,A-Z
+			if (event.keyCode >= 48 && event.keyCode <= 90 && !event.ctrlKey && !event.metaKey && !cancel) {
+				if (columns.length == 0) columns.push(0);
+				var tmp = String.fromCharCode(event.keyCode);
+				if (!event.shiftKey) tmp = tmp.toLowerCase();
+				obj.editField(recid, columns[0], tmp);
+				cancel = true;				
 			}
 			if (cancel) { // cancel default behaviour
 				if (event.preventDefault) event.preventDefault();
