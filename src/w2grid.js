@@ -179,7 +179,10 @@
 			sortCount	: 0,
 			xhr			: null,
 			range_start : null,
-			range_end   : null
+			range_end   : null,
+			sel_ind		: null,
+			sel_col		: null,
+			sel_type	: null
 		}
 
 		this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
@@ -1496,8 +1499,13 @@
 			var obj = this;
 			var sel = this.getSelection();
 			$('#grid_'+ this.name +'_check_all').prop("checked", false);
-			var record = this.get(recid);
-			var selectColumns = [];
+			var ind    = this.get(recid, true);
+			var record = this.records[ind];
+			var selectColumns  = [];
+			obj.last.sel_ind   = ind;
+			obj.last.sel_col   = column;
+			obj.last.sel_recid = recid;
+			obj.last.sel_type  = 'click';
 			// multi select with shif key
 			if (event.shiftKey && sel.length > 0) {
 				if (sel[0].recid) {
@@ -1655,19 +1663,27 @@
 						obj.set(recid, { expanded: false }, true);
 						obj.collapse(recid, event);
 					} else {
-						var prev = findPrev(columns[0]);
+						var prev = prevCell(columns[0]);
 						if (prev != columns[0]) {
 							if (event.shiftKey) {
+								if (tmpUnselect()) return;
 								var tmp = [];
-								for (var i in sel) {
-									if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
-									obj.select({ recid: sel[i].recid, columns: [prev] }, event);
+								if (columns.indexOf(this.last.sel_col) == 0 && columns.length > 1) {
+									for (var i in sel) {
+										if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
+										obj.unselect({ recid: sel[i].recid, columns: [ columns[columns.length-1] ] });
+									}
+								} else {
+									for (var i in sel) {
+										if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
+										obj.select({ recid: sel[i].recid, columns: [prev] });
+									}
 								}
 							} else {
 								obj.click({ recid: recid, column: prev }, event);
 							}
 						}
-						function findPrev (check) {
+						function prevCell (check) {
 							var newCheck = check - 1;
 							if (newCheck < 0) return check;
 							if (obj.columns[newCheck].hidden) return findPrev(newCheck);
@@ -1682,19 +1698,27 @@
 						if (recEL.length <= 0 || rec.expanded === true || obj.show.expandColumn !== true) break;
 						obj.expand(recid, event);
 					} else {
-						var next = findNext(columns[columns.length-1]);
+						var next = nextCell(columns[columns.length-1]);
 						if (next != columns[columns.length-1]) {
 							if (event.shiftKey) {
+								if (tmpUnselect()) return;
 								var tmp = [];
-								for (var i in sel) {
-									if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
-									obj.select({ recid: sel[i].recid, columns: [next] }, event);
+								if (columns.indexOf(this.last.sel_col) == columns.length-1 && columns.length > 1) {
+									for (var i in sel) {
+										if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
+										obj.unselect({ recid: sel[i].recid, columns: [ columns[0] ] });
+									}
+								} else {
+									for (var i in sel) {
+										if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
+										obj.select({ recid: sel[i].recid, columns: [next] });
+									}
 								}
 							} else {
 								obj.click({ recid: recid, column: next }, event);
 							}
 						}
-						function findNext (check) {
+						function nextCell (check) {
 							var newCheck = check + 1;
 							if (obj.columns.length == newCheck) return check;
 							if (obj.columns[newCheck].hidden) return findNext(newCheck);
@@ -1707,17 +1731,11 @@
 				case 38: // up
 					if (recEL.length <= 0) break;
 					// move to the previous record
-					if ((ind > 0 && obj.last.searchIds.length == 0) || (obj.last.searchIds.length > 0 && ind > obj.last.searchIds[0])) {
-						ind--;
-						if (obj.last.searchIds.length > 0) {
-							while (true) {
-								if ($.inArray(ind, obj.last.searchIds) != -1 || ind < 0) break;
-								ind--;
-							}
-						}
+					var prev = prevRow(ind);
+					if (prev != null) {
 						// jump into subgrid
-						if (obj.records[ind].expanded) {
-							var subgrid = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid) +'_expanded_row').find('.w2ui-grid');
+						if (obj.records[prev].expanded) {
+							var subgrid = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[prev].recid) +'_expanded_row').find('.w2ui-grid');
 							if (subgrid.length > 0 && w2ui[subgrid.attr('name')]) {
 								obj.selectNone();
 								var grid = subgrid.attr('name');
@@ -1729,12 +1747,18 @@
 							}
 						}						
 						if (event.shiftKey) { // expand selection
-							obj.select({ recid: obj.records[ind].recid, columns: columns }, event);
+							if (tmpUnselect()) return;
+							if (this.last.sel_ind > prev && this.last.sel_ind != ind2) {
+								prev = ind2;
+								obj.unselect({ recid: obj.records[prev].recid, columns: columns });
+							} else {
+								obj.select({ recid: obj.records[prev].recid, columns: columns });
+							}
 						} else { // move selected record
 							obj.selectNone();
-							obj.click({ recid: obj.records[ind].recid, column: columns[0] }, event);
+							obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event);
 						}
-						obj.scrollIntoView(ind);
+						obj.scrollIntoView(prev);
 						if (event.preventDefault) event.preventDefault();
 					} else {
 						// jump out of subgird (if first record)
@@ -1767,21 +1791,21 @@
 						}
 					}
 					// move to the next record
-					if ((ind2 + 1 < obj.records.length && obj.last.searchIds.length == 0) || (obj.last.searchIds.length > 0 && ind2 < obj.last.searchIds[obj.last.searchIds.length-1])) {
-						ind2++;
-						if (obj.last.searchIds.length > 0) {
-							while (true) {
-								if ($.inArray(ind2, obj.last.searchIds) != -1 || ind2 > obj.records.length) break;
-								ind2++;
-							}
-						}
+					var next = nextRow(ind2);
+					if (next != null) {
 						if (event.shiftKey) { // expand selection
-							obj.select({ recid: obj.records[ind2].recid, columns: columns }, event);
+							if (tmpUnselect()) return;
+							if (this.last.sel_ind < next && this.last.sel_ind != ind) {
+								next = ind;
+								obj.unselect({ recid: obj.records[next].recid, columns: columns });
+							} else {
+								obj.select({ recid: obj.records[next].recid, columns: columns });
+							}
 						} else { // move selected record
 							obj.selectNone();
-							obj.click({ recid: obj.records[ind2].recid, column: columns[0] }, event);
+							obj.click({ recid: obj.records[next].recid, column: columns[0] });
 						}
-						obj.scrollIntoView(ind2);
+						obj.scrollIntoView(next);
 						cancel = true;
 					} else {
 						// jump out of subgrid (if last record in subgrid)
@@ -1825,6 +1849,65 @@
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
+
+			function nextRow (ind) {
+				if ((ind + 1 < obj.records.length && obj.last.searchIds.length == 0) // if there are more records
+						|| (obj.last.searchIds.length > 0 && ind < obj.last.searchIds[obj.last.searchIds.length-1])) {
+					ind++;
+					if (obj.last.searchIds.length > 0) {
+						while (true) {
+							if ($.inArray(ind, obj.last.searchIds) != -1 || ind > obj.records.length) break;
+							ind++;
+						}
+					}
+					return ind;
+				} else {
+					return null;
+				}
+			}
+
+			function prevRow (ind) {
+				if ((ind > 0 && obj.last.searchIds.length == 0)  // if there are more records
+						|| (obj.last.searchIds.length > 0 && ind > obj.last.searchIds[0])) {
+					ind--;
+					if (obj.last.searchIds.length > 0) {
+						while (true) {
+							if ($.inArray(ind, obj.last.searchIds) != -1 || ind < 0) break;
+							ind--;
+						}
+					}
+					return ind;
+				} else {
+					return null;
+				}
+			}
+
+			function tmpUnselect () {
+				if (obj.last.sel_type != 'click') return false;
+				if (obj.selectType != 'row') {
+					obj.last.sel_type = 'key';
+					if (sel.length > 1) {
+						for (var s in sel) {
+							if (sel[s].recid == obj.last.sel_recid && sel[s].column == obj.last.sel_col) {
+								sel.splice(s, 1);
+								break;
+							}
+						}
+						for (var s in sel) sel[s].columns = [ sel[s].column ];
+						obj.unselect.apply(obj, sel);
+						return true;
+					}
+					return false;
+				} else {
+					obj.last.sel_type = 'key';
+					if (sel.length > 1) {
+						sel.splice(sel.indexOf(obj.records[obj.last.sel_ind].recid), 1);
+						obj.unselect.apply(obj, sel);
+						return true;
+					}
+					return false;
+				}
+			}
 		},
 
 		scrollIntoView: function (ind) {
@@ -1837,7 +1920,8 @@
 			if (records.length == 0) return;
 			// if all records in view
 			var len = this.last.searchIds.length;
-			if (records.height() > this.recordHeight * (len > 0 ? len : this.records.length)) return;
+			if (records.height() > this.recordHeight * (len > 0 ? len : this.records.length)) return;			
+			if (len > 0) ind = this.last.searchIds.indexOf(ind); // if seach is applied
 			// scroll to correct one
 			var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
 			var t2 = t1 + Math.floor(records.height() / this.recordHeight);

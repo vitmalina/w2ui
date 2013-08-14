@@ -32,7 +32,6 @@ $(function () {
 			"admin": 'somename'
 		},
 		selectType: 'cell',
-		onChange1: function () { console.log(arguments); },
 		//autoLoad: false,
 		//offset: 99700,
 		//multiSelect: false,
@@ -122,7 +121,7 @@ $(function () {
 	// add 10k records
 	for (var i = 0; i < 2500; i++) {
 		w2ui['grid'].records.push({ 
-			recid : i+1,
+			recid : i+11,
 			personid: i+1,
 			fname: fname[Math.floor(Math.random() * fname.length)], 
 			lname: lname[Math.floor(Math.random() * lname.length)],
