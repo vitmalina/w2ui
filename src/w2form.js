@@ -754,7 +754,7 @@
 						break;
 					case 'date':
 						if (!field.options) field.options = {};
-						if (!field.options.format) field.options.format = 'mm/dd/yyyy';
+						if (!field.options.format) field.options.format = w2utils.settings.date_format;
 						field.el.value = value;
 						this.record[field.name] = value;
 						$(field.el).w2field($.extend({}, field.options, { type: 'date' }));
