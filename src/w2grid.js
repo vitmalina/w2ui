@@ -697,7 +697,7 @@
 					for (var c in cols) {
 						if (!$.isArray(s) || $.inArray(cols[c], s) == -1) continue;
 						// event before
-						var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, recid: recid, column: cols[c] });
+						var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, column: cols[c] });
 						if (eventData.stop === true) continue;
 						// default action
 						s.splice($.inArray(cols[c], s), 1);
@@ -2385,10 +2385,79 @@
 			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
 			this.reload();
-			// add copy/paste events
-			// $('body').on('copy',  function (e) { console.log('----- copy -----'); });
-			// $('body').on('paste', function (e) { obj.paste(e.originalEvent.clipboardData.getData('text')) });
-			// $('body').on('cut',   function (e) { obj.paste(e) });
+			// init mouse events for mouse selection
+			$(this.box).on('mousedown', mouseStart);			
+			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursror bug
+			function mouseStart (event) {
+				obj.last.move = {
+					x 	 : event.screenX,
+					y 	 : event.screenY,
+					divX : 0,
+					divY : 0,
+					recid  : $(event.target).parents('tr').attr('recid'),
+					column : $(event.target).parents('td').attr('col'),
+					start  : true
+				};
+				$(document).on('mousemove', mouseMove);
+				$(document).on('mouseup', mouseStop);
+			}
+
+			function mouseMove (event) {
+				if (!obj.last.move) return;
+				obj.last.move.divX = (event.screenX - obj.last.move.x);
+				obj.last.move.divY = (event.screenY - obj.last.move.y);
+				if (Math.abs(obj.last.move.divX) <= 1 && Math.abs(obj.last.move.divY) <= 1) return; // only if moved more then 1px
+				if (obj.last.move.start) {
+					obj.selectNone();
+					obj.last.move.start = false;
+				}
+				var newSel= [];
+				var recid = $(event.target).parents('tr').attr('recid');
+				var ind1  = obj.get(obj.last.move.recid, true);
+				var ind2  = obj.get(recid, true);
+				var col1  = obj.last.move.column;
+				var col2  = $(event.target).parents('td').attr('col');
+				if (ind1 > ind2) { var tmp = ind1; ind1 = ind2; ind2 = tmp; }
+				for (var i = ind1; i <= ind2; i++) {
+					if (obj.last.searchIds.length > 0 && obj.last.searchIds.indexOf(i) == -1) continue;
+					if (obj.selectType != 'row') {
+						if (col1 > col2) { var tmp = col1; col1 = col2; col2 = tmp; }
+						var tmp = [];
+						for (var c = col1; c <= col2; c++) {
+							if (obj.columns[c].hidden) continue;
+							newSel.push({ recid: obj.records[i].recid, column: parseInt(c) });
+						}
+					} else {
+						newSel.push(obj.records[i].recid);
+					}					
+				}
+				if (obj.selectType != 'row') {
+					if (typeof col2 == 'undefined') return;
+					var sel = obj.getSelection();
+					// add more items
+					for (var ns in newSel) {
+						var flag = false;
+						for (var s in sel) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+						if (!flag) obj.select({ recid: newSel[ns].recid, columns: [newSel[ns].column] }); 
+					}
+					// remove items
+					for (var s in sel) {
+						var flag = false;
+						for (var ns in newSel) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+						if (!flag) obj.unselect({ recid: sel[s].recid, columns: [sel[s].column] });
+					}
+				} else {
+					var sel = obj.getSelection();					
+					for (var ns in newSel) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items					
+					for (var s in sel) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+				}
+			}
+
+			function mouseStop (event) {
+				delete obj.last.move;
+				$(document).off('mousemove', mouseMove);
+				$(document).off('mouseup', mouseStop);
+			}			
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
