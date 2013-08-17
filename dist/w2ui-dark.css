@@ -1043,13 +1043,11 @@ select {
   overflow: hidden;
 }
 .w2ui-grid .w2ui-grid-body table td.w2ui-grid-data {
-  height: 25px;
   margin: 0px;
   padding: 0px;
 }
 .w2ui-grid .w2ui-grid-body table td.w2ui-grid-data > div {
-  padding: 7px 3px;
-  height: 24px;
+  padding: 3px 3px 3px 3px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1068,25 +1066,26 @@ select {
   background-color: inherit;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-number div {
-  padding: 7px 7px 7px 3px;
+  padding: 0px 7px 0px 3px;
   text-align: right;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-select {
   width: 26px;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-select div {
-  padding: 7px 0px;
+  padding: 0px 0px;
   text-align: center;
   overflow: hidden;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-select div input[type=checkbox] {
+  margin-top: 2px;
   position: relative;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-expand {
   width: 26px;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-expand div {
-  padding: 7px 0px;
+  padding: 0px 0px;
   text-align: center;
   font-weight: bold;
 }
@@ -1196,6 +1195,48 @@ select {
 .w2ui-grid .w2ui-grid-footer .w2ui-footer-center .w2ui-footer-nav a.w2ui-footer-btn:hover {
   color: #000000;
   background-color: #aec8ff;
+}
+/* SpeadSheet */
+.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd,
+.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even,
+.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd:hover,
+.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even:hover {
+  background-color: inherit;
+}
+.w2ui-ss .w2ui-grid-records table td {
+  border-right-width: 1px;
+  border-bottom: 1px solid #efefef;
+}
+.w2ui-ss .w2ui-grid-records table tr:first-child td {
+  border-bottom: 0px;
+}
+.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-selected,
+.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-selected {
+  background-color: #EEF4FE !important;
+}
+.w2ui-ss .w2ui-changed {
+  background: inherit;
+}
+.w2ui-ss .w2ui-grid-body .w2ui-grid-records .w2ui-selection {
+  position: absolute;
+  border: 2px solid #6299DA;
+  /* #457FC2; */
+
+  pointer-events: none;
+}
+.w2ui-ss .w2ui-grid-body .w2ui-grid-records .w2ui-selection .w2ui-selection-resizer {
+  cursor: crosshair;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 6px;
+  height: 6px;
+  margin-right: -3px;
+  margin-bottom: -3px;
+  background-color: #457FC2;
+  border: 0.5px solid #fff;
+  outline: 1px solid white;
+  pointer-events: auto;
 }
 .w2ui-overlay .w2ui-select-field {
   padding: 8px 5px;
