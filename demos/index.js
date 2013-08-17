@@ -31,7 +31,7 @@ $(function () {
 					{ id: 'combo-1', text: 'Sidebar & Grid', icon: 'fa-star-empty' },
 					{ id: 'combo-2', text: 'Grid & Edit', icon: 'fa-star-empty' },
 					{ id: 'combo-9', text: 'Infinite Scroll', icon: 'fa-star-empty' },
-					{ id: 'combo-8', text: 'Excel Like Grid', icon: 'fa-star-empty' },
+					{ id: 'combo-8', text: 'SpreadSheet Like Grid', icon: 'fa-star-empty' },
 					{ id: 'combo-5', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
 					{ id: 'combo-6', text: 'Tabs With Content', icon: 'fa-star-empty' },
 					{ id: 'combo-7', text: 'Tabs & Other Elements', icon: 'fa-star-empty' },
