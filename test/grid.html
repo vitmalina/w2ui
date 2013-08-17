@@ -21,8 +21,8 @@ $(function () {
 			header: true,
 			emptyRecords: true,
 			columnHeaders: true,
-			selectColumn: false,
-			expandColumn: false,
+			//selectColumn: true,
+			//expandColumn: true,
 			lineNumbers: true,
 			toolbarDelete: false,
 			toolbarSave: false,
@@ -64,7 +64,7 @@ $(function () {
 			{ caption: 'Important Dates', span: 3 }
 		],
 		columns: [				
-			{ field: 'personid', caption: 'ID', size: '100px', sortable: true, resizable: true, searchable: 'int', editable: { type: 'text' } },
+			{ field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, searchable: 'int', editable: { type: 'text' } },
 			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, 
 				searchable: true, editable: { type: 'text' } 
 			},
@@ -72,6 +72,18 @@ $(function () {
 			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, editable: { type: 'text' } },
 			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, searchable: 'int', render1: 'percent', editable: { type: 'text' } },
 			{ field: 'sdate', caption: 'Date', size: '120px', resizable: true, sortable: true, searchable: 'date', render1: 'date', editable: { type: 'text' } }
+		],
+		ranges: [
+			{
+				name  : 'first',
+				range : [{"recid":15,"column":1},{"recid":29,"column":2}],
+			 	style : "border: 2px dotted green; background-color: rgba(100,400,100,0.2)"
+			},
+			{
+				name  : 'second',
+			 	range : [{"recid":6,"column":4},{"recid":9,"column":4}],
+			 	style : "border: 2px dotted orange; background-color: rgba(200,200,200,0.2)"
+			 }
 		],
 		onDelete: function (target, info) {
 			info.force = true;
@@ -121,7 +133,7 @@ $(function () {
 	// add 10k records
 	for (var i = 0; i < 2500; i++) {
 		w2ui['grid'].records.push({ 
-			recid : i+11,
+			recid : i+1,
 			personid: i+1,
 			fname: fname[Math.floor(Math.random() * fname.length)], 
 			lname: lname[Math.floor(Math.random() * lname.length)],
@@ -131,8 +143,10 @@ $(function () {
 		});
 	}
 	w2ui.grid.total = w2ui.grid.records.length;
-	//w2ui.grid.records[90].summary = true;
+	w2ui.grid.records[90].summary = true;
 	//w2ui.grid.records[91].summary = true;
+	//w2ui.grid.records[96].summary = true;
+	w2ui.grid.records[80].summary = true;
 	w2ui.grid.refresh();
 	//w2ui['grid'].load('grid.json');
 });
