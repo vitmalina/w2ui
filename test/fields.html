@@ -6,7 +6,7 @@
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script>
 	$(function () {
-		$('.int').w2field('int');
+		$('.int').w2field('int').css('text-align', 'right').on('change', function () { console.log('change: '+ this.value); });
 		$('.float').w2field('float');
 		$('.money').w2field('money');
 		$('.hex').w2field('hex');
@@ -51,19 +51,19 @@
 			</div>		
 		<div class="w2ui-label">int:</div>
 			<div class="w2ui-field">
-				<input id="int" class="int" type="text" size="20"/>
+				<input id="int" class="int" type="text" style="width: 100px"/>
 			</div>
 		<div class="w2ui-label">float:</div>
 			<div class="w2ui-field">
-				<input id="float" class="float" type="text" size="20"/>
+				<input id="float" class="float" type="text" style="width: 100px"/>
 			</div>
 		<div class="w2ui-label">money:</div>
 			<div class="w2ui-field">
-				<input id="money" class="money" type="text" size="20"/>
+				<input id="money" class="money" type="text" style="width: 100px"/>
 			</div>
 		<div class="w2ui-label">hex:</div>
 			<div class="w2ui-field">
-				<input id="hex" class="hex" type="text" size="20"/>
+				<input id="hex" class="hex" type="text" style="width: 100px"/>
 			</div>
 		<div class="w2ui-label">alpha-numeric:</div>
 			<div class="w2ui-field">
