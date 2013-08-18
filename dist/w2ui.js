@@ -8253,7 +8253,8 @@ w2utils.keyboard = (function (obj) {
 *  - upload (regular files)
 * 
 * == 1.3 changes ==
-*  - select type has options.url to pull from server
+*	- select type has options.url to pull from server
+*	- input number types with use of keyboard, prefix/suffic, arrow buttons
 *
 ************************************************************************/
 
@@ -8292,11 +8293,17 @@ w2utils.keyboard = (function (obj) {
 					return;
 				}  
 				// Common Types
-				switch (options.type.toLowerCase()) {
+				var tp = options.type.toLowerCase();
+				switch (tp) {
 
 					case 'clear': // removes any previous field type
-						$(this).off('keypress').off('focus').off('blur');
-						$(this).removeData(); // removes all attached data
+						$(this)
+							.off('focus')
+							.off('blur')
+							.off('keypress')
+							.off('keydown')
+							.off('change')
+							.removeData(); // removes all attached data
 						if ($(this).prev().hasClass('w2ui-list')) {	// if enum
 							$(this).prev().remove();
 							$(this).removeAttr('tabindex').css('border-color', '').show();
@@ -8305,90 +8312,187 @@ w2utils.keyboard = (function (obj) {
 							$(this).prev().remove();
 							$(this).removeAttr('tabindex').css('border-color', '').show();
 						}
+						if ($(this).prev().hasClass('w2ui-field-helper')) {	// helpers
+							$(this).css('padding-left', $(this).css('padding-top'));
+							$(this).prev().remove();
+						}
+						if ($(this).next().hasClass('w2ui-field-helper')) {	// helpers
+							$(this).css('padding-right', $(this).css('padding-top'));
+							$(this).next().remove();
+						}
+						if ($(this).next().hasClass('w2ui-field-helper')) {	// helpers
+							$(this).next().remove();
+						}
 						break;
 
 					case 'text':
-						// intentionally left blank
-						break;
-
 					case 'int':
-						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
-							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
-							var ch = String.fromCharCode(event.charCode);
-							if (!w2utils.isInt(ch) && ch != '-') {
-								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-								return false;
-							}
-						});
-						$(this).on('blur', function (event)  { // keyCode & charCode differ in FireFox
-							if (this.value != '' && !w2utils.isInt(this.value)) { 
-								$(this).w2tag(w2utils.lang('Not an integer'));
-							}
-						});
-						break;
-						
 					case 'float':
-						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
-							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
-							var ch = String.fromCharCode(event.charCode);
-							if (!w2utils.isInt(ch) && ch != '.' && ch != '-') {
-								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-								return false;
-							}
-						});
-						$(this).on('blur', function (event)  { 
-							if (this.value != '' && !w2utils.isFloat(this.value)) {
-								$(this).w2tag(w2utils.lang('Not a float'));
-							} 
-						});
-						break;
-						
 					case 'money':
-						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox	
-							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
-							var ch = String.fromCharCode(event.charCode);
-							if (!w2utils.isInt(ch) && ch != '.' && ch != '-' && ch != '$' && ch != '€' && ch != '£' && ch != '¥') {
-								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-								return false;
-							}
-						});
-						$(this).on('blur', function (event)  { 
-							if (this.value != '' && !w2utils.isMoney(this.value)) { 
-								$(this).w2tag(w2utils.lang('Not in money format'));
-							} 
-						});
-						break;
-						
-					case 'hex':
-						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox	
-							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
-							var ch = String.fromCharCode(event.charCode);
-							if (!w2utils.isHex(ch)) {
-								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-								return false;
-							}
-						});
-						$(this).on('blur', function (event)  { 
-							if (this.value != '' && !w2utils.isHex(this.value)) { 
-								$(this).w2tag(w2utils.lang('Not a hex number'));
-							}
-						});
-						break;
-						 
 					case 'alphanumeric':
-						$(this).on('keypress', function (event) { // keyCode & charCode differ in FireFox
-							if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
-							var ch = String.fromCharCode(event.charCode);
-							if (!w2utils.isAlphaNumeric(ch)) {
-								if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-								return false;
+					case 'hex':
+						var el = this;
+						var defaults = {
+							min 	: null,
+							max 	: null,
+							arrows	: false,
+							keyboard: true,
+							suffix	: '',
+							prefix  : ''
+						}
+						options = $.extend({}, defaults, options);
+						if (['text', 'alphanumeric', 'hex'].indexOf(tp) != -1) {
+							options.arrows   = false;
+							options.keyboard = false;
+						}
+						// init events
+						$(this)
+							.data('options', options)
+							.on('keypress', function (event) { // keyCode & charCode differ in FireFox
+								if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+								if (event.keyCode == 13) $(this).change();
+								var ch = String.fromCharCode(event.charCode);
+								if (!checkType(ch, true)) {
+									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+									return false;
+								}
+							})
+							.on('keydown', function (event, extra) {
+								if (!options.keyboard) return;
+								var cancel = false;
+								var v = $(el).val();
+								if (!checkType(v)) v = options.min || 0; else v = parseFloat(v);
+								var key = event.keyCode || extra.keyCode;
+								switch (key) {
+									case 38: // up
+										$(el).val((v+1 <= options.max || options.max == null ? v+1 : options.max)).change();
+										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
+										cancel = true;
+										break;
+									case 40: // down
+										$(el).val((v-1 >= options.min || options.min == null ? v-1 : options.min)).change();
+										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
+										cancel = true;
+										break;
+								}							
+								if (cancel) {
+									//this.checkRange();
+									event.preventDefault();
+									// set cursor to the end
+									setTimeout(function () { el.setSelectionRange(el.value.length, el.value.length); }, 0);
+								}
+							})
+							.on('change', function (event) {
+								// check max/min
+								var v  = $(el).val();
+								var cancel = false;
+								if (options.min != null && v != '' && v < options.min) { $(el).val(options.min).change(); cancel = true; }
+								if (options.max != null && v != '' && v > options.max) { $(el).val(options.max).change(); cancel = true; }
+								if (cancel) {
+									event.stopPropagation();
+									event.preventDefault();
+									return false;
+								}
+								// check validity
+								if (this.value != '' && !checkType(this.value)) $(this).val(options.min != null ? options.min : '');								
+							});
+						if ($(this).val() == '' && options.min != null) $(this).val(options.min);
+						var pr = parseInt($(this).css('padding-right'));
+						if (options.arrows != '') {
+							$(this).after(
+								'<div class="w2ui-field-helper">&nbsp;'+ 
+								'	<div class="w2ui-field-up" type="up">'+
+								'		<div class="arrow-up" type="up"></div>'+
+								'	</div>'+
+								'	<div class="w2ui-field-down" type="down">'+
+								'		<div class="arrow-down" type="down"></div>'+
+								'	</div>'+
+								'</div>');
+							var helper = $(this).next();
+							helper
+								.css({
+									'color'			: $(this).css('color'),
+									'font-family'	: $(this).css('font-family'),
+									'font-size'		: $(this).css('font-size'),
+									'padding'		: $(this).css('padding'),
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'padding-left'	: '6px',
+									'border-left'	: '1px solid silver'
+								})
+								.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 9) + 'px')
+								.on('mousedown', function (event) {
+									$(el).focus().trigger($.Event("keydown"), { keyCode : ($(event.target).attr('type') == 'up' ? 38 : 40) });
+								});
+							pr += helper.width() + 12;
+							$(this).css('padding-right', pr);
+						}
+						if (options.suffix != '') {
+							$(this).after(
+								'<div class="w2ui-field-helper">'+ 
+									options.suffix + 
+								'</div>');
+							var helper = $(this).next();
+							helper
+								.css({
+									'color'			: $(this).css('color'),
+									'font-family'	: $(this).css('font-family'),
+									'font-size'		: $(this).css('font-size'),
+									'padding'		: $(this).css('padding'),
+									'margin'		: (parseInt($(this).css('margin')) + 1) + 'px',
+								})
+								.on('click', function () { 
+									$(this).prev().focus(); 
+								});
+							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 5) + 'px');
+							pr += helper.width() + 3;
+							$(this).css('padding-right', pr);
+						}
+						if (options.prefix != '') {
+							$(this).before(
+								'<div class="w2ui-field-helper">'+ 
+									options.prefix + 
+								'</div>');
+							var helper = $(this).prev();
+							helper
+								.css({
+									'color'			: $(this).css('color'),
+									'font-family'	: $(this).css('font-family'),
+									'font-size'		: $(this).css('font-size'),
+									'padding'		: $(this).css('padding'),
+									'padding-right' : 0,
+									'margin'		: (parseInt($(this).css('margin')) + 1) + 'px',
+									'margin-left'	: 0,
+									'margin-right' 	: 0
+								})
+								.on('click', function () { 
+									$(this).next().focus(); 
+								});
+							$(this).css('padding-left', (helper.width() + 5));
+						}
+
+						function checkType(ch, loose) {
+							switch (tp) {
+								case 'int':
+									if (loose && ['-'].indexOf(ch) != -1) return true;
+									return w2utils.isInt(ch); 
+									break;
+								case 'float':
+									if (loose && ['-','.'].indexOf(ch) != -1) return true;
+									return w2utils.isFloat(ch); 
+									break;
+								case 'money':
+									if (loose && ['-','.','$','€','£','¥'].indexOf(ch) != -1) return true;
+									return w2utils.isMoney(ch); 
+									break;
+								case 'hex':
+									return w2utils.isHex(ch); 
+									break;
+								case 'alphanumeric': 
+									return w2utils.isAlphaNumeric(ch); 
+									break;
 							}
-						});
-						$(this).on('blur', function (event)  { 
-							if (this.value != '' && !w2utils.isAlphaNumeric(this.value)) { 
-								$(this).w2tag(w2utils.lang('Not alpha-numeric')) 
-							} 
-						});
+							return true;
+						}
 						break;
 						
 					case 'date':
