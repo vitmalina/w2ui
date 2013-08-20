@@ -13,6 +13,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
 *	- bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *	- overlay should be displayed where more space (on top or on bottom)
+*	- refactor event flow: instead of (target, data) -> (event)
 * 	- write and article how to replace certail framework functions
 *
 * == 1.3 changes ==
@@ -65,9 +66,9 @@ var w2utils = (function () {
 		base64decode	: base64decode,
 		transition		: transition,
 		lang 			: lang,
+		locale	 		: locale,
 		getSize			: getSize,
-		scrollBarSize	: scrollBarSize,
-		locale	 		: locale
+		scrollBarSize	: scrollBarSize
 	}
 	return obj;
 	
@@ -97,7 +98,7 @@ var w2utils = (function () {
 	}
 	
 	function isEmail (val) {
-		var email = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}$/;
+		var email = /^[a-zA-Z0-9._-%]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 		return email.test(val); 
 	}
 
