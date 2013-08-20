@@ -216,7 +216,6 @@
 			// clear all enum fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				if (field.options && field.options.selected) delete field.options.selected;
 			}
 			$().w2tag();
 			this.refresh();
@@ -703,12 +702,11 @@
 					var field 			= obj.get(this.name);
 					if ((field.type == 'enum' || field.type == 'upload') && $(this).data('selected')) {
 						var new_arr = $(this).data('selected');
-						var cur_arr = obj.get(this.name).selected;
+						var cur_arr =  obj.record[this.name];
 						var value_new = [];
 						var value_previous = [];
 						if ($.isArray(new_arr)) for (var i in new_arr) value_new[i] = $.extend(true, {}, new_arr[i]); // clone array
 						if ($.isArray(cur_arr)) for (var i in cur_arr) value_previous[i] = $.extend(true, {}, cur_arr[i]); // clone array
-						obj.get(this.name).selected = value_new;
 					}
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
@@ -799,8 +797,9 @@
 							console.log("ERROR: (w2form."+ obj.name +") the field "+ field.name +" defined as enum but not field.options.url or field.options.items provided.");
 							break;
 						}
-						var sel = value;
-						// if (field.selected) sel = field.selected;
+						// normalize value
+						this.record[field.name] = w2obj.field.cleanItems(value);
+						value = this.record[field.name];
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: value }) );
 						break;
 					case 'upload':
