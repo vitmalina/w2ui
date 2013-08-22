@@ -29,9 +29,9 @@ $('#toolbar').w2toolbar({
 		{ type: 'button',  id: 'item4',  caption: 'Item 4', img: 'icon-page', hint: 'Hint for item 4' },
 		{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-page', hint: 'Hint for item 5' }
 	],
-	onClick: function (target, data) {
-		console.log('Target: '+ target);
-		console.log(data);
+	onClick: function (event) {
+		console.log('Target: '+ event.target);
+		console.log(event);
 	}
 });
 		</textarea>
@@ -51,9 +51,9 @@ $(function () {
 			{ type: 'button',  id: 'item4',  caption: 'Item 4', img: 'icon-page', hint: 'Hint for item 4' },
 			{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-page', hint: 'Hint for item 5' }
 		],
-		onClick: function (target, data) {
-			console.log('Target: '+ target);
-			console.log(data);
+		onClick: function (event) {
+			console.log('Target: '+ event.target);
+			console.log(event);
 		}
 	});
 });

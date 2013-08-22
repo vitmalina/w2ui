@@ -28,10 +28,10 @@ $(function () {
             { field: 'email', caption: 'Email', size: '100%', searchable: true },
             { field: 'login', caption: 'Login', size: '150px', searchable: true }
         ],
-        onAdd: function (target, data) {
+        onAdd: function (event) {
         	editUser(0);
         },
-        onDblClick: function (target, data) {
+        onDblClick: function (event) {
         	editUser(data.recid);
         }
     });

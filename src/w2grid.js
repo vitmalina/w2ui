@@ -22,6 +22,7 @@
 *	- add enum to advanced search fields
 *	- cut and paste into excell
 *	- add searchFieldApply to easy add custom search fields (or somewho else)
+*	- all function that take recid as argument, should check if object was given and use it instead.
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -699,7 +700,7 @@
 					if (record.selected === true) continue;
 					// event before
 					var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, recid: recid });
-					if (eventData.stop === true) continue;
+					if (eventData.isCancelled === true) continue;
 					// default action
 					record.selected = true;
 					$('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).addClass('w2ui-selected').data('selected', 'yes');
@@ -716,7 +717,7 @@
 					if ($.isArray(s) && s.indexOf(col) != -1) continue;
 					// event before
 					var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, recid: recid, column: col });
-					if (eventData.stop === true) continue;
+					if (eventData.isCancelled === true) continue;
 					// default action
 					if (!$.isArray(s)) record.selectedColumns = [];
 					record.selected = true;
@@ -756,7 +757,7 @@
 					if (record.selected !== true) continue;
 					// event before
 					var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid });
-					if (eventData.stop === true) continue;
+					if (eventData.isCancelled === true) continue;
 					// default action
 					record.selected = false
 					var el = $('#grid_'+this.name +'_rec_'+ w2utils.escapeId(record.recid));
@@ -775,7 +776,7 @@
 					if (!$.isArray(s) || s.indexOf(col) == -1) continue;
 					// event before
 					var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, column: col });
-					if (eventData.stop === true) continue;
+					if (eventData.isCancelled === true) continue;
 					// default action
 					s.splice(s.indexOf(col), 1);
 					$('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid) + ' > td[col='+ col +']').removeClass('w2ui-selected');
@@ -807,7 +808,7 @@
 			if (this.multiSelect === false) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			// default action
 			var cols = [];
 			for (var c in this.columns) cols.push(parseInt(c));
@@ -847,7 +848,7 @@
 		selectNone: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			// default action
 			this.last.selected = [];
 			for (var i in this.records) {
@@ -1009,7 +1010,7 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData, 
 					searchField: (field ? field : 'multi'), searchValue: (value ? value : 'multi') });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			// default action			
 			this.searchData	 = eventData.searchData;
 			this.last.field  = last_field;
@@ -1105,7 +1106,7 @@
 		searchReset: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			// default action
 			this.searchData  	= [];
 			this.last.search 	= '';
@@ -1225,7 +1226,7 @@
 			// event before
 			if (cmd == 'get-records') {
 				var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
-				if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
+				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack(); return false; }
 			} else {
 				var eventData = { url: this.url, postData: params };
 			}
@@ -1266,7 +1267,7 @@
 			if (this.last.xhr_cmd == 'save-records') event_name   = 'saved';
 			if (this.last.xhr_cmd == 'delete-records') event_name = 'deleted';
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
-			if (eventData.stop === true) {
+			if (eventData.isCancelled === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
@@ -1338,7 +1339,7 @@
 			var obj = this;
 			// let the management of the error outside of the grid
 			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
-			if (eventData.stop === true) {
+			if (eventData.isCancelled === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
@@ -1365,7 +1366,7 @@
 			var changed = this.getChanged();
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			if (this.url != '') {
 				this.request('save-records', { 'changed' : eventData.changed }, null, 
 					function () { // event after
@@ -1423,7 +1424,7 @@
 						// change event
 						var eventData = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, 
 							recid: recid, column: column, original: obj.parseObj(rec, col.field) });
-						if (eventData.stop === true) return false;
+						if (eventData.isCancelled === true) return false;
 						// default action
 						rec.changed = true;
 						rec.changes = rec.changes || {};
@@ -1548,7 +1549,7 @@
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			force = eventData.force;
 			// default action
 			var recs = this.getSelection();
@@ -1598,8 +1599,8 @@
 				column = parseInt($(tmp).attr('col'));
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, event: event });
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, originalEvent: event });
+			if (eventData.isCancelled === true) return false;
 			// if it is subgrid unselect top grid
 			var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).parents('tr');
 			if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
@@ -1695,7 +1696,7 @@
 			if (obj.keyboard !== true) return;
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default behavior
 			var sel 	= obj.getSelection();
 			if (sel.length == 0) return;
@@ -2094,8 +2095,8 @@
 				column = parseInt($(tmp).attr('col'));
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, event: event });
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, originalEvent: event });
+			if (eventData.isCancelled === true) return false;
 			// default action
 			this.selectNone();
 			var col = this.columns[column];
@@ -2134,7 +2135,7 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid, 
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', ready: ready });
-			if (eventData.stop === true) { 	
+			if (eventData.isCancelled === true) { 	
 				$('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove(); 
 				return false; 
 			}
@@ -2167,7 +2168,7 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid,
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded' });
-			if (eventData.stop === true) return false; 
+			if (eventData.isCancelled === true) return false; 
 			// default action
 			$('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded');
 			$('#grid_'+ this.name +'_rec_'+ id +'_expanded').css('opacity', 0);
@@ -2187,8 +2188,8 @@
 
 		sort: function (field, direction, event) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, event: event });
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, originalEvent: event });
+			if (eventData.isCancelled === true) return false;
 			// check if needed to quit
 			if (typeof field == 'undefined') {
 				this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2270,7 +2271,7 @@
 			text = text.trim('\n');
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
-			if (eventData.stop === true) return '';
+			if (eventData.isCancelled === true) return '';
 			text = eventData.text;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2287,7 +2288,7 @@
 			var col = sel[0].column;
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			text = eventData.text;
 			// default action
 			var newSel = [];
@@ -2330,7 +2331,7 @@
 				.css('height', $(this.box).height());
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// resize
 			obj.resizeBoxes(); 
 			obj.resizeRecords();
@@ -2357,7 +2358,7 @@
 			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// -- header
 			if (this.show.header) {
 				$('#grid_'+ this.name +'_header').html(this.header +'&nbsp;').show();
@@ -2468,7 +2469,7 @@
 			for (var r in rows) {
 				var eventData2 = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: this.records[rows[r]].recid, 
 					box_id: 'grid_'+ this.name +'_rec_'+ w2utils.escapeId(this.records[rows[r]].recid) +'_expanded' });
-				if (eventData2.stop === true) return false; 
+				if (eventData2.isCancelled === true) return false; 
 				// event after
 				this.trigger($.extend(eventData2, { phase: 'after' }));
 			}
@@ -2502,7 +2503,7 @@
 			if (this.last.sortData == null) this.last.sortData = this.sortData;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// insert Elements
 			$(this.box)
 				.attr('name', this.name)
@@ -2617,7 +2618,7 @@
 		destroy: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// remove events
 			$(window).off('resize', this.tmp_resize);
 			// clean up
@@ -2677,8 +2678,8 @@
 
 		columnOnOff: function (el, event, field, value) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, event: event });
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, originalEvent: event });
+			if (eventData.isCancelled === true) return false;
 			// regular processing
 			var obj = this;
 			// collapse expanded rows
@@ -2799,11 +2800,11 @@
 				var obj = this;
 				this.toolbar.on('click', function (id, data) {
 					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: id, data: data });
-					if (eventData.stop === true) return false;
+					if (eventData.isCancelled === true) return false;
 					switch (id) {
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
-							if (eventData2.stop === true) return false;
+							if (eventData2.isCancelled === true) return false;
 							// obj.reset(true); // do not reset to preserve search and sort
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));

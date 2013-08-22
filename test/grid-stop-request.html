@@ -13,12 +13,12 @@ $(function () {
 		name: 'grid', 
 		header: 'List of Names',
         url:'testurl',
-        onRequest:function(target,data){
-            if(data.phase!=='before'){
+        onRequest:function(event){
+            if(event.phase!=='before'){
                 return;
             }
             
-            data.stop=true;
+            event.stop=true;
             var responseData={
             total: 28,
             page: 0,

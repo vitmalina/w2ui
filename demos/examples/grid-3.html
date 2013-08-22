@@ -74,8 +74,8 @@ $('#grid').w2grid({
 		{ type: 'text', field: 'lname', caption: 'Last Name' },
 		{ type: 'date', field: 'sdate', caption: 'Start Date' }
 	],
-	onExpand: function (target, info) {
-		$('#'+info.box_id).html('<div style="padding: 10px">Expanded content</div>').animate({ 'height': 100 }, 100);
+	onExpand: function (event) {
+		$('#'+event.box_id).html('<div style="padding: 10px">Expanded content</div>').animate({ 'height': 100 }, 100);
 	}
 });	
 		</textarea>
@@ -161,8 +161,8 @@ $(function () {
 			{ type: 'text', field: 'lname', caption: 'Last Name' },
 			{ type: 'date', field: 'sdate', caption: 'Start Date' }
 		],
-		onExpand: function (target, info) {
-			$('#'+info.box_id).html('<div style="padding: 10px">Expanded content</div>').animate({ 'height': 100 }, 100);
+		onExpand: function (event) {
+			$('#'+event.box_id).html('<div style="padding: 10px">Expanded content</div>').animate({ 'height': 100 }, 100);
 		}
 	});	
 });

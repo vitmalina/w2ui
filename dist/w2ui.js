@@ -13,7 +13,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
 *	- bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *	- overlay should be displayed where more space (on top or on bottom)
-* 	- write and article how to replace certail framework functions
+* 	- write and article how to replace certain framework functions
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
@@ -23,6 +23,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added w2utils.formatNumber()
 *	- added w2menu() plugin
 *	- added formatTime(), formatDateTime()
+*	- refactor event flow: instead of (target, data) -> (event), back compatibile
 *
 ************************************************/
 
@@ -65,9 +66,9 @@ var w2utils = (function () {
 		base64decode	: base64decode,
 		transition		: transition,
 		lang 			: lang,
+		locale	 		: locale,
 		getSize			: getSize,
-		scrollBarSize	: scrollBarSize,
-		locale	 		: locale
+		scrollBarSize	: scrollBarSize
 	}
 	return obj;
 	
@@ -97,7 +98,7 @@ var w2utils = (function () {
 	}
 	
 	function isEmail (val) {
-		var email = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}$/;
+		var email = /^[a-zA-Z0-9._-%]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 		return email.test(val); 
 	}
 
@@ -739,7 +740,7 @@ $.w2event = {
 	
 	off: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
-		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComleted: null }, eventData);
+		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, eventData);
 	
 		if (typeof eventData.type == 'undefined') { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
 		if (typeof handler == 'undefined') { handler = null;  }
@@ -759,39 +760,60 @@ $.w2event = {
 	},
 		
 	trigger: function (eventData) {
-		var eventData = $.extend({ type: null, phase: 'before', target: null, stop: false }, eventData,
-			{ preventDefault: function () { this.stop = true; } });
+		// should have isStopped(), isCancelled() - where bubbling stopped or cancelled
+		// should have stopPropagation()
+		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
+				preventDefault 	: function () { this.isCancelled = true; },
+				stopPropagation : function () { this.isStopped   = true; },
+			});
 		if (typeof eventData.target == 'undefined') eventData.target = null;		
 		// process events in REVERSE order 
 		for (var h = this.handlers.length-1; h >= 0; h--) {
-			var t = this.handlers[h];
-			if ( (t.event.type == eventData.type || t.event.type == '*') 
-					&& (t.event.target == eventData.target || t.event.target == null)
-					&& (t.event.execute == eventData.phase || t.event.execute == '*' || t.event.phase == '*') ) {
-				var ret = t.handler.call(this, eventData.target, eventData);
-				if ($.isPlainObject(ret)) { 
-					$.extend(eventData, ret);
-					if (eventData.stop === true) return eventData; 
+			var fun = this.handlers[h];
+			if ( (fun.event.type == eventData.type || fun.event.type == '*') 
+					&& (fun.event.target == eventData.target || fun.event.target == null)
+					&& (fun.event.execute == eventData.phase || fun.event.execute == '*' || fun.event.phase == '*') ) {
+				// check handler arguments
+				var args = [];
+				var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun.handler);
+				if (tmp) args = tmp[2].split(/\s*,\s*/);
+				if (args.length == 2) {
+					fun.handler.call(this, eventData.target, eventData); // old way for back compatibility
+				} else {
+					fun.handler.call(this, eventData); // new way
 				}
+				if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 			}
 		}		
 		// main object events
-		if (eventData.phase == 'before' 
-				&& typeof this['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)] == 'function') {
-			var ret = this['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)].call(this, eventData.target, eventData);
-			if ($.isPlainObject(ret)) { 
-				$.extend(eventData, ret);
-				if (eventData.stop === true) return eventData; 
+		var funName = 'on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1);
+		if (eventData.phase == 'before' && typeof this[funName] == 'function') {
+			var fun = this[funName];
+			// check handler arguments
+			var args = [];
+			var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun);
+			if (tmp) args = tmp[2].split(/\s*,\s*/);
+			if (args.length == 2) {
+				fun.call(this, eventData.target, eventData); // old way for back compatibility
+			} else {
+				fun.call(this, eventData); // new way
 			}
+			if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 		}
 		// item object events
 		if (typeof eventData.object != 'undefined' && eventData.object != null && eventData.phase == 'before'
-				&& typeof eventData.object['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)] == 'function') {
-			var ret = eventData.object['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)].call(this, eventData.target, eventData);
-			if ($.isPlainObject(ret)) { 
-				$.extend(eventData, ret);
-				if (eventData.stop === true) return eventData; 
+				&& typeof eventData.object[funName] == 'function') {
+			var fun = eventData.object[funName];
+			// check handler arguments
+			var args = [];
+			var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun);
+			if (tmp) args = tmp[2].split(/\s*,\s*/);
+			if (args.length == 2) {
+				fun.call(this, eventData.target, eventData); // old way for back compatibility
+			} else {
+				fun.call(this, eventData); // new way
 			}
+			if (eventData.isStopped === true || eventData.stop === true) return eventData; 
 		}
 		// execute onComplete
 		if (eventData.phase == 'after' && eventData.onComplete != null)	eventData.onComplete.call(this, eventData);
@@ -1125,6 +1147,7 @@ w2utils.keyboard = (function (obj) {
 *	- add enum to advanced search fields
 *	- cut and paste into excell
 *	- add searchFieldApply to easy add custom search fields (or somewho else)
+*	- all function that take recid as argument, should check if object was given and use it instead.
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -1802,7 +1825,7 @@ w2utils.keyboard = (function (obj) {
 					if (record.selected === true) continue;
 					// event before
 					var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, recid: recid });
-					if (eventData.stop === true) continue;
+					if (eventData.isCancelled === true) continue;
 					// default action
 					record.selected = true;
 					$('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).addClass('w2ui-selected').data('selected', 'yes');
@@ -1819,7 +1842,7 @@ w2utils.keyboard = (function (obj) {
 					if ($.isArray(s) && s.indexOf(col) != -1) continue;
 					// event before
 					var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, recid: recid, column: col });
-					if (eventData.stop === true) continue;
+					if (eventData.isCancelled === true) continue;
 					// default action
 					if (!$.isArray(s)) record.selectedColumns = [];
 					record.selected = true;
@@ -1859,7 +1882,7 @@ w2utils.keyboard = (function (obj) {
 					if (record.selected !== true) continue;
 					// event before
 					var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid });
-					if (eventData.stop === true) continue;
+					if (eventData.isCancelled === true) continue;
 					// default action
 					record.selected = false
 					var el = $('#grid_'+this.name +'_rec_'+ w2utils.escapeId(record.recid));
@@ -1878,7 +1901,7 @@ w2utils.keyboard = (function (obj) {
 					if (!$.isArray(s) || s.indexOf(col) == -1) continue;
 					// event before
 					var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, column: col });
-					if (eventData.stop === true) continue;
+					if (eventData.isCancelled === true) continue;
 					// default action
 					s.splice(s.indexOf(col), 1);
 					$('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid) + ' > td[col='+ col +']').removeClass('w2ui-selected');
@@ -1910,7 +1933,7 @@ w2utils.keyboard = (function (obj) {
 			if (this.multiSelect === false) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			// default action
 			var cols = [];
 			for (var c in this.columns) cols.push(parseInt(c));
@@ -1950,7 +1973,7 @@ w2utils.keyboard = (function (obj) {
 		selectNone: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			// default action
 			this.last.selected = [];
 			for (var i in this.records) {
@@ -2112,7 +2135,7 @@ w2utils.keyboard = (function (obj) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData, 
 					searchField: (field ? field : 'multi'), searchValue: (value ? value : 'multi') });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			// default action			
 			this.searchData	 = eventData.searchData;
 			this.last.field  = last_field;
@@ -2208,7 +2231,7 @@ w2utils.keyboard = (function (obj) {
 		searchReset: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			// default action
 			this.searchData  	= [];
 			this.last.search 	= '';
@@ -2328,7 +2351,7 @@ w2utils.keyboard = (function (obj) {
 			// event before
 			if (cmd == 'get-records') {
 				var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
-				if (eventData.stop === true) { if (typeof callBack == 'function') callBack(); return false; }
+				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack(); return false; }
 			} else {
 				var eventData = { url: this.url, postData: params };
 			}
@@ -2369,7 +2392,7 @@ w2utils.keyboard = (function (obj) {
 			if (this.last.xhr_cmd == 'save-records') event_name   = 'saved';
 			if (this.last.xhr_cmd == 'delete-records') event_name = 'deleted';
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
-			if (eventData.stop === true) {
+			if (eventData.isCancelled === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
@@ -2441,7 +2464,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			// let the management of the error outside of the grid
 			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
-			if (eventData.stop === true) {
+			if (eventData.isCancelled === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
@@ -2468,7 +2491,7 @@ w2utils.keyboard = (function (obj) {
 			var changed = this.getChanged();
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			if (this.url != '') {
 				this.request('save-records', { 'changed' : eventData.changed }, null, 
 					function () { // event after
@@ -2526,7 +2549,7 @@ w2utils.keyboard = (function (obj) {
 						// change event
 						var eventData = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, 
 							recid: recid, column: column, original: obj.parseObj(rec, col.field) });
-						if (eventData.stop === true) return false;
+						if (eventData.isCancelled === true) return false;
 						// default action
 						rec.changed = true;
 						rec.changes = rec.changes || {};
@@ -2651,7 +2674,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			force = eventData.force;
 			// default action
 			var recs = this.getSelection();
@@ -2701,8 +2724,8 @@ w2utils.keyboard = (function (obj) {
 				column = parseInt($(tmp).attr('col'));
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, event: event });
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, originalEvent: event });
+			if (eventData.isCancelled === true) return false;
 			// if it is subgrid unselect top grid
 			var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).parents('tr');
 			if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
@@ -2798,7 +2821,7 @@ w2utils.keyboard = (function (obj) {
 			if (obj.keyboard !== true) return;
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default behavior
 			var sel 	= obj.getSelection();
 			if (sel.length == 0) return;
@@ -3197,8 +3220,8 @@ w2utils.keyboard = (function (obj) {
 				column = parseInt($(tmp).attr('col'));
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, event: event });
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, originalEvent: event });
+			if (eventData.isCancelled === true) return false;
 			// default action
 			this.selectNone();
 			var col = this.columns[column];
@@ -3237,7 +3260,7 @@ w2utils.keyboard = (function (obj) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid, 
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', ready: ready });
-			if (eventData.stop === true) { 	
+			if (eventData.isCancelled === true) { 	
 				$('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove(); 
 				return false; 
 			}
@@ -3270,7 +3293,7 @@ w2utils.keyboard = (function (obj) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid,
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded' });
-			if (eventData.stop === true) return false; 
+			if (eventData.isCancelled === true) return false; 
 			// default action
 			$('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded');
 			$('#grid_'+ this.name +'_rec_'+ id +'_expanded').css('opacity', 0);
@@ -3290,8 +3313,8 @@ w2utils.keyboard = (function (obj) {
 
 		sort: function (field, direction, event) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, event: event });
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, originalEvent: event });
+			if (eventData.isCancelled === true) return false;
 			// check if needed to quit
 			if (typeof field == 'undefined') {
 				this.trigger($.extend(eventData, { phase: 'after' }));
@@ -3373,7 +3396,7 @@ w2utils.keyboard = (function (obj) {
 			text = text.trim('\n');
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
-			if (eventData.stop === true) return '';
+			if (eventData.isCancelled === true) return '';
 			text = eventData.text;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -3390,7 +3413,7 @@ w2utils.keyboard = (function (obj) {
 			var col = sel[0].column;
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 			text = eventData.text;
 			// default action
 			var newSel = [];
@@ -3433,7 +3456,7 @@ w2utils.keyboard = (function (obj) {
 				.css('height', $(this.box).height());
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// resize
 			obj.resizeBoxes(); 
 			obj.resizeRecords();
@@ -3460,7 +3483,7 @@ w2utils.keyboard = (function (obj) {
 			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// -- header
 			if (this.show.header) {
 				$('#grid_'+ this.name +'_header').html(this.header +'&nbsp;').show();
@@ -3571,7 +3594,7 @@ w2utils.keyboard = (function (obj) {
 			for (var r in rows) {
 				var eventData2 = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: this.records[rows[r]].recid, 
 					box_id: 'grid_'+ this.name +'_rec_'+ w2utils.escapeId(this.records[rows[r]].recid) +'_expanded' });
-				if (eventData2.stop === true) return false; 
+				if (eventData2.isCancelled === true) return false; 
 				// event after
 				this.trigger($.extend(eventData2, { phase: 'after' }));
 			}
@@ -3605,7 +3628,7 @@ w2utils.keyboard = (function (obj) {
 			if (this.last.sortData == null) this.last.sortData = this.sortData;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// insert Elements
 			$(this.box)
 				.attr('name', this.name)
@@ -3720,7 +3743,7 @@ w2utils.keyboard = (function (obj) {
 		destroy: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// remove events
 			$(window).off('resize', this.tmp_resize);
 			// clean up
@@ -3780,8 +3803,8 @@ w2utils.keyboard = (function (obj) {
 
 		columnOnOff: function (el, event, field, value) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, event: event });
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, originalEvent: event });
+			if (eventData.isCancelled === true) return false;
 			// regular processing
 			var obj = this;
 			// collapse expanded rows
@@ -3902,11 +3925,11 @@ w2utils.keyboard = (function (obj) {
 				var obj = this;
 				this.toolbar.on('click', function (id, data) {
 					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: id, data: data });
-					if (eventData.stop === true) return false;
+					if (eventData.isCancelled === true) return false;
 					switch (id) {
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
-							if (eventData2.stop === true) return false;
+							if (eventData2.isCancelled === true) return false;
 							// obj.reset(true); // do not reset to preserve search and sort
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
@@ -5175,7 +5198,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, panel: this.get(panel), immediate: immediate });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 	
 			var p = obj.get(panel);
 			if (p == null) return false;
@@ -5219,7 +5242,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, panel: this.get(panel), immediate: immediate });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 	
 			var p = obj.get(panel);
 			if (p == null) return false;
@@ -5324,7 +5347,7 @@ w2utils.keyboard = (function (obj) {
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'render', target: obj.name, box: box });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 	
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(obj.box).find('#layout_'+ obj.name +'_panel_main').length > 0) {
@@ -5374,7 +5397,7 @@ w2utils.keyboard = (function (obj) {
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (typeof panel != 'undefined' ? panel : obj.name), panel: obj.get(panel) });	
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 	
 			obj.unlock(panel);
 			if (panel != null && typeof panel != 'undefined') {
@@ -5423,7 +5446,7 @@ w2utils.keyboard = (function (obj) {
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp_resizing });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			if (this.padding < 0) this.padding = 0;
 	
 			// layout itself
@@ -5699,7 +5722,7 @@ w2utils.keyboard = (function (obj) {
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			if (typeof w2ui[this.name] == 'undefined') return false;
 			// clean up
 			if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
@@ -5818,8 +5841,8 @@ w2utils.keyboard = (function (obj) {
 			if (typeof this.tmp_resizing == 'undefined') return;
 			var panel = this.get(this.tmp_resizing);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resizing', target: this.tmp_resizing, object: panel, event: evnt });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'resizing', target: this.tmp_resizing, object: panel, originalEvent: evnt });	
+			if (eventData.isCancelled === true) return false;
 
 			var p = $('#layout_'+ this.name + '_resizer_'+ this.tmp_resizing);
 			if (!p.hasClass('active')) p.addClass('active');
@@ -6798,7 +6821,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), tab: this.get(id) });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// create or refresh only one item
 			var tab = this.get(id);
 			if (tab == null) return;
@@ -6835,7 +6858,7 @@ w2utils.keyboard = (function (obj) {
 		render: function (box) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (String(box) != 'undefined' && box != null) { 
@@ -6866,7 +6889,7 @@ w2utils.keyboard = (function (obj) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// empty function
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -6875,7 +6898,7 @@ w2utils.keyboard = (function (obj) {
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
 				$(this.box)
@@ -6895,8 +6918,8 @@ w2utils.keyboard = (function (obj) {
 			var tab = this.get(id);
 			if (tab == null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: this.get(id), event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: this.get(id), originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
 			this.active = tab.id;
@@ -6909,8 +6932,8 @@ w2utils.keyboard = (function (obj) {
 			var tab = this.get(id);
 			if (tab == null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, tab: this.get(id), event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, tab: this.get(id), originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default action
 			var obj = this;
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css({ 
@@ -7228,7 +7251,7 @@ w2utils.keyboard = (function (obj) {
 		render: function (box) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 	 
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
@@ -7270,7 +7293,7 @@ w2utils.keyboard = (function (obj) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id) });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			
 			if (typeof id == 'undefined') {
 				// refresh all
@@ -7312,7 +7335,7 @@ w2utils.keyboard = (function (obj) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 
 			// empty function
 
@@ -7323,7 +7346,7 @@ w2utils.keyboard = (function (obj) {
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 				$(this.box)
@@ -7401,8 +7424,8 @@ w2utils.keyboard = (function (obj) {
 			if (it && !it.disabled) {
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id),
-					  subItem: (typeof menu_index != 'undefined' && this.get(id) ? this.get(id).items[menu_index] : null), event: event });	
-				if (eventData.stop === true) return false;
+					  subItem: (typeof menu_index != 'undefined' && this.get(id) ? this.get(id).items[menu_index] : null), originalEvent: event });	
+				if (eventData.isCancelled === true) return false;
 
 				// normal processing
 
@@ -7418,8 +7441,8 @@ w2utils.keyboard = (function (obj) {
 			if (it && !it.disabled) {
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id != 'undefined' ? id : this.name), 
-					item: this.get(id), event: event });	
-				if (eventData.stop === true) return false;
+					item: this.get(id), originalEvent: event });	
+				if (eventData.isCancelled === true) return false;
 			
 				$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('down');
 								
@@ -7821,7 +7844,7 @@ w2utils.keyboard = (function (obj) {
 		expand: function (id) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			var nd = this.get(id);
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
@@ -7835,7 +7858,7 @@ w2utils.keyboard = (function (obj) {
 		collapse: function (id) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp('fast');		
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
@@ -7889,8 +7912,8 @@ w2utils.keyboard = (function (obj) {
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, event: event });	
-				if (eventData.stop === true) {
+				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event });	
+				if (eventData.isCancelled === true) {
 					// restore selection
 					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
 					$(obj.box).find('#node_'+ w2utils.escapeId(old)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
@@ -7910,8 +7933,8 @@ w2utils.keyboard = (function (obj) {
 			var nd  = obj.get(obj.selected);
 			if (!nd || obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default behaviour
 			if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
 				if (nd.nodes.length > 0) obj.toggle(obj.selected);
@@ -8008,8 +8031,8 @@ w2utils.keyboard = (function (obj) {
 		dblClick: function (id, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default action
 			var nd = this.get(id);
 			if (nd.nodes.length > 0) this.toggle(id);
@@ -8020,8 +8043,8 @@ w2utils.keyboard = (function (obj) {
 		contextMenu: function (id, event) {
 			var obj = this;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });	
-			if (eventData.stop === true) return false;		
+			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event });	
+			if (eventData.isCancelled === true) return false;		
 			// default action
 			var nd = obj.get(id);
 			if (id != obj.selected) obj.click(id);
@@ -8042,8 +8065,8 @@ w2utils.keyboard = (function (obj) {
 		menuClick: function (itemId, event, index) {
 			var obj = this;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, event: event, menuIndex: index, menuItem: obj.menu[index] });	
-			if (eventData.stop === true) return false;		
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });	
+			if (eventData.isCancelled === true) return false;		
 			// default action
 			// -- empty
 			// event after
@@ -8053,7 +8076,7 @@ w2utils.keyboard = (function (obj) {
 		render: function (box) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
@@ -8100,7 +8123,7 @@ w2utils.keyboard = (function (obj) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// adjust top and bottom
 			if (this.topHTML != '') {
 				$(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
@@ -8204,7 +8227,7 @@ w2utils.keyboard = (function (obj) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).css('overflow', 'hidden');	// container should have no overflow
 			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'hidden');
@@ -8220,7 +8243,7 @@ w2utils.keyboard = (function (obj) {
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 				$(this.box)
@@ -9719,7 +9742,6 @@ w2utils.keyboard = (function (obj) {
 			// clear all enum fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				if (field.options && field.options.selected) delete field.options.selected;
 			}
 			$().w2tag();
 			this.refresh();
@@ -9729,7 +9751,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			// let the management of the error outside of the grid
 			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
-			if (eventData.stop === true) {
+			if (eventData.isCancelled === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
@@ -9807,7 +9829,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
-			if (eventData.stop === true) return errors;
+			if (eventData.isCancelled === true) return errors;
 			// show error
 			if (showErrors) for (var e in eventData.errors) {
 				var err = eventData.errors[e];
@@ -9839,7 +9861,7 @@ w2utils.keyboard = (function (obj) {
 			$.extend(params, postData);
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
-			if (eventData.stop === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return false; }
+			if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return false; }
 			// default action
 			this.record	  = {};
 			this.original = {};
@@ -9855,7 +9877,7 @@ w2utils.keyboard = (function (obj) {
 					obj.unlock();
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr, status: status });	
-					if (eventData.stop === true) {
+					if (eventData.isCancelled === true) {
 						if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 						return false;
 					}
@@ -9953,7 +9975,7 @@ w2utils.keyboard = (function (obj) {
 				}
 				// event before
 				var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
-				if (eventData.stop === true) { 
+				if (eventData.isCancelled === true) { 
 					if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' }); 
 					return false; 
 				}
@@ -9980,7 +10002,7 @@ w2utils.keyboard = (function (obj) {
 
 						// event before
 						var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
-						if (eventData.stop === true) {
+						if (eventData.isCancelled === true) {
 							if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
 							return false;
 						}
@@ -10110,8 +10132,8 @@ w2utils.keyboard = (function (obj) {
 
 		action: function (action, event) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default actions
 			if (typeof (this.actions[action]) == 'function') {
 				this.actions[action].call(this, event);
@@ -10124,7 +10146,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default behaviour
 			var main 	= $(this.box).find('> div');
 			var header	= $(this.box).find('> div .w2ui-form-header');
@@ -10178,7 +10200,7 @@ w2utils.keyboard = (function (obj) {
 			});			
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('.w2ui-page').hide();
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
@@ -10206,16 +10228,15 @@ w2utils.keyboard = (function (obj) {
 					var field 			= obj.get(this.name);
 					if ((field.type == 'enum' || field.type == 'upload') && $(this).data('selected')) {
 						var new_arr = $(this).data('selected');
-						var cur_arr = obj.get(this.name).selected;
+						var cur_arr =  obj.record[this.name];
 						var value_new = [];
 						var value_previous = [];
 						if ($.isArray(new_arr)) for (var i in new_arr) value_new[i] = $.extend(true, {}, new_arr[i]); // clone array
 						if ($.isArray(cur_arr)) for (var i in cur_arr) value_previous[i] = $.extend(true, {}, cur_arr[i]); // clone array
-						obj.get(this.name).selected = value_new;
 					}
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-					if (eventData.stop === true) { 
+					if (eventData.isCancelled === true) { 
 						$(this).val(obj.record[this.name]); // return previous value
 						return false;
 					}
@@ -10302,8 +10323,9 @@ w2utils.keyboard = (function (obj) {
 							console.log("ERROR: (w2form."+ obj.name +") the field "+ field.name +" defined as enum but not field.options.url or field.options.items provided.");
 							break;
 						}
-						var sel = value;
-						// if (field.selected) sel = field.selected;
+						// normalize value
+						this.record[field.name] = w2obj.field.cleanItems(value);
+						value = this.record[field.name];
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: value }) );
 						break;
 					case 'upload':
@@ -10338,7 +10360,7 @@ w2utils.keyboard = (function (obj) {
 			if (!this.isGenerated) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default actions
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
@@ -10380,7 +10402,7 @@ w2utils.keyboard = (function (obj) {
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// clean up
 			if (typeof this.tabs == 'object' && this.tabs.destroy) this.tabs.destroy();
 			if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {

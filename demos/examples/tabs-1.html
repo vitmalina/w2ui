@@ -30,8 +30,8 @@ $('#tabs').w2tabs({
 		{ id: 'tab3', caption: 'Tab 3' },
 		{ id: 'tab4', caption: 'Tab 4' }
 	],
-	onClick: function (target, data) {
-		$('#selected-tab').html(target);
+	onClick: function (event) {
+		$('#selected-tab').html(event.target);
 	}
 });
 		</textarea>
@@ -52,8 +52,8 @@ $(document).ready(function () {
 			{ id: 'tab3', caption: 'Tab 3' },
 			{ id: 'tab4', caption: 'Tab 4' }
 		],
-		onClick: function (target, data) {
-			$('#selected-tab').html(target);
+		onClick: function (event) {
+			$('#selected-tab').html(event.target);
 		}
 	});
 });

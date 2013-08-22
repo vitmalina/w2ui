@@ -38,10 +38,10 @@ $(function () {
 			{ type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
 		]
 	});
-	w2ui['layout'].on('*', function (target, data) {
-		console.log('Event: '+ data.type + ' Target: '+ target);
-		console.log(data);
+	w2ui['layout'].on('*', function (event) {
+		console.log('Event: '+ event.type + ' Target: '+ event.target);
+		console.log(event);
 		var log = $('#eventList').html();
-		$('#eventList').html( log + (log != '' ? '<br>' : '') + data.type + ': '+ target);
+		$('#eventList').html( log + (log != '' ? '<br>' : '') + event.type + ': '+ event.target);
 	});
 });

@@ -41,9 +41,9 @@ $('#grid1').w2grid({
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'kelly@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'frank@apple.com', sdate: '4/3/2012' }
 	],
-	onClick: function (target, eventData) {
+	onClick: function (event) {
 		w2ui['grid2'].clear();
-		var record = this.get(eventData.recid);
+		var record = this.get(event.recid);
 		w2ui['grid2'].add([
 			{ recid: 0, name: 'ID:', value: record.recid },
 			{ recid: 1, name: 'First Name:', value: record.fname },
@@ -51,7 +51,6 @@ $('#grid1').w2grid({
 			{ recid: 3, name: 'Email:', value: record.email },
 			{ recid: 4, name: 'Date:', value: record.sdate }
 		]);
-		return eventData;
 	}
 });
 
@@ -94,9 +93,9 @@ $(function () {
 			{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'kelly@gmail.com', sdate: '4/3/2012' },
 			{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'frank@apple.com', sdate: '4/3/2012' }
 		],
-		onClick: function (target, eventData) {
+		onClick: function (event) {
 			w2ui['grid2'].clear();
-			var record = this.get(eventData.recid);
+			var record = this.get(event.recid);
 			w2ui['grid2'].add([
 				{ recid: 0, name: 'ID:', value: record.recid },
 				{ recid: 1, name: 'First Name:', value: record.fname },
@@ -104,7 +103,6 @@ $(function () {
 				{ recid: 3, name: 'Email:', value: record.email },
 				{ recid: 4, name: 'Date:', value: record.sdate }
 			]);
-			return eventData;
 		}
 	});
 	

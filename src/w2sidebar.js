@@ -333,7 +333,7 @@
 		expand: function (id) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			var nd = this.get(id);
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
@@ -347,7 +347,7 @@
 		collapse: function (id) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp('fast');		
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
@@ -401,8 +401,8 @@
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, event: event });	
-				if (eventData.stop === true) {
+				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event });	
+				if (eventData.isCancelled === true) {
 					// restore selection
 					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
 					$(obj.box).find('#node_'+ w2utils.escapeId(old)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
@@ -422,8 +422,8 @@
 			var nd  = obj.get(obj.selected);
 			if (!nd || obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default behaviour
 			if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
 				if (nd.nodes.length > 0) obj.toggle(obj.selected);
@@ -520,8 +520,8 @@
 		dblClick: function (id, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default action
 			var nd = this.get(id);
 			if (nd.nodes.length > 0) this.toggle(id);
@@ -532,8 +532,8 @@
 		contextMenu: function (id, event) {
 			var obj = this;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });	
-			if (eventData.stop === true) return false;		
+			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event });	
+			if (eventData.isCancelled === true) return false;		
 			// default action
 			var nd = obj.get(id);
 			if (id != obj.selected) obj.click(id);
@@ -554,8 +554,8 @@
 		menuClick: function (itemId, event, index) {
 			var obj = this;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, event: event, menuIndex: index, menuItem: obj.menu[index] });	
-			if (eventData.stop === true) return false;		
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });	
+			if (eventData.isCancelled === true) return false;		
 			// default action
 			// -- empty
 			// event after
@@ -565,7 +565,7 @@
 		render: function (box) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
@@ -612,7 +612,7 @@
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// adjust top and bottom
 			if (this.topHTML != '') {
 				$(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
@@ -716,7 +716,7 @@
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).css('overflow', 'hidden');	// container should have no overflow
 			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'hidden');
@@ -732,7 +732,7 @@
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 				$(this.box)

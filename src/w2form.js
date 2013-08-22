@@ -225,7 +225,7 @@
 			var obj = this;
 			// let the management of the error outside of the grid
 			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
-			if (eventData.stop === true) {
+			if (eventData.isCancelled === true) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
@@ -303,7 +303,7 @@
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
-			if (eventData.stop === true) return errors;
+			if (eventData.isCancelled === true) return errors;
 			// show error
 			if (showErrors) for (var e in eventData.errors) {
 				var err = eventData.errors[e];
@@ -335,7 +335,7 @@
 			$.extend(params, postData);
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
-			if (eventData.stop === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return false; }
+			if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return false; }
 			// default action
 			this.record	  = {};
 			this.original = {};
@@ -351,7 +351,7 @@
 					obj.unlock();
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr, status: status });	
-					if (eventData.stop === true) {
+					if (eventData.isCancelled === true) {
 						if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 						return false;
 					}
@@ -449,7 +449,7 @@
 				}
 				// event before
 				var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
-				if (eventData.stop === true) { 
+				if (eventData.isCancelled === true) { 
 					if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' }); 
 					return false; 
 				}
@@ -476,7 +476,7 @@
 
 						// event before
 						var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
-						if (eventData.stop === true) {
+						if (eventData.isCancelled === true) {
 							if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
 							return false;
 						}
@@ -606,8 +606,8 @@
 
 		action: function (action, event) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default actions
 			if (typeof (this.actions[action]) == 'function') {
 				this.actions[action].call(this, event);
@@ -620,7 +620,7 @@
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default behaviour
 			var main 	= $(this.box).find('> div');
 			var header	= $(this.box).find('> div .w2ui-form-header');
@@ -674,7 +674,7 @@
 			});			
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('.w2ui-page').hide();
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
@@ -710,7 +710,7 @@
 					}
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-					if (eventData.stop === true) { 
+					if (eventData.isCancelled === true) { 
 						$(this).val(obj.record[this.name]); // return previous value
 						return false;
 					}
@@ -834,7 +834,7 @@
 			if (!this.isGenerated) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default actions
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
@@ -876,7 +876,7 @@
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// clean up
 			if (typeof this.tabs == 'object' && this.tabs.destroy) this.tabs.destroy();
 			if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {

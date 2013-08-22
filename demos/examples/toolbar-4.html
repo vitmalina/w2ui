@@ -28,9 +28,9 @@ $('#toolbar').w2toolbar({
 		{ type: 'button', id: 'btn', caption: 'Action Button', img: 'icon-page' },
 		{ type: 'button', id: 'btn2', caption: 'Other Button', img: 'icon-page' }
 	],
-	onClick: function (target, data) {
-		if (target == 'show') this.show('btn');
-		if (target == 'hide') this.hide('btn');
+	onClick: function (event) {
+		if (event.target == 'show') this.show('btn');
+		if (event.target == 'hide') this.hide('btn');
 	}
 });
 		</textarea>
@@ -50,9 +50,9 @@ $(function () {
 			{ type: 'button', id: 'btn', caption: 'Action Button', img: 'icon-page' },
 			{ type: 'button', id: 'btn2', caption: 'Other Button', img: 'icon-page' }
 		],
-		onClick: function (target, data) {
-			if (target == 'show') this.show('btn');
-			if (target == 'hide') this.hide('btn');
+		onClick: function (event) {
+			if (event.target == 'show') this.show('btn');
+			if (event.target == 'hide') this.hide('btn');
 		}
 	});
 });

@@ -43,10 +43,10 @@ var config = {
 			{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
 		],
-		onClick: function(target, info) {
+		onClick: function(event) {
 			var grid = this;
 			var form = w2ui.form;
-			info.onComplete = function () {
+			event.onComplete = function () {
 				var sel = grid.getSelection();
 				if (sel.length == 1) {
 					form.recid  = sel[0];

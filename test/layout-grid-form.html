@@ -67,11 +67,11 @@ $(function () {
 			{ recid: 27, fname: 'Shashi', lname: 'bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
 		],
-		onClick: function (target, data) {
-			var rec = this.get(data.recid);
+		onClick: function (event) {
+			var rec = this.get(event.recid);
 			w2ui['form'].record = rec;
 			w2ui['form'].refresh();
-			data.onComplete = function () {
+			event.onComplete = function () {
 				if (this.getSelection().length == 0) $('#delete').attr('disabled', true); else $('#delete').removeAttr('disabled');
 			}
 		}
@@ -88,7 +88,7 @@ $(function () {
 			{ name: 'email', type: 'email' },
 			{ name: 'sdate',  type: 'date' }
 		],
-		onRefresh: function (target, data) {
+		onRefresh: function (event) {
 
 		},
 		actions: {

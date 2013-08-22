@@ -217,7 +217,7 @@
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), tab: this.get(id) });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// create or refresh only one item
 			var tab = this.get(id);
 			if (tab == null) return;
@@ -254,7 +254,7 @@
 		render: function (box) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// default action
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (String(box) != 'undefined' && box != null) { 
@@ -285,7 +285,7 @@
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// empty function
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -294,7 +294,7 @@
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
 				$(this.box)
@@ -314,8 +314,8 @@
 			var tab = this.get(id);
 			if (tab == null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: this.get(id), event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: this.get(id), originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
 			this.active = tab.id;
@@ -328,8 +328,8 @@
 			var tab = this.get(id);
 			if (tab == null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, tab: this.get(id), event: event });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, tab: this.get(id), originalEvent: event });	
+			if (eventData.isCancelled === true) return false;
 			// default action
 			var obj = this;
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css({ 

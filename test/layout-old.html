@@ -16,9 +16,9 @@ $(function () {
 		]
 	});
 
-	w2ui['layout'].on('resize', function(target, data) {
-		console.log(data);
-		data.onComplete = function () {
+	w2ui['layout'].on('resize', function(event) {
+		console.log(event);
+		event.onComplete = function () {
 			var width = w2ui['layout'].get('main').width;
 			var height = w2ui['layout'].get('main').height;
 			console.log(width + 'x' + height);

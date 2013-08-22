@@ -240,7 +240,7 @@
 		render: function (box) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 	 
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
@@ -282,7 +282,7 @@
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id) });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			
 			if (typeof id == 'undefined') {
 				// refresh all
@@ -324,7 +324,7 @@
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 
 			// empty function
 
@@ -335,7 +335,7 @@
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 				$(this.box)
@@ -413,8 +413,8 @@
 			if (it && !it.disabled) {
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id),
-					  subItem: (typeof menu_index != 'undefined' && this.get(id) ? this.get(id).items[menu_index] : null), event: event });	
-				if (eventData.stop === true) return false;
+					  subItem: (typeof menu_index != 'undefined' && this.get(id) ? this.get(id).items[menu_index] : null), originalEvent: event });	
+				if (eventData.isCancelled === true) return false;
 
 				// normal processing
 
@@ -430,8 +430,8 @@
 			if (it && !it.disabled) {
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id != 'undefined' ? id : this.name), 
-					item: this.get(id), event: event });	
-				if (eventData.stop === true) return false;
+					item: this.get(id), originalEvent: event });	
+				if (eventData.isCancelled === true) return false;
 			
 				$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('down');
 								

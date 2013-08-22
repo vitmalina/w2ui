@@ -31,8 +31,8 @@ var config = {
 				{ id: 'html', text: 'Some HTML', img: 'icon-page' }
 			]}
 		],
-		onClick: function (target, info) {
-			switch (target) {
+		onClick: function (event) {
+			switch (event.target) {
 				case 'grid1':
 					w2ui.layout.content('main', w2ui.grid1);
 					break;

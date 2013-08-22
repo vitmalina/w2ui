@@ -36,8 +36,8 @@ $(function () {
 						{ type: 'spacer' },
 						{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save', hint: 'Hint for item 5' }
 					],
-					onClick: function (target, data) {
-						this.owner.content('main', target);
+					onClick: function (event) {
+						this.owner.content('main', event);
 					}
 				}
 			}

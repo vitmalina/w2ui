@@ -49,9 +49,9 @@ $(function () {
 					 ]
 			}
 		],
-		onClick: function (target, data) {
-			console.log(target);
-			console.log(data);
+		onClick: function (event) {
+			console.log(event.target);
+			console.log(event);
 		}
 	});
 });

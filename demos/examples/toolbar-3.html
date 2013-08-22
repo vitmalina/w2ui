@@ -29,16 +29,16 @@ $('#toolbar').w2toolbar({
 		{ type: 'break',  id: 'break0' },
 		{ type: 'break',  id: 'break1' }
 	],
-	onClick: function (target, param) {
-		if (target == 'append') {
+	onClick: function (event) {
+		if (event.target == 'append') {
 			this.add({ type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
 			btnCount++;
 		}
-		if (target == 'insert') {
+		if (event.target == 'insert') {
 			this.insert('break1', { type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
 			btnCount++;
 		}
-		if (target == 'delete') {
+		if (event.target == 'delete') {
 			if (btnCount <= 0) return;
 			btnCount--;
 			this.remove('button'+ btnCount);
@@ -63,16 +63,16 @@ $(function () {
 			{ type: 'break',  id: 'break0' },
 			{ type: 'break',  id: 'break1' }
 		],
-		onClick: function (target, param) {
-			if (target == 'append') {
+		onClick: function (event) {
+			if (event.target == 'append') {
 				this.add({ type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
 				btnCount++;
 			}
-			if (target == 'insert') {
+			if (event.target == 'insert') {
 				this.insert('break1', { type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
 				btnCount++;
 			}
-			if (target == 'delete') {
+			if (event.target == 'delete') {
 				if (btnCount <= 0) return;
 				btnCount--;
 				this.remove('button'+ btnCount);

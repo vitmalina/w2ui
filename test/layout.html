@@ -22,9 +22,9 @@ $(function () {
 						{ id: 'tab3', caption: 'tab3', closable: true },
 						{ id: 'tab4', caption: 'tab4', closable: true }
 					],
-					onClick: function (target, data) {
-						if (target == 'tab1') this.owner.content('main', '<div style="padding:10px">tab1</div>');
-						if (target == 'tab2') this.owner.content('main', '<div style="padding:10px">tab2</div>');
+					onClick: function (event) {
+						if (event.target == 'tab1') this.owner.content('main', '<div style="padding:10px">tab1</div>');
+						if (event.target == 'tab2') this.owner.content('main', '<div style="padding:10px">tab2</div>');
 					}
 				},
 				toolbar: {
@@ -47,9 +47,9 @@ $(function () {
 						{ id: 'tab3', caption: 'tab3', closable: true },
 						{ id: 'tab4', caption: 'tab4', closable: true }
 					],
-					onClick: function (target, data) {
-						if (target == 'tab1') this.owner.content('main', '<div style="padding:10px">tab1</div>');
-						if (target == 'tab2') this.owner.content('main', '<div style="padding:10px">tab2</div>');
+					onClick: function (event) {
+						if (event.target == 'tab1') this.owner.content('main', '<div style="padding:10px">tab1</div>');
+						if (event.target == 'tab2') this.owner.content('main', '<div style="padding:10px">tab2</div>');
 					}
 				},
 			},
@@ -59,9 +59,9 @@ $(function () {
 
 	$('#main_content').append( '<p> works! </p>'); // this code fails.
 
-	w2ui['layout'].on('resize', function(target, data) {
-		data.onComplete = function () {
-			var width = w2ui['layout'].get('main').width;
+	w2ui['layout'].on('resize', function(event) {
+		event.onComplete = function () {
+			var width  = w2ui['layout'].get('main').width;
 			var height = w2ui['layout'].get('main').height;
 		}
 	});

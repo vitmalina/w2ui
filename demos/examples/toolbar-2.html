@@ -40,9 +40,9 @@ $('#toolbar').w2toolbar({
 	]
 });
 
-w2ui['toolbar'].on('*', function (target, data) { 
-	console.log('EVENT: '+ data.type + ' TARGET: '+ target );
-	console.log(data);
+w2ui['toolbar'].on('*', function (event) { 
+	console.log('EVENT: '+ event.type + ' TARGET: '+ event.target );
+	console.log(event);
 });
 		</textarea>
 	</div>
@@ -70,9 +70,9 @@ $(function () {
 		]
 	});
 	
-	w2ui['toolbar'].on('*', function (target, data) { 
-		console.log('EVENT: '+ data.type + ' TARGET: '+ target );
-		console.log(data);
+	w2ui['toolbar'].on('*', function (event) { 
+		console.log('EVENT: '+ event.type + ' TARGET: '+ event.target );
+		console.log(event);
 	});
 });
 </script>

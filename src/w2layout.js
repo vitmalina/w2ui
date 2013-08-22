@@ -199,7 +199,7 @@
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, panel: this.get(panel), immediate: immediate });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 	
 			var p = obj.get(panel);
 			if (p == null) return false;
@@ -243,7 +243,7 @@
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, panel: this.get(panel), immediate: immediate });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 	
 			var p = obj.get(panel);
 			if (p == null) return false;
@@ -348,7 +348,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'render', target: obj.name, box: box });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 	
 			if (typeof box != 'undefined' && box != null) { 
 				if ($(obj.box).find('#layout_'+ obj.name +'_panel_main').length > 0) {
@@ -398,7 +398,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (typeof panel != 'undefined' ? panel : obj.name), panel: obj.get(panel) });	
-			if (eventData.stop === true) return;
+			if (eventData.isCancelled === true) return;
 	
 			obj.unlock(panel);
 			if (panel != null && typeof panel != 'undefined') {
@@ -447,7 +447,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp_resizing });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			if (this.padding < 0) this.padding = 0;
 	
 			// layout itself
@@ -723,7 +723,7 @@
 		destroy: function () { 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
-			if (eventData.stop === true) return false;
+			if (eventData.isCancelled === true) return false;
 			if (typeof w2ui[this.name] == 'undefined') return false;
 			// clean up
 			if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
@@ -842,8 +842,8 @@
 			if (typeof this.tmp_resizing == 'undefined') return;
 			var panel = this.get(this.tmp_resizing);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resizing', target: this.tmp_resizing, object: panel, event: evnt });	
-			if (eventData.stop === true) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'resizing', target: this.tmp_resizing, object: panel, originalEvent: evnt });	
+			if (eventData.isCancelled === true) return false;
 
 			var p = $('#layout_'+ this.name + '_resizer_'+ this.tmp_resizing);
 			if (!p.hasClass('active')) p.addClass('active');

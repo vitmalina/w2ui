@@ -28,8 +28,8 @@ $(function () {
 						{ id: 'tab2', caption: 'Tab 2' },
 						{ id: 'tab3', caption: 'Tab 3' },
 					],
-					onClick: function (target, data) {
-						this.owner.content('main', target);
+					onClick: function (event) {
+						this.owner.content('main', event);
 					}
 				}
 			}

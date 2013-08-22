@@ -13,8 +13,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
 *	- bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *	- overlay should be displayed where more space (on top or on bottom)
-*	- refactor event flow: instead of (target, data) -> (event)
-* 	- write and article how to replace certail framework functions
+* 	- write and article how to replace certain framework functions
 *
 * == 1.3 changes ==
 *	- added locale(..., callBack), fixed bugs
@@ -24,6 +23,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added w2utils.formatNumber()
 *	- added w2menu() plugin
 *	- added formatTime(), formatDateTime()
+*	- refactor event flow: instead of (target, data) -> (event), back compatibile
 *
 ************************************************/
 
@@ -740,7 +740,7 @@ $.w2event = {
 	
 	off: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
-		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComleted: null }, eventData);
+		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, eventData);
 	
 		if (typeof eventData.type == 'undefined') { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
 		if (typeof handler == 'undefined') { handler = null;  }
@@ -760,39 +760,60 @@ $.w2event = {
 	},
 		
 	trigger: function (eventData) {
-		var eventData = $.extend({ type: null, phase: 'before', target: null, stop: false }, eventData,
-			{ preventDefault: function () { this.stop = true; } });
+		// should have isStopped(), isCancelled() - where bubbling stopped or cancelled
+		// should have stopPropagation()
+		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
+				preventDefault 	: function () { this.isCancelled = true; },
+				stopPropagation : function () { this.isStopped   = true; },
+			});
 		if (typeof eventData.target == 'undefined') eventData.target = null;		
 		// process events in REVERSE order 
 		for (var h = this.handlers.length-1; h >= 0; h--) {
-			var t = this.handlers[h];
-			if ( (t.event.type == eventData.type || t.event.type == '*') 
-					&& (t.event.target == eventData.target || t.event.target == null)
-					&& (t.event.execute == eventData.phase || t.event.execute == '*' || t.event.phase == '*') ) {
-				var ret = t.handler.call(this, eventData.target, eventData);
-				if ($.isPlainObject(ret)) { 
-					$.extend(eventData, ret);
-					if (eventData.stop === true) return eventData; 
+			var fun = this.handlers[h];
+			if ( (fun.event.type == eventData.type || fun.event.type == '*') 
+					&& (fun.event.target == eventData.target || fun.event.target == null)
+					&& (fun.event.execute == eventData.phase || fun.event.execute == '*' || fun.event.phase == '*') ) {
+				// check handler arguments
+				var args = [];
+				var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun.handler);
+				if (tmp) args = tmp[2].split(/\s*,\s*/);
+				if (args.length == 2) {
+					fun.handler.call(this, eventData.target, eventData); // old way for back compatibility
+				} else {
+					fun.handler.call(this, eventData); // new way
 				}
+				if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 			}
 		}		
 		// main object events
-		if (eventData.phase == 'before' 
-				&& typeof this['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)] == 'function') {
-			var ret = this['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)].call(this, eventData.target, eventData);
-			if ($.isPlainObject(ret)) { 
-				$.extend(eventData, ret);
-				if (eventData.stop === true) return eventData; 
+		var funName = 'on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1);
+		if (eventData.phase == 'before' && typeof this[funName] == 'function') {
+			var fun = this[funName];
+			// check handler arguments
+			var args = [];
+			var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun);
+			if (tmp) args = tmp[2].split(/\s*,\s*/);
+			if (args.length == 2) {
+				fun.call(this, eventData.target, eventData); // old way for back compatibility
+			} else {
+				fun.call(this, eventData); // new way
 			}
+			if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 		}
 		// item object events
 		if (typeof eventData.object != 'undefined' && eventData.object != null && eventData.phase == 'before'
-				&& typeof eventData.object['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)] == 'function') {
-			var ret = eventData.object['on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1)].call(this, eventData.target, eventData);
-			if ($.isPlainObject(ret)) { 
-				$.extend(eventData, ret);
-				if (eventData.stop === true) return eventData; 
+				&& typeof eventData.object[funName] == 'function') {
+			var fun = eventData.object[funName];
+			// check handler arguments
+			var args = [];
+			var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun);
+			if (tmp) args = tmp[2].split(/\s*,\s*/);
+			if (args.length == 2) {
+				fun.call(this, eventData.target, eventData); // old way for back compatibility
+			} else {
+				fun.call(this, eventData); // new way
 			}
+			if (eventData.isStopped === true || eventData.stop === true) return eventData; 
 		}
 		// execute onComplete
 		if (eventData.phase == 'after' && eventData.onComplete != null)	eventData.onComplete.call(this, eventData);

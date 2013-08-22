@@ -145,7 +145,8 @@ $(function () {
 				]
 			}
 		],
-		onClick: function (cmd) {
+		onClick: function (event) {
+			var cmd = event.target;
 			if (parseInt(cmd.substr(cmd.length-1)) != cmd.substr(cmd.length-1)) return;
 			var tmp = w2ui['demo-sidebar'].get(cmd);
 			document.title = tmp.parent.text + ': ' + tmp.text + ' | w2ui';

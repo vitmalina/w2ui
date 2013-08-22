@@ -93,9 +93,9 @@ $('#form').w2form({
 });
 
 // attach event listener for all events
-w2ui['form'].on('*', function (target, data) {
-	console.log('Event: '+ data.type);
-	console.log('Target: '+ target);
+w2ui['form'].on('*', function (event) {
+	console.log('Event: '+ event.type);
+	console.log('Target: '+ event.target);
 	console.log(data);
 });
 		</textarea>
@@ -129,9 +129,9 @@ $(function () {
 		}
 	});
 	// attach event listener for all events
-	w2ui['form'].on('*', function (target, data) {
-		console.log('Event: '+ data.type);
-		console.log('Target: '+ target);
+	w2ui['form'].on('*', function (event) {
+		console.log('Event: '+ event.type);
+		console.log('Target: '+ event.target);
 		console.log(data);
 	});
 });

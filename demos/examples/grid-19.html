@@ -41,9 +41,9 @@ $('#grid1').w2grid({
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
 	],
-	onClick: function (target, eventData) {
-		w2ui['grid2'].add( $.extend({}, this.get(eventData.recid), { selected : false }) );
-		this.remove(eventData.recid);
+	onClick: function (event) {
+		w2ui['grid2'].add( $.extend({}, this.get(event.recid), { selected : false }) );
+		this.remove(event.recid);
 	}
 });
 
@@ -58,9 +58,9 @@ $('#grid2').w2grid({
 		{ field: 'email', caption: 'Email', size: '40%' },
 		{ field: 'sdate', caption: 'Start Date', size: '120px' },
 	],
-	onClick: function (target, eventData) {
-		w2ui['grid1'].add( $.extend({}, this.get(eventData.recid), { selected : false }) );
-		this.remove(eventData.recid);
+	onClick: function (event) {
+		w2ui['grid1'].add( $.extend({}, this.get(event.recid), { selected : false }) );
+		this.remove(event.recid);
 	}
 });	
 		</textarea>
@@ -93,9 +93,9 @@ $(function () {
 			{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
 		],
-		onClick: function (target, eventData) {
-			w2ui['grid2'].add( $.extend({}, this.get(eventData.recid), { selected : false }) );
-			this.remove(eventData.recid);
+		onClick: function (event) {
+			w2ui['grid2'].add( $.extend({}, this.get(event.recid), { selected : false }) );
+			this.remove(event.recid);
 		}
 	});
 	
@@ -110,9 +110,9 @@ $(function () {
 			{ field: 'email', caption: 'Email', size: '40%' },
 			{ field: 'sdate', caption: 'Start Date', size: '120px' },
 		],
-		onClick: function (target, eventData) {
-			w2ui['grid1'].add( $.extend({}, this.get(eventData.recid), { selected : false }) );
-			this.remove(eventData.recid);
+		onClick: function (event) {
+			w2ui['grid1'].add( $.extend({}, this.get(event.recid), { selected : false }) );
+			this.remove(event.recid);
 		}
 	});	
 });

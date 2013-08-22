@@ -32,8 +32,8 @@ var config = {
 			 	style : "border: 2px dotted orange; background-color: rgba(200,200,200,0.2)"
 			 }
 		],
-		onDelete: function (target, info) {
-			info.force = true;
+		onDelete: function (event) {
+			event.force = true;
 		}
 	}
 }

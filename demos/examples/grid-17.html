@@ -30,9 +30,8 @@ $('#grid').w2grid({
 		toolbarSave: true,
 	},
 	toolbar: {
-		onClick: function (target, data) {
-			console.log(target);
-			console.log(data);
+		onClick: function (event) {
+			console.log(event);
 		}
 	},
 	searches: [				
@@ -89,9 +88,8 @@ $(function () {
 			toolbarSave: true,
 		},
 		toolbar: {
-			onClick: function (target, data) {
-				console.log(target);
-				console.log(data);
+			onClick: function (event) {
+				console.log(event);
 			}
 		},
 		searches: [				

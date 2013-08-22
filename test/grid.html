@@ -65,7 +65,7 @@ $(function () {
 		],
 		columns: [				
 			{ field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, searchable: 'int', editable: { type: 'text' } },
-			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, 
+			{ field: 'fname', caption: '<span style="white-space:normal; line-height: 140%;">First Name this is some long column name</span>', size: '200px', sortable: true, resizable: true, 
 				searchable: true, editable: { type: 'text' } 
 			},
 			{ field: 'lname', caption: 'Last Name', size: '200px', sortable: true, resizable: true, searchable: true, editable: { type: 'text' } },
@@ -85,17 +85,17 @@ $(function () {
 			 	style : "border: 2px dotted orange; background-color: rgba(200,200,200,0.2)"
 			 }
 		],
-		onDelete: function (target, info) {
-			info.force = true;
+		onDelete: function (event) {
+			event.force = true;
 		},
-		onPaste: function (target, info) {
+		onPaste: function (event) {
 			var grid = this;
-			info.onComplete = function () { grid.save(); }
+			event.onComplete = function () { grid.save(); }
 		},
-		onExpand1: function (target, data) {
-			if (w2ui['grid-'+ data.recid]) $().w2destroy('grid-'+ data.recid);
-			$('#'+ data.box_id).w2grid({ 
-				name: 'grid-' + data.recid,
+		onExpand1: function (event) {
+			if (w2ui['grid-'+ event.recid]) $().w2destroy('grid-'+ event.recid);
+			$('#'+ event.box_id).w2grid({ 
+				name: 'grid-' + event.recid,
 				fixedBody: false,
 				style: 'width: 100%; height: 150px;',
 				show: { 
@@ -123,6 +123,9 @@ $(function () {
 			//{ recid: 1, lname: 'Vitali Malinsouski', fname: '<span style="float: right">Total:</span>', sdate: '444' }
 		]		
 		//getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
+	});
+	w2ui.grid.on('*', function(event) {
+		console.log('triggered', event);
 	});
 	//w2ui.grid.postData['text'] = 'text';
 	//w2ui.grid.reload();

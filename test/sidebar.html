@@ -17,8 +17,8 @@ $(function () {
 			{ id: 2, text: 'View Item', icon: 'fa-camera' }, 
 			{ id: 4, text: 'Delete Item', icon: 'fa-minus' }
 		],
-		onMenuClick: function (target, info) {
-			console.log(target, info);
+		onMenuClick: function (event) {
+			console.log(event);
 		},
 		nodes: [ 
 			{ id: 'level-1', text: 'Level 1', expanded: true, group: true,
@@ -72,9 +72,9 @@ $(function () {
 					 ]
 			}
 		],
-		onClick: function (target, data) {
-			// console.log(target);
-			// console.log(data);
+		onClick: function (event) {
+			// console.log(event.target);
+			// console.log(event);
 		}
 	});
 });

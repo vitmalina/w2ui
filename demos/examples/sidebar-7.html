@@ -63,9 +63,9 @@ $(function () {
 			}
 		]
 	});
-	w2ui['sidebar'].on('*', function (target, data) {
-		console.log('Event: ' + data.type + ' Target: ' + target);
-		console.log(data);
+	w2ui['sidebar'].on('*', function (event) {
+		console.log('Event: ' + event.type + ' Target: ' + event.target);
+		console.log(event);
 	});
 });
 </script>
