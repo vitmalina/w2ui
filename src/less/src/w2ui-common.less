@@ -95,46 +95,58 @@ select {
 		color: @overlay-color;
 	}
 	
-    &:before {
-        content: "";
-    	position: absolute;
-    	z-index: 1301;
-        .transform-rotate(-45deg);
-    	width: 10px;
-    	height: 10px;
-    	border: @overlay-border;
-    	border-color: inherit;
-    	background-color: inherit;
-    	border-left: 1px solid transparent;
-    	border-bottom: 1px solid transparent;
-    	border-bottom-left-radius: 50px;
-    	margin: -9px 0 0 32px;
-    }
-}
-
-.bubble-tag {
-	background-color: @bubble-tag-background-color;
-	display: inline-block;
-	position: absolute;
-	z-index: 1300;
-	border-radius: 4px;
-	padding: 4px 10px;
-	margin-left: 10px;
-	margin-top: 0px;
-	color: @bubble-tag-color !important;
-	box-shadow: @bubble-tag-shadow;
-	line-height: normal;
-	font-size: 11px;
-	font-family: @main-font-family;
 	&:before {
 		content: "";
 		position: absolute;
-		width: 0;
-		height: 0;
-		border-top: 5px solid transparent;
-		border-right: 5px solid @bubble-tag-background-color;
-		border-bottom: 5px solid transparent;
-		margin: 2px 0 0 -15px;
+		.transform-rotate(-45deg);
+		width: 10px;
+		height: 10px;
+		border: @overlay-border;
+		border-color: inherit;
+		background-color: inherit;
+		border-left: 1px solid transparent;
+		border-bottom: 1px solid transparent;
+		border-bottom-left-radius: 50px;
+		margin: -9px 0 0 32px;
+	}
+
+	&.w2ui-overlay-popup {	// if it is inside popup 
+		z-index: 1700;
+	}
+}
+
+.w2ui-tag {
+	position: absolute; 
+	z-index: 1300; 
+	opacity: 0; 
+	.transition(opacity, 0.3s);
+
+	.w2ui-tag-body {
+		background-color: @bubble-tag-background-color;
+		display: inline-block;
+		position: absolute;
+		border-radius: 4px;
+		padding: 4px 10px;
+		margin-left: 10px;
+		margin-top: 0px;
+		color: @bubble-tag-color !important;
+		box-shadow: @bubble-tag-shadow;
+		line-height: normal;
+		font-size: 11px;
+		font-family: @main-font-family;
+		&:before {
+			content: "";
+			position: absolute;
+			width: 0;
+			height: 0;
+			border-top: 5px solid transparent;
+			border-right: 5px solid @bubble-tag-background-color;
+			border-bottom: 5px solid transparent;
+			margin: 2px 0 0 -15px;
+		}
+	}
+	&.w2ui-tag-popup {	// if it is inside popup 
+		z-index: 1700;
 	}
 }
 
@@ -210,13 +222,13 @@ select {
 	.opacity(0.15);
 	background-color: @lock-background-color;
 	position: absolute; 
-	z-index: 1000;
+	z-index: 1400;
 	display: none;
 }
 
 .w2ui-lock-msg {
 	position: absolute;
-	z-index: 1000;
+	z-index: 1400;
 	width: 200px;
 	height: 80px;
 	padding: 30px;
