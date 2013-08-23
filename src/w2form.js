@@ -559,6 +559,9 @@
 					}, 10);
 				}, 10);
 			}
+			// hide all overlay and tags
+			$().w2tag();
+			$().w2overlay();
 		},
 
 		unlock: function() {

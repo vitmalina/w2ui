@@ -3488,7 +3488,7 @@
 			var time = (new Date()).getTime();
 			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
-			if (this.records.length == 0 || records.height()==0) return;
+			if (this.records.length == 0 || records.length == 0 || records.height() == 0) return;
 			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
 			// need this to enable scrolling when this.limit < then a screen can fit
 			if (records.height() < this.buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
@@ -3812,6 +3812,7 @@
 
 		lock: function (msg, showSpinner) {
 			var obj = this;
+			// default behavior
 			if (typeof msg == 'undefined' || msg == '') {
 				setTimeout(function () {
 					$('#grid_'+ obj.name +'_lock').remove();
@@ -3848,6 +3849,9 @@
 					}, 10);
 				}, 10);
 			}
+			// hide all overlay and tags
+			$().w2tag();
+			$().w2overlay();
 		},
 
 		unlock: function () { 
