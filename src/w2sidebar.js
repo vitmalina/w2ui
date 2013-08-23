@@ -532,8 +532,8 @@
 		contextMenu: function (id, event) {
 			var obj = this;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });	
-			if (eventData.stop === true) return false;		
+			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, event: event });
+			if (eventData.stop === true) return false;
 			// default action
 			var nd = obj.get(id);
 			if (id != obj.selected) obj.click(id);
@@ -541,7 +541,7 @@
 			if (obj.menu.length > 0) {
 				$(obj.box).find('#node_'+ w2utils.escapeId(id))
 					.w2menu(obj.menu, { 
-						left: event.offsetX - 25,
+						left: (event.offsetX || event.pageX) - 25,
 						select: function (item, event, index) { obj.menuClick(id, event, index); }
 					}
 				);
