@@ -98,7 +98,7 @@ var w2utils = (function () {
 	}
 	
 	function isEmail (val) {
-		var email = /^[a-zA-Z0-9._-%]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+		var email = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 		return email.test(val); 
 	}
 
@@ -4613,7 +4613,7 @@ w2utils.keyboard = (function (obj) {
 			var time = (new Date()).getTime();
 			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
-			if (this.records.length == 0 || records.height()==0) return;
+			if (this.records.length == 0 || records.length == 0 || records.height() == 0) return;
 			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
 			// need this to enable scrolling when this.limit < then a screen can fit
 			if (records.height() < this.buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
@@ -4937,6 +4937,7 @@ w2utils.keyboard = (function (obj) {
 
 		lock: function (msg, showSpinner) {
 			var obj = this;
+			// default behavior
 			if (typeof msg == 'undefined' || msg == '') {
 				setTimeout(function () {
 					$('#grid_'+ obj.name +'_lock').remove();
@@ -4973,6 +4974,9 @@ w2utils.keyboard = (function (obj) {
 					}, 10);
 				}, 10);
 			}
+			// hide all overlay and tags
+			$().w2tag();
+			$().w2overlay();
 		},
 
 		unlock: function () { 
@@ -5791,6 +5795,9 @@ w2utils.keyboard = (function (obj) {
 					}, 10);
 				}, 10);
 			}
+			// hide all overlay and tags
+			$().w2tag();
+			$().w2overlay();
 		},
 
 		unlock: function (panel) { 
@@ -8052,7 +8059,7 @@ w2utils.keyboard = (function (obj) {
 			if (obj.menu.length > 0) {
 				$(obj.box).find('#node_'+ w2utils.escapeId(id))
 					.w2menu(obj.menu, { 
-						left: event.offsetX - 25,
+						left: (event.offsetX || event.pageX) - 25,
 						select: function (item, event, index) { obj.menuClick(id, event, index); }
 					}
 				);
@@ -10085,6 +10092,9 @@ w2utils.keyboard = (function (obj) {
 					}, 10);
 				}, 10);
 			}
+			// hide all overlay and tags
+			$().w2tag();
+			$().w2overlay();
 		},
 
 		unlock: function() {

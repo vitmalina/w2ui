@@ -82,7 +82,7 @@ select {
   margin-top: 6px;
   margin-left: -17px;
   display: none;
-  z-index: 1600;
+  z-index: 1300;
   color: inherit;
   background-color: #fbfbfb;
   border: 3px solid #777777;
@@ -96,7 +96,7 @@ select {
 .w2ui-overlay:before {
   content: "";
   position: absolute;
-  z-index: 1601;
+  z-index: 1301;
   -webkit-transform: rotate(-45deg);
   -moz-transform: rotate(-45deg);
   -ms-transform: rotate(-45deg);
@@ -116,7 +116,7 @@ select {
   background-color: rgba(60, 60, 60, 0.82);
   display: inline-block;
   position: absolute;
-  z-index: 1500;
+  z-index: 1300;
   border-radius: 4px;
   padding: 4px 10px;
   margin-left: 10px;
@@ -197,12 +197,12 @@ select {
   filter: alpha(opacity=15);
   background-color: #333333;
   position: absolute;
-  z-index: 1600;
+  z-index: 1000;
   display: none;
 }
 .w2ui-lock-msg {
   position: absolute;
-  z-index: 1600;
+  z-index: 1000;
   width: 200px;
   height: 80px;
   padding: 30px;
@@ -1460,7 +1460,7 @@ select {
   cursor: move;
   font-size: 15px;
   color: #555555;
-  z-index: 1021;
+  z-index: 200;
 }
 .w2ui-popup .w2ui-msg-button {
   float: right;
@@ -1513,7 +1513,7 @@ select {
 }
 .w2ui-popup .w2ui-popup-message {
   position: absolute;
-  z-index: 200;
+  z-index: 300;
   background-color: #f9f9f9;
   border: 1px solid #aaaaaa;
   box-shadow: 0px 0px 15px #aaaaaa;
@@ -1538,7 +1538,7 @@ select {
   left: 0px;
   right: 0px;
   bottom: 0px;
-  z-index: 1021;
+  z-index: 200;
 }
 .w2ui-popup .w2ui-msg-buttons input[type="button"],
 .w2ui-popup .w2ui-msg-buttons button {
