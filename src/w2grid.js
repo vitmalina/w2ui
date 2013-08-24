@@ -1422,15 +1422,19 @@
 				.on('blur', function (event) {
 					if (obj.parseObj(rec, col.field) != this.value) {
 						// change event
-						var eventData = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, 
-							recid: recid, column: column, original: obj.parseObj(rec, col.field) });
-						if (eventData.isCancelled === true) return false;
-						// default action
-						rec.changed = true;
-						rec.changes = rec.changes || {};
-						rec.changes[col.field] = typeof this.value != 'undefined' ? this.value : '';
-						// event after
-						obj.trigger($.extend(eventData, { phase: 'after' }));
+						var eventData = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column, 
+							value_new: this.value, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseObj(rec, col.field)), 
+							value_original: obj.parseObj(rec, col.field) });
+						if (eventData.isCancelled === true) {
+							// dont save new value
+						} else {
+							// default action
+							rec.changed = true;
+							rec.changes = rec.changes || {};
+							rec.changes[col.field] = eventData.value_new;
+							// event after
+							obj.trigger($.extend(eventData, { phase: 'after' }));
+						}
 					} else {
 						if (rec.changes) delete rec.changes[col.field];
 						if ($.isEmptyObject(rec.changes)) delete rec.changes;

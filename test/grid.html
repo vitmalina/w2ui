@@ -65,7 +65,7 @@ $(function () {
 		],
 		columns: [				
 			{ field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, searchable: 'int', editable: { type: 'text' } },
-			{ field: 'fname', caption: '<span style="white-space:normal; line-height: 140%;">First Name this is some long column name</span>', size: '200px', sortable: true, resizable: true, 
+			{ field: 'fname', caption: 'First Name', size: '200px', sortable: true, resizable: true, 
 				searchable: true, editable: { type: 'text' } 
 			},
 			{ field: 'lname', caption: 'Last Name', size: '200px', sortable: true, resizable: true, searchable: true, editable: { type: 'text' } },
@@ -124,8 +124,9 @@ $(function () {
 		]		
 		//getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
 	});
-	w2ui.grid.on('*', function(event) {
-		console.log('triggered', event);
+	w2ui.grid.on('change', function(event) {
+		console.log('change', event.value_new, event.value_previous, event.value_original);
+		//event.preventDefault();
 	});
 	//w2ui.grid.postData['text'] = 'text';
 	//w2ui.grid.reload();

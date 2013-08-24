@@ -760,8 +760,6 @@ $.w2event = {
 	},
 		
 	trigger: function (eventData) {
-		// should have isStopped(), isCancelled() - where bubbling stopped or cancelled
-		// should have stopPropagation()
 		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
 				preventDefault 	: function () { this.isCancelled = true; },
 				stopPropagation : function () { this.isStopped   = true; },
