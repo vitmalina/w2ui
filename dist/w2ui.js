@@ -760,8 +760,6 @@ $.w2event = {
 	},
 		
 	trigger: function (eventData) {
-		// should have isStopped(), isCancelled() - where bubbling stopped or cancelled
-		// should have stopPropagation()
 		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
 				preventDefault 	: function () { this.isCancelled = true; },
 				stopPropagation : function () { this.isStopped   = true; },
@@ -929,7 +927,7 @@ w2utils.keyboard = (function (obj) {
 		if (typeof options['class'] == 'undefined') options['class'] = '';
 		// remove all tags
 		if ($(this).length == 0) {
-			$('.global-tag').each(function (index, elem) {
+			$('.w2ui-tag').each(function (index, elem) {
 				var opt = $(elem).data('options');
 				if (typeof opt == 'undefined') opt = {};
 				$($(elem).data('taged-el')).removeClass( opt['class'] );
@@ -943,30 +941,30 @@ w2utils.keyboard = (function (obj) {
 			var tagOrigID = el.id;
 			var tagID = w2utils.escapeId(el.id);
 			if (text == '' || text == null || typeof text == 'undefined') {
-				$('#global-tag-'+tagID).css('opacity', 0);
+				$('#w2ui-tag-'+tagID).css('opacity', 0);
 				setTimeout(function () {
 					// remmove element
-					clearInterval($('#global-tag-'+tagID).data('timer'));
-					$('#global-tag-'+tagID).remove();
+					clearInterval($('#w2ui-tag-'+tagID).data('timer'));
+					$('#w2ui-tag-'+tagID).remove();
 				}, 300);
 			} else {
 				// remove elements
-				clearInterval($('#global-tag-'+tagID).data('timer'));
-				$('#global-tag-'+tagID).remove();
+				clearInterval($('#w2ui-tag-'+tagID).data('timer'));
+				$('#w2ui-tag-'+tagID).remove();
 				// insert
-				$('body').append('<div id="global-tag-'+ tagOrigID +'" class="global-tag" '+
-								 '	style="position: absolute; z-index: 1701; opacity: 0; -webkit-transition: opacity .3s; -moz-transition: opacity .3s; -ms-transition: opacity .3s; -o-transition: opacity .3s"></div>');	
+				$('body').append('<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') +'" '+
+								 '	style=""></div>');	
 
 				var timer = setInterval(function () { 
 					// monitor if destroyed
 					if ($(el).length == 0 || ($(el).offset().left == 0 && $(el).offset().top == 0)) {
-						clearInterval($('#global-tag-'+tagID).data('timer'));
+						clearInterval($('#w2ui-tag-'+tagID).data('timer'));
 						tmp_hide(); 
 						return;
 					}
 					// monitor if moved
-					if ($('#global-tag-'+tagID).data('position') != ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
-						$('#global-tag-'+tagID).css({
+					if ($('#w2ui-tag-'+tagID).data('position') != ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
+						$('#w2ui-tag-'+tagID).css({
 							'-webkit-transition': '.2s',
 							'-moz-transition': '.2s',
 							'-ms-transition': '.2s',
@@ -978,11 +976,11 @@ w2utils.keyboard = (function (obj) {
 				}, 100);
 				setTimeout(function () {
 					if (!$(el).offset()) return;
-					$('#global-tag-'+tagID).css({
+					$('#w2ui-tag-'+tagID).css({
 						opacity: '1',
 						left: ($(el).offset().left + el.offsetWidth) + 'px',
 						top: $(el).offset().top + 'px'
-					}).html('<div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;"> <div class="bubble-tag">'+ text +'</div> </div>')
+					}).html('<div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;"> <div class="w2ui-tag-body">'+ text +'</div> </div>')
 					.data('text', text)
 					.data('taged-el', el)
 					.data('options', options)
@@ -996,9 +994,9 @@ w2utils.keyboard = (function (obj) {
 				if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
 				// bind event to hide it
 				function tmp_hide() { 
-					if ($('#global-tag-'+tagID).length <= 0) return;
-					clearInterval($('#global-tag-'+tagID).data('timer'));
-					$('#global-tag-'+tagID).remove(); 
+					if ($('#w2ui-tag-'+tagID).length <= 0) return;
+					clearInterval($('#w2ui-tag-'+tagID).data('timer'));
+					$('#w2ui-tag-'+tagID).remove(); 
 					$(el).off('keypress', tmp_hide).removeClass(options['class']); 
 					if ($(el).length > 0) $(el)[0].style.cssText = originalCSS;
 					if (typeof options.onHide == 'function') options.onHide();
@@ -1014,7 +1012,10 @@ w2utils.keyboard = (function (obj) {
 		if (!$.isPlainObject(options.css)) 	options.css = {};
 		if (this.length == 0 || html == '' || typeof html == 'undefined') { hide(); return $(this);	}
 		if ($('#w2ui-overlay').length > 0) $(document).click();
-		$('body').append('<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay"><div></div></div>');
+		$('body').append('<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay '+ 
+							($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
+						'	<div></div>'+
+						'</div>');
 
 		// init
 		var obj = this;
@@ -2547,15 +2548,19 @@ w2utils.keyboard = (function (obj) {
 				.on('blur', function (event) {
 					if (obj.parseObj(rec, col.field) != this.value) {
 						// change event
-						var eventData = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, 
-							recid: recid, column: column, original: obj.parseObj(rec, col.field) });
-						if (eventData.isCancelled === true) return false;
-						// default action
-						rec.changed = true;
-						rec.changes = rec.changes || {};
-						rec.changes[col.field] = typeof this.value != 'undefined' ? this.value : '';
-						// event after
-						obj.trigger($.extend(eventData, { phase: 'after' }));
+						var eventData = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column, 
+							value_new: this.value, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseObj(rec, col.field)), 
+							value_original: obj.parseObj(rec, col.field) });
+						if (eventData.isCancelled === true) {
+							// dont save new value
+						} else {
+							// default action
+							rec.changed = true;
+							rec.changes = rec.changes || {};
+							rec.changes[col.field] = eventData.value_new;
+							// event after
+							obj.trigger($.extend(eventData, { phase: 'after' }));
+						}
 					} else {
 						if (rec.changes) delete rec.changes[col.field];
 						if ($.isEmptyObject(rec.changes)) delete rec.changes;

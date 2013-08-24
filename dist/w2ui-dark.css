@@ -113,7 +113,6 @@ select {
 .w2ui-overlay:before {
   content: "";
   position: absolute;
-  z-index: 1301;
   -webkit-transform: rotate(-45deg);
   -moz-transform: rotate(-45deg);
   -ms-transform: rotate(-45deg);
@@ -129,11 +128,23 @@ select {
   border-bottom-left-radius: 50px;
   margin: -9px 0 0 32px;
 }
-.bubble-tag {
+.w2ui-overlay.w2ui-overlay-popup {
+  z-index: 1700;
+}
+.w2ui-tag {
+  position: absolute;
+  z-index: 1300;
+  opacity: 0;
+  -webkit-transition: opacity 0.3s;
+  -moz-transition: opacity 0.3s;
+  -ms-transition: opacity 0.3s;
+  -o-transition: opacity 0.3s;
+  transition: opacity 0.3s;
+}
+.w2ui-tag .w2ui-tag-body {
   background-color: rgba(255, 255, 255, 0.82);
   display: inline-block;
   position: absolute;
-  z-index: 1300;
   border-radius: 4px;
   padding: 4px 10px;
   margin-left: 10px;
@@ -144,7 +155,7 @@ select {
   font-size: 11px;
   font-family: Verdana, Arial;
 }
-.bubble-tag:before {
+.w2ui-tag .w2ui-tag-body:before {
   content: "";
   position: absolute;
   width: 0;
@@ -153,6 +164,9 @@ select {
   border-right: 5px solid rgba(255, 255, 255, 0.82);
   border-bottom: 5px solid transparent;
   margin: 2px 0 0 -15px;
+}
+.w2ui-tag.w2ui-tag-popup {
+  z-index: 1700;
 }
 /*************************************************
 * ---- Common Classes ----
@@ -214,12 +228,12 @@ select {
   filter: alpha(opacity=15);
   background-color: #333333;
   position: absolute;
-  z-index: 1000;
+  z-index: 1400;
   display: none;
 }
 .w2ui-lock-msg {
   position: absolute;
-  z-index: 1000;
+  z-index: 1400;
   width: 200px;
   height: 80px;
   padding: 30px;
@@ -1433,7 +1447,7 @@ select {
 */
 .w2ui-popup {
   position: fixed;
-  z-index: 1200;
+  z-index: 1600;
   overflow: hidden;
   font-family: Verdana, Arial;
   border-radius: 6px;
