@@ -71,6 +71,37 @@
 	}
 }
 
+.w2ui-color {
+	padding: 5px; 
+	background-color: white; 
+	border-radius: 3px;
+
+	> table {
+		table-layout: fixed;
+		width: 160px;
+
+		td {
+			width: 20px; 
+			height: 20px;
+
+			div {
+				cursor: pointer;
+				display: inline-block; 
+				width: 16px; 
+				height: 17px; 
+				padding: 1px 4px;
+				border: 1px solid transparent;
+				color: white;
+				text-shadow: 0px 0px 2px #000;
+				&:hover {
+					outline: 1px solid #666;
+					border: 1px solid #fff;
+				}
+			}
+		}
+	}
+}
+
 .w2ui-calendar {
 	position: absolute; 
 	z-index: 1600; 
