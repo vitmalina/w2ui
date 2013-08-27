@@ -3594,15 +3594,9 @@ w2utils.keyboard = (function (obj) {
 			}
 			// show number of selected
 			this.status();
-			// send expand events
-			var rows = obj.find({ expanded: true });
-			for (var r in rows) {
-				var eventData2 = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: this.records[rows[r]].recid, 
-					box_id: 'grid_'+ this.name +'_rec_'+ w2utils.escapeId(this.records[rows[r]].recid) +'_expanded' });
-				if (eventData2.isCancelled === true) return false; 
-				// event after
-				this.trigger($.extend(eventData2, { phase: 'after' }));
-			}
+			// collapse all records
+			var rows = obj.find({ expanded: true }, true);
+			for (var r in rows) obj.records[rows[r]].expanded = false;
 			// mark selection
 			setTimeout(function () {
 				var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
@@ -8370,10 +8364,10 @@ w2utils.keyboard = (function (obj) {
 						var defaults = {
 							min 	: null,
 							max 	: null,
-							arrows	: false,
+							arrows	: true,
 							keyboard: true,
-							suffix	: '',
-							prefix  : ''
+							suffix	: 'su',
+							prefix  : 'pr'
 						}
 						options = $.extend({}, defaults, options);
 						if (['text', 'alphanumeric', 'hex'].indexOf(tp) != -1) {
@@ -8398,14 +8392,16 @@ w2utils.keyboard = (function (obj) {
 								var v = $(el).val();
 								if (!checkType(v)) v = options.min || 0; else v = parseFloat(v);
 								var key = event.keyCode || extra.keyCode;
+								var inc = 1;
+								if (event.ctrlKey || event.metaKey) inc = 10;
 								switch (key) {
 									case 38: // up
-										$(el).val((v+1 <= options.max || options.max == null ? v+1 : options.max)).change();
+										$(el).val((v + inc <= options.max || options.max == null ? v + inc : options.max)).change();
 										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
 										cancel = true;
 										break;
 									case 40: // down
-										$(el).val((v-1 >= options.min || options.min == null ? v-1 : options.min)).change();
+										$(el).val((v - inc >= options.min || options.min == null ? v - inc : options.min)).change();
 										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
 										cancel = true;
 										break;
@@ -8432,6 +8428,31 @@ w2utils.keyboard = (function (obj) {
 								if (this.value != '' && !checkType(this.value)) $(this).val(options.min != null ? options.min : '');								
 							});
 						if ($(this).val() == '' && options.min != null) $(this).val(options.min);
+						if (options.prefix != '') {
+							$(this).before(
+								'<div class="w2ui-field-helper">'+ 
+									options.prefix + 
+								'</div>');
+							var helper = $(this).prev();
+							helper
+								.css({
+									'color'			: $(this).css('color'),
+									'font-family'	: $(this).css('font-family'),
+									'font-size'		: $(this).css('font-size'),
+									'padding-top'	: $(this).css('padding-top'),
+									'padding-bottom': $(this).css('padding-bottom'),
+									'padding-left'  : $(this).css('padding-left'),
+									'padding-right'	: 0,
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px',
+									'margin-left'	: 0,
+									'margin-right' 	: 0
+								})
+								.on('click', function () { 
+									$(this).next().focus(); 
+								});
+							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left')) + 5) + 'px');
+						}						
 						var pr = parseInt($(this).css('padding-right'));
 						if (options.arrows != '') {
 							$(this).after(
@@ -8442,6 +8463,7 @@ w2utils.keyboard = (function (obj) {
 								'	<div class="w2ui-field-down" type="down">'+
 								'		<div class="arrow-down" type="down"></div>'+
 								'	</div>'+
+								'	<div style="position: absolute; height: 1px; border-top: 1px solid silver"></div>'+
 								'</div>');
 							var helper = $(this).next();
 							helper
@@ -8449,9 +8471,13 @@ w2utils.keyboard = (function (obj) {
 									'color'			: $(this).css('color'),
 									'font-family'	: $(this).css('font-family'),
 									'font-size'		: $(this).css('font-size'),
-									'padding'		: $(this).css('padding'),
-									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
-									'padding-left'	: '6px',
+									'height' 		: (w2utils.getSize(this, 'height') - 4) + 'px',
+									'padding-top'	: 0,
+									'padding-bottom': 0,
+									'padding-left'	: 0,
+									'padding-right'	: 0,
+									'margin-top'	: '2px',
+									'margin-bottom'	: '2px',
 									'border-left'	: '1px solid silver'
 								})
 								.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 9) + 'px')
@@ -8459,7 +8485,7 @@ w2utils.keyboard = (function (obj) {
 									$(el).focus().trigger($.Event("keydown"), { keyCode : ($(event.target).attr('type') == 'up' ? 38 : 40) });
 								});
 							pr += helper.width() + 12;
-							$(this).css('padding-right', pr);
+							$(this).css('padding-right', pr + 'px');
 						}
 						if (options.suffix != '') {
 							$(this).after(
@@ -8472,37 +8498,19 @@ w2utils.keyboard = (function (obj) {
 									'color'			: $(this).css('color'),
 									'font-family'	: $(this).css('font-family'),
 									'font-size'		: $(this).css('font-size'),
-									'padding'		: $(this).css('padding'),
-									'margin'		: (parseInt($(this).css('margin')) + 1) + 'px',
+									'padding-top'	: $(this).css('padding-top'),
+									'padding-bottom': $(this).css('padding-bottom'),
+									'padding-left'	: '3px',
+									'padding-right'	: $(this).css('padding-right'),
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px'
 								})
 								.on('click', function () { 
 									$(this).prev().focus(); 
 								});
 							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 5) + 'px');
 							pr += helper.width() + 3;
-							$(this).css('padding-right', pr);
-						}
-						if (options.prefix != '') {
-							$(this).before(
-								'<div class="w2ui-field-helper">'+ 
-									options.prefix + 
-								'</div>');
-							var helper = $(this).prev();
-							helper
-								.css({
-									'color'			: $(this).css('color'),
-									'font-family'	: $(this).css('font-family'),
-									'font-size'		: $(this).css('font-size'),
-									'padding'		: $(this).css('padding'),
-									'padding-right' : 0,
-									'margin'		: (parseInt($(this).css('margin')) + 1) + 'px',
-									'margin-left'	: 0,
-									'margin-right' 	: 0
-								})
-								.on('click', function () { 
-									$(this).next().focus(); 
-								});
-							$(this).css('padding-left', (helper.width() + 5));
+							$(this).css('padding-right', pr + 'px');
 						}
 
 						function checkType(ch, loose) {
@@ -8563,13 +8571,20 @@ w2utils.keyboard = (function (obj) {
 									})
 									.data('el', obj)
 									.show();
+								var max = $(window).width() + $(document).scrollLeft() - 1;
+								if (left + $('#global_calendar_div').width() > max) {
+									$('#global_calendar_div').css('left', (max - $('#global_calendar_div').width()) + 'px');
+								}
 								// monitors
 								var mtimer = setInterval(function () { 
+									var max = $(window).width() + $(document).scrollLeft() - 1;
+									var left = $(obj).offset().left;
+									if (left + $('#global_calendar_div').width() > max) left = max - $('#global_calendar_div').width();
 									// monitor if moved
 									if ($('#global_calendar_div').data('position') != ($(obj).offset().left) + 'x' + ($(obj).offset().top  + obj.offsetHeight)) {
 										$('#global_calendar_div').css({
 											'-webkit-transition': '.2s',
-											left: ($(obj).offset().left) + 'px',
+											left: left + 'px',
 											top : ($(obj).offset().top + obj.offsetHeight) + 'px'
 										}).data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight));
 									}
@@ -8611,6 +8626,150 @@ w2utils.keyboard = (function (obj) {
 						break;
 						
 					case 'color':
+						var obj = this;
+						var defaults = {
+							prefix 	: '#',
+							suffix  : '<div style="margin-top: 1px; height: 12px; width: 12px;"></div>'
+						}
+						options = $.extend({}, defaults, options);
+						// -- insert div for color
+						$(this)
+							.attr('maxlength', 6)
+							.on('focus', function () {
+								var top  = parseFloat($(obj).offset().top) + parseFloat(obj.offsetHeight);
+								var left = parseFloat($(obj).offset().left);
+								clearInterval($(obj).data('mtimer'));
+								$('#global_color_div').remove();
+								$('body').append('<div id="global_color_div" style="top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
+									' class="w2ui-reset w2ui-calendar" '+
+									' onmousedown="'+
+									'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
+									'		if (event.preventDefault) event.preventDefault(); else return false;">'+
+									'</div>');
+								$('#global_color_div')
+									.html($().w2field('getColorHTML', obj.value))
+									.css({
+										left: left + 'px',
+										top: top + 'px'
+									})
+									.data('el', obj)
+									.show();
+								var max = $(window).width() + $(document).scrollLeft() - 1;
+								if (left + $('#global_color_div').width() > max) {
+									$('#global_color_div').css('left', (max - $('#global_color_div').width()) + 'px');
+								}
+								// monitors
+								var mtimer = setInterval(function () { 
+									var max  = $(window).width() + $(document).scrollLeft() - 1;
+									var left = $(obj).offset().left;
+									if (left + $('#global_color_div').width() > max) left = max - $('#global_color_div').width();
+									// monitor if moved
+									if ($('#global_color_div').data('position') != ($(obj).offset().left) + 'x' + ($(obj).offset().top  + obj.offsetHeight)) {
+										$('#global_color_div').css({
+											'-webkit-transition': '.2s',
+											left: left + 'px',
+											top : ($(obj).offset().top + obj.offsetHeight) + 'px'
+										}).data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight));
+									}
+									// monitor if destroyed
+									if ($(obj).length == 0 || ($(obj).offset().left == 0 && $(obj).offset().top == 0)) {
+										clearInterval(mtimer);
+										$('#global_color_div').remove();
+										return;
+									}
+								}, 100);
+								$(obj).data('mtimer', mtimer);
+							})
+							.on('click', function () {
+								$(this).trigger('focus');
+							})
+							.on('blur', function (event) {
+								// trim empty spaces
+								$(obj).val($.trim($(obj).val()));
+								clearInterval($(obj).data('mtimer'));
+								$('#global_color_div').remove();
+							})
+							.on('keydown', function (event) { // need this for cut/paster
+								if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
+									var obj = this;
+									$(this).prop('maxlength', 7);
+									setTimeout(function () {
+										var val = $(obj).val();
+										if (val.substr(0, 1) == '#') val = val.substr(1);
+										if (!w2utils.isHex(val)) val = '';
+										$(obj).val(val).prop('maxlength', 6).change();
+									}, 20);
+								}
+							})
+							.on('keyup', function (event) {
+								if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) $(this).prop('maxlength', 6);
+							})
+							.on('keypress', function (event) { // keyCode & charCode differ in FireFox
+								if (event.keyCode == 13) $(this).change();
+								//if (event.ct)
+								var ch = String.fromCharCode(event.charCode);
+								if (!w2utils.isHex(ch, true)) {
+									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+									return false;
+								}
+							})
+							.on('change', function (event) {
+								var color = '#' + $(this).val();
+								if ($(this).val().length != 6 && $(this).val().length != 3) color = '';
+								$(this).next().find('div').css('background-color', color);
+							});
+						if (options.prefix != '') {
+							$(this).before(
+								'<div class="w2ui-field-helper">'+ 
+									options.prefix + 
+								'</div>');
+							var helper = $(this).prev();
+							helper
+								.css({
+									'color'			: $(this).css('color'),
+									'font-family'	: $(this).css('font-family'),
+									'font-size'		: $(this).css('font-size'),
+									'padding-top'	: $(this).css('padding-top'),
+									'padding-bottom': $(this).css('padding-bottom'),
+									'padding-left'  : $(this).css('padding-left'),
+									'padding-right'	: 0,
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px',
+									'margin-left'	: 0,
+									'margin-right' 	: 0
+								})
+								.on('click', function () { 
+									$(this).next().focus(); 
+								});
+							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left')) + 2) + 'px');
+						}
+						if (options.suffix != '') {
+							$(this).after(
+								'<div class="w2ui-field-helper">'+ 
+									options.suffix + 
+								'</div>');
+							var helper = $(this).next();
+							helper
+								.css({
+									'color'			: $(this).css('color'),
+									'font-family'	: $(this).css('font-family'),
+									'font-size'		: $(this).css('font-size'),
+									'padding-top'	: $(this).css('padding-top'),
+									'padding-bottom': $(this).css('padding-bottom'),
+									'padding-left'	: '3px',
+									'padding-right'	: $(this).css('padding-right'),
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px'
+								})
+								.on('click', function () { 
+									$(this).prev().focus(); 
+								});
+							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 4) + 'px');
+							var pr = helper.width() + parseInt($(this).css('padding-right')) + 4;
+							$(this).css('padding-right', pr + 'px');
+							// set color to current
+							helper.find('div').css('background-color', '#' + $(obj).val());
+						}
 						break;
 
 					case 'select':
@@ -9529,6 +9688,38 @@ w2utils.keyboard = (function (obj) {
 				day++;
 			}
 			html += '</tr></table>';
+			return html;
+		},
+
+		getColorHTML: function (color) {
+			var html =  '<div class="w2ui-color">'+ 
+						'<table cellspacing="5">';
+			var colors	= [
+				['000000', '444444', '666666', '999999', 'CCCCCC', 'EEEEEE', 'F3F3F3', 'FFFFFF'],
+				['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '0424F3', '9B24F4', 'FF21F5'],
+				['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
+				['EA9899', 'F9CB9C', 'FEE599', 'B6D7A8', 'A2C4C9', '9FC5E8', 'B4A7D6', 'D5A6BD'],
+				['E06666', 'F6B26B', 'FED966', '93C47D', '76A5AF', '6FA8DC', '8E7CC3', 'C27BA0'],
+				['CC0814', 'E69138', 'F1C232', '6AA84F', '45818E', '3D85C6', '674EA7', 'A54D79'],
+				['99050C', 'B45F17', 'BF901F', '37761D', '124F5C', '0A5394', '351C75', '741B47'],
+				['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030']
+			];
+			for (var i=0; i<8; i++) {
+				html += '<tr>';
+				for (var j=0; j<8; j++) {
+					html += '<td>'+
+							'	<div onclick="var el = $(\'#global_color_div\').data(\'el\');'+
+							'			$(el).val($(this).attr(\'name\')).change(); '+
+							'			$(\'#global_color_div\').hide()" '+
+							'		style="background-color: #'+ colors[i][j] +';" name="'+ colors[i][j] +'">'+
+							'		'+ (color == colors[i][j] ? '&#149;' : '&nbsp;')+
+							'	</div>'+
+							'</td>';
+				}
+				html += '</tr>';
+				if (i < 2) html += '<tr><td style="height: 8px" colspan="8"></td></tr>';
+			}
+			html += '</table></div>';
 			return html;
 		}
 	});
