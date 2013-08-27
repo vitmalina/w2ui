@@ -96,10 +96,10 @@
 						var defaults = {
 							min 	: null,
 							max 	: null,
-							arrows	: false,
+							arrows	: true,
 							keyboard: true,
-							suffix	: '',
-							prefix  : ''
+							suffix	: 'su',
+							prefix  : 'pr'
 						}
 						options = $.extend({}, defaults, options);
 						if (['text', 'alphanumeric', 'hex'].indexOf(tp) != -1) {
@@ -124,14 +124,16 @@
 								var v = $(el).val();
 								if (!checkType(v)) v = options.min || 0; else v = parseFloat(v);
 								var key = event.keyCode || extra.keyCode;
+								var inc = 1;
+								if (event.ctrlKey || event.metaKey) inc = 10;
 								switch (key) {
 									case 38: // up
-										$(el).val((v+1 <= options.max || options.max == null ? v+1 : options.max)).change();
+										$(el).val((v + inc <= options.max || options.max == null ? v + inc : options.max)).change();
 										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
 										cancel = true;
 										break;
 									case 40: // down
-										$(el).val((v-1 >= options.min || options.min == null ? v-1 : options.min)).change();
+										$(el).val((v - inc >= options.min || options.min == null ? v - inc : options.min)).change();
 										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
 										cancel = true;
 										break;
@@ -158,6 +160,31 @@
 								if (this.value != '' && !checkType(this.value)) $(this).val(options.min != null ? options.min : '');								
 							});
 						if ($(this).val() == '' && options.min != null) $(this).val(options.min);
+						if (options.prefix != '') {
+							$(this).before(
+								'<div class="w2ui-field-helper">'+ 
+									options.prefix + 
+								'</div>');
+							var helper = $(this).prev();
+							helper
+								.css({
+									'color'			: $(this).css('color'),
+									'font-family'	: $(this).css('font-family'),
+									'font-size'		: $(this).css('font-size'),
+									'padding-top'	: $(this).css('padding-top'),
+									'padding-bottom': $(this).css('padding-bottom'),
+									'padding-left'  : $(this).css('padding-left'),
+									'padding-right'	: 0,
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px',
+									'margin-left'	: 0,
+									'margin-right' 	: 0
+								})
+								.on('click', function () { 
+									$(this).next().focus(); 
+								});
+							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left')) + 5) + 'px');
+						}						
 						var pr = parseInt($(this).css('padding-right'));
 						if (options.arrows != '') {
 							$(this).after(
@@ -168,6 +195,7 @@
 								'	<div class="w2ui-field-down" type="down">'+
 								'		<div class="arrow-down" type="down"></div>'+
 								'	</div>'+
+								'	<div style="position: absolute; height: 1px; border-top: 1px solid silver"></div>'+
 								'</div>');
 							var helper = $(this).next();
 							helper
@@ -175,9 +203,13 @@
 									'color'			: $(this).css('color'),
 									'font-family'	: $(this).css('font-family'),
 									'font-size'		: $(this).css('font-size'),
-									'padding'		: $(this).css('padding'),
-									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
-									'padding-left'	: '6px',
+									'height' 		: (w2utils.getSize(this, 'height') - 4) + 'px',
+									'padding-top'	: 0,
+									'padding-bottom': 0,
+									'padding-left'	: 0,
+									'padding-right'	: 0,
+									'margin-top'	: '2px',
+									'margin-bottom'	: '2px',
 									'border-left'	: '1px solid silver'
 								})
 								.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 9) + 'px')
@@ -185,7 +217,7 @@
 									$(el).focus().trigger($.Event("keydown"), { keyCode : ($(event.target).attr('type') == 'up' ? 38 : 40) });
 								});
 							pr += helper.width() + 12;
-							$(this).css('padding-right', pr);
+							$(this).css('padding-right', pr + 'px');
 						}
 						if (options.suffix != '') {
 							$(this).after(
@@ -198,37 +230,19 @@
 									'color'			: $(this).css('color'),
 									'font-family'	: $(this).css('font-family'),
 									'font-size'		: $(this).css('font-size'),
-									'padding'		: $(this).css('padding'),
-									'margin'		: (parseInt($(this).css('margin')) + 1) + 'px',
+									'padding-top'	: $(this).css('padding-top'),
+									'padding-bottom': $(this).css('padding-bottom'),
+									'padding-left'	: '3px',
+									'padding-right'	: $(this).css('padding-right'),
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px'
 								})
 								.on('click', function () { 
 									$(this).prev().focus(); 
 								});
 							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 5) + 'px');
 							pr += helper.width() + 3;
-							$(this).css('padding-right', pr);
-						}
-						if (options.prefix != '') {
-							$(this).before(
-								'<div class="w2ui-field-helper">'+ 
-									options.prefix + 
-								'</div>');
-							var helper = $(this).prev();
-							helper
-								.css({
-									'color'			: $(this).css('color'),
-									'font-family'	: $(this).css('font-family'),
-									'font-size'		: $(this).css('font-size'),
-									'padding'		: $(this).css('padding'),
-									'padding-right' : 0,
-									'margin'		: (parseInt($(this).css('margin')) + 1) + 'px',
-									'margin-left'	: 0,
-									'margin-right' 	: 0
-								})
-								.on('click', function () { 
-									$(this).next().focus(); 
-								});
-							$(this).css('padding-left', (helper.width() + 5));
+							$(this).css('padding-right', pr + 'px');
 						}
 
 						function checkType(ch, loose) {
@@ -347,7 +361,7 @@
 						var obj = this;
 						var defaults = {
 							prefix 	: '#',
-							suffix  : '<div style="height: 12px; width: 12px;"></div>'
+							suffix  : '<div style="margin-top: 1px; height: 12px; width: 12px;"></div>'
 						}
 						options = $.extend({}, defaults, options);
 						// -- insert div for color
@@ -420,7 +434,6 @@
 								}
 							})
 							.on('keyup', function (event) {
-								console.log($(this).val());
 								if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) $(this).prop('maxlength', 6);
 							})
 							.on('keypress', function (event) { // keyCode & charCode differ in FireFox
@@ -437,29 +450,6 @@
 								if ($(this).val().length != 6 && $(this).val().length != 3) color = '';
 								$(this).next().find('div').css('background-color', color);
 							});
-						if (options.suffix != '') {
-							$(this).after(
-								'<div class="w2ui-field-helper">'+ 
-									options.suffix + 
-								'</div>');
-							var helper = $(this).next();
-							helper
-								.css({
-									'color'			: $(this).css('color'),
-									'font-family'	: $(this).css('font-family'),
-									'font-size'		: $(this).css('font-size'),
-									'padding'		: $(this).css('padding'),
-									'margin'		: (parseInt($(this).css('margin')) + 1) + 'px',
-								})
-								.on('click', function () { 
-									$(this).prev().focus(); 
-								});
-							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 5) + 'px');
-							pr += helper.width() + 3;
-							$(this).css('padding-right', pr);
-							// set color to current
-							helper.find('div').css('background-color', '#' + $(obj).val());
-						}
 						if (options.prefix != '') {
 							$(this).before(
 								'<div class="w2ui-field-helper">'+ 
@@ -471,16 +461,46 @@
 									'color'			: $(this).css('color'),
 									'font-family'	: $(this).css('font-family'),
 									'font-size'		: $(this).css('font-size'),
-									'padding'		: $(this).css('padding'),
-									'padding-right' : 0,
-									'margin'		: (parseInt($(this).css('margin')) + 1) + 'px',
+									'padding-top'	: $(this).css('padding-top'),
+									'padding-bottom': $(this).css('padding-bottom'),
+									'padding-left'  : $(this).css('padding-left'),
+									'padding-right'	: 0,
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px',
 									'margin-left'	: 0,
 									'margin-right' 	: 0
 								})
 								.on('click', function () { 
 									$(this).next().focus(); 
 								});
-							$(this).css('padding-left', (helper.width() + 5));
+							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left')) + 2) + 'px');
+						}
+						if (options.suffix != '') {
+							$(this).after(
+								'<div class="w2ui-field-helper">'+ 
+									options.suffix + 
+								'</div>');
+							var helper = $(this).next();
+							helper
+								.css({
+									'color'			: $(this).css('color'),
+									'font-family'	: $(this).css('font-family'),
+									'font-size'		: $(this).css('font-size'),
+									'padding-top'	: $(this).css('padding-top'),
+									'padding-bottom': $(this).css('padding-bottom'),
+									'padding-left'	: '3px',
+									'padding-right'	: $(this).css('padding-right'),
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px'
+								})
+								.on('click', function () { 
+									$(this).prev().focus(); 
+								});
+							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 4) + 'px');
+							var pr = helper.width() + parseInt($(this).css('padding-right')) + 4;
+							$(this).css('padding-right', pr + 'px');
+							// set color to current
+							helper.find('div').css('background-color', '#' + $(obj).val());
 						}
 						break;
 
