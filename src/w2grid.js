@@ -2468,15 +2468,9 @@
 			}
 			// show number of selected
 			this.status();
-			// send expand events
-			var rows = obj.find({ expanded: true });
-			for (var r in rows) {
-				var eventData2 = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: this.records[rows[r]].recid, 
-					box_id: 'grid_'+ this.name +'_rec_'+ w2utils.escapeId(this.records[rows[r]].recid) +'_expanded' });
-				if (eventData2.isCancelled === true) return false; 
-				// event after
-				this.trigger($.extend(eventData2, { phase: 'after' }));
-			}
+			// collapse all records
+			var rows = obj.find({ expanded: true }, true);
+			for (var r in rows) obj.records[rows[r]].expanded = false;
 			// mark selection
 			setTimeout(function () {
 				var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
