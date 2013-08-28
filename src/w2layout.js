@@ -404,10 +404,10 @@
 				ptop.size = height * parseInt(ptop.size) / 100;
 			}
 			if (pleft && String(pleft.size).substr((String(pleft.size).length-1)) == '%') {
-				pleft.size = height * parseInt(pleft.size) / 100;
+				pleft.size = width * parseInt(pleft.size) / 100;
 			}
 			if (pright && String(pright.size).substr((String(pright.size).length-1)) == '%') {
-				pright.size = height * parseInt(pright.size) / 100;
+				pright.size = width * parseInt(pright.size) / 100;
 			}
 			if (pbottom && String(pbottom.size).substr((String(pbottom.size).length-1)) == '%') {
 				pbottom.size = height * parseInt(pbottom.size) / 100;
