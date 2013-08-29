@@ -78,6 +78,7 @@
 *	- added getCellData(record, ind, col_ind)
 *	- added selectType = 'cell' then, it shows cell selection
 * 	- added addRange(), removeRange(), ranges - that draws border arround selection and grid.show.selectionBorder
+*	- changed getSelection(returnIndex) - added returnIndex parameter
 *
 ************************************************************************/
 
@@ -872,11 +873,17 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
-		getSelection: function () {
+		getSelection: function (returnIndex) {
 			if (this.selectType == 'row') {
 				var sel = this.find({ selected: true }, true);
 				var ret = [];
-				for (var s in sel) ret.push(this.records[sel[s]]);
+				for (var s in sel) {
+					if (returnIndex === true) {
+						ret.push(sel[s]);
+					} else {
+						ret.push(this.records[sel[s]].recid);
+					}
+				}
 				return ret;
 			} else {
 				var sel = this.find({ selected: true }, true);
@@ -2217,7 +2224,7 @@
 				}
 			}
 			if (this.multiSort === false) { this.sortData = []; sortIndex = 0; }
-			if (!event.ctrlKey && !event.metaKey) { this.sortData = []; sortIndex = 0; }
+			if (event && !event.ctrlKey && !event.metaKey) { this.sortData = []; sortIndex = 0; }
 			// set new sort
 			if (typeof this.sortData[sortIndex] == 'undefined') this.sortData[sortIndex] = {};
 			this.sortData[sortIndex].field 	   = field;
