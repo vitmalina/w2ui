@@ -126,6 +126,7 @@
 		this.multiSearch	= true;
 		this.multiSelect	= true;
 		this.multiSort		= true;
+		this.markSearchResults	= true;
 
 		this.total			= 0;		// server total
 		this.buffered		= 0;		// number of records in the records array
@@ -3596,6 +3597,7 @@
 
 			function markSearch() {
 				// mark search
+				if(obj.markSearchResults === false) return;
 				clearTimeout(obj.last.marker_timer);
 				obj.last.marker_timer = setTimeout(function () {
 					// mark all search strings
