@@ -1091,15 +1091,15 @@
 		},
 
 		doSave: function () {
+			var obj = this;
 			var changed = this.getChanged();
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
 			if (eventData.stop === true) return false;
 			if (this.url != '') {
-				var $this = this;
 				this.request('save-records', { 'changed' : changed }, null, function () {
 					// event after
-					$this.trigger($.extend(eventData, { phase: 'after' }));
+					obj.trigger($.extend(eventData, { phase: 'after' }));
 				});
 			} else {
 				for (var c in changed) {
