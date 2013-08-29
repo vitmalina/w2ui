@@ -589,7 +589,7 @@
 			$().w2popup('message', {
 				width 	: 400,
 				height 	: 160,
-				html 	: '<div class="w2ui-centered" style="font-size: 11px;"><div style="padding-bottom: 40px">ERROR: '+ msg +'</div>'+
+				html 	: '<div class="w2ui-centered" style="font-size: 11px;"><div style="padding-bottom: 40px; font-size: 13px;">'+ msg +'</div>'+
 						  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
 						  '	<input type="button" value="Ok" onclick="$().w2popup(\'message\');" class="w2ui-popup-button">'+
 						  '</div>',
@@ -601,7 +601,7 @@
 				height 	: 200,
 				showMax : false,
 				title 	: title,
-				body    : '<div class="w2ui-centered"><div>' + msg +'</div></div>',
+				body    : '<div class="w2ui-centered"><div style="font-size: 13px;">' + msg +'</div></div>',
 				buttons : '<input type="button" value="'+ w2utils.lang('Ok') +'" class="w2ui-popup-button" onclick="$().w2popup(\'close\');">',
 				onClose : function () { if (typeof callBack == 'function') callBack(); }
 			});
@@ -622,7 +622,7 @@
 			title   	: title,
 			modal		: true,
 			showClose	: false,
-			body    	: '<div class="w2ui-centered"><div>' + msg +'</div></div>',
+			body    	: '<div class="w2ui-centered"><div style="font-size: 13px;">' + msg +'</div></div>',
 			buttons 	: '<input id="No" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-popup-button">'+
 					  	  '<input id="Yes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-popup-button">',
 			onOpen: function () {
