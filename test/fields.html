@@ -6,6 +6,7 @@
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script>
 	$(function () {
+		$('.color').w2field('color');
 		$('.int').w2field('int').css('text-align', 'right').on('change', function () { console.log('change: '+ this.value); });
 		$('.float').w2field('float');
 		$('.money').w2field('money');
@@ -41,9 +42,9 @@
 	<br>
 
 	<div class="w2ui-form" style="height: 500px"><div style="width: 100%; padding: 5px;">
-		<div class="w2ui-label">text:</div>
+		<div class="w2ui-label">color:</div>
 			<div class="w2ui-field">
-				<input class="text" type="text" style="width: 400px;"/>
+				<input class="color" type="text" style="width: 100px;"/>
 			</div>
 		<div class="w2ui-label">textarea:</div>
 			<div class="w2ui-field">
@@ -51,7 +52,7 @@
 			</div>		
 		<div class="w2ui-label">int:</div>
 			<div class="w2ui-field">
-				<input id="int" class="int" type="text" style="width: 100px"/>
+				<input id="int" class="int" type="text" style="width: 100px;"/>
 			</div>
 		<div class="w2ui-label">float:</div>
 			<div class="w2ui-field">
@@ -67,7 +68,7 @@
 			</div>
 		<div class="w2ui-label">alpha-numeric:</div>
 			<div class="w2ui-field">
-				<input id="alphanumeric" class="alphanumeric" type="text" size="20"/>
+				<input id="alphanumeric" class="alphanumeric" type="text" style="width: 100px"/>
 			</div>
 		<div class="w2ui-label">date:</div>
 			<div class="w2ui-field">
