@@ -2228,37 +2228,37 @@
 			return true;
 		},
 
-		sort: function (field, direction) {
+		sort: function (field, direction) { // if no params - clears sort
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction });
 			if (eventData.isCancelled === true) return false;
 			// check if needed to quit
-			if (typeof field == 'undefined') {
-				this.trigger($.extend(eventData, { phase: 'after' }));
-				return;
-			}
-			// default action
-			var sortIndex = this.sortData.length;
-			for (var s in this.sortData) {
-				if (this.sortData[s].field == field) { sortIndex = s; break; }
-			}
-			if (typeof direction == 'undefined' || direction == null) {
-				if (typeof this.sortData[sortIndex] == 'undefined') {
-					direction = 'asc';
-				} else {
-					switch (String(this.sortData[sortIndex].direction)) {
-						case 'asc'	: direction = 'desc'; break;
-						case 'desc'	: direction = 'asc';  break;
-						default		: direction = 'asc';  break;
+			if (typeof field != 'undefined') {
+				// default action
+				var sortIndex = this.sortData.length;
+				for (var s in this.sortData) {
+					if (this.sortData[s].field == field) { sortIndex = s; break; }
+				}
+				if (typeof direction == 'undefined' || direction == null) {
+					if (typeof this.sortData[sortIndex] == 'undefined') {
+						direction = 'asc';
+					} else {
+						switch (String(this.sortData[sortIndex].direction)) {
+							case 'asc'	: direction = 'desc'; break;
+							case 'desc'	: direction = 'asc';  break;
+							default		: direction = 'asc';  break;
+						}
 					}
 				}
+				if (this.multiSort === false) { this.sortData = []; sortIndex = 0; }
+				if (event && !event.ctrlKey && !event.metaKey) { this.sortData = []; sortIndex = 0; }
+				// set new sort
+				if (typeof this.sortData[sortIndex] == 'undefined') this.sortData[sortIndex] = {};
+				this.sortData[sortIndex].field 	   = field;
+				this.sortData[sortIndex].direction = direction;
+			} else {
+				this.sortData = [];
 			}
-			if (this.multiSort === false) { this.sortData = []; sortIndex = 0; }
-			if (event && !event.ctrlKey && !event.metaKey) { this.sortData = []; sortIndex = 0; }
-			// set new sort
-			if (typeof this.sortData[sortIndex] == 'undefined') this.sortData[sortIndex] = {};
-			this.sortData[sortIndex].field 	   = field;
-			this.sortData[sortIndex].direction = direction;
 			// if local
 			if (this.url == '') {
 				this.localSort();
@@ -3436,7 +3436,7 @@
 			function getColumns (master) {
 				var html = '<tr>';
 				if (obj.show.lineNumbers) {
-					html += '<td class="w2ui-head w2ui-col-number">'+
+					html += '<td class="w2ui-head w2ui-col-number" onclick="w2ui[\''+ obj.name +'\'].sort();">'+
 							'	<div>#</div>'+
 							'</td>';
 				}
