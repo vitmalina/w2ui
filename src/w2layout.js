@@ -118,6 +118,11 @@
 			onHide 		: null
 		},
 
+		// alias for content
+		html: function (panel, data, transition) {
+			return this.content(panel, data, transition);
+		},
+			
 		content: function (panel, data, transition) {
 			var obj = this;
 			var p = this.get(panel);
@@ -135,6 +140,10 @@
 					console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
 					return false;
 				}
+				// remove foreign classes and styles
+				var tmp = $('#'+ 'layout_'+ this.name + '_panel_'+ panel + ' > .w2ui-panel-content');
+				tmp.attr('class', 'w2ui-panel-content');
+				if (tmp.length > 0 && typeof p.style != 'undefined') tmp[0].style.cssText = p.style;
 				if (p.content == '') {
 					p.content = data;
 					if (!p.hidden) this.refresh(panel);
@@ -170,10 +179,6 @@
 			return true;
 		},
 		
-		html: function (panel, data, transition) {
-			this.content(panel, data, transition);
-		},
-			
 		load: function (panel, url, transition, onLoad) {
 			var obj = this;
 			if (panel == 'css') {
