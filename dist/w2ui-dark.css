@@ -477,12 +477,12 @@ select {
 }
 .w2ui-field-helper .w2ui-field-up {
   position: absolute;
-  top: 1px;
+  top: 0px;
   padding: 2px 3px;
 }
 .w2ui-field-helper .w2ui-field-down {
   position: absolute;
-  bottom: 1px;
+  bottom: 0px;
   padding: 2px 3px;
 }
 .w2ui-field-helper .w2ui-field-up:hover,
@@ -792,6 +792,12 @@ select {
 .w2ui-items ul li.w2ui-item-odd {
   color: #c0c8d5;
   background-color: inherit;
+}
+.w2ui-items ul li.w2ui-item-group {
+  color: #444;
+  font-weight: bold;
+  background-color: #ECEDF0;
+  border-bottom: 1px solid #D3D2D4;
 }
 .w2ui-items ul li.selected {
   color: #eeeeee;
