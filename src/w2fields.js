@@ -6,16 +6,18 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*  - select - for select, list - for drop down (needs this in grid)
-*  - enum (onLoaded)
-*  - enum (onCompare)
-*  - enum - onclick for already selected elements
-*  - enum needs events onItemClick, onItemOver, etc just like upload
-*  - upload (regular files)
+*	- select - for select, list - for drop down (needs this in grid)
+*	- enum (onLoaded)
+*	- enum (onCompare)
+*	- enum - onclick for already selected elements
+*	- enum needs events onItemClick, onItemOver, etc just like upload
+*	- upload (regular files)
+*	- enum - refresh happens on each key press even if not needed (for speed)
 * 
 * == 1.3 changes ==
 *	- select type has options.url to pull from server
 *	- input number types with use of keyboard, prefix/suffic, arrow buttons
+*	- added render for enum, if returns === false, no item is show
 *
 ************************************************************************/
 
@@ -563,13 +565,15 @@
 						var defaults = {
 							url			: '',
 							items		: [],
-							selected 	: [],		// preselected items
-							max 		: 0,		// maximum number of items that can be selected 0 for unlim
-							maxHeight 	: 72, 		// max height for input control to grow
-							showAll		: false,	// if true then show selected item in drop down
-							maxCache 	: 500,		// number items to cache
-							onRender 	: null,		// -- not implemented
-							onSelect 	: null		// -- not implemented (you can use onChange for the input)
+							selected 	: [],				// preselected items
+							max 		: 0,				// maximum number of items that can be selected 0 for unlim
+							maxHeight 	: 72, 				// max height for input control to grow
+							showAll		: false,			// if true then show selected item in drop down
+							match 		: 'begins with', 	// ['begins with', 'contains']
+							render 		: null,				// render function
+							maxCache 	: 500,				// number items to cache
+							onRender 	: null,				// -- not implemented
+							onSelect 	: null				// -- not implemented (you can use onChange for the input)
 						}
 						var obj	= this;
 						var settings = $.extend({}, defaults, options);
@@ -870,7 +874,7 @@
 				}
 				if (w2utils.isInt(id)) id = parseInt(id);
 				if (w2utils.isFloat(id)) id = parseFloat(id);
-				newItems.push({ id: id, text: text });
+				newItems.push($.extend({}, opt, { id: id, text: text }));
 			}
 			return newItems;
 		},
@@ -1114,24 +1118,35 @@
 			var ids	  = [];
 			for (var a in selected) ids.push(w2utils.isInt(selected[a].id) ? parseInt(selected[a].id) : String(selected[a].id))
 			// build list
+			var group = '';
 			for (var a in items) {
 				var id  = items[a].id;
 				var txt = items[a].text;
 				// if already selected
 				if ($.inArray(w2utils.isInt(id) ? parseInt(id) : String(id), ids) != -1 && settings.showAll !== true) continue;
 				// check match with search
-				var txt1 = String(search).toLowerCase();
-				var txt2 = txt.toLowerCase();
-				if (txt1.length <= txt2.length && txt2.substr(0, txt1.length) == txt1) {
+				var txt1  = String(search).toLowerCase();
+				var txt2  = txt.toLowerCase();
+				var match = (txt1.length <= txt2.length && txt2.substr(0, txt1.length) == txt1);
+				if (settings.match.toLowerCase() == 'contains' && txt2.indexOf(txt1) != -1) match = true;
+				if (match) {
 					if (typeof settings['render'] == 'function') {
-						txt = settings['render'](items[a]);
+						txt = settings['render'](items[a], selected);
 					}
-					ihtml += '\n<li index="'+ a +'" value="'+ id +'" '+
-							 '  onmouseover="$(this).parent().find(\'li\').removeClass(\'selected\'); $(this).addClass(\'selected\'); "'+
-							 '	class="'+ (i % 2 ? 'w2ui-item-even' : 'w2ui-item-odd') + (i == $(obj).data('last_index') ? " selected" : "") +'">'+ 
-							 txt +'</li>';
-					if (i == $(obj).data('last_index')) $(obj).data('last_item', items[a]);
-					i++;
+					if (txt !== false) {
+						// render group if needed
+						if (typeof items[a].group != 'undefined' && items[a].group != group) {
+							group = items[a].group;
+							ihtml += '<li class="w2ui-item-group" onmousedown="event.preventDefault()">'+ group +'</li>';
+						}
+						// render item
+						ihtml += '\n<li index="'+ a +'" value="'+ id +'" '+
+								 '  onmouseover="$(this).parent().find(\'li\').removeClass(\'selected\'); $(this).addClass(\'selected\'); "'+
+								 '	class="'+ (i % 2 ? 'w2ui-item-even' : 'w2ui-item-odd') + (i == $(obj).data('last_index') ? " selected" : "") +'">'+ 
+								 txt +'</li>';
+						if (i == $(obj).data('last_index')) $(obj).data('last_item', items[a]);
+						i++;
+					}
 				}
 			}
 			ihtml += '</ul>';
@@ -1163,8 +1178,10 @@
 			$(div)
 				.off('mousedown')
 				.on('mousedown', function (event) {
-					if (event.target && event.target.tagName != 'LI') return;
-					var id 	 = $(event.target).attr('index');
+					var target = event.target;
+					if (target.tagName != "LI") target = $(target).parents('li');
+					var id 	 = $(target).attr('index');
+					if (!id) return;
 					var item = settings.items[id];
 					if (typeof id == 'undefined') { if (event.preventDefault) event.preventDefault(); else return false; }
 					obj.add(item);
