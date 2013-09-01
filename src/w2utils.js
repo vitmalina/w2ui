@@ -847,6 +847,7 @@ w2utils.keyboard = (function (obj) {
 	function keydown (event) {
 		var tag = event.target.tagName;
 		if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) != -1) return;
+		if ($(event.target).prop('contenteditable')) return;
 		if (!w2ui_name) return;
 		// pass to appropriate widget
 		if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].keydown == 'function') {
