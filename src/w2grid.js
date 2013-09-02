@@ -82,6 +82,7 @@
 *	- added markSearchResults
 *	- added columnClick() and onColumnClick and onColumnResize
 * 	- added onColumnResize event
+*	- added mergeChanged() 
 *
 ************************************************************************/
 
@@ -1365,10 +1366,25 @@
 			var changes = [];
 			var tmp  	= this.find({ changed: true });
 			for (var t in tmp) {
-				changes.push($.extend(true, { recid: tmp[t]. recid }, tmp[t].changes));
+				changes.push($.extend(true, { recid: tmp[t].recid }, tmp[t].changes));
 			}
 			return changes;
 		},
+
+		mergeChanged: function () {
+			var changed = this.getChanged();
+			for (var c in changed) {
+				var record = this.get(changed[c].recid);
+				for (var s in changed[c]) {
+					if (s == 'recid') continue;
+					try { eval('record.' + s + ' = changed[c][s]'); } catch (e) {}
+					delete record.changed;
+					delete record.changes; 
+				}
+			}
+			$(this.box).find('.w2ui-editable input').removeClass('changed');
+			this.refresh();
+		},		
 
 		// ===================================================
 		// --  Action Handlers
@@ -1386,17 +1402,7 @@
 					}
 				);
 			} else {
-				for (var c in changed) {
-					var record = this.get(changed[c].recid);
-					for (var s in changed[c]) {
-						if (s == 'recid') continue;
-						try { eval('record.' + s + ' = changed[c][s]'); } catch (e) {}
-						delete record.changed;
-						delete record.changes; 
-					}
-				}
-				$(this.box).find('.w2ui-editable input').removeClass('changed');
-				this.refresh();
+				this.mergeChanged();
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
