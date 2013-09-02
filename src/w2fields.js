@@ -100,8 +100,8 @@
 							max 	: null,
 							arrows	: true,
 							keyboard: true,
-							suffix	: 'su',
-							prefix  : 'pr'
+							suffix	: '',
+							prefix  : ''
 						}
 						options = $.extend({}, defaults, options);
 						if (['text', 'alphanumeric', 'hex'].indexOf(tp) != -1) {

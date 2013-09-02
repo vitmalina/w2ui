@@ -7,7 +7,7 @@
 <script>
 	$(function () {
 		$('.color').w2field('color');
-		$('.int').w2field('int').css('text-align', 'right').on('change', function () { console.log('change: '+ this.value); });
+		$('.int').w2field({ type: 'int', min: 0, max: 360 });
 		$('.float').w2field('float');
 		$('.money').w2field('money');
 		$('.hex').w2field('hex');
