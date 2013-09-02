@@ -16,6 +16,8 @@
 *	- added onKeyboard event listener
 *	- added callBack to w2alert(msg, title, callBack)
 *	- renamed doKeydown to keydown()
+*	- markup does not require any rel=, just puts all in
+*	- options.url is not for load or open methods
 *
 ************************************************************************/
 
@@ -33,19 +35,27 @@
 			options = method;		
 			method  = 'open';
 		}
+		method = method.toLowerCase();
+		if (method == 'load' && typeof options == 'string') options = { url: options };
+		if (method == 'open' && typeof options.url != 'undefined') method = 'load';
 		if (typeof options == 'undefined') options = {};
 		// load options from markup
 		var dlgOptions = {};
 		if ($(this).length > 0 ) {
-			if ($(this).find('div[rel=title]').length > 0) {
-				dlgOptions['title'] = $(this).find('div[rel=title]').html();
-			}
-			if ($(this).find('div[rel=body]').length > 0) {
-				dlgOptions['body']  = $(this).find('div[rel=body]').html();
-				dlgOptions['style'] = $(this).find('div[rel=body]')[0].style.cssText;
-			}
-			if ($(this).find('div[rel=buttons]').length > 0) {
-				dlgOptions['buttons'] 	= $(this).find('div[rel=buttons]').html();
+			if ($(this).find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
+				if ($(this).find('div[rel=title]').length > 0) {
+					dlgOptions['title'] = $(this).find('div[rel=title]').html();
+				}
+				if ($(this).find('div[rel=body]').length > 0) {
+					dlgOptions['body']  = $(this).find('div[rel=body]').html();
+					dlgOptions['style'] = $(this).find('div[rel=body]')[0].style.cssText;
+				}
+				if ($(this).find('div[rel=buttons]').length > 0) {
+					dlgOptions['buttons'] 	= $(this).find('div[rel=buttons]').html();
+				}
+			} else {
+				dlgOptions['title']  = '&nbsp;';
+				dlgOptions['body']   = $(this).html();
 			}
 			if (parseInt($(this).css('width')) != 0)  dlgOptions['width']  = parseInt($(this).css('width'));
 			if (parseInt($(this).css('height')) != 0) dlgOptions['height'] = parseInt($(this).css('height'));
@@ -340,6 +350,7 @@
 				popup(html, selector);
 			} else {
 				$.get(url, function (data, status, obj) {
+					delete options.url;
 					popup(obj.responseText, selector);
 					$('#w2ui-popup').data(url, obj.responseText); // remember for possible future purposes
 				});
