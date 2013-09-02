@@ -1,4 +1,4 @@
-Loads new content of the popup from the server.
+Loads new content for the popup from the server.
 
 <div class="definition">
 	$().w2popup('load', options);
@@ -11,19 +11,33 @@ for valid options). The <span class="argument">options</span> argument must have
 which will be called to return popup markup.
 
 <textarea class="javascript">
-$().w2popup('open', { 
+$().w2popup('load', { 
 	url: '/server/path/file.html'
 });
 </textarea>
 
-In many ways this method is similar to the <a href="w2popup.open" class="method">.open</a> method.
-You can pass other properties in the <span class="argument">options</span> argument to the popup. They will be applied on top of properties 
-retrieved from the url. The markup from the server should have sections for title <span class="argument">[rel=title]</span>, 
-body <span class="argument">[rel=body]</span> and buttons <span class="argument">[rel=buttons]</span>.
+In many ways this method is similar to the <a href="w2popup.open" class="method">.open</a> method. You can pass other properties 
+in the <span class="argument">options</span> argument to the popup. They will be applied on top of properties retrieved from the url. 
+The markup from the server should have the same structure as for <a href="w2popup.open" class="method">.open</a> method, see example
+below:
+
+<textarea class="html">
+<div id="popup" style="width: 600px; height: 400px; overflow: hidden">
+	<div rel="title">
+		Title
+	</div>
+	<div rel="body">
+		body ...
+	</div>
+	<div rel="buttons">
+		<input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()"/>
+	</div>
+</div>
+</textarea>
 
 <div style="height: 10px;"></div>
 When you are loading content from the server, you can optionally add <span class="argument">#id</span> at the end of your url. This allows to 
 select a particular popup element by id, if server returns multiple in the same file.
 <textarea class="javascript">
-$().w2popup('load', 'server/url/page.html#popup');
+$().w2popup('load', { url: 'server/url/page.html#popup' });
 </textarea>

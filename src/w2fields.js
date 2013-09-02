@@ -141,7 +141,6 @@
 										break;
 								}							
 								if (cancel) {
-									//this.checkRange();
 									event.preventDefault();
 									// set cursor to the end
 									setTimeout(function () { el.setSelectionRange(el.value.length, el.value.length); }, 0);
