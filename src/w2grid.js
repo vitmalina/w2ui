@@ -949,7 +949,7 @@
 					last_logic  = 'AND';
 				}
 			}
-			// .search([ { filed, value }, { field, valu e} ]) - submit whole structure
+			// .search([ { field, value }, { field, value} ]) - submit whole structure
 			if ($.isArray(field)) {
 				var logic = 'AND';
 				if (typeof value == 'string') {
@@ -976,7 +976,7 @@
 				}
 			}
 			// .search(field, value) - regular search
-			if (typeof field == 'string' && typeof value == 'string') {
+			if (typeof field == 'string' && !$.isArray(value)) {
 				last_field 	= field;
 				last_search = value;
 				last_multi	= false;
