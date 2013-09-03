@@ -302,9 +302,13 @@
 			var html  = this.getItemHTML(it);
 			if (el.length == 0) {
 				// does not exist - create it
-				html =  '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
+				if (it.type == 'spacer') {
+					html = '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
+				} else {
+					html =  '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
 						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html + 
 						'</td>';
+				}
 				if (this.get(id, true) == this.items.length-1) {
 					$(this.box).find('#tb_'+ this.name +'_right').before(html);
 				} else {
