@@ -81,7 +81,7 @@ $(function () {
 			{ field: 'g', caption: 'G', size: '50px', resizable: true, sortable: true },
 			{ field: 'h', caption: 'H', size: '50px', resizable: true, sortable: true },
 		],
-		ranges: [
+		ranges1: [
 			{
 				name  : 'first',
 				range : [{"recid":'recid-5',"column":1},{"recid":'recid-9',"column":2}],
@@ -93,6 +93,17 @@ $(function () {
 			 	style : "border: 2px dotted orange; background-color: rgba(200,200,200,0.2)"
 			 }
 		],
+		onSelectionExtend: function (event) {
+			//console.log(event.newRange[0].column, event.newRange[1].column);
+			// restrict one column
+			//if (event.newRange[0].column != event.newRange[1].column) event.isCancelled = true; else event.isCancelled = false;
+			// restrict one column
+			//if (event.newRange[0].recid != event.newRange[1].recid) event.isCancelled = true; else event.isCancelled = false;
+			event.onComplete = function () {
+				var range = this.getRange(event.newRange, true);
+				//console.log('done', range);
+			}
+		},
 		onDelete: function (event) {
 			event.force = true;
 		},
