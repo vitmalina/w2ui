@@ -1212,6 +1212,7 @@ w2utils.keyboard = (function (obj) {
 *	- added columnClick() and onColumnClick and onColumnResize
 * 	- added onColumnResize event
 *	- added mergeChanged() 
+*	- added onEditField event
 *
 ************************************************************************/
 
@@ -1300,6 +1301,7 @@ w2utils.keyboard = (function (obj) {
 		this.onCopy				= null;
 		this.onPaste			= null;
 		this.onSelectionExtend  = null;
+		this.onEditField		= null;
 		this.onRender 			= null;
 		this.onRefresh 			= null;
 		this.onReload			= null;
@@ -2648,7 +2650,7 @@ w2utils.keyboard = (function (obj) {
 			}
 		},
 
-		editField: function (recid, column, value) {
+		editField: function (recid, column, value, event) {
 			//console.log('edit field', recid, column);
 			var obj   = this;
 			var index = obj.get(recid, true);
@@ -2656,6 +2658,12 @@ w2utils.keyboard = (function (obj) {
 			var col   = obj.columns[column];
 			var edit  = col.editable;
 			if (!rec || !col) return;
+			// event before
+			var eventData = obj.trigger({ phase: 'before', type: 'editField', target: obj.name, recid: recid, column: column, value: value, 
+				index: index, originalEvent: event });
+			if (eventData.isCancelled === true) return;
+			value = eventData.value;
+			// default behaviour
 			this.selectNone();
 			this.select({ recid: recid, column: column });
 			// create input element
@@ -2669,7 +2677,7 @@ w2utils.keyboard = (function (obj) {
 			if (typeof edit.items   == 'undefined') edit.items   = [];
 			val = (rec.changed && rec.changes[col.field] ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
 			if (val == null || typeof val == 'undefined') val = '';
-			if (typeof value != 'undefined') val = value;
+			if (typeof value != 'undefined' && value != null) val = value;
 			var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
 			if ($.inArray(col.render, ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle += 'text-align: right;';
 			el.addClass('w2ui-editable')
@@ -2680,18 +2688,18 @@ w2utils.keyboard = (function (obj) {
 				.on('blur', function (event) {
 					if (obj.parseObj(rec, col.field) != this.value) {
 						// change event
-						var eventData = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column, 
+						var eventData2 = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column, 
 							value_new: this.value, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseObj(rec, col.field)), 
 							value_original: obj.parseObj(rec, col.field) });
-						if (eventData.isCancelled === true) {
+						if (eventData2.isCancelled === true) {
 							// dont save new value
 						} else {
 							// default action
 							rec.changed = true;
 							rec.changes = rec.changes || {};
-							rec.changes[col.field] = eventData.value_new;
+							rec.changes[col.field] = eventData2.value_new;
 							// event after
-							obj.trigger($.extend(eventData, { phase: 'after' }));
+							obj.trigger($.extend(eventData2, { phase: 'after' }));
 						}
 					} else {
 						if (rec.changes) delete rec.changes[col.field];
@@ -2713,7 +2721,7 @@ w2utils.keyboard = (function (obj) {
 										obj.selectNone(); 
 										obj.select({ recid: recid, column: next });
 									} else {
-										obj.editField(recid, next); 
+										obj.editField(recid, next, null, event); 
 									}
 								}, 1);
 							}
@@ -2729,7 +2737,7 @@ w2utils.keyboard = (function (obj) {
 										obj.selectNone(); 
 										obj.select({ recid: obj.records[next].recid, column: column }); 
 									} else {
-										obj.editField(obj.records[next].recid, column);
+										obj.editField(obj.records[next].recid, column, null, event);
 									}										
 								}, 1);
 							}
@@ -2745,7 +2753,7 @@ w2utils.keyboard = (function (obj) {
 										obj.selectNone(); 
 										obj.select({ recid: obj.records[next].recid, column: column }); 
 									} else {
-										obj.editField(obj.records[next].recid, column);
+										obj.editField(obj.records[next].recid, column, null, event);
 									}										
 								}, 1);
 							}
@@ -2761,7 +2769,7 @@ w2utils.keyboard = (function (obj) {
 										obj.selectNone(); 
 										obj.select({ recid: obj.records[next].recid, column: column }); 
 									} else {
-										obj.editField(obj.records[next].recid, column);
+										obj.editField(obj.records[next].recid, column, null, event);
 									}										
 								}, 1);
 							}
@@ -2805,6 +2813,8 @@ w2utils.keyboard = (function (obj) {
 			} else {
 				el.find('input').val('').focus().val(value);
 			}
+			// event after
+			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		delete: function (force) {
@@ -3016,7 +3026,7 @@ w2utils.keyboard = (function (obj) {
 				case 13: // enter
 				case 32: // spacebar
 					if (columns.length == 0) columns.push(0);
-					obj.editField(recid, columns[0]);
+					obj.editField(recid, columns[0], null, event);
 					cancel = true;
 					break;
 
@@ -3279,7 +3289,7 @@ w2utils.keyboard = (function (obj) {
 				if (event.keyCode == 187) tmp = '=';
 				if (event.keyCode == 189) tmp = '-';
 				if (!event.shiftKey) tmp = tmp.toLowerCase();
-				obj.editField(recid, columns[0], tmp);
+				obj.editField(recid, columns[0], tmp, event);
 				cancel = true;				
 			}
 			if (cancel) { // cancel default behaviour
@@ -3389,7 +3399,7 @@ w2utils.keyboard = (function (obj) {
 			this.selectNone();
 			var col = this.columns[column];
 			if (col && $.isPlainObject(col.editable)) {
-				this.editField(recid, column);
+				this.editField(recid, column, null, event);
 			} else {
 				this.select({ recid: recid, column: column });
 				this.last.selected	 = this.getSelection();
