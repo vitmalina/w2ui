@@ -631,10 +631,15 @@
 			var page	= $(this.box).find('> div .w2ui-page');
 			var cpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page);
 			var dpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page + ' > div');
-			var buttons	= $(this.box).find('> div .w2ui-buttons');		
+			var buttons	= $(this.box).find('> div .w2ui-buttons');
+			var box_height;
+		
 			// if no height, calculate it
 			resizeElements();
-			if ($(this.box).height() == 0 || $(this.box).data('auto-size') === true) {
+			box_height = $(this.box).height();
+			box_height = ( box_height - box_height % 1);
+
+			if ( box_height == 0 || $(this.box).data('auto-size') === true) {
 				$(this.box).height(
 					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
 					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
