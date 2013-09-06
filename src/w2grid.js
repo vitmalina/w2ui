@@ -1554,7 +1554,7 @@
 			var rec   = obj.records[index];
 			var col   = obj.columns[column];
 			var edit  = col.editable;
-			if (!rec || !col) return;
+			if (!rec || !col || !edit) return;
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'editField', target: obj.name, recid: recid, column: column, value: value, 
 				index: index, originalEvent: event });
