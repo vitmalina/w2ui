@@ -9,6 +9,7 @@
 *	- when maximized, align the slide down message
 *	- bug: after transfer to another content, message does not work
 * 	- transition should include title, body and buttons, not just body
+*	- add lock method() to lock popup content
 *
 * == 1.3 changes ==
 *	- keyboard esc - close

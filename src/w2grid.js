@@ -12,16 +12,12 @@
 *	- column autosize based on largest content
 *	- more events in editable fields (onkeypress)
 *	- save grid state into localStorage and restore
-*	- searh logic (AND or OR) if it is a list, it should be multiple list with or
 *	- easy bubbles in the grid
 *	- possibly add context menu similar to sidebar's
-*	- CellClick / CellDblClick / CellChanged events
 *	- Merged cells
 *	- More than 2 layers of header groups
 *	- for search fields one should be able to pass w2field options
 *	- add enum to advanced search fields
-*	- cut and paste into excell
-*	- add searchFieldApply to easy add custom search fields (or somewho else)
 *	- all function that take recid as argument, should check if object was given and use it instead.
 *
 * == 1.3 changes ==
@@ -85,6 +81,7 @@
 * 	- added onColumnResize event
 *	- added mergeChanged() 
 *	- added onEditField event
+*	- improoved search(), now it does not require search definitions
 *
 ************************************************************************/
 
@@ -576,7 +573,8 @@
 					for (var s in this.searchData) {
 						var sdata  	= this.searchData[s];
 						var search 	= this.getSearch(sdata.field);
-						if (sdata == null) continue;
+						if (sdata  == null) continue;
+						if (search == null) search = { field: sdata.field, type: sdata.type };
 						var val1 = String(obj.parseObj(rec, search.field)).toLowerCase();
 						if (typeof sdata.value != 'undefined') {
 							if (!$.isArray(sdata.value)) {
@@ -607,6 +605,9 @@
 									var val3 = Number(val3) + 86400000; // 1 day
 									if (val1 >= val2 && val1 < val3) fl++;
 								}
+								break;
+							case 'in':
+								if (sdata.value.indexOf(val1) !== -1) fl++;
 								break;
 							case 'begins with':
 								if (val1.indexOf(val2) == 0) fl++; // do not hide record
@@ -706,16 +707,25 @@
 				} else {
 					this.ranges.push(rg);	
 				}
+				this.refreshRanges();
+				return this.ranges[this.ranges - 1];
 			}
-			this.refreshRanges();
+			return null;
 		},
 
 		removeRange: function () {
+			var removed = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var name = arguments[a];
 				$('#grid_'+ this.name +'_'+ name).remove();
-				for (var r in this.ranges) if (this.ranges[r].name == name) this.ranges.splice(r, 1);
+				for (var r = this.ranges.length-1; r >= 0; r--) {
+					if (this.ranges[r].name == name) {
+						this.ranges.splice(r, 1);
+						removed++;
+					}
+				}
 			}
+			return removed;
 		},
 
 		refreshRanges: function () {
@@ -1024,8 +1034,9 @@
 			var last_logic 	= this.last.logic;
 			var last_field 	= this.last.field;
 			var last_search = this.last.search;
-			// .search() - advanced search
+			// 1: search() - advanced search (reads from popup)
 			if (arguments.length == 0) {
+				last_search = '';
 				// advanced search
 				for (var s in this.searches) {
 					var search 	 = this.searches[s];
@@ -1040,6 +1051,8 @@
 						}
 						if (operator == 'between') {
 							$.extend(tmp, { value: [value1, value2] });
+						} else if (operator == 'in') {
+							$.extend(tmp, { value: value1.split(',') });
 						} else {
 							$.extend(tmp, { value: value1 });
 						}
@@ -1061,9 +1074,74 @@
 				if (searchData.length > 0 && this.url == '') {
 					last_multi	= true;
 					last_logic  = 'AND';
+				} else {
+					last_multi = true;
+					last_logic = 'AND';
 				}
 			}
-			// .search([ { field, value }, { field, value} ]) - submit whole structure
+			// 2: search(field, value) - regular search
+			if (typeof field == 'string') {
+				last_field 	= field;
+				last_search = value;
+				last_multi	= false;
+				last_logic	= 'OR';
+				// loop through all searches and see if it applies
+				if (typeof value != 'undefined') {
+					if (field.toLowerCase() == 'all') {
+						// if there are search fields loop thru them
+						if (this.searches.length > 0) {
+							for (var s in this.searches) {
+								var search = this.searches[s];
+								if (search.type == 'text' || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
+										|| (search.type == 'money' && w2utils.isMoney(value)) || (search.type == 'hex' && w2utils.isHex(value))
+										|| (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'alphaNumeric' && w2utils.isAlphaNumeric(value)) ) {
+									var tmp = {
+										field	 : search.field,
+										type	 : search.type,
+										operator : (search.type == 'text' ? 'contains' : 'is'),
+										value	 : value
+									};
+									searchData.push(tmp);
+								}
+								// range in global search box 
+								if (search.type == 'int' && String(value).indexOf('-') != -1) {
+									var t = String(value).split('-');
+									var tmp = {
+										field	 : search.field,
+										type	 : search.type,
+										operator : 'between',
+										value	 : [t[0], t[1]]
+									};
+									searchData.push(tmp);
+								}
+							}
+						} else { 
+							// no search fields, loop thru columns
+							for (var c in this.columns) {
+								var tmp = {
+									field	 : this.columns[c].field,
+									type	 : 'text',
+									operator : 'contains',
+									value	 : value
+								};
+								searchData.push(tmp);
+							}
+						}
+					} else {
+						var search = this.getSearch(field);
+						if (search == null) search = { field: field, type: 'text' };
+						if (search.field == field) this.last.caption = search.caption;
+						var tmp = {
+							field	 : search.field,
+							type	 : search.type,
+							operator : 'contains',
+							value	 : value
+						}
+						searchData.push(tmp);
+					}
+				}
+			}
+			// 3: search([ { field, value, [operator,] [type] }, { field, value, [operator,] [type] } ], logic) - submit whole structure
 			if ($.isArray(field)) {
 				var logic = 'AND';
 				if (typeof value == 'string') {
@@ -1074,64 +1152,11 @@
 				last_multi	= true;
 				last_logic	= logic;
 				for (var f in field) {
-					var data   = field[f];
-					var search = this.getSearch(data.field);
-					if (search == null) {
-						console.log('ERROR: Cannot find field "'+ data.field + '" when submitting a search.');
-						continue;
-					}
-					var tmp = $.extend(true, {}, data);					
-					if (typeof tmp.type == 'undefined') tmp.type = search.type;
-					if (typeof tmp.operator == 'undefined') {
-						tmp.operator = 'is';
-						if (tmp.type == 'text') tmp.operator = 'contains';
-					}
-					searchData.push(tmp);
-				}
-			}
-			// .search(field, value) - regular search
-			if (typeof field == 'string' && !$.isArray(value)) {
-				last_field 	= field;
-				last_search = value;
-				last_multi	= false;
-				last_logic	= 'OR';
-				// loop through all searches and see if it applies
-				if (value != '') for (var s in this.searches) {
-					var search 	 = this.searches[s];
-					if (search.field == field) this.last.caption = search.caption;
-					if (field != 'all' && search.field == field) {
-						var tmp = {
-							field	 : search.field,
-							type	 : search.type,
-							operator : (search.type == 'text' ? 'contains' : 'is'),
-							value	 : value
-						};
-						searchData.push(tmp);
-					}
-					if (field == 'all') {
-						if (search.type == 'text' || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
-								|| (search.type == 'money' && w2utils.isMoney(value)) || (search.type == 'hex' && w2utils.isHex(value))
-								|| (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'alphaNumeric' && w2utils.isAlphaNumeric(value)) ) {
-							var tmp = {
-								field	 : search.field,
-								type	 : search.type,
-								operator : (search.type == 'text' ? 'contains' : 'is'),
-								value	 : value
-							};
-							searchData.push(tmp);
-						}
-						// range in global search box 
-						if (search.type == 'int' && String(value).indexOf('-') != -1) {
-							var t = String(value).split('-');
-							var tmp = {
-								field	 : search.field,
-								type	 : search.type,
-								operator : 'between',
-								value	 : [t[0], t[1]]
-							};
-							searchData.push(tmp);
-						}
-					}
+					var data   	= field[f];
+					var search 	= this.getSearch(data.field);
+					if (search == null) search = { type: 'text', operator: 'contains' };
+					// merge current field and search if any
+					searchData.push($.extend(true, {}, search, data));
 				}
 			}
 			// event before
@@ -1490,7 +1515,7 @@
 			for (var c in changed) {
 				var record = this.get(changed[c].recid);
 				for (var s in changed[c]) {
-					if (s == 'recid') continue;
+					if (s == 'recid') continue; // do not allow to change recid
 					try { eval('record.' + s + ' = changed[c][s]'); } catch (e) {}
 					delete record.changed;
 					delete record.changes; 
@@ -2544,7 +2569,8 @@
 					// refresh toolbar only once
 					if (typeof this.toolbar == 'object') {
 						this.toolbar.refresh();
-						$('#grid_'+ this.name +'_search_all').val(this.last.search);
+						var tmp = $('#grid_'+ obj.name +'_search_all');
+						tmp.val(this.last.search);
 					}
 				}
 			} else {
@@ -2553,6 +2579,7 @@
 			// -- make sure search is closed
 			this.searchClose();
 			// search placeholder
+			var searchEl = $('#grid_'+ obj.name +'_search_all');
 			if (this.searches.length == 0) this.last.field = 'No Search Fields';
 			if (!this.multiSearch && this.last.field == 'all') {
 				this.last.field 	= this.searches[0].field;
@@ -2562,17 +2589,14 @@
 				if (this.searches[s].field == this.last.field) this.last.caption = this.searches[s].caption;
 			}
 			if (this.last.multi) {
-				$('#grid_'+ this.name +'_search_all').attr('placeholder', w2utils.lang('Multi Fields'));
-			} else {
-				$('#grid_'+ this.name +'_search_all').attr('placeholder', this.last.caption);
-			}
+				searchEl.attr('placeholder', w2utils.lang('[Multi Fields]'));
+			} 
 
 			// focus search if last searched
 			if (this._focus_when_refreshed === true) {
 				clearTimeout(obj._focus_timer);
 				obj._focus_timer = setTimeout(function () {
-					var el = $('#grid_'+ obj.name +'_search_all');
-					if (el.length > 0) { el[0].focus(); }
+					if (searchEl.length > 0) { searchEl[0].focus(); }
 					delete obj._focus_when_refreshed;
 					delete obj._focus_timer;
 				}, 600); // need time to render
@@ -2996,7 +3020,7 @@
 								setTimeout(function () { tb.uncheck(id); }, 1);
 							} else {
 								obj.searchOpen();
-								data.event.stopPropagation();
+								data.originalEvent.stopPropagation();
 								function tmp_close() { tb.uncheck(id); $(document).off('click', 'body', tmp_close); }
 								$(document).on('click', 'body', tmp_close);
 							}
@@ -3046,8 +3070,8 @@
 					case 'hex':
 					case 'money':
 					case 'date':
-						$('#grid_'+ this.name +'_field_'+s).w2field(search.type);
-						$('#grid_'+ this.name +'_field2_'+s).w2field(search.type);
+						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type);
+						$('#grid_'+ this.name +'_field2_'+s).w2field('clear').w2field(search.type);
 						break;
 
 					case 'list':
@@ -3073,8 +3097,12 @@
 					if (!$.isArray(sdata.value)) {
 						if (typeof sdata.value != 'udefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');						
 					} else {
-						$('#grid_'+ this.name +'_field_'+ s).val(sdata.value[0]).trigger('change');
-						$('#grid_'+ this.name +'_field2_'+ s).val(sdata.value[1]).trigger('change');
+						if (sdata.operator == 'in') {
+							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
+						} else {
+							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value[0]).trigger('change');
+							$('#grid_'+ this.name +'_field2_'+ s).val(sdata.value[1]).trigger('change');
+						}
 					}
 				}
 			}
@@ -3435,7 +3463,7 @@
 				if (typeof s.outTag  == 'undefined') s.outTag 	= '';
 				if (typeof s.type	== 'undefined') s.type 	= 'text';
 				if (s.type == 'text') {
-					var operator =  '<select id="grid_'+ this.name +'_operator_'+i+'">'+
+					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
 						'	<option value="begins with">'+ w2utils.lang('begins with') +'</option>'+
 						'	<option value="contains">'+ w2utils.lang('contains') +'</option>'+
@@ -3443,14 +3471,23 @@
 						'</select>';
 				}
 				if (s.type == 'int' || s.type == 'float' || s.type == 'date') {
-					var operator =  '<select id="grid_'+ this.name +'_operator_'+i+'" onchange="var el = $(\'#grid_'+ this.name + '_range_'+ i +'\'); '+
-						'					if ($(this).val() == \'is\') el.hide(); else el.show();">'+
+					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" '+
+						'	onchange="var range = $(\'#grid_'+ this.name + '_range_'+ i +'\'); range.hide(); '+
+						'			  var fld  = $(\'#grid_'+ this.name +'_field_'+ i +'\'); '+
+						'			  var fld2 = fld.parent().find(\'span input\'); '+
+						'			  if ($(this).val() == \'in\') fld.w2field(\'clear\'); else fld.w2field(\'clear\').w2field(\''+ s.type +'\');'+
+						'			  if ($(this).val() == \'between\') { range.show(); fld2.w2field(\'clear\').w2field(\''+ s.type +'\'); }'+
+						'			  var obj = w2ui[\''+ this.name +'\'];'+
+						'			  fld.on(\'keypress\', function (evnt) { if (evnt.keyCode == 13) obj.search(); }); '+
+						'			  fld2.on(\'keypress\', function (evnt) { if (evnt.keyCode == 13) obj.search(); }); '+
+						'			">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
+						'	<option value="in">'+ w2utils.lang('in') +'</option>'+
 						'	<option value="between">'+ w2utils.lang('between') +'</option>'+
 						'</select>';
 				}
 				if (s.type == 'list') {
-					var operator =  'is <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+i+'">';
+					var operator =  'is <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
 				}
 				html += '<tr>'+
 						'	<td class="close-btn">'+ btn +'</td>' +
@@ -3461,7 +3498,7 @@
 				switch (s.type) {
 					case 'alphaNumeric':
 					case 'text':
-						html += '<input rel="search" type="text" size="40" id="grid_'+ this.name +'_field_'+i+'" name="'+ s.field +'" '+ s.inTag +'>';
+						html += '<input rel="search" type="text" size="40" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
 						break;
 
 					case 'int':
@@ -3469,14 +3506,14 @@
 					case 'hex':
 					case 'money':
 					case 'date':
-						html += '<input rel="search" type="text" size="12" id="grid_'+ this.name +'_field_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
-								'<span id="grid_'+ this.name +'_range_'+i+'" style="display: none">'+
+						html += '<input rel="search" type="text" size="12" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>'+
+								'<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">'+
 								'&nbsp;-&nbsp;&nbsp;<input rel="search" type="text" size="12" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
 								'</span>';
 						break;
 
 					case 'list':
-						html += '<select rel="search" id="grid_'+ this.name +'_field_'+i+'" name="'+ s.field +'" '+ s.inTag +'></select>';
+						html += '<select rel="search" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'></select>';
 						break;
 
 				}
