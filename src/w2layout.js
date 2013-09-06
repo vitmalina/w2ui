@@ -413,6 +413,11 @@
 				var el = $('#layout_'+ obj.name +'_panel_'+ panel).css({ display: p.hidden ? 'none' : 'block' });
 				el = el.find('.w2ui-panel-content');
 				if (el.length > 0) el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
+				if (p.resizable === true) {
+					$('#layout_'+ this.name +'_resizer_'+ panel).show(); 
+				} else {
+					$('#layout_'+ this.name +'_resizer_'+ panel).hide(); 					
+				}
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
 					p.content.box = $('#layout_'+ obj.name + '_panel_'+ p.type +' > .w2ui-panel-content')[0];
