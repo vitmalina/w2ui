@@ -41,7 +41,7 @@
 	</div>
 	<br>
 
-	<div class="w2ui-form" style="height: 500px"><div style="width: 100%; padding: 5px;">
+	<div class="w2ui-form" style="height: 600px"><div style="width: 100%; padding: 5px;">
 		<div class="w2ui-label">color:</div>
 			<div class="w2ui-field">
 				<input class="color" type="text" style="width: 100px;"/>
@@ -80,7 +80,7 @@
 			</div>
 		<div class="w2ui-label">list/select:</div>
 			<div class="w2ui-field">
-				<select type="text" class="list" onchange="console.log('change: '+this.value);"></select>
+				<select type="text" class="list"></select>
 			</div>
 		<div class="w2ui-label">enum:</div>
 			<div class="w2ui-field">
@@ -88,7 +88,7 @@
 			</div>
 		<div class="w2ui-label">upload:</div>
 			<div class="w2ui-field">
-				<div class="upload" type="text" style="width: 600px"></div>
+				<input class="upload" type="text" style="width: 400px; min-height: 50px;"/>
 			</div>		
 	</div></div>
 
@@ -131,7 +131,7 @@
 		</tr>
 		<tr>
 			<td>list:</td>
-			<td><select type="text" class="list" onchange="console.log('change: '+this.value);"></select></td>
+			<td><select type="text" class="list"></select></td>
 		</tr>
 		<tr>
 			<td>enum:</td>
@@ -139,7 +139,7 @@
 		</tr>
 		<tr>
 			<td>upload:</td>
-			<td><div class="upload" type="text" style="width: 400px"></div></td>
+			<td><input class="upload" type="text" style="width: 400px"/></td>
 		</tr>
 	</table>
 

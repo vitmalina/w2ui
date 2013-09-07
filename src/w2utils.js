@@ -16,14 +16,14 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * 	- write and article how to replace certain framework functions
 *
 * == 1.3 changes ==
-*	- added locale(..., callBack), fixed bugs
+*	- fixed locale() bugs, made asynch
 *	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
 *	- added $().w2marker('string')
 *	- added w2utils.keyboard module
 *	- added w2utils.formatNumber()
 *	- added w2menu() plugin
 *	- added formatTime(), formatDateTime()
-*	- refactor event flow: instead of (target, data) -> (event), back compatibile
+*	- refactor event flow: instead of (target, data) -> (event), but back compatibile
 *
 ************************************************/
 
@@ -686,23 +686,21 @@ var w2utils = (function () {
 		if (typeof translation == 'undefined') return phrase; else return translation;
 	}
 
-	function locale (locale, callBack) {
-		var settings = w2utils.settings;
-		if (typeof locale == 'string') locale = { lang: locale };
-		locale = $.extend({ path : 'locale', lang : 'en-us' }, locale);
+	function locale (locale) {
+		if (!locale) locale = 'en-us';
+		if (locale.length == 4) locale = 'locale/'+ locale +'.json';
 		// load from the file
 		$.ajax({
-			url		: locale.path + '/'+ locale.lang.toLowerCase() +'.json',
+			url		: locale,
 			type	: "GET",
 			dataType: "JSON",
 			async	: false,
 			cache 	: false,
 			success : function (data, status, xhr) {
 				w2utils.settings = $.extend(true, w2utils.settings, data);
-				if (typeof callBack == 'function') callBack(data);
 			},
 			error	: function (xhr, status, msg) {
-				console.log('ERROR: Cannot load locale '+ settings.lang +' in '+ settings.path);
+				console.log('ERROR: Cannot load locale '+ locale);
 			}
 		});
 	}
