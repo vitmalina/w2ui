@@ -16,14 +16,14 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * 	- write and article how to replace certain framework functions
 *
 * == 1.3 changes ==
-*	- added locale(..., callBack), fixed bugs
+*	- fixed locale() bugs, made asynch
 *	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
 *	- added $().w2marker('string')
 *	- added w2utils.keyboard module
 *	- added w2utils.formatNumber()
 *	- added w2menu() plugin
 *	- added formatTime(), formatDateTime()
-*	- refactor event flow: instead of (target, data) -> (event), back compatibile
+*	- refactor event flow: instead of (target, data) -> (event), but back compatibile
 *
 ************************************************/
 
@@ -686,23 +686,21 @@ var w2utils = (function () {
 		if (typeof translation == 'undefined') return phrase; else return translation;
 	}
 
-	function locale (locale, callBack) {
-		var settings = w2utils.settings;
-		if (typeof locale == 'string') locale = { lang: locale };
-		locale = $.extend({ path : 'locale', lang : 'en-us' }, locale);
+	function locale (locale) {
+		if (!locale) locale = 'en-us';
+		if (locale.length == 4) locale = 'locale/'+ locale +'.json';
 		// load from the file
 		$.ajax({
-			url		: locale.path + '/'+ locale.lang.toLowerCase() +'.json',
+			url		: locale,
 			type	: "GET",
 			dataType: "JSON",
 			async	: false,
 			cache 	: false,
 			success : function (data, status, xhr) {
 				w2utils.settings = $.extend(true, w2utils.settings, data);
-				if (typeof callBack == 'function') callBack(data);
 			},
 			error	: function (xhr, status, msg) {
-				console.log('ERROR: Cannot load locale '+ settings.lang +' in '+ settings.path);
+				console.log('ERROR: Cannot load locale '+ locale);
 			}
 		});
 	}
@@ -2682,7 +2680,7 @@ w2utils.keyboard = (function (obj) {
 			var rec   = obj.records[index];
 			var col   = obj.columns[column];
 			var edit  = col.editable;
-			if (!rec || !col) return;
+			if (!rec || !col || !edit) return;
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'editField', target: obj.name, recid: recid, column: column, value: value, 
 				index: index, originalEvent: event });
@@ -5638,6 +5636,11 @@ w2utils.keyboard = (function (obj) {
 				var el = $('#layout_'+ obj.name +'_panel_'+ panel).css({ display: p.hidden ? 'none' : 'block' });
 				el = el.find('.w2ui-panel-content');
 				if (el.length > 0) el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
+				if (p.resizable === true) {
+					$('#layout_'+ this.name +'_resizer_'+ panel).show(); 
+				} else {
+					$('#layout_'+ this.name +'_resizer_'+ panel).hide(); 					
+				}
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
 					p.content.box = $('#layout_'+ obj.name + '_panel_'+ p.type +' > .w2ui-panel-content')[0];
@@ -8610,7 +8613,7 @@ w2utils.keyboard = (function (obj) {
 						var defaults = {
 							min 	: null,
 							max 	: null,
-							arrows	: true,
+							arrows	: false,
 							keyboard: true,
 							suffix	: '',
 							prefix  : ''
@@ -8701,33 +8704,47 @@ w2utils.keyboard = (function (obj) {
 						var pr = parseInt($(this).css('padding-right'));
 						if (options.arrows != '') {
 							$(this).after(
-								'<div class="w2ui-field-helper">&nbsp;'+ 
+								'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+ 
 								'	<div class="w2ui-field-up" type="up">'+
 								'		<div class="arrow-up" type="up"></div>'+
 								'	</div>'+
 								'	<div class="w2ui-field-down" type="down">'+
 								'		<div class="arrow-down" type="down"></div>'+
 								'	</div>'+
-								'	<div style="position: absolute; height: 1px; border-top: 1px solid silver"></div>'+
+								'	<div style="position: absolute; height: 1px; border-top: 1px solid red"></div>'+
 								'</div>');
+							var height = w2utils.getSize(this, 'height');
 							var helper = $(this).next();
 							helper
 								.css({
 									'color'			: $(this).css('color'),
 									'font-family'	: $(this).css('font-family'),
 									'font-size'		: $(this).css('font-size'),
-									'height' 		: (w2utils.getSize(this, 'height') - 4) + 'px',
-									'padding-top'	: 0,
-									'padding-bottom': 0,
-									'padding-left'	: 0,
-									'padding-right'	: 0,
-									'margin-top'	: '2px',
-									'margin-bottom'	: '2px',
+									'height' 		: ($(this).height() + parseInt($(this).css('padding-top')) + parseInt($(this).css('padding-bottom')) ) + 'px',
+									'padding'		: '0px',
+									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-bottom'	: '0px',
 									'border-left'	: '1px solid silver'
 								})
-								.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 9) + 'px')
+								.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('margin-right')) + 12) + 'px')
 								.on('mousedown', function (event) {
-									$(el).focus().trigger($.Event("keydown"), { keyCode : ($(event.target).attr('type') == 'up' ? 38 : 40) });
+									var btn = this;
+									var evt = event;
+									$('body').on('mouseup', tmp);
+									$('body').data('_field_update_timer', setTimeout(update, 700));
+									update(false);
+									// timer function
+									function tmp() {
+										clearTimeout($('body').data('_field_update_timer'));
+										$('body').off('mouseup', tmp);
+									}
+									// update function
+									function update(notimer) {
+										$(el).focus().trigger($.Event("keydown"), { 
+											keyCode : ($(evt.target).attr('type') == 'up' ? 38 : 40) 
+										});
+										if (notimer !== false) $('body').data('_field_update_timer', setTimeout(update, 60));
+									};
 								});
 							pr += helper.width() + 12;
 							$(this).css('padding-right', pr + 'px');
@@ -9268,6 +9285,7 @@ w2utils.keyboard = (function (obj) {
 							var settings = $(this).data('settings');
 							var selected = $(this).data('selected');
 							$(div).find('li').remove();
+							$(div).find('> span:first-child').css('line-height', ($(div).height() - w2utils.getSize(div, '+height')) + 'px');
 							for (var s in selected) {
 								var file = selected[s];
 								// add li element
@@ -9452,7 +9470,7 @@ w2utils.keyboard = (function (obj) {
 						var selected = $(obj).data('selected');
 						var cnt  = 0;
 						for (var s in selected) { cnt++; }
-						if (cnt<settings.max) $(div).find('.file-input').click();
+						if (cnt < settings.max || settings.max == 0) $(div).find('.file-input').click();
 					}
 				})
 				.off('dragenter')
@@ -9563,6 +9581,7 @@ w2utils.keyboard = (function (obj) {
 				if (selected.length == 0) {
 					$(div).prepend('<span>'+ settings.hint +'</span>');
 				}
+				obj.refresh();
 				$(obj).trigger('change');
 			}, 300);
 		},
@@ -10623,7 +10642,7 @@ w2utils.keyboard = (function (obj) {
 			var buttons	= $(this.box).find('> div .w2ui-buttons');		
 			// if no height, calculate it
 			resizeElements();
-			if ($(this.box).height() == 0 || $(this.box).data('auto-size') === true) {
+			if (parseInt($(this.box).height()) == 0 || $(this.box).data('auto-size') === true) {
 				$(this.box).height(
 					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
 					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 

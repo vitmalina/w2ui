@@ -485,9 +485,11 @@ select {
   bottom: 0px;
   padding: 2px 3px;
 }
-.w2ui-field-helper .w2ui-field-up:hover,
-.w2ui-field-helper .w2ui-field-down:hover {
-  background-color: #efefef;
+.w2ui-field-helper .arrow-up:hover {
+  border-bottom-color: #81C6FF;
+}
+.w2ui-field-helper .arrow-down:hover {
+  border-top-color: #81C6FF;
 }
 .w2ui-field-helper .arrow-up {
   width: 0;
@@ -813,10 +815,10 @@ select {
 }
 .w2ui-upload > span:first-child {
   pointer-events: none;
-  display: inline-block;
-  padding-top: 5px;
-  font-size: 12px !important;
-  color: #aaa;
+  margin: 0px;
+  padding: 0px;
+  font-size: 14px !important;
+  color: #999;
 }
 .w2ui-upload.dragover {
   background-color: #D9FFD5;
@@ -857,10 +859,10 @@ select {
   pointer-events: none;
 }
 .w2ui-upload .file-list li > div.file-delete {
-  float: left;
+  float: right;
   z-index: 1;
   width: 12px;
-  margin: 1px 3px 0px -2px;
+  margin: 1px -4px 0px 4px;
   border-radius: 15px;
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAMCAMAAABP7o1HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAGUExURf///////1V89WwAAAACdFJOU/8A5bcwSgAAAEZJREFUeNpiYEQFDGAAYmATB8mgSjBApEAMsC4YwYDEg5EQdTBZqD2McAvR+DCdmBJIOlCMQrID3XI4gepcIjyIFCQAAQYAaD0ArHd1+soAAAAASUVORK5CYII=) no-repeat center left;
   background-position: 0px 0px;
