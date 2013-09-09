@@ -15,8 +15,10 @@ Refreshes the object without completely re-inserting it.
 
 <h4>Description</h4>
 
-The <span class="argument">render()</span> method is called once during the initial creation and rendering
-of the object, when <span class="argument">refresh()</span> method is called multiple type to refresh the content of the widget.
+This method is common for all w2ui widgets. It has very slight differences from widget to widget. In a way it is similar to 
+the <span class="argument">render()</span> method that is called once during the initial creation and rendering
+of the object. The <span class="argument">refresh()</span> method is called after the widget was created to refresh its content,
+after you changed a property and want it to be reflected on screen.
 <div style="height: 10px"></div>
 
 <textarea class="javascript">
