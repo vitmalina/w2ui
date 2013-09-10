@@ -55,6 +55,16 @@
 		"Confirmation" : "Confirmação",
 		"Notification" : "Notificação",
 		"Show" : "Exibir",
-		"Hide" : "Ocultar"
+		"Hide" : "Ocultar",
+		"Record ID" : "ID do registro",
+		"in" : "em",
+		"selected" : "selecionado",
+		"buffered" : "armazenado",
+		"Server Response": "Resposta do servidor em",
+		"sec" : "segundos",
+		"Skip": "Saltar",
+		"Records": "Registros",
+		"Toggle Line Numbers": "Alternar números de linha",
+		"Reset Column Size": "Reiniciar tamanho da coluna"
 	}
 }
