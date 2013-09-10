@@ -88,6 +88,17 @@ select:focus,
 textarea:focus {
   outline-color: #aaa871;
 }
+input[type=text]:disabled,
+input[type=password]:disabled,
+select:disabled,
+textarea:disabled,
+input[type=text][readonly],
+input[type=password][readonly],
+select[readonly],
+textarea[readonly] {
+  background-color: #f1f1f1;
+  color: #888;
+}
 select {
   padding: 2px;
 }

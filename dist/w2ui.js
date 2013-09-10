@@ -688,7 +688,7 @@ var w2utils = (function () {
 
 	function locale (locale) {
 		if (!locale) locale = 'en-us';
-		if (locale.length == 4) locale = 'locale/'+ locale +'.json';
+		if (locale.length == 5) locale = 'locale/'+ locale +'.json';
 		// load from the file
 		$.ajax({
 			url		: locale,
@@ -769,6 +769,7 @@ $.w2event = {
 			if ( (fun.event.type == eventData.type || fun.event.type == '*') 
 					&& (fun.event.target == eventData.target || fun.event.target == null)
 					&& (fun.event.execute == eventData.phase || fun.event.execute == '*' || fun.event.phase == '*') ) {
+				eventData = $.extend({}, fun.event, eventData);
 				// check handler arguments
 				var args = [];
 				var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun.handler);
@@ -2698,7 +2699,7 @@ w2utils.keyboard = (function (obj) {
 			if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
 			if (typeof edit.style   == 'undefined') edit.style   = '';
 			if (typeof edit.items   == 'undefined') edit.items   = [];
-			val = (rec.changed && rec.changes[col.field] ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+			var val = (rec.changed && rec.changes[col.field] ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
 			if (val == null || typeof val == 'undefined') val = '';
 			if (typeof value != 'undefined' && value != null) val = value;
 			var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
@@ -2831,7 +2832,7 @@ w2utils.keyboard = (function (obj) {
 					}
 				});
 			// unselect
-			if (typeof value == 'undefined') {
+			if (typeof value == 'undefined' || value == null) {
 				el.find('input').focus(); 
 			} else {
 				el.find('input').val('').focus().val(value);
@@ -8522,9 +8523,7 @@ w2utils.keyboard = (function (obj) {
 *
 * == NICE TO HAVE ==
 *	- select - for select, list - for drop down (needs this in grid)
-*	- enum (onLoaded)
-*	- enum (onCompare)
-*	- enum - onclick for already selected elements
+*	- enum add events: onLoaded, onCompare, onSelect, onDelete, onClick for already selected elements
 *	- enum needs events onItemClick, onItemOver, etc just like upload
 *	- upload (regular files)
 *	- enum - refresh happens on each key press even if not needed (for speed)
