@@ -1227,7 +1227,7 @@
 					search = {
 						type 	: 'text',
 						field 	: 'all',
-						caption : 'All Fields'
+						caption : w2utils.lang('All Fields')
 					}
 				} else {
 					if (this.searches[s].hidden === true) continue;
@@ -1410,7 +1410,7 @@
 		requestComplete: function(status, cmd, callBack) {
 			var obj = this;
 			this.unlock();
-			setTimeout(function () { obj.status('Server Response '+ ((new Date()).getTime() - obj.last.xhr_start)/1000 +' sec'); }, 10);
+			setTimeout(function () { obj.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - obj.last.xhr_start)/1000 +' ' + w2utils.lang('sec')); }, 10);
 			this.last.pull_more 	= false;
 			this.last.pull_refresh 	= true;
 
@@ -2853,16 +2853,16 @@
 				col_html +=
 						'<tr><td colspan="2" style="padding: 0px">'+
 						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
-						'		Skip <input type="text" style="width: 45px" value="'+ this.offset +'" '+
-						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value);"> Records'+
+						'		'+ w2utils.lang('Skip') +' <input type="text" style="width: 45px" value="'+ this.offset +'" '+
+						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value);"> '+ w2utils.lang('Records')+
 						'	</div>'+
 						'</td></tr>';
 			}
 			col_html +=	'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
-						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">Toggle Line Numbers</div>'+
+						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Toggle Line Numbers') +'</div>'+
 						'</td></tr>'+
 						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\');">'+
-						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">Reset Column Size</div>'+
+						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
 						'</td></tr>';
 			col_html += "</table></div>";
 			this.toolbar.get('column-on-off').html = col_html;
@@ -3719,7 +3719,7 @@
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
 			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' of ' +	w2utils.formatNumber(this.total) + 
-					(this.url != '' ? ' (buffered '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
+					(this.url != '' ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
 			);
 			// only for local data source, else no extra records loaded
 			if (this.url == '' && (!this.fixedBody || this.total <= 300)) return;
@@ -4017,10 +4017,10 @@
 				var msgLeft = '';
 				var sel = this.getSelection();
 				if (sel.length > 0) {
-					msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' selected';
+					msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + w2utils.lang('selected');
 					var tmp = sel[0];
 					if (typeof tmp == 'object') tmp = tmp.recid + ', Column: '+ tmp.column;
-					if (sel.length == 1) msgLeft = 'Record ID: '+ tmp + ' ';
+					if (sel.length == 1) msgLeft = w2utils.lang('Record ID') + ': '+ tmp + ' ';
 				}
 				$('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);
 				// toolbar

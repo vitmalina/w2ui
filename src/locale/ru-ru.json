@@ -54,6 +54,16 @@
 		"Confirmation" : "Подтверждение",
 		"Notification" : "Уведомление",
 		"Show" : "Показать",
-		"Hide" : "Скрыть"
+		"Hide" : "Скрыть",
+		"Record ID" : "Запись",
+		"in" : "список",
+		"selected" : "выделенно",
+		"buffered" : "буфер",
+		"Server Response": "Ответ Сервера",
+		"sec" : "сек",
+		"Skip": "Пропустить",
+		"Records": "Записей",
+		"Toggle Line Numbers": "Вк/Вык. Номера Строк",
+		"Reset Column Size": "Восстановить Колоноки"
 	}
 }
