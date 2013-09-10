@@ -7,9 +7,7 @@
 *
 * == NICE TO HAVE ==
 *	- select - for select, list - for drop down (needs this in grid)
-*	- enum (onLoaded)
-*	- enum (onCompare)
-*	- enum - onclick for already selected elements
+*	- enum add events: onLoaded, onCompare, onSelect, onDelete, onClick for already selected elements
 *	- enum needs events onItemClick, onItemOver, etc just like upload
 *	- upload (regular files)
 *	- enum - refresh happens on each key press even if not needed (for speed)

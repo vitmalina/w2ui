@@ -68,6 +68,10 @@ textarea {
 	&:focus {
 		outline-color: @input-focus-outline-color;	
 	}
+	&:disabled, &[readonly] {
+		background-color: #f1f1f1;
+		color: #888;
+	}
 }
 
 select {
