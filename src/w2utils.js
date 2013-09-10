@@ -688,7 +688,7 @@ var w2utils = (function () {
 
 	function locale (locale) {
 		if (!locale) locale = 'en-us';
-		if (locale.length == 4) locale = 'locale/'+ locale +'.json';
+		if (locale.length == 5) locale = 'locale/'+ locale +'.json';
 		// load from the file
 		$.ajax({
 			url		: locale,
