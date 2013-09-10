@@ -2471,7 +2471,7 @@
 					text += '\n';
 				}
 			}
-			text = text.trim('\n');
+			text = text.substr(0, text.length - 1);
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
 			if (eventData.isCancelled === true) return '';
