@@ -769,6 +769,7 @@ $.w2event = {
 			if ( (fun.event.type == eventData.type || fun.event.type == '*') 
 					&& (fun.event.target == eventData.target || fun.event.target == null)
 					&& (fun.event.execute == eventData.phase || fun.event.execute == '*' || fun.event.phase == '*') ) {
+				eventData = $.extend({}, fun.event, eventData);
 				// check handler arguments
 				var args = [];
 				var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun.handler);
