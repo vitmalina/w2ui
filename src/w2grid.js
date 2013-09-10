@@ -1940,9 +1940,15 @@
 					break;
 
 				case 13: // enter
-					if (recEL.length <= 0 || obj.show.expandColumn !== true) break;
-					obj.toggle(recid, event);
-					cancel = true;
+					if (this.selectType == 'row') {
+						if (recEL.length <= 0 || obj.show.expandColumn !== true) break;
+						obj.toggle(recid, event);
+						cancel = true;
+					} else { // same as spacebar
+						if (columns.length == 0) columns.push(0);
+						obj.editField(recid, columns[0], null, event);
+						cancel = true;						
+					}
 					break;
 
 				case 37: // left
@@ -2168,7 +2174,9 @@
 					break;
 
 				case 88: // x - cut
-					setTimeout(function () { obj.delete(true); }, 100);
+					if (event.ctrlKey || event.metaKey) {
+						setTimeout(function () { obj.delete(true); }, 100);
+					}
 				case 67: // c - copy
 					if (event.ctrlKey || event.metaKey) {
 						var text = obj.copy();
@@ -2179,7 +2187,7 @@
 					break;
 			}
 			var tmp = [187, 189]; // =-
-			for (var i=48; i<90; i++) tmp.push(i); // 0-9,a-z,A-Z
+			for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
 			if (tmp.indexOf(event.keyCode) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
 				if (columns.length == 0) columns.push(0);
 				var tmp = String.fromCharCode(event.keyCode);
@@ -4019,7 +4027,7 @@
 				if (sel.length > 0) {
 					msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + w2utils.lang('selected');
 					var tmp = sel[0];
-					if (typeof tmp == 'object') tmp = tmp.recid + ', Column: '+ tmp.column;
+					if (typeof tmp == 'object') tmp = tmp.recid + ', '+ w2utils.lang('Column') +': '+ tmp.column;
 					if (sel.length == 1) msgLeft = w2utils.lang('Record ID') + ': '+ tmp + ' ';
 				}
 				$('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);

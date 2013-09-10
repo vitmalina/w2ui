@@ -64,6 +64,7 @@
 		"Skip": "Пропустить",
 		"Records": "Записей",
 		"Toggle Line Numbers": "Вк/Вык. Номера Строк",
-		"Reset Column Size": "Восстановить Колоноки"
+		"Reset Column Size": "Восстановить Колоноки",
+		"Column": "Колонка"
 	}
 }
