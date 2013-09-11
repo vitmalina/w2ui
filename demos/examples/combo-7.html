@@ -1,15 +1,17 @@
 <div class="content">
 	<div id="example_title">
-		<h1>Grid & Edit</h1>
-		The demo below features a resiabled layout with two panels, a grid and edit that are connected. You can click on the record in the grid
-		and it will be displaed in the form. If you edit the form and click the Save button it will save records into the grid.
+		<h1>Popup & Grid</h1>
+		The demo below features a popup with a resiabled layout with two panels. One panel has a grid and the second has a form. The grid
+		and the form are connected to each other.
 	</div>
 	<div id="example_view"></div>
 	<div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="main" style="width: 100%; height: 400px;"></div>
+<div style="padding: 20px 0px">
+	<input type="button" value="Open Popup" onclick="openPopup()"/>
+</div>
 
 <!--CODE-->
 // widget configuration
@@ -24,10 +26,6 @@ var config = {
 	},
 	grid: { 
 		name: 'grid',
-		show: {
-			toolbar			: true,
-			toolbarDelete	: true
-		},
 		columns: [
 			{ field: 'fname', caption: 'First Name', size: '33%', sortable: true, searchable: true },
 			{ field: 'lname', caption: 'Last Name', size: '33%', sortable: true, searchable: true },
@@ -48,10 +46,8 @@ var config = {
 		onClick: function(event) {
 			var grid = this;
 			var form = w2ui.form;
-			console.log(event);
 			event.onComplete = function () {
 				var sel = grid.getSelection();
-				console.log(sel);
 				if (sel.length == 1) {
 					form.recid  = sel[0];
 					form.record = $.extend(true, {}, grid.get(sel[0]));
@@ -66,7 +62,7 @@ var config = {
 		header: 'Edit Record',
 		name: 'form',
 		fields: [
-			{ name: 'recid', type: 'text', html: { caption: 'ID', attr: 'size="10" readonly' } },
+			{ name: 'recid', type: 'text', required: true, html: { caption: 'ID', attr: 'size="10" readonly' } },
 			{ name: 'fname', type: 'text', required: true, html: { caption: 'First Name', attr: 'size="40" maxlength="40"' } },
 			{ name: 'lname', type: 'text', required: true, html: { caption: 'Last Name', attr: 'size="40" maxlength="40"' } },
 			{ name: 'email', type: 'email', html: { caption: 'Email', attr: 'size="30"' } },
@@ -92,8 +88,25 @@ var config = {
 }
 
 $(function () {
-	// initialization
-	$('#main').w2layout(config.layout);
-	w2ui.layout.content('left', $().w2grid(config.grid));
-	w2ui.layout.content('main', $().w2form(config.form));
+	// initialization in memory
+	$().w2layout(config.layout);
+	$().w2grid(config.grid);
+	$().w2form(config.form);
 });
+
+function openPopup() {
+	$().w2popup({
+		title 	: 'Popup',
+		width	: 900,
+		height	: 600,
+		showMax : true,
+		body 	: '<div id="main" style="position: absolute; left: 5px; top: 5px; right: 5px; bottom: 5px;"></div>',
+		onOpen  : function () {
+			$('#w2ui-popup #main').w2render('layout');
+			w2ui.layout.content('left', w2ui.grid);
+			w2ui.layout.content('main', w2ui.form);
+		},
+		onMax : function () { w2ui.layout.resize();	},
+		onMin : function () { w2ui.layout.resize();	}
+	});
+}

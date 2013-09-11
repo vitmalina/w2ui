@@ -1,112 +1,100 @@
 <div class="content">
 	<div id="example_title">
-		<h1>Popup & Grid</h1>
-		The demo below features a popup with a resiabled layout with two panels. One panel has a grid and the second has a form. The grid
-		and the form are connected to each other.
+		<h1>Spreadsheet Like JavaScript Grid</h1>
+		In version 1.3 a new feature was introducted that allows to create spreadsheet like grids. Some functionality comes by default and other
+		can be extended with events.
+		<ul>
+			<li>Editable cells (start typing or click enter)</li>
+			<li>Keyboard or mouse selection (user shift and arrow keys)</li>
+			<li>Copy/paste to/from other spreadsheets</li>
+			<li>Custom Ranges</li>
+			<li>Selection Expansion</li>
+		</ul>
 	</div>
 	<div id="example_view"></div>
 	<div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div style="padding: 20px 0px">
-	<input type="button" value="Open Popup" onclick="openPopup()"/>
-</div>
+<div id="main" style="width: 100%; height: 400px; margin-bottom: 10px;"></div>
+<input type="button" value="Mark Range C3:D7" onclick="mark()">
+<input type="button" value="Remove Range" onclick="w2ui.grid.removeRange('range')">
 
 <!--CODE-->
 // widget configuration
 var config = {
-	layout: {
-		name: 'layout',
-		padding: 4,
-		panels: [
-			{ type: 'left', size: '50%', resizable: true, minSize: 300 },
-			{ type: 'main', minSize: 300 }
-		]
-	},
 	grid: { 
 		name: 'grid',
-		columns: [
-			{ field: 'fname', caption: 'First Name', size: '33%', sortable: true, searchable: true },
-			{ field: 'lname', caption: 'Last Name', size: '33%', sortable: true, searchable: true },
-			{ field: 'email', caption: 'Email', size: '33%' },
-			{ field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' },
-		],
-		records: [
-			{ recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-		],
-		onClick: function(event) {
-			var grid = this;
-			var form = w2ui.form;
+		selectType: 'cell',
+		show: { 
+			footer: true,
+			lineNumbers: true
+		},
+		onColumnClick: function (event) {
+			console.log(1);
+			this.selectNone();
+			var column = this.getColumn(event.field, true);
+			var sel    = [];
+			for (var i = 0; i < this.total; i++) {
+				sel.push({ recid: this.records[i].recid, column: column });
+			}
+			this.select.apply(this, sel);
+			event.preventDefault();
+		},
+		onSelectionExtend: function (event) {
 			event.onComplete = function () {
-				var sel = grid.getSelection();
-				if (sel.length == 1) {
-					form.recid  = sel[0];
-					form.record = $.extend(true, {}, grid.get(sel[0]));
-					form.refresh();
-				} else {
-					form.clear();
-				}
+				console.log('Original:', event.originalRange[0], '-', event.originalRange[1]);
+				console.log('New:', event.newRange[0], '-', event.newRange[1]);
+				w2alert('Selection expaned (see more details in the console).');
 			}
-		}
-	},
-	form: { 
-		header: 'Edit Record',
-		name: 'form',
-		fields: [
-			{ name: 'recid', type: 'text', required: true, html: { caption: 'ID', attr: 'size="10" readonly' } },
-			{ name: 'fname', type: 'text', required: true, html: { caption: 'First Name', attr: 'size="40" maxlength="40"' } },
-			{ name: 'lname', type: 'text', required: true, html: { caption: 'Last Name', attr: 'size="40" maxlength="40"' } },
-			{ name: 'email', type: 'email', html: { caption: 'Email', attr: 'size="30"' } },
-			{ name: 'sdate', type: 'date', html: { caption: 'Date', attr: 'size="10"' } }
-		],
-		actions: {
-			Reset: function () {
-				this.clear();
-			},
-			Save: function () {
-				if (this.recid == 0) {
-					w2ui.grid.add($.extend(true, { recid: w2ui.grid.records.length + 1 }, this.record));
-					w2ui.grid.selectNone();
-					this.clear();
-				} else {
-					w2ui.grid.set(this.recid, this.record);
-					w2ui.grid.selectNone();
-					this.clear();
-				}
-			}
+		},
+		onDelete: function (event) {
+			event.force = true;
 		}
 	}
 }
 
 $(function () {
-	// initialization in memory
-	$().w2layout(config.layout);
+	// initialization
 	$().w2grid(config.grid);
-	$().w2form(config.form);
+	// create columns
+	var tmp 	= 'abcdefghijklmnoprst';
+	var values 	= {};
+	for (var i=0; i < tmp.length; i++) {
+		w2ui.grid.columns.push({
+			field: tmp[i],
+			caption: '<div style="text-align: center">' + tmp[i].toUpperCase() + '</div>',
+			size: '15%',
+			resizable: true,
+			sortable: true,
+			editable: { type: 'text' }
+		});
+		values[tmp[i]] = '';
+	}
+	// insert  records
+	for (var i = 0; i < 500; i++) {
+		w2ui.grid.records.push($.extend({ recid: i+1 }, values));
+	}
+	w2ui.grid.total = w2ui.grid.records.length;
+	w2ui.grid.buffered = w2ui.grid.total;
+	// init some values
+	w2ui.grid.records[2].c = 1;
+	w2ui.grid.records[3].c = 2;
+	w2ui.grid.records[4].c = 3;
+	w2ui.grid.records[5].c = 4;
+	w2ui.grid.records[6].c = 5;
+	w2ui.grid.records[2].d = 67;
+	w2ui.grid.records[3].d = 35;
+	w2ui.grid.records[4].d = 17;
+	w2ui.grid.records[5].d = 84;
+	w2ui.grid.records[6].d = 14;
+	// display grid
+	$('#main').w2render('grid');
 });
 
-function openPopup() {
-	$().w2popup({
-		title 	: 'Popup',
-		width	: 900,
-		height	: 600,
-		showMax : true,
-		body 	: '<div id="main" style="position: absolute; left: 5px; top: 5px; right: 5px; bottom: 5px;"></div>',
-		onOpen  : function () {
-			$('#w2ui-popup #main').w2render('layout');
-			w2ui.layout.content('left', w2ui.grid);
-			w2ui.layout.content('main', w2ui.form);
-		},
-		onMax : function () { w2ui.layout.resize();	},
-		onMin : function () { w2ui.layout.resize();	}
-	});
+function mark() {
+	w2ui.grid.addRange('range', 
+		[{ "recid": 3, "column": 2 }, { "recid": 7, "column": 3 }],
+		"border: 2px dotted green; background-color: rgba(100,400,100,0.2)"
+	);
 }
