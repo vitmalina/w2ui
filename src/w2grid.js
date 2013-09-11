@@ -417,6 +417,20 @@
 			return null;
 		},
 
+		toggleColumn: function () {
+			var effected = 0;
+			for (var a = 0; a < arguments.length; a++) {
+				for (var r = this.columns.length-1; r >= 0; r--) {
+					if (this.columns[r].field == arguments[a]) {
+						this.columns[r].hidden = !this.columns[r].hidden;
+						effected++; 
+					}
+				}
+			}
+			this.refresh();
+			return effected;
+		},
+
 		showColumn: function () {
 			var shown = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -481,6 +495,20 @@
 			return null;
 		},
 
+		toggleSearch: function () {
+			var effected = 0;
+			for (var a = 0; a < arguments.length; a++) {
+				for (var r = this.searches.length-1; r >= 0; r--) {
+					if (this.searches[r].field == arguments[a]) { 
+						this.searches[r].hidden = !this.searches[r].hidden; 
+						effected++; 
+					}
+				}
+			}
+			this.searchClose();
+			return effected;
+		},
+
 		showSearch: function () {
 			var shown = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -518,6 +546,7 @@
 
 		clear: function () {
 			this.records	= [];
+			this.total 		= 0;
 			this.buffered   = 0;
 			this.refresh();
 		},
@@ -587,7 +616,6 @@
 						switch (sdata.operator) {
 							case 'is':
  								if (rec[search.field] == sdata.value) fl++; // do not hide record
-                                if ((search.type == 'text' || search.type == 'list') && val1 == val2) fl++;
 								if (search.type == 'date') {
 									var tmp = new Date(Number(val1)); // create date
 									val1 = (new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate())).getTime(); // drop time
@@ -1131,13 +1159,36 @@
 						var search = this.getSearch(field);
 						if (search == null) search = { field: field, type: 'text' };
 						if (search.field == field) this.last.caption = search.caption;
-						var tmp = {
-							field	 : search.field,
-							type	 : search.type,
-							operator : 'contains',
-							value	 : value
+						if (value != '') {
+							var op  = 'contains';
+							var val = value;
+							if (w2utils.isInt(value)) {
+								op  = 'is';
+								val = value;
+							}
+							if (search.type == 'int' && value != '') {
+								if (String(value).indexOf('-') != -1) {
+									var tmp = value.split('-');
+									if (tmp.length == 2) {
+										op = 'between';
+										val = [parseInt(tmp[0]), parseInt(tmp[1])];
+									}
+								}
+								if (String(value).indexOf(',') != -1) {
+									var tmp = value.split(',');
+									op = 'in';
+									val = [];
+									for (var t in tmp) val.push(tmp[t]);
+								}
+							}
+							var tmp = {
+								field	 : search.field,
+								type	 : search.type,
+								operator : op,
+								value	 : val
+							}
+							searchData.push(tmp);
 						}
-						searchData.push(tmp);
 					}
 				}
 			}
@@ -2551,10 +2602,10 @@
 		refresh: function () {
 			var obj  = this;
 			var time = (new Date()).getTime();
-			// if over the max page, then go to page 1
-			if (this.total < 0) this.total = this.records.length;
-			if (this.buffered <= 0 && this.url == '') this.buffered = this.total; 
-
+			if (this.total <= 0 && this.url == '' && this.searchData.length == 0) {
+				this.total = this.records.length;
+				this.buffered = this.total;
+			}
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			this.toolbar.disable('edit', 'delete');
 			if (!this.box) return;
@@ -2588,8 +2639,10 @@
 			this.searchClose();
 			// search placeholder
 			var searchEl = $('#grid_'+ obj.name +'_search_all');
-			if (this.searches.length == 0) this.last.field = 'No Search Fields';
-			if (!this.multiSearch && this.last.field == 'all') {
+			if (this.searches.length == 0) {
+				this.last.field = 'all';
+			}
+			if (!this.multiSearch && this.last.field == 'all' && this.searches.length > 0) {
 				this.last.field 	= this.searches[0].field;
 				this.last.caption 	= this.searches[0].caption;
 			}
@@ -2597,8 +2650,10 @@
 				if (this.searches[s].field == this.last.field) this.last.caption = this.searches[s].caption;
 			}
 			if (this.last.multi) {
-				searchEl.attr('placeholder', w2utils.lang('[Multi Fields]'));
-			} 
+				searchEl.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
+			} else {
+				searchEl.attr('placeholder', this.last.caption);				
+			}
 
 			// focus search if last searched
 			if (this._focus_when_refreshed === true) {
@@ -2608,6 +2663,14 @@
 					delete obj._focus_when_refreshed;
 					delete obj._focus_timer;
 				}, 600); // need time to render
+			}
+
+			// -- separate summary
+			var tmp = this.find({ summary: true }, true);
+			if (tmp.length > 0) {
+				for (var t in tmp) this.summary.push(this.records[tmp[t]]);
+				for (var i=tmp.length-1; i>=0; i--) this.records.splice(tmp[i], 1); 
+				this.total = this.records.length;
 			}
 
 			// -- body
@@ -2625,13 +2688,7 @@
 						'	<table>'+ this.getColumnsHTML() +'</table>'+
 						'</div>'; // Columns need to be after to be able to overlap
 			$('#grid_'+ this.name +'_body').html(bodyHTML);
-			// -- summary
-			var tmp = this.find({ summary: true }, true);
-			if (tmp.length > 0) {
-				for (var t in tmp) this.summary.push(this.records[tmp[t]]);
-				for (var i=tmp.length-1; i>=0; i--) this.records.splice(tmp[i], 1);
-				this.total = this.records.length;
-			}
+			// show summary records
 			if (this.summary.length > 0) {
 				$('#grid_'+ this.name +'_summary').html(this.getSummaryHTML()).show();
 			} else {
@@ -3490,7 +3547,7 @@
 						'			  fld2.on(\'keypress\', function (evnt) { if (evnt.keyCode == 13) obj.search(); }); '+
 						'			">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
-						'	<option value="in">'+ w2utils.lang('in') +'</option>'+
+						(s.type == 'date' ? '' : '<option value="in">'+ w2utils.lang('in') +'</option>')+
 						'	<option value="between">'+ w2utils.lang('between') +'</option>'+
 						'</select>';
 				}
@@ -3718,7 +3775,7 @@
 			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
 			// need this to enable scrolling when this.limit < then a screen can fit
 			if (records.height() < this.buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
-				this.refresh();
+				if (this.total > 0) this.refresh();
 				return;
 			}
 			// update footer
