@@ -1,75 +1,26 @@
 <div class="content">
 	<div id="example_title">
 		<h1>Fixed/Resizable Grid</h1>
-		If you set fixedBody property to true, then the size of the grid will be fixed (either height of the box it is in, or height 
-		argument of the resize(width, height) method if not null. If you set the fixedBody property to false, the grid will grow as
-		much as needed to show the data.
+		If you set <span class="method">grid.fixedBody</span> property to true, the size of the grid will be fixed. If you set the 
+		<span class="method">fixedBody</span> property to false, the grid to the height of its data.
 	</div>
-	
-	<div id="example_view">
-		<div id="grid" style="width: 100%; height: 200px"></div>
-		<br>
-		<input type="button" value="Add One Record" 
-			onclick="w2ui['grid'].add( { recid: w2ui['grid'].records.length + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );">
-		<input type="button" value="Remove Appended Records" 
-			onclick="w2ui['grid'].remove(3);">
-		&nbsp;&nbsp;&nbsp;&nbsp;
-		<input type="checkbox" id="fixedsize" onclick="w2ui['grid'].fixedBody = this.checked; 
-				if (this.checked) { w2ui['grid'].resize(null, '200px'); } else { w2ui['grid'].refresh(); }">
-		<label for="fixedsize">Fixed Body Size</label>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
+
+<!--CODE-->
 <div id="grid" style="width: 100%; height: 200px"></div>
 <br>
-<input type="button" value="Add One Record" 
-	onclick="w2ui['grid'].add( { recid: w2ui['grid'].records.length + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );">
-<input type="button" value="Remove Appended Records" 
-	onclick="w2ui['grid'].remove(3);">
+<input type="button" value="Add One Record" onclick="addRecord()">
+<input type="button" value="Remove Appended Records" onclick="removeRecords()">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" id="fixedsize" onclick="w2ui['grid'].fixedBody = this.checked; 
-		if (this.checked) { w2ui['grid'].resize(null, '200px'); } else { w2ui['grid'].refresh(); }">
-<label for="fixedsize">Fixed Body Size</label>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#grid').w2grid({ 
-	name: 'grid', 
-	show: { lineNumbers: true },
-	fixedBody: false,
-	columns: [				
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '90px' },
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 9, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 10, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 11, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-	]
-});	
-		</textarea>
-	</div>
-</div>
+<label>
+	<input type="checkbox" id="fixedsize" onclick="var grid = w2ui.grid; grid.fixedBody = this.checked; 
+		if (this.checked) { grid.resize(null, '200px'); } else { grid.refresh(); }">
+	Fixed Height
+</label>
 
-</div>
-
-<script>
+<!--CODE-->
 $(function () {
 	$().w2destroy('grid');
 	
@@ -81,10 +32,10 @@ $(function () {
 			{ field: 'lname', caption: 'Last Name', size: '30%' },
 			{ field: 'fname', caption: 'First Name', size: '30%' },
 			{ field: 'email', caption: 'Email', size: '40%' },
-			{ field: 'sdate', caption: 'Start Date', size: '90px' },
+			{ field: 'sdate', caption: 'Start Date', size: '90px' }
 		],
 		records: [
-			{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -94,9 +45,23 @@ $(function () {
 			{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 9, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 10, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 11, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 11, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
 		]
 	});	
 });
-</script>
+
+function addRecord() {
+	var g = w2ui['grid'].records.length;
+	w2ui['grid'].add( { recid: g + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );
+}
+
+function removeRecords() {
+	w2ui.grid.clear();
+	w2ui.grid.records = [
+		{ recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+	];
+	w2ui.grid.total = 2;
+	w2ui.grid.refresh();
+}

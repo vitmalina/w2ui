@@ -30,13 +30,12 @@ $(function () {
 				nodes: [
 					{ id: 'combo-1', text: 'Sidebar & Grid', icon: 'fa-star-empty' },
 					{ id: 'combo-2', text: 'Grid & Edit', icon: 'fa-star-empty' },
-					{ id: 'combo-9', text: 'Infinite Scroll', icon: 'fa-star-empty' },
-					{ id: 'combo-8', text: 'SpreadSheet Like Grid', icon: 'fa-star-empty' },
-					{ id: 'combo-5', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
-					{ id: 'combo-6', text: 'Tabs With Content', icon: 'fa-star-empty' },
-					{ id: 'combo-7', text: 'Tabs & Other Elements', icon: 'fa-star-empty' },
-					{ id: 'combo-3', text: 'Popup & Grid', icon: 'fa-star-empty' },
-					{ id: 'combo-4', text: 'Popup & Layout', icon: 'fa-star-empty' },
+					{ id: 'combo-3', text: 'Spreadsheet Like Grid', icon: 'fa-star-empty' },
+					{ id: 'combo-4', text: 'Infinite Scroll', icon: 'fa-star-empty' },
+					{ id: 'combo-5', text: 'Tabs With Content', icon: 'fa-star-empty' },
+					{ id: 'combo-6', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
+					{ id: 'combo-7', text: 'Popup & Grid', icon: 'fa-star-empty' },
+					{ id: 'combo-8', text: 'Popup & Layout', icon: 'fa-star-empty' },
 				]
 			},
 			{ id: 'layout', text: 'Layout', img: 'icon-folder', group1: true,
@@ -55,9 +54,10 @@ $(function () {
 			{ id: 'grid', text: 'Grid', img: 'icon-folder', group1: true,
 				nodes: [
 					{ id: 'grid-1', text: 'Simple Grid', icon: 'fa-table' },
-					{ id: 'grid-2', text: 'Record Row Formating', icon: 'fa-table' },
 					{ id: 'grid-3', text: 'Grid Elements', icon: 'fa-table' },
-					{ id: 'grid-4', text: 'Local Data', icon: 'fa-table' },
+					{ id: 'grid-2', text: 'Row Formating', icon: 'fa-table' },
+					{ id: 'grid-23',text: 'Cell Formatting', icon: 'fa-table' },
+					{ id: 'grid-4', text: 'Data Source', icon: 'fa-table' },
 					{ id: 'grid-5', text: 'Load Data Once', icon: 'fa-table' },
 					{ id: 'grid-6', text: 'Single or Multi Select', icon: 'fa-table' },
 					{ id: 'grid-7', text: 'Sub Grids', icon: 'fa-table' },
@@ -76,10 +76,10 @@ $(function () {
 					{ id: 'grid-20', text: 'Render to a New Box', icon: 'fa-table' },
 					{ id: 'grid-21', text: 'Inline Editing', icon: 'fa-table' },
 					{ id: 'grid-22', text: 'Resizable Columns', icon: 'fa-table' },
-					{ id: 'grid-23', text: 'Buffered Scroll', icon: 'fa-table' },
-					{ id: 'grid-24', text: 'Infinite Scroll', icon: 'fa-table' },
-					//{ id: 'grid-25', text: 'Re-Order records', icon: 'fa-table' },
-					//{ id: 'grid-26', text: 'Locked Columns', icon: 'fa-table' }
+					// { id: 'grid-23', text: 'Buffered Scroll', icon: 'fa-table' },
+					// { id: 'grid-24', text: 'Infinite Scroll', icon: 'fa-table' },
+					//{ id: 'grid-26', text: 'Re-Order records', icon: 'fa-table' },
+					//{ id: 'grid-27', text: 'Locked Columns', icon: 'fa-table' }
 				]
 			},
 			{ id: 'toolbar', text: 'Toolbar', img: 'icon-folder', group1: true,
@@ -171,6 +171,7 @@ $(function () {
 				var html = tmp[1] ? $.trim(tmp[1]) : '';
 				var js   = tmp[2] ? $.trim(tmp[2]) : '';
 				var css  = tmp[3] ? $.trim(tmp[3]) : '';
+				var json = tmp[4] ? $.trim(tmp[4]) : '';
 				w2ui['main_layout'].content('main', tmp[0]);
 				$('#example_view').html(
 						'<h2>Preview</h2>'+ html + 
@@ -193,6 +194,11 @@ $(function () {
 				$('#example_code').html('<h2>Complete Code '+
 					'<span style="font-weight: normal; padding-left: 10px;">- &nbsp;&nbsp;Copy & paste into your editor or <a href="javascript:" class="jsfiddle">fiddle with code online</a></span> </h2>'+
 					'<textarea class="preview" id="code">'+ code +'</textarea>'+
+					(json != '' ? 
+						'<h2>JSON file</h2>'+
+						'<textarea class="json" id="json">'+ json +'</textarea>'
+						: 
+						'')+
 					'<div style="display: none">'+
 					'<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.x/" method="post">'+
 					'	<textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
@@ -216,7 +222,21 @@ $(function () {
 						}
 					);
 					cm.setSize(null, cm.doc.height + 15);
-				}				
+				}
+				var text = $('#example_code .json');
+				if (text.length > 0) {
+					var cm = CodeMirror(
+						function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
+						{
+   							value		: $.trim(text.val()),
+							mode		: "javascript",
+							readOnly	: true,
+							gutter		: true,
+							lineNumbers	: true
+						}
+					);
+					cm.setSize(null, cm.doc.height + 15);
+				}
 				$('#example_code .jsfiddle').on('click', function () {
 					$('#fiddleForm textarea[name=html]').val(html);
 					$('#fiddleForm textarea[name=js]').val(js);

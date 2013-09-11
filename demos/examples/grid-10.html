@@ -1,74 +1,24 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Select/Unselect Records</h1>
-		There are a number of methods that helps you work with the selection. You can select one or multiple record at a time. You can
-		select all records, or clear selection. You can also find out what recorda are currently selected in the grid. If the user
-		navigates to a different page, the selection will be preserved.
-		<br><br>
-		As a user you can hold the ctrl key (command key on mac) to select multiple records if the feature is enabled. You can also use
-		shift key to select a range or records.
+		It is important for any project to be able to work with selection easily. This example demonstrate the use of several methods
+		that allow you to select, unselect and get selected records from the grid.
 	</div>
-	
-	<div id="example_view">
-		<div id="grid" style="width: 100%; height: 250px;"></div>
-		<br>
-		<input type="button" value="Select All" onclick="w2ui['grid'].selectAll();">
-		<input type="button" value="Select None" onclick="w2ui['grid'].selectNone();">
-		<input type="button" value="Select a Record" onclick="w2ui['grid'].select(5);">
-		<input type="button" value="Deselect a Record" onclick="w2ui['grid'].unselect(5);">
-		<input type="button" value="Select Several" onclick="w2ui['grid'].select(5,3,7);">
-		<input type="button" value="Get Selection" onclick="alert(w2ui['grid'].getSelection());">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-	<div id="example_view">
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
+
+<!--CODE-->
 <div id="grid" style="width: 100%; height: 250px;"></div>
 <br>
-<input type="button" value="Select All" onclick="w2ui['grid'].selectAll();">
-<input type="button" value="Select None" onclick="w2ui['grid'].selectNone();">
-<input type="button" value="Select a Record" onclick="w2ui['grid'].select(5);">
-<input type="button" value="Deselect a Record" onclick="w2ui['grid'].unselect(5);">
-<input type="button" value="Select Several" onclick="w2ui['grid'].select(5,3,7);">
-<input type="button" value="Get Selection" onclick="alert(w2ui['grid'].getSelection());">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#grid').w2grid({ 
-	name: 'grid', 
-	show: {
-		selectColumn: true
-	},
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '30px', sortable: true, attr: 'align="center"' },
-		{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
-		{ field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-		{ field: 'email', caption: 'Email', size: '40%', sortable: true },
-		{ field: 'sdate', caption: 'Start Date', size: '90px', sortable: true },
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-	]
-});		
-	</textarea>
-	</div>
-</div>
+<input type="button" value="Select All" 		onclick="w2ui.grid.selectAll();">
+<input type="button" value="Select None" 		onclick="w2ui.grid.selectNone();">
+<input type="button" value="Select a Record" 	onclick="w2ui.grid.select(5);">
+<input type="button" value="Deselect a Record" 	onclick="w2ui.grid.unselect(5);">
+<input type="button" value="Select Several" 	onclick="w2ui.grid.select(5,3,7);">
+<input type="button" value="Get Selection" 		onclick="alert(w2ui.grid.getSelection());">
 
-</div>
-
-<script>
+<!--CODE-->
 $(function () {
 	$().w2destroy('grid');
 	
@@ -96,4 +46,3 @@ $(function () {
 		]
 	});	
 });
-</script>

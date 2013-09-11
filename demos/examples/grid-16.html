@@ -1,94 +1,17 @@
- <div class="content">
-	
+<div class="content">
 	<div id="example_title">
 		<h1>Advanced Search</h1>
-		As you know, the different between simple and advanced search...
+		The grid has two search options. (1) simple search - one search box that searches through predefined searches. (2) An advanced 
+		search - a search overlay with predefined search fields. The example below demonstrates an advanced search.
 	</div>
-	
-	<div id="example_view">
-		<div id="grid" style="width: 100%; height: 500px;"></div>
-		<br>
-		<input type="button" value="Search All for Motzart" onclick="search1();">
-		<input type="button" value="Multi Field Search" onclick="search2()">
-		&nbsp;&nbsp;&nbsp; 
-		<input type="button" value="Reset Search" onclick="w2ui['grid'].searchReset()">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="grid" style="width: 100%; height: 500px;"></div>
-<br>
-<input type="button" value="Search All for Motzart" onclick="search1();">
-<input type="button" value="Multi Field Search" onclick="search2()">
-<input type="button" value="Reset Search" onclick="w2ui['grid'].searchReset()">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#grid').w2grid({ 
-	name: 'grid', 
-	show: { 
-		toolbar: true,
-		footer: true
-	},
-	searches: [				
-		{ field: 'recid', caption: 'ID (int)', type: 'int' },
-		{ field: 'id', caption: 'ID (float)', type: 'float' },
-		{ field: 'fname', caption: 'First Name', type: 'text' },
-		{ field: 'lname', caption: 'Last Name', type: 'text' },
-		{ field: 'email', caption: 'Email', type: 'list', items: ['vitali@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com'] },
-		{ field: 'sdate', caption: 'Date', type: 'date' }
-	],
-	sortData: [ { field: 'recid', direction: 'asc' } ],
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center' },
-		{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
-		{ field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '120px' },
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012', id: 1 },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
-		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' },
-		{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '8/25/2012' },
-		{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '9/3/2012' },
-		{ recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 20, fname: 'Jill', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '10/3/2012' },
-		{ recid: 21, fname: 'Frank', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 22, fname: 'Peter', lname: 'Franson', email: 'vitali@gmail.com', sdate: '4/3/2012' },
-		{ recid: 23, fname: 'Andrew', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 24, fname: 'Manny', lname: 'Silver', email: 'jim@gmail.com', sdate: '12/3/2012' },
-		{ recid: 25, fname: 'Ben', lname: 'Gatos', email: 'jim@gmail.com', sdate: '4/3/2012' },
-		{ recid: 26, fname: 'Doer', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 27, fname: 'Shashi', lname: 'bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-	]
-});	
-
-function search1() {
-	w2ui['grid'].search('all', 'motzart');
-}
-
-function search2() {
-	w2ui['grid'].search([
-		{ field: 'lname', value: 'm', operator: 'contains' },
-		{ field: 'email', value: 'jdoe@gmail.com', operator: 'is' }
-	]);
-}
-		</textarea>
-	</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-</div>
+<!--CODE-->
+<div id="grid" style="width: 100%; height: 400px;"></div>
 
-<script>
+<!--CODE-->
 $(function () {
 	$().w2destroy('grid');
 	
@@ -98,15 +21,14 @@ $(function () {
 			toolbar: true,
 			footer: true
 		},
-		searches: [				
-			{ field: 'recid', caption: 'ID (int)', type: 'int' },
-			{ field: 'id', caption: 'ID (float)', type: 'float' },
-			{ field: 'fname', caption: 'First Name', type: 'text' },
+		multiSearch: true,
+		searches: [
+			{ field: 'recid', caption: 'ID ', type: 'int' },
 			{ field: 'lname', caption: 'Last Name', type: 'text' },
-			{ field: 'email', caption: 'Email', type: 'list', items: ['vitali@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com'] },
-			{ field: 'sdate', caption: 'Date', type: 'date' }
+			{ field: 'fname', caption: 'First Name', type: 'text' },
+			{ field: 'email', caption: 'Email', type: 'list', items: ['peter@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com'] },
+			{ field: 'sdate', caption: 'Start Date', type: 'date' }
 		],
-		sortData: [ { field: 'recid', direction: 'asc' } ],
 		columns: [				
 			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center' },
 			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
@@ -115,36 +37,24 @@ $(function () {
 			{ field: 'sdate', caption: 'Start Date', size: '120px' },
 		],
 		records: [
-			{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012', id: 1 },
-			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
-			{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
-			{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' },
-			{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '8/25/2012' },
-			{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '9/3/2012' },
+			{ recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'peter@gmail.com', sdate: '4/3/2012' },
+			{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jim@gmail.com', sdate: '4/3/2012' },
+			{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'peter@gmail.com', sdate: '4/3/2012' },
+			{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jim@gmail.com', sdate: '4/3/2012' },
+			{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 20, fname: 'Jill', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '10/3/2012' },
+			{ recid: 20, fname: 'Jill', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 21, fname: 'Frank', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 22, fname: 'Peter', lname: 'Franson', email: 'vitali@gmail.com', sdate: '4/3/2012' },
+			{ recid: 22, fname: 'Peter', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 23, fname: 'Andrew', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 24, fname: 'Manny', lname: 'Silver', email: 'jim@gmail.com', sdate: '12/3/2012' },
-			{ recid: 25, fname: 'Ben', lname: 'Gatos', email: 'jim@gmail.com', sdate: '4/3/2012' },
+			{ recid: 24, fname: 'Manny', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 25, fname: 'Ben', lname: 'Gatos', email: 'peter@gmail.com', sdate: '4/3/2012' },
 			{ recid: 26, fname: 'Doer', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 27, fname: 'Shashi', lname: 'bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-			{ recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+			{ recid: 27, fname: 'Shashi', lname: 'Bahh', email: 'jim@gmail.com', sdate: '4/3/2012' },
+			{ recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jim@gmail.com', sdate: '4/3/2012' }
 		]
 	});	
 });
-
-function search1() {
-	w2ui['grid'].search('all', 'motzart');
-}
-
-function search2() {
-	w2ui['grid'].search([
-		{ field: 'lname', value: 'm', operator: 'contains' },
-		{ field: 'email', value: 'jdoe@gmail.com', operator: 'is' }
-	]);
-}
-</script>

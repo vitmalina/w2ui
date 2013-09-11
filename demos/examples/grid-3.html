@@ -1,33 +1,14 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Grid Elements</h1>
 		Any Grid consists of header, toolbar, record headers, line numbers, and footer, as well as select record and expand record columns.
 		You can show/hide then at any time.
 	</div>
-	
-	<div id="example_view">
-		<div id="grid" style="width: 100%; height: 400px; overflow: hidden;"></div>
-		<br>
-		<input type="button" value="Header" style="width: 80px"
-			onclick="var obj = w2ui['grid']; obj.show.header = !obj.show.header; w2ui['grid'].refresh();">
-		<input type="button" value="Toolbar" style="width: 80px"
-			onclick="var obj = w2ui['grid']; obj.show.toolbar = !obj.show.toolbar; w2ui['grid'].refresh();">
-		<input type="button" value="Column Headers" style="width: 100px"
-			onclick="var obj = w2ui['grid']; obj.show.columnHeaders = !obj.show.columnHeaders; w2ui['grid'].refresh();">
-		<input type="button" value="Footer" style="width: 80px"
-			onclick="var obj = w2ui['grid']; obj.show.footer = !obj.show.footer; w2ui['grid'].refresh();">
-		<input type="button" value="Line Numbers" style="width: 100px"
-			onclick="var obj = w2ui['grid']; obj.show.lineNumbers = !obj.show.lineNumbers; w2ui['grid'].refresh();">
-		<input type="button" value="Select Column" style="width: 100px"
-			onclick="var obj = w2ui['grid']; obj.show.selectColumn = !obj.show.selectColumn; w2ui['grid'].refresh();">
-		<input type="button" value="Expand Column" style="width: 100px"
-			onclick="var obj = w2ui['grid']; obj.show.expandColumn = !obj.show.expandColumn; w2ui['grid'].refresh();">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
+
+<!--CODE-->
 <div id="grid" style="width: 100%; height: 400px; overflow: hidden;"></div>
 <br>
 <input type="button" value="Header" style="width: 80px"
@@ -44,103 +25,15 @@
 	onclick="var obj = w2ui['grid']; obj.show.selectColumn = !obj.show.selectColumn; w2ui['grid'].refresh();">
 <input type="button" value="Expand Column" style="width: 100px"
 	onclick="var obj = w2ui['grid']; obj.show.expandColumn = !obj.show.expandColumn; w2ui['grid'].refresh();">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#grid').w2grid({ 
-	name: 'grid', 
-	header: 'List of Names',
-	url: 'data/list2.json',
-	show: {
-		header 		: true,
-		toolbar 	: true,
-		footer		: true,
-		lineNumbers	: true,
-		selectColumn: true,
-		expandColumn: true
-	},
-	columns: [				
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '120px' },
-	],
-	searches: [
-		{ type: 'int',  field: 'recid', caption: 'ID' },
-		{ type: 'text', field: 'fname', caption: 'First Name' },
-		{ type: 'text', field: 'lname', caption: 'Last Name' },
-		{ type: 'date', field: 'sdate', caption: 'Start Date' }
-	],
-	onExpand: function (event) {
-		$('#'+event.box_id).html('<div style="padding: 10px">Expanded content</div>').animate({ 'height': 100 }, 100);
-	}
-});	
-		</textarea>
-	</div>
-	
-	<div id="example_json">
-		<h2>JSON: data/list2.json.js</h2>
-		<textarea class="preview">
-{
-	total: 36,
-	page: 0,
-	header: '50 Greatest Composers of All Times',
-	records: [
-		{ recid: 11, fname: 'Joseph', lname: 'Haydn', sdate: '1732-1809' },
-		{ recid: 12, fname: 'Ludwig Van', lname: 'Beethoven', sdate: '1770-1827' },
-		{ recid: 13, fname: 'Wolfgang Amadeus', lname: 'Mozart', sdate: '1756-1791' },
-		{ recid: 14, fname: 'Johann Sebastian', lname: 'Bach', sdate: '1685-1750' },
-		{ recid: 15, fname: 'Richard', lname: 'Wagner', sdate: '1685-1750' },
-		{ recid: 16, fname: 'Joseph', lname: 'Haydn', sdate: '1732-1809' },
-		{ recid: 17, fname: 'Ludwig Van', lname: 'Beethoven', sdate: '1770-1827', style: "background-color: #C2F5B4" },
-		{ recid: 18, fname: 'Wolfgang Amadeus', lname: 'Mozart', sdate: '1756-1791' },
-		{ recid: 19, fname: 'Johann Sebastian', lname: 'Bach', sdate: '1685-1750' },
-		{ recid: 20, fname: 'Richard', lname: 'Wagner', sdate: '1685-1750', style: "color: red" },
-		{ recid: 21, fname: 'Joseph', lname: 'Haydn', sdate: '1732-1809', style: "background-color: #FBFEC0" },
-		{ recid: 22, fname: 'Ludwig Van', lname: 'Beethoven', sdate: '1770-1827' },
-		{ recid: 23, fname: 'Wolfgang Amadeus', lname: 'Mozart', sdate: '1756-1791' },
-		{ recid: 24, fname: 'Johann Sebastian', lname: 'Bach', sdate: '1685-1750' },
-		{ recid: 25, fname: 'Richard', lname: 'Wagner', sdate: '1685-1750', style: "color: blue" },
-		{ recid: 26, fname: 'Joseph', lname: 'Haydn', sdate: '1732-1809' },
-		{ recid: 27, fname: 'Ludwig Van', lname: 'Beethoven', sdate: '1770-1827'},
-		{ recid: 28, fname: 'Wolfgang Amadeus', lname: 'Mozart', sdate: '1756-1791' },
-		{ recid: 29, fname: 'Johann Sebastian', lname: 'Bach', sdate: '1685-1750' },
-		{ recid: 30, fname: 'Richard', lname: 'Wagner', sdate: '1685-1750' },
-		{ recid: 31, fname: 'Joseph', lname: 'Haydn', sdate: '1732-1809' },
-		{ recid: 32, fname: 'Ludwig Van', lname: 'Beethoven', sdate: '1770-1827' },
-		{ recid: 33, fname: 'Wolfgang Amadeus', lname: 'Mozart', sdate: '1756-1791' },
-		{ recid: 34, fname: 'Johann Sebastian', lname: 'Bach', sdate: '1685-1750' },
-		{ recid: 35, fname: 'Richard', lname: 'Wagner', sdate: '1685-1750', style: "color: gray" },
-		{ recid: 36, fname: 'Joseph', lname: 'Haydn', sdate: '1732-1809' },
-		{ recid: 37, fname: 'Ludwig Van', lname: 'Beethoven', sdate: '1770-1827'},
-		{ recid: 38, fname: 'Wolfgang Amadeus', lname: 'Mozart', sdate: '1756-1791' },
-		{ recid: 39, fname: 'Johann Sebastian', lname: 'Bach', sdate: '1685-1750' },
-		{ recid: 40, fname: 'Richard', lname: 'Wagner', sdate: '1685-1750' },
-		{ recid: 41, fname: 'Joseph', lname: 'Haydn', sdate: '1732-1809' },
-		{ recid: 42, fname: 'Ludwig Van', lname: 'Beethoven', sdate: '1770-1827', style: "background-color: #C2F5B4" },
-		{ recid: 43, fname: 'Wolfgang Amadeus', lname: 'Mozart', sdate: '1756-1791' },
-		{ recid: 44, fname: 'Johann Sebastian', lname: 'Bach', sdate: '1685-1750' },
-		{ recid: 45, fname: 'Richard', lname: 'Wagner', sdate: '1685-1750' },
-		{ recid: 46, fname: 'Joseph', lname: 'Haydn', sdate: '1732-1809', summary: true }
 
-	]
-}
-		</textarea>
-</div>
-
-</div>
-
-<script>
+<!--CODE-->
 $(function () {
 	$().w2destroy('grid');
 	
 	$('#grid').w2grid({ 
 		name: 'grid', 
 		header: 'List of Names',
-		url: 'data/list2.json',
+		url: 'data/list.json',
 		show: {
 			header 		: true,
 			toolbar 	: true,
@@ -166,4 +59,21 @@ $(function () {
 		}
 	});	
 });
-</script>
+
+<!--CODE-->
+
+<!--CODE-->
+{
+	"total": 9,
+	"records": [
+		{ "recid": 1, "fname": "John", "lname": "Doe", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+		{ "recid": 2, "fname": "Stuart", "lname": "Motzart", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+		{ "recid": 3, "fname": "Jin", "lname": "Franson", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+		{ "recid": 4, "fname": "Susan", "lname": "Ottie", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+		{ "recid": 5, "fname": "Kelly", "lname": "Silver", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+		{ "recid": 6, "fname": "Francis", "lname": "Gatos", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+		{ "recid": 7, "fname": "Mark", "lname": "Welldo", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+		{ "recid": 8, "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+		{ "recid": 9, "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
+	]
+}

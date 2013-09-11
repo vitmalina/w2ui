@@ -1,64 +1,20 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Inline Editing</h1>
-		The records in the grid can be editable. In order for this to happen, you need to define.
+		All grids support inline editing. To enable inline editing add <span class="method">editable</span> object for the column you 
+		want to make editable. This object takes several parameters to control behaviour of the editable input control. You can make
+		particular records uneditable, see example below
 	</div>
-	
-	<div id="example_view">
-		<div id="grid" style="width: 100%; height: 400px;"></div>
-		<br>
-		<input type="button" onclick="console.log(w2ui['grid'].getChanged()); alert('Changed records are displayed in the console');" value="Get Changed">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
+
+<!--CODE-->
 <div id="grid" style="width: 100%; height: 400px;"></div>
 <br>
-<input type="button" onclick="console.log(w2ui['grid'].getChanged()); alert('Changed records are displayed in the console');" value="Get Changed">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#grid').w2grid({ 
-	name: 'grid', 
-	show: { 
-		toolbar: true,
-		footer: true,
-		toolbarSave: true
-	},
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px', sortable: true },
-		{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, editable: { type: 'text', inTag: 'maxlength=30' } },
-		{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, editable: { type: 'text' } },
-		{ field: 'age', caption: 'Age', size: '70px', style: 'text-align: center', editable: { type: 'int', style: 'text-align: center' } },
-		{ field: 'sex', caption: 'Sex', size: '70px', editable: { type: 'text', inTag: "maxlength=1", style: 'text-align: center' } },
-		{ field: 'dbo', caption: 'DOB', size: '120px', editable: { type: 'date' } },
-		{ field: 'email', caption: 'Email', size: '40%', editable: { type: 'text' } },
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012', 
-			style: 'background-color: #ffaaaa', editable: false }
-	]
-});	
-	</textarea>
-	</div>
-</div>
+<input type="button" onclick="showChanged()" value="Get Changed">
 
-</div>
-
-<script>
+<!--CODE-->
 $(function () {
 	$().w2destroy('grid');
 	
@@ -70,16 +26,27 @@ $(function () {
 			toolbarSave: true
 		},
 		columns: [				
-			{ field: 'recid', caption: 'ID', size: '50px', sortable: true },
-			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, editable: { type: 'text', inTag: 'maxlength=30' }, resizable: true },
-			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, editable: { type: 'text' }, resizable: true },
-			{ field: 'age', caption: 'Age', size: '70px', style: 'text-align: center', editable: { type: 'int', style: 'text-align: center' }, resizable: true },
-			{ field: 'sex', caption: 'Sex', size: '70px', editable: { type: 'text', inTag: "maxlength=1", style: 'text-align: center' }, resizable: true },
-			{ field: 'dbo', caption: 'DOB', size: '120px', editable: { type: 'date' }, resizable: true },
-			{ field: 'email', caption: 'Email', size: '40%', editable: { type: 'text' }, resizable: true },
+			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, 
+				editable: { type: 'text', inTag: 'maxlength=30' }
+			},
+			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, 
+				editable: { type: 'text' }
+			},
+			{ field: 'age', caption: 'Age', size: '70px', style: 'text-align: center', resizable: true, 
+				editable: { type: 'int', style: 'text-align: center' }
+			},
+			{ field: 'sex', caption: 'Sex', size: '70px', resizable: true, style: "text-align: center",
+				editable: { type: 'text', inTag: "maxlength=1", style: 'text-align: center' }
+			},
+			{ field: 'dbo', caption: 'DOB', size: '120px', resizable: true, 
+				editable: { type: 'date' }
+			},
+			{ field: 'email', caption: 'Email', size: '40%', resizable: true,
+				editable: { type: 'text' }
+			},
 		],
 		records: [
-			{ recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+			{ recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -88,8 +55,12 @@ $(function () {
 			{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 			{ recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012', 
-				style: 'background-color: #ffaaaa', editable: false }
+				style: 'background-color: #ffcccc', editable: false }
 		]
 	});	
 });
-</script>
+
+function showChanged() {
+	console.log(w2ui['grid'].getChanged()); 
+	w2alert('Changed records are displayed in the console');
+}

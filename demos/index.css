@@ -20,6 +20,10 @@ h2 {
 	font-size: 13px;
 }
 
+ul {
+	margin: 10px 0px 10px 40px;
+}
+
 #main_layout {
 	position: absolute; 
 	width: 100%; 
@@ -27,7 +31,6 @@ h2 {
 }
 
 #example_title {
-	width: 750px; 
 	margin-bottom: 20px;
 }
 
