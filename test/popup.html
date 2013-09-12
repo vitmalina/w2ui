@@ -5,14 +5,31 @@
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script>
-	// $().w2popup('load', {
-	// 	url: 'popup-template.html',
-	// 	onOpen: function () {
-	// 		$('#w2ui-popup #pic').on('click', function () {
-	// 			console.log('picture clicked');
-	// 		});
-	// 	}
-	// });
+	w2popup.load({
+		url: 'popup-template.html',
+		showMax: true,
+		onMax: function (event) {
+			console.log('max', event);
+		},
+		onMin: function (event) {
+			console.log('min', event);
+		},
+		onOpen: function (event) {
+			console.log('open', event);
+			event.onComplete = function () {
+				console.log('opened');
+			}
+		},
+		onClose: function (event) {
+			console.log('close', event);
+			event.onComplete = function () {
+				console.log('closed');
+			}
+		},
+		onKeyboard: function (event) {
+			console.log('key', event);
+		}
+	});
 </script>
 </head>
 <body>
@@ -22,7 +39,7 @@
 		onclick="$(this).w2overlay($('#popup1 [rel=body]').html(), { css: { width: '600px', padding: '10px' } });">
 
 	<input type="button" value="Alert" onclick="w2alert('message');">
-	<input type="button" value="Confirm" onclick="w2confirm('message');">
+	<input type="button" value="Confirm" onclick="w2confirm('message', function (btn) { console.log(btn); });">
 
 	<div id="popup1" style="display: none; width: 650px; height: 400px; overflow: auto">
 	    <div rel="title">
@@ -46,8 +63,8 @@
 	        </div>
 	    </div>
 	    <div rel="buttons">
-	        <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()">
-	        <input type="button" value="Message" onclick="$('#popup2').w2popup('message', { html: 'some text' })">
+	        <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()" style="width: 150px">
+	        <input type="button" value="Message" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div>' })">
 	    </div>
 	</div>
 
