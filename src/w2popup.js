@@ -684,7 +684,7 @@ var w2alert = function (msg, title, callBack) {
 			onClose : function () { if (typeof callBack == 'function') callBack(); }
 		});
 	}
-}
+};
 
 var w2confirm = function (msg, title, callBack) {
 	if (typeof callBack == 'undefined' || typeof title == 'function') {
@@ -724,4 +724,4 @@ var w2confirm = function (msg, title, callBack) {
 			}
 		} 
 	});
-}
+};
