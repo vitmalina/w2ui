@@ -1633,6 +1633,7 @@
 					'	style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
 					'>' + edit.outTag);
 			el.find('input')
+				.w2field(edit.type)
 				.on('blur', function (event) {
 					if (obj.parseObj(rec, col.field) != this.value) {
 						// change event
@@ -2850,9 +2851,11 @@
 					}
 					obj.unselect.apply(obj, tmp);
 				} else {
-					var sel = obj.getSelection();					
-					for (var ns in newSel) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items					
-					for (var s in sel) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+					if (obj.multiSelect) {
+						var sel = obj.getSelection();
+						for (var ns in newSel) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items					
+						for (var s in sel) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+					}
 				}
 			}
 
