@@ -1517,7 +1517,7 @@ select {
   cursor: move;
   font-size: 15px;
   color: #555555;
-  z-index: 200;
+  z-index: 300;
 }
 .w2ui-popup .w2ui-msg-button {
   float: right;
@@ -1570,7 +1570,7 @@ select {
 }
 .w2ui-popup .w2ui-popup-message {
   position: absolute;
-  z-index: 300;
+  z-index: 250;
   background-color: #f9f9f9;
   border: 1px solid #aaaaaa;
   box-shadow: 0px 0px 15px #aaaaaa;
@@ -1823,16 +1823,16 @@ select {
 }
 .w2ui-sidebar .w2ui-sidebar-div td.w2ui-node-data .w2ui-node-count {
   float: right;
-  border: 2px solid #ffffff;
+  border: 1px solid #9da4af;
   border-radius: 20px;
   width: auto;
-  height: 21px;
-  padding: 2px 5px;
-  margin: 2px 4px -2px 0px;
-  background-color: #57a7e9;
-  color: #ffffff;
-  box-shadow: 0px 0px 5px #444444;
-  text-shadow: 1px 1px 1px #000000;
+  height: 18px;
+  padding: 2px 7px;
+  margin: 3px 4px -2px 0;
+  background-color: #ebeae2;
+  color: #667274;
+  box-shadow: 0 0 3px #ffffff;
+  text-shadow: 1px 1px 1px #e6e6e6;
   position: relative;
   z-index: 2;
 }

@@ -1534,7 +1534,7 @@ select {
   cursor: move;
   font-size: 15px;
   color: #c0c8d5;
-  z-index: 200;
+  z-index: 300;
 }
 .w2ui-popup .w2ui-msg-button {
   float: right;
@@ -1587,7 +1587,7 @@ select {
 }
 .w2ui-popup .w2ui-popup-message {
   position: absolute;
-  z-index: 300;
+  z-index: 250;
   background-color: #526083;
   border: 1px solid #333333;
   box-shadow: 0px 1px 8px #444444;
@@ -1857,9 +1857,9 @@ select {
   border: 2px solid #ffffff;
   border-radius: 20px;
   width: auto;
-  height: 21px;
-  padding: 2px 5px;
-  margin: 2px 4px -2px 0px;
+  height: 18px;
+  padding: 2px 7px;
+  margin: 3px 4px -2px 0;
   background-color: #57a7e9;
   color: #ffffff;
   box-shadow: 0px 0px 5px #444444;
