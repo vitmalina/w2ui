@@ -1,82 +1,17 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Multi Page Form</h1>
-		This is exactly the same form as in the previous example, but in this case the form is presented in three pages. Click on the page link to switch 
-		pages.
+		This is exactly the same form as in the previous example, but in this case the form is presented in three pages. 
+		Click on the page link to switch pages.
 	</div>
-	
-	<div id="example_view">
-		<a href="javascript: w2ui['form'].goto(0);" style="padding-right: 10px">Page 1</a> |
-		<a href="javascript: w2ui['form'].goto(1);" style="padding: 10px">Page 2</a> |
-		<a href="javascript: w2ui['form'].goto(2);" style="padding: 10px">Page 3</a> 
-		<div style="height: 10px;"></div>
-		<div id="form" style="width: 750px;">
-			<div class="w2ui-page page-0">
-				<div class="w2ui-label w2ui-span5">First Name:</div>
-				<div class="w2ui-field w2ui-span5">
-					<input name="first_name" type="text" maxlength="100" size="40"/>
-				</div>
-				<div class="w2ui-label w2ui-span5">Last Name:</div>
-				<div class="w2ui-field w2ui-span5">
-					<input name="last_name" type="text" maxlength="100" size="40"/>
-				</div>
-				<div class="w2ui-label w2ui-span5">Comments:</div>
-				<div class="w2ui-field w2ui-span5">
-					<textarea name="comments" type="text" style="width: 100%; height: 80px; resize: none"></textarea>
-				</div>
-			</div>
-			<div class="w2ui-page page-1">
-				<div class="w2ui-label">Address Line 1:</div>
-				<div class="w2ui-field">
-					<input name="address1" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">Address Line 2:</div>
-				<div class="w2ui-field">
-					<input name="address2" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">City:</div>
-				<div class="w2ui-field">
-					<input name="city" type="text" maxlength="50" size="30"/>
-				</div>
-				<div class="w2ui-label">State:</div>
-				<div class="w2ui-field">
-					<input name="state" type="text" maxlength="2" size="2"/>
-				</div>
-				<div class="w2ui-label">Zip:</div>
-				<div class="w2ui-field">
-					<input name="zip" type="text" maxlength="10" size="10"/>
-				</div>
-			</div>
-			<div class="w2ui-page page-2">
-				<div class="w2ui-label">Talk Name:</div>
-				<div class="w2ui-field">
-					<input name="talk_name" type="text" maxlength="100" style="width: 90%"/>
-				</div>
-				<div class="w2ui-label">Talk Description:</div>
-				<div class="w2ui-field">
-					<textarea name="description" type="text" style="width: 90%; height: 80px; resize: none"></textarea>
-				</div>
-				<div style="height: 30px"></div>
-				<div class="w2ui-label">Short Bio:</div>
-				<div class="w2ui-field">
-					<textarea name="short_bio" type="text" style="width: 90%; height: 80px; resize: none"></textarea>
-				</div>
-			</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
 
-			<div class="w2ui-buttons">
-				<input type="button" value="Reset" name="reset">
-				<input type="button" value="Save" name="save">
-			</div>
-		</div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<a href="javascript: w2ui['form'].goto(0);" style="padding-right: 10px">Page 1</a> |
-<a href="javascript: w2ui['form'].goto(1);" style="padding: 10px">Page 2</a> |
-<a href="javascript: w2ui['form'].goto(2);" style="padding: 10px">Page 3</a> 
+<!--CODE-->
+<a href="javascript: w2ui.form.goto(0);" style="padding-right: 10px">Page 1</a> |
+<a href="javascript: w2ui.form.goto(1);" style="padding: 10px">Page 2</a> |
+<a href="javascript: w2ui.form.goto(2);" style="padding: 10px">Page 3</a> 
 <div style="height: 10px;"></div>
 <div id="form" style="width: 750px;">
 	<div class="w2ui-page page-0">
@@ -90,7 +25,7 @@
 		</div>
 		<div class="w2ui-label w2ui-span5">Comments:</div>
 		<div class="w2ui-field w2ui-span5">
-			&lt;textarea name="comments" type="text" style="width: 100%; height: 80px; resize: none">&lt;/textarea>
+			<textarea name="comments" type="text" style="width: 100%; height: 80px; resize: none"></textarea>
 		</div>
 	</div>
 	<div class="w2ui-page page-1">
@@ -122,12 +57,12 @@
 		</div>
 		<div class="w2ui-label">Talk Description:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="description" type="text" style="width: 90%; height: 80px; resize: none">&lt;/textarea>
+			<textarea name="description" type="text" style="width: 90%; height: 80px; resize: none"></textarea>
 		</div>
 		<div style="height: 30px"></div>
 		<div class="w2ui-label">Short Bio:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="short_bio" type="text" style="width: 90%; height: 80px; resize: none">&lt;/textarea>
+			<textarea name="short_bio" type="text" style="width: 90%; height: 80px; resize: none"></textarea>
 		</div>
 	</div>
 
@@ -136,45 +71,9 @@
 		<input type="button" value="Save" name="save">
 	</div>
 </div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#form').w2form({ 
-	name   : 'form',
-	header : 'Multi Page Form',
-	url    : 'server/post',
-	fields : [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name',  type: 'text', required: true },
-		{ name: 'comments',   type: 'text'},
-		{ name: 'address1', type: 'text', required: true },
-		{ name: 'address2', type: 'text' },
-		{ name: 'city', type: 'text', required: true },
-		{ name: 'state', type: 'text', required: true },
-		{ name: 'zip', type: 'int', required: true },
-		{ name: 'short_bio', type: 'text' },
-		{ name: 'talk_name', type: 'text', required: true },
-		{ name: 'description', type: 'text' }
-	],
-	actions: {
-		reset: function () {
-			this.clear();
-		},
-		save: function () {
-			this.save();
-		}
-	}
-});
-		</textarea>
-	</div>
-	
-</div>
-<script>
+
+<!--CODE-->
 $(function () {
-	$().w2destroy('form');
 	$('#form').w2form({ 
 		name   : 'form',
 		header : 'Multi Page Form',
@@ -202,4 +101,3 @@ $(function () {
 		}
 	});
 });
-</script>

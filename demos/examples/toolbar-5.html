@@ -1,46 +1,17 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Enable/Disable Buttons</h1>
 		It is easy to enable and disable buttons during the run time. The example below demonstrates how to do this.
 	</div>
-	
-	<div id="example_view">
-		<div id="toolbar" style="padding: 4px; border: 1px solid silver;"></div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="toolbar" style="padding: 4px; border: 1px solid silver;"></div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#toolbar').w2toolbar({
-	name: 'toolbar',
-	items: [
-		{ type: 'button', id: 'disable', caption: 'Disable', img: 'icon-delete' },
-		{ type: 'button', id: 'enable', caption: 'Enable', img: 'icon-add' },
-		{ type: 'break',  id: 'break0' },
-		{ type: 'button', id: 'btn', caption: 'Action Button', img: 'icon-page' },
-		{ type: 'button', id: 'btn2', caption: 'Other Button', img: 'icon-page' }
-	],
-	onClick: function (id, data) {
-		if (id == 'enable') this.enable('btn');
-		if (id == 'disable') this.disable('btn');
-	}
-});
-		</textarea>
-	</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-<script>
-$(function () {
-	$().w2destroy('toolbar');
+<!--CODE-->
+<div id="toolbar" style="padding: 4px; border: 1px solid silver; border-radius: 3px"></div>
 
+<!--CODE-->
+$(function () {
 	$('#toolbar').w2toolbar({
 		name: 'toolbar',
 		items: [
@@ -50,10 +21,9 @@ $(function () {
 			{ type: 'button', id: 'btn', caption: 'Action Button', img: 'icon-page' },
 			{ type: 'button', id: 'btn2', caption: 'Other Button', img: 'icon-page' }
 		],
-		onClick: function (id, data) {
-			if (id == 'enable') this.enable('btn');
-			if (id == 'disable') this.disable('btn');
+		onClick: function (event) {
+			if (event.target == 'enable') this.enable('btn');
+			if (event.target == 'disable') this.disable('btn');
 		}
 	});
 });
-</script>

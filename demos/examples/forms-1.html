@@ -1,45 +1,15 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Simple Form</h1>
 		Working with forms is common for a web developer. However, there is no way to create a unique template for all use cases. The w2ui library
 		streamlines most common tasks for you. The example below shows a simple form with two required fields, save and reset buttons.
 	</div>
-	
-	<div id="example_view">
-		<div id="form" style="width: 750px;">
-			<div class="w2ui-page page-0">
-				<div class="w2ui-label">First Name:</div>
-				<div class="w2ui-field">
-					<input name="first_name" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">Last Name:</div>
-				<div class="w2ui-field">
-					<input name="last_name" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">Text Area:</div>
-				<div class="w2ui-field">
-					<textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
-				</div>
-			</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
 
-			<div class="w2ui-buttons">
-				<input type="button" value="Reset" name="reset">
-				<input type="button" value="Save" name="save">
-			</div>
-		</div>
-	</div>
-
-	<div id="example_title">
-		There are two parts of a form: HTML template and w2form object. HTML template can be either taken from the current element (in the example 
-		above #form) or it can be loaded from the server side if you specify formURL property.
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+<!--CODE-->
 <div id="form" style="width: 750px;">
-
 	<div class="w2ui-page page-0">
 		<div class="w2ui-label">First Name:</div>
 		<div class="w2ui-field">
@@ -51,7 +21,7 @@
 		</div>
 		<div class="w2ui-label">Text Area:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"&gt;&lt;/textarea&gt;
+			<textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
 		</div>
 	</div>
 
@@ -60,36 +30,9 @@
 		<input type="button" value="Save" name="save">
 	</div>
 </div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#form').w2form({ 
-	name  : 'form',
-	url   : 'server/post',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name',  type: 'text', required: true },
-		{ name: 'comments',   type: 'text'}
-	],
-	actions: {
-		reset: function () {
-			this.clear();
-		},
-		save: function () {
-			this.save();
-		}
-	}
-});
-		</textarea>
-	</div>
-	
-</div>
-<script>
+
+<!--CODE-->
 $(function () {
-	$().w2destroy('form');
 	$('#form').w2form({ 
 		name  : 'form',
 		url   : 'server/post',
@@ -108,4 +51,3 @@ $(function () {
 		}
 	});
 });
-</script>

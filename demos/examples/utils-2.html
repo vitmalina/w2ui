@@ -1,34 +1,22 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Base64 Encoding and Decoding</h1>
 		All server side languages provide base64 encoding and decoding functionality, but not JavaScript. You can use w2utils for all your
 		base64 needs.
 	</div>
-	
-	<div id="example_view">
-		<textarea id="encode" style="width: 100%; height: 90px; border: 1px solid silver">This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.</textarea>
-		<br><br>
-		<input type="button" value="Encode base64" onclick="$('#encode').val(w2utils.base64encode($('#encode')[0].value))">
-		<input type="button" value="Decode base64" onclick="$('#encode').val(w2utils.base64decode($('#encode')[0].value))">
-		&nbsp;&nbsp;&nbsp;
-		<input type="button" value="Encode HTML Tags" onclick="alert(w2utils.encodeTags($('#encode')[0].value))">
-		<input type="button" value="Strip HTML Tags" onclick="alert(w2utils.stripTags($('#encode')[0].value))">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
+
+<!--CODE-->
 <textarea id="encode" style="width: 100%; height: 90px; border: 1px solid silver">
 	This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.
-&lt;/textarea>
+</textarea>
 <br><br>
 <input type="button" value="Encode base64" onclick="$('#encode').val(w2utils.base64encode($('#encode')[0].value))">
 <input type="button" value="Decode base64" onclick="$('#encode').val(w2utils.base64decode($('#encode')[0].value))">
 &nbsp;&nbsp;&nbsp;
-<input type="button" value="Encode HTML Tags" onclick="alert(w2utils.encodeTags($('#encode')[0].value))">
-<input type="button" value="Strip HTML Tags" onclick="alert(w2utils.stripTags($('#encode')[0].value))">
-		</textarea>
-	</div>
-		
-</div>
+<input type="button" value="Encode HTML Tags" onclick="w2alert(w2utils.encodeTags($('#encode')[0].value))">
+<input type="button" value="Strip HTML Tags" onclick="w2alert(w2utils.stripTags($('#encode')[0].value))">
+
+<!--CODE-->

@@ -1,46 +1,17 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Show/Hide Buttons</h1>
 		It is easy to show and hide buttons during the run time. The example below demonstrates how to do this.
 	</div>
-	
-	<div id="example_view">
-		<div id="toolbar" style="padding: 4px; border: 1px solid silver;"></div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="toolbar" style="padding: 4px; border: 1px solid silver;"></div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#toolbar').w2toolbar({
-	name: 'toolbar',
-	items: [
-		{ type: 'button', id: 'hide', caption: 'Hide', img: 'icon-delete' },
-		{ type: 'button', id: 'show', caption: 'Show', img: 'icon-add' },
-		{ type: 'break',  id: 'break0' },
-		{ type: 'button', id: 'btn', caption: 'Action Button', img: 'icon-page' },
-		{ type: 'button', id: 'btn2', caption: 'Other Button', img: 'icon-page' }
-	],
-	onClick: function (event) {
-		if (event.target == 'show') this.show('btn');
-		if (event.target == 'hide') this.hide('btn');
-	}
-});
-		</textarea>
-	</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-<script>
-$(function () {
-	$().w2destroy('toolbar');
+<!--CODE-->
+<div id="toolbar" style="padding: 4px; border: 1px solid silver; border-radius: 3px"></div>
 
+<!--CODE-->
+$(function () {
 	$('#toolbar').w2toolbar({
 		name: 'toolbar',
 		items: [
@@ -56,4 +27,3 @@ $(function () {
 		}
 	});
 });
-</script>

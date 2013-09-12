@@ -1,8 +1,8 @@
 <div class="content">
 	<div id="example_title">
-		<h1>Cell Formatting</h1>
-		Cell formatting works by defining <span class="method">render</span> function for the column. There is a set of predefined
-		formatting functions (int, float, number, money, date, percent) or you can define your own function.
+		<h1>Lock/Unlock Grid</h1>
+		There are several utility functions of the grid that allow to lock/unlock content, display error message and change status. The
+		example below demonstrates some of this functions.
 	</div>
 	<div id="example_view"></div>
 	<div id="example_code"></div>
@@ -10,11 +10,19 @@
 
 <!--CODE-->
 <div id="grid" style="width: 100%; height: 400px;"></div>
+<br>
+<input type="button" value="Lock" onclick="w2ui.grid.lock('Message', true);" style="width: 70px;">
+<input type="button" value="Unlock" onclick="w2ui.grid.unlock();" style="width: 70px;">
+<input type="button" value="Error" onclick="w2ui.grid.error('Error message '+ (new Date()).getTime());" style="width: 70px;">
+<input type="button" value="Status" onclick="w2ui.grid.status('Status message '+ (new Date()).getTime());" style="width: 70px;">
 
 <!--CODE-->
 $(function () {
 	$('#grid').w2grid({ 
-		name: 'grid', 
+		name: 'grid',
+		show: {
+			footer: true
+		},
 		columns: [				
 			{ field: 'fname', caption: 'Full Name', size: '200px',
 				render: function (record, index, column_index) {

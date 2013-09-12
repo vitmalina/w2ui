@@ -1,48 +1,14 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Load Content</h1>
 		There are three ways popup can be open: from JavaScript, from Markup, loaded from a file. The example below shows how content can 
 		be loaded from HTML file on the server.
 	</div>
-	
-	<div id="example_view">
-		<input type="button" value="Load Content" onclick="$().w2popup('load', { url: 'data/popup1.html', showMax: true })">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<input type="button" value="Load Content" onclick="$().w2popup('load', { url: 'data/popup1.html', showMax: true })">
-		</textarea>
-	</div>
-	
-	<div id="example_html1">
-		<h2>File: data/popup1.html</h2>
-		<textarea class="preview">
-<div id="popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
-	<div rel="title">
-		Popup #1 Title
-	</div>
-	<div rel="body">
-		<div style="float: left; background-color: white; width: 150px; height: 80px; border: 1px solid silver; margin: 5px;"> </div>
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-		This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	</div>
-	<div rel="buttons">
-		<input type="button" value="Close" onclick="$().w2popup('close')">
-	</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
-		</textarea>
-	</div>
 
-</div>
+<!--CODE-->
+<input type="button" value="Load Content" onclick="w2popup.load({ url: 'data/popup1.html', showMax: true })">
+
+<!--CODE-->

@@ -2,7 +2,7 @@
 	<div rel="title">
 		Transitions
 	</div>
-	<div rel="body">
+	<div rel="body" style="padding: 10px; line-height: 150%">
 		<div style="float: left; background-color: white; width: 150px; height: 80px; border: 1px solid silver; margin: 5px;"> </div>
 		If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
 		transition from w2utils library. 
@@ -34,15 +34,22 @@
 		<input type="button" value="Load Another Page" onclick="load()" style="width: 120px">
 	</div>
 	<script> 
-		if (typeof last_index == 'undefined') last_index = 2;
-		if (typeof last_trans == 'undefined') last_trans = ''; else {
-			setTimeout(function () { $('#trans').val(last_trans); }, 350); // because of the transition time
-		}
+		var last_index, last_trans;
+		if (typeof last_trans == 'undefined') {
+			last_index = 2;
+			last_trans = ''; 
+		} 
+
 		function load() {
+			var trans = (last_trans == "" ? $('#trans option:nth-child('+ last_index +')').val() : $('#trans').val());
 			last_trans = $('#trans').val();
-			$().w2popup('load', 
-				{ url: 'data/popup3.html', transition: (last_trans == "" ? $('#trans option:nth-child('+ last_index +')').val() : $('#trans').val()) }
-			); 
+			$().w2popup({ 
+				url: 'data/popup3.html', 
+				transition: trans, 
+				onChange: function () {
+					$('#trans').val(last_trans); 
+				} 
+			});
 			last_index++; 
 			if (last_index > 11) last_index = 2; 
 		}

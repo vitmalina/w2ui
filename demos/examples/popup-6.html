@@ -1,76 +1,14 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Transitions</h1>
 		Anytime you load new content, regardless the method, you can specify a transition type. If transition is not specified, then
 		the default will be used. All transitions are done with w2utils.
 	</div>
-	
-	<div id="example_view">
-		<input type="button" value="Open Popup" onclick="$().w2popup('load', { url: 'data/popup3.html' })">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<input type="button" value="Open Popup" onclick="$().w2popup('load', { url: 'data/popup3.html' })">
-		</textarea>
-	</div>
-	
-	<div id="example_html1">
-		<h2>File: data/popup3.html</h2>
-		<textarea class="preview">
-<div id="popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
-	<div rel="title">
-		Transitions
-	</div>
-	<div rel="body">
-		<div style="float: left; background-color: white; width: 150px; height: 80px; border: 1px solid silver; margin: 5px;"> </div>
-		If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
-		transition from w2utils library. 
-		If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
-		transition from w2utils library. 
-		If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
-		transition from w2utils library. 
-		If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
-		transition from w2utils library. 
-		If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
-		transition from w2utils library. 
-		If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
-		transition from w2utils library. 
-	</div>
-	<div rel="buttons">
-		<select id="trans">
-			<option value="">- random -</option>
-			<option value="flip-left">flip-left</option>
-			<option value="flip-right">flip-right</option>
-			<option value="flip-up">flip-up</option>
-			<option value="flip-down">flip-down</option>
-			<option value="slide-left">slide-left</option>
-			<option value="slide-right">slide-right</option>
-			<option value="slide-up">slide-up</option>
-			<option value="slide-down">slide-down</option>
-			<option value="pop-in">pop-in</option>
-			<option value="pop-out">pop-out</option>
-		</select>
-		<input type="button" value="Load Another Page" onclick="load()" style="width: 120px">
-	</div>
-	&lt;script&gt; 
-		if (typeof last_index == 'undefined') last_index = 2;
-		if (typeof last_trans == 'undefined') last_trans = ''; else {
-			setTimeout(function () { $('#trans').val(last_trans); }, 350); // because of the transition time
-		}
-		function load() {
-			last_trans = $('#trans').val();
-			$().w2popup('load', { 
-				url: 'data/popup3.html', 
-				transition: (last_trans == "" ? $('#trans option:nth-child('+ last_index +')').val() : $('#trans').val()) 
-			}); 
-			last_index++; 
-			if (last_index > 11) last_index = 2; 
-		}
-	&lt;/script&gt;
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
-		</textarea>
-	</div>	
-</div>
+
+<!--CODE-->
+<input type="button" value="Open Popup" onclick="w2popup.load({ url: 'data/popup3.html' })">
+
+<!--CODE-->

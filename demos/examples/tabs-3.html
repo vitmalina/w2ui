@@ -1,47 +1,17 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Closable Tabs</h1>
 		To make any tab closable, all you need to do is to set closable property to true.
 	</div>
-	
-	<div id="example_view">
-		<div id="tabs" style="width: 100%;"></div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="tabs" style="width: 100%;"></div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#tabs').w2tabs({
-	name: 'tabs',
-	active: 'tab1',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2', closable: true },
-		{ id: 'tab3', caption: 'Tab 3', closable: true },
-		{ id: 'tab4', caption: 'Tab 4', closable: true },
-		{ id: 'tab5', caption: 'Tab 5', closable: true },
-		{ id: 'tab6', caption: 'Tab 6', closable: true },
-		{ id: 'tab7', caption: 'Tab 7', closable: true },
-		{ id: 'tab8', caption: 'Tab 8', closable: true }
-	]
-});
-		</textarea>
-	</div>
-	
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-<script>
-$(document).ready(function () {
-	$().w2destroy('tabs');
-	
+<!--CODE-->
+<div id="tabs" style="width: 100%;"></div>
+
+<!--CODE-->
+$(function () {
 	$('#tabs').w2tabs({
 		name: 'tabs',
 		active: 'tab1',
@@ -57,4 +27,3 @@ $(document).ready(function () {
 		]
 	});
 });
-</script>

@@ -1,57 +1,28 @@
 <div class="content">
-	
 	<div id="example_title">
-		<h1>Popup Panels</h1>
-		Each popup consists of 3 panels: title, body, and buttons. Each panel can contain any HTML. You can also have two buttons in the 
+		<h1>Popup Elements</h1>
+		Each popup consists of 3 elements: title, body, and buttons. Each panel can contain any HTML. You can also have two buttons in the 
 		title: max and close.
 	</div>
-	
-	<div id="example_view">
-		<input type="button" value="Popup With all Elements" onclick="popup1()">
-		<input type="button" value="Popup Without Elements" onclick="popup2()">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<input type="button" value="Popup With all Elements" onclick="popup1()">
-<input type="button" value="Popup Without Elements" onclick="popup2()">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-function popup1() {
-	$().w2popup('open', {
-		title: 'Popup Title',
-		body: 'This is text inside the popup',
-		buttons: 'buttons',
-		showMax: true
-	});
-}
-function popup2() {
-	$().w2popup('open', {
-		body: 'Click anywhere outside the popup to hide it.',
-	});
-}
-		</textarea>
-	</div>
-	
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-<script>
+<!--CODE-->
+<input type="button" value="Popup With all Elements" onclick="popup1()">
+<input type="button" value="Popup Without Elements" onclick="popup2()">
+
+<!--CODE-->
 function popup1() {
-	$().w2popup('open', {
+	w2popup.open({
 		title: 'Popup Title',
-		body: 'This is text inside the popup',
+		body: '<div class="w2ui-centered"><div>This is text inside the popup</div></div>',
 		buttons: 'buttons',
 		showMax: true
 	});
 }
 function popup2() {
-	$().w2popup('open', {
-		body: 'Click anywhere outside the popup to hide it.',
+	w2popup.open({
+		body: '<div class="w2ui-centered"><div>Click anywhere outside the popup to hide it.</div></div>',
 	});
 }
-</script>

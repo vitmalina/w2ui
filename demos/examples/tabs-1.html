@@ -1,48 +1,18 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Simple Tabs</h1>
 		Below is an example of how to use tabs.
 	</div>
-	
-	<div id="example_view">
-		<div id="tabs" style="width: 100%;"></div>
-		<div id="selected-tab" style="padding: 10px 0px"> &nbsp; </div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="tabs" style="width: 100%;"></div>
-<div id="selected-tab" style="padding: 10px 0px"> &nbsp; </div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#tabs').w2tabs({
-	name: 'tabs',
-	active: 'tab1',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2' },
-		{ id: 'tab3', caption: 'Tab 3' },
-		{ id: 'tab4', caption: 'Tab 4' }
-	],
-	onClick: function (event) {
-		$('#selected-tab').html(event.target);
-	}
-});
-		</textarea>
-	</div>
-	
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-<script>
-$(document).ready(function () {
-	$().w2destroy('tabs');
-	
+<!--CODE-->
+<div id="tabs" style="width: 100%;"></div>
+<div id="selected-tab" style="padding: 10px 0px">tab1</div>
+
+<!--CODE-->
+$(function () {
 	$('#tabs').w2tabs({
 		name: 'tabs',
 		active: 'tab1',
@@ -57,4 +27,3 @@ $(document).ready(function () {
 		}
 	});
 });
-</script>

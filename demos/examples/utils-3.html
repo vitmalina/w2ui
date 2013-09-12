@@ -1,115 +1,67 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Transitions</h1>
-		If you have 2 divs with absolute position, you can transition them nicely.
+		If you have 2 divs with absolute positioning, you can transition them nicely.
 	</div>
-	
-	<div id="example_view">
-		<div style="width: 420px; height: 230px; padding: 10px; overflow: hidden;">
-			<div id="box1" style="background-color: #fafafa; padding: 4px; position: absolute; width: 400px; height: 200px; border: 1px solid silver;">
-				This this first div. It jast has some text as example. This box does not have any other elements then some text.
-				This this first div. It jast has some text as example. This box does not have any other elements then some text.
-				This this first div. It jast has some text as example. This box does not have any other elements then some text.
-				This this first div. It jast has some text as example. This box does not have any other elements then some text.
-			</div>
-			<div id="box2" style="display: none; background-color: #E0FFE1; padding: 4px; position: absolute; width: 400px; height: 200px; border: 1px solid silver;">
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">1</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">2</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">3</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">4</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">5</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">6</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">7</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">8</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">9</div>
-				<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">10</div>
-			</div>
-		</div>
-	</div>
-	<div style="margin: 0px 0px 20px 10px">
-		<select id="trans">
-			<option value="flip-left">flip-left</option>
-			<option value="flip-right">flip-right</option>
-			<option value="flip-up">flip-up</option>
-			<option value="flip-down">flip-down</option>
-			<option value="slide-left">slide-left</option>
-			<option value="slide-right">slide-right</option>
-			<option value="slide-up">slide-up</option>
-			<option value="slide-down">slide-down</option>
-			<option value="pop-in">pop-in</option>
-			<option value="pop-out">pop-out</option>
-		</select>
-		<input type="button" value="Go" onclick="go()">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="example_view">
-	<div style="width: 420px; height: 230px; padding: 10px; overflow: hidden;">
-
-		<!-- BOX 1 -->
-
-		<div id="box1" style="background-color: #fafafa; padding: 4px; position: absolute; width: 400px; height: 200px; border: 1px solid silver;">
-			This this first div. It jast has some text as example. This box does not have any other elements then some text.
-			This this first div. It jast has some text as example. This box does not have any other elements then some text.
-			This this first div. It jast has some text as example. This box does not have any other elements then some text.
-			This this first div. It jast has some text as example. This box does not have any other elements then some text.
-		</div>
-
-		<!-- BOX 2 -->
-
-		<div id="box2" style="display: none; background-color: #E0FFE1; padding: 4px; position: absolute; width: 400px; height: 200px; border: 1px solid silver;">
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">1</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">2</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">3</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">4</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">5</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">6</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">7</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">8</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">9</div>
-			<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">10</div>
-		</div>
-	</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-<!-- drop down and Go button -->
-
-<div style="margin: 0px 0px 20px 10px">
-	<select id="trans">
-		<option value="flip-left">flip-left</option>
-		<option value="flip-right">flip-right</option>
-		<option value="flip-up">flip-up</option>
-		<option value="flip-down">flip-down</option>
-		<option value="slide-left">slide-left</option>
-		<option value="slide-right">slide-right</option>
-		<option value="slide-up">slide-up</option>
-		<option value="slide-down">slide-down</option>
-		<option value="pop-in">pop-in</option>
-		<option value="pop-out">pop-out</option>
-	</select>
-	<input type="button" value="Go" onclick="go()">
-</div>
-		</textarea>
+<!--CODE-->
+<style>
+.container {
+	width: 420px; 
+	height: 230px; 
+	padding: 10px; 
+	overflow: hidden;
+}
+.box {
+	background-color: #fafafa; 
+	padding: 4px; 
+	position: absolute; 
+	width: 400px; 
+	height: 200px; 
+	border: 1px solid silver;
+}
+</style>
+<div class="container">
+	<div id="box1" class="box">
+		This this first div. It jast has some text as example. This box does not have any other elements then some text.
+		This this first div. It jast has some text as example. This box does not have any other elements then some text.
+		This this first div. It jast has some text as example. This box does not have any other elements then some text.
+		This this first div. It jast has some text as example. This box does not have any other elements then some text.
 	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
+	<div id="box2" class="box" style="display: none; background-color: #E0FFE1;">
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">1</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">2</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">3</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">4</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">5</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">6</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">7</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">8</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">9</div>
+		<div style="float: left; width: 100px; height: 30px; border: 1px solid silver; margin: 3px;">10</div>
+	</div>
+</div>
+<br><br>
+<select id="trans">
+	<option value="flip-left">flip-left</option>
+	<option value="flip-right">flip-right</option>
+	<option value="flip-up">flip-up</option>
+	<option value="flip-down">flip-down</option>
+	<option value="slide-left">slide-left</option>
+	<option value="slide-right">slide-right</option>
+	<option value="slide-up">slide-up</option>
+	<option value="slide-down">slide-down</option>
+	<option value="pop-in">pop-in</option>
+	<option value="pop-out">pop-out</option>
+</select>
+<input type="button" value="Go" onclick="go()">	
+
+<!--CODE-->
 var current = 'box1';
 function go() {
 	if (current == 'box1') { current = 'box2'; w2utils.transition($('#box1')[0], $('#box2')[0], $('#trans').val()); return; }
 	if (current == 'box2') { current = 'box1'; w2utils.transition($('#box2')[0], $('#box1')[0], $('#trans').val()); return; }
 }
-		</textarea>
-	</div>	
-<script>
-var current = 'box1';
-function go() {
-	if (current == 'box1') { current = 'box2'; w2utils.transition($('#box1')[0], $('#box2')[0], $('#trans').val()); return; }
-	if (current == 'box2') { current = 'box1'; w2utils.transition($('#box2')[0], $('#box1')[0], $('#trans').val()); return; }
-}
-</script>
-</div>

@@ -16,8 +16,6 @@
 
 <!--CODE-->
 $(function () {
-	$().w2destroy('grid');
-	
 	$('#grid').w2grid({ 
 		name: 'grid', 
 		show: { 
@@ -36,13 +34,13 @@ $(function () {
 				editable: { type: 'int', style: 'text-align: center' }
 			},
 			{ field: 'sex', caption: 'Sex', size: '70px', resizable: true, style: "text-align: center",
-				editable: { type: 'text', inTag: "maxlength=1", style: 'text-align: center' }
+				editable: { type: 'list', inTag: "maxlength=1", style: 'text-align: center' }
 			},
 			{ field: 'dbo', caption: 'DOB', size: '120px', resizable: true, 
 				editable: { type: 'date' }
 			},
 			{ field: 'email', caption: 'Email', size: '40%', resizable: true,
-				editable: { type: 'text' }
+				editable: { type: 'email' }
 			},
 		],
 		records: [

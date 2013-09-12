@@ -1,20 +1,13 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Field Types</h1>
 		Because you can use your own HTML you can create any custom field types. All you need to do is to bind your fields to the w2form object so 
 		you can take advantage of its methods and properties. The w2form object has implementation of most common field types as you can see in the 
 		example below:
 	</div>
-	
-	<div id="example_view">
-		<div id="form" style="width: 750px;">
-		</div>
-	</div>
-	
-	<div id="example_title">
-		Below is the list of supported field types and what corresponding HTML element they need. Please note that there is no &lt;select&gt; element. Similar 
-		functionality is done with list (single item selection) or enum (multi items selection).
+	<div id="example_view"></div>
+		Below is the list of supported field types and what corresponding HTML element they need. Please note that there is no &lt;select&gt; 
+		element. Similar functionality is done with list (single item selection) or enum (multi items selection).
 		<table class="list">
 			<tr><td> text </td> 		<td> input[type=text] or textarea </td></tr>
 			<tr><td> int </td>			<td> input[type=text] </td></tr>
@@ -29,100 +22,14 @@
 			<tr><td> list </td>			<td> input[type=text] </td></tr>
 			<tr><td> enum </td>			<td> input[type=text] </td></tr>
 		</table>
-	</div>
+	<div id="example_code"></div>
+</div>
 
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+<!--CODE-->
 <div id="form" style="width: 750px;"></div>
-		</textarea>
 
-	<div id="example_html2">
-		<h2>File: form.html</h2>
-		<textarea class="preview">
-<div class="w2ui-page page-0">
-	<div class="w2ui-label">Text:</div>
-	<div class="w2ui-field">
-		<input name="field_text" type="text" maxlength="100" size="60"/>
-	</div>
-	<div class="w2ui-label">Text (alpha-numeric):</div>
-	<div class="w2ui-field">
-		<input name="field_alpha" type="text" maxlength="100" size="60"/>
-	</div>
-	<div class="w2ui-label">Number (int):</div>
-	<div class="w2ui-field">
-		<input name="field_int" type="text" maxlength="100" size="16"/>
-	</div>
-	<div class="w2ui-label">Number (float):</div>
-	<div class="w2ui-field">
-		<input name="field_float" type="text" maxlength="100" size="16"/>
-	</div>
-	<div class="w2ui-label">Date:</div>
-	<div class="w2ui-field">
-		<input name="field_date" type="text" size="16"/>
-	</div>
-	<div class="w2ui-label">List:</div>
-	<div class="w2ui-field">
-		<select name="field_list"/>
-	</div>
-	<div class="w2ui-label">Multi Select:</div>
-	<div class="w2ui-field">
-		<input name="field_enum" type="text" size="60"/>
-	</div>
-	<div class="w2ui-label">Text Area:</div>
-	<div class="w2ui-field">
-		&lt;textarea name="field_textarea" type="text" style="width: 385px; height: 80px; resize: none"&gt;&lt;/textarea&gt;
-	</div>
-</div>
-
-<div class="w2ui-buttons">
-	<input type="button" value="Reset" name="reset">
-	<input type="button" value="Save" name="save">
-</div>		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#form').w2form({ 
-	name     : 'form',
-	url      : 'server/post',
-	formURL  : 'data/form.html', 
-	fields: [
-		{ name: 'field_text', type: 'text', required: true },
-		{ name: 'field_alpha', type: 'alphaNumeric', required: true },
-		{ name: 'field_int', type: 'int', required: true },
-		{ name: 'field_float', type: 'float', required: true },
-		{ name: 'field_date', type: 'date' },
-		{ name: 'field_list', type: 'list', required: true, 
-			options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-		{ name: 'field_enum', type: 'enum', required: true, 
-			options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-		{ name: 'field_textarea', type: 'text'}
-	],
-	actions: {
-		reset: function () {
-			this.clear();
-		},
-		save: function () {
-			var obj = this;
-			this.save({}, function (data) { 
-				if (data.status == 'error') {
-					console.log('ERROR: '+ data.message);
-					return;
-				}
-				obj.clear();
-			});
-		}
-	}
-});
-		</textarea>
-	</div>
-	
-</div>
-<script>
+<!--CODE-->
 $(function () {
-	$().w2destroy('form');
 	$('#form').w2form({ 
 		name     : 'form',
 		url      : 'server/post',
@@ -157,4 +64,3 @@ $(function () {
 		}
 	});
 });
-</script>

@@ -1,81 +1,19 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Form in a Popup</h1>
 		You do not need to have a form to use w2ui library's fields (input controls). All of the fields can be used outside of w2form on any
 		text input element. 
 	</div>
-	
-	<div id="example_view1">
-		<br>
-		<input type="button" value="Open Form in a Popup" onclick="openPopup()">
-		<br><br><br>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<input type="button" value="Open Form in a Popup" onclick="openPopup()">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-function openPopup () {
-	$().w2form({
-		name: 'foo',
-		style: 'border: 0px; background-color: transparent;',
-		formHTML: 
-			'<div class="w2ui-page page-0">'+
-			'	<div class="w2ui-label">First Name:</div>'+
-			'	<div class="w2ui-field">'+
-			'		<input name="first_name" type="text" size="35"/>'+
-			'	</div>'+
-			'	<div class="w2ui-label">Last Name:</div>'+
-			'	<div class="w2ui-field">'+
-			'		<input name="last_name" type="text" size="35"/>'+
-			'	</div>'+
-			'	<div class="w2ui-label">Email:</div>'+
-			'	<div class="w2ui-field">'+
-			'		<input name="email" type="text" size="35"/>'+
-			'	</div>'+
-			'</div>'+
-			'<div class="w2ui-buttons">'+
-			'	<input type="button" value="Reset" name="reset">'+
-			'	<input type="button" value="Save" name="save">'+
-			'</div>',
-		fields: [
-			{ name: 'first_name', type: 'text', required: true },
-			{ name: 'last_name', type: 'text', required: true },
-			{ name: 'email', type: 'email' },
-		],
-		record: { 
-			first_name	: 'John',
-			last_name 	: 'Doe',
-			email 		: 'jdoe@email.com'
-		},
-		actions: {
-			"save": function () { this.validate(); },
-			"reset": function () { this.clear(); },
-		}
-	});
-	$().w2popup('open', {
-		title   : 'Form in a Popup',
-		body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
-		style   : 'padding: 15px 0px 0px 0px',
-		width   : 500,
-		height  : 300, 
-		onOpen  : function () {
-			$('#w2ui-popup #form').w2render('foo');
-		}
-	});
-}
-		</textarea>
-	</div>
-	
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
-<script>
+
+<!--CODE-->
+<br>
+<input type="button" value="Open Form in a Popup" onclick="openPopup()">
+<br><br><br>
+
+<!--CODE-->
 function openPopup () {
 	$().w2form({
 		name: 'foo',
@@ -125,4 +63,3 @@ function openPopup () {
 		}
 	});
 }
-</script>

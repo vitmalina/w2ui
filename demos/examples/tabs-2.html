@@ -1,48 +1,20 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Set a Tab Active</h1>
 		As a developer often you need to be able to switch to a tab. An example below show you how to do that.
 	</div>
-	
-	<div id="example_view">
-		<div id="tabs" style="width: 100%;"></div>
-		<br><br>
-		<input type="button" value="Set Tab 3 Active" onclick="w2ui['tabs'].doClick('tab3')">
-		<input type="button" value="Set Tab 4 Active" onclick="w2ui['tabs'].doClick('tab4')">
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
-<div id="tabs" style="width: 100%;"></div>
-<br><br>
-<input type="button" value="Set Tab 3 Active" onclick="w2ui['tabs'].doClick('tab3')">
-<input type="button" value="Set Tab 4 Active" onclick="w2ui['tabs'].doClick('tab4')">
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#tabs').w2tabs({
-	name: 'tabs',
-	active: 'tab2',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2' },
-		{ id: 'tab3', caption: 'Tab 3' },
-		{ id: 'tab4', caption: 'Tab 4' }
-	]
-});	</textarea>
-	</div>
-	
+	<div id="example_view"></div>
+	<div id="example_code"></div>
 </div>
 
-<script>
-$(document).ready(function () {
-	$().w2destroy('tabs');
-	
+<!--CODE-->
+<div id="tabs" style="width: 100%;"></div>
+<br><br>
+<input type="button" value="Set Tab 3 Active" onclick="w2ui.tabs.click('tab3')">
+<input type="button" value="Set Tab 4 Active" onclick="w2ui.tabs.click('tab4')">
+
+<!--CODE-->
+$(function () {
 	$('#tabs').w2tabs({
 		name: 'tabs',
 		active: 'tab2',
@@ -54,4 +26,3 @@ $(document).ready(function () {
 		]
 	});
 });
-</script>

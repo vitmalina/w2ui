@@ -1,73 +1,13 @@
 <div class="content">
-	
 	<div id="example_title">
 		<h1>Form with Tabs</h1>
 		The form below is exactly the same form as in previous two examples, but with tabs. Tabs simplify presentation of large forms.
 	</div>
-	
-	<div id="example_view">
-		<div id="form" style="width: 750px;">
-			<div class="w2ui-page page-0">
-				<div class="w2ui-label">First Name:</div>
-				<div class="w2ui-field">
-					<input name="first_name" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">Last Name:</div>
-				<div class="w2ui-field">
-					<input name="last_name" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">Comments:</div>
-				<div class="w2ui-field">
-					<textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
-				</div>
-			</div>
-			<div class="w2ui-page page-1">
-				<div class="w2ui-label">Address Line 1:</div>
-				<div class="w2ui-field">
-					<input name="address1" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">Address Line 2:</div>
-				<div class="w2ui-field">
-					<input name="address2" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">City:</div>
-				<div class="w2ui-field">
-					<input name="city" type="text" maxlength="50" size="30"/>
-				</div>
-				<div class="w2ui-label">State:</div>
-				<div class="w2ui-field">
-					<input name="state" type="text" maxlength="2" size="2"/>
-				</div>
-				<div class="w2ui-label">Zip:</div>
-				<div class="w2ui-field">
-					<input name="zip" type="text" maxlength="10" size="10"/>
-				</div>
-			</div>
-			<div class="w2ui-page page-2">
-				<div class="w2ui-label">Short Bio:</div>
-				<div class="w2ui-field">
-					<textarea name="short_bio" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
-				</div>
-				<div class="w2ui-label">Talk Name:</div>
-				<div class="w2ui-field">
-					<input name="talk_name" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">Talk Description:</div>
-				<div class="w2ui-field">
-					<textarea name="description" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
-				</div>
-			</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
 
-			<div class="w2ui-buttons">
-				<input type="button" value="Reset" name="reset">
-				<input type="button" value="Save" name="save">
-			</div>
-		</div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+<!--CODE-->
 <div id="form" style="width: 750px;">
 	<div class="w2ui-page page-0">
 		<div class="w2ui-label">First Name:</div>
@@ -80,7 +20,7 @@
 		</div>
 		<div class="w2ui-label">Comments:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none">&lt;/textarea>
+			<textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
 		</div>
 	</div>
 	<div class="w2ui-page page-1">
@@ -108,7 +48,7 @@
 	<div class="w2ui-page page-2">
 		<div class="w2ui-label">Short Bio:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="short_bio" type="text" style="width: 385px; height: 80px; resize: none">&lt;/textarea>
+			<textarea name="short_bio" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
 		</div>
 		<div class="w2ui-label">Talk Name:</div>
 		<div class="w2ui-field">
@@ -116,7 +56,7 @@
 		</div>
 		<div class="w2ui-label">Talk Description:</div>
 		<div class="w2ui-field">
-			&lt;textarea name="description" type="text" style="width: 385px; height: 80px; resize: none">&lt;/textarea>
+			<textarea name="description" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
 		</div>
 	</div>
 
@@ -125,49 +65,9 @@
 		<input type="button" value="Save" name="save">
 	</div>
 </div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#form').w2form({ 
-	name   : 'form',
-	url    : 'server/post',
-	fields : [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name',  type: 'text', required: true },
-		{ name: 'comments',   type: 'text'},
-		{ name: 'address1', type: 'text', required: true },
-		{ name: 'address2', type: 'text' },
-		{ name: 'city', type: 'text', required: true },
-		{ name: 'state', type: 'text', required: true },
-		{ name: 'zip', type: 'int', required: true },
-		{ name: 'short_bio', type: 'text' },
-		{ name: 'talk_name', type: 'text', required: true },
-		{ name: 'description', type: 'text' }
-	],
-	tabs: [
-		{ id: 'tab1', caption: 'General' },
-		{ id: 'tab2', caption: 'Address'},
-		{ id: 'tab3', caption: 'About' }
-	],
-	actions: {
-		reset: function () {
-			this.clear();
-		},
-		save: function () {
-			this.save();
-		}
-	}
-});
-		</textarea>
-	</div>
-	
-</div>
-<script>
+
+<!--CODE-->
 $(function () {
-	$().w2destroy('form');
 	$('#form').w2form({ 
 		name   : 'form',
 		header : 'Form with Tabs',
@@ -200,4 +100,3 @@ $(function () {
 		}
 	});
 });
-</script>

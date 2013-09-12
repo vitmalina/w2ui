@@ -76,6 +76,7 @@ $(function () {
 					{ id: 'grid-20', text: 'Render to a New Box', icon: 'fa-table' },
 					{ id: 'grid-21', text: 'Inline Editing', icon: 'fa-table' },
 					{ id: 'grid-22', text: 'Resizable Columns', icon: 'fa-table' },
+					{ id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa-table' },
 					// { id: 'grid-23', text: 'Buffered Scroll', icon: 'fa-table' },
 					// { id: 'grid-24', text: 'Infinite Scroll', icon: 'fa-table' },
 					//{ id: 'grid-26', text: 'Re-Order records', icon: 'fa-table' },
@@ -129,11 +130,12 @@ $(function () {
 				nodes: [
 					{ id: 'popup-1', text: 'Simple Popup', icon: 'fa-list-alt' },
 					{ id: 'popup-2', text: 'More Options', icon: 'fa-list-alt' },
-					{ id: 'popup-3', text: 'Popup Panels', icon: 'fa-list-alt' },
+					{ id: 'popup-3', text: 'Popup Elements', icon: 'fa-list-alt' },
 					{ id: 'popup-4', text: 'Based on Markup', icon: 'fa-list-alt' },
 					{ id: 'popup-5', text: 'Load Content', icon: 'fa-list-alt' },
 					{ id: 'popup-6', text: 'Transitions', icon: 'fa-list-alt' },
-					{ id: 'popup-7', text: 'Slide a Message', icon: 'fa-list-alt' }
+					{ id: 'popup-7', text: 'Slide a Message', icon: 'fa-list-alt' },
+					{ id: 'popup-8', text: 'Dialogs', icon: 'fa-list-alt' }
 				]
 			},
 			{ id: 'utils', text: 'Utilities', img: 'icon-folder', group1: true,
@@ -193,7 +195,9 @@ $(function () {
 						   '</html>';
 				$('#example_code').html('<h2>Complete Code '+
 					'<span style="font-weight: normal; padding-left: 10px;">- &nbsp;&nbsp;Copy & paste into your editor or <a href="javascript:" class="jsfiddle">fiddle with code online</a></span> </h2>'+
-					'<textarea class="preview" id="code">'+ code +'</textarea>'+
+					'<textarea class="preview" id="code">'+ 
+						code.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +
+					'</textarea>'+
 					(json != '' ? 
 						'<h2>JSON file</h2>'+
 						'<textarea class="json" id="json">'+ json +'</textarea>'
@@ -203,7 +207,7 @@ $(function () {
 					'<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.x/" method="post">'+
 					'	<textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
 					'	<textarea name="resources">//w2ui.com/src/w2ui.min.js,//w2ui.com/src/w2ui.min.css</textarea>'+
-					'	<textarea name="html">'+ html +'</textarea>'+
+					'	<textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
 					'	<textarea name="js">'+ js +'</textarea>'+
 					'	<textarea name="css">'+ css +'</textarea>'+
 					'</form>'+
