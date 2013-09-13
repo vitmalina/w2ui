@@ -522,50 +522,13 @@
 		},
 
 		lock: function (msg, showSpinner) {
-			var obj = this;
-			if (typeof msg == 'undefined' || msg == '') {
-				setTimeout(function () {
-					$('#form_'+ obj.name +'_lock').remove();
-					$('#form_'+ obj.name +'_status').remove();
-				}, 25);
-			} else {
-				$('#form_'+ obj.name +'_lock').remove();
-				$('#form_'+ obj.name +'_status').remove();
-				$(this.box).find('> div :first-child').before(
-					'<div id="form_'+ obj.name +'_lock" class="w2ui-lock"></div>'+
-					'<div id="form_'+ obj.name +'_status" class="w2ui-lock-msg"></div>'
-				);
-				setTimeout(function () {
-					var lock 	= $('#form_'+ obj.name +'_lock');
-					var status 	= $('#form_'+ obj.name +'_status');
-					status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
-					lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-					setTimeout(function () {
-						var left 	= ($(obj.box).width()  - w2utils.getSize(status, 'width')) / 2;
-						var top 	= ($(obj.box).height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
-						lock.css({
-							opacity : lock.data('old_opacity'),
-							left 	: '0px',
-							top 	: '0px',
-							width 	: '100%',
-							height 	: '100%'
-						});
-						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
-						status.html(msg).css({
-							opacity : status.data('old_opacity'),
-							left	: left + 'px',
-							top		: top + 'px'
-						});
-					}, 10);
-				}, 10);
-			}
-			// hide all overlay and tags
-			$().w2tag();
-			$().w2overlay();
+			var box = $(this.box).find('> div:first-child');
+			w2utils.lock(box, msg, showSpinner);
 		},
 
-		unlock: function() {
-			this.lock();
+		unlock: function () { 
+			var obj = this;
+			setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
 		},
 
 		goto: function (page) {

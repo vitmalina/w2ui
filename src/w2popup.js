@@ -428,54 +428,12 @@ var w2popup = {};
 		},
 
 		lock: function (msg, showSpinner) {
-			var obj = this;
-			// default behavior
-			if (typeof msg == 'undefined' || msg == '') {
-				setTimeout(function () {
-					$('#w2ui-popup-lock').remove();
-					$('#w2ui-popup-status').remove();
-				}, 25);
-			} else {
-				$('#w2ui-popup-lock').remove();
-				$('#w2ui-popup-status').remove();
-				$('#w2ui-popup').find('> :first-child').before(
-					'<div id="w2ui-popup-lock" class="w2ui-lock"></div>'+
-					'<div id="w2ui-popup-status" class="w2ui-lock-msg"></div>'
-				);
-				setTimeout(function () {
-					var lock 	= $('#w2ui-popup-lock');
-					var status 	= $('#w2ui-popup-status');
-					status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
-					lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-					setTimeout(function () {
-						console.log(w2utils.getSize(status, 'width'));
-						var left 	= ($('#w2ui-popup').width()  - w2utils.getSize(status, 'width')) / 2;
-						var top 	= ($('#w2ui-popup').height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
-						lock.css({
-							opacity : lock.data('old_opacity'),
-							left 	: '0px',
-							top 	: '0px',
-							width 	: '100%',
-							height 	: '100%'
-						});
-						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
-						console.log('show', status, left, top);
-						status.html(msg).css({
-							opacity : status.data('old_opacity'),
-							left	: left + 'px',
-							top		: top + 'px'
-						});
-					}, 10);
-				}, 10);
-			}
-			// hide all overlay and tags
-			$().w2tag();
-			$().w2overlay();
+			w2utils.lock($('#w2ui-popup'), msg, showSpinner);
 		},
 
 		unlock: function () { 
-			this.lock(); 
-		},		
+			w2utils.unlock($('#w2ui-popup'));
+		},
 		
 		// --- INTERNAL FUNCTIONS
 		

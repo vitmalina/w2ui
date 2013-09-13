@@ -6,6 +6,7 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
+*	- return ids of all subitems
 *
 * == 1.3 Changes ==
 *	- animated open/close
@@ -17,6 +18,7 @@
 *   - better keyboard navigation (<- ->, space, enter)
 *	- added context menu see menuClick(), onMenuClick event, menu property 
 *	- added scrollIntoView()
+*	- added lock() and unlock()
 *
 ************************************************************************/
 
@@ -244,7 +246,7 @@
 			}
 			return this._tmp;
 		},
-		
+
 		hide: function () { // multiple arguments
 			var hidden = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -743,7 +745,16 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));	
-		}				
+		},
+
+		lock: function (msg, showSpinner) {
+			var box = $(this.box).find('> div:first-child');
+			w2utils.lock(box, msg, showSpinner);
+		},
+
+		unlock: function () { 
+			w2utils.unlock(this.box);
+		}
 	}
 	
 	$.extend(w2sidebar.prototype, $.w2event);

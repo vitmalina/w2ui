@@ -24,6 +24,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added w2menu() plugin
 *	- added formatTime(), formatDateTime()
 *	- refactor event flow: instead of (target, data) -> (event), but back compatibile
+*	- added lock() and unlock() for a div
 *
 ************************************************/
 
@@ -65,6 +66,8 @@ var w2utils = (function () {
 		base64encode	: base64encode,
 		base64decode	: base64decode,
 		transition		: transition,
+		lock			: lock,
+		unlock			: unlock,
 		lang 			: lang,
 		locale	 		: locale,
 		getSize			: getSize,
@@ -649,6 +652,53 @@ var w2utils = (function () {
 		}
 	}
 	
+	function lock (box, msg, showSpinner) {
+		if (['absolute', 'fixed'].indexOf($(box).css('position')) != -1) {
+			console.log('ERROR: Only elements with absolute positioning can be locked.');
+			//return;
+		}
+		if (!msg && msg != 0) msg = '';
+		w2utils.unlock(box);
+		$(box).find('>:first-child').before(
+			'<div class="w2ui-lock"></div>'+
+			'<div class="w2ui-lock-msg"></div>'
+		);
+		setTimeout(function () {
+			var lock = $(box).find('.w2ui-lock');
+			var mess = $(box).find('.w2ui-lock-msg');
+			lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
+			mess.data('old_opacity', mess.css('opacity')).css('opacity', '0').show();
+			setTimeout(function () {
+				var lock = $(box).find('.w2ui-lock');
+				var mess = $(box).find('.w2ui-lock-msg');
+				var left = ($(box).width()  - w2utils.getSize(mess, 'width')) / 2;
+				var top  = ($(box).height() * 0.9 - w2utils.getSize(mess, 'height')) / 2;
+				lock.css({
+					opacity : lock.data('old_opacity'),
+					left 	: '0px',
+					top 	: '0px',
+					width 	: '100%',
+					height 	: '100%'
+				});
+				if (!msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
+				if (showSpinner === true) msg = '<div class="w2ui-spinner" '+ (!msg ? 'style="width: 30px; height: 30px"' : '') +'></div>' + msg;
+				mess.html(msg).css({
+					opacity : mess.data('old_opacity'),
+					left	: left + 'px',
+					top		: top + 'px'
+				});
+			}, 10);
+		}, 10);
+		// hide all overlay and tags
+		$().w2tag();
+		$().w2overlay();
+	}
+
+	function unlock (box) { 
+		$(box).find('.w2ui-lock').remove();
+		$(box).find('.w2ui-lock-msg').remove();
+	}
+
 	function getSize (el, type) {
 		var bwidth = {
 			left: 	parseInt($(el).css('border-left-width')) || 0,

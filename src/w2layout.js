@@ -754,61 +754,21 @@
 		},
 
 		lock: function (panel, msg, showSpinner) {
-			var obj = this;
-			if (panel == null) return;
-			if (!msg && msg != 0) msg = '';
-			if ($.inArray(panel, ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
+			if ($.inArray(String(panel), ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
-			var nm = '#layout_'+ obj.name + '_panel_' + panel;
-			if (!msg) {
-				setTimeout(function () {
-					$(nm +'_lock').remove();
-					$(nm +'_status').remove();
-				}, 25);
-			} else {
-				if (obj.get(panel).hidden == true && msg != '') {
-					console.log('ERROR: Cannot lock '+ panel +' panel because it is not visible.');
-					return;
-				}
-				$(nm +'_lock').remove();
-				$(nm +'_status').remove();
-				$(nm).find('> :first-child').before(
-					'<div id="'+ nm.substr(1) +'_lock" class="w2ui-lock"></div>'+
-					'<div id="'+ nm.substr(1) +'_status" class="w2ui-lock-msg"></div>'
-				);
-				setTimeout(function () {
-					var lock 	= $(nm +'_lock');
-					var status 	= $(nm +'_status');
-					status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
-					lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-					setTimeout(function () {
-						var left 	= ($(nm).width()  - w2utils.getSize(status, 'width')) / 2;
-						var top 	= ($(nm).height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
-						lock.css({
-							opacity : lock.data('old_opacity'),
-							left 	: '0px',
-							top 	: '0px',
-							width 	: '100%',
-							height 	: '100%'
-						});
-						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
-						status.html(msg).css({
-							opacity : status.data('old_opacity'),
-							left	: left + 'px',
-							top		: top + 'px'
-						});
-					}, 10);
-				}, 10);
-			}
-			// hide all overlay and tags
-			$().w2tag();
-			$().w2overlay();
+			var nm = '#layout_'+ this.name + '_panel_' + panel;
+			w2utils.lock(nm, msg, showSpinner);
 		},
 
 		unlock: function (panel) { 
-			this.lock(panel); 
+			if ($.inArray(String(panel), ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
+				console.log('ERROR: First parameter needs to be the a valid panel name.');
+				return;
+			}
+			var nm = '#layout_'+ this.name + '_panel_' + panel;
+			w2utils.unlock(nm);
 		},		
 		
 		// --- INTERNAL FUNCTIONS

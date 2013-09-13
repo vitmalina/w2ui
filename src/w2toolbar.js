@@ -11,6 +11,7 @@
 * == 1.3 Changes ==
 * 	- doClick -> click, doMenuClick -> menuClick
 *	- deprecated getMenuHTML() due to its use in w2menu
+*	- added get() - w/o parametes return all
 * 
 ************************************************************************/
 
@@ -157,6 +158,11 @@
 		},
 		
 		get: function (id, returnIndex) {
+			if (arguments.length == 0) {
+				var all = [];
+				for (var i = 0; i < this.items.length; i++) if (this.items[i].id != null) all.push(this.items[i].id);
+				return all;
+			}
 			for (var i = 0; i < this.items.length; i++) {
 				if (this.items[i].id == id) { 
 					if (returnIndex === true) return i; else return this.items[i]; 
@@ -164,7 +170,7 @@
 			}
 			return null;
 		},
-			
+
 		show: function (id) {
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {

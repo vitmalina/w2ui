@@ -10,8 +10,9 @@
 *   - on overflow display << >>
 * 	- individual tab onClick (possibly other events) are not working
 *
-* == NICE TO HAVE ==
+* == 1.3 changes ==
 *	- doClick -> click, doClose -> animateClose, doInsert -> animateInsert
+*	- added get() - w/o parametes return all
 *
 ************************************************************************/
 
@@ -153,6 +154,11 @@
 		},
 		
 		get: function (id, returnIndex) {
+			if (arguments.length == 0) {
+				var all = [];
+				for (var i = 0; i < this.tabs.length; i++) if (this.tabs[i].id != null) all.push(this.tabs[i].id);
+				return all;
+			}
 			for (var i in this.tabs) {
 				if (this.tabs[i].id == id) { 
 					if (returnIndex === true) return i; else return this.tabs[i]; 
