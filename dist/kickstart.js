@@ -167,10 +167,8 @@ app.error = function (msg, title, callBack) {
 // -- Core Module
 
 app.core = (function (obj) {
-	var action;
 	var config;
 	var modules;
-	var start;
 
 	obj.user	= {};
 	obj.modules	= modules;
@@ -193,8 +191,8 @@ app.core = (function (obj) {
 			// -- load dependencies
 			var files = [
 				'app/conf/action.js', 
-				'app/conf/config.js', 
 				'app/conf/modules.js', 
+				'app/conf/config.js', 
 				'app/conf/start.js' 
 			];
 			app.get(files, function (data) {
@@ -207,9 +205,9 @@ app.core = (function (obj) {
 				app.core.config  = config;
 				app.core.modules = modules;
 				// init application UI
-				$('#app-toolbar').w2toolbar(config.app_toolbar);
-				$('#app-tabs').w2tabs(config.app_tabs);
-				$('#app-main').w2layout(config.app_layout);
+				$('#app-toolbar').w2toolbar(app.core.config.app_toolbar);
+				$('#app-tabs').w2tabs(app.core.config.app_tabs);
+				$('#app-main').w2layout(app.core.config.app_layout);
 				// popin
 				//$().w2popup({ width: 300, height: 65, body: 
 				//	'<div style="font-size: 18px; color: #666; text-align: center; padding-top: 15px">Loading....</div>'} );
@@ -224,14 +222,14 @@ app.core = (function (obj) {
 		setTimeout(function () {
 			var top = 0;
 			// app toolbar
-			if (config.show.toolbar) {
+			if (app.core.config.show.toolbar) {
 				$('#app-toolbar').css('height', '30px').show();
 				top += 30;
 			} else {
 				$('#app-toolbar').hide();
 			}
 			// app tabs
-			if (config.show.tabs) {
+			if (app.core.config.show.tabs) {
 				$('#app-tabs').css({ 'top': top + 'px', 'height': '30px' }).show();
 				top += 30;
 			} else {
@@ -239,7 +237,7 @@ app.core = (function (obj) {
 			}
 			$('#app-top').css('height', top + 'px').show();
 			// app header
-			if (config.show.header) {
+			if (app.core.config.show.header) {
 				$('#app-header').css({ 'top': top + 'px', 'height': '60px' }).show();
 				top += 60;
 			} else {
