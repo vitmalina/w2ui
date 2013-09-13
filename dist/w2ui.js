@@ -24,6 +24,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added w2menu() plugin
 *	- added formatTime(), formatDateTime()
 *	- refactor event flow: instead of (target, data) -> (event), but back compatibile
+*	- added lock() and unlock() for a div
 *
 ************************************************/
 
@@ -65,6 +66,8 @@ var w2utils = (function () {
 		base64encode	: base64encode,
 		base64decode	: base64decode,
 		transition		: transition,
+		lock			: lock,
+		unlock			: unlock,
 		lang 			: lang,
 		locale	 		: locale,
 		getSize			: getSize,
@@ -649,6 +652,53 @@ var w2utils = (function () {
 		}
 	}
 	
+	function lock (box, msg, showSpinner) {
+		if (['absolute', 'fixed'].indexOf($(box).css('position')) != -1) {
+			console.log('ERROR: Only elements with absolute positioning can be locked.');
+			//return;
+		}
+		if (!msg && msg != 0) msg = '';
+		w2utils.unlock(box);
+		$(box).find('>:first-child').before(
+			'<div class="w2ui-lock"></div>'+
+			'<div class="w2ui-lock-msg"></div>'
+		);
+		setTimeout(function () {
+			var lock = $(box).find('.w2ui-lock');
+			var mess = $(box).find('.w2ui-lock-msg');
+			lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
+			mess.data('old_opacity', mess.css('opacity')).css('opacity', '0').show();
+			setTimeout(function () {
+				var lock = $(box).find('.w2ui-lock');
+				var mess = $(box).find('.w2ui-lock-msg');
+				var left = ($(box).width()  - w2utils.getSize(mess, 'width')) / 2;
+				var top  = ($(box).height() * 0.9 - w2utils.getSize(mess, 'height')) / 2;
+				lock.css({
+					opacity : lock.data('old_opacity'),
+					left 	: '0px',
+					top 	: '0px',
+					width 	: '100%',
+					height 	: '100%'
+				});
+				if (!msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
+				if (showSpinner === true) msg = '<div class="w2ui-spinner" '+ (!msg ? 'style="width: 30px; height: 30px"' : '') +'></div>' + msg;
+				mess.html(msg).css({
+					opacity : mess.data('old_opacity'),
+					left	: left + 'px',
+					top		: top + 'px'
+				});
+			}, 10);
+		}, 10);
+		// hide all overlay and tags
+		$().w2tag();
+		$().w2overlay();
+	}
+
+	function unlock (box) { 
+		$(box).find('.w2ui-lock').remove();
+		$(box).find('.w2ui-lock-msg').remove();
+	}
+
 	function getSize (el, type) {
 		var bwidth = {
 			left: 	parseInt($(el).css('border-left-width')) || 0,
@@ -1146,6 +1196,8 @@ w2utils.keyboard = (function (obj) {
 *	- for search fields one should be able to pass w2field options
 *	- add enum to advanced search fields
 *	- all function that take recid as argument, should check if object was given and use it instead.
+*	- be able to attach events in advanced search dialog
+* 	- reorder columns/records
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -5225,51 +5277,13 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		lock: function (msg, showSpinner) {
-			var obj = this;
-			// default behavior
-			if (typeof msg == 'undefined' || msg == '') {
-				setTimeout(function () {
-					$('#grid_'+ obj.name +'_lock').remove();
-					$('#grid_'+ obj.name +'_status').remove();
-				}, 25);
-			} else {
-				$('#grid_'+ obj.name +'_lock').remove();
-				$('#grid_'+ obj.name +'_status').remove();
-				$(this.box).find('> div :first-child').before(
-					'<div id="grid_'+ this.name +'_lock" class="w2ui-lock"></div>'+
-					'<div id="grid_'+ this.name +'_status" class="w2ui-lock-msg"></div>'
-				);
-				setTimeout(function () {
-					var lock 	= $('#grid_'+ obj.name +'_lock');
-					var status 	= $('#grid_'+ obj.name +'_status');
-					status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
-					lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-					setTimeout(function () {
-						var left 	= ($(obj.box).width()  - w2utils.getSize(status, 'width')) / 2;
-						var top 	= ($(obj.box).height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
-						lock.css({
-							opacity : lock.data('old_opacity'),
-							left 	: '0px',
-							top 	: '0px',
-							width 	: '100%',
-							height 	: '100%'
-						});
-						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
-						status.html(msg).css({
-							opacity : status.data('old_opacity'),
-							left	: left + 'px',
-							top		: top + 'px'
-						});
-					}, 10);
-				}, 10);
-			}
-			// hide all overlay and tags
-			$().w2tag();
-			$().w2overlay();
+			var box = $(this.box).find('> div:first-child');
+			w2utils.lock(box, msg, showSpinner);
 		},
 
 		unlock: function () { 
-			this.lock(); 
+			var obj = this;
+			setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
 		},
 
 		parseObj: function (obj, field) {
@@ -6046,61 +6060,21 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		lock: function (panel, msg, showSpinner) {
-			var obj = this;
-			if (panel == null) return;
-			if (!msg && msg != 0) msg = '';
-			if ($.inArray(panel, ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
+			if ($.inArray(String(panel), ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
-			var nm = '#layout_'+ obj.name + '_panel_' + panel;
-			if (!msg) {
-				setTimeout(function () {
-					$(nm +'_lock').remove();
-					$(nm +'_status').remove();
-				}, 25);
-			} else {
-				if (obj.get(panel).hidden == true && msg != '') {
-					console.log('ERROR: Cannot lock '+ panel +' panel because it is not visible.');
-					return;
-				}
-				$(nm +'_lock').remove();
-				$(nm +'_status').remove();
-				$(nm).find('> :first-child').before(
-					'<div id="'+ nm.substr(1) +'_lock" class="w2ui-lock"></div>'+
-					'<div id="'+ nm.substr(1) +'_status" class="w2ui-lock-msg"></div>'
-				);
-				setTimeout(function () {
-					var lock 	= $(nm +'_lock');
-					var status 	= $(nm +'_status');
-					status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
-					lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-					setTimeout(function () {
-						var left 	= ($(nm).width()  - w2utils.getSize(status, 'width')) / 2;
-						var top 	= ($(nm).height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
-						lock.css({
-							opacity : lock.data('old_opacity'),
-							left 	: '0px',
-							top 	: '0px',
-							width 	: '100%',
-							height 	: '100%'
-						});
-						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
-						status.html(msg).css({
-							opacity : status.data('old_opacity'),
-							left	: left + 'px',
-							top		: top + 'px'
-						});
-					}, 10);
-				}, 10);
-			}
-			// hide all overlay and tags
-			$().w2tag();
-			$().w2overlay();
+			var nm = '#layout_'+ this.name + '_panel_' + panel;
+			w2utils.lock(nm, msg, showSpinner);
 		},
 
 		unlock: function (panel) { 
-			this.lock(panel); 
+			if ($.inArray(String(panel), ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
+				console.log('ERROR: First parameter needs to be the a valid panel name.');
+				return;
+			}
+			var nm = '#layout_'+ this.name + '_panel_' + panel;
+			w2utils.unlock(nm);
 		},		
 		
 		// --- INTERNAL FUNCTIONS
@@ -6689,54 +6663,12 @@ var w2popup = {};
 		},
 
 		lock: function (msg, showSpinner) {
-			var obj = this;
-			// default behavior
-			if (typeof msg == 'undefined' || msg == '') {
-				setTimeout(function () {
-					$('#w2ui-popup-lock').remove();
-					$('#w2ui-popup-status').remove();
-				}, 25);
-			} else {
-				$('#w2ui-popup-lock').remove();
-				$('#w2ui-popup-status').remove();
-				$('#w2ui-popup').find('> :first-child').before(
-					'<div id="w2ui-popup-lock" class="w2ui-lock"></div>'+
-					'<div id="w2ui-popup-status" class="w2ui-lock-msg"></div>'
-				);
-				setTimeout(function () {
-					var lock 	= $('#w2ui-popup-lock');
-					var status 	= $('#w2ui-popup-status');
-					status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
-					lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-					setTimeout(function () {
-						console.log(w2utils.getSize(status, 'width'));
-						var left 	= ($('#w2ui-popup').width()  - w2utils.getSize(status, 'width')) / 2;
-						var top 	= ($('#w2ui-popup').height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
-						lock.css({
-							opacity : lock.data('old_opacity'),
-							left 	: '0px',
-							top 	: '0px',
-							width 	: '100%',
-							height 	: '100%'
-						});
-						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
-						console.log('show', status, left, top);
-						status.html(msg).css({
-							opacity : status.data('old_opacity'),
-							left	: left + 'px',
-							top		: top + 'px'
-						});
-					}, 10);
-				}, 10);
-			}
-			// hide all overlay and tags
-			$().w2tag();
-			$().w2overlay();
+			w2utils.lock($('#w2ui-popup'), msg, showSpinner);
 		},
 
 		unlock: function () { 
-			this.lock(); 
-		},		
+			w2utils.unlock($('#w2ui-popup'));
+		},
 		
 		// --- INTERNAL FUNCTIONS
 		
@@ -6997,8 +6929,9 @@ var w2confirm = function (msg, title, callBack) {
 *   - on overflow display << >>
 * 	- individual tab onClick (possibly other events) are not working
 *
-* == NICE TO HAVE ==
+* == 1.3 changes ==
 *	- doClick -> click, doClose -> animateClose, doInsert -> animateInsert
+*	- added get() - w/o parametes return all
 *
 ************************************************************************/
 
@@ -7140,6 +7073,11 @@ var w2confirm = function (msg, title, callBack) {
 		},
 		
 		get: function (id, returnIndex) {
+			if (arguments.length == 0) {
+				var all = [];
+				for (var i = 0; i < this.tabs.length; i++) if (this.tabs[i].id != null) all.push(this.tabs[i].id);
+				return all;
+			}
 			for (var i in this.tabs) {
 				if (this.tabs[i].id == id) { 
 					if (returnIndex === true) return i; else return this.tabs[i]; 
@@ -7405,6 +7343,7 @@ var w2confirm = function (msg, title, callBack) {
 * == 1.3 Changes ==
 * 	- doClick -> click, doMenuClick -> menuClick
 *	- deprecated getMenuHTML() due to its use in w2menu
+*	- added get() - w/o parametes return all
 * 
 ************************************************************************/
 
@@ -7551,6 +7490,11 @@ var w2confirm = function (msg, title, callBack) {
 		},
 		
 		get: function (id, returnIndex) {
+			if (arguments.length == 0) {
+				var all = [];
+				for (var i = 0; i < this.items.length; i++) if (this.items[i].id != null) all.push(this.items[i].id);
+				return all;
+			}
 			for (var i = 0; i < this.items.length; i++) {
 				if (this.items[i].id == id) { 
 					if (returnIndex === true) return i; else return this.items[i]; 
@@ -7558,7 +7502,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			return null;
 		},
-			
+
 		show: function (id) {
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -7904,6 +7848,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
+*	- return ids of all subitems
 *
 * == 1.3 Changes ==
 *	- animated open/close
@@ -7915,6 +7860,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - better keyboard navigation (<- ->, space, enter)
 *	- added context menu see menuClick(), onMenuClick event, menu property 
 *	- added scrollIntoView()
+*	- added lock() and unlock()
 *
 ************************************************************************/
 
@@ -8142,7 +8088,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			return this._tmp;
 		},
-		
+
 		hide: function () { // multiple arguments
 			var hidden = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -8641,7 +8587,16 @@ var w2confirm = function (msg, title, callBack) {
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));	
-		}				
+		},
+
+		lock: function (msg, showSpinner) {
+			var box = $(this.box).find('> div:first-child');
+			w2utils.lock(box, msg, showSpinner);
+		},
+
+		unlock: function () { 
+			w2utils.unlock(this.box);
+		}
 	}
 	
 	$.extend(w2sidebar.prototype, $.w2event);
@@ -8660,6 +8615,7 @@ var w2confirm = function (msg, title, callBack) {
 *	- enum needs events onItemClick, onItemOver, etc just like upload
 *	- upload (regular files)
 *	- enum - refresh happens on each key press even if not needed (for speed)
+*	- BUG with prefix/postfix and arrows (test in different contexts)
 * 
 * == 1.3 changes ==
 *	- select type has options.url to pull from server
@@ -10662,50 +10618,13 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		lock: function (msg, showSpinner) {
-			var obj = this;
-			if (typeof msg == 'undefined' || msg == '') {
-				setTimeout(function () {
-					$('#form_'+ obj.name +'_lock').remove();
-					$('#form_'+ obj.name +'_status').remove();
-				}, 25);
-			} else {
-				$('#form_'+ obj.name +'_lock').remove();
-				$('#form_'+ obj.name +'_status').remove();
-				$(this.box).find('> div :first-child').before(
-					'<div id="form_'+ obj.name +'_lock" class="w2ui-lock"></div>'+
-					'<div id="form_'+ obj.name +'_status" class="w2ui-lock-msg"></div>'
-				);
-				setTimeout(function () {
-					var lock 	= $('#form_'+ obj.name +'_lock');
-					var status 	= $('#form_'+ obj.name +'_status');
-					status.data('old_opacity', status.css('opacity')).css('opacity', '0').show();
-					lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-					setTimeout(function () {
-						var left 	= ($(obj.box).width()  - w2utils.getSize(status, 'width')) / 2;
-						var top 	= ($(obj.box).height() * 0.9 - w2utils.getSize(status, 'height')) / 2;
-						lock.css({
-							opacity : lock.data('old_opacity'),
-							left 	: '0px',
-							top 	: '0px',
-							width 	: '100%',
-							height 	: '100%'
-						});
-						if (showSpinner === true) msg = '<div class="w2ui-spinner"></div>' + msg;
-						status.html(msg).css({
-							opacity : status.data('old_opacity'),
-							left	: left + 'px',
-							top		: top + 'px'
-						});
-					}, 10);
-				}, 10);
-			}
-			// hide all overlay and tags
-			$().w2tag();
-			$().w2overlay();
+			var box = $(this.box).find('> div:first-child');
+			w2utils.lock(box, msg, showSpinner);
 		},
 
-		unlock: function() {
-			this.lock();
+		unlock: function () { 
+			var obj = this;
+			setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
 		},
 
 		goto: function (page) {
