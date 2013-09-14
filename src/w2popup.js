@@ -222,8 +222,89 @@ var w2popup = {};
 			$('#w2ui-popup').data('options', options);
 			// keyboard events 
 			if (options.keyboard) $(document).on('keydown', this.keydown);
-			// finalize
-			this.initMove();			
+
+			// initialize move
+			var tmp = { resizing: false };
+			$('#w2ui-popup .w2ui-msg-title')
+				.on('mousedown', function (event) { mvStart(event); })
+				.on('mousemove', function (event) { mvMove(event); })
+				.on('mouseup',   function (event) { mvStop(event); });
+			$('#w2ui-popup .w2ui-msg-body')
+				.on('mousemove', function (event) { mvMove(event); })
+				.on('mouseup',   function (event) { mvStop(event); });
+			$('#w2ui-lock')
+				.on('mousemove', function (event) { mvMove(event); })
+				.on('mouseup',   function (event) { mvStop(event); });
+
+			// handlers
+			function mvStart(event) {
+				if (!event) event = window.event;
+				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
+				tmp.resizing = true;
+				tmp.tmp_x = event.screenX;
+				tmp.tmp_y = event.screenY;
+				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+				if (event.preventDefault) event.preventDefault(); else return false;
+			}
+			
+			function mvMove(evnt) {
+				if (tmp.resizing != true) return;
+				if (!evnt) evnt = window.event;
+				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x); 
+				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y); 
+				$('#w2ui-popup').css({
+					'-webkit-transition': 'none',
+					'-webkit-transform': 'translate3d('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px, 0px)',
+					'-moz-transition': 'none',
+					'-moz-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)',
+					'-ms-transition': 'none',
+					'-ms-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)',
+					'-o-transition': 'none',
+					'-o-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)'
+				});
+				$('#w2ui-panel').css({
+					'-webkit-transition': 'none',
+					'-webkit-transform': 'translate3d('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px, 0px)',
+					'-moz-transition': 'none',
+					'-moz-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)',
+					'-ms-transition': 'none',
+					'-ms-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px',
+					'-o-transition': 'none',
+					'-o-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)'
+				});
+			}
+		
+			function mvStop(evnt) {
+				if (tmp.resizing != true) return;
+				if (!evnt) evnt = window.event;
+				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x); 
+				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y); 			
+				$('#w2ui-popup').css({
+					'-webkit-transition': 'none',
+					'-webkit-transform': 'translate3d(0px, 0px, 0px)',
+					'-moz-transition': 'none',
+					'-moz-transform': 'translate(0px, 0px)',
+					'-ms-transition': 'none',
+					'-ms-transform': 'translate(0px, 0px)',
+					'-o-transition': 'none',
+					'-o-transform': 'translate(0px, 0px)',
+					'left': (parseInt($('#w2ui-popup').css('left')) + parseInt(tmp.tmp_div_x)) + 'px',
+					'top':	(parseInt($('#w2ui-popup').css('top'))  + parseInt(tmp.tmp_div_y)) + 'px'
+				});
+				$('#w2ui-panel').css({
+					'-webkit-transition': 'none',
+					'-webkit-transform': 'translate3d(0px, 0px, 0px)',
+					'-moz-transition': 'none',
+					'-moz-transform': 'translate(0px, 0px)',
+					'-ms-transition': 'none',
+					'-ms-transform': 'translate(0px, 0px)',
+					'-o-transition': 'none',
+					'-o-transform': 'translate(0px, 0px)',
+					'left': (parseInt($('#w2ui-panel').css('left')) + parseInt(tmp.tmp_div_x)) + 'px',
+					'top':	(parseInt($('#w2ui-panel').css('top'))  + parseInt(tmp.tmp_div_y)) + 'px'
+				});
+				tmp.resizing = false;
+			}		
 			return this;		
 		},
 
@@ -440,7 +521,8 @@ var w2popup = {};
 		lockScreen: function (options) {
 			if ($('#w2ui-lock').length > 0) return false;
 			if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
-			if (typeof options == 'undefined') options = $.extend({}, w2popup.defaults);
+			if (typeof options == 'undefined') options = {};
+			options = $.extend({}, w2popup.defaults, options);
 			// show element
 			$('body').append('<div id="w2ui-lock" '+
 				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; if (event.preventDefault) event.preventDefault(); else return false;"'+
@@ -501,21 +583,7 @@ var w2popup = {};
 			}, options.speed * 1000); 
 			return true;
 		},
-	
-		initMove: function () {
-			var obj = this;
-			$('#w2ui-popup .w2ui-msg-title')
-				.on('mousedown', function () { obj.startMove.apply(obj, arguments); })
-				.on('mousemove', function () { obj.doMove.apply(obj, arguments); })
-				.on('mouseup',   function () { obj.stopMove.apply(obj, arguments); });
-			$('#w2ui-popup .w2ui-msg-body')
-				.on('mousemove', function () { obj.doMove.apply(obj, arguments); })
-				.on('mouseup',   function () { obj.stopMove.apply(obj, arguments); });
-			$('#w2ui-lock')
-				.on('mousemove', function () { obj.doMove.apply(obj, arguments); })
-				.on('mouseup',   function () { obj.stopMove.apply(obj, arguments); });
-		},
-	
+		
 		resize: function (width, height, callBack) {
 			var options = $('#w2ui-popup').data('options');
 			// calculate new position
@@ -539,76 +607,7 @@ var w2popup = {};
 					callBack();
 				}, options.speed * 1000);
 			}
-		},
-		
-		startMove: function (event) {
-			if (!event) event = window.event;
-			if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
-			this.resizing = true;
-			this.tmp_x = event.screenX;
-			this.tmp_y = event.screenY;
-			if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-			if (event.preventDefault) event.preventDefault(); else return false;
-		},
-		
-		doMove: function (evnt) {
-			if (this.resizing != true) return;
-			if (!evnt) evnt = window.event;
-			this.tmp_div_x = (evnt.screenX - this.tmp_x); 
-			this.tmp_div_y = (evnt.screenY - this.tmp_y); 
-			$('#w2ui-popup').css({
-				'-webkit-transition': 'none',
-				'-webkit-transform': 'translate3d('+ this.tmp_div_x +'px, '+ this.tmp_div_y +'px, 0px)',
-				'-moz-transition': 'none',
-				'-moz-transform': 'translate('+ this.tmp_div_x +'px, '+ this.tmp_div_y +'px)',
-				'-ms-transition': 'none',
-				'-ms-transform': 'translate('+ this.tmp_div_x +'px, '+ this.tmp_div_y +'px)',
-				'-o-transition': 'none',
-				'-o-transform': 'translate('+ this.tmp_div_x +'px, '+ this.tmp_div_y +'px)'
-			});
-			$('#w2ui-panel').css({
-				'-webkit-transition': 'none',
-				'-webkit-transform': 'translate3d('+ this.tmp_div_x +'px, '+ this.tmp_div_y +'px, 0px)',
-				'-moz-transition': 'none',
-				'-moz-transform': 'translate('+ this.tmp_div_x +'px, '+ this.tmp_div_y +'px)',
-				'-ms-transition': 'none',
-				'-ms-transform': 'translate('+ this.tmp_div_x +'px, '+ this.tmp_div_y +'px',
-				'-o-transition': 'none',
-				'-o-transform': 'translate('+ this.tmp_div_x +'px, '+ this.tmp_div_y +'px)'
-			});
-		},
-	
-		stopMove: function (evnt) {
-			if (this.resizing != true) return;
-			if (!evnt) evnt = window.event;
-			this.tmp_div_x = (evnt.screenX - this.tmp_x); 
-			this.tmp_div_y = (evnt.screenY - this.tmp_y); 			
-			$('#w2ui-popup').css({
-				'-webkit-transition': 'none',
-				'-webkit-transform': 'translate3d(0px, 0px, 0px)',
-				'-moz-transition': 'none',
-				'-moz-transform': 'translate(0px, 0px)',
-				'-ms-transition': 'none',
-				'-ms-transform': 'translate(0px, 0px)',
-				'-o-transition': 'none',
-				'-o-transform': 'translate(0px, 0px)',
-				'left': (parseInt($('#w2ui-popup').css('left')) + parseInt(this.tmp_div_x)) + 'px',
-				'top':	(parseInt($('#w2ui-popup').css('top'))  + parseInt(this.tmp_div_y)) + 'px'
-			});
-			$('#w2ui-panel').css({
-				'-webkit-transition': 'none',
-				'-webkit-transform': 'translate3d(0px, 0px, 0px)',
-				'-moz-transition': 'none',
-				'-moz-transform': 'translate(0px, 0px)',
-				'-ms-transition': 'none',
-				'-ms-transform': 'translate(0px, 0px)',
-				'-o-transition': 'none',
-				'-o-transform': 'translate(0px, 0px)',
-				'left': (parseInt($('#w2ui-panel').css('left')) + parseInt(this.tmp_div_x)) + 'px',
-				'top':	(parseInt($('#w2ui-panel').css('top'))  + parseInt(this.tmp_div_y)) + 'px'
-			});
-			delete this.resizing;
-		}		
+		}
 	}
 
 	// merge in event handling
