@@ -333,11 +333,11 @@
 		},
 	
 		expand: function (id) {
+			var nd = this.get(id);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id });	
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
 			if (eventData.isCancelled === true) return false;
 			// default action
-			var nd = this.get(id);
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
 			nd.expanded = true;
@@ -347,13 +347,14 @@
 		},
 		
 		collapse: function (id) {
+			var nd = this.get(id);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id });	
+			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp('fast');		
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
-			this.get(id).expanded = false;
+			nd.expanded = false;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.resize();
@@ -403,7 +404,7 @@
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event });	
+				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: nd });	
 				if (eventData.isCancelled === true) {
 					// restore selection
 					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
@@ -521,11 +522,11 @@
 
 		dblClick: function (id, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			var nd = this.get(id);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			var nd = this.get(id);
 			if (nd.nodes.length > 0) this.toggle(id);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -533,24 +534,26 @@
 	
 		contextMenu: function (id, event) {
 			var obj = this;
-			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event });	
-			if (eventData.isCancelled === true) return false;		
-			// default action
-			var nd = obj.get(id);
+			var nd  = obj.get(id);
 			if (id != obj.selected) obj.click(id);
-			if (nd.group || nd.disabled) return;
-			if (obj.menu.length > 0) {
-				$(obj.box).find('#node_'+ w2utils.escapeId(id))
-					.w2menu(obj.menu, { 
-						left: (event.offsetX || event.pageX) - 25,
-						select: function (item, event, index) { obj.menuClick(id, event, index); }
-					}
-				);
-			}
-			// event after
-			obj.trigger($.extend(eventData, { phase: 'after' }));
-			return;
+			// need timeout to allow click to finish first
+			setTimeout(function () {
+				// event before
+				var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });	
+				if (eventData.isCancelled === true) return false;		
+				// default action
+				if (nd.group || nd.disabled) return;
+				if (obj.menu.length > 0) {
+					$(obj.box).find('#node_'+ w2utils.escapeId(id))
+						.w2menu(obj.menu, { 
+							left: (event.offsetX || event.pageX) - 25,
+							select: function (item, event, index) { obj.menuClick(id, event, index); }
+						}
+					);
+				}
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}, 1);	
 		},
 
 		menuClick: function (itemId, event, index) {

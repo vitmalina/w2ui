@@ -222,7 +222,7 @@
 				for (var i in this.tabs) this.refresh(this.tabs[i].id);
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), tab: this.get(id) });	
+			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), object: this.get(id) });
 			if (eventData.isCancelled === true) return false;
 			// create or refresh only one item
 			var tab = this.get(id);
@@ -320,7 +320,7 @@
 			var tab = this.get(id);
 			if (tab == null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: this.get(id), originalEvent: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, object: this.get(id), originalEvent: event });	
 			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
@@ -334,7 +334,7 @@
 			var tab = this.get(id);
 			if (tab == null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, tab: this.get(id), originalEvent: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });	
 			if (eventData.isCancelled === true) return false;
 			// default action
 			var obj = this;

@@ -14,6 +14,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *	- overlay should be displayed where more space (on top or on bottom)
 * 	- write and article how to replace certain framework functions
+*	- format date and time is buggy
 *
 * == 1.3 changes ==
 *	- fixed locale() bugs, made asynch
@@ -815,19 +816,19 @@ $.w2event = {
 		if (typeof eventData.target == 'undefined') eventData.target = null;		
 		// process events in REVERSE order 
 		for (var h = this.handlers.length-1; h >= 0; h--) {
-			var fun = this.handlers[h];
-			if ( (fun.event.type == eventData.type || fun.event.type == '*') 
-					&& (fun.event.target == eventData.target || fun.event.target == null)
-					&& (fun.event.execute == eventData.phase || fun.event.execute == '*' || fun.event.phase == '*') ) {
-				eventData = $.extend({}, fun.event, eventData);
+			var item = this.handlers[h];
+			if ( (item.event.type == eventData.type || item.event.type == '*') 
+					&& (item.event.target == eventData.target || item.event.target == null)
+					&& (item.event.execute == eventData.phase || item.event.execute == '*' || item.event.phase == '*') ) {
+				eventData = $.extend({}, item.event, eventData);
 				// check handler arguments
 				var args = [];
-				var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun.handler);
-				if (tmp) args = tmp[2].split(/\s*,\s*/);
+				var tmp  = RegExp(/\((.*?)\)/).exec(item.handler);
+				if (tmp) args = tmp[1].split(/\s*,\s*/);
 				if (args.length == 2) {
-					fun.handler.call(this, eventData.target, eventData); // old way for back compatibility
+					item.handler.call(this, eventData.target, eventData); // old way for back compatibility
 				} else {
-					fun.handler.call(this, eventData); // new way
+					item.handler.call(this, eventData); // new way
 				}
 				if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 			}
@@ -838,8 +839,8 @@ $.w2event = {
 			var fun = this[funName];
 			// check handler arguments
 			var args = [];
-			var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun);
-			if (tmp) args = tmp[2].split(/\s*,\s*/);
+			var tmp  = RegExp(/\((.*?)\)/).exec(fun);
+			if (tmp) args = tmp[1].split(/\s*,\s*/);
 			if (args.length == 2) {
 				fun.call(this, eventData.target, eventData); // old way for back compatibility
 			} else {
@@ -853,8 +854,8 @@ $.w2event = {
 			var fun = eventData.object[funName];
 			// check handler arguments
 			var args = [];
-			var tmp  = RegExp(/function(.)*\(([^)]+)/).exec(fun);
-			if (tmp) args = tmp[2].split(/\s*,\s*/);
+			var tmp  = RegExp(/\((.*?)\)/).exec(fun);
+			if (tmp) args = tmp[1].split(/\s*,\s*/);
 			if (args.length == 2) {
 				fun.call(this, eventData.target, eventData); // old way for back compatibility
 			} else {

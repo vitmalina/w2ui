@@ -203,7 +203,7 @@
 		show: function (panel, immediate) {
 			var obj = this;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, panel: this.get(panel), immediate: immediate });	
+			var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, object: this.get(panel), immediate: immediate });	
 			if (eventData.isCancelled === true) return false;
 	
 			var p = obj.get(panel);
@@ -247,7 +247,7 @@
 		hide: function (panel, immediate) {
 			var obj = this;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, panel: this.get(panel), immediate: immediate });	
+			var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, object: this.get(panel), immediate: immediate });	
 			if (eventData.isCancelled === true) return false;
 	
 			var p = obj.get(panel);
@@ -402,7 +402,7 @@
 			if (typeof panel == 'undefined') panel = null;
 			var time = (new Date()).getTime();
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (typeof panel != 'undefined' ? panel : obj.name), panel: obj.get(panel) });	
+			var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (typeof panel != 'undefined' ? panel : obj.name), object: obj.get(panel) });	
 			if (eventData.isCancelled === true) return;
 	
 			obj.unlock(panel);

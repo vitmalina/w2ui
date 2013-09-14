@@ -20,9 +20,11 @@ $(function () {
 		onMenuClick: function (event) {
 			console.log(event);
 		},
+		onKeyboard: function (event) { console.log('keyboard', event); event.preventDefault(); },
 		nodes: [ 
-			{ id: 'level-1', text: 'Level 1', expanded: true, group: true,
-			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img1: 'icon-add', icon: 'fa-star', count: 1 },
+			{ id: 'level-1', text: 'Level 1', expanded: true, group: true, 
+			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img1: 'icon-add', icon: 'fa-star', count: 1, 
+			  				onClick: function (event) { console.log('item', event); } },
 					   { id: 'level-1-2', text: 'Level 1.2', img1: 'icon-save', icon: 'fa-camera', count: 'some' },
 					   { id: 'level-1-3', text: 'Level 1.3', img: 'icon-delete', disabled1: true }
 					 ]
@@ -73,8 +75,7 @@ $(function () {
 			}
 		],
 		onClick: function (event) {
-			// console.log(event.target);
-			// console.log(event);
+			console.log('click', event.target, event);
 		}
 	});
 });

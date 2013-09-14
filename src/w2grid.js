@@ -3060,9 +3060,10 @@
 				// ------ Toolbar onClick processing
 
 				var obj = this;
-				this.toolbar.on('click', function (id, data) {
-					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: id, data: data });
+				this.toolbar.on('click', function (event) {
+					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
 					if (eventData.isCancelled === true) return false;
+					var id = event.target;
 					switch (id) {
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
@@ -3090,7 +3091,7 @@
 								setTimeout(function () { tb.uncheck(id); }, 1);
 							} else {
 								obj.searchOpen();
-								data.originalEvent.stopPropagation();
+								event.originalEvent.stopPropagation();
 								function tmp_close() { tb.uncheck(id); $(document).off('click', 'body', tmp_close); }
 								$(document).on('click', 'body', tmp_close);
 							}

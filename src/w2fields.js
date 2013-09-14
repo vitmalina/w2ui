@@ -12,6 +12,7 @@
 *	- upload (regular files)
 *	- enum - refresh happens on each key press even if not needed (for speed)
 *	- BUG with prefix/postfix and arrows (test in different contexts)
+*	- multiple date selection
 * 
 * == 1.3 changes ==
 *	- select type has options.url to pull from server

@@ -37,7 +37,7 @@ $(function () {
 					]
 				}
 			},
-			{ type: 'right', size: '20%', resizable: true },
+			{ type: 'right', size: '20%', resizable: true, onHide: function (event) { console.log('hide right'); } },
 			{ type: 'preview', size: '50%', resizable: true,
 				tabs1: {
 					active : 'tab3',
