@@ -1,0 +1,22 @@
+Formats a number adding commas.
+
+<div class="definition">
+	w2utils.formatNumber(val)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>val</td>
+		<td><b>string</b> or <b>number</b>, a number to format</td>
+	</tr>
+	</table>
+</div>
+
+The <span class="argument">val</span> argument can be an integer, float on in money format. The method will add commas after each there
+digits
+
+<textarea class="javascript">
+var a = w2utils.formatNumber('$1234095.04');
+console.log(a);
+</textarea>

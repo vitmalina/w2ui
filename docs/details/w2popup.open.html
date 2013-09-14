@@ -1,13 +1,31 @@
 Opens new popup or transitions to new content.
 
 <div class="definition">
-	$().w2popup(options);
+	open(options);
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>options</td>
+		<td><b>object</b>, options for the popup</td>
+	</tr>
+	</table>
 </div>
 
 OR 
 
 <div class="definition">
-	$().w2popup('open', options);
+	$('#id-content').w2popup('open', options);
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>options</td>
+		<td><b>object</b>, options for the popup</td>
+	</tr>
+	</table>
 </div>
 
 <h4>Description</h4>
@@ -20,7 +38,7 @@ for valid options). Please note that options will not be replaces, but extended.
 width/height (or any other property) in the following way:
 
 <textarea class="javascript">
-$().w2popup('open', { width: 500, height: 200 });
+w2popup.open({ width: 500, height: 200 });
 </textarea>
 
 This method will trigger <span class="argument">onOpen</span> or <span class="argument">onChange</span> event depending if the popup
@@ -30,7 +48,7 @@ was just opened or it was transitioned to the new content.
 You can open popup defining everything in JavaScript
 
 <textarea class="javascript">
-$().w2popup({
+w2popup.open({
 	title   : 'Popup Title HTML',
 	body    : 'Body HTML',
 	buttons : 'Buttons HTML',
@@ -83,7 +101,7 @@ Same rules apply if you load popup from the server. When you are loading from th
 <span class="argument">#id</span> at the end of your url. This allows to select a particular popup element, if server returns multiple in
 the same file.
 <textarea class="javascript">
-$().w2popup('load', { url: 'server/url/page.html#popup' });
+w2popup.load({ url: 'server/url/page.html#popup' });
 </textarea>
 
 See <a class="argument" href="w2popup.load">load</a> method.

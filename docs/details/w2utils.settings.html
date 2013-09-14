@@ -4,8 +4,7 @@ Global settings for w2ui
 	w2utils.settings, default see below
 </div>
 
-Various settings used in w2ui library. Majority of them is used with <a class="method" href="w2utils.locale">.locale()</a> 
-method. This variable is a map of settings that has following format:
+There is a number of default settings used across w2ui library. The setting object is a map of the following structrue:
 
 <textarea class="javascript">
 settings : {
@@ -24,3 +23,6 @@ settings : {
 	phrases       : {}      // empty object for phrases
 }
 </textarea>
+
+You can define and load settings based on your locale. See <a class="method" href="w2utils.locale">.locale()</a> method
+for more information. All locale specific files are located in the /src/locale folder on github.com

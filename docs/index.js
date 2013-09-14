@@ -17,49 +17,37 @@ $(function () {
 				{ id: 'w2layout-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2layout-methods', text: 'Methods', icon: 'fa-cog' }
 			]},
-			{ id: 'w2grid', text: 'w2grid', img: 'icon-folder', group1: true, expanded1: true, nodes: [
+			{ id: 'w2grid', text: 'w2grid', img: 'icon-folder', group1: true, nodes: [
 				{ id: 'w2grid-events', text: 'Events', icon: 'fa-tag' },
 				{ id: 'w2grid-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2grid-methods', text: 'Methods', icon: 'fa-cog' }
 			] },
-			{ id: 'w2toolbar', text: 'w2toolbar', img: 'icon-folder', group1: true, expanded1: true, nodes: [
+			{ id: 'w2toolbar', text: 'w2toolbar', img: 'icon-folder', group1: true, nodes: [
 				{ id: 'w2toolbar-events', text: 'Events', icon: 'fa-tag' },
 				{ id: 'w2toolbar-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2toolbar-methods', text: 'Methods', icon: 'fa-cog' }
 			] },
-			{ id: 'w2sidebar', text: 'w2sidebar', img: 'icon-folder', group1: true, expanded1: true, nodes: [
+			{ id: 'w2sidebar', text: 'w2sidebar', img: 'icon-folder', group1: true, nodes: [
 				{ id: 'w2sidebar-events', text: 'Events', icon: 'fa-tag' },
 				{ id: 'w2sidebar-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2sidebar-methods', text: 'Methods', icon: 'fa-cog' }
 			] },
-			{ id: 'w2tabs', text: 'w2tabs', img: 'icon-folder', group1: true, expanded1: true, nodes: [
+			{ id: 'w2tabs', text: 'w2tabs', img: 'icon-folder', group1: true, nodes: [
 				{ id: 'w2tabs-events', text: 'Events', icon: 'fa-tag' },
 				{ id: 'w2tabs-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2tabs-methods', text: 'Methods', icon: 'fa-cog' }
 			] },
-			{ id: 'w2form', text: 'w2form', img: 'icon-folder', group1: true, expanded1: true , nodes: [
+			{ id: 'w2form', text: 'w2form', img: 'icon-folder', group1: true, nodes: [
 				{ id: 'w2form-events', text: 'Events', icon: 'fa-tag' },
 				{ id: 'w2form-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2form-methods', text: 'Methods', icon: 'fa-cog' }
 			]},
-			{ id: 'w2popup', text: 'w2popup', img: 'icon-folder', group1: true, expanded1: true, nodes: [
-				{ id: 'w2popup-methods', text: 'Methods', icon: 'fa-cog', 
-					nodes: [
-						{ id: 'w2popup.clear', text: 'clear', icon: 'fa-cog' },
-						{ id: 'w2popup.close', text: 'close', icon: 'fa-cog' },
-						{ id: 'w2popup.get', text: 'get', icon: 'fa-cog' },
-						{ id: 'w2popup.load', text: 'load', icon: 'fa-cog' },
-						{ id: 'w2popup.max', text: 'max', icon: 'fa-cog' },
-						{ id: 'w2popup.message', text: 'message', icon: 'fa-cog' },
-						{ id: 'w2popup.min', text: 'min', icon: 'fa-cog' },
-						{ id: 'w2popup.open', text: 'open', icon: 'fa-cog' },
-						{ id: 'w2popup.reset', text: 'reset', icon: 'fa-cog' },
-						{ id: 'w2popup.set', text: 'set', icon: 'fa-cog' },
-						{ id: 'w2popup.toggle', text: 'toggle', icon: 'fa-cog' }
-					]
-				}
+			{ id: 'w2popup', text: 'w2popup', img: 'icon-folder', group1: true, nodes: [
+				{ id: 'w2popup-events', text: 'Events', icon: 'fa-tag' },
+				{ id: 'w2popup-props', text: 'Properties', icon: 'fa-star-empty' },
+				{ id: 'w2popup-methods', text: 'Methods', icon: 'fa-cog' }
 			] },
-			{ id: 'w2utils', text: 'w2utils', img: 'icon-folder', group1: true, expanded1: true, nodes: [
+			{ id: 'w2utils', text: 'w2utils', img: 'icon-folder', group1: true, nodes: [
 				{ id: 'w2utils-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2utils-methods', text: 'Methods', icon: 'fa-cog' }
 			] }
@@ -86,6 +74,7 @@ $(function () {
 	init('toolbar');
 	init('tabs');
 	init('form');
+	initPopup();
 
 	// utils
 	var methods = [];
@@ -111,6 +100,7 @@ $(function () {
 			//console.log('---' + methods[o]);
 			nodes.push({ id: 'w2'+ type +'.' + methods[o], text: methods[o], icon: 'fa-cog' });
 		}
+		// add to tree
 		w2ui['docs'].add('w2'+ type +'-methods', nodes);
 		var nodes1 = [];
 		var nodes2 = [];
@@ -125,6 +115,27 @@ $(function () {
 		}
 		w2ui['docs'].add('w2'+ type +'-events', nodes1);
 		w2ui['docs'].add('w2'+ type +'-props', nodes2);
+	}
+
+	function initPopup () {
+		var methods = [];
+		var events  = [];
+		var props   = [];
+		for (var m in w2popup) {
+			if (m.substr(0,2) == 'on' && m != 'on') {
+				events.push({ id: 'w2popup.' + m, text: m, icon: 'fa-tag' });
+			} else if (typeof w2popup[m] == 'function') {
+				methods.push({ id: 'w2popup.' + m, text: m, icon: 'fa-cog' });
+			} else {
+				props.push({ id: 'w2popup.' + m, text: m, icon: 'fa-star-empty' });
+			}
+		}
+		methods.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
+		events.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
+		props.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
+		w2ui.docs.set('w2popup-events', { nodes: events });
+		w2ui.docs.set('w2popup-props', { nodes: props });
+		w2ui.docs.set('w2popup-methods', { nodes: methods });
 	}
 
 	// show latest hash
@@ -156,7 +167,7 @@ function doClick (cmd, data) {
 		case 'render'	: cmd = 'common.render'; break;
 		case 'refresh'	: cmd = 'common.refresh'; break;
 		case 'destroy'	: cmd = 'common.destroy'; break;
-		case 'resize'	: cmd = 'common.resize'; break;
+		case 'resize'	: if (tmp[0] != 'w2popup') cmd = 'common.resize'; break;
 		case 'on'		: cmd = 'common.on'; break;
 		case 'off'		: cmd = 'common.off'; break;
 		case 'trigger'	: cmd = 'common.trigger'; break;

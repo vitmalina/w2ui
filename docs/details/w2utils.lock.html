@@ -1,0 +1,35 @@
+Locks HTML element.
+
+<div class="definition">
+	w2utils.lock(box, message, showSpinner)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>box</td>
+		<td><b>HTML Element</b> or <b>jQuery object</b>, box to lock</td>
+	</tr>
+	<tr>
+		<td>message</td>
+		<td><b>string</b>, message</td>
+	</tr>
+	<tr>
+		<td>showSpinner</td>
+		<td><b>boolean</b>, spinner indicator</td>
+	</tr>
+	</table>
+</div>
+
+The first argument <span class="method">box</span> is usually a div element (needs to be with absolute position) which will be locked. The second
+argument <span class="method">message</span> is the message to display. If second argument is null or blank, no message will be displayed
+at all. The third argument is <span class="method">message</span> is a boolean variable indicating whether to show the spinner.
+<div style="height: 10px"></div>
+
+This method is called from grid, sidebar, layout and popup to lock its content.
+<div style="height: 10px"></div>
+
+You can lock a div with:
+<textarea class="javascript">
+w2utils.lock(div, '', true);
+</textarea>

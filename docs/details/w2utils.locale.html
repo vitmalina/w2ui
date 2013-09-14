@@ -1,37 +1,25 @@
 Loads new locale
 
 <div class="definition">
-	w2utils.locale(locale, [callBack]);
+	w2utils.locale(locale);
 </div>
 
 <div class="arguments">
 	<table>
 	<tr>
 		<td>locale</td>
-		<td><b>string</b> or <b>object</b>, name of the locale or object with locale name and path</td>
-	</tr>
-	<tr>
-		<td>callBack</td>
-		<td><b>function</b>, call back function (<i>optional</i>)</td>
+		<td><b>string</b> or <b>path</b>, name of the locale or path to the locale file</td>
 	</tr>
 	</table>
 </div>
 
 <h4>Description</h4>
 
-All locale files are in the locale folder (see any one as an example). The first parameter can be a string or an object. If it is 
-a string (ex: ru-ru) it is the name of the locale. If it is an object then it has following structure:
-<textarea class="javascript">
-locale = {
-	path : 'locale',  // path where locale files are 
-	lang : 'en-US'    // name of the locale
-}
-</textarea>
+All locale files are in the /src/locale folder (see any one as an example). The first parameter can be a string or a path the the file. If it is 
+a string (ex: ru-ru) it is the name of the locale. The method will perform sunchronous load of the locale, so it will pause until locale is loaded.
+<div style="height: 10px"></div>
 
-For example:
+You can call in in the following way:
 <textarea class="javascript">
-w2utils.locale('ru-RU', function (data) {
-	console.log('Locale loaded');
-	console.log(data);
-});
+w2utils.locale('ru-ru');
 </textarea>

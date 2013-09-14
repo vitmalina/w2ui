@@ -1,21 +1,34 @@
 Returns the size or absolute position of the element in px including padding, margin and border.
 
 <div class="definition">
-	w2utils.getSize(el, type);
+	w2utils.getSize(el, type)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>el</td>
+		<td><b>HTML Element</b>, element to evaluate</td>
+	</tr>
+	<tr>
+		<td>type</td>
+		<td><b>string</b>, size type</td>
+	</tr>
+	</table>
 </div>
 
 The element does not need to be absolutely positioned, but it absolution position is calculated. First parameter 
 <span class="argument">el</span> is the element to be inspected (it can also be a jQuery object). Second parameter 
 <span class="argument">type</span> can be one of the following:
 <ul style="margin-left: 40px">
-	<li>width - the width of the element
-	<li>height - the height of the element
-	<li>+width - addition to width (padding, margin, border)
-	<li>+height - addition to height (padding, margin, border)
-	<li>left - the left coordinate of the element
-	<li>right - the right coordinate of the element
-	<li>top - the top coordinate of the element
-	<li>bottom - the bottom coordinate of the element
+	<li>width - the width of the element</li>
+	<li>height - the height of the element</li>
+	<li>+width - addition to width (padding, margin, border)</li>
+	<li>+height - addition to height (padding, margin, border)</li>
+	<li>left - the left coordinate of the element</li>
+	<li>right - the right coordinate of the element</li>
+	<li>top - the top coordinate of the element</li>
+	<li>bottom - the bottom coordinate of the element</li>
 </ul>
 
 <textarea class="javascript">

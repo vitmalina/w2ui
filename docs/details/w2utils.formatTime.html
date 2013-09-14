@@ -1,7 +1,7 @@
-Returns date in requested format.
+Returns time in requested format.
 
 <div class="definition">
-	w2utils.formatDate(dateStr, format)
+	w2utils.formatTime(dateStr, format)
 </div>
 
 <div class="arguments">
@@ -18,10 +18,9 @@ Returns date in requested format.
 </div>
 
 The <span class="argument">str</span> argument can be any standard date or unix epoch, which is used to
-create JavaScript Date object. The format can contain following elements: mm, dd, yyyy, mon in any order with
-any formatting characters. For example 'mm.dd.yyyy', 'dd-mm-yyyy', 'mon dd, yyyy'
+create JavaScript Date object. The format can contain following elements: h, h24, m, s, pm, am
 
 <textarea class="javascript">
-var a = w2utils.formatDate((new Date()), 'mm-dd-yyyy');
+var a = w2utils.formatTime((new Date()), 'h:m:s am');
 console.log(a);
 </textarea>

@@ -1,7 +1,7 @@
 Called when toolbar item is clicked. 
 
 <div class="definition">
-	onClick = function(target, eventData)
+	onClick = function(event)
 </div>
 
 You can add event listener during the object creation:
@@ -9,14 +9,13 @@ You can add event listener during the object creation:
 <textarea class="javascript">
 $('#toolbar').w2toolbar({
 	name  : 'toolbar',
-	right : 'text on the right',
 	items : [
 		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
 		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
 		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' }
 	],
-	onClick: function(target, eventData) {
-		console.log('item '+ target + ' is clicked.');
+	onClick: function(event) {
+		console.log('item '+ event.target + ' is clicked.');
 	}		
 });
 </textarea>
@@ -24,14 +23,17 @@ $('#toolbar').w2toolbar({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['toolbar'].on('click', function(target, eventData) {
-	console.log('item '+ target + ' is clicked.');
+w2ui.toolbar.on('click', function(event) {
+	console.log('item '+ event.target + ' is clicked.');
 });
 </textarea>
 
 You can add a listener to a toolbar item, see <a href="w2toolbar.items" class="property">.items</a> property. If toolbar
-item is a menu, then the <span class="argument">eventData</span> will have a reference to a menu item user clicked (if any).
+item is a menu, then the <span class="argument">event</span> will have a reference to a menu item user clicked (if any).
 <div style="height: 10px"></div>
 
-Your event listener can be executed before (default) or after the event default behavior has been processed or you can cancel 
-the default behavior. See <a href="utils/events">Events</a> page in utilities.
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action 
+after the event is fully processed, define <span class="method">event.onCompleted</span> function. 
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.

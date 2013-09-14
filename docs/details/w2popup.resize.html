@@ -1,0 +1,33 @@
+Resizes existing popup.
+
+<div class="definition">
+	resize(width, height, [callBack])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>width</td>
+		<td><b>int</b>, new width for the popup</td>
+	</tr>
+	<tr>
+		<td>height</td>
+		<td><b>int</b>, new height for the popup</td>
+	</tr>
+	<tr>
+		<td>callBack</td>
+		<td><b>function</b>, call back function on finish</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+This method will resize existing popup to the new dimentions. You could have trnsition to the new dimentions (and/or context) with 
+<a href="w2popup.open" class="method">w2popup.open</a>, which would have trigger the <span class="method">onOpen</span> event.
+<div style="height: 10px"></div>
+
+To resize popup:
+<textarea class="javascript">
+w2popup.resize(300, 100);
+</textarea>
