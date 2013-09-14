@@ -1,7 +1,7 @@
 Called when a panel is hidden. 
 
 <div class="definition">
-	onHide = function(target, eventData)
+	onHide = function(event)
 </div>
 
 You can add event listener during the object creation:
@@ -9,13 +9,12 @@ You can add event listener during the object creation:
 <textarea class="javascript">
 $('#layout').w2layout({
 	name    : 'layout',
-	padding : 2,
 	panels  : [
 		{ type: 'top', size: 40 },
 		{ type: 'preview', size: 200 }
 	],
-	onHide: function(target, eventData) {
-		console.log('object '+ eventData.panel + ' is hidden');
+	onHide: function(event) {
+		console.log('object '+ event.panel + ' is hidden');
 	}		
 });
 </textarea>
@@ -23,13 +22,16 @@ $('#layout').w2layout({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['layout'].on('hide', function(target, eventData) {
-	console.log('object '+ eventData.panel + ' is hidden');
+w2ui.layout.on('hide', function(event) {
+	console.log('object '+ event.panel + ' is hidden');
 });
 </textarea>
 
 You can add a listener to a panel, see <a href="w2layout.panels" class="property">.panels</a> property.
 <div style="height: 10px"></div>
 
-Your event listener can be executed before (default) or after the event default behavior has been processed or you can cancel 
-the default behavior. See <a href="utils/events">Events</a> page in utilities.
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action 
+after the event is fully processed, define <span class="method">event.onCompleted</span> function. 
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.

@@ -1,0 +1,37 @@
+Called when popup is opened or transitions to the new content. 
+
+<div class="definition">
+	onOpen = function(event)
+</div>
+
+This event is triggered when popup is first opened and any time <a href="w2popup.open" class="method">.open</a> or 
+<a href="w2popup.load" class="method">.load</a> methods are called. There can be only one popup window on the screen at
+any given time. If you call <a href="w2popup.open" class="method">.open</a> method again, the popup will transition into 
+new content.
+
+<div style="height: 10px;"></div>
+You can add event listener during the object creation:
+
+<textarea class="javascript">
+w2popup.open({
+	title	: 'Title',
+	body 	: 'Body',
+	onOpen	: function (event) {
+		console.log('event: ' + event.type, event);
+	}		
+});
+</textarea>
+
+or after popup is opened:
+
+<textarea class="javascript">
+w2popup.on('open', function(event) {
+	console.log('event: ' + event.type, event);
+});
+</textarea>
+
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action 
+after the event is fully processed, define <span class="method">event.onCompleted</span> function. 
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.

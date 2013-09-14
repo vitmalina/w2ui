@@ -1,31 +1,35 @@
-Called when object is resized. 
+Called when validation of the form is needed.
 
 <div class="definition">
-	onResize = function(event)
+	onValidate = function(event)
 </div>
 
-This event is common for multiple w2ui widgets (layout, grid, toolbar, sidebar, tabs, form). 
+This event is triggered when validataion of the form is called. The event handler will receive a list of errors.
 <div style="height: 10px;"></div>
-You can add event listener during the object creation:
 
+You can add event listener during the object creation:
 <textarea class="javascript">
-$('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'preview', size: 200 }
+$('#form').w2form({ 
+	name     : 'form',
+	url      : 'server/post',
+	record: {
+		field_1 : 1,
+		field_2 : 2
+	},
+	fields: [
+		{ name: 'field_1', type: 'text', required: true },
+		{ name: 'field_2', type: 'alphanumeric', required: true }
 	],
-	onResize: function(event) {
-		console.log('object '+ this.name + ' is resized');
+	onValidate: function(event) {
+		console.log(event);
 	}		
 });
 </textarea>
 
 or after the object has been created:
-
 <textarea class="javascript">
-w2ui.layout.on('resize', function(event) {
-	console.log('object '+ this.name + ' is resized');
+w2ui.form.on('validate', function(event) {
+	console.log(event);
 });
 </textarea>
 

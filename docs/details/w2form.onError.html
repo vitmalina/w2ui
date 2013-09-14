@@ -1,7 +1,7 @@
 Called when server returns an error.
 
 <div class="definition">
-	onError = function(target, eventData)
+	onError = function(event)
 </div>
 
 This event is triggered each time an error message needs to be displayed. In most cases the error message is displayed when
@@ -22,8 +22,8 @@ $('#form').w2form({
 		{ name: 'field_1', type: 'text', required: true },
 		{ name: 'field_2', type: 'alphanumeric', required: true }
 	],
-	onError: function(target, eventData) {
-		console.log(eventData);
+	onError: function(event) {
+		console.log(event);
 	}		
 });
 </textarea>
@@ -31,10 +31,13 @@ $('#form').w2form({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['form'].on('error', function(target, eventData) {
-	console.log(eventData);
+w2ui.form.on('error', function(event) {
+	console.log(event);
 });
 </textarea>
 
-Your event listener can be executed before or after the event has been processed. You can also cancel 
-the default behavior. See <a href="utils/events">Events</a> page in utilities.
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action 
+after the event is fully processed, define <span class="method">event.onCompleted</span> function. 
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.
