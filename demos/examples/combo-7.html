@@ -101,12 +101,22 @@ function openPopup() {
 		height	: 600,
 		showMax : true,
 		body 	: '<div id="main" style="position: absolute; left: 5px; top: 5px; right: 5px; bottom: 5px;"></div>',
-		onOpen  : function () {
-			$('#w2ui-popup #main').w2render('layout');
-			w2ui.layout.content('left', w2ui.grid);
-			w2ui.layout.content('main', w2ui.form);
+		onOpen  : function (event) {
+			event.onComplete = function () {
+				$('#w2ui-popup #main').w2render('layout');
+				w2ui.layout.content('left', w2ui.grid);
+				w2ui.layout.content('main', w2ui.form);
+			};
 		},
-		onMax : function () { w2ui.layout.resize();	},
-		onMin : function () { w2ui.layout.resize();	}
+		onMax : function (event) { 
+			event.onComplete = function () {
+				w2ui.layout.resize();
+			}
+		},
+		onMin : function (event) {
+			event.onComplete = function () {
+				w2ui.layout.resize();
+			}
+		}
 	});
 }
