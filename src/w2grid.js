@@ -2531,7 +2531,7 @@
 			} else {
 				$('#grid_'+ obj.name +'_lock').remove();
 				$('#grid_'+ obj.name +'_status').remove();
-				$(this.box).find('> div :first-child').before(
+				$(this.box).find('>:first-child').before(
 					'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock"></div>'+
 					'<div id="grid_'+ this.name +'_status" class="w2ui-grid-status"></div>'
 				);
