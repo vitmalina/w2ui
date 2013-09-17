@@ -263,6 +263,7 @@
 					   '<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
+				if (typeof it.id == 'undefined' || it.id == null) it.id = "item_" + i;
 				if (it == null)  continue;
 				if (it.type == 'spacer') {
 					html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
@@ -293,11 +294,9 @@
 			if (typeof id == 'undefined') {
 				// refresh all
 				for (var i = 0; i < this.items.length; i++) {
-					if (typeof this.items[i].id == 'undefined') {
-						console.log('ERROR: Cannot refresh toolbar element with no id.');
-						continue;
-					}
-					this.refresh(this.items[i].id);
+					var it = this.items[i];
+					if (typeof it.id == 'undefined' || it.id == null) it.id = "item_" + i;
+					this.refresh(it.id);
 				}
 			}
 			// create or refresh only one item

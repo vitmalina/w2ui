@@ -6,6 +6,7 @@
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2form.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
+<script type="text/javascript" src="../src/w2toolbar.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script>
 	$(function () {
@@ -20,6 +21,17 @@
 				{ id: 'tab1', caption: 'General' }, 
 				{ id: 'tab2', caption: 'Additional' }
 			],
+			toolbar: {
+				items: [
+					{ type: 'button', id: 'button1', caption: 'Button1', img: 'icon-add' },
+					{ type: 'break' },
+					{ type: 'check', id: 'button2', caption: 'Button2', img: 'icon-add' },
+					{ type: 'check', id: 'button3', caption: 'Button3', img: 'icon-add' },
+					{ type: 'spacer' },
+					{ type: 'button', id: 'save', caption: 'Save', img: 'icon-folder' },
+				],
+
+			},
 			record: {
 				"field.date": '15/3/2013',
 				"field.listurl": null
@@ -81,7 +93,7 @@
 });
 </script>
 <body>
-	<div id="form" style="width: 700px; height: 500px;">
+	<div id="form" style="width: 700px; height: 600px;">
 		<div class="w2ui-page page-0">
 			<div class="w2ui-group" style='display: none1'>
 				<div class="w2ui-label">Text:</div>
@@ -121,7 +133,7 @@
 			</div>
 			<div class="w2ui-label">Multi Select:</div>
 			<div class="w2ui-field">
-				<input name="field.enum" type="text" size="60"/>
+				<input name="field.enum" type="text" style="width: 100%"/>
 			</div>
 			<div class="w2ui-label">Text Area:</div>
 			<div class="w2ui-field">

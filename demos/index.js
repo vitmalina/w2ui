@@ -120,7 +120,8 @@ $(function () {
 					{ id: 'forms-2', text: 'Field Types', icon: 'fa-edit' },
 					{ id: 'forms-3', text: 'Large Form', icon: 'fa-edit' },
 					{ id: 'forms-4', text: 'Multi Page Form', icon: 'fa-edit' },
-					{ id: 'forms-5', text: 'Form with Tabs', icon: 'fa-edit' },
+					{ id: 'forms-5', text: 'Form Tabs', icon: 'fa-edit' },
+					{ id: 'forms-9', text: 'Form Toolbar', icon: 'fa-edit' },
 					{ id: 'forms-8', text: 'Form in a Popup', icon: 'fa-edit' },
 					{ id: 'forms-6', text: 'Events', icon: 'fa-edit' },
 					{ id: 'forms-7', text: 'Input Controls', icon: 'fa-edit' }

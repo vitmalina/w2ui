@@ -596,7 +596,12 @@
 						settings.selected = w2field.cleanItems(settings.selected);
 
 						$(this).data('selected', settings.selected); 
-						$(this).css({ 'border-color': 'transparent' });
+						$(this).css({ 
+							'padding'			: '0px',
+							'border-color'		: 'transparent',
+							'background-color'	: 'transparent',
+							'outline'			: 'none'
+						});
 
 						// add item to selected
 						this.add = function (item) {
@@ -624,7 +629,7 @@
 							div.css({
 									display : 'block',
 									left 	: ($(obj).offset().left) + 'px',
-									top 	: ($(obj).offset().top + obj.offsetHeight) + 'px'
+									top 	: ($(obj).offset().top + obj.offsetHeight + 3) + 'px'
 								})
 								.width(w2utils.getSize(obj, 'width'))
 								.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight));
@@ -646,7 +651,7 @@
 									div.css({
 										'-webkit-transition': '.2s',
 										left: ($(obj).offset().left) + 'px',
-										top : ($(obj).offset().top + obj.offsetHeight) + 'px'
+										top : ($(obj).offset().top + obj.offsetHeight + 3) + 'px'
 									})
 									.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight));
 									// if moved then resize
@@ -692,11 +697,12 @@
 							// adjust height
 							var div = $(this).prev()[0];
 							$(this).data('div', div);
-							var cntHeight = w2utils.getSize(div, 'height') - w2utils.getSize(div, '+height');
+							var cntHeight = w2utils.getSize(div, 'height');
 							if (cntHeight < 23) cntHeight = 23;
 							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
 							$(div).height(cntHeight);
 							if (div.length > 0) div[0].scrollTop = 1000;
+							$(this).height(cntHeight);
 
 							$(div).on('click', function (event) {
 								var el = event.target;
@@ -767,7 +773,7 @@
 							var settings = $(this).data('settings');
 							var selected = $(this).data('selected');
 							$(div).find('li').remove();
-							$(div).find('> span:first-child').css('line-height', ($(div).height() - w2utils.getSize(div, '+height')) + 'px');
+							$(div).find('> span:first-child').css('line-height', ($(div).height() - w2utils.getSize(div, '+height') - 8) + 'px');
 							for (var s in selected) {
 								var file = selected[s];
 								// add li element
@@ -1273,11 +1279,13 @@
 						// adjust height
 						var div = $(obj).prev();
 						div.css('height', 'auto');
-						var cntHeight = w2utils.getSize(div, 'height') - w2utils.getSize(div, '+height');
+						var cntHeight = w2utils.getSize(div, 'height');
 						if (cntHeight < 23) cntHeight = 23;
 						if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
 						$(div).height(cntHeight);
 						if (div.length > 0) div[0].scrollTop = 1000;
+						$(this).height(cntHeight);
+
 						// refresh menu
 						if (!(event.keyCode == 8 && String(inp.value) == '')) { 
 							$(obj).prev().find('li').css('opacity', '1');
