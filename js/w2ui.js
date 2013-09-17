@@ -1,3 +1,4 @@
+/* w2ui 1.2.1 (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -1033,7 +1034,7 @@ $.w2event = {
 			for (var p in searches)   	object.searches[p]   	= $.extend({}, searches[p]);
 			for (var p in searchData) 	object.searchData[p] 	= $.extend({}, searchData[p]);
 			for (var p in sortData)		object.sortData[p]  	= $.extend({}, sortData[p]);
-			for (var p in postData)   	object.postData[p]   	= $.extend({}, postData[p]);
+			object.postData = $.extend(true, {}, postData);		
 			// check if there are records without recid
 			for (var r in records) {
 				if (records[r].recid == null || typeof records[r].recid == 'undefined') {
@@ -1979,6 +1980,7 @@ $.w2event = {
 		},
 
 		doSave: function () {
+			var obj = this;
 			var changed = this.getChanged();
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
@@ -1986,7 +1988,7 @@ $.w2event = {
 			if (this.url != '') {
 				this.request('save-records', { 'changed' : changed }, null, function () {
 					// event after
-					this.trigger($.extend(eventData, { phase: 'after' }));
+					obj.trigger($.extend(eventData, { phase: 'after' }));
 				});
 			} else {
 				for (var c in changed) {
@@ -2577,7 +2579,7 @@ $.w2event = {
 						this.toolbar.items.push({ type: 'button', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
 					}
 				}
-				if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarSave) {
+				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarSave)) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
@@ -3418,7 +3420,7 @@ $.w2event = {
 			} else {
 				$('#grid_'+ obj.name +'_lock').remove();
 				$('#grid_'+ obj.name +'_status').remove();
-				$(this.box).find('> div :first-child').before(
+				$(this.box).find('>:first-child').before(
 					'<div id="grid_'+ this.name +'_lock" class="w2ui-grid-lock"></div>'+
 					'<div id="grid_'+ this.name +'_status" class="w2ui-grid-status"></div>'
 				);
@@ -3861,10 +3863,10 @@ $.w2event = {
 				ptop.size = height * parseInt(ptop.size) / 100;
 			}
 			if (pleft && String(pleft.size).substr((String(pleft.size).length-1)) == '%') {
-				pleft.size = height * parseInt(pleft.size) / 100;
+				pleft.size = width * parseInt(pleft.size) / 100;
 			}
 			if (pright && String(pright.size).substr((String(pright.size).length-1)) == '%') {
-				pright.size = height * parseInt(pright.size) / 100;
+				pright.size = width * parseInt(pright.size) / 100;
 			}
 			if (pbottom && String(pbottom.size).substr((String(pbottom.size).length-1)) == '%') {
 				pbottom.size = height * parseInt(pbottom.size) / 100;
@@ -5168,7 +5170,7 @@ $.w2event = {
 			}
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		// ===================================================
@@ -5543,7 +5545,7 @@ $.w2event = {
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		refresh: function (id) {
@@ -5585,7 +5587,7 @@ $.w2event = {
 				if (it.disabled) { el.addClass('disabled'); } else { el.removeClass('disabled'); }
 			}
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		resize: function () {
@@ -5597,7 +5599,7 @@ $.w2event = {
 			// empty function
 
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 	
 		destroy: function () { 
@@ -5614,7 +5616,7 @@ $.w2event = {
 			$(this.box).html('');
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend({ phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 		
 		// ========================================
@@ -5720,7 +5722,7 @@ $.w2event = {
 				// normal processing
 
 				// event after
-				this.trigger($.extend({ phase: 'after' }));	
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
 				
@@ -5779,7 +5781,7 @@ $.w2event = {
 					}, 1);
 				}
 				// event after
-				this.trigger($.extend({ phase: 'after' }));	
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		}		
 	}
@@ -7963,7 +7965,7 @@ $.w2event = {
 				params['name'] 	 = obj.name;
 				params['recid']  = obj.recid;
 				// append other params
-				$.extend(params, this.postData);
+				$.extend(params, obj.postData);
 				$.extend(params, postData);
 				params.record = $.extend(true, {}, obj.record);
 				// convert  before submitting 

@@ -1,3 +1,4 @@
+/* w2ui 1.2.1 (c) http://w2ui.com, vitmalina@gmail.com */
 /*************************************************
 * --- Reset (used for all w2ui wdigetes)
 * --- The reset is needed to coexist with other CSS
@@ -1696,6 +1697,12 @@ select {
 .w2ui-toolbar .disabled {
   opacity: 0.3;
   filter: alpha(opacity=15);
+}
+.w2ui-toolbar table {
+  table-layout: auto !important;
+}
+.w2ui-toolbar table td {
+  border: 0px !important;
 }
 .w2ui-toolbar table.w2ui-button {
   margin: 0px 1px;
