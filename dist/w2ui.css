@@ -701,10 +701,10 @@ select {
 .w2ui-list ul li {
   float: left;
   margin: 2px 1px 0px 2px;
-  border-radius: 5px;
+  border-radius: 3px;
   width: auto;
-  padding: 1px 5px;
-  border: 1px solid #bbbbbb;
+  padding: 2px 5px;
+  border: 1px solid #88b0d6;
   background-color: #fafafa;
   white-space: nowrap;
   cursor: default;
@@ -833,7 +833,7 @@ select {
   line-height: normal;
   float: left;
   display: inline-block;
-  border: 1px solid #bbbbbb;
+  border: 1px solid #88b0d6;
   background-color: #fafafa;
   border-radius: 3px;
   margin: 2px 0px 2px 2px;
@@ -1817,7 +1817,7 @@ select {
   float: left;
 }
 .w2ui-sidebar .w2ui-sidebar-div td.w2ui-node-data .w2ui-node-image > span {
-  font-size: 18px;
+  font-size: 16px;
   color: #000000;
   text-shadow: 0px 0px 0px #ffffff;
 }

@@ -26,6 +26,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added formatTime(), formatDateTime()
 *	- refactor event flow: instead of (target, data) -> (event), but back compatibile
 *	- added lock() and unlock() for a div
+*	- w2overlay.onHide - is cancabled now
 *
 ************************************************/
 
@@ -654,10 +655,6 @@ var w2utils = (function () {
 	}
 	
 	function lock (box, msg, showSpinner) {
-		if (['absolute', 'fixed'].indexOf($(box).css('position')) != -1) {
-			console.log('ERROR: Only elements with absolute positioning can be locked.');
-			//return;
-		}
 		if (!msg && msg != 0) msg = '';
 		w2utils.unlock(box);
 		$(box).find('>:first-child').before(
@@ -690,9 +687,8 @@ var w2utils = (function () {
 				});
 			}, 10);
 		}, 10);
-		// hide all overlay and tags
+		// hide all tags (do not hide overlays as the form can be in overlay)
 		$().w2tag();
-		$().w2overlay();
 	}
 
 	function unlock (box) { 
@@ -1099,7 +1095,9 @@ w2utils.keyboard = (function (obj) {
 
 		// click anywhere else hides the drop down
 		function hide () {
-			if (typeof options.onHide == 'function') options.onHide();
+			var result;
+			if (typeof options.onHide == 'function') result = options.onHide();
+			if (result === false) return;
 			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);
 		}
@@ -1199,6 +1197,7 @@ w2utils.keyboard = (function (obj) {
 *	- all function that take recid as argument, should check if object was given and use it instead.
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
+*	- url should be either string or object, if object, then allow different urls for different actions, get-records, delete, save
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -5176,7 +5175,7 @@ w2utils.keyboard = (function (obj) {
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
 					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle = 'text-align: right';
-					if ($.inArray(tmp[0], ['date', 'age']) != -1) addStyle = 'text-align: center';
+					if ($.inArray(tmp[0], ['date']) != -1) addStyle = 'text-align: right';
 				}
 				var isCellSelected = false;
 				if (record.selected && $.inArray(col_ind, record.selectedColumns) != -1) isCellSelected = true;
@@ -5330,6 +5329,7 @@ w2utils.keyboard = (function (obj) {
 *	- added layout.lock(panel, msg, [showSpinner]), unlock(panel)
 *	- rename startResize -> resizeStart, stopResize -> resizeStop, doResize -> resizeMove
 *	- ability to load CSS into a hidden panel
+*	- added sizeTo()
 * 
 ************************************************************************/
 
@@ -5506,6 +5506,33 @@ w2utils.keyboard = (function (obj) {
 				return true;
 			}
 			return false;
+		},
+
+		sizeTo: function (panel, size) {
+			var obj = this;
+			var pan = obj.get(panel);
+			if (pan == null) return false;
+			// resize
+			$(obj.box).find(' > div .w2ui-panel').css({
+				'-webkit-transition': '.35s',
+				'-moz-transition'	: '.35s',
+				'-ms-transition'	: '.35s',
+				'-o-transition'		: '.35s'
+			});
+			setTimeout(function () { 
+				obj.set(panel, { size: size }); 
+			}, 1);
+			// clean
+			setTimeout(function () { 
+				$(obj.box).find(' > div .w2ui-panel').css({
+					'-webkit-transition': '0s',
+					'-moz-transition'	: '0s',
+					'-ms-transition'	: '0s',
+					'-o-transition'		: '0s'
+				}); 
+				obj.resize();
+			}, 500);
+			return true;
 		},
 
 		show: function (panel, immediate) {
@@ -9300,14 +9327,11 @@ var w2confirm = function (msg, title, callBack) {
 							// adjust height
 							var div = $(this).prev()[0];
 							$(this).data('div', div);
-							var cntHeight = w2utils.getSize(div, 'height')
-								- parseInt($(div).css('margin-top')) 
-								- parseInt($(div).css('margin-bottom'));
+							var cntHeight = w2utils.getSize(div, 'height') - w2utils.getSize(div, '+height');
 							if (cntHeight < 23) cntHeight = 23;
 							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
 							$(div).height(cntHeight);
 							if (div.length > 0) div[0].scrollTop = 1000;
-							$(this).height(cntHeight);
 
 							$(div).on('click', function (event) {
 								var el = event.target;
@@ -9884,14 +9908,11 @@ var w2confirm = function (msg, title, callBack) {
 						// adjust height
 						var div = $(obj).prev();
 						div.css('height', 'auto');
-						var cntHeight = w2utils.getSize(div, 'height')
-							- parseInt($(div).css('margin-top')) 
-							- parseInt($(div).css('margin-bottom'));
+						var cntHeight = w2utils.getSize(div, 'height') - w2utils.getSize(div, '+height');
 						if (cntHeight < 23) cntHeight = 23;
 						if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
 						$(div).height(cntHeight);
 						if (div.length > 0) div[0].scrollTop = 1000;
-						$(obj).height(cntHeight);
 						// refresh menu
 						if (!(event.keyCode == 8 && String(inp.value) == '')) { 
 							$(obj).prev().find('li').css('opacity', '1');
@@ -10110,6 +10131,7 @@ var w2confirm = function (msg, title, callBack) {
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
 * 	- documentation update on field types
+*	- url should be either string or object, if object, then allow different urls for different actions, get-record, save-record
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
@@ -10120,6 +10142,7 @@ var w2confirm = function (msg, title, callBack) {
 *	- added lock(.., showSpinner) - show spinner
 *	- deprecated w2form.init()
 *	- doAction -> action
+* 	- removed focusFirst added focus
 *
 ************************************************************************/
 
@@ -10143,7 +10166,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
 
 		this.style 			= '';
-		this.focusFirst		= true;
+		this.focus			= 0;		// focus first or other element
 		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
 		this.msgRefresh		= w2utils.lang('Refreshing...');
 		this.msgSaving		= w2utils.lang('Saving...');
@@ -10932,12 +10955,12 @@ var w2confirm = function (msg, title, callBack) {
 				$(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
 			}
 			setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer
-			// focus first
-			function focusFirst() {
-				var inputs = $(obj.box).find('input, select');
-				if (inputs.length > 0) inputs[0].focus();
+			// focus on load
+			function focusEl() {
+				var inputs = $(obj.box).find('input, select, textarea');
+				if (inputs.length > obj.focus) inputs[obj.focus].focus();
 			}
-			if (this.focusFirst === true) setTimeout(focusFirst, 500); // need timeout to allow form to render
+			if (this.focus >= 0) setTimeout(focusEl, 500); // need timeout to allow form to render
 		},
 
 		destroy: function () { 
