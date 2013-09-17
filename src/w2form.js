@@ -9,6 +9,7 @@
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
 * 	- documentation update on field types
+*	- url should be either string or object, if object, then allow different urls for different actions, get-record, save-record
 *
 * == 1.3 changes ==
 *   - tabs can be array of string, array of tab objects or w2tabs object
@@ -19,6 +20,7 @@
 *	- added lock(.., showSpinner) - show spinner
 *	- deprecated w2form.init()
 *	- doAction -> action
+* 	- removed focusFirst added focus
 *
 ************************************************************************/
 
@@ -42,7 +44,7 @@
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
 
 		this.style 			= '';
-		this.focusFirst		= true;
+		this.focus			= 0;		// focus first or other element
 		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
 		this.msgRefresh		= w2utils.lang('Refreshing...');
 		this.msgSaving		= w2utils.lang('Saving...');
@@ -831,12 +833,12 @@
 				$(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
 			}
 			setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer
-			// focus first
-			function focusFirst() {
-				var inputs = $(obj.box).find('input, select');
-				if (inputs.length > 0) inputs[0].focus();
+			// focus on load
+			function focusEl() {
+				var inputs = $(obj.box).find('input, select, textarea');
+				if (inputs.length > obj.focus) inputs[obj.focus].focus();
 			}
-			if (this.focusFirst === true) setTimeout(focusFirst, 500); // need timeout to allow form to render
+			if (this.focus >= 0) setTimeout(focusEl, 500); // need timeout to allow form to render
 		},
 
 		destroy: function () { 
