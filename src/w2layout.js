@@ -22,6 +22,7 @@
 *	- added layout.lock(panel, msg, [showSpinner]), unlock(panel)
 *	- rename startResize -> resizeStart, stopResize -> resizeStop, doResize -> resizeMove
 *	- ability to load CSS into a hidden panel
+*	- added sizeTo()
 * 
 ************************************************************************/
 
@@ -198,6 +199,33 @@
 				return true;
 			}
 			return false;
+		},
+
+		sizeTo: function (panel, size) {
+			var obj = this;
+			var pan = obj.get(panel);
+			if (pan == null) return false;
+			// resize
+			$(obj.box).find(' > div .w2ui-panel').css({
+				'-webkit-transition': '.35s',
+				'-moz-transition'	: '.35s',
+				'-ms-transition'	: '.35s',
+				'-o-transition'		: '.35s'
+			});
+			setTimeout(function () { 
+				obj.set(panel, { size: size }); 
+			}, 1);
+			// clean
+			setTimeout(function () { 
+				$(obj.box).find(' > div .w2ui-panel').css({
+					'-webkit-transition': '0s',
+					'-moz-transition'	: '0s',
+					'-ms-transition'	: '0s',
+					'-o-transition'		: '0s'
+				}); 
+				obj.resize();
+			}, 500);
+			return true;
 		},
 
 		show: function (panel, immediate) {
