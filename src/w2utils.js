@@ -26,6 +26,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- added formatTime(), formatDateTime()
 *	- refactor event flow: instead of (target, data) -> (event), but back compatibile
 *	- added lock() and unlock() for a div
+*	- w2overlay.onHide - is cancabled now
 *
 ************************************************/
 
@@ -654,10 +655,6 @@ var w2utils = (function () {
 	}
 	
 	function lock (box, msg, showSpinner) {
-		if (['absolute', 'fixed'].indexOf($(box).css('position')) != -1) {
-			console.log('ERROR: Only elements with absolute positioning can be locked.');
-			//return;
-		}
 		if (!msg && msg != 0) msg = '';
 		w2utils.unlock(box);
 		$(box).find('>:first-child').before(
@@ -690,9 +687,8 @@ var w2utils = (function () {
 				});
 			}, 10);
 		}, 10);
-		// hide all overlay and tags
+		// hide all tags (do not hide overlays as the form can be in overlay)
 		$().w2tag();
-		$().w2overlay();
 	}
 
 	function unlock (box) { 
@@ -1099,7 +1095,9 @@ w2utils.keyboard = (function (obj) {
 
 		// click anywhere else hides the drop down
 		function hide () {
-			if (typeof options.onHide == 'function') options.onHide();
+			var result;
+			if (typeof options.onHide == 'function') result = options.onHide();
+			if (result === false) return;
 			$('#w2ui-overlay').remove();
 			$(document).off('click', hide);
 		}

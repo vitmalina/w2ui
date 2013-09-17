@@ -21,6 +21,7 @@
 *	- all function that take recid as argument, should check if object was given and use it instead.
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
+*	- url should be either string or object, if object, then allow different urls for different actions, get-records, delete, save
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -3998,7 +3999,7 @@
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
 					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle = 'text-align: right';
-					if ($.inArray(tmp[0], ['date', 'age']) != -1) addStyle = 'text-align: center';
+					if ($.inArray(tmp[0], ['date']) != -1) addStyle = 'text-align: right';
 				}
 				var isCellSelected = false;
 				if (record.selected && $.inArray(col_ind, record.selectedColumns) != -1) isCellSelected = true;
