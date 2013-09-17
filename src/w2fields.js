@@ -692,14 +692,11 @@
 							// adjust height
 							var div = $(this).prev()[0];
 							$(this).data('div', div);
-							var cntHeight = w2utils.getSize(div, 'height')
-								- parseInt($(div).css('margin-top')) 
-								- parseInt($(div).css('margin-bottom'));
+							var cntHeight = w2utils.getSize(div, 'height') - w2utils.getSize(div, '+height');
 							if (cntHeight < 23) cntHeight = 23;
 							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
 							$(div).height(cntHeight);
 							if (div.length > 0) div[0].scrollTop = 1000;
-							$(this).height(cntHeight);
 
 							$(div).on('click', function (event) {
 								var el = event.target;
@@ -1276,14 +1273,11 @@
 						// adjust height
 						var div = $(obj).prev();
 						div.css('height', 'auto');
-						var cntHeight = w2utils.getSize(div, 'height')
-							- parseInt($(div).css('margin-top')) 
-							- parseInt($(div).css('margin-bottom'));
+						var cntHeight = w2utils.getSize(div, 'height') - w2utils.getSize(div, '+height');
 						if (cntHeight < 23) cntHeight = 23;
 						if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
 						$(div).height(cntHeight);
 						if (div.length > 0) div[0].scrollTop = 1000;
-						$(obj).height(cntHeight);
 						// refresh menu
 						if (!(event.keyCode == 8 && String(inp.value) == '')) { 
 							$(obj).prev().find('li').css('opacity', '1');
