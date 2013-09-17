@@ -145,7 +145,7 @@
 			for (var p in searches)   	object.searches[p]   	= $.extend({}, searches[p]);
 			for (var p in searchData) 	object.searchData[p] 	= $.extend({}, searchData[p]);
 			for (var p in sortData)		object.sortData[p]  	= $.extend({}, sortData[p]);
-			for (var p in postData)   	object.postData[p]   	= $.extend({}, postData[p]);
+			object.postData = $.extend(true, {}, postData);		
 			// check if there are records without recid
 			for (var r in records) {
 				if (records[r].recid == null || typeof records[r].recid == 'undefined') {
