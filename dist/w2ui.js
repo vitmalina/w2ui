@@ -7623,6 +7623,7 @@ var w2confirm = function (msg, title, callBack) {
 					   '<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
+				if (typeof it.id == 'undefined' || it.id == null) it.id = "item_" + i;
 				if (it == null)  continue;
 				if (it.type == 'spacer') {
 					html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
@@ -7653,11 +7654,9 @@ var w2confirm = function (msg, title, callBack) {
 			if (typeof id == 'undefined') {
 				// refresh all
 				for (var i = 0; i < this.items.length; i++) {
-					if (typeof this.items[i].id == 'undefined') {
-						console.log('ERROR: Cannot refresh toolbar element with no id.');
-						continue;
-					}
-					this.refresh(this.items[i].id);
+					var it = this.items[i];
+					if (typeof it.id == 'undefined' || it.id == null) it.id = "item_" + i;
+					this.refresh(it.id);
 				}
 			}
 			// create or refresh only one item
@@ -9231,7 +9230,12 @@ var w2confirm = function (msg, title, callBack) {
 						settings.selected = w2field.cleanItems(settings.selected);
 
 						$(this).data('selected', settings.selected); 
-						$(this).css({ 'border-color': 'transparent' });
+						$(this).css({ 
+							'padding'			: '0px',
+							'border-color'		: 'transparent',
+							'background-color'	: 'transparent',
+							'outline'			: 'none'
+						});
 
 						// add item to selected
 						this.add = function (item) {
@@ -9259,7 +9263,7 @@ var w2confirm = function (msg, title, callBack) {
 							div.css({
 									display : 'block',
 									left 	: ($(obj).offset().left) + 'px',
-									top 	: ($(obj).offset().top + obj.offsetHeight) + 'px'
+									top 	: ($(obj).offset().top + obj.offsetHeight + 3) + 'px'
 								})
 								.width(w2utils.getSize(obj, 'width'))
 								.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight));
@@ -9281,7 +9285,7 @@ var w2confirm = function (msg, title, callBack) {
 									div.css({
 										'-webkit-transition': '.2s',
 										left: ($(obj).offset().left) + 'px',
-										top : ($(obj).offset().top + obj.offsetHeight) + 'px'
+										top : ($(obj).offset().top + obj.offsetHeight + 3) + 'px'
 									})
 									.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight));
 									// if moved then resize
@@ -9327,11 +9331,12 @@ var w2confirm = function (msg, title, callBack) {
 							// adjust height
 							var div = $(this).prev()[0];
 							$(this).data('div', div);
-							var cntHeight = w2utils.getSize(div, 'height') - w2utils.getSize(div, '+height');
+							var cntHeight = w2utils.getSize(div, 'height');
 							if (cntHeight < 23) cntHeight = 23;
 							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
 							$(div).height(cntHeight);
 							if (div.length > 0) div[0].scrollTop = 1000;
+							$(this).height(cntHeight);
 
 							$(div).on('click', function (event) {
 								var el = event.target;
@@ -9402,7 +9407,7 @@ var w2confirm = function (msg, title, callBack) {
 							var settings = $(this).data('settings');
 							var selected = $(this).data('selected');
 							$(div).find('li').remove();
-							$(div).find('> span:first-child').css('line-height', ($(div).height() - w2utils.getSize(div, '+height')) + 'px');
+							$(div).find('> span:first-child').css('line-height', ($(div).height() - w2utils.getSize(div, '+height') - 8) + 'px');
 							for (var s in selected) {
 								var file = selected[s];
 								// add li element
@@ -9908,11 +9913,13 @@ var w2confirm = function (msg, title, callBack) {
 						// adjust height
 						var div = $(obj).prev();
 						div.css('height', 'auto');
-						var cntHeight = w2utils.getSize(div, 'height') - w2utils.getSize(div, '+height');
+						var cntHeight = w2utils.getSize(div, 'height');
 						if (cntHeight < 23) cntHeight = 23;
 						if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
 						$(div).height(cntHeight);
 						if (div.length > 0) div[0].scrollTop = 1000;
+						$(this).height(cntHeight);
+
 						// refresh menu
 						if (!(event.keyCode == 8 && String(inp.value) == '')) { 
 							$(obj).prev().find('li').css('opacity', '1');
@@ -10125,7 +10132,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - Following objects defined
 * 		- w2ui.w2form 	- form widget
 *		- $.w2form		- jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2alert
+*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
 *
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
@@ -10143,6 +10150,8 @@ var w2confirm = function (msg, title, callBack) {
 *	- deprecated w2form.init()
 *	- doAction -> action
 * 	- removed focusFirst added focus
+*	- added toolbar property
+*	- added onToolbar event
 *
 ************************************************************************/
 
@@ -10163,6 +10172,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.record			= {};
 		this.original   	= {};
 		this.postData		= {};
+		this.toolbar		= {};		// if not empty, then it is toolbar
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
 
 		this.style 			= '';
@@ -10183,6 +10193,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.onResize 		= null;
 		this.onDestroy		= null;
 		this.onAction		= null; 
+		this.onToolbar 		= null;
 		this.onError		= null;
 
 		// internal
@@ -10217,10 +10228,11 @@ var w2confirm = function (msg, title, callBack) {
 			var record 		= method.record;
 			var original	= method.original;
 			var fields 		= method.fields;
+			var toolbar		= method.toolbar;
 			var tabs		= method.tabs;
 			// extend items
 			var object = new w2form(method);
-			$.extend(object, { record: {}, original: {}, fields: [], tabs: {}, handlers: [] });
+			$.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [] });
 			if ($.isArray(tabs)) {
 				$.extend(true, object.tabs, { tabs: [] });
 				for (var t in tabs) {
@@ -10230,6 +10242,7 @@ var w2confirm = function (msg, title, callBack) {
 			} else {
 				$.extend(true, object.tabs, tabs);
 			}
+			$.extend(true, object.toolbar, toolbar);
 			// reassign variables
 			for (var p in fields)  	object.fields[p]   	= $.extend(true, {}, fields[p]); 
 			for (var p in record) {
@@ -10247,6 +10260,7 @@ var w2confirm = function (msg, title, callBack) {
 				}
 			}
 			if (obj) object.box = obj;
+			object.initToolbar();
 			object.initTabs();
 			// render if necessary
 			if (object.formURL != '') {
@@ -10297,8 +10311,23 @@ var w2confirm = function (msg, title, callBack) {
 			if (typeof this.tabs['render'] == 'undefined') {
 				var obj = this;
 				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
-				this.tabs.on('click', function (id, choice) {
-					obj.goto(this.get(id, true));
+				this.tabs.on('click', function (event) {
+					obj.goto(this.get(event.target, true));
+				});
+			}
+			return;
+		},
+
+		initToolbar: function () {
+			// init toolbar regardless it is defined or not
+			if (typeof this.toolbar['render'] == 'undefined') {
+				var obj = this;
+				this.toolbar = $().w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
+				this.toolbar.on('click', function (event) {
+					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
+					if (eventData.isCancelled === true) return false;
+					// no default action
+					obj.trigger($.extend(eventData, { phase: 'after' }));
 				});
 			}
 			return;
@@ -10714,6 +10743,7 @@ var w2confirm = function (msg, title, callBack) {
 			// default behaviour
 			var main 	= $(this.box).find('> div');
 			var header	= $(this.box).find('> div .w2ui-form-header');
+			var toolbar	= $(this.box).find('> div .w2ui-form-toolbar');
 			var tabs	= $(this.box).find('> div .w2ui-form-tabs');
 			var page	= $(this.box).find('> div .w2ui-page');
 			var cpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page);
@@ -10725,6 +10755,7 @@ var w2confirm = function (msg, title, callBack) {
 				$(this.box).height(
 					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
 					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
+					(this.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0) + 
 					(page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
 					(buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
 				);
@@ -10737,8 +10768,11 @@ var w2confirm = function (msg, title, callBack) {
 			function resizeElements() {
 				// resize elements
 				main.width($(obj.box).width()).height($(obj.box).height());
-				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
+				toolbar.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
+				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
+							  + (obj.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0));
 				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0) 
+							  + (obj.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') + 5 : 0)
 							  + (obj.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') + 5 : 0));
 				page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
 			}
@@ -10776,7 +10810,14 @@ var w2confirm = function (msg, title, callBack) {
 				this.tabs.refresh();
 			} else {
 				$('#form_'+ this.name +'_tabs').hide();
-			}			
+			}
+			// refresh tabs if needed
+			if (typeof this.toolbar == 'object' && this.toolbar.items.length > 0) {
+				$('#form_'+ this.name +'_toolbar').show();
+				this.toolbar.refresh();
+			} else {
+				$('#form_'+ this.name +'_toolbar').hide();
+			}
 			// refresh values of all fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
@@ -10928,6 +10969,7 @@ var w2confirm = function (msg, title, callBack) {
 			// default actions
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
+						'	<div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar"></div>' +
 						'	<div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' +
 							this.formHTML +
 						'</div>';
@@ -10935,6 +10977,11 @@ var w2confirm = function (msg, title, callBack) {
 				.addClass('w2ui-reset w2ui-form')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
+			// init toolbar
+			this.initToolbar();
+			if (typeof this.toolbar == 'object' && typeof this.toolbar.render == 'function') {
+				this.toolbar.render($('#form_'+ this.name +'_toolbar')[0]);
+			}
 			// init tabs
 			this.initTabs();
 			if (typeof this.tabs == 'object' && typeof this.tabs.render == 'function') {
@@ -10968,6 +11015,7 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });	
 			if (eventData.isCancelled === true) return false;
 			// clean up
+			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
 			if (typeof this.tabs == 'object' && this.tabs.destroy) this.tabs.destroy();
 			if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
 				$(this.box)
