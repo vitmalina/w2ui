@@ -1816,6 +1816,12 @@
 			}
 			if (w2utils.isInt(recid)) recid = parseInt(recid);
 			if (typeof event == 'undefined') event = {};
+			// check for double click
+			if (time - parseInt(this.last.click_time) < 250) {
+				this.dblClick(recid, event);
+				return;
+			}
+			this.last.click_time = time;
 			// column user clicked on
 			if (column == null && event.target) {
 				var tmp = event.target;
@@ -3941,10 +3947,9 @@
 				' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
 				(summary !== true ?
 					(this.isIOS ?
-						'	onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);" '
+						'	onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
 						:
-						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
-						'	ondblclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);" '
+						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'
 					 ) 
 					: ''
 				) +
