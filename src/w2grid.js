@@ -86,6 +86,7 @@
 *	- added onEditField event
 *	- improoved search(), now it does not require search definitions
 *	- grid.url can be string or object { get, save, remove }
+*	- added grid.show.recordTitles 
 *
 ************************************************************************/
 
@@ -108,23 +109,23 @@
 		this.toolbar			= {}; 		// if not empty object; then it is toolbar object
 
 		this.show = {
-			header		: false,
-			toolbar		: false,
-			footer		: false,
+			header			: false,
+			toolbar			: false,
+			footer			: false,
 			columnHeaders	: true,
-			lineNumbers	: false,
+			lineNumbers		: false,
 			expandColumn	: false,
 			selectColumn	: false,
 			emptyRecords	: true,
 			toolbarReload	: true,
 			toolbarColumns	: true,
 			toolbarSearch	: true,
-			toolbarAdd	: false,
+			toolbarAdd		: false,
 			toolbarEdit 	: false,
 			toolbarDelete 	: false,
-			toolbarSave	: false,
+			toolbarSave		: false,
 			selectionBorder : true,
-			fieldHint	: false
+			recordTitles	: true
 		}
 
 		this.autoLoad		= true; 	// for infinite scroll
@@ -4094,7 +4095,7 @@
 					}
 				}
 			} else {
-				if (!this.fieldHint) {
+				if (!this.show.recordTitles) {
 					var data = '<div>'+ data +'</div>';
 				} else {
 					// title overwrite
