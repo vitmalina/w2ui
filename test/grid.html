@@ -14,7 +14,11 @@ $(function () {
 	$('#grid').w2grid({ 
 		name	: 'grid', 
 		header	: 'List of Names',
-		//url		: 'data.php',
+		url		: {
+			get		: 'data.php',
+			remove	: 'remove',
+			save	: 'save'
+		},
 		show: { 
 			toolbar: true,
 			footer: true,
@@ -24,9 +28,9 @@ $(function () {
 			//selectColumn: true,
 			//expandColumn: true,
 			lineNumbers: true,
-			toolbarDelete: false,
-			toolbarSave: false,
-			toolbarAdd: false
+			toolbarDelete: true,
+			toolbarSave: true,
+			toolbarAdd: true
 		},
 		postData: {
 			"admin": 'somename'

@@ -23,6 +23,7 @@
 * 	- removed focusFirst added focus
 *	- added toolbar property
 *	- added onToolbar event
+*	- form.url can be a string or object { get, save }
 *
 ************************************************************************/
 
@@ -225,7 +226,8 @@
 		},
 	
 		reload: function (callBack) {
-			if (this.url != '' && this.recid != 0) {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url && this.recid != 0) {
 				//this.clear();
 				this.request(callBack);
 			} else {
@@ -346,7 +348,7 @@
 				postData 	= null;
 			}
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (!this.url) return;
+			if (!this.url || (typeof this.url == 'object' && !this.url.get)) return;
 			if (this.recid == null || typeof this.recid == 'undefined') this.recid = 0;
 			// build parameters list
 			var params = {};
@@ -365,10 +367,12 @@
 			this.original = {};
 			// call server to get data
 			this.lock(this.msgRefresh);
+			var url = eventData.url;
+			if (typeof eventData.url == 'object' && eventData.url.get) url = eventData.url.get;
 			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
 			this.last.xhr = $.ajax({
 				type		: 'GET',
-				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				url			: url,
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
@@ -439,7 +443,7 @@
 			}
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (!obj.url) {
+			if (!obj.url || (typeof obj.url == 'object' && !obj.url.save)) {
 				console.log("ERROR: Form cannot be saved because no url is defined.");
 				return;
 			}
@@ -478,10 +482,12 @@
 					return false; 
 				}
 				// default action
+				var url = eventData.url;
+				if (typeof eventData.url == 'object' && eventData.url.save) url = eventData.url.save;
 				if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {};
 				obj.last.xhr = $.ajax({
 					type		: (w2utils.settings.RESTfull ? (obj.recid == 0 ? 'POST' : 'PUT') : 'POST'),
-					url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+					url			: url,
 					data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 					dataType	: 'text',
 					xhr	: function() {
@@ -862,7 +868,8 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// after render actions
 			this.resize();
-			if (this.url != '' && this.recid != 0) {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url && this.recid != 0) {
 				this.request(); 
 			} else {
 				this.refresh();

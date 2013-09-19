@@ -85,6 +85,7 @@
 *	- added mergeChanged() 
 *	- added onEditField event
 *	- improoved search(), now it does not require search definitions
+*	- grid.url can be string or object { get, save, remove }
 *
 ************************************************************************/
 
@@ -302,7 +303,8 @@
 				added++;
 			}
 			this.buffered = this.records.length;
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				this.localSort();
 				this.localSearch();
 			}
@@ -349,7 +351,8 @@
 					if (tr.length != 0) {
 						var line = tr.attr('line');
 						// if it is searched, find index in search array
-						if (this.searchData.length > 0 && this.url == '') for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
+						var url = (typeof this.url != 'object' ? this.url : this.url.get);
+						if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
 						$(tr).replaceWith(this.getRecordHTML(ind, line));
 					}
 				}
@@ -373,7 +376,8 @@
 					if (this.records[r].recid == arguments[a]) { this.records.splice(r, 1); removed++; }
 				}
 			}
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				this.buffered = this.records.length;
 				this.localSort();
 				this.localSearch();
@@ -555,7 +559,8 @@
 		},
 
 		localSort: function (silent) {
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.');
 				return;
 			}
@@ -587,7 +592,8 @@
 		},
 
 		localSearch: function (silent) {
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				console.log('ERROR: grid.localSearch can only be used on local data source, grid.url should be empty.');
 				return;
 			}
@@ -597,7 +603,7 @@
 			// mark all records as shown
 			this.last.searchIds = [];
 			// hide records that did not match
-			if (this.searchData.length > 0 && this.url == '') {
+			if (this.searchData.length > 0 && !url) {
 				this.total = 0;
 				for (var r in this.records) {
 					var rec = this.records[r];
@@ -974,7 +980,8 @@
 			// default action
 			var cols = [];
 			for (var c in this.columns) cols.push(parseInt(c));
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				if (this.searchData.length == 0) { 
 					// not searched
 					this.set({ selected: true });
@@ -1060,6 +1067,7 @@
 
 		search: function (field, value) {
 			var obj 		= this;
+			var url 		= (typeof this.url != 'object' ? this.url : this.url.get);
 			var searchData 	= [];
 			var last_multi 	= this.last.multi;
 			var last_logic 	= this.last.logic;
@@ -1102,7 +1110,7 @@
 						searchData.push(tmp);
 					}
 				}
-				if (searchData.length > 0 && this.url == '') {
+				if (searchData.length > 0 && !url) {
 					last_multi	= true;
 					last_logic  = 'AND';
 				} else {
@@ -1230,7 +1238,7 @@
 			this.searchClose();
 			this.set({ expanded: false });
 			// apply search
-			if (this.url != '') {
+			if (url) {
 				this.last.xhr_offset = 0;
 				this.reload();
 			} else {
@@ -1334,7 +1342,8 @@
 			// -- clear all search field
 			this.searchClose();
 			// apply search
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				this.last.xhr_offset = 0;
 				this.reload();
 			} else {
@@ -1347,7 +1356,8 @@
 		},
 
 		skip: function (offset) {
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				this.offset = parseInt(offset);
 				if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
 				if (this.offset > this.total) this.offset = this.total - this.limit;
@@ -1376,7 +1386,8 @@
 		},
 
 		reload: function (callBack) {
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				//this.refresh(); // show grid before pulling data
 				if (this.last.xhr_offset > 0 && this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
 				this.request('get-records', {}, null, callBack);
@@ -1441,14 +1452,21 @@
 			this.lock(this.msgRefresh, true);
 			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
-			if (params.cmd == 'save-records')   	xhr_type = 'PUT';  // so far it is always update
-			if (params.cmd == 'delete-records') 	xhr_type = 'DELETE';
+			var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
+			if (params.cmd == 'save-records') {
+				if (typeof eventData.url == 'object') url = eventData.url.save;
+				xhr_type = 'PUT';  // so far it is always update
+			}
+			if (params.cmd == 'delete-records') {
+				if (typeof eventData.url == 'object') url = eventData.url.remove;
+				xhr_type = 'DELETE';
+			}
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
 			this.last.xhr_cmd	 = params.cmd;
 			this.last.xhr_start  = (new Date()).getTime();
 			this.last.xhr = $.ajax({
 				type		: xhr_type,
-				url			: eventData.url, 
+				url			: url, 
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
@@ -1529,7 +1547,8 @@
 				obj.error('AJAX Error. See console for more details.');
 			}
 			// event after
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				this.localSort();
 				this.localSearch();
 			}
@@ -1588,7 +1607,8 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
 			if (eventData.isCancelled === true) return false;
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.save);
+			if (url) {
 				this.request('save-records', { 'changed' : eventData.changed }, null, 
 					function () { // event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -1785,7 +1805,8 @@
 				return;
 			}
 			// call delete script
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.remove);
+			if (url) {
 				this.request('delete-records');
 			} else {
 				if (typeof recs[0] != 'object') {
@@ -1817,7 +1838,7 @@
 			if (w2utils.isInt(recid)) recid = parseInt(recid);
 			if (typeof event == 'undefined') event = {};
 			// check for double click
-			if (time - parseInt(this.last.click_time) < 250) {
+			if (time - parseInt(this.last.click_time) < 250 && event.type == 'click') {
 				this.dblClick(recid, event);
 				return;
 			}
@@ -1877,8 +1898,9 @@
 				}
 				var sel_add = []
 				if (start > end) { var tmp = start; start = end; end = tmp; }
+				var url = (typeof this.url != 'object' ? this.url : this.url.get);
 				for (var i = start; i <= end; i++) {
-					if (this.searchData.length > 0 && this.url == '' && $.inArray(i, this.last.searchIds) == -1) continue;
+					if (this.searchData.length > 0 && !url && $.inArray(i, this.last.searchIds) == -1) continue;
 					if (this.selectType == 'row') {
 						sel_add.push(this.records[i].recid);
 					} else {
@@ -2482,7 +2504,8 @@
 				this.sortData = [];
 			}
 			// if local
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				this.localSort();
 				if (this.searchData.length > 0) this.localSearch(true);
 				// event after
@@ -2612,7 +2635,8 @@
 		refresh: function () {
 			var obj  = this;
 			var time = (new Date()).getTime();
-			if (this.total <= 0 && this.url == '' && this.searchData.length == 0) {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (this.total <= 0 && !url && this.searchData.length == 0) {
 				this.total = this.records.length;
 				this.buffered = this.total;
 			}
@@ -2926,7 +2950,8 @@
 					'</tr>';
 			}
 			col_html += '<tr><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				col_html +=
 						'<tr><td colspan="2" style="padding: 0px">'+
 						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
@@ -3796,11 +3821,12 @@
 			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.round(records.height() / this.recordHeight);
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' of ' +	w2utils.formatNumber(this.total) + 
-					(this.url != '' ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
+					(url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
 			);
 			// only for local data source, else no extra records loaded
-			if (this.url == '' && (!this.fixedBody || this.total <= 300)) return;
+			if (!url && (!this.fixedBody || this.total <= 300)) return;
 			// regular processing
 			var start 	= Math.floor(records[0].scrollTop / this.recordHeight) - this.show_extra;
 			var end		= start + Math.floor(records.height() / this.recordHeight) + this.show_extra * 2 + 1;
@@ -3925,8 +3951,9 @@
 				return rec_html;
 			}
 			// regular record
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (summary !== true) {
-				if (this.searchData.length > 0 && this.url == '') {
+				if (this.searchData.length > 0 && !url) {
 					if (ind >= this.last.searchIds.length) return '';
 					ind = this.last.searchIds[ind];
 					record = this.records[ind]; 
@@ -4108,12 +4135,12 @@
 
 		lock: function (msg, showSpinner) {
 			var box = $(this.box).find('> div:first-child');
-			w2utils.lock(box, msg, showSpinner);
+			setTimeout(function () { w2utils.lock(box, msg, showSpinner); }, 10);
 		},
 
 		unlock: function () { 
-			var obj = this;
-			setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
+			var box = this.box;
+			setTimeout(function () { w2utils.unlock(box); }, 25); // needed timer so if server fast, it will not flash
 		},
 
 		parseObj: function (obj, field) {

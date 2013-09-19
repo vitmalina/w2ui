@@ -433,7 +433,7 @@
 			var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (typeof panel != 'undefined' ? panel : obj.name), object: obj.get(panel) });	
 			if (eventData.isCancelled === true) return;
 	
-			obj.unlock(panel);
+			// obj.unlock(panel);
 			if (panel != null && typeof panel != 'undefined') {
 				var p = obj.get(panel);
 				if (p == null) return;
