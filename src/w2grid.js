@@ -108,22 +108,23 @@
 		this.toolbar			= {}; 		// if not empty object; then it is toolbar object
 
 		this.show = {
-			header			: false,
-			toolbar			: false,
-			footer			: false,
+			header		: false,
+			toolbar		: false,
+			footer		: false,
 			columnHeaders	: true,
-			lineNumbers		: false,
+			lineNumbers	: false,
 			expandColumn	: false,
 			selectColumn	: false,
 			emptyRecords	: true,
 			toolbarReload	: true,
 			toolbarColumns	: true,
 			toolbarSearch	: true,
-			toolbarAdd		: false,
+			toolbarAdd	: false,
 			toolbarEdit 	: false,
 			toolbarDelete 	: false,
-			toolbarSave		: false,
-			selectionBorder : true
+			toolbarSave	: false,
+			selectionBorder : true,
+			fieldHint	: false
 		}
 
 		this.autoLoad		= true; 	// for infinite scroll
@@ -4093,13 +4094,17 @@
 					}
 				}
 			} else {
-				// title overwrite
-				var title = String(data).replace(/"/g, "''");
-				if (typeof col.title != 'undefined') {
-					if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
-					if (typeof col.title == 'string')   title = col.title;
+				if (!this.fieldHint) {
+					var data = '<div>'+ data +'</div>';
+				} else {
+					// title overwrite
+					var title = String(data).replace(/"/g, "''");
+					if (typeof col.title != 'undefined') {
+						if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
+						if (typeof col.title == 'string')   title = col.title;
+					}
+					var data = '<div title="'+ title +'">'+ data +'</div>';	
 				}
-				var data = '<div title="'+ title +'">'+ data +'</div>';				
 			}
 			if (data == null || typeof data == 'undefined') data = '';
 			return data;
