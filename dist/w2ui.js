@@ -1,3 +1,4 @@
+/* w2ui 1.3.x (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -1261,6 +1262,7 @@ w2utils.keyboard = (function (obj) {
 *	- added mergeChanged() 
 *	- added onEditField event
 *	- improoved search(), now it does not require search definitions
+*	- grid.url can be string or object { get, save, remove }
 *
 ************************************************************************/
 
@@ -1478,7 +1480,8 @@ w2utils.keyboard = (function (obj) {
 				added++;
 			}
 			this.buffered = this.records.length;
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				this.localSort();
 				this.localSearch();
 			}
@@ -1525,7 +1528,8 @@ w2utils.keyboard = (function (obj) {
 					if (tr.length != 0) {
 						var line = tr.attr('line');
 						// if it is searched, find index in search array
-						if (this.searchData.length > 0 && this.url == '') for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
+						var url = (typeof this.url != 'object' ? this.url : this.url.get);
+						if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
 						$(tr).replaceWith(this.getRecordHTML(ind, line));
 					}
 				}
@@ -1549,7 +1553,8 @@ w2utils.keyboard = (function (obj) {
 					if (this.records[r].recid == arguments[a]) { this.records.splice(r, 1); removed++; }
 				}
 			}
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				this.buffered = this.records.length;
 				this.localSort();
 				this.localSearch();
@@ -1731,7 +1736,8 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		localSort: function (silent) {
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.');
 				return;
 			}
@@ -1763,7 +1769,8 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		localSearch: function (silent) {
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				console.log('ERROR: grid.localSearch can only be used on local data source, grid.url should be empty.');
 				return;
 			}
@@ -1773,7 +1780,7 @@ w2utils.keyboard = (function (obj) {
 			// mark all records as shown
 			this.last.searchIds = [];
 			// hide records that did not match
-			if (this.searchData.length > 0 && this.url == '') {
+			if (this.searchData.length > 0 && !url) {
 				this.total = 0;
 				for (var r in this.records) {
 					var rec = this.records[r];
@@ -2150,7 +2157,8 @@ w2utils.keyboard = (function (obj) {
 			// default action
 			var cols = [];
 			for (var c in this.columns) cols.push(parseInt(c));
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				if (this.searchData.length == 0) { 
 					// not searched
 					this.set({ selected: true });
@@ -2236,6 +2244,7 @@ w2utils.keyboard = (function (obj) {
 
 		search: function (field, value) {
 			var obj 		= this;
+			var url 		= (typeof this.url != 'object' ? this.url : this.url.get);
 			var searchData 	= [];
 			var last_multi 	= this.last.multi;
 			var last_logic 	= this.last.logic;
@@ -2278,7 +2287,7 @@ w2utils.keyboard = (function (obj) {
 						searchData.push(tmp);
 					}
 				}
-				if (searchData.length > 0 && this.url == '') {
+				if (searchData.length > 0 && !url) {
 					last_multi	= true;
 					last_logic  = 'AND';
 				} else {
@@ -2406,7 +2415,7 @@ w2utils.keyboard = (function (obj) {
 			this.searchClose();
 			this.set({ expanded: false });
 			// apply search
-			if (this.url != '') {
+			if (url) {
 				this.last.xhr_offset = 0;
 				this.reload();
 			} else {
@@ -2510,7 +2519,8 @@ w2utils.keyboard = (function (obj) {
 			// -- clear all search field
 			this.searchClose();
 			// apply search
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				this.last.xhr_offset = 0;
 				this.reload();
 			} else {
@@ -2523,7 +2533,8 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		skip: function (offset) {
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				this.offset = parseInt(offset);
 				if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
 				if (this.offset > this.total) this.offset = this.total - this.limit;
@@ -2552,7 +2563,8 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		reload: function (callBack) {
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				//this.refresh(); // show grid before pulling data
 				if (this.last.xhr_offset > 0 && this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
 				this.request('get-records', {}, null, callBack);
@@ -2617,14 +2629,21 @@ w2utils.keyboard = (function (obj) {
 			this.lock(this.msgRefresh, true);
 			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
-			if (params.cmd == 'save-records')   	xhr_type = 'PUT';  // so far it is always update
-			if (params.cmd == 'delete-records') 	xhr_type = 'DELETE';
+			var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
+			if (params.cmd == 'save-records') {
+				if (typeof eventData.url == 'object') url = eventData.url.save;
+				xhr_type = 'PUT';  // so far it is always update
+			}
+			if (params.cmd == 'delete-records') {
+				if (typeof eventData.url == 'object') url = eventData.url.remove;
+				xhr_type = 'DELETE';
+			}
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
 			this.last.xhr_cmd	 = params.cmd;
 			this.last.xhr_start  = (new Date()).getTime();
 			this.last.xhr = $.ajax({
 				type		: xhr_type,
-				url			: eventData.url, 
+				url			: url, 
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
@@ -2705,7 +2724,8 @@ w2utils.keyboard = (function (obj) {
 				obj.error('AJAX Error. See console for more details.');
 			}
 			// event after
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				this.localSort();
 				this.localSearch();
 			}
@@ -2764,7 +2784,8 @@ w2utils.keyboard = (function (obj) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
 			if (eventData.isCancelled === true) return false;
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.save);
+			if (url) {
 				this.request('save-records', { 'changed' : eventData.changed }, null, 
 					function () { // event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -2961,7 +2982,8 @@ w2utils.keyboard = (function (obj) {
 				return;
 			}
 			// call delete script
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.remove);
+			if (url) {
 				this.request('delete-records');
 			} else {
 				if (typeof recs[0] != 'object') {
@@ -2992,6 +3014,12 @@ w2utils.keyboard = (function (obj) {
 			}
 			if (w2utils.isInt(recid)) recid = parseInt(recid);
 			if (typeof event == 'undefined') event = {};
+			// check for double click
+			if (time - parseInt(this.last.click_time) < 250 && event.type == 'click') {
+				this.dblClick(recid, event);
+				return;
+			}
+			this.last.click_time = time;
 			// column user clicked on
 			if (column == null && event.target) {
 				var tmp = event.target;
@@ -3047,8 +3075,9 @@ w2utils.keyboard = (function (obj) {
 				}
 				var sel_add = []
 				if (start > end) { var tmp = start; start = end; end = tmp; }
+				var url = (typeof this.url != 'object' ? this.url : this.url.get);
 				for (var i = start; i <= end; i++) {
-					if (this.searchData.length > 0 && this.url == '' && $.inArray(i, this.last.searchIds) == -1) continue;
+					if (this.searchData.length > 0 && !url && $.inArray(i, this.last.searchIds) == -1) continue;
 					if (this.selectType == 'row') {
 						sel_add.push(this.records[i].recid);
 					} else {
@@ -3652,7 +3681,8 @@ w2utils.keyboard = (function (obj) {
 				this.sortData = [];
 			}
 			// if local
-			if (this.url == '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (!url) {
 				this.localSort();
 				if (this.searchData.length > 0) this.localSearch(true);
 				// event after
@@ -3782,7 +3812,8 @@ w2utils.keyboard = (function (obj) {
 		refresh: function () {
 			var obj  = this;
 			var time = (new Date()).getTime();
-			if (this.total <= 0 && this.url == '' && this.searchData.length == 0) {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (this.total <= 0 && !url && this.searchData.length == 0) {
 				this.total = this.records.length;
 				this.buffered = this.total;
 			}
@@ -4096,7 +4127,8 @@ w2utils.keyboard = (function (obj) {
 					'</tr>';
 			}
 			col_html += '<tr><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
-			if (this.url != '') {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url) {
 				col_html +=
 						'<tr><td colspan="2" style="padding: 0px">'+
 						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
@@ -4966,11 +4998,12 @@ w2utils.keyboard = (function (obj) {
 			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.round(records.height() / this.recordHeight);
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' of ' +	w2utils.formatNumber(this.total) + 
-					(this.url != '' ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
+					(url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
 			);
 			// only for local data source, else no extra records loaded
-			if (this.url == '' && (!this.fixedBody || this.total <= 300)) return;
+			if (!url && (!this.fixedBody || this.total <= 300)) return;
 			// regular processing
 			var start 	= Math.floor(records[0].scrollTop / this.recordHeight) - this.show_extra;
 			var end		= start + Math.floor(records.height() / this.recordHeight) + this.show_extra * 2 + 1;
@@ -5095,8 +5128,9 @@ w2utils.keyboard = (function (obj) {
 				return rec_html;
 			}
 			// regular record
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (summary !== true) {
-				if (this.searchData.length > 0 && this.url == '') {
+				if (this.searchData.length > 0 && !url) {
 					if (ind >= this.last.searchIds.length) return '';
 					ind = this.last.searchIds[ind];
 					record = this.records[ind]; 
@@ -5117,10 +5151,9 @@ w2utils.keyboard = (function (obj) {
 				' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
 				(summary !== true ?
 					(this.isIOS ?
-						'	onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);" '
+						'	onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
 						:
-						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
-						'	ondblclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);" '
+						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'
 					 ) 
 					: ''
 				) +
@@ -5279,12 +5312,12 @@ w2utils.keyboard = (function (obj) {
 
 		lock: function (msg, showSpinner) {
 			var box = $(this.box).find('> div:first-child');
-			w2utils.lock(box, msg, showSpinner);
+			setTimeout(function () { w2utils.lock(box, msg, showSpinner); }, 10);
 		},
 
 		unlock: function () { 
-			var obj = this;
-			setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
+			var box = this.box;
+			setTimeout(function () { w2utils.unlock(box); }, 25); // needed timer so if server fast, it will not flash
 		},
 
 		parseObj: function (obj, field) {
@@ -5740,7 +5773,7 @@ w2utils.keyboard = (function (obj) {
 			var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (typeof panel != 'undefined' ? panel : obj.name), object: obj.get(panel) });	
 			if (eventData.isCancelled === true) return;
 	
-			obj.unlock(panel);
+			// obj.unlock(panel);
 			if (panel != null && typeof panel != 'undefined') {
 				var p = obj.get(panel);
 				if (p == null) return;
@@ -10152,6 +10185,7 @@ var w2confirm = function (msg, title, callBack) {
 * 	- removed focusFirst added focus
 *	- added toolbar property
 *	- added onToolbar event
+*	- form.url can be a string or object { get, save }
 *
 ************************************************************************/
 
@@ -10354,7 +10388,8 @@ var w2confirm = function (msg, title, callBack) {
 		},
 	
 		reload: function (callBack) {
-			if (this.url != '' && this.recid != 0) {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url && this.recid != 0) {
 				//this.clear();
 				this.request(callBack);
 			} else {
@@ -10475,7 +10510,7 @@ var w2confirm = function (msg, title, callBack) {
 				postData 	= null;
 			}
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (!this.url) return;
+			if (!this.url || (typeof this.url == 'object' && !this.url.get)) return;
 			if (this.recid == null || typeof this.recid == 'undefined') this.recid = 0;
 			// build parameters list
 			var params = {};
@@ -10494,10 +10529,12 @@ var w2confirm = function (msg, title, callBack) {
 			this.original = {};
 			// call server to get data
 			this.lock(this.msgRefresh);
+			var url = eventData.url;
+			if (typeof eventData.url == 'object' && eventData.url.get) url = eventData.url.get;
 			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
 			this.last.xhr = $.ajax({
 				type		: 'GET',
-				url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+				url			: url,
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
@@ -10568,7 +10605,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// submit save
 			if (typeof postData == 'undefined' || postData == null) postData = {};
-			if (!obj.url) {
+			if (!obj.url || (typeof obj.url == 'object' && !obj.url.save)) {
 				console.log("ERROR: Form cannot be saved because no url is defined.");
 				return;
 			}
@@ -10607,10 +10644,12 @@ var w2confirm = function (msg, title, callBack) {
 					return false; 
 				}
 				// default action
+				var url = eventData.url;
+				if (typeof eventData.url == 'object' && eventData.url.save) url = eventData.url.save;
 				if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {};
 				obj.last.xhr = $.ajax({
 					type		: (w2utils.settings.RESTfull ? (obj.recid == 0 ? 'POST' : 'PUT') : 'POST'),
-					url			: eventData.url, // + (eventData.url.indexOf('?') > -1 ? '&' : '?') +'t=' + (new Date()).getTime(),
+					url			: url,
 					data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 					dataType	: 'text',
 					xhr	: function() {
@@ -10991,7 +11030,8 @@ var w2confirm = function (msg, title, callBack) {
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// after render actions
 			this.resize();
-			if (this.url != '' && this.recid != 0) {
+			var url = (typeof this.url != 'object' ? this.url : this.url.get);
+			if (url && this.recid != 0) {
 				this.request(); 
 			} else {
 				this.refresh();

@@ -1,5 +1,5 @@
 <project name="w2ui" basedir="." default="build">
-	<property name="w2ui.version" value="/* w2ui 1.x (c) http://w2ui.com, vitmalina@gmail.com */"/>
+	<property name="w2ui.version" value="/* w2ui 1.3.x (c) http://w2ui.com, vitmalina@gmail.com */"/>
 	<property name="kickstart.version" value="/* kicstart 0.x (c) http://w2ui.com/kickstart, vitmalina@gmail.com */"/>
 
 	<target name="clean">
@@ -44,6 +44,7 @@
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
+			<fileset dir="dist" includes="w2ui.css" />
 			<fileset dir="dist" includes="w2ui.min.css" />
 		</replaceregexp>
 
@@ -73,6 +74,7 @@
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
+			<fileset dir="dist" includes="w2ui-dark.css" />
 			<fileset dir="dist" includes="w2ui-dark.min.css" />
 		</replaceregexp>
 
@@ -105,6 +107,7 @@
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${kickstart.version}${line.separator}" flags="s">
+			<fileset dir="dist" includes="kickstart.css" />
 			<fileset dir="dist" includes="kickstart.min.css" />
 		</replaceregexp>
 	</target>
@@ -130,6 +133,7 @@
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${w2ui.version}${line.separator}" flags="s">
+			<fileset dir="dist" includes="w2ui.js" />
 			<fileset dir="dist" includes="w2ui.min.js" />
 		</replaceregexp>
 
@@ -154,6 +158,7 @@
 
 		<echo message="Add Copyright Statement"/>
 		<replaceregexp match="^" replace="${kickstart.version}${line.separator}" flags="s">
+			<fileset dir="dist" includes="kickstart.js" />
 			<fileset dir="dist" includes="kickstart.min.js" />
 		</replaceregexp>
 	</target>

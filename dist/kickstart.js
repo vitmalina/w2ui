@@ -1,3 +1,4 @@
+/* kicstart 0.x (c) http://w2ui.com/kickstart, vitmalina@gmail.com */
 var app = {};
 
 /****************************************************
