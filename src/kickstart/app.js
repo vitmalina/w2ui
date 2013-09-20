@@ -13,43 +13,58 @@ app.header = function (msg) {
 // -- Loads modules or calls .render()
 // -- if module was previously loaded
 
-app.load = function (name, params, callBack) {
-	if (typeof app.core.modules[name] == 'undefined') {
-		console.log('ERROR: module "'+ name +'" is not defined. Define it in app/conf/modules.js.');
-		return;
+app.load = function (names, params, callBack) {
+	if (!$.isArray(names)) names = [names];
+	if (typeof params == 'function') {
+		callBack = params;
+		params   = {};
 	}
 	if (!params) params = {};
-	// init module and pass params
-	app[name] = app[name] || {};
-	app[name].params = $.extend({}, params);
-	// check if was loaded before 
-	if (app.core.modules[name] && app.core.modules[name].isLoaded === true) {
-		if (typeof app[name].render == 'undefined') {
-			console.log('ERROR: Loader: module "'+ name + '" has no render() method.');
-		} else {
-			app[name].render();
-			if (typeof callBack == 'function') callBack(true);
+	var modCount = names.length;
+	for (var n in names) {
+		var name = names[n];
+		if (typeof app.core.modules[name] == 'undefined') {
+			modCount--;
+			console.log('ERROR: module "'+ name +'" is not defined. Define it in app/conf/modules.js.');
+			return;
 		}
-	} else {
-		app.ajax({ 
-			url 	: app.core.modules[name].url, 
-			dataType: "script", 
-			success	: function (data, status, respObj) {
-				app.core.modules[name].isLoaded = true;
-				if (typeof callBack == 'function') callBack(true);
-			},
-			error 	: function (respObj, err, errData) {
-				if (err == 'error') {
-					console.log('ERROR: Loader: module "'+ name +'" failed to load ('+ app.core.modules[name].url +').');
-				} else {
-					console.log('ERROR: Loader: module "'+ name + '" is loaded ('+ app.core.modules[name].url +'), but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
+		// init module and pass params
+		app[name] = app[name] || {};
+		app[name].params = $.extend({}, params);
+		// check if was loaded before 
+		if (app.core.modules[name] && app.core.modules[name].isLoaded === true) {
+			modCount--;
+			if (typeof app[name].render == 'undefined') {
+				console.log('ERROR: Loader: module "'+ name + '" has no render() method.');
+			} else {
+				app[name].render();
+				isFinished();
+			}
+		} else {
+			app.ajax({ url : app.core.modules[name].url, dataType: "script" })
+				.always(function () { // arguments are either same as done or fail
+					modCount--;
+				})
+				.done(function (data, status, xhr) {
 					app.core.modules[name].isLoaded = true;
-					if (typeof callBack == 'function') callBack(false);
-				}
-			} 
-		});		
+					isFinished();
+				})
+				.fail(function (xhr, err, errData) {
+					if (err == 'error') {
+						console.log('ERROR: Loader: module "'+ name +'" failed to load ('+ app.core.modules[name].url +').');
+					} else {
+						console.log('ERROR: Loader: module "'+ name + '" is loaded ('+ app.core.modules[name].url +'), but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
+						app.core.modules[name].isLoaded = true;
+						isFinished();
+					}
+				});
+		}
 	}
-};
+
+	function isFinished() {
+		if (typeof callBack == 'function' && modCount == 0) callBack(true);
+	}
+}
 
 // ===========================================
 // -- Loads a set of files and returns 
@@ -93,7 +108,7 @@ app.get = function (files, callBack) {
 		bufferLen--;
 		if (bufferLen <= 0) callBack(bufferObj);
 	}
-};
+}
 
 // ===========================================
 // -- Includes all files as scripts in order to see error line
@@ -103,7 +118,7 @@ app.include = function (files) {
 	for (var i in files) {
 		$(document).append('<script type="text/javascript" src="'+ files[i] +'"></script>');
 	}
-};
+}
 
 // ===========================================
 // -- Common place for all AJAX calls
@@ -118,8 +133,8 @@ app.ajax = function (url, options) {
 	}
 	options.cache = false;
 	// submit through jquery
-	$.ajax(options);
-};
+	return $.ajax(options);
+}
 
 // ===========================================
 // -- Dialogs
