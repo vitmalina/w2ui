@@ -3058,7 +3058,7 @@
 						'			}">'+
 						'	</td>'+
 						'	<td>'+
-						'		<div title="Clear Search" class="w2ui-search-clear" id="grid_'+ this.name +'_searchClear"  '+
+						'		<div title="'+w2utils.lang('Clear Search')+" class="w2ui-search-clear" id="grid_'+ this.name +'_searchClear"  '+
 						'			 onclick="var obj = w2ui[\''+ this.name +'\']; obj.searchReset();" '+
 						'		>&nbsp;&nbsp;</div>'+
 						'	</td>'+
