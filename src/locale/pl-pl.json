@@ -55,6 +55,9 @@
 		"Notification" : "Powiadomienie",
 		"Show" : "Pokaż",
 		"Hide" : "Ukryj",
-		"of" : "z"
+		"of" : "z",
+		"Server Response" : "Odpowiedź serwera",
+		"buffered" : "zbuforowanych",
+		"Clear Search" : "Wycofaj szukanie",
 	}
 }
