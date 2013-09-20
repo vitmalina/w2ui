@@ -9,6 +9,17 @@ app.header = function (msg) {
 	$('#app-header').html(msg);
 }
 
+app.timer = function () {
+	app._timer_start = (new Date()).getTime();
+	app._timer_lap   = (new Date()).getTime();
+	console.log('Start Timer');
+}
+
+app.lap = function () {
+	console.log('Total:', (new Date()).getTime() - app._timer_start, 'Lap:', (new Date()).getTime() - app._timer_lap);
+	app._timer_lap   = (new Date()).getTime();
+}
+
 // ===========================================
 // -- Loads modules or calls .render()
 // -- if module was previously loaded
