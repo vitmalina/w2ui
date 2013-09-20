@@ -13,11 +13,14 @@
 *	- enum - refresh happens on each key press even if not needed (for speed)
 *	- BUG with prefix/postfix and arrows (test in different contexts)
 *	- multiple date selection
+*	- rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
 * 
 * == 1.3 changes ==
 *	- select type has options.url to pull from server
 *	- input number types with use of keyboard, prefix/suffic, arrow buttons
 *	- added render for enum, if returns === false, no item is show
+* 	- added enum onShow, onHide, onAdd, onRemove, onItemOver, onItemOut, onItemClick
+*	- enum readonly
 *
 ************************************************************************/
 
@@ -580,13 +583,18 @@
 							items		: [],
 							selected 	: [],				// preselected items
 							max 		: 0,				// maximum number of items that can be selected 0 for unlim
-							maxHeight 	: 72, 				// max height for input control to grow
+							maxHeight 	: 172, 				// max height for input control to grow
 							showAll		: false,			// if true then show selected item in drop down
 							match 		: 'begins with', 	// ['begins with', 'contains']
-							render 		: null,				// render function
+							render 		: null,				// render(item, selected)
 							maxCache 	: 500,				// number items to cache
-							onRender 	: null,				// -- not implemented
-							onSelect 	: null				// -- not implemented (you can use onChange for the input)
+							onShow		: null,				// when overlay is shown onShow(settings)
+							onHide		: null,				// when overlay is hidden onHide(settings)
+							onAdd 		: null,				// onAdd(item, settings)
+							onRemove 	: null,				// onRemove(index, settings)
+							onItemOver  : null,
+							onItemOut   : null,
+							onItemClick : null
 						}
 						var obj	= this;
 						var settings = $.extend({}, defaults, options);
@@ -605,19 +613,40 @@
 
 						// add item to selected
 						this.add = function (item) {
+							if ($(this).attr('readonly')) return;
 							var selected = $(this).data('selected');
+							var settings = $(this).data('settings');
+							if (typeof settings.onAdd == 'function') {
+								var cancel = settings.onAdd(item, settings);
+								if (cancel === false) return;
+							}
 							if (!$.isArray(selected)) selected = [];
 							if (settings.max != 0 && settings.max <= selected.length) {
 								// if max reached, replace last
 								selected.splice(selected.length - 1, 1);
 							}
 							selected.push(item);
-							$(this).data('selected', selected);
 							$(this).data('last_del', null);
 							$(this).trigger('change');
 						}
 
+						this.remove = function (index) {
+							var settings = $(this).data('settings');
+							if (typeof settings.onRemove == 'function') {
+								var cancel = settings.onRemove(index, settings);
+								if (cancel === false) return;
+							}
+							if ($(this).attr('readonly')) return;
+							$(this).data('selected').splice(index, 1);
+							$(this).parent().find('[title=Remove][index='+ index +']').remove();
+							this.refresh(); 
+							w2field.list_render.call(this);
+							$(this).trigger('change');
+						}
+
 						this.show = function () {
+							if ($(this).attr('readonly')) return;
+							var settings = $(this).data('settings');
 							// insert global div
 							if ($('#w2ui-global-items').length == 0) {
 								$('body').append('<div id="w2ui-global-items" class="w2ui-reset w2ui-items"></div>');
@@ -662,11 +691,16 @@
 								if (div.length > 0) $(obj).data('mtimer', setTimeout(monitor, 100));
 							};
 							$(obj).data('mtimer', setTimeout(monitor, 100));
+							// onShow
+							if (typeof settings.onShow == 'function') settings.onShow.call(this, settings);
 						}						
 
 						this.hide = function () {
+							var settings = $(this).data('settings');
 							clearTimeout($(obj).data('mtimer'));
 							$('#w2ui-global-items').remove();
+							// onShow
+							if (typeof settings.onHide == 'function') settings.onHide.call(this, settings);
 						}
 
 						// render controls with all items in it
@@ -683,40 +717,61 @@
 										 		   - parseInt($(this).css('margin-left')) 
 										 		   - parseInt($(this).css('margin-right'))) + 'px; ';
 							var html = '<div class="w2ui-list" style="'+ margin + ';">'+
-									   '<ul>';
+									   '<div style="padding: 0px; margin: 0px; display: inline-block"><ul>';
 							var selected = $(this).data('selected');
 							for (var s in selected) {
 								html += '<li style="'+ ($(this).data('last_del') == s ? 'opacity: 0.5' : '') +'">'+
-										'<div title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+
-										selected[s].text +
+										'	<div title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+
+											selected[s].text +
 										'</li>';
-							}
-							html += '<li><input type="text"></li>';
-							html += '</ul></div>';
+							}							
+							html += '<li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
+									'	<input type="text" '+ ($(this).attr('readonly') ? 'readonly': '') +' style="background-color: transparent">'+
+									'</li>'+
+									'</ul></div>'+
+									'</div>';
 							$(this).before(html);
-							// adjust height
+
 							var div = $(this).prev()[0];
 							$(this).data('div', div);
-							var cntHeight = w2utils.getSize(div, 'height');
-							if (cntHeight < 23) cntHeight = 23;
-							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
-							$(div).height(cntHeight);
-							if (div.length > 0) div[0].scrollTop = 1000;
-							$(this).height(cntHeight);
-
-							$(div).on('click', function (event) {
-								var el = event.target;
-								if (el.title == w2utils.lang('Remove')) {
-									$(obj).data('selected').splice($(el).attr('index'), 1);
-									$(el.parentNode).remove();
-									obj.refresh(); 
-									w2field.list_render.call(obj);
-									$(obj).trigger('change');
-									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-								}
-								$(this).find('input').focus();
-							});
-							$(div).find('input')
+							// click on item
+							$(div).find('li')
+								.data('mouse', 'out')
+								.on('click', function (event) {
+									if ($(event.target).hasClass('nomouse')) return;
+									if (event.target.title == w2utils.lang('Remove')) {
+										obj.remove($(event.target).attr('index'));
+										return;
+									}
+									event.stopPropagation();
+									if (typeof settings.onItemClick == 'function') settings.onItemClick.call(this, settings);
+								})
+								.on('mouseover', function (event) {
+									var tmp = event.target;
+									if (tmp.tagName != 'LI') tmp = tmp.parentNode;
+									if ($(tmp).hasClass('nomouse')) return;
+									if ($(tmp).data('mouse') == 'out') {
+										if (typeof settings.onItemOver == 'function') settings.onItemOver.call(this, settings);
+									}
+									$(tmp).data('mouse', 'over');
+								})
+								.on('mouseout', function (event) {
+									var tmp = event.target;
+									if (tmp.tagName != 'LI') tmp = tmp.parentNode;
+									if ($(tmp).hasClass('nomouse')) return;
+									$(tmp).data('mouse', 'leaving');
+									setTimeout(function () {
+										if ($(tmp).data('mouse') == 'leaving') {
+											$(tmp).data('mouse', 'out');
+											if (typeof settings.onItemOut == 'function') settings.onItemOut.call(this, settings);
+										}
+									}, 0);
+								});
+							$(div) // click on item
+								.on('click', function (event) {
+									$(this).find('input').focus();
+								})
+								.find('input')
 								.on('focus', function (event) {
 									$(div).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
 									obj.show();
@@ -727,10 +782,22 @@
 									obj.hide();
 									if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 								});
+							// adjust height
+							obj.resize();
+						}
+						this.resize = function () {
+							var settings = $(this).data('settings');
+							var div = $(this).prev();
+							var cntHeight = $(div).find('>div').height(); //w2utils.getSize(div, 'height');
+							if (cntHeight < 23) cntHeight = 23;
+							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
+							$(div).height(cntHeight + 3);
+							if (div.length > 0) div[0].scrollTop = 1000;
+							$(this).height(cntHeight + 3);
 						}
 						// init control
 						$(this).data('settings', settings).attr('tabindex', -1);
-						this.refresh();
+						obj.refresh();
 						break;
 
 					case 'upload':
@@ -877,16 +944,17 @@
 					id 	 = i;
 					text = opt;
 				} else {
-					if (typeof opt == 'string') {
-						if (String(opt) == '') continue;
-						id   = opt;
-						text = opt;
-					}
 					if (typeof opt == 'object') {
 					 	if (typeof opt.id != 'undefined')    id = opt.id;
 						if (typeof opt.value != 'undefined') id = opt.value;
 						if (typeof opt.txt != 'undefined')   text = opt.txt;
 						if (typeof opt.text != 'undefined')  text = opt.text;
+					}
+					if (typeof opt == 'string') {
+						if (String(opt) == '') continue;
+						id   = opt;
+						text = opt;
+						opt  = {};
 					}
 				}
 				if (w2utils.isInt(id)) id = parseInt(id);
@@ -1259,15 +1327,7 @@
 									} else {
 										// delete marked one
 										var selected = $(obj).data('selected'); 
-										if (!$.isArray(selected)) selected = [];
-										if (selected.length > 0) {
-											selected.splice(selected.length-1, 1);
-										}
-										$(obj).data('selected', selected);
-										$(obj).data('last_del', null);
-										// refrech
-										obj.refresh();
-										$(obj).trigger('change');
+										obj.remove(selected.length - 1);
 									}
 								}
 								break;
@@ -1277,14 +1337,7 @@
 								break;
 						}
 						// adjust height
-						var div = $(obj).prev();
-						div.css('height', 'auto');
-						var cntHeight = w2utils.getSize(div, 'height');
-						if (cntHeight < 23) cntHeight = 23;
-						if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
-						$(div).height(cntHeight);
-						if (div.length > 0) div[0].scrollTop = 1000;
-						$(this).height(cntHeight);
+						obj.resize();
 
 						// refresh menu
 						if (!(event.keyCode == 8 && String(inp.value) == '')) { 
