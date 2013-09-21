@@ -714,7 +714,7 @@ select {
   width: auto;
   padding: 2px 5px;
   border: 1px solid #88b0d6;
-  background-color: #fafafa;
+  background-color: #eff3f5;
   white-space: nowrap;
   cursor: default;
   font-family: verdana;
@@ -722,7 +722,7 @@ select {
   line-height: normal;
 }
 .w2ui-list ul li:hover {
-  background-color: #e1e1e1;
+  background-color: #d0dbe1;
 }
 .w2ui-list ul li:last-child {
   border-radius: 0px;
@@ -843,7 +843,7 @@ select {
   float: left;
   display: inline-block;
   border: 1px solid #88b0d6;
-  background-color: #fafafa;
+  background-color: #eff3f5;
   border-radius: 3px;
   margin: 2px 0px 2px 2px;
   text-align: left;
@@ -855,7 +855,7 @@ select {
   max-width: 400px;
 }
 .w2ui-upload .file-list li:hover {
-  background-color: #e1e1e1;
+  background-color: #d0dbe1;
 }
 .w2ui-upload .file-list li > span.file-size {
   pointer-events: none;
