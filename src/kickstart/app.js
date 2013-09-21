@@ -15,9 +15,10 @@ app.timer = function () {
 	console.log('Start Timer');
 }
 
-app.lap = function () {
-	console.log('Total:', (new Date()).getTime() - app._timer_start, 'Lap:', (new Date()).getTime() - app._timer_lap);
-	app._timer_lap   = (new Date()).getTime();
+app.lap = function (name) {
+	if (typeof name != 'string') name = ''; else name = ' "' + name + '"';
+	console.log('Total:', (new Date()).getTime() - app._timer_start, 'Lap'+ name + ':', (new Date()).getTime() - app._timer_lap);
+	app._timer_lap = (new Date()).getTime();
 }
 
 // ===========================================
@@ -52,7 +53,7 @@ app.load = function (names, params, callBack) {
 				isFinished();
 			}
 		} else {
-			app.ajax({ url : app.core.modules[name].url, dataType: "script" })
+			$.ajax({ url : app.core.modules[name].url, dataType: "script" })
 				.always(function () { // arguments are either same as done or fail
 					modCount--;
 				})
@@ -90,7 +91,7 @@ app.get = function (files, callBack) {
 		(function () {
 			var index = i;
 			var path  = files[i];
-			app.ajax({
+			$.ajax({
 				url		: path,
 				dataType: 'text',
 				success : function (data, success, responseObj) {
@@ -129,64 +130,4 @@ app.include = function (files) {
 	for (var i in files) {
 		$(document).append('<script type="text/javascript" src="'+ files[i] +'"></script>');
 	}
-}
-
-// ===========================================
-// -- Common place for all AJAX calls
-
-app.ajax = function (url, options) {
-	if (typeof options == 'undefined') options = url; else $.extend(options, { url: url });
-	if (typeof options.error != 'undefined') options._error_ = options.error; 
-	// custom error handler
-	options.error = function (xhr, status, error) {
-		if (typeof app.ajaxError == 'function') app.ajaxError(xhr, status, error);
-		if (typeof options._error_ == 'function') options._error_(xhr, status, error);
-	}
-	options.cache = false;
-	// submit through jquery
-	return $.ajax(options);
-}
-
-// ===========================================
-// -- Dialogs
-
-app.error = function (msg, title, callBack) {
-	if (typeof callBack == 'undefined' && typeof title == 'function') {
-		callBack = title; 
-		title = 'Error';
-	}
-	if (typeof title == 'undefined') {
-		title = 'Error';
-	}
-	// if popup is open
-	if ($('#w2ui-popup').length > 0) {
-		$('#w2ui-popup .w2ui-popup-message').remove();
-		$().w2popup('message', {
-			width 	: 500,
-			height 	: 200,
-			showMax : false,
-			html 	: 
-				'<div class="centered"><div style="padding-bottom: 30px">'+
-				'	<div style=\'display: inline-block; text-align: left; font-size: 12px; font-family: Monaco, "Courier New"; color: #555;\'>'+ 
-						String(msg).replace(/\n/g, '<br>') +
-				'	</div>' +
-				'</div></div>'
-		});
-		$('#w2ui-popup .w2ui-popup-message').on('click', function (event) { if (typeof callBack == 'function') callBack(); });
-		return;
-	}
-	// open in as a popup
-	$().w2popup('open', {
-		width 	: 500,
-		height 	: 245,
-		showMax : false,
-		title 	: (typeof title != 'undefined' ? title : 'Error'),
-		body 	: '<div class="centered"><div>'+
-			 	  '  <div style=\'display: inline-block; text-align: left; font-size: 12px; font-family: Monaco, "Courier New"; color: #555;\'>'+ 
-			 			String(msg).replace(/\n/g, '<br>') +
-				  '	 </div>' +
-				  '</div></div>',
-		buttons : '<input type="button" value="Ok" onclick="$().w2popup(\'close\')" style="width: 60px">',
-		onClose : function () { if (typeof callBack == 'function') callBack(); }
-	});
 }
