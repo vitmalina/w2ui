@@ -59,5 +59,9 @@
 		"Server Response" : "Odpowiedź serwera",
 		"buffered" : "zbuforowanych",
 		"Clear Search" : "Wycofaj szukanie",
+		"Toggle Line Numbers" : "Przełącz numery wierszy",
+		"Skip" : "Pomiń",
+		"Records" : "Rekordów",
+		"Reset Column Size" : "Domyśne szer. kolumn"
 	}
 }
