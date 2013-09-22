@@ -31,6 +31,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 ************************************************/
 
 var w2utils = (function () {
+	var tmp = {}; // for some temp variables
 	var obj = {
 		settings : {
 			"locale"		: "en-us",
@@ -42,7 +43,7 @@ var w2utils = (function () {
 			"float"			: "^[-]?[0-9]*[\.]?[0-9]+$",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-			"shortdays"		: ["M", "T", "W", "T", "F", "S","S"],
+			"shortdays"		: ["M", "T", "W", "T", "F", "S", "S"],
 			"fulldays" 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
 			"RESTfull"		: false,
 			"phrases"		: {} // empty object for english phrases
@@ -753,14 +754,14 @@ var w2utils = (function () {
 	}
 
 	function scrollBarSize () {
-		if (w2utils._scrollBarSize) return w2utils._scrollBarSize; 
+		if (tmp.scollBarSize) return tmp.scollBarSize; 
 		var html = '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
 				   '	<div style="height: 120px">1</div>'+
 				   '</div>';
 		$('body').append(html);
-		w2utils._scrollBarSize = 100 - $('#_scrollbar_width > div').width();
+		tmp.scollBarSize = 100 - $('#_scrollbar_width > div').width();
 		$('#_scrollbar_width').remove();
-		return w2utils._scrollBarSize;
+		return tmp.scollBarSize;
 	}
 
 })();

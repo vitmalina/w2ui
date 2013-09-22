@@ -40,6 +40,34 @@
 	});
 </script>
 <body>
+	<style>
+		.test {
+			margin: 20px;
+			padding: 5px;
+
+		}
+		.helper1 {
+			display: inline;
+			position: relative;
+			border: 1px solid red;
+			border-radius: 3px;
+			padding: 5px;
+			margin: 0px;
+			margin-left: -20px;
+		}
+		.helper2 {
+			display: inline;
+			position: relative;
+			border: 1px solid red;
+			padding: 0px;
+			margin: 0px;
+			margin-left: -20px;
+		}
+	</style>
+	<input type="text" class="test">
+		<div class="helper1">1</div>
+	</input>
+
 	<div style="padding: 5px 0px;"> 
 		Inside: &nbsp;&nbsp;
 		<a href="javascript:" onclick="$('.w2ui-form').show(); $('table').hide();">div.w2ui-form </a>
