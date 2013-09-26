@@ -32,6 +32,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 ************************************************/
 
 var w2utils = (function () {
+	var tmp = {}; // for some temp variables
 	var obj = {
 		settings : {
 			"locale"		: "en-us",
@@ -43,7 +44,7 @@ var w2utils = (function () {
 			"float"			: "^[-]?[0-9]*[\.]?[0-9]+$",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-			"shortdays"		: ["M", "T", "W", "T", "F", "S","S"],
+			"shortdays"		: ["M", "T", "W", "T", "F", "S", "S"],
 			"fulldays" 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
 			"RESTfull"		: false,
 			"phrases"		: {} // empty object for english phrases
@@ -754,14 +755,14 @@ var w2utils = (function () {
 	}
 
 	function scrollBarSize () {
-		if (w2utils._scrollBarSize) return w2utils._scrollBarSize; 
+		if (tmp.scollBarSize) return tmp.scollBarSize; 
 		var html = '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
 				   '	<div style="height: 120px">1</div>'+
 				   '</div>';
 		$('body').append(html);
-		w2utils._scrollBarSize = 100 - $('#_scrollbar_width > div').width();
+		tmp.scollBarSize = 100 - $('#_scrollbar_width > div').width();
 		$('#_scrollbar_width').remove();
-		return w2utils._scrollBarSize;
+		return tmp.scollBarSize;
 	}
 
 })();
@@ -4235,7 +4236,7 @@ w2utils.keyboard = (function (obj) {
 						'			}">'+
 						'	</td>'+
 						'	<td>'+
-						'		<div title="Clear Search" class="w2ui-search-clear" id="grid_'+ this.name +'_searchClear"  '+
+						'		<div title="'+ w2utils.lang('Clear Search') +'" class="w2ui-search-clear" id="grid_'+ this.name +'_searchClear"  '+
 						'			 onclick="var obj = w2ui[\''+ this.name +'\']; obj.searchReset();" '+
 						'		>&nbsp;&nbsp;</div>'+
 						'	</td>'+
@@ -5001,7 +5002,7 @@ w2utils.keyboard = (function (obj) {
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
-			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' of ' +	w2utils.formatNumber(this.total) + 
+			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +	w2utils.formatNumber(this.total) + 
 					(url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
 			);
 			// only for local data source, else no extra records loaded
@@ -8769,7 +8770,7 @@ var w2confirm = function (msg, title, callBack) {
 					case 'float':
 					case 'money':
 					case 'alphanumeric':
-					case 'hex': 							// parseInt() - IS SLOW
+					case 'hex':
 						var el = this;
 						var defaults = {
 							min 	: null,
@@ -8836,14 +8837,6 @@ var w2confirm = function (msg, title, callBack) {
 								// check validity
 								if (this.value != '' && !checkType(this.value)) $(this).val(options.min != null ? options.min : '');								
 							});
-						// var margin = {}, padding = {};
-						// var margin.top 	  = parseInt($(this).css('margin-top'));
-						// var margin.bottom  = parseInt($(this).css('margin-bottom'));
-						// var margin.right   = parseInt($(this).css('margin-right'));
-						// var padding.left   = parseInt($(this).css('padding-left'));
-						// var padding.right  = parseInt($(this).css('padding-right'));
-						// var padding.top    = parseInt($(this).css('padding-top'));
-						// var padding.bottom = parseInt($(this).css('padding-bottom'));							
 						if ($(this).val() == '' && options.min != null) $(this).val(options.min);
 						if (options.prefix != '') {
 							$(this).before(
