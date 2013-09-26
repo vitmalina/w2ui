@@ -26,7 +26,6 @@
 		border-top-left-radius: 4px;
 		border-top-right-radius: 4px;
 		cursor: default;
-
 		&.active {
 			color: @tabs-tab-active-color;
 			background-color: @tabs-tab-active-background-color;
@@ -39,17 +38,29 @@
 	}
 
 	.w2ui-tab-close {
+		color: #555;
+		text-shadow: 1px 1px 1px #bbb;
 		float: right;
-		margin: 4px 5px 0px 4px;
-		width: 12px;
+		margin: 6px 4px 0px 0px;
+		padding: 0px 0px 0px 5px;
+		width: 16px;
 		height: 16px;
 		opacity: 0.9;
-		.background-image(@image-item-close, no-repeat, center, left);
 		border: 0px;
 		border-top: 3px solid transparent;
-
+		border-radius: 9px;
 		&:hover {
-			background-position: -12px 0px;
+			background-color: #D77F7F;
+			color: white;
+		}
+		&:before {
+			position: relative;
+			top: -2px;
+			left: 0px;
+			opacity: 0.6;
+			color: inherit;
+			text-shadow: inherit;
+			content: 'x';
 		}
 	}
 }

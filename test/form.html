@@ -12,7 +12,7 @@
 	$(function () {
 		$('#form').w2form({ 
 			name     : 'form',
-			//url      : 'form.php',
+			url      : 'form.php',
 			//formURL  : 'form-template.html',
 			recid    : 4,
 			header   : 'Edit header',
@@ -34,7 +34,8 @@
 			},
 			record: {
 				"field.date": '15/3/2013',
-				"field.listurl": null
+				"field.listurl": null, 
+				"field.enum": [{ id: '1', text: 'item 1'}, { id: 2, text: 'item 2'}]
 			},
 			fields: [
 				{ name: 'field.text', type: 'text', required: true },
