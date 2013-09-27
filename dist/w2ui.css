@@ -1607,7 +1607,7 @@ select {
   position: absolute;
   z-index: 250;
   background-color: #f9f9f9;
-  border: 1px solid #aaaaaa;
+  border: 1px solid #999999;
   box-shadow: 0px 0px 15px #aaaaaa;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -1632,14 +1632,9 @@ select {
   bottom: 0px;
   z-index: 200;
 }
-.w2ui-popup .w2ui-msg-buttons input[type="button"],
-.w2ui-popup .w2ui-msg-buttons button {
-  margin: 0px 3px;
-  width: 80px;
-}
 .w2ui-popup .w2ui-popup-button {
-  min-width: 60px;
-  margin: 0px 6px;
+  width: 70px;
+  margin: 0px 5px;
 }
 .w2ui-popup .w2ui-msg-no-title {
   border-top-left-radius: 6px;

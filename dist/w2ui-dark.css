@@ -1649,28 +1649,21 @@ select {
   bottom: 0px;
   z-index: 200;
 }
-.w2ui-popup .w2ui-msg-buttons input[type="button"],
-.w2ui-popup .w2ui-msg-buttons button {
-  margin: 0px 3px;
-  width: 80px;
+.w2ui-popup .w2ui-popup-button {
+  width: 70px;
+  margin: 0px 5px;
   border-radius: 3px;
   border: 1px solid #242A37;
   background-color: #536184;
   color: #C0C8D5;
 }
-.w2ui-popup .w2ui-msg-buttons input[type="button"]:hover,
-.w2ui-popup .w2ui-msg-buttons button:hover {
+.w2ui-popup .w2ui-popup-button:hover {
   color: #C0C8D5;
   background-color: #36415F;
 }
-.w2ui-popup .w2ui-msg-buttons input[type="button"]:active,
-.w2ui-popup .w2ui-msg-buttons button:active {
+.w2ui-popup .w2ui-popup-button:active {
   color: white;
   background-color: #282F3E;
-}
-.w2ui-popup .w2ui-popup-button {
-  min-width: 60px;
-  margin: 0px 6px;
 }
 .w2ui-popup .w2ui-msg-no-title {
   border-top-left-radius: 6px;

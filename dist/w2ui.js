@@ -6325,6 +6325,7 @@ w2utils.keyboard = (function (obj) {
 *	- options.url is now for load or open methods
 *	- moved all events to w2events
 *	- aded lock() and unlock() functions
+*	- fixed w2alert() and w2confirm to work in already opend popup
 *
 ************************************************************************/
 
@@ -6622,7 +6623,7 @@ var w2popup = {};
 			switch (event.keyCode) {
 				case 27: 
 					event.preventDefault();
-					w2popup.close();
+					if ($('#w2ui-popup .w2ui-popup-message').length > 0) w2popup.message(); else w2popup.close();
 					break;
 			}
 			// event after
@@ -6762,7 +6763,7 @@ var w2popup = {};
 			if (!options) options = { width: 200, height: 100 };
 			if (parseInt(options.width) < 10)  options.width  = 10;
 			if (parseInt(options.height) < 10) options.height = 10;
-			if (typeof options.hideOnClick == 'undefined') options.hideOnClick = true;
+			if (typeof options.hideOnClick == 'undefined') options.hideOnClick = false;
 
 			var head = $('#w2ui-popup .w2ui-msg-title');
 			if ($('#w2ui-popup .w2ui-popup-message').length == 0) {
@@ -6789,10 +6790,20 @@ var w2popup = {};
 			});
 			if (display == 'none') {
 				$('#w2ui-popup .w2ui-popup-message').show().html(options.html);
-				$('#w2ui-popup .w2ui-msg-buttons').fadeOut('slow');
-				if (typeof options.onOpen == 'function') options.onOpen();
+				setTimeout(function() {
+					$('#w2ui-popup .w2ui-popup-message').css({
+						'-webkit-transition': '0s',	'-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s',
+						'z-Index': 1500
+					}); // has to be on top of lock 
+					w2popup.lock();
+					if (typeof options.onOpen == 'function') options.onOpen();
+				}, 300);
 			} else {
-				$('#w2ui-popup .w2ui-msg-buttons').fadeIn('slow');
+				$('#w2ui-popup .w2ui-popup-message').css('z-Index', 250);
+				var options = $('#w2ui-popup .w2ui-popup-message').data('options');
+				$('#w2ui-popup .w2ui-popup-message').remove();
+				w2popup.unlock();				
+				if (typeof options.onClose == 'function') options.onClose();
 			}
 			// timer needs to animation
 			setTimeout(function () {
@@ -6803,13 +6814,6 @@ var w2popup = {};
 					'-o-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)')
 				});
 			}, 1);
-			setTimeout(function () {
-				if (display != 'none' && $('#w2ui-popup .w2ui-popup-message').length > 0) {
-					var options = $('#w2ui-popup .w2ui-popup-message').data('options');
-					$('#w2ui-popup .w2ui-popup-message').remove();
-					if (typeof options.onClose == 'function') options.onClose();
-				}
-			}, 300);
 		},
 
 		lock: function (msg, showSpinner) {
@@ -6927,12 +6931,16 @@ var w2alert = function (msg, title, callBack) {
 	if ($('#w2ui-popup').length > 0) {
 		w2popup.message({
 			width 	: 400,
-			height 	: 160,
-			html 	: '<div class="w2ui-centered" style="font-size: 11px;"><div style="padding-bottom: 40px; font-size: 13px;">'+ msg +'</div>'+
+			height 	: 150,
+			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">'+
+					  '		<div class="w2ui-centered"><div style="font-size: 13px;">'+ msg +'</div></div>'+
+					  '</div>'+
 					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
-					  '	<input type="button" value="Ok" onclick="w2popup.message();" class="w2ui-popup-button">'+
+					  '		<input type="button" value="Ok" onclick="w2popup.message();" class="w2ui-popup-button">'+
 					  '</div>',
-			onClose : function () { if (typeof callBack == 'function') callBack(); }
+			onClose : function () { 
+				if (typeof callBack == 'function') callBack(); 
+			} 
 		});
 	} else {
 		w2popup.open({
@@ -6942,7 +6950,9 @@ var w2alert = function (msg, title, callBack) {
 			title 	: title,
 			body    : '<div class="w2ui-centered"><div style="font-size: 13px;">' + msg +'</div></div>',
 			buttons : '<input type="button" value="'+ w2utils.lang('Ok') +'" class="w2ui-popup-button" onclick="w2popup.close();">',
-			onClose : function () { if (typeof callBack == 'function') callBack(); }
+			onClose : function () { 
+				if (typeof callBack == 'function') callBack(); 
+			} 
 		});
 	}
 };
@@ -6955,36 +6965,68 @@ var w2confirm = function (msg, title, callBack) {
 	if (typeof title == 'undefined') {
 		title = w2utils.lang('Confirmation');
 	}
-	w2popup.open({
-		width 		: 450,
-		height 		: 200,
-		title   	: title,
-		modal		: true,
-		showClose	: false,
-		body    	: '<div class="w2ui-centered"><div style="font-size: 13px;">' + msg +'</div></div>',
-		buttons 	: '<input id="No" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-popup-button">'+
-				  	  '<input id="Yes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-popup-button">',
-		onOpen: function (event) {
-			event.onComplete = function () {
-				$('#w2ui-popup .w2ui-popup-button').on('click', function (event) {
-					w2popup.close();
+	if ($('#w2ui-popup').length > 0) {
+		w2popup.message({
+			width 	: 400,
+			height 	: 150,
+			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">'+
+					  '		<div class="w2ui-centered"><div style="font-size: 13px;">'+ msg +'</div></div>'+
+					  '</div>'+
+					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
+					  '		<input id="No" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-popup-button">'+
+					  '		<input id="Yes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-popup-button">'+
+					  '</div>',
+			onOpen: function () {
+				$('#w2ui-popup .w2ui-popup-message .w2ui-popup-button').on('click', function (event) {
+					w2popup.message();
 					if (typeof callBack == 'function') callBack(event.target.id);
 				});
-			}
-		},
-		onKeyboard: function (event) {
-			switch (event.originalEvent.keyCode) {
-				case 13: // enter
-					if (typeof callBack == 'function') callBack('Yes');
-					w2popup.close();
-					break
-				case 27: // esc
-					if (typeof callBack == 'function') callBack('No');
-					w2popup.close();
-					break
-			}
-		} 
-	});
+			},
+			onKeyboard: function (event) {
+				switch (event.originalEvent.keyCode) {
+					case 13: // enter
+						if (typeof callBack == 'function') callBack('Yes');
+						w2popup.message();
+						break
+					case 27: // esc
+						if (typeof callBack == 'function') callBack('No');
+						w2popup.message();
+						break
+				}
+			} 
+		});
+	} else {
+		w2popup.open({
+			width 		: 450,
+			height 		: 200,
+			title   	: title,
+			modal		: true,
+			showClose	: false,
+			body    	: '<div class="w2ui-centered"><div style="font-size: 13px;">' + msg +'</div></div>',
+			buttons 	: '<input id="No" type="button" value="'+ w2utils.lang('No') +'" class="w2ui-popup-button">'+
+					  	  '<input id="Yes" type="button" value="'+ w2utils.lang('Yes') +'" class="w2ui-popup-button">',
+			onOpen: function (event) {
+				event.onComplete = function () {
+					$('#w2ui-popup .w2ui-popup-button').on('click', function (event) {
+						w2popup.close();
+						if (typeof callBack == 'function') callBack(event.target.id);
+					});
+				}
+			},
+			onKeyboard: function (event) {
+				switch (event.originalEvent.keyCode) {
+					case 13: // enter
+						if (typeof callBack == 'function') callBack('Yes');
+						w2popup.close();
+						break
+					case 27: // esc
+						if (typeof callBack == 'function') callBack('No');
+						w2popup.close();
+						break
+				}
+			} 
+		});
+	}
 };/************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
