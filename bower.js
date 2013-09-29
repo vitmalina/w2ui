@@ -1,0 +1,51 @@
+{
+    "name": "w2ui",
+    "title": "W2UI: New JavaScript UI Library",
+    "description": "Complete set of JavaScript UI widget for development of data-driven web applications. Includes layout, grid, toolbar, sidebar, tabs, forms, fields, popup, overlay",
+    "keywords": [
+        "ui",
+        "widget",
+        "layout",
+        "grid",
+        "table",
+        "list",
+        "toolbar",
+        "sidebar",
+        "tree",
+        "treegrid",
+        "tabs",
+        "forms",
+        "fields",
+        "validation",
+        "binding",
+        "popup",
+        "dialog",
+        "overlay"
+    ],
+    "version": "1.2.0",
+    "author": {
+        "name"	: "Vitali Malinouski",
+        "url"	: "http://w2ui.com",
+        "email"	: "vitmalina@gmail.com"
+    },
+    "maintainers": [
+        {
+	        "name"	: "Vitali Malinouski",
+	        "url"	: "http://w2ui.com",
+	        "email"	: "vitmalina@gmail.com"
+        }
+    ],
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/vitmalina/w2ui/blob/master/license.txt"
+        }
+    ],
+    "bugs"		: "https://github.com/vitmalina/w2ui/issues",
+    "homepage"	: "http://w2ui.com/web",
+    "docs"		: "http://w2ui.com/web/docs",
+    "download"	: "http://w2ui.com/web/downloads/w2ui-1.2.zip",
+    "dependencies": {
+        "jquery": ">=1.7"
+    }
+}
