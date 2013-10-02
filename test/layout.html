@@ -23,18 +23,20 @@ $(function () {
 						{ id: 'tab4', caption: 'tab4', closable: true }
 					],
 					onClick: function (event) {
-						if (event.target == 'tab1') this.owner.content('main', '<div style="padding:10px">tab1</div>');
-						if (event.target == 'tab2') this.owner.content('main', '<div style="padding:10px">tab2</div>');
+						this.owner.content('main', '<div style="padding:10px">Tab: '+ event.target +'</div>', null);
 					}
 				},
 				toolbar: {
 					items: [
 						{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
-						{ type: 'drop',   id: 'item2', img: 'icon-page', icon: 'fa-star', html: '<div style="padding: 10px">Some HTML text</div>' },
+						{ type: 'drop',   id: 'item2', img: 'icon-folder', html: '<div style="padding: 10px">Some HTML text</div>' },
 						{ type: 'break',  id: 'break0' },
 						{ type: 'radio',  id: 'item3', group: 1, caption: 'Radio 1', img: 'icon-page' },
 						{ type: 'radio',  id: 'item4', group: 1, caption: 'Radio 2', img: 'icon-page' }
-					]
+					],
+					onClick: function (event) {
+						this.owner.content('main', '<div style="padding:10px">Toolbar: '+ event.target +'</div>');
+					}
 				}
 			},
 			{ type: 'right', size: '20%', resizable: true, onHide: function (event) { console.log('hide right'); } },
