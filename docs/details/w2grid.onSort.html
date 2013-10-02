@@ -1,7 +1,7 @@
 Called when user applies a sort.
 
 <div class="definition">
-	onSort = function(target, eventData)
+	onSort = function(event)
 </div>
 
 You can add event listener during the object creation:
@@ -11,10 +11,10 @@ $('#grid').w2grid({
 	name    : 'grid',
 	columns: [				
 		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
+		{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
+		{ field: 'fname', caption: 'First Name', size: '30%', sortable: true },
+		{ field: 'email', caption: 'Email', size: '40%', sortable: true },
+		{ field: 'sdate', caption: 'End Date', size: '120px', sortable: true }
 	],
 	records: [
 		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -24,8 +24,8 @@ $('#grid').w2grid({
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
 	],
-	onSort: function(target, eventData) {
-		console.log(eventData);
+	onSort: function(event) {
+		console.log(event);
 	}		
 });
 </textarea>
@@ -33,10 +33,13 @@ $('#grid').w2grid({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['grid'].on('sort', function(target, eventData) {
-	console.log(eventData);
+w2ui.grid.on('sort', function(event) {
+	console.log(event);
 });
 </textarea>
 
-Your event listener can be executed before or after the event has been processed. You can also cancel 
-the default behavior. See <a href="utils/events">Events</a> page in utilities.
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action 
+after the event is fully processed, define <span class="method">event.onCompleted</span> function. 
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.

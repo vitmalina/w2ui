@@ -1,7 +1,7 @@
 Called when server returns an error.
 
 <div class="definition">
-	onError = function(target, eventData)
+	onError = function(event)
 </div>
 
 This event is triggered each time an error message needs to be displayed. In most cases the error message is displayed when
@@ -28,8 +28,8 @@ $('#grid').w2grid({
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
 	],
-	onError: function(target, eventData) {
-		console.log(eventData);
+	onError: function(event) {
+		console.log(event);
 	}		
 });
 </textarea>
@@ -37,8 +37,8 @@ $('#grid').w2grid({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['grid'].on('error', function(target, eventData) {
-	console.log(eventData);
+w2ui['grid'].on('error', function(event) {
+	console.log(event);
 });
 </textarea>
 

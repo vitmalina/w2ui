@@ -1,10 +1,11 @@
 Called when user double clicks a record.
 
 <div class="definition">
-	onDblClick = function(target, eventData)
+	onDblClick = function(event)
 </div>
 
-You can add event listener during the object creation:
+The event is triggered on the second click event if it was triggered within 0.250 seconds of first click. Please note, before
+any double click event, there will alwasy be a click event first. You can add event listener during the object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
@@ -24,8 +25,8 @@ $('#grid').w2grid({
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
 	],
-	onDblClick: function(target, eventData) {
-		console.log(eventData);
+	onDblClick: function(event) {
+		console.log(event);
 	}		
 });
 </textarea>
@@ -33,10 +34,13 @@ $('#grid').w2grid({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['grid'].on('dblClick', function(target, eventData) {
-	console.log(eventData);
+w2ui.grid.on('dblClick', function(event) {
+	console.log(event);
 });
 </textarea>
 
-Your event listener can be executed before or after the event has been processed. You can also cancel 
-the default behavior. See <a href="utils/events">Events</a> page in utilities.
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action 
+after the event is fully processed, define <span class="method">event.onCompleted</span> function. 
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.

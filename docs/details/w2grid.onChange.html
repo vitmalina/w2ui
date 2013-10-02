@@ -1,7 +1,7 @@
 Called when user changes any field in the editable row.
 
 <div class="definition">
-	onChange = function(target, eventData)
+	onChange = function(event)
 </div>
 The column needs to have <span class="property">editable</span> object defined. See 
 <a class="property" href="w2grid.columns">.columns</a> property.
@@ -27,8 +27,8 @@ $('#grid').w2grid({
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
 	],
-	onChange: function(target, eventData) {
-		console.log(eventData);
+	onChange: function(event) {
+		console.log(event);
 	}		
 });
 </textarea>
@@ -36,10 +36,13 @@ $('#grid').w2grid({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['grid'].on('change', function(target, eventData) {
-	console.log(eventData);
+w2ui.grid.on('change', function(event) {
+	console.log(event);
 });
 </textarea>
 
-Your event listener can be executed before or after the event has been processed. You can also cancel 
-the default behavior. See <a href="utils/events">Events</a> page in utilities.
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action 
+after the event is fully processed, define <span class="method">event.onCompleted</span> function. 
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.

@@ -1,7 +1,7 @@
 Called when user applies a search.
 
 <div class="definition">
-	onSearch = function(target, eventData)
+	onSearch = function(event)
 </div>
 
 You can add event listener during the object creation:
@@ -9,12 +9,15 @@ You can add event listener during the object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
 	name    : 'grid',
+	show	: {
+		toolbar : true,
+	},
 	columns: [				
 		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
+		{ field: 'lname', caption: 'Last Name', size: '30%', searchable: true },
+		{ field: 'fname', caption: 'First Name', size: '30%', searchable: true },
+		{ field: 'email', caption: 'Email', size: '40%', searchable: true },
+		{ field: 'sdate', caption: 'End Date', size: '120px', searchable: true }
 	],
 	records: [
 		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -24,8 +27,8 @@ $('#grid').w2grid({
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
 	],
-	onSearch: function(target, eventData) {
-		console.log(eventData);
+	onSearch: function(event) {
+		console.log(event);
 	}		
 });
 </textarea>
@@ -33,8 +36,8 @@ $('#grid').w2grid({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['grid'].on('search', function(target, eventData) {
-	console.log(eventData);
+w2ui.grid.on('search', function(event) {
+	console.log(event);
 });
 </textarea>
 
