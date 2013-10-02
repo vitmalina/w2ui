@@ -8,21 +8,20 @@ Renders the object into <span class="argument">box</span>.
 	<table>
 	<tr>
 		<td>box</td>
-		<td><b>DOM element</b>, w2ui object's container</td>
+		<td><b>DOM element</b>, container for the widget</td>
 	</tr>
 	</table>
 </div>
 
 <h4>Description</h4>
 
-If <span class="argument">box</span> argument is not defined, the 
-widget will be rendered into the DOM element defined by the <span class="argument">.box</span> property of the widget. The 
-<span class="method">.render()</span> method will also render the related objects by calling their <span class="method">.render()</span> 
-methods. For example, each w2grid has a toolbar, which is a w2toolbar object. When grid is rendered, the toolbar object will be
-rendered as well.
+If the <span class="argument">box</span> argument is not specified, the widget will be rendered into the DOM element 
+specified by the <span class="argument">.box</span> property. The <span class="method">.render()</span> method will also 
+create related objects by calling their <span class="method">.render()</span> methods. For example, each w2grid has a toolbar, 
+which is a w2toolbar object. When grid is rendered, the toolbar object will be rendered as well.
 <div style="height: 10px"></div>
 
-If you pass a selector during object creation, the <span class="argument">.render()</span> internally:
+If you pass a selector during object creation it will be automatically rendered into that element:
 <textarea class="javascript">
 $('#layout').w2layout({
 	name    : 'layout',
@@ -33,9 +32,6 @@ $('#layout').w2layout({
 	]
 });
 </textarea>
-The layout will be rendered into the first element returned by <span class="argument">$('#layout')</span> and this element will
-be recorded into the <span class="argument">.box</span> property of the layout.
-<div style="height: 10px"></div>
 
 You could have created layout in the following way:
 <textarea class="javascript">
@@ -49,13 +45,12 @@ $().w2layout({
 });
 </textarea>
 
-Since the w2ui object is created but not yet rendered, you can render it by: 
+The widget will be created in memory and you can render it by: 
 <textarea class="javascript">
 w2ui['layout'].render($('#layout')[0]);
 </textarea>
 
-Or you could use <a href="utils">w2render()</a> method in the following way:
+But prefered way to do:
 <textarea class="javascript">
 $('#layout').w2render('layout');
 </textarea>
-which is easier to follow.

@@ -15,7 +15,15 @@ Finds the panel and returns its object.
 
 <h4>Description</h4>
 
-The first argument <span class="argument">type</span> is the name of the panel (can be top, left, main, right, preview, bottom). 
+The first argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+	<li>top
+	<li>left
+	<li>main
+	<li>right
+	<li>preview
+	<li>bottom
+</ul>
 If the panel does not exists in <a href="w2layout.panels">w2layout.panels</a> array, the method will return null.
 Below is a structure of the panel object:
 
@@ -37,8 +45,8 @@ panel: {
 }
 </textarea>
 
-Because JavaScript passes objects by reference, changing the returned object will change the original. You can change the original object with
-<a href="w2layout.set">w2layout.set()</a> method. 
+Because JavaScript passes objects by reference, changing the returned object will change the original. The better way to change panel
+properties is using <a href="w2layout.set">w2layout.set()</a> method, which will also apply changes on the screen.
 <div style="height: 10px"></div>
 
 Below is an example how to find panel object:
@@ -52,6 +60,6 @@ $('#layout').w2layout({
 	]
 });
 
-console.log(w2ui['layout'].get('preview');
+console.log(w2ui['layout'].get('preview'));
 </textarea>
 

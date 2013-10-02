@@ -1,0 +1,49 @@
+Resizes the panel with animation
+
+<div class="definition">
+	sizeTo(type, size)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>type</td>
+		<td><b>string</b>, name of the panel</td>
+	</tr>
+	<tr>
+		<td>size</td>
+		<td><b>integer</b>, new size</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The first argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+	<li>top
+	<li>left
+	<li>main
+	<li>right
+	<li>preview
+	<li>bottom
+</ul>
+
+The second argument <span class="argument">size</span> is the new size for the panel. For different types of panels it valies, for left 
+and right panels it is width, for all other panels it is height.
+<div style="height: 10px;"></div>
+
+An example below illustrates the use of <span class="argument">resizeTo</span> method:
+<textarea class="javascript">
+$('#layout').w2layout({
+	name    : 'layout',
+	panels  : [
+		{ type: 'top', size: 40 },
+		{ type: 'main', content: 'This is main panel' },
+		{ type: 'preview', size: 200, hidden: true }
+	]
+});
+
+w2ui['layout'].resizeTo('right', 100);
+</textarea>
+

@@ -6,7 +6,8 @@ The DOM element where to render the object.
 
 Usually it is a DIV, but can be any block element. 
 If you change <span class="method">.box</span> property you will need to call <a class="method" href="common.render">.render()</a> method 
-to render widget inside the new DOM element. 
+to render widget inside the new DOM element. If you specify a selector, there is no need to define <a href="common.box">.box</a> because 
+it will be automatically set.
 
 <textarea class="javascript">
 $('#layout').w2layout({
@@ -18,8 +19,7 @@ $('#layout').w2layout({
 });
 </textarea>
 
-Usually, there is no need to define <a href="common.box">.box</a> because it will be automatically set if you specify a selector
-as it is in the example above. However, you could have created layout without rendering it anywhere:
+However, you could have created a layout without rendering it anywhere:
 
 <textarea class="javascript">
 $().w2layout({
@@ -31,10 +31,10 @@ $().w2layout({
 });
 </textarea>
 
-The layout is created, but it is not rendered. You can render it in one of the following ways:
+The layout is created in memory. You can render it in one of the following ways:
 
 <textarea class="javascript">
-$('#layout').w2render('layout');
+$('#layout').w2render('layout'); // prefered way
 </textarea>
 
 or

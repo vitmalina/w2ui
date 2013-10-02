@@ -1,0 +1,34 @@
+Returns DOM element where content of the panel is rendered.
+
+<div class="definition">
+	el(type)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>type</td>
+		<td><b>string</b>, name of the panel</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The first and only argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+	<li>top
+	<li>left
+	<li>main
+	<li>right
+	<li>preview
+	<li>bottom
+</ul>
+
+Each panel in the layout has multiple elements, such as, toolbar, tabs, resizer and content. Calling <span class="argument">el</span> allows
+you to find DOM Element where content of the panel is rendered. It can be used in jQuery to find some specific elements in this panel only:
+
+<textarea class="javascript">
+var el = w2ui['layout'].el('main');
+$(el).find('.title').css('color', 'red');
+</textarea>

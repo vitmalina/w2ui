@@ -27,9 +27,9 @@ panel: {
 }
 </textarea>
 
-If you change this array you will need to call <a href="w2layout.refresh">.refresh()</a> method to update it on the screen. It is not
-recommended to change this array after the object has been created. You should use <a href="w2layout.set">.set()</a> method to 
-change panels dynamically, which will refresh the panel after it is changed.
+If you change this array during run-time you will need to call <a href="w2layout.refresh">.refresh()</a> method to update layout on 
+the screen. It is not recommended to change this array after the object has been created. You should use <a href="w2layout.set">.set()</a> 
+method to change panels dynamically, which will refresh the panel you changed.
 
 <textarea class="javascript">
 $('#layout').w2layout({

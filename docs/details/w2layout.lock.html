@@ -1,0 +1,47 @@
+Locks layout panel.
+
+<div class="definition">
+	lock(panel, message, [showSpinner])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>message</td>
+		<td><b>string</b>, message</td>
+	</tr>
+	<tr>
+		<td>showSpinner</td>
+		<td><b>boolean</b>, <i>optional</i>, spinner indicator</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+This method will lock the panel by added a semi-transparent div on top of popup content. The user will not be able to interact with
+the panel or its content until the panel is unlocked with <a href="w2layout.unlock" class="method">.unlock()</a>. This method will call
+<a href="w2utils.lock" class="method">w2utils.lock()</a> to perform the locking. 
+The first argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+	<li>top
+	<li>left
+	<li>main
+	<li>right
+	<li>preview
+	<li>bottom
+</ul>
+You have 3 options how you want to lock the content. Lock with a message and a spinner:
+<textarea class="javascript">
+w2layout.lock('main', 'Loading...', true);
+</textarea>
+
+Lock w/o a message, but with a spinner:
+<textarea class="javascript">
+w2layout.lock('main', '', true);
+</textarea>
+
+Lock w/o a message and w/o a spinner:
+<textarea class="javascript">
+w2ui['layout'].lock('main');
+</textarea>

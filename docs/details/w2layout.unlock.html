@@ -1,0 +1,34 @@
+Unlocks layout panel.
+
+<div class="definition">
+	unlock(panel)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>type</td>
+		<td><b>string</b>, name of the panel</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+This method will unlock the panel previously locked with <a href="w2layout.lock" class="method">.lock()</a> method. This method will call
+<a href="w2utils.unlock" class="method">w2utils.unlock()</a> to perform the action. The first argument <span class="argument">type</span> is
+the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+	<li>top
+	<li>left
+	<li>main
+	<li>right
+	<li>preview
+	<li>bottom
+</ul>
+<div style="height: 10px"></div>
+
+To unlock main panel
+<textarea class="javascript">
+w2ui['layout'].unlock('main');
+</textarea>

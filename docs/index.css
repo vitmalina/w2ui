@@ -51,8 +51,8 @@ ul {
 	background-color: #fafafa;
 	font-size: 12px;
 	overflow: auto;
-	margin-top: 10px;
-	margin-bottom: 20px;
+	margin-top: 15px !important;
+	margin-bottom: 15px !important;
 	line-height: 160% !important;
 }
 

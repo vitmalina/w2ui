@@ -27,11 +27,16 @@ Loads content and renders it inside the panel.
 
 <h4>Description</h4>
 
-This method loads content using jQuery <span class="method">$.get()</span> from <span class="argument">url</span> and renders it inside 
-the panel. The content should be Text or HTML and should not include JavaScript. The first argument <span class="argument">type</span> is the 
-name of the panel (can be top, left, main, right, preview, bottom). 
-<div style="height: 10px"></div>
-
+This method loads content for the panel from the <span class="argument">url</span>. The content should be Text or HTML and should not include JavaScript. The first argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+	<li>top
+	<li>left
+	<li>main
+	<li>right
+	<li>preview
+	<li>bottom
+</ul>
+The second argument <span class="argument">url</span> is the location to load content from. 
 You can optionally provide <span class="argument">transition</span> that defines visual transition to the new content. 
 The transition is done using <a href="w2utils.transition">w2utils.transition()</a> method and it can be one of the following: 
 <ul style="margin-left: 50px">

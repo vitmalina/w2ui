@@ -23,13 +23,38 @@ Sets or retrieves panel content.
 
 <h4>Description</h4>
 
-The first argument <span class="argument">type</span> is the name of the panel (can be
-top, left, main, right, preview, bottom). The <span class="argument">content</span> argument can be either an HTML string or an object with 
+The first argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+	<li>top
+	<li>left
+	<li>main
+	<li>right
+	<li>preview
+	<li>bottom
+	<li>css
+</ul>
+As of 1.3 there is a hidden panel named css. If you set content to this panel, it will be set withing style tag:
+It can be used when setting content for the css panel with <span class="argument">content</span>
+method or you can also load content with <a class="argument" href="w2layout.load">w2layout.load</a> method.
+<textarea class="javascript">
+w2ui['layout'].content('css', '.class1 { color: red }');
+</textarea>
+or
+<textarea class="javascript">
+w2ui['layout'].loadt('css', 'file.css');
+</textarea>
+
+The <span class="argument">content</span> argument can be either an HTML string or an object with 
 <span class="method">.render(box)</span> method. If	the argument <span class="argument">content</span> is not specified the method will 
 return <i><b>current</b></i> content of the panel. 
-<div style="height: 10px"></div>
 
-You can optionally provide <span class="argument">transition</span> that defines visual transition to the new content. 
+<textarea class="javascript">
+// return current content
+var content = w2ui['layout'].content('main');
+console.log('main panel content is', content);
+</textarea>
+
+You can optionally provide <span class="argument">transition</span> argument that defines visual transition to the new content. 
 The transition is done using <a href="w2utils.transition">w2utils.transition()</a> method and it can be one of the following: 
 <ul style="margin-left: 50px">
 	<li>slide-left
@@ -44,8 +69,7 @@ The transition is done using <a href="w2utils.transition">w2utils.transition()</
 	<li>pop-out
 </ul>
 
-Below is an example  how to set content to the layout panel:
-
+You can set content during object creation:
 <textarea class="javascript">
 $('#layout').w2layout({
 	name    : 'layout',
@@ -55,13 +79,12 @@ $('#layout').w2layout({
 		{ type: 'preview', size: 200 }
 	]
 });
+</textarea>
 
-// return current content
-var content = w2ui['layout'].content('main');
-
+Or anytime during run-time:
+<textarea class="javascript">
 // set new content
 w2ui['layout'].content('main', 'HTML content');
-
 // set content as an object
 w2ui['layout'].content('main', w2ui['grid']);
 </textarea>

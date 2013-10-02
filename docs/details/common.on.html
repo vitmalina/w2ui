@@ -52,7 +52,7 @@ $('#layout').w2layout({
 });
 </textarea>
 
-You can add an event lister in the following way:
+You can add an event listener in the following way:
 
 <textarea class="javascript">
 w2ui['layout'].on('refresh', function (target, eventData) {
@@ -72,9 +72,9 @@ w2ui['layout'].on({ type : 'refresh' }, function (target, eventData) {
 
 The first way is simple, but the second way provides additional functionality. You can add any property 
 to <span class="argument">eventData</span> object and all of them will be passed to the event handlers function as 
-the second argument. The <span class="argument">eventData</span> object may also contain additional parameters, for 
-example when to trigger event before or after the event. Or you can specify onComplete function that will be called at 
-the end of the evert. 
+the part of the <span class="argument">event</span> argument. The <span class="argument">eventData</span> object
+may also contain additional parameters, for example when to trigger event before or after, you can specify 
+<span class="argument">onComplete</span> function that will be called at the end of the evert. 
 <div style="height: 10px"></div>
 
 Below is the list of properties of eventData object: 
@@ -91,7 +91,7 @@ data = {
 All event names can be found on the event page of corresponding w2ui object. In order to use them with 
 <span class="argument">on()</span> and <span class="argument">off()</span> methods, you need to drop "on" prefix and 
 lower case first letter. For example, if the object has "onResize" event, you can use it as "resize". If it was 
-"onRequestCompleted" it should be "requestCompleted".
+"onColumnClick" it should be "columnClick".
 <div style="height: 10px"></div>
 
 You can attach event listener to all events if you do the following: 
@@ -111,20 +111,11 @@ There are several events that are common for all w2ui objects (except w2popup, w
 </ul>
 
 <h4>Event Handlers</h4>
-When any of the event is triggered and it has an event listener, the event listener function will receive two arguments. The 
-first argument is the <span class="argument">target</span>, which is a string. And the second argument 
-<span class="argument">eventData</span> is an object with additional event properties.
+When any of the event is triggered and it has an event handler, the event handler function will receive one 
+argument - <span class="argument">event</span>, which is an object with useful data related to the event.
 <textarea class="javascript">
-function handler(target, eventData) {
+function handler(event) {
 	// body
 }
 </textarea>
-<span class="argument">Target</span> in the name of the object or an id of the node where event was dispatched. For example, 
-for w2toolbar target can be the id of the toolbar item that triggered event. For tabs, <span class="argument">target</span> is 
-the id of the tab, for sidebar it is the id of the node. <span class="argument">Target</span> is also in the 
-<span class="argument">eventData</span> object.
-<div style="height: 10px"></div>
-
-<span class="argument">EventData</span> is an object that contains additional information about the event. Every w2ui object
-has its own properties that are passed in <span class="argument">eventData</span> object. Events can be cancelled, see
-<a href="utils/events">w2utils.events</a> page for more information.
+Events can be cancelled, see <a href="utils/events">w2utils.events</a> page for more information.
