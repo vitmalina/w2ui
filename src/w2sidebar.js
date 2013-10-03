@@ -10,7 +10,7 @@
 *
 * == 1.3 Changes ==
 *	- animated open/close
-*	- added onKeyboard event
+*	- added onKeydown event
 *	- added .keyboard = true
 *	- moved some settings to prototype
 *	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
@@ -43,7 +43,7 @@
 		this.onMenuClick	= null; // when context menu item selected
 		this.onExpand		= null;	// Fire when node Expands
 		this.onCollapse		= null;	// Fire when node Colapses
-		this.onKeyboard		= null;
+		this.onKeydown		= null;
 		this.onRender 		= null;
 		this.onRefresh		= null;
 		this.onResize 		= null;
@@ -425,7 +425,7 @@
 			var nd  = obj.get(obj.selected);
 			if (!nd || obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, originalEvent: event });	
+			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });	
 			if (eventData.isCancelled === true) return false;
 			// default behaviour
 			if (event.keyCode == 13 || event.keyCode == 32) { // enter or space

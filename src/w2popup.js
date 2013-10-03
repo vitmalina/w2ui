@@ -14,7 +14,7 @@
 * == 1.3 changes ==
 *	- keyboard esc - close
 *	- w2confirm() - enter - yes, esc - no
-*	- added onKeyboard event listener
+*	- added onKeydown event listener
 *	- added callBack to w2alert(msg, title, callBack)
 *	- renamed doKeydown to keydown()
 *	- if there are no rel=, the entire html is taken as body
@@ -96,7 +96,7 @@ var w2popup = {};
 		onClose		: null,
 		onMax		: null,
 		onMin		: null,
-		onKeyboard  : null,
+		onKeydown   : null,
 
 		open: function (options) {
 			var obj = this;
@@ -110,13 +110,13 @@ var w2popup = {};
 				w2popup.onMin 	 	= null;
 				w2popup.onOpen	 	= null;
 				w2popup.onClose	 	= null;
-				w2popup.onKeyboard	= null;
+				w2popup.onKeydown	= null;
 			}
 			if (options.onOpen)		w2popup.onOpen		= options.onOpen;
 			if (options.onClose)	w2popup.onClose		= options.onClose;
 			if (options.onMax)		w2popup.onMax		= options.onMax;
 			if (options.onMin)		w2popup.onMin		= options.onMin;
-			if (options.onKeyboard)	w2popup.onKeyboard	= options.onKeyboard;
+			if (options.onKeydown)	w2popup.onKeydown	= options.onKeydown;
 
 			if (window.innerHeight == undefined) {
 				var width  = document.documentElement.offsetWidth;
@@ -313,7 +313,7 @@ var w2popup = {};
 			var options = $('#w2ui-popup').data('options');
 			if (!options.keyboard) return;
 			// trigger event
-			var eventData = w2popup.trigger({ phase: 'before', type: 'keyboard', target: 'popup', options: options, originalEvent: event });
+			var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, object: w2popup, originalEvent: event });
 			if (eventData.isCancelled === true) return;
 			// default behavior
 			switch (event.keyCode) {
@@ -678,7 +678,7 @@ var w2confirm = function (msg, title, callBack) {
 					if (typeof callBack == 'function') callBack(event.target.id);
 				});
 			},
-			onKeyboard: function (event) {
+			onKeydown: function (event) {
 				switch (event.originalEvent.keyCode) {
 					case 13: // enter
 						if (typeof callBack == 'function') callBack('Yes');
@@ -709,7 +709,7 @@ var w2confirm = function (msg, title, callBack) {
 					});
 				}
 			},
-			onKeyboard: function (event) {
+			onKeydown: function (event) {
 				switch (event.originalEvent.keyCode) {
 					case 13: // enter
 						if (typeof callBack == 'function') callBack('Yes');

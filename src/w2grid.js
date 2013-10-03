@@ -30,7 +30,7 @@
 *	- added toolbarEdit, to send the OnEdit event
 *	- Changed doEdit to edit one field in doEditField, to add the doEdit event to edit one record in a popup
 *	- added getRecordHTML, refactored, updated set()
-*	- added onKeyboard event
+*	- added onKeydown event
 *	- added keyboard = true property
 * 	- refresh() and resize() returns number of milliseconds it took
 *	- optimized width distribution and resize
@@ -172,7 +172,7 @@
 		this.onExpand 			= null;
 		this.onCollapse			= null;
 		this.onError 			= null;
-		this.onKeyboard			= null;
+		this.onKeydown			= null;
 		this.onToolbar			= null; 	// all events from toolbar
 		this.onColumnOnOff		= null;
 		this.onCopy				= null;
@@ -1961,7 +1961,7 @@
 			var obj = this;
 			if (obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, originalEvent: event });	
+			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });	
 			if (eventData.isCancelled === true) return false;
 			// default behavior
 			var sel 	= obj.getSelection();

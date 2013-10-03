@@ -9,22 +9,6 @@
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
 *	- add panel title
-*
-* == 1.3 changes ==
-*   - tabs can be array of string, array of tab objects or w2tabs object
-*	- html() method is alias for content()
-*	- el(panel) - returns DOM element for the panel
-*	- resizer should be on top of the panel (for easy styling)
-*	- content: $('content'); - it will return graceful error
-*	- % base resizes
-*	- better min/max calculation when window resizes
-*	- moved some settings to prototype
-*	- added layout.lock(panel, msg, [showSpinner]), unlock(panel)
-*	- moved to private scope startResize, stopResize, doResize functions
-*	- moved to private scope initEvents, initTabs, initToolbar
-*	- ability to load CSS into a hidden panel
-*	- added sizeTo()
-*	- added tmp property for internal use
 * 
 ************************************************************************/
 
