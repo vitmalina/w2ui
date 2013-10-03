@@ -1,10 +1,10 @@
-Current state parameters
+Internal grid's vairables.
 
 <div class="definition">
 	Object, default see below
 </div>
 
-The grid holds a variety of current state variables needed for <a class="method" href="w2grid.refresh">.refresh()</a>. Last scroller 
+The grid holds a variety of internal variables needed for <a class="method" href="w2grid.refresh">.refresh()</a>. Last scroller 
 position, last search field, etc. This property is used internally, but you can potentially use it in your code too. The
 object has following structure:
 
@@ -14,12 +14,18 @@ last = {
 	caption     : 'All Fields', // last search caption
 	logic       : 'OR',         // last search logic
 	search      : '',           // last search text
+	searchIds 	: [],			// last search ids
 	multi       : false,        // last multi 
 	scrollTop   : 0,            // last scrollTop position
 	scrollLeft  : 0,            // last scrollLeft position
 	selected    : [],           // last selected items
 	sortData    : null,         // last sortData
 	sortCount   : 0,            // last sortCount
-	xhr         : null          // last jquery xhr requests
+	xhr         : null,         // last jquery xhr requests
+	range_start : null,			// last range start cell
+	range_end   : null,			// last range end cell
+	sel_ind		: null,			// last selected cell index
+	sel_col		: null,			// last selected column
+	sel_type	: null			// last selection type
 }
 </textarea>

@@ -4,9 +4,9 @@ Array of search objects (submitted to data source for record filtering).
 	Array, default = []
 </div>
 
-When user executes a search the grid will generate the array of search objects. User can execute a search in a variety of ways: by typing in global search field,
-selecting a field and typing search text, or clicking the "Search..." button and submitting a multi-field search. Regardless of the way, the grid will generate
-the search array. 
+When user executes a search the grid will generate the array of search objects. User can execute a search in a variety of ways: 
+by typing in global search field, selecting a field and typing search text, or clicking the "Search..." button and submitting a 
+multi-field search. Regardless of the way, the grid will generate the search array. 
 <div style="height: 10px"></div>
 
 As a developer you can define initial searches during object creation:
@@ -35,9 +35,9 @@ $('#grid').w2grid({
 });
 </textarea>
 
-Even though you created initial search, the user can clear or overwrite it. You can defined some search fields as hidden if you want to
-prevent user from messing up your search, or you can add search data into <a class="method" href="w2grid.postData">.postData</a> object which will get
-it submitted to the server and will not allow user to clear it.
+Even though you created initial search, the user can clear or overwrite it. You can defined some search fields as hidden if you want 
+to prevent user from messing up your search, or you can add search data into <a class="method" href="w2grid.postData">.postData</a> 
+object which will get submitted to the server and will not allow user to clear it.
 <div style="height: 10px"></div>
 
 The structure of the search object is:
@@ -45,10 +45,10 @@ The structure of the search object is:
 search = {
     field    : '',    // search field name
     value    : '',    // string or array of string with values
-    operator : 'is',  // search operator [is, between, begins with, contains, ends with]
+    operator : 'is',  // search operator [is, in, between, begins with, contains, ends with]
     type     : ''     // data type, [text, int, float, date]
 }
 </textarea>
 
-You can use <a href="w2grid.search">w2grid.search()</a> method to submit searches.
+You can use <a href="w2grid.search" class="method">.search()</a> method to submit searches.
 

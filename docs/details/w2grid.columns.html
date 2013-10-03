@@ -42,13 +42,14 @@ column = {
 	attr           : '',     // string that will be inside the &lt;td ... attr&gt; tag
 	style          : '',     // additional style for the td tag
 	render         : null,   // render function
+	title		   : null,	 // string of function for the title property for the column cells
 	editable       : {}      // editable object if column fields are editable
 }
 </textarea>
 
 <h4>Size</h4> 
 The size of the column (width) can be in px or %. The size of 10 or the size of '10px' will define the same column width of 10px. 
-The size: '10%' will define 10 percent wdith. You can define some columns in px and some in % for the same grid. When 
+The size of '10%' will define 10 percent wdith. You may define some columns in px and some in % for the same grid at the same time. When 
 <a class="method" href="w2grid.refresh">.refresh()</a> method is called it will calculate size of all columns in px and store it in 
 <span class="property">.sizeCalculated</span> property. First it assignes size to the columns that defined in px, then it will distribute 
 the remaining width between the columns defined in %. If total sum of columns defined in percentage will be more then 100, it will correct its values
@@ -56,9 +57,10 @@ and record new size in <span class="property">.sizeCorrected</span>.
 <div style="height: 10px"></div>
 
 <h4>Render</h4>
-The render function can be used to format the column data. If the function is defined then it will be executed with two arguments - 
-<span class="argument">record</span> and <span class="argument">index</span> - and anything it returns will be used instead of 
-the original column data. Using this function you can create columns that output results from multiple fields.
+The render function can be used to format the column data. If the function is defined then it will be executed with three arguments - 
+<span class="argument">record</span>, <span class="argument">index</span> and <span class="argument">column_index</span>. Anything 
+this function returns will be used instead of the original column data. Using this function you can create columns that output results 
+from multiple fields.
 
 <textarea class="javascript">
 $('#grid').w2grid({
@@ -66,8 +68,8 @@ $('#grid').w2grid({
 	columns: [				
 		{ field: 'recid', caption: 'ID', size: '50px' },
 		{ field: 'full-name', caption: 'Last Name', size: '60%',
-			render: function (record, index) {
-				return record['fname'] + ' ' + record['lname'];
+			render: function (record) {
+				return '<div>' + record.fname + ' ' + record.lname + '</div>';
 			}
 		},
 		{ field: 'email', caption: 'Email', size: '40%' },
@@ -92,6 +94,6 @@ With this object you can supply other properties that will be passed to <span cl
 use any field type suppported by <span class="property">w2field</span> object.
 <div style="height: 10px"></div>
 
-You can use <a class="argument" href="w2grid.getChanged">.getChanged()</a> to find all the editable records that were changed. Then, you can call
-<a class="argument" href="w2grid.doSave">.doSave()</a> method to submit all changed records to the <a class="argument" href="w2grid.url">.url</a>. You can optionally 
+Use <a class="argument" href="w2grid.getChanged">.getChanged()</a> method to find what records have been changed. Then, you can call
+<a class="argument" href="w2grid.save">.save()</a> method to submit all changed records to the <a class="argument" href="w2grid.url">.url</a>. You can optionally 
 add a save button to the grid's toolbar setting <a class="argument" href="w2grid.show">show.toolbarSave</a> to true during grid's creation.

@@ -1,17 +1,20 @@
-Indicates if keyboard hot keys should be used.
+Indicates if grid should listen to keyboard.
 
 <div class="definition">
 	Boolean, default = true
 </div>
 
-If <span class="argument">.keyboard</span> property is true, the grid will add an event listener to listen for 
-keyboard events. There are several hot keys that are mapped to the grid actions:
+If <span class="argument">.keyboard</span> property is set to true, the grid will add event listener to listen for 
+keyboard events. There are several keyboard keys linked to the grid actions:
 <div style="height: 10px"></div>
 <ul>
 	<li>Arrow up - previous record</li>
 	<li>Arrow down - next record</li>
+	<li>Arrow right - expand record</li>
+	<li>Arrow left - collapse record</li>
 	<li>Delete - trigger delete action</li>
 	<li>Ctl + a (Cmd + a on mac) - select all records</li>
+	<li>Enter or Space - enter editable field</li>
 </ul>
 
 This property can be defined during object creation: 
@@ -36,5 +39,7 @@ Or any time after the grid has been created:
 w2ui['layout'].keyboard = true;
 </textarea>
 
+Internally, the feature is implemented by <a href="w2utils.keyboard" class="method">w2utils.keyboard</a> object. 
+
 If there more then one grid on the screen and all of them have <span class="argument">.keyboard</span> set to true, then the last grid
-where user selects a record will active keyboard listener.
+where user selects a record will active keyboard listener. 

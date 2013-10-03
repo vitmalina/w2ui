@@ -1,0 +1,31 @@
+Indicates if result of the search should be highlighted.
+
+<div class="definition">
+	Boolean, default = true
+</div>
+
+Every time user submits a search, regardless whether local or remote data source, the result of the search will be 
+highlighted on the screen. It uses <a href="w2utils.w2marker" class="method">$('#id').w2marker()</a> plugin defined
+in utilities.
+<div style="height: 10px"></div>
+
+This property can be set during object creation:
+<textarea class="javascript">
+$('#grid').w2grid({
+	name : 'grid',
+	markSearchResult : false,
+	columns : [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'Start Date', size: '120px' },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	]
+});
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui['grid'].markSearchResult = false;
+</textarea>

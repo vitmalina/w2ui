@@ -1,0 +1,20 @@
+Array of all ranges defined for the grid.
+
+<div class="definition">
+	Array, default = []
+</div>
+
+This property only works if you grid is excel-like grid, <span class="property">.selectType</span> is set to 'cell'. To add 
+and remove ranges you should use <a href="w2grid.addRange" class="method">.addRange</a> and 
+<a href="w2grid.removeRange" class="method">.removeRange</a> methods. If can find a range by name using 
+<a href="w2grid.addRange" class="method">.getRange</a> method. If you need to refresh ranges, use 
+<a href="w2grid.addRange" class="method">.refreshRanges</a>
+
+However, if you want to see what ranges are defined, you may iterate through 
+<span class="property">.ranges</span> property
+
+<textarea class="javascript">
+for (var r in w2ui.grid.ranges) {
+	console.log('Range '+ r, w2ui.grid.ranges[r]);
+}
+</textarea>

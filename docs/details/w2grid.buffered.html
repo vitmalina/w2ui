@@ -1,0 +1,27 @@
+Number of buffered records.
+
+<div class="definition">
+	Integer, default = 0
+</div>
+
+This property only applies if your data source for the grid is remote. As of 1.3, the default behavior of the grid is infinite 
+scroll, which means as user scrolls more records will be loaded. As user scrolls and more records are retrieved from the server,
+previous records are not discarded, but are stored in <span class="argument">.records</span> array.
+<div style="height: 10px"></div>
+
+You can also see the number of buffered records in the status bar. There are a set of events that will clean buffered records.
+Those events are
+<ul>
+	<li>User applies a new search
+	<li>You call <a class="argument" href="w2grid.clear">.clear()</a> method
+	<li>You call <a class="argument" href="w2grid.skip">.skip()</a> method
+</ul>
+
+There is no need to change this property directly, as grid trys to keep this property updated. But in some cases you might need
+to change it, for example, when you manually manipulate <span class="argument">.records</span> array.
+<div style="height: 10px"></div>
+
+To change it during run-time:
+<textarea class="javascript">
+w2ui['grid'].buffered = 0;
+</textarea>

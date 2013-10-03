@@ -30,13 +30,12 @@ $('#grid').w2grid({
 </textarea>
 
 After object creation you can add records either by appending them to the <span class="property">.records</span> array (
-do not forget to call <a class="argument" href="w2grid.refresh">.refresh</a> method to refresh them on the screen), or by using
-<a class="argument" href="w2grid.add">.add()</a> method, which will add and refresh them on the screen.
+do not forget to call <a class="argument" href="w2grid.refresh">.refresh</a> method to update on the screen), or by using
+<a class="argument" href="w2grid.add">.add()</a> method, which will add and update records on the screen.
 <div style="height: 10px"></div>
 
 If you defined the <a class="property" href="w2grid.url">.url</a>, the records will be loaded from this url overwriting any
-locally defined records. At a time, only the number of records defined in <span class="property">.recordsPerPage</span>
-will be loaded. Each time user navigates to a different page, does a search or a sort, records will be reloaded from the server.
+locally defined records. 
 <textarea class="javascript">
 $('#grid').w2grid({
 	name    : 'grid',
@@ -54,7 +53,7 @@ $('#grid').w2grid({
 <h4>The record object</h4>
 
 Each record object must have a <span class="property">recid</span> property that uniquely identifies the record. Also it might have some
-other system properties: style, selected, hidden, summary, and editable.
+other system properties: style, selected, summary, and editable.
 <div style="height: 10px"></div>
 
 The following is the structure of the record object:
@@ -67,12 +66,10 @@ record = {
     [field-N]  : '',     // field N
     style      : '',     // additional CSS style for &lt;tr ...&gt; tag       
     selected   : false,  // indicates if record is selected
-    hidden     : false,  // indicates if record is hidden
     summary    : false,  // indicates if it is a summary record (summary records appear on the bottom)
     editable   : true    // indicate is record is editable (must have column.ediable property set)
 }
 </textarea>
 Where "field-1", ..., "field-N" have to correspond to the field property of the columns they need to be displayed in. 
-You can use render method of the column to create columns that have aggregates from several fields 
-(see <a class="argument" href="w2grid.columns">.columns</a>).
-information.
+You can use render method of the column to create columns that have aggregates from several fields.
+See <a class="method" href="w2grid.columns">.columns</a> property.
