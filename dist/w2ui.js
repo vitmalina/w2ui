@@ -1202,13 +1202,15 @@ w2utils.keyboard = (function (obj) {
 *	- url should be either string or object, if object, then allow different urls for different actions, get-records, delete, save
 *	- bug: paste at the end of the control
 *	- bug: extend selection - bug
+*	- hidden searches could not be clearned by the user
+*	- how do you easy change add/delete/edit buttons??
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
 *	- added toolbarEdit, to send the OnEdit event
 *	- Changed doEdit to edit one field in doEditField, to add the doEdit event to edit one record in a popup
 *	- added getRecordHTML, refactored, updated set()
-*	- added onKeyboard event
+*	- added onKeydown event
 *	- added keyboard = true property
 * 	- refresh() and resize() returns number of milliseconds it took
 *	- optimized width distribution and resize
@@ -1254,10 +1256,10 @@ w2utils.keyboard = (function (obj) {
 * 	- added status()
 *	- added copy(), paste()
 *	- added onCopy, onPaste events
-*	- added getCellData(record, ind, col_ind)
+*	- added getCellHTML(index, column_index, summary)
 *	- added selectType = 'cell' then, it shows cell selection
 * 	- added addRange(), removeRange(), ranges - that draws border arround selection and grid.show.selectionBorder
-*	- added getRange();
+*	- added getRangeData();
 *	- changed getSelection(returnIndex) - added returnIndex parameter
 *	- added markSearchResults
 *	- added columnClick() and onColumnClick and onColumnResize
@@ -1350,7 +1352,7 @@ w2utils.keyboard = (function (obj) {
 		this.onExpand 			= null;
 		this.onCollapse			= null;
 		this.onError 			= null;
-		this.onKeyboard			= null;
+		this.onKeydown			= null;
 		this.onToolbar			= null; 	// all events from toolbar
 		this.onColumnOnOff		= null;
 		this.onCopy				= null;
@@ -1568,21 +1570,24 @@ w2utils.keyboard = (function (obj) {
 			return removed;
 		},
 
-		addColumn: function (before, column) {
+		addColumn: function (before, columns) {
+			var added = 0;
 			if (arguments.length == 1) {
-				column = before;
-				before = this.columns.length;
+				columns = before;
+				before  = this.columns.length;
 			} else {
-				before = this.getColumn(before, true);
+				if (typeof before == 'string') before = this.getColumn(before, true);
 				if (before === null) before = this.columns.length;
 			}
-			if (!$.isArray(column)) column = [column];
-			for (var o in column) {
-				this.columns.splice(before, 0, column[o]);
+			if (!$.isArray(columns)) columns = [columns];
+			for (var o in columns) {
+				this.columns.splice(before, 0, columns[o]);
 				before++;
+				added++;
 			}
 			this.initColumnOnOff();
 			this.refresh();
+			return added;
 		},
 
 		removeColumn: function () {
@@ -1649,19 +1654,22 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		addSearch: function (before, search) {
+			var added = 0;
 			if (arguments.length == 1) {
 				search = before;
 				before = this.searches.length;
 			} else {
-				before = this.getSearch(before, true);
+				if (typeof before == 'string') before = this.getSearch(before, true);
 				if (before === null) before = this.searches.length;
 			}
 			if (!$.isArray(search)) search = [search];
 			for (var o in search) {
 				this.searches.splice(before, 0, search[o]);
 				before++;
+				added++;
 			}
 			this.searchClose();
+			return added;
 		},
 
 		removeSearch: function () {
@@ -1849,7 +1857,7 @@ w2utils.keyboard = (function (obj) {
 			return time;
 		},
 
-		getRange: function (range, returnData) {
+		getRangeData: function (range, extra) {
 			var rec1 = this.get(range[0].recid, true);
 			var rec2 = this.get(range[1].recid, true);
 			var col1 = range[0].column;
@@ -1860,7 +1868,7 @@ w2utils.keyboard = (function (obj) {
 				for (var r = rec1; r <= rec2; r++) {
 					var record = this.records[r];
 					var dt = record[this.columns[col1].field] || null;
-					if (returnData === true) {
+					if (extra !== true) {
 						res.push(dt);
 					} else {
 						res.push({ data: dt, column: col1, index: r, record: record });
@@ -1870,7 +1878,7 @@ w2utils.keyboard = (function (obj) {
 				var record = this.records[rec1];
 				for (var i = col1; i <= col2; i++) {
 					var dt = record[this.columns[i].field] || null;
-					if (returnData === true) {
+					if (extra !== true) {
 						res.push(dt);
 					} else {
 						res.push({ data: dt, column: i, index: rec1, record: record });
@@ -1882,7 +1890,7 @@ w2utils.keyboard = (function (obj) {
 					res.push([]);
 					for (var i = col1; i <= col2; i++) {
 						var dt = record[this.columns[i].field];
-						if (returnData === true) {
+						if (extra !== true) {
 							res[res.length-1].push(dt);
 						} else {
 							res[res.length-1].push({ data: dt, column: i, index: r, record: record });
@@ -1893,43 +1901,50 @@ w2utils.keyboard = (function (obj) {
 			return res;
 		},
 
-		addRange: function (name, range, style) {
-			if (name == 'selection' || typeof name == 'undefined') {
-				if (this.selectType == 'row' || this.show.selectionBorder === false) return;
-				var name  = 'selection';
-				var sel   = this.getSelection();
-				if (sel.length == 0) { 
-					this.removeRange(name); 
-				} else {
-					var first = sel[0];
-					var last  = sel[sel.length-1];
+		addRange: function (ranges) {
+			var added = 0;
+			if (this.selectType == 'row') return added;
+			if (!$.isArray(ranges)) ranges = [ranges];
+			// if it is selection
+			for (var r in ranges) {
+				if (typeof ranges[r] != 'object') ranges[r] = { name: 'selection' };
+				if (ranges[r].name == 'selection') {
+					if (this.show.selectionBorder === false) continue;
+					var sel = this.getSelection();
+					if (sel.length == 0) { 
+						this.removeRange(ranges[r].name); 
+						continue;
+					} else {
+						var first = sel[0];
+						var last  = sel[sel.length-1];
+						var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
+						var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
+					}
+				} else { // other range
+					var first = ranges[r].range[0];
+					var last  = ranges[r].range[1];
 					var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
 					var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
 				}
-			} else {
-				var first = range[0];
-				var last  = range[1];
-				var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
-				var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
-			}
-			if (first) {
-				var rg = { 
-					name: name, 
-					range: [{ recid: first.recid, column: first.column }, { recid: last.recid, column: last.column }], 
-					style: style || '' 
-				};
-				// add range
-				var ind = false;
-				for (var r in this.ranges) if (this.ranges[r].name == name) { ind = r; break; }
-				if (ind !== false) {
-					this.ranges[ind] = rg;
-				} else {
-					this.ranges.push(rg);	
+				if (first) {
+					var rg = { 
+						name: ranges[r].name, 
+						range: [{ recid: first.recid, column: first.column }, { recid: last.recid, column: last.column }], 
+						style: ranges[r].style || '' 
+					};
+					// add range
+					var ind = false;
+					for (var t in this.ranges) if (this.ranges[t].name == ranges[r].name) { ind = r; break; }
+					if (ind !== false) {
+						this.ranges[ind] = rg;
+					} else {
+						this.ranges.push(rg);	
+					}
+					added++
 				}
-				this.refreshRanges();
-				return this.ranges[this.ranges - 1];
 			}
-			return null;
+			this.refreshRanges();
+			return added;
 		},
 
 		removeRange: function () {
@@ -1961,6 +1976,8 @@ w2utils.keyboard = (function (obj) {
 					rec.append('<div id="grid_'+ this.name +'_' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
 									(rg.name == 'selection' ?  '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
 								'</div>');
+				} else {
+					$('#grid_'+ this.name +'_'+ rg.name).attr('style', rg.style);
 				}
 				if (td1.length > 0 && td2.length > 0) {
 					$('#grid_'+ this.name +'_'+ rg.name).css({
@@ -2020,9 +2037,11 @@ w2utils.keyboard = (function (obj) {
 				} else {
 					// default behavior
 					obj.removeRange('grid-selection-expand');
-					obj.addRange('grid-selection-expand', eventData.newRange,
-						'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
-					);
+					obj.addRange({ 
+						name	: 'grid-selection-expand', 
+						range	: eventData.newRange,
+						style	: 'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
+					});
 				}
 			}
 
@@ -3129,7 +3148,7 @@ w2utils.keyboard = (function (obj) {
 			var eventData = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default behaviour
-			this.sort(field);
+			this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -3139,7 +3158,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			if (obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, originalEvent: event });	
+			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });	
 			if (eventData.isCancelled === true) return false;
 			// default behavior
 			var sel 	= obj.getSelection();
@@ -3654,9 +3673,9 @@ w2utils.keyboard = (function (obj) {
 			return true;
 		},
 
-		sort: function (field, direction) { // if no params - clears sort
+		sort: function (field, direction, multiField) { // if no params - clears sort
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction });
+			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, multiField: multiField });
 			if (eventData.isCancelled === true) return false;
 			// check if needed to quit
 			if (typeof field != 'undefined') {
@@ -3677,7 +3696,7 @@ w2utils.keyboard = (function (obj) {
 					}
 				}
 				if (this.multiSort === false) { this.sortData = []; sortIndex = 0; }
-				if (event && !event.ctrlKey && !event.metaKey) { this.sortData = []; sortIndex = 0; }
+				if (multiField != true) { this.sortData = []; sortIndex = 0; }
 				// set new sort
 				if (typeof this.sortData[sortIndex] == 'undefined') this.sortData[sortIndex] = {};
 				this.sortData[sortIndex].field 	   = field;
@@ -3718,7 +3737,7 @@ w2utils.keyboard = (function (obj) {
 					for (var c = minCol; c <= maxCol; c++) {
 						var col = this.columns[c];
 						if (col.hidden === true) continue;
-						text += w2utils.stripTags(this.getCellData(this.records[ind], ind, c)) + '\t';
+						text += w2utils.stripTags(this.getCellHTML(ind, c)) + '\t';
 					}
 					text = text.substr(0, text.length-1); // remove last \t
 					text += '\n';
@@ -3731,7 +3750,7 @@ w2utils.keyboard = (function (obj) {
 					for (var c in this.columns) {
 						var col = this.columns[c];
 						if (col.hidden === true) continue;
-						text += w2utils.stripTags(this.getCellData(this.records[ind], ind, c)) + '\t';
+						text += w2utils.stripTags(this.getCellHTML(ind, c)) + '\t';
 					}
 					text = text.substr(0, text.length-1); // remove last \t
 					text += '\n';
@@ -3748,18 +3767,20 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		paste: function (text) {
-			var sel = this.getSelection();
-			if (this.selectType == 'row' || sel.length == 0) {
-				console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.');
-				return false;
-			}
-			var ind = this.get(sel[0].recid, true);
-			var col = sel[0].column;
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
 			if (eventData.isCancelled === true) return;
 			text = eventData.text;
 			// default action
+			var sel = this.getSelection();
+			if (this.selectType == 'row' || sel.length == 0) {
+				console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.');
+				// event after
+				this.trigger($.extend(eventData, { phase: 'after' }));
+				return;
+			}
+			var ind = this.get(sel[0].recid, true);
+			var col = sel[0].column;
 			var newSel = [];
 			var text   = text.split('\n');
 			for (var t in text) {
@@ -4891,7 +4912,7 @@ w2utils.keyboard = (function (obj) {
 			function getColumns (master) {
 				var html = '<tr>';
 				if (obj.show.lineNumbers) {
-					html += '<td class="w2ui-head w2ui-col-number" onclick="w2ui[\''+ obj.name +'\'].sort();">'+
+					html += '<td class="w2ui-head w2ui-col-number" onclick="w2ui[\''+ obj.name +'\'].columnClick(\'line-number\', event);">'+
 							'	<div>#</div>'+
 							'</td>';
 				}
@@ -5208,7 +5229,7 @@ w2utils.keyboard = (function (obj) {
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
 				var isChanged = record.changed && record.changes[col.field];
-				var rec_cell  = this.getCellData(record, ind, col_ind);
+				var rec_cell  = this.getCellHTML(ind, col_ind, summary);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
@@ -5242,9 +5263,10 @@ w2utils.keyboard = (function (obj) {
 			return rec_html;
 		},
 
-		getCellData: function (record, ind, col_ind) {
-			var col  = this.columns[col_ind];
-			var data = this.parseObj(record, col.field);
+		getCellHTML: function (ind, col_ind, summary) {
+			var col  	= this.columns[col_ind];
+			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
+			var data 	= this.parseObj(record, col.field);
 			var isChanged = record.changed && record.changes[col.field];
 			if (isChanged) data = record.changes[col.field];
 			// various renderers
@@ -5358,22 +5380,6 @@ w2utils.keyboard = (function (obj) {
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
 *	- add panel title
-*
-* == 1.3 changes ==
-*   - tabs can be array of string, array of tab objects or w2tabs object
-*	- html() method is alias for content()
-*	- el(panel) - returns DOM element for the panel
-*	- resizer should be on top of the panel (for easy styling)
-*	- content: $('content'); - it will return graceful error
-*	- % base resizes
-*	- better min/max calculation when window resizes
-*	- moved some settings to prototype
-*	- added layout.lock(panel, msg, [showSpinner]), unlock(panel)
-*	- moved to private scope startResize, stopResize, doResize functions
-*	- moved to private scope initEvents, initTabs, initToolbar
-*	- ability to load CSS into a hidden panel
-*	- added sizeTo()
-*	- added tmp property for internal use
 * 
 ************************************************************************/
 
@@ -6311,7 +6317,7 @@ w2utils.keyboard = (function (obj) {
 * == 1.3 changes ==
 *	- keyboard esc - close
 *	- w2confirm() - enter - yes, esc - no
-*	- added onKeyboard event listener
+*	- added onKeydown event listener
 *	- added callBack to w2alert(msg, title, callBack)
 *	- renamed doKeydown to keydown()
 *	- if there are no rel=, the entire html is taken as body
@@ -6393,7 +6399,7 @@ var w2popup = {};
 		onClose		: null,
 		onMax		: null,
 		onMin		: null,
-		onKeyboard  : null,
+		onKeydown   : null,
 
 		open: function (options) {
 			var obj = this;
@@ -6407,13 +6413,13 @@ var w2popup = {};
 				w2popup.onMin 	 	= null;
 				w2popup.onOpen	 	= null;
 				w2popup.onClose	 	= null;
-				w2popup.onKeyboard	= null;
+				w2popup.onKeydown	= null;
 			}
 			if (options.onOpen)		w2popup.onOpen		= options.onOpen;
 			if (options.onClose)	w2popup.onClose		= options.onClose;
 			if (options.onMax)		w2popup.onMax		= options.onMax;
 			if (options.onMin)		w2popup.onMin		= options.onMin;
-			if (options.onKeyboard)	w2popup.onKeyboard	= options.onKeyboard;
+			if (options.onKeydown)	w2popup.onKeydown	= options.onKeydown;
 
 			if (window.innerHeight == undefined) {
 				var width  = document.documentElement.offsetWidth;
@@ -6610,7 +6616,7 @@ var w2popup = {};
 			var options = $('#w2ui-popup').data('options');
 			if (!options.keyboard) return;
 			// trigger event
-			var eventData = w2popup.trigger({ phase: 'before', type: 'keyboard', target: 'popup', options: options, originalEvent: event });
+			var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, object: w2popup, originalEvent: event });
 			if (eventData.isCancelled === true) return;
 			// default behavior
 			switch (event.keyCode) {
@@ -6975,7 +6981,7 @@ var w2confirm = function (msg, title, callBack) {
 					if (typeof callBack == 'function') callBack(event.target.id);
 				});
 			},
-			onKeyboard: function (event) {
+			onKeydown: function (event) {
 				switch (event.originalEvent.keyCode) {
 					case 13: // enter
 						if (typeof callBack == 'function') callBack('Yes');
@@ -7006,7 +7012,7 @@ var w2confirm = function (msg, title, callBack) {
 					});
 				}
 			},
-			onKeyboard: function (event) {
+			onKeydown: function (event) {
 				switch (event.originalEvent.keyCode) {
 					case 13: // enter
 						if (typeof callBack == 'function') callBack('Yes');
@@ -7951,10 +7957,11 @@ var w2confirm = function (msg, title, callBack) {
 *
 * == NICE TO HAVE ==
 *	- return ids of all subitems
+*	- add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *
 * == 1.3 Changes ==
 *	- animated open/close
-*	- added onKeyboard event
+*	- added onKeydown event
 *	- added .keyboard = true
 *	- moved some settings to prototype
 *	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
@@ -7987,7 +7994,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.onMenuClick	= null; // when context menu item selected
 		this.onExpand		= null;	// Fire when node Expands
 		this.onCollapse		= null;	// Fire when node Colapses
-		this.onKeyboard		= null;
+		this.onKeydown		= null;
 		this.onRender 		= null;
 		this.onRefresh		= null;
 		this.onResize 		= null;
@@ -8341,10 +8348,10 @@ var w2confirm = function (msg, title, callBack) {
 			var nd  = this.get(id);
 			if (nd == null) return;
 			var old = this.selected;
-			if (nd.disabled || nd.group || id == old) return;
+			if (nd.disabled || nd.group) return; // should click event if already selected
 			// move selected first
-			$(obj.box).find('#node_'+ w2utils.escapeId(id)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
 			$(obj.box).find('#node_'+ w2utils.escapeId(old)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+			$(obj.box).find('#node_'+ w2utils.escapeId(id)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
@@ -8369,7 +8376,7 @@ var w2confirm = function (msg, title, callBack) {
 			var nd  = obj.get(obj.selected);
 			if (!nd || obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keyboard', target: obj.name, originalEvent: event });	
+			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });	
 			if (eventData.isCancelled === true) return false;
 			// default behaviour
 			if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
