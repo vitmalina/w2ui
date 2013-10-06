@@ -1,12 +1,34 @@
-Resets previous search to the default values.
+Returns final HTML for the cell.
 
 <div class="definition">
-	searchReset()
+	getCellHTML(index, column_index, [summary])
 </div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>index</td>
+		<td><b>integer</b>, record index in the records or summary array</td>
+	</tr>
+	<tr>
+		<td>column_index</td>
+		<td><b>integer</b>, column index in the columns array</td>
+	</tr>
+	<tr>
+		<td>summary</td>
+		<td><b>boolean</b>, <i>optional</i> indicates if to render summary record</td>
+	</tr>
+	</table>
+</div>
+Returns HTML text.
 
 <h4>Description</h4>
 
-It is the same if user would have clicked the "Reset" button in the search dialog.
+The first argument <span class="argument">index</span> is the index of the record in the 
+<a class="argument" href="w2grid.records">.records</a> array (or <a class="argument" href="w2grid.summary">.summary</a> array,
+if <span class="argument">summary</span> argument is true). The second argument <span class="argument">column_index</span> is the 
+index in the <a class="argument" href="w2grid.columns">.columns</a> array. This method will return final HTML after it applies
+formatters and calls render function (if any) for the cell.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -32,9 +54,8 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You could:
+You can get cell HTML:
 <textarea class="javascript">
-w2ui['grid'].searchReset()
+var html = w2ui['grid'].getCellHTML(0, 2);
+console.log(html);
 </textarea>
-
-See also <a class="property" href="w2grid.clear">.clear()</a> and <a class="property" href="w2grid.reset">.reset()</a>

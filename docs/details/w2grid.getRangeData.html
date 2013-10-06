@@ -1,12 +1,39 @@
-Resets previous search to the default values.
+Returns range data defined to the given range object.
 
 <div class="definition">
-	searchReset()
+	getRangeData(range, [extra])
 </div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>range</td>
+		<td><b>object</b>, range object</td>
+	</tr>
+	<tr>
+		<td>extra</td>
+		<td><b>boolean</b>, <i>optional</i>, indicates if to return extra information</td>
+	</tr>
+	</table>
+</div>
+Returns two-dimentional array.
 
 <h4>Description</h4>
 
-It is the same if user would have clicked the "Reset" button in the search dialog.
+The first argument <span class="argument">range</span> is a two dimentional array that defines a range. The following is an example
+of such array: 
+<textarea class="javascript">
+var range = [{
+	recid	: 1,
+	column	: 0
+},{
+	recid	: 5,
+	column	: 2	
+}]
+</textarea>
+The second argument <span class="argument">extra</span> indicates if you want to return plain grid data for the range or data with
+some extra information (recid, index, column_index and record).
+
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -32,9 +59,8 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You could:
+You can get the record:
 <textarea class="javascript">
-w2ui['grid'].searchReset()
+var rangeData = w2ui['grid'].getRangeData([{ recid: 1, column: 3}, { recid: 3, column: 5}]);
+console.log(rangeData);
 </textarea>
-
-See also <a class="property" href="w2grid.clear">.clear()</a> and <a class="property" href="w2grid.reset">.reset()</a>

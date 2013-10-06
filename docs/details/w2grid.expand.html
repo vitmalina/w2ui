@@ -1,19 +1,31 @@
-Resets previous search to the default values.
+Called when user clicks on the expand record icon.
 
 <div class="definition">
-	searchReset()
+	expand(recid)
 </div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>recid</td>
+		<td><b>string</b>, id of the clicked record</td>
+	</tr>
+	</table>
+</div>
+Returns boolean.
 
 <h4>Description</h4>
 
-It is the same if user would have clicked the "Reset" button in the search dialog.
-<div style="height: 10px"></div>
+This method will try to expand the record. It will insert a TR and a DIV right after the record and then trigger 
+<a class="method" href="w2grid.onExpand">.onExpand</a> event. You should add event listener and populate provided DIV
+with html.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	columns: [				
+	name : 'grid',
+	show : { expandColumn: true },
+	columns: [
 		{ field: 'recid', caption: 'ID', size: '50px' },
 		{ field: 'lname', caption: 'Last Name', size: '30%' },
 		{ field: 'fname', caption: 'First Name', size: '30%' },
@@ -21,6 +33,9 @@ $('#grid').w2grid({
 		{ field: 'sdate', caption: 'Start Date', size: '120px' },
 		{ field: 'sdate', caption: 'End Date', size: '120px' }
 	],
+	onExpand: function (event) {
+		$('#' + event.box_id).html('some html').animate({ height : 100 }, 100);
+	},
 	records: [
 		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
 		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
@@ -32,9 +47,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You could:
+You can expand record:
 <textarea class="javascript">
-w2ui['grid'].searchReset()
+w2ui.grid.expand(2);
 </textarea>
-
-See also <a class="property" href="w2grid.clear">.clear()</a> and <a class="property" href="w2grid.reset">.reset()</a>

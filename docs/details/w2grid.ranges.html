@@ -4,13 +4,26 @@ Array of all ranges defined for the grid.
 	Array, default = []
 </div>
 
-This property only works if you grid is excel-like grid, <span class="property">.selectType</span> is set to 'cell'. To add 
-and remove ranges you should use <a href="w2grid.addRange" class="method">.addRange</a> and 
+This property only works if you grid is excel-like grid, <span class="property">.selectType</span> is set to 'cell'. 
+<div style="height: 10px"></div>
+
+There are 
+a set of methods to work with ranges. To add  and remove ranges you should use <a href="w2grid.addRange" class="method">.addRange</a> and 
 <a href="w2grid.removeRange" class="method">.removeRange</a> methods. If can find a range by name using 
 <a href="w2grid.addRange" class="method">.getRange</a> method. If you need to refresh ranges, use 
-<a href="w2grid.addRange" class="method">.refreshRanges</a>
+<a href="w2grid.addRange" class="method">.refreshRanges</a>.
+<div style="height: 10px"></div>
 
-However, if you want to see what ranges are defined, you may iterate through 
+The range object has following structure:
+<textarea class="javascript">
+range = {
+	name  : '',		// name of the range
+	range : [],		// two dimentional array that defines range
+	style : ''		// style property for the range
+}
+</textarea>
+
+If you need to see what ranges are defined, you may iterate through 
 <span class="property">.ranges</span> property
 
 <textarea class="javascript">

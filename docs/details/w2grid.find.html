@@ -1,7 +1,7 @@
 Finds and returns matched records.
 
 <div class="definition">
-	find(match, [returnRecords])
+	find(match, [returnIndex])
 </div>
 
 <div class="arguments">
@@ -11,18 +11,19 @@ Finds and returns matched records.
 		<td><b>object</b>, set of properties to match</td>
 	</tr>
 	<tr>
-		<td>returnRecords</td>
+		<td>returnIndex</td>
 		<td><b>boolean</b>, if true returns records not their recids</td>
 	</tr>
 	</table>
 </div>
+Returns an array of objects or an array of integers or an empty array.
 
 <h4>Description</h4>
 
-This method returns an array of <span class="argument">recids</span> for all matched records. The
-<span class="argument">match</span> argument is a JavaScript object with keys and values. If this keyws and values are the same
-in the record, it will match it. For example, if match = { type: 1, status: 'Open' } then it will return all records where
-type is 1 and status is 'Open.'
+This method returns an array of record objects or an array of recids for all matched records. The
+<span class="argument">match</span> argument is a JavaScript object with key-value pairs. It will match 
+this pairs with the items in the <a class="argument" href="w2grid.records">records</a> array. For example, if 
+match = { type: 1, status: 'Open' } then it will return all records where type is 1 and status is 'Open.'
 				
 If you have following grid:
 <textarea class="javascript">
@@ -48,5 +49,6 @@ $('#grid').w2grid({
 
 You can find
 <textarea class="javascript">
-console.log( w2ui['grid'].find({ email: 'jdoe@gmail.com' }) );
+var recs = w2ui['grid'].find({ email: 'jdoe@gmail.com' });
+console.log(recs);
 </textarea>

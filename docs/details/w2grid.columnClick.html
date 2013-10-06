@@ -1,19 +1,35 @@
-Resets previous search to the default values.
+Called when user clicks on the column.
 
 <div class="definition">
-	searchReset()
+	columnClick(field, [event])
 </div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>field</td>
+		<td><b>string</b>, column field name</td>
+	</tr>
+	<tr>
+		<td>event</td>
+		<td><b>object</b>, <i>optional</i>, DOM Event Object</td>
+	</tr>
+	</table>
+</div>
+Returns true on success, false otherwise.
 
 <h4>Description</h4>
 
-It is the same if user would have clicked the "Reset" button in the search dialog.
+This method is called when user clicks on the column, normally to sort it. The method emits the
+<a class="method" href="w2grid.onColumnClick">.onColumnClick</a> event and by default sort grid data by this column.
+
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	columns: [				
+	name : 'grid',
+	columns: [
 		{ field: 'recid', caption: 'ID', size: '50px' },
 		{ field: 'lname', caption: 'Last Name', size: '30%' },
 		{ field: 'fname', caption: 'First Name', size: '30%' },
@@ -32,9 +48,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You could:
+You can emulate click on the column by:
 <textarea class="javascript">
-w2ui['grid'].searchReset()
+w2ui.grid.columnClick('fname');
 </textarea>
-
-See also <a class="property" href="w2grid.clear">.clear()</a> and <a class="property" href="w2grid.reset">.reset()</a>

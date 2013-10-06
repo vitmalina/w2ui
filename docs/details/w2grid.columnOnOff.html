@@ -1,19 +1,45 @@
-Resets previous search to the default values.
+Called when user opens grid settings (on grids toolbar) and selects an item.
 
 <div class="definition">
-	searchReset()
+	columnOnOff(el, event, field, value)
 </div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>el</td>
+		<td><b>DOM Element</b>, related element, often a checkbox</td>
+	</tr>
+	<tr>
+		<td>event</td>
+		<td><b>object</b>, <i>optional</i>, DOM Event Object</td>
+	</tr>
+	<tr>
+		<td>field</td>
+		<td><b>string</b>, field associated with the checkbox</td>
+	</tr>
+	<tr>
+		<td>value</td>
+		<td><b>integer</b>, number of records to skip</td>
+	</tr>
+	</table>
+</div>
+Returns undefined value.
 
 <h4>Description</h4>
 
-It is the same if user would have clicked the "Reset" button in the search dialog.
+This method is called when user opens grid settings menu and selects an item, normally to show/hide columns, but also
+to apply skip records and column width reset. The grid will emit the <a class="method" href="w2grid.onColumnOnOff">.onColumnOnOff</a> 
+event.
+
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	columns: [				
+	name : 'grid',
+	show : { toolbar: true },
+	columns: [
 		{ field: 'recid', caption: 'ID', size: '50px' },
 		{ field: 'lname', caption: 'Last Name', size: '30%' },
 		{ field: 'fname', caption: 'First Name', size: '30%' },
@@ -21,6 +47,9 @@ $('#grid').w2grid({
 		{ field: 'sdate', caption: 'Start Date', size: '120px' },
 		{ field: 'sdate', caption: 'End Date', size: '120px' }
 	],
+	onColumnOnOff: function (event) {
+		console.log(event);
+	},
 	records: [
 		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
 		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
@@ -31,10 +60,3 @@ $('#grid').w2grid({
 	]
 });
 </textarea>
-
-You could:
-<textarea class="javascript">
-w2ui['grid'].searchReset()
-</textarea>
-
-See also <a class="property" href="w2grid.clear">.clear()</a> and <a class="property" href="w2grid.reset">.reset()</a>

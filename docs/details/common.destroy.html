@@ -3,12 +3,13 @@ Destroys the object.
 <div class="definition">
 	destroy()
 </div>
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
 The <span class="argument">destroy()</span> method will remove the object from the screen (if it is rendered), remove it
 from <span class="argument">w2ui</span> object array and destroy all related objects. For example, if it is a grid, it will destroy
-grid's toolbar.
+grid's toolbar. This method emits <a class="method" href="w2grid.onDestroy">.onDestroy</a> event.
 <div style="height: 10px"></div>
 
 <textarea class="javascript">

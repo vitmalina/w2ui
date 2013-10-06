@@ -12,15 +12,20 @@ Adds a record or records to the grid.
 	</tr>
 	</table>
 </div>
+Returns integer.
 
 <h4>Description</h4>
 
-Adds a record or records to the grid by adding new items into <a class="property" href="w2grid.records">.records</a> array and calling the
-<a class="method" href="w2grid.refresh">.refresh()</a> method. The <span class="method">.add()</span> method does not return anything. The first 
-and only argument <span class="argument">record</span> is the record object or an array of record objects.
+Adds a record or records to the grid by adding them into the <a class="property" href="w2grid.records">.records</a> array and calling the
+<a class="method" href="w2grid.refresh">.refresh()</a> method. 
+The first and only argument <span class="argument">record</span> is the record object or an array of record objects. If you add multiple records
+at a time, it will only refresh the grid after all of them were added. 
 <div style="height: 10px"></div>
 
-If you have following grid:
+Returns the number of records it adds.
+<div style="height: 10px"></div>
+
+If you define grid as:
 <textarea class="javascript">
 $('#grid').w2grid({
 	name    : 'grid',
@@ -41,10 +46,14 @@ $('#grid').w2grid({
 You can add records by:
 <textarea class="javascript">
 w2ui['grid'].add({ recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' });
-// OR
+</textarea>
+or several at a time:
+<textarea class="javascript">
 w2ui['grid'].add([
 	{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
 	{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 	{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
 ]);
 </textarea>
+
+See <a class="method" href="w2grid.records">.records</a> array for the structure of the record object.

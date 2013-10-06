@@ -3,10 +3,12 @@ Removes all records from the grid.
 <div class="definition">
 	clear()
 </div>
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-Removes all records from the <span class="method">.records</span> array and refreshes the grid. If you have grid defined in the 
+Removes all records from the <span class="method">.records</span> array, resets <span class="method">.total</span> and 
+<span class="method">.buffered</span> properties and refreshes the grid. If you have grid defined in the 
 following way:
 <textarea class="javascript">
 $('#grid').w2grid({
@@ -34,3 +36,5 @@ You can remove all records:
 <textarea class="javascript">
 w2ui['grid'].clear();
 </textarea>
+
+See also <a class="property" href="w2grid.reset">.reset()</a> and <a class="property" href="w2grid.searchReset">.searchReset()</a>

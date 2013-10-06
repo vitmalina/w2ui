@@ -1,18 +1,21 @@
-Resets previous search to the default values.
+Returns selected records in tab-delimited text format.
 
 <div class="definition">
-	searchReset()
+	copy()
 </div>
+
+Returns text.
 
 <h4>Description</h4>
 
-It is the same if user would have clicked the "Reset" button in the search dialog.
+This method is called to generate text in tab-delimited format that will be copied to the clipboard. The method does not copy text
+to clipboard, but returns it. This method emits <a class="method" href="w2grid.onCopy">.onCopy</a> event.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
+	name           : 'grid',
 	columns: [				
 		{ field: 'recid', caption: 'ID', size: '50px' },
 		{ field: 'lname', caption: 'Last Name', size: '30%' },
@@ -32,9 +35,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You could:
+Select several records and then call:
 <textarea class="javascript">
-w2ui['grid'].searchReset()
+console.log(w2ui['grid'].copy());
 </textarea>
-
-See also <a class="property" href="w2grid.clear">.clear()</a> and <a class="property" href="w2grid.reset">.reset()</a>

@@ -12,16 +12,17 @@ Finds the record and returns its object or index in records array.
 	</tr>
 	<tr>
 		<td>returnIndex</td>
-		<td><b>boolean</b>, indicates if return a record or its index in records array</td>
+		<td><b>boolean</b>, <i>optional</i>, indicates if to return a record or its index in records array</td>
 	</tr>
 	</table>
 </div>
+Returns object, integer or null.
 
 <h4>Description</h4>
 
-The first argument <span class="argument">recid</span> is the id of the record. It is not the index of the record in the
-<a class="property" href="w2grid.records">.records</a> array. If the record does not exists in the <a href="w2grid.records">.records</a> 
-array, the method will return null. 
+The first argument <span class="argument">recid</span> is the id of the record to find. It is not the index of the record in 
+the <a class="argument" href="w2grid.records">.records</a> array. If the record does not exists in the 
+<a class="argument" href="w2grid.records">.records</a> array, the method will return null. 
 
 <div style="height: 10px"></div>
 
@@ -50,5 +51,6 @@ $('#grid').w2grid({
 
 You can get the record:
 <textarea class="javascript">
-console.log( w2ui['grid'].get(2) );
+var record = w2ui['grid'].get(2);
+console.log(record);
 </textarea>

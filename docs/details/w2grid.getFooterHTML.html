@@ -1,12 +1,15 @@
-Resets previous search to the default values.
+Returns HTML for grid footer.
 
 <div class="definition">
-	searchReset()
+	getFooterHTML()
 </div>
+Returns HTML text.
 
 <h4>Description</h4>
 
-It is the same if user would have clicked the "Reset" button in the search dialog.
+The method is used internally to generate HTML for grid's footer. Several other methods might use footer to display aditional information. Such
+methods are <a class="property" href="w2grid.status">.status</a> and <a class="property" href="w2grid.scroll">.scroll</a>.
+It is possible to overwrite this method with a custom one.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -32,9 +35,8 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You could:
+You can get cell HTML:
 <textarea class="javascript">
-w2ui['grid'].searchReset()
+var html = w2ui['grid'].getFooterHTML();
+console.log(html);
 </textarea>
-
-See also <a class="property" href="w2grid.clear">.clear()</a> and <a class="property" href="w2grid.reset">.reset()</a>

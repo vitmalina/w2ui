@@ -8,7 +8,7 @@ Adds a search or searches to the grid.
 	<table>
 	<tr>
 		<td>before</td>
-		<td><b>string</b>, field name of the search to add before (<i>optional</i>)</td>
+		<td><b>string</b> or <b>integer</b>, <i>optional</i>, search to add before</td>
 	</tr>
 	<tr>
 		<td>search</td>
@@ -16,24 +16,29 @@ Adds a search or searches to the grid.
 	</tr>
 	</table>
 </div>
+Returns integer.
 
 <h4>Description</h4>
 
-Adds a search or searhces to the grid by adding items into <a class="property" href="w2grid.searches">.searches</a> array. Since the search popup 
-is shown when user clicks the search button, there is no need to refresh the grid. The <span class="method">.addSearch()</span> method does not return anything. 
-The first optional argument <span class="argument">before</span> is the field name of the search to insert before. If first parameter is not defined, the search will be appended at the end.
-Second argument <span class="argument">search</span> is the search object or an array of search objects.
+Adds a search or searhces to the grid by adding items into <a class="property" href="w2grid.searches">.searches</a> array. Since the 
+search popup is shown when user clicks the search button, there is no need to refresh the grid. The first optional argument 
+<span class="argument">before</span> is the search to insert before. It can be either a search field name or the index in 
+the <a class="property" href="w2grid.searches">.searches</a> array. If first parameter is not defined, the search will be appended 
+to the end. Second argument <span class="argument">search</span> is the search object or an array of search objects.
 <div style="height: 10px"></div>
 
-If you have following grid:
+Returns the number of searches it adds.
+<div style="height: 10px"></div>
+
+If you define grid as:
 <textarea class="javascript">
 $('#grid').w2grid({
 	name    : 'grid',
 	columns: [				
 		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'lname', caption: 'Last Name', size: '30%', searchable: true },
+		{ field: 'fname', caption: 'First Name', size: '30%', searchable: true },
+		{ field: 'email', caption: 'Email', size: '40%', searchable: true },
 		{ field: 'sdate', caption: 'End Date', size: '120px' }
 	],
 	records: [
@@ -46,9 +51,15 @@ $('#grid').w2grid({
 You can add searches by:
 <textarea class="javascript">
 w2ui['grid'].addSearch({ field: 'recid', caption: 'ID', type: 'int' });
-// OR multiple
+</textarea>
+
+or several at a time:
+
+<textarea class="javascript">
 w2ui['grid'].addSearch([
 	{ field: 'fname', caption: 'First Name', type: 'text' },
 	{ field: 'lname', caption: 'Last Name', type: 'text' }
 ]);
 </textarea>
+
+See <a class="property" href="w2grid.searches">.searches</a> array for the structre of the search object.
