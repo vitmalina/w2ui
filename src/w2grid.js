@@ -24,6 +24,8 @@
 *	- url should be either string or object, if object, then allow different urls for different actions, get-records, delete, save
 *	- bug: paste at the end of the control
 *	- bug: extend selection - bug
+*	- hidden searches could not be clearned by the user
+*	- how do you easy change add/delete/edit buttons??
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -76,10 +78,10 @@
 * 	- added status()
 *	- added copy(), paste()
 *	- added onCopy, onPaste events
-*	- added getCellData(record, ind, col_ind)
+*	- added getCellHTML(index, column_index, summary)
 *	- added selectType = 'cell' then, it shows cell selection
 * 	- added addRange(), removeRange(), ranges - that draws border arround selection and grid.show.selectionBorder
-*	- added getRange();
+*	- added getRangeData();
 *	- changed getSelection(returnIndex) - added returnIndex parameter
 *	- added markSearchResults
 *	- added columnClick() and onColumnClick and onColumnResize
@@ -390,21 +392,24 @@
 			return removed;
 		},
 
-		addColumn: function (before, column) {
+		addColumn: function (before, columns) {
+			var added = 0;
 			if (arguments.length == 1) {
-				column = before;
-				before = this.columns.length;
+				columns = before;
+				before  = this.columns.length;
 			} else {
-				before = this.getColumn(before, true);
+				if (typeof before == 'string') before = this.getColumn(before, true);
 				if (before === null) before = this.columns.length;
 			}
-			if (!$.isArray(column)) column = [column];
-			for (var o in column) {
-				this.columns.splice(before, 0, column[o]);
+			if (!$.isArray(columns)) columns = [columns];
+			for (var o in columns) {
+				this.columns.splice(before, 0, columns[o]);
 				before++;
+				added++;
 			}
 			this.initColumnOnOff();
 			this.refresh();
+			return added;
 		},
 
 		removeColumn: function () {
@@ -471,19 +476,22 @@
 		},
 
 		addSearch: function (before, search) {
+			var added = 0;
 			if (arguments.length == 1) {
 				search = before;
 				before = this.searches.length;
 			} else {
-				before = this.getSearch(before, true);
+				if (typeof before == 'string') before = this.getSearch(before, true);
 				if (before === null) before = this.searches.length;
 			}
 			if (!$.isArray(search)) search = [search];
 			for (var o in search) {
 				this.searches.splice(before, 0, search[o]);
 				before++;
+				added++;
 			}
 			this.searchClose();
+			return added;
 		},
 
 		removeSearch: function () {
@@ -671,7 +679,7 @@
 			return time;
 		},
 
-		getRange: function (range, returnData) {
+		getRangeData: function (range, extra) {
 			var rec1 = this.get(range[0].recid, true);
 			var rec2 = this.get(range[1].recid, true);
 			var col1 = range[0].column;
@@ -682,7 +690,7 @@
 				for (var r = rec1; r <= rec2; r++) {
 					var record = this.records[r];
 					var dt = record[this.columns[col1].field] || null;
-					if (returnData === true) {
+					if (extra !== true) {
 						res.push(dt);
 					} else {
 						res.push({ data: dt, column: col1, index: r, record: record });
@@ -692,7 +700,7 @@
 				var record = this.records[rec1];
 				for (var i = col1; i <= col2; i++) {
 					var dt = record[this.columns[i].field] || null;
-					if (returnData === true) {
+					if (extra !== true) {
 						res.push(dt);
 					} else {
 						res.push({ data: dt, column: i, index: rec1, record: record });
@@ -704,7 +712,7 @@
 					res.push([]);
 					for (var i = col1; i <= col2; i++) {
 						var dt = record[this.columns[i].field];
-						if (returnData === true) {
+						if (extra !== true) {
 							res[res.length-1].push(dt);
 						} else {
 							res[res.length-1].push({ data: dt, column: i, index: r, record: record });
@@ -715,43 +723,50 @@
 			return res;
 		},
 
-		addRange: function (name, range, style) {
-			if (name == 'selection' || typeof name == 'undefined') {
-				if (this.selectType == 'row' || this.show.selectionBorder === false) return;
-				var name  = 'selection';
-				var sel   = this.getSelection();
-				if (sel.length == 0) { 
-					this.removeRange(name); 
-				} else {
-					var first = sel[0];
-					var last  = sel[sel.length-1];
+		addRange: function (ranges) {
+			var added = 0;
+			if (this.selectType == 'row') return added;
+			if (!$.isArray(ranges)) ranges = [ranges];
+			// if it is selection
+			for (var r in ranges) {
+				if (typeof ranges[r] != 'object') ranges[r] = { name: 'selection' };
+				if (ranges[r].name == 'selection') {
+					if (this.show.selectionBorder === false) continue;
+					var sel = this.getSelection();
+					if (sel.length == 0) { 
+						this.removeRange(ranges[r].name); 
+						continue;
+					} else {
+						var first = sel[0];
+						var last  = sel[sel.length-1];
+						var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
+						var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
+					}
+				} else { // other range
+					var first = ranges[r].range[0];
+					var last  = ranges[r].range[1];
 					var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
 					var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
 				}
-			} else {
-				var first = range[0];
-				var last  = range[1];
-				var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
-				var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
-			}
-			if (first) {
-				var rg = { 
-					name: name, 
-					range: [{ recid: first.recid, column: first.column }, { recid: last.recid, column: last.column }], 
-					style: style || '' 
-				};
-				// add range
-				var ind = false;
-				for (var r in this.ranges) if (this.ranges[r].name == name) { ind = r; break; }
-				if (ind !== false) {
-					this.ranges[ind] = rg;
-				} else {
-					this.ranges.push(rg);	
+				if (first) {
+					var rg = { 
+						name: ranges[r].name, 
+						range: [{ recid: first.recid, column: first.column }, { recid: last.recid, column: last.column }], 
+						style: ranges[r].style || '' 
+					};
+					// add range
+					var ind = false;
+					for (var t in this.ranges) if (this.ranges[t].name == ranges[r].name) { ind = r; break; }
+					if (ind !== false) {
+						this.ranges[ind] = rg;
+					} else {
+						this.ranges.push(rg);	
+					}
+					added++
 				}
-				this.refreshRanges();
-				return this.ranges[this.ranges - 1];
 			}
-			return null;
+			this.refreshRanges();
+			return added;
 		},
 
 		removeRange: function () {
@@ -783,6 +798,8 @@
 					rec.append('<div id="grid_'+ this.name +'_' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
 									(rg.name == 'selection' ?  '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
 								'</div>');
+				} else {
+					$('#grid_'+ this.name +'_'+ rg.name).attr('style', rg.style);
 				}
 				if (td1.length > 0 && td2.length > 0) {
 					$('#grid_'+ this.name +'_'+ rg.name).css({
@@ -842,9 +859,11 @@
 				} else {
 					// default behavior
 					obj.removeRange('grid-selection-expand');
-					obj.addRange('grid-selection-expand', eventData.newRange,
-						'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
-					);
+					obj.addRange({ 
+						name	: 'grid-selection-expand', 
+						range	: eventData.newRange,
+						style	: 'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
+					});
 				}
 			}
 
@@ -1951,7 +1970,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default behaviour
-			this.sort(field);
+			this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -2476,9 +2495,9 @@
 			return true;
 		},
 
-		sort: function (field, direction) { // if no params - clears sort
+		sort: function (field, direction, multiField) { // if no params - clears sort
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction });
+			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, multiField: multiField });
 			if (eventData.isCancelled === true) return false;
 			// check if needed to quit
 			if (typeof field != 'undefined') {
@@ -2499,7 +2518,7 @@
 					}
 				}
 				if (this.multiSort === false) { this.sortData = []; sortIndex = 0; }
-				if (event && !event.ctrlKey && !event.metaKey) { this.sortData = []; sortIndex = 0; }
+				if (multiField != true) { this.sortData = []; sortIndex = 0; }
 				// set new sort
 				if (typeof this.sortData[sortIndex] == 'undefined') this.sortData[sortIndex] = {};
 				this.sortData[sortIndex].field 	   = field;
@@ -2540,7 +2559,7 @@
 					for (var c = minCol; c <= maxCol; c++) {
 						var col = this.columns[c];
 						if (col.hidden === true) continue;
-						text += w2utils.stripTags(this.getCellData(this.records[ind], ind, c)) + '\t';
+						text += w2utils.stripTags(this.getCellHTML(ind, c)) + '\t';
 					}
 					text = text.substr(0, text.length-1); // remove last \t
 					text += '\n';
@@ -2553,7 +2572,7 @@
 					for (var c in this.columns) {
 						var col = this.columns[c];
 						if (col.hidden === true) continue;
-						text += w2utils.stripTags(this.getCellData(this.records[ind], ind, c)) + '\t';
+						text += w2utils.stripTags(this.getCellHTML(ind, c)) + '\t';
 					}
 					text = text.substr(0, text.length-1); // remove last \t
 					text += '\n';
@@ -2570,18 +2589,20 @@
 		},
 
 		paste: function (text) {
-			var sel = this.getSelection();
-			if (this.selectType == 'row' || sel.length == 0) {
-				console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.');
-				return false;
-			}
-			var ind = this.get(sel[0].recid, true);
-			var col = sel[0].column;
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
 			if (eventData.isCancelled === true) return;
 			text = eventData.text;
 			// default action
+			var sel = this.getSelection();
+			if (this.selectType == 'row' || sel.length == 0) {
+				console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.');
+				// event after
+				this.trigger($.extend(eventData, { phase: 'after' }));
+				return;
+			}
+			var ind = this.get(sel[0].recid, true);
+			var col = sel[0].column;
 			var newSel = [];
 			var text   = text.split('\n');
 			for (var t in text) {
@@ -3713,7 +3734,7 @@
 			function getColumns (master) {
 				var html = '<tr>';
 				if (obj.show.lineNumbers) {
-					html += '<td class="w2ui-head w2ui-col-number" onclick="w2ui[\''+ obj.name +'\'].sort();">'+
+					html += '<td class="w2ui-head w2ui-col-number" onclick="w2ui[\''+ obj.name +'\'].columnClick(\'line-number\', event);">'+
 							'	<div>#</div>'+
 							'</td>';
 				}
@@ -4030,7 +4051,7 @@
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
 				var isChanged = record.changed && record.changes[col.field];
-				var rec_cell  = this.getCellData(record, ind, col_ind);
+				var rec_cell  = this.getCellHTML(ind, col_ind, summary);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
@@ -4064,9 +4085,10 @@
 			return rec_html;
 		},
 
-		getCellData: function (record, ind, col_ind) {
-			var col  = this.columns[col_ind];
-			var data = this.parseObj(record, col.field);
+		getCellHTML: function (ind, col_ind, summary) {
+			var col  	= this.columns[col_ind];
+			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
+			var data 	= this.parseObj(record, col.field);
 			var isChanged = record.changed && record.changes[col.field];
 			if (isChanged) data = record.changes[col.field];
 			// various renderers
