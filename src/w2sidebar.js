@@ -7,6 +7,7 @@
 *
 * == NICE TO HAVE ==
 *	- return ids of all subitems
+*	- add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *
 * == 1.3 Changes ==
 *	- animated open/close
@@ -397,10 +398,10 @@
 			var nd  = this.get(id);
 			if (nd == null) return;
 			var old = this.selected;
-			if (nd.disabled || nd.group || id == old) return;
+			if (nd.disabled || nd.group) return; // should click event if already selected
 			// move selected first
-			$(obj.box).find('#node_'+ w2utils.escapeId(id)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
 			$(obj.box).find('#node_'+ w2utils.escapeId(old)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+			$(obj.box).find('#node_'+ w2utils.escapeId(id)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
