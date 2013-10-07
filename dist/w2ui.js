@@ -1743,6 +1743,7 @@ w2utils.keyboard = (function (obj) {
 
 		clear: function () {
 			this.records	= [];
+			this.summary	= [];
 			this.total 		= 0;
 			this.buffered   = 0;
 			this.refresh();
@@ -2722,6 +2723,7 @@ w2utils.keyboard = (function (obj) {
 						if (cmd == 'get-records') {
 							if (this.last.xhr_offset == 0) {
 								this.records = [];
+								this.summary = [];
 								//data.xhr_status=data.status;
 								delete data.status;
 								$.extend(true, this, data);
@@ -3906,7 +3908,7 @@ w2utils.keyboard = (function (obj) {
 			var tmp = this.find({ summary: true }, true);
 			if (tmp.length > 0) {
 				for (var t in tmp) this.summary.push(this.records[tmp[t]]);
-				for (var i=tmp.length-1; i>=0; i--) this.records.splice(tmp[i], 1); 
+				for (var t=tmp.length-1; t>=0; t--) this.records.splice(tmp[t], 1);
 				this.total 	  = this.total - tmp.length;
 				this.buffered = this.buffered - tmp.length;
 			}
