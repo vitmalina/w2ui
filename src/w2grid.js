@@ -2729,7 +2729,8 @@
 			if (tmp.length > 0) {
 				for (var t in tmp) this.summary.push(this.records[tmp[t]]);
 				for (var i=tmp.length-1; i>=0; i--) this.records.splice(tmp[i], 1); 
-				this.total = this.records.length;
+				this.total 	  = this.total - tmp.length;
+				this.buffered = this.buffered - tmp.length;
 			}
 
 			// -- body

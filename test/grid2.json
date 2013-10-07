@@ -1,0 +1,40 @@
+{
+   "header":"Data Pembayaran",
+   "status":"success",
+   "records":[
+      {
+         "recid":"8",
+         "pk_id":"8",
+         "p_id":"11",
+         "pk_date":"2013-09-05",
+         "pk_keterangan":"LUNAS",
+         "pk_nilai":"600000",
+         "user_entry":"admin",
+         "date_entry":"30-09-2013 22:05:51",
+         "date_edit":"30-09-2013 22:05:51"
+      },
+      {
+         "recid":"7",
+         "pk_id":"7",
+         "p_id":"11",
+         "pk_date":"2013-09-02",
+         "pk_keterangan":"DP",
+         "pk_nilai":"1900000",
+         "user_entry":"admin",
+         "date_entry":"30-09-2013 22:03:47",
+         "date_edit":"30-09-2013 22:03:47"
+      },
+      {
+         "summary":true,
+         "recid":"S-1",
+         "pk_id":"S-1",
+         "pk_date":"",
+         "pk_keterangan":"Jumlah",
+         "pk_nilai":2500000,
+         "user_entry":"",
+         "date_entry":"",
+         "date_edit":""
+      }
+   ],
+   "total":"3"
+}

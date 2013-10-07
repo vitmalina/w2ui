@@ -1,7 +1,5 @@
 {
-	"status"	: "error1",
-	"message"	: "Some uknown error",
-	"page" 		: 0,
+	"status"	: "success",
 	"total"		: 18,
 	"records"	: [
 		{ "recid": 1, "person": { "fname": "John", "lname": "Duran" }, "text": "Some long text that might not be long", "email": "vitali@gmail.com", "sdate": "1/3/2012" },
