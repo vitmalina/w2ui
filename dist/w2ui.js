@@ -5275,8 +5275,11 @@ w2utils.keyboard = (function (obj) {
 			// various renderers
 			if (data == null || typeof data == 'undefined') data = '';
 			if (typeof col.render != 'undefined') {
-				if (typeof col.render == 'function') data = col.render.call(this, record, ind, col_ind);
-				if (typeof col.render == 'object')   data = col.render[data];
+				if (typeof col.render == 'function') {
+					data = col.render.call(this, record, ind, col_ind);
+					if (data.length >= 4 && data.substr(0, 4) != '<div') data = '<div>' + data + '</div>';
+				}
+				if (typeof col.render == 'object')   data = '<div>' + col.render[data] + '</div>';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
 					var prefix = '';
@@ -5463,6 +5466,7 @@ w2utils.keyboard = (function (obj) {
 			if ($.isArray(tabs)) tabs = { tabs: tabs };
 			$().w2destroy(object.name + '_' + panel + '_tabs'); // destroy if existed
 			pan.tabs = $().w2tabs($.extend({}, tabs, { owner: object, name: object.name + '_' + panel + '_tabs' }));
+			pan.show.tabs = true;
 			return true;
 		}
 		
@@ -5474,6 +5478,7 @@ w2utils.keyboard = (function (obj) {
 			if ($.isArray(toolbar)) toolbar = { items: toolbar };
 			$().w2destroy(object.name + '_' + panel + '_toolbar'); // destroy if existed
 			pan.toolbar = $().w2toolbar($.extend({}, toolbar, { owner: object, name: object.name + '_' + panel + '_toolbar' }));
+			pan.show.toolbar = true;
 			return true;
 		}
 	};
@@ -5496,6 +5501,10 @@ w2utils.keyboard = (function (obj) {
 			toolbar		: null,
 			width		: null, 		// read only
 			height 		: null, 		// read only
+			show : {
+				toolbar : false,
+				tabs	: false
+			},
 			onRefresh	: null,
 			onShow 		: null,
 			onHide 		: null
@@ -5728,6 +5737,50 @@ w2utils.keyboard = (function (obj) {
 			return el[0];
 		},
 
+		toolbarHide: function (panel) {
+			var pan = this.get(panel);
+			if (!pan) return;
+			pan.show.toolbar = false;
+			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-toolbar').hide();
+			this.resize();
+		},
+
+		toolbarShow: function (panel) {
+			var pan = this.get(panel);
+			if (!pan) return;
+			pan.show.toolbar = true;
+			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-toolbar').show();
+			this.resize();
+		},
+
+		toolbarToggle: function (panel) {
+			var pan = this.get(panel);
+			if (!pan) return;
+			if (pan.show.toolbar) this.toolbarHide(panel); else this.toolbarShow(panel);
+		},
+
+		tabsHide: function (panel) {
+			var pan = this.get(panel);
+			if (!pan) return;
+			pan.show.tabs = false;
+			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-tabs').hide();
+			this.resize();
+		},
+
+		tabsShow: function (panel) {
+			var pan = this.get(panel);
+			if (!pan) return;
+			pan.show.tabs = true;
+			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-tabs').show();
+			this.resize();
+		},
+
+		tabsToggle: function (panel) {
+			var pan = this.get(panel);
+			if (!pan) return;
+			if (pan.show.tabs) this.tabsHide(panel); else this.tabsShow(panel);
+		},
+
 		render: function (box) {
 			var obj = this;
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
@@ -5956,14 +6009,14 @@ w2utils.keyboard = (function (obj) {
 				}
 				// if there are tabs and/or toolbar - render it
 				var tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-tabs');
-				if (p.tabs != null) { 
-					if (tmp.find('[name='+ p.tabs.name +']').length == 0) tmp.w2render(p.tabs); else p.tabs.refresh(); 
+				if (p.show.tabs) { 
+					if (tmp.find('[name='+ p.tabs.name +']').length == 0 && p.tabs != null) tmp.w2render(p.tabs); else p.tabs.refresh(); 
 				} else {
 					tmp.html('').removeClass('w2ui-tabs').hide();
 				}
 				var tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-toolbar');
-				if (p.toolbar != null) { 
-					if (tmp.find('[name='+ p.toolbar.name +']').length == 0) tmp.w2render(p.toolbar); else p.toolbar.refresh(); 
+				if (p.show.toolbar) { 
+					if (tmp.find('[name='+ p.toolbar.name +']').length == 0 && p.toolbar != null) tmp.w2render(p.toolbar); else p.toolbar.refresh(); 
 				} else {
 					tmp.html('').removeClass('w2ui-toolbar').hide();
 				}
@@ -6231,12 +6284,12 @@ w2utils.keyboard = (function (obj) {
 				var pan = this.get(p);
 				var tmp = '#layout_'+ this.name +'_panel_'+ p +' > .w2ui-panel-';
 				var height = 0;
-				if (pan.tabs != null) {
-					if (w2ui[this.name +'_'+ p +'_tabs']) w2ui[this.name +'_'+ p +'_tabs'].resize();
+				if (pan.show.tabs) {
+					if (pan.tabs != null && w2ui[this.name +'_'+ p +'_tabs']) w2ui[this.name +'_'+ p +'_tabs'].resize();
 					height += w2utils.getSize($(tmp + 'tabs').css({ display: 'block' }), 'height');
 				}
-				if (pan.toolbar != null) {
-					if (w2ui[this.name +'_'+ p +'_toolbar']) w2ui[this.name +'_'+ p +'_toolbar'].resize();
+				if (pan.show.toolbar) {
+					if (pan.toolbar != null && w2ui[this.name +'_'+ p +'_toolbar']) w2ui[this.name +'_'+ p +'_toolbar'].resize();
 					height += w2utils.getSize($(tmp + 'toolbar').css({ top: height + 'px', display: 'block' }), 'height');
 				}
 				$(tmp + 'content').css({ display: 'block' }).css({ top: height + 'px' });
