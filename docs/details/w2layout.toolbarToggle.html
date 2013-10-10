@@ -1,0 +1,54 @@
+Toggles the panel's toolbar.
+
+<div class="definition">
+	toolbarToggle(type)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>type</td>
+		<td><b>string</b>, name of the panel</td>
+	</tr>
+	</table>
+</div>
+
+<h4>Description</h4>
+
+The first and only argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+	<li>top
+	<li>left
+	<li>main
+	<li>right
+	<li>preview
+	<li>bottom
+</ul>
+			
+If you have a layout defined as:
+<textarea class="javascript">
+$('#layout').w2layout({
+	name    : 'layout',
+	panels  : [
+		{ type: 'top', size: 40 },
+		{ type: 'main', content: 'This is main panel', 
+			toolbar: {
+				items: [
+					{ id: 'bt1', type: 'button', caption: 'Button 1', img: 'icon-page' },
+					{ id: 'bt2', type: 'button', caption: 'Button 2', img: 'icon-page' },
+					{ id: 'bt3', type: 'button', caption: 'Button 3', img: 'icon-page' }
+				],
+				onClick: function (event) {
+					console.log('event');
+				}
+			} 
+		},
+		{ type: 'preview', size: 200 }
+	]
+});
+</textarea>
+
+You can toggle toolbar
+<textarea class="javascript">
+w2ui['layout'].toolbarToggle('main');
+</textarea>
