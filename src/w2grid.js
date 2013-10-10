@@ -4097,8 +4097,11 @@
 			// various renderers
 			if (data == null || typeof data == 'undefined') data = '';
 			if (typeof col.render != 'undefined') {
-				if (typeof col.render == 'function') data = col.render.call(this, record, ind, col_ind);
-				if (typeof col.render == 'object')   data = col.render[data];
+				if (typeof col.render == 'function') {
+					data = col.render.call(this, record, ind, col_ind);
+					if (data.length >= 4 && data.substr(0, 4) != '<div') data = '<div>' + data + '</div>';
+				}
+				if (typeof col.render == 'object')   data = '<div>' + col.render[data] + '</div>';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
 					var prefix = '';
