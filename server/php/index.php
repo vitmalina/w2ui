@@ -32,7 +32,7 @@ $(function () {
         	editUser(0);
         },
         onDblClick: function (event) {
-        	editUser(data.recid);
+        	editUser(event.recid);
         }
     });
 
