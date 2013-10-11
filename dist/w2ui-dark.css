@@ -15,7 +15,8 @@
   color: default;
   font-family: Verdana, Arial;
   font-size: 11px;
-  font-weight: normal;
+  /* font-weight: normal; - if enabled, then tr cannot have font-weight: bold; */
+
   line-height: 100%;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -700,7 +701,7 @@ select {
   position: absolute;
   padding: 0px;
   margin: 0px;
-  min-height: 24px;
+  min-height: 25px;
   overflow: auto;
   border: 1px solid #777f8c;
   border-radius: 3px;
@@ -729,7 +730,7 @@ select {
   margin: 2px 1px 0px 2px;
   border-radius: 3px;
   width: auto;
-  padding: 2px 5px;
+  padding: 1px 5px;
   border: 1px solid #777f8c;
   background-color: #353d5b;
   white-space: nowrap;
@@ -754,7 +755,7 @@ select {
 }
 .w2ui-list ul li div {
   float: right;
-  width: 16px;
+  width: 15px;
   height: 16px;
   margin: -1px -3px 0px 4px;
   border-radius: 15px;
@@ -765,8 +766,8 @@ select {
 }
 .w2ui-list ul li div:before {
   position: relative;
-  top: 1px;
-  left: 5px;
+  top: 0px;
+  left: 4px;
   color: inherit;
   opacity: 0.6;
   text-shadow: inherit;

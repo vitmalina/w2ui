@@ -1204,6 +1204,7 @@ w2utils.keyboard = (function (obj) {
 *	- bug: extend selection - bug
 *	- hidden searches could not be clearned by the user
 *	- how do you easy change add/delete/edit buttons??
+*	- easy overwrite defaul toolbar icons/captions
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button
@@ -6328,9 +6329,9 @@ w2utils.keyboard = (function (obj) {
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			
-			if (obj.tmp.events && obj.tmp.events.resize) 	$(window).off('resize', obj.tmp.events.resize);
-			if (obj.tmp.events && obj.tmp.events.mousemove) $(document).off('mousemove', obj.tmp.events.mousemove);
-			if (obj.tmp.events && obj.tmp.events.mouseup) 	$(document).off('mouseup', obj.tmp.events.mouseup);
+			if (this.tmp.events && this.tmp.events.resize) 	$(window).off('resize', this.tmp.events.resize);
+			if (this.tmp.events && this.tmp.events.mousemove) $(document).off('mousemove', this.tmp.events.mousemove);
+			if (this.tmp.events && this.tmp.events.mouseup) 	$(document).off('mouseup', this.tmp.events.mouseup);
 			
 			return true;
 		},
@@ -8779,7 +8780,7 @@ var w2confirm = function (msg, title, callBack) {
 *
 * == NICE TO HAVE ==
 *	- select - for select, list - for drop down (needs this in grid)
-*	- enum add events: onLoaded, onCompare, onSelect, onDelete, onClick for already selected elements
+*	- enum add events: onLoad, onRequest, onCompare, onSelect, onDelete, onClick for already selected elements
 *	- enum needs events onItemClick, onItemOver, etc just like upload
 *	- upload (regular files)
 *	- enum - refresh happens on each key press even if not needed (for speed)
@@ -9563,9 +9564,9 @@ var w2confirm = function (msg, title, callBack) {
 							var cntHeight = $(div).find('>div').height(); //w2utils.getSize(div, 'height');
 							if (cntHeight < 23) cntHeight = 23;
 							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
-							$(div).height(cntHeight + 3);
+							$(div).height(cntHeight);
 							if (div.length > 0) div[0].scrollTop = 1000;
-							$(this).height(cntHeight + 3);
+							$(this).height(cntHeight);
 						}
 						// init control
 						$(this).data('settings', settings).attr('tabindex', -1);
