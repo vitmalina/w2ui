@@ -26,6 +26,7 @@
 *	- bug: extend selection - bug
 *	- hidden searches could not be clearned by the user
 *	- how do you easy change add/delete/edit buttons??
+*	- easy overwrite defaul toolbar icons/captions
 *
 * == 1.3 changes ==
 *	- added onEdit, an event to catch the edit record event when you click the edit button

@@ -14,7 +14,6 @@ $(function () {
 	$('#grid').w2grid({ 
 		name	: 'grid', 
 		header	: 'List of Names',
-		url 	: 'grid2.json',
 		// url		: {
 		// 	get		: 'data.php',
 		// 	remove	: 'remove',
@@ -151,13 +150,6 @@ $(function () {
 		console.log('change', event.value_new, event.value_previous, event.value_original);
 		//event.preventDefault();
 	});
-	w2ui.grid.load('grid2.json');
-	w2ui.grid.render();
-	return;
-	//w2ui.grid.postData['text'] = 'text';
-	//w2ui.grid.reload();
-	//return;
-
 	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
 	var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
 	// add 10k records

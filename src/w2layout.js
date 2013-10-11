@@ -951,9 +951,9 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			
-			if (obj.tmp.events && obj.tmp.events.resize) 	$(window).off('resize', obj.tmp.events.resize);
-			if (obj.tmp.events && obj.tmp.events.mousemove) $(document).off('mousemove', obj.tmp.events.mousemove);
-			if (obj.tmp.events && obj.tmp.events.mouseup) 	$(document).off('mouseup', obj.tmp.events.mouseup);
+			if (this.tmp.events && this.tmp.events.resize) 	$(window).off('resize', this.tmp.events.resize);
+			if (this.tmp.events && this.tmp.events.mousemove) $(document).off('mousemove', this.tmp.events.mousemove);
+			if (this.tmp.events && this.tmp.events.mouseup) 	$(document).off('mouseup', this.tmp.events.mouseup);
 			
 			return true;
 		},

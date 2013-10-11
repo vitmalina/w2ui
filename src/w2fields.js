@@ -7,7 +7,7 @@
 *
 * == NICE TO HAVE ==
 *	- select - for select, list - for drop down (needs this in grid)
-*	- enum add events: onLoaded, onCompare, onSelect, onDelete, onClick for already selected elements
+*	- enum add events: onLoad, onRequest, onCompare, onSelect, onDelete, onClick for already selected elements
 *	- enum needs events onItemClick, onItemOver, etc just like upload
 *	- upload (regular files)
 *	- enum - refresh happens on each key press even if not needed (for speed)
@@ -791,9 +791,9 @@
 							var cntHeight = $(div).find('>div').height(); //w2utils.getSize(div, 'height');
 							if (cntHeight < 23) cntHeight = 23;
 							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
-							$(div).height(cntHeight + 3);
+							$(div).height(cntHeight);
 							if (div.length > 0) div[0].scrollTop = 1000;
-							$(this).height(cntHeight + 3);
+							$(this).height(cntHeight);
 						}
 						// init control
 						$(this).data('settings', settings).attr('tabindex', -1);
