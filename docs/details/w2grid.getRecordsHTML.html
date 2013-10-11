@@ -7,8 +7,9 @@ Returns HTML text.
 
 <h4>Description</h4>
 
-The method is used internally to generate HTML for records in the view. It will take into consideration user applied search and scrollbar 
-position. It is possible to overwrite this method with a custom one.
+The method is used internally to generate HTML for records in the view. It will take into consideration user applied search 
+and scrollbar position. It is possible to overwrite this method with a custom one. This method internally calls 
+<a class="method" href="w2grid.getRecordHTML">.getRecordHTML()</a> to generate each record.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:

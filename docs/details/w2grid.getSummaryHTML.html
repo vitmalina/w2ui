@@ -1,15 +1,15 @@
-Returns current grid selection.
+Returns HTML of summary records.
 
 <div class="definition">
-	getSelection()
+	getSummaryHTML()
 </div>
-
-Returns array.
+Returns HTML text.
 
 <h4>Description</h4>
 
-This method returns an array of recids for all currently selected records in the grid. When you add records you need 
-to provide unique <span class="property">.recid</span> for each record. 
+In many ways this method is simiar to <a class="method" href="w2grid.getRecordsHTML">.getRecordsHTML()</a> method, but it will
+return HTML text of summary records. This method internally calls <a class="method" href="w2grid.getRecordHTML">.getRecordHTML()</a>
+to generate each summary record.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -27,15 +27,16 @@ $('#grid').w2grid({
 	records: [
 		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
 		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+		{ recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012', summary: true },
 		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: '-', sdate: '4/3/2012', summary: true },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
-	]
+	]	
 });
 </textarea>
 
-You can get selected records:
+You can get summary records HTML:
 <textarea class="javascript">
-console.log( w2ui['grid'].getSelection() );
+var html = w2ui['grid'].getSummaryHTML();
+console.log(html);
 </textarea>

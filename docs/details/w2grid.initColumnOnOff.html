@@ -1,12 +1,14 @@
-Rebuilds toolbar button that allows to show/hide columns.
+Refreshes toolbar button that allows to show/hide columns.
 
 <div class="definition">
 	initColumnOnOff()
 </div>
 
+Returns <i>undefined</i>.
+
 <h4>Description</h4>
 
-Every time you add or remove columns to the grid, a drop down menu on the toolbar that allows to show/hide columns should be rebuilt. This 
+Every time you add or remove columns to the grid, the drop down menu on the toolbar that allows to show/hide columns should be rebuilt. This 
 menu is built when grid is rendered, but not rebuilt when grid is refreshed. If you use 
 <a class="method" href="w2grid.addColumn">.addColumn()</a> or <a class="method" href="w2grid.removeColumn">.removeColumn()</a> it will
 rebuild toolbar show/hide column button. However, if you do change <a class="method" href="w2grid.columns">.columns</a> array directly, you will
@@ -31,6 +33,7 @@ $('#grid').w2grid({
 
 And if you change columns directly, you will need to:
 <textarea class="javascript">
+w2ui['grid'].columns.splice(0, 1);
 w2ui['grid'].initColumnOnOff();
 w2ui['grid'].refresh();
 </textarea>

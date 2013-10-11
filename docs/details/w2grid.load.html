@@ -1,7 +1,7 @@
 Loads records from specified url.
 
 <div class="definition">
-	load(url)
+	load(url, [callBack])
 </div>
 
 <div class="arguments">
@@ -10,14 +10,20 @@ Loads records from specified url.
 		<td>url</td>
 		<td><b>string</b>, url to pull records from</td>
 	</tr>
+	<tr>
+		<td>callBack</td>
+		<td><b>function</b>, call back function</td>
+	</tr>
 	</table>
 </div>
 
+Returns <i>undefined</i>.
+
 <h4>Description</h4>
 
-If you have a local data source and want to load records from url without changing data source to remote you should use 
-the <span class="argument">.load()</span> method. If you have used <a class="method" href="w2grid.url">.url</a> property you data source would have been remote and all reload,
-page navigation, sort, and search actions would have been submitted to this url. This function will do one time server load and will not
+This method will load records from server without changing data source to remote.
+If you set <a class="method" href="w2grid.url">.url</a> property you data source would be remote and all reloads,
+sort, and search actions will be submitted to the server. This function does one time server load and will not
 remember the url.
 <div style="height: 10px"></div>
 

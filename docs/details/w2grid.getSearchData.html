@@ -1,4 +1,4 @@
-Returns search object for specified field.
+Returns applied search object for specified field.
 
 <div class="definition">
 	getSearchData(field)
@@ -13,11 +13,12 @@ Returns search object for specified field.
 	</table>
 </div>
 
+Returns object or null.
 
 <h4>Description</h4>
 
-If you want to see all searches defined for the grid, you can inspect
-<a class="property" href="w2grid.searchData">.searchData</a> object. Use <span class="property">getSearchData</span> to find search object
+If you want to see all searches applied for the grid, you can inspect
+<a class="property" href="w2grid.searchData">.searchData</a> object. Use <span class="property">getSearchData</span> to find applied search
 for a particular search field. This method will simply loop through <a class="property" href="w2grid.searchData">.searchData</a> object. 
 The <span class="property">field</span> argument is the name of the search field you specified in 
 <a class="property" href="w2grid.searches">.searches</a> array when you created the grid.
@@ -51,7 +52,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-And if user applied search, you can find search object:
+And if user applied search, you can find applied search object:
 <textarea class="javascript">
 console.log( w2ui['grid'].getSearchData('recid') );
 </textarea>
