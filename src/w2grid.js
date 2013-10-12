@@ -87,7 +87,7 @@
 *	- added markSearchResults
 *	- added columnClick() and onColumnClick and onColumnResize
 * 	- added onColumnResize event
-*	- added mergeChanged() 
+*	- added mergeChanges(), renamed getChanged() -> getChanges() 
 *	- added onEditField event
 *	- improoved search(), now it does not require search definitions
 *	- grid.url can be string or object { get, save, remove }
@@ -326,7 +326,7 @@
 				var match = true;
 				for (var o in obj) {
 					var val = this.records[i][o];
-					if (String(o).indexOf('.') != -1) val = this.parseObj(this.records[i],o);
+					if (String(o).indexOf('.') != -1) val = this.parseField(this.records[i],o);
 					if (obj[o] != val) match = false;
 				}
 				if (match && returnIndex !== true) recs.push(this.records[i]);
@@ -347,7 +347,6 @@
 					$.extend(true, this.records[r], record); // recid is the whole record
 				}
 				if (noRefresh !== true) this.refresh();
-				return true;
 			} else { // find record to update
 				var ind = this.get(recid, true);
 				if (ind == null) return false;
@@ -363,8 +362,8 @@
 						$(tr).replaceWith(this.getRecordHTML(ind, line));
 					}
 				}
-				return true;
 			}
+			return true;
 		},
 
 		get: function (recid, returnIndex) {
@@ -587,8 +586,8 @@
 					var aa = a[obj.sortData[s].field];
 					var bb = b[obj.sortData[s].field];
 					if (String(obj.sortData[s].field).indexOf('.') != -1) {
-						aa = obj.parseObj(a, obj.sortData[s].field);
-						bb = obj.parseObj(b, obj.sortData[s].field);
+						aa = obj.parseField(a, obj.sortData[s].field);
+						bb = obj.parseField(b, obj.sortData[s].field);
 					}
 					if (typeof aa == 'string') aa = $.trim(aa.toLowerCase());
 					if (typeof bb == 'string') bb = $.trim(bb.toLowerCase());
@@ -627,7 +626,7 @@
 						var search 	= this.getSearch(sdata.field);
 						if (sdata  == null) continue;
 						if (search == null) search = { field: sdata.field, type: sdata.type };
-						var val1 = String(obj.parseObj(rec, search.field)).toLowerCase();
+						var val1 = String(obj.parseField(rec, search.field)).toLowerCase();
 						if (typeof sdata.value != 'undefined') {
 							if (!$.isArray(sdata.value)) {
 								var val2 = String(sdata.value).toLowerCase();
@@ -1600,7 +1599,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
-		getChanged: function () {
+		getChanges: function () {
 			var changes = [];
 			var tmp  	= this.find({ changed: true });
 			for (var t in tmp) {
@@ -1609,8 +1608,8 @@
 			return changes;
 		},
 
-		mergeChanged: function () {
-			var changed = this.getChanged();
+		mergeChanges: function () {
+			var changed = this.getChanges();
 			for (var c in changed) {
 				var record = this.get(changed[c].recid);
 				for (var s in changed[c]) {
@@ -1629,7 +1628,7 @@
 
 		save: function () {
 			var obj = this;
-			var changed = this.getChanged();
+			var changed = this.getChanges();
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
 			if (eventData.isCancelled === true) return false;
@@ -1641,7 +1640,7 @@
 					}
 				);
 			} else {
-				this.mergeChanged();
+				this.mergeChanges();
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
@@ -1684,11 +1683,11 @@
 			el.find('input')
 				.w2field(edit.type)
 				.on('blur', function (event) {
-					if (obj.parseObj(rec, col.field) != this.value) {
+					if (obj.parseField(rec, col.field) != this.value) {
 						// change event
 						var eventData2 = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column, 
-							value_new: this.value, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseObj(rec, col.field)), 
-							value_original: obj.parseObj(rec, col.field) });
+							value_new: this.value, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseField(rec, col.field)), 
+							value_original: obj.parseField(rec, col.field) });
 						if (eventData2.isCancelled === true) {
 							// dont save new value
 						} else {
@@ -1774,7 +1773,7 @@
 							break;
 
 						case 27: // escape
-							var old = (rec.changed && rec.changes[col.field]) ? rec.changes[col.field] : obj.parseObj(rec, col.field);
+							var old = (rec.changed && rec.changes[col.field]) ? rec.changes[col.field] : obj.parseField(rec, col.field);
 							this.value = typeof old != 'undefined' ? old : '';
 							this.blur();
 							setTimeout(function () { obj.select({ recid: recid, column: column }) }, 1);
@@ -4092,7 +4091,7 @@
 		getCellHTML: function (ind, col_ind, summary) {
 			var col  	= this.columns[col_ind];
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
-			var data 	= this.parseObj(record, col.field);
+			var data 	= this.parseField(record, col.field);
 			var isChanged = record.changed && record.changes[col.field];
 			if (isChanged) data = record.changes[col.field];
 			// various renderers
@@ -4180,7 +4179,7 @@
 			setTimeout(function () { w2utils.unlock(box); }, 25); // needed timer so if server fast, it will not flash
 		},
 
-		parseObj: function (obj, field) {
+		parseField: function (obj, field) {
 			var val = '';
 			try { // need this to make sure no error in fields
 				val = obj;
