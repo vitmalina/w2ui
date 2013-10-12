@@ -1,7 +1,7 @@
 Prepares and submits request to the server.
 
 <div class="definition">
-	request(cmd, [params], [url])
+	request(cmd, [params, [url, [callBack]]])
 </div>
 
 <div class="arguments">
@@ -18,8 +18,14 @@ Prepares and submits request to the server.
 		<td>url</td>
 		<td><b>string</b>, server url of the request (<i>optional</i>)</td>
 	</tr>
+	<tr>
+		<td>callBack</td>
+		<td><b>function</b>, call back function (<i>optional</i>)</td>
+	</tr>
 	</table>
 </div>
+
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
@@ -38,6 +44,9 @@ The second optional argument <span class="argument">params</span> is the map of 
 This method will already submit grid's state such as searchData, sortData, postData, which you do not need to include again. The third 
 optional argument  <span class="argument">url</span> defines the url where to submit the request, if it is different from the 
 <a class="method" href="w2grid.url">.url</a> property.
+<div style="height: 10px"></div>
+
+This method emits <a href="w2grid.onRequest" class="method">onRequest</a> event.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:

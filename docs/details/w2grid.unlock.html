@@ -4,9 +4,13 @@ Unlocks the grid.
 	unlock()
 </div>
 
+Returns <i>undefined</i>.
+
 <h4>Description</h4>
 
-This method will unlock the gird that was previously locked. It calls the <a href="w2grid.lock" class="argument">lock</a> method with empty message to unlock the grid.
+This method will unlock the grid previously locked with <a href="w2grid.lock" class="method">.lock()</a> method. This method will call
+<a href="w2utils.unlock" class="method">w2utils.unlock()</a> to perform the action.
+<div style="height: 10px"></div>
 				
 If you have following grid:
 <textarea class="javascript">
@@ -30,7 +34,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can 
+And if the grid is locked, you can unlock it by
 <textarea class="javascript">
-w2ui['grid'].unlock();
+w2grid.unlock();
 </textarea>

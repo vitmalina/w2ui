@@ -1,27 +1,34 @@
 Finds the record and extends it with provided object. 
 
 <div class="definition">
-	set(recid, record)
+	set([recid], record, [noRefresh])
 </div>
 
 <div class="arguments">
 	<table>
 	<tr>
 		<td>recid</td>
-		<td><b>string</b>, id of the record</td>
+		<td><b>string</b>, <i>optional</i>, id of the record</td>
 	</tr>
 	<tr>
 		<td>record</td>
 		<td><b>object</b>, record object</td>
 	</tr>
+	<tr>
+		<td>noRefresh</td>
+		<td><b>boolean</b>, <i>optional</i>, indicates if record does not need to be updated on screen</td>
+	</tr>
 	</table>
 </div>
 
+Returns boolean.
+
 <h4>Description</h4>
 
-This method will update the record in the <a class="property" href="w2grid.records">.records</a> array and refresh it on the screen.
-The record is identified by the <span class="property">.recid</span> property of the record object, which is a required 
-property for each record object. The second argument <span class="argument">record</span> is the record object. 
+This method will update the record in the <a class="property" href="w2grid.records">.records</a> array and refresh it on the screen 
+(assuming if noRefresh is not provided). The record is identified by the <span class="property">.recid</span> property of the record 
+object, which is a required property for each record object. The second argument <span class="argument">record</span> is the record 
+object. The method returns true is at least one record was updated or false otherwise.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -47,9 +54,14 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can update the record:
+You can update record with recid = 2:
 <textarea class="javascript">
 w2ui['grid'].set(2, { fname: 'Not Suart', lname: 'Unknown' });
+</textarea>
+
+Or you can update one parameter in all records: 
+<textarea class="javascript">
+w2ui['grid'].set({ fname: 'none' });
 </textarea>
 
 Please note that the record is not replaced with <span class="argument">record</span>, but extended using 

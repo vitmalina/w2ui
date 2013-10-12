@@ -1,0 +1,51 @@
+Paste tab-delimmited text into the grid.
+
+<div class="definition">
+	parseField(obj, field)
+</div>
+<div class="arguments">
+	<table>
+	<tr>
+		<td>obj</td>
+		<td><b>object</b>, Java Script object</td>
+	</tr>
+	<tr>
+		<td>field</td>
+		<td><b>string</b>, field to parse</td>
+	</tr>
+	</table>
+</div>
+
+Returns value (can be any JS type).
+
+<h4>Description</h4>
+
+It is quite often that the records array contains objects with complex structure. For example a record object can be:
+<textarea class="javascript">
+record = {
+	"recid" : 1,
+	"person": {
+		"fname"	: "John",
+		"lname"	: "Doe",
+		"dob"	: "1/1/1990"
+	},
+	"car": {
+		"make"	: "Tesla",
+		"model"	: "Couster",
+		"year"	: "2013"
+	}
+}
+</textarea>
+However, when you define <a class="property" href="w2grid.columns">.columns</a> or 
+<a class="property" href="w2grid.searches">.searches</a> for the grid, you need to define field as a string.
+The grid will interanlly call <a class="property" href="w2grid.parseField">.parseField</a> method to parse data structure 
+and resolve the field value. 
+<div style="height: 10px"></div>
+
+This method can be used to parse any object that you supply, not necessarely the record object. For the example above, you can parse
+fields in the following way (assuming there is grid with name grid): 
+<textarea class="javascript">
+var val = w2ui.grid.parseField(record, 'person.lname');
+// or 
+var val = w2ui.grid.parseField(records, 'car.make');
+</textarea>

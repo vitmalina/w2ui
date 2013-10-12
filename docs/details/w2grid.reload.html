@@ -1,13 +1,24 @@
 Reloads records from remote data source.
 
 <div class="definition">
-	reload()
+	reload([callBack])
 </div>
+<div class="arguments">
+	<table>
+	<tr>
+		<td>callBack</td>
+		<td><b>function</b>, <i>optional</i>, call back function</td>
+	</tr>
+	</table>
+</div>
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
 If your data source is remote (the <a class="method" href="w2grid.url">.url</a> property is defined), you can reload records in your grid
 by calling the <span class="argument">.reload()</span> method. This method is also called when user clicks the reload button on the toolbar.
+If your data source is local, calling <span class="argument">.reload()</span> will be the same as calling 
+<a class="argument" href="w2grid.refresh">.refresh()</a>
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:

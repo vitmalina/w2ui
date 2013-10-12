@@ -67,7 +67,9 @@ record = {
     style      : '',     // additional CSS style for &lt;tr ...&gt; tag       
     selected   : false,  // indicates if record is selected
     summary    : false,  // indicates if it is a summary record (summary records appear on the bottom)
-    editable   : true    // indicate is record is editable (must have column.ediable property set)
+    editable   : true,   // indicate is record is editable (must have column.ediable property set)
+    changed    : undefined	// readonly, boolean that indicates if user changed record by inline editing
+    changes    : undefined  // readonly, object with user changes by inline editing
 }
 </textarea>
 Where "field-1", ..., "field-N" have to correspond to the field property of the columns they need to be displayed in. 

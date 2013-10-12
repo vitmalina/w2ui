@@ -13,11 +13,13 @@ Unselects records in the grid.
 	</table>
 </div>
 
+Returns integer.
+
 <h4>Description</h4>
 
-Unselects a record or records in the <span class="method">.records</span> array and refreshes them on the screen. The record is identified by the
-<span class="property">.recid</span> property, which is a required property for each record object. The method returns the number of 
-records it unselects.
+Unselects a record or records and refreshes the grid. The record is identified by the
+<span class="property">.recid</span> property, which is a required property for each record object. The method emits 
+<a class="methos" href="w2grid.onUnselect">.onUnselect</a> event for each record it uselects and returns the number of records it unselects.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:

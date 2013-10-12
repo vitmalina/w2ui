@@ -1,16 +1,42 @@
-Selects all records on the current page in the grid.
+Sorts records in the grid.
 
 <div class="definition">
-	selectPage()
+	sort()
 </div>
+
+OR 
+
+<div class="definition">
+	search(field, [direction, [multiField]])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>field</td>
+		<td><b>string</b>, field name to search by</td>
+	</tr>
+	<tr>
+		<td>direction</td>
+		<td><b>string</b>, direction of search asc/desc (<i>optional</i>)</td>
+	</tr>
+	<tr>
+		<td>multiField</td>
+		<td><b>boolean</b>, indicates if previsou sort needs to be cleared (<i>optional</i>)</td>
+	</tr>
+	</table>
+</div>
+
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-Selects all records that are on the current page in the <span class="method">.records</span> array and refreshes them on the screen. 
-The record is identified by the <span class="property">.recid</span> property, which is a required property for each record object. 
-<div style="height: 10px"></div>
+This method will sort records in the <a class="property" href="w2grid.records">.records</a> array if you have local
+data source or submit to the server side if your data source is remote. If you call this method without parameters, it 
+will reset the sort.
+<div style="height: 10px;"></div>
 
-If you have grid defined in the following way:
+If you have a grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
 	name    : 'grid',
@@ -33,11 +59,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can select all records on the current page:
+You can do following searches:
 <textarea class="javascript">
-w2ui['grid'].selectPage();
-</textarea>
-
-There are two events related to selection of records: <a class="property" href="w2grid.onSelect">onSelect</a> and 
-<a class="property" href="w2grid.onUnselect">onUnselect</a>. Calling <span class="property">.selectPage</span> will
-trigger <a class="property" href="w2grid.onSelect">onSelect</a> event for each record it selects.
+grid.sort('fname', 'asc');
+</textarea>	

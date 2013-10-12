@@ -1,25 +1,14 @@
-Selects records in the grid.
+Resets previous search to the default values.
 
 <div class="definition">
-	select(recid1, recid2, ...)
+	searchShowFields()
 </div>
 
-<div class="arguments">
-	<table>
-	<tr>
-		<td>recid</td>
-		<td><b>string</b>, id of the record</td>
-	</tr>
-	</table>
-</div>
-
-Returns integer.
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-Selects a record or records in the <span class="method">.records</span> array and refreshes them on the screen. The record is identified by the
-<span class="property">.recid</span> property, which is a required property for each record object. The method emits 
-<a class="methos" href="w2grid.onSelect">.onSelect</a> event for each record it selects and returns the number of records it selects.
+It is the same if user would have clicked a magnifying glass icon next to the search field.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -45,11 +34,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can select records:
+You could:
 <textarea class="javascript">
-w2ui['grid'].select(2, 5, 6);
+w2ui['grid'].searchShowFields()
 </textarea>
-
-There are two events related to selection of records: <a class="property" href="w2grid.onSelect">onSelect</a> and 
-<a class="property" href="w2grid.onUnselect">onUnselect</a>. Calling <span class="property">.select</span> will
-trigger <a class="property" href="w2grid.onSelect">onSelect</a> event.

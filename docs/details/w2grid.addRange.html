@@ -44,9 +44,9 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can add ranges by:
+You can add a range by:
 <textarea class="javascript">
-w2ui[grid].addRange({ 
+w2ui.grid.addRange({ 
 	name	: 'range', 
 	range	: [{ recid: 1, column: 3 }, { recid: 5, column: 5 }], 
 	style	: 'background-color: rgba(0, 140, 0, 0.1); border: 2px solid green'
@@ -56,7 +56,7 @@ w2ui[grid].addRange({
 or several at a time:
 
 <textarea class="javascript">
-w2ui[grid]addRange([
+w2ui.grid.addRange([
 	{ 
 		name	: 'range1', 
 		range	: [{ recid: 1, column: 3 }, { recid: 5, column: 5 }], 

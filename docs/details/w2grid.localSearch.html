@@ -1,15 +1,28 @@
-Performs local search in the records array.
+Performs search on local data set.
 
 <div class="definition">
-	localSearch()
+	localSearch([silent])
 </div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>silent</td>
+		<td><b>boolean</b>, indicates whether to display sort time in the status bar</td>
+	</tr>
+	</table>
+</div>
+
+Returns number of milliseconds it took to search.
 
 <h4>Description</h4>
 
-Performs local search of the <a class="property" href="w2grid.records">.records</a> array based on 
-<a class="property" href="w2grid.searchData">.searchData</a> and refreshes the grid. This method will only work if you have 
-<a class="property" href="w2grid.searches">searches</a> array defined.
-This method only works on local data source, when <a class="property" href="w2grid.url">.url</a> property is not set. 
+Performs local search based on the information in the <a class="property" href="w2grid.searchData">.searchData</a> array. 
+This method only works on the local data source, when <a class="property" href="w2grid.url">.url</a> property is not set. 
+This method will loop through all the records and if a record is a match, it will remember it in the
+<a class="property" href="w2grid.last">.last.searchIds</a> array.
+This method will only search records, you still need to call <a class="property" href="w2grid.refresh">.refresh()</a> method
+to refresh them on the screen.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -39,8 +52,3 @@ You can apply search in the following way:
 <textarea class="javascript">
 w2ui['grid'].localSearch();
 </textarea>
-
-If <span class="property">.localSearch</span> determines that a record should not be displayed, it will set its 
-<span class="property">record.hidden</span> property to true. If your data source is local, you might have a large number of 
-records in the <a class="property" href="w2grid.records">.records</a> array, which will be paginated. If record has 
-<span class="property">hidden</span> property set to true, that record will not be displayed.

@@ -1,4 +1,4 @@
-Searches records in grid.
+Searches records in the grid.
 
 <div class="definition">
 	search(field, value)
@@ -36,12 +36,13 @@ OR
 	</table>
 </div>
 
+Returns <i>undefined</i>.
+
 <h4>Description</h4>
 
 This method will generate <a class="property" href="w2grid.searchData">.searchData</a> array of objects, apply the search and refresh the grid. 
 If the data source is local, it will call <a class="property" href="w2grid.localSearch">.localSearch</a> method. If the data source is remote 
 it will submit search data to the server side to apply the search. 
-This method will only work if you have <a class="property" href="w2grid.searches">searches</a> array defined.
 <div style="height: 10px;"></div>
 
 If the first argument <span class="argument">field</span> is string then it is the name of the 
@@ -57,7 +58,7 @@ The search object has the following structure:
 <textarea class="javascript">
 search = {
     field    : '',   // search field name
-    value    : '',   // field value (array of two values for operator = between)
+    value    : '',   // field value (array of two values for operators: between, in)
     type     : '',   // type of the field, if not defined search.type for the field will be used
     operator : ''    // search operator, can be 'is', 'between', 'begins with', 'contains', 'ends with'
                      // if not defined it will be selected based on the type

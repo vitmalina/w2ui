@@ -13,34 +13,33 @@ Executes all event listeners added with <span class="argument">on()</span> metho
 	</table>
 </div>
 
+Returns <i>object</i>.
+
 <h4>Description</h4>
 
-Internally, w2ui objects often call trigger to execute event listeners. The trigger function is called twice.
-One time before the default actions and second time after. To differentiate when the trigger function is called, the object
-uses <span class="argument">phase</span> property and only the listeners that are attached to that phase will be triggered. When you
-add an event listener, you can optionally specify <span class="argument">execute</span> property ("before" or "after") that
-defines when event handler will be executed. The default value of <span class="argument">execute</span> is "before."
+Internally, all w2ui widgets call trigger to execute event listeners. You can add your own events and trigger them with the
+trigger function. The trigger function should be called twice. First time before the default behaviour is processed and the
+second time after it it processed. This is needed to accomplish the functionality provided by the event flow.
 <div style="height: 10px"></div>
 
-For example when user clicks on the record in the w2grid, the following code will be executed:
+Here is an example how widgets trigger events:
 <textarea class="javascript">
 // event before
-var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', 
-							   recid: recid, event: event });
-if (eventData.stop === true) return false;
+var event = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, event: event });
+if (event.cancelled === true) return false;
 
-// default grid click action
+// default action
 
 // event after
-this.trigger($.extend(eventData, { phase: 'after' }));
+this.trigger($.extend(event, { phase: 'after' }));
 </textarea>
 
-As you see from the example above, the default action can be cancelled by event handler setting 
-<span class="argument">eventData.stop</span> to true. There is no need to return <span class="argument">eventData</span> 
-object by event handler because JavaScript passes objects by reference and changing the 
-<span class="argument">eventData</span> within the handler will change the original object.
+As you see from the example above, the default action can be cancelled by event handler calling 
+<span class="argument">event.preventDefault()</span>. There is no need to return <span class="argument">event</span> 
+object because JavaScript passes objects by reference and changing the 
+<span class="argument">event</span> within the handler will change the original object.
 <div style="height: 10px"></div>
 
-You can also define <span class="argument">eventData.onComplete</span> as
+You can also define <span class="argument">event.onComplete</span> as
 a call back when the default actions of the event are completed if you need to do some actions after event has
 been processed.

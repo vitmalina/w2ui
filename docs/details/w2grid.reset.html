@@ -1,15 +1,35 @@
 Resets the grid to the initial state. 
 
 <div class="definition">
-	reset()
+	reset([noRefresh])
 </div>
+<div class="arguments">
+	<table>
+	<tr>
+		<td>noRefresh</td>
+		<td><b>boolean</b>, indicates if to refresh the grid after reset</td>
+	</tr>
+	</table>
+</div>
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-The <span class="method">.reset()</span> method will not touch records array, but will reset the following 
-elements of the grid: search fields, sort fields, no records will be selected, hidden records will be displayed, first page will be opened, 
-vertical scroller will be moved to top, <a class="method" href="w2grid.isLoaded">.isLoaded</a> property will be set to false 
-and <a class="method" href="w2grid.refresh">.refresh()</a> method will be called.
+The <span class="method">.reset()</span> method will do the following:
+<ul>
+	<li>Set vertical scroll position to 0</li>	
+	<li>Set horizontal scroll position to 0</li>	
+	<li>Clear user search</li>
+	<li>Clear user sort</li>	
+	<li>Unselect selected records</li>	
+	<li>Collapse expanded records</li>	
+	<li>If remote data source, it will retrieve records with offset = 0</li>
+</ul>
+
+This method will not remove records (use <a class="method" href="w2grid.clear">.clear</a> for that). If you just want to
+reset search fields, you need to use <a class="method" href="w2grid.searchReset">.searchReset</a> method.
+After reset is complete, the <a class="method" href="w2grid.refresh">.refresh</a> method will be called, unless you pass 
+<span class="method">noRefresh</span> indicator.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -39,5 +59,3 @@ You can reset grid by:
 <textarea class="javascript">
 w2ui['grid'].reset();
 </textarea>
-
-See also <a class="property" href="w2grid.clear">.clear()</a> and <a class="property" href="w2grid.searchReset">.searchReset()</a>

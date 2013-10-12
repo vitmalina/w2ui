@@ -1,7 +1,7 @@
 Called to process data that was returned from the server.
 
 <div class="definition">
-	requestComplete(status, [cmd], [callBack])
+	requestComplete(status, cmd, [callBack])
 </div>
 
 <div class="arguments">
@@ -12,17 +12,22 @@ Called to process data that was returned from the server.
 	</tr>
 	<tr>
 		<td>cmd</td>
-		<td><b>string</b>, name of the command (<i>optional</i>)</td>
+		<td><b>string</b>, name of the command</td>
 	</tr>
 	<tr>
 		<td>callBack</td>
-		<td><b>function</b>, call back function (<i>optional</i>)</td>
+		<td><b>function</b>, <i>optional</i> call back function</td>
 	</tr>
 	</table>
 </div>
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method is called when request returns. First parameters is the <span class="argument">status</span> of the request. If it 
-<span class="argument">status</span> = 'error' indicated that request. This method will merge returned data to the grid. It uses 
-internal variable <span class="argument">w2gird.request_xhr.responseText</span> as the text returned from the server.
+This method is called when server request returns. First parameters is the <span class="argument">status</span> of the request. If 
+<span class="argument">status</span> = 'error' it indicated that request came back with an error. This method will merge returned 
+data to the grid. It uses internal variable <span class="argument">w2gird.request_xhr.responseText</span> as the text returned from 
+the server.
+<div style="height: 10px"></div>
+
+This method emits <a href="w2grid.onLoad" class="method">onLoad</a> event.

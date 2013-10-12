@@ -4,13 +4,16 @@ Selects all records in the grid.
 	selectAll()
 </div>
 
+Returns <i>undefined</i>.
+
 <h4>Description</h4>
 
 Selects all records in the <span class="method">.records</span> array and refreshes them on the screen. The record is identified by the
 <span class="property">.recid</span> property, which is a required property for each record object. 
 Some records might be not shown, but they will still be selected.
 For example, if you have a local data source and in the list you see only first page, <span class="method">.selectAll()</span> will still
-select all records.
+select all records. The method emits <a class="methos" href="w2grid.onSelect">.onSelect</a> event once with recid parameter set to 'all'.
+
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:

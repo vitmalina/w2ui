@@ -1,0 +1,49 @@
+Refreshes ranges defined for the grid.
+
+<div class="definition">
+	refreshRanges()
+</div>
+
+Returns number of milliseconds it took to refresh.
+
+<h4>Description</h4>
+
+This method will only work if your grid is excel-like grid, set <a class="property" href="w2grid.selectType">.selectType</a> to 'cell' 
+and make records editable. You should also have <a class="property" href="w2grid.ranges">.ranges</a> defined for the grid, which can be
+added with <a class="property" href="w2grid.addRange">.addRange()</a> and removed with 
+<a class="property" href="w2grid.removeRange">.removeRange</a> methods. This method is used internally and will automatically be called 
+when needed. 
+<div style="height: 10px"></div>
+
+If you have grid defined as: 
+<textarea class="javascript">
+$('#grid').w2grid({
+	name : 'grid',
+	selectionType : 'cell',
+	columns: [				
+		{ field: 'recid', caption: 'ID', size: '50px' },
+		{ field: 'lname', caption: 'Last Name', size: '30%', searchable: true },
+		{ field: 'fname', caption: 'First Name', size: '30%', searchable: true },
+		{ field: 'email', caption: 'Email', size: '40%', searchable: true },
+		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	],
+	records: [
+		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' }
+	]
+});
+</textarea>
+
+You can add a range by:
+<textarea class="javascript">
+w2ui.grid.addRange({ 
+	name	: 'range', 
+	range	: [{ recid: 1, column: 3 }, { recid: 5, column: 5 }], 
+	style	: 'background-color: rgba(0, 140, 0, 0.1); border: 2px solid green'
+});
+</textarea>
+
+And refresh ranges: 
+<textarea class="javascript">
+w2ui.grid.refreshRanges();
+</textarea>

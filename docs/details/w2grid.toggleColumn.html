@@ -1,27 +1,33 @@
-Returns array of changed record objects.
+Toggles column between hidden and shown states.
 
 <div class="definition">
-	getChanged()
+	toggleColumn(field, [field], ...)
 </div>
-Returns array of objects.
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>field</td>
+		<td><b>string</b>, field name of the column</td>
+	</tr>
+	</table>
+</div>
+Returns integer.
 
 <h4>Description</h4>
 
-This method is only applicable when you have inline editing for the grid (see <a class="method" href="w2grid.columns">.columns</a>
-property for more information). If user has modified records you can get the changes by
-calling this method. The <span class="property">.getChanged()</span> method will only return changed record fields, which you can submit 
-to the server. You can also optionally enable the save button on the toolbar (see <a class="method" href="w2grid.show">.show</a> property) 
-or call <a class="method" href="w2grid.doSave">.doSave</a> method that will submit changed records to the server.
+This method will show the column if it was previously hidden and hide the column if it was previously shown. Returns the
+number of toggled columns.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	columns: [				
+	name : 'grid',
+	columns: [
 		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%', editable: { type: 'text'} },
-		{ field: 'fname', caption: 'First Name', size: '30%', editable: { type: 'text'} },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'fname', caption: 'First Name', size: '30%' },
 		{ field: 'email', caption: 'Email', size: '40%' },
 		{ field: 'sdate', caption: 'Start Date', size: '120px' },
 		{ field: 'sdate', caption: 'End Date', size: '120px' }
@@ -37,7 +43,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can get selected records:
+You can toggle columns by:
 <textarea class="javascript">
-console.log( w2ui['grid'].getChanged() );
+w2ui['grid'].toggleColumn('recid', 'fname');
 </textarea>
