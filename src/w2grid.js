@@ -2552,12 +2552,15 @@
 				// find min/max column
 				var minCol = sel[0].column;
 				var maxCol = sel[0].column;
+				var recs   = [];
 				for (var s in sel) {
 					if (sel[s].column < minCol) minCol = sel[s].column;
 					if (sel[s].column > maxCol) maxCol = sel[s].column;
+					if (recs.indexOf(sel[s].index) == -1) recs.push(sel[s].index);
 				}
-				for (var s = 0; s < sel.length; s++) {
-					var ind = this.get(sel[s].recid, true);
+				recs.sort();
+				for (var r in recs) {
+					var ind = recs[r];
 					for (var c = minCol; c <= maxCol; c++) {
 						var col = this.columns[c];
 						if (col.hidden === true) continue;
@@ -2565,8 +2568,6 @@
 					}
 					text = text.substr(0, text.length-1); // remove last \t
 					text += '\n';
-					var lastRecid = sel[s].recid;
-					while (s < sel.length && sel[s].recid == lastRecid) s++;
 				}
 			} else { // row copy
 				for (var s in sel) {
@@ -2591,20 +2592,20 @@
 		},
 
 		paste: function (text) {
+			var sel = this.getSelection();
+			var ind = this.get(sel[0].recid, true);
+			var col = sel[0].column;
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
 			if (eventData.isCancelled === true) return;
 			text = eventData.text;
 			// default action
-			var sel = this.getSelection();
 			if (this.selectType == 'row' || sel.length == 0) {
 				console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.');
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 				return;
 			}
-			var ind = this.get(sel[0].recid, true);
-			var col = sel[0].column;
 			var newSel = [];
 			var text   = text.split('\n');
 			for (var t in text) {
