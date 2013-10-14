@@ -1,7 +1,7 @@
-Toggles the panel's toolbar.
+Shows the panel's toolbar.
 
 <div class="definition">
-	toolbarToggle(type)
+	showToolbar(type)
 </div>
 
 <div class="arguments">
@@ -48,7 +48,12 @@ $('#layout').w2layout({
 });
 </textarea>
 
-You can toggle toolbar
+You can hide toolbar
 <textarea class="javascript">
-w2ui['layout'].toolbarToggle('main');
+w2ui['layout'].hideToolbar('main');
+</textarea>
+
+Or you can show toolbar
+<textarea class="javascript">
+w2ui['layout'].showToolbar('main');
 </textarea>

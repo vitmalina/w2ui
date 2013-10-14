@@ -360,7 +360,7 @@
 			return el[0];
 		},
 
-		toolbarHide: function (panel) {
+		hideToolbar: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.toolbar = false;
@@ -368,7 +368,7 @@
 			this.resize();
 		},
 
-		toolbarShow: function (panel) {
+		showToolbar: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.toolbar = true;
@@ -376,13 +376,13 @@
 			this.resize();
 		},
 
-		toolbarToggle: function (panel) {
+		toggleToolbar: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
-			if (pan.show.toolbar) this.toolbarHide(panel); else this.toolbarShow(panel);
+			if (pan.show.toolbar) this.hideToolbar(panel); else this.showToolbar(panel);
 		},
 
-		tabsHide: function (panel) {
+		hideTabs: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.tabs = false;
@@ -390,7 +390,7 @@
 			this.resize();
 		},
 
-		tabsShow: function (panel) {
+		showTabs: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.tabs = true;
@@ -398,10 +398,10 @@
 			this.resize();
 		},
 
-		tabsToggle: function (panel) {
+		toggleTabs: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
-			if (pan.show.tabs) this.tabsHide(panel); else this.tabsShow(panel);
+			if (pan.show.tabs) this.hideTabs(panel); else this.showTabs(panel);
 		},
 
 		render: function (box) {

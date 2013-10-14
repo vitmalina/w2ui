@@ -1,7 +1,7 @@
-Toggles the panel's tabs.
+Hides the panel's toolbar.
 
 <div class="definition">
-	tabsToggle(type)
+	hideToolbar(type)
 </div>
 
 <div class="arguments">
@@ -32,12 +32,11 @@ $('#layout').w2layout({
 	panels  : [
 		{ type: 'top', size: 40 },
 		{ type: 'main', content: 'This is main panel', 
-			tabs: {
-				active: 'tab2',
-				tabs: [
-					{ id: 'tab1', caption: 'Tab 1' },
-					{ id: 'tab2', caption: 'Tab 2' },
-					{ id: 'tab3', caption: 'Tab 3' }
+			toolbar: {
+				items: [
+					{ id: 'bt1', type: 'button', caption: 'Button 1', img: 'icon-page' },
+					{ id: 'bt2', type: 'button', caption: 'Button 2', img: 'icon-page' },
+					{ id: 'bt3', type: 'button', caption: 'Button 3', img: 'icon-page' }
 				],
 				onClick: function (event) {
 					console.log('event');
@@ -49,7 +48,12 @@ $('#layout').w2layout({
 });
 </textarea>
 
-You can toggle tabs
+You can hide toolbar
 <textarea class="javascript">
-w2ui['layout'].tabsToggle('main');
+w2ui['layout'].hideToolbar('main');
+</textarea>
+
+Or you can show toolbar
+<textarea class="javascript">
+w2ui['layout'].showToolbar('main');
 </textarea>
