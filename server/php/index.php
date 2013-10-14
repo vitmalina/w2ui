@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="../../css/w2ui-1.2.min.css" />
-    <script type="text/javascript" src="../../js/jquery.min.js"></script>
-    <script type="text/javascript" src="../../js/w2ui-1.2.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../dist/w2ui.min.css" />
+    <script type="text/javascript" src="../../libs/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../../dist/w2ui.min.js"></script>
+    <script type="text/javascript" src="../../src/w2grid.js"></script>
 </head>
 <body>
     <div id="users" style="width: 100%; height: 600px;"></div>
