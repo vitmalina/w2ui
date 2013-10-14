@@ -3730,12 +3730,15 @@ w2utils.keyboard = (function (obj) {
 				// find min/max column
 				var minCol = sel[0].column;
 				var maxCol = sel[0].column;
+				var recs   = [];
 				for (var s in sel) {
 					if (sel[s].column < minCol) minCol = sel[s].column;
 					if (sel[s].column > maxCol) maxCol = sel[s].column;
+					if (recs.indexOf(sel[s].index) == -1) recs.push(sel[s].index);
 				}
-				for (var s = 0; s < sel.length; s++) {
-					var ind = this.get(sel[s].recid, true);
+				recs.sort();
+				for (var r in recs) {
+					var ind = recs[r];
 					for (var c = minCol; c <= maxCol; c++) {
 						var col = this.columns[c];
 						if (col.hidden === true) continue;
@@ -3743,8 +3746,6 @@ w2utils.keyboard = (function (obj) {
 					}
 					text = text.substr(0, text.length-1); // remove last \t
 					text += '\n';
-					var lastRecid = sel[s].recid;
-					while (s < sel.length && sel[s].recid == lastRecid) s++;
 				}
 			} else { // row copy
 				for (var s in sel) {
@@ -3769,20 +3770,20 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		paste: function (text) {
+			var sel = this.getSelection();
+			var ind = this.get(sel[0].recid, true);
+			var col = sel[0].column;
 			// before event
 			var eventData = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
 			if (eventData.isCancelled === true) return;
 			text = eventData.text;
 			// default action
-			var sel = this.getSelection();
 			if (this.selectType == 'row' || sel.length == 0) {
 				console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.');
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 				return;
 			}
-			var ind = this.get(sel[0].recid, true);
-			var col = sel[0].column;
 			var newSel = [];
 			var text   = text.split('\n');
 			for (var t in text) {
@@ -5737,7 +5738,7 @@ w2utils.keyboard = (function (obj) {
 			return el[0];
 		},
 
-		toolbarHide: function (panel) {
+		hideToolbar: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.toolbar = false;
@@ -5745,7 +5746,7 @@ w2utils.keyboard = (function (obj) {
 			this.resize();
 		},
 
-		toolbarShow: function (panel) {
+		showToolbar: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.toolbar = true;
@@ -5753,13 +5754,13 @@ w2utils.keyboard = (function (obj) {
 			this.resize();
 		},
 
-		toolbarToggle: function (panel) {
+		toggleToolbar: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
-			if (pan.show.toolbar) this.toolbarHide(panel); else this.toolbarShow(panel);
+			if (pan.show.toolbar) this.hideToolbar(panel); else this.showToolbar(panel);
 		},
 
-		tabsHide: function (panel) {
+		hideTabs: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.tabs = false;
@@ -5767,7 +5768,7 @@ w2utils.keyboard = (function (obj) {
 			this.resize();
 		},
 
-		tabsShow: function (panel) {
+		showTabs: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.tabs = true;
@@ -5775,10 +5776,10 @@ w2utils.keyboard = (function (obj) {
 			this.resize();
 		},
 
-		tabsToggle: function (panel) {
+		toggleTabs: function (panel) {
 			var pan = this.get(panel);
 			if (!pan) return;
-			if (pan.show.tabs) this.tabsHide(panel); else this.tabsShow(panel);
+			if (pan.show.tabs) this.hideTabs(panel); else this.showTabs(panel);
 		},
 
 		render: function (box) {

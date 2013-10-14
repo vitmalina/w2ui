@@ -749,7 +749,7 @@ select {
 }
 .w2ui-list ul li div:before {
   position: relative;
-  top: 0px;
+  top: 1px;
   left: 4px;
   color: inherit;
   opacity: 0.6;
