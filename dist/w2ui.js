@@ -5561,6 +5561,7 @@ w2utils.keyboard = (function (obj) {
 							w2utils.transition(div1[0], div2[0], transition, function () {
 								div1.remove();
 								div2.removeClass('new-panel');
+								div2.css('overflow', p.overflow);
 								// IE Hack
 								if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
 							});
