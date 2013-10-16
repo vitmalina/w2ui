@@ -12,12 +12,13 @@ Expands sidebar node with <span class="argument">id</span>.
 	</tr>
 	</table>
 </div>
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
 The node must exists in the <a class="method" href="w2sidebar.nodes">.nodes</a> array of the sidebar or its nested nodes. The node is 
 identified by the <span class="property">.id</span> property. The method will set <span class="property">.expanded</span> property of the 
-node to true. 
+node to true. The method emits <a class="method" href="w2sidebar.onExpand">.onExpand</a> event.
 <div style="height: 10px"></div>
 
 If you have defined object in the following way:

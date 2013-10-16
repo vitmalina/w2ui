@@ -1,0 +1,46 @@
+Context menu for the sidebar.
+
+<div class="definition">
+	Array, default = []
+</div>
+
+You can use this property if you want to define a context menu for the sidebar. Internally, context meny is implemented using
+$().w2menu plugin that similar to $().w2overlay() and located in w2utils. This array holds objects of the following structure:
+<textarea class="html">
+item = {
+	id	 : 1,			// unique id
+	text : 'caption',	// caption
+	img  : null,		// name of the image if any
+	icon : null			// name of the icon font if any
+}
+</textarea>
+
+You can define it during object creation: 
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+	name : 'sidebar',
+	menu : [
+		{ id: 1, text: 'Item 1', img: 'icon-page' },
+		{ id: 2, text: 'Item 2', img: 'icon-page' },
+		{ id: 3, text: 'Item 3', img: 'icon-page' },
+	],
+	nodes: [ 
+		{ id: 'id-1', text: 'Level 1', hidden: true },
+		{ id: 'id-2', text: 'Level 2', expanded: true, nodes: [
+			{ id: 'id-2-1', text: 'Level 2.1' },
+			{ id: 'id-2-2', text: 'Level 2.2' }
+		]},
+		{ id: 'id-3', text: 'Level 3' }
+	]
+});
+</textarea>
+
+Or any time after the object has been created:
+
+<textarea class="javascript">
+w2ui['sidebar'].menu = [
+	{ id: 1, text: 'Item 1', img: 'icon-page' },
+	{ id: 2, text: 'Item 2', img: 'icon-page' },
+	{ id: 3, text: 'Item 3', img: 'icon-page' },
+];
+</textarea>

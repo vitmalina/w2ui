@@ -1,0 +1,58 @@
+Locks the sidebar.
+
+<div class="definition">
+	lock(message, [showSpinner])
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>message</td>
+		<td><b>string</b>, message</td>
+	</tr>
+	<tr>
+		<td>showSpinner</td>
+		<td><b>boolean</b>, <i>optional</i>, spinner indicator</td>
+	</tr>
+	</table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method will lock the sidebar by added a semi-transparent div on top of its content. The user will not be able to interact with
+the sidebar or its content until the sidebar is unlocked with <a href="w2sidebar.unlock" class="method">.unlock()</a>. This method will call
+<a href="w2utils.lock" class="method">w2utils.lock()</a> to perform the locking. 
+<div style="height: 10px"></div>
+
+If you have following sidebar:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+	name : 'sidebar',
+	img  : 'icon-page',
+	nodes: [ 
+		{ id: 'id-1', text: 'Level 1' },
+		{ id: 'id-2', text: 'Level 2' },
+		{ id: 'id-3', text: 'Level 3' }
+	]
+});
+</textarea>
+
+You have 3 options how you want to lock the content.
+<div style="height: 10px"></div>
+
+Lock with a message and a spinner:
+<textarea class="javascript">
+w2ui.sidebar('Loading...', true);
+</textarea>
+
+Lock w/o a message, but with a spinner:
+<textarea class="javascript">
+w2ui.sidebar('', true);
+</textarea>
+
+Lock w/o a message and w/o a spinner:
+<textarea class="javascript">
+w2ui.sidebar('');
+</textarea>

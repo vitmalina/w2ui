@@ -1,7 +1,7 @@
 Called when user clicks a keyboard key and sidebar is active.
 
 <div class="definition">
-	onKeyboard = function(event)
+	onKeydown = function(event)
 </div>
 
 The event will only be triggered if <a href="w2sidebar.keyboard" class="property">.keyboard</a> property of the sidebar is true.
@@ -17,7 +17,7 @@ $('#sidebar').w2sidebar({
 		{ id: 'id-2', text: 'Level 2' },
 		{ id: 'id-3', text: 'Level 3' }
 	],
-	onKeyboard: function(event) {
+	onKeydown: function(event) {
 		console.log(event);
 	}
 });
@@ -26,7 +26,7 @@ $('#sidebar').w2sidebar({
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui.sidebar.on('keyboard', function(event) {
+w2ui.sidebar.on('keydown', function(event) {
 	console.log(event);
 });
 </textarea>

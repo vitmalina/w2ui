@@ -17,6 +17,8 @@ Adds a sidebar node or nodes.
 	</table>
 </div>
 
+Returns object.
+
 <h4>Description</h4>
 
 The <span class="argument">nodes</span> argument can be either an object or array of objects. If it is an object it 
@@ -27,7 +29,10 @@ If it is an array then each element of the array will be treated as a separate s
 The first optional argument <span class="argument">parent</span> is an id of the parent node or parent node itself. If
 parent node is not specified, new nodes will be inserted at the root level.
 <div style="height: 10px"></div>
-				
+
+The method will return last inserted node.				
+<div style="height: 10px"></div>
+
 If you defined the object in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
