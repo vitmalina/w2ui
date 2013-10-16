@@ -1,7 +1,7 @@
-Unchecks toolbar item or items with <span class="argument">id</span> (visually looks like pressed button).
+Called when user clicks on a toolbar item.
 
 <div class="definition">
-	uncheck(id1, [id2], ...)
+	click(id, [event])
 </div>
 
 <div class="arguments">
@@ -10,15 +10,19 @@ Unchecks toolbar item or items with <span class="argument">id</span> (visually l
 		<td>id</td>
 		<td><b>string</b>, id of the toolbar item</td>
 	</tr>
+	<tr>
+		<td>event</td>
+		<td><b>object</b>, DOM Event object</td>
+	</tr>
 	</table>
 </div>
 
-Returns integer.
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-The item(s) must exists in the <a class="method" href="w2toolbar.items">.items</a> array of the toolbar. The toolbar item is 
-identified by the <span class="property">.id</span> property. The method returns the number of unchecked items that were checked before.
+This method is called when user clicks on the toolbar item. It is used internally, but you can use to to emulate clicks. This method
+emits <a class="method" href="w2toolbar.onClick">.onClick</a> event.
 <div style="height: 10px"></div>
 
 If you have toolbar defined in the following way:
@@ -26,14 +30,14 @@ If you have toolbar defined in the following way:
 $('#toolbar').w2toolbar({
 	name  : 'toolbar',
 	items : [
-		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: false },
 		{ type: 'radio',  id: 'item3',  group: '1', caption: 'R-1', img: 'icon-add' },
 		{ type: 'radio',  id: 'item4',  group: '1', caption: 'R-2', img: 'icon-add' }
 	]
 });
 </textarea>
 
-You can uncheck toolbar item:
+You can check toolbar item:
 <textarea class="javascript">
-w2ui['toolbar'].uncheck('item1');
+w2ui['toolbar'].click('item1');
 </textarea>

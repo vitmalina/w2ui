@@ -1,0 +1,42 @@
+Generates HTML for the toolbar item.
+
+<div class="definition">
+	getItemHTML(item)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>item</td>
+		<td><b>object</b>, toolbar item object</td>
+	</tr>
+	</table>
+</div>
+Returns HTML string.
+
+<h4>Description</h4>
+
+The first and only argument <span class="argument">item</span> is the item object. This method is called internally to 
+generate HTML for the item. The <a class="argument" href="w2toolbar.items">.items</a> array holds all item objects for the 
+toolbar. There is no need to call this method directly, but it can be overwritten.
+
+<div style="height: 10px"></div>
+
+If you have toolbar defined in the following way:
+<textarea class="javascript">
+$('#toolbar').w2toolbar({
+	name  : 'toolbar',
+	right : 'text on the right',
+	items : [
+		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
+		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' },
+	]
+});
+</textarea>
+
+You can get generate HTML for the item:
+<textarea class="javascript">
+var html = w2ui.toolbar.getItemHTML(w2ui.toolbar.items[0]);
+console.log(html);
+</textarea>
