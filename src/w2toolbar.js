@@ -7,12 +7,7 @@
 *
 * == NICE TO HAVE ==
 *   - on overflow display << >>
-* 
-* == 1.3 Changes ==
-* 	- doClick -> click, doMenuClick -> menuClick
-*	- deprecated getMenuHTML() due to its use in w2menu
-*	- added get() - w/o parametes return all
-* 
+*  
 ************************************************************************/
 
 (function () {
@@ -149,10 +144,10 @@
 			return removed;
 		},
 		
-		set: function (id, options) {
-			var item = this.get(id, true);
-			if (item == null) return false;
-			$.extend(this.items[item], options);
+		set: function (id, item) {
+			var index = this.get(id, true);
+			if (index == null) return false;
+			$.extend(this.items[index], item);
 			this.refresh(id);
 			return true;	
 		},
@@ -286,6 +281,7 @@
 		},
 		
 		refresh: function (id) {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id) });	
@@ -327,9 +323,11 @@
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));	
+			return (new Date()).getTime() - time;
 		},
 		
 		resize: function () {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	
@@ -338,7 +336,8 @@
 			// empty function
 
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 	
 		destroy: function () { 
@@ -415,7 +414,7 @@
 			return html;					
 		},
 
-		menuClick: function (id, event, menu_index) {
+		menuClick: function (id, menu_index, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			var obj = this;
 			var it  = this.get(id);
@@ -471,7 +470,7 @@
 							} 
 							if (it.type == 'menu') {
 								el.w2menu(it.items, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay, {
-									select: function (item, event, index) { obj.menuClick(it.id, event, index); }
+									select: function (item, event, index) { obj.menuClick(it.id, index, event); }
 								}));
 							}
 							// window.click to hide it

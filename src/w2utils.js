@@ -16,18 +16,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * 	- write and article how to replace certain framework functions
 *	- format date and time is buggy
 *
-* == 1.3 changes ==
-*	- fixed locale() bugs, made asynch
-*	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
-*	- added $().w2marker('string')
-*	- added w2utils.keyboard module
-*	- added w2utils.formatNumber()
-*	- added w2menu() plugin
-*	- added formatTime(), formatDateTime()
-*	- refactor event flow: instead of (target, data) -> (event), but back compatibile
-*	- added lock() and unlock() for a div
-*	- w2overlay.onHide - is cancabled now
-*
 ************************************************/
 
 var w2utils = (function () {

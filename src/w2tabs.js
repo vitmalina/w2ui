@@ -10,10 +10,6 @@
 *   - on overflow display << >>
 * 	- individual tab onClick (possibly other events) are not working
 *
-* == 1.3 changes ==
-*	- doClick -> click, doClose -> animateClose, doInsert -> animateInsert
-*	- added get() - w/o parametes return all
-*
 ************************************************************************/
 
 (function () {
@@ -216,6 +212,7 @@
 		},
 			
 		refresh: function (id) {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (String(id) == 'undefined') {
 				// refresh all
@@ -255,9 +252,11 @@
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 		
 		render: function (box) {
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
 			if (eventData.isCancelled === true) return false;
@@ -285,6 +284,7 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh();
+			return (new Date()).getTime() - time;
 		},
 		
 		resize: function () {

@@ -8,18 +8,7 @@
 * == NICE TO HAVE ==
 *	- return ids of all subitems
 *	- add find() method to find nodes by a specific criteria (I want all nodes for exampe)
-*
-* == 1.3 Changes ==
-*	- animated open/close
-*	- added onKeydown event
-*	- added .keyboard = true
-*	- moved some settings to prototype
-*	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
-*	- when clicked, first it selects then sends event (for faster view if event handler is slow)
-*   - better keyboard navigation (<- ->, space, enter)
-*	- added context menu see menuClick(), onMenuClick event, menu property 
-*	- added scrollIntoView()
-*	- added lock() and unlock()
+*	- dbl click should be like it is in grid (with timer not HTML dbl click event)
 *
 ************************************************************************/
 
@@ -319,7 +308,7 @@
 			if (this.selected == id) this.selected = null;
 			return true;
 		},
-
+		
 		toggle: function(id) {
 			var nd = this.get(id);
 			if (nd == null) return;
@@ -332,21 +321,7 @@
 			if (nd.nodes.length == 0) return;
 			if (this.get(id).expanded) this.collapse(id); else this.expand(id);
 		},
-	
-		expand: function (id) {
-			var nd = this.get(id);
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
-			if (eventData.isCancelled === true) return false;
-			// default action
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
-			nd.expanded = true;
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize();
-		},
-		
+
 		collapse: function (id) {
 			var nd = this.get(id);
 			// event before
@@ -371,6 +346,20 @@
 			}
 			this.refresh(parent.id);
 		},		
+	
+		expand: function (id) {
+			var nd = this.get(id);
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
+			if (eventData.isCancelled === true) return false;
+			// default action
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
+			nd.expanded = true;
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			this.resize();
+		},
 		
 		expandAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
@@ -547,8 +536,8 @@
 				if (obj.menu.length > 0) {
 					$(obj.box).find('#node_'+ w2utils.escapeId(id))
 						.w2menu(obj.menu, { 
-							left: (event.offsetX || event.pageX) - 25,
-							select: function (item, event, index) { obj.menuClick(id, event, index); }
+							left: (event ? event.offsetX || event.pageX : 50) - 25,
+							select: function (item, event, index) { obj.menuClick(id, index, event); }
 						}
 					);
 				}
@@ -557,7 +546,7 @@
 			}, 1);	
 		},
 
-		menuClick: function (itemId, event, index) {
+		menuClick: function (itemId, index, event) {
 			var obj = this;
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });	
@@ -615,6 +604,7 @@
 		},
 		
 		refresh: function (id) {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
@@ -662,6 +652,7 @@
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 			
 			function getNodeHTML(nd) {
 				var html = '';
@@ -719,6 +710,7 @@
 		},
 	
 		resize: function () {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
@@ -733,6 +725,7 @@
 			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'auto');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 		
 		destroy: function () { 
