@@ -17,18 +17,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * 	- write and article how to replace certain framework functions
 *	- format date and time is buggy
 *
-* == 1.3 changes ==
-*	- fixed locale() bugs, made asynch
-*	- each widget has name in the box that is name of widget, $(name).w2grid('resize');
-*	- added $().w2marker('string')
-*	- added w2utils.keyboard module
-*	- added w2utils.formatNumber()
-*	- added w2menu() plugin
-*	- added formatTime(), formatDateTime()
-*	- refactor event flow: instead of (target, data) -> (event), but back compatibile
-*	- added lock() and unlock() for a div
-*	- w2overlay.onHide - is cancabled now
-*
 ************************************************/
 
 var w2utils = (function () {
@@ -7096,10 +7084,6 @@ var w2confirm = function (msg, title, callBack) {
 *   - on overflow display << >>
 * 	- individual tab onClick (possibly other events) are not working
 *
-* == 1.3 changes ==
-*	- doClick -> click, doClose -> animateClose, doInsert -> animateInsert
-*	- added get() - w/o parametes return all
-*
 ************************************************************************/
 
 (function () {
@@ -7302,6 +7286,7 @@ var w2confirm = function (msg, title, callBack) {
 		},
 			
 		refresh: function (id) {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			if (String(id) == 'undefined') {
 				// refresh all
@@ -7341,9 +7326,11 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 		
 		render: function (box) {
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
 			if (eventData.isCancelled === true) return false;
@@ -7371,6 +7358,7 @@ var w2confirm = function (msg, title, callBack) {
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh();
+			return (new Date()).getTime() - time;
 		},
 		
 		resize: function () {
@@ -7506,12 +7494,7 @@ var w2confirm = function (msg, title, callBack) {
 *
 * == NICE TO HAVE ==
 *   - on overflow display << >>
-* 
-* == 1.3 Changes ==
-* 	- doClick -> click, doMenuClick -> menuClick
-*	- deprecated getMenuHTML() due to its use in w2menu
-*	- added get() - w/o parametes return all
-* 
+*  
 ************************************************************************/
 
 (function () {
@@ -7648,10 +7631,10 @@ var w2confirm = function (msg, title, callBack) {
 			return removed;
 		},
 		
-		set: function (id, options) {
-			var item = this.get(id, true);
-			if (item == null) return false;
-			$.extend(this.items[item], options);
+		set: function (id, item) {
+			var index = this.get(id, true);
+			if (index == null) return false;
+			$.extend(this.items[index], item);
 			this.refresh(id);
 			return true;	
 		},
@@ -7785,6 +7768,7 @@ var w2confirm = function (msg, title, callBack) {
 		},
 		
 		refresh: function (id) {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id) });	
@@ -7826,9 +7810,11 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));	
+			return (new Date()).getTime() - time;
 		},
 		
 		resize: function () {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	
@@ -7837,7 +7823,8 @@ var w2confirm = function (msg, title, callBack) {
 			// empty function
 
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 	
 		destroy: function () { 
@@ -7914,7 +7901,7 @@ var w2confirm = function (msg, title, callBack) {
 			return html;					
 		},
 
-		menuClick: function (id, event, menu_index) {
+		menuClick: function (id, menu_index, event) {
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			var obj = this;
 			var it  = this.get(id);
@@ -7970,7 +7957,7 @@ var w2confirm = function (msg, title, callBack) {
 							} 
 							if (it.type == 'menu') {
 								el.w2menu(it.items, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay, {
-									select: function (item, event, index) { obj.menuClick(it.id, event, index); }
+									select: function (item, event, index) { obj.menuClick(it.id, index, event); }
 								}));
 							}
 							// window.click to hide it
@@ -8016,18 +8003,7 @@ var w2confirm = function (msg, title, callBack) {
 * == NICE TO HAVE ==
 *	- return ids of all subitems
 *	- add find() method to find nodes by a specific criteria (I want all nodes for exampe)
-*
-* == 1.3 Changes ==
-*	- animated open/close
-*	- added onKeydown event
-*	- added .keyboard = true
-*	- moved some settings to prototype
-*	- doClick -> click, doDblClick -> dblClick, doContextMenu -> contextMenu
-*	- when clicked, first it selects then sends event (for faster view if event handler is slow)
-*   - better keyboard navigation (<- ->, space, enter)
-*	- added context menu see menuClick(), onMenuClick event, menu property 
-*	- added scrollIntoView()
-*	- added lock() and unlock()
+*	- dbl click should be like it is in grid (with timer not HTML dbl click event)
 *
 ************************************************************************/
 
@@ -8327,7 +8303,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (this.selected == id) this.selected = null;
 			return true;
 		},
-
+		
 		toggle: function(id) {
 			var nd = this.get(id);
 			if (nd == null) return;
@@ -8340,21 +8316,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (nd.nodes.length == 0) return;
 			if (this.get(id).expanded) this.collapse(id); else this.expand(id);
 		},
-	
-		expand: function (id) {
-			var nd = this.get(id);
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
-			if (eventData.isCancelled === true) return false;
-			// default action
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
-			nd.expanded = true;
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize();
-		},
-		
+
 		collapse: function (id) {
 			var nd = this.get(id);
 			// event before
@@ -8379,6 +8341,20 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			this.refresh(parent.id);
 		},		
+	
+		expand: function (id) {
+			var nd = this.get(id);
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
+			if (eventData.isCancelled === true) return false;
+			// default action
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
+			nd.expanded = true;
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			this.resize();
+		},
 		
 		expandAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
@@ -8555,8 +8531,8 @@ var w2confirm = function (msg, title, callBack) {
 				if (obj.menu.length > 0) {
 					$(obj.box).find('#node_'+ w2utils.escapeId(id))
 						.w2menu(obj.menu, { 
-							left: (event.offsetX || event.pageX) - 25,
-							select: function (item, event, index) { obj.menuClick(id, event, index); }
+							left: (event ? event.offsetX || event.pageX : 50) - 25,
+							select: function (item, event, index) { obj.menuClick(id, index, event); }
 						}
 					);
 				}
@@ -8565,7 +8541,7 @@ var w2confirm = function (msg, title, callBack) {
 			}, 1);	
 		},
 
-		menuClick: function (itemId, event, index) {
+		menuClick: function (itemId, index, event) {
 			var obj = this;
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });	
@@ -8623,6 +8599,7 @@ var w2confirm = function (msg, title, callBack) {
 		},
 		
 		refresh: function (id) {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
@@ -8670,6 +8647,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 			
 			function getNodeHTML(nd) {
 				var html = '';
@@ -8727,6 +8705,7 @@ var w2confirm = function (msg, title, callBack) {
 		},
 	
 		resize: function () {
+			var time = (new Date()).getTime();
 			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
@@ -8741,6 +8720,7 @@ var w2confirm = function (msg, title, callBack) {
 			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'auto');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 		
 		destroy: function () { 
