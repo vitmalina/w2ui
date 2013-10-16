@@ -1,27 +1,27 @@
-Add and animates insertion a tab or tabs.
+Removes and animates closing of the tab.
 
 <div class="definition">
-	animateInsert(before, tabs)
+	animateClose(id, [event])
 </div>
 
 <div class="arguments">
 	<table>
 	<tr>
-		<td>before</td>
-		<td><b>string</b>, id of tab to insert before</td>
+		<td>id</td>
+		<td><b>string</b>, id of tab to close</td>
 	</tr>
 	<tr>
-		<td>tabs</td>
+		<td>event</td>
 		<td><b>object</b> or <b>array</b>, tab or array of tabs</td>
 	</tr>
 	</table>
 </div>
+
 Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method will first animate inserting of the space before tab with id = <span class="argument">before</span> and then will call
-<a class="property" href="w2tabs.insert">.insert()</a> to insert the tab and display it.
+This method will remove and animate closing of the tab with id = <span class="argument">id</span>.
 				
 If you have tabs defined in the following way:
 <textarea class="javascript">
@@ -39,5 +39,5 @@ $('#tabs').w2tabs({
 
 You can add tabs:
 <textarea class="javascript">
-w2ui['tabs'].animateInsert('tab3', { id: 'tab5', caption: 'Tab 5' });
+w2ui['tabs'].animateClose('tab3');
 </textarea>
