@@ -15,11 +15,16 @@ Loads new locale
 
 <h4>Description</h4>
 
-All locale files are in the /src/locale folder (see any one as an example). The first parameter can be a string or a path the the file. If it is 
-a string (ex: ru-ru) it is the name of the locale. The method will perform sunchronous load of the locale, so it will pause until locale is loaded.
+The first parameter can be a string or a path to the file. If it is a string (ex: ru-ru) it is the name of the locale. It will attempt 
+to load file from the /locale folder. If you want to load locale file from some other folder, you need to provide full path to it.
+<div style="height: 10px"></div>
+
+The method will perform <b>sunchronous</b> load of the locale, so it will pause until locale is loaded.
 <div style="height: 10px"></div>
 
 You can call in in the following way:
 <textarea class="javascript">
 w2utils.locale('ru-ru');
+// or
+w2utils.locale('/path/to/locale/ru-ru.json');
 </textarea>

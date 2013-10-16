@@ -3,10 +3,12 @@ $(function () {
 	$('#main_layout').w2layout({
 		name: 'layout',
 		panels: [
+			{ type: 'top', size: 45, style: 'border: 0px; border-bottom: 1px solid silver; background-color: #fff; color: #555;', overflow: 'hidden'},
 			{ type: 'left', size: 240, resizable: true, style: 'border-right: 1px solid silver;' },
 			{ type: 'main', style: 'background-color: white;' }
 		]
 	});
+	w2ui['layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.3 Documentation</div>');
 	// init sidebar
 	w2ui['layout'].content('left', $().w2sidebar({
 		name: 'docs',
