@@ -1,0 +1,135 @@
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+}
+
+h1 {
+  font-size: 36px;
+  line-height: 40px;
+  margin: 15px 0px;
+}
+
+h2 {
+  font-size: 30px;
+  line-height: 40px;
+  margin: 10px 0px;
+}
+
+h3 {
+  font-size: 24px;
+  line-height: 40px;
+  margin: 10px 0px;
+}
+
+h4 {
+  font-size: 18px;
+  line-height: 20px;
+  margin: 10px 0px;
+}
+
+ul {
+	margin: 5px 10px 15px 40px;
+}
+
+table.list {
+	margin: 20px 0px;
+	border-collapse: collapse;
+}
+
+table.list td {
+	border: 1px solid #d1d1d1;
+	padding: 3px 10px !important;
+}
+
+/* Documentation */
+
+.obj-property {
+	font-size: 16px;
+	font-weight: bold;
+	color: #176092;
+}
+
+.obj-property > a {
+	color: #176092 !important;
+}
+
+.obj-property > span {
+	font-weight: normal;
+	color: #555;
+}
+
+.obj-property-desc {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	margin: 5px 0px 10px 0px;
+	padding: 5px 0px 15px 20px;
+	border-bottom: 1px solid #efefef
+}
+
+.obj-desc {
+	padding: 10px 20px;
+	line-height: 150%;
+	width: 850px;
+}
+
+.obj-desc h4 {
+	margin-top: 20px;
+}
+
+.obj-desc .definition {
+	background-color: #fafafa;
+	border: 1px solid silver;
+	padding: 5px;
+	border-radius: 4px;	
+	margin: 15px 0px;
+	font-weight: bold;
+	color: #304E77;
+	font-family: Monaco, "Courier New";
+}
+
+.obj-desc .arguments {
+	border: 1px solid silver;
+	border-radius: 4px;
+	margin: 15px 0px;
+	padding: 1px;
+	margin-left: 50px;
+}
+
+.obj-desc .arguments table {
+	border-collapse: collapse;
+	width: 100%;
+	background-color: #fafafa;
+}
+
+.obj-desc table td {
+	padding: 5px 10px;
+	border-radius: 4px;
+	border-bottom: 1px solid silver;
+	width: 80%;
+}
+
+.obj-desc table tr td:first-child {
+	width: 15%;
+	color: #304E77;
+	border-right: 1px solid silver;
+	font-family: Monaco, "Courier New";
+}
+
+.obj-desc table tr:last-child td {
+	border-bottom: 0px;
+}
+
+.method, .property, .argument {
+	display: inline-block;
+	background-color: #f1f1f1;
+	border-radius: 4px;
+	margin: 0px;
+	padding: 0px 5px;
+	min-height: 17px;
+	font-family: Courier;
+	color: #176092;
+}
+
+a.method, a.property, a.argument {
+	color: blue;
+}
