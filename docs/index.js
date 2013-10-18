@@ -79,13 +79,21 @@ $(function () {
 	initPopup();
 
 	// utils
+	var props   = [];
 	var methods = [];
-	for (var o in w2utils) { if (o == 'settings') continue; methods.push(o); }
+	for (var o in w2utils) { 
+		if (typeof w2utils[o] == 'function') methods.push(o); else props.push(o);
+	}
+	props.sort();
 	methods.sort();
+	// properties
+	var nodes = []
+	for (var o in props) nodes.push({ id: 'w2utils.' + props[o], text: props[o], icon: 'fa-tag' });
+	w2ui['docs'].add('w2utils-props', nodes);
+	// methods
 	var nodes = []
 	for (var o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa-cog' });
 	w2ui['docs'].add('w2utils-methods', nodes);
-	w2ui['docs'].add('w2utils-props', { id: 'w2utils.settings', text: 'settings', icon: 'fa-star-empty' });
 
 	// remove internal methods/props
 	w2ui['docs'].remove('w2layout.panel', 'w2grid.isIOS', 'w2toolbar.item', 'w2sidebar.node', 'w2tabs.tab');
@@ -159,28 +167,39 @@ $(function () {
 });
 
 function doClick (cmd, data) {
-	if (cmd.indexOf('.') == -1) return;
-	var tmp = cmd.split('.');
-	switch(tmp[1]) {
-		case 'box'		: cmd = 'common.box'; break;
-		case 'name'		: cmd = 'common.name'; break;
-		case 'handlers'	: cmd = 'common.handlers'; break;
-		case 'style'	: cmd = 'common.style'; break;
-		case 'render'	: cmd = 'common.render'; break;
-		case 'refresh'	: cmd = 'common.refresh'; break;
-		case 'destroy'	: cmd = 'common.destroy'; break;
-		case 'resize'	: if (tmp[0] != 'w2popup') cmd = 'common.resize'; break;
-		case 'on'		: cmd = 'common.on'; break;
-		case 'off'		: cmd = 'common.off'; break;
-		case 'trigger'	: cmd = 'common.trigger'; break;
-		case 'onRender'	: cmd = 'common.onRender'; break;
-		case 'onRefresh': cmd = 'common.onRefresh'; break;
-		case 'onDestroy': cmd = 'common.onDestroy'; break;
-		case 'onResize'	: cmd = 'common.onResize'; break;
-	}
-	w2ui['layout'].content('main', '');
-	$.get('details/'+ cmd +'.html', function (data) {
+	console.log(cmd);
+	if (cmd.indexOf('.') == -1) {
+		if (cmd.indexOf('-') == -1) {
+			var path = 'overview/'+ cmd.substr(2) +'.html';	
+		} else {
+			var path = 'summary/'+ cmd +'.php';
+		}		
+	} else {
+		var tmp  = cmd.split('.');
+		switch(tmp[1]) {
+			case 'box'		: cmd = 'common.box'; break;
+			case 'name'		: cmd = 'common.name'; break;
+			case 'handlers'	: cmd = 'common.handlers'; break;
+			case 'style'	: cmd = 'common.style'; break;
+			case 'render'	: cmd = 'common.render'; break;
+			case 'refresh'	: cmd = 'common.refresh'; break;
+			case 'destroy'	: cmd = 'common.destroy'; break;
+			case 'resize'	: if (tmp[0] != 'w2popup') cmd = 'common.resize'; break;
+			case 'on'		: cmd = 'common.on'; break;
+			case 'off'		: cmd = 'common.off'; break;
+			case 'trigger'	: cmd = 'common.trigger'; break;
+			case 'onRender'	: cmd = 'common.onRender'; break;
+			case 'onRefresh': cmd = 'common.onRefresh'; break;
+			case 'onDestroy': cmd = 'common.onDestroy'; break;
+			case 'onResize'	: cmd = 'common.onResize'; break;
+		}
+		w2ui['layout'].content('main', '');
+		var path = 'details/'+ cmd +'.html';
+	} 
+	// load file
+	$.get(path, function (data) {
 		data = data.replace(/href="/g, 'href="#');
+		data = data.replace(/href="#\/\/w2ui.com/g, 'href="//w2ui.com');
 		w2ui['layout'].content('main', 
 			'<div class="obj-desc">'+ 
 			'<h1>' + cmd + '</h1>' +

@@ -80,9 +80,8 @@ console.log("\nDONE. Total: "+ cnt + '\n');
 // save to disk
 var index = '';
 for (var h in html) {
-	fs.writeFileSync('summary/' + h + '.html', text1 + html[h] + text2, 'utf-8');
+	fs.writeFileSync('summary/' + h + '.php', text1 + html[h] + text2, 'utf-8');
 	index += '<a href="' + h + '.html">'+ h + '</a><br>';
 }
 
-fs.writeFileSync('summary/index.html', text1 + index + text2, 'utf8');
-
+//fs.writeFileSync('summary/index.html', text1 + index + text2, 'utf8');
