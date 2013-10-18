@@ -1,0 +1,130 @@
+<h3>Fields</h3>
+<p>
+	The w2form object uses w2field object for different field types. This object can also be used independently of the form. There are a
+	number of field types the object supports. Below is an example of date and numbers fields
+</p>
+
+<h3>Example</h3>
+<h4>HTML</h4>
+<textarea class="html">
+<input type="text" size="20" id="int"> - int<br> 
+<input type="text" size="20" id="float"> - float<br>
+<input type="text" size="12" id="date"> - date
+&lt;script>
+$(function () {
+$('#int').w2field('int');
+$('#float').w2field('float');
+$('#date').w2field('date');
+});
+&lt;/script>
+</textarea>
+
+<h4>Preview</h4>
+<input type="text" size="20" id="int"> - int<br> 
+<input type="text" size="20" id="float"> - float<br>
+<input type="text" size="12" id="date"> - date
+<script>
+$(function () {
+	$('#int').w2field('int');
+	$('#float').w2field('float');
+	$('#date').w2field('date');
+});
+</script>
+
+<h3>Supported Types</h3>
+
+<style>
+table.list {
+	margin: 20px 0px;
+	border-collapse: collapse;
+}	
+table.list td {
+	padding: 4px 10px;
+	border: 1px solid #efefef;
+}
+</style>
+<table class="list">
+	<tr><td> int </td>			<td> integer </td></tr>
+	<tr><td> float </td>		<td> float number </td></tr>
+	<tr><td> hex </td>			<td> hexdecimal number </td></tr>
+	<tr><td> money </td>		<td> number in money format </td></tr>
+	<tr><td> alphaNumeric </td>	<td> alpha-numeric text </td></tr>
+	<tr><td> email </td>		<td> email address </td></tr>
+	<tr><td> date </td>			<td> date </td></tr>
+	<tr><td> list </td>			<td> drop down list</td></tr>
+	<tr><td> select </td>		<td> drop down list</td></tr>
+	<tr><td> enum </td>			<td> multi-select </td></tr>
+	<tr><td> clear </td> 		<td> removes any previous type </td></tr>
+</table>
+<p>
+	Most field types are simple and require no additional parameters, however date, list, enum, etc. take extra options. Below is the
+	list of options those fields take: <br><br>
+	date:
+	<textarea class="javascript">
+options: {
+format  : w2utils.settings.date_format,   // date format
+start   : '4/1/2011',                     // all dates before start will be unselectable
+end     : '5/1/2011',                     // all dates after end will be unselectable
+blocked : [ '4/14/2011', '4/15/2011' ],   // list of unselectable dates
+colored : { '4/11/2011': 'red:white' }    // font and background color
+}
+	</textarea>
+	list or select:
+	<textarea class="javascript">
+options: {
+items       : [],       // array of items - item: { id, text }
+value       : '',       // value for the select
+showNone    : false,    // shows first element - none - with empty value
+}
+	</textarea>
+	enum:
+	<textarea class="javascript">
+options: {
+url         : '',       // url to load autocomplete items
+items       : [],       // array of items - item: { id, text }
+selected    : [],       // preselected items - item: { id, text }
+max         : 0,        // maximum number of items that can be selected, 0 for unlimited
+maxHeight   : 72,       // max height for input control to grow
+showAll     : false,    // if true then show selected item in drop down
+maxCache    : 500,      // number items to cache
+onRender    : null,     // -- not implemented
+onSelect    : null      // -- not implemented
+}
+	</textarea>
+	
+	To send this additional options, you need to pass an object with properties when you initiate field:
+<textarea class="html">
+<input type="text" size="12" id="date"> - date
+&lt;script>
+$(function () {
+$('#date').w2field({ type: 'date', format: 'dd-mm-yyyy' });
+});
+&lt;/script>
+</textarea>
+	
+</p>
+<h3>Custom Types</h3>
+If built-in types are not enough for you, there is a way you can create custom types. 
+<textarea class="javascript">
+$().w2field('addType', 'myType', function (options) {
+$(this).on('keypress', function (event) { 
+if (event.metaKey || event.ctrlKey || event.altKey 
+	|| (event.charCode != event.keyCode && event.keyCode > 0)) return;
+var ch = String.fromCharCode(event.charCode);
+if (ch != 'a' && ch != 'b' && ch != 'c') {
+if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+return false;
+}
+});
+$(this).on('blur', function (event)  { // keyCode & charCode differ in FireFox
+var ch = this.value;
+if (ch != 'a' && ch != 'b' && ch != 'c') { 
+$(this).w2tag(w2utils.lang("Not a single charecter from the set of 'abc'"));
+}
+});
+});
+</textarea>
+After you defined this type, you can apply it in the following way:
+<textarea class="javascript">
+$('#id').w2field('myType');
+</textarea>

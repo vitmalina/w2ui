@@ -1,0 +1,68 @@
+<h3>Overlays</h3>
+
+An overlay is a popup within the page. Technically, it is not part of the w2popup object. It is part of w2utils. However, it is descibed here
+due to its functional similarity to popups. Tags and overlays are common purpose jQuery plugins and should be called in jQuery plugin syntax.
+<div style="height: 10px"></div>
+
+<h4>$().w2tag(html, [options])</h4>
+The method will display a tag on the right from specified element. For example:
+
+<textarea class="javascript">
+<input id="input" onclick="$(this).w2tag('This is not valid');">
+</textarea>
+
+<h5>Preview</h5>
+
+<input id="input" onclick="$(this).w2tag('This is not valid')"> 
+<div class="spacer5"></div>
+<i>Click on this field</i>
+<div style="height: 10px"></div>
+
+In w2form tags are used to display validation errors. The second parameter is optional and defines css class to be added to the element 
+itself (not the tag). There can be many tags on the screen at the same time. If	the element is moved, the tag will move with it. If it is 
+destroyed, the tag will be destroyed. If you need to hide a tag, call w2tag again with empty text.
+<div style="height: 10px"></div>
+
+Options can be one of the following:
+<textarea class="javascript">
+options: {
+	css    : {},    // css rules for input
+	class  : '',    // class name for input
+	onShow : null,  // function to execute when overlay is shown
+	onHide : null   // function to execute when overlay is hidden 
+}
+</textarea>				
+<div style="height: 10px"></div>
+
+<h4>$().w2overlay(html, [options])</h4>
+The method will display an overlay under the element. For example:
+
+<textarea class="javascript">
+<input id="input" onclick="$(this).w2overlay('This is an overlay.<br>Can be multi line HTML.')"> 
+</textarea>
+
+<h5>Preview</h5>
+
+<input id="input" onclick="$(this).w2overlay('This is an overlay.<br>Can be multi line HTML.')"> 
+<div style="height: 10px"></div>
+
+<i>Click on this field</i>
+<div style="height: 10px"></div>
+
+First parameter is the html to display inside the overlay, second is a map of options and third one is a callBack function. 
+If user clicks anywhere else on the screen the overlay will be hidden, which is not the same with tags. This meanes that you 
+can have only one overlay at a time on the screen.
+<div style="height: 10px"></div>
+
+Options can be one of the following:
+<textarea class="javascript">
+options: {
+	css    : {},    // additional css rules for content
+	class  : '',    // additional class name for content
+	left   : 0,     // addition to the left postion for the overlay
+	top    : 0,     // addition to the top postion for the overlay
+	onShow : null,  // function to execute when overlay is shown
+	onHide : null   // function to execute when overlay is hidden 
+	    // - can be cancelled by setting $('#w2ui-overlay').data('ignoreClick', true)
+}
+</textarea>

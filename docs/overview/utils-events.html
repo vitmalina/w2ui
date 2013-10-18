@@ -1,0 +1,73 @@
+<h3>Events</h3>
+
+All w2ui controls have the same event flow. There are two ways you can add/remove events:
+<ol>
+	<li>using on"Event" properties </li>
+	<li>using <span class="method">.on()</span> and <span class="method">.off()</span> methods</li>
+</ol>
+The first way is simple, can be done during object creation, but limits you to a single event listener per event. The second way 
+lets you add multiple event listeners, but can only be used at run-time. It gives you a better control of the event flow.
+Every widget property that start with "on" is an event.
+
+<h3>Properties and Methods</h3>
+
+<div class="obj-property">
+	<a href="../common.handlers">handlers</a> <span>- array of objects </span>
+</div>
+<div class="obj-property-desc">
+	Array of event handlers.
+</div>
+
+<div class="obj-property">
+	<a href="../common.on">on</a> <span>- function (type, handler)</span>
+</div>
+<div class="obj-property-desc">
+	Adds event listener to the w2ui object.
+</div>
+<div class="obj-property">
+	<a href="../common.off">off</a> <span>- function (type, [handler])</span>
+</div>
+<div class="obj-property-desc">
+	Removes event listener to the w2ui object.
+</div>
+
+<div class="obj-property">
+	<a href="../common.trigger">trigger</a> <span>- function (eventData)</span>
+</div>
+<div class="obj-property-desc">
+	Executes all event listeners added with <span class="method">.on()</span> method.
+</div>
+
+<h3>Event Handler Function</h3>
+
+Once an event is triggered two parameters are passed to the event handler <span class="argument">function(target, eventData)</span>. 
+The first parameter <span class="property">target</span> is the target of the event. Often it is the name of the widgets that triggered
+event. However, for the toolbar it is the toolbar item id, for a sidebar - node id, for a tab - tab id. 
+<div style="height: 10px"></div>
+
+The second argument <span class="property">eventData</span> holds additional information about the event, which varies from
+event to event. Below is an example of event handler:
+<textarea class="javascript">
+function (target, eventData) {
+// event actions
+}
+</textarea>
+
+By default all event handlers are triggered before the default behavior is processed. This allows an easy way to cancel events before anything 
+happens in the widget:
+<textarea class="javascript">
+function (target, eventData) {
+// event actions
+eventData.stop = true;  // stop event
+}
+</textarea>
+
+You can also define a function that will be executed after the default behavior is processed. In the example below, the function will be executed
+after default behavior is processed.
+<textarea class="javascript">
+function (target, eventData) {
+eventData.onComplete = function () {
+// event actions
+}
+}
+</textarea>

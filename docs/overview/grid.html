@@ -1,0 +1,209 @@
+<h3>Grid Overview</h3>
+
+The w2grid object allows you to create data grid controls with local or remote data source. The grid control is the most 
+complex and flexible control in w2ui. It allows you to define columns, simple or multi field searches, one or many column 
+sorting, inline editing, etc.
+<div style="height: 10px"></div>
+
+<h3>Complete Example 1</h3>
+
+Below is a simple example how to use the grid. This grid does not pull records from the server, but uses local data source. 
+It shows the minimum HTML and JavaScript you need to have to display the grid.
+
+<textarea class="html">
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui-1.3.min.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script type="text/javascript" src="//w2ui.com/src/w2ui-1.3.min.js"></script>
+</head>
+<body>
+    <div id="myGrid" style="height: 450px"></div>
+</body>
+<script>
+$('#myGrid').w2grid({ 
+	name: 'myGrid', 
+	columns: [				
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'Start Date', size: '120px' },
+	],
+	records: [
+		{ recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+		{ recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+	]
+});
+</script>
+</html>
+</textarea>
+
+<h3>Complete Example 2</h2>
+This example displays similar grid as the example above, but it retrieves records from the server. It assumes that you have a file
+data/records.json relative to where your example runs that returns JSON structure.
+
+<textarea class="html">
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui-1.3.min.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script type="text/javascript" src="//w2ui.com/src/w2ui-1.3.min.js"></script>
+</head>
+<body>
+    <div id="myGrid" style="height: 450px"></div>
+</body>
+<script>
+$('#myGrid').w2grid({ 
+	name	: 'myGrid', 
+	url		: 'data/records.json',
+	columns	: [				
+		{ field: 'fname', caption: 'First Name', size: '30%' },
+		{ field: 'lname', caption: 'Last Name', size: '30%' },
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'Start Date', size: '120px' },
+	]
+});
+</script>
+</html>
+</textarea>
+<h3 id="data-structures">Data Structures</h3>
+
+The grid communicates with the server by sending a HTTP POST request in the format displayed below. Keep in mind that not all of the parameters are
+sent with each requests. Parameters such as search, sort-by, etc. might not be submitted if user did not apply them. The grid will also submit
+all user defined parameters from the <span class="property">.postData</span> map.
+
+<textarea class="javascript">
+{
+	"cmd": "get-records",
+	"name": "myGrid",
+	"limit": 50,
+	"offset": 0,
+	"selected": [1, 2],
+	"search-logic": "AND",
+	"search": [
+		{ "field": "fname", "type": "text", "value": "vit", "operator": "is" },
+		{ "field": "age", "type": "int", "value": [10, 20], "operator": "between" }
+	],
+	"sort": {
+		{ "field": "fname", "direction": "ASC" },
+		{ "field": "Lname", "direction": "DESC" }
+	}	
+}
+</textarea>
+
+Which will be encoded into HTTP POST that looks like this:
+
+<textarea class="javascript">
+&cmd: get-records
+&name: myGrid
+&limit: 50
+&offset: 0
+&selected[]: 1
+&selected[]: 2
+&search-logic: AND
+&search[0][field]: fname
+&search[0][type]: text
+&search[0][operator]: is
+&search[0][value]: vit
+&search[1][field]: age
+&search[1][type]: int
+&search[1][operator]: between
+&search[1][value][]: 10
+&search[1][value][]: 20
+&sort[0][field]: fname
+&sort[0][direction]: asc
+&sort[1][field]: lname
+&sort[1][direction]: desc
+</textarea>
+
+The grid expects data in the JSON format from the server as it is described below. The JSON structure will be merged into the grid with
+jQuery.extend method. It means that you can return any supported grid property from the server and it will be applied. 
+
+<textarea class="javascript">
+{
+	"status"	: "success",
+	"total"		: 36,
+	"records"	: [
+		{ "recid": 1, "field-1": "value-1", ... "field-N": "value-N" },
+		...
+		{ "recid": N, "field-1": "value-1", ... "field-N": "value-N" }
+	]
+}
+</textarea>
+
+You can define grid's <span class="property">.onRequest</span> and <span class="property">.onLoad</span> events to do data conversion if
+you service returns format different from JSON (for example XML).
+<div style="height: 10px"></div>
+
+If you want to return an error from the server side, you can return following JSON structure:
+<textarea class="javascript">
+{
+	"status"	: "error",
+	"message"	: "Error Message"
+}
+</textarea>
+
+
+<h3>Delete Records</h3>
+
+If user selects several records in the grid and clicks the delete button on the toolbar or if you call 
+<span class="property">.delete()</span> method, the grid will send a request to delete records. The grid sends following parameters:
+
+<textarea class="javascript">
+{
+	"cmd": "delete-records",
+	"name": "grid",
+	"selected": [1, 2],
+}
+</textarea>
+It sends extra fields that are not directly related to the delete operation. If there was no errors, the grid expects back the response in the format
+<textarea class="javascript">
+{
+	"status": "success"
+}
+</textarea>
+And as soon as it is received, it will submit a second request to refresh records. If the server responds: 
+
+<textarea class="javascript">
+{
+	"status": "error",
+	"message": "Error Message"
+}
+</textarea>
+The grid will display the error and will not refresh records.			
+
+<h3>Save Records</h3>
+
+As a developer you can turn on inline editing in the grid. Once user has changed data and click the Save button, the grid will send the following structure
+to the server:
+<textarea class="javascript">
+{
+	"cmd": "save-records",
+	"name": "grid",
+	"changed": [],
+}
+</textarea>
+Where changed is an array of object with key value pairs of all changed records. If there was no errors, the grid expects back the response in the format
+<textarea class="javascript">
+{
+	"status": "success"
+}
+</textarea>
+If the server responds: 
+
+<textarea class="javascript">
+{
+	"status": "error",
+	"message": "Error Message"
+}
+</textarea>
+The grid will display the error.

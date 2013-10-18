@@ -1,0 +1,116 @@
+<h3>Form Overview</h3>
+
+The w2form object helps you work with forms. A set of various controls such as date, int, float, autocompleted, etc. can be used with w2forms
+object. Additionally, it provides methods for loading data from the server side, saving it back and data bindings.
+
+<h3>Complete Example 1</h3>
+
+Below is a simple example how to use forms. It shows the minimum HTML and JavaScript you need to have a simple form. It is assumed 
+in the example that you link jquery.js, w2ui.js and w2ui.css files.
+
+<textarea class="html">
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui-1.3.min.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script type="text/javascript" src="//w2ui.com/src/w2ui-1.3.min.js"></script>
+</head>
+<body>
+    <div id="myForm" style="width: 600px"></div>
+</body>
+<script>
+$(function () {
+	$('#myForm').w2form({ 
+		name   : 'myForm',
+		url    : 'server/post',
+		fields : [
+			{ name: 'first_name', type: 'text', required: true },
+			{ name: 'last_name',  type: 'text', required: true },
+			{ name: 'comments',   type: 'text'}
+		],
+		actions: {
+			reset: function () {
+				this.clear();
+			},
+			save: function () {
+				this.save();
+			}
+		}
+	});
+});
+</script>
+</html>
+</textarea>
+
+If you do nto defined any HTML for the form, it will be automatically generated. IF you want to provide your own HTML teample see
+how to do it in the next example.
+
+<h3>Complete Example 2</h3>
+
+This example shows how to provide HTML for the form.
+
+<textarea class="html">
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui-1.3.min.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script type="text/javascript" src="//w2ui.com/src/w2ui-1.3.min.js"></script>
+</head>
+<body>
+    <div id="myForm" style="width: 600px">
+		<div class="w2ui-page page-0">
+			<div class="w2ui-label">First Name:</div>
+			<div class="w2ui-field">
+				<input name="first_name" maxlength="100" size="60"/>
+			</div>
+			<div class="w2ui-label">Last Name:</div>
+			<div class="w2ui-field">
+				<input name="last_name" maxlength="100" size="60"/>
+			</div>
+			<div class="w2ui-label">Text Area:</div>
+			<div class="w2ui-field">
+				&lt;textarea name="field_textarea" style="width: 385px; height: 80px;"&gt;&lt;/textarea&gt;
+			</div>
+		</div>
+
+		<div class="w2ui-buttons">
+			<input type="button" value="Reset" name="reset"/>
+			<input type="button" value="Save" name="save"/>
+		</div>
+	</div>
+</body>
+<script>
+$(function () {
+	$('#myForm').w2form({ 
+		name   : 'myForm',
+		url    : 'server/post',
+		fields : [
+			{ name: 'first_name', type: 'text', required: true },
+			{ name: 'last_name',  type: 'text', required: true },
+			{ name: 'comments',   type: 'text'}
+		],
+		actions: {
+			reset: function () {
+				this.clear();
+			},
+			save: function () {
+				this.save();
+			}
+		}
+	});
+});
+</script>
+</html>
+</textarea>
+
+A form template can be loaded from the server or it can already be in the page. In the HTML above, the form uses some standard classes to 
+layout field names and fields, however, there is no requirement for this. The form can also be multipage. If it has only one page it still
+needs to have proper classes to define it.
+
+<h4>Binding</h4>
+
+When you initiate form, it is foing to bind all fields described in the form to the actual controls on the page. The binding is done by name
+attribute. For each field in <span class="method">w2form.fields</span> there must be a corresponding control on the page. In a similar way it 
+is going to bind actions to buttons. For each <span class="method">w2form.actions</span> there must be a corresponding button.

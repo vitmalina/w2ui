@@ -1,0 +1,40 @@
+<h3>Overview</h3>
+In w2ui library there are several global variables and common purpose.
+
+<h4>w2ui</h4>
+
+This global variable that holds all created w2ui objects such as layouts, grids, toolbars, sidebars, tabs, and forms. 
+Initially this variable is an empty object, but as soon as you start creating controls, they will become part of 
+this object. This object serves two important purposes:
+<ul>
+	<li>It provides a common and uniform way for accessing created objects</li>
+	<li>It makes sure that you will not overwrite already created object (object name must be unique)</li>
+</ul>
+
+For example, if you created a grid with name myGrid then it can be accessed in the following manner:
+
+<textarea class="javascript">
+w2ui['myGrid'].get(3); // returns record with id=3
+</textarea>
+
+<h4>w2obj</h4>
+
+This global variable gives you access to widget prototypes, so that you can attach a method to prototype and it will be instantly
+available in all objects of that type. For example:
+
+<textarea class="javascript">
+w2obj.grid.prototype.myFunction = function () {
+	console.log('This function exists in all grids. ', this);
+}
+</textarea>
+
+<h4>w2utils</h4>
+
+This global variable has useful generic functions for data validation, data sanitation, data formatting, encoding, etc.
+For example, you can check if a string is in email format by:
+
+<textarea class="javascript">
+w2utils.isEmail('som@email.com'); // returns true if the string is a valid email
+</textarea>
+
+See <a href="<?=$site_root?>/docs/utils/methods">w2utils.methods</a> for more information.
