@@ -4,9 +4,10 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 /************************************************
 *   Library: Web 2.0 UI for jQuery
 *   - Following objects are defines
-*   	- w2ui 			- object that contains all created objects
-*		- w2utils 		- basic utilities
-*		- w2ui.w2evet	- generic event object
+*   	- w2ui 				- object that contains all created objects
+*		- w2utils 			- basic utilities
+*		- w2utils.event		- generic event object
+*		- w2utils.keyboard	- object for keyboard navigation
 *   - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
@@ -761,7 +762,7 @@ var w2utils = (function () {
 *
 *********************************************************/
 
-$.w2event = {
+w2utils.event = {
 
 	on: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };

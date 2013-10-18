@@ -908,6 +908,6 @@
 		}
 	}
 	
-	$.extend(w2form.prototype, $.w2event);
+	$.extend(w2form.prototype, w2utils.event);
 	w2obj.form = w2form;
 })();

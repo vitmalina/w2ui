@@ -408,6 +408,6 @@
 		}
 	}
 	
-	$.extend(w2tabs.prototype, $.w2event);
+	$.extend(w2tabs.prototype, w2utils.event);
 	w2obj.tabs = w2tabs;
 })();

@@ -19,7 +19,7 @@
 *	- renamed doKeydown to keydown()
 *	- if there are no rel=, the entire html is taken as body
 *	- options.url is now for load or open methods
-*	- moved all events to w2events
+*	- moved all events to w2utils.event
 *	- aded lock() and unlock() functions
 *	- fixed w2alert() and w2confirm to work in already opend popup
 *
@@ -615,7 +615,7 @@ var w2popup = {};
 	}
 
 	// merge in event handling
-	$.extend(w2popup, $.w2event);
+	$.extend(w2popup, w2utils.event);
 
 })();
 

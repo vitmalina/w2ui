@@ -4195,6 +4195,6 @@
 		}
 	}
 
-	$.extend(w2grid.prototype, $.w2event);
+	$.extend(w2grid.prototype, w2utils.event);
 	w2obj.grid = w2grid;
 })();

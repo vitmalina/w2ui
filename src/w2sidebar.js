@@ -754,6 +754,6 @@
 		}
 	}
 	
-	$.extend(w2sidebar.prototype, $.w2event);
+	$.extend(w2sidebar.prototype, w2utils.event);
 	w2obj.sidebar = w2sidebar;
 })();

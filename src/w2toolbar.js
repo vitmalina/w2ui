@@ -503,6 +503,6 @@
 		}		
 	}
 	
-	$.extend(w2toolbar.prototype, $.w2event);
+	$.extend(w2toolbar.prototype, w2utils.event);
 	w2obj.toolbar = w2toolbar;
 })();

@@ -978,6 +978,6 @@
 		}
 	}
 	
-	$.extend(w2layout.prototype, $.w2event);
+	$.extend(w2layout.prototype, w2utils.event);
 	w2obj.layout = w2layout;
 })();
