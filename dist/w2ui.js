@@ -5,9 +5,10 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 /************************************************
 *   Library: Web 2.0 UI for jQuery
 *   - Following objects are defines
-*   	- w2ui 			- object that contains all created objects
-*		- w2utils 		- basic utilities
-*		- w2ui.w2evet	- generic event object
+*   	- w2ui 				- object that contains all created objects
+*		- w2utils 			- basic utilities
+*		- w2utils.event		- generic event object
+*		- w2utils.keyboard	- object for keyboard navigation
 *   - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
@@ -762,7 +763,7 @@ var w2utils = (function () {
 *
 *********************************************************/
 
-$.w2event = {
+w2utils.event = {
 
 	on: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
@@ -5361,7 +5362,7 @@ w2utils.keyboard = (function (obj) {
 		}
 	}
 
-	$.extend(w2grid.prototype, $.w2event);
+	$.extend(w2grid.prototype, w2utils.event);
 	w2obj.grid = w2grid;
 })();
 /************************************************************************
@@ -6344,7 +6345,7 @@ w2utils.keyboard = (function (obj) {
 		}
 	}
 	
-	$.extend(w2layout.prototype, $.w2event);
+	$.extend(w2layout.prototype, w2utils.event);
 	w2obj.layout = w2layout;
 })();
 /************************************************************************
@@ -6368,7 +6369,7 @@ w2utils.keyboard = (function (obj) {
 *	- renamed doKeydown to keydown()
 *	- if there are no rel=, the entire html is taken as body
 *	- options.url is now for load or open methods
-*	- moved all events to w2events
+*	- moved all events to w2utils.event
 *	- aded lock() and unlock() functions
 *	- fixed w2alert() and w2confirm to work in already opend popup
 *
@@ -6964,7 +6965,7 @@ var w2popup = {};
 	}
 
 	// merge in event handling
-	$.extend(w2popup, $.w2event);
+	$.extend(w2popup, w2utils.event);
 
 })();
 
@@ -7482,7 +7483,7 @@ var w2confirm = function (msg, title, callBack) {
 		}
 	}
 	
-	$.extend(w2tabs.prototype, $.w2event);
+	$.extend(w2tabs.prototype, w2utils.event);
 	w2obj.tabs = w2tabs;
 })();
 /************************************************************************
@@ -7990,7 +7991,7 @@ var w2confirm = function (msg, title, callBack) {
 		}		
 	}
 	
-	$.extend(w2toolbar.prototype, $.w2event);
+	$.extend(w2toolbar.prototype, w2utils.event);
 	w2obj.toolbar = w2toolbar;
 })();
 /************************************************************************
@@ -8749,7 +8750,7 @@ var w2confirm = function (msg, title, callBack) {
 		}
 	}
 	
-	$.extend(w2sidebar.prototype, $.w2event);
+	$.extend(w2sidebar.prototype, w2utils.event);
 	w2obj.sidebar = w2sidebar;
 })();
 /************************************************************************
@@ -8775,6 +8776,7 @@ var w2confirm = function (msg, title, callBack) {
 *	- added render for enum, if returns === false, no item is show
 * 	- added enum onShow, onHide, onAdd, onRemove, onItemOver, onItemOut, onItemClick
 *	- enum readonly
+*	- write document on file type
 *
 ************************************************************************/
 
@@ -10434,8 +10436,6 @@ var w2confirm = function (msg, title, callBack) {
 				}
 			}
 			if (obj) object.box = obj;
-			object.initToolbar();
-			object.initTabs();
 			// render if necessary
 			if (object.formURL != '') {
 				$.get(object.formURL, function (data) {
@@ -10479,33 +10479,6 @@ var w2confirm = function (msg, title, callBack) {
 	// -- Implementation of core functionality
 	
 	w2form.prototype = {
-
-		initTabs: function () {
-			// init tabs regardless it is defined or not
-			if (typeof this.tabs['render'] == 'undefined') {
-				var obj = this;
-				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
-				this.tabs.on('click', function (event) {
-					obj.goto(this.get(event.target, true));
-				});
-			}
-			return;
-		},
-
-		initToolbar: function () {
-			// init toolbar regardless it is defined or not
-			if (typeof this.toolbar['render'] == 'undefined') {
-				var obj = this;
-				this.toolbar = $().w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
-				this.toolbar.on('click', function (event) {
-					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
-					if (eventData.isCancelled === true) return false;
-					// no default action
-					obj.trigger($.extend(eventData, { phase: 'after' }));
-				});
-			}
-			return;
-		},
 
 		get: function (field, returnIndex) {
 			for (var f in this.fields) {
@@ -11156,13 +11129,27 @@ var w2confirm = function (msg, title, callBack) {
 				.addClass('w2ui-reset w2ui-form')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
-			// init toolbar
-			this.initToolbar();
+
+			// init toolbar regardless it is defined or not
+			if (typeof this.toolbar['render'] == 'undefined') {
+				this.toolbar = $().w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
+				this.toolbar.on('click', function (event) {
+					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
+					if (eventData.isCancelled === true) return false;
+					// no default action
+					obj.trigger($.extend(eventData, { phase: 'after' }));
+				});
+			}
 			if (typeof this.toolbar == 'object' && typeof this.toolbar.render == 'function') {
 				this.toolbar.render($('#form_'+ this.name +'_toolbar')[0]);
 			}
-			// init tabs
-			this.initTabs();
+			// init tabs regardless it is defined or not
+			if (typeof this.tabs['render'] == 'undefined') {
+				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
+				this.tabs.on('click', function (event) {
+					obj.goto(this.get(event.target, true));
+				});
+			}
 			if (typeof this.tabs == 'object' && typeof this.tabs.render == 'function') {
 				this.tabs.render($('#form_'+ this.name +'_tabs')[0]);
 			}
@@ -11210,6 +11197,6 @@ var w2confirm = function (msg, title, callBack) {
 		}
 	}
 	
-	$.extend(w2form.prototype, $.w2event);
+	$.extend(w2form.prototype, w2utils.event);
 	w2obj.form = w2form;
 })();
