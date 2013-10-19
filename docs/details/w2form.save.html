@@ -17,6 +17,8 @@ Submits record data to remote data source for saving.
 	</table>
 </div>
 
+Returns <i>undefined</i>.
+
 <h4>Description</h4>
 
 This method should be called when you need to save the record. Often it is linked to a save button. In the example below when user clicks
@@ -44,8 +46,8 @@ This request submits following structure (will be converted to a regular HTTP PO
 <textarea class="javascript">
 {
     cmd     : 'save-record',
-    name    : w2form.name,
-    recid   : w2form.recid,
+    name    : 'form',
+    recid   : 10,
     record  : {
     	field1 : value1,
     	...

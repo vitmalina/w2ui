@@ -1,0 +1,44 @@
+Toolbar for the form.
+
+<div class="definition">
+	Object, default = {}
+</div>
+
+You can add a toolbar to the form by defining the <span class="method">.toolbar</span> property. The toolbar will be created on
+form initialization by creating w2toolbar object. After the form has been initialized, the <span class="method">.toolbar</span> 
+property becomes instantietied w2toolbar object.
+<div style="height: 10px"></div>
+
+You should define tabs during object creation:
+<textarea class="javascript">
+$('#form').w2form({
+	name: 'form2',
+	toolbar: {
+		items: [
+			{ id: 'tb1', type: 'button', caption: 'Button 1', img: 'icon-page' },
+			{ id: 'tb2', type: 'button', caption: 'Button 2', img: 'icon-page' },
+			{ id: 'tb3', type: 'button', caption: 'Button 3', img: 'icon-page' }
+		]
+	},
+	tabs: [
+		{ id: 'tab1', caption: 'Tab 1' },
+		{ id: 'tab2', caption: 'Tab 2' }
+	],
+	fields: [
+		{ name: 'first_name', type: 'text', required: true },
+		{ name: 'last_name', type: 'text', required: true },
+		{ name: 'email', type: 'email' },
+		{ name: 'extra_field', type: 'date' }
+	],
+	record: { 
+		first_name	: 'John',
+		last_name 	: 'Doe',
+		email 		: 'jdoe@email.com',
+		extra_field : ''
+	},
+	actions: {
+		"save": function () { this.validate(); },
+		"reset": function () { this.clear(); },
+	}
+});
+</textarea>

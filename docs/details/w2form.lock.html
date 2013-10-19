@@ -1,21 +1,30 @@
 Locks the form and displays a status message.
 
 <div class="definition">
-	lock(msg)
+	lock(message, [showSpinner])
 </div>
 
 <div class="arguments">
 	<table>
 	<tr>
-		<td>msg</td>
-		<td><b>string</b>, message during locking</td>
+		<td>message</td>
+		<td><b>string</b>, message</td>
+	</tr>
+	<tr>
+		<td>showSpinner</td>
+		<td><b>boolean</b>, <i>optional</i>, spinner indicator</td>
 	</tr>
 	</table>
 </div>
 
+Returns <i>undefined</i>.
+
 <h4>Description</h4>
 
-This method will lock the form and display status message.
+This method will lock the form by added a semi-transparent div on top of its content. The user will not be able to interact with
+the form or its content until the form is unlocked with <a href="w2form.unlock" class="method">.unlock()</a>. This method will call
+<a href="w2utils.lock" class="method">w2utils.lock()</a> to perform the locking. 
+<div style="height: 10px"></div>
 				
 If you have following form:
 <textarea class="javascript">
@@ -34,7 +43,21 @@ $('#form').w2form({
 });
 </textarea>
 
-You can do:
+
+You have 3 options how you want to lock the content.
+<div style="height: 10px"></div>
+
+Lock with a message and a spinner:
 <textarea class="javascript">
-w2ui['form'].lock('Saving...');
+w2ui.form('Loading...', true);
+</textarea>
+
+Lock w/o a message, but with a spinner:
+<textarea class="javascript">
+w2ui.form('', true);
+</textarea>
+
+Lock w/o a message and w/o a spinner:
+<textarea class="javascript">
+w2ui.form('');
 </textarea>

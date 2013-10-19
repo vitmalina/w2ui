@@ -40,34 +40,29 @@ Every widget property that start with "on" is an event.
 
 <h3>Event Handler Function</h3>
 
-Once an event is triggered two parameters are passed to the event handler <span class="argument">function(target, eventData)</span>. 
-The first parameter <span class="property">target</span> is the target of the event. Often it is the name of the widgets that triggered
-event. However, for the toolbar it is the toolbar item id, for a sidebar - node id, for a tab - tab id. 
+When an event is emitted the handler function will receive one parameter: <span class="argument">function(event)</span>. 
+This parameter <span class="property">event</span> is an object that contains useful information about the event. 
 <div style="height: 10px"></div>
 
-The second argument <span class="property">eventData</span> holds additional information about the event, which varies from
-event to event. Below is an example of event handler:
+Event handler looks like:
 <textarea class="javascript">
-function (target, eventData) {
-// event actions
+function (event) {
+	// event actions
 }
 </textarea>
 
-By default all event handlers are triggered before the default behavior is processed. This allows an easy way to cancel events before anything 
-happens in the widget:
+By default all event handlers are triggered before the default behavior. You can cancel event default behavior by:
 <textarea class="javascript">
-function (target, eventData) {
-// event actions
-eventData.stop = true;  // stop event
+function (event) {	
+	event.preventDefault(); // cancel event
 }
 </textarea>
 
-You can also define a function that will be executed after the default behavior is processed. In the example below, the function will be executed
-after default behavior is processed.
+You can also define a function that will be executed after the default behavior is processed. For example:
 <textarea class="javascript">
-function (target, eventData) {
-eventData.onComplete = function () {
-// event actions
-}
+function (event) {
+	event.onComplete = function () {
+		// event actions
+	}
 }
 </textarea>

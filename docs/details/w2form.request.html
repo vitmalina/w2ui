@@ -17,12 +17,16 @@ Reloads record data and refreshes the form.
 	</table>
 </div>
 
+Returns <i>undefined</i>.
+
 <h4>Description</h4>
 
-This method should only be called if the data source is remote(the form has <a class="argument" href="w2form.recid">.recid</a> 
-and <span class="argument">.url</span> properties defined). If the data source is not remote - no action will be performed. Otherwise,
-it will retried record data from remote data source. You can also use <a class="method" href="w2form.reload">.reload()</a> method
-to reload the form data. There are several events associated with this method: <a class="method" href="w2form.onRequest">.onRequest</a>
+This method should only be called if the data source is remote (the <a class="argument" href="w2form.url">.url</a> and 
+<a class="argument" href="w2form.recid">.recid</a> properties are defined). If the data source is local - no action will be performed. 
+You can also use <a class="method" href="w2form.reload">.reload()</a> method to reload the form data.
+<div style="height: 10px"></div>
+
+There are several events associated with this method: <a class="method" href="w2form.onRequest">.onRequest</a>
 and <a class="method" href="w2form.onLoad">.onLoad</a>.
 <div style="height: 10px"></div>
 
@@ -47,5 +51,5 @@ $('#form').w2form({
 
 You can do:
 <textarea class="javascript">
-w2ui['form'].reload();
+w2ui['form'].request();
 </textarea>

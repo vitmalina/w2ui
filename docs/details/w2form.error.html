@@ -1,4 +1,4 @@
-Display error message dialog.
+Display error message.
 
 <div class="definition">
 	error(msg)
@@ -12,12 +12,13 @@ Display error message dialog.
 	</tr>
 	</table>
 </div>
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method will display an error message popup or if popup is already loaded, it will slide a small message inside 
-the popup.
-				
+This method displays error message and will emits <a class="method" href="w2form.onError">.onError</a> event.
+<div style="height: 10px"></div>
+
 If you have following form:
 <textarea class="javascript">
 $('#form').w2form({

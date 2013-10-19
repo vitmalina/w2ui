@@ -1,0 +1,34 @@
+Indicates if HTML template has been generated.
+
+<div class="definition">
+	Boolean, default = false.
+</div>
+
+This is a read only property and indicates if form html template has been generated. It is primarely used internally. Since the form 
+might be loaded from the server, it might take unknown amount of time before the form is ready.
+<div style="height: 10px;"></div>
+
+If you have form defiened in the following way:
+<textarea class="javascript">
+$('#form').w2form({ 
+	name   : 'form',
+	fields : [
+		{ name: 'first_name', type: 'text' },
+		{ name: 'last_name', type: 'text' },
+		{ name: 'field_textarea', type: 'text' }
+	],
+	actions : {
+		"reset": function () {
+			this.clear();
+		},
+		"save": function () {
+			this.save();
+		}
+	}
+});
+</textarea>
+
+You can:
+<textarea class="javascript">
+console.log('generated?', w2ui.form.isGenerated);
+</textarea>
