@@ -1,0 +1,72 @@
+<link rel="stylesheet" type="text/css" href="../summary.css"/> 
+<div class="container"><div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.bottomHTML">bottomHTML</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+	Defines HTML on the bottom of the sidebar.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.icon">icon</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+	Default node icon.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.img">img</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+	Default node image.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.keyboard">keyboard</a> <span>- Boolean, default = true</span>
+</div>
+<div class="obj-property-desc">
+	Indicates if sidebar should listen to keyboard.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.menu">menu</a> <span>- Array, default = []</span>
+</div>
+<div class="obj-property-desc">
+	Context menu for the sidebar.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.nodes">nodes</a> <span>- Array, default = []</span>
+</div>
+<div class="obj-property-desc">
+	Array of node objects.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.parent">parent</a> <span>- null</span>
+</div>
+<div class="obj-property-desc">
+	Reference to parent node. Read Only.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.selected">selected</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+	The id of the selected node. Read Only.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.sidebar">sidebar</a> <span>- Object</span>
+</div>
+<div class="obj-property-desc">
+	Reference to itself. Read Only.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2sidebar.topHTML">topHTML</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+	Defines HTML on the top of the sidebar.
+</div>
+
+</div>
