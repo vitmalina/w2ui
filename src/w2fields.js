@@ -21,6 +21,7 @@
 *	- added render for enum, if returns === false, no item is show
 * 	- added enum onShow, onHide, onAdd, onRemove, onItemOver, onItemOut, onItemClick
 *	- enum readonly
+*	- write document on file type
 *
 ************************************************************************/
 

@@ -132,8 +132,6 @@
 				}
 			}
 			if (obj) object.box = obj;
-			object.initToolbar();
-			object.initTabs();
 			// render if necessary
 			if (object.formURL != '') {
 				$.get(object.formURL, function (data) {
@@ -177,33 +175,6 @@
 	// -- Implementation of core functionality
 	
 	w2form.prototype = {
-
-		initTabs: function () {
-			// init tabs regardless it is defined or not
-			if (typeof this.tabs['render'] == 'undefined') {
-				var obj = this;
-				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
-				this.tabs.on('click', function (event) {
-					obj.goto(this.get(event.target, true));
-				});
-			}
-			return;
-		},
-
-		initToolbar: function () {
-			// init toolbar regardless it is defined or not
-			if (typeof this.toolbar['render'] == 'undefined') {
-				var obj = this;
-				this.toolbar = $().w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
-				this.toolbar.on('click', function (event) {
-					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
-					if (eventData.isCancelled === true) return false;
-					// no default action
-					obj.trigger($.extend(eventData, { phase: 'after' }));
-				});
-			}
-			return;
-		},
 
 		get: function (field, returnIndex) {
 			for (var f in this.fields) {
@@ -854,13 +825,27 @@
 				.addClass('w2ui-reset w2ui-form')
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
-			// init toolbar
-			this.initToolbar();
+
+			// init toolbar regardless it is defined or not
+			if (typeof this.toolbar['render'] == 'undefined') {
+				this.toolbar = $().w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
+				this.toolbar.on('click', function (event) {
+					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
+					if (eventData.isCancelled === true) return false;
+					// no default action
+					obj.trigger($.extend(eventData, { phase: 'after' }));
+				});
+			}
 			if (typeof this.toolbar == 'object' && typeof this.toolbar.render == 'function') {
 				this.toolbar.render($('#form_'+ this.name +'_toolbar')[0]);
 			}
-			// init tabs
-			this.initTabs();
+			// init tabs regardless it is defined or not
+			if (typeof this.tabs['render'] == 'undefined') {
+				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
+				this.tabs.on('click', function (event) {
+					obj.goto(this.get(event.target, true));
+				});
+			}
 			if (typeof this.tabs == 'object' && typeof this.tabs.render == 'function') {
 				this.tabs.render($('#form_'+ this.name +'_tabs')[0]);
 			}
