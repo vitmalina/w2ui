@@ -1,7 +1,7 @@
 Called when user presess a keyboard key and grid is active.
 
 <div class="definition">
-	onKeyboard = function(event)
+	onKeydown = function(event)
 </div>
 
 You can add event listener during the object creation:
@@ -24,7 +24,7 @@ $('#grid').w2grid({
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
 	],
-	onKeyboard: function(event) {
+	onKeydown: function(event) {
 		console.log('keyCode', event.originalEvent.keyCode);
 	}		
 });

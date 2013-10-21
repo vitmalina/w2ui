@@ -20,7 +20,7 @@ $(function () {
 		onMenuClick: function (event) {
 			console.log(event);
 		},
-		onKeyboard: function (event) { console.log('keyboard', event); event.preventDefault(); },
+		onKeydown: function (event) { console.log('keyboard', event); event.preventDefault(); },
 		nodes: [ 
 			{ id: 'level-1', text: 'Level 1', expanded: true, group: true, 
 			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img1: 'icon-add', icon: 'fa-star', count: 1, 
