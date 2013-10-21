@@ -142,7 +142,7 @@
 
 		<echo message="Concatenate JS Files"/>
 		<concat destfile="dist/kickstart.js">
-			 <filelist dir="./src/kickstart" files="app.js core.js route.js"/>
+			 <filelist dir="./src/kickstart" files="app.js"/>
 		</concat>
 
 		<!-- Minify JS files -->
