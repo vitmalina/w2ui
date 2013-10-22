@@ -3158,6 +3158,69 @@
 							}
 							break;
 						case 'add':
+							// show a popup form to enter a new record
+							var form_id = obj.name + '_add_form';
+							$().w2popup('open', {
+								title: w2utils.lang('Add new record'),
+								body: '<div id="' + form_id + '" style="width: 100%; height: 100%; padding: 15px 0px 0px 0px; border: 0px; background-color: transparent;"></div>',
+								onOpen: function() {
+									// generate form fields for each column
+									var fields = [];
+									for(i in obj.columns) {
+										if(obj.columns[i].editable) {
+											var field_type = obj.columns[i].editable.type;
+											var field_options = obj.columns[i].editable.options;
+										} else {
+											var field_type = 'text';
+											var field_options = {};
+										}
+										fields.push({
+											name: obj.columns[i].field,
+											html: {caption: obj.columns[i].caption},
+											required: obj.columns[i].required,
+											type: field_type,
+											options: field_options,
+										});
+									}
+									// create form
+									$().w2destroy(form_id);
+									$('#'+form_id).w2form({
+										name: form_id,
+										fields: fields,
+										url: obj.url,
+										actions: {
+											cancel: function() {$().w2popup('close');},
+											create: function() {
+												if(this.url == '') {
+													// save locally
+													if(this.validate().length == 0) {
+														// find a free record id
+														var recids = [];
+														if (obj.records.length == 0) recids.push(0);
+														for(i in obj.records) recids.push(isNaN(id = parseInt(obj.records[i].recid)) ? 0 : id);
+														recids.sort();
+														this.record.recid = recids.pop() + 1;
+														obj.add(this.record);
+														$().w2popup('close');
+													}
+												} else {
+													// save remotely
+													this.save();
+												}
+											}
+										},
+										onSave: function(target, eventData) {
+											if(this.url != '') {
+												// server has saved the new record -> fetch it!
+												if(eventData.status == "success") {
+													$().w2popup('close');
+													obj.reload();
+												}
+											}
+										}
+									});
+								},
+							});
 							// events
 							var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
 							obj.trigger($.extend(eventData, { phase: 'after' }));
