@@ -1,5 +1,6 @@
 {
     "name": "w2ui",
+    "version": "1.3.0",
     "title": "W2UI: New JavaScript UI Library",
     "description": "Complete set of JavaScript UI widget for development of data-driven web applications. Includes layout, grid, toolbar, sidebar, tabs, forms, fields, popup, overlay",
     "keywords": [
@@ -22,7 +23,6 @@
         "dialog",
         "overlay"
     ],
-    "version": "1.2.0",
     "author": {
         "name"	: "Vitali Malinouski",
         "url"	: "http://w2ui.com",
@@ -44,8 +44,8 @@
     "bugs"		: "https://github.com/vitmalina/w2ui/issues",
     "homepage"	: "http://w2ui.com/web",
     "docs"		: "http://w2ui.com/web/docs",
-    "download"	: "http://w2ui.com/web/downloads/w2ui-1.2.zip",
+    "download"	: "http://w2ui.com/web/downloads/w2ui-1.3.zip",
     "dependencies": {
-        "jquery": ">=1.7"
+        "jquery": ">=1.9"
     }
 }

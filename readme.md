@@ -1,4 +1,4 @@
-## W2UI 1.2 - MIT License
+## W2UI 1.3 - MIT License
 
 W2UI is modern, intuitive JavaScript UI library for buidling rich data-driven web application. The library has
 a small footprint and no dependencies except jQuery. The library has the following widgets:
@@ -12,22 +12,22 @@ a small footprint and no dependencies except jQuery. The library has the followi
 * w2popup
 * w2utils
 
-The complete library is only **42Kb** (minified & gzipped)
+The complete library is only **56Kb** (minified & gzipped)
 
 ## Quick Start
 
-Current stable version is 1.2. You can download it from here: [http://w2ui.com](http://w2ui.com).
+Current stable version is 1.3. You can download it from here: [http://w2ui.com](http://w2ui.com).
 
 To start using the library you need to include into your page: 
 
-- w2ui-1.2.js (or w2ui-1.2.min.js) 
-- w2ui-1.2.css (or w2ui-1.2.min.css) 
+- w2ui-1.3.js (or w2ui-1.3.min.js) 
+- w2ui-1.3.css (or w2ui-1.3.min.css) 
 
-All the widgets and their css classes are defined inside of these two files. There is no image dependencies, they are embedded 
-into CSS file
+All the widgets and their css classes are defined inside of these two files. There is no image dependencies, some images
+are embedded into CSS file.
 
-There is no requirement for a server side language. Java, PHP, ASP, Perl or .NET all will work, as long as you can return JSON
-format from the server (or write a converter into JSON format on the client).
+There is no requirement for a server side language. Node, Java, PHP, ASP, Perl or .NET all will work, as long as you can 
+return JSON format from the server (or write a converter into JSON format on the client).
 
 [Getting Started Guide](http://w2ui.com/web/get-started)
 
@@ -58,6 +58,11 @@ sudo npm install less -g
 sudo npm install clean-css -g
 sudo npm install uglify-js@1 -g
 ```
+
+## Other Build Tools
+
+You can use other toold to build. Grunt seems to be promissing, and will do everything you need. You still need to install same dependencies
+if you want to use grunt.
 
 ## Contributing
 
