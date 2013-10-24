@@ -16,7 +16,7 @@
 </div>
 
 <!--CODE-->
-<div id="main" style="width: 100%; height: 400px; margin-bottom: 10px;"></div>
+<div id="main" style="width: 100%; height: 300px; margin-bottom: 10px;"></div>
 <input type="button" value="Mark Range C3:D7" onclick="mark()">
 <input type="button" value="Remove Range" onclick="w2ui.grid.removeRange('range')">
 
@@ -31,7 +31,6 @@ var config = {
 			lineNumbers: true
 		},
 		onColumnClick: function (event) {
-			console.log(1);
 			this.selectNone();
 			var column = this.getColumn(event.field, true);
 			var sel    = [];
@@ -72,7 +71,7 @@ $(function () {
 		values[tmp[i]] = '';
 	}
 	// insert  records
-	for (var i = 0; i < 500; i++) {
+	for (var i = 0; i < 100; i++) {
 		w2ui.grid.records.push($.extend({ recid: i+1 }, values));
 	}
 	w2ui.grid.total = w2ui.grid.records.length;
@@ -93,8 +92,9 @@ $(function () {
 });
 
 function mark() {
-	w2ui.grid.addRange('range', 
-		[{ "recid": 3, "column": 2 }, { "recid": 7, "column": 3 }],
-		"border: 2px dotted green; background-color: rgba(100,400,100,0.2)"
-	);
+	w2ui.grid.addRange({
+		name  : 'range',
+		range : [{ "recid": 3, "column": 2 }, { "recid": 7, "column": 3 }],
+		style : "border: 2px dotted green; background-color: rgba(100,400,100,0.2)"
+	});
 }

@@ -32,7 +32,8 @@ $(function () {
 					{ id: 'combo-1', text: 'Sidebar & Grid', icon: 'fa-star-empty' },
 					{ id: 'combo-2', text: 'Grid & Edit', icon: 'fa-star-empty' },
 					{ id: 'combo-3', text: 'Spreadsheet Like Grid', icon: 'fa-star-empty' },
-					{ id: 'combo-4', text: 'Infinite Scroll', icon: 'fa-star-empty' },
+					{ id: 'combo-4', text: 'Buffered Scroll', icon: 'fa-star-empty' },
+					{ id: 'combo-9', text: 'Infinite Scroll', icon: 'fa-star-empty' },
 					{ id: 'combo-5', text: 'Tabs With Content', icon: 'fa-star-empty' },
 					{ id: 'combo-6', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
 					{ id: 'combo-7', text: 'Popup & Grid', icon: 'fa-star-empty' },
@@ -185,9 +186,9 @@ $(function () {
 						   '<html>\n'+
 						   '<head>\n'+
 						   '	<title>W2UI Demo: '+ cmd +'</title>\n'+
-						   '	<link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui.min.css" />\n'+
+						   '	<link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui-1.3.min.css" />\n'+
 						   '	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>\n'+
-						   '	<script type="text/javascript" src="//w2ui.com/src/w2ui.min.js"></script>\n'+
+						   '	<script type="text/javascript" src="//w2ui.com/src/w2ui-1.3.min.js"></script>\n'+
 						   '</head>\n'+
 						   '<body>\n\n'+
 						   html + '\n\n'+
@@ -195,7 +196,9 @@ $(function () {
 						   (css != '' ? '<style>\n' + css + '</style>\n\n' : '') + 
 						   '</body>\n'+
 						   '</html>';
-				$('#example_code').html('<h2>Complete Code '+
+				$('#example_code').html('<a href="javascript:" onclick="$(this).next().show(); initCode(); $(this).hide();" class="btn-source">Show Source Code</a>'+
+					'<div id="sourcecode" style="display: none;">'+
+					'<h2>Complete Code '+
 					'<span style="font-weight: normal; padding-left: 10px;">- &nbsp;&nbsp;Copy & paste into your editor or <a href="javascript:" class="jsfiddle">fiddle with code online</a></span> </h2>'+
 					'<textarea class="preview" id="code">'+ 
 						code.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +
@@ -205,50 +208,16 @@ $(function () {
 						'<textarea class="json" id="json">'+ json +'</textarea>'
 						: 
 						'')+
+					'</div>'+
 					'<div style="display: none">'+
 					'<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.x/" method="post">'+
 					'	<textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
-					'	<textarea name="resources">//w2ui.com/src/w2ui.min.js,//w2ui.com/src/w2ui.min.css</textarea>'+
+					'	<textarea name="resources">//w2ui.com/src/w2ui-1.3.min.js,//w2ui.com/src/w2ui-1.3.min.css</textarea>'+
 					'	<textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
 					'	<textarea name="js">'+ js +'</textarea>'+
 					'	<textarea name="css">'+ css +'</textarea>'+
 					'</form>'+
 					'</div>');
-				// CodeMirror
-				var text = $('#example_code .preview');
-				if (text.length > 0) {
-					var cm = CodeMirror(
-						function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
-						{
-   							value		: $.trim(text.val()),
-							mode		: "text/html",
-							readOnly	: true,
-							gutter		: true,
-							lineNumbers	: true
-						}
-					);
-					cm.setSize(null, cm.doc.height + 15);
-				}
-				var text = $('#example_code .json');
-				if (text.length > 0) {
-					var cm = CodeMirror(
-						function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
-						{
-   							value		: $.trim(text.val()),
-							mode		: "javascript",
-							readOnly	: true,
-							gutter		: true,
-							lineNumbers	: true
-						}
-					);
-					cm.setSize(null, cm.doc.height + 15);
-				}
-				$('#example_code .jsfiddle').on('click', function () {
-					$('#fiddleForm textarea[name=html]').val(html);
-					$('#fiddleForm textarea[name=js]').val(js);
-					$('#fiddleForm textarea[name=css]').val(css);
-					$('#fiddleForm').submit();
-				});
 			});
 		}
 	}));
@@ -304,3 +273,41 @@ $(function () {
 		};
 	}, 100);
 });
+
+function initCode() {
+	// CodeMirror
+	var text = $('#example_code .preview');
+	if (text.length > 0) {
+		var cm = CodeMirror(
+			function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
+			{
+					value		: $.trim(text.val()),
+				mode		: "text/html",
+				readOnly	: true,
+				gutter		: true,
+				lineNumbers	: true
+			}
+		);
+		cm.setSize(null, cm.doc.height + 15);
+	}
+	var text = $('#example_code .json');
+	if (text.length > 0) {
+		var cm = CodeMirror(
+			function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
+			{
+					value		: $.trim(text.val()),
+				mode		: "javascript",
+				readOnly	: true,
+				gutter		: true,
+				lineNumbers	: true
+			}
+		);
+		cm.setSize(null, cm.doc.height + 15);
+	}
+	$('#example_code .jsfiddle').on('click', function () {
+		$('#fiddleForm textarea[name=html]').val(html);
+		$('#fiddleForm textarea[name=js]').val(js);
+		$('#fiddleForm textarea[name=css]').val(css);
+		$('#fiddleForm').submit();
+	});
+}
