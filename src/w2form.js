@@ -131,7 +131,7 @@
 					object.original[p] = original[p];
 				}
 			}
-			if (obj) object.box = obj;
+			if (obj.length > 0) object.box = obj[0];			
 			// render if necessary
 			if (object.formURL != '') {
 				$.get(object.formURL, function (data) {
