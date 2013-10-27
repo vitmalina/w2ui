@@ -792,7 +792,7 @@
 							var cntHeight = $(div).find('>div').height(); //w2utils.getSize(div, 'height');
 							if (cntHeight < 23) cntHeight = 23;
 							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
-							$(div).height(cntHeight);
+							$(div).height(cntHeight + (cntHeight % 23 == 0 ? 0 : 23 - cntHeight % 23) );
 							if (div.length > 0) div[0].scrollTop = 1000;
 							$(this).height(cntHeight);
 						}
