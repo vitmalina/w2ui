@@ -2112,6 +2112,11 @@
 							} else {
 								obj.click({ recid: recid, column: prev }, event);
 							}
+						} else {
+							// if selected more then one, then select first
+							if (!event.shiftKey) {
+								for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
+							}
 						}
 						function prevCell (check) {
 							var newCheck = check - 1;
@@ -2151,6 +2156,11 @@
 								obj.select.apply(obj, newSel);
 							} else {
 								obj.click({ recid: recid, column: next }, event);
+							}
+						} else {
+							// if selected more then one, then select first
+							if (!event.shiftKey) {
+								for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
 							}
 						}
 						function nextCell (check) {
@@ -2208,6 +2218,10 @@
 						obj.scrollIntoView(prev);
 						if (event.preventDefault) event.preventDefault();
 					} else {
+						// if selected more then one, then select first
+						if (!event.shiftKey) {
+							for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
+						}
 						// jump out of subgird (if first record)
 						var parent = $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).parents('tr');
 						if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
@@ -2267,6 +2281,10 @@
 						obj.scrollIntoView(next);
 						cancel = true;
 					} else {
+						// if selected more then one, then select first
+						if (!event.shiftKey) {
+							for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
+						}
 						// jump out of subgrid (if last record in subgrid)
 						var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind2].recid)).parents('tr');
 						if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
