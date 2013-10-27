@@ -1,8 +1,8 @@
 <div class="content">
 	<div id="example_title">
 		<h1>Form in a Popup</h1>
-		You do not need to have a form to use w2ui library's fields (input controls). All of the fields can be used outside of w2form on any
-		text input element. 
+		It is a frequent task to open a form inside a popup. I have seen many examples from the community when it was not done
+		correctly. The demo below demonstrates how to do this right. The form take entire available space of the popup.
 	</div>
 	<div id="example_view"></div>
 	<div id="example_code"></div>
@@ -58,8 +58,25 @@ function openPopup () {
 		style	: 'padding: 15px 0px 0px 0px',
 		width	: 500,
 		height	: 300, 
-		onOpen	: function () {
-			$('#w2ui-popup #form').w2render('foo');
+		showMax : true,
+		onMin	: function (event) {
+			$(w2ui.foo.box).hide();
+			event.onComplete = function () {
+				$(w2ui.foo.box).show();
+				w2ui.foo.resize();
+			}
+		},
+		onMax	: function (event) {
+			$(w2ui.foo.box).hide();
+			event.onComplete = function () {
+				$(w2ui.foo.box).show();
+				w2ui.foo.resize();
+			}
+		},
+		onOpen	: function (event) {
+			event.onComplete = function () {
+				$('#w2ui-popup #form').w2render('foo');
+			}
 		}
 	});
 }

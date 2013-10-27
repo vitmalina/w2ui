@@ -5,7 +5,6 @@
 		text input element. 
 	</div>
 	<div id="example_view"></div>
-	<div id="example_code"></div>
 	<div id="example_title">
 		Below is the list of supported control types and corresponding HTML elements they need. Please note that there is 
 		no &lt;select&gt; element. Similar functionality is done with list (single item selection) or enum (multi items selection).
@@ -24,17 +23,32 @@
 			<tr><td> enum </td>			<td> input[type=text] </td></tr>
 		</table>
 	</div>
+	<div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<style> .input { margin: 5px; padding: 4px; border: 1px solid silver; } </style>
-<input type="text" id="int"  	style="width: 120px; text-align: right" class="input"> - int<br>
-<input type="text" id="float" 	style="width: 120px; text-align: right" class="input"> - float<br>
-<input type="text" id="money"	style="width: 120px; text-align: right" class="input"> - money<br>
-<input type="text" id="percent" style="width: 120px; text-align: right" class="input"> - percent<br>
-<input type="text" id="date"  	style="width: 120px;" class="input"> - date<br>
-<input type="text" id="enum"  	style="width: 400px" class="input"> - enum<br>
-<br>
+<style> 
+	.block { margin: 10px 5px; }
+	.input { padding: 4px;  border: 1px solid silver; } 
+</style>
+<div class="block">
+	<input type="text" id="int"  	style="width: 120px; text-align: right" class="input"> - int<br>
+</div>
+<div class="block">
+	<input type="text" id="float" 	style="width: 120px; text-align: right" class="input"> - float<br>
+</div>
+<div class="block">
+	<input type="text" id="money"	style="width: 120px; text-align: right" class="input"> - money<br>
+</div>
+<div class="block">
+	<input type="text" id="percent" style="width: 120px; text-align: right" class="input"> - percent<br>
+</div>
+<div class="block">
+	<input type="text" id="date"  	style="width: 120px;" class="input"> - date<br>
+</div>
+<div class="block">
+	<input type="text" id="enum"  	style="width: 400px;" class="input"/> - enum
+</div>
 
 <!--CODE-->
 $(function () {

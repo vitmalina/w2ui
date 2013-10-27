@@ -77,6 +77,8 @@ var config = {
 				this.clear();
 			},
 			Save: function () {
+				var errors = this.validate();
+				if (errors.length > 0) return;
 				if (this.recid == 0) {
 					w2ui.grid.add($.extend(true, { recid: w2ui.grid.records.length + 1 }, this.record));
 					w2ui.grid.selectNone();
