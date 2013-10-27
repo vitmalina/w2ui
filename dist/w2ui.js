@@ -1,12 +1,19 @@
-/* w2ui 1.3.x (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 1.3.RC2 (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
 /************************************************
 *   Library: Web 2.0 UI for jQuery
 *   - Following objects are defines
-*   	- w2ui 				- object that contains all created objects
+*   	- w2ui 				- object that will contain all widgets
+*		- w2obj				- object with widget prototypes
 *		- w2utils 			- basic utilities
+*		- $().w2render		- common render
+*		- $().w2destroy		- common destroy
+*		- $().w2marker		- marker plugin
+*		- $().w2tag			- tag plugin
+*		- $().w2overlay		- overlay plugin
+*		- $().w2menu		- menu plugin
 *		- w2utils.event		- generic event object
 *		- w2utils.keyboard	- object for keyboard navigation
 *   - Dependencies: jQuery
@@ -17,6 +24,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- overlay should be displayed where more space (on top or on bottom)
 * 	- write and article how to replace certain framework functions
 *	- format date and time is buggy
+*	- onComplete should pass widget as context (this)
 *
 ************************************************/
 
@@ -1168,8 +1176,8 @@ w2utils.keyboard = (function (obj) {
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2ui.w2grid 	- grid widget
-*		- $.w2grid		- jQuery wrapper
+* 		- w2grid 		- grid widget
+*		- $().w2grid	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
@@ -1177,7 +1185,6 @@ w2utils.keyboard = (function (obj) {
 *	- editable fields (list) - better inline editing
 *	- frozen columns
 *	- column autosize based on largest content
-*	- more events in editable fields (onkeypress)
 *	- save grid state into localStorage and restore
 *	- easy bubbles in the grid
 *	- possibly add context menu similar to sidebar's
@@ -1185,80 +1192,9 @@ w2utils.keyboard = (function (obj) {
 *	- More than 2 layers of header groups
 *	- for search fields one should be able to pass w2field options
 *	- add enum to advanced search fields
-*	- all function that take recid as argument, should check if object was given and use it instead.
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
-*	- url should be either string or object, if object, then allow different urls for different actions, get-records, delete, save
-*	- bug: paste at the end of the control
-*	- bug: extend selection - bug
 *	- hidden searches could not be clearned by the user
-*	- how do you easy change add/delete/edit buttons??
-*	- easy overwrite defaul toolbar icons/captions
-*
-* == 1.3 changes ==
-*	- added onEdit, an event to catch the edit record event when you click the edit button
-*	- added toolbarEdit, to send the OnEdit event
-*	- Changed doEdit to edit one field in doEditField, to add the doEdit event to edit one record in a popup
-*	- added getRecordHTML, refactored, updated set()
-*	- added onKeydown event
-*	- added keyboard = true property
-* 	- refresh() and resize() returns number of milliseconds it took
-*	- optimized width distribution and resize
-*	- 50 columns resize 2% - margin of error is huge
-* 	- resize needs to be revisited without resizing each div
-*	- grid.resize should not hide expanded columns
-*	- navigation with keybaord wrong if there are summary records
-*	- added w2grid.recordHeight = 24
-*	- fixedRecord deprecated because of buffered scroll
-*	- added getSummaryHTML(), summary
-* 	- added record.changed, record.changes
-*	- doExpand -> expand, collapse, toggle, onCollapse
-*	- remove record.hidden
-*	- grid.set([recid], record, [noRefresh]) - updates all records
-*	- deprecated selectPage()
-*	- added onReload (when toolbar button is clicked)
-*	- column.title - can be a string or a function
-*	- hints for records (columns?)
-*	- select multiple recors (shift) in a searched list - selects more then needed
-* 	- error when using left/right arrow keys (second click disconnects from the event listener)
-*	- deprecated recordsPerPage, page, goto()
-* 	- added onDeleted, onSaved - when it returns from the server
-* 	- added buffered, limit, offset
-* 	- need to clean up onRequest, onSave, onLoad commands
-*	- added onToolbar event - click on any toolbar button
-*	- route all toolbar events thru the grid
-*	- infinite scroll (buffered scroll)
-*	- added grid.autoLoad = true
-*	- search 1-20 will range numbers
-*	- moved some settings to prototype
-* 	- added record.expanded = 'none' || 'spinner'
-*	- added lock(.., showSpinner) - show spinner
-*	- subgrid (easy way with keyboard navigation)
-*	- on/off line number and select column
-*	- added columnOnOff() internal method
-* 	- added skip()
-* 	- added onColumnOnOff
-* 	- record.render(record, record_index, column_index)
-*	- added grid.scrollIntoView()
-*	- added render formatters (number, int, float, money, age, date)
-*	- deprecated: doAdd, doEdit
-*	- renames: doClick -> click, doDblClick -> dblClick, doEditField -> editField, doScroll -> scroll, doSort -> sort, doSave -> save, doDelete -> delete
-* 	- added status()
-*	- added copy(), paste()
-*	- added onCopy, onPaste events
-*	- added getCellHTML(index, column_index, summary)
-*	- added selectType = 'cell' then, it shows cell selection
-* 	- added addRange(), removeRange(), ranges - that draws border arround selection and grid.show.selectionBorder
-*	- added getRangeData();
-*	- changed getSelection(returnIndex) - added returnIndex parameter
-*	- added markSearchResults
-*	- added columnClick() and onColumnClick and onColumnResize
-* 	- added onColumnResize event
-*	- added mergeChanges(), renamed getChanged() -> getChanges() 
-*	- added onEditField event
-*	- improoved search(), now it does not require search definitions
-*	- grid.url can be string or object { get, save, remove }
-*	- added grid.show.recordTitles 
 *
 ************************************************************************/
 
@@ -1316,10 +1252,6 @@ w2utils.keyboard = (function (obj) {
 		this.offset			= 0;		// how many records to skip (for infinite scroll) when pulling from server
 		this.style			= '';
 		this.ranges 		= [];
-
-		this.msgDelete		= w2utils.lang('Are you sure you want to delete selected records?');
-		this.msgNotJSON 	= w2utils.lang('Returned data is not in valid JSON format.');
-		this.msgRefresh		= w2utils.lang('Refreshing...');
 
 		// events
 		this.onAdd				= null;
@@ -1464,6 +1396,27 @@ w2utils.keyboard = (function (obj) {
 	// -- Implementation of core functionality
 
 	w2grid.prototype = {
+		// ----
+		// properties that need to be in prototype		
+
+		msgDelete	: w2utils.lang('Are you sure you want to delete selected records?'),
+		msgNotJSON 	: w2utils.lang('Returned data is not in valid JSON format.'),
+		msgRefresh	: w2utils.lang('Refreshing...'),
+
+		// for easy button overwrite
+		buttons: {
+			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') },
+			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
+			'search'	: { type: 'html',   id: 'search', 
+							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+ 
+								  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields(this);"></div>' 
+						  },
+			'search-go'	: { type: 'check',  id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') },
+			'add'		: { type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' },
+			'edit'		: { type: 'button', id: 'edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), img: 'icon-edit', disabled: true },
+			'delete'	: { type: 'button', id: 'delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), img: 'icon-delete', disabled: true },
+			'save'		: { type: 'button', id: 'save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), img: 'icon-save' }
+		},
 
 		add: function (record) {
 			if (!$.isArray(record)) record = [record];
@@ -1729,14 +1682,6 @@ w2utils.keyboard = (function (obj) {
 			}
 			return null;
 		},		
-
-		clear: function () {
-			this.records	= [];
-			this.summary	= [];
-			this.total 		= 0;
-			this.buffered   = 0;
-			this.refresh();
-		},
 
 		localSort: function (silent) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -2508,7 +2453,7 @@ w2utils.keyboard = (function (obj) {
 			$(el).w2overlay(html, { left: -15, top: 7 });
 		},
 
-		searchReset: function () {
+		searchReset: function (noRefresh) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
 			if (eventData.isCancelled === true) return;
@@ -2525,7 +2470,8 @@ w2utils.keyboard = (function (obj) {
 					this.last.caption 	= w2utils.lang('All Fields');
 				}
 			}
-			this.last.multi	= false;
+			this.last.multi			= false;
+			this.last.xhr_offset 	= 0;
 			// reset scrolling position
 			this.last.scrollTop		= 0;
 			this.last.scrollLeft	= 0;
@@ -2533,17 +2479,41 @@ w2utils.keyboard = (function (obj) {
 			// -- clear all search field
 			this.searchClose();
 			// apply search
-			var url = (typeof this.url != 'object' ? this.url : this.url.get);
-			if (url) {
-				this.last.xhr_offset = 0;
-				this.reload();
-			} else {
-				// local search
-				this.localSearch();
-				this.refresh();
-			}
+			if (!noRefresh) this.reload();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
+		clear: function (noRefresh) {
+			this.offset 			= 0;
+			this.total 				= 0;
+			this.buffered			= 0;
+			this.records			= [];
+			this.summary			= [];
+			this.last.scrollTop		= 0;
+			this.last.scrollLeft	= 0;
+			this.last.range_start	= null;
+			this.last.range_end		= null;
+			this.last.xhr_offset	= 0;
+			if (!noRefresh) this.refresh();
+		},
+
+		reset: function (noRefresh) {
+			// reset last remembered state
+			this.offset				= 0;
+			this.last.scrollTop		= 0;
+			this.last.scrollLeft	= 0;
+			this.last.selected		= [];
+			this.last.range_start	= null;
+			this.last.range_end		= null;
+			this.last.xhr_offset	= 0;
+			this.searchReset(noRefresh);
+			// initial sort
+			if (this.last.sortData != null ) this.sortData	 = this.last.sortData;
+			// select none without refresh
+			this.set({ selected: false, expanded: false }, true);
+			// refresh
+			if (!noRefresh) this.refresh();
 		},
 
 		skip: function (offset) {
@@ -2579,36 +2549,13 @@ w2utils.keyboard = (function (obj) {
 		reload: function (callBack) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (url) {
-				//this.refresh(); // show grid before pulling data
 				if (this.last.xhr_offset > 0 && this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
 				this.request('get-records', {}, null, callBack);
 			} else {
+				this.localSearch();
 				this.refresh();
 				if (typeof callBack == 'function') callBack();
 			}
-		},
-
-		reset: function (noRefresh) {
-			// reset last remembered state
-			this.offset				= 0;
-			this.searchData			= [];
-			this.last.search		= '';
-			this.last.searchIds		= [];
-			this.last.field			= 'all';
-			this.last.caption 		= w2utils.lang('All Fields');
-			this.last.logic			= 'OR';
-			this.last.scrollTop		= 0;
-			this.last.scrollLeft	= 0;
-			this.last.selected		= [];
-			this.last.range_start	= null;
-			this.last.range_end		= null;
-			this.last.xhr_offset	= 0;
-			// initial search panel
-			if (this.last.sortData != null ) this.sortData	 = this.last.sortData;
-			// select none without refresh
-			this.set({ selected: false, expanded: false }, true);
-			// refresh
-			if (!noRefresh) this.refresh();
 		},
 
 		request: function (cmd, add_params, url, callBack) {
@@ -3008,7 +2955,7 @@ w2utils.keyboard = (function (obj) {
 					for (var r in recs) {
 						var fld = this.columns[recs[r].column].field;
 						var ind = this.get(recs[r].recid, true);
-						if (ind != null) {
+						if (ind != null && fld != 'recid') {
 							this.records[ind][fld] = '';
 							if (this.records[ind].changed) this.records[ind].changes[fld] = '';
 						}
@@ -3268,6 +3215,11 @@ w2utils.keyboard = (function (obj) {
 							} else {
 								obj.click({ recid: recid, column: prev }, event);
 							}
+						} else {
+							// if selected more then one, then select first
+							if (!event.shiftKey) {
+								for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
+							}
 						}
 						function prevCell (check) {
 							var newCheck = check - 1;
@@ -3307,6 +3259,11 @@ w2utils.keyboard = (function (obj) {
 								obj.select.apply(obj, newSel);
 							} else {
 								obj.click({ recid: recid, column: next }, event);
+							}
+						} else {
+							// if selected more then one, then select first
+							if (!event.shiftKey) {
+								for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
 							}
 						}
 						function nextCell (check) {
@@ -3364,6 +3321,10 @@ w2utils.keyboard = (function (obj) {
 						obj.scrollIntoView(prev);
 						if (event.preventDefault) event.preventDefault();
 					} else {
+						// if selected more then one, then select first
+						if (!event.shiftKey) {
+							for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
+						}
 						// jump out of subgird (if first record)
 						var parent = $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).parents('tr');
 						if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
@@ -3423,6 +3384,10 @@ w2utils.keyboard = (function (obj) {
 						obj.scrollIntoView(next);
 						cancel = true;
 					} else {
+						// if selected more then one, then select first
+						if (!event.shiftKey) {
+							for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
+						}
 						// jump out of subgrid (if last record in subgrid)
 						var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind2].recid)).parents('tr');
 						if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
@@ -3781,6 +3746,7 @@ w2utils.keyboard = (function (obj) {
 				var rec  = this.records[ind];
 				var cols = [];
 				for (var dt in tmp) {
+					if (!this.columns[col + cnt]) continue;
 					var field = this.columns[col + cnt].field;
 					rec.changed = true;
 					rec.changes = rec.changes || {};
@@ -4005,11 +3971,21 @@ w2utils.keyboard = (function (obj) {
 			// init footer
 			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
+			this.refresh(); // show empty grid (need it)
 			this.reload();
 
 			// init mouse events for mouse selection
 			$(this.box).on('mousedown', mouseStart);			
 			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursror bug
+
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			// attach to resize event
+			if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
+				this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+				$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
+			}
+			return (new Date()).getTime() - time;
 
 			function mouseStart (event) {
 				if (obj.last.move && obj.last.move.type == 'expand') return;
@@ -4094,14 +4070,6 @@ w2utils.keyboard = (function (obj) {
 				$(document).off('mousemove', mouseMove);
 				$(document).off('mouseup', mouseStop);
 			}			
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-			// attach to resize event
-			if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
-				this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
-				$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
-			}
-			return (new Date()).getTime() - time;
 		},
 
 		destroy: function () {
@@ -4226,10 +4194,10 @@ w2utils.keyboard = (function (obj) {
 				// ------ Toolbar Generic buttons
 
 				if (this.show.toolbarReload) {
-					this.toolbar.items.push({ type: 'button', id: 'reload', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') });
+					this.toolbar.items.push(this.buttons['reload']);
 				}
 				if (this.show.toolbarColumns) {			
-					this.toolbar.items.push({ type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' });
+					this.toolbar.items.push(this.buttons['columns']);
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
@@ -4239,10 +4207,7 @@ w2utils.keyboard = (function (obj) {
 					var html =
 						'<div class="w2ui-toolbar-search">'+
 						'<table cellpadding="0" cellspacing="0"><tr>'+
-						'	<td>'+
-						'		<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+ 
-									(this.isIOS ? 'onTouchStart' : 'onClick') +'="var obj = w2ui[\''+ this.name +'\']; obj.searchShowFields(this);"></div>'+
-						'	</td>'+
+						'	<td>'+ this.buttons['search'].html +'</td>'+
 						'	<td>'+
 						'		<input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
 						'			placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
@@ -4260,26 +4225,26 @@ w2utils.keyboard = (function (obj) {
 						'</div>';
 					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
-						this.toolbar.items.push({ type: 'check', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
+						this.toolbar.items.push(this.buttons['search-go']);
 					}
 				}
 				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
-					this.toolbar.items.push({ type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' });
+					this.toolbar.items.push(this.buttons['add']);
 				}
 				if (this.show.toolbarEdit) {
-					this.toolbar.items.push({ type: 'button', id: 'edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), img: 'icon-edit', disabled: true });
+					this.toolbar.items.push(this.buttons['edit']);
 				}
 				if (this.show.toolbarDelete) {
-					this.toolbar.items.push({ type: 'button', id: 'delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), img: 'icon-delete', disabled: true });
+					this.toolbar.items.push(this.buttons['delete']);
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
 						this.toolbar.items.push({ type: 'break', id: 'break2' });
 					}
-					this.toolbar.items.push({ type: 'button', id: 'save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), img: 'icon-save' });
+					this.toolbar.items.push(this.buttons['save']);
 				}
 				// add original buttons
 				for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
@@ -4296,7 +4261,7 @@ w2utils.keyboard = (function (obj) {
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
 							if (eventData2.isCancelled === true) return false;
-							// obj.reset(true); // do not reset to preserve search and sort
+							obj.clear(true);
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;
@@ -5368,8 +5333,8 @@ w2utils.keyboard = (function (obj) {
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2ui.w2layout - layout widget
-*		- $.w2layout	- jQuery wrapper
+* 		- w2layout		- layout widget
+*		- $().w2layout	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
 * == NICE TO HAVE ==
@@ -6351,8 +6316,8 @@ w2utils.keyboard = (function (obj) {
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2popup 	- popup widget
-*		- $.w2popup	- jQuery wrapper
+* 		- w2popup	 	- popup widget
+*		- $().w2popup	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 * 
 * == NICE TO HAVE ==
@@ -6360,18 +6325,6 @@ w2utils.keyboard = (function (obj) {
 *	- bug: after transfer to another content, message does not work
 * 	- transition should include title, body and buttons, not just body
 *	- add lock method() to lock popup content
-*
-* == 1.3 changes ==
-*	- keyboard esc - close
-*	- w2confirm() - enter - yes, esc - no
-*	- added onKeydown event listener
-*	- added callBack to w2alert(msg, title, callBack)
-*	- renamed doKeydown to keydown()
-*	- if there are no rel=, the entire html is taken as body
-*	- options.url is now for load or open methods
-*	- moved all events to w2utils.event
-*	- aded lock() and unlock() functions
-*	- fixed w2alert() and w2confirm to work in already opend popup
 *
 ************************************************************************/
 
@@ -7076,8 +7029,8 @@ var w2confirm = function (msg, title, callBack) {
 };/************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2tabs 	- tabs widget
-*		- $.w2tabs	- jQuery wrapper
+* 		- w2tabs 		- tabs widget
+*		- $().w2tabs	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
@@ -7490,7 +7443,7 @@ var w2confirm = function (msg, title, callBack) {
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
 * 		- w2toolbar 	- toolbar widget
-*		- $.w2toolbar	- jQuery wrapper
+*		- $().w2toolbar	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
@@ -7997,8 +7950,8 @@ var w2confirm = function (msg, title, callBack) {
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2sidebar	  - sidebar widget
-*		- $.w2sidebar - jQuery wrapper
+* 		- w2sidebar		- sidebar widget
+*		- $().w2sidebar	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
@@ -8756,27 +8709,18 @@ var w2confirm = function (msg, title, callBack) {
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2ui.w2field 	- various field controls
-*		- $.w2field		- jQuery wrapper
+* 		- w2field 		- various field controls
+*		- $().w2field	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
 *	- select - for select, list - for drop down (needs this in grid)
 *	- enum add events: onLoad, onRequest, onCompare, onSelect, onDelete, onClick for already selected elements
-*	- enum needs events onItemClick, onItemOver, etc just like upload
 *	- upload (regular files)
 *	- enum - refresh happens on each key press even if not needed (for speed)
 *	- BUG with prefix/postfix and arrows (test in different contexts)
 *	- multiple date selection
 *	- rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
-* 
-* == 1.3 changes ==
-*	- select type has options.url to pull from server
-*	- input number types with use of keyboard, prefix/suffic, arrow buttons
-*	- added render for enum, if returns === false, no item is show
-* 	- added enum onShow, onHide, onAdd, onRemove, onItemOver, onItemOut, onItemClick
-*	- enum readonly
-*	- write document on file type
 *
 ************************************************************************/
 
@@ -9547,7 +9491,7 @@ var w2confirm = function (msg, title, callBack) {
 							var cntHeight = $(div).find('>div').height(); //w2utils.getSize(div, 'height');
 							if (cntHeight < 23) cntHeight = 23;
 							if (cntHeight > settings.maxHeight) cntHeight = settings.maxHeight;
-							$(div).height(cntHeight);
+							$(div).height(cntHeight + (cntHeight % 23 == 0 ? 0 : 23 - cntHeight % 23) );
 							if (div.length > 0) div[0].scrollTop = 1000;
 							$(this).height(cntHeight);
 						}
@@ -10305,29 +10249,13 @@ var w2confirm = function (msg, title, callBack) {
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2ui.w2form 	- form widget
-*		- $.w2form		- jQuery wrapper
+* 		- w2form 		- form widget
+*		- $().w2form	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
 *
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
-* 	- documentation update on field types
-*	- url should be either string or object, if object, then allow different urls for different actions, get-record, save-record
-*
-* == 1.3 changes ==
-*   - tabs can be array of string, array of tab objects or w2tabs object
-* 	- generate should use fields, and not its own structure
-*	- added submit() as alias of save()
-*	- moved some settings to prototype
-*	- added form.onValidate event
-*	- added lock(.., showSpinner) - show spinner
-*	- deprecated w2form.init()
-*	- doAction -> action
-* 	- removed focusFirst added focus
-*	- added toolbar property
-*	- added onToolbar event
-*	- form.url can be a string or object { get, save }
 *
 ************************************************************************/
 
@@ -10435,7 +10363,7 @@ var w2confirm = function (msg, title, callBack) {
 					object.original[p] = original[p];
 				}
 			}
-			if (obj) object.box = obj;
+			if (obj.length > 0) object.box = obj[0];			
 			// render if necessary
 			if (object.formURL != '') {
 				$.get(object.formURL, function (data) {
