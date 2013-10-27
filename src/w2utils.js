@@ -4,8 +4,15 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 /************************************************
 *   Library: Web 2.0 UI for jQuery
 *   - Following objects are defines
-*   	- w2ui 				- object that contains all created objects
+*   	- w2ui 				- object that will contain all widgets
+*		- w2obj				- object with widget prototypes
 *		- w2utils 			- basic utilities
+*		- $().w2render		- common render
+*		- $().w2destroy		- common destroy
+*		- $().w2marker		- marker plugin
+*		- $().w2tag			- tag plugin
+*		- $().w2overlay		- overlay plugin
+*		- $().w2menu		- menu plugin
 *		- w2utils.event		- generic event object
 *		- w2utils.keyboard	- object for keyboard navigation
 *   - Dependencies: jQuery
@@ -16,6 +23,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- overlay should be displayed where more space (on top or on bottom)
 * 	- write and article how to replace certain framework functions
 *	- format date and time is buggy
+*	- onComplete should pass widget as context (this)
 *
 ************************************************/
 

@@ -70,9 +70,7 @@ $(function () {
 			{ caption: 'Important Dates', span: 3 }
 		],
 		columns: [				
-			{ field: 'recid', caption: 'RecID', size: '80px', sortable: true, resizable: true },
 			{ field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, editable: { type: 'text' } },
-			{ field: 'personid222', caption: 'ID', size: '80px', sortable: true, resizable: true, editable: { type: 'text' } },
 			{ field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
 			{ field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
 			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, editable: { type: 'text' } },
@@ -114,7 +112,7 @@ $(function () {
 				console.log('complete', event);
 			}
 		},
-		onExpand: function (event) {
+		onExpand1: function (event) {
 			if (w2ui['grid-'+ event.recid]) $().w2destroy('grid-'+ event.recid);
 			$('#'+ event.box_id).w2grid({ 
 				name: 'grid-' + event.recid,

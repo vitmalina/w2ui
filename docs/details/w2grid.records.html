@@ -68,6 +68,7 @@ record = {
     selected   : false,  // indicates if record is selected
     summary    : false,  // indicates if it is a summary record (summary records appear on the bottom)
     editable   : true,   // indicate is record is editable (must have column.ediable property set)
+    expanded   : 'none', // can be true | false | 'none' | 'spinner'
     changed    : undefined	// readonly, boolean that indicates if user changed record by inline editing
     changes    : undefined  // readonly, object with user changes by inline editing
 }

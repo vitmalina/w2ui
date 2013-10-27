@@ -1,8 +1,8 @@
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2popup 	- popup widget
-*		- $.w2popup	- jQuery wrapper
+* 		- w2popup	 	- popup widget
+*		- $().w2popup	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 * 
 * == NICE TO HAVE ==
@@ -10,18 +10,6 @@
 *	- bug: after transfer to another content, message does not work
 * 	- transition should include title, body and buttons, not just body
 *	- add lock method() to lock popup content
-*
-* == 1.3 changes ==
-*	- keyboard esc - close
-*	- w2confirm() - enter - yes, esc - no
-*	- added onKeydown event listener
-*	- added callBack to w2alert(msg, title, callBack)
-*	- renamed doKeydown to keydown()
-*	- if there are no rel=, the entire html is taken as body
-*	- options.url is now for load or open methods
-*	- moved all events to w2utils.event
-*	- aded lock() and unlock() functions
-*	- fixed w2alert() and w2confirm to work in already opend popup
 *
 ************************************************************************/
 

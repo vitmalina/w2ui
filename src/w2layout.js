@@ -1,8 +1,8 @@
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2ui.w2layout - layout widget
-*		- $.w2layout	- jQuery wrapper
+* 		- w2layout		- layout widget
+*		- $().w2layout	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
 * == NICE TO HAVE ==

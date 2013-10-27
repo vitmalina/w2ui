@@ -57,10 +57,9 @@ and record new size in <span class="property">.sizeCorrected</span>.
 <div style="height: 10px"></div>
 
 <h4>Render</h4>
-The render function can be used to format the column data. If the function is defined then it will be executed with three arguments - 
-<span class="argument">record</span>, <span class="argument">index</span> and <span class="argument">column_index</span>. Anything 
-this function returns will be used instead of the original column data. Using this function you can create columns that output results 
-from multiple fields.
+The render <span class="property">function(record, [index], [column_index])</span> can be used to format the column data. 
+If the function is defined then it will be executed for each cell in the column and anything this function returns will be 
+used instead of the original column data. Using this function you can create columns that output results from multiple fields.
 
 <textarea class="javascript">
 $('#grid').w2grid({
@@ -75,6 +74,30 @@ $('#grid').w2grid({
 		{ field: 'email', caption: 'Email', size: '40%' },
 		{ field: 'sdate', caption: 'Start Date', size: '120px' },
 		{ field: 'sdate', caption: 'End Date', size: '120px' }
+	]
+});
+</textarea>
+
+There are several predefined formatters. They are (for number and float, XX - defines number of digits after dot):
+<ul>
+	<li>int</li>
+	<li>float:XX</li>
+	<li>number:XX</li>
+	<li>money</li>
+	<li>percent</li>
+	<li>age</li>
+	<li>date</li>
+</ul>
+You can use them int he following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+	name    : 'grid',
+	columns: [				
+		{ field: 'recid', caption: 'ID', size: '50px', render: 'float:2' },
+		{ field: 'full-name', caption: 'Last Name', size: '60%'	},
+		{ field: 'email', caption: 'Email', size: '40%' },
+		{ field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' },
+		{ field: 'sdate', caption: 'End Date', size: '120px', rdner: 'age' }
 	]
 });
 </textarea>

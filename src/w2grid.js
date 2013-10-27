@@ -1,8 +1,8 @@
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2ui.w2grid 	- grid widget
-*		- $.w2grid		- jQuery wrapper
+* 		- w2grid 		- grid widget
+*		- $().w2grid	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
@@ -10,7 +10,6 @@
 *	- editable fields (list) - better inline editing
 *	- frozen columns
 *	- column autosize based on largest content
-*	- more events in editable fields (onkeypress)
 *	- save grid state into localStorage and restore
 *	- easy bubbles in the grid
 *	- possibly add context menu similar to sidebar's
@@ -18,80 +17,9 @@
 *	- More than 2 layers of header groups
 *	- for search fields one should be able to pass w2field options
 *	- add enum to advanced search fields
-*	- all function that take recid as argument, should check if object was given and use it instead.
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
-*	- url should be either string or object, if object, then allow different urls for different actions, get-records, delete, save
-*	- bug: paste at the end of the control
-*	- bug: extend selection - bug
 *	- hidden searches could not be clearned by the user
-*
-* == 1.3 changes ==
-*	- how do you easy change add/delete/edit buttons??
-*	- easy overwrite defaul toolbar icons/captions
-*	- added onEdit, an event to catch the edit record event when you click the edit button
-*	- added toolbarEdit, to send the OnEdit event
-*	- Changed doEdit to edit one field in doEditField, to add the doEdit event to edit one record in a popup
-*	- added getRecordHTML, refactored, updated set()
-*	- added onKeydown event
-*	- added keyboard = true property
-* 	- refresh() and resize() returns number of milliseconds it took
-*	- optimized width distribution and resize
-*	- 50 columns resize 2% - margin of error is huge
-* 	- resize needs to be revisited without resizing each div
-*	- grid.resize should not hide expanded columns
-*	- navigation with keybaord wrong if there are summary records
-*	- added w2grid.recordHeight = 24
-*	- fixedRecord deprecated because of buffered scroll
-*	- added getSummaryHTML(), summary
-* 	- added record.changed, record.changes
-*	- doExpand -> expand, collapse, toggle, onCollapse
-*	- remove record.hidden
-*	- grid.set([recid], record, [noRefresh]) - updates all records
-*	- deprecated selectPage()
-*	- added onReload (when toolbar button is clicked)
-*	- column.title - can be a string or a function
-*	- hints for records (columns?)
-*	- select multiple recors (shift) in a searched list - selects more then needed
-* 	- error when using left/right arrow keys (second click disconnects from the event listener)
-*	- deprecated recordsPerPage, page, goto()
-* 	- added onDeleted, onSaved - when it returns from the server
-* 	- added buffered, limit, offset
-* 	- need to clean up onRequest, onSave, onLoad commands
-*	- added onToolbar event - click on any toolbar button
-*	- route all toolbar events thru the grid
-*	- infinite scroll (buffered scroll)
-*	- added grid.autoLoad = true
-*	- search 1-20 will range numbers
-*	- moved some settings to prototype
-* 	- added record.expanded = 'none' || 'spinner'
-*	- added lock(.., showSpinner) - show spinner
-*	- subgrid (easy way with keyboard navigation)
-*	- on/off line number and select column
-*	- added columnOnOff() internal method
-* 	- added skip()
-* 	- added onColumnOnOff
-* 	- record.render(record, record_index, column_index)
-*	- added grid.scrollIntoView()
-*	- added render formatters (number, int, float, money, age, date)
-*	- deprecated: doAdd, doEdit
-*	- renames: doClick -> click, doDblClick -> dblClick, doEditField -> editField, doScroll -> scroll, doSort -> sort, doSave -> save, doDelete -> delete
-* 	- added status()
-*	- added copy(), paste()
-*	- added onCopy, onPaste events
-*	- added getCellHTML(index, column_index, summary)
-*	- added selectType = 'cell' then, it shows cell selection
-* 	- added addRange(), removeRange(), ranges - that draws border arround selection and grid.show.selectionBorder
-*	- added getRangeData();
-*	- changed getSelection(returnIndex) - added returnIndex parameter
-*	- added markSearchResults
-*	- added columnClick() and onColumnClick and onColumnResize
-* 	- added onColumnResize event
-*	- added mergeChanges(), renamed getChanged() -> getChanges() 
-*	- added onEditField event
-*	- improoved search(), now it does not require search definitions
-*	- grid.url can be string or object { get, save, remove }
-*	- added grid.show.recordTitles 
 *
 ************************************************************************/
 
@@ -1852,7 +1780,7 @@
 					for (var r in recs) {
 						var fld = this.columns[recs[r].column].field;
 						var ind = this.get(recs[r].recid, true);
-						if (ind != null) {
+						if (ind != null && fld != 'recid') {
 							this.records[ind][fld] = '';
 							if (this.records[ind].changed) this.records[ind].changes[fld] = '';
 						}
@@ -2643,6 +2571,7 @@
 				var rec  = this.records[ind];
 				var cols = [];
 				for (var dt in tmp) {
+					if (!this.columns[col + cnt]) continue;
 					var field = this.columns[col + cnt].field;
 					rec.changed = true;
 					rec.changes = rec.changes || {};

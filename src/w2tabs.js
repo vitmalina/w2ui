@@ -1,8 +1,8 @@
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2tabs 	- tabs widget
-*		- $.w2tabs	- jQuery wrapper
+* 		- w2tabs 		- tabs widget
+*		- $().w2tabs	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==

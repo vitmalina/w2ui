@@ -1,29 +1,13 @@
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
-* 		- w2ui.w2form 	- form widget
-*		- $.w2form		- jQuery wrapper
+* 		- w2form 		- form widget
+*		- $().w2form	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
 *
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
-* 	- documentation update on field types
-*	- url should be either string or object, if object, then allow different urls for different actions, get-record, save-record
-*
-* == 1.3 changes ==
-*   - tabs can be array of string, array of tab objects or w2tabs object
-* 	- generate should use fields, and not its own structure
-*	- added submit() as alias of save()
-*	- moved some settings to prototype
-*	- added form.onValidate event
-*	- added lock(.., showSpinner) - show spinner
-*	- deprecated w2form.init()
-*	- doAction -> action
-* 	- removed focusFirst added focus
-*	- added toolbar property
-*	- added onToolbar event
-*	- form.url can be a string or object { get, save }
 *
 ************************************************************************/
 
