@@ -101,8 +101,12 @@ $(function () {
 	function init (type) {
 		var methods = [];
 		var props   = [];
-		for (var o in w2obj[type].prototype) methods.push(o);
-		for (var o in w2ui['test-'+ type]) props.push(o);
+		for (var o in w2obj[type].prototype) {
+			if (typeof w2obj[type].prototype[o]== 'function') methods.push(o); else props.push(o);
+		}
+		for (var o in w2ui['test-'+ type]) {
+			props.push(o);
+		}
 		methods.sort();
 		props.sort();
 		var nodes = []
@@ -167,7 +171,6 @@ $(function () {
 });
 
 function doClick (cmd, data) {
-	console.log(cmd);
 	if (cmd.indexOf('.') == -1) {
 		if (cmd.indexOf('-') == -1) {
 			var path = 'overview/'+ cmd.substr(2) +'.html';	

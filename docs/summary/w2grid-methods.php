@@ -28,7 +28,7 @@
 </div>
 
 <div class="obj-property">
-	<a href="<?=$site_root?>/docs/w2grid.clear">clear</a> <span>- clear()</span>
+	<a href="<?=$site_root?>/docs/w2grid.clear">clear</a> <span>- clear([noRefresh])</span>
 </div>
 <div class="obj-property-desc">
 	Removes all records from the grid.
@@ -413,7 +413,7 @@
 </div>
 
 <div class="obj-property">
-	<a href="<?=$site_root?>/docs/w2grid.searchReset">searchReset</a> <span>- searchReset()</span>
+	<a href="<?=$site_root?>/docs/w2grid.searchReset">searchReset</a> <span>- searchReset([noRefresh])</span>
 </div>
 <div class="obj-property-desc">
 	Resets previous search to the default values.

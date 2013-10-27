@@ -25,10 +25,10 @@
 *	- bug: paste at the end of the control
 *	- bug: extend selection - bug
 *	- hidden searches could not be clearned by the user
-*	- how do you easy change add/delete/edit buttons??
-*	- easy overwrite defaul toolbar icons/captions
 *
 * == 1.3 changes ==
+*	- how do you easy change add/delete/edit buttons??
+*	- easy overwrite defaul toolbar icons/captions
 *	- added onEdit, an event to catch the edit record event when you click the edit button
 *	- added toolbarEdit, to send the OnEdit event
 *	- Changed doEdit to edit one field in doEditField, to add the doEdit event to edit one record in a popup
@@ -149,10 +149,6 @@
 		this.offset			= 0;		// how many records to skip (for infinite scroll) when pulling from server
 		this.style			= '';
 		this.ranges 		= [];
-
-		this.msgDelete		= w2utils.lang('Are you sure you want to delete selected records?');
-		this.msgNotJSON 	= w2utils.lang('Returned data is not in valid JSON format.');
-		this.msgRefresh		= w2utils.lang('Refreshing...');
 
 		// events
 		this.onAdd				= null;
@@ -297,6 +293,27 @@
 	// -- Implementation of core functionality
 
 	w2grid.prototype = {
+		// ----
+		// properties that need to be in prototype		
+
+		msgDelete	: w2utils.lang('Are you sure you want to delete selected records?'),
+		msgNotJSON 	: w2utils.lang('Returned data is not in valid JSON format.'),
+		msgRefresh	: w2utils.lang('Refreshing...'),
+
+		// for easy button overwrite
+		buttons: {
+			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') },
+			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
+			'search'	: { type: 'html',   id: 'search', 
+							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+ 
+								  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields(this);"></div>' 
+						  },
+			'search-go'	: { type: 'check',  id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') },
+			'add'		: { type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' },
+			'edit'		: { type: 'button', id: 'edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), img: 'icon-edit', disabled: true },
+			'delete'	: { type: 'button', id: 'delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), img: 'icon-delete', disabled: true },
+			'save'		: { type: 'button', id: 'save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), img: 'icon-save' }
+		},
 
 		add: function (record) {
 			if (!$.isArray(record)) record = [record];
@@ -562,14 +579,6 @@
 			}
 			return null;
 		},		
-
-		clear: function () {
-			this.records	= [];
-			this.summary	= [];
-			this.total 		= 0;
-			this.buffered   = 0;
-			this.refresh();
-		},
 
 		localSort: function (silent) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -1341,7 +1350,7 @@
 			$(el).w2overlay(html, { left: -15, top: 7 });
 		},
 
-		searchReset: function () {
+		searchReset: function (noRefresh) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
 			if (eventData.isCancelled === true) return;
@@ -1358,7 +1367,8 @@
 					this.last.caption 	= w2utils.lang('All Fields');
 				}
 			}
-			this.last.multi	= false;
+			this.last.multi			= false;
+			this.last.xhr_offset 	= 0;
 			// reset scrolling position
 			this.last.scrollTop		= 0;
 			this.last.scrollLeft	= 0;
@@ -1366,17 +1376,41 @@
 			// -- clear all search field
 			this.searchClose();
 			// apply search
-			var url = (typeof this.url != 'object' ? this.url : this.url.get);
-			if (url) {
-				this.last.xhr_offset = 0;
-				this.reload();
-			} else {
-				// local search
-				this.localSearch();
-				this.refresh();
-			}
+			if (!noRefresh) this.reload();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
+		clear: function (noRefresh) {
+			this.offset 			= 0;
+			this.total 				= 0;
+			this.buffered			= 0;
+			this.records			= [];
+			this.summary			= [];
+			this.last.scrollTop		= 0;
+			this.last.scrollLeft	= 0;
+			this.last.range_start	= null;
+			this.last.range_end		= null;
+			this.last.xhr_offset	= 0;
+			if (!noRefresh) this.refresh();
+		},
+
+		reset: function (noRefresh) {
+			// reset last remembered state
+			this.offset				= 0;
+			this.last.scrollTop		= 0;
+			this.last.scrollLeft	= 0;
+			this.last.selected		= [];
+			this.last.range_start	= null;
+			this.last.range_end		= null;
+			this.last.xhr_offset	= 0;
+			this.searchReset(noRefresh);
+			// initial sort
+			if (this.last.sortData != null ) this.sortData	 = this.last.sortData;
+			// select none without refresh
+			this.set({ selected: false, expanded: false }, true);
+			// refresh
+			if (!noRefresh) this.refresh();
 		},
 
 		skip: function (offset) {
@@ -1412,36 +1446,13 @@
 		reload: function (callBack) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (url) {
-				//this.refresh(); // show grid before pulling data
 				if (this.last.xhr_offset > 0 && this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
 				this.request('get-records', {}, null, callBack);
 			} else {
+				this.localSearch();
 				this.refresh();
 				if (typeof callBack == 'function') callBack();
 			}
-		},
-
-		reset: function (noRefresh) {
-			// reset last remembered state
-			this.offset				= 0;
-			this.searchData			= [];
-			this.last.search		= '';
-			this.last.searchIds		= [];
-			this.last.field			= 'all';
-			this.last.caption 		= w2utils.lang('All Fields');
-			this.last.logic			= 'OR';
-			this.last.scrollTop		= 0;
-			this.last.scrollLeft	= 0;
-			this.last.selected		= [];
-			this.last.range_start	= null;
-			this.last.range_end		= null;
-			this.last.xhr_offset	= 0;
-			// initial search panel
-			if (this.last.sortData != null ) this.sortData	 = this.last.sortData;
-			// select none without refresh
-			this.set({ selected: false, expanded: false }, true);
-			// refresh
-			if (!noRefresh) this.refresh();
 		},
 
 		request: function (cmd, add_params, url, callBack) {
@@ -2838,11 +2849,21 @@
 			// init footer
 			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
 			// refresh
+			this.refresh(); // show empty grid (need it)
 			this.reload();
 
 			// init mouse events for mouse selection
 			$(this.box).on('mousedown', mouseStart);			
 			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursror bug
+
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			// attach to resize event
+			if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
+				this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+				$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
+			}
+			return (new Date()).getTime() - time;
 
 			function mouseStart (event) {
 				if (obj.last.move && obj.last.move.type == 'expand') return;
@@ -2927,14 +2948,6 @@
 				$(document).off('mousemove', mouseMove);
 				$(document).off('mouseup', mouseStop);
 			}			
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
-			// attach to resize event
-			if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
-				this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
-				$(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
-			}
-			return (new Date()).getTime() - time;
 		},
 
 		destroy: function () {
@@ -3059,10 +3072,10 @@
 				// ------ Toolbar Generic buttons
 
 				if (this.show.toolbarReload) {
-					this.toolbar.items.push({ type: 'button', id: 'reload', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') });
+					this.toolbar.items.push(this.buttons['reload']);
 				}
 				if (this.show.toolbarColumns) {			
-					this.toolbar.items.push({ type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' });
+					this.toolbar.items.push(this.buttons['columns']);
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
@@ -3072,10 +3085,7 @@
 					var html =
 						'<div class="w2ui-toolbar-search">'+
 						'<table cellpadding="0" cellspacing="0"><tr>'+
-						'	<td>'+
-						'		<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+ 
-									(this.isIOS ? 'onTouchStart' : 'onClick') +'="var obj = w2ui[\''+ this.name +'\']; obj.searchShowFields(this);"></div>'+
-						'	</td>'+
+						'	<td>'+ this.buttons['search'].html +'</td>'+
 						'	<td>'+
 						'		<input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
 						'			placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
@@ -3093,26 +3103,26 @@
 						'</div>';
 					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
-						this.toolbar.items.push({ type: 'check', id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') });
+						this.toolbar.items.push(this.buttons['search-go']);
 					}
 				}
 				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
-					this.toolbar.items.push({ type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' });
+					this.toolbar.items.push(this.buttons['add']);
 				}
 				if (this.show.toolbarEdit) {
-					this.toolbar.items.push({ type: 'button', id: 'edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), img: 'icon-edit', disabled: true });
+					this.toolbar.items.push(this.buttons['edit']);
 				}
 				if (this.show.toolbarDelete) {
-					this.toolbar.items.push({ type: 'button', id: 'delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), img: 'icon-delete', disabled: true });
+					this.toolbar.items.push(this.buttons['delete']);
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
 						this.toolbar.items.push({ type: 'break', id: 'break2' });
 					}
-					this.toolbar.items.push({ type: 'button', id: 'save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), img: 'icon-save' });
+					this.toolbar.items.push(this.buttons['save']);
 				}
 				// add original buttons
 				for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
@@ -3129,7 +3139,7 @@
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
 							if (eventData2.isCancelled === true) return false;
-							// obj.reset(true); // do not reset to preserve search and sort
+							obj.clear(true);
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;

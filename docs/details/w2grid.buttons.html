@@ -1,0 +1,78 @@
+Object that contains default toolbar items
+
+<div class="definition">
+	Object, default see below
+</div>
+
+If you would like to overwrite default buttons for the grid, you can do this in the grid's prototype, so, all the grids
+will have same buttons.
+
+<textarea class="javascript">
+var btn = w2obj.grid.prototype.buttons;
+btn['reload'].icon 	= 'icon-repeat';
+btn['columns'].icon = 'icon-layers';
+</textarea>
+
+The default object is: 
+<textarea class="javascript">
+buttons: {
+	'reload' : { 
+		type	: 'button', 
+		id		: 'reload', 
+		img		: 'icon-reload', 
+		hint	: w2utils.lang('Reload data in the list') 
+	},
+	'columns' : { 
+		type	: 'drop', 
+		id		: 'column-on-off', 
+		img		: 'icon-columns', 
+		hint	: w2utils.lang('Show/hide columns'), 
+		arrow	: false, 
+		html: '' 
+	},
+	'search' : { 
+		type	: 'html',   
+		id		: 'search', 
+		html 	: '<div class="w2ui-icon icon-search-down w2ui-search-down" '+
+				  '	title="'+ w2utils.lang('Select Search Field') +'" '+ 
+				  '	onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; '+
+				  '	obj.searchShowFields(this);"></div>' 
+	},
+	'search-go' : { 
+		type	: 'check',  
+		id		: 'search-advanced', 
+		caption	: w2utils.lang('Search...'), 
+		hint	: w2utils.lang('Open Search Fields') 
+	},
+	'add' : { 
+		type	: 'button', 
+		id		: 'add', 
+		caption	: w2utils.lang('Add New'), 
+		hint	: w2utils.lang('Add new record'), 
+		img		: 'icon-add' 
+	},
+	'edit' : { 
+		type	: 'button', 
+		id		: 'edit', 
+		caption	: w2utils.lang('Edit'), 
+		hint	: w2utils.lang('Edit selected record'), 
+		img		: 'icon-edit', 
+		disabled: true 
+	},
+	'delete' : { 
+		type	: 'button', 
+		id		: 'delete', 
+		caption	: w2utils.lang('Delete'), 
+		hint	: w2utils.lang('Delete selected records'), 
+		img		: 'icon-delete', 
+		disabled: true 
+	},
+	'save' : { 
+		type	: 'button', 
+		id		: 'save', 
+		caption	: w2utils.lang('Save'), 
+		hint	: w2utils.lang('Save changed records'), 
+		img		: 'icon-save' 
+	}
+}
+</textarea>

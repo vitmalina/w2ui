@@ -14,6 +14,13 @@
 </div>
 
 <div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2grid.buttons">buttons</a> <span>- Object, default see below</span>
+</div>
+<div class="obj-property-desc">
+	Object that contains default toolbar items
+</div>
+
+<div class="obj-property">
 	<a href="<?=$site_root?>/docs/w2grid.columnGroups">columnGroups</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
