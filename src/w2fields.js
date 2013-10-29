@@ -13,6 +13,7 @@
 *	- BUG with prefix/postfix and arrows (test in different contexts)
 *	- multiple date selection
 *	- rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
+*	- render calendar to the div
 *
 ************************************************************************/
 

@@ -2046,12 +2046,6 @@
 								for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
 							}
 						}
-						function prevCell (check) {
-							var newCheck = check - 1;
-							if (newCheck < 0) return check;
-							if (obj.columns[newCheck].hidden) return findPrev(newCheck);
-							return newCheck;
-						}
 					}
 					cancel = true;
 					break;
@@ -2090,12 +2084,6 @@
 							if (!event.shiftKey) {
 								for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
 							}
-						}
-						function nextCell (check) {
-							var newCheck = check + 1;
-							if (obj.columns.length == newCheck) return check;
-							if (obj.columns[newCheck].hidden) return findNext(newCheck);
-							return newCheck;
 						}
 					}
 					cancel = true;
@@ -2298,6 +2286,20 @@
 				} else {
 					return null;
 				}
+			}
+
+			function nextCell (check) {
+				var newCheck = check + 1;
+				if (obj.columns.length == newCheck) return check;
+				if (obj.columns[newCheck].hidden) return findNext(newCheck);
+				return newCheck;
+			}
+
+			function prevCell (check) {
+				var newCheck = check - 1;
+				if (newCheck < 0) return check;
+				if (obj.columns[newCheck].hidden) return findPrev(newCheck);
+				return newCheck;
 			}
 
 			function tmpUnselect () {
@@ -3086,7 +3088,15 @@
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
 							if (eventData2.isCancelled === true) return false;
-							obj.clear(true);
+							var url = (typeof obj.url != 'object' ? obj.url : obj.url.get);
+							if (url) {
+								obj.clear(true); 
+							} else {
+								obj.last.scrollTop	= 0;
+								obj.last.scrollLeft	= 0;
+								obj.last.range_start= null;
+								obj.last.range_end	= null;
+							}
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;

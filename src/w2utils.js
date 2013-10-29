@@ -751,14 +751,15 @@ var w2utils = (function () {
 	}
 
 	function scrollBarSize () {
-		if (tmp.scollBarSize) return tmp.scollBarSize; 
+		if (tmp.scrollBarSize) return tmp.scrollBarSize; 
 		var html = '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
 				   '	<div style="height: 120px">1</div>'+
 				   '</div>';
 		$('body').append(html);
-		tmp.scollBarSize = 100 - $('#_scrollbar_width > div').width();
+		tmp.scrollBarSize = 100 - $('#_scrollbar_width > div').width();
 		$('#_scrollbar_width').remove();
-		return tmp.scollBarSize;
+		if (String(navigator.userAgent).indexOf('MSIE') >= 0) tmp.scrollBarSize  = tmp.scrollBarSize / 2; // need this for IE9+
+		return tmp.scrollBarSize;
 	}
 
 })();
