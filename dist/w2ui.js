@@ -1,4 +1,4 @@
-/* w2ui 1.3.RC2 (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 1.3 (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -752,14 +752,15 @@ var w2utils = (function () {
 	}
 
 	function scrollBarSize () {
-		if (tmp.scollBarSize) return tmp.scollBarSize; 
+		if (tmp.scrollBarSize) return tmp.scrollBarSize; 
 		var html = '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
 				   '	<div style="height: 120px">1</div>'+
 				   '</div>';
 		$('body').append(html);
-		tmp.scollBarSize = 100 - $('#_scrollbar_width > div').width();
+		tmp.scrollBarSize = 100 - $('#_scrollbar_width > div').width();
 		$('#_scrollbar_width').remove();
-		return tmp.scollBarSize;
+		if (String(navigator.userAgent).indexOf('MSIE') >= 0) tmp.scrollBarSize  = tmp.scrollBarSize / 2; // need this for IE9+
+		return tmp.scrollBarSize;
 	}
 
 })();
@@ -3221,12 +3222,6 @@ w2utils.keyboard = (function (obj) {
 								for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
 							}
 						}
-						function prevCell (check) {
-							var newCheck = check - 1;
-							if (newCheck < 0) return check;
-							if (obj.columns[newCheck].hidden) return findPrev(newCheck);
-							return newCheck;
-						}
 					}
 					cancel = true;
 					break;
@@ -3265,12 +3260,6 @@ w2utils.keyboard = (function (obj) {
 							if (!event.shiftKey) {
 								for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
 							}
-						}
-						function nextCell (check) {
-							var newCheck = check + 1;
-							if (obj.columns.length == newCheck) return check;
-							if (obj.columns[newCheck].hidden) return findNext(newCheck);
-							return newCheck;
 						}
 					}
 					cancel = true;
@@ -3473,6 +3462,20 @@ w2utils.keyboard = (function (obj) {
 				} else {
 					return null;
 				}
+			}
+
+			function nextCell (check) {
+				var newCheck = check + 1;
+				if (obj.columns.length == newCheck) return check;
+				if (obj.columns[newCheck].hidden) return findNext(newCheck);
+				return newCheck;
+			}
+
+			function prevCell (check) {
+				var newCheck = check - 1;
+				if (newCheck < 0) return check;
+				if (obj.columns[newCheck].hidden) return findPrev(newCheck);
+				return newCheck;
 			}
 
 			function tmpUnselect () {
@@ -4261,7 +4264,15 @@ w2utils.keyboard = (function (obj) {
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
 							if (eventData2.isCancelled === true) return false;
-							obj.clear(true);
+							var url = (typeof obj.url != 'object' ? obj.url : obj.url.get);
+							if (url) {
+								obj.clear(true); 
+							} else {
+								obj.last.scrollTop	= 0;
+								obj.last.scrollLeft	= 0;
+								obj.last.range_start= null;
+								obj.last.range_end	= null;
+							}
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;
@@ -8721,6 +8732,7 @@ var w2confirm = function (msg, title, callBack) {
 *	- BUG with prefix/postfix and arrows (test in different contexts)
 *	- multiple date selection
 *	- rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
+*	- render calendar to the div
 *
 ************************************************************************/
 
