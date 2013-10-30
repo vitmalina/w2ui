@@ -3021,10 +3021,10 @@
 				// ------ Toolbar Generic buttons
 
 				if (this.show.toolbarReload) {
-					this.toolbar.items.push(this.buttons['reload']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['reload']));
 				}
 				if (this.show.toolbarColumns) {			
-					this.toolbar.items.push(this.buttons['columns']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
@@ -3052,26 +3052,26 @@
 						'</div>';
 					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
-						this.toolbar.items.push(this.buttons['search-go']);
+						this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
 					}
 				}
 				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
-					this.toolbar.items.push(this.buttons['add']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['add']));
 				}
 				if (this.show.toolbarEdit) {
-					this.toolbar.items.push(this.buttons['edit']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['edit']));
 				}
 				if (this.show.toolbarDelete) {
-					this.toolbar.items.push(this.buttons['delete']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['delete']));
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
 						this.toolbar.items.push({ type: 'break', id: 'break2' });
 					}
-					this.toolbar.items.push(this.buttons['save']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['save']));
 				}
 				// add original buttons
 				for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
