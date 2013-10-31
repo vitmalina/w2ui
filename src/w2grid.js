@@ -4060,7 +4060,7 @@
 			var col  	= this.columns[col_ind];
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
 			var data 	= this.parseField(record, col.field);
-			var isChanged = record.changed && record.changes[col.field];
+			var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
 			if (isChanged) data = record.changes[col.field];
 			// various renderers
 			if (data == null || typeof data == 'undefined') data = '';
