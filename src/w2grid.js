@@ -20,6 +20,7 @@
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
+*	- search-logic -> searchLogic
 *
 ************************************************************************/
 
