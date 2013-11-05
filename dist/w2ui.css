@@ -1,4 +1,4 @@
-/* w2ui 1.3 (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 1.4.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
 /*************************************************
 * --- Reset (used for all w2ui wdigetes)
 * --- The reset is needed to coexist with other CSS
@@ -16,7 +16,6 @@
   font-family: Verdana, Arial;
   font-size: 11px;
   /* font-weight: normal; - if enabled, then tr cannot have font-weight: bold; */
-
   line-height: 100%;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -241,7 +240,7 @@ select {
   font-size: 13px;
   font-family: Verdana, Arial;
   opacity: 0.8;
-  filter: alpha(opacity=15);
+  filter: alpha(opacity=80);
   background-color: #555555;
   color: #ffffff;
   text-align: center;
@@ -408,7 +407,6 @@ select {
 }
 .w2ui-field {
   /* do not include width */
-
   margin-bottom: 3px;
   margin-left: 128px;
   padding: 3px;
@@ -478,11 +476,8 @@ select {
   -o-user-select: none;
   user-select: none;
   /* create an arrow that points down */
-
   /* create an arrow that points left */
-
   /* create an arrow that points right */
-
 }
 .w2ui-field-helper .w2ui-field-up {
   position: absolute;
@@ -505,13 +500,10 @@ select {
   height: 0;
   border-left: 4px solid transparent;
   /* left arrow slant */
-
   border-right: 4px solid transparent;
   /* right arrow slant */
-
   border-bottom: 5px solid #777;
   /* bottom, add background color here */
-
   font-size: 0;
   line-height: 0;
 }
@@ -529,13 +521,10 @@ select {
   height: 0;
   border-bottom: 4px solid transparent;
   /* left arrow slant */
-
   border-top: 4px solid transparent;
   /* right arrow slant */
-
   border-right: 5px solid #777;
   /* bottom, add background color here */
-
   font-size: 0;
   line-height: 0;
 }
@@ -544,13 +533,10 @@ select {
   height: 0;
   border-bottom: 4px solid transparent;
   /* left arrow slant */
-
   border-top: 4px solid transparent;
   /* right arrow slant */
-
   border-left: 5px solid #777;
   /* bottom, add background color here */
-
   font-size: 0;
   line-height: 0;
 }
@@ -1099,7 +1085,6 @@ select {
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
   /* needed for IE */
-
   padding: 0px;
   margin: 0px;
   width: 6px;
@@ -1388,7 +1373,6 @@ select {
   position: absolute;
   border: 2px solid #6299DA;
   /* #457FC2; */
-
   pointer-events: none;
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection .w2ui-selection-resizer {
@@ -1796,7 +1780,7 @@ select {
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled td.w2ui-node-dots,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover td.w2ui-node-dots {
   opacity: 0.4;
-  filter: alpha(opacity=15);
+  filter: alpha(opacity=40);
   color: #000000 !important;
   text-shadow: 0px 0px 0px #ffffff !important;
 }
@@ -1950,7 +1934,7 @@ select {
 }
 .w2ui-toolbar .disabled {
   opacity: 0.3;
-  filter: alpha(opacity=15);
+  filter: alpha(opacity=30);
 }
 .w2ui-toolbar table {
   table-layout: auto !important;
