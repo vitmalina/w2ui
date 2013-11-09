@@ -51,79 +51,99 @@ var app = (function (app) {
 
 	function register(name, module) {
 		// check if modules id defined
-		if (!app.modules.hasOwnProperty(name)) {
-			console.log('ERROR: Module '+ name +' is not defined. You need to define the module in /app/conf/modules.js');
+		if (app.hasOwnProperty(name)) {
+			console.log('ERROR: Namespace '+ name +' is already registered');
 			return false;
 		}
-		// check if the module already registered
-		if (app.hasOwnProperty(name) && app[name].render == 'function') {
-			console.log('ERROR: Module '+ name +' is already registered.');
-			return false;
+		// register module
+		var mod = null;
+		for (var m in app.modules) {
+			if (app.modules[m].name == name) mod = app.modules[m];
 		}
-		// load module assets
-		app.get(app.modules[name].assets, function (files) {
-			// initiate module
-			var callBack = app[name].callBack;
-			app[name] = module(files, app[name].params);
-			callBack();
-		});
+		app[name] = module({}, mod.files, mod);
+		return;
 	}
 
 	// ===========================================
-	// -- Loads modules or calls .render()
-	// -- if module was previously loaded
+	// -- Load Modules
 
-	function load(names, params, callBack) {
+	function load(names) { // returns promise
 		if (!$.isArray(names)) names = [names];
-		if (typeof params == 'function') {
-			callBack = params;
-			params   = {};
-		}
-		if (!params) params = {};
 		var modCount = names.length;
+		var failed	 = false;
+		var promise  = {
+			ready: function (callBack) { 	// a module loaded
+				promise._ready = callBack;
+				return promise;
+			},
+			fail: function (callBack) { 		// a module loading failed
+				promise._fail = callBack;
+				return promise;
+			},
+			done: function (callBack) {			// all loaded
+				promise._done = callBack;
+				return promise;
+			},
+			always: function (callBack) {
+				promise._always = callBack;
+				return promise;
+			}
+		};
 		for (var n in names) {
 			var name = names[n];
-			if (typeof app.modules[name] == 'undefined') {
+			// check if module is already loaded
+			if (typeof app.modules[name] != 'undefined') {
 				modCount--;
-				console.log('ERROR: module "'+ name +'" is not defined. Define it in app/conf/modules.js.');
-				return;
-			}
-			// init module and pass params
-			app[name] = app[name] || {};
-			app[name].params = $.extend({}, params);
-			app[name].callBack = callBack;
-			// check if was loaded before 
-			if (app.modules[name] && app.modules[name].isLoaded === true) {
-				modCount--;
-				if (typeof app[name].render == 'undefined') {
-					console.log('ERROR: Loader: module "'+ name + '" has no render() method.');
-				} else {
-					app[name].render();
-					isFinished();
-				}
-			} else {
-				$.ajax({ url : app.modules[name].url, dataType: "script" })
-					.always(function () { // arguments are either same as done or fail
-						modCount--;
-					})
+				isFinished();
+			} else { // load config
+				$.ajax({ url : name + '/module.json', dataType: "json" })
 					.done(function (data, status, xhr) {
-						app.modules[name].isLoaded = true;
-						isFinished();
+						if (data.main.substr(0, 1) != '/') data.main = name + '/' + data.main;
+						for (var a in data.assets) {
+							if (data.assets[a].substr(0, 1) != '/') data.assets[a] = name + '/' + data.assets[a];
+						}
+						app.modules[name] = data;
+						// load dependencies
+						app.get(data.assets.concat([data.main]), function (files) {
+							var main = files[data.main];
+							delete files[data.main];
+							// register assets
+							app.modules[name].files = files;
+							app.modules[name].status = 'loaded';
+							// execute main file
+							try { 
+								eval(main); 
+							} catch (e) { 
+								console.log('ERROR: error while registeing module: '+ data.main) 
+							}
+							// check ready
+							if (typeof promise._ready == 'function') promise._ready(app.modules[name]);
+							modCount--;
+							isFinished();
+						});
 					})
 					.fail(function (xhr, err, errData) {
-						if (err == 'error') {
-							console.log('ERROR: Loader: module "'+ name +'" failed to load ('+ app.modules[name].url +').');
-						} else {
-							console.log('ERROR: Loader: module "'+ name + '" is loaded ('+ app.modules[name].url +'), but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
-							app.modules[name].isLoaded = true;
-							isFinished();
+						app.modules[name] = {
+							status	: 'error',
+							msg		: 'Error while loading cofing'
 						}
+						failed = true;
+						if (typeof promise._fail == 'function') promise._fail(app.modules[name]);
+						modCount--;
+						isFinished();
 					});
 			}
+			// init module
+			// app[name] = app[name] || {};
+			// app[name].config = {};
 		}
+		return promise;
 
 		function isFinished() {
-			if (typeof callBack == 'function' && modCount == 0) callBack(true);
+			if (modCount == 0) {
+				if (typeof promise._done == 'function' && failed !== true) promise._done();
+				if (typeof promise._always == 'function') promise._always();
+			}
 		}
 	}
 
@@ -145,19 +165,19 @@ var app = (function (app) {
 					dataType: 'text',
 					success : function (data, success, responseObj) {
 						if (success != 'success') {
-							console.log('ERROR: Loader: error while getting a file '+ path +'.');
+							console.log('ERROR: error while getting a file '+ path +'.');
 							return;
 						}
-						bufferObj[index] = responseObj.responseText;
+						bufferObj[path] = responseObj.responseText;
 						loadDone();
 
 					},
 					error : function (data, err, errData) {
 						if (err == 'error') {
-							console.log('ERROR: Loader: failed to load '+ files[i] +'.');
+							console.log('ERROR: failed to load '+ files[i] +'.');
 						} else {
-							console.log('ERROR: Loader: file "'+ files[i] + '" is loaded, but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
-							bufferObj[index] = responseObj.responseText;
+							console.log('ERROR: file "'+ files[i] + '" is loaded, but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
+							bufferObj[path] = responseObj.responseText;
 							loadDone();
 						}
 					}

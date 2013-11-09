@@ -4012,7 +4012,7 @@ w2utils.keyboard = (function (obj) {
 				obj.last.move.divX = (event.screenX - obj.last.move.x);
 				obj.last.move.divY = (event.screenY - obj.last.move.y);
 				if (Math.abs(obj.last.move.divX) <= 1 && Math.abs(obj.last.move.divY) <= 1) return; // only if moved more then 1px
-				if (obj.last.move.start) {
+				if (obj.last.move.start && obj.last.move.recid) {
 					obj.selectNone();
 					obj.last.move.start = false;
 				}
