@@ -16,7 +16,15 @@ The complete library is only **56Kb** (minified & gzipped)
 
 ## Quick Start
 
-Current stable version is 1.3. You can download it from here: [http://w2ui.com](http://w2ui.com).
+Current stable version is 1.3. 
+
+You can:
+- Download from here: [http://w2ui.com](http://w2ui.com) 
+- Install using bower
+
+```
+bower install w2ui
+```
 
 To start using the library you need to include into your page: 
 
