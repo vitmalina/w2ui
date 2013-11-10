@@ -74,8 +74,9 @@ $(function () {
 			{ field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
 			{ field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
 			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, editable: { type: 'text' } },
-			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render1: 'percent', editable: { type: 'text' } },
-			{ field: 'sdate', caption: 'Date', size: '120px', resizable: true, sortable: true, render1: 'date', editable: { type: 'text' }, render: 'date' }
+			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, 
+				render: 'number:2', editable: { type: 'text' } },
+			{ field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date' }
 		],
 		ranges1: [
 			{
