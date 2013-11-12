@@ -1,14 +1,14 @@
 /************************************************************************
-*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*   - Following objects defined
-* 		- w2tabs 		- tabs widget
+*	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*	- Following objects defined
+*		- w2tabs		- tabs widget
 *		- $().w2tabs	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
 *	- tabs might not work in chromium apps, need bind()
 *   - on overflow display << >>
-* 	- individual tab onClick (possibly other events) are not working
+*	- individual tab onClick (possibly other events) are not working
 *
 ************************************************************************/
 
@@ -28,11 +28,11 @@
 		this.onDestroy	= null;
 
 		$.extend(true, this, w2obj.tabs, options);
-	}
-	
+	};
+
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
+
 	$.fn.w2tabs = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check required parameters
@@ -42,18 +42,18 @@
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
 				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;			
+				return;
 			}
 			if (!w2utils.isAlphaNumeric(method.name)) {
 				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;			
+				return;
 			}
 			// extend tabs
 			var tabs   = method.tabs;
 			var object = new w2tabs(method);
 			$.extend(object, { tabs: [], handlers: [] });
-			for (var i in tabs) { object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]); }		
-			if ($(this).length != 0) {
+			for (var i in tabs) { object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]); }
+			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
 			// register new object
@@ -66,29 +66,29 @@
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2tabs' );
-		}    
+		}
 	};
-	
+
 	// ====================================================
 	// -- Implementation of core functionality
-	
+
 	w2tabs.prototype = {
 		tab : {
-			id		  : null,		// commnad to be sent to all event handlers
-			text	  : '',
-			hidden	  : false,
-			disabled  : false,
-			closable  :	false,
-			hint	  : '',
-			onClick	  : null,
-			onRefresh : null,
-			onClose	  : null
+			id			: null,		// commnad to be sent to all event handlers
+			text		: '',
+			hidden		: false,
+			disabled	: false,
+			closable	: false,
+			hint		: '',
+			onClick		: null,
+			onRefresh	: null,
+			onClose		: null
 		},
-		
+
 		add: function (tab) {
 			return this.insert(null, tab);
 		},
-		
+
 		insert: function (id, tab) {
 			if (!$.isArray(tab)) tab = [tab];
 			// assume it is array
@@ -109,17 +109,17 @@
 					return;
 				}
 				// add tab
-				var tab = $.extend({}, tab, tab[r]);
-				if (id == null || typeof id == 'undefined') {
+				tab = $.extend({}, tab, tab[r]);
+				if (id === null || typeof id == 'undefined') {
 					this.tabs.push(tab);
 				} else {
 					var middle = this.get(id, true);
 					this.tabs = this.tabs.slice(0, middle).concat([tab], this.tabs.slice(middle));
-				}		
-				this.refresh(tab[r].id);		
+				}
+				this.refresh(tab[r].id);
 			}
 		},
-		
+
 		remove: function (id) {
 			var removed = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -135,34 +135,34 @@
 		},
 
 		select: function (id) {
-			if (this.get(id) == null || this.active == id) return false;
+			if (this.get(id) === null || this.active == id) return false;
 			this.active = id;
 			this.refresh();
 			return true;
 		},
-		
+
 		set: function (id, tab) {
 			var index = this.get(id, true);
-			if (index == null) return false;
+			if (index === null) return false;
 			$.extend(this.tabs[index], tab);
 			this.refresh(id);
-			return true;	
+			return true;
 		},
-		
+
 		get: function (id, returnIndex) {
-			if (arguments.length == 0) {
+			if (arguments.length === 0) {
 				var all = [];
-				for (var i = 0; i < this.tabs.length; i++) if (this.tabs[i].id != null) all.push(this.tabs[i].id);
+				for (var i = 0; i < this.tabs.length; i++) if (this.tabs[i].id !== null) all.push(this.tabs[i].id);
 				return all;
 			}
-			for (var i in this.tabs) {
-				if (this.tabs[i].id == id) { 
-					if (returnIndex === true) return i; else return this.tabs[i]; 
+			for (var i1 in this.tabs) {
+				if (this.tabs[i1].id == id) {
+					if (returnIndex === true) return i1; else return this.tabs[i1];
 				}
 			}
-			return null;	
+			return null;
 		},
-		
+
 		show: function () {
 			var shown = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -174,7 +174,7 @@
 			}
 			return shown;
 		},
-		
+
 		hide: function () {
 			var hidden = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -186,7 +186,7 @@
 			}
 			return hidden;
 		},
-		
+
 		enable: function (id) {
 			var enabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -198,7 +198,7 @@
 			}
 			return enabled;
 		},
-		
+
 		disable: function (id) {
 			var disabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -210,10 +210,10 @@
 			}
 			return disabled;
 		},
-			
+
 		refresh: function (id) {
 			var time = (new Date()).getTime();
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (String(id) == 'undefined') {
 				// refresh all
 				for (var i in this.tabs) this.refresh(this.tabs[i].id);
@@ -223,15 +223,15 @@
 			if (eventData.isCancelled === true) return false;
 			// create or refresh only one item
 			var tab = this.get(id);
-			if (tab == null) return;
+			if (tab === null) return;
 			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
-			
+
 			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
 			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);"></div>' : '') +
-						  '	<div class="w2ui-tab'+ (this.active == tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
-						  '		title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
-						  '		onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
-			if (jq_el.length == 0) {
+						'	<div class="w2ui-tab'+ (this.active == tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
+						'		title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
+						'		onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
+			if (jq_el.length === 0) {
 				// does not exist - create it
 				var addStyle = '';
 				if (tab.hidden) { addStyle += 'display: none;'; }
@@ -254,15 +254,15 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
 		},
-		
+
 		render: function (box) {
 			var time = (new Date()).getTime();
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
+			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
-			if (String(box) != 'undefined' && box != null) { 
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			if (String(box) != 'undefined' && box !== null) {
 				if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -273,9 +273,9 @@
 			}
 			if (!this.box) return;
 			// render all buttons
-			var html = '<table cellspacing="0" cellpadding="1" width="100%">'+
-					   '	<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
-					   '</table>';
+			var html =	'<table cellspacing="0" cellpadding="1" width="100%">'+
+						'	<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
+						'</table>';
 			$(this.box)
 				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-tabs')
@@ -286,20 +286,20 @@
 			this.refresh();
 			return (new Date()).getTime() - time;
 		},
-		
+
 		resize: function () {
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.isCancelled === true) return false;
 			// empty function
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
-	
-		destroy: function () { 
+
+		destroy: function () {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
+			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
 			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
@@ -312,15 +312,15 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
-		
+
 		// ===================================================
 		// -- Internal Event Handlers
-	
+
 		click: function (id, event) {
 			var tab = this.get(id);
-			if (tab == null || tab.disabled) return false;
+			if (tab === null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, object: this.get(id), originalEvent: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, object: this.get(id), originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
@@ -329,39 +329,39 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh(id);
 		},
-		
+
 		animateClose: function(id, event) {
 			var tab = this.get(id);
-			if (tab == null || tab.disabled) return false;
+			if (tab === null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });	
+			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default action
 			var obj = this;
-			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css({ 
-				'-webkit-transition': '.2s', 
-				'-moz-transition': '2s', 
-				'-ms-transition': '.2s', 
-				'-o-transition': '.2s', 
+			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css({
+				'-webkit-transition': '.2s',
+				'-moz-transition': '2s',
+				'-ms-transition': '.2s',
+				'-o-transition': '.2s',
 				opacity: '0' });
 			setTimeout(function () {
 				var width = $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id)).width();
 				$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id))
-					.html('<div style="width: '+ width +'px; -webkit-transition: .2s; -moz-transition: .2s; -ms-transition: .2s; -o-transition: .2s"></div>')
+					.html('<div style="width: '+ width +'px; -webkit-transition: .2s; -moz-transition: .2s; -ms-transition: .2s; -o-transition: .2s"></div>');
 				setTimeout(function () {
 					$(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id)).find(':first-child').css({ 'width': '0px' });
 				}, 50);
 			}, 200);
 			setTimeout(function () {
-				obj.remove(id);		
+				obj.remove(id);
 			}, 450);
 			// event before
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh();
 		},
 
-		animateInsert: function(id, tab) {		
-			if (this.get(id) == null) return;
+		animateInsert: function(id, tab) {
+			if (this.get(id) === null) return;
 			if (!$.isPlainObject(tab)) return;
 			// check for unique
 			var unique = true;
@@ -372,7 +372,7 @@
 			}
 			// insert simple div
 			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
-			if (jq_el.length != 0) return; // already exists
+			if (jq_el.length !== 0) return; // already exists
 			// measure width
 			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
 			var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
@@ -396,18 +396,18 @@
 			}
 			// -- move
 			var obj = this;
-			setTimeout(function () { 
+			setTimeout(function () {
 				var width = $('#_tmp_simple_tab').width();
 				$('#_tmp_tabs').remove();
-				$('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id) +' > div').css('width', width+'px'); 
+				$('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id) +' > div').css('width', width+'px');
 			}, 1);
 			setTimeout(function () {
 				// insert for real
 				obj.insert(id, tab);
 			}, 200);
 		}
-	}
-	
+	};
+
 	$.extend(w2tabs.prototype, w2utils.event);
 	w2obj.tabs = w2tabs;
 })();
