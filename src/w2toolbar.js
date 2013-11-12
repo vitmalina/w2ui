@@ -1,33 +1,33 @@
 /************************************************************************
-*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*   - Following objects defined
-* 		- w2toolbar 	- toolbar widget
+*	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*	- Following objects defined
+*		- w2toolbar		- toolbar widget
 *		- $().w2toolbar	- jQuery wrapper
-*   - Dependencies: jQuery, w2utils
+*	- Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*   - on overflow display << >>
-*  
+*	- on overflow display << >>
+*
 ************************************************************************/
 
 (function () {
 	var w2toolbar = function (options) {
-		this.box		= null,		// DOM Element that holds the element
-		this.name 		= null,		// unique name for w2ui
-		this.items 		= [],
-		this.right 		= '',		// HTML text on the right of toolbar
-		this.onClick 	= null,
-		this.onRender 	= null, 
-		this.onRefresh	= null,
-		this.onResize   = null,
-		this.onDestroy  = null
-	
+		this.box		= null;		// DOM Element that holds the element
+		this.name		= null;		// unique name for w2ui
+		this.items		= [];
+		this.right		= '';		// HTML text on the right of toolbar
+		this.onClick	= null;
+		this.onRender	= null;
+		this.onRefresh	= null;
+		this.onResize	= null;
+		this.onDestroy	= null;
+
 		$.extend(true, this, w2obj.toolbar, options);
-	}
-	
+	};
+
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
+
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check required parameters
@@ -37,59 +37,59 @@
 			}
 			if (typeof w2ui[method.name] != 'undefined') {
 				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;			
+				return;
 			}
 			if (!w2utils.isAlphaNumeric(method.name)) {
 				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;			
+				return;
 			}
 			var items = method.items;
 			// extend items
 			var object = new w2toolbar(method);
 			$.extend(object, { items: [], handlers: [] });
-			
-			for (var i in items) { object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]); }		
-			if ($(this).length != 0) {
+
+			for (var i in items) { object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]); }
+			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
 			// register new object
 			w2ui[object.name] = object;
 			return object;
-			
+
 		} else if (w2ui[$(this).attr('name')]) {
 			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2toolbar' );
-		}    
+		}
 	};
-	
+
 	// ====================================================
 	// -- Implementation of core functionality
-	
+
 	w2toolbar.prototype = {
 		item: {
 			id		: null,		// commnad to be sent to all event handlers
 			type	: 'button',	// button, check, radio, drop, menu, break, html, spacer
 			text	: '',
-			html	: '', 
-			img		: null,	
-			icon 	: null,
+			html	: '',
+			img		: null,
+			icon	: null,
 			hidden	: false,
 			disabled: false,
-			checked	: false, 	// used for radio buttons
+			checked	: false,	// used for radio buttons
 			arrow	: true,		// arrow down for drop/menu types
 			hint	: '',
-			group	: null, 	// used for radio buttons
-			items	: null, 	// for type menu it is an array of items in the menu
+			group	: null,		// used for radio buttons
+			items	: null,		// for type menu it is an array of items in the menu
 			onClick	: null
 		},
-	
+
 		add: function (items) {
 			this.insert(null, items);
 		},
-		
+
 		insert: function (id, items) {
 			if (!$.isArray(items)) items = [items];
 			for (var o in items) {
@@ -119,7 +119,7 @@
 				}
 				// add item
 				var it = $.extend({}, w2toolbar.prototype.item, items[o]);
-				if (id == null || typeof id == 'undefined') {
+				if (id === null || typeof id == 'undefined') {
 					this.items.push(it);
 				} else {
 					var middle = this.get(id, true);
@@ -128,7 +128,7 @@
 				this.refresh(it.id);
 			}
 		},
-		
+
 		remove: function (id) {
 			var removed = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -143,24 +143,24 @@
 			}
 			return removed;
 		},
-		
+
 		set: function (id, item) {
 			var index = this.get(id, true);
-			if (index == null) return false;
+			if (index === null) return false;
 			$.extend(this.items[index], item);
 			this.refresh(id);
-			return true;	
+			return true;
 		},
-		
+
 		get: function (id, returnIndex) {
-			if (arguments.length == 0) {
+			if (arguments.length === 0) {
 				var all = [];
-				for (var i = 0; i < this.items.length; i++) if (this.items[i].id != null) all.push(this.items[i].id);
+				for (var i = 0; i < this.items.length; i++) if (this.items[i].id !== null) all.push(this.items[i].id);
 				return all;
 			}
-			for (var i = 0; i < this.items.length; i++) {
-				if (this.items[i].id == id) { 
-					if (returnIndex === true) return i; else return this.items[i]; 
+			for (var i1 = 0; i1 < this.items.length; i1++) {
+				if (this.items[i1].id == id) {
+					if (returnIndex === true) return i1; else return this.items[i1];
 				}
 			}
 			return null;
@@ -177,7 +177,7 @@
 			}
 			return items;
 		},
-		
+
 		hide: function (id) {
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -189,7 +189,7 @@
 			}
 			return items;
 		},
-		
+
 		enable: function (id) {
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -201,7 +201,7 @@
 			}
 			return items;
 		},
-		
+
 		disable: function (id) {
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -213,7 +213,7 @@
 			}
 			return items;
 		},
-		
+
 		check: function (id) {
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -225,7 +225,7 @@
 			}
 			return items;
 		},
-		
+
 		uncheck: function (id) {
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -237,13 +237,13 @@
 			}
 			return items;
 		},
-		
+
 		render: function (box) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
+			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
-	 
-			if (typeof box != 'undefined' && box != null) { 
+
+			if (typeof box != 'undefined' && box !== null) {
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -254,17 +254,17 @@
 			}
 			if (!this.box) return;
 			// render all buttons
-			var html = '<table cellspacing="0" cellpadding="0" width="100%">'+
-					   '<tr>';
+			var html =	'<table cellspacing="0" cellpadding="0" width="100%">'+
+						'<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
-				if (typeof it.id == 'undefined' || it.id == null) it.id = "item_" + i;
-				if (it == null)  continue;
+				if (typeof it.id == 'undefined' || it.id === null) it.id = "item_" + i;
+				if (it === null)  continue;
 				if (it.type == 'spacer') {
 					html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
 				} else {
 					html += '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
-							'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ this.getItemHTML(it) + 
+							'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ this.getItemHTML(it) +
 							'</td>';
 				}
 			}
@@ -277,37 +277,37 @@
 				.html(html);
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
-		
+
 		refresh: function (id) {
 			var time = (new Date()).getTime();
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id) });	
+			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id) });
 			if (eventData.isCancelled === true) return false;
-			
+
 			if (typeof id == 'undefined') {
 				// refresh all
 				for (var i = 0; i < this.items.length; i++) {
-					var it = this.items[i];
-					if (typeof it.id == 'undefined' || it.id == null) it.id = "item_" + i;
-					this.refresh(it.id);
+					var it1 = this.items[i];
+					if (typeof it1.id == 'undefined' || it1.id === null) it1.id = "item_" + i;
+					this.refresh(it1.id);
 				}
 			}
 			// create or refresh only one item
 			var it = this.get(id);
-			if (it == null) return;
-			
+			if (it === null) return;
+
 			var el = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id));
 			var html  = this.getItemHTML(it);
-			if (el.length == 0) {
+			if (el.length === 0) {
 				// does not exist - create it
 				if (it.type == 'spacer') {
 					html = '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
 				} else {
 					html =  '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
-						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html + 
+						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html +
 						'</td>';
 				}
 				if (this.get(id, true) == this.items.length-1) {
@@ -322,15 +322,15 @@
 				if (it.disabled) { el.addClass('disabled'); } else { el.removeClass('disabled'); }
 			}
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
 		},
-		
+
 		resize: function () {
 			var time = (new Date()).getTime();
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });	
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.isCancelled === true) return false;
 
 			// empty function
@@ -339,10 +339,10 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
 		},
-	
-		destroy: function () { 
+
+		destroy: function () {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
+			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
 			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
@@ -354,106 +354,106 @@
 			$(this.box).html('');
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
-		
+
 		// ========================================
 		// --- Internal Functions
-		
+
 		getItemHTML: function (item) {
 			var html = '';
-			
+
 			if (typeof item.caption != 'undefined') item.text = item.caption;
 			if (typeof item.hint == 'undefined') item.hint = '';
 			if (typeof item.text == 'undefined') item.text = '';
-	
+
 			switch (item.type) {
 				case 'menu':
-				case 'button':	
+				case 'button':
 				case 'check':
 				case 'radio':
 				case 'drop':
 					var img = '<td>&nbsp;</td>';
 					if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
 					if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
-					html +=  '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
-							 '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
-							 '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over');" : "") + '"'+
-							 '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over');" : "") + '"'+
-							 '       onmousedown = "' + (!item.disabled ? "$(this).addClass('down');" : "") + '"'+
-							 '       onmouseup   = "' + (!item.disabled ? "$(this).removeClass('down');" : "") + '"'+
-							 '>'+
-							 '<tr><td>'+
-							 '  <table cellpadding="1" cellspacing="0">'+
-							 '  <tr>' +
-							 		img +
-									(item.text != '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.text +'</td>' : '') +
-									(((item.type == 'drop' || item.type == 'menu') && item.arrow !== false) ? 
+					html += '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
+							'       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
+							'       onmouseover = "' + (!item.disabled ? "$(this).addClass('over');" : "") + '"'+
+							'       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over');" : "") + '"'+
+							'       onmousedown = "' + (!item.disabled ? "$(this).addClass('down');" : "") + '"'+
+							'       onmouseup   = "' + (!item.disabled ? "$(this).removeClass('down');" : "") + '"'+
+							'>'+
+							'<tr><td>'+
+							'  <table cellpadding="1" cellspacing="0">'+
+							'  <tr>' +
+									img +
+									(item.text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.text +'</td>' : '') +
+									(((item.type == 'drop' || item.type == 'menu') && item.arrow !== false) ?
 										'<td class="w2ui-tb-down" nowrap>&nbsp;&nbsp;&nbsp;</td>' : '') +
-							 '  </tr></table>'+
-							 '</td></tr></table>';
+							'  </tr></table>'+
+							'</td></tr></table>';
 					break;
-								
+
 				case 'break':
-					html +=  '<table cellpadding="0" cellspacing="0"><tr>'+
-							 '    <td><div class="w2ui-break">&nbsp;</div></td>'+
-							 '</tr></table>';
+					html +=	'<table cellpadding="0" cellspacing="0"><tr>'+
+							'    <td><div class="w2ui-break">&nbsp;</div></td>'+
+							'</tr></table>';
 					break;
-	
+
 				case 'html':
-					html +=  '<table cellpadding="0" cellspacing="0"><tr>'+
-							 '    <td nowrap>' + item.html + '</td>'+
-							 '</tr></table>';
+					html +=	'<table cellpadding="0" cellspacing="0"><tr>'+
+							'    <td nowrap>' + item.html + '</td>'+
+							'</tr></table>';
 					break;
 			}
-			
+
 			var newHTML = '';
 			if (typeof item.onRender == 'function') newHTML = item.onRender.call(this, item.id, html);
 			if (typeof this.onRender == 'function') newHTML = this.onRender(item.id, html);
-			if (newHTML != '' && typeof newHTML != 'undefined') html = newHTML;
-			return html;					
+			if (newHTML !== '' && typeof newHTML != 'undefined') html = newHTML;
+			return html;
 		},
 
 		menuClick: function (id, menu_index, event) {
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			var obj = this;
 			var it  = this.get(id);
 			if (it && !it.disabled) {
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id),
-					  subItem: (typeof menu_index != 'undefined' && this.get(id) ? this.get(id).items[menu_index] : null), originalEvent: event });	
+					subItem: (typeof menu_index != 'undefined' && this.get(id) ? this.get(id).items[menu_index] : null), originalEvent: event });
 				if (eventData.isCancelled === true) return false;
 
 				// normal processing
 
 				// event after
-				this.trigger($.extend(eventData, { phase: 'after' }));	
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
-				
+
 		click: function (id, event) {
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			var obj = this;
 			var it  = this.get(id);
 			if (it && !it.disabled) {
 				// event before
-				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id != 'undefined' ? id : this.name), 
-					item: this.get(id), originalEvent: event });	
+				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id != 'undefined' ? id : this.name),
+					item: this.get(id), originalEvent: event });
 				if (eventData.isCancelled === true) return false;
-			
+
 				$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('down');
-								
+
 				if (it.type == 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
 						var itt = this.items[i];
-						if (itt == null || itt.id == it.id || itt.type != 'radio') continue;
+						if (itt === null || itt.id == it.id || itt.type != 'radio') continue;
 						if (itt.group == it.group && itt.checked) {
 							itt.checked = false;
 							this.refresh(itt.id);
 						}
 					}
 					it.checked = true;
-					$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');					
+					$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
 				}
 
 				if (it.type == 'drop' || it.type == 'menu') {
@@ -467,7 +467,7 @@
 							if (!$.isPlainObject(it.overlay)) it.overlay = {};
 							if (it.type == 'drop') {
 								el.w2overlay(it.html, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay));
-							} 
+							}
 							if (it.type == 'menu') {
 								el.w2menu(it.items, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay, {
 									select: function (item, event, index) { obj.menuClick(it.id, index, event); }
@@ -480,7 +480,7 @@
 								if (it.checked) {
 									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
 								} else {
-									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
+									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');
 								}
 								obj.refresh(it.id);
 								$(document).off('click', hideDrop);
@@ -494,15 +494,15 @@
 					if (it.checked) {
 						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
 					} else {
-						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');					
+						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');
 					}
 				}
 				// event after
-				this.trigger($.extend(eventData, { phase: 'after' }));	
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
-		}		
-	}
-	
+		}
+	};
+
 	$.extend(w2toolbar.prototype, w2utils.event);
 	w2obj.toolbar = w2toolbar;
 })();
