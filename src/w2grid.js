@@ -3,7 +3,7 @@
 *   - Following objects defined
 * 		- w2grid 		- grid widget
 *		- $().w2grid	- jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
+*	- Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
 *	- global search apply types and drop downs
@@ -21,6 +21,11 @@
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
 *	- search-logic -> searchLogic
+*	- allow to define different recid (possibly)
+*
+* == 1.4 changes
+* 	- added refreshRow(recid) - should it be part of refresh?
+* 	- added refreshCell(recid, field) - should it be part of refresh?
 *
 ************************************************************************/
 
@@ -28,7 +33,7 @@
 	var w2grid = function(options) {
 
 		// public properties
-		this.name  	  			= null;
+		this.name				= null;
 		this.box				= null; 	// HTML element that hold this element
 		this.header				= '';
 		this.url				= '';
@@ -157,7 +162,7 @@
 			}
 			if (!w2utils.isAlphaNumeric(method.name)) {
 				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;			
+				return;
 			}
 			// remember items
 			var columns		= method.columns;
@@ -179,7 +184,7 @@
 			for (var p in searches)   	object.searches[p]   	= $.extend(true, {}, searches[p]);
 			for (var p in searchData) 	object.searchData[p] 	= $.extend(true, {}, searchData[p]);
 			for (var p in sortData)		object.sortData[p]  	= $.extend(true, {}, sortData[p]);
-			object.postData = $.extend(true, {}, postData);	
+			object.postData = $.extend(true, {}, postData);
 
 			// check if there are records without recid
 			for (var r in records) {
@@ -223,7 +228,7 @@
 
 	w2grid.prototype = {
 		// ----
-		// properties that need to be in prototype		
+		// properties that need to be in prototype
 
 		msgDelete	: w2utils.lang('Are you sure you want to delete selected records?'),
 		msgNotJSON 	: w2utils.lang('Returned data is not in valid JSON format.'),
@@ -233,9 +238,9 @@
 		buttons: {
 			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') },
 			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
-			'search'	: { type: 'html',   id: 'search', 
-							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+ 
-								  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields(this);"></div>' 
+			'search'	: { type: 'html',   id: 'search',
+							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
+								  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields(this);"></div>'
 						  },
 			'search-go'	: { type: 'check',  id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') },
 			'add'		: { type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' },
@@ -296,18 +301,8 @@
 			} else { // find record to update
 				var ind = this.get(recid, true);
 				if (ind == null) return false;
-				$.extend(true, this.records[ind], record);
-				// refresh only that record
-				if (noRefresh !== true) {
-					var tr = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
-					if (tr.length != 0) {
-						var line = tr.attr('line');
-						// if it is searched, find index in search array
-						var url = (typeof this.url != 'object' ? this.url : this.url.get);
-						if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
-						$(tr).replaceWith(this.getRecordHTML(ind, line));
-					}
-				}
+				$.extend(true, this.records[ind], record);				
+				if (noRefresh !== true) this.refreshRow(recid); // refresh only that record
 			}
 			return true;
 		},
@@ -315,7 +310,7 @@
 		get: function (recid, returnIndex) {
 			for (var i=0; i<this.records.length; i++) {
 				if (this.records[i].recid == recid) {
-					if (returnIndex === true) return i; else return this.records[i];					
+					if (returnIndex === true) return i; else return this.records[i];
 				}
 			}
 			return null;
@@ -385,7 +380,7 @@
 				for (var r = this.columns.length-1; r >= 0; r--) {
 					if (this.columns[r].field == arguments[a]) {
 						this.columns[r].hidden = !this.columns[r].hidden;
-						effected++; 
+						effected++;
 					}
 				}
 			}
@@ -397,9 +392,9 @@
 			var shown = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.columns.length-1; r >= 0; r--) {
-					if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== false) { 
-						this.columns[r].hidden = false; 
-						shown++; 
+					if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== false) {
+						this.columns[r].hidden = false;
+						shown++;
 					}
 				}
 			}
@@ -411,9 +406,9 @@
 			var hidden = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.columns.length-1; r >= 0; r--) {
-					if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== true) { 
-						this.columns[r].hidden = true; 
-						hidden++; 
+					if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== true) {
+						this.columns[r].hidden = true;
+						hidden++;
 					}
 				}
 			}
@@ -464,9 +459,9 @@
 			var effected = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.searches.length-1; r >= 0; r--) {
-					if (this.searches[r].field == arguments[a]) { 
-						this.searches[r].hidden = !this.searches[r].hidden; 
-						effected++; 
+					if (this.searches[r].field == arguments[a]) {
+						this.searches[r].hidden = !this.searches[r].hidden;
+						effected++;
 					}
 				}
 			}
@@ -478,9 +473,9 @@
 			var shown = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.searches.length-1; r >= 0; r--) {
-					if (this.searches[r].field == arguments[a] && this.searches[r].hidden !== false) { 
-						this.searches[r].hidden = false; 
-						shown++; 
+					if (this.searches[r].field == arguments[a] && this.searches[r].hidden !== false) {
+						this.searches[r].hidden = false;
+						shown++;
 					}
 				}
 			}
@@ -492,9 +487,9 @@
 			var hidden = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				for (var r = this.searches.length-1; r >= 0; r--) {
-					if (this.searches[r].field == arguments[a] && this.searches[r].hidden !== true) { 
-						this.searches[r].hidden = true; 
-						hidden++; 
+					if (this.searches[r].field == arguments[a] && this.searches[r].hidden !== true) {
+						this.searches[r].hidden = true;
+						hidden++;
 					}
 				}
 			}
@@ -507,7 +502,7 @@
 				if (this.searchData[s].field == field) return this.searchData[s];
 			}
 			return null;
-		},		
+		},
 
 		localSort: function (silent) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -623,7 +618,7 @@
 			var rec2 = this.get(range[1].recid, true);
 			var col1 = range[0].column;
 			var col2 = range[1].column;
-			
+
 			var res = [];
 			if (col1 == col2) { // one row
 				for (var r = rec1; r <= rec2; r++) {
@@ -672,8 +667,8 @@
 				if (ranges[r].name == 'selection') {
 					if (this.show.selectionBorder === false) continue;
 					var sel = this.getSelection();
-					if (sel.length == 0) { 
-						this.removeRange(ranges[r].name); 
+					if (sel.length == 0) {
+						this.removeRange(ranges[r].name);
 						continue;
 					} else {
 						var first = sel[0];
@@ -688,10 +683,10 @@
 					var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
 				}
 				if (first) {
-					var rg = { 
-						name: ranges[r].name, 
-						range: [{ recid: first.recid, column: first.column }, { recid: last.recid, column: last.column }], 
-						style: ranges[r].style || '' 
+					var rg = {
+						name: ranges[r].name,
+						range: [{ recid: first.recid, column: first.column }, { recid: last.recid, column: last.column }],
+						style: ranges[r].style || ''
 					};
 					// add range
 					var ind = false;
@@ -699,7 +694,7 @@
 					if (ind !== false) {
 						this.ranges[ind] = rg;
 					} else {
-						this.ranges.push(rg);	
+						this.ranges.push(rg);
 					}
 					added++
 				}
@@ -751,7 +746,7 @@
 			}
 
 			// add resizer events
-			$(this.box).find('#grid_'+ this.name +'_resizer').off('mousedown').on('mousedown', mouseStart);			
+			$(this.box).find('#grid_'+ this.name +'_resizer').off('mousedown').on('mousedown', mouseStart);
 			//$(this.box).find('#grid_'+ this.name +'_resizer').off('selectstart').on('selectstart', function () { return false; }); // fixes chrome cursror bug
 
 			var eventData = { phase: 'before', type: 'selectionExtend', target: obj.name, originalRange: null, newRange: null };
@@ -791,15 +786,15 @@
 				mv.newRange = [{ recid: mv.recid, column: mv.column }, { recid: recid, column: column }];
 				// event before
 				eventData = obj.trigger($.extend(eventData, { originalRange: mv.originalRange, newRange : mv.newRange }));
-				if (eventData.isCancelled === true) { 
+				if (eventData.isCancelled === true) {
 					mv.newRange 		= prevNewRange;
 					eventData.newRange 	= prevNewRange;
-					return; 
+					return;
 				} else {
 					// default behavior
 					obj.removeRange('grid-selection-expand');
-					obj.addRange({ 
-						name	: 'grid-selection-expand', 
+					obj.addRange({
+						name	: 'grid-selection-expand',
 						range	: eventData.newRange,
 						style	: 'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
 					});
@@ -814,7 +809,7 @@
 				$(document).off('mouseup', mouseStop);
 				// event after
 				obj.trigger($.extend(eventData, { phase: 'after' }));
-			}	
+			}
 
 			return (new Date()).getTime() - time;
 		},
@@ -851,18 +846,18 @@
 					// default action
 					if (!$.isArray(s)) record.selectedColumns = [];
 					record.selected = true;
-					record.selectedColumns.push(col); 
+					record.selectedColumns.push(col);
 					record.selectedColumns.sort(function(a, b) { return a-b }); // sort function must be for numerical sort
 					$('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid) + ' > td[col='+ col +']').addClass('w2ui-selected');
 					selected++;
-					if (record.selected) {					
+					if (record.selected) {
 						$('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).data('selected', 'yes');
 						$('#grid_'+ this.name +'_cell_'+ index +'_select_check').prop('checked', true);
 					}
 				}
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
-			} 
+			}
 			// all selected?
 			$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			if ($('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length != 0 &&
@@ -919,7 +914,7 @@
 				}
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
-			} 
+			}
 			// all selected?
 			$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			if ($('#grid_'+ this.name +'_records').find('.grid_select_check[type=checkbox]').length != 0 &&
@@ -944,7 +939,7 @@
 			for (var c in this.columns) cols.push(parseInt(c));
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (!url) {
-				if (this.searchData.length == 0) { 
+				if (this.searchData.length == 0) {
 					// not searched
 					this.set({ selected: true });
 					if (this.selectType == 'row') {
@@ -952,7 +947,7 @@
 					} else {
 						this.set({ selected: true, selectedColumns: cols.slice() }); // .slice makes copy of the array
 					}
-				} else { 
+				} else {
 					// local search applied
 					for (var i=0; i<this.last.searchIds.length; i++) {
 						this.records[this.last.searchIds[i]].selected = true;
@@ -1019,7 +1014,7 @@
 				var ret = [];
 				for (var s in sel) {
 					var rec = this.records[sel[s]];
-					for (var c in rec.selectedColumns) { 
+					for (var c in rec.selectedColumns) {
 						ret.push({ recid: rec.recid, index: parseInt(sel[s]), column: rec.selectedColumns[c] });
 					}
 				}
@@ -1104,7 +1099,7 @@
 									};
 									searchData.push(tmp);
 								}
-								// range in global search box 
+								// range in global search box
 								if (search.type == 'int' && String(value).indexOf('-') != -1) {
 									var t = String(value).split('-');
 									var tmp = {
@@ -1116,7 +1111,7 @@
 									searchData.push(tmp);
 								}
 							}
-						} else { 
+						} else {
 							// no search fields, loop thru columns
 							for (var c in this.columns) {
 								var tmp = {
@@ -1184,10 +1179,10 @@
 				}
 			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData, 
+			var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData,
 					searchField: (field ? field : 'multi'), searchValue: (value ? value : 'multi') });
 			if (eventData.isCancelled === true) return;
-			// default action			
+			// default action
 			this.searchData	 = eventData.searchData;
 			this.last.field  = last_field;
 			this.last.search = last_search;
@@ -1218,9 +1213,9 @@
 			var obj = this;
 			// show search
 			$('#tb_'+ this.name +'_toolbar_item_search-advanced').w2overlay(
-				this.getSearchesHTML(), 
-				{ 
-					left: -10, 
+				this.getSearchesHTML(),
+				{
+					left: -10,
 					'class': 'w2ui-grid-searches',
 					onShow: function () {
 						if (obj.last.logic == 'OR') obj.searchData = [];
@@ -1430,7 +1425,7 @@
 			this.last.xhr_start  = (new Date()).getTime();
 			this.last.xhr = $.ajax({
 				type		: xhr_type,
-				url			: url, 
+				url			: url,
 				data		: String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
 				dataType	: 'text',
 				complete	: function (xhr, status) {
@@ -1442,7 +1437,7 @@
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
-				
+
 		requestComplete: function(status, cmd, callBack) {
 			var obj = this;
 			this.unlock();
@@ -1502,8 +1497,8 @@
 								this.buffered = this.records.length;
 							}
 						}
-						if (cmd == 'delete-records') { 
-							this.reload(); 
+						if (cmd == 'delete-records') {
+							this.reload();
 							return;
 						}
 					}
@@ -1556,12 +1551,12 @@
 					if (s == 'recid') continue; // do not allow to change recid
 					try { eval('record.' + s + ' = changed[c][s]'); } catch (e) {}
 					delete record.changed;
-					delete record.changes; 
+					delete record.changes;
 				}
 			}
 			$(this.box).find('.w2ui-editable input').removeClass('changed');
 			this.refresh();
-		},		
+		},
 
 		// ===================================================
 		// --  Action Handlers
@@ -1574,7 +1569,7 @@
 			if (eventData.isCancelled === true) return false;
 			var url = (typeof this.url != 'object' ? this.url : this.url.save);
 			if (url) {
-				this.request('save-records', { 'changed' : eventData.changed }, null, 
+				this.request('save-records', { 'changed' : eventData.changed }, null,
 					function () { // event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
@@ -1595,7 +1590,7 @@
 			var edit  = col.editable;
 			if (!rec || !col || !edit) return;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'editField', target: obj.name, recid: recid, column: column, value: value, 
+			var eventData = obj.trigger({ phase: 'before', type: 'editField', target: obj.name, recid: recid, column: column, value: value,
 				index: index, originalEvent: event });
 			if (eventData.isCancelled === true) return;
 			value = eventData.value;
@@ -1625,8 +1620,8 @@
 				.on('blur', function (event) {
 					if (obj.parseField(rec, col.field) != this.value) {
 						// change event
-						var eventData2 = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column, 
-							value_new: this.value, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseField(rec, col.field)), 
+						var eventData2 = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column,
+							value_new: this.value, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseField(rec, col.field)),
 							value_original: obj.parseField(rec, col.field) });
 						if (eventData2.isCancelled === true) {
 							// dont save new value
@@ -1652,13 +1647,13 @@
 							cancel = true;
 							var next = event.shiftKey ? prevCell(column) : nextCell(column);
 							if (next != column) {
-								this.blur();						
-								setTimeout(function () { 
+								this.blur();
+								setTimeout(function () {
 									if (obj.selectType != 'row') {
-										obj.selectNone(); 
+										obj.selectNone();
 										obj.select({ recid: recid, column: next });
 									} else {
-										obj.editField(recid, next, null, event); 
+										obj.editField(recid, next, null, event);
 									}
 								}, 1);
 							}
@@ -1668,14 +1663,14 @@
 							cancel = true;
 							var next = event.shiftKey ? prevRow(index) : nextRow(index);
 							if (next != index) {
-								this.blur();						
-								setTimeout(function () { 
+								this.blur();
+								setTimeout(function () {
 									if (obj.selectType != 'row') {
-										obj.selectNone(); 
-										obj.select({ recid: obj.records[next].recid, column: column }); 
+										obj.selectNone();
+										obj.select({ recid: obj.records[next].recid, column: column });
 									} else {
 										obj.editField(obj.records[next].recid, column, null, event);
-									}										
+									}
 								}, 1);
 							}
 							break;
@@ -1684,14 +1679,14 @@
 							cancel = true;
 							var next = prevRow(index);
 							if (next != index) {
-								this.blur();						
-								setTimeout(function () { 
+								this.blur();
+								setTimeout(function () {
 									if (obj.selectType != 'row') {
-										obj.selectNone(); 
-										obj.select({ recid: obj.records[next].recid, column: column }); 
+										obj.selectNone();
+										obj.select({ recid: obj.records[next].recid, column: column });
 									} else {
 										obj.editField(obj.records[next].recid, column, null, event);
-									}										
+									}
 								}, 1);
 							}
 							break;
@@ -1700,14 +1695,14 @@
 							cancel = true;
 							var next = nextRow(index);
 							if (next != index) {
-								this.blur();						
-								setTimeout(function () { 
+								this.blur();
+								setTimeout(function () {
 									if (obj.selectType != 'row') {
-										obj.selectNone(); 
-										obj.select({ recid: obj.records[next].recid, column: column }); 
+										obj.selectNone();
+										obj.select({ recid: obj.records[next].recid, column: column });
 									} else {
 										obj.editField(obj.records[next].recid, column, null, event);
-									}										
+									}
 								}, 1);
 							}
 							break;
@@ -1746,7 +1741,7 @@
 				});
 			// unselect
 			if (typeof value == 'undefined' || value == null) {
-				el.find('input').focus(); 
+				el.find('input').focus();
 			} else {
 				el.find('input').val('').focus().val(value);
 			}
@@ -1765,7 +1760,7 @@
 			if (recs.length == 0) return;
 			if (this.msgDelete != '' && !force) {
 				w2confirm(obj.msgDelete, w2utils.lang('Delete Confirmation'), function (result) {
-					if (result == 'Yes') w2ui[obj.name].delete(true); 
+					if (result == 'Yes') w2ui[obj.name].delete(true);
 				});
 				return;
 			}
@@ -1844,7 +1839,7 @@
 			obj.last.sel_col   = column;
 			obj.last.sel_recid = recid;
 			obj.last.sel_type  = 'click';
-			// multi select with shif key 
+			// multi select with shif key
 			if (event.shiftKey && sel.length > 0) {
 				if (sel[0].recid) {
 					var start = this.get(sel[0].recid, true);
@@ -1922,7 +1917,7 @@
 			var obj = this;
 			if (obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });	
+			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default behavior
 			var sel 	= obj.getSelection();
@@ -1995,7 +1990,7 @@
 					} else { // same as spacebar
 						if (columns.length == 0) columns.push(0);
 						obj.editField(recid, columns[0], null, event);
-						cancel = true;						
+						cancel = true;
 					}
 					break;
 
@@ -2107,7 +2102,7 @@
 								cancel = true;
 								break;
 							}
-						}						
+						}
 						if (event.shiftKey) { // expand selection
 							if (tmpUnselect()) return;
 							if (obj.selectType == 'row') {
@@ -2220,9 +2215,9 @@
 					if (event.ctrlKey || event.metaKey) {
 						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;"></textarea>');
 						$('#_tmp_copy_data').focus();
-						setTimeout(function () { 
+						setTimeout(function () {
 							obj.paste($('#_tmp_copy_data').val());
-							$('#_tmp_copy_data').remove(); 
+							$('#_tmp_copy_data').remove();
 						}, 50); // need timer to allow paste
 					}
 					break;
@@ -2249,7 +2244,7 @@
 				if (event.keyCode == 189) tmp = '-';
 				if (!event.shiftKey) tmp = tmp.toLowerCase();
 				obj.editField(recid, columns[0], tmp, event);
-				cancel = true;				
+				cancel = true;
 			}
 			if (cancel) { // cancel default behaviour
 				if (event.preventDefault) event.preventDefault();
@@ -2340,7 +2335,7 @@
 			if (records.length == 0) return;
 			// if all records in view
 			var len = this.last.searchIds.length;
-			if (records.height() > this.recordHeight * (len > 0 ? len : this.records.length)) return;			
+			if (records.height() > this.recordHeight * (len > 0 ? len : this.records.length)) return;
 			if (len > 0) ind = this.last.searchIds.indexOf(ind); // if seach is applied
 			// scroll to correct one
 			var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
@@ -2404,11 +2399,11 @@
 					'	</td>'+
 					'</tr>');
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid, 
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid,
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', ready: ready });
-			if (eventData.isCancelled === true) { 	
-				$('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove(); 
-				return false; 
+			if (eventData.isCancelled === true) {
+				$('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove();
+				return false;
 			}
 			// default action
 			$('#grid_'+ this.name +'_rec_'+ id).attr('expanded', 'yes').addClass('w2ui-expanded');
@@ -2439,7 +2434,7 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid,
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded' });
-			if (eventData.isCancelled === true) return false; 
+			if (eventData.isCancelled === true) return false;
 			// default action
 			$('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded');
 			$('#grid_'+ this.name +'_rec_'+ id +'_expanded').css('opacity', 0);
@@ -2589,7 +2584,7 @@
 			this.select.apply(this, newSel);
 			this.refresh();
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));			
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		// ==================================================
@@ -2609,7 +2604,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.isCancelled === true) return false;
 			// resize
-			obj.resizeBoxes(); 
+			obj.resizeBoxes();
 			obj.resizeRecords();
 			// init editable
 			// $('#grid_'+ obj.name + '_records .w2ui-editable input').each(function (index, el) {
@@ -2619,6 +2614,25 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
+		},
+
+		refreshCell: function (recid, field) {
+			var index	= this.get(recid, true);
+			var cIndex	= this.getColumn(field, true);
+			$('#grid_'+ this.name + '_rec_'+ recid +' [col='+ cIndex +']').html(this.getCellHTML(index, cIndex));
+		},
+
+		refreshRow: function (recid) {
+			var tr = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+			if (tr.length != 0) {
+				var ind  = this.get(recid, true);
+				var line = tr.attr('line');
+				// if it is searched, find index in search array
+				var url = (typeof this.url != 'object' ? this.url : this.url.get);
+				if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
+				$(tr).replaceWith(this.getRecordHTML(ind, line));
+			}
+
 		},
 
 		refresh: function () {
@@ -2675,7 +2689,7 @@
 			if (this.last.multi) {
 				searchEl.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
 			} else {
-				searchEl.attr('placeholder', this.last.caption);				
+				searchEl.attr('placeholder', this.last.caption);
 			}
 
 			// focus search if last searched
@@ -2756,7 +2770,7 @@
 			}, 50);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			obj.resize(); 
+			obj.resize();
 			obj.addRange('selection');
 			setTimeout(function () { obj.resize(); obj.scroll(); }, 1); // allow to render first
 			return (new Date()).getTime() - time;
@@ -2803,7 +2817,7 @@
 			this.reload();
 
 			// init mouse events for mouse selection
-			$(this.box).on('mousedown', mouseStart);			
+			$(this.box).on('mousedown', mouseStart);
 			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursror bug
 
 			// event after
@@ -2850,7 +2864,7 @@
 				if (ind1 > ind2) { var tmp = ind1; ind1 = ind2; ind2 = tmp; }
 				// check if need to refresh
 				var tmp = 'ind1:'+ ind1 +',ind2;'+ ind2 +',col1:'+ col1 +',col2:'+ col2;
-				if (obj.last.move.range == tmp) return; 
+				if (obj.last.move.range == tmp) return;
 				obj.last.move.range = tmp;
 				for (var i = ind1; i <= ind2; i++) {
 					if (obj.last.searchIds.length > 0 && obj.last.searchIds.indexOf(i) == -1) continue;
@@ -2863,7 +2877,7 @@
 						}
 					} else {
 						newSel.push(obj.records[i].recid);
-					}					
+					}
 				}
 				if (obj.selectType != 'row') {
 					var sel = obj.getSelection();
@@ -2872,7 +2886,7 @@
 					for (var ns in newSel) {
 						var flag = false;
 						for (var s in sel) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
-						if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column }); 
+						if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column });
 					}
 					obj.select.apply(obj, tmp);
 					// remove items
@@ -2886,7 +2900,7 @@
 				} else {
 					if (obj.multiSelect) {
 						var sel = obj.getSelection();
-						for (var ns in newSel) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items					
+						for (var ns in newSel) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
 						for (var s in sel) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
 					}
 				}
@@ -2897,7 +2911,7 @@
 				delete obj.last.move;
 				$(document).off('mousemove', mouseMove);
 				$(document).off('mouseup', mouseStop);
-			}			
+			}
 		},
 
 		destroy: function () {
@@ -2969,8 +2983,8 @@
 			// regular processing
 			var obj = this;
 			// collapse expanded rows
-			for (var r in this.records) { 
-				if (this.records[r].expanded === true) this.records[r].expanded = false 
+			for (var r in this.records) {
+				if (this.records[r].expanded === true) this.records[r].expanded = false
 			}
 			// show/hide
 			var hide = true;
@@ -2991,21 +3005,21 @@
 				this.resize();
 			} else {
 				var col = this.getColumn(field);
-				if (col.hidden) { 
-					$(el).prop('checked', true); 
-					this.showColumn(col.field); 
-				} else { 
-					$(el).prop('checked', false); 
-					this.hideColumn(col.field); 
+				if (col.hidden) {
+					$(el).prop('checked', true);
+					this.showColumn(col.field);
+				} else {
+					$(el).prop('checked', false);
+					this.hideColumn(col.field);
 				}
 				hide = false;
 			}
 			this.initColumnOnOff();
 			if (hide) {
-				setTimeout(function () { 
+				setTimeout(function () {
 					$().w2overlay();
-					obj.toolbar.uncheck('column-on-off'); 
-				}, 100);				
+					obj.toolbar.uncheck('column-on-off');
+				}, 100);
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -3024,7 +3038,7 @@
 				if (this.show.toolbarReload) {
 					this.toolbar.items.push($.extend(true, {}, this.buttons['reload']));
 				}
-				if (this.show.toolbarColumns) {			
+				if (this.show.toolbarColumns) {
 					this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
 					this.initColumnOnOff();
 				}
@@ -3091,7 +3105,7 @@
 							if (eventData2.isCancelled === true) return false;
 							var url = (typeof obj.url != 'object' ? obj.url : obj.url.get);
 							if (url) {
-								obj.clear(true); 
+								obj.clear(true);
 							} else {
 								obj.last.scrollTop	= 0;
 								obj.last.scrollLeft	= 0;
@@ -3116,7 +3130,7 @@
 							var tb = this;
 							var it = this.get(id);
 							if (it.checked) {
-								obj.searchClose(); 
+								obj.searchClose();
 								setTimeout(function () { tb.uncheck(id); }, 1);
 							} else {
 								obj.searchOpen();
@@ -3195,7 +3209,7 @@
 				if (sdata != null) {
 					$('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
 					if (!$.isArray(sdata.value)) {
-						if (typeof sdata.value != 'udefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');						
+						if (typeof sdata.value != 'udefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
 					} else {
 						if (sdata.operator == 'in') {
 							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
@@ -3217,7 +3231,7 @@
 			//if (obj.resizing === true) return;
 			$(this.box).find('.w2ui-resizer')
 				.off('click')
-				.on('click', function (event) { 
+				.on('click', function (event) {
 					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					if (event.preventDefault) event.preventDefault();
 				})
@@ -3347,7 +3361,7 @@
 				setTimeout(function () {
 					var calculatedHeight = w2utils.getSize(columns, 'height')
 						+ w2utils.getSize($('#grid_'+ obj.name +'_records table'), 'height');
-					obj.height = calculatedHeight 
+					obj.height = calculatedHeight
 						+ w2utils.getSize(grid, '+height')
 						+ (obj.show.header ? w2utils.getSize(header, 'height') : 0)
 						+ (obj.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
@@ -3375,16 +3389,16 @@
 			if (!this.fixedBody) { bodyOverflowY = false; bodyOverflowX = false; }
 			if (bodyOverflowX || bodyOverflowY) {
 				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show();
-				records.css({ 
+				records.css({
 					top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
 					"-webkit-overflow-scrolling": "touch",
-					"overflow-x": (bodyOverflowX ? 'auto' : 'hidden'), 
+					"overflow-x": (bodyOverflowX ? 'auto' : 'hidden'),
 					"overflow-y": (bodyOverflowY ? 'auto' : 'hidden') });
 			} else {
 				columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').hide();
-				records.css({ 
-					top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px', 
-					overflow: 'hidden' 
+				records.css({
+					top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
+					overflow: 'hidden'
 				});
 				if (records.length > 0) { this.last.scrollTop  = 0; this.last.scrollLeft = 0; } // if no scrollbars, always show top
 			}
@@ -3485,7 +3499,7 @@
 				if (typeof col.min == 'undefined') col.min = 20;
 				if (parseInt(col.sizeCalculated) < parseInt(col.min)) col.sizeCalculated = col.min + 'px';
 				if (parseInt(col.sizeCalculated) > parseInt(col.max)) col.sizeCalculated = col.max + 'px';
-				width_cols += parseInt(col.sizeCalculated); 
+				width_cols += parseInt(col.sizeCalculated);
 			}
 			var width_diff = parseInt(width_box) - parseInt(width_cols);
 			if (width_diff > 0 && percent > 0) {
@@ -3529,7 +3543,7 @@
 					$(el).css('width', (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
 				}
 			});
-			// resize summary 
+			// resize summary
 			summary.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
 				var ind = $(el).attr('col');
 				if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
@@ -3687,7 +3701,7 @@
 									resizer +
 								'	<div class="w2ui-col-group '+ sortStyle +'">'+
 										(col.caption == '' ? '&nbsp;' : col.caption) +
-								'	</div>'+ 
+								'	</div>'+
 								'</td>';
 					} else {
 						html += '<td class="w2ui-head" col="'+ ii + '" '+
@@ -3699,8 +3713,8 @@
 					}
 					ii += colg.span;
 				}
-				html += '</tr>';	
-				return html;			
+				html += '</tr>';
+				return html;
 			}
 
 			function getColumns (master) {
@@ -3753,9 +3767,9 @@
 						html += '<td col="'+ i +'" class="w2ui-head '+ sortStyle +'" '+
 										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);"' : '') + '>'+
 									resizer +
-								'	<div class="'+ sortStyle +'">'+  
+								'	<div class="'+ sortStyle +'">'+
 										(col.caption == '' ? '&nbsp;' : col.caption) +
-								'	</div>'+ 
+								'	</div>'+
 								'</td>';
 					}
 				}
@@ -3767,7 +3781,7 @@
 
 		getRecordsHTML: function () {
 			// larget number works better with chrome, smaller with FF.
-			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
+			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300;
 			var records	= $('#grid_'+ this.name +'_records');
 			var limit	= Math.floor(records.height() / this.recordHeight) + this.show_extra + 1;
 			if (!this.fixedBody) limit = this.buffered;
@@ -3807,7 +3821,7 @@
 			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
 			if (this.records.length == 0 || records.length == 0 || records.height() == 0) return;
-			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300; 
+			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300;
 			// need this to enable scrolling when this.limit < then a screen can fit
 			if (records.height() < this.buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
 				if (this.total > 0) this.refresh();
@@ -3819,7 +3833,7 @@
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
-			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +	w2utils.formatNumber(this.total) + 
+			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +	w2utils.formatNumber(this.total) +
 					(url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
 			);
 			// only for local data source, else no extra records loaded
@@ -3941,7 +3955,7 @@
 				if (this.show.expandColumn) rec_html += '<td class="w2ui-col-expand" style="height: 0px;"></td>';
 				for (var i in this.columns) {
 					if (this.columns[i].hidden) continue;
-					rec_html += '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px;"></td>';					
+					rec_html += '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px;"></td>';
 				}
 				rec_html += '<td class="w2ui-grid-data-last" style="height: 0px;"></td>';
 				rec_html += '</tr>';
@@ -3953,7 +3967,7 @@
 				if (this.searchData.length > 0 && !url) {
 					if (ind >= this.last.searchIds.length) return '';
 					ind = this.last.searchIds[ind];
-					record = this.records[ind]; 
+					record = this.records[ind];
 				} else {
 					if (ind >= this.records.length) return '';
 					record = this.records[ind];
@@ -3974,7 +3988,7 @@
 						'	onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
 						:
 						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'
-					 ) 
+					 )
 					: ''
 				) +
 				' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && record['style'] ? record['style'] : '') +'" '+
@@ -3986,7 +4000,7 @@
 							'</td>';
 			}
 			if (this.show.selectColumn) {
-				rec_html += 
+				rec_html +=
 						'<td id="grid_'+ this.name +'_cell_'+ ind +'_select" class="w2ui-grid-data w2ui-col-select" '+
 						'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							(summary !== true ?
@@ -3998,7 +4012,7 @@
 							'				if (this.checked) obj.select(\''+ record.recid + '\'); else obj.unselect(\''+ record.recid + '\'); '+
 							'				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'	</div>'
-							: 
+							:
 							'' ) +
 						'</td>';
 			}
@@ -4007,14 +4021,14 @@
 				if (record.expanded === true)  tmp_img = '-'; else tmp_img = '+';
 				if (record.expanded == 'none') tmp_img = '';
 				if (record.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>';
-				rec_html += 
+				rec_html +=
 						'<td id="grid_'+ this.name +'_cell_'+ ind +'_expand" class="w2ui-grid-data w2ui-col-expand">'+
 							(summary !== true ?
 							'	<div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
 							'			onclick="w2ui[\''+ this.name +'\'].toggle(\''+ record.recid +'\', event); '+
 							'				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							'		'+ tmp_img +' </div>'
-							: 
+							:
 							'' ) +
 						'</td>';
 			}
@@ -4045,7 +4059,7 @@
 			// if row is expanded (buggy)
 			// if (record.expanded === true && $('#grid_'+ this.name +'_rec_'+ record.recid +'_expanded_row').length == 0) {
 			// 	var tmp = 1 + (this.show.selectColumn ? 1 : 0);
-			// 	rec_html += 
+			// 	rec_html +=
 			// 		'<tr id="grid_'+ this.name +'_rec_'+ id +'_expanded_row" class="w2ui-expanded-row">'+
 			// 			(this.show.lineNumbers ? '<td class="w2ui-col-number"></td>' : '') +
 			// 		'	<td class="w2ui-grid-data w2ui-expanded1" colspan="'+ tmp +'"><div style="display: none"></div></td>'+
@@ -4103,7 +4117,7 @@
 						if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
 						if (typeof col.title == 'string')   title = col.title;
 					}
-					var data = '<div title="'+ title +'">'+ data +'</div>';	
+					var data = '<div title="'+ title +'">'+ data +'</div>';
 				}
 			}
 			if (data == null || typeof data == 'undefined') data = '';
@@ -4143,7 +4157,7 @@
 			setTimeout(function () { w2utils.lock(box, msg, showSpinner); }, 10);
 		},
 
-		unlock: function () { 
+		unlock: function () {
 			var box = this.box;
 			setTimeout(function () { w2utils.unlock(box); }, 25); // needed timer so if server fast, it will not flash
 		},
