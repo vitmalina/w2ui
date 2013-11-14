@@ -1,9 +1,10 @@
-var app = (function (app) {
+var app = !function () {
 	// private scope
 	var timer_start;
 	var timer_lap;
 
 	// public scope
+	var app	= {};
 	app.user 		= {};
 	app.config 		= {};
 	app.modules 	= {};
@@ -48,7 +49,7 @@ var app = (function (app) {
 	// ===========================================
 	// -- Register module
 
-	function register(name, module) {
+	function register(name, moduleFunction) {
 		// check if modules id defined
 		if (app.hasOwnProperty(name)) {
 			console.log('ERROR: Namespace '+ name +' is already registered');
@@ -59,7 +60,8 @@ var app = (function (app) {
 		for (var m in app.modules) {
 			if (app.modules[m].name == name) mod = app.modules[m];
 		}
-		app[name] = module({}, mod.files, mod);
+		// init module
+		app[name] = moduleFunction(mod.files, mod);
 		return;
 	}
 
@@ -115,8 +117,12 @@ var app = (function (app) {
 									eval(main); 
 								} catch (e) { 
 									failed = true;
-									console.log('ERROR: '+ data.main);
-									app.include(data.main);
+									// find error line
+									var err = e.stack.split('\n')
+									var tmp = err[1].match(/<anonymous>:([\d]){1,10}:([\d]{1,10})/gi)[0].split(':');
+									// display error
+									console.error('ERROR: ' + err[0] + ' ==> ' + data.main + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
+									console.log(e.stack);
 									if (typeof app.config.fail == 'function') app.config.fail(app.modules[name]);
 									if (typeof promise._fail == 'function') promise._fail(app.modules[name]);
 								}
@@ -280,4 +286,4 @@ var app = (function (app) {
 		});
 	}
 
-}) (app || {});
+} (app || {});
