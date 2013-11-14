@@ -422,26 +422,19 @@
 				if (nd.nodes.length > 0) obj.toggle(obj.selected);
 			}
 			if (event.keyCode == 37) { // left
-				if (nd.nodes.length > 0 && nd.expanded) {
+				if (nd.nodes.length > 0 && nd.expanded)
 					obj.collapse(obj.selected);
-				} else {
-					// collapse parent
-					if (nd.parent && !nd.parent.disabled && !nd.parent.group) {
-						obj.click(nd.parent.id);
-						setTimeout(function () { obj.scrollIntoView(); }, 50);
-					}
-				}
+				else
+					selectNode(nd.parent);
 			}
 			if (event.keyCode == 39) { // right
 				if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) obj.expand(obj.selected);
 			}
 			if (event.keyCode == 38) { // up
-				var tmp = prev(nd); while (tmp != null && tmp.hidden) { tmp = prev(tmp); }
-				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
+				selectNode(neighbor(nd, prev));
 			}
 			if (event.keyCode == 40) { // down
-				var tmp = next(nd); while (tmp != null && tmp.hidden) { tmp = next(tmp); }
-				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
+				selectNode(neighbor(nd, next));
 			}
 			// cancel event if needed
 			if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
@@ -452,6 +445,21 @@
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 			return;
 
+			function selectNode (node, event) {
+				if (node != null && !node.hidden && !node.disabled && !node.group) {
+					obj.click(node.id, event);
+					setTimeout(function () { obj.scrollIntoView(); }, 50);
+				}
+			}
+
+			function neighbor (node, neighborFunc) {
+				node = neighborFunc(node);
+				while (node != null && (node.hidden || node.disabled)) {
+					if (node.group) break; else node = neighborFunc(node);
+				}
+				return node;
+			}
+
 			function next (node, noSubs) {
 				if (node == null) return null;
 				var parent 	 = node.parent;
@@ -460,7 +468,7 @@
 				// jump inside
 				if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
 					var t = node.nodes[0];
-					if (!t.disabled && !t.group) nextNode = t; else nextNode = next(t);
+					if (t.hidden || t.disabled || t.group) nextNode = next(t); else nextNode = t;
 				} else {
 					if (parent && ind + 1 < parent.nodes.length) {
 						nextNode = parent.nodes[ind + 1];
@@ -468,7 +476,7 @@
 						nextNode = next(parent, true); // jump to the parent
 					}
 				}
-				if (nextNode != null && (nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
+				if (nextNode != null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
 				return nextNode;
 			}
 
@@ -476,21 +484,17 @@
 				if (node == null) return null;
 				var parent 	 = node.parent;
 				var ind 	 = obj.get(node.id, true);
-				var prevNode = null;
-				var noSubs   = false;
-				if (ind > 0) {
-					prevNode = parent.nodes[ind - 1];
-					// jump inside parents last node
-					if (prevNode.expanded && prevNode.nodes.length > 0) {
-						var t = prevNode.nodes[prevNode.nodes.length - 1];
-						if (!t.disabled && !t.group) prevNode = t; else prevNode = prev(t);
-					}
-				} else {					
-					prevNode = parent; // jump to the parent
-					noSubs   = true;
-				}
-				if (prevNode != null && (prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
+				var prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent;
+				if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
 				return prevNode;
+			}
+
+			function lastChild (node) {
+				if (node.expanded && node.nodes.length > 0) {
+					var t = node.nodes[node.nodes.length - 1];
+					if (t.hidden || t.disabled || t.group) return prev(t); else return lastChild(t);
+				}
+				return node;
 			}
 		},
 
@@ -516,7 +520,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			if (nd.nodes.length > 0) this.toggle(id);
+			this.toggle(id);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
