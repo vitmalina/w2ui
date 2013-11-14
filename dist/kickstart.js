@@ -1,10 +1,11 @@
 /* kicstart 0.x (c) http://w2ui.com/kickstart, vitmalina@gmail.com */
-var app = (function (app) {
+var app = !function () {
 	// private scope
 	var timer_start;
 	var timer_lap;
 
 	// public scope
+	var app	= {};
 	app.user 		= {};
 	app.config 		= {};
 	app.modules 	= {};
@@ -49,7 +50,7 @@ var app = (function (app) {
 	// ===========================================
 	// -- Register module
 
-	function register(name, module) {
+	function register(name, moduleFunction) {
 		// check if modules id defined
 		if (app.hasOwnProperty(name)) {
 			console.log('ERROR: Namespace '+ name +' is already registered');
@@ -60,7 +61,8 @@ var app = (function (app) {
 		for (var m in app.modules) {
 			if (app.modules[m].name == name) mod = app.modules[m];
 		}
-		app[name] = module({}, mod.files, mod);
+		// init module
+		app[name] = moduleFunction(mod.files, mod);
 		return;
 	}
 
@@ -76,11 +78,11 @@ var app = (function (app) {
 				promise._ready = callBack;
 				return promise;
 			},
-			fail: function (callBack) { 		// a module loading failed
+			fail: function (callBack) { 	// a module loading failed
 				promise._fail = callBack;
 				return promise;
 			},
-			done: function (callBack) {			// all loaded
+			done: function (callBack) {		// all loaded
 				promise._done = callBack;
 				return promise;
 			},
@@ -89,59 +91,73 @@ var app = (function (app) {
 				return promise;
 			}
 		};
-		for (var n in names) {
-			var name = names[n];
-			// check if module is already loaded
-			if (typeof app.modules[name] != 'undefined') {
-				modCount--;
-				isFinished();
-			} else { // load config
-				$.ajax({ url : name + '/module.json', dataType: "json" })
-					.done(function (data, status, xhr) {
-						if (data.main.substr(0, 1) != '/') data.main = name + '/' + data.main;
-						for (var a in data.assets) {
-							if (data.assets[a].substr(0, 1) != '/') data.assets[a] = name + '/' + data.assets[a];
-						}
-						app.modules[name] = data;
-						// load dependencies
-						app.get(data.assets.concat([data.main]), function (files) {
-							var main = files[data.main];
-							delete files[data.main];
-							// register assets
-							app.modules[name].files = files;
-							app.modules[name].status = 'loaded';
-							// execute main file
-							try { 
-								eval(main); 
-							} catch (e) { 
-								console.log('ERROR: error while registeing module: '+ data.main) 
+		setTimeout(function () {
+			for (var n in names) {
+				var name = names[n];
+				// check if module is already loaded
+				if (typeof app.modules[name] != 'undefined') {
+					modCount--;
+					isFinished();
+				} else { // load config
+					$.ajax({ url : name + '/module.json', dataType: "json" })
+						.done(function (data, status, xhr) {
+							if (data.main.substr(0, 1) != '/') data.main = name + '/' + data.main;
+							for (var a in data.assets) {
+								if (data.assets[a].substr(0, 1) != '/') data.assets[a] = name + '/' + data.assets[a];
 							}
-							// check ready
-							if (typeof promise._ready == 'function') promise._ready(app.modules[name]);
+							app.modules[name] = data;
+							// load dependencies
+							app.get(data.assets.concat([data.main]), function (files) {
+								var main = files[data.main];
+								delete files[data.main];
+								// register assets
+								app.modules[name].files = files;
+								app.modules[name].status = 'loaded';
+								// execute main file
+								try { 
+									eval(main); 
+								} catch (e) { 
+									failed = true;
+									// find error line
+									var err = e.stack.split('\n')
+									var tmp = err[1].match(/<anonymous>:([\d]){1,10}:([\d]{1,10})/gi)[0].split(':');
+									// display error
+									console.error('ERROR: ' + err[0] + ' ==> ' + data.main + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
+									console.log(e.stack);
+									if (typeof app.config.fail == 'function') app.config.fail(app.modules[name]);
+									if (typeof promise._fail == 'function') promise._fail(app.modules[name]);
+								}
+								// check ready
+								if (typeof app.config.ready == 'function') app.config.ready(app.modules[name]);
+								if (typeof promise._ready == 'function') promise._ready(app.modules[name]);
+								modCount--;
+								isFinished();
+							});
+						})
+						.fail(function (xhr, err, errData) {
+							app.modules[name] = {
+								status	: 'error',
+								msg		: 'Error while loading cofing'
+							}
+							failed = true;
+							if (typeof app.config.fail == 'function') app.config.fail(app.modules[name]);
+							if (typeof promise._fail == 'function') promise._fail(app.modules[name]);
 							modCount--;
 							isFinished();
 						});
-					})
-					.fail(function (xhr, err, errData) {
-						app.modules[name] = {
-							status	: 'error',
-							msg		: 'Error while loading cofing'
-						}
-						failed = true;
-						if (typeof promise._fail == 'function') promise._fail(app.modules[name]);
-						modCount--;
-						isFinished();
-					});
+				}
 			}
-			// init module
-			// app[name] = app[name] || {};
-			// app[name].config = {};
-		}
+		}, 1);
+		// promise need to be returned immidiately
 		return promise;
 
 		function isFinished() {
 			if (modCount == 0) {
-				if (typeof promise._done == 'function' && failed !== true) promise._done();
+				if (failed !== true) {
+					if (typeof app.config.done == 'function') app.config.done(app.modules[name]);
+					if (typeof promise._done == 'function') promise._done(app.modules[name]);
+				}
+				if (typeof app.config.always == 'function') app.config.always(app.modules[name]);
 				if (typeof promise._always == 'function') promise._always();
 			}
 		}
@@ -219,7 +235,6 @@ var app = (function (app) {
 			// -- load dependencies
 			var files = [
 				'app/conf/action.js', 
-				'app/conf/modules.js', 
 				'app/conf/config.js', 
 				'app/conf/start.js' 
 			];
@@ -272,4 +287,4 @@ var app = (function (app) {
 		});
 	}
 
-}) (app || {});
+} (app || {});
