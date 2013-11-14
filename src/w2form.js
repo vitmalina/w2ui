@@ -420,11 +420,11 @@
 					var field = obj.fields[f];
 					switch (String(field.type).toLowerCase()) {
 						case 'date': // to yyyy-mm-dd format
-							var dt = params.record[field.name];
-							if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
-									|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+							var dt  = params.record[field.name];
+							var tmp = field.options.format.toLowerCase().replace('-', '/').replace('\.', '/');
+							if (['dd/mm/yyyy', 'd/m/yyyy', 'dd/mm/yy', 'd/m/yy'].indexOf(tmp) != -1) {
 								var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
-								var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
+								var dt  = new Date(tmp[2], tmp[1]-1, tmp[0]);
 							}
 							params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
 							break;

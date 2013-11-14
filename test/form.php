@@ -1,6 +1,3 @@
-<?
-if ($_REQUEST['cmd'] == 'get-record') {
-	print('
 	{
 		"status": "error1",
 		"message": "who cares",
@@ -19,14 +16,3 @@ if ($_REQUEST['cmd'] == 'get-record') {
             ]
 		}
 	}
-	');
-	die();
-}
-
-$ret = Array();
-$ret['status'] 	= 'error1';
-$ret['message'] = 'Unknown error';
-$ret['data'] 	= $_REQUEST;
-
-echo json_encode($ret);
-?>
