@@ -422,26 +422,25 @@
 				if (nd.nodes.length > 0) obj.toggle(obj.selected);
 			}
 			if (event.keyCode == 37) { // left
-				if (nd.nodes.length > 0) {
+				if (nd.nodes.length > 0 && nd.expanded) {
 					obj.collapse(obj.selected);
 				} else {
 					// collapse parent
 					if (nd.parent && !nd.parent.disabled && !nd.parent.group) {
-						obj.collapse(nd.parent.id);
 						obj.click(nd.parent.id);
 						setTimeout(function () { obj.scrollIntoView(); }, 50);
 					}
 				}
 			}
 			if (event.keyCode == 39) { // right
-				if (nd.nodes.length > 0) obj.expand(obj.selected);
+				if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) obj.expand(obj.selected);
 			}
 			if (event.keyCode == 38) { // up
-				var tmp = prev(nd);
+				var tmp = prev(nd); while (tmp != null && tmp.hidden) { tmp = prev(tmp); }
 				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
 			}
 			if (event.keyCode == 40) { // down
-				var tmp = next(nd);
+				var tmp = next(nd); while (tmp != null && tmp.hidden) { tmp = next(tmp); }
 				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
 			}
 			// cancel event if needed
