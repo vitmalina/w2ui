@@ -422,10 +422,12 @@
 				if (nd.nodes.length > 0) obj.toggle(obj.selected);
 			}
 			if (event.keyCode == 37) { // left
-				if (nd.nodes.length > 0 && nd.expanded)
+				if (nd.nodes.length > 0 && nd.expanded) {
 					obj.collapse(obj.selected);
-				else
+				} else {
 					selectNode(nd.parent);
+					if (!nd.parent.group) obj.collapse(nd.parent.id);
+				}
 			}
 			if (event.keyCode == 39) { // right
 				if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) obj.expand(obj.selected);
@@ -520,7 +522,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			this.toggle(id);
+			if (nd.nodes.length > 0) this.toggle(id);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
