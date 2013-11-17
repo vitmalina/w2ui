@@ -4011,7 +4011,7 @@ w2utils.keyboard = (function (obj) {
 				obj.last.move.divX = (event.screenX - obj.last.move.x);
 				obj.last.move.divY = (event.screenY - obj.last.move.y);
 				if (Math.abs(obj.last.move.divX) <= 1 && Math.abs(obj.last.move.divY) <= 1) return; // only if moved more then 1px
-				if (obj.last.move.start) {
+				if (obj.last.move.start && obj.last.move.recid) {
 					obj.selectNone();
 					obj.last.move.start = false;
 				}
@@ -4197,10 +4197,10 @@ w2utils.keyboard = (function (obj) {
 				// ------ Toolbar Generic buttons
 
 				if (this.show.toolbarReload) {
-					this.toolbar.items.push(this.buttons['reload']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['reload']));
 				}
 				if (this.show.toolbarColumns) {			
-					this.toolbar.items.push(this.buttons['columns']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
@@ -4228,26 +4228,26 @@ w2utils.keyboard = (function (obj) {
 						'</div>';
 					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
-						this.toolbar.items.push(this.buttons['search-go']);
+						this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
 					}
 				}
 				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
-					this.toolbar.items.push(this.buttons['add']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['add']));
 				}
 				if (this.show.toolbarEdit) {
-					this.toolbar.items.push(this.buttons['edit']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['edit']));
 				}
 				if (this.show.toolbarDelete) {
-					this.toolbar.items.push(this.buttons['delete']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['delete']));
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
 						this.toolbar.items.push({ type: 'break', id: 'break2' });
 					}
-					this.toolbar.items.push(this.buttons['save']);
+					this.toolbar.items.push($.extend(true, {}, this.buttons['save']));
 				}
 				// add original buttons
 				for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
@@ -5236,7 +5236,7 @@ w2utils.keyboard = (function (obj) {
 			var col  	= this.columns[col_ind];
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
 			var data 	= this.parseField(record, col.field);
-			var isChanged = record.changed && record.changes[col.field];
+			var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
 			if (isChanged) data = record.changes[col.field];
 			// various renderers
 			if (data == null || typeof data == 'undefined') data = '';
@@ -10680,11 +10680,11 @@ var w2confirm = function (msg, title, callBack) {
 					var field = obj.fields[f];
 					switch (String(field.type).toLowerCase()) {
 						case 'date': // to yyyy-mm-dd format
-							var dt = params.record[field.name];
-							if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
-									|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+							var dt  = params.record[field.name];
+							var tmp = field.options.format.toLowerCase().replace('-', '/').replace('\.', '/');
+							if (['dd/mm/yyyy', 'd/m/yyyy', 'dd/mm/yy', 'd/m/yy'].indexOf(tmp) != -1) {
 								var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
-								var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
+								var dt  = new Date(tmp[2], tmp[1]-1, tmp[0]);
 							}
 							params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
 							break;
