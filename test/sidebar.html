@@ -1,10 +1,9 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui-1.2.css" /> 
 <link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" /> 
 <script type="text/javascript" src="../libs/jquery/jquery.min.js"></script>
-<script type="text/javascript" src="../src/w2utils.js"></script>
-<script type="text/javascript" src="../src/w2sidebar.js"></script>
+<script type="text/javascript" src="../dist/w2ui-1.2.js"></script>
 <script>
 $(function () {
 	$('#sidebar').w2sidebar({
@@ -12,6 +11,7 @@ $(function () {
 		img: null,
 		topHTML: '<div style="padding: 10px 5px; border-bottom: 1px solid #aaa;">This is text</div>',
 		bottomHTML: '<div style="padding: 10px 5px; border-top: 1px solid #aaa;">Bottom</div>',
+		style: 'border: 1px solid red',
 		menu: [
 			{ id: 1, text: 'Select Item', icon: 'fa-star' },
 			{ id: 2, text: 'View Item', icon: 'fa-camera' }, 
@@ -20,7 +20,7 @@ $(function () {
 		onMenuClick: function (event) {
 			console.log(event);
 		},
-		onKeydown: function (event) { console.log('keyboard', event); event.preventDefault(); },
+		//onKeydown: function (event) { console.log('keyboard', event); event.preventDefault(); },
 		nodes: [ 
 			{ id: 'level-1', text: 'Level 1', expanded: true, group: true, 
 			  nodes: [ { id: 'level-1-1', text: 'Level 1.1', img1: 'icon-add', icon: 'fa-star', count: 1, 
@@ -82,6 +82,6 @@ $(function () {
 </script>
 </head>
 <body>
-	<div id="sidebar" style="width: 300px; height: 500px;"></div>
+	<div id="sidebar" style="width: 100px; height: 500px;"></div>
 </body>
 </html>

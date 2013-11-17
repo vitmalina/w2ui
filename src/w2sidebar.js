@@ -522,7 +522,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			if (nd.nodes.length > 0) this.toggle(id);
+			this.toggle(id);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},

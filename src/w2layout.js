@@ -9,6 +9,7 @@
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
 *	- add panel title
+*	- add resizer click, dblclick events, add resizer style ...
 *
 ************************************************************************/
 
