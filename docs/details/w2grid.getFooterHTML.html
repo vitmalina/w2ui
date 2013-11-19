@@ -12,7 +12,7 @@ methods are <a class="property" href="w2grid.status">.status</a> and <a class="p
 It is possible to overwrite this method with a custom one.
 <div style="height: 10px"></div>
 
-If you have grid defined in the following way:
+You can do it during obect definition:
 <textarea class="javascript">
 $('#grid').w2grid({
 	name    : 'grid',
@@ -31,12 +31,16 @@ $('#grid').w2grid({
 		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
 		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
 		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
-	]
+	],
+	getFooterHTML: function () {
+		return 'My custom footer';
+	}
 });
 </textarea>
 
-You can get cell HTML:
+Or you can do it in the prototype, so that all grid will have same footer generator
 <textarea class="javascript">
-var html = w2ui['grid'].getFooterHTML();
-console.log(html);
+w2obj.grid.prototype.getFooterHTML = function () {
+	return 'one for all';
+}
 </textarea>
