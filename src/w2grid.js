@@ -1920,9 +1920,13 @@
 			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default behavior
-			var sel 	= obj.getSelection();
-			if (sel.length == 0) return;
 			var records = $('#grid_'+ obj.name +'_records');
+			var sel 	= obj.getSelection();
+			if (sel.length == 0) {
+				var ind = Math.floor((records[0].scrollTop + (records.height() / 2.1)) / obj.recordHeight);
+				obj.select({ recid: obj.records[ind].recid, column: 0});
+				sel = obj.getSelection();
+			}
 			var recid	= sel[0];
 			var columns = [];
 			var recid2  = sel[sel.length-1];
@@ -1963,12 +1967,6 @@
 					cancel = true;
 					break;
 
-				case 32: // spacebar
-					if (columns.length == 0) columns.push(0);
-					obj.editField(recid, columns[0], null, event);
-					cancel = true;
-					break;
-
 				case 65: // cmd + A
 					if (!event.metaKey && !event.ctrlKey) break;
 					obj.selectAll();
@@ -1986,7 +1984,7 @@
 						if (recEL.length <= 0 || obj.show.expandColumn !== true) break;
 						obj.toggle(recid, event);
 						cancel = true;
-					} else { // same as spacebar
+					} else {
 						if (columns.length == 0) columns.push(0);
 						obj.editField(recid, columns[0], null, event);
 						cancel = true;
@@ -2234,7 +2232,7 @@
 					}
 					break;
 			}
-			var tmp = [187, 189]; // =-
+			var tmp = [187, 189, 32]; // =-spacebar
 			for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
 			if (tmp.indexOf(event.keyCode) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
 				if (columns.length == 0) columns.push(0);
