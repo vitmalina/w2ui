@@ -66,6 +66,8 @@
 		"Records": "Registros",
 		"Toggle Line Numbers": "Alternar números de linha",
 		"Reset Column Size": "Reiniciar tamanho da coluna",
-		"Edit": "Editar"
+		"Edit": "Editar",
+		"Load": "Carregar",
+		"More": "Mais"
 	}
 }
