@@ -3918,7 +3918,7 @@
 							});
 					}
 					if (more.find('td').text().indexOf('Load') == -1) {
-						more.find('td').html('<div>Load '+ obj.limit + ' More...</div>');
+						more.find('td').html('<div>'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
 					}
 				}
 			}
