@@ -1963,7 +1963,6 @@
 					cancel = true;
 					break;
 
-				case 13: // enter
 				case 32: // spacebar
 					if (columns.length == 0) columns.push(0);
 					obj.editField(recid, columns[0], null, event);
