@@ -67,19 +67,8 @@
 	$.fn.w2form = function(method) {
 		if (typeof method === 'object' || !method ) {
 			var obj = this;
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2form().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;			
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;			
-			}
+			// check name parameter
+			if (!$().w2checkNameParam(method, 'w2form')) return;
 			// remember items
 			var record 		= method.record;
 			var original	= method.original;
@@ -875,7 +864,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			$(window).off('resize', 'body')
 		}
-	}
+	};
 	
 	$.extend(w2form.prototype, w2utils.event);
 	w2obj.form = w2form;

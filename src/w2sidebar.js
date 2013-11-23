@@ -47,19 +47,8 @@
 	
 	$.fn.w2sidebar = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2sidebar().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;			
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;			
-			}
+			// check name parameter
+			if (!$().w2checkNameParam(method, 'w2sidebar')) return;
 			// extend items
 			var nodes  = method.nodes;
 			var object = new w2sidebar(method); 
@@ -445,7 +434,6 @@
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
-			return;
 
 			function selectNode (node, event) {
 				if (node != null && !node.hidden && !node.disabled && !node.group) {
@@ -757,7 +745,7 @@
 		unlock: function () { 
 			w2utils.unlock(this.box);
 		}
-	}
+	};
 	
 	$.extend(w2sidebar.prototype, w2utils.event);
 	w2obj.sidebar = w2sidebar;

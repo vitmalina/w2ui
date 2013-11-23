@@ -57,7 +57,11 @@
 	background-image : 		   linear-gradient(@gradient);
 }
 
-.linear-gradient-vertical (@color1, @color2) {
+.linear-gradient-vertical (@color1, @color2) when (@color1 = @color2) {
+	background-color: @color1;
+}
+
+.linear-gradient-vertical (@color1, @color2) when not(@color1 = @color2) {
 	// by default to bottom
 	background-image : -webkit-linear-gradient(@color1, @color2);
 	background-image : 	  -moz-linear-gradient(@color1, @color2);

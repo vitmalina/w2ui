@@ -302,9 +302,9 @@ var w2utils = (function () {
 	function formatDateTime(dateStr, format) {
 		var fmt;
 		if (typeof format != 'string') {
-			var fmt = [this.settings.date_format, this.settings.time_format];
+			fmt = [this.settings.date_format, this.settings.time_format];
 		} else {
-			var fmt = format.split('|');
+			fmt = format.split('|');
 		}
 		return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1]);
 	}
@@ -700,19 +700,19 @@ var w2utils = (function () {
 			right:  parseInt($(el).css('border-right-width')) || 0,
 			top:  	parseInt($(el).css('border-top-width')) || 0,
 			bottom: parseInt($(el).css('border-bottom-width')) || 0
-		}
+		};
 		var mwidth = {
 			left: 	parseInt($(el).css('margin-left')) || 0,
 			right:  parseInt($(el).css('margin-right')) || 0,
 			top:  	parseInt($(el).css('margin-top')) || 0,
 			bottom: parseInt($(el).css('margin-bottom')) || 0
-		}
+		};
 		var pwidth = {
 			left: 	parseInt($(el).css('padding-left')) || 0,
 			right:  parseInt($(el).css('padding-right')) || 0,
 			top:  	parseInt($(el).css('padding-top')) || 0,
 			bottom: parseInt($(el).css('padding-bottom')) || 0
-		}
+		};
 		switch (type) {
 			case 'top': 	return bwidth.top + mwidth.top + pwidth.top; 
 			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom; 
@@ -806,7 +806,7 @@ w2utils.event = {
 	trigger: function (eventData) {
 		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
 				preventDefault 	: function () { this.isCancelled = true; },
-				stopPropagation : function () { this.isStopped   = true; },
+				stopPropagation : function () { this.isStopped   = true; }
 			});
 		if (typeof eventData.target == 'undefined') eventData.target = null;		
 		// process events in REVERSE order 
@@ -935,13 +935,29 @@ w2utils.keyboard = (function (obj) {
 			if (typeof name == 'string' && w2ui[name]) w2ui[name].render($(this)[0]);
 			if (typeof name == 'object') name.render($(this)[0]);
 		}
-	}
+	};
 
 	$.fn.w2destroy = function (name) {
 		if (!name && this.length > 0) name = this.attr('name');
 		if (typeof name == 'string' && w2ui[name]) w2ui[name].destroy();
 		if (typeof name == 'object') name.destroy();
-	}
+	};
+
+    $.fn.w2checkNameParam = function (params, component) {
+		if (!params || typeof params.name == 'undefined') {
+			console.log('ERROR: The parameter "name" is required but not supplied in $().'+ component +'().');
+			return false;
+		}
+		if (typeof w2ui[params.name] != 'undefined') {
+			console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ params.name +').');
+			return false;
+		}
+		if (!w2utils.isAlphaNumeric(params.name)) {
+			console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
+			return false;
+		}
+		return true;
+	};
 
 	$.fn.w2marker = function (str) {
 		if (str == '' || typeof str == 'undefined') { // remove marker
@@ -964,7 +980,7 @@ w2utils.keyboard = (function (obj) {
 				}
 			});
 		}
-	}
+	};
 
 	// -- w2tag - appears on the right side from element, there can be multiple on screen at a time
 
@@ -1050,7 +1066,7 @@ w2utils.keyboard = (function (obj) {
 				}
 			}
 		});
-	}
+	};
 	
 	// w2overlay - appears under the element, there can be only one at a time
 
@@ -1076,7 +1092,7 @@ w2utils.keyboard = (function (obj) {
 
 		// pickup bg color of first div
 		var bc  = div.css('background-color'); 
-		var div = $('#w2ui-overlay');
+		div = $('#w2ui-overlay');
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div.css('background-color', bc);
 
 		div.css({
@@ -1122,7 +1138,7 @@ w2utils.keyboard = (function (obj) {
 				if (typeof options.onShow == 'function') options.onShow();
 			}
 		}
-	}
+	};
 
 	$.fn.w2menu = function (menu, options) {
 		if (typeof options.select == 'undefined' && typeof options.onSelect == 'function') options.select = options.onSelect;
@@ -1137,7 +1153,7 @@ w2utils.keyboard = (function (obj) {
 		// since only one overlay can exist at a time
 		$.fn.w2menuHandler = function (event, index) {
 			options.select(menu[index], event, index); 
-		}
+		};
 		return $(this).w2overlay(getMenuHTML(), options);
 
 		function getMenuHTML () { 
@@ -1171,5 +1187,5 @@ w2utils.keyboard = (function (obj) {
 			menu_html += "</table>";
 			return menu_html;
 		}	
-	}	
+	}
 })();
