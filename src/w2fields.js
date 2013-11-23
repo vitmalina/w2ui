@@ -1,9 +1,9 @@
 /************************************************************************
-*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*   - Following objects defined
+*	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*	- Following objects defined
 * 		- w2field 		- various field controls
 *		- $().w2field	- jQuery wrapper
-*   - Dependencies: jQuery, w2utils
+*	- Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -27,7 +27,7 @@
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
+
 	$.fn.w2field = function(method) {
 		// Method calling logic
 		if (w2field[method]) {
@@ -38,49 +38,52 @@
 			return w2field.init.apply( this, [{ type: method }] );
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2field');
-		}    
+		}
 	};
-	
+
 	$.extend(w2field, {
 		// CONTEXT: this - is jQuery object
-		init: function (options) { 		
+		init: function (options) {
 			var obj = w2field;
 			return $(this).each(function (field, index) {
 				// Check for Custom Types
 				if (typeof w2field.customTypes[options.type.toLowerCase()] == 'function') {
 					w2field.customTypes[options.type.toLowerCase()].call(this, options);
 					return;
-				}  
+				}
 				// Common Types
-				var tp = options.type.toLowerCase();
+				var tp = options.type.toLowerCase(),
+					$this = $(this),
+					$thisPrev = $this.prev(),
+					$thisNext = $this.next(),
+					$body = $(document.body);
 				switch (tp) {
-
 					case 'clear': // removes any previous field type
-						$(this)
+						$this
 							.off('focus')
 							.off('blur')
 							.off('keypress')
 							.off('keydown')
 							.off('change')
 							.removeData(); // removes all attached data
-						if ($(this).prev().hasClass('w2ui-list')) {	// if enum
-							$(this).prev().remove();
-							$(this).removeAttr('tabindex').css('border-color', '').show();
+						if ($thisPrev.hasClass('w2ui-list')) {	// if enum
+							$thisPrev.remove();
+							$this.removeAttr('tabindex').css('border-color', '').show();
 						}
-						if ($(this).prev().hasClass('w2ui-upload')) { // if upload
-							$(this).prev().remove();
-							$(this).removeAttr('tabindex').css('border-color', '').show();
+						if ($thisPrev.hasClass('w2ui-upload')) { // if upload
+							$thisPrev.remove();
+							$this.removeAttr('tabindex').css('border-color', '').show();
 						}
-						if ($(this).prev().hasClass('w2ui-field-helper')) {	// helpers
-							$(this).css('padding-left', $(this).css('padding-top'));
-							$(this).prev().remove();
+						if ($thisPrev.hasClass('w2ui-field-helper')) {	// helpers
+							$this.css('padding-left', $this.css('padding-top'));
+							$thisPrev.remove();
 						}
-						if ($(this).next().hasClass('w2ui-field-helper')) {	// helpers
-							$(this).css('padding-right', $(this).css('padding-top'));
-							$(this).next().remove();
+						if ($thisNext.hasClass('w2ui-field-helper')) {	// helpers
+							$this.css('padding-right', $this.css('padding-top'));
+							$thisNext.remove();
 						}
-						if ($(this).next().hasClass('w2ui-field-helper')) {	// helpers
-							$(this).next().remove();
+						if ($thisNext.hasClass('w2ui-field-helper')) {	// helpers
+							$thisNext.remove();
 						}
 						break;
 
@@ -90,22 +93,24 @@
 					case 'money':
 					case 'alphanumeric':
 					case 'hex':
-						var el = this;
-						var defaults = {
-							min 	: null,
-							max 	: null,
-							arrows	: false,
-							keyboard: true,
-							suffix	: '',
-							prefix  : ''
-						}
+						var el = this,
+							$el = $(this), // could be changed to $this
+							defaults = {
+								min 	: null,
+								max 	: null,
+								arrows	: false,
+								keyboard: true,
+								suffix	: '',
+								prefix	: ''
+							};
+
 						options = $.extend({}, defaults, options);
 						if (['text', 'alphanumeric', 'hex'].indexOf(tp) != -1) {
 							options.arrows   = false;
 							options.keyboard = false;
 						}
 						// init events
-						$(this)
+						$this
 							.data('options', options)
 							.on('keypress', function (event) { // keyCode & charCode differ in FireFox
 								if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
@@ -118,24 +123,26 @@
 							})
 							.on('keydown', function (event, extra) {
 								if (!options.keyboard) return;
-								var cancel = false;
-								var v = $(el).val();
-								if (!checkType(v)) v = options.min || 0; else v = parseFloat(v);
-								var key = event.keyCode || extra.keyCode;
-								var inc = 1;
-								if (event.ctrlKey || event.metaKey) inc = 10;
+								var cancel = false,
+									v = $el.val(),
+									key = event.keyCode || extra.keyCode,
+									inc = (event.ctrlKey || event.metaKey) ? 100 : 1;
+
+								v = !checkType(v) ? options.min || 0 : parseFloat(v);
+
 								switch (key) {
 									case 38: // up
-										$(el).val((v + inc <= options.max || options.max == null ? v + inc : options.max)).change();
-										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
+										// I think the next 2 lines should be merged to one, so that the value dont get setted twice if in the end only one of them is needed
+										$el.val((v + inc <= options.max || options.max == null ? v + inc : options.max)).change();
+										if (tp == 'money') $el.val( Number($el.val()).toFixed(2) );
 										cancel = true;
 										break;
 									case 40: // down
-										$(el).val((v - inc >= options.min || options.min == null ? v - inc : options.min)).change();
-										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
+										$el.val((v - inc >= options.min || options.min == null ? v - inc : options.min)).change();
+										if (tp == 'money') $el.val( Number($el.val()).toFixed(2) );
 										cancel = true;
 										break;
-								}							
+								}
 								if (cancel) {
 									event.preventDefault();
 									// set cursor to the end
@@ -144,116 +151,114 @@
 							})
 							.on('change', function (event) {
 								// check max/min
-								var v  = $(el).val();
-								var cancel = false;
-								if (options.min != null && v != '' && v < options.min) { $(el).val(options.min).change(); cancel = true; }
-								if (options.max != null && v != '' && v > options.max) { $(el).val(options.max).change(); cancel = true; }
+								var v  = $el.val(), cancel = false;
+								if (options.min != null && v != '' && v < options.min) { $el.val(options.min).change(); cancel = true; }
+								if (options.max != null && v != '' && v > options.max) { $el.val(options.max).change(); cancel = true; }
 								if (cancel) {
 									event.stopPropagation();
 									event.preventDefault();
 									return false;
 								}
 								// check validity
-								if (this.value != '' && !checkType(this.value)) $(this).val(options.min != null ? options.min : '');								
+								if (this.value != '' && !checkType(this.value)) $(this).val(options.min != null ? options.min : '');
 							});
-						if ($(this).val() == '' && options.min != null) $(this).val(options.min);
+						if ($this.val() == '' && options.min != null) $this.val(options.min);
 						if (options.prefix != '') {
-							$(this).before(
-								'<div class="w2ui-field-helper">'+ 
-									options.prefix + 
-								'</div>');
-							var helper = $(this).prev();
+							$this.before(
+								'<div class="w2ui-field-helper">'+
+									options.prefix +
+									'</div>');
+							var helper = $thisPrev;
 							helper
 								.css({
-									'color'			: $(this).css('color'),
-									'font-family'	: $(this).css('font-family'),
-									'font-size'		: $(this).css('font-size'),
-									'padding-top'	: $(this).css('padding-top'),
-									'padding-bottom': $(this).css('padding-bottom'),
-									'padding-left'  : $(this).css('padding-left'),
+									'color'			: $this.css('color'),
+									'font-family'	: $this.css('font-family'),
+									'font-size'		: $this.css('font-size'),
+									'padding-top'	: $this.css('padding-top'),
+									'padding-bottom': $this.css('padding-bottom'),
+									'padding-left'  : $this.css('padding-left'),
 									'padding-right'	: 0,
-									'margin-top'	: (parseInt($(this).css('margin-top'), 10) + 1) + 'px',
-									'margin-bottom'	: (parseInt($(this).css('margin-bottom'), 10) + 1) + 'px',
+									'margin-top'	: (parseInt($this.css('margin-top'), 10) + 1) + 'px',
+									'margin-bottom'	: (parseInt($this.css('margin-bottom'), 10) + 1) + 'px',
 									'margin-left'	: 0,
 									'margin-right' 	: 0
 								})
-								.on('click', function () { 
-									$(this).next().focus(); 
+								.on('click', function () {
+									$(this).next().focus();
 								});
-							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left'), 10) + 5) + 'px');
-						}						
-						var pr = parseInt($(this).css('padding-right'), 10);
+							$this.css('padding-left', (helper.width() + parseInt($this.css('padding-left'), 10) + 5) + 'px');
+						}
+						var pr = parseInt($this.css('padding-right'), 10);
 						if (options.arrows != '') {
-							$(this).after(
-								'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+ 
-								'	<div class="w2ui-field-up" type="up">'+
-								'		<div class="arrow-up" type="up"></div>'+
-								'	</div>'+
-								'	<div class="w2ui-field-down" type="down">'+
-								'		<div class="arrow-down" type="down"></div>'+
-								'	</div>'+
-								'	<div style="position: absolute; height: 1px; border-top: 1px solid red"></div>'+
-								'</div>');
-							var height = w2utils.getSize(this, 'height');
-							var helper = $(this).next();
+							$this.after(
+								'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+
+									'	<div class="w2ui-field-up" type="up">'+
+									'		<div class="arrow-up" type="up"></div>'+
+									'	</div>'+
+									'	<div class="w2ui-field-down" type="down">'+
+									'		<div class="arrow-down" type="down"></div>'+
+									'	</div>'+
+									'	<div style="position: absolute; height: 1px; border-top: 1px solid red"></div>'+
+									'</div>');
+							var height = w2utils.getSize(this, 'height'), helper = $thisNext;
 							helper
 								.css({
-									'color'			: $(this).css('color'),
-									'font-family'	: $(this).css('font-family'),
-									'font-size'		: $(this).css('font-size'),
-									'height' 		: ($(this).height() + parseInt($(this).css('padding-top'), 10) + parseInt($(this).css('padding-bottom'), 10) ) + 'px',
+									'color'			: $this.css('color'),
+									'font-family'	: $this.css('font-family'),
+									'font-size'		: $this.css('font-size'),
+									'height' 		: ($this.height() + parseInt($this.css('padding-top'), 10) + parseInt($this.css('padding-bottom'), 10) ) + 'px',
 									'padding'		: '0px',
-									'margin-top'	: (parseInt($(this).css('margin-top'), 10) + 1) + 'px',
+									'margin-top'	: (parseInt($this.css('margin-top'), 10) + 1) + 'px',
 									'margin-bottom'	: '0px',
 									'border-left'	: '1px solid silver'
 								})
-								.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('margin-right'), 10) + 12) + 'px')
-								.on('mousedown', function (event) {
+								.css('margin-left', '-'+ (helper.width() + parseInt($this.css('margin-right'), 10) + 12) + 'px')
+								.on('mousedown', function (evt) {
 									var btn = this;
-									var evt = event;
-									$('body').on('mouseup', tmp);
-									$('body').data('_field_update_timer', setTimeout(update, 700));
+									$body
+										.on('mouseup', tmp)
+										.data('_field_update_timer', setTimeout(update, 700));
 									update(false);
 									// timer function
 									function tmp() {
-										clearTimeout($('body').data('_field_update_timer'));
-										$('body').off('mouseup', tmp);
+										var body = $(document.body);
+										clearTimeout($body.data('_field_update_timer'));
+										$body.off('mouseup', tmp);
 									}
 									// update function
 									function update(notimer) {
-										$(el).focus().trigger($.Event("keydown"), { 
-											keyCode : ($(evt.target).attr('type') == 'up' ? 38 : 40) 
+										$el.focus().trigger($.Event("keydown"), {
+											keyCode : ($(evt.target).attr('type') == 'up' ? 38 : 40)
 										});
-										if (notimer !== false) $('body').data('_field_update_timer', setTimeout(update, 60));
+										if (notimer !== false) $body.data('_field_update_timer', setTimeout(update, 60));
 									};
 								});
 							pr += helper.width() + 12;
-							$(this).css('padding-right', pr + 'px');
+							$this.css('padding-right', pr + 'px');
 						}
 						if (options.suffix != '') {
-							$(this).after(
-								'<div class="w2ui-field-helper">'+ 
-									options.suffix + 
-								'</div>');
-							var helper = $(this).next();
-							helper
+							$this.after(
+								'<div class="w2ui-field-helper">'+
+									options.suffix +
+									'</div>');
+							var helper = $thisNext
 								.css({
-									'color'			: $(this).css('color'),
-									'font-family'	: $(this).css('font-family'),
-									'font-size'		: $(this).css('font-size'),
-									'padding-top'	: $(this).css('padding-top'),
-									'padding-bottom': $(this).css('padding-bottom'),
+									'color'			: $this.css('color'),
+									'font-family'	: $this.css('font-family'),
+									'font-size'		: $this.css('font-size'),
+									'padding-top'	: $this.css('padding-top'),
+									'padding-bottom': $this.css('padding-bottom'),
 									'padding-left'	: '3px',
-									'padding-right'	: $(this).css('padding-right'),
-									'margin-top'	: (parseInt($(this).css('margin-top'), 10) + 1) + 'px',
-									'margin-bottom'	: (parseInt($(this).css('margin-bottom'), 10) + 1) + 'px'
+									'padding-right'	: $this.css('padding-right'),
+									'margin-top'	: (parseInt($this.css('margin-top'), 10) + 1) + 'px',
+									'margin-bottom'	: (parseInt($this.css('margin-bottom'), 10) + 1) + 'px'
 								})
-								.on('click', function () { 
-									$(this).prev().focus(); 
-								});
-							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right'), 10) + 5) + 'px');
-							pr += helper.width() + 3;
-							$(this).css('padding-right', pr + 'px');
+								.on('click', function () {
+									$(this).prev().focus();
+								}), helperWidth = helper.width();
+							helper.css('margin-left', '-'+ (helperWidth + parseInt($this.css('padding-right'), 10) + 5) + 'px');
+							pr += helperWidth + 3;
+							$this.css('padding-right', pr + 'px');
 						}
 
 						function checkType(ch, loose) {
@@ -282,31 +287,35 @@
 						break;
 						
 					case 'date':
-						var obj = this;
 						var defaults = {
 							format 		: w2utils.settings.date_format, // date format
 							start   	: '',				// start of selectable range
 							end 		: '',				// end of selectable range
-							blocked     : {}, 				// {'4/11/2011': 'yes'}
-							colored     : {}				// {'4/11/2011': 'red:white'} 
-						}
+							blocked		: {}, 				// {'4/11/2011': 'yes'}
+							colored		: {}				// {'4/11/2011': 'red:white'}
+						};
 						options = $.extend({}, defaults, options);
 						// -- insert div for calendar
-						$(this) // remove transtion needed for functionality
+						$this // remove transtion needed for functionality
 							.css( { 'transition': 'none', '-webkit-transition': 'none', '-moz-transition': 'none', '-ms-transition': 'none', '-o-transition': 'none' })
 							.data("options", options)
 							.on('focus', function () {
-								var top  = parseFloat($(obj).offset().top) + parseFloat(obj.offsetHeight);
-								var left = parseFloat($(obj).offset().left);
-								clearInterval($(obj).data('mtimer'));
-								$('#global_calendar_div').remove();
-								$('body').append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight, 10)) +'px; left: '+ left +'px;" '+
+								var offset = $this.offset(),
+									top  = parseFloat(offset.top) + parseFloat(obj.offsetHeight),
+									left = parseFloat(offset.left),
+									calenderDiv = $('#global_calendar_div'),
+									max, calenderWidth;
+
+								clearInterval($this.data('mtimer'));
+								calenderDiv.remove();
+								$body.append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight, 10)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
 									' onmousedown="'+
 									'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
 									'		if (event.preventDefault) event.preventDefault(); else return false;">'+
 									'</div>');
-								$('#global_calendar_div')
+								calenderDiv = $('#global_calendar_div');
+								calenderDiv
 									.html($().w2field('calendar_get', obj.value, options))
 									.css({
 										left: left + 'px',
@@ -314,40 +323,46 @@
 									})
 									.data('el', obj)
 									.show();
-								var max = $(window).width() + $(document).scrollLeft() - 1;
-								if (left + $('#global_calendar_div').width() > max) {
-									$('#global_calendar_div').css('left', (max - $('#global_calendar_div').width()) + 'px');
+
+								max = $(window).width() + $(document).scrollLeft() - 1;
+								calenderWidth = calenderDiv.width();
+
+								if (left + calenderWidth > max) {
+									calenderDiv.css('left', (max - calenderWidth) + 'px');
 								}
 								// monitors
-								var mtimer = setInterval(function () { 
-									var max = $(window).width() + $(document).scrollLeft() - 1;
-									var left = $(obj).offset().left;
-									if (left + $('#global_calendar_div').width() > max) left = max - $('#global_calendar_div').width();
+								var mtimer = setInterval(function () {
+									var max = $(window).width() + $(document).scrollLeft() - 1,
+										offset = $obj.offset(),
+										calenderDiv = $('#global_calendar_div'),
+										calenderWidth = calenderDiv.width();
+
+									if (left + calenderWidth > max) left = max - calenderWidth;
 									// monitor if moved
-									if ($('#global_calendar_div').data('position') != ($(obj).offset().left) + 'x' + ($(obj).offset().top  + obj.offsetHeight)) {
-										$('#global_calendar_div').css({
+									if (calenderDiv.data('position') != (offset.left) + 'x' + (offset.top  + obj.offsetHeight)) {
+										calenderDiv.css({
 											'-webkit-transition': '.2s',
 											left: left + 'px',
-											top : ($(obj).offset().top + obj.offsetHeight) + 'px'
-										}).data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight));
+											top : (offset.top + obj.offsetHeight) + 'px'
+										}).data('position', (offset.left) + 'x' + (offfset.top + obj.offsetHeight));
 									}
 									// monitor if destroyed
 									if ($(obj).length == 0 || ($(obj).offset().left == 0 && $(obj).offset().top == 0)) {
 										clearInterval(mtimer);
-										$('#global_calendar_div').remove();
+										calenderDiv.remove();
 										return;
 									}
 								}, 100);
-								$(obj).data('mtimer', mtimer);
+								$this.data('mtimer', mtimer);
 							})
 							.on('blur', function (event) {
 								// trim empty spaces
-								$(obj).val($.trim($(obj).val()));
+								$this.val($.trim($this.val()));
 								// check if date is valid
-								if ($.trim($(obj).val()) != '' && !w2utils.isDate($(obj).val(), options.format)) {
+								if ($.trim($this.val()) != '' && !w2utils.isDate($this.val(), options.format)) {
 									$(this).w2tag(w2utils.lang('Not a valid date') + ': '+ options.format);
 								}
-								clearInterval($(obj).data('mtimer'));
+								clearInterval($this.data('mtimer'));
 								$('#global_calendar_div').remove();
 							})
 							.on('keypress', function (event) {
@@ -356,32 +371,33 @@
 									$('#global_calendar_div').html( $().w2field('calendar_get', obj.value, options) );
 								}, 10);
 							});
-							setTimeout(function () {
-								// if it is unix time - convert to readable date
-								if (w2utils.isInt(obj.value)) obj.value = w2utils.formatDate(obj.value, options.format);
-							}, 1);
+						setTimeout(function () {
+							// if it is unix time - convert to readable date
+							if (w2utils.isInt(obj.value)) obj.value = w2utils.formatDate(obj.value, options.format);
+						}, 1);
 						break;
-						
+
 					case 'time':
 						break;
 
 					case 'datetime':
 						break;
-						
+
 					case 'color':
-						var obj = this;
-						var defaults = {
-							prefix 	: '#',
-							suffix  : '<div style="margin-top: 1px; height: 12px; width: 12px;"></div>'
-						}
+						var obj = this,
+							defaults = {
+								prefix 	: '#',
+								suffix	: '<div style="margin-top: 1px; height: 12px; width: 12px;"></div>'
+							};
 						options = $.extend({}, defaults, options);
 						// -- insert div for color
-						$(this)
+						$this
 							.attr('maxlength', 6)
 							.on('focus', function () {
-								var top  = parseFloat($(obj).offset().top) + parseFloat(obj.offsetHeight);
-								var left = parseFloat($(obj).offset().left);
-								clearInterval($(obj).data('mtimer'));
+								var offset = $this.offset(),
+									top  = parseFloat(offset.top) + parseFloat(obj.offsetHeight),
+									left = parseFloat(offset.left);
+								clearInterval($this.data('mtimer'));
 								$('#global_color_div').remove();
 								$('body').append('<div id="global_color_div" style="top: '+ (top + parseInt(obj.offsetHeight, 10)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
