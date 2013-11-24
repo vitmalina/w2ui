@@ -40,19 +40,8 @@
 
 	$.fn.w2layout = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2layout().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;
-			}
+			// check name parameter
+			if (!$().w2checkNameParam(method, 'w2layout')) return;
 			var panels = method.panels;
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
@@ -751,7 +740,7 @@
 						(sbottom ? pbottom.sizeCalculated + this.padding : 0);
 				e = $('#layout_'+ this.name +'_panel_left');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-				$('#layout_'+ this.name +'_panel_left').css({
+				e.css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -859,7 +848,7 @@
 				(sprev ? pprev.sizeCalculated + this.padding : 0);
 			e = $('#layout_'+ this.name +'_panel_main');
 			if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-			$('#layout_'+ this.name +'_panel_main').css({
+			e.css({
 				'display': 'block',
 				'left': l + 'px',
 				'top': t + 'px',
@@ -878,7 +867,7 @@
 				h = pprev.sizeCalculated;
 				e = $('#layout_'+ this.name +'_panel_preview');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-				$('#layout_'+ this.name +'_panel_preview').css({
+				e.css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',

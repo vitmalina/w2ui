@@ -65,7 +65,7 @@
 			toolbarSave		: false,
 			selectionBorder : true,
 			recordTitles	: true
-		}
+		};
 
 		this.autoLoad		= true; 	// for infinite scroll
 		this.fixedBody		= true;		// if false; then grid grows with data
@@ -90,7 +90,7 @@
 		this.onRequest			= null;		// called on any server event
 		this.onLoad				= null;
 		this.onDelete			= null;
-		this.onDeleted			= null
+		this.onDeleted			= null;
 		this.onSave 			= null;
 		this.onSaved			= null;
 		this.onSelect			= null;
@@ -137,7 +137,7 @@
 			sel_ind		: null,
 			sel_col		: null,
 			sel_type	: null
-		}
+		};
 
 		this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
 			navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -151,19 +151,8 @@
 
 	$.fn.w2grid = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2grid().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;
-			}
+			// check name parameter
+            if (!$().w2checkNameParam(method, 'w2grid')) return;
 			// remember items
 			var columns		= method.columns;
 			var columnGroups= method.columnGroups;
@@ -4172,7 +4161,7 @@
 			}
 			return val;
 		}
-	}
+	};
 
 	$.extend(w2grid.prototype, w2utils.event);
 	w2obj.grid = w2grid;

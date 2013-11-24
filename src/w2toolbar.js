@@ -30,21 +30,10 @@
 
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2toolbar().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;
-			}
-			var items = method.items;
+			// check name parameter
+			if (!$().w2checkNameParam(method, 'w2toolbar')) return;
 			// extend items
+			var items = method.items;
 			var object = new w2toolbar(method);
 			$.extend(object, { items: [], handlers: [] });
 
@@ -441,7 +430,8 @@
 					item: this.get(id), originalEvent: event });
 				if (eventData.isCancelled === true) return false;
 
-				$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('down');
+				var btn = $('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button');
+				btn.removeClass('down');
 
 				if (it.type == 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
@@ -453,7 +443,7 @@
 						}
 					}
 					it.checked = true;
-					$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+					btn.addClass('checked');
 				}
 
 				if (it.type == 'drop' || it.type == 'menu') {
@@ -478,9 +468,9 @@
 							function hideDrop() {
 								it.checked = false;
 								if (it.checked) {
-									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+									btn.addClass('checked');
 								} else {
-									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');
+									btn.removeClass('checked');
 								}
 								obj.refresh(it.id);
 								$(document).off('click', hideDrop);
@@ -492,9 +482,9 @@
 				if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
 					it.checked = !it.checked;
 					if (it.checked) {
-						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+						btn.addClass('checked');
 					} else {
-						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');
+						btn.removeClass('checked');
 					}
 				}
 				// event after

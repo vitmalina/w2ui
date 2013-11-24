@@ -35,19 +35,8 @@
 
 	$.fn.w2tabs = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2tabs().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;
-			}
+			// check name parameter
+			if (!$().w2checkNameParam(method, 'w2tabs')) return;
 			// extend tabs
 			var tabs   = method.tabs;
 			var object = new w2tabs(method);
