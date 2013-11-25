@@ -1,0 +1,249 @@
+//**********************************************************
+// common functions
+//**********************************************************
+.border-debug (@color: red) when (@debug-border) {
+  border: 1px solid @color;
+}
+
+.border (@bold, @style, @color) when not (@debug-border) {
+  border: @bold @style @color;
+}
+
+.rounded-corners (@radius: 4px) {
+  border-radius: @radius;
+}
+
+.icon-display (@size, @display: block) when (@size = 0) {
+  display: none;
+}
+
+.icon-display (@size, @display: block) when not (@size = 0) {
+  display: @display;
+  width: @size;
+  height: @size;
+  .border(1px, solid, red); // temporary
+  .border-debug;
+}
+
+//**********************************************************
+// base list template
+//**********************************************************
+.ul-list () {
+  list-style-type: none;
+  font-size: 0;
+  margin: 0;
+  cursor: default;
+  .border-debug(green);
+}
+
+.ul-list-spacing (@value) {
+  padding: @value 0px 0px @value;
+}
+
+.li-list () {
+  overflow: hidden;
+  font-size: medium;
+  .user-select;
+  .border(1px, solid, transparent);
+  .border-debug(blue);
+}
+
+.li-list-spacing (@value) {
+  margin: 0px @value @value 0px;
+}
+
+.li-list-panel (@width, @height: -1) when (@height = -1) {
+   width: @width;
+}
+
+.li-list-panel (@width, @height: -1) when not (@height = -1) {
+   width: @width;
+   height: @height;
+}
+
+//**********************************************************
+// "icons" list
+//**********************************************************
+.w2ui-listview {
+  overflow: hidden !important;
+  background-color: @listview-background-color !important;
+  .box-sizing(border-box);
+
+  * {
+    .box-sizing;
+  }
+
+  > ul {
+    .ul-list;
+
+    > li {
+      display: inline-block;
+      vertical-align: top;
+      .li-list;
+      .rounded-corners;
+
+      &.w2ui-selected,
+      &.w2ui-selected:hover {
+        .linear-gradient-vertical(@listview-item-selected-linear-gradient-start, @listview-item-selected-linear-gradient-end);
+        .border(1px, solid, @listview-item-selected-border-color);
+        .border-debug(black);
+
+        div {
+          color: @listview-item-selected-color !important;
+        }
+      }
+
+      &:hover {
+        .linear-gradient-vertical(@listview-item-hover-background-color-start, @listview-item-hover-background-color-end);
+        .border(1px, solid, @listview-item-hover-border-color);
+        .border-debug(black);
+      }
+
+      div {
+        overflow: hidden;
+        color: @listview-item-color;
+        font-size: 0.8em;
+      }
+
+      div.caption {
+        display: block;
+        text-align: center;
+        word-wrap: break-word;
+        max-height: @listview-icon-item-caption-max-height;
+        .border-debug(gray);
+      }
+
+      div.description {
+        display: none;
+        text-align: left;
+        color: @listview-item-description-color;
+        .border-debug(lightgray);
+      }
+    }
+  }
+}
+
+//**********************************************************
+// "small icons" list
+//**********************************************************
+.w2ui-icon-small > ul {
+  .ul-list-spacing(@listview-icon-small-item-spacing);
+
+  > li {
+    .li-list-spacing(@listview-icon-small-item-spacing);
+    padding: @listview-icon-small-item-padding;
+    .li-list-panel(@listview-icon-small-item-width);
+    white-space: nowrap;
+
+    div.icon-small {
+      .icon-display(@listview-icon-small-icon-size, inline-block);
+      float: left;
+      margin-right: @listview-icon-small-item-padding;
+    }
+
+    div.icon-medium {
+      .icon-display(0);
+    }
+
+    div.icon-large {
+      .icon-display(0);
+    }
+
+    div.caption {
+      display: inline-block;
+      vertical-align: middle;
+      text-align: left;
+    }
+  }
+}
+
+//**********************************************************
+// "medium icons" list
+//**********************************************************
+.w2ui-icon-medium > ul {
+  .ul-list-spacing(@listview-icon-medium-item-spacing);
+
+  > li {
+    .li-list-spacing(@listview-icon-medium-item-spacing);
+    padding: @listview-icon-medium-item-padding;
+    .li-list-panel(@listview-icon-medium-item-width);
+
+    div.icon-small {
+      .icon-display(0);
+    }
+
+    div.icon-medium {
+      margin-left: auto;
+      margin-right: auto;
+      .icon-display(@listview-icon-medium-icon-size);
+    }
+
+    div.icon-large {
+      .icon-display(0);
+    }
+  }
+}
+
+//**********************************************************
+// "large icons" list
+//**********************************************************
+.w2ui-icon-large > ul {
+  .ul-list-spacing(@listview-icon-large-item-spacing);
+
+  > li {
+    .li-list-spacing(@listview-icon-large-item-spacing);
+    padding: @listview-icon-large-item-padding;
+    .li-list-panel(@listview-icon-large-item-width);
+
+    div.icon-small {
+      .icon-display(0);
+    }
+
+    div.icon-medium {
+      .icon-display(0);
+    }
+
+    div.icon-large {
+      margin-left: auto;
+      margin-right: auto;
+      .icon-display(@listview-icon-large-icon-size);
+    }
+  }
+}
+
+
+//**********************************************************
+// "tiles" list
+//**********************************************************
+.w2ui-icon-tile > ul {
+  .ul-list-spacing(@listview-icon-tile-item-spacing);
+
+  > li {
+    .li-list-spacing(@listview-icon-tile-item-spacing);
+    padding: @listview-icon-tile-item-padding;
+    .li-list-panel(@listview-icon-tile-item-width);
+    white-space: nowrap;
+
+    div.icon-small {
+      .icon-display(0);
+    }
+
+    div.icon-medium {
+      .icon-display(@listview-icon-tile-icon-size, inline-block);
+      float: left;
+      margin-right: @listview-icon-tile-item-padding;
+    }
+
+    div.icon-large {
+      .icon-display(0);
+    }
+
+    div.caption {
+      text-align: left;
+    }
+
+    div.description {
+      display: block;
+    }
+  }
+}

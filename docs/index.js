@@ -34,6 +34,11 @@ $(function () {
 				{ id: 'w2sidebar-props', text: 'Properties', icon: 'fa-star-empty' },
 				{ id: 'w2sidebar-methods', text: 'Methods', icon: 'fa-cog' }
 			] },
+			{ id: 'w2listview', text: 'w2listview', img: 'icon-folder', group1: true, nodes: [
+				{ id: 'w2listview-events', text: 'Events', icon: 'fa-tag' },
+				{ id: 'w2listview-props', text: 'Properties', icon: 'fa-star-empty' },
+				{ id: 'w2listview-methods', text: 'Methods', icon: 'fa-cog' }
+			] },
 			{ id: 'w2tabs', text: 'w2tabs', img: 'icon-folder', group1: true, nodes: [
 				{ id: 'w2tabs-events', text: 'Events', icon: 'fa-tag' },
 				{ id: 'w2tabs-props', text: 'Properties', icon: 'fa-star-empty' },
@@ -66,6 +71,7 @@ $(function () {
 	$().w2grid({ name: 'test-grid' });
 	$().w2sidebar({ name: 'test-sidebar' });
 	$().w2toolbar({ name: 'test-toolbar' });
+	$().w2listview({ name: 'test-listview' });
 	$().w2tabs({ name: 'test-tabs' });
 	$().w2form({ name: 'test-form' });
 
@@ -74,6 +80,7 @@ $(function () {
 	init('grid');
 	init('sidebar');
 	init('toolbar');
+	init('listview');
 	init('tabs');
 	init('form');
 	initPopup();
@@ -96,7 +103,7 @@ $(function () {
 	w2ui['docs'].add('w2utils-methods', nodes);
 
 	// remove internal methods/props
-	w2ui['docs'].remove('w2layout.panel', 'w2grid.isIOS', 'w2toolbar.item', 'w2sidebar.node', 'w2tabs.tab');
+	w2ui['docs'].remove('w2layout.panel', 'w2grid.isIOS', 'w2toolbar.item', 'w2sidebar.node', 'w2listview.item', 'w2listview.vType', 'w2tabs.tab');
 
 	function init (type) {
 		var methods = [];

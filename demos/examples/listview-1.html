@@ -1,0 +1,30 @@
+<div class="content">
+	<div id="example_title">
+		<h1>Simple ListView</h1>
+		Below is an example of how to use ListView.
+	</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="listview" style="width: 100%;"></div>
+
+<!--CODE-->
+$(function () {
+	$('#listview').w2listview({
+		name: 'listview',
+		items: [
+			{ id: 'item1', caption: 'Item 1' },
+			{ id: 'item2', caption: 'Item 2' },
+			{ id: 'item3', caption: 'Item 3' },
+			{ id: 'item4', caption: 'Item 4' },
+			{ id: 'item5', caption: 'Item 5' },
+			{ id: 'item6', caption: 'Item 6' },
+			{ id: 'item7', caption: 'Item 7' },
+			{ id: 'item8', caption: 'Item 8' },
+			{ id: 'item9', caption: 'Item 9' },
+			{ id: 'item10', caption: 'Item 10' }
+		]
+	});
+});
