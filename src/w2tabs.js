@@ -36,7 +36,7 @@
 	$.fn.w2tabs = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$().w2checkNameParam(method, 'w2tabs')) return;
+			if (!$.fn.w2checkNameParam(method, 'w2tabs')) return;
 			// extend tabs
 			var tabs   = method.tabs;
 			var object = new w2tabs(method);

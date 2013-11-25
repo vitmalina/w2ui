@@ -68,7 +68,7 @@
 		if (typeof method === 'object' || !method ) {
 			var obj = this;
 			// check name parameter
-			if (!$().w2checkNameParam(method, 'w2form')) return;
+			if (!$.fn.w2checkNameParam(method, 'w2form')) return;
 			// remember items
 			var record 		= method.record;
 			var original	= method.original;

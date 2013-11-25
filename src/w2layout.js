@@ -41,7 +41,7 @@
 	$.fn.w2layout = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$().w2checkNameParam(method, 'w2layout')) return;
+			if (!$.fn.w2checkNameParam(method, 'w2layout')) return;
 			var panels = method.panels;
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });

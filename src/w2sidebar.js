@@ -48,7 +48,7 @@
 	$.fn.w2sidebar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$().w2checkNameParam(method, 'w2sidebar')) return;
+			if (!$.fn.w2checkNameParam(method, 'w2sidebar')) return;
 			// extend items
 			var nodes  = method.nodes;
 			var object = new w2sidebar(method); 
