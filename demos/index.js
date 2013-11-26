@@ -106,6 +106,14 @@ $(function () {
 					{ id: 'sidebar-7', text: 'Events', icon: 'fa-hand-left' }
 				]
 			},
+			{ id: 'listview', text: 'ListView', img: 'icon-folder', group1: true,
+				nodes: [
+					{ id: 'listview-1', text: 'Simple ListView', icon: 'fa-folder-close-alt' },
+					{ id: 'listview-2', text: 'Different view types', icon: 'fa-folder-close-alt' },
+					{ id: 'listview-3', text: 'Selecting items', icon: 'fa-folder-close-alt' },
+					{ id: 'listview-4', text: 'Add/Remove items', icon: 'fa-folder-close-alt' }
+				]
+			},
 			{ id: 'tabs', text: 'Tabs', img: 'icon-folder', group1: true,
 				nodes: [
 					{ id: 'tabs-1', text: 'Simple Tabs', icon: 'fa-folder-close-alt' },
@@ -251,6 +259,10 @@ $(function () {
 				w2ui['demo-sidebar'].click(tmp[1] || 'sidebar-1');
 				break;
 
+			case '#!listview':
+				w2ui['demo-sidebar'].expand('listview');
+				w2ui['demo-sidebar'].click(tmp[1] || 'listview-1');
+				break;
 			case '#!tabs':
 				w2ui['demo-sidebar'].expand('tabs');
 				w2ui['demo-sidebar'].click(tmp[1] || 'tabs-1');

@@ -31,7 +31,7 @@
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$().w2checkNameParam(method, 'w2toolbar')) return;
+			if (!$.fn.w2checkNameParam(method, 'w2toolbar')) return;
 			// extend items
 			var items = method.items;
 			var object = new w2toolbar(method);

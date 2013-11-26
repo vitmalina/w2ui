@@ -270,3 +270,50 @@
 @drop-menu-selected-background-color: #D7E4F2;
 
 @import "src/w2ui-toolbar.less";
+
+
+// ******************************************
+// ---- Listview ----
+
+@debug-border: false;
+
+@listview-background-color: white;
+@listview-item-color: @sidebar-node-color;
+@listview-item-selected-color: @sidebar-node-selected-color;
+@listview-item-description-color: gray;
+
+@listview-item-selected-linear-gradient-start: @sidebar-node-selected-linear-gradient-start;
+@listview-item-selected-linear-gradient-end: @sidebar-node-selected-linear-gradient-end;
+@listview-item-selected-border-color: @sidebar-node-selected-border-bottom;
+
+@listview-item-hover-background-color-start: @sidebar-node-hover-background-color-start;
+@listview-item-hover-background-color-end: @sidebar-node-hover-background-color-end;
+@listview-item-hover-border-color: @sidebar-node-selected-border-bottom;
+
+@listview-icon-item-caption-max-height: 50px;
+
+// "small icons"
+@listview-icon-small-item-spacing: 1px;
+@listview-icon-small-item-padding: 2px;
+@listview-icon-small-item-width: 200px;
+@listview-icon-small-icon-size: 20px;
+
+// "medium icons"
+@listview-icon-medium-item-spacing: 4px;
+@listview-icon-medium-item-padding: 4px;
+@listview-icon-medium-item-width: 100px;
+@listview-icon-medium-icon-size: 60px;
+
+// "large icons"
+@listview-icon-large-item-spacing: 4px;
+@listview-icon-large-item-padding: 4px;
+@listview-icon-large-item-width: 160px;
+@listview-icon-large-icon-size: 120px;
+
+// "tiles"
+@listview-icon-tile-item-spacing: 1px;
+@listview-icon-tile-item-padding: 5px;
+@listview-icon-tile-item-width: @listview-icon-small-item-width;
+@listview-icon-tile-icon-size: @listview-icon-medium-icon-size;
+
+@import "src/w2ui-listview.less";

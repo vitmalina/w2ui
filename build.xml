@@ -117,7 +117,7 @@
 
 		<echo message="Concatenate JS Files"/>
 		<concat destfile="dist/w2ui.js">
-			 <filelist dir="./src/" files="w2utils.js w2grid.js w2layout.js w2popup.js w2tabs.js w2toolbar.js w2sidebar.js w2fields.js w2form.js"/>
+			 <filelist dir="./src/" files="w2utils.js w2grid.js w2layout.js w2popup.js w2tabs.js w2toolbar.js w2sidebar.js w2fields.js w2form.js w2listview.js"/>
 		</concat>
 
 		<!-- Minify JS files -->
