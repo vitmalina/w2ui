@@ -303,9 +303,9 @@ var w2utils = (function () {
 	function formatDateTime(dateStr, format) {
 		var fmt;
 		if (typeof format != 'string') {
-			var fmt = [this.settings.date_format, this.settings.time_format];
+			fmt = [this.settings.date_format, this.settings.time_format];
 		} else {
-			var fmt = format.split('|');
+			fmt = format.split('|');
 		}
 		return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1]);
 	}
@@ -701,19 +701,19 @@ var w2utils = (function () {
 			right:  parseInt($(el).css('border-right-width')) || 0,
 			top:  	parseInt($(el).css('border-top-width')) || 0,
 			bottom: parseInt($(el).css('border-bottom-width')) || 0
-		}
+		};
 		var mwidth = {
 			left: 	parseInt($(el).css('margin-left')) || 0,
 			right:  parseInt($(el).css('margin-right')) || 0,
 			top:  	parseInt($(el).css('margin-top')) || 0,
 			bottom: parseInt($(el).css('margin-bottom')) || 0
-		}
+		};
 		var pwidth = {
 			left: 	parseInt($(el).css('padding-left')) || 0,
 			right:  parseInt($(el).css('padding-right')) || 0,
 			top:  	parseInt($(el).css('padding-top')) || 0,
 			bottom: parseInt($(el).css('padding-bottom')) || 0
-		}
+		};
 		switch (type) {
 			case 'top': 	return bwidth.top + mwidth.top + pwidth.top; 
 			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom; 
@@ -807,7 +807,7 @@ w2utils.event = {
 	trigger: function (eventData) {
 		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
 				preventDefault 	: function () { this.isCancelled = true; },
-				stopPropagation : function () { this.isStopped   = true; },
+				stopPropagation : function () { this.isStopped   = true; }
 			});
 		if (typeof eventData.target == 'undefined') eventData.target = null;		
 		// process events in REVERSE order 
@@ -936,13 +936,29 @@ w2utils.keyboard = (function (obj) {
 			if (typeof name == 'string' && w2ui[name]) w2ui[name].render($(this)[0]);
 			if (typeof name == 'object') name.render($(this)[0]);
 		}
-	}
+	};
 
 	$.fn.w2destroy = function (name) {
 		if (!name && this.length > 0) name = this.attr('name');
 		if (typeof name == 'string' && w2ui[name]) w2ui[name].destroy();
 		if (typeof name == 'object') name.destroy();
-	}
+	};
+
+    $.fn.w2checkNameParam = function (params, component) {
+		if (!params || typeof params.name == 'undefined') {
+			console.log('ERROR: The parameter "name" is required but not supplied in $().'+ component +'().');
+			return false;
+		}
+		if (typeof w2ui[params.name] != 'undefined') {
+			console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ params.name +').');
+			return false;
+		}
+		if (!w2utils.isAlphaNumeric(params.name)) {
+			console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
+			return false;
+		}
+		return true;
+	};
 
 	$.fn.w2marker = function (str) {
 		if (str == '' || typeof str == 'undefined') { // remove marker
@@ -965,7 +981,7 @@ w2utils.keyboard = (function (obj) {
 				}
 			});
 		}
-	}
+	};
 
 	// -- w2tag - appears on the right side from element, there can be multiple on screen at a time
 
@@ -1051,7 +1067,7 @@ w2utils.keyboard = (function (obj) {
 				}
 			}
 		});
-	}
+	};
 	
 	// w2overlay - appears under the element, there can be only one at a time
 
@@ -1077,7 +1093,7 @@ w2utils.keyboard = (function (obj) {
 
 		// pickup bg color of first div
 		var bc  = div.css('background-color'); 
-		var div = $('#w2ui-overlay');
+		div = $('#w2ui-overlay');
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div.css('background-color', bc);
 
 		div.css({
@@ -1123,7 +1139,7 @@ w2utils.keyboard = (function (obj) {
 				if (typeof options.onShow == 'function') options.onShow();
 			}
 		}
-	}
+	};
 
 	$.fn.w2menu = function (menu, options) {
 		if (typeof options.select == 'undefined' && typeof options.onSelect == 'function') options.select = options.onSelect;
@@ -1138,7 +1154,7 @@ w2utils.keyboard = (function (obj) {
 		// since only one overlay can exist at a time
 		$.fn.w2menuHandler = function (event, index) {
 			options.select(menu[index], event, index); 
-		}
+		};
 		return $(this).w2overlay(getMenuHTML(), options);
 
 		function getMenuHTML () { 
@@ -1172,7 +1188,7 @@ w2utils.keyboard = (function (obj) {
 			menu_html += "</table>";
 			return menu_html;
 		}	
-	}	
+	}
 })();
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -1241,7 +1257,7 @@ w2utils.keyboard = (function (obj) {
 			toolbarSave		: false,
 			selectionBorder : true,
 			recordTitles	: true
-		}
+		};
 
 		this.autoLoad		= true; 	// for infinite scroll
 		this.fixedBody		= true;		// if false; then grid grows with data
@@ -1266,7 +1282,7 @@ w2utils.keyboard = (function (obj) {
 		this.onRequest			= null;		// called on any server event
 		this.onLoad				= null;
 		this.onDelete			= null;
-		this.onDeleted			= null
+		this.onDeleted			= null;
 		this.onSave 			= null;
 		this.onSaved			= null;
 		this.onSelect			= null;
@@ -1313,7 +1329,7 @@ w2utils.keyboard = (function (obj) {
 			sel_ind		: null,
 			sel_col		: null,
 			sel_type	: null
-		}
+		};
 
 		this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
 			navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -1327,19 +1343,8 @@ w2utils.keyboard = (function (obj) {
 
 	$.fn.w2grid = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2grid().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;
-			}
+			// check name parameter
+			if (!$.fn.w2checkNameParam(method, 'w2grid')) return;
 			// remember items
 			var columns		= method.columns;
 			var columnGroups= method.columnGroups;
@@ -3096,9 +3101,13 @@ w2utils.keyboard = (function (obj) {
 			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default behavior
-			var sel 	= obj.getSelection();
-			if (sel.length == 0) return;
 			var records = $('#grid_'+ obj.name +'_records');
+			var sel 	= obj.getSelection();
+			if (sel.length == 0) {
+				var ind = Math.floor((records[0].scrollTop + (records.height() / 2.1)) / obj.recordHeight);
+				obj.select({ recid: obj.records[ind].recid, column: 0});
+				sel = obj.getSelection();
+			}
 			var recid	= sel[0];
 			var columns = [];
 			var recid2  = sel[sel.length-1];
@@ -3139,13 +3148,6 @@ w2utils.keyboard = (function (obj) {
 					cancel = true;
 					break;
 
-				case 13: // enter
-				case 32: // spacebar
-					if (columns.length == 0) columns.push(0);
-					obj.editField(recid, columns[0], null, event);
-					cancel = true;
-					break;
-
 				case 65: // cmd + A
 					if (!event.metaKey && !event.ctrlKey) break;
 					obj.selectAll();
@@ -3163,7 +3165,7 @@ w2utils.keyboard = (function (obj) {
 						if (recEL.length <= 0 || obj.show.expandColumn !== true) break;
 						obj.toggle(recid, event);
 						cancel = true;
-					} else { // same as spacebar
+					} else {
 						if (columns.length == 0) columns.push(0);
 						obj.editField(recid, columns[0], null, event);
 						cancel = true;
@@ -3411,7 +3413,7 @@ w2utils.keyboard = (function (obj) {
 					}
 					break;
 			}
-			var tmp = [187, 189]; // =-
+			var tmp = [187, 189, 32]; // =-spacebar
 			for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
 			if (tmp.indexOf(event.keyCode) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
 				if (columns.length == 0) columns.push(0);
@@ -5097,7 +5099,7 @@ w2utils.keyboard = (function (obj) {
 							});
 					}
 					if (more.find('td').text().indexOf('Load') == -1) {
-						more.find('td').html('<div>Load '+ obj.limit + ' More...</div>');
+						more.find('td').html('<div>'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
 					}
 				}
 			}
@@ -5351,7 +5353,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			return val;
 		}
-	}
+	};
 
 	$.extend(w2grid.prototype, w2utils.event);
 	w2obj.grid = w2grid;
@@ -5367,6 +5369,7 @@ w2utils.keyboard = (function (obj) {
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
 *	- add panel title
+*	- add resizer click, dblclick events, add resizer style ...
 *
 ************************************************************************/
 
@@ -5397,19 +5400,8 @@ w2utils.keyboard = (function (obj) {
 
 	$.fn.w2layout = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2layout().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;
-			}
+			// check name parameter
+			if (!$.fn.w2checkNameParam(method, 'w2layout')) return;
 			var panels = method.panels;
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
@@ -6108,7 +6100,7 @@ w2utils.keyboard = (function (obj) {
 						(sbottom ? pbottom.sizeCalculated + this.padding : 0);
 				e = $('#layout_'+ this.name +'_panel_left');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-				$('#layout_'+ this.name +'_panel_left').css({
+				e.css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -6216,7 +6208,7 @@ w2utils.keyboard = (function (obj) {
 				(sprev ? pprev.sizeCalculated + this.padding : 0);
 			e = $('#layout_'+ this.name +'_panel_main');
 			if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-			$('#layout_'+ this.name +'_panel_main').css({
+			e.css({
 				'display': 'block',
 				'left': l + 'px',
 				'top': t + 'px',
@@ -6235,7 +6227,7 @@ w2utils.keyboard = (function (obj) {
 				h = pprev.sizeCalculated;
 				e = $('#layout_'+ this.name +'_panel_preview');
 				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-				$('#layout_'+ this.name +'_panel_preview').css({
+				e.css({
 					'display': 'block',
 					'left': l + 'px',
 					'top': t + 'px',
@@ -7091,19 +7083,8 @@ var w2confirm = function (msg, title, callBack) {
 
 	$.fn.w2tabs = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2tabs().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;
-			}
+			// check name parameter
+			if (!$.fn.w2checkNameParam(method, 'w2tabs')) return;
 			// extend tabs
 			var tabs   = method.tabs;
 			var object = new w2tabs(method);
@@ -7499,21 +7480,10 @@ var w2confirm = function (msg, title, callBack) {
 
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2toolbar().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;
-			}
-			var items = method.items;
+			// check name parameter
+			if (!$.fn.w2checkNameParam(method, 'w2toolbar')) return;
 			// extend items
+			var items = method.items;
 			var object = new w2toolbar(method);
 			$.extend(object, { items: [], handlers: [] });
 
@@ -7910,7 +7880,8 @@ var w2confirm = function (msg, title, callBack) {
 					item: this.get(id), originalEvent: event });
 				if (eventData.isCancelled === true) return false;
 
-				$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('down');
+				var btn = $('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button');
+				btn.removeClass('down');
 
 				if (it.type == 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
@@ -7922,7 +7893,7 @@ var w2confirm = function (msg, title, callBack) {
 						}
 					}
 					it.checked = true;
-					$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+					btn.addClass('checked');
 				}
 
 				if (it.type == 'drop' || it.type == 'menu') {
@@ -7947,9 +7918,9 @@ var w2confirm = function (msg, title, callBack) {
 							function hideDrop() {
 								it.checked = false;
 								if (it.checked) {
-									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+									btn.addClass('checked');
 								} else {
-									$('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');
+									btn.removeClass('checked');
 								}
 								obj.refresh(it.id);
 								$(document).off('click', hideDrop);
@@ -7961,9 +7932,9 @@ var w2confirm = function (msg, title, callBack) {
 				if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
 					it.checked = !it.checked;
 					if (it.checked) {
-						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').addClass('checked');
+						btn.addClass('checked');
 					} else {
-						$('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button').removeClass('checked');
+						btn.removeClass('checked');
 					}
 				}
 				// event after
@@ -8024,19 +7995,8 @@ var w2confirm = function (msg, title, callBack) {
 	
 	$.fn.w2sidebar = function(method) {
 		if (typeof method === 'object' || !method ) {
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2sidebar().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;			
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;			
-			}
+			// check name parameter
+			if (!$.fn.w2checkNameParam(method, 'w2sidebar')) return;
 			// extend items
 			var nodes  = method.nodes;
 			var object = new w2sidebar(method); 
@@ -8399,27 +8359,21 @@ var w2confirm = function (msg, title, callBack) {
 				if (nd.nodes.length > 0) obj.toggle(obj.selected);
 			}
 			if (event.keyCode == 37) { // left
-				if (nd.nodes.length > 0) {
+				if (nd.nodes.length > 0 && nd.expanded) {
 					obj.collapse(obj.selected);
 				} else {
-					// collapse parent
-					if (nd.parent && !nd.parent.disabled && !nd.parent.group) {
-						obj.collapse(nd.parent.id);
-						obj.click(nd.parent.id);
-						setTimeout(function () { obj.scrollIntoView(); }, 50);
-					}
+					selectNode(nd.parent);
+					if (!nd.parent.group) obj.collapse(nd.parent.id);
 				}
 			}
 			if (event.keyCode == 39) { // right
-				if (nd.nodes.length > 0) obj.expand(obj.selected);
+				if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) obj.expand(obj.selected);
 			}
 			if (event.keyCode == 38) { // up
-				var tmp = prev(nd);
-				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
+				selectNode(neighbor(nd, prev));
 			}
 			if (event.keyCode == 40) { // down
-				var tmp = next(nd);
-				if (tmp != null) { obj.click(tmp.id, event); setTimeout(function () { obj.scrollIntoView(); }, 50); }
+				selectNode(neighbor(nd, next));
 			}
 			// cancel event if needed
 			if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
@@ -8428,7 +8382,21 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
-			return;
+
+			function selectNode (node, event) {
+				if (node != null && !node.hidden && !node.disabled && !node.group) {
+					obj.click(node.id, event);
+					setTimeout(function () { obj.scrollIntoView(); }, 50);
+				}
+			}
+
+			function neighbor (node, neighborFunc) {
+				node = neighborFunc(node);
+				while (node != null && (node.hidden || node.disabled)) {
+					if (node.group) break; else node = neighborFunc(node);
+				}
+				return node;
+			}
 
 			function next (node, noSubs) {
 				if (node == null) return null;
@@ -8438,7 +8406,7 @@ var w2confirm = function (msg, title, callBack) {
 				// jump inside
 				if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
 					var t = node.nodes[0];
-					if (!t.disabled && !t.group) nextNode = t; else nextNode = next(t);
+					if (t.hidden || t.disabled || t.group) nextNode = next(t); else nextNode = t;
 				} else {
 					if (parent && ind + 1 < parent.nodes.length) {
 						nextNode = parent.nodes[ind + 1];
@@ -8446,7 +8414,7 @@ var w2confirm = function (msg, title, callBack) {
 						nextNode = next(parent, true); // jump to the parent
 					}
 				}
-				if (nextNode != null && (nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
+				if (nextNode != null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
 				return nextNode;
 			}
 
@@ -8454,21 +8422,17 @@ var w2confirm = function (msg, title, callBack) {
 				if (node == null) return null;
 				var parent 	 = node.parent;
 				var ind 	 = obj.get(node.id, true);
-				var prevNode = null;
-				var noSubs   = false;
-				if (ind > 0) {
-					prevNode = parent.nodes[ind - 1];
-					// jump inside parents last node
-					if (prevNode.expanded && prevNode.nodes.length > 0) {
-						var t = prevNode.nodes[prevNode.nodes.length - 1];
-						if (!t.disabled && !t.group) prevNode = t; else prevNode = prev(t);
-					}
-				} else {					
-					prevNode = parent; // jump to the parent
-					noSubs   = true;
-				}
-				if (prevNode != null && (prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
+				var prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent;
+				if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
 				return prevNode;
+			}
+
+			function lastChild (node) {
+				if (node.expanded && node.nodes.length > 0) {
+					var t = node.nodes[node.nodes.length - 1];
+					if (t.hidden || t.disabled || t.group) return prev(t); else return lastChild(t);
+				}
+				return node;
 			}
 		},
 
@@ -8494,7 +8458,7 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			if (nd.nodes.length > 0) this.toggle(id);
+			this.toggle(id);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -8729,7 +8693,7 @@ var w2confirm = function (msg, title, callBack) {
 		unlock: function () { 
 			w2utils.unlock(this.box);
 		}
-	}
+	};
 	
 	$.extend(w2sidebar.prototype, w2utils.event);
 	w2obj.sidebar = w2sidebar;
@@ -8908,17 +8872,17 @@ var w2confirm = function (msg, title, callBack) {
 									'padding-bottom': $(this).css('padding-bottom'),
 									'padding-left'  : $(this).css('padding-left'),
 									'padding-right'	: 0,
-									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
-									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px',
+									'margin-top'	: (parseInt($(this).css('margin-top'), 10) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom'), 10) + 1) + 'px',
 									'margin-left'	: 0,
 									'margin-right' 	: 0
 								})
 								.on('click', function () { 
 									$(this).next().focus(); 
 								});
-							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left')) + 5) + 'px');
+							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left'), 10) + 5) + 'px');
 						}						
-						var pr = parseInt($(this).css('padding-right'));
+						var pr = parseInt($(this).css('padding-right'), 10);
 						if (options.arrows != '') {
 							$(this).after(
 								'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+ 
@@ -8937,13 +8901,13 @@ var w2confirm = function (msg, title, callBack) {
 									'color'			: $(this).css('color'),
 									'font-family'	: $(this).css('font-family'),
 									'font-size'		: $(this).css('font-size'),
-									'height' 		: ($(this).height() + parseInt($(this).css('padding-top')) + parseInt($(this).css('padding-bottom')) ) + 'px',
+									'height' 		: ($(this).height() + parseInt($(this).css('padding-top'), 10) + parseInt($(this).css('padding-bottom'), 10) ) + 'px',
 									'padding'		: '0px',
-									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
+									'margin-top'	: (parseInt($(this).css('margin-top'), 10) + 1) + 'px',
 									'margin-bottom'	: '0px',
 									'border-left'	: '1px solid silver'
 								})
-								.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('margin-right')) + 12) + 'px')
+								.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('margin-right'), 10) + 12) + 'px')
 								.on('mousedown', function (event) {
 									var btn = this;
 									var evt = event;
@@ -8981,13 +8945,13 @@ var w2confirm = function (msg, title, callBack) {
 									'padding-bottom': $(this).css('padding-bottom'),
 									'padding-left'	: '3px',
 									'padding-right'	: $(this).css('padding-right'),
-									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
-									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px'
+									'margin-top'	: (parseInt($(this).css('margin-top'), 10) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom'), 10) + 1) + 'px'
 								})
 								.on('click', function () { 
 									$(this).prev().focus(); 
 								});
-							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 5) + 'px');
+							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right'), 10) + 5) + 'px');
 							pr += helper.width() + 3;
 							$(this).css('padding-right', pr + 'px');
 						}
@@ -9036,7 +9000,7 @@ var w2confirm = function (msg, title, callBack) {
 								var left = parseFloat($(obj).offset().left);
 								clearInterval($(obj).data('mtimer'));
 								$('#global_calendar_div').remove();
-								$('body').append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
+								$('body').append('<div id="global_calendar_div" style="top: '+ (top + parseInt(obj.offsetHeight, 10)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
 									' onmousedown="'+
 									'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
@@ -9119,7 +9083,7 @@ var w2confirm = function (msg, title, callBack) {
 								var left = parseFloat($(obj).offset().left);
 								clearInterval($(obj).data('mtimer'));
 								$('#global_color_div').remove();
-								$('body').append('<div id="global_color_div" style="top: '+ (top + parseInt(obj.offsetHeight)) +'px; left: '+ left +'px;" '+
+								$('body').append('<div id="global_color_div" style="top: '+ (top + parseInt(obj.offsetHeight, 10)) +'px; left: '+ left +'px;" '+
 									' class="w2ui-reset w2ui-calendar" '+
 									' onmousedown="'+
 									'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
@@ -9212,15 +9176,15 @@ var w2confirm = function (msg, title, callBack) {
 									'padding-bottom': $(this).css('padding-bottom'),
 									'padding-left'  : $(this).css('padding-left'),
 									'padding-right'	: 0,
-									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
-									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px',
+									'margin-top'	: (parseInt($(this).css('margin-top'), 10) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom'), 10) + 1) + 'px',
 									'margin-left'	: 0,
 									'margin-right' 	: 0
 								})
 								.on('click', function () { 
 									$(this).next().focus(); 
 								});
-							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left')) + 2) + 'px');
+							$(this).css('padding-left', (helper.width() + parseInt($(this).css('padding-left'), 10) + 2) + 'px');
 						}
 						if (options.suffix != '') {
 							$(this).after(
@@ -9237,14 +9201,14 @@ var w2confirm = function (msg, title, callBack) {
 									'padding-bottom': $(this).css('padding-bottom'),
 									'padding-left'	: '3px',
 									'padding-right'	: $(this).css('padding-right'),
-									'margin-top'	: (parseInt($(this).css('margin-top')) + 1) + 'px',
-									'margin-bottom'	: (parseInt($(this).css('margin-bottom')) + 1) + 'px'
+									'margin-top'	: (parseInt($(this).css('margin-top'), 10) + 1) + 'px',
+									'margin-bottom'	: (parseInt($(this).css('margin-bottom'), 10) + 1) + 'px'
 								})
 								.on('click', function () { 
 									$(this).prev().focus(); 
 								});
-							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right')) + 4) + 'px');
-							var pr = helper.width() + parseInt($(this).css('padding-right')) + 4;
+							helper.css('margin-left', '-'+ (helper.width() + parseInt($(this).css('padding-right'), 10) + 4) + 'px');
+							var pr = helper.width() + parseInt($(this).css('padding-right'), 10) + 4;
 							$(this).css('padding-right', pr + 'px');
 							// set color to current
 							helper.find('div').css('background-color', '#' + $(obj).val());
@@ -9443,8 +9407,8 @@ var w2confirm = function (msg, title, callBack) {
 										 'margin-left: ' + $(this).css('margin-left') + '; ' +
 										 'margin-right: ' + $(this).css('margin-right') + '; '+
 										 'width: ' + (w2utils.getSize(this, 'width') 
-										 		   - parseInt($(this).css('margin-left')) 
-										 		   - parseInt($(this).css('margin-right'))) + 'px; ';
+										 		   - parseInt($(this).css('margin-left'), 10)
+										 		   - parseInt($(this).css('margin-right'), 10)) + 'px; ';
 							var html = '<div class="w2ui-list" style="'+ margin + ';">'+
 									   '<div style="padding: 0px; margin: 0px; display: inline-block"><ul>';
 							var selected = $(this).data('selected');
@@ -9686,7 +9650,7 @@ var w2confirm = function (msg, title, callBack) {
 						opt  = {};
 					}
 				}
-				if (w2utils.isInt(id)) id = parseInt(id);
+				if (w2utils.isInt(id)) id = parseInt(id, 10);
 				if (w2utils.isFloat(id)) id = parseFloat(id);
 				newItems.push($.extend({}, opt, { id: id, text: text }));
 			}
@@ -9708,11 +9672,11 @@ var w2confirm = function (msg, title, callBack) {
 						 'margin-left: ' + $(obj).css('margin-left') + '; ' +
 						 'margin-right: ' + $(obj).css('margin-right') + '; '+
 						 'width: ' + (w2utils.getSize(obj, 'width') 
-						 		   - parseInt($(obj).css('margin-left')) 
-						 		   - parseInt($(obj).css('margin-right'))) + 'px; '+
+						 		   - parseInt($(obj).css('margin-left'), 10)
+						 		   - parseInt($(obj).css('margin-right'), 10)) + 'px; '+
 						 'height: ' + (w2utils.getSize(obj, 'height') 
-						 		   - parseInt($(obj).css('margin-top')) 
-						 		   - parseInt($(obj).css('margin-bottom'))) + 'px; ';
+						 		   - parseInt($(obj).css('margin-top'), 10)
+						 		   - parseInt($(obj).css('margin-bottom'), 10)) + 'px; ';
 			var html = 
 				'<div style="'+ margin +'" class="w2ui-upload">'+
 				'	<span>'+ settings.hint +'</span>'+
@@ -9931,14 +9895,14 @@ var w2confirm = function (msg, title, callBack) {
 			var ihtml = '<ul>';
 			// get ids of all selected items
 			var ids	  = [];
-			for (var a in selected) ids.push(w2utils.isInt(selected[a].id) ? parseInt(selected[a].id) : String(selected[a].id))
+			for (var a in selected) ids.push(w2utils.isInt(selected[a].id) ? parseInt(selected[a].id, 10) : String(selected[a].id))
 			// build list
 			var group = '';
 			for (var a in items) {
 				var id  = items[a].id;
 				var txt = items[a].text;
 				// if already selected
-				if ($.inArray(w2utils.isInt(id) ? parseInt(id) : String(id), ids) != -1 && settings.showAll !== true) continue;
+				if ($.inArray(w2utils.isInt(id) ? parseInt(id, 10) : String(id), ids) != -1 && settings.showAll !== true) continue;
 				// check match with search
 				var txt1  = String(search).toLowerCase();
 				var txt2  = txt.toLowerCase();
@@ -9977,8 +9941,8 @@ var w2confirm = function (msg, title, callBack) {
 
 			// if menu goes off screen - add scrollbar
 			div.css({ '-webkit-transition': '0s', height : 'auto' }); 
-			var max_height = parseInt($(document).height()) - parseInt(div.offset().top) - 8;
-			if (parseInt(div.height()) > max_height) {
+			var max_height = parseInt($(document).height(), 10) - parseInt(div.offset().top, 10) - 8;
+			if (parseInt(div.height(), 10) > max_height) {
 				div.css({ 
 					height 	: (max_height - 5) + 'px', 
 					overflow: 'show' 
@@ -10116,11 +10080,11 @@ var w2confirm = function (msg, title, callBack) {
 			var tmp = String(month_year).split('/');
 			var month = tmp[0];
 			var year  = tmp[1];
-			if (parseInt(month) < 12) {
-				month = parseInt(month) + 1;
+			if (parseInt(month, 10) < 12) {
+				month = parseInt(month, 10) + 1;
 			} else {
 				month = 1;
-				year  = parseInt(year) + 1;
+				year  = parseInt(year, 10) + 1;
 			}
 			var options = $($('#global_calendar_div.w2ui-calendar').data('el')).data('options');
 			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', w2utils.formatDate(month+'/1/'+year, options.format), options) );
@@ -10130,11 +10094,11 @@ var w2confirm = function (msg, title, callBack) {
 			var tmp = String(month_year).split('/');
 			var month = tmp[0];
 			var year  = tmp[1];
-			if (parseInt(month) > 1) {
-				month = parseInt(month) - 1;
+			if (parseInt(month, 10) > 1) {
+				month = parseInt(month, 10) - 1;
 			} else {
 				month = 12;
-				year  = parseInt(year) - 1;
+				year  = parseInt(year, 10) - 1;
 			}
 			var options = $($('#global_calendar_div.w2ui-calendar').data('el')).data('options');
 			$('#global_calendar_div.w2ui-calendar').html( $().w2field('calendar_get', w2utils.formatDate(month+'/1/'+year, options.format), options) );
@@ -10344,19 +10308,8 @@ var w2confirm = function (msg, title, callBack) {
 	$.fn.w2form = function(method) {
 		if (typeof method === 'object' || !method ) {
 			var obj = this;
-			// check required parameters
-			if (!method || typeof method.name == 'undefined') {
-				console.log('ERROR: The parameter "name" is required but not supplied in $().w2form().');
-				return;
-			}
-			if (typeof w2ui[method.name] != 'undefined') {
-				console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ method.name +').');
-				return;			
-			}
-			if (!w2utils.isAlphaNumeric(method.name)) {
-				console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-				return;			
-			}
+			// check name parameter
+			if (!$.fn.w2checkNameParam(method, 'w2form')) return;
 			// remember items
 			var record 		= method.record;
 			var original	= method.original;
@@ -10697,11 +10650,11 @@ var w2confirm = function (msg, title, callBack) {
 					var field = obj.fields[f];
 					switch (String(field.type).toLowerCase()) {
 						case 'date': // to yyyy-mm-dd format
-							var dt = params.record[field.name];
-							if (field.options.format.toLowerCase() == 'dd/mm/yyyy' || field.options.format.toLowerCase() == 'dd-mm-yyyy'
-									|| field.options.format.toLowerCase() == 'dd.mm.yyyy') {
+							var dt  = params.record[field.name];
+							var tmp = field.options.format.toLowerCase().replace('-', '/').replace('\.', '/');
+							if (['dd/mm/yyyy', 'd/m/yyyy', 'dd/mm/yy', 'd/m/yy'].indexOf(tmp) != -1) {
 								var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
-								var dt  = new Date(tmp[2] + '-' + tmp[1] + '-' + tmp[0]);
+								var dt  = new Date(tmp[2], tmp[1]-1, tmp[0]);
 							}
 							params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
 							break;
@@ -11152,8 +11105,415 @@ var w2confirm = function (msg, title, callBack) {
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			$(window).off('resize', 'body')
 		}
-	}
+	};
 	
 	$.extend(w2form.prototype, w2utils.event);
 	w2obj.form = w2form;
+})();
+/************************************************************************
+*	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*	- Following objects defined
+*		- w2listview		- listview widget
+*		- $().w2listview	- jQuery wrapper
+*   - Dependencies: jQuery, w2utils
+*
+* == NICE TO HAVE ==
+*	- icons/images support
+*	- "Ctrl"/"Shift" keys support in multiselect mode
+*
+************************************************************************/
+
+(function () {
+	var w2listview = function (options) {
+		this.box		= null;		// DOM Element that holds the element
+		this.name		= null;		// unique name for w2ui
+		this.vType		= null;
+		this.items		= [];
+		this.menu		= [];
+		this.multiselect	= true;		// multiselect support
+		this.keyboard		= true;		// keyboard support
+		this.focused		= null;		// focused item
+		this.onClick		= null;
+		this.onDblClick		= null;
+		this.onKeydown		= null;
+		this.onContextMenu	= null;
+		this.onMenuClick	= null;		// when context menu item selected
+		this.onRender		= null;
+		this.onRefresh		= null;
+		this.onDestroy		= null;
+
+		$.extend(true, this, w2obj.listview, options);
+	};
+
+	// ====================================================
+	// -- Registers as a jQuery plugin
+
+	$.fn.w2listview = function(method) {
+		if (typeof method === 'object' || !method ) {
+			// check name parameter
+			if (!$.fn.w2checkNameParam(method, 'w2listview')) return;
+			if (typeof method.viewType !== 'undefined') {
+				method.vType = method.viewType;
+				delete method.viewType;
+			}
+			var items  = method.items;
+			var object = new w2listview(method);
+			$.extend(object, { items: [], handlers: [] });
+			for (var i in items) { object.items[i] = $.extend({}, w2listview.prototype.item, items[i]); }
+			if ($(this).length !== 0) {
+				object.render($(this)[0]);
+			}
+			// register new object
+			w2ui[object.name] = object;
+			return object;
+		} else if (w2ui[$(this).attr('name')]) {
+			var obj = w2ui[$(this).attr('name')];
+			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
+			return this;
+		} else {
+			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2listview' );
+		}
+	};
+
+	// ====================================================
+	// -- Implementation of core functionality
+
+	w2listview.prototype = {
+		item : {
+			id		: null,		// param to be sent to all event handlers
+			caption		: '',
+			description	: '',
+			selected	: false,
+			onClick		: null,
+			onDblClick	: null,
+			onKeydown	: null,
+			onContextMenu	: null,
+			onRefresh	: null
+		},
+
+		viewType: function (value) {
+			if (arguments.length === 0) {
+				switch (this.vType) {
+					case 'icon-tile':
+						return 'icon-tile';
+					case 'icon-large':
+						return 'icon-large';
+					case 'icon-medium':
+						return 'icon-medium';
+					default:
+						return 'icon-small';
+				}
+			} else {
+				this.vType = value;
+				var vt = 'w2ui-' + this.viewType();
+				$(this.box)
+					.removeClass('w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile')
+					.addClass(vt);
+				return vt;
+			}
+		},
+
+		add: function (item) {
+			return this.insert(null, item);
+		},
+
+		insert: function (id, item) {
+			if (!$.isArray(item)) item = [item];
+			// assume it is array
+			for (var r in item) {
+				// checks
+				if (String(item[r].id) == 'undefined') {
+					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
+					return;
+				}
+				var unique = true;
+				for (var i in this.items) { if (this.items[i].id == item[r].id) { unique = false; break; } }
+				if (!unique) {
+					console.log('ERROR: The parameter "id='+ item[r].id +'" is not unique within the current items. (obj: '+ this.name +')');
+					return;
+				}
+				if (!w2utils.isAlphaNumeric(item[r].id)) {
+					console.log('ERROR: The parameter "id='+ item[r].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
+					return;
+				}
+				// add item
+				item = $.extend({}, item, item[r]);
+				if (id === null || typeof id == 'undefined') {
+					this.items.push(item);
+				} else {
+					var middle = this.get(id, true);
+					this.items = this.items.slice(0, middle).concat([item], this.items.slice(middle));
+				}
+				this.refresh(item[r].id);
+			}
+		},
+
+		remove: function (id) {
+			var removed = 0;
+			for (var i = 0; i < arguments.length; i++) {
+				var item = this.get(arguments[i]);
+				if (!item) return false;
+				removed++;
+				// remove from array
+				this.items.splice(this.get(item.id, true), 1);
+				// remove from screen
+				$(this.box).find('#itm_'+ w2utils.escapeId(item.id)).remove();
+			}
+			return removed;
+		},
+
+		set: function (id, item) {
+			var index = this.get(id, true);
+			if (index === null) return false;
+			$.extend(this.items[index], item);
+			this.refresh(id);
+			return true;
+		},
+
+		get: function (id, returnIndex) {
+            var i = 0
+			if (arguments.length === 0) {
+				var all = [];
+				for (; i < this.items.length; i++) if (this.items[i].id !== null) all.push(this.items[i].id);
+				return all;
+			}
+			for (; i < this.items.length; i++) {
+				if (this.items[i].id === id) {
+					if (returnIndex === true) return i; else return this.items[i];
+				}
+			}
+			return null;
+		},
+
+		select: function (id, addSelection) {
+            if (arguments.length === 1 || !this.multiselect) addSelection = false;
+			if (!addSelection) {
+				for (var i1 in this.items) {
+					if (this.items[i1].id != id) this.unselect(this.items[i1].id);
+				}
+			}
+			var item = this.get(id);
+			if (!item) return false;
+			if (!item.selected) {
+				$(this.box).find('#itm_'+ w2utils.escapeId(id))
+					.addClass('w2ui-selected');
+				item.selected = true;
+			}
+			this.focused = id;
+			return item.selected;
+		},
+
+		unselect: function (id) {
+			for (var i = 0; i < arguments.length; i++) {
+				var item = this.get(arguments[i]);
+				if (item && item.selected) {
+					item.selected = false;
+					$(this.box).find('#itm_'+ w2utils.escapeId(item.id))
+						.removeClass('w2ui-selected');
+					if (this.focused === item.id) this.focused = null;
+                }
+			}
+			return true;
+		},
+
+		// ===================================================
+		// -- Internal Event Handlers
+
+		click: function (id, event) {
+			var obj = this;
+			var item = obj.get(id);
+			if (item == null) return false;
+			var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: item });
+			var rslt = !(eventData.isCancelled === true);
+			if (rslt) {
+				// default action
+				obj.select(id);
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}
+			return rslt;
+		},
+
+		dblClick: function (id, event) {
+			var obj = this;
+			var item = obj.get(id);
+			if (item == null) return false;
+			var eventData = obj.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: item });
+			var rslt = !(eventData.isCancelled === true);
+			if (rslt) {
+				// default action
+				// -- empty
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}
+			return rslt;
+		},
+
+		keydown: function (event) {
+			var obj = this;
+			var item = this.get(obj.focused);
+			if (item == null || obj.keyboard !== true) return false;
+			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
+			var rslt = !(eventData.isCancelled === true);
+			if (rslt) {
+				// default behaviour
+				if (event.keyCode == 37) selectNeighbor('left');
+				if (event.keyCode == 39) selectNeighbor('right');
+				if (event.keyCode == 38) selectNeighbor('up');
+				if (event.keyCode == 40) selectNeighbor('down');
+				// cancel event if needed
+				if ($.inArray(event.keyCode, [37, 38, 39, 40]) != -1) {
+					if (event.preventDefault) event.preventDefault();
+					if (event.stopPropagation) event.stopPropagation();
+				}
+
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}
+			return rslt;
+
+			function selectNeighbor(neighbor) {
+				var idx = obj.get(item.id, true);
+                var newIdx;
+				if (neighbor === 'up') newIdx = idx - itemsInLine();
+				if (neighbor === 'down') newIdx = idx + itemsInLine();
+				if (neighbor === 'left') newIdx = idx - 1;
+				if (neighbor === 'right') newIdx = idx + 1;
+				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) obj.select(obj.items[newIdx].id);
+			}
+
+			function itemsInLine() {
+                var lv = $(obj.box).find('> ul');
+				return ~~(lv.width() / w2utils.getSize(lv.find('> li').get(0), 'width'));
+			}
+		},
+
+		contextMenu: function (id, event) {
+			var obj = this;
+			var item = this.get(id);
+			if (item == null) return false;
+            if (!item.selected) obj.select(id);
+			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: item });
+			var rslt = !(eventData.isCancelled === true);
+			if (rslt) {
+				// default action
+				if (obj.menu.length > 0) {
+					$(obj.box).find('#itm_'+ w2utils.escapeId(id))
+						.w2menu(obj.menu, {
+							left: (event ? event.offsetX || event.pageX : 50) - 25,
+							select: function (item, event, index) { obj.menuClick(id, index, event); }
+						}
+					);
+				}
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}
+			return false;
+		},
+
+		menuClick: function (itemId, index, event) {
+			var obj = this;
+			// event before
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
+			var rslt = !(eventData.isCancelled === true);
+			if (rslt) {
+				// default action
+				// -- empty
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}
+			return rslt;
+		},
+
+		refresh: function (id) {
+			var time = (new Date()).getTime();
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			if (String(id) == 'undefined') {
+				// refresh all
+				for (var i in this.items) this.refresh(this.items[i].id);
+			}
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), object: this.get(id) });
+			if (eventData.isCancelled === true) return false;
+			// create or refresh only one item
+			var item = this.get(id);
+			if (item === null) return false;
+			//if (typeof item.caption != 'undefined') item.text = item.caption;
+
+			var jq_el   = $(this.box).find('#itm_'+ w2utils.escapeId(item.id));
+			var itemHTML =
+					'<div class="icon-small">small icon</div> ' +
+					'<div class="icon-medium">medium icon</div> ' +
+					'<div class="icon-large">large icon</div> ' +
+					'<div class="caption">' + item.caption + '</div> ' +
+					'<div class="description">' + item.description + '</div>';
+			if (jq_el.length === 0) {
+				// does not exist - create it
+				html =	'<li id="itm_'+ item.id +'" ' +
+					'onclick="w2ui[\''+ this.name +'\'].click(\''+ item.id +'\', event);" '+'' +
+					'ondblclick="w2ui[\''+ this.name +'\'].dblClick(\''+ item.id +'\', event);" '+
+					'oncontextmenu="w2ui[\''+ this.name +'\'].contextMenu(\''+ item.id +'\', event); if (event.preventDefault) event.preventDefault();" '+
+					'>'+ itemHTML + '</li>';
+				if (this.get(id, true) != this.items.length-1 && $(this.box).find('#itm_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).length > 0) {
+					$(this.box).find('#itm_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
+				} else {
+					$(this.box).find('#itmlast').before(html);
+				}
+			} else {
+				// refresh
+				jq_el.html(itemHTML);
+			}
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
+		},
+
+		render: function (box) {
+			var time = (new Date()).getTime();
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
+			if (eventData.isCancelled === true) return false;
+			// default action
+			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			if (String(box) != 'undefined' && box !== null) {
+				if ($(this.box).find('> ul #itmlast').length > 0) {
+					$(this.box)
+						.removeAttr('name')
+						.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile')
+						.html('');
+				}
+				this.box = box;
+			}
+			if (!this.box) return false;
+			// render all items
+			var html =	'<ul><li id="itmlast" style="display: none;"></li></ul>';
+			$(this.box)
+				.attr('name', this.name)
+				.addClass('w2ui-reset w2ui-listview w2ui-' + this.viewType())
+				.html(html);
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			this.refresh();
+			return (new Date()).getTime() - time;
+		},
+
+		destroy: function () {
+			// event before
+			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+			if (eventData.isCancelled === true) return false;
+			// clean up
+			if ($(this.box).find('> ul #itmlast').length > 0) {
+				$(this.box)
+					.removeAttr('name')
+					.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile')
+					.html('');
+			}
+			delete w2ui[this.name];
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+		}
+	};
+
+	$.extend(w2listview.prototype, w2utils.event);
+	w2obj.listview = w2listview;
 })();
