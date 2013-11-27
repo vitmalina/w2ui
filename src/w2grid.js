@@ -26,6 +26,7 @@
 * == 1.4 changes
 * 	- added refreshRow(recid) - should it be part of refresh?
 * 	- added refreshCell(recid, field) - should it be part of refresh?
+*	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *
 ************************************************************************/
 
@@ -1881,7 +1882,7 @@
 						this.select({ recid: record.recid, column: column });
 						//sel.push(record.recid);
 					}
-					setTimeout(function () { if (window.getSelection) window.getSelection().removeAllRanges(); }, 10);
+					//setTimeout(function () { if (window.getSelection) window.getSelection().removeAllRanges(); }, 10);
 				}
 			}
 			this.status();
@@ -2332,7 +2333,7 @@
 		},
 
 		dblClick: function (recid, event) {
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			//if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// find columns
 			var column = null;
 			if (typeof recid == 'object') {
@@ -2579,7 +2580,7 @@
 		resize: function () {
 			var obj  = this;
 			var time = (new Date()).getTime();
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			//if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// make sure the box is right
 			if (!this.box || $(this.box).attr('name') != this.name) return;
 			// determine new width and height
@@ -2629,7 +2630,7 @@
 				this.total = this.records.length;
 				this.buffered = this.total;
 			}
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			//if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			this.toolbar.disable('edit', 'delete');
 			if (!this.box) return;
 			// event before
@@ -2765,7 +2766,7 @@
 		render: function (box) {
 			var obj  = this;
 			var time = (new Date()).getTime();
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			//if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (typeof box != 'undefined' && box != null) {
 				if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
 					$(this.box)

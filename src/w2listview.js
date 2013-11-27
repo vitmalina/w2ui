@@ -9,6 +9,9 @@
 *	- icons/images support
 *	- "Ctrl"/"Shift" keys support in multiselect mode
 *
+* == 1.4 changes
+*	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*
 ************************************************************************/
 
 (function () {
@@ -315,7 +318,7 @@
 
 		refresh: function (id) {
 			var time = (new Date()).getTime();
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (String(id) == 'undefined') {
 				// refresh all
 				for (var i in this.items) this.refresh(this.items[i].id);
@@ -362,7 +365,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (String(box) != 'undefined' && box !== null) {
 				if ($(this.box).find('> ul #itmlast').length > 0) {
 					$(this.box)

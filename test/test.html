@@ -1,50 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+
 <html>
+
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../dist/w2ui.js"></script>
-<script type="text/javascript" src="../src/w2grid.js"></script>
-<script type="text/javascript" src="../src/w2form.js"></script>
-<script>
-$(function () {
-  $('#form').w2form({
-    name  : 'myForm',
-    //url   : 'server/post',
-    fields: [{ name: 'xxx', type: 'text'},{ name: 'yyy', type: 'text'}]
-  });
-  w2ui['myForm'].lock(' ');
-  $(document).on('click', '#popup', function(e){
-    $('#myPopup').w2popup('open', {showClose:false});
-  });
-  $(document).on('click', '#OK,#Quit', function(e){
-    $().w2popup('close');
-  });
-  $(document).on('click', '#unlock', function(e){
-    w2ui['myForm'].unlock();
-  });
-});
-</script>
-<body>
-<input id="popup" type="button" value="popup" />
+    <link href="http://w2ui.com/src/w2ui-1.3.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://w2ui.com/src//w2ui-1.3.js"></script>
+    <script src="../src//w2utils.js"></script>
+    <script src="../src//w2grid.js"></script>
+    <script type="text/javascript">
+        var uiConfig = {
+            layout: {
+                name: 'programmingEnviroment',
+                panels: [
+                    {
+                        type: 'main',
+                        content:
+                          '<table width="100%" height="100%" border="0"><tr><td align="center"><div class="w2ui-form">Code<\/div><\/td><\/tr><tr height="100%"><td>' +
+                          '<textarea id="code" style="resize:none; width:100%;height:100%;border: 1px solid #ccc; padding: 5px; background-color:#ffffff;" placeholder="Start programming here!" autofocus=""> <\/textarea>' +
+                          '<\/td><\/tr><\/table>',
+                        size: "100%",
+                        resizable: false
+                    },
+                    {
+                        type: 'preview',
+                        content: 'Variable',
+                        size: "60%",
+                        resizable: 'true'
+                    }
+                ]
+            },
+            variable: {
+                name: 'variable',
+                header: 'Variable',
+                keyboard: false,
+                show: {
+                    header: true
+                },
+                columns: [
+                    {
+                        field: 'name',
+                        caption: 'Name',
+                        size: '30%',
+                        resizable: true
+                    },
+                    {
+                        field: 'type',
+                        caption: 'Type',
+                        size: '30%',
+                        resizable: true
+                    },
+                    {
+                        field: 'value',
+                        caption: 'Value',
+                        size: '40%',
+                        resizable: true
+                    }
+                ]
+            },
+        };
 
-<div id="form" style="width:800px;height:600px">
-  <div class="w2ui-page page-0">
-    <div class="w2ui-field">
-      <input name="xxx" type="text" size="50"></input>
-      <input name="yyy" type="text" size="50"></input>
-    </div>
-  </div>
-</div>
+        $(function () {
+            $('#pe').w2layout(uiConfig.layout);
+            $().w2grid(uiConfig.variable);
+            w2ui.programmingEnviroment.content('preview', w2ui.variable);
+            $("#code").on('keyup', function (event) {
+                /***********************************************************************
+                **     Here is the part where the cursor disappears from the input **
+                ************************************************************************/
 
-<div id="myPopup" style="display: none; width: 50%; height: 100%;">
-	<div rel="title">myPopup</div>
-	<div rel="body">
-	  <input id="unlock" type="button" value="unlock" />
-	</div>
-	<div rel="buttons">
-	  <input id="OK" type="button" value="OK" />
-	  <input id="Quit" type="button" value="Abbrechen" />
-	</div>
-</div>
+                w2ui['variable'].add({
+                    recid: 1,
+                    name: 'foo',
+                    type: 'number',
+                    value: 1
+                });
+
+            });
+
+        });
+    </script>
+
+    <title></title>
+</head>
+
+<body style="overflow: hidden">
+    <div id="pe" style="position: absolute; width:100%;height:100%;"></div>
 </body>
+
 </html>
