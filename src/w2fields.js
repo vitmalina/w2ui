@@ -21,9 +21,7 @@
 
 	/* SINGELTON PATTERN */
 
-	var w2field = (function () {
-		this.customTypes = [];
-	})();
+	var w2field = { customTypes: [] };
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
@@ -52,18 +50,10 @@
 					return;
 				}  
 				// Common Types
-				var tp = options.type.toLowerCase();
-				var el = this;
-				var defaults = {
-					min		: null,
-					max		: null,
-					arrows	: false,
-					keyboard	: true,
-					suffix	: '',
-					prefix	: ''
-				};
+				var tp	= options.type.toLowerCase();
+				var obj	= this;
+				var defaults;
 				var helper;
-				var obj = this;
 				var pr;
 				var settings;
 
@@ -104,6 +94,14 @@
 					case 'money':
 					case 'alphanumeric':
 					case 'hex':
+						defaults = {
+							min		: null,
+							max		: null,
+							arrows	: false,
+							keyboard	: true,
+							suffix	: '',
+							prefix	: ''
+						};					
 						options = $.extend({}, defaults, options);
 						if (['text', 'alphanumeric', 'hex'].indexOf(tp) != -1) {
 							options.arrows   = false;
@@ -124,35 +122,35 @@
 							.on('keydown', function (event, extra) {
 								if (!options.keyboard) return;
 								var cancel = false;
-								var v = $(el).val();
+								var v = $(obj).val();
 								if (!checkType(v)) v = options.min || 0; else v = parseFloat(v);
 								var key = event.keyCode || extra.keyCode;
 								var inc = 1;
 								if (event.ctrlKey || event.metaKey) inc = 10;
 								switch (key) {
 									case 38: // up
-										$(el).val((v + inc <= options.max || options.max === null ? v + inc : options.max)).change();
-										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
+										$(obj).val((v + inc <= options.max || options.max === null ? v + inc : options.max)).change();
+										if (tp == 'money') $(obj).val( Number($(obj).val()).toFixed(2) );
 										cancel = true;
 										break;
 									case 40: // down
-										$(el).val((v - inc >= options.min || options.min === null ? v - inc : options.min)).change();
-										if (tp == 'money') $(el).val( Number($(el).val()).toFixed(2) );
+										$(obj).val((v - inc >= options.min || options.min === null ? v - inc : options.min)).change();
+										if (tp == 'money') $(obj).val( Number($(obj).val()).toFixed(2) );
 										cancel = true;
 										break;
 								}
 								if (cancel) {
 									event.preventDefault();
 									// set cursor to the end
-									setTimeout(function () { el.setSelectionRange(el.value.length, el.value.length); }, 0);
+									setTimeout(function () { obj.setSelectionRange(obj.value.length, obj.value.length); }, 0);
 								}
 							})
 							.on('change', function (event) {
 								// check max/min
-								var v  = $(el).val();
+								var v  = $(obj).val();
 								var cancel = false;
-								if (options.min !== null && v !== '' && v < options.min) { $(el).val(options.min).change(); cancel = true; }
-								if (options.max !== null && v !== '' && v > options.max) { $(el).val(options.max).change(); cancel = true; }
+								if (options.min !== null && v !== '' && v < options.min) { $(obj).val(options.min).change(); cancel = true; }
+								if (options.max !== null && v !== '' && v > options.max) { $(obj).val(options.max).change(); cancel = true; }
 								if (cancel) {
 									event.stopPropagation();
 									event.preventDefault();
@@ -226,7 +224,7 @@
 									}
 									// update function
 									function update(notimer) {
-										$(el).focus().trigger($.Event("keydown"), { 
+										$(obj).focus().trigger($.Event("keydown"), { 
 											keyCode : ($(evt.target).attr('type') == 'up' ? 38 : 40) 
 										});
 										if (notimer !== false) $('body').data('_field_update_timer', setTimeout(update, 60));
