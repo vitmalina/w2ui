@@ -50,7 +50,8 @@ $(function () {
 					{ id: 'layout-6', text: 'Event Listeners', icon: 'fa-columns' },
 					{ id: 'layout-7', text: 'Nested Layouts', icon: 'fa-columns' },
 					{ id: 'layout-8', text: 'Panel With Tabs', icon: 'fa-columns' },
-					{ id: 'layout-9', text: 'Panel With Toolbar', icon: 'fa-columns' }
+					{ id: 'layout-9', text: 'Panel With Toolbar', icon: 'fa-columns' },
+					{ id: 'layout-10', text: 'Panel With Title', icon: 'fa-columns' }
 				]
 			},
 			{ id: 'grid', text: 'Grid', img: 'icon-folder', group1: true,
