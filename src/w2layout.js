@@ -116,7 +116,7 @@
 			content		: '',		// can be String or Object with .render(box) method
 			tabs		: null,
 			toolbar		: null,
-			width		: null,		// read only#
+			width		: null,		// read only
 			height		: null,		// read only
 			show : {
 				toolbar	: false,
