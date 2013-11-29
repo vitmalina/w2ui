@@ -24,6 +24,11 @@
 			position: absolute; 
 			z-index: 120; 
 
+			.w2ui-panel-title {
+				background-color: @layout-title-background-color;
+				border: 1px solid @layout-border-color;
+			}
+
 			.w2ui-panel-tabs {
 				position: absolute;
 				left: 0px;
@@ -32,7 +37,7 @@
 				z-index: 2;
 				display: none;
 				overflow: hidden;
-				background-color: @layout-toolbar-background-color;				
+				background-color: @layout-toolbar-background-color;
 				padding: 4px 0px;
 
 				> .w2ui-tab.active {
