@@ -19,24 +19,24 @@
 (function () {
 	var w2sidebar = function (options) {
 		this.name			= null;
-		this.box				= null;
+		this.box			= null;
 		this.sidebar		= null;
 		this.parent			= null;
 		this.nodes			= [];		// Sidebar child nodes
 		this.menu			= [];
 		this.selected		= null;	// current selected node (readonly)
-		this.img				= null;
+		this.img			= null;
 		this.icon			= null;
 		this.style			= '';
 		this.topHTML		= '';
-		this.bottomHTML	= '';
+		this.bottomHTML		= '';
 		this.keyboard		= true;
 		this.onClick		= null;	// Fire when user click on Node Text
-		this.onDblClick	= null;	// Fire when user dbl clicks
-		this.onContextMenu= null;
+		this.onDblClick		= null;	// Fire when user dbl clicks
+		this.onContextMenu	= null;
 		this.onMenuClick	= null;	// when context menu item selected
 		this.onExpand		= null;	// Fire when node Expands
-		this.onCollapse	= null;	// Fire when node Colapses
+		this.onCollapse		= null;	// Fire when node Colapses
 		this.onKeydown		= null;
 		this.onRender		= null;
 		this.onRefresh		= null;
@@ -86,13 +86,13 @@
 			id				: null,
 			text			: '',
 			count			: '',
-			img			: null,
+			img				: null,
 			icon			: null,
 			nodes			: [],
 			style			: '',
 			selected		: false,
 			expanded		: false,
-			hidden		: false,
+			hidden			: false,
 			disabled		: false,
 			group			: false,		// if true, it will build as a group
 			plus			: false,		// if true, plus will be shown even if there is no sub nodes
@@ -100,7 +100,7 @@
 			onClick			: null,
 			onDblClick		: null,
 			onContextMenu	: null,
-			onExpand			: null,
+			onExpand		: null,
 			onCollapse		: null,
 			// internal
 			parent			: null,	// node object
@@ -124,8 +124,8 @@
 			if (arguments.length == 2) {
 				// need to be in reverse order
 				nodes	= arguments[1];
-				before= arguments[0];
-				ind	= this.get(before);
+				before	= arguments[0];
+				ind		= this.get(before);
 				if (ind === null) {
 					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
 					console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
@@ -147,10 +147,10 @@
 					continue;
 				}
 				tmp = $.extend({}, w2sidebar.prototype.node, nodes[o]);
-				tmp.sidebar= this;
-				tmp.parent = parent;
-				var nd = tmp.nodes;
-				tmp.nodes  = []; // very important to re-init empty nodes array
+				tmp.sidebar	= this;
+				tmp.parent	= parent;
+				var nd		= tmp.nodes;
+				tmp.nodes	= []; // very important to re-init empty nodes array
 				if (before === null) { // append to the end
 					parent.nodes.push(tmp);	
 				} else {
@@ -186,8 +186,8 @@
 		set: function (parent, id, node) { 
 			if (arguments.length == 2) {
 				// need to be in reverse order
-				node		= id;
-				id			= parent;
+				node	= id;
+				id		= parent;
 				parent	= this;
 			}
 			// searches all nested nodes
@@ -216,7 +216,7 @@
 			if (arguments.length == 1 || (arguments.length == 2 && id === true) ) {
 				// need to be in reverse order
 				returnIndex	= id;
-				id				= parent;
+				id			= parent;
 				parent		= this;
 			}
 			// searches all nested nodes
@@ -460,9 +460,9 @@
 
 			function next (node, noSubs) {
 				if (node === null) return null;
-				var parent	= node.parent;
-				var ind		= obj.get(node.id, true);
-				var nextNode = null;
+				var parent		= node.parent;
+				var ind			= obj.get(node.id, true);
+				var nextNode	= null;
 				// jump inside
 				if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
 					var t = node.nodes[0];
@@ -500,8 +500,8 @@
 			if (typeof id == 'undefined') id = this.selected;
 			var nd = this.get(id);
 			if (nd === null) return;
-			var body		= $(this.box).find('.w2ui-sidebar-div');
-			var item		= $(this.box).find('#node_'+ w2utils.escapeId(id));
+			var body	= $(this.box).find('.w2ui-sidebar-div');
+			var item	= $(this.box).find('#node_'+ w2utils.escapeId(id));
 			var offset	= item.offset().top - body.offset().top;
 			if (offset + item.height() > body.height()) {
 				body.animate({ 'scrollTop': body.scrollTop() + body.height() / 1.3 });
@@ -725,7 +725,7 @@
 			$(this.box).find('> div').css({
 				width		: $(this.box).width() + 'px',
 				height	: $(this.box).height() + 'px'
-			});			
+			});
 			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'auto');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
