@@ -9,6 +9,7 @@
 *	- return ids of all subitems
 *	- add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *	- dbl click should be like it is in grid (with timer not HTML dbl click event)
+*	- reorder with grag and drop
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323

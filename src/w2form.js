@@ -8,6 +8,7 @@
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
+*	- create an example how to do cascadic dropdown
 *
 ************************************************************************/
 
