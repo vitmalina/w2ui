@@ -105,22 +105,22 @@
 	w2layout.prototype = {
 		// default setting for a panel
 		panel: {
-			title			: '',
-			type			: null,		// left, right, top, bottom
-			size			: 100,		// width or height depending on panel name
+			title		: '',
+			type		: null,		// left, right, top, bottom
+			size		: 100,		// width or height depending on panel name
 			minSize		: 20,
 			hidden		: false,
 			resizable	: false,
-			overflow		: 'auto',
-			style			: '',
+			overflow	: 'auto',
+			style		: '',
 			content		: '',		// can be String or Object with .render(box) method
-			tabs			: null,
+			tabs		: null,
 			toolbar		: null,
-			width			: null,		// read only#
+			width		: null,		// read only#
 			height		: null,		// read only
 			show : {
 				toolbar	: false,
-				tabs		: false
+				tabs	: false
 			},
 			onRefresh	: null,
 			onShow		: null,
