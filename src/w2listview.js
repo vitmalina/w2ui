@@ -3,7 +3,7 @@
 *	- Following objects defined
 *		- w2listview		- listview widget
 *		- $().w2listview	- jQuery wrapper
-*   - Dependencies: jQuery, w2utils
+*	- Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
 *	- icons/images support
@@ -162,7 +162,7 @@
 		},
 
 		get: function (id, returnIndex) {
-            var i = 0
+			var i = 0;
 			if (arguments.length === 0) {
 				var all = [];
 				for (; i < this.items.length; i++) if (this.items[i].id !== null) all.push(this.items[i].id);
@@ -177,7 +177,7 @@
 		},
 
 		select: function (id, addSelection) {
-            if (arguments.length === 1 || !this.multiselect) addSelection = false;
+			if (arguments.length === 1 || !this.multiselect) addSelection = false;
 			if (!addSelection) {
 				for (var i1 in this.items) {
 					if (this.items[i1].id != id) this.unselect(this.items[i1].id);
@@ -199,10 +199,11 @@
 				var item = this.get(arguments[i]);
 				if (item && item.selected) {
 					item.selected = false;
-					$(this.box).find('#itm_'+ w2utils.escapeId(item.id))
+					$(this.box)
+						.find('#itm_'+ w2utils.escapeId(item.id))
 						.removeClass('w2ui-selected');
 					if (this.focused === item.id) this.focused = null;
-                }
+				}
 			}
 			return true;
 		},
@@ -213,9 +214,9 @@
 		click: function (id, event) {
 			var obj = this;
 			var item = obj.get(id);
-			if (item == null) return false;
+			if (item === null) return false;
 			var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: item });
-			var rslt = !(eventData.isCancelled === true);
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default action
 				obj.select(id);
@@ -228,9 +229,9 @@
 		dblClick: function (id, event) {
 			var obj = this;
 			var item = obj.get(id);
-			if (item == null) return false;
+			if (item === null) return false;
 			var eventData = obj.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: item });
-			var rslt = !(eventData.isCancelled === true);
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default action
 				// -- empty
@@ -243,9 +244,9 @@
 		keydown: function (event) {
 			var obj = this;
 			var item = this.get(obj.focused);
-			if (item == null || obj.keyboard !== true) return false;
+			if (item === null || obj.keyboard !== true) return false;
 			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
-			var rslt = !(eventData.isCancelled === true);
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default behaviour
 				if (event.keyCode == 37) selectNeighbor('left');
@@ -265,7 +266,7 @@
 
 			function selectNeighbor(neighbor) {
 				var idx = obj.get(item.id, true);
-                var newIdx;
+				var newIdx;
 				if (neighbor === 'up') newIdx = idx - itemsInLine();
 				if (neighbor === 'down') newIdx = idx + itemsInLine();
 				if (neighbor === 'left') newIdx = idx - 1;
@@ -274,7 +275,7 @@
 			}
 
 			function itemsInLine() {
-                var lv = $(obj.box).find('> ul');
+				var lv = $(obj.box).find('> ul');
 				return ~~(lv.width() / w2utils.getSize(lv.find('> li').get(0), 'width'));
 			}
 		},
@@ -282,10 +283,10 @@
 		contextMenu: function (id, event) {
 			var obj = this;
 			var item = this.get(id);
-			if (item == null) return false;
-            if (!item.selected) obj.select(id);
+			if (item === null) return false;
+			if (!item.selected) obj.select(id);
 			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: item });
-			var rslt = !(eventData.isCancelled === true);
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default action
 				if (obj.menu.length > 0) {
@@ -306,7 +307,7 @@
 			var obj = this;
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
-			var rslt = !(eventData.isCancelled === true);
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default action
 				// -- empty
