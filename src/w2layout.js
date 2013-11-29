@@ -108,6 +108,7 @@
 			type		: null,		// left, right, top, bottom
 			size		: 100,		// width or height depending on panel name
 			minSize		: 20,
+			maxSize		: false,
 			hidden		: false,
 			resizable	: false,
 			overflow	: 'auto',
@@ -539,45 +540,72 @@
 				var eventData = obj.trigger({ phase: 'before', type: 'resizing', target: obj.tmp.resize.type, object: panel, originalEvent: evnt });
 				if (eventData.isCancelled === true) return false;
 
-				var p = $('#layout_'+ obj.name + '_resizer_'+ obj.tmp.resize.type);
+				var p			= $('#layout_'+ obj.name + '_resizer_'+ obj.tmp.resize.type);
+				var resize_x	= (evnt.screenX - obj.tmp.resize.x);
+				var resize_y	= (evnt.screenY - obj.tmp.resize.y);
+				var mainPanel	= obj.get('main');
+
 				if (!p.hasClass('active')) p.addClass('active');
-				obj.tmp.resize.div_x = (evnt.screenX - obj.tmp.resize.x);
-				obj.tmp.resize.div_y = (evnt.screenY - obj.tmp.resize.y);
-				// left panel -> drag
-				if (obj.tmp.resizing == 'left' &&  (obj.get('left').minSize - obj.tmp.resize.div_x > obj.get('left').width)) {
-					obj.tmp.resize.div_x = obj.get('left').minSize - obj.get('left').width;
+
+				switch(obj.tmp.resize.type) {
+					case 'left':
+						if(panel.minSize - resize_x > panel.width){
+							resize_x = panel.minSize - panel.width;
+						}
+						
+						if(panel.maxSize && (panel.width + resize_x > panel.maxSize)){
+							resize_x = panel.maxSize - panel.width;
+						}
+						
+						if (mainPanel.minSize + resize_x > mainPanel.width) {
+							resize_x = mainPanel.width - mainPanel.minSize;
+						}
+						break;
+					case 'right': 
+						if(panel.minSize + resize_x > panel.width){
+							resize_x = panel.width - panel.minSize;
+						}
+					
+						if(panel.maxSize && (panel.width - resize_x > panel.maxSize)){
+							resize_x = panel.width - panel.maxSize;
+						}
+					
+						if (mainPanel.minSize - resize_x > mainPanel.width) {
+							resize_x = mainPanel.minSize - mainPanel.width;
+						}
+						break;
+					case 'top':
+						if(panel.minSize - resize_y > panel.height){
+							resize_y = panel.minSize - panel.height;
+						}
+						
+						if(panel.maxSize && (panel.height + resize_y > panel.maxSize)){
+							resize_y = panel.maxSize - panel.height;
+						}
+						
+						if (mainPanel.minSize + resize_y > mainPanel.height) {
+							resize_y = mainPanel.height - mainPanel.minSize;
+						}
+						break;
+					case 'preview':
+					case 'bottom':
+						if(panel.minSize + resize_y > panel.height){
+							resize_y = panel.height - panel.minSize;
+						}
+					
+						if(panel.maxSize && (panel.height - resize_y > panel.maxSize)){
+							resize_y = panel.height - panel.maxSize;
+						}
+					
+						if (mainPanel.minSize - resize_y > mainPanel.height) {
+							resize_y = mainPanel.minSize - mainPanel.height;
+						}
+						break;
 				}
-				if (obj.tmp.resize.type == 'left' && (obj.get('main').minSize + obj.tmp.resize.div_x > obj.get('main').width)) {
-					obj.tmp.resize.div_x = obj.get('main').width - obj.get('main').minSize;
-				}
-				// right panel -> drag
-				if (obj.tmp.resize.type == 'right' &&  (obj.get('right').minSize + obj.tmp.resize.div_x > obj.get('right').width)) {
-					obj.tmp.resize.div_x = obj.get('right').width - obj.get('right').minSize;
-				}
-				if (obj.tmp.resize.type == 'right' && (obj.get('main').minSize - obj.tmp.resize.div_x > obj.get('main').width)) {
-					obj.tmp.resize.div_x =  obj.get('main').minSize - obj.get('main').width;
-				}
-				// top panel -> drag
-				if (obj.tmp.resize.type == 'top' &&  (obj.get('top').minSize - obj.tmp.resize.div_y > obj.get('top').height)) {
-					obj.tmp.resize.div_y = obj.get('top').minSize - obj.get('top').height;
-				}
-				if (obj.tmp.resize.type == 'top' && (obj.get('main').minSize + obj.tmp.resize.div_y > obj.get('main').height)) {
-					obj.tmp.resize.div_y = obj.get('main').height - obj.get('main').minSize;
-				}
-				// bottom panel -> drag
-				if (obj.tmp.resize.type == 'bottom' &&  (obj.get('bottom').minSize + obj.tmp.resize.div_y > obj.get('bottom').height)) {
-					obj.tmp.resize.div_y = obj.get('bottom').height - obj.get('bottom').minSize;
-				}
-				if (obj.tmp.resize.type == 'bottom' && (obj.get('main').minSize - obj.tmp.resize.div_y > obj.get('main').height)) {
-					obj.tmp.resize.div_y =  obj.get('main').minSize - obj.get('main').height;
-				}
-				// preview panel -> drag
-				if (obj.tmp.resize.type == 'preview' &&  (obj.get('preview').minSize + obj.tmp.resize.div_y > obj.get('preview').height)) {
-					obj.tmp.resize.div_y = obj.get('preview').height - obj.get('preview').minSize;
-				}
-				if (obj.tmp.resize.type == 'preview' && (obj.get('main').minSize - obj.tmp.resize.div_y > obj.get('main').height)) {
-					obj.tmp.resize.div_y =  obj.get('main').minSize - obj.get('main').height;
-				}
+				
+				obj.tmp.resize.div_x = resize_x;
+				obj.tmp.resize.div_y = resize_y;
+
 				switch(obj.tmp.resize.type) {
 					case 'top':
 					case 'preview':
@@ -592,6 +620,7 @@
 						break;
 				}
 				// event after
+				
 				obj.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
