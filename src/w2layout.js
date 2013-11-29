@@ -259,9 +259,9 @@
 				// resize
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });
 				$(obj.box).find(' > div .w2ui-panel').css({
-					'-webkit-transition'	: '.2s',
-					'-moz-transition'		: '.2s',
-					'-ms-transition'		: '.2s',
+					'-webkit-transition': '.2s',
+					'-moz-transition'	: '.2s',
+					'-ms-transition'	: '.2s',
 					'-o-transition'		: '.2s'
 				});
 				setTimeout(function () { obj.resize(); }, 1);
