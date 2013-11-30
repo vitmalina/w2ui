@@ -23,7 +23,7 @@ $(function () {
 		name: 'listview',
 		viewType: 'icon-large',
 		items: [
-			{ id: 'first', caption: 'First Item' }
+			{ id: 'first', caption: 'First Item', icon: 'fa-star-empty' }
 		]
 	});
 });
@@ -32,23 +32,23 @@ var ind = 1;
 
 function addItem() {
 	if (ind > 12) return;
-	w2ui.listview.add({ id: 'itm'+ind, caption: 'Item '+ ind });
+	w2ui.listview.add({ id: 'itm'+ind, caption: 'Item '+ ind, icon: 'fa-star' });
 	ind++;
 }
 
 function addItems() {
 	if (ind > 10) return;
 	w2ui.listview.add([
-		{ id: 'itm'+ind, caption: 'Item '+ ind },
-		{ id: 'itm'+(ind+1), caption: 'Item '+ (ind+1) },
-		{ id: 'itm'+(ind+2), caption: 'Item '+ (ind+2) }
+		{ id: 'itm'+ind, caption: 'Item '+ ind, icon: 'fa-bell' },
+		{ id: 'itm'+(ind+1), caption: 'Item '+ (ind+1), icon: 'fa-bell' },
+		{ id: 'itm'+(ind+2), caption: 'Item '+ (ind+2), icon: 'fa-bell' }
 	]);
 	ind += 3;
 }
 
 function insertItem() {
 	if (ind > 12) return;
-	w2ui.listview.insert('first', { id: 'itm'+ ind, caption: 'Item '+ ind });
+	w2ui.listview.insert('first', { id: 'itm'+ ind, caption: 'Item '+ ind, icon: 'fa-lightbulb' });
 	ind++;
 }
 
