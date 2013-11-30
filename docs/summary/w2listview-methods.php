@@ -70,17 +70,17 @@
 </div>
 
 <div class="obj-property">
-	<a href="<?=$site_root?>/docs/w2listview.remove">remove</a> <span>- remove(id1, [id2], ...)</span>
-</div>
-<div class="obj-property-desc">
-	Removes items from the listview.
-</div>
-
-<div class="obj-property">
 	<a href="<?=$site_root?>/docs/w2listview.scrollIntoView">scrollIntoView</a> <span>- scrollIntoView(id)</span>
 </div>
 <div class="obj-property-desc">
 	Scroll items into view.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2listview.select">select</a> <span>- select(id, addSelection)</span>
+</div>
+<div class="obj-property-desc">
+	Selects listview item with <span class="argument">id</span>.
 </div>
 
 <div class="obj-property">
