@@ -13,6 +13,8 @@
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- added panel title
+*	- added panel.maxSize property
 *
 ************************************************************************/
 
@@ -551,54 +553,49 @@
 
 				switch(obj.tmp.resize.type) {
 					case 'left':
-						if(panel.minSize - resize_x > panel.width){
+						if (panel.minSize - resize_x > panel.width) {
 							resize_x = panel.minSize - panel.width;
-						}
-						
-						if(panel.maxSize && (panel.width + resize_x > panel.maxSize)){
+						}					
+						if (panel.maxSize && (panel.width + resize_x > panel.maxSize)) {
 							resize_x = panel.maxSize - panel.width;
-						}
-						
+						}						
 						if (mainPanel.minSize + resize_x > mainPanel.width) {
 							resize_x = mainPanel.width - mainPanel.minSize;
 						}
 						break;
+
 					case 'right': 
-						if(panel.minSize + resize_x > panel.width){
+						if (panel.minSize + resize_x > panel.width) {
 							resize_x = panel.width - panel.minSize;
-						}
-					
-						if(panel.maxSize && (panel.width - resize_x > panel.maxSize)){
+						}					
+						if (panel.maxSize && (panel.width - resize_x > panel.maxSize)) {
 							resize_x = panel.width - panel.maxSize;
-						}
-					
+						}					
 						if (mainPanel.minSize - resize_x > mainPanel.width) {
 							resize_x = mainPanel.minSize - mainPanel.width;
 						}
 						break;
+
 					case 'top':
-						if(panel.minSize - resize_y > panel.height){
+						if (panel.minSize - resize_y > panel.height) {
 							resize_y = panel.minSize - panel.height;
-						}
-						
-						if(panel.maxSize && (panel.height + resize_y > panel.maxSize)){
+						}						
+						if (panel.maxSize && (panel.height + resize_y > panel.maxSize)) {
 							resize_y = panel.maxSize - panel.height;
-						}
-						
+						}						
 						if (mainPanel.minSize + resize_y > mainPanel.height) {
 							resize_y = mainPanel.height - mainPanel.minSize;
 						}
 						break;
+
 					case 'preview':
 					case 'bottom':
-						if(panel.minSize + resize_y > panel.height){
+						if (panel.minSize + resize_y > panel.height) {
 							resize_y = panel.height - panel.minSize;
-						}
-					
-						if(panel.maxSize && (panel.height - resize_y > panel.maxSize)){
+						}					
+						if (panel.maxSize && (panel.height - resize_y > panel.maxSize)) {
 							resize_y = panel.height - panel.maxSize;
-						}
-					
+						}					
 						if (mainPanel.minSize - resize_y > mainPanel.height) {
 							resize_y = mainPanel.minSize - mainPanel.height;
 						}
@@ -615,14 +612,14 @@
 						obj.tmp.resize.div_x = 0;
 						if (p.length > 0) p[0].style.top = (obj.tmp.resize.value + obj.tmp.resize.div_y) + 'px';
 						break;
+
 					case 'left':
 					case 'right':
 						obj.tmp.resize.div_y = 0;
 						if (p.length > 0) p[0].style.left = (obj.tmp.resize.value + obj.tmp.resize.div_x) + 'px';
 						break;
 				}
-				// event after
-				
+				// event after				
 				obj.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
