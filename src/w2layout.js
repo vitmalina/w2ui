@@ -476,7 +476,11 @@
 					div_x	: 0,
 					div_y	: 0,
 					value	: 0
-				};
+				};				
+				// lock all panels
+				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
+				for (var p in panels) obj.lock(panels[p], { opacity: 0 }); 
+
 				if (type == 'left' || type == 'right') {
 					obj.tmp.resize.value = parseInt($('#layout_'+ obj.name + '_resizer_'+ type)[0].style.left);
 				}
@@ -490,6 +494,9 @@
 				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
 				if (typeof obj.tmp.resize == 'undefined') return;
+				// unlock all panels
+				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
+				for (var p in panels) obj.unlock(panels[p]);
 				// set new size
 				if (obj.tmp.div_x !== 0 || obj.tmp.resize.div_y !== 0) { // only recalculate if changed
 					var ptop	= obj.get('top');
@@ -997,8 +1004,9 @@
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
-			var nm = '#layout_'+ this.name + '_panel_' + panel;
-			w2utils.lock(nm, msg, showSpinner);
+			var args = Array.prototype.slice.call(arguments, 0);
+			args[0]  = '#layout_'+ this.name + '_panel_' + panel;
+			w2utils.lock.apply(window, args);
 		},
 
 		unlock: function (panel) {
