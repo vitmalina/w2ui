@@ -8,7 +8,7 @@
 * == NICE TO HAVE ==
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
-*	- add panel title
+*	- add more panel title positions (left=rotated, right=rotated, bottom)
 *	- add resizer click, dblclick events, add resizer style ...
 *
 * == 1.4 changes
@@ -105,6 +105,7 @@
 	w2layout.prototype = {
 		// default setting for a panel
 		panel: {
+			title		: '',
 			type		: null,		// left, right, top, bottom
 			size		: 100,		// width or height depending on panel name
 			minSize		: 20,
@@ -118,7 +119,7 @@
 			width		: null,		// read only
 			height		: null,		// read only
 			show : {
-				toolbar : false,
+				toolbar	: false,
 				tabs	: false
 			},
 			onRefresh	: null,
@@ -426,6 +427,7 @@
 			for (var t in tmp) {
 				var pan  = obj.get(tmp[t]);
 				var html =  '<div id="layout_'+ obj.name + '_panel_'+ tmp[t] +'" class="w2ui-panel">'+
+							'	<div class="w2ui-panel-title"></div>'+
 							'	<div class="w2ui-panel-tabs"></div>'+
 							'	<div class="w2ui-panel-toolbar"></div>'+
 							'	<div class="w2ui-panel-content"></div>'+
@@ -638,6 +640,13 @@
 					if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar !== null) tmp.w2render(p.toolbar); else p.toolbar.refresh();
 				} else {
 					tmp.html('').removeClass('w2ui-toolbar').hide();
+				}
+				// show title
+				tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-title');
+				if (p.title) {
+					tmp.html(p.title);
+				} else {
+					tmp.html('').hide();
 				}
 			} else {
 				if ($('#layout_' +obj.name +'_panel_main').length <= 0) {
@@ -911,6 +920,9 @@
 				if (pan.show.toolbar) {
 					if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
 					tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+				}
+				if (pan.title){
+					tabHeight += w2utils.getSize($(tmp2+'title').css({top: tabHeight+'px', display: 'block'}),'height');
 				}
 				$(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' });
 			}
