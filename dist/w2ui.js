@@ -26,6 +26,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- format date and time is buggy
 *	- onComplete should pass widget as context (this)
 *
+* == 1.4 changes
+*	- lock(box, options) || lock(box, msg, spinner)
+*
 ************************************************/
 
 var w2utils = (function () {
@@ -653,8 +656,15 @@ var w2utils = (function () {
 		}
 	}
 	
-	function lock (box, msg, showSpinner) {
-		if (!msg && msg != 0) msg = '';
+	function lock (box, msg, spinner) {
+		var options = {};
+		if (typeof msg == 'object') {
+			options = msg; 
+		} else {
+			options.msg 	= msg;
+			options.spinner = spinner;
+		}
+		if (!options.msg && options.msg != 0) options.msg = '';
 		w2utils.unlock(box);
 		$(box).find('>:first-child').before(
 			'<div class="w2ui-lock"></div>'+
@@ -671,15 +681,15 @@ var w2utils = (function () {
 				var left = ($(box).width()  - w2utils.getSize(mess, 'width')) / 2;
 				var top  = ($(box).height() * 0.9 - w2utils.getSize(mess, 'height')) / 2;
 				lock.css({
-					opacity : lock.data('old_opacity'),
+					opacity : (options.opacity != undefined ? options.opacity : lock.data('old_opacity')),
 					left 	: '0px',
 					top 	: '0px',
 					width 	: '100%',
 					height 	: '100%'
 				});
-				if (!msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
-				if (showSpinner === true) msg = '<div class="w2ui-spinner" '+ (!msg ? 'style="width: 30px; height: 30px"' : '') +'></div>' + msg;
-				mess.html(msg).css({
+				if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
+				if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 30px; height: 30px"' : '') +'></div>' + options.msg;
+				mess.html(options.msg).css({
 					opacity : mess.data('old_opacity'),
 					left	: left + 'px',
 					top		: top + 'px'
@@ -5332,8 +5342,10 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		lock: function (msg, showSpinner) {
-			var box = $(this.box).find('> div:first-child');
-			setTimeout(function () { w2utils.lock(box, msg, showSpinner); }, 10);
+			var box  = $(this.box).find('> div:first-child');
+			var args = Array.prototype.slice.call(arguments, 0);
+			args.unshift(box);
+			setTimeout(function () { w2utils.lock.apply(window, args); }, 10);
 		},
 
 		unlock: function () {
@@ -5369,11 +5381,13 @@ w2utils.keyboard = (function (obj) {
 * == NICE TO HAVE ==
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
-*	- add panel title
+*	- add more panel title positions (left=rotated, right=rotated, bottom)
 *	- add resizer click, dblclick events, add resizer style ...
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- added panel title
+*	- added panel.maxSize property
 *
 ************************************************************************/
 
@@ -5466,9 +5480,11 @@ w2utils.keyboard = (function (obj) {
 	w2layout.prototype = {
 		// default setting for a panel
 		panel: {
+			title		: '',
 			type		: null,		// left, right, top, bottom
 			size		: 100,		// width or height depending on panel name
 			minSize		: 20,
+			maxSize		: false,
 			hidden		: false,
 			resizable	: false,
 			overflow	: 'auto',
@@ -5479,7 +5495,7 @@ w2utils.keyboard = (function (obj) {
 			width		: null,		// read only
 			height		: null,		// read only
 			show : {
-				toolbar : false,
+				toolbar	: false,
 				tabs	: false
 			},
 			onRefresh	: null,
@@ -5787,6 +5803,7 @@ w2utils.keyboard = (function (obj) {
 			for (var t in tmp) {
 				var pan  = obj.get(tmp[t]);
 				var html =  '<div id="layout_'+ obj.name + '_panel_'+ tmp[t] +'" class="w2ui-panel">'+
+							'	<div class="w2ui-panel-title"></div>'+
 							'	<div class="w2ui-panel-tabs"></div>'+
 							'	<div class="w2ui-panel-toolbar"></div>'+
 							'	<div class="w2ui-panel-content"></div>'+
@@ -5832,7 +5849,11 @@ w2utils.keyboard = (function (obj) {
 					div_x	: 0,
 					div_y	: 0,
 					value	: 0
-				};
+				};				
+				// lock all panels
+				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
+				for (var p in panels) obj.lock(panels[p], { opacity: 0 }); 
+
 				if (type == 'left' || type == 'right') {
 					obj.tmp.resize.value = parseInt($('#layout_'+ obj.name + '_resizer_'+ type)[0].style.left);
 				}
@@ -5846,6 +5867,9 @@ w2utils.keyboard = (function (obj) {
 				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
 				if (typeof obj.tmp.resize == 'undefined') return;
+				// unlock all panels
+				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
+				for (var p in panels) obj.unlock(panels[p]);
 				// set new size
 				if (obj.tmp.div_x !== 0 || obj.tmp.resize.div_y !== 0) { // only recalculate if changed
 					var ptop	= obj.get('top');
@@ -5900,45 +5924,67 @@ w2utils.keyboard = (function (obj) {
 				var eventData = obj.trigger({ phase: 'before', type: 'resizing', target: obj.tmp.resize.type, object: panel, originalEvent: evnt });
 				if (eventData.isCancelled === true) return false;
 
-				var p = $('#layout_'+ obj.name + '_resizer_'+ obj.tmp.resize.type);
+				var p			= $('#layout_'+ obj.name + '_resizer_'+ obj.tmp.resize.type);
+				var resize_x	= (evnt.screenX - obj.tmp.resize.x);
+				var resize_y	= (evnt.screenY - obj.tmp.resize.y);
+				var mainPanel	= obj.get('main');
+
 				if (!p.hasClass('active')) p.addClass('active');
-				obj.tmp.resize.div_x = (evnt.screenX - obj.tmp.resize.x);
-				obj.tmp.resize.div_y = (evnt.screenY - obj.tmp.resize.y);
-				// left panel -> drag
-				if (obj.tmp.resizing == 'left' &&  (obj.get('left').minSize - obj.tmp.resize.div_x > obj.get('left').width)) {
-					obj.tmp.resize.div_x = obj.get('left').minSize - obj.get('left').width;
+
+				switch(obj.tmp.resize.type) {
+					case 'left':
+						if (panel.minSize - resize_x > panel.width) {
+							resize_x = panel.minSize - panel.width;
+						}					
+						if (panel.maxSize && (panel.width + resize_x > panel.maxSize)) {
+							resize_x = panel.maxSize - panel.width;
+						}						
+						if (mainPanel.minSize + resize_x > mainPanel.width) {
+							resize_x = mainPanel.width - mainPanel.minSize;
+						}
+						break;
+
+					case 'right': 
+						if (panel.minSize + resize_x > panel.width) {
+							resize_x = panel.width - panel.minSize;
+						}					
+						if (panel.maxSize && (panel.width - resize_x > panel.maxSize)) {
+							resize_x = panel.width - panel.maxSize;
+						}					
+						if (mainPanel.minSize - resize_x > mainPanel.width) {
+							resize_x = mainPanel.minSize - mainPanel.width;
+						}
+						break;
+
+					case 'top':
+						if (panel.minSize - resize_y > panel.height) {
+							resize_y = panel.minSize - panel.height;
+						}						
+						if (panel.maxSize && (panel.height + resize_y > panel.maxSize)) {
+							resize_y = panel.maxSize - panel.height;
+						}						
+						if (mainPanel.minSize + resize_y > mainPanel.height) {
+							resize_y = mainPanel.height - mainPanel.minSize;
+						}
+						break;
+
+					case 'preview':
+					case 'bottom':
+						if (panel.minSize + resize_y > panel.height) {
+							resize_y = panel.height - panel.minSize;
+						}					
+						if (panel.maxSize && (panel.height - resize_y > panel.maxSize)) {
+							resize_y = panel.height - panel.maxSize;
+						}					
+						if (mainPanel.minSize - resize_y > mainPanel.height) {
+							resize_y = mainPanel.minSize - mainPanel.height;
+						}
+						break;
 				}
-				if (obj.tmp.resize.type == 'left' && (obj.get('main').minSize + obj.tmp.resize.div_x > obj.get('main').width)) {
-					obj.tmp.resize.div_x = obj.get('main').width - obj.get('main').minSize;
-				}
-				// right panel -> drag
-				if (obj.tmp.resize.type == 'right' &&  (obj.get('right').minSize + obj.tmp.resize.div_x > obj.get('right').width)) {
-					obj.tmp.resize.div_x = obj.get('right').width - obj.get('right').minSize;
-				}
-				if (obj.tmp.resize.type == 'right' && (obj.get('main').minSize - obj.tmp.resize.div_x > obj.get('main').width)) {
-					obj.tmp.resize.div_x =  obj.get('main').minSize - obj.get('main').width;
-				}
-				// top panel -> drag
-				if (obj.tmp.resize.type == 'top' &&  (obj.get('top').minSize - obj.tmp.resize.div_y > obj.get('top').height)) {
-					obj.tmp.resize.div_y = obj.get('top').minSize - obj.get('top').height;
-				}
-				if (obj.tmp.resize.type == 'top' && (obj.get('main').minSize + obj.tmp.resize.div_y > obj.get('main').height)) {
-					obj.tmp.resize.div_y = obj.get('main').height - obj.get('main').minSize;
-				}
-				// bottom panel -> drag
-				if (obj.tmp.resize.type == 'bottom' &&  (obj.get('bottom').minSize + obj.tmp.resize.div_y > obj.get('bottom').height)) {
-					obj.tmp.resize.div_y = obj.get('bottom').height - obj.get('bottom').minSize;
-				}
-				if (obj.tmp.resize.type == 'bottom' && (obj.get('main').minSize - obj.tmp.resize.div_y > obj.get('main').height)) {
-					obj.tmp.resize.div_y =  obj.get('main').minSize - obj.get('main').height;
-				}
-				// preview panel -> drag
-				if (obj.tmp.resize.type == 'preview' &&  (obj.get('preview').minSize + obj.tmp.resize.div_y > obj.get('preview').height)) {
-					obj.tmp.resize.div_y = obj.get('preview').height - obj.get('preview').minSize;
-				}
-				if (obj.tmp.resize.type == 'preview' && (obj.get('main').minSize - obj.tmp.resize.div_y > obj.get('main').height)) {
-					obj.tmp.resize.div_y =  obj.get('main').minSize - obj.get('main').height;
-				}
+				
+				obj.tmp.resize.div_x = resize_x;
+				obj.tmp.resize.div_y = resize_y;
+
 				switch(obj.tmp.resize.type) {
 					case 'top':
 					case 'preview':
@@ -5946,13 +5992,14 @@ w2utils.keyboard = (function (obj) {
 						obj.tmp.resize.div_x = 0;
 						if (p.length > 0) p[0].style.top = (obj.tmp.resize.value + obj.tmp.resize.div_y) + 'px';
 						break;
+
 					case 'left':
 					case 'right':
 						obj.tmp.resize.div_y = 0;
 						if (p.length > 0) p[0].style.left = (obj.tmp.resize.value + obj.tmp.resize.div_x) + 'px';
 						break;
 				}
-				// event after
+				// event after				
 				obj.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
@@ -5999,6 +6046,13 @@ w2utils.keyboard = (function (obj) {
 					if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar !== null) tmp.w2render(p.toolbar); else p.toolbar.refresh();
 				} else {
 					tmp.html('').removeClass('w2ui-toolbar').hide();
+				}
+				// show title
+				tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-title');
+				if (p.title) {
+					tmp.html(p.title);
+				} else {
+					tmp.html('').hide();
 				}
 			} else {
 				if ($('#layout_' +obj.name +'_panel_main').length <= 0) {
@@ -6273,6 +6327,9 @@ w2utils.keyboard = (function (obj) {
 					if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
 					tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
 				}
+				if (pan.title){
+					tabHeight += w2utils.getSize($(tmp2+'title').css({top: tabHeight+'px', display: 'block'}),'height');
+				}
 				$(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' });
 			}
 			// send resize to all objects
@@ -6320,8 +6377,9 @@ w2utils.keyboard = (function (obj) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
-			var nm = '#layout_'+ this.name + '_panel_' + panel;
-			w2utils.lock(nm, msg, showSpinner);
+			var args = Array.prototype.slice.call(arguments, 0);
+			args[0]  = '#layout_'+ this.name + '_panel_' + panel;
+			w2utils.lock.apply(window, args);
 		},
 
 		unlock: function (panel) {
@@ -6843,7 +6901,9 @@ var w2popup = {};
 		},
 
 		lock: function (msg, showSpinner) {
-			w2utils.lock($('#w2ui-popup'), msg, showSpinner);
+			var args = Array.prototype.slice.call(arguments, 0);
+			args.unshift($('#w2ui-popup'));
+			w2utils.lock.apply(window, args);
 		},
 
 		unlock: function () { 
@@ -7960,16 +8020,17 @@ var w2confirm = function (msg, title, callBack) {
 	w2obj.toolbar = w2toolbar;
 })();
 /************************************************************************
-*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*   - Following objects defined
-* 		- w2sidebar		- sidebar widget
+*	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*	- Following objects defined
+*		- w2sidebar		- sidebar widget
 *		- $().w2sidebar	- jQuery wrapper
-*   - Dependencies: jQuery, w2utils
+*	- Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
 *	- return ids of all subitems
 *	- add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *	- dbl click should be like it is in grid (with timer not HTML dbl click event)
+*	- reorder with grag and drop
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
@@ -7979,36 +8040,36 @@ var w2confirm = function (msg, title, callBack) {
 (function () {
 	var w2sidebar = function (options) {
 		this.name			= null;
-		this.box 			= null;
+		this.box			= null;
 		this.sidebar		= null;
-		this.parent 		= null;
-		this.nodes	 		= []; 	// Sidebar child nodes
-		this.menu 			= [];
-		this.selected 		= null;	// current selected node (readonly)
-		this.img 			= null;
-		this.icon 			= null;
+		this.parent			= null;
+		this.nodes			= [];		// Sidebar child nodes
+		this.menu			= [];
+		this.selected		= null;	// current selected node (readonly)
+		this.img			= null;
+		this.icon			= null;
 		this.style			= '';
 		this.topHTML		= '';
-		this.bottomHTML  	= '';
+		this.bottomHTML		= '';
 		this.keyboard		= true;
 		this.onClick		= null;	// Fire when user click on Node Text
 		this.onDblClick		= null;	// Fire when user dbl clicks
-		this.onContextMenu	= null;	
-		this.onMenuClick	= null; // when context menu item selected
+		this.onContextMenu	= null;
+		this.onMenuClick	= null;	// when context menu item selected
 		this.onExpand		= null;	// Fire when node Expands
 		this.onCollapse		= null;	// Fire when node Colapses
 		this.onKeydown		= null;
-		this.onRender 		= null;
+		this.onRender		= null;
 		this.onRefresh		= null;
-		this.onResize 		= null;
-		this.onDestroy	 	= null;
-	
+		this.onResize		= null;
+		this.onDestroy		= null;
+
 		$.extend(true, this, w2obj.sidebar, options);
-	}
-	
+	};
+
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
+
 	$.fn.w2sidebar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
@@ -8020,7 +8081,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (typeof nodes != 'undefined') {
 				object.add(object, nodes); 
 			}
-			if ($(this).length != 0) {
+			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
 			object.sidebar = object;
@@ -8043,19 +8104,19 @@ var w2confirm = function (msg, title, callBack) {
 	w2sidebar.prototype = {
 
 		node: {
-			id	 			: null,
-			text	   		: '',
+			id				: null,
+			text			: '',
 			count			: '',
-			img 			: null,
-			icon 			: null,
-			nodes	  		: [],
-			style 			: '',
-			selected 		: false,
-			expanded 		: false,
+			img				: null,
+			icon			: null,
+			nodes			: [],
+			style			: '',
+			selected		: false,
+			expanded		: false,
 			hidden			: false,
 			disabled		: false,
-			group			: false, 	// if true, it will build as a group
-			plus 			: false,	// if true, plus will be shown even if there is no sub nodes
+			group			: false,		// if true, it will build as a group
+			plus			: false,		// if true, plus will be shown even if there is no sub nodes
 			// events
 			onClick			: null,
 			onDblClick		: null,
@@ -8063,7 +8124,7 @@ var w2confirm = function (msg, title, callBack) {
 			onExpand		: null,
 			onCollapse		: null,
 			// internal
-			parent	 		: null,		// node object
+			parent			: null,	// node object
 			sidebar			: null
 		},
 		
@@ -8078,42 +8139,45 @@ var w2confirm = function (msg, title, callBack) {
 		},
 		
 		insert: function (parent, before, nodes) {
+			var txt;
+			var ind;
+			var tmp;
 			if (arguments.length == 2) {
 				// need to be in reverse order
-				nodes   = arguments[1];
+				nodes	= arguments[1];
 				before	= arguments[0];
-				var ind = this.get(before);
-				if (ind == null) {
-					var txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+				ind		= this.get(before);
+				if (ind === null) {
+					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
 					console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
 					return null; 
 				}
-				parent 	= this.get(before).parent;
+				parent	= this.get(before).parent;
 			}
 			if (typeof parent == 'string') parent = this.get(parent);
 			if (!$.isArray(nodes)) nodes = [nodes];
 			for (var o in nodes) {
 				if (typeof nodes[o].id == 'undefined') { 
-					var txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);					
+					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);					
 					console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.'); 
 					continue;
 				}
-				if (this.get(this, nodes[o].id) != null) { 
-					var txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+				if (this.get(this, nodes[o].id) !== null) { 
+					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
 					console.log('ERROR: Cannot insert node with id='+ nodes[o].id +' (text: '+ txt + ') because another node with the same id already exists.'); 
 					continue;
 				}
-				var tmp = $.extend({}, w2sidebar.prototype.node, nodes[o]);
-				tmp.sidebar= this;
-				tmp.parent = parent;
-				var nd = tmp.nodes;
-				tmp.nodes  = []; // very important to re-init empty nodes array
-				if (before == null) { // append to the end
+				tmp = $.extend({}, w2sidebar.prototype.node, nodes[o]);
+				tmp.sidebar	= this;
+				tmp.parent	= parent;
+				var nd		= tmp.nodes;
+				tmp.nodes	= []; // very important to re-init empty nodes array
+				if (before === null) { // append to the end
 					parent.nodes.push(tmp);	
 				} else {
-					var ind = this.get(parent, before, true);
-					if (ind == null) {
-						var txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+					ind = this.get(parent, before, true);
+					if (ind === null) {
+						txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
 						console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
 						return null; 
 					}
@@ -8127,11 +8191,12 @@ var w2confirm = function (msg, title, callBack) {
 		
 		remove: function () { // multiple arguments
 			var deleted = 0;
+			var tmp;
 			for (var a = 0; a < arguments.length; a++) {
-				var tmp = this.get(arguments[a]);
-				if (tmp == null) continue;
+				tmp = this.get(arguments[a]);
+				if (tmp === null) continue;
 				var ind  = this.get(tmp.parent, arguments[a], true);
-				if (ind == null) continue;
+				if (ind === null) continue;
 				tmp.parent.nodes.splice(ind, 1);
 				deleted++;
 			}
@@ -8142,14 +8207,14 @@ var w2confirm = function (msg, title, callBack) {
 		set: function (parent, id, node) { 
 			if (arguments.length == 2) {
 				// need to be in reverse order
-				node    = id;
-				id 		= parent;
-				parent 	= this;
+				node	= id;
+				id		= parent;
+				parent	= this;
 			}
 			// searches all nested nodes
 			this._tmp = null;
 			if (typeof parent == 'string') parent = this.get(parent);
-			if (parent.nodes == null) return null;
+			if (parent.nodes === null) return null;
 			for (var i=0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].id == id) {
 					// make sure nodes inserted correctly
@@ -8157,7 +8222,7 @@ var w2confirm = function (msg, title, callBack) {
 					$.extend(parent.nodes[i], node, { nodes: [] });
 					if (typeof nodes != 'undefined') {
 						this.add(parent.nodes[i], nodes); 
-					}					
+					}
 					this.refresh(id);
 					return true;
 				} else {
@@ -8167,18 +8232,18 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			return false;
 		},
-		
+
 		get: function (parent, id, returnIndex) { // can be just called get(id) or get(id, true)
 			if (arguments.length == 1 || (arguments.length == 2 && id === true) ) {
 				// need to be in reverse order
-				returnIndex = id;
-				id 		= parent;
-				parent 	= this;
+				returnIndex	= id;
+				id			= parent;
+				parent		= this;
 			}
 			// searches all nested nodes
 			this._tmp = null;
 			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes == null) return null;
+			if (parent.nodes === null) return null;
 			for (var i=0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].id == id) {
 					if (returnIndex === true) return i; else return parent.nodes[i];
@@ -8194,7 +8259,7 @@ var w2confirm = function (msg, title, callBack) {
 			var hidden = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
-				if (tmp == null) continue;
+				if (tmp === null) continue;
 				tmp.hidden = true;
 				hidden++;
 			}
@@ -8206,7 +8271,7 @@ var w2confirm = function (msg, title, callBack) {
 			var shown = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
-				if (tmp == null) continue;
+				if (tmp === null) continue;
 				tmp.hidden = false;
 				shown++;
 			}
@@ -8218,7 +8283,7 @@ var w2confirm = function (msg, title, callBack) {
 			var disabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
-				if (tmp == null) continue;
+				if (tmp === null) continue;
 				tmp.disabled = true;
 				if (tmp.selected) this.unselect(tmp.id);
 				disabled++;
@@ -8231,7 +8296,7 @@ var w2confirm = function (msg, title, callBack) {
 			var enabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
-				if (tmp == null) continue;
+				if (tmp === null) continue;
 				tmp.disabled = false;
 				enabled++;
 			}
@@ -8264,14 +8329,14 @@ var w2confirm = function (msg, title, callBack) {
 		
 		toggle: function(id) {
 			var nd = this.get(id);
-			if (nd == null) return;
+			if (nd === null) return;
 			if (nd.plus) {
 				this.set(id, { plus: false });
 				this.expand(id);
 				this.refresh(id);
 				return;
 			}
-			if (nd.nodes.length == 0) return;
+			if (nd.nodes.length === 0) return;
 			if (this.get(id).expanded) this.collapse(id); else this.expand(id);
 		},
 
@@ -8292,7 +8357,7 @@ var w2confirm = function (msg, title, callBack) {
 		collapseAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
 			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes == null) return null;
+			if (parent.nodes === null) return null;
 			for (var i=0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === true) parent.nodes[i].expanded = false;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
@@ -8317,7 +8382,7 @@ var w2confirm = function (msg, title, callBack) {
 		expandAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
 			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes == null) return null;
+			if (parent.nodes === null) return null;
 			for (var i=0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === false) parent.nodes[i].expanded = true;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
@@ -8327,7 +8392,7 @@ var w2confirm = function (msg, title, callBack) {
 
 		expandParents: function (id) {
 			var node = this.get(id);
-			if (node == null) return;
+			if (node === null) return;
 			if (node.parent) {
 				node.parent.expanded = true;
 				this.expandParents(node.parent.id);
@@ -8338,7 +8403,7 @@ var w2confirm = function (msg, title, callBack) {
 		click: function (id, event) {
 			var obj = this;
 			var nd  = this.get(id);
-			if (nd == null) return;
+			if (nd === null) return;
 			var old = this.selected;
 			if (nd.disabled || nd.group) return; // should click event if already selected
 			// move selected first
@@ -8355,7 +8420,7 @@ var w2confirm = function (msg, title, callBack) {
 					return false;
 				}
 				// default action
-				if (old != null) obj.get(old).selected = false;
+				if (old !== null) obj.get(old).selected = false;
 				obj.get(id).selected = true;
 				obj.selected = id;
 				// event after
@@ -8400,7 +8465,7 @@ var w2confirm = function (msg, title, callBack) {
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 
 			function selectNode (node, event) {
-				if (node != null && !node.hidden && !node.disabled && !node.group) {
+				if (node !== null && !node.hidden && !node.disabled && !node.group) {
 					obj.click(node.id, event);
 					setTimeout(function () { obj.scrollIntoView(); }, 50);
 				}
@@ -8408,17 +8473,17 @@ var w2confirm = function (msg, title, callBack) {
 
 			function neighbor (node, neighborFunc) {
 				node = neighborFunc(node);
-				while (node != null && (node.hidden || node.disabled)) {
+				while (node !== null && (node.hidden || node.disabled)) {
 					if (node.group) break; else node = neighborFunc(node);
 				}
 				return node;
 			}
 
 			function next (node, noSubs) {
-				if (node == null) return null;
-				var parent 	 = node.parent;
-				var ind 	 = obj.get(node.id, true);
-				var nextNode = null;
+				if (node === null) return null;
+				var parent		= node.parent;
+				var ind			= obj.get(node.id, true);
+				var nextNode	= null;
 				// jump inside
 				if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
 					var t = node.nodes[0];
@@ -8426,20 +8491,20 @@ var w2confirm = function (msg, title, callBack) {
 				} else {
 					if (parent && ind + 1 < parent.nodes.length) {
 						nextNode = parent.nodes[ind + 1];
-					} else {					
+					} else {
 						nextNode = next(parent, true); // jump to the parent
 					}
 				}
-				if (nextNode != null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
+				if (nextNode !== null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
 				return nextNode;
 			}
 
 			function prev (node) {
-				if (node == null) return null;
-				var parent 	 = node.parent;
-				var ind 	 = obj.get(node.id, true);
-				var prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent;
-				if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
+				if (node === null) return null;
+				var parent		= node.parent;
+				var ind			= obj.get(node.id, true);
+				var prevNode	= (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent;
+				if (prevNode !== null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
 				return prevNode;
 			}
 
@@ -8455,10 +8520,10 @@ var w2confirm = function (msg, title, callBack) {
 		scrollIntoView: function (id) {
 			if (typeof id == 'undefined') id = this.selected;
 			var nd = this.get(id);
-			if (nd == null) return;
+			if (nd === null) return;
 			var body	= $(this.box).find('.w2ui-sidebar-div');
-			var item 	= $(this.box).find('#node_'+ w2utils.escapeId(id));
-			var offset 	= item.offset().top - body.offset().top;
+			var item	= $(this.box).find('#node_'+ w2utils.escapeId(id));
+			var offset	= item.offset().top - body.offset().top;
 			if (offset + item.height() > body.height()) {
 				body.animate({ 'scrollTop': body.scrollTop() + body.height() / 1.3 });
 			}
@@ -8519,7 +8584,7 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
 			if (eventData.isCancelled === true) return false;
 			// default action
-			if (typeof box != 'undefined' && box != null) { 
+			if (typeof box != 'undefined' && box !== null) { 
 				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -8539,17 +8604,17 @@ var w2confirm = function (msg, title, callBack) {
 					'</div>'
 				);
 			$(this.box).find('> div').css({
-				width 	: $(this.box).width() + 'px',
-				height 	: $(this.box).height() + 'px'
+				width	: $(this.box).width() + 'px',
+				height: $(this.box).height() + 'px'
 			});
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// adjust top and bottom
-			if (this.topHTML != '') {
+			if (this.topHTML !== '') {
 				$(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
-				$(this.box).find('.w2ui-sidebar-div')					
+				$(this.box).find('.w2ui-sidebar-div')
 					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
 			}
-			if (this.bottomHTML != '') {
+			if (this.bottomHTML !== '') {
 				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML);
 				$(this.box).find('.w2ui-sidebar-div')
 					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
@@ -8567,33 +8632,36 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
 			if (eventData.isCancelled === true) return false;
 			// adjust top and bottom
-			if (this.topHTML != '') {
+			if (this.topHTML !== '') {
 				$(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
 				$(this.box).find('.w2ui-sidebar-div')					
 					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
 			}
-			if (this.bottomHTML != '') {
+			if (this.bottomHTML !== '') {
 				$(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML);
 				$(this.box).find('.w2ui-sidebar-div')
 					.css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
 			}
 			// default action
 			$(this.box).find('> div').css({
-				width 	: $(this.box).width() + 'px',
-				height 	: $(this.box).height() + 'px'
+				width : $(this.box).width() + 'px',
+				height: $(this.box).height() + 'px'
 			});
 			var obj = this;
+			var node;
+			var nm;
 			if (typeof id == 'undefined') {
-				var node = this;
-				var nm 	 = '.w2ui-sidebar-div';
+				node	= this;
+				nm		= '.w2ui-sidebar-div';
 			} else {
-				var node = this.get(id);
-				if (node == null) return;
-				var nm 	 = '#node_'+ w2utils.escapeId(node.id) + '_sub';
+				node	= this.get(id);
+				if (node === null) return;
+				nm		= '#node_'+ w2utils.escapeId(node.id) + '_sub';
 			}
+			var nodeHTML;
 			if (node != this) {
-				var tmp = '#node_'+ w2utils.escapeId(node.id);
-				var nodeHTML = getNodeHTML(node);
+				var tmp	= '#node_'+ w2utils.escapeId(node.id);
+				nodeHTML	= getNodeHTML(node);
 				$(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
 				$(this.box).find(tmp).remove();
 				$(this.box).find(nm).remove();
@@ -8603,9 +8671,9 @@ var w2confirm = function (msg, title, callBack) {
 			// refresh sub nodes
 			$(this.box).find(nm).html('');
 			for (var i=0; i < node.nodes.length; i++) {
-				var nodeHTML = getNodeHTML(node.nodes[i]);
+				nodeHTML = getNodeHTML(node.nodes[i]);
 				$(this.box).find(nm).append(nodeHTML);
-				if (node.nodes[i].nodes.length != 0) { this.refresh(node.nodes[i].id); }
+				if (node.nodes[i].nodes.length !== 0) { this.refresh(node.nodes[i].id); }
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -8614,13 +8682,13 @@ var w2confirm = function (msg, title, callBack) {
 			function getNodeHTML(nd) {
 				var html = '';
 				var img  = nd.img;
-				if (img == null) img = this.img;
+				if (img === null) img = this.img;
 				var icon  = nd.icon;
-				if (icon == null) icon = this.icon;
+				if (icon === null) icon = this.icon;
 				// -- find out level
 				var tmp   = nd.parent;
 				var level = 0;
-				while (tmp && tmp.parent != null) {
+				while (tmp && tmp.parent !== null) {
 					if (tmp.group) level--;
 					tmp = tmp.parent;
 					level++;
@@ -8630,7 +8698,7 @@ var w2confirm = function (msg, title, callBack) {
 					html = 
 						'<div class="w2ui-node-group"  id="node_'+ nd.id +'"'+
 						'		onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
-						'				 var sp=$(this).find(\'span:nth-child(1)\'); if (sp.html() == \''+ w2utils.lang('Hide') +'\') sp.html(\''+ w2utils.lang('Show') +'\'); else sp.html(\''+ w2utils.lang('Hide') +'\');"'+
+						'					var sp=$(this).find(\'span:nth-child(1)\'); if (sp.html() == \''+ w2utils.lang('Hide') +'\') sp.html(\''+ w2utils.lang('Show') +'\'); else sp.html(\''+ w2utils.lang('Hide') +'\');"'+
 						'		onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
 						'		onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
 						'	<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>'+
@@ -8639,8 +8707,8 @@ var w2confirm = function (msg, title, callBack) {
 						'<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
 				} else {
 					if (nd.selected && !nd.disabled) obj.selected = nd.id;
-					var tmp = '';
-					if (img)  tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
+					tmp = '';
+					if (img) tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
 					if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
 					html = 
 					'<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
@@ -8676,9 +8744,9 @@ var w2confirm = function (msg, title, callBack) {
 			$(this.box).css('overflow', 'hidden');	// container should have no overflow
 			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'hidden');
 			$(this.box).find('> div').css({
-				width 	: $(this.box).width() + 'px',
-				height 	: $(this.box).height() + 'px'
-			});			
+				width		: $(this.box).width() + 'px',
+				height	: $(this.box).height() + 'px'
+			});
 			//$(this.box).find('.w2ui-sidebar-div').css('overflow', 'auto');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -8703,7 +8771,9 @@ var w2confirm = function (msg, title, callBack) {
 
 		lock: function (msg, showSpinner) {
 			var box = $(this.box).find('> div:first-child');
-			w2utils.lock(box, msg, showSpinner);
+			var args = Array.prototype.slice.call(arguments, 0);
+			args.unshift(box);
+			w2utils.lock.apply(window, args);
 		},
 
 		unlock: function () { 
@@ -10269,6 +10339,7 @@ var w2confirm = function (msg, title, callBack) {
 * == NICE TO HAVE ==
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
+*	- create an example how to do cascadic dropdown
 *
 ************************************************************************/
 
@@ -10758,7 +10829,9 @@ var w2confirm = function (msg, title, callBack) {
 
 		lock: function (msg, showSpinner) {
 			var box = $(this.box).find('> div:first-child');
-			w2utils.lock(box, msg, showSpinner);
+			var args = Array.prototype.slice.call(arguments, 0);
+			args.unshift(box);
+			w2utils.lock.apply(window, args);
 		},
 
 		unlock: function () { 
@@ -11135,27 +11208,25 @@ var w2confirm = function (msg, title, callBack) {
 *	- Following objects defined
 *		- w2listview		- listview widget
 *		- $().w2listview	- jQuery wrapper
-*   - Dependencies: jQuery, w2utils
+*	- Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*	- icons/images support
-*	- "Ctrl"/"Shift" keys support in multiselect mode
-*
-* == 1.4 changes
-*	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- images support
+*	- PgUp/PgDown keys support
 *
 ************************************************************************/
 
 (function () {
 	var w2listview = function (options) {
-		this.box		= null;		// DOM Element that holds the element
-		this.name		= null;		// unique name for w2ui
-		this.vType		= null;
-		this.items		= [];
-		this.menu		= [];
+		this.box			= null;		// DOM Element that holds the element
+		this.name			= null;		// unique name for w2ui
+		this.vType			= null;
+		this.items			= [];
+		this.menu			= [];
 		this.multiselect	= true;		// multiselect support
 		this.keyboard		= true;		// keyboard support
-		this.focused		= null;		// focused item
+		this.curFocused		= null;		// currently focused item
+		this.selStart		= null;		// item to start selection from (used in selection with "shift" key)
 		this.onClick		= null;
 		this.onDblClick		= null;
 		this.onKeydown		= null;
@@ -11172,29 +11243,35 @@ var w2confirm = function (msg, title, callBack) {
 	// -- Registers as a jQuery plugin
 
 	$.fn.w2listview = function(method) {
+		var obj;
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2listview')) return;
+			if (!$.fn.w2checkNameParam(method, 'w2listview')) return undefined;
 			if (typeof method.viewType !== 'undefined') {
 				method.vType = method.viewType;
 				delete method.viewType;
 			}
-			var items  = method.items;
-			var object = new w2listview(method);
-			$.extend(object, { items: [], handlers: [] });
-			for (var i in items) { object.items[i] = $.extend({}, w2listview.prototype.item, items[i]); }
+			var itms  = method.items;
+			obj = new w2listview(method);
+			$.extend(obj, { items: [], handlers: [] });
+			if ($.isArray(itms)) {
+				for (var i = 0; i < itms.length; i++) {
+					obj.items[i] = $.extend({}, w2listview.prototype.item, itms[i]);
+				}
+			}
 			if ($(this).length !== 0) {
-				object.render($(this)[0]);
+				obj.render($(this)[0]);
 			}
 			// register new object
-			w2ui[object.name] = object;
-			return object;
+			w2ui[obj.name] = obj;
+			return obj;
 		} else if (w2ui[$(this).attr('name')]) {
-			var obj = w2ui[$(this).attr('name')];
+			obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2listview' );
+			return undefined;
 		}
 	};
 
@@ -11203,15 +11280,16 @@ var w2confirm = function (msg, title, callBack) {
 
 	w2listview.prototype = {
 		item : {
-			id		: null,		// param to be sent to all event handlers
-			caption		: '',
-			description	: '',
-			selected	: false,
-			onClick		: null,
-			onDblClick	: null,
-			onKeydown	: null,
+			id				: null,		// param to be sent to all event handlers
+			caption			: '',
+			description		: '',
+			icon			: null,
+			selected		: false,
+			onClick			: null,
+			onDblClick		: null,
+			onKeydown		: null,
 			onContextMenu	: null,
-			onRefresh	: null
+			onRefresh		: null
 		},
 
 		viewType: function (value) {
@@ -11243,29 +11321,31 @@ var w2confirm = function (msg, title, callBack) {
 		insert: function (id, item) {
 			if (!$.isArray(item)) item = [item];
 			// assume it is array
-			for (var r in item) {
+			for (var r = 0; r < item.length; r++) {
 				// checks
 				if (String(item[r].id) == 'undefined') {
 					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
 					return;
 				}
 				var unique = true;
-				for (var i in this.items) { if (this.items[i].id == item[r].id) { unique = false; break; } }
+				for (var i = 0; i < this.items.length; i++) {
+					if (this.items[i].id == item[r].id) { unique = false; break; }
+				}
 				if (!unique) {
 					console.log('ERROR: The parameter "id='+ item[r].id +'" is not unique within the current items. (obj: '+ this.name +')');
 					return;
 				}
-				if (!w2utils.isAlphaNumeric(item[r].id)) {
-					console.log('ERROR: The parameter "id='+ item[r].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
-					return;
-				}
+				//if (!w2utils.isAlphaNumeric(item[r].id)) {
+				//	console.log('ERROR: The parameter "id='+ item[r].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
+				//	return;
+				//}
 				// add item
-				item = $.extend({}, item, item[r]);
+				var newItm = $.extend({}, w2listview.prototype.item, item[r]);
 				if (id === null || typeof id == 'undefined') {
-					this.items.push(item);
+					this.items.push(newItm);
 				} else {
 					var middle = this.get(id, true);
-					this.items = this.items.slice(0, middle).concat([item], this.items.slice(middle));
+					this.items = this.items.slice(0, middle).concat([newItm], this.items.slice(middle));
 				}
 				this.refresh(item[r].id);
 			}
@@ -11274,27 +11354,27 @@ var w2confirm = function (msg, title, callBack) {
 		remove: function (id) {
 			var removed = 0;
 			for (var i = 0; i < arguments.length; i++) {
-				var item = this.get(arguments[i]);
-				if (!item) return false;
+				var idx = this.get(arguments[i], true);
+				if (idx === null) return false;
 				removed++;
 				// remove from array
-				this.items.splice(this.get(item.id, true), 1);
+				this.items.splice(idx, 1);
 				// remove from screen
-				$(this.box).find('#itm_'+ w2utils.escapeId(item.id)).remove();
+				$(this.box).find('#itm_'+ w2utils.escapeId(arguments[i])).remove();
 			}
 			return removed;
 		},
 
 		set: function (id, item) {
-			var index = this.get(id, true);
-			if (index === null) return false;
-			$.extend(this.items[index], item);
+			var idx = this.get(id, true);
+			if (idx === null) return false;
+			$.extend(this.items[idx], item);
 			this.refresh(id);
 			return true;
 		},
 
 		get: function (id, returnIndex) {
-            var i = 0
+			var i = 0;
 			if (arguments.length === 0) {
 				var all = [];
 				for (; i < this.items.length; i++) if (this.items[i].id !== null) all.push(this.items[i].id);
@@ -11309,83 +11389,155 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		select: function (id, addSelection) {
-            if (arguments.length === 1 || !this.multiselect) addSelection = false;
-			if (!addSelection) {
-				for (var i1 in this.items) {
-					if (this.items[i1].id != id) this.unselect(this.items[i1].id);
-				}
-			}
-			var item = this.get(id);
-			if (!item) return false;
-			if (!item.selected) {
-				$(this.box).find('#itm_'+ w2utils.escapeId(id))
+			var itm = this.get(id);
+			if (itm === null) return false;
+			if (arguments.length === 1 || !this.multiselect) addSelection = false;
+
+			if (!addSelection) this.unselect();
+			if (!itm.selected) {
+				$(this.box)
+					.find('#itm_'+ w2utils.escapeId(id))
 					.addClass('w2ui-selected');
-				item.selected = true;
+				itm.selected = true;
 			}
-			this.focused = id;
-			return item.selected;
+			return itm.selected;
 		},
 
 		unselect: function (id) {
-			for (var i = 0; i < arguments.length; i++) {
-				var item = this.get(arguments[i]);
-				if (item && item.selected) {
-					item.selected = false;
-					$(this.box).find('#itm_'+ w2utils.escapeId(item.id))
-						.removeClass('w2ui-selected');
-					if (this.focused === item.id) this.focused = null;
-                }
+			var obj = this;
+			var i = 0;
+			if (arguments.length === 0) {
+				for (; i < this.items.length; i++) doUnselect(this.items[i]);
+			} else {
+				for (; i < arguments.length; i++) doUnselect(this.get(arguments[i]));
 			}
 			return true;
+
+			function doUnselect(itm) {
+				if (itm !== null && itm.selected) {
+					itm.selected = false;
+					$(obj.box)
+						.find('#itm_'+ w2utils.escapeId(itm.id))
+						.removeClass('w2ui-selected');
+				}
+			}
+		},
+
+		getFocused: function (returnIndex) {
+			var rslt = this.get(this.curFocused, returnIndex);
+			if (rslt === null) rslt = this.get(this.selStart, returnIndex);
+			return rslt;
+		},
+
+		scrollIntoView: function (id) {
+			if (typeof id != 'undefined') {
+				var itm = this.get(id);
+				if (itm === null) return;
+				var body	= $(this.box);
+				var node	= $(this.box).find('#itm_'+ w2utils.escapeId(id));
+				var offset	= node.offset().top - body.offset().top;
+				var nodeHeight = w2utils.getSize(node, 'height');
+				if (offset + nodeHeight > body.height()) {
+					body.scrollTop( body.scrollTop() + offset + nodeHeight - body.height() );
+				}
+				if (offset <= 0) {
+					body.scrollTop( body.scrollTop() + offset);
+				}
+			}
+		},
+
+		userSelect: function (id, event, isMouse) {
+			var itm = null;
+
+			// update selection
+			if (event.shiftKey) {
+				this.unselect();
+				var fIdx = this.get(this.selStart, true);
+				if (fIdx !== null) {
+					var idx = this.get(id, true);
+					var toIdx = Math.max(idx, fIdx);
+					for (var i = Math.min(idx, fIdx); i <= toIdx; i++) {
+						this.select(this.items[i].id, true);
+					}
+				} else {
+					this.select(id, true);
+					this.selStart = id;
+				}
+			} else if (event.ctrlKey) {
+				if (isMouse) {
+					itm = this.get(id);
+					if (itm.selected) this.unselect(id); else this.select(id, true);
+					this.selStart = id;
+				}
+			} else {
+				this.select(id, false);
+				this.selStart = id;
+			}
+
+			// update focus
+			if (itm === null) itm = this.get(id);
+			if (itm === null) return;
+			var oldItm = this.getFocused();
+			if (oldItm !== null) {
+				$(this.box)
+					.find('#itm_'+ w2utils.escapeId(oldItm.id))
+					.removeClass('w2ui-focused');
+			}
+			$(this.box)
+				.find('#itm_'+ w2utils.escapeId(id))
+				.addClass('w2ui-focused');
+			this.curFocused = id;
+
+			// update view
+			this.scrollIntoView(id);
 		},
 
 		// ===================================================
 		// -- Internal Event Handlers
 
 		click: function (id, event) {
-			var obj = this;
-			var item = obj.get(id);
-			if (item == null) return false;
-			var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: item });
-			var rslt = !(eventData.isCancelled === true);
+			var idx = this.get(id, true);
+			if (idx === null) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: this.items[idx] });
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default action
-				obj.select(id);
+				this.userSelect(id, event, true);
 				// event after
-				obj.trigger($.extend(eventData, { phase: 'after' }));
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 			return rslt;
 		},
 
 		dblClick: function (id, event) {
-			var obj = this;
-			var item = obj.get(id);
-			if (item == null) return false;
-			var eventData = obj.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: item });
-			var rslt = !(eventData.isCancelled === true);
+			var itm = this.get(id);
+			if (itm === null) return false;
+			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: itm });
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default action
 				// -- empty
 				// event after
-				obj.trigger($.extend(eventData, { phase: 'after' }));
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 			return rslt;
 		},
 
 		keydown: function (event) {
 			var obj = this;
-			var item = this.get(obj.focused);
-			if (item == null || obj.keyboard !== true) return false;
+			var idx = this.getFocused(true);
+			if (idx === null || obj.keyboard !== true) return false;
 			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
-			var rslt = !(eventData.isCancelled === true);
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default behaviour
-				if (event.keyCode == 37) selectNeighbor('left');
-				if (event.keyCode == 39) selectNeighbor('right');
-				if (event.keyCode == 38) selectNeighbor('up');
-				if (event.keyCode == 40) selectNeighbor('down');
+				if (event.keyCode == 32) obj.click(obj.items[idx].id, event);
+				if (event.keyCode == 37) processNeighbor('left');
+				if (event.keyCode == 39) processNeighbor('right');
+				if (event.keyCode == 38) processNeighbor('up');
+				if (event.keyCode == 40) processNeighbor('down');
 				// cancel event if needed
-				if ($.inArray(event.keyCode, [37, 38, 39, 40]) != -1) {
+				if ($.inArray(event.keyCode, [32, 37, 38, 39, 40]) != -1) {
 					if (event.preventDefault) event.preventDefault();
 					if (event.stopPropagation) event.stopPropagation();
 				}
@@ -11395,29 +11547,30 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			return rslt;
 
-			function selectNeighbor(neighbor) {
-				var idx = obj.get(item.id, true);
-                var newIdx;
+			function processNeighbor(neighbor) {
+				var newIdx;
 				if (neighbor === 'up') newIdx = idx - itemsInLine();
 				if (neighbor === 'down') newIdx = idx + itemsInLine();
 				if (neighbor === 'left') newIdx = idx - 1;
 				if (neighbor === 'right') newIdx = idx + 1;
-				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) obj.select(obj.items[newIdx].id);
+				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) {
+					obj.userSelect(obj.items[newIdx].id, event, false);
+				}
 			}
 
 			function itemsInLine() {
-                var lv = $(obj.box).find('> ul');
-				return ~~(lv.width() / w2utils.getSize(lv.find('> li').get(0), 'width'));
+				var lv = $(obj.box).find('> ul');
+				return parseInt(lv.width() / w2utils.getSize(lv.find('> li').get(0), 'width'), 10);
 			}
 		},
 
 		contextMenu: function (id, event) {
 			var obj = this;
-			var item = this.get(id);
-			if (item == null) return false;
-            if (!item.selected) obj.select(id);
-			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: item });
-			var rslt = !(eventData.isCancelled === true);
+			var itm = this.get(id);
+			if (itm === null) return false;
+			if (!itm.selected) obj.select(id);
+			var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: itm });
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default action
 				if (obj.menu.length > 0) {
@@ -11435,59 +11588,69 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		menuClick: function (itemId, index, event) {
-			var obj = this;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
-			var rslt = !(eventData.isCancelled === true);
+			var eventData = this.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: this.menu[index] });
+			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default action
 				// -- empty
 				// event after
-				obj.trigger($.extend(eventData, { phase: 'after' }));
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 			return rslt;
 		},
 
-		refresh: function (id) {
-			var time = (new Date()).getTime();
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			if (String(id) == 'undefined') {
-				// refresh all
-				for (var i in this.items) this.refresh(this.items[i].id);
-			}
-			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), object: this.get(id) });
-			if (eventData.isCancelled === true) return false;
-			// create or refresh only one item
-			var item = this.get(id);
-			if (item === null) return false;
-			//if (typeof item.caption != 'undefined') item.text = item.caption;
-
-			var jq_el   = $(this.box).find('#itm_'+ w2utils.escapeId(item.id));
-			var itemHTML =
-					'<div class="icon-small">small icon</div> ' +
-					'<div class="icon-medium">medium icon</div> ' +
-					'<div class="icon-large">large icon</div> ' +
+		getItemHTML: function (item, onlyInner) {
+			var iconClass = (item.icon !== null && typeof item.icon != 'undefined') ? ' '+item.icon : ' icon-none';
+			var innerHTML =
+					'<div class="icon-small' + iconClass + '"></div> ' +
+					'<div class="icon-medium' + iconClass + '"></div> ' +
+					'<div class="icon-large' + iconClass + '"></div> ' +
 					'<div class="caption">' + item.caption + '</div> ' +
 					'<div class="description">' + item.description + '</div>';
-			if (jq_el.length === 0) {
-				// does not exist - create it
-				html =	'<li id="itm_'+ item.id +'" ' +
+			if (onlyInner) {
+				return innerHTML;
+			} else {
+				return '<li id="itm_'+ item.id +'" ' +
 					'onclick="w2ui[\''+ this.name +'\'].click(\''+ item.id +'\', event);" '+'' +
 					'ondblclick="w2ui[\''+ this.name +'\'].dblClick(\''+ item.id +'\', event);" '+
 					'oncontextmenu="w2ui[\''+ this.name +'\'].contextMenu(\''+ item.id +'\', event); if (event.preventDefault) event.preventDefault();" '+
-					'>'+ itemHTML + '</li>';
-				if (this.get(id, true) != this.items.length-1 && $(this.box).find('#itm_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).length > 0) {
-					$(this.box).find('#itm_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
-				} else {
-					$(this.box).find('#itmlast').before(html);
-				}
-			} else {
-				// refresh
-				jq_el.html(itemHTML);
+					'>'+ innerHTML + '</li>';
 			}
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
+		refresh: function (id) {
+			var time = (new Date()).getTime();
+			if (String(id) == 'undefined') {
+				// refresh all items
+				this.render(this.box);
+			} else {
+				// create or refresh only one item
+
+				// event before
+				var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), object: this.get(id) });
+				if (eventData.isCancelled === true) return false;
+
+				var idx = this.get(id, true);
+				if (idx === null) return false;
+				var jq_el = $(this.box).find('#itm_'+ w2utils.escapeId(id));
+				if (jq_el.length === 0) {
+					// does not exist - create it
+					var nextItm;
+					if (idx != this.items.length-1) {
+						nextItm = $(this.box).find('#itm_'+ w2utils.escapeId(this.items[idx+1].id));
+						if (nextItm.length === 0) nextItm = undefined;
+					}
+					if (!nextItm) nextItm = $(this.box).find('#itmlast');
+					nextItm.before(this.getItemHTML(this.items[idx], false));
+				} else {
+					// refresh
+					jq_el.html(this.getItemHTML(this.items[idx], true));
+				}
+				// event after
+				this.trigger($.extend(eventData, { phase: 'after' }));
+			}
+
 			return (new Date()).getTime() - time;
 		},
 
@@ -11497,8 +11660,7 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			if (String(box) != 'undefined' && box !== null) {
+			if (String(box) != 'undefined' && box !== null && this.box !== box) {
 				if ($(this.box).find('> ul #itmlast').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -11509,14 +11671,15 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			if (!this.box) return false;
 			// render all items
-			var html =	'<ul><li id="itmlast" style="display: none;"></li></ul>';
+			var html = '<ul>';
+			for (var i = 0; i < this.items.length; i++) html += this.getItemHTML(this.items[i], false);
+			html += '<li id="itmlast" style="display: none;"></li></ul>';
 			$(this.box)
 				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-listview w2ui-' + this.viewType())
 				.html(html);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.refresh();
 			return (new Date()).getTime() - time;
 		},
 
@@ -11534,6 +11697,7 @@ var w2confirm = function (msg, title, callBack) {
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return true;
 		}
 	};
 

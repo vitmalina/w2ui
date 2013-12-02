@@ -937,6 +937,11 @@ select {
   position: absolute;
   z-index: 120;
 }
+.w2ui-layout > div .w2ui-panel .w2ui-panel-title {
+  padding: 5px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #c0c0c0;
+}
 .w2ui-layout > div .w2ui-panel .w2ui-panel-tabs {
   position: absolute;
   left: 0px;
@@ -2044,7 +2049,7 @@ select {
   padding-top: 4px;
 }
 .w2ui-listview {
-  overflow: hidden !important;
+  overflow: auto !important;
   background-color: #434d64 !important;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -2078,10 +2083,15 @@ select {
   border: 1px solid transparent;
   border-radius: 4px;
 }
+.w2ui-listview > ul > li.w2ui-focused {
+  border: 1px solid #111111;
+}
+.w2ui-listview > ul > li.w2ui-selected {
+  border: 1px solid #111111;
+}
 .w2ui-listview > ul > li.w2ui-selected,
 .w2ui-listview > ul > li.w2ui-selected:hover {
   background-color: #202530;
-  border: 1px solid 1px solid #111111;
 }
 .w2ui-listview > ul > li.w2ui-selected div,
 .w2ui-listview > ul > li.w2ui-selected:hover div {
@@ -2089,23 +2099,33 @@ select {
 }
 .w2ui-listview > ul > li:hover {
   background-color: #373f52;
-  border: 1px solid 1px solid #111111;
+  border: 1px solid #111111;
 }
 .w2ui-listview > ul > li div {
   overflow: hidden;
   color: #c0c8d5;
-  font-size: 0.8em;
+}
+.w2ui-listview > ul > li div.icon-small {
+  font-size: 21px;
+}
+.w2ui-listview > ul > li div.icon-medium {
+  font-size: 57px;
+}
+.w2ui-listview > ul > li div.icon-large {
+  font-size: 114px;
 }
 .w2ui-listview > ul > li div.caption {
   display: block;
   text-align: center;
   word-wrap: break-word;
   max-height: 50px;
+  font-size: 80%;
 }
 .w2ui-listview > ul > li div.description {
   display: none;
   text-align: left;
   color: #808080;
+  font-size: 80%;
 }
 .w2ui-icon-small > ul {
   padding: 1px 0px 0px 1px;
@@ -2113,14 +2133,13 @@ select {
 .w2ui-icon-small > ul > li {
   margin: 0px 1px 1px 0px;
   padding: 2px;
-  width: 200px;
+  width: 250px;
   white-space: nowrap;
 }
 .w2ui-icon-small > ul > li div.icon-small {
   display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 1px solid #ff0000;
+  width: 26px;
+  height: 22px;
   float: left;
   margin-right: 2px;
 }
@@ -2150,9 +2169,8 @@ select {
   margin-left: auto;
   margin-right: auto;
   display: block;
-  width: 60px;
+  width: 92px;
   height: 60px;
-  border: 1px solid #ff0000;
 }
 .w2ui-icon-medium > ul > li div.icon-large {
   display: none;
@@ -2175,9 +2193,8 @@ select {
   margin-left: auto;
   margin-right: auto;
   display: block;
-  width: 120px;
+  width: 152px;
   height: 120px;
-  border: 1px solid #ff0000;
 }
 .w2ui-icon-tile > ul {
   padding: 1px 0px 0px 1px;
@@ -2185,7 +2202,7 @@ select {
 .w2ui-icon-tile > ul > li {
   margin: 0px 1px 1px 0px;
   padding: 5px;
-  width: 200px;
+  width: 250px;
   white-space: nowrap;
 }
 .w2ui-icon-tile > ul > li div.icon-small {
@@ -2193,9 +2210,8 @@ select {
 }
 .w2ui-icon-tile > ul > li div.icon-medium {
   display: inline-block;
-  width: 60px;
+  width: 72px;
   height: 60px;
-  border: 1px solid #ff0000;
   float: left;
   margin-right: 5px;
 }
@@ -2207,4 +2223,7 @@ select {
 }
 .w2ui-icon-tile > ul > li div.description {
   display: block;
+}
+.w2ui-listview > ul > li div.icon-none {
+  border: 1px solid rgba(17, 17, 17, 0.35);
 }
