@@ -504,7 +504,9 @@ var w2popup = {};
 		},
 
 		lock: function (msg, showSpinner) {
-			w2utils.lock($('#w2ui-popup'), msg, showSpinner);
+			var args = Array.prototype.slice.call(arguments, 0);
+			args.unshift($('#w2ui-popup'));
+			w2utils.lock.apply(window, args);
 		},
 
 		unlock: function () { 

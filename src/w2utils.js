@@ -25,6 +25,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- format date and time is buggy
 *	- onComplete should pass widget as context (this)
 *
+* == 1.4 changes
+*	- lock(box, options) || lock(box, msg, spinner)
+*
 ************************************************/
 
 var w2utils = (function () {
@@ -652,8 +655,15 @@ var w2utils = (function () {
 		}
 	}
 	
-	function lock (box, msg, showSpinner) {
-		if (!msg && msg != 0) msg = '';
+	function lock (box, msg, spinner) {
+		var options = {};
+		if (typeof msg == 'object') {
+			options = msg; 
+		} else {
+			options.msg 	= msg;
+			options.spinner = spinner;
+		}
+		if (!options.msg && options.msg != 0) options.msg = '';
 		w2utils.unlock(box);
 		$(box).find('>:first-child').before(
 			'<div class="w2ui-lock"></div>'+
@@ -670,15 +680,15 @@ var w2utils = (function () {
 				var left = ($(box).width()  - w2utils.getSize(mess, 'width')) / 2;
 				var top  = ($(box).height() * 0.9 - w2utils.getSize(mess, 'height')) / 2;
 				lock.css({
-					opacity : lock.data('old_opacity'),
+					opacity : (options.opacity != undefined ? options.opacity : lock.data('old_opacity')),
 					left 	: '0px',
 					top 	: '0px',
 					width 	: '100%',
 					height 	: '100%'
 				});
-				if (!msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
-				if (showSpinner === true) msg = '<div class="w2ui-spinner" '+ (!msg ? 'style="width: 30px; height: 30px"' : '') +'></div>' + msg;
-				mess.html(msg).css({
+				if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
+				if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 30px; height: 30px"' : '') +'></div>' + options.msg;
+				mess.html(options.msg).css({
 					opacity : mess.data('old_opacity'),
 					left	: left + 'px',
 					top		: top + 'px'

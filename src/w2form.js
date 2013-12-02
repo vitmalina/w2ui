@@ -498,7 +498,9 @@
 
 		lock: function (msg, showSpinner) {
 			var box = $(this.box).find('> div:first-child');
-			w2utils.lock(box, msg, showSpinner);
+			var args = Array.prototype.slice.call(arguments, 0);
+			args.unshift(box);
+			w2utils.lock.apply(window, args);
 		},
 
 		unlock: function () { 
