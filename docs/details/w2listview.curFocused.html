@@ -1,10 +1,10 @@
-The id of the focused item. Read Only.
+The id of the currently focused item. Read Only.
 
 <div class="definition">
 	String, default = ''
 </div>
 
-It holds the id of the last selected item.
+It holds the id of the item, that have input focus.
 <div style="height: 10px"></div>
 
 If you have listview defined in the following way:
@@ -19,7 +19,7 @@ $('#listview').w2listview({
 });
 </textarea>
 
-You can find focused item by:
+You can find currently focused item by:
 <textarea class="javascript">
-console.log( w2ui['listview'].focused );
+console.log( w2ui['listview'].curFocused );
 </textarea>

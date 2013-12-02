@@ -35,6 +35,13 @@
 </div>
 
 <div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2listview.getFocused">getFocused</a> <span>- getFocused([returnIndex])</span>
+</div>
+<div class="obj-property-desc">
+	Finds and returns listview item with input focus.
+</div>
+
+<div class="obj-property">
 	<a href="<?=$site_root?>/docs/w2listview.insert">insert</a> <span>- insert(before, items)</span>
 </div>
 <div class="obj-property-desc">
@@ -63,7 +70,14 @@
 </div>
 
 <div class="obj-property">
-	<a href="<?=$site_root?>/docs/w2listview.select">select</a> <span>- select(id)</span>
+	<a href="<?=$site_root?>/docs/w2listview.scrollIntoView">scrollIntoView</a> <span>- scrollIntoView(id)</span>
+</div>
+<div class="obj-property-desc">
+	Scroll items into view.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2listview.select">select</a> <span>- select(id, addSelection)</span>
 </div>
 <div class="obj-property-desc">
 	Selects listview item with <span class="argument">id</span>.
@@ -81,6 +95,20 @@
 </div>
 <div class="obj-property-desc">
 	Unselects listview item with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2listview.userSelect">userSelect</a> <span>- userSelect(id, event, isMouse)</span>
+</div>
+<div class="obj-property-desc">
+	Processes the user select of item with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2listview.viewType">viewType</a> <span>- viewType([value])</span>
+</div>
+<div class="obj-property-desc">
+	Returns current view type or sets a new one.
 </div>
 
 </div>

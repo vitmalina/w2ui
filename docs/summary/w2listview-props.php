@@ -1,9 +1,16 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="obj-property">
-	<a href="<?=$site_root?>/docs/w2listview.focused">focused</a> <span>- String, default = ''</span>
+	<a href="<?=$site_root?>/docs/w2listview.curFocused">curFocused</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
-	The id of the focused item. Read Only.
+	The id of the currently focused item. Read Only.
+</div>
+
+<div class="obj-property">
+	<a href="<?=$site_root?>/docs/w2listview.items">items</a> <span>- Array, default = []</span>
+</div>
+<div class="obj-property-desc">
+	Array of items objects.
 </div>
 
 <div class="obj-property">
@@ -28,10 +35,10 @@
 </div>
 
 <div class="obj-property">
-	<a href="<?=$site_root?>/docs/w2listview.items">items</a> <span>- Array, default = []</span>
+	<a href="<?=$site_root?>/docs/w2listview.selStart">selStart</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
-	Array of items objects.
+	The id of the item, from which "shift selection" starts. Read Only.
 </div>
 
 </div>
