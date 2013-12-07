@@ -1398,7 +1398,16 @@
 			}
 			// call server to get data
 			var obj = this;
-			this.lock(this.msgRefresh, true);
+			if (this.last.xhr_offset == 0) {
+				this.lock(this.msgRefresh, true);
+			} else {
+				var more = $('#grid_'+ this.name +'_rec_more');
+				if (this.autoLoad === true) {
+					more.show().find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+				} else {
+					more.find('td').html('<div>'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
+				}
+			}
 			if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
 			var xhr_type = 'GET';
 			var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
@@ -3901,10 +3910,11 @@
 					if (more.css('display') == 'none') {
 						more.show()
 							.on('click', function () {
-								$(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
 								obj.last.pull_more = true;
 								obj.last.xhr_offset += obj.limit;
 								obj.request('get-records');
+								// show spinner the last
+								$(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
 							});
 					}
 					if (more.find('td').text().indexOf('Load') == -1) {
