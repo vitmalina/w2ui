@@ -19,6 +19,9 @@
 <div id="main" style="width: 100%; height: 300px; margin-bottom: 10px;"></div>
 <input type="button" value="Mark Range C3:D7" onclick="mark()">
 <input type="button" value="Remove Range" onclick="w2ui.grid.removeRange('range')">
+&nbsp;&nbsp;&nbsp;
+<input type="button" value="Cell Format" onclick="cellFormat(true)">
+<input type="button" value="Remove Cell Format" onclick="cellFormat(false)">
 
 <!--CODE-->
 // widget configuration
@@ -66,7 +69,15 @@ $(function () {
 			size: '15%',
 			resizable: true,
 			sortable: true,
-			editable: { type: 'text' }
+			editable: { type: 'd' },
+			render: function (record, index, col_index) {
+				var field 	= this.columns[col_index].field;
+				var val 	= record[field];
+				var style 	= '';
+				if (record.changed && record.changes[field]) val = record.changes[field];
+				if (record.style && record.style[col_index]) style = record.style[col_index];
+				return '<div style="'+ style +'; padding: 6px 3px; height: '+ this.recordHeight +'px">'+ val +'</div>';
+			}
 		});
 		values[tmp[i]] = '';
 	}
@@ -77,16 +88,12 @@ $(function () {
 	w2ui.grid.total = w2ui.grid.records.length;
 	w2ui.grid.buffered = w2ui.grid.total;
 	// init some values
-	w2ui.grid.records[2].c = 1;
-	w2ui.grid.records[3].c = 2;
-	w2ui.grid.records[4].c = 3;
-	w2ui.grid.records[5].c = 4;
-	w2ui.grid.records[6].c = 5;
-	w2ui.grid.records[2].d = 67;
-	w2ui.grid.records[3].d = 35;
-	w2ui.grid.records[4].d = 17;
-	w2ui.grid.records[5].d = 84;
-	w2ui.grid.records[6].d = 14;
+	var rec = w2ui.grid.records;
+	$.extend(rec[2], { c: 1, d: 67, f: 'some', g: 'text' });
+	$.extend(rec[3], { c: 2, d: 35, f: 'more', g: 'text' });
+	$.extend(rec[4], { c: 3, d: 17 });
+	$.extend(rec[5], { c: 4, d: 84 });
+	$.extend(rec[6], { c: 5, d: 14 });
 	// display grid
 	$('#main').w2render('grid');
 });
@@ -98,3 +105,33 @@ function mark() {
 		style : "border: 2px dotted green; background-color: rgba(100,400,100,0.2)"
 	});
 }
+
+function cellFormat(flag) {
+	var style = '';
+	if (flag) {
+		w2ui.grid.get(3).style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' };
+		w2ui.grid.get(4).style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' };
+	} else {
+		w2ui.grid.get(3).style = { 5: '', 6: '' };
+		w2ui.grid.get(4).style = { 5: '', 6: '' };
+	}
+	w2ui.grid.refreshRow(3);
+	w2ui.grid.refreshRow(4);
+}
+
+/**
+*  This extands grid with a function that already part in 1.4.nightly
+*/
+
+w2ui.grid.refreshRow = function (recid) {
+	var tr = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+	if (tr.length != 0) {
+		var ind  = this.get(recid, true);
+		var line = tr.attr('line');
+		// if it is searched, find index in search array
+		var url = (typeof this.url != 'object' ? this.url : this.url.get);
+		if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
+		$(tr).replaceWith(this.getRecordHTML(ind, line));
+	}
+
+} 

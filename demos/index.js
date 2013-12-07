@@ -294,7 +294,7 @@ function initCode() {
 		var cm = CodeMirror(
 			function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
 			{
-					value		: $.trim(text.val()),
+				value		: $.trim(text.val()),
 				mode		: "text/html",
 				readOnly	: true,
 				gutter		: true,
@@ -318,9 +318,9 @@ function initCode() {
 		cm.setSize(null, cm.doc.height + 15);
 	}
 	$('#example_code .jsfiddle').on('click', function () {
-		$('#fiddleForm textarea[name=html]').val(html);
-		$('#fiddleForm textarea[name=js]').val(js);
-		$('#fiddleForm textarea[name=css]').val(css);
+		// $('#fiddleForm textarea[name=html]').val(html || '');
+		// $('#fiddleForm textarea[name=js]').val(js || '');
+		// $('#fiddleForm textarea[name=css]').val(css || '');
 		$('#fiddleForm').submit();
 	});
 }
