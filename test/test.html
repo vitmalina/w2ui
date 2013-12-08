@@ -1,91 +1,69 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-
+<!DOCTYPE html>
 <html>
-
 <head>
-    <link href="http://w2ui.com/src/w2ui-1.3.css" rel="stylesheet">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="http://w2ui.com/src//w2ui-1.3.js"></script>
-    <script src="../src//w2utils.js"></script>
-    <script src="../src//w2grid.js"></script>
-    <script type="text/javascript">
-        var uiConfig = {
-            layout: {
-                name: 'programmingEnviroment',
-                panels: [
-                    {
-                        type: 'main',
-                        content:
-                          '<table width="100%" height="100%" border="0"><tr><td align="center"><div class="w2ui-form">Code<\/div><\/td><\/tr><tr height="100%"><td>' +
-                          '<textarea id="code" style="resize:none; width:100%;height:100%;border: 1px solid #ccc; padding: 5px; background-color:#ffffff;" placeholder="Start programming here!" autofocus=""> <\/textarea>' +
-                          '<\/td><\/tr><\/table>',
-                        size: "100%",
-                        resizable: false
-                    },
-                    {
-                        type: 'preview',
-                        content: 'Variable',
-                        size: "60%",
-                        resizable: 'true'
-                    }
-                ]
-            },
-            variable: {
-                name: 'variable',
-                header: 'Variable',
-                keyboard: false,
-                show: {
-                    header: true
-                },
-                columns: [
-                    {
-                        field: 'name',
-                        caption: 'Name',
-                        size: '30%',
-                        resizable: true
-                    },
-                    {
-                        field: 'type',
-                        caption: 'Type',
-                        size: '30%',
-                        resizable: true
-                    },
-                    {
-                        field: 'value',
-                        caption: 'Value',
-                        size: '40%',
-                        resizable: true
-                    }
-                ]
-            },
-        };
-
-        $(function () {
-            $('#pe').w2layout(uiConfig.layout);
-            $().w2grid(uiConfig.variable);
-            w2ui.programmingEnviroment.content('preview', w2ui.variable);
-            $("#code").on('keyup', function (event) {
-                /***********************************************************************
-                **     Here is the part where the cursor disappears from the input **
-                ************************************************************************/
-
-                w2ui['variable'].add({
-                    recid: 1,
-                    name: 'foo',
-                    type: 'number',
-                    value: 1
-                });
-
-            });
-
-        });
-    </script>
-
-    <title></title>
+    <title>W2UI Demo: combo-9</title>
+    <link rel="stylesheet" type="text/css" href="../dist/w2ui-1.3.min.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script src="http://underscorejs.org/underscore.js"></script>
+    <script type="text/javascript" src="../dist/w2ui-1.3.min.js"></script>
+    <script type="text/javascript" src="../src/w2utils.js"></script>
+    <script type="text/javascript" src="../src/w2grid.js"></script>
 </head>
+<body>
 
-<body style="overflow: hidden">
-    <div id="pe" style="position: absolute; width:100%;height:100%;"></div>
+<div id="main" style="width: 100%; height: 400px;"></div>
+
+<script type="text/javascript">
+// widget configuration
+var config = {
+    grid: { 
+        name: 'grid',
+        //url : 'http://w2ui.com/web/pages/demo/infinite/index.php',
+        show: { 
+            footer  : true,
+            toolbar : true,
+            selectColumn: true,
+            lineNumbers: true
+        },
+        columns: [              
+            { field: 'recid', caption: 'ID', size: '50px', sortable: true, searchable: 'int', resizable: true },
+            { field: 'fname', caption: 'First Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
+            { field: 'lname', caption: 'Last Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
+            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
+            { field: 'sdate', caption: 'Date', size: '200px', resizable: true, sortable: true },
+        ]
+    }
+}
+var time = (new Date()).getTime();
+
+$(function () {
+    $('#main').w2grid(config.grid);
+    w2ui.grid.lock('Generating Records');
+    setTimeout(function () {
+        generate(1000); // 12000 - which is 12mil max
+    }, 100);
+});
+
+function generate(num) {
+    var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Alexander', 'Anton', 'Divia'];
+    var lname = ['Peterson', 'Rene', 'Johnson-Petrov', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Hertz', 'Volkov'];
+    w2ui.grid.records = [];
+    for (var i = 0; i < num * 1000; i++) {
+        w2ui['grid'].records.push({ 
+            recid : (i+1),
+            personid: (i+1),
+            fname: fname[Math.floor(Math.random() * fname.length)], 
+            lname: lname[Math.floor(Math.random() * lname.length)],
+            email: 'vm@gmail.com', sdate: '1/1/2013', manager: '--'
+        });
+    }
+    w2ui.grid.buffered = w2ui.grid.records.length;
+    w2ui.grid.total = w2ui.grid.buffered
+    w2ui.grid.unlock();
+    console.log('Generated records in '+ (((new Date()).getTime() - time) / 1000) +' sec');
+    console.log('Render Time: '+ (w2ui.grid.refresh() / 1000) +' sec');
+}
+</script>
+
 </body>
-
 </html>
