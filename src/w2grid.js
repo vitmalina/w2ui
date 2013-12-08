@@ -820,9 +820,9 @@
 			for (var a = 0; a < arguments.length; a++) {
 				var recid	= typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
 				var record	= this.get(recid);
+				if (record == null) continue;
 				var index	= this.get(recid, true);
 				var recEl 	= $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
-				if (record == null) continue;
 				if (this.selectType == 'row') {
 					if (sel.recids.indexOf(recid) >= 0) continue;
 					// event before
@@ -879,9 +879,9 @@
 			for (var a = 0; a < arguments.length; a++) {
 				var recid	= typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
 				var record	= this.get(recid);
+				if (record == null) continue;
 				var index	= this.get(record.recid, true);
 				var recEl 	= $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
-				if (record == null) continue;
 				if (this.selectType == 'row') {
 					if (sel.recids.indexOf(recid) == -1) continue;
 					// event before
@@ -1782,6 +1782,7 @@
 					}
 					this.refresh();
 				}
+				this.selectNone();
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
