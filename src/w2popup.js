@@ -304,7 +304,7 @@ var w2popup = {};
 			var options = $('#w2ui-popup').data('options');
 			if (!options.keyboard) return;
 			// trigger event
-			var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, object: w2popup, originalEvent: event });
+			var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, originalEvent: event });
 			if (eventData.isCancelled === true) return;
 			// default behavior
 			switch (event.keyCode) {
