@@ -4,7 +4,6 @@
     <link rel="stylesheet" type="text/css" href="../../dist/w2ui.min.css" />
     <script type="text/javascript" src="../../libs/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="../../dist/w2ui.min.js"></script>
-    <script type="text/javascript" src="../../src/w2grid.js"></script>
 </head>
 <body>
     <div id="users" style="width: 100%; height: 600px;"></div>
@@ -96,14 +95,16 @@ $(function () {
 function editUser(recid) {
 	$().w2popup('open', {
 		title   : (recid == 0 ? 'Add User' : 'Edit User'),
-		body    : '<div id="user_edit" style="width: 100%; height: 100%;"></div>',
+		body    : '<div id="user_edit" style="width: 100%; height: 100%"></div>',
 		style   : 'padding: 15px 0px 0px 0px',
 		width   : 500,
 		height  : 300, 
-		onOpen  : function () {
-			w2ui['user_edit'].clear();
-			w2ui['user_edit'].recid = recid;
-			$('#w2ui-popup #user_edit').w2render('user_edit');
+		onOpen  : function (event) {
+			event.onComplete = function () {
+				w2ui['user_edit'].clear();
+				w2ui['user_edit'].recid = recid;
+				$('#w2ui-popup #user_edit').w2render('user_edit');
+			}
 		}
 	});
 }

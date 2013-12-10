@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "record": {
+    "userid": "8",
+    "fname": "John 2",
+    "lname": "Cook",
+    "email": null,
+    "login": "1",
+    "password": "21"
+  }
+}
