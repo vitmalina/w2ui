@@ -1192,6 +1192,42 @@ select {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  position: relative;
+}
+.w2ui-grid .w2ui-grid-body table .w2ui-head[draggable="true"] {
+  cursor: move;
+}
+.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker {
+  padding: 0;
+  position: absolute;
+  height: 100%;
+  top: 0;
+}
+.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker.left {
+  left: 0;
+  margin-left: -5px;
+}
+.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker.right {
+  right: 0;
+  margin-right: -5px;
+}
+.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker .top-marker {
+  position: aboslute;
+  top: 0;
+  height: 0;
+  width: 0;
+  border-top: 5px solid #72b2ff;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker .bottom-marker {
+  position: absolute;
+  bottom: 0;
+  height: 0;
+  width: 0;
+  border-bottom: 5px solid #72b2ff;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
 }
 .w2ui-grid .w2ui-grid-body table td {
   border-right: 1px solid #d6d5d7;
