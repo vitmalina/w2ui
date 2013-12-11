@@ -76,6 +76,7 @@
 		this.multiSearch	= true;
 		this.multiSelect	= true;
 		this.multiSort		= true;
+		this.draggableCols	= false;
 		this.markSearchResults	= true;
 
 		this.total			= 0;		// server total
@@ -2802,6 +2803,9 @@
 			$(this.box).on('mousedown', mouseStart);
 			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursror bug
 
+			//init drag events for coloumn relocation
+			if (this.draggableCols) this.initColumnDrag();
+
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// attach to resize event
@@ -2812,6 +2816,7 @@
 			return (new Date()).getTime() - time;
 
 			function mouseStart (event) {
+				if ($(event.target).parents().hasClass('w2ui-head') || $(event.target).hasClass('w2ui-head')) return;
 				if (obj.last.move && obj.last.move.type == 'expand') return;
 				obj.last.move = {
 					x		: event.screenX,
@@ -2889,6 +2894,7 @@
 			}
 
 			function mouseStop (event) {
+				if ($(event.target).parents().hasClass('.w2ui-head') || $(event.target).hasClass('.w2ui-head')) return;
 				if (!obj.last.move || obj.last.move.type != 'select') return;
 				delete obj.last.move;
 				$(document).off('mousemove', mouseMove);
@@ -2956,6 +2962,151 @@
 						'</td></tr>';
 			col_html += "</table></div>";
 			this.toolbar.get('column-on-off').html = col_html;
+		},
+
+		initColumnDrag: function(box){
+			if (this.columnGroups && this.columnGroups.length) throw 'Draggable columns are not currently supported with column groups.';
+
+			var obj = this,
+				//data object
+				_dragData = {};
+				_dragData.lastInt = null;
+
+			$(this.box).on('mousedown', dragColStart);
+
+			function dragColStart (event) {
+				if (!$(event.originalEvent.target).parents().hasClass('w2ui-head')) return;
+
+				var columns = _dragData.columns = $(obj.box).find('.w2ui-head:not(.w2ui-head-last)');
+				var selectedCol;
+
+				_dragData.originalPos = parseInt($(event.originalEvent.target).parent('.w2ui-head').attr('col'), 10);
+				_dragData.columns.css({overflow: 'visible'}).children('div').css({overflow: 'visible'});
+
+				//add events
+				$(document).on('mouseup', dragColEnd);
+				$(document).on('mousemove', dragColOver);
+
+				//configure and style ghost image
+				_dragData.ghost = $(this).clone(true);
+				$(_dragData.ghost).find('[col]:not([col="' + _dragData.originalPos + '"])').css({width: 0, padding: 0, border: 'none', overflow: 'hidden'});
+				selectedCol = $(_dragData.ghost).find('[col="' + _dragData.originalPos + '"]');
+				$(document.body).append(_dragData.ghost);
+				$(_dragData.ghost).css({
+					width: 0,
+					height: 0,
+					position: 'fixed',
+					zIndex: 100,
+					opacity: 0
+				}).animate({
+						width: selectedCol.width(),
+						height: $(obj.box).height(),
+						opacity: .8
+				}, 300);
+
+				//establish current offsets
+				_dragData.offsets = [];
+				for (var i = 0, l = columns.length; i < l; i++) {
+					_dragData.offsets.push($(columns[i]).offset().left);
+				}
+
+				event.preventDefault();
+				return false;
+			}
+
+			function dragColOver (event) {
+				var cursorX = event.originalEvent.pageX,
+					cursorY = event.originalEvent.pageY,
+					offsets = _dragData.offsets,
+					lastWidth = $('.w2ui-head:not(.w2ui-head-last)').width();
+
+				_dragData.targetInt = targetIntersection(cursorX, offsets, lastWidth);
+				markIntersection(_dragData.targetInt);
+				trackGhost(cursorX, cursorY);
+
+				event.preventDefault();
+				return false;
+			}
+
+			function dragColEnd (event) {
+				var selected = obj.columns[_dragData.originalPos];
+				var columnConfig = obj.columns;
+				var columnNum = (_dragData.targetInt >= obj.columns.length) ? obj.columns.length - 1 :
+						(_dragData.targetInt < _dragData.originalPos) ? _dragData.targetInt : _dragData.targetInt - 1;
+
+				if (_dragData.targetInt !== _dragData.originalPos + 1 && _dragData.targetInt !== _dragData.originalPos) {
+					$(_dragData.ghost).animate({
+						top: $(obj.box).offset().top,
+						left: $('.w2ui-head[col="' + columnNum + '"]').offset().left,
+						width: 0,
+						height: 0,
+						opacity:.2
+					}, 300, function(){
+						$(this).remove();
+					});
+					columnConfig.splice(_dragData.targetInt, 0, $.extend({}, selected));
+					columnConfig.splice(columnConfig.indexOf(selected), 1);
+				} else {
+					$(_dragData.ghost).remove();
+				}
+
+				_dragData.columns.css({overflow: ''}).children('div').css({overflow: ''});
+
+				$(document).off('mouseup', dragColEnd);
+				$(document).off('mousemove', dragColOver);
+				_dragData.marker.remove();
+				_dragData = {};
+
+				obj.refresh();
+			}
+
+			function markIntersection(intersection){
+				if (!_dragData.marker) {
+					_dragData.marker = $('<div class="col-intersection-marker">' +
+						'<div class="top-marker"></div>' +
+						'<div class="bottom-marker"></div>' +
+						'</div>');
+				}
+
+				if (!_dragData.lastInt || _dragData.lastInt !== intersection){
+					_dragData.lastInt = intersection;
+					_dragData.marker.remove();
+
+					if (intersection >= _dragData.columns.length) {
+						$(_dragData.columns[_dragData.columns.length - 1]).children('div:last').append(_dragData.marker.addClass('right').removeClass('left'));
+					} else {
+						$(_dragData.columns[intersection]).children('div:last').prepend(_dragData.marker.addClass('left').removeClass('right'));
+					}
+				}
+			}
+
+			function targetIntersection(cursorX, offsets, lastWidth){
+				if (cursorX <= offsets[0]) {
+					return 0;
+				} else if (cursorX >= offsets[offsets.length - 1] + lastWidth) {
+					return offsets.length;
+				} else {
+					for (var i = 0, l = offsets.length; i < l; i++) {
+						var thisOffset = offsets[i];
+						var nextOffset = offsets[i + 1] || offsets[i] + lastWidth;
+						var midpoint = (nextOffset - offsets[i])/2 + offsets[i];
+
+						if (cursorX > thisOffset && cursorX <= midpoint) {
+							return i;
+						} else if (cursorX > midpoint && cursorX <= nextOffset) {
+							return i + 1;
+						}
+					}
+					return intersection;
+				}
+			}
+
+			function trackGhost(cursorX, cursorY){
+				$(_dragData.ghost).css({
+					left: cursorX - 10,
+					top: cursorY - 10
+				});
+			}
 		},
 
 		columnOnOff: function (el, event, field, value) {
@@ -3757,6 +3908,8 @@
 				}
 				html += '<td class="w2ui-head w2ui-head-last"><div>&nbsp;</div></td>';
 				html += '</tr>';
+				//add dragable attribute to headers if option is true
+				if (obj.draggableCols && (!obj.columnGroups || !obj.columnGroups.length)) html = html.replace(/<td/g, '<td draggable="true"');
 				return html;
 			}
 		},
