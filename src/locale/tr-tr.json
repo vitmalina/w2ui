@@ -55,9 +55,9 @@
 		"Search" : "Ara",
 		"Confirmation" : "Onay",
 		"Notification" : "Bildirim",
-		"Show" : "Göster",
+        	"Show" : "Göster",
 		"Hide" : "Gizle",
-                "Toggle Line Numbers":"Satır Num. Göster/Gizle",
-                "Reset Column Size":"Sütun Genişliğini Sıfırla"
+		"Toggle Line Numbers":"Satır Num. Göster/Gizle",
+		"Reset Column Size":"Sütun Genişliğini Sıfırla"
 	}
 }
