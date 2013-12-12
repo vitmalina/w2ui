@@ -2996,6 +2996,7 @@
 				$(_dragData.ghost).css({
 					width: 0,
 					height: 0,
+					margin: 0,
 					position: 'fixed',
 					zIndex: 100,
 					opacity: 0
