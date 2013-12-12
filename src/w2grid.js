@@ -259,6 +259,7 @@
 			this.buffered = this.records.length;
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (!url) {
+				this.total = this.records.length;
 				this.localSort();
 				this.localSearch();
 			}
