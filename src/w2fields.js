@@ -570,18 +570,18 @@
 						}
 						defaults = {
 							url			: '',
-							items			: [],
-							selected		: [],					// preselected items
-							max			: 0,					// maximum number of items that can be selected 0 for unlim
+							items		: [],
+							selected	: [],				// preselected items
+							max			: 0,				// maximum number of items that can be selected 0 for unlim
 							maxHeight	: 172,				// max height for input control to grow
-							showAll		: false,				// if true then show selected item in drop down
-							match			: 'begins with',	// ['begins with', 'contains']
+							showAll		: false,			// if true then show selected item in drop down
+							match		: 'begins with',	// ['begins with', 'contains']
 							render		: null,				// render(item, selected)
-							maxCache		: 500,				// number items to cache
+							maxCache	: 500,				// number items to cache
 							onShow		: null,				// when overlay is shown onShow(settings)
 							onHide		: null,				// when overlay is hidden onHide(settings)
-							onAdd			: null,				// onAdd(item, settings)
-							onRemove		: null,				// onRemove(index, settings)
+							onAdd		: null,				// onAdd(item, settings)
+							onRemove	: null,				// onRemove(index, settings)
 							onItemOver	: null,
 							onItemOut	: null,
 							onItemClick	: null
