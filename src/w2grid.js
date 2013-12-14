@@ -76,7 +76,8 @@
 		this.multiSearch	= true;
 		this.multiSelect	= true;
 		this.multiSort		= true;
-		this.draggableCols	= false;
+		this.reorderColumns	= false;
+		this._columnDrag	- false;
 		this.markSearchResults	= true;
 
 		this.total			= 0;		// server total
@@ -303,7 +304,7 @@
 			} else { // find record to update
 				var ind = this.get(recid, true);
 				if (ind == null) return false;
-				$.extend(true, this.records[ind], record);				
+				$.extend(true, this.records[ind], record);
 				if (noRefresh !== true) this.refreshRow(recid); // refresh only that record
 			}
 			return true;
@@ -982,7 +983,7 @@
 				if (this.selectType != 'row') {
 					var cols = sel.columns[recid];
 					for (var c in cols) recEl.find(' > td[col='+ cols[c] +']').removeClass('w2ui-selected');
-				}				
+				}
 			}
 			sel.recids 	= [];
 			sel.columns = {};
@@ -2757,6 +2758,13 @@
 			obj.resize();
 			obj.addRange('selection');
 			setTimeout(function () { obj.resize(); obj.scroll(); }, 1); // allow to render first
+
+			if ( obj.reorderColumns && !obj._columnDrag ) {
+				obj._columnDrag = obj.initColumnDrag();
+			} else if ( !obj.reorderColumns && obj._columnDrag ) {
+				obj._columnDrag.remove();
+			}
+
 			return (new Date()).getTime() - time;
 		},
 
@@ -2803,9 +2811,6 @@
 			// init mouse events for mouse selection
 			$(this.box).on('mousedown', mouseStart);
 			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursror bug
-
-			//init drag events for coloumn relocation
-			if (this.draggableCols) this.initColumnDrag();
 
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2973,10 +2978,16 @@
 				_dragData = {};
 				_dragData.lastInt = null;
 
-			$(this.box).on('mousedown', dragColStart);
+			$(obj.box).on('mousedown', dragColStart);
 
 			function dragColStart (event) {
+				var eventData;
+
 				if (!$(event.originalEvent.target).parents().hasClass('w2ui-head')) return;
+
+				//start event for drag start
+				eventData = obj.trigger({type: 'columnDragStart', phase: 'before', originalEvent: event});
+				if ( eventData.cancelled === true ) return;
 
 				var columns = _dragData.columns = $(obj.box).find('.w2ui-head:not(.w2ui-head-last)');
 				var selectedCol;
@@ -2990,18 +3001,25 @@
 
 				//configure and style ghost image
 				_dragData.ghost = $(this).clone(true);
-				$(_dragData.ghost).find('[col]:not([col="' + _dragData.originalPos + '"])').css({width: 0, padding: 0, border: 'none', overflow: 'hidden'});
+
+				//hide other elements on ghost except the grid body
+				$(_dragData.ghost).find('[col]:not([col="' + _dragData.originalPos + '"]), .w2ui-toolbar, .w2ui-grid-header')
+					.css({height: 'none', height: 0, width: 0, padding: 0, border: 'none', overflow: 'hidden'});
+				$(_dragData.ghost).find('.w2ui-grid-body').css({top: 0});
+
 				selectedCol = $(_dragData.ghost).find('[col="' + _dragData.originalPos + '"]');
 				$(document.body).append(_dragData.ghost);
+
 				$(_dragData.ghost).css({
 					width: 0,
 					height: 0,
+					margin: 0,
 					position: 'fixed',
 					zIndex: 100,
 					opacity: 0
 				}).animate({
 						width: selectedCol.width(),
-						height: $(obj.box).height(),
+						height: $(obj.box).find('.w2ui-grid-body:first').height(),
 						opacity: .8
 				}, 300);
 
@@ -3010,6 +3028,9 @@
 				for (var i = 0, l = columns.length; i < l; i++) {
 					_dragData.offsets.push($(columns[i]).offset().left);
 				}
+
+				//conclude event
+				obj.trigger($.extend(eventData, {phase: 'after'}));
 
 				event.preventDefault();
 				return false;
@@ -3030,6 +3051,12 @@
 			}
 
 			function dragColEnd (event) {
+				var eventData;
+
+				//start event for drag start
+				eventData = obj.trigger({type: 'columnDragEnd', phase: 'before', originalEvent: event});
+				if ( eventData.cancelled === true ) return;
+
 				var selected = obj.columns[_dragData.originalPos];
 				var columnConfig = obj.columns;
 				var columnNum = (_dragData.targetInt >= obj.columns.length) ? obj.columns.length - 1 :
@@ -3059,6 +3086,9 @@
 				_dragData = {};
 
 				obj.refresh();
+
+				//conclude event
+				obj.trigger($.extend(eventData, {phase: 'after'}));
 			}
 
 			function markIntersection(intersection){
@@ -3107,6 +3137,15 @@
 					left: cursorX - 10,
 					top: cursorY - 10
 				});
+			}
+
+			//return an object to remove drag if it has ever been enabled
+			return {
+				remove: function(){
+					$(obj.box).off('mousedown', dragColStart);
+					$(obj.box).find('.w2ui-head').removeAttr('draggable');
+					obj._columnDrag = false;
+				}
 			}
 		},
 
@@ -3910,7 +3949,7 @@
 				html += '<td class="w2ui-head w2ui-head-last"><div>&nbsp;</div></td>';
 				html += '</tr>';
 				//add dragable attribute to headers if option is true
-				if (obj.draggableCols && (!obj.columnGroups || !obj.columnGroups.length)) html = html.replace(/<td/g, '<td draggable="true"');
+				if (obj.reorderColumns && (!obj.columnGroups || !obj.columnGroups.length)) html = html.replace(/<td/g, '<td draggable="true"');
 				return html;
 			}
 		},
