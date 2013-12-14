@@ -20,13 +20,16 @@
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
-*	- search-logic -> searchLogic
 *	- allow to define different recid (possibly)
+*	- rename onSave -> onSubmit, onSaved -> onSave, just like in the form
+*	- onSave should have refresh the form, or mergded into the grid.
 *
 * == 1.4 changes
+*	- search-logic -> searchLogic
 * 	- added refreshRow(recid) - should it be part of refresh?
 * 	- added refreshCell(recid, field) - should it be part of refresh?
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- added reorderColumns
 *
 ************************************************************************/
 
@@ -1387,7 +1390,7 @@
 			params['limit']  		= this.limit;
 			params['offset'] 		= parseInt(this.offset) + this.last.xhr_offset;
 			params['search']  		= this.searchData;
-			params['search-logic'] 	= this.last.logic;
+			params['searchLogic'] 	= this.last.logic;
 			params['sort'] 	  		= (this.sortData.length != 0 ? this.sortData : '');
 			// append other params
 			$.extend(params, this.postData);
