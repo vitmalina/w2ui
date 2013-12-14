@@ -2990,7 +2990,7 @@
 
 				//start event for drag start
 				eventData = obj.trigger({type: 'columnDragStart', phase: 'before', originalEvent: event});
-				if ( eventData.cancelled === true ) return;
+				if ( eventData.isCancelled === true ) return;
 
 				var columns = _dragData.columns = $(obj.box).find('.w2ui-head:not(.w2ui-head-last)');
 				var selectedCol;
@@ -3018,9 +3018,9 @@
 					height: 0,
 					margin: 0,
 					position: 'fixed',
-					zIndex: 100,
+					zIndex: 999999,
 					opacity: 0
-				}).animate({
+				}).addClass('.w2ui-grid-ghost').animate({
 						width: selectedCol.width(),
 						height: $(obj.box).find('.w2ui-grid-body:first').height(),
 						opacity: .8
@@ -3054,11 +3054,12 @@
 			}
 
 			function dragColEnd (event) {
-				var eventData;
+				var eventData,
+					ghosts = $('w2ui-grid-ghost');
 
 				//start event for drag start
 				eventData = obj.trigger({type: 'columnDragEnd', phase: 'before', originalEvent: event});
-				if ( eventData.cancelled === true ) return;
+				if ( eventData.isCancelled === true ) return;
 
 				var selected = obj.columns[_dragData.originalPos];
 				var columnConfig = obj.columns;
@@ -3074,11 +3075,13 @@
 						opacity:.2
 					}, 300, function(){
 						$(this).remove();
+						ghosts.remove();
 					});
 					columnConfig.splice(_dragData.targetInt, 0, $.extend({}, selected));
 					columnConfig.splice(columnConfig.indexOf(selected), 1);
 				} else {
 					$(_dragData.ghost).remove();
+					ghosts.remove();
 				}
 
 				_dragData.columns.css({overflow: ''}).children('div').css({overflow: ''});
