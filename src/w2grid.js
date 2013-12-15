@@ -23,6 +23,7 @@
 *	- allow to define different recid (possibly)
 *	- rename onSave -> onSubmit, onSaved -> onSave, just like in the form
 *	- onSave should have refresh the form, or mergded into the grid.
+*	- problem with .set() and arrays, array get extended too, but should be replaced
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
