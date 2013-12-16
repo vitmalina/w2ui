@@ -45,6 +45,8 @@
 		"between" : "между",
 		"Add new record" : "Добавить новую запись",
 		"Add New" : "Добавить",
+        "Edit": "Изменить",
+        "Edit selected record": "Изменить выделенную запись",
 		"Delete selected records" : "Удалить выбранные записи",
 		"Delete" : "Удалить",
 		"Save changed records" : "Сохранить измененные записи",
