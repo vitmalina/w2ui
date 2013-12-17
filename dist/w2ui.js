@@ -10499,6 +10499,7 @@ var w2confirm = function (msg, title, callBack) {
 							errors.push({ field: field, error: w2utils.lang('Not in money format') });
 						} 
 						break;
+					case 'color':
 					case 'hex':
 						if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not a hex number') });
@@ -10919,7 +10920,7 @@ var w2confirm = function (msg, title, callBack) {
 					//return;
 				}
 				if (field.el) field.el.id = field.name;
-				$(field.el).off('change').on('change', function () {
+				$(field.el).w2field('clear').off('change').on('change', function () {
 					var value_new 		= this.value;
 					var value_previous 	= obj.record[this.name] ? obj.record[this.name] : '';
 					var field 			= obj.get(this.name);
@@ -10966,7 +10967,7 @@ var w2confirm = function (msg, title, callBack) {
 			for (var f in this.fields) {
 				var field = this.fields[f];
 				var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
-				if (!field.el)  continue;
+				if (!field.el) continue;
 				switch (String(field.type).toLowerCase()) {
 					case 'email':
 					case 'text':
@@ -11027,6 +11028,10 @@ var w2confirm = function (msg, title, callBack) {
 						break;
 					case 'upload':
 						$(field.el).w2field($.extend({}, field.options, { type: 'upload', selected: value }));
+						break;
+					case 'color':
+						field.el.value = value;
+						$(field.el).w2field('color');
 						break;
 					default:
 						console.log('ERROR: field type "'+ field.type +'" is not recognized.');
