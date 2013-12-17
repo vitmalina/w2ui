@@ -43,6 +43,7 @@
 				{ name: 'field.int', type: 'int', required: true },
 				{ name: 'field.float', type: 'float', required: true },
 				{ name: 'field.date', type: 'date', options: { format: 'd/m/yyyy', blocked: ['3/12/2013', '3/13/2013'] } },
+				{ name: 'field.color', type: 'color', required: true },
 				{ name: 'field.list', type: 'list', required: true, 
 					options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }] } },
 				{ name: 'field.listurl', type: 'list', required: true, 
@@ -72,6 +73,7 @@
 					this.clear();
 				},
 				save: function () {
+					console.log('save', this.record);
 					var obj = this;
 					this.save({}, function (data) { 
 						console.log(data);
@@ -118,6 +120,10 @@
 				<div class="w2ui-label">Date:</div>
 				<div class="w2ui-field">
 					<input name="field.date" type="text" size="16"/>
+				</div>
+				<div class="w2ui-label">Color:</div>
+				<div class="w2ui-field">
+					<input name="field.color" type="text" style="width: 122px"/>
 				</div>
 				<div class="w2ui-label">List:</div>
 				<div class="w2ui-field">

@@ -652,7 +652,7 @@
 					//return;
 				}
 				if (field.el) field.el.id = field.name;
-				$(field.el).off('change').on('change', function () {
+				$(field.el).w2field('clear').off('change').on('change', function () {
 					var value_new 		= this.value;
 					var value_previous 	= obj.record[this.name] ? obj.record[this.name] : '';
 					var field 			= obj.get(this.name);
@@ -700,7 +700,6 @@
 				var field = this.fields[f];
 				var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
 				if (!field.el)  continue;
-				$(field.el).w2field('clear');
 				switch (String(field.type).toLowerCase()) {
 					case 'email':
 					case 'text':
