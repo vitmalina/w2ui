@@ -229,6 +229,7 @@
 							errors.push({ field: field, error: w2utils.lang('Not in money format') });
 						} 
 						break;
+					case 'color':
 					case 'hex':
 						if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not a hex number') });
@@ -699,6 +700,7 @@
 				var field = this.fields[f];
 				var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
 				if (!field.el)  continue;
+				$(field.el).w2field('clear');
 				switch (String(field.type).toLowerCase()) {
 					case 'email':
 					case 'text':
@@ -759,6 +761,10 @@
 						break;
 					case 'upload':
 						$(field.el).w2field($.extend({}, field.options, { type: 'upload', selected: value }));
+						break;
+					case 'color':
+						field.el.value = value;
+						$(field.el).w2field('color');
 						break;
 					default:
 						console.log('ERROR: field type "'+ field.type +'" is not recognized.');
