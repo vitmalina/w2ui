@@ -1,4 +1,4 @@
-var app = !function () {
+var app = (function () {
 	// private scope
 	var timer_start;
 	var timer_lap;
@@ -31,6 +31,7 @@ var app = !function () {
 	*/
 
 	function header(msg) {
+		$(document).attr('title', $('<div/>').html(msg).text());
 		$('#app-header').html(msg);
 	}
 
@@ -118,11 +119,17 @@ var app = !function () {
 								} catch (e) { 
 									failed = true;
 									// find error line
-									var err = e.stack.split('\n')
-									var tmp = err[1].match(/<anonymous>:([\d]){1,10}:([\d]{1,10})/gi)[0].split(':');
-									// display error
-									console.error('ERROR: ' + err[0] + ' ==> ' + data.main + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
-									console.log(e.stack);
+									var err = e.stack.split('\n');
+									var tmp = err[1].match(/<anonymous>:([\d]){1,10}:([\d]{1,10})/gi);
+									if (tmp) tmp = tmp[0].split(':');
+									if (tmp) {
+										// display error
+										console.error('ERROR: ' + err[0] + ' ==> ' + data.main + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
+										console.log(e.stack);
+									} else {
+										console.error('ERROR: ' + data.main);
+										console.log(e.stack);
+									}
 									if (typeof app.config.fail == 'function') app.config.fail(app.modules[name]);
 									if (typeof promise._fail == 'function') promise._fail(app.modules[name]);
 								}
@@ -286,4 +293,4 @@ var app = !function () {
 		});
 	}
 
-} (app || {});
+}) (app || {});
