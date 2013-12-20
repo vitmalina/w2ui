@@ -173,7 +173,12 @@
 			var tmp;
 			for (var a = 0; a < arguments.length; a++) {
 				tmp = this.get(arguments[a]);
-				if (tmp === null) continue;
+				if (tmp === null) {
+                    continue;
+                }
+                if (this.selected !== null && this.selected.id = tmp.id){
+                    this.selected = null;
+                }
 				var ind  = this.get(tmp.parent, arguments[a], true);
 				if (ind === null) continue;
 				if (tmp.parent.nodes[ind].selected)	tmp.sidebar.unselect(tmp.id);
