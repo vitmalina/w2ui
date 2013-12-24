@@ -24,9 +24,11 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * 	- write and article how to replace certain framework functions
 *	- format date and time is buggy
 *	- onComplete should pass widget as context (this)
+*	- add maxHeight for the w2menu
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
+* 	- updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
 *
 ************************************************/
 
@@ -149,17 +151,11 @@ var w2utils = (function () {
 		return true;
 	}
 
-	function age (timeStr) {
-		if (timeStr == '' || typeof timeStr == 'undefined' || timeStr == null) return '';
-		if (w2utils.isInt(timeStr)) timeStr = Number(timeStr); // for unix timestamps
-		
-		var d1 = new Date(timeStr);
-		if (w2utils.isInt(timeStr)) d1 = new Date(Number(timeStr)); // for unix timestamps
-		var tmp = String(timeStr).split('-');
-		if (tmp.length == 3) d1 = new Date(tmp[0], Number(tmp[1])-1, tmp[2]); // yyyy-mm-dd
-		var tmp = String(timeStr).split('/');
-		if (tmp.length == 3) d1 = new Date(tmp[2], Number(tmp[0])-1, tmp[1]); // mm/dd/yyyy
-		if (d1 == 'Invalid Time') return '';
+	function age (dateStr) {
+		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
+		var d1 = new Date(dateStr);
+		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
+		if (d1 == 'Invalid Date') return '';
 
 		var d2  = new Date();
 		var sec = (d2.getTime() - d1.getTime()) / 1000;
@@ -190,18 +186,12 @@ var w2utils = (function () {
 	}	
 		
 	function date (dateStr) {
-		var months = w2utils.settings.shortmonths;
 		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
-		if (w2utils.isInt(dateStr)) dateStr = Number(dateStr); // for unix timestamps
-		
 		var d1 = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-		var tmp = String(dateStr).split('-');
-		if (tmp.length == 3) d1 = new Date(tmp[0], Number(tmp[1])-1, tmp[2]); // yyyy-mm-dd
-		var tmp = String(dateStr).split('/');
-		if (tmp.length == 3) d1 = new Date(tmp[2], Number(tmp[0])-1, tmp[1]); // mm/dd/yyyy
 		if (d1 == 'Invalid Date') return '';
 
+		var months = w2utils.settings.shortmonths;
 		var d2   = new Date(); // today
 		var d3   = new Date(); 
 		d3.setTime(d3.getTime() - 86400000); // yesterday
@@ -232,7 +222,9 @@ var w2utils = (function () {
 		var ret = '';
 		// check if this is a number
 		if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
-			ret = String(val).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			tmp = String(val).split('.');
+			ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			if (typeof tmp[1] != 'undefined') ret += '.' + tmp[1];
 		}
 		return ret;
 	}
@@ -245,10 +237,6 @@ var w2utils = (function () {
 
 		var dt = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
-		var tmp = String(dateStr).split('-');
-		if (tmp.length == 3) dt = new Date(tmp[0], Number(tmp[1])-1, tmp[2]); // yyyy-mm-dd
-		var tmp = String(dateStr).split('/');
-		if (tmp.length == 3) dt = new Date(tmp[2], Number(tmp[0])-1, tmp[1]); // mm/dd/yyyy
 		if (dt == 'Invalid Date') return '';
 
 		var year 	= dt.getFullYear();
@@ -1083,7 +1071,7 @@ w2utils.keyboard = (function (obj) {
 	$.fn.w2overlay = function (html, options) {
 		if (!$.isPlainObject(options)) 		options = {};
 		if (!$.isPlainObject(options.css)) 	options.css = {};
-		if (this.length == 0 || html == '' || typeof html == 'undefined') { hide(); return $(this);	}
+		if (this.length == 0 || html == '' || typeof html == 'undefined') { $(document).click(); return $(this); }
 		if ($('#w2ui-overlay').length > 0) $(document).click();
 		$('body').append('<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay '+ 
 							($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
@@ -1099,7 +1087,7 @@ w2utils.keyboard = (function (obj) {
 		if (typeof options.left == 'undefined') options.left = 0;
 		if (typeof options.width == 'undefined') options.width = 100;
 		if (typeof options.height == 'undefined') options.height = 0;
-
+		
 		// pickup bg color of first div
 		var bc  = div.css('background-color'); 
 		div = $('#w2ui-overlay');
