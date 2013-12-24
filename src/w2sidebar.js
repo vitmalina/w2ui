@@ -10,6 +10,7 @@
 *	- add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *	- dbl click should be like it is in grid (with timer not HTML dbl click event)
 *	- reorder with grag and drop
+*	- add route property that would navigate to a #route
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
@@ -173,12 +174,10 @@
 			var tmp;
 			for (var a = 0; a < arguments.length; a++) {
 				tmp = this.get(arguments[a]);
-				if (tmp === null) {
-                    continue;
-                }
-                if (this.selected !== null && this.selected.id = tmp.id){
-                    this.selected = null;
-                }
+				if (tmp === null) continue;
+				if (this.selected !== null && this.selected.id === tmp.id){
+					this.selected = null;
+				}
 				var ind  = this.get(tmp.parent, arguments[a], true);
 				if (ind === null) continue;
 				if (tmp.parent.nodes[ind].selected)	tmp.sidebar.unselect(tmp.id);
@@ -550,7 +549,7 @@
 				}
 				// event after
 				obj.trigger($.extend(eventData, { phase: 'after' }));
-			}, 1);	
+			}, 150); // need timer 150 for FF
 		},
 
 		menuClick: function (itemId, index, event) {
