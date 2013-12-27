@@ -2,7 +2,12 @@
 // ---- Fields: Calendar, Enum ----
 //
 
-/* create an arrow that points up */
+.w2field {
+	padding: 3px;
+	border-radius: 3px;
+	border: 1px solid silver;
+}
+
 .w2ui-field-helper {
 	position: absolute; 
 	display: inline-block; 
@@ -28,52 +33,59 @@
 		border-top-color: #81C6FF;
 	}
 
-	.arrow-up {
-		width: 0; 
-		height: 0; 
-		border-left: 4px solid transparent;  /* left arrow slant */
-		border-right: 4px solid transparent; /* right arrow slant */
-		border-bottom: 5px solid #777; /* bottom, add background color here */
-		font-size: 0;
-		line-height: 0;
-	}
-
-	/* create an arrow that points down */
-	.arrow-down {
-		width: 0; 
-		height: 0; 
-		border-left: 4px solid transparent;
-		border-right: 4px solid transparent;
-		border-top: 5px solid #777;
-		font-size: 0;
-		line-height: 0;
-	}
-
-	/* create an arrow that points left */
-	.arrow-left {
-		width: 0; 
-		height: 0; 
-		border-bottom: 4px solid transparent;  /* left arrow slant */
-		border-top: 4px solid transparent; /* right arrow slant */
-		border-right: 5px solid #777; /* bottom, add background color here */
-		font-size: 0;
-		line-height: 0;
-	}
-
-	/* create an arrow that points right */
-	.arrow-right {
-		width: 0; 
-		height: 0; 
-		border-bottom: 4px solid transparent;  /* left arrow slant */
-		border-top: 4px solid transparent; /* right arrow slant */
-		border-left: 5px solid #777; /* bottom, add background color here */
-		font-size: 0;
-		line-height: 0;
-	}
 }
+
+/*
+*	ARROWS 
+*/
+
+.arrow-up {
+	width: 0; 
+	height: 0; 
+	border-left: 4px solid transparent;  /* left arrow slant */
+	border-right: 4px solid transparent; /* right arrow slant */
+	border-bottom: 5px solid #777; /* bottom, add background color here */
+	font-size: 0;
+	line-height: 0;
+}
+
+.arrow-down {
+	width: 0; 
+	height: 0; 
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 5px solid #777;
+	font-size: 0;
+	line-height: 0;
+}
+
+.arrow-left {
+	width: 0; 
+	height: 0; 
+	border-bottom: 4px solid transparent;  /* left arrow slant */
+	border-top: 4px solid transparent; /* right arrow slant */
+	border-right: 5px solid #777; /* bottom, add background color here */
+	font-size: 0;
+	line-height: 0;
+}
+
+.arrow-right {
+	width: 0; 
+	height: 0; 
+	border-bottom: 4px solid transparent;  /* left arrow slant */
+	border-top: 4px solid transparent; /* right arrow slant */
+	border-left: 5px solid #777; /* bottom, add background color here */
+	font-size: 0;
+	line-height: 0;
+}
+
+/*
+*	COLOR overlay
+*/
 
 .w2ui-color {
 	padding: 5px; 
+	padding-top: 8px;
 	background-color: white; 
 	border-radius: 3px;
 
@@ -84,6 +96,7 @@
 		td {
 			width: 20px; 
 			height: 20px;
+			text-align: center;
 
 			div {
 				cursor: pointer;
@@ -103,26 +116,23 @@
 	}
 }
 
+/* 
+*	DATE overlay
+*/
+
 .w2ui-calendar {
-	position: absolute; 
-	z-index: 1600; 
-	display: none;
-	margin: 3px 0px 0px -2px;
-	padding: 0px;
-	border: @calendar-border;
-	border-radius: 4px;
-	box-shadow: @calendar-shadow;
+	margin: 0px;
+	padding: 1px;
 	line-height: 108%;
 
 	.w2ui-calendar-title {
-		padding: 5px 1px 6px 1px;
-		border-top-left-radius: 4px;
-		border-top-right-radius: 4px;
+		margin: 0px -1px;
+		padding: 7px 2px;
 		.linear-gradient-vertical(@calendar-title-gradient-start, @calendar-title-gradient-end);
 		border-bottom: @calendar-title-border-bottom;
 		color: @calendar-title-color;
 		text-align: center;
-		font-weight: bold;
+		text-shadow: @calendar-title-text-shadow;
 	}
 	
 	.w2ui-calendar-previous, .w2ui-calendar-next {
@@ -138,26 +148,44 @@
 			border: @calendar-button-hover-border;
 			background-color: @calendar-button-hover-background-color;
 		}
+		& > div {
+			position: absolute; 
+			border-left: 4px solid #888; 
+			border-top: 4px solid #888;
+			border-right: 4px solid transparent; 
+			border-bottom: 4px solid transparent; 
+			width: 0px; 
+			height: 0px; 
+			padding: 0px;
+			margin: 3px 0px 0px 0px;
+		}
 	}
 
 	.w2ui-calendar-previous {
 		float: left;
+		& > div {
+			.transform-rotate(-45deg);
+			margin-left: 6px;
+		}
 	}
 
 	.w2ui-calendar-next {
 		float: right;
+		& > div {
+			.transform-rotate(135deg);
+			margin-left: 2px;
+			margin-right: 2px;
+		}
 	}
 	
 	table {
 		&.w2ui-calendar-days {
-			border-bottom-left-radius: 4px;
-			border-bottom-right-radius: 4px;
 			padding: 0px;
 			td {
 				border: 1px solid @calendar-background-color;
 				color: @calendar-day-color;
 				background-color: @calendar-day-background-color;
-				padding: 5px;
+				padding: 6px;
 				cursor: default;
 				text-align: right;
 				&.w2ui-saturday, 
@@ -169,6 +197,12 @@
 						border: @calendar-day-hover-border;
 						color: @calendar-day-hover-color;
 						background-color: @calendar-day-hover-background-color;
+					}
+					&.w2ui-blocked-date {
+						text-decoration: line-through;
+						border: 1px solid @calendar-background-color;
+						color: @calendar-day-blocked-color;
+						background-color: @calendar-background-color;
 					}
 				}
 				&.w2ui-today {
@@ -189,7 +223,7 @@
 				}
 				&.w2ui-day-empty {
 					border: 1px solid @calendar-background-color;
-					background-color: @calendar-day-background-color;
+					background-color: @calendar-empty-background-color;
 				}
 			}
 			tr.w2ui-day-title td {
@@ -197,14 +231,65 @@
 				color: @calendar-week-title-color;
 				background-color: @calendar-background-color;
 				text-align: center;
-				padding: 5px;
+				padding: 6px;
 			}
 			
 		}
 	}
 }
+/*
+*	Time
+*/
 
-// -- enum
+.w2ui-time {
+	padding: 5px;
+	cursor: pointer;
+	td div {
+		padding: 7px 10px;
+		text-align: center;
+		border: 1px solid transparent;
+	}
+
+	td:nth-child(even) {
+		background-color: #f5f5f5
+	}
+
+	td div:hover {
+		border: 1px solid #ccc;
+		background-color: #e9e9e9;
+	}
+}
+
+/*
+*	Drop down menu
+*/
+
+.w2ui-drop-menu {
+	td {
+		white-space: nowrap;
+	}
+
+	& .w2ui-item-even {
+		color: @dropdown-item-even-color;
+		background-color: @dropdown-item-even-background-color;
+	}
+
+	& .w2ui-item-odd {
+		color: @dropdown-item-odd-color;
+		background-color: @dropdown-item-odd-background-color;
+	}
+
+	& .w2ui-item-group {
+		color: #444;
+		font-weight: bold;
+		background-color: #ECEDF0;
+		border-bottom: 1px solid #D3D2D4;
+	}
+}
+
+/*
+*	ENUM items
+*/
 
 .w2ui-list {
 	color: @list-color;
@@ -289,74 +374,9 @@
 	}
 }
 
-// -- dropdown items
-
-.w2ui-items {
-    position: absolute;
-    margin-top: 6px;
-    display: none;
-    z-index: 1600;
-    background-color: @dropdown-background-color;
-    border: @dropdown-border;
-    box-shadow: @dropdown-shadow;
-    border-radius: 4px;
-    text-align: left;
-
-    &:before {
-        content: "";
-        position: absolute;
-        z-index: 1601;
-        width: 0px;
-        height: 0px;
-        border-left: 7px solid transparent;
-        border-right: 7px solid transparent;
-        border-bottom: 7px solid transparent;
-        border-bottom-color: inherit;
-        margin: -8px 0 0 5px;
-    }
-
-    .w2ui-items-list {
-    	border-radius: 4px; 
-    	padding: 3px;
-    }
-
-    .w2ui-empty-list {
-    	padding: 5px 2px; 
-    	text-align: center; 
-    	color: gray
-    }
-
-    ul li {
-		display: block; 
-		.transition(all, 0.2s);
-        padding: 5px;
-        cursor: pointer;
-
-        &.w2ui-item-even {
-            color: @dropdown-item-even-color;
-            background-color: @dropdown-item-even-background-color;
-        }
-
-        &.w2ui-item-odd {
-            color: @dropdown-item-odd-color;
-            background-color: @dropdown-item-odd-background-color;
-        }
-
-        &.w2ui-item-group {
-			color: #444;
-			font-weight: bold;
-			background-color: #ECEDF0;
-			border-bottom: 1px solid #D3D2D4;
-		}
-        
-        &.selected {
-            color: @dropdown-item-selected-color;
-            background-color: @dropdown-item-selected-background-color;
-        }
-    }
-}
-
-// -- upload
+/*
+*	UPLOAD field
+*/
 
 .w2ui-upload {
 	position: absolute;
@@ -441,4 +461,72 @@
 			}
 		}
 	}
+}
+
+// -- dropdown items
+// THIS SECTION IS DEPRECATED IN 1.4
+
+.w2ui-items {
+    position: absolute;
+    margin-top: 6px;
+    display: none;
+    z-index: 1600;
+    background-color: @dropdown-background-color;
+    border: @dropdown-border;
+    box-shadow: @dropdown-shadow;
+    border-radius: 4px;
+    text-align: left;
+
+    &:before {
+        content: "";
+        position: absolute;
+        z-index: 1601;
+        width: 0px;
+        height: 0px;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-bottom-color: inherit;
+        margin: -8px 0 0 5px;
+    }
+
+    .w2ui-items-list {
+    	border-radius: 4px; 
+    	padding: 3px;
+    }
+
+    .w2ui-empty-list {
+    	padding: 5px 2px; 
+    	text-align: center; 
+    	color: gray
+    }
+
+    ul li {
+		display: block; 
+		.transition(all, 0.2s);
+        padding: 5px;
+        cursor: pointer;
+
+        &.w2ui-item-even {
+            color: @dropdown-item-even-color;
+            background-color: @dropdown-item-even-background-color;
+        }
+
+        &.w2ui-item-odd {
+            color: @dropdown-item-odd-color;
+            background-color: @dropdown-item-odd-background-color;
+        }
+
+        &.w2ui-item-group {
+			color: #444;
+			font-weight: bold;
+			background-color: #ECEDF0;
+			border-bottom: 1px solid #D3D2D4;
+		}
+        
+        &.selected {
+            color: @dropdown-item-selected-color;
+            background-color: @dropdown-item-selected-background-color;
+        }
+    }
 }

@@ -1,21 +1,21 @@
 // **********************************
 // -- Unit Tests: w2utils
 
-test( "w2utils.format()", function () {
+test( "w2utils.formatNumber()", function () {
 	var values = {
 		'1,000' 		: '1000',
 		'1,000.01' 		: '1000.01',
 		'1,000.0,001' 	: '1000.0001'
 	}
-	equal( w2utils.format(), '',  			"- no argument -" );
-	equal( w2utils.format(''), '', 			"- blank -" );
-	equal( w2utils.format(null), '', 		"- null -" );
-	equal( w2utils.format(undefined), '',	"- undefined -" );
-	equal( w2utils.format({}), '', 			"- object -" );
-	equal( w2utils.format([]), '', 			"- array -" );
+	equal( w2utils.formatNumber(), '',  			"- no argument -" );
+	equal( w2utils.formatNumber(''), '', 			"- blank -" );
+	equal( w2utils.formatNumber(null), '', 		"- null -" );
+	equal( w2utils.formatNumber(undefined), '',	"- undefined -" );
+	equal( w2utils.formatNumber({}), '', 			"- object -" );
+	equal( w2utils.formatNumber([]), '', 			"- array -" );
 
 	for (var v in values) {
-		equal( w2utils.format(values[v]), v, 'Test: ' + values[v] + ' = ' + v);
+		equal( w2utils.formatNumber(values[v]), v, 'Test: ' + values[v] + ' = ' + v);
 	}
 });
 

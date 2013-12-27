@@ -1,85 +1,82 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" /> 
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.1/jquery.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script>
 	$(function () {
+		var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
+		var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
+		var items = [];
+		// add 10k records
+		for (var i = 0; i < 50; i++) {
+			var item = { 
+				id 		: (i + 1),
+				icon	: 'fa-user',
+				fname	: fname[Math.floor(Math.random() * fname.length)], 
+				lname	: lname[Math.floor(Math.random() * lname.length)],
+				email	: 'vm@gmail.com', manager: '--',
+				snumber	: Math.floor(Math.random() * 10000000),
+				sdate	: (new Date(Math.floor(Math.random() * 20000) * 100000000)).getTime()
+			};
+			item.text = item.fname + ' ' + item.lname;
+			items.push(item);
+		}
+		$('.date').w2field('date');
+		$('.time').w2field('time');
 		$('.color').w2field('color');
-		$('.int').w2field({ type: 'int', min: 0, max: 360 });
-		$('.float').w2field('float');
-		$('.money').w2field('money');
+		$('.int').w2field({ type: 'int', min: -36000, max: 36000 });
+		$('.float').w2field('float', { precision: 2 });
+		$('.money').w2field('currency');
 		$('.hex').w2field('hex');
 		$('.alphanumeric').w2field('alphanumeric');
-		$('.date').w2field({ type: 'date', format: 'd/m/yyyy', blocked: ['3/12/2013', '3/13/2013'] });
-		$('.list').w2field({ type: 'list', items: ['', null, 'item1', 'item2', 'item3', 'item4', 'item5'] });
-		$('.enum').w2field({ type: 'enum', 
-			// onChange: function (index) { console.log('change'); },
-			// onAdd: function (item) { console.log('add', item); },
-			// onRemove: function (index) { console.log('remove', index); },
-			// onItemOver: function (index) { console.log('over', index); },
-			// onItemOut: function (index) { console.log('out', index); },
-			// onItemClick: function (index) { console.log('click', index); },
-			items: ['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6', 'item-7', 'item-8',
-				'abc-1', 'abc-2', 'abc-3', 'abc-4', 'aabc5', 'abc-6', 'abc-7', 'abc-8', 'abc-9', 'abc-10',
-				'john-1', 'john-2', 'john-3', 'john-4', 'john', 'john-6', 'john-7', 'john-8', 'john-9', 'john-10',
-				'frank-1', 'frank-2', 'frank-3', 'frank-4', 'frank', 'frank-6', 'frank-7', 'frank-8', 'frank-9', 'frank-10'
-			]
-		});
-		$('.upload').w2field({
-			type 		: 'upload',
-			url 		: 'http://w2ui.com/upload.php',
-			onProgress 	: function () {
-				console.log('progress');
-			},
-			onComplete 	: function () {
-				console.log('progress');
-			}
+		$('.list').w2field('combo', {
+			items: items
 		});
 	});
 </script>
+<style>
+.w2ui-time {
+	padding: 5px;
+	cursor: pointer;
+}
+.w2ui-time td div {
+	padding: 7px 10px;
+	text-align: center;
+	border: 1px solid transparent;
+}
+
+.w2ui-time td:nth-child(even) {
+	background-color: #f5f5f5
+}
+
+.w2ui-time td div:hover {
+	border: 1px solid #ccc;
+	background-color: #e9e9e9;
+}
+</style>
 <body>
-	<style>
-		.test {
-			margin: 20px;
-			padding: 5px;
-
-		}
-		.helper1 {
-			display: inline;
-			position: relative;
-			border: 1px solid red;
-			border-radius: 3px;
-			padding: 5px;
-			margin: 0px;
-			margin-left: -20px;
-		}
-		.helper2 {
-			display: inline;
-			position: relative;
-			border: 1px solid red;
-			padding: 0px;
-			margin: 0px;
-			margin-left: -20px;
-		}
-	</style>
-	<input type="text" class="test">
-		<div class="helper1">1</div>
-	</input>
-
-	<div style="padding: 5px 0px;"> 
-		Inside: &nbsp;&nbsp;
-		<a href="javascript:" onclick="$('.w2ui-form').show(); $('table').hide();">div.w2ui-form </a>
-		&nbsp;&nbsp;&nbsp;
-		<a href="javascript:" onclick="$('.w2ui-form').hide(); $('table').show();">table </a>
-	</div>
-	<br>
-
+	<!--
+	HTML5 color: <input type="color"><br>
+	HTML5 date: <input type="date"><br>
+	HTML5 time: <input type="time"><br>
+	HTML5 datetime: <input type="datetime"><br>
+	HTML5 email: <input type="email"><br>
+	HTML5 number: <input type="number"><br>
+	HTML5 range: <input type="range"><br>
+	HTML5 search: <input type="search"><br>
+	HTML5 tel: <input type="tel"><br>
+	HTML5 url: <input type="url"><br>
+	HTML5 week: <input type="week"><br>
+	HTML5 month: <input type="month"><br>
+	-->
 	<div class="w2ui-form" style="height: 600px"><div style="width: 100%; padding: 5px;">
 		<div class="w2ui-label">color:</div>
 			<div class="w2ui-field">
-				<input class="color" type="text" style="width: 100px;"/>
+				<input class="color" type="text" style="width: 100px;"
+					onchange1="console.log('field change: ', this.value)" value="d84"/>
 			</div>
 		<div class="w2ui-label">textarea:</div>
 			<div class="w2ui-field">
@@ -109,13 +106,13 @@
 			<div class="w2ui-field">
 				<input id="date1" class="date" type="text" size="20"/>
 			</div>
-		<div class="w2ui-label">date2:</div>
+		<div class="w2ui-label">time:</div>
 			<div class="w2ui-field">
-				<input id="date2" class="date" type="text" size="20"/>
+				<input id="time" class="time" type="text" size="20"/>
 			</div>
 		<div class="w2ui-label">list/select:</div>
 			<div class="w2ui-field">
-				<select type="text" class="list"></select>
+				<input class="list" type="text" style="width: 400px" onchange="console.log('field change', $(this).data('selected'));"/>
 			</div>
 		<div class="w2ui-label">enum:</div>
 			<div class="w2ui-field">
