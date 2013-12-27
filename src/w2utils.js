@@ -29,6 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
 * 	- updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
+*	- formatNumer(num, groupSymbol) - added new param
 *
 ************************************************/
 
@@ -39,9 +40,11 @@ var w2utils = (function () {
 			"locale"		: "en-us",
 			"date_format"	: "m/d/yyyy",
 			"date_display"	: "Mon d, yyyy",
-			"time_format"	: "hh:mi pm",
+			"time_format"	: "h12",
 			"currency"		: "^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$",
-			"currencySymbol": "$",
+			"currencyPrefix": "$",
+			"currencySuffix": "",
+			"groupSymbol"	: ",",
 			"float"			: "^[-]?[0-9]*[\.]?[0-9]+$",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -218,12 +221,13 @@ var w2utils = (function () {
 		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i == 0 ? 0 : 1) + ' ' + sizes[i];
 	}
 
-	function formatNumber (val) {
+	function formatNumber (val, groupSymbol) {
 		var ret = '';
+		if (typeof groupSymbol == 'undefined') groupSymbol = settings.groupSymbol || ',';
 		// check if this is a number
 		if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
 			tmp = String(val).split('.');
-			ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1"+ groupSymbol);
 			if (typeof tmp[1] != 'undefined') ret += '.' + tmp[1];
 		}
 		return ret;
@@ -255,11 +259,10 @@ var w2utils = (function () {
 			.replace(/(^|[^a-z$])d/g, '$1' + date); 		// only y's that are not preceeded by a letter
 	}
 
-
 	function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format == 'undefined') format = this.settings.time_format;
+		if (typeof format == 'undefined') format = (this.settings.time_format == 'h12' ? 'hh:mi pm' : 'h24:mi');
 		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
 
 		var dt = new Date(dateStr);
@@ -1069,42 +1072,59 @@ w2utils.keyboard = (function (obj) {
 	// w2overlay - appears under the element, there can be only one at a time
 
 	$.fn.w2overlay = function (html, options) {
-		if (!$.isPlainObject(options)) 		options = {};
-		if (!$.isPlainObject(options.css)) 	options.css = {};
-		if (this.length == 0 || html == '' || typeof html == 'undefined') { $(document).click(); return $(this); }
-		if ($('#w2ui-overlay').length > 0) $(document).click();
-		$('body').append('<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay '+ 
-							($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
-						'	<div></div>'+
-						'</div>');
-
-		// init
 		var obj = this;
-		var div = $('#w2ui-overlay div');
+		var defaults = {
+			left 		: 0,
+			top 		: 0,
+			width		: 0,
+			height		: 0,
+			maxHeight	: null,
+			maxWidth	: null,
+			strict		: false,
+			"class"		: '',
+			"css" 		: {},
+			onHide		: null,
+			onShow		: null
+		}
+		if (!$.isPlainObject(options)) options = {};
+		options = $.extend(true, {}, defaults, options);
+		// if empty then hide
+		if (this.length == 0 || html == '' || typeof html == 'undefined') { 
+			$(document).click(); 
+			return $(this); 
+		}
+		if ($('#w2ui-overlay').length > 0) $(document).click();
+		$('body').append(
+			'<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay '+ 
+				($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
+			'	<div></div>'+
+			'</div>'
+		);
+		// init
+		var div = $('#w2ui-overlay > div');
 		div.css(options.css).html(html);
-		if (typeof options['class'] != 'undefined') div.addClass(options['class']);
-		if (typeof options.top == 'undefined') options.top = 0;
-		if (typeof options.left == 'undefined') options.left = 0;
-		if (typeof options.width == 'undefined') options.width = 100;
-		if (typeof options.height == 'undefined') options.height = 0;
-		
-		// pickup bg color of first div
+		if (typeof options['class'] != 'undefined') div.addClass(options['class']);		
+		// pick bg color of first div
 		var bc  = div.css('background-color'); 
 		div = $('#w2ui-overlay');
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div.css('background-color', bc);
 
+		var leftShift = 0;
+		if (options.strict) {
+			leftShift = 17;
+			options.width = w2utils.getSize($(obj), 'width');
+		}
 		div.css({
 				display 	 : 'none',
-				left 		 : ($(obj).offset().left + options.left) + 'px',
+				left 		 : ($(obj).offset().left + options.left + leftShift) + 'px',
 				top 		 : ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px',
 				'min-width'  : (options.width ? options.width : 'auto'),
 				'min-height' : (options.height ? options.height : 'auto')
 			})
 			.fadeIn('fast')
 			.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight))
-			.on('click', function (event) { 
-				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-			});
+			.on('mousedown', function (event) { event.preventDefault(); })
+			.on('click', function (event) { if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;	});
 
 		// click anywhere else hides the drop down
 		function hide () {
@@ -1116,55 +1136,92 @@ w2utils.keyboard = (function (obj) {
 		}
 
 		// need time to display
+		fixSize();
 		setTimeout(fixSize, 0);
+		setTimeout(function () {
+			// onShow event
+			if (typeof options.onShow == 'function') options.onShow();
+		}, 0);
+		$('#w2ui-overlay').data('fixSize', fixSize);
 		return $(this);
 
 		function fixSize () {
 			$(document).on('click', hide);
 			// if goes over the screen, limit height and width
 			if ( $('#w2ui-overlay > div').length > 0) {
+				var overflowX = false;
+				var overflowY = false;
+				$('#w2ui-overlay > div').height('auto').width('auto');
 				var h = $('#w2ui-overlay > div').height();
-				var w = $('#w2ui-overlay> div').width();
+				var w = $('#w2ui-overlay > div').width();
 				// $(window).height() - has a problem in FF20
-				var max = window.innerHeight - $('#w2ui-overlay > div').offset().top - 7;
-				if (h > max) $('#w2ui-overlay> div').height(max).width(w + w2utils.scrollBarSize()).css({ 'overflow-y': 'auto' });
+				var max = window.innerHeight + $(document).scrollTop() - $('#w2ui-overlay > div').offset().top - 7;
+				if (options.maxHeight && max > options.maxHeight) max = options.maxHeight;
+				if (h > max) { 
+					overflowY = true;
+					$('#w2ui-overlay> div').height(max).width(w).css({ 'overflow-y': 'auto' });
+				}
 				// check width
-				w = $('#w2ui-overlay> div').width();
-				max = window.innerWidth - $('#w2ui-overlay > div').offset().left - 7;
-				if (w > max) $('#w2ui-overlay> div').width(max).css({ 'overflow-x': 'auto' });
-				// onShow event
-				if (typeof options.onShow == 'function') options.onShow();
+				w = $('#w2ui-overlay > div').width();
+				max = window.innerWidth + $(document).scrollLeft() - $('#w2ui-overlay > div').offset().left - 7;
+				if (options.maxWidth && max > options.maxWidth) max = options.maxWidth;
+				if (w > max) {
+					overflowX = true;
+					$('#w2ui-overlay > div').width(max).css({ 'overflow-x': 'auto' });
+				}
+				// check scroll bar
+				if (overflowY && overflowX) $('#w2ui-overlay > div').width(w + w2utils.scrollBarSize() + 2);
 			}
 		}
 	};
 
 	$.fn.w2menu = function (menu, options) {
-		if (typeof options.select == 'undefined' && typeof options.onSelect == 'function') options.select = options.onSelect;
-		if (typeof options.select != 'function') {
-			console.log('ERROR: options.select is required to be a function, not '+ typeof options.select + ' in $().w2menu(menu, options)');
-			return $(this);
+		/* 
+		ITEM STRUCTURE
+			item : {
+				id		: null,
+				text 	: '',
+				style	: '',
+				hidden	: true
+				...
+			}
+		*/		
+		var defaults = {
+			index		: null, 	// current selected
+			items 		: [],
+			render		: null,
+			onSelect 	: null
 		}
-		if (!$.isArray(menu)) {
-			console.log('ERROR: first parameter should be an array of objects or strings in $().w2menu(menu, options)');
-			return $(this);
+		if (menu == 'refresh') {
+			$('#w2ui-overlay > div').html(getMenuHTML(), options);
+			var fun = $('#w2ui-overlay').data('fixSize');
+			if (typeof fun == 'function') fun();
+		} else {
+			if (arguments.length == 1) options = menu; else options.items = menu;
+			if (typeof options != 'object') options = {};
+			options = $.extend({}, defaults, options);
+			if (typeof options.select == 'function' && typeof options.onSelect == 'undefined') options.onSelect = options.select;
+			if (typeof options.onRender == 'function' && typeof options.render == 'undefined') options.render = options.onRender;
+			// since only one overlay can exist at a time
+			$.fn.w2menuHandler = function (event, index) {
+				if (typeof options.onSelect == 'function') {
+					options.onSelect({
+						index	: index,
+						item	: options.items[index],
+						originalEvent: event
+					}); 
+				}
+			};
+			return $(this).w2overlay(getMenuHTML(), options);
 		}
-		// since only one overlay can exist at a time
-		$.fn.w2menuHandler = function (event, index) {
-			options.select(menu[index], event, index); 
-		};
-		return $(this).w2overlay(getMenuHTML(), options);
 
 		function getMenuHTML () { 
-			var menu_html = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
-			for (var f = 0; f < menu.length; f++) { 
-				var mitem = menu[f];
+			var count		= 0;
+			var menu_html	= '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
+			for (var f = 0; f < options.items.length; f++) { 
+				var mitem = options.items[f];
 				if (typeof mitem == 'string') {
-					var tmp = mitem.split('|');
-					// 1 - id, 2 - text, 3 - image, 4 - icon
-					mitem = { id: tmp[0], text: tmp[0], img: null, icon: null };
-					if (tmp[1]) mitem.text = tmp[1];
-					if (tmp[2]) mitem.img  = tmp[2];
-					if (tmp[3]) mitem.icon = tmp[3];
+					mitem = { id: mitem, text: mitem };
 				} else {
 					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
 					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
@@ -1172,15 +1229,32 @@ w2utils.keyboard = (function (obj) {
 					if (typeof mitem.img == 'undefined') mitem.img = null;
 					if (typeof mitem.icon == 'undefined') mitem.icon = null;
 				}
-				var img = '<td>&nbsp;</td>';
-				if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
-				if (mitem.icon) img = '<td align="center"><div class="w2ui-tb-image"><span class="'+ mitem.icon +'"></span></div></td>';
-				menu_html += 
-					'<tr onmouseover="$(this).addClass(\'w2ui-selected\');" onmouseout="$(this).removeClass(\'w2ui-selected\');" '+
-					'		onclick="$(document).click(); $.fn.w2menuHandler(event, \''+ f +'\');">'+
-						img +
-					'	<td>'+ mitem.text +'</td>'+
-					'</tr>';
+				if (mitem.hidden !== true) {
+					var img = '';
+					var txt = mitem.text;
+					if (typeof options.render == 'function') txt = options.render(mitem, options);
+					if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
+					if (mitem.icon) img = '<td align="center"><span class="w2ui-icon '+ mitem.icon +'"></span></td>';
+					// render only if non-empty
+					if (txt || txt === 0) {
+						var bg = (count % 2 == 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
+						if (options.altRows !== true) bg = '';
+						menu_html += 
+							'<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
+							'		class="'+ bg +' '+ (options.index == count ? 'w2ui-selected' : '') +'"'+
+							'		onclick="$(document).click(); $.fn.w2menuHandler(event, \''+ f +'\');" '+
+							'		onmouseover="$(this).addClass(\'w2ui-selected\');" '+
+							'		onmouseout="$(this).removeClass(\'w2ui-selected\');">'+
+								img +
+							'	<td>'+ txt +'</td>'+
+							'</tr>';
+						count++;
+					}
+				}
+				options.items[f] = mitem;
+			}
+			if (options.items.length > 0 && count == 0) {
+				menu_html += '<tr><td style="text-align: center; color: #999">No items found</td></tr>';
 			}
 			menu_html += "</table>";
 			return menu_html;
