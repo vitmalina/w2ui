@@ -1,7 +1,7 @@
 Returns current grid selection.
 
 <div class="definition">
-	getSelection()
+	getSelection(returnIndex)
 </div>
 
 Returns array.
@@ -11,6 +11,8 @@ Returns array.
 This method returns an array of recids for all currently selected records in the grid. When you add records you need 
 to provide unique <span class="property">.recid</span> for each record. 
 <div style="height: 10px"></div>
+If second argument <span class="property">returnIndex</span> is set to true, the method will return indexes of selected records
+in the <span class="property">.records</span> array.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
