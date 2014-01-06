@@ -224,23 +224,23 @@
 		// ----
 		// properties that need to be in prototype		
 
-		msgDelete	: w2utils.lang('Are you sure you want to delete selected records?'),
-		msgNotJSON 	: w2utils.lang('Returned data is not in valid JSON format.'),
-		msgRefresh	: w2utils.lang('Refreshing...'),
+		msgDelete	: 'Are you sure you want to delete selected records?',
+		msgNotJSON 	: 'Returned data is not in valid JSON format.',
+		msgRefresh	: 'Refreshing...',
 
 		// for easy button overwrite
 		buttons: {
-			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') },
-			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
+			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: 'Reload data in the list' },
+			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: '' },
 			'search'	: { type: 'html',   id: 'search', 
-							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+ 
+							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+ 
 								  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields(this);"></div>' 
 						  },
-			'search-go'	: { type: 'check',  id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') },
-			'add'		: { type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' },
-			'edit'		: { type: 'button', id: 'edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), img: 'icon-edit', disabled: true },
-			'delete'	: { type: 'button', id: 'delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), img: 'icon-delete', disabled: true },
-			'save'		: { type: 'button', id: 'save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), img: 'icon-save' }
+			'search-go'	: { type: 'check',  id: 'search-advanced', caption: 'Search...', hint: 'Open Search Fields' },
+			'add'		: { type: 'button', id: 'add', caption: 'Add New', hint: 'Add new record', img: 'icon-add' },
+			'edit'		: { type: 'button', id: 'edit', caption: 'Edit', hint: 'Edit selected record', img: 'icon-edit', disabled: true },
+			'delete'	: { type: 'button', id: 'delete', caption: 'Delete', hint: 'Delete selected records', img: 'icon-delete', disabled: true },
+			'save'		: { type: 'button', id: 'save', caption: 'Save', hint: 'Save changed records', img: 'icon-save' }
 		},
 
 		add: function (record) {

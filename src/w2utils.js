@@ -743,6 +743,15 @@ var w2utils = (function () {
 			cache 	: false,
 			success : function (data, status, xhr) {
 				w2utils.settings = $.extend(true, w2utils.settings, data);
+				// apply translation to some prototype functions
+				var p = w2obj.grid.prototype;
+				for (var b in p.buttons) {
+					p.buttons[b].caption = w2utils.lang(p.buttons[b].caption);
+					p.buttons[b].hint 	 = w2utils.lang(p.buttons[b].hint);
+				}
+				p.msgDelete		= w2utils.lang(p.msgDelete);
+				p.msgNotJSON	= w2utils.lang(p.msgNotJSON);
+				p.msgRefresh	= w2utils.lang(p.msgRefresh);
 			},
 			error	: function (xhr, status, msg) {
 				console.log('ERROR: Cannot load locale '+ locale);
