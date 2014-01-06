@@ -193,7 +193,7 @@ select {
 
 .w2ui-marker {
 	color: #444;
-	background-color: #FFF8B0;
+	background-color: rgba(252, 244, 161, 0.48);
 }
 
 .w2ui-spinner {
@@ -201,56 +201,6 @@ select {
 	background-size: 100%;
 	background-repeat: no-repeat;
 	background-image: @image-spinner;
-}
-
-.w2ui-icon {
-	background-repeat: no-repeat;
-	height: 16px;
-	width: 16px;
-	overflow: hidden;
-	margin: 2px 2px;
-	display: inline-block;
-	&.icon-reload {
-		.background-image(@image-reload, no-repeat, center);
-	}
-
-	&.icon-columns {
-		.background-image(@image-columns, no-repeat, center, ~"!important");
-	}
-
-	&.icon-search, &.icon-search-down {
-		.background-image(@image-search, no-repeat, center, ~"!important");
-		background-size: 14px 12px !important;
-		opacity: 0.9;
-	}
-
-	&.icon-add {
-		.background-image(@image-add, no-repeat, center, ~"!important");
-	}
-
-	&.icon-delete {
-		.background-image(@image-delete, no-repeat, center, ~"!important");
-	}
-
-	&.icon-save {
-		.background-image(@image-save, no-repeat, center, ~"!important");
-	}
-
-	&.icon-edit {
-		.background-image(@image-edit, no-repeat, center, ~"!important");
-	}
-
-	&.icon-bullet-black {
-		.background-image(@image-bullet-black, no-repeat, center, ~"!important");
-	}
-
-	&.icon-folder {
-		.background-image(@image-folder, no-repeat, center, ~"!important");
-	}
-
-	&.icon-page {
-		.background-image(@image-page, no-repeat, center, ~"!important");
-	}
 }
 
 /*************************************************

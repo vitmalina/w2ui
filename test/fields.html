@@ -24,17 +24,57 @@
 			item.text = item.fname + ' ' + item.lname;
 			items.push(item);
 		}
-		$('.date').w2field('date');
-		$('.time').w2field('time');
+		$('.date').w2field('date', { silent: false});
+		$('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
 		$('.color').w2field('color');
 		$('.int').w2field({ type: 'int', min: -36000, max: 36000 });
-		$('.float').w2field('float', { precision: 2 });
+		$('.float').w2field('percent', { precision: 0 });
 		$('.money').w2field('currency');
 		$('.hex').w2field('hex');
 		$('.alphanumeric').w2field('alphanumeric');
 		$('.list').w2field('combo', {
-			items: items
+			showAll: true,
+			url: 'http://w2ui.com:3000/api/enum/users',
+			// items: items
+			onRequest: function (event) {
+				console.log('request', event);
+			},
+			onLoad: function (event) {
+				console.log('load', event);
+			}
 		});
+		$('.enum').w2field('enum', {
+			url: 'http://w2ui.com:3000/api/enum/users',
+			selected: [],
+			// items: items
+			onRequest: function (event) {
+				console.log('request', event);
+			},
+			onLoad: function (event) {
+				console.log('load', event);
+			},
+			onClick: function (event) {
+				console.log('click', event);
+			},
+			onMouseOver: function (event) {
+				console.log('over', event);
+			},
+			onMouseOut: function (event) {
+				console.log('out', event);
+			},
+			onRemove: function (event) {
+				console.log('remove', event.item);
+			},
+			onAdd: function (event) {
+				console.log('add', event.item);
+			}
+		});
+		$('.upload').w2field('upload', {
+		});
+
+		// date range
+		$('#date1').w2field('date', { end: $('#date2'), blocked: ['12/12/2013'] });
+		$('#date2').w2field('date', { start: $('#date1'), blocked: ['12/12/2013'] });
 	});
 </script>
 <style>
@@ -72,6 +112,9 @@
 	HTML5 week: <input type="week"><br>
 	HTML5 month: <input type="month"><br>
 	-->
+	Date Range: <input id="date1"> - <input id="date2">
+	<br>
+	<br>
 	<div class="w2ui-form" style="height: 600px"><div style="width: 100%; padding: 5px;">
 		<div class="w2ui-label">color:</div>
 			<div class="w2ui-field">
@@ -112,15 +155,15 @@
 			</div>
 		<div class="w2ui-label">list/select:</div>
 			<div class="w2ui-field">
-				<input class="list" type="text" style="width: 400px" onchange="console.log('field change', $(this).data('selected'));"/>
+				<input class="list" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
 			</div>
 		<div class="w2ui-label">enum:</div>
 			<div class="w2ui-field">
-				<input class="enum" type="text" style="width: 400px"/>
+				<input class="enum" type="text" style="width: 450px"/>
 			</div>
 		<div class="w2ui-label">upload:</div>
 			<div class="w2ui-field">
-				<input class="upload" type="text" style="width: 400px; min-height: 50px;"/>
+				<input class="upload" type="text" style="width: 450px; min-height: 50px;"/>
 			</div>		
 	</div></div>
 

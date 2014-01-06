@@ -25,11 +25,14 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- format date and time is buggy
 *	- onComplete should pass widget as context (this)
 *	- add maxHeight for the w2menu
+*	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
 * 	- updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
 *	- formatNumer(num, groupSymbol) - added new param
+*	- improved localization support (currency prefix, suffix, numbger group symbol)
+*	- improoved overlays (bette positioning, refresh, etc.)
 *
 ************************************************/
 
@@ -223,7 +226,7 @@ var w2utils = (function () {
 
 	function formatNumber (val, groupSymbol) {
 		var ret = '';
-		if (typeof groupSymbol == 'undefined') groupSymbol = settings.groupSymbol || ',';
+		if (typeof groupSymbol == 'undefined') groupSymbol = w2utils.settings.groupSymbol || ',';
 		// check if this is a number
 		if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
 			tmp = String(val).split('.');
@@ -1078,8 +1081,8 @@ w2utils.keyboard = (function (obj) {
 			top 		: 0,
 			width		: 0,
 			height		: 0,
-			maxHeight	: null,
 			maxWidth	: null,
+			maxHeight	: null,
 			strict		: false,
 			"class"		: '',
 			"css" 		: {},
@@ -1146,31 +1149,36 @@ w2utils.keyboard = (function (obj) {
 		return $(this);
 
 		function fixSize () {
-			$(document).on('click', hide);
+			$(document).off('click', hide).on('click', hide);
+			var div = $('#w2ui-overlay > div');
 			// if goes over the screen, limit height and width
-			if ( $('#w2ui-overlay > div').length > 0) {
+			if (div.length > 0) {
+				// Y coord
+				var top = ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px';
+				$('#w2ui-overlay').css('top', top);
+				// width/height
 				var overflowX = false;
 				var overflowY = false;
-				$('#w2ui-overlay > div').height('auto').width('auto');
-				var h = $('#w2ui-overlay > div').height();
-				var w = $('#w2ui-overlay > div').width();
+				div.height('auto').width('auto');
+				var h = div.height();
+				var w = div.width();
 				// $(window).height() - has a problem in FF20
-				var max = window.innerHeight + $(document).scrollTop() - $('#w2ui-overlay > div').offset().top - 7;
+				var max = window.innerHeight + $(document).scrollTop() - div.offset().top - 7;
 				if (options.maxHeight && max > options.maxHeight) max = options.maxHeight;
 				if (h > max) { 
 					overflowY = true;
-					$('#w2ui-overlay> div').height(max).width(w).css({ 'overflow-y': 'auto' });
+					div.height(max).width(w).css({ 'overflow-y': 'auto' });
 				}
 				// check width
-				w = $('#w2ui-overlay > div').width();
-				max = window.innerWidth + $(document).scrollLeft() - $('#w2ui-overlay > div').offset().left - 7;
+				w = div.width();
+				max = window.innerWidth + $(document).scrollLeft() - div.offset().left - 7;
 				if (options.maxWidth && max > options.maxWidth) max = options.maxWidth;
 				if (w > max) {
 					overflowX = true;
-					$('#w2ui-overlay > div').width(max).css({ 'overflow-x': 'auto' });
+					div.width(max).css({ 'overflow-x': 'auto' });
 				}
 				// check scroll bar
-				if (overflowY && overflowX) $('#w2ui-overlay > div').width(w + w2utils.scrollBarSize() + 2);
+				if (overflowY && overflowX) div.width(w + w2utils.scrollBarSize() + 2);
 			}
 		}
 	};
@@ -1193,9 +1201,14 @@ w2utils.keyboard = (function (obj) {
 			onSelect 	: null
 		}
 		if (menu == 'refresh') {
-			$('#w2ui-overlay > div').html(getMenuHTML(), options);
-			var fun = $('#w2ui-overlay').data('fixSize');
-			if (typeof fun == 'function') fun();
+			// if not show - call blur
+			if ($('#w2ui-overlay').length > 0) {
+				$('#w2ui-overlay > div').html(getMenuHTML(), options);
+				var fun = $('#w2ui-overlay').data('fixSize');
+				if (typeof fun == 'function') fun();
+			} else {
+				$(this).w2menu(options);
+			}
 		} else {
 			if (arguments.length == 1) options = menu; else options.items = menu;
 			if (typeof options != 'object') options = {};
@@ -1253,8 +1266,8 @@ w2utils.keyboard = (function (obj) {
 				}
 				options.items[f] = mitem;
 			}
-			if (options.items.length > 0 && count == 0) {
-				menu_html += '<tr><td style="text-align: center; color: #999">No items found</td></tr>';
+			if (count == 0) {
+				menu_html += '<tr><td style="text-align: center; color: #999">No items</td></tr>';
 			}
 			menu_html += "</table>";
 			return menu_html;
