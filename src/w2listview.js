@@ -14,7 +14,6 @@
 (function () {
 	var w2listview = function (options) {
 		this.box			= null;		// DOM Element that holds the element
-		this.$box			= null;		// JQuery object that holds the element
 		this.name			= null;		// unique name for w2ui
 		this.vType			= null;
 		this.items			= [];
@@ -104,7 +103,7 @@
 			} else {
 				this.vType = value;
 				var vt = 'w2ui-' + this.viewType();
-				this.$box
+				$(this.box)
 					.removeClass('w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile')
 					.addClass(vt);
 				return vt;
@@ -221,14 +220,15 @@
 			if (typeof id !== 'undefined') {
 				var itm = this.get(id);
 				if (itm === null) return;
+				var $box	= $(this.box);
 				var node	= $('#itm_'+ w2utils.escapeId(id));
-				var offset	= node.offset().top - this.$box.offset().top;
+				var offset	= node.offset().top - $box.offset().top;
 				var nodeHeight = w2utils.getSize(node, 'height');
-				if (offset + nodeHeight > this.$box.height()) {
-					this.$box.scrollTop(this.$box.scrollTop() + offset + nodeHeight - this.$box.height());
+				if (offset + nodeHeight > $box.height()) {
+					$box.scrollTop($box.scrollTop() + offset + nodeHeight - $box.height());
 				}
 				if (offset <= 0) {
-					this.$box.scrollTop(this.$box.scrollTop() + offset);
+					$box.scrollTop($box.scrollTop() + offset);
 				}
 			}
 		},
@@ -345,7 +345,7 @@
 			}
 
 			function colsCount() {
-				var lv = obj.$box.find('> ul');
+				var lv = $(obj.box).find('> ul');
 				return parseInt(lv.width() / w2utils.getSize(lv.find('> li').get(0), 'width'), 10);
 			}
 		},
@@ -406,7 +406,7 @@
 					this.refresh(this.items[i].id);
 			} else {
 				// refresh single item
-				var itm = document.getElementById('#itm_'+ w2utils.escapeId(id));
+				var itm = document.getElementById('itm_'+ w2utils.escapeId(id));
 				if (itm) {
 					// update existing
 					itm.parentNode.replaceChild(getItemElement(this.items[idx]), itm);
@@ -414,7 +414,7 @@
 					// create new
 					var nextItm;
 					if (idx != this.items.length-1)
-						nextItm = document.getElementById('#itm_'+ w2utils.escapeId(this.items[idx+1].id));
+						nextItm = document.getElementById('itm_'+ w2utils.escapeId(this.items[idx+1].id));
 					if (!nextItm) nextItm = this.lastItm;
 					nextItm.parentNode.insertBefore(getItemElement(this.items[idx]), nextItm);
 				}
@@ -470,7 +470,7 @@
 				if (this.lastItm) {
 					while (this.box.hasChildNodes())
 						this.box.removeChild(this.box.lastChild);
-					this.$box
+					$(this.box)
 						.removeAttr('name')
 						.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile');
 				}
@@ -478,19 +478,18 @@
 			}
 			if (!this.box) return false;
 			// render all items
-			this.$box = $(this.box);
 			var list = document.createElement('ul');
-			var itmLast = document.createElement('li');
-			itmLast.className = 'itmlast';
-			itmLast.style.display = 'none';
-			list.appendChild(itmLast);
+			var lastItm = document.createElement('li');
+			lastItm.className = 'itmlast';
+			lastItm.style.display = 'none';
+			list.appendChild(lastItm);
 			while (this.box.hasChildNodes())
 				this.box.removeChild(this.box.lastChild);
-			this.$box
+			$(this.box)
 				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-listview w2ui-' + this.viewType())
 				.append(list);
-			this.lastItm = this.$box.find('> ul > li.itmlast').get(0);
+			this.lastItm = lastItm;
 			this.refresh();
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -502,13 +501,12 @@
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
 			if (eventData.isCancelled === true) return false;
 			// clean up
-			if (this.lastItm) {
+			if (this.box) {
 				this.lastItm = null;
-				this.$box
+				$(this.box)
 					.empty()
 					.removeAttr('name')
 					.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile');
-				this.$box = null;
 			}
 			delete w2ui[this.name];
 			// event after
