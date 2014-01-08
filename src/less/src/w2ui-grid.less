@@ -237,8 +237,14 @@
 					position: relative;
 				}
 
-				&[draggable="true"] {
-					cursor: move;
+				&.w2ui-col-intersection {
+					border-right-color: @input-focus-outline-color;
+				}
+
+				&.w2ui-reorder-cols-head {
+					&:hover {
+						cursor: move;
+					}
 				}
 
 				.col-intersection-marker {
