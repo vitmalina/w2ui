@@ -136,7 +136,7 @@
       }
 
       div {
-        overflow: hidden;
+        //overflow: hidden;
         color: @listview-item-color;
       }
 
@@ -222,9 +222,10 @@
     }
 
     div.icon-medium {
+      .icon-display(@listview-icon-medium-icon-size, @listview-icon-medium-item-width - (@listview-icon-medium-item-padding * 2));
       margin-left: auto;
       margin-right: auto;
-      .icon-display(@listview-icon-medium-icon-size, @listview-icon-medium-item-width - (@listview-icon-medium-item-padding * 2));
+      background-position: center;
     }
 
     div.icon-large {
@@ -253,9 +254,10 @@
     }
 
     div.icon-large {
+      .icon-display(@listview-icon-large-icon-size, @listview-icon-large-item-width - (@listview-icon-large-item-padding * 2));
       margin-left: auto;
       margin-right: auto;
-      .icon-display(@listview-icon-large-icon-size, @listview-icon-large-item-width - (@listview-icon-large-item-padding * 2));
+      background-position: center;
     }
   }
 }
