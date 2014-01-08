@@ -1620,7 +1620,7 @@
 					'	style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
 					'>' + edit.outTag);
 			el.find('input')
-				.w2field(edit.type)
+				.w2field(edit.type, edit)
 				.on('blur', function (event) {
 					if (obj.parseField(rec, col.field) != this.value) {
 						// change event
