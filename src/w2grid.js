@@ -24,6 +24,7 @@
 *	- rename onSave -> onSubmit, onSaved -> onSave, just like in the form
 *	- onSave should have refresh the form, or mergded into the grid.
 *	- problem with .set() and arrays, array get extended too, but should be replaced
+*	- user GET instead of POST?
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
@@ -31,6 +32,8 @@
 * 	- added refreshCell(recid, field) - should it be part of refresh?
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- added reorderColumns
+*	- removed name from the POST
+*	- rename: markSearchResults -> markSearch
 *
 ************************************************************************/
 
@@ -81,7 +84,8 @@
 		this.multiSelect	= true;
 		this.multiSort		= true;
 		this.reorderColumns	= false;
-		this.markSearchResults	= true;
+		this.reorderRows	= false;
+		this.markSearch		= true;
 
 		this.total			= 0;		// server total
 		this.buffered		= 0;		// number of records in the records array
@@ -231,23 +235,23 @@
 		// ----
 		// properties that need to be in prototype
 
-		msgDelete	: w2utils.lang('Are you sure you want to delete selected records?'),
-		msgNotJSON 	: w2utils.lang('Returned data is not in valid JSON format.'),
-		msgRefresh	: w2utils.lang('Refreshing...'),
+		msgDelete	: 'Are you sure you want to delete selected records?',
+		msgNotJSON 	: 'Returned data is not in valid JSON format.',
+		msgRefresh	: 'Refreshing...',
 
 		// for easy button overwrite
 		buttons: {
-			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: w2utils.lang('Reload data in the list') },
-			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
+			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: 'Reload data in the list' },
+			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: '' },
 			'search'	: { type: 'html',   id: 'search',
-							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
+							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+
 								  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields(this);"></div>'
 						  },
-			'search-go'	: { type: 'check',  id: 'search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') },
-			'add'		: { type: 'button', id: 'add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), img: 'icon-add' },
-			'edit'		: { type: 'button', id: 'edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), img: 'icon-edit', disabled: true },
-			'delete'	: { type: 'button', id: 'delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), img: 'icon-delete', disabled: true },
-			'save'		: { type: 'button', id: 'save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), img: 'icon-save' }
+			'search-go'	: { type: 'check',  id: 'search-advanced', caption: 'Search...', hint: 'Open Search Fields' },
+			'add'		: { type: 'button', id: 'add', caption: 'Add New', hint: 'Add new record', img: 'icon-add' },
+			'edit'		: { type: 'button', id: 'edit', caption: 'Edit', hint: 'Edit selected record', img: 'icon-edit', disabled: true },
+			'delete'	: { type: 'button', id: 'delete', caption: 'Delete', hint: 'Delete selected records', img: 'icon-delete', disabled: true },
+			'save'		: { type: 'button', id: 'save', caption: 'Save', hint: 'Save changed records', img: 'icon-save' }
 		},
 
 		add: function (record) {
@@ -1367,9 +1371,13 @@
 		reload: function (callBack) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (url) {
-				if (this.last.xhr_offset > 0 && this.last.xhr_offset < this.buffered) this.last.xhr_offset = this.buffered;
+				this.clear(true);
 				this.request('get-records', {}, null, callBack);
 			} else {
+				this.last.scrollTop		= 0;
+				this.last.scrollLeft	= 0;
+				this.last.range_start	= null;
+				this.last.range_end		= null;
 				this.localSearch();
 				this.refresh();
 				if (typeof callBack == 'function') callBack();
@@ -1386,7 +1394,7 @@
 			if (!w2utils.isInt(this.last.xhr_offset)) this.last.xhr_offset = 0;
 			// add list params
 			params['cmd']  	 		= cmd;
-			params['name'] 	 		= this.name;
+			params['selected']		= this.getSelection();
 			params['limit']  		= this.limit;
 			params['offset'] 		= parseInt(this.offset) + this.last.xhr_offset;
 			params['search']  		= this.searchData;
@@ -1503,6 +1511,7 @@
 							}
 						}
 						if (cmd == 'delete-records') {
+							this.reset(); // unselect old selections
 							this.reload();
 							return;
 						}
@@ -1605,8 +1614,8 @@
 			// create input element
 			var tr = $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(recid));
 			var el = tr.find('[col='+ column +'] > div');
-			if (edit.type == 'enum') console.log('ERROR: Grid\'s inline editing does not support enum field type.');
-			if (edit.type == 'list' || edit.type == 'select') console.log('ERROR: Grid\'s inline editing does not support list/select field type.');
+			// if (edit.type == 'enum') console.log('ERROR: Grid\'s inline editing does not support enum field type.');
+			// if (edit.type == 'list' || edit.type == 'select') console.log('ERROR: Grid\'s inline editing does not support list/select field type.');
 			if (typeof edit.inTag   == 'undefined') edit.inTag   = '';
 			if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
 			if (typeof edit.style   == 'undefined') edit.style   = '';
@@ -1621,7 +1630,7 @@
 					'	style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
 					'>' + edit.outTag);
 			el.find('input')
-				.w2field(edit.type)
+				.w2field(edit.type, edit)
 				.on('blur', function (event) {
 					if (obj.parseField(rec, col.field) != this.value) {
 						// change event
@@ -1665,22 +1674,24 @@
 							break;
 
 						case 13: // enter
-							cancel = true;
+							// //cancel = true;
 							var next = event.shiftKey ? prevRow(index) : nextRow(index);
 							if (next != index) {
 								this.blur();
 								setTimeout(function () {
-									if (obj.selectType != 'row') {
-										obj.selectNone();
-										obj.select({ recid: obj.records[next].recid, column: column });
-									} else {
-										obj.editField(obj.records[next].recid, column, null, event);
-									}
-								}, 1);
+									console.log('ct', $(el).find('input').data('selected'));
+									// if (obj.selectType != 'row') {
+									// 	obj.selectNone();
+									// 	obj.select({ recid: obj.records[next].recid, column: column });
+									// } else {
+									// 	obj.editField(obj.records[next].recid, column, null, event);
+									// }
+								}, 100);
 							}
 							break;
 
 						case 38: // up arrow
+							break;
 							cancel = true;
 							var next = prevRow(index);
 							if (next != index) {
@@ -1697,6 +1708,7 @@
 							break;
 
 						case 40: // down arrow
+							break;
 							cancel = true;
 							var next = nextRow(index);
 							if (next != index) {
@@ -1746,9 +1758,9 @@
 				});
 			// unselect
 			if (typeof value == 'undefined' || value == null) {
-				el.find('input').focus();
+				setTimeout(function () { el.find('input').focus(); }, 1);
 			} else {
-				el.find('input').val('').focus().val(value);
+				setTimeout(function () { el.find('input').val('').focus().val(value); }, 1);
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -2337,8 +2349,8 @@
 			// scroll to correct one
 			var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
 			var t2 = t1 + Math.floor(records.height() / this.recordHeight);
-			if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 });
-			if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 });
+			if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, 250, 'linear');
+			if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, 250, 'linear');
 			if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight });
 		},
 
@@ -2835,6 +2847,7 @@
 					recid	: $(event.target).parents('tr').attr('recid'),
 					column	: (event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col')),
 					type	: 'select',
+					ghost	: false,
 					start	: true
 				};
 				$(document).on('mousemove', mouseMove);
@@ -2842,26 +2855,57 @@
 			}
 
 			function mouseMove (event) {
-				if (!obj.last.move || obj.last.move.type != 'select') return;
-				obj.last.move.divX = (event.screenX - obj.last.move.x);
-				obj.last.move.divY = (event.screenY - obj.last.move.y);
-				if (Math.abs(obj.last.move.divX) <= 1 && Math.abs(obj.last.move.divY) <= 1) return; // only if moved more then 1px
-				if (obj.last.move.start && obj.last.move.recid) {
+				var mv = obj.last.move;
+				if (!mv || mv.type != 'select') return;
+				mv.divX = (event.screenX - mv.x);
+				mv.divY = (event.screenY - mv.y);
+				if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return; // only if moved more then 1px
+				if (obj.reorderRows == true) {
+					if (!mv.ghost) {
+						var row	 = $('#grid_'+ obj.name + '_rec_'+ mv.recid);
+						var tmp	 = row.parents('table').find('tr:first-child').clone();
+						mv.offsetY = event.offsetY;
+						mv.from  = mv.recid;
+						mv.pos	 = row.position();
+						mv.ghost = $(row).clone(true);
+						mv.ghost.removeAttr('id');
+						row.find('td:first-child').replaceWith('<td colspan="1000" style="height: '+ obj.recordHeight +'px; background-color: #ddd"></td>');
+						var recs = $(obj.box).find('.w2ui-grid-records');
+						recs.append('<table id="grid_'+ obj.name + '_ghost" style="position: absolute; z-index: 999999; opacity: 0.8; border-bottom: 2px dashed #aaa; border-top: 2px dashed #aaa; pointer-events: none;"></table>');
+						$('#grid_'+ obj.name + '_ghost').append(tmp).append(mv.ghost);
+					}
+					var recid = $(event.target).parents('tr').attr('recid');
+					if (recid != mv.from) {
+						var row1 = $('#grid_'+ obj.name + '_rec_'+ mv.recid);
+						var row2 = $('#grid_'+ obj.name + '_rec_'+ recid);
+						if (event.screenY - mv.lastY < 0) row1.after(row2); else row2.after(row1);
+						mv.lastY = event.screenY;
+						mv.to 	 = recid;
+					}
+					var ghost = $('#grid_'+ obj.name + '_ghost');
+					var recs  = $(obj.box).find('.w2ui-grid-records');
+					ghost.css({
+						top	 : mv.pos.top + mv.divY + recs.scrollTop(), // + mv.offsetY - obj.recordHeight / 2,
+						left : mv.pos.left
+					});
+					return;
+				}
+				if (mv.start && mv.recid) {
 					obj.selectNone();
-					obj.last.move.start = false;
+					mv.start = false;
 				}
 				var newSel= [];
 				var recid = (event.target.tagName == 'TR' ? $(event.target).attr('recid') : $(event.target).parents('tr').attr('recid'));
 				if (typeof recid == 'undefined') return;
-				var ind1  = obj.get(obj.last.move.recid, true);
+				var ind1  = obj.get(mv.recid, true);
 				var ind2  = obj.get(recid, true);
-				var col1  = parseInt(obj.last.move.column);
+				var col1  = parseInt(mv.column);
 				var col2  = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
 				if (ind1 > ind2) { var tmp = ind1; ind1 = ind2; ind2 = tmp; }
 				// check if need to refresh
 				var tmp = 'ind1:'+ ind1 +',ind2;'+ ind2 +',col1:'+ col1 +',col2:'+ col2;
-				if (obj.last.move.range == tmp) return;
-				obj.last.move.range = tmp;
+				if (mv.range == tmp) return;
+				mv.range = tmp;
 				for (var i = ind1; i <= ind2; i++) {
 					if (obj.last.searchIds.length > 0 && obj.last.searchIds.indexOf(i) == -1) continue;
 					if (obj.selectType != 'row') {
@@ -2903,8 +2947,19 @@
 			}
 
 			function mouseStop (event) {
+				var mv = obj.last.move;
 				if ($(event.target).parents().hasClass('.w2ui-head') || $(event.target).hasClass('.w2ui-head')) return;
-				if (!obj.last.move || obj.last.move.type != 'select') return;
+				if (!mv || mv.type != 'select') return;
+				if (obj.reorderRows == true) {
+					var ind1 = obj.get(mv.from, true);
+					var tmp  = obj.records[ind1];
+					obj.records.splice(ind1, 1);
+					var ind2 = obj.get(mv.to, true);					
+					if (ind1 > ind2) obj.records.splice(ind2, 0, tmp); else obj.records.splice(ind2+1, 0, tmp);
+					// console.log(ind1, '->', ind2);
+					$('#grid_'+ obj.name + '_ghost').remove();
+					obj.refresh();
+				}
 				delete obj.last.move;
 				$(document).off('mousemove', mouseMove);
 				$(document).off('mouseup', mouseStop);
@@ -3223,6 +3278,134 @@
 			}
 		},
 
+		// initRowDrag: function () {
+		// 	console.log('init drag');
+		// 	var obj = this,
+		// 		//data object
+		// 		_dragData = {};
+		// 		_dragData.lastInt = null;
+
+		// 	$(obj.box).on('mousedown', dragStart);
+
+		// 	function dragStart (event) {
+		// 		var eventData;
+		// 		var dragRow = $(event.originalEvent.target).parents('tr');
+		// 		var recid 	= dragRow.attr('recid');
+		// 		if (!recid) return;
+		// 		// start event for drag start
+		// 		eventData = obj.trigger({ type: 'rowDragStart', phase: 'before', originalEvent: event, recid: recid });
+		// 		if (eventData.isCancelled === true) return;
+		// 		// add events
+		// 		$(document).on('mouseup', dragEnd);
+		// 		$(document).on('mousemove', dragMove);
+
+		// 		//configure and style ghost image
+		// 		// _dragData.ghost = $(this).clone(true);
+
+		// 		// //hide other elements on ghost except the grid body
+		// 		// $(_dragData.ghost).find('[col]:not([col="' + _dragData.originalPos + '"]), .w2ui-toolbar, .w2ui-grid-header')
+		// 		// 	.css({height: 'none', height: 0, width: 0, padding: 0, border: 'none', overflow: 'hidden'});
+		// 		// $(_dragData.ghost).find('.w2ui-grid-body').css({top: 0});
+
+		// 		// selectedCol = $(_dragData.ghost).find('[col="' + _dragData.originalPos + '"]');
+		// 		// $(document.body).append(_dragData.ghost);
+
+		// 		// $(_dragData.ghost).css({
+		// 		// 	width: 0,
+		// 		// 	height: 0,
+		// 		// 	margin: 0,
+		// 		// 	position: 'fixed',
+		// 		// 	zIndex: 999999,
+		// 		// 	opacity: 0
+		// 		// }).addClass('.w2ui-grid-ghost').animate({
+		// 		// 		width: selectedCol.width(),
+		// 		// 		height: $(obj.box).find('.w2ui-grid-body:first').height(),
+		// 		// 		opacity: .8
+		// 		// }, 300);
+
+		// 		// //establish current offsets
+		// 		// _dragData.offsets = [];
+		// 		// for (var i = 0, l = columns.length; i < l; i++) {
+		// 		// 	_dragData.offsets.push($(columns[i]).offset().left);
+		// 		// }
+
+		// 		// conclude event
+		// 		obj.trigger($.extend(eventData, {phase: 'after'}));
+
+		// 		event.preventDefault();
+		// 		return false;
+		// 	}
+
+		// 	function dragMove (event) {
+		// 		var cursorX = event.originalEvent.pageX,
+		// 			cursorY = event.originalEvent.pageY,
+		// 			offsets = _dragData.offsets,
+		// 			lastWidth = $('.w2ui-head:not(.w2ui-head-last)').width();
+
+		// 		// _dragData.targetInt = targetIntersection(cursorX, offsets, lastWidth);
+		// 		// markIntersection(_dragData.targetInt);
+		// 		// trackGhost(cursorX, cursorY);
+		// 		console.log('drag move');
+
+		// 		event.stopPropagation();
+		// 		return false;
+		// 	}
+
+		// 	function dragEnd (event) {
+		// 		// var eventData,
+		// 		// 	ghosts = $('w2ui-grid-ghost');
+
+		// 		// //start event for drag start
+		// 		// eventData = obj.trigger({type: 'columnDragEnd', phase: 'before', originalEvent: event});
+		// 		// if ( eventData.isCancelled === true ) return;
+
+		// 		// var selected = obj.columns[_dragData.originalPos];
+		// 		// var columnConfig = obj.columns;
+		// 		// var columnNum = (_dragData.targetInt >= obj.columns.length) ? obj.columns.length - 1 :
+		// 		// 		(_dragData.targetInt < _dragData.originalPos) ? _dragData.targetInt : _dragData.targetInt - 1;
+
+		// 		// if (_dragData.targetInt !== _dragData.originalPos + 1 && _dragData.targetInt !== _dragData.originalPos) {
+		// 		// 	$(_dragData.ghost).animate({
+		// 		// 		top: $(obj.box).offset().top,
+		// 		// 		left: $('.w2ui-head[col="' + columnNum + '"]').offset().left,
+		// 		// 		width: 0,
+		// 		// 		height: 0,
+		// 		// 		opacity:.2
+		// 		// 	}, 300, function(){
+		// 		// 		$(this).remove();
+		// 		// 		ghosts.remove();
+		// 		// 	});
+		// 		// 	columnConfig.splice(_dragData.targetInt, 0, $.extend({}, selected));
+		// 		// 	columnConfig.splice(columnConfig.indexOf(selected), 1);
+		// 		// } else {
+		// 		// 	$(_dragData.ghost).remove();
+		// 		// 	ghosts.remove();
+		// 		// }
+
+		// 		// _dragData.columns.css({overflow: ''}).children('div').css({overflow: ''});
+
+		// 		$(document).off('mouseup', dragEnd);
+		// 		$(document).off('mousemove', dragMove);
+		// 		// _dragData.marker.remove();
+		// 		// _dragData = {};
+
+		// 		// obj.refresh();
+
+		// 		// //conclude event
+		// 		// obj.trigger($.extend(eventData, {phase: 'after'}));
+		// 	}
+
+
+		// 	//return an object to remove drag if it has ever been enabled
+		// 	return {
+		// 		remove: function () {
+		// 			// $(obj.box).off('mousedown', dragColStart);
+		// 			// $(obj.box).find('.w2ui-head').removeAttr('draggable');
+		// 			// obj._columnDrag = false;
+		// 		}
+		// 	}
+		// },
+
 		columnOnOff: function (el, event, field, value) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, originalEvent: event });
@@ -3350,15 +3533,6 @@
 						case 'reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
 							if (eventData2.isCancelled === true) return false;
-							var url = (typeof obj.url != 'object' ? obj.url : obj.url.get);
-							if (url) {
-								obj.clear(true);
-							} else {
-								obj.last.scrollTop	= 0;
-								obj.last.scrollLeft	= 0;
-								obj.last.range_start= null;
-								obj.last.range_end	= null;
-							}
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;
@@ -4180,7 +4354,7 @@
 
 			function markSearch() {
 				// mark search
-				if(obj.markSearchResults === false) return;
+				if(obj.markSearch === false) return;
 				clearTimeout(obj.last.marker_timer);
 				obj.last.marker_timer = setTimeout(function () {
 					// mark all search strings
@@ -4292,7 +4466,6 @@
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
 					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle = 'text-align: right';
-					if ($.inArray(tmp[0], ['date']) != -1) addStyle = 'text-align: right';
 				}
 				var isCellSelected = false;
 				if (isRowSelected && $.inArray(col_ind, sel.columns[record.recid]) != -1) isCellSelected = true;
@@ -4331,7 +4504,7 @@
 						if (typeof tmp[1] == 'undefined' || !w2utils.isInt(tmp[1])) tmp[1] = 0;
 						if (tmp[1] > 20) tmp[1] = 20;
 						if (tmp[1] < 0)  tmp[1] = 0;
-						if (tmp[0] == 'money')   { tmp[1] = 2; prefix = w2utils.settings.currencySymbol; }
+						if (tmp[0] == 'money')   { tmp[1] = 2; prefix = w2utils.settings.currencyPrefix; suffix = w2utils.settings.currencySuffix }
 						if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
 						if (tmp[0] == 'int')	 { tmp[1] = 0; }
 						// format
