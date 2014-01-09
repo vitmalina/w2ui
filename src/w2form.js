@@ -208,6 +208,7 @@
 
 		validate: function (showErrors) {
 			if (typeof showErrors == 'undefined') showErrors = true;
+			$().w2tag(); // hide all tags before validating
 			// validate before saving
 			var errors = [];
 			for (var f in this.fields) {
@@ -652,7 +653,9 @@
 					//return;
 				}
 				if (field.el) field.el.id = field.name;
-				$(field.el).w2field('clear').off('change').on('change', function () {
+				var tmp = $(field).data('w2field');
+				if (tmp) tmp.clear();
+				$(field.el).off('change').on('change', function () {
 					var value_new 		= this.value;
 					var value_previous 	= obj.record[this.name] ? obj.record[this.name] : '';
 					var field 			= obj.get(this.name);
@@ -754,7 +757,7 @@
 							break;
 						}
 						// normalize value
-						this.record[field.name] = w2obj.field.cleanItems(value);
+						// this.record[field.name] = w2obj.field.cleanItems(value);
 						value = this.record[field.name];
 						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: value }) );
 						break;

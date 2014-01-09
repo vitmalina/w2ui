@@ -11,6 +11,7 @@
 *	- dbl click should be like it is in grid (with timer not HTML dbl click event)
 *	- reorder with grag and drop
 *	- add route property that would navigate to a #route
+*	- node.style is missleading
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
@@ -23,7 +24,7 @@
 		this.box			= null;
 		this.sidebar		= null;
 		this.parent			= null;
-		this.nodes			= [];		// Sidebar child nodes
+		this.nodes			= [];	// Sidebar child nodes
 		this.menu			= [];
 		this.selected		= null;	// current selected node (readonly)
 		this.img			= null;
@@ -90,7 +91,7 @@
 			img				: null,
 			icon			: null,
 			nodes			: [],
-			style			: '',
+			style			: '',			// additiona style for subitems
 			selected		: false,
 			expanded		: false,
 			hidden			: false,
