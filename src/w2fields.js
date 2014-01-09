@@ -256,30 +256,31 @@
 						items		: [],
 						selected	: [],
 						max 		: 0,
-						url 		: null, 		// not implemented
+						url 		: null, 	// not implemented
 						cacheMax	: 500,
-						maxWidth	: null,			// max width for input control to grow
-						maxHeight	: 350,			// max height for input control to grow
+						maxWidth	: null,		// max width for input control to grow
+						maxHeight	: 350,		// max height for input control to grow
 						match		: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
 						silent		: true,
-						onSearch	: null,			// when search needs to be performed
-						onRequest	: null,			// when request is submitted
-						onLoad		: null,			// when data is received
-						onClick		: null,			// when an item is clicked
-						onAdd		: null,			// when an item is added
-						onRemove	: null,			// when an item is removed
-						onMouseOver : null,			// when an item is mouse over
-						onMouseOut	: null,			// when an item is mouse out
-						render		: null, 		// render function for drop down item
-						itemsHeight : 350,			// max height for the control to grow
-						itemRender	: null,			// render selected item
-						showAll		: false, 		// weather to apply filter or not when typing
+						onSearch	: null,		// when search needs to be performed
+						onRequest	: null,		// when request is submitted
+						onLoad		: null,		// when data is received
+						onClick		: null,		// when an item is clicked
+						onAdd		: null,		// when an item is added
+						onRemove	: null,		// when an item is removed
+						onMouseOver : null,		// when an item is mouse over
+						onMouseOut	: null,		// when an item is mouse out
+						render		: null, 	// render function for drop down item
+						itemRender	: null,		// render selected item
+						itemsHeight : 350,		// max height for the control to grow
+						itemMaxWidth: 250,		// max width for a single item
+						showAll		: false, 	// weather to apply filter or not when typing
 						markSearch 	: true
 					};
 					options = $.extend({}, defaults, options, {
-						strict 		: true,			// same width as control
+						strict 		: true,		// same width as control
 						suffix		: '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>',
-						altRows		: true			// alternate row color
+						altRows		: true		// alternate row color
 					});
 					this.options = options;
 					if (options.selected) $(this.el).data('selected', options.selected);
@@ -297,6 +298,7 @@
 						maxFileSize	: 0,		// max size of a single file, 0 -unlim
 						maxWidth	: null,		// max width for input control to grow
 						maxHeight	: 350,		// max height for input control to grow
+						itemMaxWidth: 250,		// max width for a single item
 						render		: null, 	// render function for drop down item
 						silent		: true,
 						onClick		: null,		// when an item is clicked
@@ -386,9 +388,9 @@
 				options.selected  = selected;
 				var html = '';
 				for (var s in selected) {
-					var item = '<li index="'+ s +'">'+
+					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.itemMaxWidth) + 'px">'+
 							   '	<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+	
-							   		selected[s].text +
+							   		(obj.type == 'enum' ? selected[s].text : selected[s].name + '<span class="file-size"> - '+ w2utils.size(selected[s].size) +'</span>') +
 							   '</li>';
 					if (typeof options.itemRender == 'function') {
 						item = options.itemRender(selected[s], s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
@@ -399,8 +401,15 @@
 
 				var div = obj.helpers['multi'];
 				var ul  = div.find('ul');
+				// celan
+				div.find('.w2ui-upload-hint').remove();
 				ul.find('li').not('li.nomouse').remove();
-				ul.prepend(html);
+				// add new list
+				if (html != '') {
+					ul.prepend(html);
+				} else if (typeof options.hint != 'undefined') {
+					div.prepend('<div class="w2ui-upload-hint">'+ options.hint + '</div>');
+				}
 				// ITEMS events
 				div.find('li')
 					.data('mouse', 'out')
@@ -413,6 +422,7 @@
 							var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
 							if (eventData.isCancelled === true) return;
 							// default behavior
+							$().w2overlay();
 							selected.splice($(event.target).attr('index'), 1);
 							$(event.target).parent().fadeOut('fast');
 							setTimeout(function () { 
@@ -420,6 +430,33 @@
 								// event after
 								obj.trigger($.extend(eventData, { phase: 'after' }));
 							}, 300);
+						}
+						if (obj.type == 'upload' && !$(event.target).hasClass('w2ui-list-remove')) {
+							var preview = '';
+							if ((/image/i).test(item.type)) { // image
+								preview = '<div style="padding: 3px;">'+
+									'	<img src="'+ (item.content ? 'data:'+ item.type +';base64,'+ item.content : '') +'" style="max-width: 300px;" '+
+									'		onload="var w = $(this).width(); var h = $(this).height(); '+
+									'			if (w < 300 & h < 300) return; '+
+									'			if (w >= h && w > 300) $(this).width(300);'+
+									'			if (w < h && h > 300) $(this).height(300);"'+
+									'		onerror="this.style.display = \'none\'"'+
+									'	>'+
+									'</div>';
+							}
+							var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
+							var td2 = 'style="padding: 3px"';
+							preview += '<div style="padding: 8px;">'+
+								'	<table cellpadding="2">'+
+								'	<tr><td '+ td1 +'>Name:</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
+								'	<tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.size(item.size) +'</td></tr>'+
+								'	<tr><td '+ td1 +'>Type:</td><td '+ td2 +'>' +
+								'		<span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ item.type +'</span>'+
+								'	</td></tr>'+
+								'	<tr><td '+ td1 +'>Modified:</td><td '+ td2 +'>'+ w2utils.date(item.modified) +'</td></tr>'+
+								'	</table>'+
+								'</div>';
+								$(event.target).w2overlay(preview);
 						}
 						// trigger event
 						var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -459,10 +496,13 @@
 						}, 0);
 					});
 				// adjust height
+				$(this.el).height('auto');
 				var cntHeight = $(div).find('> div').height() + w2utils.getSize(div, '+height') * 2;
 				if (cntHeight < 23) cntHeight = 23;
 				if (cntHeight > options.itemsHeight) cntHeight = options.itemsHeight;
 				if (div.length > 0) div[0].scrollTop = 1000;
+				var inpHeight = w2utils.getSize($(this.el), 'height') - 2;
+				if (inpHeight > cntHeight) cntHeight = inpHeight
 				$(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.itemsHeight ? 'auto' : 'hidden') });
 				if (cntHeight < options.itemsHeight) $(div).prop('scrollTop', 0);
 				$(this.el).css({ 'height' : (cntHeight + 2) + 'px' });
@@ -588,6 +628,10 @@
 					}));
 				}, 1);
 			}
+			// upload
+			if (this.type == 'upload') {
+				$(this.helpers['multi']).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
+			}
 		},
 
 		blur: function (event) {
@@ -655,6 +699,10 @@
 			// clear search input
 			if (['enum'].indexOf(this.type) != -1) {
 				$(this.helpers['multi']).find('input').val('');
+			}
+			// upload
+			if (this.type == 'upload') {
+				$(this.helpers['multi']).css({ 'outline': 'none' });
 			}
 		},
 
@@ -1254,9 +1302,9 @@
 			var obj		 = this;
 			var options	 = this.options;
 			// clean up & init
-			$(this.el).attr('tabindex', -1);
 			$(obj.helpers['multi']).remove();
 			// build helper
+			var html   = '';
 			var margin = 
 				'margin-top		: 0px; ' +
 				'margin-bottom	: 0px; ' +
@@ -1266,23 +1314,36 @@
 									- parseInt($(obj.el).css('margin-left'), 10) 
 									- parseInt($(obj.el).css('margin-right'), 10)) 
 									+ 'px;';
-			var html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box;">'+
+			if (obj.type == 'enum') {
+				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box;">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul>'+
 						'		<li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
 						'			<input type="text" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
-						'		</li>'+
+						'		</li>'
 						'	</ul>'+
 						'	</div>'+
 						'</div>';
-			$(obj.el).before(html)
+			} 
+			if (obj.type == 'upload') {
+				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box;">'+
+					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
+					   	'	<ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
+						'	<input class="file-input" type="file" name="attachment" multiple style="display: none">' 
+						'	</div>'+
+						'</div>';				
+			}
+			$(obj.el)
+				.before(html)
 				.css({
 					'background-color'	: 'transparent',
 					'border-color'		: 'transparent'
 				});
+
 			var div	= $(obj.el).prev();
-			obj.helpers['multi'] = div;
-			if (this.type == 'enum') {
+			obj.helpers['multi'] = div;	
+			if (obj.type == 'enum') {
+				$(obj.el).attr('tabindex', -1);
 				// INPUT events
 				div.find('input')
 					.on('focus', function (event) {
@@ -1295,20 +1356,109 @@
 						obj.blur(event);
 						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					})
-					.on('click', 	function (event) { $(this).focus(); })
 					.on('keyup', 	function (event) { obj.keyUp(event) })				
 					.on('keydown', 	function (event) { obj.keyDown(event) })				
 					.on('keypress', function (event) { obj.keyPress(event) });
 				// MAIN div
 				div.on('click', function (event) { $(this).find('input').focus(); });
 			}
-			if (this.type == 'upload') {
+			if (obj.type == 'upload') {
+				$(obj.el).css('outline', 'none');
 				div.on('click', function (event) {
-					$(div).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
-					obj.focus(event);
-				});	
+						obj.blur(event);
+						div.find('input').click();
+					})
+					.on('dragenter', function (event) {
+						$(div).addClass('w2ui-upload-dragover');
+					})
+					.on('dragleave', function (event) {
+						var tmp = $(event.target).parents('.w2ui-field-helper');
+						if (tmp.length == 0) $(div).removeClass('w2ui-upload-dragover');
+					})
+					.on('drop', function (event) {
+						$(div).removeClass('w2ui-upload-dragover');
+						var files = event.originalEvent.dataTransfer.files;
+						for (var i=0, l=files.length; i<l; i++) obj.addFile.call(obj, files[i]);
+						// cancel to stop browser behaviour
+						event.preventDefault();
+						event.stopPropagation();
+					})
+					.on('dragover', function (event) { 
+						// cancel to stop browser behaviour
+						event.preventDefault();
+						event.stopPropagation();
+					});
+				div.find('input')
+					.on('click', function (event) { event.stopPropagation(); })
+					.on('change', function () {
+						if (typeof this.files !== "undefined") {
+							for (var i = 0, l = this.files.length; i < l; i++) {
+								obj.addFile.call(obj, this.files[i]);
+							}
+						}
+					});
 			}
 			obj.refresh();
+		},
+
+		addFile: function (file) {
+			var obj		 = this;
+			var options	 = this.options;
+			var selected = $(obj.el).data('selected');
+			var newItem = {
+				name		: file.name,
+				type		: file.type,
+				modified	: file.lastModifiedDate,
+				size		: file.size,
+				content		: null
+			};
+			var size = 0;
+			var cnt  = 0;
+			var err;
+			for (var s in selected) { size += selected[s].size; cnt++; }
+			// trigger event
+			var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
+			if (eventData.isCancelled === true) return;
+			// check params
+			if (options.maxFileSize !== 0 && newItem.size > options.maxFileSize) {
+				err = 'Maximum file size is '+ w2utils.size(options.maxFileSize);
+				if (options.silent === false) $(obj.el).w2tag(err);
+				console.log('ERROR: '+ err);
+				return;
+			}
+			if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
+				err = 'Maximum total size is '+ w2utils.size(options.maxSize);
+				if (options.silent === false) $(obj.el).w2tag(err);
+				console.log('ERROR: '+ err);
+				return;
+			}
+			if (options.max !== 0 && cnt >= options.max) {
+				err = 'Maximum number of files is '+ options.max;
+				if (options.silent === false) $(obj.el).w2tag(err);
+				console.log('ERROR: '+ err);
+				return;
+			}
+			selected.push(newItem);
+			// read file as base64
+			if (typeof FileReader !== "undefined") {
+				var reader = new FileReader();
+				// need a closure
+				reader.onload = (function () {
+					return function (event) {
+						var fl  = event.target.result;
+						var ind = fl.indexOf(',');
+						newItem.content = fl.substr(ind+1);
+						obj.refresh();
+						$(obj).trigger('change');
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
+					};
+				})();
+				reader.readAsDataURL(file);
+			} else {
+				obj.refresh();
+				$(obj).trigger('change');
+			}
 		},
 
 		getColorHTML: function () {

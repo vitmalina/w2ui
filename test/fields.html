@@ -37,10 +37,10 @@
 			url: 'http://w2ui.com:3000/api/enum/users',
 			// items: items
 			onRequest: function (event) {
-				console.log('request', event);
+				// console.log('request', event);
 			},
 			onLoad: function (event) {
-				console.log('load', event);
+				// console.log('load', event);
 			}
 		});
 		$('.enum').w2field('enum', {
@@ -48,28 +48,34 @@
 			selected: [],
 			// items: items
 			onRequest: function (event) {
-				console.log('request', event);
+				// console.log('request', event);
 			},
 			onLoad: function (event) {
-				console.log('load', event);
+				// console.log('load', event);
 			},
 			onClick: function (event) {
-				console.log('click', event);
+				// console.log('click', event);
 			},
 			onMouseOver: function (event) {
-				console.log('over', event);
+				// console.log('over', event);
 			},
 			onMouseOut: function (event) {
-				console.log('out', event);
+				// console.log('out', event);
 			},
 			onRemove: function (event) {
-				console.log('remove', event.item);
+				// console.log('remove', event.item);
 			},
 			onAdd: function (event) {
-				console.log('add', event.item);
+				// console.log('add', event.item);
 			}
 		});
 		$('.upload').w2field('upload', {
+			onAdd: function (event) {
+				// console.log('add', event);
+			},
+			onRemove: function (event) {
+				// console.log('remove', event);
+			}
 		});
 
 		// date range
@@ -159,11 +165,11 @@
 			</div>
 		<div class="w2ui-label">enum:</div>
 			<div class="w2ui-field">
-				<input class="enum" type="text" style="width: 450px"/>
+				<input class="enum" type="text" style="width: 450px; min-height: 10px;"/>
 			</div>
 		<div class="w2ui-label">upload:</div>
 			<div class="w2ui-field">
-				<input class="upload" type="text" style="width: 450px; min-height: 50px;"/>
+				<input class="upload" type="text" style="width: 550px; min-height: 50px;"/>
 			</div>		
 	</div></div>
 

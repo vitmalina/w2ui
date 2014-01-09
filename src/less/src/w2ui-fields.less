@@ -337,6 +337,8 @@
 			font-size: @list-item-font-size;
 			line-height: normal;
 			height: 15px;
+			overflow: hidden;
+			text-overflow: ellipsis;
 
 			&:hover {
 				background-color: darken(@list-item-background-color, 10%);
@@ -379,36 +381,37 @@
 					content: 'x';
 				}
 			}
+			> span.file-size {
+				pointer-events: none;
+				color: #777;
+			}
 		}
 	}
+	
+	// upload
+
+	.w2ui-upload-hint { // this a DROP ZONE message, will be remove when first file dropped
+		pointer-events: none;
+		color: #999;
+		padding-top: 8px !important;
+		text-align: center;
+		font-family: @list-item-font;
+		font-size: @list-item-font-size;
+	}
+
+	&.w2ui-upload-dragover {
+		background-color: #E4FFDA;
+		border: 1px solid #93E07D;
+	}
 }
-
 /*
-*	UPLOAD field
-*/
-
 .w2ui-upload {
 	position: absolute;
 	background-color: @list-background-color;
 	border: @list-border !important; 
 	border-radius: 3px;
-	// min-height: 46px;
-	// max-height: 100px;
 	text-align: center;
 	overflow: auto;
-
-	> span:first-child { // this a DROP ZONE message, will be remove when first file dropped
-		pointer-events: none;
-		margin: 0px;
-		padding: 0px;
-		font-size: 14px !important;
-		color: #999;
-	}
-
-	&.dragover {
-		background-color: #D9FFD5;
-		border: 1px solid #93E07D;
-	}
 
 	.file-list {
 		margin: 0px;
@@ -470,11 +473,11 @@
 			}
 		}
 	}
-}
+}*/
 
 // -- dropdown items
 // THIS SECTION IS DEPRECATED IN 1.4
-
+/*
 .w2ui-items {
     position: absolute;
     margin-top: 6px;
@@ -538,4 +541,4 @@
             background-color: @dropdown-item-selected-background-color;
         }
     }
-}
+}*/
