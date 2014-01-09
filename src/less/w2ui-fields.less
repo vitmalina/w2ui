@@ -1,0 +1,95 @@
+// ******************************************
+// ---- Default Theme ----
+
+@import "src/mixins.less";
+@import "src/images.less";
+
+@main-font-family: Verdana, Arial;
+
+// ******************************************
+// ---- If you need to redefine system button
+// ---- used in w2form, w2popup
+
+.sys-button () {}
+.sys-button-hover () {}
+.sys-button-active () {}
+
+// ******************************************
+// ---- For partial screen locking ----
+
+@lock-background-color: #333;
+@lock-msg-background-color: #555;
+@lock-msg-color: white;
+@lock-msg-border: 2px solid #444;
+
+// ******************************************
+// ---- Common, Overlay, Bubble ----
+
+@input-border: 1px solid #bbb;
+@input-color: black;
+@input-background-color: white;
+@input-focus-outline-color: #72B2FF;
+@overlay-border: 3px solid #777;
+@overlay-color: inherit;
+@overlay-background-color: #FbFbFb;
+@overlay-shadow: 0px 2px 10px #999;
+@bubble-tag-background-color: rgba(60,60,60,0.82);
+@bubble-tag-color: white;
+@bubble-tag-shadow: 1px 1px 3px #000;
+
+@import "src/common.less";
+
+// ******************************************
+// ---- Fields: Calendar, Enum ----
+
+@calendar-background-color: #fff;
+@calendar-title-color: #555;
+@calendar-title-border-bottom: 1px solid #bbb;
+@calendar-title-gradient-start: #f6f6f6;
+@calendar-title-gradient-end: #d9d9d9;
+@calendar-title-text-shadow: 1px 1px 1px #eee;
+@calendar-button-color: #666;
+@calendar-button-border: 1px solid transparent;
+@calendar-button-hover-background-color: #efefef;
+@calendar-button-hover-border: 1px solid silver;
+@calendar-empty-background-color: #fdfdfd;
+@calendar-week-title-color: gray;
+@calendar-day-background-color: #f9f9f9;
+@calendar-day-color: black;
+@calendar-day-hover-border: 1px solid #aaa;
+@calendar-day-hover-color: black;
+@calendar-day-hover-background-color: yellow;
+@calendar-day-today-border: 1px solid #8cb067;
+@calendar-day-today-color: black;
+@calendar-day-today-background-color: #e2f7cd;
+@calendar-day-weekend-color: #c8493b;
+@calendar-day-blocked-color: gray;
+
+@list-color: inherit;
+@list-border: 1px solid silver; 
+@list-background-color: white; 
+@list-item-border: 1px solid #88B0D6;
+@list-item-background-color: #EFF3F5;
+@list-item-font: verdana;
+@list-item-font-size: 11px;
+
+@dropdown-border: 3px solid #777;
+@dropdown-shadow: 0px 3px 8px #999;
+@dropdown-background-color: white;
+@dropdown-item-even-color: inherit;
+@dropdown-item-even-background-color: #FFF;
+@dropdown-item-odd-color: inherit;
+@dropdown-item-odd-background-color: #F3F6FA;
+@dropdown-item-selected-color: inherit;
+@dropdown-item-selected-background-color: #B6D5FF;
+@dropdown-item-padding: 5px;
+
+@drop-menu-border: 1px solid #aaa;
+@drop-menu-color: black;
+@drop-menu-background-color: white;
+@drop-menu-shadow: 0px 4px 8px #999;
+@drop-menu-selected-color: inherit;
+@drop-menu-image-color: #8D99A7;
+@drop-menu-selected-background-color: #D7E4F2;
+
+@import "src/fields.less";

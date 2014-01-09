@@ -336,9 +336,10 @@
 			font-family: @list-item-font;
 			font-size: @list-item-font-size;
 			line-height: normal;
-			height: 15px;
+			height: 18px;
 			overflow: hidden;
 			text-overflow: ellipsis;
+			.box-sizing;
 
 			&:hover {
 				background-color: darken(@list-item-background-color, 10%);
@@ -393,10 +394,11 @@
 	.w2ui-upload-hint { // this a DROP ZONE message, will be remove when first file dropped
 		pointer-events: none;
 		color: #999;
-		padding-top: 8px !important;
+		margin-top: 6px !important;
 		text-align: center;
 		font-family: @list-item-font;
 		font-size: @list-item-font-size;
+		.box-sizing;
 	}
 
 	&.w2ui-upload-dragover {
