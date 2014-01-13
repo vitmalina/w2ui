@@ -121,6 +121,14 @@ var w2utils = (function () {
 		if (tmp2 == 'yyyy/d/m')   { month = tmp[2]; day = tmp[1]; year = tmp[0]; } 
 		if (tmp2 == 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; } 
 		if (tmp2 == 'yyyy/m/d')   { month = tmp[1]; day = tmp[2]; year = tmp[0]; } 
+		if (tmp2 == 'mm/dd/yy') { month = tmp[0]; day = tmp[1]; year = parseInt(tmp[2]) + 1900; }
+		if (tmp2 == 'm/d/yy')   { month = tmp[0]; day = tmp[1]; year = parseInt(tmp[2]) + 1900; }
+		if (tmp2 == 'dd/mm/yy') { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
+		if (tmp2 == 'd/m/yy')   { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
+		if (tmp2 == 'yy/dd/mm') { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; } 
+		if (tmp2 == 'yy/d/m')   { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; } 
+		if (tmp2 == 'yy/mm/dd') { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; } 
+		if (tmp2 == 'yy/m/d')   { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; } 
 		dt = new Date(month + '/' + day + '/' + year);
 		// do checks
 		if (typeof month == 'undefined') return false;
@@ -256,7 +264,7 @@ var w2utils = (function () {
 			.replace('mon', w2utils.settings.shortmonths[month])
 			.replace(/yyyy/g, year)
 			.replace(/yyy/g, year)
-			.replace(/yy/g, String(year).substr(2))
+			.replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
 			.replace(/(^|[^a-z$])y/g, '$1'+year) 			// only y's that are not preceeded by a letter
 			.replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
 			.replace(/dd/g, (date < 10 ? '0' : '') + date)
