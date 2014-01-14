@@ -248,6 +248,7 @@
 		padding: 7px 10px;
 		text-align: center;
 		border: 1px solid transparent;
+		white-space: nowrap;
 	}
 
 	td:nth-child(even) {
@@ -391,13 +392,11 @@
 	
 	// upload
 
-	.w2ui-upload-hint { // this a DROP ZONE message, will be remove when first file dropped
+	.w2ui-enum-placeholder { // this a DROP ZONE message, will be remove when first file dropped
+		display: inline;
+		position: absolute;
 		pointer-events: none;
 		color: #999;
-		margin-top: 6px !important;
-		text-align: center;
-		font-family: @list-item-font;
-		font-size: @list-item-font-size;
 		.box-sizing;
 	}
 
@@ -406,141 +405,3 @@
 		border: 1px solid #93E07D;
 	}
 }
-/*
-.w2ui-upload {
-	position: absolute;
-	background-color: @list-background-color;
-	border: @list-border !important; 
-	border-radius: 3px;
-	text-align: center;
-	overflow: auto;
-
-	.file-list {
-		margin: 0px;
-		padding: 0px;
-		margin-bottom: 6px;
-
-		li {
-			padding: 2px 5px;
-			font-family: @list-item-font;
-			font-size: @list-item-font-size;
-			line-height: normal;
-			float: left;
-			display: inline-block;
-			border: @list-item-border;
-			background-color: @list-item-background-color;
-			border-radius: 3px;
-			margin: 2px 0px 2px 2px;
-			text-align: left;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			overflow: hidden;
-			cursor: default;
-			width: auto;
-			max-width: 400px;
-	
-			&:hover {
-				background-color: darken(@list-item-background-color, 10%);
-			}
-
-			> span.file-size {
-				pointer-events: none;
-				color: #777;
-			}
-
-			> span.file-name {
-				pointer-events: none;
-			}
-
-			> div.file-delete {
-				float: right;
-				z-index: 1;
-				width: 16px;
-				height: 16px;
-				margin: -1px -4px 0px 4px;
-				border-radius: 15px;
-				&:hover {
-					background-color: #D77F7F;
-					color: white;
-				}
-				&:before {
-					position: relative;
-					top: 1px;
-					left: 5px;
-					opacity: 0.6;
-					color: inherit;
-					text-shadow: inherit;
-					content: 'x';
-				}
-			}
-		}
-	}
-}*/
-
-// -- dropdown items
-// THIS SECTION IS DEPRECATED IN 1.4
-/*
-.w2ui-items {
-    position: absolute;
-    margin-top: 6px;
-    display: none;
-    z-index: 1600;
-    background-color: @dropdown-background-color;
-    border: @dropdown-border;
-    box-shadow: @dropdown-shadow;
-    border-radius: 4px;
-    text-align: left;
-
-    &:before {
-        content: "";
-        position: absolute;
-        z-index: 1601;
-        width: 0px;
-        height: 0px;
-        border-left: 7px solid transparent;
-        border-right: 7px solid transparent;
-        border-bottom: 7px solid transparent;
-        border-bottom-color: inherit;
-        margin: -8px 0 0 5px;
-    }
-
-    .w2ui-items-list {
-    	border-radius: 4px; 
-    	padding: 3px;
-    }
-
-    .w2ui-empty-list {
-    	padding: 5px 2px; 
-    	text-align: center; 
-    	color: gray
-    }
-
-    ul li {
-		display: block; 
-		.transition(all, 0.2s);
-        padding: 5px;
-        cursor: pointer;
-
-        &.w2ui-item-even {
-            color: @dropdown-item-even-color;
-            background-color: @dropdown-item-even-background-color;
-        }
-
-        &.w2ui-item-odd {
-            color: @dropdown-item-odd-color;
-            background-color: @dropdown-item-odd-background-color;
-        }
-
-        &.w2ui-item-group {
-			color: #444;
-			font-weight: bold;
-			background-color: #ECEDF0;
-			border-bottom: 1px solid #D3D2D4;
-		}
-        
-        &.selected {
-            color: @dropdown-item-selected-color;
-            background-color: @dropdown-item-selected-background-color;
-        }
-    }
-}*/

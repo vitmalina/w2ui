@@ -10,6 +10,7 @@
 *	- upload (regular files)
 *	- BUG with prefix/postfix and arrows (test in different contexts)
 *	- multiple date selection
+*	- BUG overlay inside overlay????
 *
 * == 1.4 Changes ==
 *	- $().addType() - changes sligtly (this.el)
@@ -18,6 +19,7 @@
 *	- enum - refresh happens on each key press even if not needed (for speed)
 *	- rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
 *	- render calendar to the div
+*	- added .btn with colors
 *
 ************************************************************************/
 
@@ -139,10 +141,14 @@
 			if (typeof this.custom[this.type.toLowerCase()] == 'function') {
 				this.custom[this.type.toLowerCase()].call(this, options);
 				return;
-			}  
+			} 
+			// only for INPUT or TEXTAREA
+			if (['INPUT', 'TEXTAREA'].indexOf(this.el.tagName) == -1) {
+				console.log('ERROR: w2field could only be applied to INPUT or TEXTAREA.', this.el);
+				return;
+			}
 
 			switch (this.type) {
-
 				case 'text':
 				case 'int':
 				case 'float':
@@ -154,6 +160,7 @@
 					defaults = {
 						min				: null,
 						max				: null,
+						placeholder		: '', 
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
@@ -177,14 +184,16 @@
 					}
 					this.addPrefix(); // only will add if needed
 					this.addSuffix();
+					$(this.el).attr('placeholder', options.placeholder);
 					break;
 
 				case 'color':
 					defaults = {
-						prefix	: '#',
-						suffix	: '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&nbsp;</div>',
-						arrows	: false,
-						keyboard: false
+						prefix		: '#',
+						suffix		: '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&nbsp;</div>',
+						placeholder	: '', 
+						arrows		: false,
+						keyboard	: false
 					};
 					$.extend(options, defaults);
 					this.addPrefix(); 	// only will add if needed
@@ -192,41 +201,45 @@
 					// additional checks
 					$(this.el).attr('maxlength', 6);
 					if ($(this.el).val() != '') setTimeout(function () { $(obj.el).change(); }, 1);
+					$(this.el).attr('placeholder', options.placeholder);
 					break;
 
 				case 'date':
 					defaults = {
-						format	: w2utils.settings.date_format, // date format
-						keyboard: true,
-						silent	: true,
-						start	: '',		// string or jquery object
-						end		: '',		// string or jquery object
-						blocked	: {},		// { '4/11/2011': 'yes' }
-						colored	: {}		// { '4/11/2011': 'red:white' }
+						format		: w2utils.settings.date_format, // date format
+						placeholder	: '', 
+						keyboard	: true,
+						silent		: true,
+						start		: '',		// string or jquery object
+						end			: '',		// string or jquery object
+						blocked		: {},		// { '4/11/2011': 'yes' }
+						colored		: {}		// { '4/11/2011': 'red:white' }
 					};
 					this.options = $.extend(true, {}, defaults, options);
 					options = this.options; // since object is re-created, need to re-assign
-					$(this.el).attr('placeholder', options.format);
+					$(this.el).attr('placeholder', options.placeholder ? options.placeholder : options.format);
 					break;
 
 				case 'time':
 					defaults = {
-						format	: w2utils.settings.time_format,
-						keyboard: true,
-						silent	: true,
-						start	: '',
-						end		: ''
+						format		: w2utils.settings.time_format,
+						placeholder	: '', 
+						keyboard	: true,
+						silent		: true,
+						start		: '',
+						end			: ''
 					};
 					this.options = $.extend(true, {}, defaults, options);
 					options = this.options; // since object is re-created, need to re-assign
-					$(this.el).attr('placeholder', options.format == 'h12' ? 'hh:mi pm' : 'hh:mi');
+					$(this.el).attr('placeholder', options.placeholder ? options.placeholder : (options.format == 'h12' ? 'hh:mi pm' : 'hh:mi'));
 					break;
 
-				case 'combo':
 				case 'list':
+				case 'combo':
 					defaults = {
 						items		: [],
-						selected	: null,
+						selected	: [],
+						placeholder	: '',
 						url 		: null, 		// url to pull data from
 						cacheMax	: 500,
 						maxWidth	: null,			// max width for input control to grow
@@ -241,20 +254,23 @@
 						markSearch 	: true
 					};
 					options = $.extend({}, defaults, options, {
-						strict 		: true,			// same width as control
+						align 		: 'both',		// same width as control
 						suffix		: '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>',
 						altRows		: true			// alternate row color
 					});
 					this.options = options;
-					if (options.selected) $(this.el).data('selected', options.selected);
+					if (!$.isArray(options.selected)) options.selected = [];
+					$(this.el).data('selected', options.selected);
 					if (options.url) this.request(0);
 					this.addSuffix();
+					$(this.el).attr('placeholder', options.placeholder);					
 					break;
 
 				case 'enum':
 					defaults = {
 						items		: [],
 						selected	: [],
+						placeholder	: '',
 						max 		: 0,
 						url 		: null, 	// not implemented
 						cacheMax	: 500,
@@ -278,12 +294,13 @@
 						markSearch 	: true
 					};
 					options = $.extend({}, defaults, options, {
-						strict 		: true,		// same width as control
+						align 		: 'both',		// same width as control
 						suffix		: '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>',
 						altRows		: true		// alternate row color
 					});
 					this.options = options;
-					if (options.selected) $(this.el).data('selected', options.selected);
+					if (!$.isArray(options.selected)) options.selected = [];
+					$(this.el).data('selected', options.selected);
 					if (options.url) this.request(0);
 					this.addSuffix();
 					this.addMulti();
@@ -292,7 +309,7 @@
 				case 'upload':
 					defaults = {
 						selected	: [],
-						hint		: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
+						placeholder	: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
 						max 		: 0,
 						maxSize		: 0,		// max size of all files, 0 - unlim
 						maxFileSize	: 0,		// max size of a single file, 0 -unlim
@@ -308,11 +325,12 @@
 						onMouseOut	: null,		// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
-						strict 		: true,		// same width as control
+						align 		: 'both',	// same width as control
 						altRows		: true		// alternate row color
 					});
 					this.options = options;
-					if (options.selected) $(this.el).data('selected', options.selected);
+					if (!$.isArray(options.selected)) options.selected = [];
+					$(this.el).data('selected', options.selected);
 					if (options.url) this.request(0);
 					this.addMulti();
 					break;
@@ -385,7 +403,6 @@
 			var selected = $(this.el).data('selected');
 			// enum
 			if (['enum', 'upload'].indexOf(this.type) != -1) {
-				options.selected  = selected;
 				var html = '';
 				for (var s in selected) {
 					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.itemMaxWidth) + 'px">'+
@@ -402,13 +419,20 @@
 				var div = obj.helpers['multi'];
 				var ul  = div.find('ul');
 				// celan
-				div.find('.w2ui-upload-hint').remove();
+				div.find('.w2ui-enum-placeholder').remove();
 				ul.find('li').not('li.nomouse').remove();
 				// add new list
 				if (html != '') {
 					ul.prepend(html);
-				} else if (typeof options.hint != 'undefined') {
-					div.prepend('<div class="w2ui-upload-hint">'+ options.hint + '</div>');
+				} else if (typeof options.placeholder != 'undefined') {
+					var style = 
+						'padding-top: ' + $(this.el).css('padding-top') + ';'+
+						'padding-left: ' + $(this.el).css('padding-left') + '; ' +
+						'box-sizing: ' + $(this.el).css('box-sizing') + '; ' +
+						'line-height: ' + $(this.el).css('line-height') + '; ' +
+						'font-size: ' + $(this.el).css('font-size') + '; ' +
+						'font-family: ' + $(this.el).css('font-family') + '; ';
+					div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ options.placeholder + '</div>');
 				}
 				// ITEMS events
 				div.find('li')
@@ -606,7 +630,6 @@
 						onSelect: function (event) {
 							if (obj.type == 'enum') {
 								var selected = $(obj.el).data('selected');
-								if (!$.isArray(selected)) selected = [];
 								if (event.item) {
 									// trigger event
 									var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: event.item });
@@ -634,7 +657,7 @@
 			}
 		},
 
-		blur: function (event) {
+		blur: function (event) {			
 			var obj 	= this;
 			var options = obj.options;
 			var val 	= $(this.el).val().trim();
@@ -854,7 +877,6 @@
 					case 13: // enter
 						var item = options.items[options.index];
 						if (['enum'].indexOf(this.type) != -1) {
-							if (!$.isArray(selected)) selected = [];
 							if (item) {
 								// trigger event
 								var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -862,7 +884,7 @@
 								// default behavior
 								if (selected.length >= options.max && options.max > 0) selected.pop();
 								selected.push(item);
-								$(this.el).data('selected', selected).change();
+								$(this.el).change();
 								$(this.helpers['multi']).find('input').val('');
 								this.refresh();
 								// event after
@@ -1080,6 +1102,9 @@
 					var hour = $(this).attr('hour');
 					$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
 					$('#w2ui-overlay > div').html(obj.getMinHTML(hour));
+					var fun = $('#w2ui-overlay'+ name).data('fixSize');
+					if (typeof fun == 'function') fun();
+					if (typeof fun == 'function') fun()
 					$('#w2ui-overlay .w2ui-time').on('mousedown', function () {
 						var min = $(this).attr('min');
 						$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change().blur();
@@ -1346,6 +1371,9 @@
 				$(obj.el).attr('tabindex', -1);
 				// INPUT events
 				div.find('input')
+					.on('click', function (event) {
+						if ($('#w2ui-overlay').length == 0) obj.focus(event);
+					})
 					.on('focus', function (event) {
 						$(div).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
 						obj.focus(event);
@@ -1358,7 +1386,7 @@
 					})
 					.on('keyup', 	function (event) { obj.keyUp(event) })				
 					.on('keydown', 	function (event) { obj.keyDown(event) })				
-					.on('keypress', function (event) { obj.keyPress(event) });
+					.on('keypress', function (event) { div.find('.w2ui-enum-placeholder').remove(); obj.keyPress(event); });
 				// MAIN div
 				div.on('click', function (event) { $(this).find('input').focus(); });
 			}
@@ -1405,7 +1433,7 @@
 			var obj		 = this;
 			var options	 = this.options;
 			var selected = $(obj.el).data('selected');
-			var newItem = {
+			var newItem  = {
 				name		: file.name,
 				type		: file.type,
 				modified	: file.lastModifiedDate,
