@@ -49,6 +49,7 @@
 
 	.w2ui-toolbar-search {
 		width: 160px;
+		margin-right: 3px;
 
 		.w2ui-search-all {
 			outline: none;
@@ -577,15 +578,17 @@
 	background-color: @grid-searches-background-color;
 	table {
 		padding: 4px;
-		padding-top: 8px;
+		padding-top: 12px;
 		border-collapse: border-collapse;
 		td {
 			padding: 4px;
 			&.close-btn {
 				width: 20px;
 				padding-right: 20px; 
-				input {
-					width: 25px !important;
+				button {
+					min-width: 24px; 
+					height: 22px; 
+					padding-top: 3px !important;
 				}
 			}
 			&.caption {
@@ -602,7 +605,6 @@
 			&.value {					
 				padding-right: 5px;
 				padding-left: 5px;
-				background-color: @grid-searches-value-background-color;
 				input[type=text] {
 					border-radius: 3px;
 					padding: 3px;
@@ -617,12 +619,14 @@
 			}
 			&.actions {
 				border-right: 0px; 
-				padding: 20px 0px 10px 0px; 
-				text-align: center; 
-			}
-			input[type=button] {
-				width: 70px; 
-				margin: 0px 2px;
+				> div {
+					margin: -7px;
+					margin-top: 15px;
+					padding: 13px 0px;
+					text-align: center;
+					background-color: @grid-searches-buttons-background-color;
+					border-top: @grid-searches-inner-border;
+				}
 			}
 		}
 	}

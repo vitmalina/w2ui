@@ -24,7 +24,11 @@
 *	- rename onSave -> onSubmit, onSaved -> onSave, just like in the form
 *	- onSave should have refresh the form, or mergded into the grid.
 *	- problem with .set() and arrays, array get extended too, but should be replaced
-*	- user GET instead of POST?
+*	- user should be able to overwrite GET instead of POST?
+*	- add onParse - to converd data received from the server
+*	- move events into prototype
+*	- add colspans
+*	- search should not refresh toolbar, see https://github.com/vitmalina/w2ui/issues/380
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
@@ -1214,13 +1218,14 @@
 			$('#tb_'+ this.name +'_toolbar_item_search-advanced').w2overlay(
 				this.getSearchesHTML(),
 				{
-					left: -10,
-					'class': 'w2ui-grid-searches',
-					onShow: function () {
+					name	: 'searches-'+ this.name,
+					left	: -10,
+					'class'	: 'w2ui-grid-searches',
+					onShow	: function () {
 						if (obj.last.logic == 'OR') obj.searchData = [];
 						obj.initSearches();
-						$('#w2ui-overlay .w2ui-grid-searches').data('grid-name', obj.name);
-						var sfields = $('#w2ui-overlay .w2ui-grid-searches *[rel=search]');
+						$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').data('grid-name', obj.name);
+						var sfields = $('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]');
 						if (sfields.length > 0) sfields[0].focus();
 					}
 				}
@@ -1232,7 +1237,7 @@
 			if (this.searches.length == 0) return;
 			if (this.toolbar) this.toolbar.uncheck('search-advanced')
 			// hide search
-			if ($('#w2ui-overlay .w2ui-grid-searches').length > 0) $().w2overlay();
+			if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) $().w2overlay({ name: 'searches-'+ this.name });
 		},
 
 		searchShowFields: function (el) {
@@ -1264,13 +1269,13 @@
 					'			obj.last.caption = \''+ search.caption +'\'; '+
 					'		}'+
 					'		$(\'#grid_'+ this.name +'_search_all\').attr(\'placeholder\', \''+ search.caption +'\');'+
-					'		$().w2overlay();">'+
+					'		$().w2overlay({ name: \'searches-'+ this.name +'\' });">'+
 					'<td><input type="checkbox" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : 'disabled') +'></td>'+
 					'<td>'+ search.caption +'</td>'+
 					'</tr>';
 			}
 			html += "</table></div>";
-			$(el).w2overlay(html, { left: -15, top: 7 });
+			$(el).w2overlay(html, { name: 'searches-'+ this.name, left: -15, top: 7 });
 		},
 
 		searchReset: function (noRefresh) {
@@ -3447,7 +3452,7 @@
 			this.initColumnOnOff();
 			if (hide) {
 				setTimeout(function () {
-					$().w2overlay();
+					$().w2overlay({ name: 'searches-'+ this.name });
 					obj.toolbar.uncheck('column-on-off');
 				}, 100);
 			}
@@ -3556,8 +3561,12 @@
 							} else {
 								obj.searchOpen();
 								event.originalEvent.stopPropagation();
-								function tmp_close() { tb.uncheck(id); $(document).off('click', 'body', tmp_close); }
 								$(document).on('click', 'body', tmp_close);
+								function tmp_close() { 
+									if ($('#w2ui-overlay-searches-'+ obj.name).data('keepOpen') === true) return; 
+									tb.uncheck(id); 
+									$(document).off('click', 'body', tmp_close); 
+								}
 							}
 							break;
 						case 'add':
@@ -3642,7 +3651,7 @@
 				}
 			}
 			// add on change event
-			$('#w2ui-overlay .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
+			$('#w2ui-overlay-searches'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
 				if (evnt.keyCode == 13) { obj.search(); }
 			});
 		},
@@ -3991,7 +4000,7 @@
 				if (s.hidden) continue;
 				var btn = '';
 				if (showBtn == false) {
-					btn = '<input type="button" value="X" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchClose(); }">';
+					btn = '<button class="btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchClose(); }">X</button';
 					showBtn = true;
 				}
 				if (typeof s.inTag   == 'undefined') s.inTag 	= '';
@@ -4059,8 +4068,8 @@
 			html += '<tr>'+
 					'	<td colspan="4" class="actions">'+
 					'		<div>'+
-					'		<input type="button" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }" value="'+ w2utils.lang('Reset') + '">'+
-					'		<input type="button" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }" value="'+ w2utils.lang('Search') + '">'+
+					'		<button class="btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
+					'		<button class="btn btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
 					'		</div>'+
 					'	</td>'+
 					'</tr></table>';

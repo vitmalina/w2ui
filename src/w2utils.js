@@ -32,7 +32,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * 	- updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
 *	- formatNumer(num, groupSymbol) - added new param
 *	- improved localization support (currency prefix, suffix, numbger group symbol)
-*	- improoved overlays (bette positioning, refresh, etc.)
+*	- improoved overlays (better positioning, refresh, etc.)
+*	- multiple overlay at the same time (if it has name)
+*	- overlay options.css removed, I have added options.style 
 *
 ************************************************/
 
@@ -132,6 +134,14 @@ var w2utils = (function () {
 		if (tmp2 == 'yyyy/d/m')   { month = tmp[2]; day = tmp[1]; year = tmp[0]; } 
 		if (tmp2 == 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; } 
 		if (tmp2 == 'yyyy/m/d')   { month = tmp[1]; day = tmp[2]; year = tmp[0]; } 
+		if (tmp2 == 'mm/dd/yy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
+		if (tmp2 == 'm/d/yy')     { month = tmp[0]; day = tmp[1]; year = parseInt(tmp[2]) + 1900; }
+		if (tmp2 == 'dd/mm/yy')   { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
+		if (tmp2 == 'd/m/yy')     { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
+		if (tmp2 == 'yy/dd/mm')   { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; } 
+		if (tmp2 == 'yy/d/m')     { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; } 
+		if (tmp2 == 'yy/mm/dd')   { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; } 
+		if (tmp2 == 'yy/m/d')     { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; } 
 		dt = new Date(month + '/' + day + '/' + year);
 		// do checks
 		if (typeof month == 'undefined') return false;
@@ -254,7 +264,7 @@ var w2utils = (function () {
 			.replace('mon', w2utils.settings.shortmonths[month])
 			.replace(/yyyy/g, year)
 			.replace(/yyy/g, year)
-			.replace(/yy/g, String(year).substr(2))
+			.replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
 			.replace(/(^|[^a-z$])y/g, '$1'+year) 			// only y's that are not preceeded by a letter
 			.replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
 			.replace(/dd/g, (date < 10 ? '0' : '') + date)
@@ -1084,22 +1094,26 @@ w2utils.keyboard = (function (obj) {
 	// w2overlay - appears under the element, there can be only one at a time
 
 	$.fn.w2overlay = function (html, options) {
-		var obj = this;
+		var obj  = this;
+		var name = '';
 		var defaults = {
-			left 		: 0,
-			top 		: 0,
-			width		: 0,
-			height		: 0,
-			maxWidth	: null,
-			maxHeight	: null,
-			strict		: false,
-			"class"		: '',
-			"css" 		: {},
-			onHide		: null,
-			onShow		: null
+			name		: null,		// it not null, then allows multiple concurent overlays
+			align		: 'none',	// can be none, left, right, both
+			left 		: 0,		// offset left
+			top 		: 0,		// offset top
+			tipLeft		: 30,		// tip offset left
+			width		: 0,		// fixed width
+			height		: 0,		// fixed height
+			maxWidth	: null,		// max width if any
+			maxHeight	: null,		// max height if any
+			style		: '',		// additional style for main div
+			'class'		: '',		// additional class name for main dvi
+			onShow		: null, 	// event on show
+			onHide		: null		// event on hide
 		}
 		if (!$.isPlainObject(options)) options = {};
 		options = $.extend(true, {}, defaults, options);
+		if (options.name) name = '-' + options.name;
 		// if empty then hide
 		if (this.length == 0 || html == '' || typeof html == 'undefined') { 
 			$(document).click(); 
@@ -1107,87 +1121,119 @@ w2utils.keyboard = (function (obj) {
 		}
 		if ($('#w2ui-overlay').length > 0) $(document).click();
 		$('body').append(
-			'<div id="w2ui-overlay" class="w2ui-reset w2ui-overlay '+ 
-				($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
-			'	<div></div>'+
+			'<div id="w2ui-overlay'+ name +'" style="display: none"'+
+			'		class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
+			'	<style></style>'+
+			'	<div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
 			'</div>'
 		);
 		// init
-		var div = $('#w2ui-overlay > div');
-		div.css(options.css).html(html);
-		if (typeof options['class'] != 'undefined') div.addClass(options['class']);		
+		var div1 = $('#w2ui-overlay'+ name);
+		var div2 = div1.find(' > div');
+		div2.html(html);
 		// pick bg color of first div
-		var bc  = div.css('background-color'); 
-		div = $('#w2ui-overlay');
-		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div.css('background-color', bc);
+		var bc  = div2.css('background-color'); 
+		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div1.css('background-color', bc);
 
-		var leftShift = 0;
-		if (options.strict) {
-			leftShift = 17;
-			options.width = w2utils.getSize($(obj), 'width');
-		}
-		div.css({
-				display 	 : 'none',
-				left 		 : ($(obj).offset().left + options.left + leftShift) + 'px',
-				top 		 : ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px',
-				'min-width'  : (options.width ? options.width : 'auto'),
-				'min-height' : (options.height ? options.height : 'auto')
-			})
-			.fadeIn('fast')
-			.data('position', ($(obj).offset().left) + 'x' + ($(obj).offset().top + obj.offsetHeight))
-			.on('mousedown', function (event) { event.preventDefault(); })
-			.on('click', function (event) { if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;	});
-
-		// click anywhere else hides the drop down
-		function hide () {
-			var result;
-			if (typeof options.onHide == 'function') result = options.onHide();
-			if (result === false) return;
-			$('#w2ui-overlay').remove();
-			$(document).off('click', hide);
-		}
+		div1.data('obj', obj)
+			.data('fixSize', fixSize)
+			.fadeIn('fast').on('mousedown', function (event) { 
+				$('#w2ui-overlay'+ name).data('keepOpen', true); 
+				if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault(); 
+			});
 
 		// need time to display
 		fixSize();
-		setTimeout(fixSize, 0);
 		setTimeout(function () {
-			// onShow event
+			fixSize();
 			if (typeof options.onShow == 'function') options.onShow();
-		}, 0);
-		$('#w2ui-overlay').data('fixSize', fixSize);
+		}, 10);
 		return $(this);
+
+		// click anywhere else hides the drop down
+		function hide () {
+			var div1 = $('#w2ui-overlay'+ name);
+			if (div1.data('keepOpen') === true) {
+				div1.removeData('keepOpen');
+				return;
+			}
+			var result;
+			if (typeof options.onHide == 'function') result = options.onHide();
+			if (result === false) return;
+			div1.remove();
+			$(document).off('click', hide);
+			clearInterval(div1.data('timer'));
+		}
 
 		function fixSize () {
 			$(document).off('click', hide).on('click', hide);
-			var div = $('#w2ui-overlay > div');
+			var div1 = $('#w2ui-overlay'+ name);
+			var div2 = div1.find(' > div');
 			// if goes over the screen, limit height and width
-			if (div.length > 0) {
-				// Y coord
-				var top = ($(obj).offset().top + w2utils.getSize($(obj), 'height') + 3 + options.top) + 'px';
-				$('#w2ui-overlay').css('top', top);
+			if (div1.length > 0) {
+				div2.height('auto').width('auto');
 				// width/height
 				var overflowX = false;
 				var overflowY = false;
-				div.height('auto').width('auto');
-				var h = div.height();
-				var w = div.width();
+				var h = div2.height();
+				var w = div2.width();
+				// alignment
+				switch(options.align) {
+					case 'both':
+						options.left = 17;
+						options.width = w2utils.getSize($(obj), 'width');
+						break;
+					case 'left':
+						options.left = 17;
+						break;
+					case 'right':
+						options.tipLeft = w - 45;
+						options.left = w2utils.getSize($(obj), 'width') - w + 10;
+						break;
+				}
+				// Y coord
+				div1.css({
+					top			: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + options.top + 5) + 'px',
+					left		: ($(obj).offset().left + options.left) + 'px',
+					'min-width' : (options.width ? options.width : 'auto'),
+					'min-height': (options.height ? options.height : 'auto')
+				});
 				// $(window).height() - has a problem in FF20
-				var max = window.innerHeight + $(document).scrollTop() - div.offset().top - 7;
-				if (options.maxHeight && max > options.maxHeight) max = options.maxHeight;
-				if (h > max) { 
-					overflowY = true;
-					div.height(max).width(w).css({ 'overflow-y': 'auto' });
+				var maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
+				var maxWidth  = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
+
+				if (maxHeight > 0 && maxHeight < 210) {
+					// show on top
+					div1.css('top', ($(obj).offset().top - h - 24 + options.top) + 'px');
+					div1.find('>style').html(
+						'#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(options.tipLeft) +'px; }'+
+						'#w2ui-overlay'+ name +':after { display: block; margin-left: '+ parseInt(options.tipLeft) +'px; }'
+					);
+				} else {
+					// show under
+					maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
+					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
+					if (h > maxHeight) { 
+						overflowY = true;
+						div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
+					}
+					div1.find('>style').html(
+						'#w2ui-overlay'+ name +':before { display: block; margin-left: '+ parseInt(options.tipLeft) +'px; }'+
+						'#w2ui-overlay'+ name +':after { display: none; margin-left: '+ parseInt(options.tipLeft) +'px; }'
+					);
 				}
 				// check width
-				w = div.width();
-				max = window.innerWidth + $(document).scrollLeft() - div.offset().left - 7;
-				if (options.maxWidth && max > options.maxWidth) max = options.maxWidth;
-				if (w > max) {
-					overflowX = true;
-					div.width(max).css({ 'overflow-x': 'auto' });
+				w = div2.width();
+				maxWidth = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
+				if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth;
+				if (w > maxWidth && options.algin != 'both') {
+					options.align = 'right';
+					fixSize();
+					// overflowX = true;
+					// div2.width(maxWidth).css({ 'overflow-x': 'auto' });					
 				}
 				// check scroll bar
-				if (overflowY && overflowX) div.width(w + w2utils.scrollBarSize() + 2);
+				if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
 			}
 		}
 	};
@@ -1210,10 +1256,12 @@ w2utils.keyboard = (function (obj) {
 			onSelect 	: null
 		}
 		if (menu == 'refresh') {
+			var name = '';
+			if (options.name) name = '-' + options.name;
 			// if not show - call blur
-			if ($('#w2ui-overlay').length > 0) {
-				$('#w2ui-overlay > div').html(getMenuHTML(), options);
-				var fun = $('#w2ui-overlay').data('fixSize');
+			if ($('#w2ui-overlay'+ name).length > 0) {
+				$('#w2ui-overlay'+ name +' > div').html(getMenuHTML(), options);
+				var fun = $('#w2ui-overlay'+ name).data('fixSize');
 				if (typeof fun == 'function') fun();
 			} else {
 				$(this).w2menu(options);
@@ -1222,8 +1270,8 @@ w2utils.keyboard = (function (obj) {
 			if (arguments.length == 1) options = menu; else options.items = menu;
 			if (typeof options != 'object') options = {};
 			options = $.extend({}, defaults, options);
-			if (typeof options.select == 'function' && typeof options.onSelect == 'undefined') options.onSelect = options.select;
-			if (typeof options.onRender == 'function' && typeof options.render == 'undefined') options.render = options.onRender;
+			if (typeof options.select == 'function' && typeof options.onSelect != 'function') options.onSelect = options.select;
+			if (typeof options.onRender == 'function' && typeof options.render != 'function') options.render = options.onRender;
 			// since only one overlay can exist at a time
 			$.fn.w2menuHandler = function (event, index) {
 				if (typeof options.onSelect == 'function') {

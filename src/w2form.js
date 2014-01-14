@@ -259,8 +259,8 @@
 							//this.record[field.name] = w2utils.formatDate(this.record[field.name], 'mm/dd/yyyy');
 						}
 						break;
-					case 'select':
 					case 'list':
+					case 'combo':
 						break;
 					case 'enum':
 						break;
@@ -526,7 +526,7 @@
 				field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
 				if (field.html.caption == '') field.html.caption = field.name;
 				var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
-				if (field.type == 'list') input = '<select name="'+ field.name +'" '+ field.html.attr +'></select>';
+				// if (field.type == 'list') input = '<select name="'+ field.name +'" '+ field.html.attr +'></select>';
 				if (field.type == 'checkbox') input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
 				if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
 				html += '\n   <div class="w2ui-label '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ field.html.caption +':</div>'+
@@ -542,7 +542,7 @@
 			if (!$.isEmptyObject(this.actions)) {
 				buttons += '\n<div class="w2ui-buttons">';
 				for (var a in this.actions) {
-					buttons += '\n    <input type="button" value="'+ a +'" name="'+ a +'">';
+					buttons += '\n    <button name="'+ a +'" class="btn">'+ a + '</button>';
 				}
 				buttons += '\n</div>';
 			}
@@ -703,7 +703,8 @@
 				var field = this.fields[f];
 				var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
 				if (!field.el)  continue;
-				switch (String(field.type).toLowerCase()) {
+				field.type = String(field.type).toLowerCase();
+				switch (field.type) {
 					case 'email':
 					case 'text':
 					case 'textarea':
@@ -747,9 +748,9 @@
 						// hide passwords
 						field.el.value = value;
 						break;
-					case 'select':
 					case 'list':
-						$(field.el).w2field($.extend({}, field.options, { type: 'list', value: value }));
+					case 'combo':
+						$(field.el).w2field($.extend({}, field.options, { type: field.type, value: value }));
 						break;
 					case 'enum':
 						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {

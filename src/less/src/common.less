@@ -114,6 +114,22 @@ select {
 		margin: -9px 0 0 30px;
 	}
 
+	&:after {
+		display: none;
+		content: "";
+		position: absolute;
+		.transform-rotate(135deg);
+		width: 12px;
+		height: 12px;
+		border: @overlay-border;
+		border-color: inherit;
+		background-color: inherit;
+		border-left: 1px solid transparent;
+		border-bottom: 1px solid transparent;
+		border-bottom-left-radius: 50px;
+		margin: -7px 0 0 30px;
+	}
+
 	&.w2ui-overlay-popup {	// if it is inside popup 
 		z-index: 1700;
 	}
