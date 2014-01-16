@@ -9,6 +9,12 @@
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
 *	- create an example how to do cascadic dropdown
+*	- form should read <select> <options> into items
+* 	- two way data bindings
+* 	- verify validation of fields
+*
+* == 1.4 Changes ==
+*	- refactored for the new fields
 *
 ************************************************************************/
 
@@ -250,13 +256,6 @@
 						if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
 							errors.push({ field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format });
 						} else {
-							// convert to universal timestamp with time zone
-							//var d = new Date(this.record[field.name]);
-							//var tz = (d.getTimezoneOffset() > 0 ? '+' : '-') + Math.floor(d.getTimezoneOffset()/60) + ':' + (d.getTimezoneOffset() % 60);
-							//this.record[field.name] = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate() + ' '
-							//	+ d.getHours() + ':' + d.getSeconds() + ':' + d.getMilliseconds() + tz;
-							//this.record[field.name + '_unix'] = Math.round(d.getTime() / 1000);
-							//this.record[field.name] = w2utils.formatDate(this.record[field.name], 'mm/dd/yyyy');
 						}
 						break;
 					case 'list':
@@ -280,7 +279,19 @@
 			// show error
 			if (showErrors) for (var e in eventData.errors) {
 				var err = eventData.errors[e];
-				$(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+				if (err.field.type == 'radio') { // for radio and checkboxes
+					$($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
+				} else if (['enum', 'file'].indexOf(err.field.type) != -1) {
+					(function (err) {
+						setTimeout(function () {
+							var fld = $(err.field.el).data('w2field').helpers['multi'];
+							$(err.field.el).w2tag(err.error);
+							$(fld).addClass('w2ui-error');
+						}, 1);
+					})(err);
+				} else {
+					$(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+				}
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -647,7 +658,8 @@
 			// refresh values of all fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				field.el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')[0];
+				field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
+				field.el  = field.$el[0];
 				if (typeof field.el == 'undefined') {
 					console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
 					//return;
@@ -655,18 +667,33 @@
 				if (field.el) field.el.id = field.name;
 				var tmp = $(field).data('w2field');
 				if (tmp) tmp.clear();
-				$(field.el).off('change').on('change', function () {
+				$(field.$el).off('change').on('change', function () {
 					var value_new 		= this.value;
 					var value_previous 	= obj.record[this.name] ? obj.record[this.name] : '';
 					var field 			= obj.get(this.name);
-					if ((field.type == 'enum' || field.type == 'upload') && $(this).data('selected')) {
-						var new_arr = $(this).data('selected');
-						var cur_arr =  obj.record[this.name];
-						var value_new = [];
-						var value_previous = [];
-						if ($.isArray(new_arr)) for (var i in new_arr) value_new[i] = $.extend(true, {}, new_arr[i]); // clone array
-						if ($.isArray(cur_arr)) for (var i in cur_arr) value_previous[i] = $.extend(true, {}, cur_arr[i]); // clone array
+					if (['list', 'enum', 'file'].indexOf(field.type) != -1 && $(this).data('selected')) {
+						var nv = $(this).data('selected');
+						var cv = obj.record[this.name];
+						if ($.isArray(nv)) {
+							value_new = [];
+							for (var i in nv) value_new[i] = $.extend(true, {}, nv[i]); // clone array
+						}
+						if ($.isPlainObject(nv)) {
+							value_new = $.extend(true, {}, nv); // clone object
+						}
+						if ($.isArray(cv)) {
+							value_previous = [];
+							for (var i in cv) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+						}
+						if ($.isPlainObject(cv)) {
+							value_previous = $.extend(true, {}, cv); // clone object
+						}
 					}
+					// clean extra chars
+					if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {
+						value_new = $(this).data('w2field').clean(value_new);
+					}
+					if (value_new === value_previous) return;
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
 					if (eventData.isCancelled === true) { 
@@ -675,10 +702,22 @@
 					}
 					// default action 
 					var val = this.value;
+					if (this.type == 'select')   val = this.value;
 					if (this.type == 'checkbox') val = this.checked ? true : false;
-					if (this.type == 'radio')    val = this.checked ? true : false;
-					if (field.type == 'enum') 	 val = value_new;
-					if (field.type == 'upload')  val = value_new;
+					if (this.type == 'radio') {
+						field.$el.each(function (index, el) {
+							if (el.checked) val = el.value;
+						});
+					}
+					if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file'].indexOf(field.type) != -1) {
+						val = value_new;
+					}
+					if (['enum', 'file'].indexOf(field.type) != -1) {
+						if (val.length > 0) {
+							var fld = $(field.el).data('w2field').helpers['multi'];
+							$(fld).removeClass('w2ui-error');
+						}
+					}
 					obj.record[this.name] = val;
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -702,72 +741,60 @@
 			for (var f in this.fields) {
 				var field = this.fields[f];
 				var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
-				if (!field.el)  continue;
+				if (!field.el) continue;
 				field.type = String(field.type).toLowerCase();
+				if (!field.options) field.options = {};
 				switch (field.type) {
-					case 'email':
 					case 'text':
 					case 'textarea':
+					case 'email':
+					case 'password':
 						field.el.value = value;
-						break;
-					case 'date':
-						if (!field.options) field.options = {};
-						if (!field.options.format) field.options.format = w2utils.settings.date_format;
-						field.el.value = value;
-						this.record[field.name] = value;
-						$(field.el).w2field($.extend({}, field.options, { type: 'date' }));
 						break;
 					case 'int':
-						field.el.value = value;
-						$(field.el).w2field('int');
-						break;
 					case 'float':
-						field.el.value = value;
-						$(field.el).w2field('float');
-						break;
 					case 'money':
-						field.el.value = value;
-						$(field.el).w2field('money');
-						break;
+					case 'currency':
+					case 'percent':
 					case 'hex':
-						field.el.value = value;
-						$(field.el).w2field('hex');
-						break;
 					case 'alphanumeric':
+					case 'color':
+					case 'date':
+					case 'time':
 						field.el.value = value;
-						$(field.el).w2field('alphaNumeric');
+						$(field.el).w2field($.extend({}, field.options, { type: field.type }));
 						break;
-					case 'checkbox':
-						if (this.record[field.name] == true || this.record[field.name] == 1 || this.record[field.name] == 't') {
-							$(field.el).prop('checked', true);
-						} else {
-							$(field.el).prop('checked', false);
-						}
-						break;
-					case 'password':
-						// hide passwords
-						field.el.value = value;
-						break;
+
+					// enums
 					case 'list':
 					case 'combo':
-						$(field.el).w2field($.extend({}, field.options, { type: field.type, value: value }));
+						if (field.type == 'combo' && !$.isPlainObject(value)) {
+							field.el.value = value;
+						} else if ($.isPlainObject(value) && typeof value.text != 'undefined') {
+							field.el.value = value.text; 
+						} else {
+							field.el.value = '';
+						}
+						if (!$.isPlainObject(value)) value = {};
+						$(field.el).w2field($.extend({}, field.options, { type: field.type, selected: value }));
 						break;
 					case 'enum':
-						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {
-							console.log("ERROR: (w2form."+ obj.name +") the field "+ field.name +" defined as enum but not field.options.url or field.options.items provided.");
-							break;
-						}
-						// normalize value
-						// this.record[field.name] = w2obj.field.cleanItems(value);
-						value = this.record[field.name];
-						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: value }) );
+					case 'file':
+						if (!$.isArray(value)) value = [];
+						$(field.el).w2field($.extend({}, field.options, { type: field.type, selected: value }));
 						break;
-					case 'upload':
-						$(field.el).w2field($.extend({}, field.options, { type: 'upload', selected: value }));
+
+					// standard HTML
+					case 'select':
+						$(field.el).val(value);
 						break;
-					case 'color':
-						field.el.value = value;
-						$(field.el).w2field('color');
+					case 'radio':
+						$(field.$el).prop('checked', false).each(function (index, el) {
+							if ($(el).val() == value) $(el).prop('checked', true);
+						});
+						break;
+					case 'checkbox':
+						$(field.el).prop('checked', value ? true : false);
 						break;
 					default:
 						console.log('ERROR: field type "'+ field.type +'" is not recognized.');

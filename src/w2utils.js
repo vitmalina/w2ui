@@ -1296,15 +1296,17 @@ w2utils.keyboard = (function (obj) {
 					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
 					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
 					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
-					if (typeof mitem.img == 'undefined') mitem.img = null;
-					if (typeof mitem.icon == 'undefined') mitem.icon = null;
+					var img  = mitem.img;
+					var icon = mitem.icon;
+					if (typeof img  == 'undefined') img  = null;
+					if (typeof icon == 'undefined') icon = null;
 				}
 				if (mitem.hidden !== true) {
-					var img = '';
+					var imgd = '';
 					var txt = mitem.text;
 					if (typeof options.render == 'function') txt = options.render(mitem, options);
-					if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
-					if (mitem.icon) img = '<td align="center"><span class="w2ui-icon '+ mitem.icon +'"></span></td>';
+					if (img)  imgd = '<td><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
+					if (icon) imgd = '<td align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
 					// render only if non-empty
 					if (txt || txt === 0) {
 						var bg = (count % 2 == 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
@@ -1315,7 +1317,7 @@ w2utils.keyboard = (function (obj) {
 							'		onclick="$(document).click(); $.fn.w2menuHandler(event, \''+ f +'\');" '+
 							'		onmouseover="$(this).addClass(\'w2ui-selected\');" '+
 							'		onmouseout="$(this).removeClass(\'w2ui-selected\');">'+
-								img +
+								imgd +
 							'	<td>'+ txt +'</td>'+
 							'</tr>';
 						count++;
