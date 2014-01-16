@@ -460,9 +460,16 @@ select {
   min-width: 80px;
   margin-right: 5px;
 }
-.w2ui-form input[type=checkbox] {
+.w2ui-form input[type=checkbox],
+.w2ui-form input[type=radio] {
   margin-top: 4px;
   margin-bottom: 4px;
+}
+.w2ui-group-title {
+  padding: 5px 2px;
+  color: #8D96A2;
+  text-shadow: 1px 1px 2px #fdfdfd;
+  font-size: 120%;
 }
 .w2ui-group {
   background-color: #495474;
@@ -944,6 +951,7 @@ select {
   line-height: 100%;
   font-size: inherit;
   font-family: inherit;
+  background-color: transparent;
 }
 .w2ui-list ul li .w2ui-list-remove {
   float: right;
@@ -981,7 +989,7 @@ select {
   -o-box-sizing: border-box;
   box-sizing: border-box;
 }
-.w2ui-list.w2ui-upload-dragover {
+.w2ui-list.w2ui-file-dragover {
   background-color: #E4FFDA;
   border: 1px solid #93E07D;
 }

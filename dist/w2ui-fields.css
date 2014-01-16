@@ -619,6 +619,7 @@ select {
   line-height: 100%;
   font-size: inherit;
   font-family: inherit;
+  background-color: transparent;
 }
 .w2ui-list ul li .w2ui-list-remove {
   float: right;
@@ -656,7 +657,7 @@ select {
   -o-box-sizing: border-box;
   box-sizing: border-box;
 }
-.w2ui-list.w2ui-upload-dragover {
+.w2ui-list.w2ui-file-dragover {
   background-color: #E4FFDA;
   border: 1px solid #93E07D;
 }

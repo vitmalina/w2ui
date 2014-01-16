@@ -1297,15 +1297,17 @@ w2utils.keyboard = (function (obj) {
 					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
 					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
 					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
-					if (typeof mitem.img == 'undefined') mitem.img = null;
-					if (typeof mitem.icon == 'undefined') mitem.icon = null;
+					var img  = mitem.img;
+					var icon = mitem.icon;
+					if (typeof img  == 'undefined') img  = null;
+					if (typeof icon == 'undefined') icon = null;
 				}
 				if (mitem.hidden !== true) {
-					var img = '';
+					var imgd = '';
 					var txt = mitem.text;
 					if (typeof options.render == 'function') txt = options.render(mitem, options);
-					if (mitem.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ mitem.img +'"></div></td>';
-					if (mitem.icon) img = '<td align="center"><span class="w2ui-icon '+ mitem.icon +'"></span></td>';
+					if (img)  imgd = '<td><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
+					if (icon) imgd = '<td align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
 					// render only if non-empty
 					if (txt || txt === 0) {
 						var bg = (count % 2 == 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
@@ -1316,7 +1318,7 @@ w2utils.keyboard = (function (obj) {
 							'		onclick="$(document).click(); $.fn.w2menuHandler(event, \''+ f +'\');" '+
 							'		onmouseover="$(this).addClass(\'w2ui-selected\');" '+
 							'		onmouseout="$(this).removeClass(\'w2ui-selected\');">'+
-								img +
+								imgd +
 							'	<td>'+ txt +'</td>'+
 							'</tr>';
 						count++;
@@ -9592,7 +9594,7 @@ var w2confirm = function (msg, title, callBack) {
 				case 'combo':
 					defaults = {
 						items		: [],
-						selected	: [],
+						selected	: {},
 						placeholder	: '',
 						url 		: null, 		// url to pull data from
 						cacheMax	: 500,
@@ -9613,11 +9615,12 @@ var w2confirm = function (msg, title, callBack) {
 						altRows		: true			// alternate row color
 					});
 					this.options = options;
-					if (!$.isArray(options.selected)) options.selected = [];
+					if (!$.isPlainObject(options.selected)) options.selected = {};
 					$(this.el).data('selected', options.selected);
 					if (options.url) this.request(0);
 					this.addSuffix();
-					$(this.el).attr('placeholder', options.placeholder);					
+					$(this.el).attr('placeholder', options.placeholder);
+					if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
 					break;
 
 				case 'enum':
@@ -9660,7 +9663,7 @@ var w2confirm = function (msg, title, callBack) {
 					this.addMulti();
 					break;
 
-				case 'upload':
+				case 'file':
 					defaults = {
 						selected	: [],
 						placeholder	: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
@@ -9721,6 +9724,8 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		clear: function () {
+			var obj		 = this;
+			var options	 = this.options;
 			// restore paddings
 			var tmp = $(this.el).data('tmp');
 			if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
@@ -9756,7 +9761,7 @@ var w2confirm = function (msg, title, callBack) {
 			var options	 = this.options;
 			var selected = $(this.el).data('selected');
 			// enum
-			if (['enum', 'upload'].indexOf(this.type) != -1) {
+			if (['enum', 'file'].indexOf(this.type) != -1) {
 				var html = '';
 				for (var s in selected) {
 					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.itemMaxWidth) + 'px">'+
@@ -9802,6 +9807,7 @@ var w2confirm = function (msg, title, callBack) {
 							// default behavior
 							$().w2overlay();
 							selected.splice($(event.target).attr('index'), 1);
+							$(obj.el).trigger('change');
 							$(event.target).parent().fadeOut('fast');
 							setTimeout(function () { 
 								obj.refresh(); 
@@ -9809,7 +9815,7 @@ var w2confirm = function (msg, title, callBack) {
 								obj.trigger($.extend(eventData, { phase: 'after' }));
 							}, 300);
 						}
-						if (obj.type == 'upload' && !$(event.target).hasClass('w2ui-list-remove')) {
+						if (obj.type == 'file' && !$(event.target).hasClass('w2ui-list-remove')) {
 							var preview = '';
 							if ((/image/i).test(item.type)) { // image
 								preview = '<div style="padding: 3px;">'+
@@ -9892,45 +9898,60 @@ var w2confirm = function (msg, title, callBack) {
 			this.init();
 		},
 
+		clean: function (val) {
+			var options = this.options;
+			val = String(val).trim();
+			// clean
+			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
+				if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
+				if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
+				if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
+				if (parseFloat(val) == val) {
+					if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
+					if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
+				}
+				val = Number(val);
+			}
+			return val;
+		},
+
+		format: function (val) {
+			var options = this.options;
+			// autoformat numbers or money
+			if (options.autoFormat && val != '') {
+				switch (this.type) {
+					case 'money':
+					case 'currency':
+						val = w2utils.formatNumber(Number(val).toFixed(2), options.groupSymbol);
+						if (val != '') val = options.currencyPrefix + val + options.currencySuffix;
+						break;
+					case 'percent':
+						val = w2utils.formatNumber(options.precision ? Number(val).toFixed(options.precision) : val, options.groupSymbol);
+						if (val != '') val += '%';
+						break;
+					case 'float':
+						val = w2utils.formatNumber(options.precision ? Number(val).toFixed(options.precision) : val, options.groupSymbol);
+						break;
+					case 'int':
+						val = w2utils.formatNumber(val, options.groupSymbol);
+						break;
+				}
+			}
+			return val;
+		},
+
 		change: function (event) {
 			var obj 	= this;
 			var options = obj.options;
 			// numeric 
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
 				// check max/min
-				var val 	= $(this.el).val().trim();
-				var cancel 	= false;
-				if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
-				if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
-				if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
-				if (parseInt(val) == val) {
-					if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min).change(); cancel = true; }
-					if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max).change(); cancel = true; }
-				}
-				// autoformat numbers or money
-				if (options.autoFormat && val != '') {
-					val = Number(val);	// remove leading zeros
-					switch (this.type) {
-						case 'money':
-						case 'currency':
-							val = w2utils.formatNumber(Number(val).toFixed(2), options.groupSymbol);
-							if (val != '') val = options.currencyPrefix + val + options.currencySuffix;
-							break;
-						case 'percent':
-							val = w2utils.formatNumber(options.precision ? Number(val).toFixed(options.precision) : val, options.groupSymbol);
-							if (val != '') val += '%';
-							break;
-						case 'float':
-							val = w2utils.formatNumber(options.precision ? Number(val).toFixed(options.precision) : val, options.groupSymbol);
-							break;
-						case 'int':
-							val = w2utils.formatNumber(val, options.groupSymbol);
-							break;
-					}
-					if (val != '') $(this.el).val(val);
-				}
-				// if needs cancel
-				if (cancel) {
+				var val 	=  $(this.el).val();
+				var new_val = this.format(this.clean($(this.el).val()));
+				// if was modified
+				if (val != '' && val != new_val) {
+					$(this.el).val(new_val).change();
+					// cancel event
 					event.stopPropagation();
 					event.preventDefault();
 					return false;
@@ -9990,6 +10011,7 @@ var w2confirm = function (msg, title, callBack) {
 									if (eventData.isCancelled === true) return;
 									// default behavior
 									if (selected.length >= options.max && options.max > 0) selected.pop();
+									delete event.item._hidden;
 									selected.push(event.item);
 									$(obj.el).data('selected', selected).change();
 									$(obj.helpers['multi']).find('input').val('');
@@ -10005,8 +10027,8 @@ var w2confirm = function (msg, title, callBack) {
 					}));
 				}, 1);
 			}
-			// upload
-			if (this.type == 'upload') {
+			// file
+			if (this.type == 'file') {
 				$(this.helpers['multi']).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
 			}
 		},
@@ -10070,15 +10092,15 @@ var w2confirm = function (msg, title, callBack) {
 						$(this.el).w2tag('Not in list');
 						setTimeout(function () { $(this.el).w2tag(''); }, 3000);
 					}
-					for (var i in options.items) delete options.items.hidden;
+					for (var i in options.items) delete options.items._hidden;
 				}
 			}
 			// clear search input
 			if (['enum'].indexOf(this.type) != -1) {
 				$(this.helpers['multi']).find('input').val('');
 			}
-			// upload
-			if (this.type == 'upload') {
+			// file
+			if (this.type == 'file') {
 				$(this.helpers['multi']).css({ 'outline': 'none' });
 			}
 		},
@@ -10237,6 +10259,7 @@ var w2confirm = function (msg, title, callBack) {
 								if (eventData.isCancelled === true) return;
 								// default behavior
 								if (selected.length >= options.max && options.max > 0) selected.pop();
+								delete item._hidden;
 								selected.push(item);
 								$(this.el).change();
 								$(this.helpers['multi']).find('input').val('');
@@ -10251,13 +10274,14 @@ var w2confirm = function (msg, title, callBack) {
 						break;
 					case 8: // delete
 						if (['enum'].indexOf(this.type) != -1) {
-							if ($(this.helpers['multi']).find('input').val() == '') {
+							if ($(this.helpers['multi']).find('input').val() == '' && selected.length > 0) {
 								var item = selected[selected.length - 1];
 								// trigger event
 								var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
 								if (eventData.isCancelled === true) return;
 								// default behavior
 								selected.pop();
+								$(this.el).trigger('change');
 								this.refresh();
 								// event after
 								obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -10267,18 +10291,18 @@ var w2confirm = function (msg, title, callBack) {
 					case 38: // up
 						options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
 						options.index--;
-						while (options.index > 0 && options.items[options.index].hidden) options.index--;
-						if (options.index == 0 && options.items[options.index].hidden) {
-							while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+						while (options.index > 0 && options.items[options.index]._hidden) options.index--;
+						if (options.index == 0 && options.items[options.index]._hidden) {
+							while (options.items[options.index] && options.items[options.index]._hidden) options.index++;
 						}
 						cancel = true;
 						break;
 					case 40: // down
 						options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1;
 						options.index++;
-						while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
-						if (options.index == options.items.length-1 && options.items[options.index].hidden) {
-							while (options.items[options.index] && options.items[options.index].hidden) options.index--;
+						while (options.index < options.items.length-1 && options.items[options.index]._hidden) options.index++;
+						if (options.index == options.items.length-1 && options.items[options.index]._hidden) {
+							while (options.items[options.index] && options.items[options.index]._hidden) options.index--;
 						}
 						cancel = true;
 						break;
@@ -10407,13 +10431,13 @@ var w2confirm = function (msg, title, callBack) {
 					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
 					try { 
 						var re = new RegExp(prefix + search + suffix, 'i');
-						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
+						if (re.test(item.text) || item.text == '...') item._hidden = false; else item._hidden = true; 
 					} catch (e) {}
 					// do not show selected items
-					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
+					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item._hidden = true;
 				}
 				options.index = 0;
-				while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+				while (options.items[options.index] && options.items[options.index]._hidden) options.index++;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
 			}
@@ -10704,7 +10728,7 @@ var w2confirm = function (msg, title, callBack) {
 						'	</div>'+
 						'</div>';
 			} 
-			if (obj.type == 'upload') {
+			if (obj.type == 'file') {
 				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box;">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
@@ -10744,21 +10768,21 @@ var w2confirm = function (msg, title, callBack) {
 				// MAIN div
 				div.on('click', function (event) { $(this).find('input').focus(); });
 			}
-			if (obj.type == 'upload') {
+			if (obj.type == 'file') {
 				$(obj.el).css('outline', 'none');
 				div.on('click', function (event) {
 						obj.blur(event);
 						div.find('input').click();
 					})
 					.on('dragenter', function (event) {
-						$(div).addClass('w2ui-upload-dragover');
+						$(div).addClass('w2ui-file-dragover');
 					})
 					.on('dragleave', function (event) {
 						var tmp = $(event.target).parents('.w2ui-field-helper');
-						if (tmp.length == 0) $(div).removeClass('w2ui-upload-dragover');
+						if (tmp.length == 0) $(div).removeClass('w2ui-file-dragover');
 					})
 					.on('drop', function (event) {
-						$(div).removeClass('w2ui-upload-dragover');
+						$(div).removeClass('w2ui-file-dragover');
 						var files = event.originalEvent.dataTransfer.files;
 						for (var i=0, l=files.length; i<l; i++) obj.addFile.call(obj, files[i]);
 						// cancel to stop browser behaviour
@@ -10831,7 +10855,7 @@ var w2confirm = function (msg, title, callBack) {
 						var ind = fl.indexOf(',');
 						newItem.content = fl.substr(ind+1);
 						obj.refresh();
-						$(obj).trigger('change');
+						$(obj.el).trigger('change');
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					};
@@ -10839,7 +10863,7 @@ var w2confirm = function (msg, title, callBack) {
 				reader.readAsDataURL(file);
 			} else {
 				obj.refresh();
-				$(obj).trigger('change');
+				$(obj.el).trigger('change');
 			}
 		},
 
@@ -11023,6 +11047,12 @@ var w2confirm = function (msg, title, callBack) {
 *	- refresh(field) - would refresh only one field
 * 	- include delta on save
 *	- create an example how to do cascadic dropdown
+*	- form should read <select> <options> into items
+* 	- two way data bindings
+* 	- verify validation of fields
+*
+* == 1.4 Changes ==
+*	- refactored for the new fields
 *
 ************************************************************************/
 
@@ -11264,13 +11294,6 @@ var w2confirm = function (msg, title, callBack) {
 						if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
 							errors.push({ field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format });
 						} else {
-							// convert to universal timestamp with time zone
-							//var d = new Date(this.record[field.name]);
-							//var tz = (d.getTimezoneOffset() > 0 ? '+' : '-') + Math.floor(d.getTimezoneOffset()/60) + ':' + (d.getTimezoneOffset() % 60);
-							//this.record[field.name] = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate() + ' '
-							//	+ d.getHours() + ':' + d.getSeconds() + ':' + d.getMilliseconds() + tz;
-							//this.record[field.name + '_unix'] = Math.round(d.getTime() / 1000);
-							//this.record[field.name] = w2utils.formatDate(this.record[field.name], 'mm/dd/yyyy');
 						}
 						break;
 					case 'list':
@@ -11294,7 +11317,19 @@ var w2confirm = function (msg, title, callBack) {
 			// show error
 			if (showErrors) for (var e in eventData.errors) {
 				var err = eventData.errors[e];
-				$(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+				if (err.field.type == 'radio') { // for radio and checkboxes
+					$($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
+				} else if (['enum', 'file'].indexOf(err.field.type) != -1) {
+					(function (err) {
+						setTimeout(function () {
+							var fld = $(err.field.el).data('w2field').helpers['multi'];
+							$(err.field.el).w2tag(err.error);
+							$(fld).addClass('w2ui-error');
+						}, 1);
+					})(err);
+				} else {
+					$(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+				}
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -11661,7 +11696,8 @@ var w2confirm = function (msg, title, callBack) {
 			// refresh values of all fields
 			for (var f in this.fields) {
 				var field = this.fields[f];
-				field.el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')[0];
+				field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
+				field.el  = field.$el[0];
 				if (typeof field.el == 'undefined') {
 					console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
 					//return;
@@ -11669,18 +11705,33 @@ var w2confirm = function (msg, title, callBack) {
 				if (field.el) field.el.id = field.name;
 				var tmp = $(field).data('w2field');
 				if (tmp) tmp.clear();
-				$(field.el).off('change').on('change', function () {
+				$(field.$el).off('change').on('change', function () {
 					var value_new 		= this.value;
 					var value_previous 	= obj.record[this.name] ? obj.record[this.name] : '';
 					var field 			= obj.get(this.name);
-					if ((field.type == 'enum' || field.type == 'upload') && $(this).data('selected')) {
-						var new_arr = $(this).data('selected');
-						var cur_arr =  obj.record[this.name];
-						var value_new = [];
-						var value_previous = [];
-						if ($.isArray(new_arr)) for (var i in new_arr) value_new[i] = $.extend(true, {}, new_arr[i]); // clone array
-						if ($.isArray(cur_arr)) for (var i in cur_arr) value_previous[i] = $.extend(true, {}, cur_arr[i]); // clone array
+					if (['list', 'enum', 'file'].indexOf(field.type) != -1 && $(this).data('selected')) {
+						var nv = $(this).data('selected');
+						var cv = obj.record[this.name];
+						if ($.isArray(nv)) {
+							value_new = [];
+							for (var i in nv) value_new[i] = $.extend(true, {}, nv[i]); // clone array
+						}
+						if ($.isPlainObject(nv)) {
+							value_new = $.extend(true, {}, nv); // clone object
+						}
+						if ($.isArray(cv)) {
+							value_previous = [];
+							for (var i in cv) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+						}
+						if ($.isPlainObject(cv)) {
+							value_previous = $.extend(true, {}, cv); // clone object
+						}
 					}
+					// clean extra chars
+					if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {
+						value_new = $(this).data('w2field').clean(value_new);
+					}
+					if (value_new === value_previous) return;
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
 					if (eventData.isCancelled === true) { 
@@ -11689,10 +11740,22 @@ var w2confirm = function (msg, title, callBack) {
 					}
 					// default action 
 					var val = this.value;
+					if (this.type == 'select')   val = this.value;
 					if (this.type == 'checkbox') val = this.checked ? true : false;
-					if (this.type == 'radio')    val = this.checked ? true : false;
-					if (field.type == 'enum') 	 val = value_new;
-					if (field.type == 'upload')  val = value_new;
+					if (this.type == 'radio') {
+						field.$el.each(function (index, el) {
+							if (el.checked) val = el.value;
+						});
+					}
+					if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file'].indexOf(field.type) != -1) {
+						val = value_new;
+					}
+					if (['enum', 'file'].indexOf(field.type) != -1) {
+						if (val.length > 0) {
+							var fld = $(field.el).data('w2field').helpers['multi'];
+							$(fld).removeClass('w2ui-error');
+						}
+					}
 					obj.record[this.name] = val;
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -11716,72 +11779,60 @@ var w2confirm = function (msg, title, callBack) {
 			for (var f in this.fields) {
 				var field = this.fields[f];
 				var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
-				if (!field.el)  continue;
+				if (!field.el) continue;
 				field.type = String(field.type).toLowerCase();
+				if (!field.options) field.options = {};
 				switch (field.type) {
-					case 'email':
 					case 'text':
 					case 'textarea':
+					case 'email':
+					case 'password':
 						field.el.value = value;
-						break;
-					case 'date':
-						if (!field.options) field.options = {};
-						if (!field.options.format) field.options.format = w2utils.settings.date_format;
-						field.el.value = value;
-						this.record[field.name] = value;
-						$(field.el).w2field($.extend({}, field.options, { type: 'date' }));
 						break;
 					case 'int':
-						field.el.value = value;
-						$(field.el).w2field('int');
-						break;
 					case 'float':
-						field.el.value = value;
-						$(field.el).w2field('float');
-						break;
 					case 'money':
-						field.el.value = value;
-						$(field.el).w2field('money');
-						break;
+					case 'currency':
+					case 'percent':
 					case 'hex':
-						field.el.value = value;
-						$(field.el).w2field('hex');
-						break;
 					case 'alphanumeric':
+					case 'color':
+					case 'date':
+					case 'time':
 						field.el.value = value;
-						$(field.el).w2field('alphaNumeric');
+						$(field.el).w2field($.extend({}, field.options, { type: field.type }));
 						break;
-					case 'checkbox':
-						if (this.record[field.name] == true || this.record[field.name] == 1 || this.record[field.name] == 't') {
-							$(field.el).prop('checked', true);
-						} else {
-							$(field.el).prop('checked', false);
-						}
-						break;
-					case 'password':
-						// hide passwords
-						field.el.value = value;
-						break;
+
+					// enums
 					case 'list':
 					case 'combo':
-						$(field.el).w2field($.extend({}, field.options, { type: field.type, value: value }));
+						if (field.type == 'combo' && !$.isPlainObject(value)) {
+							field.el.value = value;
+						} else if ($.isPlainObject(value) && typeof value.text != 'undefined') {
+							field.el.value = value.text; 
+						} else {
+							field.el.value = '';
+						}
+						if (!$.isPlainObject(value)) value = {};
+						$(field.el).w2field($.extend({}, field.options, { type: field.type, selected: value }));
 						break;
 					case 'enum':
-						if (typeof field.options == 'undefined' || (typeof field.options.url == 'undefined' && typeof field.options.items == 'undefined')) {
-							console.log("ERROR: (w2form."+ obj.name +") the field "+ field.name +" defined as enum but not field.options.url or field.options.items provided.");
-							break;
-						}
-						// normalize value
-						// this.record[field.name] = w2obj.field.cleanItems(value);
-						value = this.record[field.name];
-						$(field.el).w2field( $.extend({}, field.options, { type: 'enum', selected: value }) );
+					case 'file':
+						if (!$.isArray(value)) value = [];
+						$(field.el).w2field($.extend({}, field.options, { type: field.type, selected: value }));
 						break;
-					case 'upload':
-						$(field.el).w2field($.extend({}, field.options, { type: 'upload', selected: value }));
+
+					// standard HTML
+					case 'select':
+						$(field.el).val(value);
 						break;
-					case 'color':
-						field.el.value = value;
-						$(field.el).w2field('color');
+					case 'radio':
+						$(field.$el).prop('checked', false).each(function (index, el) {
+							if ($(el).val() == value) $(el).prop('checked', true);
+						});
+						break;
+					case 'checkbox':
+						$(field.el).prop('checked', value ? true : false);
 						break;
 					default:
 						console.log('ERROR: field type "'+ field.type +'" is not recognized.');
