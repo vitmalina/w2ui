@@ -272,13 +272,19 @@
 						items		: [],
 						selected	: [],
 						placeholder	: '',
-						max 		: 0,
+						max 		: 0,		// max number of selected items, 0 - unlim
 						url 		: null, 	// not implemented
 						cacheMax	: 500,
 						maxWidth	: null,		// max width for input control to grow
 						maxHeight	: 350,		// max height for input control to grow
 						match		: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
 						silent		: true,
+						showAll		: false, 	// weather to apply filter or not when typing
+						markSearch 	: true,
+						render		: null, 	// render function for drop down item
+						itemRender	: null,		// render selected item
+						itemsHeight : 350,		// max height for the control to grow
+						itemMaxWidth: 250,		// max width for a single item
 						onSearch	: null,		// when search needs to be performed
 						onRequest	: null,		// when request is submitted
 						onLoad		: null,		// when data is received
@@ -286,13 +292,7 @@
 						onAdd		: null,		// when an item is added
 						onRemove	: null,		// when an item is removed
 						onMouseOver : null,		// when an item is mouse over
-						onMouseOut	: null,		// when an item is mouse out
-						render		: null, 	// render function for drop down item
-						itemRender	: null,		// render selected item
-						itemsHeight : 350,		// max height for the control to grow
-						itemMaxWidth: 250,		// max width for a single item
-						showAll		: false, 	// weather to apply filter or not when typing
-						markSearch 	: true
+						onMouseOut	: null		// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -316,9 +316,10 @@
 						maxFileSize	: 0,		// max size of a single file, 0 -unlim
 						maxWidth	: null,		// max width for input control to grow
 						maxHeight	: 350,		// max height for input control to grow
-						itemMaxWidth: 250,		// max width for a single item
-						render		: null, 	// render function for drop down item
 						silent		: true,
+						itemRender	: null,		// render selected item
+						itemMaxWidth: 250,		// max width for a single item
+						itemsHeight : 350,		// max height for the control to grow
 						onClick		: null,		// when an item is clicked
 						onAdd		: null,		// when an item is added
 						onRemove	: null,		// when an item is removed
@@ -655,7 +656,7 @@
 									if (eventData.isCancelled === true) return;
 									// default behavior
 									if (selected.length >= options.max && options.max > 0) selected.pop();
-									delete event.item._hidden;
+									delete event.item.hidden;
 									selected.push(event.item);
 									$(obj.el).data('selected', selected).change();
 									$(obj.helpers['multi']).find('input').val('');
@@ -736,7 +737,7 @@
 						$(this.el).w2tag('Not in list');
 						setTimeout(function () { $(this.el).w2tag(''); }, 3000);
 					}
-					for (var i in options.items) delete options.items._hidden;
+					for (var i in options.items) delete options.items.hidden;
 				}
 			}
 			// clear search input
@@ -903,7 +904,7 @@
 								if (eventData.isCancelled === true) return;
 								// default behavior
 								if (selected.length >= options.max && options.max > 0) selected.pop();
-								delete item._hidden;
+								delete item.hidden;
 								selected.push(item);
 								$(this.el).change();
 								$(this.helpers['multi']).find('input').val('');
@@ -935,18 +936,18 @@
 					case 38: // up
 						options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
 						options.index--;
-						while (options.index > 0 && options.items[options.index]._hidden) options.index--;
-						if (options.index == 0 && options.items[options.index]._hidden) {
-							while (options.items[options.index] && options.items[options.index]._hidden) options.index++;
+						while (options.index > 0 && options.items[options.index].hidden) options.index--;
+						if (options.index == 0 && options.items[options.index].hidden) {
+							while (options.items[options.index] && options.items[options.index].hidden) options.index++;
 						}
 						cancel = true;
 						break;
 					case 40: // down
 						options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1;
 						options.index++;
-						while (options.index < options.items.length-1 && options.items[options.index]._hidden) options.index++;
-						if (options.index == options.items.length-1 && options.items[options.index]._hidden) {
-							while (options.items[options.index] && options.items[options.index]._hidden) options.index--;
+						while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
+						if (options.index == options.items.length-1 && options.items[options.index].hidden) {
+							while (options.items[options.index] && options.items[options.index].hidden) options.index--;
 						}
 						cancel = true;
 						break;
@@ -1075,13 +1076,13 @@
 					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
 					try { 
 						var re = new RegExp(prefix + search + suffix, 'i');
-						if (re.test(item.text) || item.text == '...') item._hidden = false; else item._hidden = true; 
+						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
 					} catch (e) {}
 					// do not show selected items
-					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item._hidden = true;
+					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
 				}
 				options.index = 0;
-				while (options.items[options.index] && options.items[options.index]._hidden) options.index++;
+				while (options.items[options.index] && options.items[options.index].hidden) options.index++;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
 			}

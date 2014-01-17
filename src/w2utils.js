@@ -1201,9 +1201,15 @@ w2utils.keyboard = (function (obj) {
 				// $(window).height() - has a problem in FF20
 				var maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
 				var maxWidth  = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
-
-				if (maxHeight > 0 && maxHeight < 210) {
+				if (maxHeight > -30 && maxHeight < 210) {
 					// show on top
+					maxHeight = div2.offset().top - $(document).scrollTop() - 7;
+					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
+					if (h > maxHeight) { 
+						overflowY = true;
+						div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
+						h = maxHeight;
+					}
 					div1.css('top', ($(obj).offset().top - h - 24 + options.top) + 'px');
 					div1.find('>style').html(
 						'#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(options.tipLeft) +'px; }'+
@@ -1211,7 +1217,6 @@ w2utils.keyboard = (function (obj) {
 					);
 				} else {
 					// show under
-					maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
 					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
 					if (h > maxHeight) { 
 						overflowY = true;
@@ -1226,11 +1231,9 @@ w2utils.keyboard = (function (obj) {
 				w = div2.width();
 				maxWidth = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
 				if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth;
-				if (w > maxWidth && options.algin != 'both') {
+				if (w > maxWidth && options.align != 'both') {
 					options.align = 'right';
-					fixSize();
-					// overflowX = true;
-					// div2.width(maxWidth).css({ 'overflow-x': 'auto' });					
+					setTimeout(function () { fixSize(); }, 1);
 				}
 				// check scroll bar
 				if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
