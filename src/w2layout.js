@@ -59,9 +59,8 @@
 			// add all other panels
 			for (var p1 in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) {
 				if (object.get(p1) !== null) continue;
-				object.panels[p1] = $.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: true, size: 50 });
+				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 == 'main' ? false : true), size: 50 }));
 			}
-
 			if ($(this).length > 0) {
 				object.render($(this)[0]);
 			}
@@ -159,7 +158,7 @@
 				if (tmp.length > 0 && typeof p.style != 'undefined') tmp[0].style.cssText = p.style;
 				if (p.content === '') {
 					p.content = data;
-					if (!p.hidden) this.refresh(panel);
+					this.refresh(panel);
 				} else {
 					p.content = data;
 					if (!p.hidden) {
@@ -182,16 +181,17 @@
 								div2.removeClass('new-panel');
 								div2.css('overflow', p.overflow);
 								// IE Hack
-								if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
+								obj.resize();
+								if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
 							});
-						} else {
-							if (!p.hidden) this.refresh(panel);
 						}
 					}
+					this.refresh(panel);
 				}
 			}
 			// IE Hack
-			if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
+			obj.resize();
+			if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
 			return true;
 		},
 
@@ -209,7 +209,8 @@
 					obj.content(panel, xhr.responseText, transition);
 					if (onLoad) onLoad();
 					// IE Hack
-					if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
+					obj.resize();
+					if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
 				});
 				return true;
 			}
@@ -784,7 +785,7 @@
 				h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
 						(sbottom ? pbottom.sizeCalculated + this.padding : 0);
 				e = $('#layout_'+ this.name +'_panel_left');
-				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
+				if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 				e.css({
 					'display': 'block',
 					'left': l + 'px',
@@ -892,7 +893,7 @@
 				(sbottom ? pbottom.sizeCalculated + this.padding : 0) -
 				(sprev ? pprev.sizeCalculated + this.padding : 0);
 			e = $('#layout_'+ this.name +'_panel_main');
-			if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
+			if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 			e.css({
 				'display': 'block',
 				'left': l + 'px',
@@ -911,7 +912,7 @@
 					(sright ? pright.sizeCalculated + this.padding : 0);
 				h = pprev.sizeCalculated;
 				e = $('#layout_'+ this.name +'_panel_preview');
-				if (window.navigator.userAgent.indexOf('MSIE') > 0 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
+				if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
 				e.css({
 					'display': 'block',
 					'left': l + 'px',
