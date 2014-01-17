@@ -5,7 +5,7 @@
   border-radius: 4px;
   font-size: 12px !important;
   margin: 0px 5px !important;
-  padding: 4px !important;
+  padding: 5px !important;
   color: #666;
   border: 1px solid #B6B6B6;
   background: -webkit-linear-gradient(top, #ffffff 0%, #e7e7e7 100%);
@@ -13,7 +13,7 @@
   box-shadow: 0px 1px 0px white;
   cursor: default;
   min-width: 75px;
-  line-height: normal !important;
+  line-height: 100% !important;
 }
 .btn:hover {
   text-decoration: none;
@@ -278,7 +278,7 @@ select {
   margin-top: 0px;
   color: #000000 !important;
   box-shadow: 1px 1px 5px #000000;
-  line-height: normal;
+  line-height: 100%;
   font-size: 11px;
   font-family: Verdana, Arial;
 }
@@ -917,14 +917,14 @@ select {
   margin: 2px 1px 0px 2px;
   border-radius: 10px;
   width: auto;
-  padding: 1px 12px 1px 10px;
+  padding: 2px 12px 1px 10px;
   border: 1px solid #777f8c;
   background-color: #353d5b;
   white-space: nowrap;
   cursor: default;
   font-family: verdana;
   font-size: 11px;
-  line-height: normal;
+  line-height: 100%;
   height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -955,9 +955,9 @@ select {
 }
 .w2ui-list ul li .w2ui-list-remove {
   float: right;
-  width: 14px;
+  width: 15px;
   height: 14px;
-  margin: 1px -10px 0px 4px;
+  margin: -1px -9px 0px 5px;
   border-radius: 15px;
 }
 .w2ui-list ul li .w2ui-list-remove:hover {
@@ -966,13 +966,17 @@ select {
 }
 .w2ui-list ul li .w2ui-list-remove:before {
   position: relative;
-  top: -1px;
-  left: 4px;
+  top: 0px;
+  padding: 0px;
+  margin: 0px;
+  left: 5px;
   color: inherit;
   opacity: 0.7;
   text-shadow: inherit;
   font-size: inherit;
+  font-variant: small-caps;
   content: 'x';
+  line-height: 100%;
 }
 .w2ui-list ul li > span.file-size {
   pointer-events: none;
@@ -1610,7 +1614,6 @@ select {
 .w2ui-overlay .w2ui-grid-searches table td.close-btn button {
   min-width: 24px;
   height: 22px;
-  padding-top: 3px !important;
 }
 .w2ui-overlay .w2ui-grid-searches table td.caption {
   text-align: right;

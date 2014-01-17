@@ -1202,9 +1202,15 @@ w2utils.keyboard = (function (obj) {
 				// $(window).height() - has a problem in FF20
 				var maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
 				var maxWidth  = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
-
-				if (maxHeight > 0 && maxHeight < 210) {
+				if (maxHeight > -30 && maxHeight < 210) {
 					// show on top
+					maxHeight = div2.offset().top - $(document).scrollTop() - 7;
+					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
+					if (h > maxHeight) { 
+						overflowY = true;
+						div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
+						h = maxHeight;
+					}
 					div1.css('top', ($(obj).offset().top - h - 24 + options.top) + 'px');
 					div1.find('>style').html(
 						'#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(options.tipLeft) +'px; }'+
@@ -1212,7 +1218,6 @@ w2utils.keyboard = (function (obj) {
 					);
 				} else {
 					// show under
-					maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
 					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
 					if (h > maxHeight) { 
 						overflowY = true;
@@ -1227,11 +1232,9 @@ w2utils.keyboard = (function (obj) {
 				w = div2.width();
 				maxWidth = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
 				if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth;
-				if (w > maxWidth && options.algin != 'both') {
+				if (w > maxWidth && options.align != 'both') {
 					options.align = 'right';
-					fixSize();
-					// overflowX = true;
-					// div2.width(maxWidth).css({ 'overflow-x': 'auto' });					
+					setTimeout(function () { fixSize(); }, 1);
 				}
 				// check scroll bar
 				if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
@@ -1608,13 +1611,19 @@ w2utils.keyboard = (function (obj) {
 						items		: [],
 						selected	: [],
 						placeholder	: '',
-						max 		: 0,
+						max 		: 0,		// max number of selected items, 0 - unlim
 						url 		: null, 	// not implemented
 						cacheMax	: 500,
 						maxWidth	: null,		// max width for input control to grow
 						maxHeight	: 350,		// max height for input control to grow
 						match		: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
 						silent		: true,
+						showAll		: false, 	// weather to apply filter or not when typing
+						markSearch 	: true,
+						render		: null, 	// render function for drop down item
+						itemRender	: null,		// render selected item
+						itemsHeight : 350,		// max height for the control to grow
+						itemMaxWidth: 250,		// max width for a single item
 						onSearch	: null,		// when search needs to be performed
 						onRequest	: null,		// when request is submitted
 						onLoad		: null,		// when data is received
@@ -1622,13 +1631,7 @@ w2utils.keyboard = (function (obj) {
 						onAdd		: null,		// when an item is added
 						onRemove	: null,		// when an item is removed
 						onMouseOver : null,		// when an item is mouse over
-						onMouseOut	: null,		// when an item is mouse out
-						render		: null, 	// render function for drop down item
-						itemRender	: null,		// render selected item
-						itemsHeight : 350,		// max height for the control to grow
-						itemMaxWidth: 250,		// max width for a single item
-						showAll		: false, 	// weather to apply filter or not when typing
-						markSearch 	: true
+						onMouseOut	: null		// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -1652,9 +1655,10 @@ w2utils.keyboard = (function (obj) {
 						maxFileSize	: 0,		// max size of a single file, 0 -unlim
 						maxWidth	: null,		// max width for input control to grow
 						maxHeight	: 350,		// max height for input control to grow
-						itemMaxWidth: 250,		// max width for a single item
-						render		: null, 	// render function for drop down item
 						silent		: true,
+						itemRender	: null,		// render selected item
+						itemMaxWidth: 250,		// max width for a single item
+						itemsHeight : 350,		// max height for the control to grow
 						onClick		: null,		// when an item is clicked
 						onAdd		: null,		// when an item is added
 						onRemove	: null,		// when an item is removed
@@ -1991,7 +1995,7 @@ w2utils.keyboard = (function (obj) {
 									if (eventData.isCancelled === true) return;
 									// default behavior
 									if (selected.length >= options.max && options.max > 0) selected.pop();
-									delete event.item._hidden;
+									delete event.item.hidden;
 									selected.push(event.item);
 									$(obj.el).data('selected', selected).change();
 									$(obj.helpers['multi']).find('input').val('');
@@ -2072,7 +2076,7 @@ w2utils.keyboard = (function (obj) {
 						$(this.el).w2tag('Not in list');
 						setTimeout(function () { $(this.el).w2tag(''); }, 3000);
 					}
-					for (var i in options.items) delete options.items._hidden;
+					for (var i in options.items) delete options.items.hidden;
 				}
 			}
 			// clear search input
@@ -2239,7 +2243,7 @@ w2utils.keyboard = (function (obj) {
 								if (eventData.isCancelled === true) return;
 								// default behavior
 								if (selected.length >= options.max && options.max > 0) selected.pop();
-								delete item._hidden;
+								delete item.hidden;
 								selected.push(item);
 								$(this.el).change();
 								$(this.helpers['multi']).find('input').val('');
@@ -2271,18 +2275,18 @@ w2utils.keyboard = (function (obj) {
 					case 38: // up
 						options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
 						options.index--;
-						while (options.index > 0 && options.items[options.index]._hidden) options.index--;
-						if (options.index == 0 && options.items[options.index]._hidden) {
-							while (options.items[options.index] && options.items[options.index]._hidden) options.index++;
+						while (options.index > 0 && options.items[options.index].hidden) options.index--;
+						if (options.index == 0 && options.items[options.index].hidden) {
+							while (options.items[options.index] && options.items[options.index].hidden) options.index++;
 						}
 						cancel = true;
 						break;
 					case 40: // down
 						options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1;
 						options.index++;
-						while (options.index < options.items.length-1 && options.items[options.index]._hidden) options.index++;
-						if (options.index == options.items.length-1 && options.items[options.index]._hidden) {
-							while (options.items[options.index] && options.items[options.index]._hidden) options.index--;
+						while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
+						if (options.index == options.items.length-1 && options.items[options.index].hidden) {
+							while (options.items[options.index] && options.items[options.index].hidden) options.index--;
 						}
 						cancel = true;
 						break;
@@ -2411,13 +2415,13 @@ w2utils.keyboard = (function (obj) {
 					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
 					try { 
 						var re = new RegExp(prefix + search + suffix, 'i');
-						if (re.test(item.text) || item.text == '...') item._hidden = false; else item._hidden = true; 
+						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
 					} catch (e) {}
 					// do not show selected items
-					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item._hidden = true;
+					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
 				}
 				options.index = 0;
-				while (options.items[options.index] && options.items[options.index]._hidden) options.index++;
+				while (options.items[options.index] && options.items[options.index].hidden) options.index++;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
 			}
