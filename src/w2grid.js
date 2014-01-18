@@ -38,6 +38,8 @@
 *	- added reorderColumns
 *	- removed name from the POST
 *	- rename: markSearchResults -> markSearch
+*	- refactored inline editing
+*	- added getCellValue(ind, col_ind, [summary])
 *
 ************************************************************************/
 
@@ -142,9 +144,7 @@
 			selection 	: {
 				recids 	: [],
 				columns	: {},
-				clean	: function () {
-					console.log('selection clean')
-				}
+				clean	: function () {}
 			},
 			multi		: false,
 			scrollTop	: 0,
@@ -156,7 +156,8 @@
 			range_end   : null,
 			sel_ind		: null,
 			sel_col		: null,
-			sel_type	: null
+			sel_type	: null,
+			edit_col	: null
 		};
 
 		this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
@@ -1349,7 +1350,6 @@
 				this.offset = parseInt(offset);
 				if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
 				if (this.offset > this.total) this.offset = this.total - this.limit;
-				// console.log('last', this.last);
 				this.records  = [];
 				this.buffered = 0;
 				this.last.xhr_offset = 0;
@@ -1606,8 +1606,12 @@
 			var index = obj.get(recid, true);
 			var rec   = obj.records[index];
 			var col   = obj.columns[column];
-			var edit  = col.editable;
+			var edit  = col ? col.editable : null;
 			if (!rec || !col || !edit) return;
+			if (['enum', 'file'].indexOf(edit.type) != -1) {
+				console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
+				return;
+			}
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'editField', target: obj.name, recid: recid, column: column, value: value,
 				index: index, originalEvent: event });
@@ -1616,11 +1620,10 @@
 			// default behaviour
 			this.selectNone();
 			this.select({ recid: recid, column: column });
+			this.last.edit_col = column;
 			// create input element
 			var tr = $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(recid));
 			var el = tr.find('[col='+ column +'] > div');
-			// if (edit.type == 'enum') console.log('ERROR: Grid\'s inline editing does not support enum field type.');
-			// if (edit.type == 'list' || edit.type == 'select') console.log('ERROR: Grid\'s inline editing does not support list/select field type.');
 			if (typeof edit.inTag   == 'undefined') edit.inTag   = '';
 			if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
 			if (typeof edit.style   == 'undefined') edit.style   = '';
@@ -1629,21 +1632,30 @@
 			if (val == null || typeof val == 'undefined') val = '';
 			if (typeof value != 'undefined' && value != null) val = value;
 			var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
-			if ($.inArray(col.render, ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle += 'text-align: right;';
+			if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
+				addStyle += 'text-align: right;';
+			}
 			el.addClass('w2ui-editable')
-				.html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" value="'+ val +'" type="text"  '+
+				.html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" value="'+ (typeof val != 'object' ? val : '') +'" type="text"  '+
 					'	style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
 					'>' + edit.outTag);
 			el.find('input')
-				.w2field(edit.type, edit)
+				.w2field(edit.type, $.extend(edit, { selected: val }))
 				.on('blur', function (event) {
-					if (obj.parseField(rec, col.field) != this.value) {
+					// all other fields
+					var new_val = this.value;
+					if (obj.parseField(rec, col.field) != new_val) {
+						var tmp = $(this).data('w2field');
+						if (tmp) new_val = tmp.clean(new_val);
+						if (tmp.type == 'list') new_val = $(this).data('selected');
 						// change event
-						var eventData2 = obj.trigger({ phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column,
-							value_new: this.value, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseField(rec, col.field)),
-							value_original: obj.parseField(rec, col.field) });
-						if (eventData2.isCancelled === true) {
-							// dont save new value
+						var eventData2 = obj.trigger({ 
+							phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column,
+							value_new: new_val, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseField(rec, col.field)),
+							value_original: obj.parseField(rec, col.field) 
+						});
+						if (eventData2.isCancelled === true || (new_val === '' && typeof eventData2.value_previous == 'undefined')) {
+							// don't save new value
 						} else {
 							// default action
 							rec.changed = true;
@@ -1664,39 +1676,57 @@
 					switch (event.keyCode) {
 						case 9:  // tab
 							cancel = true;
-							var next = event.shiftKey ? prevCell(column) : nextCell(column);
-							if (next != column) {
-								this.blur();
-								setTimeout(function () {
-									if (obj.selectType != 'row') {
-										obj.selectNone();
-										obj.select({ recid: recid, column: next });
-									} else {
-										obj.editField(recid, next, null, event);
+							var next_rec = recid;
+							var next_col = event.shiftKey ? prevCell(column) : nextCell(column);
+							// next or prev row
+							if (next_col === false) {
+								var tmp = event.shiftKey ? prevRow(index) : nextRow(index);
+								if (tmp != index) {
+									next_rec = obj.records[tmp].recid;
+									// find first editable row
+									for (var c in obj.columns) {
+										if (obj.columns[c].editable) {
+											next_col = parseInt(c);
+											if (!event.shiftKey) break;
+										}
 									}
-								}, 1);
+								}
+
 							}
+							if (next_rec === false) next_rec = recid;
+							if (next_col === false) next_col = column;
+							// init new or same record
+							this.blur();
+							setTimeout(function () {
+								if (obj.selectType != 'row') {
+									obj.selectNone();
+									obj.select({ recid: next_rec, column: next_col });
+								} else {
+									obj.editField(next_rec, next_col, null, event);
+								}
+							}, 1);
 							break;
 
 						case 13: // enter
-							// //cancel = true;
+							// stay if combo
+							if (['list', 'combo'].indexOf(edit.type) != -1) break;
+							// cancel = true;
 							var next = event.shiftKey ? prevRow(index) : nextRow(index);
+							this.blur();
 							if (next != index) {
-								this.blur();
 								setTimeout(function () {
-									console.log('ct', $(el).find('input').data('selected'));
-									// if (obj.selectType != 'row') {
-									// 	obj.selectNone();
-									// 	obj.select({ recid: obj.records[next].recid, column: column });
-									// } else {
-									// 	obj.editField(obj.records[next].recid, column, null, event);
-									// }
+									if (obj.selectType != 'row') {
+										obj.selectNone();
+										obj.select({ recid: obj.records[next].recid, column: column });
+									} else {
+										obj.editField(obj.records[next].recid, column, null, event);
+									}
 								}, 100);
 							}
 							break;
 
 						case 38: // up arrow
-							break;
+							if (!event.shiftKey) break;
 							cancel = true;
 							var next = prevRow(index);
 							if (next != index) {
@@ -1713,7 +1743,7 @@
 							break;
 
 						case 40: // down arrow
-							break;
+							if (!event.shiftKey) break;
 							cancel = true;
 							var next = nextRow(index);
 							if (next != index) {
@@ -1740,14 +1770,14 @@
 					// -- functions
 					function nextCell (check) {
 						var newCheck = check + 1;
-						if (obj.columns.length == newCheck) return check;
-						if (obj.columns[newCheck].hidden) return nextCell(newCheck);
+						if (obj.columns.length == newCheck) return false;
+						if (obj.columns[newCheck].hidden || typeof obj.columns[newCheck].editable == 'undefined') return nextCell(newCheck);
 						return newCheck;
 					}
 					function prevCell (check) {
 						var newCheck = check - 1;
-						if (newCheck < 0) return check;
-						if (obj.columns[newCheck].hidden) return prevCell(newCheck);
+						if (newCheck < 0) return false;
+						if (obj.columns[newCheck].hidden || typeof obj.columns[newCheck].editable == 'undefined') return prevCell(newCheck);
 						return newCheck;
 					}
 					function nextRow (check) {
@@ -1761,12 +1791,8 @@
 						return newCheck;
 					}
 				});
-			// unselect
-			if (typeof value == 'undefined' || value == null) {
-				setTimeout(function () { el.find('input').focus(); }, 1);
-			} else {
-				setTimeout(function () { el.find('input').val('').focus().val(value); }, 1);
-			}
+			// focus and select
+			setTimeout(function () { el.find('input').focus().select(); }, 1);
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -1997,14 +2023,23 @@
 					break;
 
 				case 13: // enter
-					if (this.selectType == 'row') {
-						if (recEL.length <= 0 || obj.show.expandColumn !== true) break;
+					// if expandable columns - expand it
+					if (this.selectType == 'row' && obj.show.expandColumn === true) {
+						if (recEL.length <= 0) break;
 						obj.toggle(recid, event);
 						cancel = true;
-					} else {
-						if (columns.length == 0) columns.push(0);
-						obj.editField(recid, columns[0], null, event);
-						cancel = true;
+					} else { // or enter edit
+						for (var c in this.columns) {
+							if (this.columns[c].editable) {
+								columns.push(parseInt(c));
+								break;
+							}
+						}
+						if (this.last.edit_col) columns = [this.last.edit_col]; // edit last column that was edited
+						if (columns.length > 0) {
+							obj.editField(recid, columns[0], null, event);
+							cancel = true;
+						}
 					}
 					break;
 
@@ -4474,7 +4509,7 @@
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
-					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) addStyle = 'text-align: right';
+					if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle = 'text-align: right';
 				}
 				var isCellSelected = false;
 				if (isRowSelected && $.inArray(col_ind, sel.columns[record.recid]) != -1) isCellSelected = true;
@@ -4494,30 +4529,27 @@
 		getCellHTML: function (ind, col_ind, summary) {
 			var col  	= this.columns[col_ind];
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
-			var data 	= this.parseField(record, col.field);
-			var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
-			if (isChanged) data = record.changes[col.field];
-			// various renderers
-			if (data == null || typeof data == 'undefined') data = '';
+			var data 	= this.getCellValue(ind, col_ind, summary);
+			// various renderers			
 			if (typeof col.render != 'undefined') {
 				if (typeof col.render == 'function') {
 					data = col.render.call(this, record, ind, col_ind);
-					if (data.length >= 4 && data.substr(0, 4) != '<div') data = '<div>' + data + '</div>';
+					if ($.trim(data).substr(0, 1) != '<') data = '<div>' + data + '</div>';
 				}
 				if (typeof col.render == 'object')   data = '<div>' + col.render[data] + '</div>';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
 					var prefix = '';
 					var suffix = '';
-					if ($.inArray(tmp[0], ['number', 'int', 'float', 'money', 'percent']) != -1) {
+					if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) {
 						if (typeof tmp[1] == 'undefined' || !w2utils.isInt(tmp[1])) tmp[1] = 0;
 						if (tmp[1] > 20) tmp[1] = 20;
 						if (tmp[1] < 0)  tmp[1] = 0;
-						if (tmp[0] == 'money')   { tmp[1] = 2; prefix = w2utils.settings.currencyPrefix; suffix = w2utils.settings.currencySuffix }
+						if (['money', 'currency'].indexOf(tmp[0]) != -1) { tmp[1] = 2; prefix = w2utils.settings.currencyPrefix; suffix = w2utils.settings.currencySuffix }
 						if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
 						if (tmp[0] == 'int')	 { tmp[1] = 0; }
 						// format
-						data = '<div>' + prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix + '</div>';
+						data = '<div>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
 					}
 					if (tmp[0] == 'date') {
 						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
@@ -4540,6 +4572,16 @@
 					var data = '<div title="'+ title +'">'+ data +'</div>';
 				}
 			}
+			if (data == null || typeof data == 'undefined') data = '';
+			return data;
+		},
+
+		getCellValue: function (ind, col_ind, summary) {
+			var col  	= this.columns[col_ind];
+			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
+			var data 	= this.parseField(record, col.field);
+			var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
+			if (isChanged) data = record.changes[col.field];
 			if (data == null || typeof data == 'undefined') data = '';
 			return data;
 		},
