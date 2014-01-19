@@ -40,6 +40,7 @@
 *	- added getCellValue(ind, col_ind, [summary])
 * 	- refactored selection
 *	- record.selected - removed
+*	- added nextCell, prevCell, nextRow, prevRow
 *
 ************************************************************************/
 
@@ -1680,11 +1681,11 @@
 						case 9:  // tab
 							cancel = true;
 							var next_rec = recid;
-							var next_col = event.shiftKey ? prevCell(column) : nextCell(column);
+							var next_col = event.shiftKey ? obj.prevCell(column) : obj.nextCell(column);
 							// next or prev row
 							if (next_col === false) {
-								var tmp = event.shiftKey ? prevRow(index) : nextRow(index);
-								if (tmp != index) {
+								var tmp = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
+								if (tmp != null && tmp != index) {
 									next_rec = obj.records[tmp].recid;
 									// find first editable row
 									for (var c in obj.columns) {
@@ -1714,9 +1715,9 @@
 							// stay if combo
 							if (['list', 'combo'].indexOf(edit.type) != -1) break;
 							// cancel = true;
-							var next = event.shiftKey ? prevRow(index) : nextRow(index);
 							this.blur();
-							if (next != index) {
+							var next = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
+							if (next != null && next != index) {
 								setTimeout(function () {
 									if (obj.selectType != 'row') {
 										obj.selectNone();
@@ -1731,7 +1732,7 @@
 						case 38: // up arrow
 							if (!event.shiftKey) break;
 							cancel = true;
-							var next = prevRow(index);
+							var next = obj.prevRow(index);
 							if (next != index) {
 								this.blur();
 								setTimeout(function () {
@@ -1748,8 +1749,8 @@
 						case 40: // down arrow
 							if (!event.shiftKey) break;
 							cancel = true;
-							var next = nextRow(index);
-							if (next != index) {
+							var next = obj.nextRow(index);
+							if (next != null && next != index) {
 								this.blur();
 								setTimeout(function () {
 									if (obj.selectType != 'row') {
@@ -1770,29 +1771,6 @@
 							break;
 					}
 					if (cancel) if (event.preventDefault) event.preventDefault();
-					// -- functions
-					function nextCell (check) {
-						var newCheck = check + 1;
-						if (obj.columns.length == newCheck) return false;
-						if (obj.columns[newCheck].hidden || typeof obj.columns[newCheck].editable == 'undefined') return nextCell(newCheck);
-						return newCheck;
-					}
-					function prevCell (check) {
-						var newCheck = check - 1;
-						if (newCheck < 0) return false;
-						if (obj.columns[newCheck].hidden || typeof obj.columns[newCheck].editable == 'undefined') return prevCell(newCheck);
-						return newCheck;
-					}
-					function nextRow (check) {
-						var newCheck = check + 1;
-						if (obj.records.length == newCheck) return check;
-						return newCheck;
-					}
-					function prevRow (check) {
-						var newCheck = check - 1;
-						if (newCheck < 0) return check;
-						return newCheck;
-					}
 				});
 			// focus and select
 			setTimeout(function () { el.find('input').focus().select(); }, 1);
@@ -2057,8 +2035,9 @@
 						obj.set(recid, { expanded: false }, true);
 						obj.collapse(recid, event);
 					} else {
-						var prev = prevCell(columns[0]);
-						if (prev != columns[0]) {
+						var prev = obj.prevCell(columns[0]);
+						console.log('prev', prev);
+						if (prev !== false) {
 							if (event.shiftKey) {
 								if (tmpUnselect()) return;
 								var tmp    = [];
@@ -2096,8 +2075,8 @@
 						if (recEL.length <= 0 || rec.expanded === true || obj.show.expandColumn !== true) break;
 						obj.expand(recid, event);
 					} else {
-						var next = nextCell(columns[columns.length-1]);
-						if (next != columns[columns.length-1]) {
+						var next = obj.nextCell(columns[columns.length-1]);
+						if (next !== false) {
 							if (event.shiftKey && event.keyCode == 39) {
 								if (tmpUnselect()) return;
 								var tmp    = [];
@@ -2132,7 +2111,7 @@
 				case 38: // up
 					if (recEL.length <= 0) break;
 					// move to the previous record
-					var prev = prevRow(ind);
+					var prev = obj.prevRow(ind);
 					if (prev != null) {
 						// jump into subgrid
 						if (obj.records[prev].expanded) {
@@ -2208,7 +2187,7 @@
 						}
 					}
 					// move to the next record
-					var next = nextRow(ind2);
+					var next = obj.nextRow(ind2);
 					if (next != null) {
 						if (event.shiftKey) { // expand selection
 							if (tmpUnselect()) return;
@@ -2295,52 +2274,6 @@
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
-
-			function nextRow (ind) {
-				if ((ind + 1 < obj.records.length && obj.last.searchIds.length == 0) // if there are more records
-						|| (obj.last.searchIds.length > 0 && ind < obj.last.searchIds[obj.last.searchIds.length-1])) {
-					ind++;
-					if (obj.last.searchIds.length > 0) {
-						while (true) {
-							if ($.inArray(ind, obj.last.searchIds) != -1 || ind > obj.records.length) break;
-							ind++;
-						}
-					}
-					return ind;
-				} else {
-					return null;
-				}
-			}
-
-			function prevRow (ind) {
-				if ((ind > 0 && obj.last.searchIds.length == 0)  // if there are more records
-						|| (obj.last.searchIds.length > 0 && ind > obj.last.searchIds[0])) {
-					ind--;
-					if (obj.last.searchIds.length > 0) {
-						while (true) {
-							if ($.inArray(ind, obj.last.searchIds) != -1 || ind < 0) break;
-							ind--;
-						}
-					}
-					return ind;
-				} else {
-					return null;
-				}
-			}
-
-			function nextCell (check) {
-				var newCheck = check + 1;
-				if (obj.columns.length == newCheck) return check;
-				if (obj.columns[newCheck].hidden) return findNext(newCheck);
-				return newCheck;
-			}
-
-			function prevCell (check) {
-				var newCheck = check - 1;
-				if (newCheck < 0) return check;
-				if (obj.columns[newCheck].hidden) return findPrev(newCheck);
-				return newCheck;
-			}
 
 			function tmpUnselect () {
 				if (obj.last.sel_type != 'click') return false;
@@ -4625,6 +4558,52 @@
 				val = '';
 			}
 			return val;
+		},
+		
+		nextCell: function (col_ind) {
+			var check = col_ind + 1;
+			if (this.columns.length == check) return false;
+			if (this.columns[check].hidden || typeof this.columns[check].editable == 'undefined') return this.nextCell(check);
+			return check;
+		},
+
+		prevCell: function (col_ind) {
+			var check = col_ind - 1;
+			if (check < 0) return false;
+			if (this.columns[check].hidden || typeof this.columns[check].editable == 'undefined') return this.prevCell(check);
+			return check;
+		}, 
+
+		nextRow: function (ind) {
+			if ((ind + 1 < this.records.length && this.last.searchIds.length == 0) // if there are more records
+					|| (this.last.searchIds.length > 0 && ind < this.last.searchIds[this.last.searchIds.length-1])) {
+				ind++;
+				if (this.last.searchIds.length > 0) {
+					while (true) {
+						if ($.inArray(ind, this.last.searchIds) != -1 || ind > this.records.length) break;
+						ind++;
+					}
+				}
+				return ind;
+			} else {
+				return null;
+			}
+		},
+
+		prevRow: function (ind) {
+			if ((ind > 0 && this.last.searchIds.length == 0)  // if there are more records
+					|| (this.last.searchIds.length > 0 && ind > this.last.searchIds[0])) {
+				ind--;
+				if (this.last.searchIds.length > 0) {
+					while (true) {
+						if ($.inArray(ind, this.last.searchIds) != -1 || ind < 0) break;
+						ind--;
+					}
+				}
+				return ind;
+			} else {
+				return null;
+			}
 		}
 	};
 
