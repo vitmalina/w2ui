@@ -1605,7 +1605,6 @@
 		},
 
 		editField: function (recid, column, value, event) {
-			//console.log('edit field', recid, column);
 			var obj   = this;
 			var index = obj.get(recid, true);
 			var rec   = obj.records[index];
@@ -1825,7 +1824,6 @@
 				column = recid.column;
 				recid  = recid.recid;
 			}
-			if (w2utils.isInt(recid)) recid = parseInt(recid);
 			if (typeof event == 'undefined') event = {};
 			// check for double click
 			if (time - parseInt(this.last.click_time) < 250 && event.type == 'click') {
