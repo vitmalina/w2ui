@@ -297,7 +297,7 @@ select {
   width: auto;
 }
 .w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected {
-  background-color: #d7e4f2;
+  background-color: #b6d5fb;
 }
 .w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected td {
   color: inherit;
@@ -1186,6 +1186,7 @@ select {
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-columns .w2ui-resizer {
   position: absolute;
+  z-index: 1000;
   display: block;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);

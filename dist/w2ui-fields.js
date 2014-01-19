@@ -1147,6 +1147,7 @@ w2utils.keyboard = (function (obj) {
 		fixSize();
 		setTimeout(function () {
 			fixSize();
+			$(document).off('click', hide).on('click', hide);
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 10);
 		return $(this);
@@ -1167,7 +1168,6 @@ w2utils.keyboard = (function (obj) {
 		}
 
 		function fixSize () {
-			$(document).off('click', hide).on('click', hide);
 			var div1 = $('#w2ui-overlay'+ name);
 			var div2 = div1.find(' > div');
 			// if goes over the screen, limit height and width
@@ -1194,7 +1194,7 @@ w2utils.keyboard = (function (obj) {
 				}
 				// Y coord
 				div1.css({
-					top			: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + options.top + 5) + 'px',
+					top			: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + options.top + 7) + 'px',
 					left		: ($(obj).offset().left + options.left) + 'px',
 					'min-width' : (options.width ? options.width : 'auto'),
 					'min-height': (options.height ? options.height : 'auto')
@@ -1359,6 +1359,7 @@ w2utils.keyboard = (function (obj) {
 *	- rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
 *	- render calendar to the div
 *	- added .btn with colors
+*	- added enum.style and file.style attributes
 *
 ************************************************************************/
 
@@ -1624,6 +1625,7 @@ w2utils.keyboard = (function (obj) {
 						itemRender	: null,		// render selected item
 						itemsHeight : 350,		// max height for the control to grow
 						itemMaxWidth: 250,		// max width for a single item
+						style		: '',		// style for container div
 						onSearch	: null,		// when search needs to be performed
 						onRequest	: null,		// when request is submitted
 						onLoad		: null,		// when data is received
@@ -1659,6 +1661,7 @@ w2utils.keyboard = (function (obj) {
 						itemRender	: null,		// render selected item
 						itemMaxWidth: 250,		// max width for a single item
 						itemsHeight : 350,		// max height for the control to grow
+						style		: '',		// style for container div
 						onClick		: null,		// when an item is clicked
 						onAdd		: null,		// when an item is added
 						onRemove	: null,		// when an item is removed
@@ -1761,6 +1764,7 @@ w2utils.keyboard = (function (obj) {
 
 				var div = obj.helpers['multi'];
 				var ul  = div.find('ul');
+				div.attr('style', div.attr('style') + ';' + options.style);
 				// celan
 				div.find('.w2ui-enum-placeholder').remove();
 				ul.find('li').not('li.nomouse').remove();
@@ -1894,7 +1898,7 @@ w2utils.keyboard = (function (obj) {
 					if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
 					if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
 				}
-				val = Number(val);
+				if (val !== '') val = Number(val);
 			}
 			return val;
 		},
@@ -1998,7 +2002,7 @@ w2utils.keyboard = (function (obj) {
 									delete event.item.hidden;
 									selected.push(event.item);
 									$(obj.el).data('selected', selected).change();
-									$(obj.helpers['multi']).find('input').val('');
+									$(obj.helpers['multi']).find('input').val('').width(20);
 									obj.refresh();
 									$('#w2ui-overlay').remove();
 									// event after
@@ -2081,7 +2085,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			// clear search input
 			if (['enum'].indexOf(this.type) != -1) {
-				$(this.helpers['multi']).find('input').val('');
+				$(this.helpers['multi']).find('input').val('').width(20);
 			}
 			// file
 			if (this.type == 'file') {
@@ -2140,10 +2144,12 @@ w2utils.keyboard = (function (obj) {
 				if (event.ctrlKey || event.metaKey) inc = 10;
 				switch (key) {
 					case 38: // up
+						if (event.shiftKey) break; // no action if shift key is pressed
 						$(obj.el).val((val + inc <= options.max || options.max === null ? val + inc : options.max)).change();
 						cancel = true;
 						break;
 					case 40: // down
+						if (event.shiftKey) break; // no action if shift key is pressed
 						$(obj.el).val((val - inc >= options.min || options.min === null ? val - inc : options.min)).change();
 						cancel = true;
 						break;
@@ -2167,12 +2173,14 @@ w2utils.keyboard = (function (obj) {
 				if (!dt) { dt = new Date(); daymil = 0; }
 				switch (key) {
 					case 38: // up
+						if (event.shiftKey) break; // no action if shift key is pressed
 						var newDT = w2utils.formatDate(dt.getTime() + daymil, options.format);
 						if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format);
 						$(obj.el).val(newDT).change();
 						cancel = true;
 						break;
 					case 40: // down
+						if (event.shiftKey) break; // no action if shift key is pressed
 						var newDT = w2utils.formatDate(dt.getTime() - daymil, options.format);
 						if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format);
 						$(obj.el).val(newDT).change();
@@ -2198,10 +2206,12 @@ w2utils.keyboard = (function (obj) {
 				var time = this.toMin(val) || this.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
 				switch (key) {
 					case 38: // up
+						if (event.shiftKey) break; // no action if shift key is pressed
 						time += inc;
 						cancel = true;
 						break;
 					case 40: // down
+						if (event.shiftKey) break; // no action if shift key is pressed
 						time -= inc;
 						cancel = true;
 						break;
@@ -2246,7 +2256,7 @@ w2utils.keyboard = (function (obj) {
 								delete item.hidden;
 								selected.push(item);
 								$(this.el).change();
-								$(this.helpers['multi']).find('input').val('');
+								$(this.helpers['multi']).find('input').val('').width(20);
 								this.refresh();
 								// event after
 								obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -2312,7 +2322,7 @@ w2utils.keyboard = (function (obj) {
 				if (['enum'].indexOf(this.type) != -1) {
 					var input  = this.helpers['multi'].find('input');
 					var search = input.val();
-					input.width(((search.length + 2) * 6) + 'px');
+					input.width(((search.length + 2) * 8) + 'px');
 				}
 				// run search
 				setTimeout(function () {

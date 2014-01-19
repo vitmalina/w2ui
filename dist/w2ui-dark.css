@@ -1200,6 +1200,7 @@ select {
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-columns .w2ui-resizer {
   position: absolute;
+  z-index: 1000;
   display: block;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
