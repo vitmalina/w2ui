@@ -1193,7 +1193,7 @@ w2utils.keyboard = (function (obj) {
 				}
 				// Y coord
 				div1.css({
-					top			: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + options.top + 5) + 'px',
+					top			: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + options.top + 7) + 'px',
 					left		: ($(obj).offset().left + options.left) + 'px',
 					'min-width' : (options.width ? options.width : 'auto'),
 					'min-height': (options.height ? options.height : 'auto')

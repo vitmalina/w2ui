@@ -29,6 +29,7 @@ $(function () {
 			footer: true,
 			header: true,
 			emptyRecords: true,
+			expandColumn: false,
 			columnHeaders: true,
 			lineNumbers: true,
 			toolbarDelete: true,
@@ -38,25 +39,21 @@ $(function () {
 		selectType1: 'cell',
 		columns: [				
 			{ field: 'recid', caption: 'ID', size: '80px', sortable: true },
-			{ field: 'text', caption: 'text', size: '80px', sortable: true, resizable: true, editable: { type: 'text' } },
-			{ field: 'alpha', caption: 'alpha', size: '80px', sortable: true, resizable: true, editable: { type: 'alphanumeric' } },
 			{ field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true, editable: { type: 'int', min: 0, max: 100 } },
-			{ field: 'float', caption: 'float', size: '80px', sortable: true, resizable: true, editable: { type: 'float', precision: 2 }, render: 'number:2' },
 			{ field: 'money', caption: 'money', size: '80px', sortable: true, resizable: true, editable: { type: 'money' }, render: 'money' },
-			{ field: 'currency', caption: 'currency', size: '80px', sortable: true, resizable: true, editable: { type: 'currency' }, render: 'money' },
 			{ field: 'percent', caption: 'percent', size: '80px', sortable: true, resizable: true, editable: { type: 'percent' }, render: 'percent' },
 			{ field: 'hex', caption: 'hex', size: '80px', sortable: true, resizable: true, editable: { type: 'hex' } },
 			{ field: 'color', caption: 'color', size: '80px', sortable: true, resizable: true, editable: { type: 'color' } },
 			{ field: 'date', caption: 'date', size: '80px', sortable: true, resizable: true, editable: { type: 'date' } },
 			{ field: 'time', caption: 'time', size: '80px', sortable: true, resizable: true, editable: { type: 'time' } },
-			{ field: 'list', caption: 'list', size: '180px', sortable: true, resizable: true, 
+			{ field: 'list', caption: 'list', size: '50%', sortable: true, resizable: true, 
 				editable: { type: 'list', items: people },
 				render: function (record, index, col_index) {
 					var html = this.getCellValue(index, col_index);
 					return html.text || '';
 				}
 			},
-			{ field: 'combo', caption: 'combo', size: '180px', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
+			{ field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
 			// { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
 			// { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
 			// { field: 'select', caption: 'select', size: '80px', sortable: true, resizable: true, editable: { type: 'select' } },
@@ -69,8 +66,13 @@ $(function () {
 	// add 10k records
 	for (var i = 0; i < 15; i++) {
 		w2ui['grid'].records.push({ 
-			recid : (i + 1),
-			list  : { id: 1, text: 'some' }
+			recid : (i + 10),
+			list1 : { id: 1, text: 'some' },
+			int: 4,
+			float: 5,
+			money: 6,
+			// summary: Math.random() > 0.9 ? true : false,
+			// editable: false
 		});
 	}
 	w2ui.grid.total = w2ui.grid.records.length;

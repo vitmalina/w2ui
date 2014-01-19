@@ -14,6 +14,7 @@ $(function () {
 	$('#grid').w2grid({ 
 		name	: 'grid', 
 		header	: 'List of Names',
+		reorderColumns: true,
 		// url		: {
 		// 	get		: 'data.php',
 		// 	remove	: 'remove',
@@ -70,12 +71,11 @@ $(function () {
 			{ caption: 'Important Dates', span: 3 }
 		],
 		columns: [				
-			{ field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, editable: { type: 'text' } },
-			{ field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
-			{ field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
-			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, editable: { type: 'text' } },
-			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, 
-				render: 'number:2', editable: { type: 'text' } },
+			{ field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true },
+			{ field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true },
+			{ field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true },
+			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
+			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
 			{ field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date' }
 		],
 		ranges1: [
