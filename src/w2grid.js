@@ -1241,7 +1241,7 @@
 			if (this.searches.length == 0) return;
 			if (this.toolbar) this.toolbar.uncheck('search-advanced')
 			// hide search
-			if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) $().w2overlay({ name: 'searches-'+ this.name });
+			if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) $().w2overlay('', { name: 'searches-'+ this.name });
 		},
 
 		searchShowFields: function (el) {
@@ -1273,7 +1273,7 @@
 					'			obj.last.caption = \''+ search.caption +'\'; '+
 					'		}'+
 					'		$(\'#grid_'+ this.name +'_search_all\').attr(\'placeholder\', \''+ search.caption +'\');'+
-					'		$().w2overlay({ name: \'searches-'+ this.name +'\' });">'+
+					'		$().w2overlay(\'\', { name: \'searches-'+ this.name +'\' });">'+
 					'<td><input type="checkbox" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : 'disabled') +'></td>'+
 					'<td>'+ search.caption +'</td>'+
 					'</tr>';
@@ -3405,7 +3405,7 @@
 			this.initColumnOnOff();
 			if (hide) {
 				setTimeout(function () {
-					$().w2overlay({ name: 'searches-'+ this.name });
+					$().w2overlay('', { name: 'searches-'+ this.name });
 					obj.toolbar.uncheck('column-on-off');
 				}, 100);
 			}

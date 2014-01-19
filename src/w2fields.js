@@ -1377,7 +1377,7 @@
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul>'+
 						'		<li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-						'			<input type="text" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
+						'			<input type="text" style="width: 20px" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
 						'		</li>'
 						'	</ul>'+
 						'	</div>'+

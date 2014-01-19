@@ -388,6 +388,7 @@
 
 		save: function (postData, callBack) {
 			var obj = this;
+			$(this.box).find(':focus').change(); // trigger onchange
 			// check for multiple params
 			if (typeof postData == 'function') {
 				callBack 	= postData;
@@ -418,21 +419,6 @@
 				$.extend(params, obj.postData);
 				$.extend(params, postData);
 				params.record = $.extend(true, {}, obj.record);
-				// convert  before submitting 
-				for (var f in obj.fields) {
-					var field = obj.fields[f];
-					switch (String(field.type).toLowerCase()) {
-						case 'date': // to yyyy-mm-dd format
-							var dt  = params.record[field.name];
-							var tmp = field.options.format.toLowerCase().replace('-', '/').replace('\.', '/');
-							if (['dd/mm/yyyy', 'd/m/yyyy', 'dd/mm/yy', 'd/m/yy'].indexOf(tmp) != -1) {
-								var tmp = dt.replace(/-/g, '/').replace(/\./g, '/').split('/');
-								var dt  = new Date(tmp[2], tmp[1]-1, tmp[0]);
-							}
-							params.record[field.name] = w2utils.formatDate(dt, 'yyyy-mm-dd');
-							break;
-					}
-				}
 				// event before
 				var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
 				if (eventData.isCancelled === true) { 

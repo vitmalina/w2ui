@@ -1116,10 +1116,14 @@ w2utils.keyboard = (function (obj) {
 		if (options.name) name = '-' + options.name;
 		// if empty then hide
 		if (this.length == 0 || html == '' || typeof html == 'undefined') { 
-			$(document).click(); 
+			$(document).off('click', $('#w2ui-overlay'+ name).data('hide'));
+			$('#w2ui-overlay'+ name).remove();
 			return $(this); 
 		}
-		if ($('#w2ui-overlay').length > 0) $(document).click();
+		if ($('#w2ui-overlay'+ name).length > 0) {
+			$(document).off('click', $('#w2ui-overlay'+ name).data('hide'));
+			$('#w2ui-overlay'+ name).remove();
+		}
 		$('body').append(
 			'<div id="w2ui-overlay'+ name +'" style="display: none"'+
 			'		class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
@@ -1136,6 +1140,7 @@ w2utils.keyboard = (function (obj) {
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div1.css('background-color', bc);
 
 		div1.data('obj', obj)
+			.data('hide', hide)
 			.data('fixSize', fixSize)
 			.fadeIn('fast').on('mousedown', function (event) { 
 				$('#w2ui-overlay'+ name).data('keepOpen', true); 
@@ -1258,9 +1263,8 @@ w2utils.keyboard = (function (obj) {
 			render		: null,
 			onSelect 	: null
 		}
+		var name = '';
 		if (menu == 'refresh') {
-			var name = '';
-			if (options.name) name = '-' + options.name;
 			// if not show - call blur
 			if ($('#w2ui-overlay'+ name).length > 0) {
 				$('#w2ui-overlay'+ name +' > div').html(getMenuHTML(), options);
@@ -1273,6 +1277,7 @@ w2utils.keyboard = (function (obj) {
 			if (arguments.length == 1) options = menu; else options.items = menu;
 			if (typeof options != 'object') options = {};
 			options = $.extend({}, defaults, options);
+			if (options.name) name = '-' + options.name;
 			if (typeof options.select == 'function' && typeof options.onSelect != 'function') options.onSelect = options.select;
 			if (typeof options.onRender == 'function' && typeof options.render != 'function') options.render = options.onRender;
 			// since only one overlay can exist at a time
@@ -1317,7 +1322,7 @@ w2utils.keyboard = (function (obj) {
 						menu_html += 
 							'<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
 							'		class="'+ bg +' '+ (options.index == count ? 'w2ui-selected' : '') +'"'+
-							'		onclick="$(document).click(); $.fn.w2menuHandler(event, \''+ f +'\');" '+
+							'		onclick="$(\'#w2ui-overlay\').remove(); $.fn.w2menuHandler(event, \''+ f +'\'); event.stopPropagation();" '+
 							'		onmouseover="$(this).addClass(\'w2ui-selected\');" '+
 							'		onmouseout="$(this).removeClass(\'w2ui-selected\');">'+
 								imgd +
