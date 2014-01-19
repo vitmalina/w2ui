@@ -38,7 +38,7 @@ $(function () {
 		},
 		selectType1: 'cell',
 		columns: [				
-			{ field: 'recid', caption: 'ID', size: '80px', sortable: true },
+			{ field: 'recid', caption: 'ID', size: '80px', sortable: true, searchable: 'int' },
 			{ field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true, editable: { type: 'int', min: 0, max: 100 } },
 			{ field: 'money', caption: 'money', size: '80px', sortable: true, resizable: true, editable: { type: 'money' }, render: 'money' },
 			{ field: 'percent', caption: 'percent', size: '80px', sortable: true, resizable: true, editable: { type: 'percent' }, render: 'percent' },

@@ -1146,6 +1146,7 @@ w2utils.keyboard = (function (obj) {
 		fixSize();
 		setTimeout(function () {
 			fixSize();
+			$(document).off('click', hide).on('click', hide);
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 10);
 		return $(this);
@@ -1166,7 +1167,6 @@ w2utils.keyboard = (function (obj) {
 		}
 
 		function fixSize () {
-			$(document).off('click', hide).on('click', hide);
 			var div1 = $('#w2ui-overlay'+ name);
 			var div2 = div1.find(' > div');
 			// if goes over the screen, limit height and width

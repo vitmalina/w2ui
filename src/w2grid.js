@@ -27,7 +27,6 @@
 *	- add onParse - to converd data received from the server
 *	- move events into prototype
 *	- add colspans
-*	- search should not refresh toolbar, see https://github.com/vitmalina/w2ui/issues/380
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
@@ -1279,7 +1278,7 @@
 					'</tr>';
 			}
 			html += "</table></div>";
-			$(el).w2overlay(html, { name: 'searches-'+ this.name, left: -15, top: 7 });
+			$(el).w2overlay(html, { left: -15, top: 7 });
 		},
 
 		searchReset: function (noRefresh) {
