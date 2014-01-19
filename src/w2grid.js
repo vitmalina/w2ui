@@ -1308,6 +1308,7 @@
 			this.last.selection.columns	= {};
 			// -- clear all search field
 			this.searchClose();
+			$('#grid_'+ this.name +'_search_all').val('');
 			// apply search
 			if (!noRefresh) this.reload();
 			// event after
@@ -2705,11 +2706,13 @@
 					// no action
 				} else {
 					$('#grid_'+ this.name +'_toolbar').show();
-					// refresh toolbar only once
+					// refresh toolbar all but search field
 					if (typeof this.toolbar == 'object') {
-						this.toolbar.refresh();
-						var tmp = $('#grid_'+ obj.name +'_search_all');
-						tmp.val(this.last.search);
+						var tmp = this.toolbar.items;
+						for (var t in tmp) {
+							if (tmp[t].id == 'search' || tmp[t].type == 'break') continue;
+							this.toolbar.refresh(tmp[t].id);
+						}
 					}
 				}
 			} else {
@@ -2733,16 +2736,6 @@
 				searchEl.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
 			} else {
 				searchEl.attr('placeholder', this.last.caption);
-			}
-
-			// focus search if last searched
-			if (this._focus_when_refreshed === true) {
-				clearTimeout(obj._focus_timer);
-				obj._focus_timer = setTimeout(function () {
-					if (searchEl.length > 0) { searchEl[0].focus(); }
-					delete obj._focus_when_refreshed;
-					delete obj._focus_timer;
-				}, 600); // need time to render
 			}
 
 			// -- separate summary
@@ -3519,7 +3512,6 @@
 						'		<input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
 						'			placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
 						'			onkeyup="if (event.keyCode == 13) { '+
-						'				w2ui[\''+ this.name +'\']._focus_when_refreshed = true; '+
 						'				w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, this.value); '+
 						'			}">'+
 						'	</td>'+
