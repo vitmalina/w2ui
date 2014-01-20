@@ -6,13 +6,13 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*	- select - for select, list - for drop down (needs this in grid)
 *	- upload (regular files)
 *	- BUG with prefix/postfix and arrows (test in different contexts)
+*	- prefix and suffix are slow (100ms or so)
 *	- multiple date selection
-*	- BUG overlay inside overlay????
 *
 * == 1.4 Changes ==
+*	- select - for select, list - for drop down (needs this in grid)
 *	- $().addType() - changes sligtly (this.el)
 *	- $().removeType() - new method
 *	- enum add events: onLoad, onRequest, onDelete, onClick for already selected elements
@@ -905,6 +905,9 @@
 				var selected	= $(this.el).data('selected');
 				// apply arrows
 				switch (key) {
+					case 37: // left
+					case 39: // right
+						if ($(this.el).val() != '') break;
 					case 13: // enter
 						var item = options.items[options.index];
 						if (['enum'].indexOf(this.type) != -1) {
@@ -1093,6 +1096,7 @@
 				}
 				options.index = 0;
 				while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+				if (search == '') options.index = -1;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
 			}

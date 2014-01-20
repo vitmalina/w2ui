@@ -30,17 +30,18 @@
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
-* 	- added refreshRow(recid) - should it be part of refresh?
-* 	- added refreshCell(recid, field) - should it be part of refresh?
-*	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*	- added reorderColumns
+* 	- new: refreshRow(recid) - should it be part of refresh?
+* 	- new: refreshCell(recid, field) - should it be part of refresh?
+*	- removed: getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- new: reorderColumns
 *	- removed name from the POST
 *	- rename: markSearchResults -> markSearch
 *	- refactored inline editing
-*	- added getCellValue(ind, col_ind, [summary])
+*	- new: getCellValue(ind, col_ind, [summary])
 * 	- refactored selection
-*	- record.selected - removed
-*	- added nextCell, prevCell, nextRow, prevRow
+*	- removed: record.selected 
+*	- new: nextCell, prevCell, nextRow, prevRow
+*	- new: editChange(el, index, column, event)
 *
 ************************************************************************/
 
@@ -1273,7 +1274,7 @@
 					'			obj.last.caption = \''+ search.caption +'\'; '+
 					'		}'+
 					'		$(\'#grid_'+ this.name +'_search_all\').attr(\'placeholder\', \''+ search.caption +'\');'+
-					'		$().w2overlay(\'\', { name: \'searches-'+ this.name +'\' });">'+
+					'		$().w2overlay();">'+
 					'<td><input type="checkbox" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : 'disabled') +'></td>'+
 					'<td>'+ search.caption +'</td>'+
 					'</tr>';
@@ -1624,6 +1625,7 @@
 			this.selectNone();
 			this.select({ recid: recid, column: column });
 			this.last.edit_col = column;
+			if (['checkbox', 'check'].indexOf(edit.type) != -1) return;
 			// create input element
 			var tr = $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(recid));
 			var el = tr.find('[col='+ column +'] > div');
@@ -1631,56 +1633,50 @@
 			if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
 			if (typeof edit.style   == 'undefined') edit.style   = '';
 			if (typeof edit.items   == 'undefined') edit.items   = [];
-			var val = (rec.changed && rec.changes[col.field] ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+			var val = (rec.changed && typeof rec.changes[col.field] != 'undefined' ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
 			if (val == null || typeof val == 'undefined') val = '';
 			if (typeof value != 'undefined' && value != null) val = value;
 			var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
 			if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
 				addStyle += 'text-align: right;';
 			}
-			el.addClass('w2ui-editable')
-				.html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" value="'+ (typeof val != 'object' ? val : '') +'" type="text"  '+
-					'	style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
-					'>' + edit.outTag);
-			el.find('input')
-				.w2field(edit.type, $.extend(edit, { selected: val }))
-				.on('blur', function (event) {
-					// all other fields
-					var new_val = this.value;
-					if (obj.parseField(rec, col.field) != new_val) {
-						var tmp = $(this).data('w2field');
-						if (tmp) new_val = tmp.clean(new_val);
-						if (tmp.type == 'list') new_val = $(this).data('selected');
-						// change event
-						var eventData2 = obj.trigger({ 
-							phase: 'before', type: 'change', target: obj.name, input_id: this.id, recid: recid, column: column,
-							value_new: new_val, value_previous: (rec.changes ? rec.changes[col.field] : obj.parseField(rec, col.field)),
-							value_original: obj.parseField(rec, col.field) 
-						});
-						if (eventData2.isCancelled === true || (new_val === '' && typeof eventData2.value_previous == 'undefined')) {
-							// don't save new value
-						} else {
-							// default action
-							rec.changed = true;
-							rec.changes = rec.changes || {};
-							rec.changes[col.field] = eventData2.value_new;
-							// event after
-							obj.trigger($.extend(eventData2, { phase: 'after' }));
-						}
-					} else {
-						if (rec.changes) delete rec.changes[col.field];
-						if ($.isEmptyObject(rec.changes)) delete rec.changes;
-					}
-					// refresh record
-					$(tr).replaceWith(obj.getRecordHTML(index, tr.attr('line')));
-				})
+			if (edit.type == 'select') {
+				var html = '';
+				for (var i in edit.items) {
+					html += '<option value="'+ edit.items[i].id +'" '+ (edit.items[i].id == val ? 'selected' : '') +'>'+ edit.items[i].text +'</option>';
+				}
+				el.addClass('w2ui-editable')
+					.html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'" '+
+						'	style="width: 100%; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
+						'	'+ edit.inTag +
+						'>'+ html +'</select>' + edit.outTag);
+				el.find('select').focus()
+					.on('change', function (event) { 
+						delete obj.last.move;
+					})
+					.on('blur', function (event) { 
+						obj.editChange.call(obj, this, index, column, event); 
+					});
+			} else {
+				el.addClass('w2ui-editable')
+					.html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" value="'+ (typeof val != 'object' ? val : '') +'" '+
+						'	type="text" style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
+						'	column="'+ column +'" '+ edit.inTag +
+						'>' + edit.outTag);
+				el.find('input')
+					.w2field(edit.type, $.extend(edit, { selected: val }))
+					.on('blur', function (event) { 
+						obj.editChange.call(obj, this, index, column, event); 
+					});
+			}
+			el.find('input, select')
 				.on('keydown', function (event) {
 					var cancel = false;
 					switch (event.keyCode) {
 						case 9:  // tab
 							cancel = true;
 							var next_rec = recid;
-							var next_col = event.shiftKey ? obj.prevCell(column) : obj.nextCell(column);
+							var next_col = event.shiftKey ? obj.prevCell(column, true) : obj.nextCell(column, true);
 							// next or prev row
 							if (next_col === false) {
 								var tmp = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
@@ -1688,7 +1684,8 @@
 									next_rec = obj.records[tmp].recid;
 									// find first editable row
 									for (var c in obj.columns) {
-										if (obj.columns[c].editable) {
+										var tmp = obj.columns[c].editable;
+										if (typeof tmp != 'undefined' && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
 											next_col = parseInt(c);
 											if (!event.shiftKey) break;
 										}
@@ -1711,9 +1708,6 @@
 							break;
 
 						case 13: // enter
-							// stay if combo
-							if (['list', 'combo'].indexOf(edit.type) != -1) break;
-							// cancel = true;
 							this.blur();
 							var next = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
 							if (next != null && next != index) {
@@ -1763,7 +1757,7 @@
 							break;
 
 						case 27: // escape
-							var old = (rec.changed && rec.changes[col.field]) ? rec.changes[col.field] : obj.parseField(rec, col.field);
+							var old = (rec.changed && typeof rec.changes[col.field]) != 'undefined' ? rec.changes[col.field] : obj.parseField(rec, col.field);
 							this.value = typeof old != 'undefined' ? old : '';
 							this.blur();
 							setTimeout(function () { obj.select({ recid: recid, column: column }) }, 1);
@@ -1775,6 +1769,46 @@
 			setTimeout(function () { el.find('input').focus().select(); }, 1);
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
+		editChange: function (el, index, column, event) {
+			// all other fields
+			var rec  	= this.records[index];
+			var tr		= $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid));
+			var col		= this.columns[column];
+			var new_val	= el.value;
+			var old_val = this.parseField(rec, col.field);
+			var tmp 	= $(el).data('w2field');
+			if (tmp) {
+				new_val = tmp.clean(new_val);
+				if (tmp.type == 'list' && new_val != '') new_val = $(el).data('selected');
+			}
+			if (el.type == 'checkbox') new_val = el.checked;
+			if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
+				// change event
+				var eventData = this.trigger({ 
+					phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
+					value_new: new_val, value_previous: (rec.changes ? rec.changes[col.field]: old_val), value_original: old_val
+				});
+				if (eventData.isCancelled === true || (new_val === '' && typeof eventData.value_previous == 'undefined')) {
+					// don't save new value
+				} else {
+					// default action
+					rec.changed = true;
+					rec.changes = rec.changes || {};
+					rec.changes[col.field] = eventData.value_new;
+					// event after
+					this.trigger($.extend(eventData, { phase: 'after' }));
+				}
+			} else {
+				if (rec.changes) delete rec.changes[col.field];
+				if ($.isEmptyObject(rec.changes)) {
+					delete rec.changes;
+					delete rec.changed;
+				}
+			}
+			// refresh record
+			$(tr).replaceWith(this.getRecordHTML(index, tr.attr('line')));
 		},
 
 		delete: function (force) {
@@ -1807,7 +1841,7 @@
 						var ind = this.get(recs[r].recid, true);
 						if (ind != null && fld != 'recid') {
 							this.records[ind][fld] = '';
-							if (this.records[ind].changed) this.records[ind].changes[fld] = '';
+							if (this.records[ind].changed) delete this.records[ind].changes[fld];
 						}
 					}
 					this.refresh();
@@ -2034,7 +2068,6 @@
 						obj.collapse(recid, event);
 					} else {
 						var prev = obj.prevCell(columns[0]);
-						console.log('prev', prev);
 						if (prev !== false) {
 							if (event.shiftKey) {
 								if (tmpUnselect()) return;
@@ -2914,7 +2947,6 @@
 					obj.records.splice(ind1, 1);
 					var ind2 = obj.get(mv.to, true);					
 					if (ind1 > ind2) obj.records.splice(ind2, 0, tmp); else obj.records.splice(ind2+1, 0, tmp);
-					// console.log(ind1, '->', ind2);
 					$('#grid_'+ obj.name + '_ghost').remove();
 					obj.refresh();
 				}
@@ -2954,7 +2986,7 @@
 			for (var c in this.columns) {
 				var col = this.columns[c];
 				col_html += '<tr>'+
-					'<td>'+
+					'<td style="width: 30px">'+
 					'	<input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+ (col.hidden ? '' : 'checked') +
 					'		onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');">'+
 					'</td>'+
@@ -3235,134 +3267,6 @@
 				}
 			}
 		},
-
-		// initRowDrag: function () {
-		// 	console.log('init drag');
-		// 	var obj = this,
-		// 		//data object
-		// 		_dragData = {};
-		// 		_dragData.lastInt = null;
-
-		// 	$(obj.box).on('mousedown', dragStart);
-
-		// 	function dragStart (event) {
-		// 		var eventData;
-		// 		var dragRow = $(event.originalEvent.target).parents('tr');
-		// 		var recid 	= dragRow.attr('recid');
-		// 		if (!recid) return;
-		// 		// start event for drag start
-		// 		eventData = obj.trigger({ type: 'rowDragStart', phase: 'before', originalEvent: event, recid: recid });
-		// 		if (eventData.isCancelled === true) return;
-		// 		// add events
-		// 		$(document).on('mouseup', dragEnd);
-		// 		$(document).on('mousemove', dragMove);
-
-		// 		//configure and style ghost image
-		// 		// _dragData.ghost = $(this).clone(true);
-
-		// 		// //hide other elements on ghost except the grid body
-		// 		// $(_dragData.ghost).find('[col]:not([col="' + _dragData.originalPos + '"]), .w2ui-toolbar, .w2ui-grid-header')
-		// 		// 	.css({height: 'none', height: 0, width: 0, padding: 0, border: 'none', overflow: 'hidden'});
-		// 		// $(_dragData.ghost).find('.w2ui-grid-body').css({top: 0});
-
-		// 		// selectedCol = $(_dragData.ghost).find('[col="' + _dragData.originalPos + '"]');
-		// 		// $(document.body).append(_dragData.ghost);
-
-		// 		// $(_dragData.ghost).css({
-		// 		// 	width: 0,
-		// 		// 	height: 0,
-		// 		// 	margin: 0,
-		// 		// 	position: 'fixed',
-		// 		// 	zIndex: 999999,
-		// 		// 	opacity: 0
-		// 		// }).addClass('.w2ui-grid-ghost').animate({
-		// 		// 		width: selectedCol.width(),
-		// 		// 		height: $(obj.box).find('.w2ui-grid-body:first').height(),
-		// 		// 		opacity: .8
-		// 		// }, 300);
-
-		// 		// //establish current offsets
-		// 		// _dragData.offsets = [];
-		// 		// for (var i = 0, l = columns.length; i < l; i++) {
-		// 		// 	_dragData.offsets.push($(columns[i]).offset().left);
-		// 		// }
-
-		// 		// conclude event
-		// 		obj.trigger($.extend(eventData, {phase: 'after'}));
-
-		// 		event.preventDefault();
-		// 		return false;
-		// 	}
-
-		// 	function dragMove (event) {
-		// 		var cursorX = event.originalEvent.pageX,
-		// 			cursorY = event.originalEvent.pageY,
-		// 			offsets = _dragData.offsets,
-		// 			lastWidth = $('.w2ui-head:not(.w2ui-head-last)').width();
-
-		// 		// _dragData.targetInt = targetIntersection(cursorX, offsets, lastWidth);
-		// 		// markIntersection(_dragData.targetInt);
-		// 		// trackGhost(cursorX, cursorY);
-		// 		console.log('drag move');
-
-		// 		event.stopPropagation();
-		// 		return false;
-		// 	}
-
-		// 	function dragEnd (event) {
-		// 		// var eventData,
-		// 		// 	ghosts = $('w2ui-grid-ghost');
-
-		// 		// //start event for drag start
-		// 		// eventData = obj.trigger({type: 'columnDragEnd', phase: 'before', originalEvent: event});
-		// 		// if ( eventData.isCancelled === true ) return;
-
-		// 		// var selected = obj.columns[_dragData.originalPos];
-		// 		// var columnConfig = obj.columns;
-		// 		// var columnNum = (_dragData.targetInt >= obj.columns.length) ? obj.columns.length - 1 :
-		// 		// 		(_dragData.targetInt < _dragData.originalPos) ? _dragData.targetInt : _dragData.targetInt - 1;
-
-		// 		// if (_dragData.targetInt !== _dragData.originalPos + 1 && _dragData.targetInt !== _dragData.originalPos) {
-		// 		// 	$(_dragData.ghost).animate({
-		// 		// 		top: $(obj.box).offset().top,
-		// 		// 		left: $('.w2ui-head[col="' + columnNum + '"]').offset().left,
-		// 		// 		width: 0,
-		// 		// 		height: 0,
-		// 		// 		opacity:.2
-		// 		// 	}, 300, function(){
-		// 		// 		$(this).remove();
-		// 		// 		ghosts.remove();
-		// 		// 	});
-		// 		// 	columnConfig.splice(_dragData.targetInt, 0, $.extend({}, selected));
-		// 		// 	columnConfig.splice(columnConfig.indexOf(selected), 1);
-		// 		// } else {
-		// 		// 	$(_dragData.ghost).remove();
-		// 		// 	ghosts.remove();
-		// 		// }
-
-		// 		// _dragData.columns.css({overflow: ''}).children('div').css({overflow: ''});
-
-		// 		$(document).off('mouseup', dragEnd);
-		// 		$(document).off('mousemove', dragMove);
-		// 		// _dragData.marker.remove();
-		// 		// _dragData = {};
-
-		// 		// obj.refresh();
-
-		// 		// //conclude event
-		// 		// obj.trigger($.extend(eventData, {phase: 'after'}));
-		// 	}
-
-
-		// 	//return an object to remove drag if it has ever been enabled
-		// 	return {
-		// 		remove: function () {
-		// 			// $(obj.box).off('mousedown', dragColStart);
-		// 			// $(obj.box).find('.w2ui-head').removeAttr('draggable');
-		// 			// obj._columnDrag = false;
-		// 		}
-		// 	}
-		// },
 
 		columnOnOff: function (el, event, field, value) {
 			// event before
@@ -4236,7 +4140,7 @@
 			var last  = parseInt(tr2.prev().attr('line'));
 			//$('#log').html('buffer: '+ this.buffered +' start-end: ' + start + '-'+ end + ' ===> first-last: ' + first + '-' + last);
 			if (first < start || first == 1 || this.last.pull_refresh) { // scroll down
-				//console.log('end', end, 'last', last, 'show_extre', this.show_extra, this.last.pull_refresh);
+				// console.log('end', end, 'last', last, 'show_extre', this.show_extra, this.last.pull_refresh);
 				if (end <= last + this.show_extra - 2 && end != this.total) return;
 				this.last.pull_refresh = false;
 				// remove from top
@@ -4422,7 +4326,7 @@
 			while (true) {
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
-				var isChanged = record.changed && record.changes[col.field];
+				var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
 				var rec_cell  = this.getCellHTML(ind, col_ind, summary);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
@@ -4448,6 +4352,7 @@
 			var col  	= this.columns[col_ind];
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
 			var data 	= this.getCellValue(ind, col_ind, summary);
+			var edit 	= col.editable;
 			// various renderers			
 			if (typeof col.render != 'undefined') {
 				if (typeof col.render == 'function') {
@@ -4481,13 +4386,22 @@
 				if (!this.show.recordTitles) {
 					var data = '<div>'+ data +'</div>';
 				} else {
+					var addStyle = '';
 					// title overwrite
 					var title = String(data).replace(/"/g, "''");
 					if (typeof col.title != 'undefined') {
 						if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
 						if (typeof col.title == 'string')   title = col.title;
 					}
-					var data = '<div title="'+ title +'">'+ data +'</div>';
+					// if editable checkbox
+					if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
+						addStyle = 'text-align: center';
+						data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
+							   '	var obj = w2ui[\''+ this.name + '\']; '+
+							   '	obj.editChange.call(obj, this, '+ ind +', '+ col_ind +', event); ' +
+							   '">';
+					}
+					var data = '<div title="'+ title +'" style="'+ addStyle +'">'+ data +'</div>';
 				}
 			}
 			if (data == null || typeof data == 'undefined') data = '';
@@ -4558,17 +4472,25 @@
 			return val;
 		},
 		
-		nextCell: function (col_ind) {
+		nextCell: function (col_ind, editable) {
 			var check = col_ind + 1;
 			if (this.columns.length == check) return false;
-			if (this.columns[check].hidden || typeof this.columns[check].editable == 'undefined') return this.nextCell(check);
+			if (editable === true) {
+				var edit = this.columns[check].editable;
+				if (this.columns[check].hidden || typeof edit == 'undefined' 
+					|| (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.nextCell(check, editable);
+			}
 			return check;
 		},
 
-		prevCell: function (col_ind) {
+		prevCell: function (col_ind, editable) {
 			var check = col_ind - 1;
 			if (check < 0) return false;
-			if (this.columns[check].hidden || typeof this.columns[check].editable == 'undefined') return this.prevCell(check);
+			if (editable === true) {
+				var edit = this.columns[check].editable;
+				if (this.columns[check].hidden || typeof edit == 'undefined' 
+					|| (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.prevCell(check, editable);
+			}
 			return check;
 		}, 
 

@@ -54,11 +54,20 @@ $(function () {
 				}
 			},
 			{ field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
+			{ field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true, 
+				editable: { type: 'select', items: people }, 
+				render: function (record, index, col_index) {
+					var html = '';
+					for (var p in people) {
+						if (people[p].id == this.getCellValue(index, col_index)) html = people[p].text;
+					}
+					return html;
+				}
+			},
+			{ field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } },
 			// { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
 			// { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
-			// { field: 'select', caption: 'select', size: '80px', sortable: true, resizable: true, editable: { type: 'select' } },
 			// { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
-			// { field: 'checkbox', caption: 'checkbox', size: '80px', sortable: true, resizable: true, editable: { type: 'checkbox' } }
 		],
 	});
 	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
@@ -71,7 +80,8 @@ $(function () {
 			int: 4,
 			float: 5,
 			money: 6,
-			// summary: Math.random() > 0.9 ? true : false,
+			check: Math.random() > 0.9 ? true : false,
+			select: 2,
 			// editable: false
 		});
 	}
