@@ -34,6 +34,14 @@
 			transform : rotate(@value);
 }
 
+.transform (@value : none) {
+	-webkit-transform : @value;
+	   -moz-transform : @value;
+		-ms-transform : @value;
+		 -o-transform : @value;
+			transform : @value;
+}
+
 .transition (@property : all, @time : 0s) {
 	-webkit-transition : @property @time;
 	   -moz-transition : @property @time;

@@ -2985,15 +2985,16 @@
 						    '<table>';
 			for (var c in this.columns) {
 				var col = this.columns[c];
+				var tmp = this.columns[c].caption;
+				if (!tmp && this.columns[c].hint) tmp = this.columns[c].hint;
+				if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
 				col_html += '<tr>'+
 					'<td style="width: 30px">'+
 					'	<input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+ (col.hidden ? '' : 'checked') +
 					'		onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');">'+
 					'</td>'+
 					'<td>'+
-					'	<label for="grid_'+ this.name +'_column_'+ c +'_check">'+
-							(this.columns[c].caption == '' ? '- column '+ (c+1) +' -' : this.columns[c].caption) +
-						'</label>'+
+					'	<label for="grid_'+ this.name +'_column_'+ c +'_check">'+ tmp +	'</label>'+
 					'</td>'+
 					'</tr>';
 			}
@@ -4356,8 +4357,8 @@
 			// various renderers			
 			if (typeof col.render != 'undefined') {
 				if (typeof col.render == 'function') {
-					data = col.render.call(this, record, ind, col_ind);
-					if ($.trim(data).substr(0, 1) != '<') data = '<div>' + data + '</div>';
+					data = $.trim(col.render.call(this, record, ind, col_ind));
+					if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div>' + data + '</div>';
 				}
 				if (typeof col.render == 'object')   data = '<div>' + col.render[data] + '</div>';
 				if (typeof col.render == 'string') {

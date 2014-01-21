@@ -673,32 +673,13 @@ var w2utils = (function () {
 			'<div class="w2ui-lock"></div>'+
 			'<div class="w2ui-lock-msg"></div>'
 		);
-		setTimeout(function () {
-			var lock = $(box).find('.w2ui-lock');
-			var mess = $(box).find('.w2ui-lock-msg');
-			lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-			mess.data('old_opacity', mess.css('opacity')).css('opacity', '0').show();
-			setTimeout(function () {
-				var lock = $(box).find('.w2ui-lock');
-				var mess = $(box).find('.w2ui-lock-msg');
-				var left = ($(box).width()  - w2utils.getSize(mess, 'width')) / 2;
-				var top  = ($(box).height() * 0.9 - w2utils.getSize(mess, 'height')) / 2;
-				lock.css({
-					opacity : (options.opacity != undefined ? options.opacity : lock.data('old_opacity')),
-					left 	: '0px',
-					top 	: '0px',
-					width 	: '100%',
-					height 	: '100%'
-				});
-				if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
-				if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 30px; height: 30px"' : '') +'></div>' + options.msg;
-				mess.html(options.msg).css({
-					opacity : mess.data('old_opacity'),
-					left	: left + 'px',
-					top		: top + 'px'
-				});
-			}, 10);
-		}, 10);
+		var lock = $(box).find('.w2ui-lock');
+		var mess = $(box).find('.w2ui-lock-msg');
+		if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
+		if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
+		if (typeof options.opacity != 'undefined') lock.css('opacity', options.opacity);
+		lock.fadeIn(200);
+		mess.html(options.msg).fadeIn(200);
 		// hide all tags (do not hide overlays as the form can be in overlay)
 		$().w2tag();
 	}
