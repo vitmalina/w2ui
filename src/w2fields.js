@@ -21,6 +21,7 @@
 *	- render calendar to the div
 *	- added .btn with colors
 *	- added enum.style and file.style attributes
+*	- test all fields as Read Only
 *
 ************************************************************************/
 
@@ -374,8 +375,9 @@
 		clear: function () {
 			var obj		 = this;
 			var options	 = this.options;
-			// restore paddings
 			var tmp = $(this.el).data('tmp');
+			if (typeof tmp == 'undefined') return;
+			// restore paddings
 			if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
 			if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
 			// if money then clear value
@@ -426,6 +428,7 @@
 				var div = obj.helpers['multi'];
 				var ul  = div.find('ul');
 				div.attr('style', div.attr('style') + ';' + options.style);
+				if ($(obj.el).attr('readonly')) div.addClass('w2ui-readonly'); else div.removeClass('w2ui-readonly');
 				// celan
 				div.find('.w2ui-enum-placeholder').remove();
 				ul.find('li').not('li.nomouse').remove();
@@ -449,7 +452,12 @@
 						var item = selected[$(event.target).attr('index')];
 						if ($(event.target).hasClass('nomouse')) return;
 						event.stopPropagation();
+						// trigger event
+						var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
+						if (eventData.isCancelled === true) return;
+						// default behavior
 						if ($(event.target).hasClass('w2ui-list-remove')) {
+							if ($(obj.el).attr('readonly')) return;
 							// trigger event
 							var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
 							if (eventData.isCancelled === true) return;
@@ -491,9 +499,6 @@
 								'</div>';
 								$(event.target).w2overlay(preview);
 						}
-						// trigger event
-						var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
-						if (eventData.isCancelled === true) return;
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					})
@@ -619,6 +624,7 @@
 			var options = this.options;
 			// color
 			if (this.type == 'color') {
+				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();
 				$(obj.el).w2overlay(obj.getColorHTML());
 				// bind events
@@ -631,6 +637,7 @@
 			}
 			// date
 			if (this.type == 'date') {
+				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();
 				setTimeout(function () { 
 					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', { css: { "background-color": "#f5f5f5" } });
@@ -639,6 +646,7 @@
 			}
 			// time
 			if (this.type == 'time') {
+				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();				
 				setTimeout(function () { 
 					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
@@ -647,6 +655,7 @@
 			}
 			// menu
 			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();				
 				setTimeout(function () {
 					if (options.showAll !== true) obj.search();
@@ -901,6 +910,7 @@
 			}
 			// list/select/combo
 			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+				if ($(obj.el).attr('readonly')) return;
 				var cancel		= false;
 				var selected	= $(this.el).data('selected');
 				// apply arrows
@@ -1391,7 +1401,7 @@
 				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box;">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
-						'	<input class="file-input" type="file" name="attachment" multiple style="display: none">' 
+						'	<input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">' 
 						'	</div>'+
 						'</div>';				
 			}
@@ -1430,17 +1440,22 @@
 			if (obj.type == 'file') {
 				$(obj.el).css('outline', 'none');
 				div.on('click', function (event) {
+						$(obj.el).focus();
+						if ($(obj.el).attr('readonly')) return;
 						obj.blur(event);
 						div.find('input').click();
 					})
 					.on('dragenter', function (event) {
+						if ($(obj.el).attr('readonly')) return;
 						$(div).addClass('w2ui-file-dragover');
 					})
 					.on('dragleave', function (event) {
+						if ($(obj.el).attr('readonly')) return;
 						var tmp = $(event.target).parents('.w2ui-field-helper');
 						if (tmp.length == 0) $(div).removeClass('w2ui-file-dragover');
 					})
 					.on('drop', function (event) {
+						if ($(obj.el).attr('readonly')) return;
 						$(div).removeClass('w2ui-file-dragover');
 						var files = event.originalEvent.dataTransfer.files;
 						for (var i=0, l=files.length; i<l; i++) obj.addFile.call(obj, files[i]);
@@ -1454,7 +1469,9 @@
 						event.stopPropagation();
 					});
 				div.find('input')
-					.on('click', function (event) { event.stopPropagation(); })
+					.on('click', function (event) { 
+						event.stopPropagation(); 
+					})
 					.on('change', function () {
 						if (typeof this.files !== "undefined") {
 							for (var i = 0, l = this.files.length; i < l; i++) {

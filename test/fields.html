@@ -24,7 +24,7 @@
 			item.text = item.fname + ' ' + item.lname;
 			items.push(item);
 		}
-		$('.date').w2field('date', { silent: false });
+		$('.date').w2field('date', { silent: false, format: 'Mon dd, yyyy' });
 		$('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
 		$('.color').w2field('color');
 		$('.int').w2field({ type: 'int', min: -36000, max: 36000 });
@@ -118,10 +118,16 @@
 	HTML5 week: <input type="week"><br>
 	HTML5 month: <input type="month"><br>
 	-->
-	Date Range: <input id="date1"> - <input id="date2">
+	Date Range: <input id="date1"> - <input id="date2"> - 
+		<input type="button" value="make readonly" onclick="$('input, textarea, select').prop('readonly', true)">
+		<input type="text">
 	<br>
 	<br>
 	<div class="w2ui-form" style="height: 600px"><div style="width: 100%; padding: 5px;">
+		<div class="w2ui-label">text:</div>
+			<div class="w2ui-field">
+				<input type="text" style="width: 100px;"/>
+			</div>
 		<div class="w2ui-label">color:</div>
 			<div class="w2ui-field">
 				<input class="color" type="text" style="width: 100px;"
