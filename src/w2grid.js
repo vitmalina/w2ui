@@ -19,8 +19,6 @@
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
 *	- allow to define different recid (possibly)
-*	- rename onSave -> onSubmit, onSaved -> onSave, just like in the form
-*	- onSave should have refresh the form, or mergded into the grid.
 *	- problem with .set() and arrays, array get extended too, but should be replaced
 *	- add onParse - to converd data received from the server
 *	- move events into prototype
@@ -41,6 +39,7 @@
 *	- new: nextCell, prevCell, nextRow, prevRow
 *	- new: editChange(el, index, column, event)
 *	- new: method - overwrite default ajax method (see also w2utils.settings.RESTfull)
+*	- rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
 *
 ************************************************************************/
 
@@ -109,8 +108,8 @@
 		this.onLoad				= null;
 		this.onDelete			= null;
 		this.onDeleted			= null;
-		this.onSave 			= null;
-		this.onSaved			= null;
+		this.onSubmit 			= null;
+		this.onSave				= null;
 		this.onSelect			= null;
 		this.onUnselect 		= null;
 		this.onClick 			= null;
@@ -1471,7 +1470,7 @@
 
 			// event before
 			var event_name = 'load';
-			if (this.last.xhr_cmd == 'save-records') event_name   = 'saved';
+			if (this.last.xhr_cmd == 'save-records') event_name   = 'save';
 			if (this.last.xhr_cmd == 'delete-records') event_name = 'deleted';
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
 			if (eventData.isCancelled === true) {
@@ -1590,12 +1589,14 @@
 			var obj = this;
 			var changed = this.getChanges();
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changed: changed });
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'submit', changed: changed });
 			if (eventData.isCancelled === true) return false;
 			var url = (typeof this.url != 'object' ? this.url : this.url.save);
 			if (url) {
 				this.request('save-records', { 'changed' : eventData.changed }, null,
-					function () { // event after
+					function () {
+						this.mergeChanges();
+						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
 				);
