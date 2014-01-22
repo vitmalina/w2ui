@@ -7,7 +7,6 @@
 *
 * == NICE TO HAVE ==
 *	- global search apply types and drop downs
-*	- editable fields (list) - better inline editing
 *	- frozen columns
 *	- column autosize based on largest content
 *	- save grid state into localStorage and restore
@@ -23,7 +22,6 @@
 *	- rename onSave -> onSubmit, onSaved -> onSave, just like in the form
 *	- onSave should have refresh the form, or mergded into the grid.
 *	- problem with .set() and arrays, array get extended too, but should be replaced
-*	- user should be able to overwrite GET instead of POST?
 *	- add onParse - to converd data received from the server
 *	- move events into prototype
 *	- add colspans
@@ -42,6 +40,7 @@
 *	- removed: record.selected 
 *	- new: nextCell, prevCell, nextRow, prevRow
 *	- new: editChange(el, index, column, event)
+*	- new: method - overwrite default ajax method (see also w2utils.settings.RESTfull)
 *
 ************************************************************************/
 
@@ -101,6 +100,7 @@
 		this.offset			= 0;		// how many records to skip (for infinite scroll) when pulling from server
 		this.style			= '';
 		this.ranges 		= [];
+		this.method;					// if defined, then overwrited ajax method
 
 		// events
 		this.onAdd				= null;
@@ -1444,6 +1444,7 @@
 				xhr_type = 'DELETE';
 			}
 			if (!w2utils.settings.RESTfull) xhr_type = 'POST';
+			if (this.method) xhr_type = this.method;
 			this.last.xhr_cmd	 = params.cmd;
 			this.last.xhr_start  = (new Date()).getTime();
 			this.last.xhr = $.ajax({
@@ -2684,7 +2685,7 @@
 			// -- make sure search is closed
 			this.searchClose();
 			// search placeholder
-			var searchEl = $('#grid_'+ obj.name +'_search_all');
+			var el = $('#grid_'+ obj.name +'_search_all');
 			if (this.searches.length == 0) {
 				this.last.field = 'all';
 			}
@@ -2696,10 +2697,11 @@
 				if (this.searches[s].field == this.last.field) this.last.caption = this.searches[s].caption;
 			}
 			if (this.last.multi) {
-				searchEl.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
+				el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
 			} else {
-				searchEl.attr('placeholder', this.last.caption);
+				el.attr('placeholder', this.last.caption);
 			}
+			if (el.val() != this.last.search) el.val(this.last.search);
 
 			// -- separate summary
 			var tmp = this.find({ summary: true }, true);
