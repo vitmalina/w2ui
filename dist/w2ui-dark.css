@@ -142,15 +142,24 @@
   height: 23px;
 }
 .w2ui-centered {
-  display: table;
-  width: 100%;
-  height: 100%;
-}
-.w2ui-centered > div {
-  display: table-cell;
-  padding: 10px 20px 20px 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -o-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+  width: 95%;
+  max-height: 100%;
+  margin: 0px;
+  padding: 0px 5px;
   text-align: center;
-  vertical-align: middle;
+}
+.w2ui-disabled,
+.w2ui-readonly {
+  background-color: #f1f1f1 !important;
+  color: #777 !important;
 }
 /*************************************************
 * ---- Input Controls ----
@@ -169,8 +178,7 @@ input[type=button]:active {
   color: white;
   background-color: #282F3E;
 }
-input[type=text],
-input[type=password],
+input:not([type=button]),
 select,
 textarea {
   padding: 4px;
@@ -179,22 +187,19 @@ textarea {
   color: #c0c8d5;
   background-color: #515b7e;
 }
-input[type=text]:focus,
-input[type=password]:focus,
+input:not([type=button]):focus,
 select:focus,
 textarea:focus {
   outline-color: #aaa871;
 }
-input[type=text]:disabled,
-input[type=password]:disabled,
+input:not([type=button]):disabled,
 select:disabled,
 textarea:disabled,
-input[type=text][readonly],
-input[type=password][readonly],
+input:not([type=button])[readonly],
 select[readonly],
 textarea[readonly] {
   background-color: #f1f1f1;
-  color: #888;
+  color: #777;
 }
 select {
   padding: 2px;
@@ -339,16 +344,28 @@ select {
 * ---- Locking portion of the screen (in grid, form, layout)
 */
 .w2ui-lock {
+  display: none;
+  position: absolute;
+  z-index: 1400;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
   opacity: 0.15;
   filter: alpha(opacity=15);
   background-color: #333333;
-  position: absolute;
-  z-index: 1400;
-  display: none;
 }
 .w2ui-lock-msg {
+  display: none;
   position: absolute;
   z-index: 1400;
+  top: 45%;
+  left: 50%;
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -o-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
   width: 200px;
   height: 80px;
   padding: 30px 8px;
@@ -364,7 +381,6 @@ select {
   text-align: center;
   border-radius: 5px;
   border: 2px solid #444444;
-  display: none;
 }
 .w2ui-lock-msg .w2ui-spinner {
   display: inline-block;

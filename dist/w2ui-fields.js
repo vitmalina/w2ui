@@ -122,6 +122,15 @@ var w2utils = (function () {
 	function isDate (val, format, retDate) {
 		if (!val) return false;
 		if (!format) format = w2utils.settings.date_format;
+		// convert month formats
+		if (RegExp('mon', 'ig').test(format)) {
+			format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
+			val	= val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
+			for (var m in w2utils.settings.fullmonths) {
+				var t = w2utils.settings.fullmonths[m];
+				val = val.replace(RegExp(t, 'ig'), (parseInt(m) + 1)).replace(RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
+			}
+		}
 		// format date
 		var tmp  = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/');
 		var tmp2 = format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
@@ -674,32 +683,13 @@ var w2utils = (function () {
 			'<div class="w2ui-lock"></div>'+
 			'<div class="w2ui-lock-msg"></div>'
 		);
-		setTimeout(function () {
-			var lock = $(box).find('.w2ui-lock');
-			var mess = $(box).find('.w2ui-lock-msg');
-			lock.data('old_opacity', lock.css('opacity')).css('opacity', '0').show();
-			mess.data('old_opacity', mess.css('opacity')).css('opacity', '0').show();
-			setTimeout(function () {
-				var lock = $(box).find('.w2ui-lock');
-				var mess = $(box).find('.w2ui-lock-msg');
-				var left = ($(box).width()  - w2utils.getSize(mess, 'width')) / 2;
-				var top  = ($(box).height() * 0.9 - w2utils.getSize(mess, 'height')) / 2;
-				lock.css({
-					opacity : (options.opacity != undefined ? options.opacity : lock.data('old_opacity')),
-					left 	: '0px',
-					top 	: '0px',
-					width 	: '100%',
-					height 	: '100%'
-				});
-				if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
-				if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 30px; height: 30px"' : '') +'></div>' + options.msg;
-				mess.html(options.msg).css({
-					opacity : mess.data('old_opacity'),
-					left	: left + 'px',
-					top		: top + 'px'
-				});
-			}, 10);
-		}, 10);
+		var lock = $(box).find('.w2ui-lock');
+		var mess = $(box).find('.w2ui-lock-msg');
+		if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
+		if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
+		if (typeof options.opacity != 'undefined') lock.css('opacity', options.opacity);
+		lock.fadeIn(200);
+		mess.html(options.msg).fadeIn(200);
 		// hide all tags (do not hide overlays as the form can be in overlay)
 		$().w2tag();
 	}
@@ -1354,6 +1344,7 @@ w2utils.keyboard = (function (obj) {
 *	- BUG with prefix/postfix and arrows (test in different contexts)
 *	- prefix and suffix are slow (100ms or so)
 *	- multiple date selection
+*	- month selection, year selections
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -1365,6 +1356,7 @@ w2utils.keyboard = (function (obj) {
 *	- render calendar to the div
 *	- added .btn with colors
 *	- added enum.style and file.style attributes
+*	- test all fields as Read Only
 *
 ************************************************************************/
 
@@ -1718,8 +1710,9 @@ w2utils.keyboard = (function (obj) {
 		clear: function () {
 			var obj		 = this;
 			var options	 = this.options;
-			// restore paddings
 			var tmp = $(this.el).data('tmp');
+			if (typeof tmp == 'undefined') return;
+			// restore paddings
 			if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
 			if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
 			// if money then clear value
@@ -1770,6 +1763,7 @@ w2utils.keyboard = (function (obj) {
 				var div = obj.helpers['multi'];
 				var ul  = div.find('ul');
 				div.attr('style', div.attr('style') + ';' + options.style);
+				if ($(obj.el).attr('readonly')) div.addClass('w2ui-readonly'); else div.removeClass('w2ui-readonly');
 				// celan
 				div.find('.w2ui-enum-placeholder').remove();
 				ul.find('li').not('li.nomouse').remove();
@@ -1793,7 +1787,12 @@ w2utils.keyboard = (function (obj) {
 						var item = selected[$(event.target).attr('index')];
 						if ($(event.target).hasClass('nomouse')) return;
 						event.stopPropagation();
+						// trigger event
+						var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
+						if (eventData.isCancelled === true) return;
+						// default behavior
 						if ($(event.target).hasClass('w2ui-list-remove')) {
+							if ($(obj.el).attr('readonly')) return;
 							// trigger event
 							var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
 							if (eventData.isCancelled === true) return;
@@ -1835,9 +1834,6 @@ w2utils.keyboard = (function (obj) {
 								'</div>';
 								$(event.target).w2overlay(preview);
 						}
-						// trigger event
-						var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
-						if (eventData.isCancelled === true) return;
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					})
@@ -1963,6 +1959,7 @@ w2utils.keyboard = (function (obj) {
 			var options = this.options;
 			// color
 			if (this.type == 'color') {
+				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();
 				$(obj.el).w2overlay(obj.getColorHTML());
 				// bind events
@@ -1975,6 +1972,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			// date
 			if (this.type == 'date') {
+				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();
 				setTimeout(function () { 
 					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', { css: { "background-color": "#f5f5f5" } });
@@ -1983,6 +1981,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			// time
 			if (this.type == 'time') {
+				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();				
 				setTimeout(function () { 
 					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
@@ -1991,6 +1990,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			// menu
 			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();				
 				setTimeout(function () {
 					if (options.showAll !== true) obj.search();
@@ -2245,6 +2245,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			// list/select/combo
 			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+				if ($(obj.el).attr('readonly')) return;
 				var cancel		= false;
 				var selected	= $(this.el).data('selected');
 				// apply arrows
@@ -2735,7 +2736,7 @@ w2utils.keyboard = (function (obj) {
 				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box;">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
-						'	<input class="file-input" type="file" name="attachment" multiple style="display: none">' 
+						'	<input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">' 
 						'	</div>'+
 						'</div>';				
 			}
@@ -2774,17 +2775,22 @@ w2utils.keyboard = (function (obj) {
 			if (obj.type == 'file') {
 				$(obj.el).css('outline', 'none');
 				div.on('click', function (event) {
+						$(obj.el).focus();
+						if ($(obj.el).attr('readonly')) return;
 						obj.blur(event);
 						div.find('input').click();
 					})
 					.on('dragenter', function (event) {
+						if ($(obj.el).attr('readonly')) return;
 						$(div).addClass('w2ui-file-dragover');
 					})
 					.on('dragleave', function (event) {
+						if ($(obj.el).attr('readonly')) return;
 						var tmp = $(event.target).parents('.w2ui-field-helper');
 						if (tmp.length == 0) $(div).removeClass('w2ui-file-dragover');
 					})
 					.on('drop', function (event) {
+						if ($(obj.el).attr('readonly')) return;
 						$(div).removeClass('w2ui-file-dragover');
 						var files = event.originalEvent.dataTransfer.files;
 						for (var i=0, l=files.length; i<l; i++) obj.addFile.call(obj, files[i]);
@@ -2798,7 +2804,9 @@ w2utils.keyboard = (function (obj) {
 						event.stopPropagation();
 					});
 				div.find('input')
-					.on('click', function (event) { event.stopPropagation(); })
+					.on('click', function (event) { 
+						event.stopPropagation(); 
+					})
 					.on('change', function () {
 						if (typeof this.files !== "undefined") {
 							for (var i = 0, l = this.files.length; i < l; i++) {
