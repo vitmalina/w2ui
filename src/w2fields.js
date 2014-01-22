@@ -10,6 +10,7 @@
 *	- BUG with prefix/postfix and arrows (test in different contexts)
 *	- prefix and suffix are slow (100ms or so)
 *	- multiple date selection
+*	- month selection, year selections
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)

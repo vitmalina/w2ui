@@ -112,6 +112,10 @@ test( "w2utils.isDate()", function() {
 	ok( w2utils.isDate('2/29/2009', 'mm/dd/yyyy') === false,"'2/29/2009', 'mm/dd/yyyy' - Not Leap Year" );
 	ok( w2utils.isDate('24/29/2009', 'mm/dd/yyyy')=== false,"'24/29/2009', Wrong date" );
 	ok( w2utils.isDate('dk3', '') === false,"'dk3', Wrong date" );
+	ok( w2utils.isDate('31 Jan, 2013', 'dd Mon, yyyy') === true, "'1 Jun, 2013', 'dd Mon, yyyy'");
+	ok( w2utils.isDate('30 Feb, 2013', 'dd Mon, yyyy') === false, "'30 Feb, 2013', 'dd Mon, yyyy'");
+	ok( w2utils.isDate('1 January, 2013', 'dd Month, yyyy') === true, "'1 January, 2013', 'dd Month, yyyy'");
+	ok( w2utils.isDate('January 5, 2013', 'Month dd, yyyy') === true, "'January 5, 2013', 'Month dd, yyyy'");
 });
 
 test( "w2utils.base64encode(), w2utils.base64decode()", function() {

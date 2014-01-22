@@ -121,6 +121,15 @@ var w2utils = (function () {
 	function isDate (val, format, retDate) {
 		if (!val) return false;
 		if (!format) format = w2utils.settings.date_format;
+		// convert month formats
+		if (RegExp('mon', 'ig').test(format)) {
+			format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
+			val	= val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
+			for (var m in w2utils.settings.fullmonths) {
+				var t = w2utils.settings.fullmonths[m];
+				val = val.replace(RegExp(t, 'ig'), (parseInt(m) + 1)).replace(RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
+			}
+		}
 		// format date
 		var tmp  = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/');
 		var tmp2 = format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
