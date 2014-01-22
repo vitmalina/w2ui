@@ -18,7 +18,6 @@
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
-*	- allow to define different recid (possibly)
 *	- problem with .set() and arrays, array get extended too, but should be replaced
 *	- add onParse - to converd data received from the server
 *	- move events into prototype
@@ -40,6 +39,8 @@
 *	- new: editChange(el, index, column, event)
 *	- new: method - overwrite default ajax method (see also w2utils.settings.RESTfull)
 *	- rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
+* 	- new: recid - if id of the data is different from recid
+*	- new: parser - to converd data received from the server
 *
 ************************************************************************/
 
@@ -100,6 +101,8 @@
 		this.style			= '';
 		this.ranges 		= [];
 		this.method;					// if defined, then overwrited ajax method
+		this.recid;
+		this.parser;
 
 		// events
 		this.onAdd				= null;
@@ -263,6 +266,7 @@
 			if (!$.isArray(record)) record = [record];
 			var added = 0;
 			for (var o in record) {
+				if (!this.recid) record[o].recid = record[o][this.recid];
 				if (record[o].recid == null || typeof record[o].recid == 'undefined') {
 					console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
 					continue;
@@ -1486,9 +1490,22 @@
 					// check if the onLoad handler has not already parsed the data
 					if (typeof responseText == "object") {
 						data = responseText;
-					} else {
-						// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
-						try { eval('data = '+ responseText); } catch (e) { }
+					} else {						
+						if (typeof obj.parser == 'function') {
+							data = obj.parser(responseText);
+							if (typeof data != 'object') {
+								console.log('ERROR: Your parser did not return proper object');
+							}
+						} else {
+							// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+							try { eval('data = '+ responseText); } catch (e) { }	
+						}
+					}
+					// convert recids
+					if (obj.recid) {
+						for (var r in data.records) {
+							data.records[r]['recid'] = data.records[r][obj.recid];
+						}
 					}
 					if (typeof data == 'undefined') {
 						data = {
