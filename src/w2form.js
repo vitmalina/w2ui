@@ -783,7 +783,7 @@
 						$(field.el).prop('checked', value ? true : false);
 						break;
 					default:
-						console.log('ERROR: field type "'+ field.type +'" is not recognized.');
+						$(field.el).w2field($.extend({}, field.options, { type: field.type }));
 						break;						
 				}
 			}
