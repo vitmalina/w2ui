@@ -15,6 +15,7 @@
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- added panel title
 *	- added panel.maxSize property
+*	- fixed resize bugs
 *
 ************************************************************************/
 
@@ -137,25 +138,28 @@
 		content: function (panel, data, transition) {
 			var obj = this;
 			var p = this.get(panel);
+			if (p === null) return false;
+			// if it is CSS panel
 			if (panel == 'css') {
 				$('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>');
 				return true;
 			}
-			if (p === null) return false;
-			if ($('#layout_'+ this.name + '_panel2_'+ p.type).length > 0) return false;
-			$('#layout_'+ this.name + '_panel_'+ p.type).scrollTop(0);
-			if (data === null || typeof data == 'undefined') {
+			if (typeof data == 'undefined' || data === null) {
 				return p.content;
 			} else {
 				if (data instanceof jQuery) {
 					console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
 					return false;
 				}
-				// remove foreign classes and styles
-				var tmp = $('#'+ 'layout_'+ this.name + '_panel_'+ panel + ' > .w2ui-panel-content');
-				var panelTop = $(tmp).position().top;
-				tmp.attr('class', 'w2ui-panel-content');
-				if (tmp.length > 0 && typeof p.style != 'undefined') tmp[0].style.cssText = p.style;
+				var pname = '#layout_'+ this.name + '_panel_'+ p.type;
+				var tmp	  = $(pname + ' > .w2ui-panel-content');
+				var panelTop = 0;
+				if (tmp.length > 0) {
+					$(pname).scrollTop(0);
+					panelTop = $(tmp).position().top;
+					tmp.attr('class', 'w2ui-panel-content');
+					if (p.style) tmp[0].style.cssText = p.style;
+				}
 				if (p.content === '') {
 					p.content = data;
 					this.refresh(panel);
@@ -164,10 +168,9 @@
 					if (!p.hidden) {
 						if (transition !== null && transition !== '' && typeof transition != 'undefined') {
 							// apply transition
-							var nm   = 'layout_'+ this.name + '_panel_'+ p.type;
-							var div1 = $('#'+ nm + ' > .w2ui-panel-content');
+							var div1 = $(pname + ' > .w2ui-panel-content');
 							div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>');
-							var div2 = $('#'+ nm + ' > .w2ui-panel-content.new-panel');
+							var div2 = $(pname + ' > .w2ui-panel-content.new-panel');
 							div1.css('top', panelTop);
 							div2.css('top', panelTop);
 							if (typeof data == 'object') {
@@ -462,31 +465,30 @@
 					mouseup		: resizeStop
 				};
 				$(window).on('resize', obj.tmp.events.resize);
-				$(document).on('mousemove', obj.tmp.events.mousemove);
-				$(document).on('mouseup', obj.tmp.events.mouseup);
 			}
 
 			function resizeStart(type, evnt) {
 				if (!obj.box) return;
 				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
+				$(document).on('mousemove', obj.tmp.events.mousemove);
+				$(document).on('mouseup', obj.tmp.events.mouseup);
 				obj.tmp.resize = {
 					type	: type,
 					x		: evnt.screenX,
 					y		: evnt.screenY,
-					div_x	: 0,
-					div_y	: 0,
+					diff_x	: 0,
+					diff_y	: 0,
 					value	: 0
 				};				
 				// lock all panels
 				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
 				for (var p in panels) obj.lock(panels[p], { opacity: 0 }); 
-
 				if (type == 'left' || type == 'right') {
-					obj.tmp.resize.value = parseInt($('#layout_'+ obj.name + '_resizer_'+ type)[0].style.left);
+					obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left);
 				}
 				if (type == 'top' || type == 'preview' || type == 'bottom') {
-					obj.tmp.resize.value = parseInt($('#layout_'+ obj.name + '_resizer_'+ type)[0].style.top);
+					obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.top);
 				}
 			}
 
@@ -494,12 +496,14 @@
 				if (!obj.box) return;
 				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
+				$(document).off('mousemove', obj.tmp.events.mousemove);
+				$(document).off('mouseup', obj.tmp.events.mouseup);
 				if (typeof obj.tmp.resize == 'undefined') return;
 				// unlock all panels
 				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
 				for (var p in panels) obj.unlock(panels[p]);
 				// set new size
-				if (obj.tmp.div_x !== 0 || obj.tmp.resize.div_y !== 0) { // only recalculate if changed
+				if (obj.tmp.diff_x !== 0 || obj.tmp.resize.diff_y !== 0) { // only recalculate if changed
 					var ptop	= obj.get('top');
 					var pbottom	= obj.get('bottom');
 					var panel	= obj.get(obj.tmp.resize.type);
@@ -509,24 +513,24 @@
 					var ns, nd;
 					switch (obj.tmp.resize.type) {
 						case 'top':
-							ns = parseInt(panel.sizeCalculated) + obj.tmp.resize.div_y;
+							ns = parseInt(panel.sizeCalculated) + obj.tmp.resize.diff_y;
 							nd = 0;
 							break;
 						case 'bottom':
-							ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.div_y;
+							ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.diff_y;
 							nd = 0;
 							break;
 						case 'preview':
-							ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.div_y;
+							ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.diff_y;
 							nd = (ptop && !ptop.hidden ? ptop.sizeCalculated : 0) +
 								(pbottom && !pbottom.hidden ? pbottom.sizeCalculated : 0);
 							break;
 						case 'left':
-							ns = parseInt(panel.sizeCalculated) + obj.tmp.resize.div_x;
+							ns = parseInt(panel.sizeCalculated) + obj.tmp.resize.diff_x;
 							nd = 0;
 							break;
 						case 'right':
-							ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.div_x;
+							ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.diff_x;
 							nd = 0;
 							break;
 					}
@@ -549,17 +553,19 @@
 				if (typeof obj.tmp.resize == 'undefined') return;
 				var panel = obj.get(obj.tmp.resize.type);
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'resizing', target: obj.tmp.resize.type, object: panel, originalEvent: evnt });
+				var tmp = obj.tmp.resize;
+				var eventData = obj.trigger({ phase: 'before', type: 'resizing', target: obj.name, object: panel, originalEvent: evnt,
+					panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 });
 				if (eventData.isCancelled === true) return false;
 
-				var p			= $('#layout_'+ obj.name + '_resizer_'+ obj.tmp.resize.type);
-				var resize_x	= (evnt.screenX - obj.tmp.resize.x);
-				var resize_y	= (evnt.screenY - obj.tmp.resize.y);
+				var p			= $('#layout_'+ obj.name + '_resizer_'+ tmp.type);
+				var resize_x	= (evnt.screenX - tmp.x);
+				var resize_y	= (evnt.screenY - tmp.y);
 				var mainPanel	= obj.get('main');
 
 				if (!p.hasClass('active')) p.addClass('active');
 
-				switch(obj.tmp.resize.type) {
+				switch (tmp.type) {
 					case 'left':
 						if (panel.minSize - resize_x > panel.width) {
 							resize_x = panel.minSize - panel.width;
@@ -608,23 +614,22 @@
 							resize_y = mainPanel.minSize - mainPanel.height;
 						}
 						break;
-				}
-				
-				obj.tmp.resize.div_x = resize_x;
-				obj.tmp.resize.div_y = resize_y;
+				}				
+				tmp.diff_x = resize_x;
+				tmp.diff_y = resize_y;
 
-				switch(obj.tmp.resize.type) {
+				switch (tmp.type) {
 					case 'top':
 					case 'preview':
 					case 'bottom':
-						obj.tmp.resize.div_x = 0;
-						if (p.length > 0) p[0].style.top = (obj.tmp.resize.value + obj.tmp.resize.div_y) + 'px';
+						tmp.diff_x = 0;
+						if (p.length > 0) p[0].style.top = (tmp.value + tmp.diff_y) + 'px';
 						break;
 
 					case 'left':
 					case 'right':
-						obj.tmp.resize.div_y = 0;
-						if (p.length > 0) p[0].style.left = (obj.tmp.resize.value + obj.tmp.resize.div_x) + 'px';
+						tmp.diff_y = 0;
+						if (p.length > 0) p[0].style.left = (tmp.value + tmp.diff_x) + 'px';
 						break;
 				}
 				// event after				
@@ -640,50 +645,47 @@
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (typeof panel != 'undefined' ? panel : obj.name), object: obj.get(panel) });
 			if (eventData.isCancelled === true) return;
-
 			// obj.unlock(panel);
-			if (panel !== null && typeof panel != 'undefined') {
+			if (typeof panel == 'string') {
 				var p = obj.get(panel);
 				if (p === null) return;
+				var pname = '#layout_'+ obj.name + '_panel_'+ p.type;
+				var rname = '#layout_'+ obj.name +'_resizer_'+ p.type;
 				// apply properties to the panel
-				var el = $('#layout_'+ obj.name +'_panel_'+ panel).css({ display: p.hidden ? 'none' : 'block' });
-				el = el.find('.w2ui-panel-content');
-				if (el.length > 0) el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
-				if (p.resizable === true) {
-					$('#layout_'+ this.name +'_resizer_'+ panel).show();
-				} else {
-					$('#layout_'+ this.name +'_resizer_'+ panel).hide();
+				var el = $(panel).css({ display: p.hidden ? 'none' : 'block' });
+				if (el.find('.w2ui-panel-content').length > 0) {
+					el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				}
+				if (p.resizable === true) $(rname).show(); else $(rname).hide();
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.box = $('#layout_'+ obj.name + '_panel_'+ p.type +' > .w2ui-panel-content')[0];
+					p.content.box = $(pname +' > .w2ui-panel-content')[0];
 					p.content.render(); // do not do .render(box);
 				} else {
-					$('#layout_'+ obj.name + '_panel_'+ p.type +' > .w2ui-panel-content').html(p.content);
+					$(pname +' > .w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
-				var tmp;
-				tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-tabs');
+				var tmp = $(obj.box).find(pname +' .w2ui-panel-tabs');
 				if (p.show.tabs) {
 					if (tmp.find('[name='+ p.tabs.name +']').length === 0 && p.tabs !== null) tmp.w2render(p.tabs); else p.tabs.refresh();
 				} else {
 					tmp.html('').removeClass('w2ui-tabs').hide();
 				}
-				tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-toolbar');
+				tmp = $(obj.box).find(pname +' .w2ui-panel-toolbar');
 				if (p.show.toolbar) {
 					if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar !== null) tmp.w2render(p.toolbar); else p.toolbar.refresh();
 				} else {
 					tmp.html('').removeClass('w2ui-toolbar').hide();
 				}
 				// show title
-				tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-title');
+				tmp = $(obj.box).find(pname +' .w2ui-panel-title');
 				if (p.title) {
-					tmp.html(p.title);
+					tmp.html(p.title).show();
 				} else {
 					tmp.html('').hide();
 				}
 			} else {
-				if ($('#layout_' +obj.name +'_panel_main').length <= 0) {
+				if ($('#layout_'+ obj.name +'_panel_main').length == 0) {
 					obj.render();
 					return;
 				}
@@ -700,7 +702,9 @@
 			if (!this.box) return false;
 			var time = (new Date()).getTime();
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, panel: this.tmp.resizing });
+			var tmp = this.tmp.resize;
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, 
+				panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0  });
 			if (eventData.isCancelled === true) return false;
 			if (this.padding < 0) this.padding = 0;
 
@@ -947,16 +951,16 @@
 				var pan = this.get(p1);
 				var tmp2 = '#layout_'+ this.name +'_panel_'+ p1 +' > .w2ui-panel-';
 				var tabHeight = 0;
+				if (pan.title) {
+					tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+				}
 				if (pan.show.tabs) {
 					if (pan.tabs !== null && w2ui[this.name +'_'+ p1 +'_tabs']) w2ui[this.name +'_'+ p1 +'_tabs'].resize();
-					tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ display: 'block' }), 'height');
+					tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height');
 				}
 				if (pan.show.toolbar) {
 					if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
 					tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
-				}
-				if (pan.title){
-					tabHeight += w2utils.getSize($(tmp2+'title').css({top: tabHeight+'px', display: 'block'}),'height');
 				}
 				$(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' });
 			}
@@ -992,11 +996,7 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-
-			if (this.tmp.events && this.tmp.events.resize)		$(window).off('resize', this.tmp.events.resize);
-			if (this.tmp.events && this.tmp.events.mousemove)	$(document).off('mousemove', this.tmp.events.mousemove);
-			if (this.tmp.events && this.tmp.events.mouseup)		$(document).off('mouseup', this.tmp.events.mouseup);
-
+			if (this.tmp.events && this.tmp.events.resize) $(window).off('resize', this.tmp.events.resize);
 			return true;
 		},
 
