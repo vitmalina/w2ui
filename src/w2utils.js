@@ -1166,6 +1166,7 @@ w2utils.keyboard = (function (obj) {
 		function fixSize () {
 			var div1 = $('#w2ui-overlay'+ name);
 			var div2 = div1.find(' > div');
+			if (div2.width() < 30) options.width = 30;
 			// if goes over the screen, limit height and width
 			if (div1.length > 0) {
 				div2.height('auto').width('auto');
@@ -1174,6 +1175,12 @@ w2utils.keyboard = (function (obj) {
 				var overflowY = false;
 				var h = div2.height();
 				var w = div2.width();
+				if (options.width && options.width < w) w = options.width;
+				var tmp = (w - 17) / 2;
+				if (tmp < 25) {
+					options.tipLeft = tmp + 1;
+					options.left = 25 - tmp;
+				}
 				// alignment
 				switch(options.align) {
 					case 'both':
