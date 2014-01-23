@@ -46,11 +46,9 @@ var w2utils = (function () {
 			"date_format"	: "m/d/yyyy",
 			"date_display"	: "Mon d, yyyy",
 			"time_format"	: "h12",
-			"currency"		: "^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$",
 			"currencyPrefix": "$",
 			"currencySuffix": "",
 			"groupSymbol"	: ",",
-			"float"			: "^[-]?[0-9]*[\.]?[0-9]+$",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 			"shortdays"		: ["M", "T", "W", "T", "F", "S", "S"],
@@ -89,27 +87,31 @@ var w2utils = (function () {
 	return obj;
 	
 	function isInt (val) {
-		var re =  /^[-]?[0-9]+$/;
+		var re = /^[-+]?[0-9]+$/;
 		return re.test(val);		
 	}
 		
 	function isFloat (val) {
-		var re =  new RegExp(w2utils.settings["float"]);
-		return re.test(val);		
+		return typeof val == 'number' || (typeof val == 'string' && val != '' && Number(val) + '' != 'NaN') ? true : false;
 	}
 
 	function isMoney (val) {
-		var re =  new RegExp(w2utils.settings.currency);
+		var se = w2utils.settings;
+		var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\.]?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
+		if (typeof val == 'string') {
+			val = val.replace(new RegExp(se.groupSymbol, 'g'), '');
+		}
+		if (typeof val == 'object' || val == '') return false;
 		return re.test(val);		
 	}
 		
 	function isHex (val) {
-		var re =  /^[a-fA-F0-9]+$/;
+		var re = /^[a-fA-F0-9]+$/;
 		return re.test(val);		
 	}
 	
 	function isAlphaNumeric (val) {
-		var re =  /^[a-zA-Z0-9_-]+$/;
+		var re = /^[a-zA-Z0-9_-]+$/;
 		return re.test(val);		
 	}
 	

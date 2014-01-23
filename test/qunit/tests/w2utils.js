@@ -51,12 +51,14 @@ test( "w2utils.isInt()", function() {
 		0 			: true,
 		'1'			: true,
 		'-1' 		: true,
+		'+1' 		: true,
 		'1.' 		: false,
 		'1.0' 		: false,
 		'1.0.0' 	: false,
 		'1-0' 		: false,
 		'--1' 		: false,
-		'1--' 		: false
+		'1--' 		: false,
+		'1,000'		: false 	// should have no commas
 	}
 	ok( w2utils.isInt() === false,  		"- no argument -" );
 	ok( w2utils.isInt('') === false, 		"- blank -" );
@@ -73,24 +75,101 @@ test( "w2utils.isFloat()", function() {
 	var values = {
 		1 			: true,
 		0 			: true,
+		1.0e3		: true,
 		'1'			: true,
 		'-1' 		: true,
+		'+1' 		: true,
+		'1.' 		: true,
+		'1.0' 		: true,
+		'1.0.0' 	: false,
+		'1-0' 		: false,
+		'--1' 		: false,
+		'1--' 		: false,
+		'1,000'		: false,
+		'3.0E+2'	: true,
+		'3.0E-2'	: true
+	}
+	ok( w2utils.isFloat() === false,  			"- no argument -" );
+	ok( w2utils.isFloat('') === false, 			"- blank -" );
+	ok( w2utils.isFloat(null) === false, 		"- null -" );
+	ok( w2utils.isFloat(undefined) === false,	"- undefined -" );
+	ok( w2utils.isFloat({}) === false, 			"- object -" );
+	ok( w2utils.isFloat([]) === false, 			"- array -" );
+	for (var v in values) {
+		ok( w2utils.isFloat(v) === values[v], 'Test: ' + v);
+	}
+});
+
+test( "w2utils.isMoney() - Default Format", function() {
+	var values = {
+		1 			: true,
+		0 			: true,
+		'1'			: true,
+		'-1' 		: true,
+		'+1' 		: true,
 		'1.' 		: false,
 		'1.0' 		: true,
 		'1.0.0' 	: false,
 		'1-0' 		: false,
 		'--1' 		: false,
-		'1--' 		: false
+		'1--' 		: false,
+		'1,000'		: true,
+		'$4.00'		: true,
+		'$4,000'	: true,
+		'$-4,000'	: true,
+		'$+4,000'	: true,
+		'1 000'		: false,
+		'4.0€'		: false,
+		'4 000€'	: false,
+		'-4 000€'	: false,
+		'+4 000€'	: false
 	}
-	ok( w2utils.isFloat() === false,  		"- no argument -" );
-	ok( w2utils.isFloat('') === false, 		"- blank -" );
-	ok( w2utils.isFloat(null) === false, 		"- null -" );
-	ok( w2utils.isFloat(undefined) === false,	"- undefined -" );
-	ok( w2utils.isFloat({}) === false, 		"- object -" );
-	ok( w2utils.isFloat([]) === false, 		"- array -" );
+	ok( w2utils.isMoney() === false,  			"- no argument -" );
+	ok( w2utils.isMoney('') === false, 			"- blank -" );
+	ok( w2utils.isMoney(null) === false, 		"- null -" );
+	ok( w2utils.isMoney(undefined) === false,	"- undefined -" );
+	ok( w2utils.isMoney({}) === false, 			"- object -" );
+	ok( w2utils.isMoney([]) === false, 			"- array -" );
 	for (var v in values) {
-		ok( w2utils.isFloat(v) === values[v], 'Test: ' + v);
+		ok( w2utils.isMoney(v) === values[v], 'Test: ' + v);
 	}
+});
+
+test( "w2utils.isMoney() - EU Format", function() {
+	// $\€\£\¥
+	$.extend(w2utils.settings, { currencyPrefix: "", currencySuffix: "€", groupSymbol : " " });
+	var values = {
+		1 			: true,
+		0 			: true,
+		'1'			: true,
+		'-1' 		: true,
+		'+1' 		: true,
+		'1.' 		: false,
+		'1.0' 		: true,
+		'1.0.0' 	: false,
+		'1-0' 		: false,
+		'--1' 		: false,
+		'1--' 		: false,
+		'$4.00'		: false,
+		'$4,000'	: false,
+		'$-4,000'	: false,
+		'$+4,000'	: false,
+		'1 000'		: true,
+		'4.00€'		: true,
+		'4 000€'	: true,
+		'-4 000€'	: true,
+		'+4 000€'	: true,
+	}
+	ok( w2utils.isMoney() === false,  			"- no argument -" );
+	ok( w2utils.isMoney('') === false, 			"- blank -" );
+	ok( w2utils.isMoney(null) === false, 		"- null -" );
+	ok( w2utils.isMoney(undefined) === false,	"- undefined -" );
+	ok( w2utils.isMoney({}) === false, 			"- object -" );
+	ok( w2utils.isMoney([]) === false, 			"- array -" );
+	for (var v in values) {
+		ok( w2utils.isMoney(v) === values[v], 'Test: ' + v);
+	}
+	$.extend(w2utils.settings, { currencyPrefix: "$", currencySuffix: "", groupSymbol : "," });
 });
 
 test( "w2utils.isDate()", function() {
