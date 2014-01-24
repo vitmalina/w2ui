@@ -380,7 +380,7 @@
 									img +
 									(item.text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.text +'</td>' : '') +
 									(((item.type == 'drop' || item.type == 'menu') && item.arrow !== false) ?
-										'<td class="w2ui-tb-down" nowrap>&nbsp;&nbsp;&nbsp;</td>' : '') +
+										'<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
 							'  </tr></table>'+
 							'</td></tr></table>';
 					break;
@@ -454,11 +454,13 @@
 						setTimeout(function () {
 							var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
 							if (!$.isPlainObject(it.overlay)) it.overlay = {};
+							var left = (el.width() - 50) / 2;
+							if (left > 19) left = 19;
 							if (it.type == 'drop') {
-								el.w2overlay(it.html, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay));
+								el.w2overlay(it.html, $.extend({ left: left, top: 3 }, it.overlay));
 							}
 							if (it.type == 'menu') {
-								el.w2menu(it.items, $.extend({ left: (el.width() - 50) / 2, top: 3 }, it.overlay, {
+								el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
 									select: function (event) { obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent }); }
 								}));
 							}

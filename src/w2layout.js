@@ -138,12 +138,12 @@
 		content: function (panel, data, transition) {
 			var obj = this;
 			var p = this.get(panel);
-			if (p === null) return false;
 			// if it is CSS panel
 			if (panel == 'css') {
 				$('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>');
 				return true;
 			}
+			if (p === null) return false;
 			if (typeof data == 'undefined' || data === null) {
 				return p.content;
 			} else {

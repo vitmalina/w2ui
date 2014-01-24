@@ -46,10 +46,19 @@
 			}
 
 			.w2ui-tb-down {
-				width: 12px;
+				width: 14px;
 				height: 24px;
-				display: block;
-				.background-image(@image-tb-down, no-repeat, center, right);
+				padding: 2px;
+			}
+
+			.w2ui-tb-down > div {
+				position: absolute;
+				width: 0px;
+				height: 28px;
+				line-height: 100%;
+				border: 4px solid transparent;
+				border-top: 5px solid #8D99A7;
+				margin-top: -2px;
 			}
 
 			&.over {

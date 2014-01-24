@@ -349,18 +349,26 @@
 			}
 		}
 
-		div.w2ui-sort-up { // div needed
-			.background-image(@image-sort-up, no-repeat, center, right, ~"!important");
+		div.w2ui-col-header { // div needed
 			height: auto !important; 
 			width: 100%; 
 			overflow: hidden;
+			padding-right: 10px !important;
+		}
+		div.w2ui-col-header > div.w2ui-sort-up {
+			border: 4px solid transparent;
+			border-bottom: 5px solid #8D99A7;
+			margin-top: -2px;
+			margin-right: -7px;
+			float: right;
 		}
 
-		div.w2ui-sort-down { // div needed
-			.background-image(@image-sort-down, no-repeat, center, right, ~"!important");
-			height: auto !important; 
-			width: 100%; 
-			overflow: hidden;
+		div.w2ui-col-header > div.w2ui-sort-down {
+			border: 4px solid transparent;
+			border-top: 5px solid #8D99A7;
+			margin-top: 2px;
+			margin-right: -7px;
+			float: right;
 		}
 
 		& .w2ui-col-group { 

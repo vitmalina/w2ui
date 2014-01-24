@@ -4006,7 +4006,8 @@
 						html += '<td class="w2ui-head '+ sortStyle +'" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
 										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);"' : '') +'>'+
 									resizer +
-								'	<div class="w2ui-col-group '+ sortStyle +'">'+
+								'	<div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
+								'		<div class="'+ sortStyle +'"></div>'+
 										(col.caption == '' ? '&nbsp;' : col.caption) +
 								'	</div>'+
 								'</td>';
@@ -4075,7 +4076,8 @@
 						html += '<td col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
 										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);"' : '') + '>'+
 									resizer +
-								'	<div class="'+ sortStyle +'">'+
+								'	<div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
+								'		<div class="'+ sortStyle +'"></div>'+
 										(col.caption == '' ? '&nbsp;' : col.caption) +
 								'	</div>'+
 								'</td>';
