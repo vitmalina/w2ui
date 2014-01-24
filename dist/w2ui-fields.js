@@ -47,11 +47,9 @@ var w2utils = (function () {
 			"date_format"	: "m/d/yyyy",
 			"date_display"	: "Mon d, yyyy",
 			"time_format"	: "h12",
-			"currency"		: "^[\$\€\£\¥]?[-]?[0-9]*[\.]?[0-9]+$",
 			"currencyPrefix": "$",
 			"currencySuffix": "",
 			"groupSymbol"	: ",",
-			"float"			: "^[-]?[0-9]*[\.]?[0-9]+$",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 			"shortdays"		: ["M", "T", "W", "T", "F", "S", "S"],
@@ -90,27 +88,31 @@ var w2utils = (function () {
 	return obj;
 	
 	function isInt (val) {
-		var re =  /^[-]?[0-9]+$/;
+		var re = /^[-+]?[0-9]+$/;
 		return re.test(val);		
 	}
 		
 	function isFloat (val) {
-		var re =  new RegExp(w2utils.settings["float"]);
-		return re.test(val);		
+		return typeof val == 'number' || (typeof val == 'string' && val != '' && Number(val) + '' != 'NaN') ? true : false;
 	}
 
 	function isMoney (val) {
-		var re =  new RegExp(w2utils.settings.currency);
+		var se = w2utils.settings;
+		var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\.]?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
+		if (typeof val == 'string') {
+			val = val.replace(new RegExp(se.groupSymbol, 'g'), '');
+		}
+		if (typeof val == 'object' || val == '') return false;
 		return re.test(val);		
 	}
 		
 	function isHex (val) {
-		var re =  /^[a-fA-F0-9]+$/;
+		var re = /^[a-fA-F0-9]+$/;
 		return re.test(val);		
 	}
 	
 	function isAlphaNumeric (val) {
-		var re =  /^[a-zA-Z0-9_-]+$/;
+		var re = /^[a-zA-Z0-9_-]+$/;
 		return re.test(val);		
 	}
 	
@@ -1165,6 +1167,7 @@ w2utils.keyboard = (function (obj) {
 		function fixSize () {
 			var div1 = $('#w2ui-overlay'+ name);
 			var div2 = div1.find(' > div');
+			if (div2.width() < 30) options.width = 30;
 			// if goes over the screen, limit height and width
 			if (div1.length > 0) {
 				div2.height('auto').width('auto');
@@ -1173,6 +1176,12 @@ w2utils.keyboard = (function (obj) {
 				var overflowY = false;
 				var h = div2.height();
 				var w = div2.width();
+				if (options.width && options.width < w) w = options.width;
+				var tmp = (w - 17) / 2;
+				if (tmp < 25) {
+					options.tipLeft = tmp + 1;
+					options.left = 25 - tmp;
+				}
 				// alignment
 				switch(options.align) {
 					case 'both':
