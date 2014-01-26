@@ -141,37 +141,39 @@
 		content: function (panel, data, transition) {
 			var obj = this;
 			var p = this.get(panel);
+			// if it is CSS panel
 			if (panel == 'css') {
 				$('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>');
 				return true;
 			}
-			if (p == null) return false;
-			if ($('#layout_'+ this.name + '_panel2_'+ p.type).length > 0) return false;
-			$('#layout_'+ this.name + '_panel_'+ p.type).scrollTop(0);
-			if (data == null || typeof data == 'undefined') {
+			if (p === null) return false;
+			if (typeof data == 'undefined' || data === null) {
 				return p.content;
 			} else {
 				if (data instanceof jQuery) {
 					console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
 					return false;
 				}
-				// remove foreign classes and styles
-				var tmp = $('#'+ 'layout_'+ this.name + '_panel_'+ panel + ' > .w2ui-panel-content');
-				var panelTop = $(tmp).position().top;
-				tmp.attr('class', 'w2ui-panel-content');
-				if (tmp.length > 0 && typeof p.style != 'undefined') tmp[0].style.cssText = p.style;
-				if (p.content == '') {
+				var pname = '#layout_'+ this.name + '_panel_'+ p.type;
+				var tmp	  = $(pname + ' > .w2ui-panel-content');
+				var panelTop = 0;
+				if (tmp.length > 0) {
+					$(pname).scrollTop(0);
+					panelTop = $(tmp).position().top;
+					tmp.attr('class', 'w2ui-panel-content');
+					if (p.style) tmp[0].style.cssText = p.style;
+				}
+				if (p.content === '') {
 					p.content = data;
-					if (!p.hidden) this.refresh(panel);
+					this.refresh(panel);
 				} else {
 					p.content = data;
 					if (!p.hidden) {
-						if (transition != null && transition != '' && typeof transition != 'undefined') {
+						if (transition !== null && transition !== '' && typeof transition != 'undefined') {
 							// apply transition
-							var nm   = 'layout_'+ this.name + '_panel_'+ p.type;
-							var div1 = $('#'+ nm + ' > .w2ui-panel-content');
+							var div1 = $(pname + ' > .w2ui-panel-content');
 							div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>');
-							var div2 = $('#'+ nm + ' > .w2ui-panel-content.new-panel');
+							var div2 = $(pname + ' > .w2ui-panel-content.new-panel');
 							div1.css('top', panelTop);
 							div2.css('top', panelTop);
 							if (typeof data == 'object') {
@@ -185,16 +187,17 @@
 								div2.removeClass('new-panel');
 								div2.css('overflow', p.overflow);
 								// IE Hack
-								if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
+								obj.resize();
+								if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
 							});
-						} else {
-							if (!p.hidden) this.refresh(panel);
 						}
 					}
+					this.refresh(panel);
 				}
 			}
 			// IE Hack
-			if (window.navigator.userAgent.indexOf('MSIE')) setTimeout(function () { obj.resize(); }, 100);
+			obj.resize();
+			if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
 			return true;
 		},
 		
