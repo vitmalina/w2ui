@@ -1408,7 +1408,7 @@
 				var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
 				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack(); return false; }
 			} else {
-				var eventData = { url: this.url, postData: params };
+				var eventData = { url: url, postData: params };
 			}
 			// call server to get data
 			var obj = this;
