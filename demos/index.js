@@ -110,6 +110,7 @@ $(function () {
 				nodes: [
 					{ id: 'listview-1', text: 'Simple ListView', icon: 'fa-folder-close-alt' },
 					{ id: 'listview-2', text: 'Different view types', icon: 'fa-folder-close-alt' },
+					{ id: 'listview-5', text: 'Table view type', icon: 'fa-folder-close-alt' },
 					{ id: 'listview-3', text: 'Selecting items', icon: 'fa-folder-close-alt' },
 					{ id: 'listview-4', text: 'Add/Remove items', icon: 'fa-folder-close-alt' }
 				]

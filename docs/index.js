@@ -103,7 +103,7 @@ $(function () {
 	w2ui['docs'].add('w2utils-methods', nodes);
 
 	// remove internal methods/props
-	w2ui['docs'].remove('w2layout.panel', 'w2grid.isIOS', 'w2toolbar.item', 'w2sidebar.node', 'w2listview.item', 'w2listview.vType', 'w2listview.getItemHTML', 'w2tabs.tab');
+	w2ui['docs'].remove('w2layout.panel', 'w2grid.isIOS', 'w2toolbar.item', 'w2sidebar.node', 'w2listview.item', 'w2listview.vType', 'w2listview.getItemHTML', 'w2listview.itemExtra', 'w2tabs.tab');
 
 	function init (type) {
 		var methods = [];

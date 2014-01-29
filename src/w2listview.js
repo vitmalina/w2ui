@@ -16,6 +16,8 @@
 		this.box			= null;		// DOM Element that holds the element
 		this.name			= null;		// unique name for w2ui
 		this.vType			= null;
+		this.extraCols		= [];
+		this.itemExtra = {};
 		this.items			= [];
 		this.menu			= [];
 		this.multiselect	= true;		// multiselect support
@@ -32,6 +34,9 @@
 		this.onDestroy		= null;
 
 		$.extend(true, this, w2obj.listview, options);
+		for (var i = 0; i < this.extraCols.length; i++) {
+			this.itemExtra[this.extraCols[i].name] = '';
+		}
 	};
 
 	// ====================================================
@@ -46,12 +51,12 @@
 				method.vType = method.viewType;
 				delete method.viewType;
 			}
-			var itms  = method.items;
+			var itms = method.items;
 			obj = new w2listview(method);
 			$.extend(obj, { items: [], handlers: [] });
 			if ($.isArray(itms)) {
 				for (var i = 0; i < itms.length; i++) {
-					obj.items[i] = $.extend({}, w2listview.prototype.item, itms[i]);
+					obj.items[i] = $.extend({}, w2listview.prototype.item, obj.itemExtra, itms[i]);
 				}
 			}
 			if ($(this).length !== 0) {
@@ -91,6 +96,8 @@
 		viewType: function (value) {
 			if (arguments.length === 0) {
 				switch (this.vType) {
+					case 'table':
+						return 'table';
 					case 'icon-tile':
 						return 'icon-tile';
 					case 'icon-large':
@@ -104,7 +111,7 @@
 				this.vType = value;
 				var vt = 'w2ui-' + this.viewType();
 				$(this.box)
-					.removeClass('w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile')
+					.removeClass('w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile w2ui-table')
 					.addClass(vt);
 				return vt;
 			}
@@ -132,7 +139,7 @@
 					return;
 				}
 				// add item
-				var newItm = $.extend({}, w2listview.prototype.item, item[r]);
+				var newItm = $.extend({}, w2listview.prototype.item, this.itemExtra, item[r]);
 				if (id === null || typeof id === 'undefined') {
 					this.items.push(newItm);
 				} else {
@@ -335,10 +342,11 @@
 
 			function processNeighbor(neighbor) {
 				var newIdx = idx;
-				if (neighbor === 'up') newIdx = idx - colsCount();
-				if (neighbor === 'down') newIdx = idx + colsCount();
-				if (neighbor === 'left') newIdx = idx - 1;
-				if (neighbor === 'right') newIdx = idx + 1;
+				var colsCnt = colsCount();
+				if (neighbor === 'up') newIdx = idx - colsCnt;
+				if (neighbor === 'down') newIdx = idx + colsCnt;
+				if (neighbor === 'left' && colsCnt > 1) newIdx = idx - 1;
+				if (neighbor === 'right' && colsCnt > 1) newIdx = idx + 1;
 				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) {
 					obj.userSelect(obj.items[newIdx].id, event, false);
 				}
@@ -402,8 +410,13 @@
 			// default action
 			if (typeof id === 'undefined') {
 				// refresh all items
-				for (var i = 0; i < this.items.length; i++)
-					this.refresh(this.items[i].id);
+				var itms = document.createDocumentFragment();
+				for (var i = 0; i < this.items.length; i++) 
+					itms.appendChild(getItemElement(this.items[i]));
+				var lst = this.lastItm.parentNode;
+				while (lst.firstChild !== this.lastItm)
+					lst.removeChild(lst.firstChild);
+				this.lastItm.parentNode.insertBefore(itms, this.lastItm);
 			} else {
 				// refresh single item
 				var itm = document.getElementById('itm_'+ w2utils.escapeId(id));
@@ -426,35 +439,106 @@
 			return (new Date()).getTime() - time;
 
 			function getItemElement(item) {
-				var addClass = (item.icon !== null && typeof item.icon !== 'undefined') ? ' '+item.icon : ' icon-none';
-				if (item.img !== null && typeof item.img !== 'undefined') addClass = ' w2ui-icon '+item.img;
+				var imgClass = (item.icon !== null && typeof item.icon !== 'undefined') ? ' '+item.icon : ' icon-none';
+				if (item.img !== null && typeof item.img !== 'undefined') imgClass = ' w2ui-icon '+item.img;
 
-				var rslt = document.createElement('li');
+				var withDescription = (typeof item.description !== undefined && item.description !== '');
+				var withExtra = (obj.extraCols.length > 0);
+				var rslt = getItemTemplate(withDescription, withExtra);
 				rslt.id = 'itm_' + item.id;
-				rslt.onclick = function(event) {
-					w2ui[obj.name].click(item.id, event);
-				};
-				rslt.ondblclick = function(event) {
-					w2ui[obj.name].dblClick(item.id, event);
-				};
-				rslt.oncontextmenu = function(event) {
-					w2ui[obj.name].contextMenu(item.id, event);
-					if (event.preventDefault) event.preventDefault();
-				};
-
-				rslt.appendChild(getDiv('icon-small'+addClass));
-				rslt.appendChild(getDiv('icon-medium'+addClass));
-				rslt.appendChild(getDiv('icon-large'+addClass));
-				rslt.appendChild(getDiv('caption', item.caption));
-				rslt.appendChild(getDiv('description', item.description));
-
+				rslt.setAttribute('item_id', item.id);
+				var itmDiv = rslt.querySelector('div');
+				itmDiv.querySelector('div.w2ui-listview-img').className = 'w2ui-listview-img'+imgClass;
+				itmDiv.querySelector('div.caption').textContent = item.caption;
+				if (withDescription)
+					itmDiv.querySelector('div.description').textContent = item.description;
+				if (withExtra) {
+					var itmExtra = itmDiv.querySelector('div.extra div');
+					for (var i = 0; i < obj.extraCols.length; i++) {
+						var colName = obj.extraCols[i].name;
+						if (colName in item)
+							itmExtra.querySelector('div.'+colName).textContent = item[colName];
+					}
+				}
 				return rslt;
 			}
 
-			function getDiv(cls, txt) {
+			function getItemTemplate(withDescription, withExtra) {
+				var template, itmDiv;
+				if (!withDescription && !withExtra) {
+					if ('captionOnlyTemplate' in obj) {
+						template = obj.captionOnlyTemplate;
+					} else {
+						template = document.createElement('li');
+						template.setAttribute('onclick', 'w2ui[\''+obj.name+'\'].click(this.getAttribute(\'item_id\'), event);');
+						template.setAttribute('ondblclick', 'w2ui[\''+obj.name+'\'].dblClick(this.getAttribute(\'item_id\'), event);');
+						template.setAttribute('oncontextmenu', 'w2ui[\''+obj.name+'\'].contextMenu(this.getAttribute(\'item_id\'), event); if (event.preventDefault) event.preventDefault();');
+						itmDiv = appendDiv(template);
+						appendDiv(itmDiv, 'w2ui-listview-img');
+						appendDiv(itmDiv, 'caption');
+						obj.captionOnlyTemplate = template;
+					}
+
+				} else
+				if (withDescription && !withExtra) {
+					if ('captionWithDescription' in obj) {
+						template = obj.captionWithDescriptionTemplate;
+					} else {
+						template = getItemTemplate(false, false);
+						itmDiv = template.querySelector('div');
+						appendDiv(itmDiv, 'description');
+						obj.captionWithDescriptionTemplate = template;
+					}
+				} else
+				if (!withDescription && withExtra) {
+					if ('captionWithExtra' in obj) {
+						template = obj.captionWithExtra;
+					} else {
+						template = appendExtra(getItemTemplate(false, false));
+						obj.captionWithExtra = template;
+					}
+				} else
+				if (withDescription && withExtra) {
+					if ('captionWithDescriptionAndExtra' in obj) {
+						template = obj.captionWithDescriptionAndExtra;
+					} else {
+						template = appendExtra(getItemTemplate(true, false));
+						obj.captionWithDescriptionAndExtra = template;
+					}
+				}
+				return template.cloneNode(true);
+
+				function appendExtra(node) {
+					var itmDiv = node.querySelector('div');
+					var extra = appendDiv(itmDiv, 'extra');
+					extra.style.width = extraColsWidth() + 'px';
+					extra = appendDiv(extra);
+					for (var i = 0; i < obj.extraCols.length; i++) {
+						var col = obj.extraCols[i];
+						var extraCol = appendDiv(extra, col.name);
+						extraCol.style.width = col.width+'px';
+						if ('align' in col) extraCol.style.textAlign = col.align;
+						if ('paddingLeft' in col) extraCol.style.paddingLeft = col.paddingLeft+'px';
+						if ('paddingRight' in col) extraCol.style.paddingRight = col.paddingRight+'px';
+					}
+					return node;
+
+					function extraColsWidth() {
+						var rslt = 0;
+						for (var i = 0; i < obj.extraCols.length; i++) {
+							if (!('width' in obj.extraCols[i])) obj.extraCols[i].width = 100;
+							rslt += obj.extraCols[i].width;
+						}
+						return rslt;
+					}
+				}
+			}
+
+			function appendDiv(parentElement, cls, txt) {
 				var div = document.createElement('div');
-				div.className = cls;
+				if (typeof cls !== 'undefined') div.className = cls;
 				if (typeof txt !== 'undefined') div.textContent = txt;
+				parentElement.appendChild(div);
 				return div;
 			}
 
@@ -472,19 +556,21 @@
 						this.box.removeChild(this.box.lastChild);
 					$(this.box)
 						.removeAttr('name')
-						.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile');
+						.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile w2ui-table');
 				}
 				this.box = box;
 			}
 			if (!this.box) return false;
+			while (this.box.hasChildNodes())
+				this.box.removeChild(this.box.lastChild);
+			this.box.scrollTop = 0;
+
 			// render all items
 			var list = document.createElement('ul');
 			var lastItm = document.createElement('li');
 			lastItm.className = 'itmlast';
 			lastItm.style.display = 'none';
 			list.appendChild(lastItm);
-			while (this.box.hasChildNodes())
-				this.box.removeChild(this.box.lastChild);
 			$(this.box)
 				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-listview w2ui-' + this.viewType())
@@ -506,7 +592,7 @@
 				$(this.box)
 					.empty()
 					.removeAttr('name')
-					.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile');
+					.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile w2ui-table');
 			}
 			delete w2ui[this.name];
 			// event after
