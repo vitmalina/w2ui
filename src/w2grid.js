@@ -1621,6 +1621,7 @@
 					'>' + edit.outTag);
 			el.find('input')
 				.w2field(edit.type, edit)
+				.on('click', function (event) { event.stopPropagation(); })
 				.on('blur', function (event) {
 					if (obj.parseField(rec, col.field) != this.value) {
 						// change event
