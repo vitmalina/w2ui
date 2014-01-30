@@ -660,7 +660,7 @@
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
 					p.content.box = $(pname +' > .w2ui-panel-content')[0];
-					p.content.render(); // do not do .render(box);
+					setTimeout(function () { p.content.render(); }, 1); // do not do .render(box);
 				} else {
 					$(pname +' > .w2ui-panel-content').html(p.content);
 				}
