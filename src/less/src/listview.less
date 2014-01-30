@@ -1,6 +1,7 @@
 //**********************************************************
 // size constants
 //**********************************************************
+@listview-item-font-size: 12px;
 @listview-icon-item-caption-max-height: 50px;
 
 // "small icons"
@@ -23,9 +24,13 @@
 
 // "tiles"
 @listview-icon-tile-item-spacing: 1px;
-@listview-icon-tile-item-padding: 5px;
+@listview-icon-tile-item-padding: 4px;
 @listview-icon-tile-item-width: @listview-icon-small-item-width;
 @listview-icon-tile-icon-size: @listview-icon-medium-icon-size;
+
+// "table"
+@listview-table-item-padding: 2px;
+@listview-table-icon-size: 32px;
 
 //**********************************************************
 // common functions
@@ -58,7 +63,6 @@
 //**********************************************************
 .ul-list () {
   list-style-type: none;
-  font-size: 0;
   margin: 0;
   cursor: default;
   .border-debug(green);
@@ -70,7 +74,6 @@
 
 .li-list () {
   overflow: hidden;
-  font-size: medium;
   .user-select;
   .border(1px, solid, transparent);
   .border-debug(blue);
@@ -124,8 +127,18 @@
       &.w2ui-selected:hover {
         .linear-gradient-vertical(@listview-item-selected-linear-gradient-start, @listview-item-selected-linear-gradient-end);
 
-        div {
-          color: @listview-item-selected-color !important;
+        > div {
+          > div.caption {
+            color: @listview-item-selected-color;
+          }
+
+          > div.description {
+            color: @listview-item-selected-second-color;
+          }
+
+          > div.extra > div > div {
+            color: @listview-item-selected-second-color;
+          }
         }
       }
 
@@ -136,37 +149,35 @@
       }
 
       div {
-        //overflow: hidden;
-        color: @listview-item-color;
+        vertical-align: middle;
       }
 
-      div.icon-small {
-        font-size: ceil(@listview-icon-small-icon-size * 0.95);
-      }
+      > div {
+        > div.caption {
+          display: block;
+          text-align: center;
+          word-wrap: break-word;
+          max-height: @listview-icon-item-caption-max-height;
+          color: @listview-item-color;
+          font-size: @listview-item-font-size;
+          .border-debug(gray);
+        }
 
-      div.icon-medium {
-        font-size: ceil(@listview-icon-medium-icon-size * 0.95);
-      }
+        > div.description {
+          display: none;
+          text-align: left;
+          color: @listview-item-second-color;
+          font-size: @listview-item-font-size;
+          .border-debug(lightgray);
+        }
 
-      div.icon-large {
-        font-size: ceil(@listview-icon-large-icon-size * 0.95);
-      }
+        > div.extra {
+          display: none;
 
-      div.caption {
-        display: block;
-        text-align: center;
-        word-wrap: break-word;
-        max-height: @listview-icon-item-caption-max-height;
-        font-size: 80%;
-        .border-debug(gray);
-      }
-
-      div.description {
-        display: none;
-        text-align: left;
-        color: @listview-item-description-color;
-        font-size: 80%;
-        .border-debug(lightgray);
+          > div > div {
+            color: @listview-item-second-color;
+          }
+        }
       }
     }
   }
@@ -184,24 +195,16 @@
     .li-list-panel(@listview-icon-small-item-width);
     white-space: nowrap;
 
-    div.icon-small {
-      .icon-display(@listview-icon-small-icon-size, floor(@listview-icon-small-icon-size * 1.2), inline-block);
-      float: left;
-      margin-right: @listview-icon-small-item-padding;
-    }
+    > div {
+      > div.w2ui-listview-img {
+        .icon-display(@listview-icon-small-icon-size, floor(@listview-icon-small-icon-size * 1.2), inline-block);
+        font-size: ceil(@listview-icon-small-icon-size * 0.95);
+        margin-right: @listview-icon-small-item-padding;
+      }
 
-    div.icon-medium {
-      .icon-display(0);
-    }
-
-    div.icon-large {
-      .icon-display(0);
-    }
-
-    div.caption {
-      display: inline-block;
-      vertical-align: middle;
-      text-align: left;
+      > div.caption {
+        display: inline-block;
+      }
     }
   }
 }
@@ -217,19 +220,12 @@
     padding: @listview-icon-medium-item-padding;
     .li-list-panel(@listview-icon-medium-item-width);
 
-    div.icon-small {
-      .icon-display(0);
-    }
-
-    div.icon-medium {
+    > div > div.w2ui-listview-img {
       .icon-display(@listview-icon-medium-icon-size, @listview-icon-medium-item-width - (@listview-icon-medium-item-padding * 2));
+      font-size: ceil(@listview-icon-medium-icon-size * 0.95);
       margin-left: auto;
       margin-right: auto;
       background-position: center;
-    }
-
-    div.icon-large {
-      .icon-display(0);
     }
   }
 }
@@ -245,23 +241,15 @@
     padding: @listview-icon-large-item-padding;
     .li-list-panel(@listview-icon-large-item-width);
 
-    div.icon-small {
-      .icon-display(0);
-    }
-
-    div.icon-medium {
-      .icon-display(0);
-    }
-
-    div.icon-large {
+    > div > div.w2ui-listview-img {
       .icon-display(@listview-icon-large-icon-size, @listview-icon-large-item-width - (@listview-icon-large-item-padding * 2));
+      font-size: ceil(@listview-icon-large-icon-size * 0.95);
       margin-left: auto;
       margin-right: auto;
       background-position: center;
     }
   }
 }
-
 
 //**********************************************************
 // "tiles" list
@@ -275,26 +263,88 @@
     .li-list-panel(@listview-icon-tile-item-width);
     white-space: nowrap;
 
-    div.icon-small {
-      .icon-display(0);
+    > div {
+      > div.w2ui-listview-img {
+        .icon-display(@listview-icon-tile-icon-size, floor(@listview-icon-tile-icon-size * 1.2), inline-block);
+        font-size: ceil(@listview-icon-tile-icon-size * 0.95);
+        float: left;
+        margin-right: @listview-icon-tile-item-padding;
+      }
+
+      > div.caption {
+        text-align: left;
+      }
+
+      > div.description {
+        display: block;
+      }
+    }
+  }
+}
+
+
+//**********************************************************
+// "table" list
+//**********************************************************
+.w2ui-table > ul {
+  padding: 0;
+
+  > li {
+    width: 100%;
+    padding: @listview-table-item-padding;
+    border-radius: 0px;
+    border-bottom: 1px dotted lightgray;
+
+    > div {
+      display: inline-block;
+      position: relative;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+
+      > div.w2ui-listview-img {
+        .icon-display(@listview-table-icon-size, floor(@listview-table-icon-size * 1.2), inline-block);
+        font-size: ceil(@listview-table-icon-size * 0.95);
+        margin-right: @listview-table-item-padding;
+      }
+
+      > div.caption {
+        display: inline-block;
+      }
+
+      > div.extra {
+        display: inline-block;
+        position: absolute;
+        right: 0;
+        height: 100%;
+        background-color: @listview-background-color;
+
+        > div:before {
+          display: inline-block;
+          height: 100%;
+          width: 0;
+          content: '';
+          vertical-align: middle;
+        }
+
+        > div {
+          display: inline;
+
+          > div {
+            display: inline-block;
+            font-size: @listview-item-font-size;
+          }
+        }
+      }
     }
 
-    div.icon-medium {
-      .icon-display(@listview-icon-tile-icon-size, floor(@listview-icon-tile-icon-size * 1.2), inline-block);
-      float: left;
-      margin-right: @listview-icon-tile-item-padding;
+    &.w2ui-selected div.extra,
+    &.w2ui-selected:hover div.extra {
+      .linear-gradient-vertical(@listview-item-selected-linear-gradient-start, @listview-item-selected-linear-gradient-end);
     }
 
-    div.icon-large {
-      .icon-display(0);
-    }
-
-    div.caption {
-      text-align: left;
-    }
-
-    div.description {
-      display: block;
+    &:hover div.extra {
+      .linear-gradient-vertical(@listview-item-hover-background-color-start, @listview-item-hover-background-color-end);
     }
   }
 }
