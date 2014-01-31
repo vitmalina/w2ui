@@ -326,17 +326,18 @@
 		},
 
 		collapse: function (id) {
-			var nd = this.get(id);
+			var obj = this;
+			var nd  = this.get(id);
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp('fast');		
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp(200);
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
 			nd.expanded = false;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize();
+			setTimeout(function () { obj.refresh(id); }, 200);
 		},
 
 		collapseAll: function (parent) {
@@ -351,17 +352,18 @@
 		},		
 	
 		expand: function (id) {
-			var nd = this.get(id);
+			var obj = this;
+			var nd  = this.get(id);
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
 			if (eventData.isCancelled === true) return false;
 			// default action
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200);
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
 			nd.expanded = true;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize();
+			setTimeout(function () { obj.refresh(id); }, 200);
 		},
 		
 		expandAll: function (parent) {
