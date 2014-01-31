@@ -152,7 +152,7 @@
 					return false;
 				}
 				var pname = '#layout_'+ this.name + '_panel_'+ p.type;
-				var tmp	  = $(pname + ' > .w2ui-panel-content');
+				var tmp	  = $(pname + '> .w2ui-panel-content');
 				var panelTop = 0;
 				if (tmp.length > 0) {
 					$(pname).scrollTop(0);
@@ -168,9 +168,9 @@
 					if (!p.hidden) {
 						if (transition !== null && transition !== '' && typeof transition != 'undefined') {
 							// apply transition
-							var div1 = $(pname + ' > .w2ui-panel-content');
+							var div1 = $(pname + '> .w2ui-panel-content');
 							div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>');
-							var div2 = $(pname + ' > .w2ui-panel-content.new-panel');
+							var div2 = $(pname + '> .w2ui-panel-content.new-panel');
 							div1.css('top', panelTop);
 							div2.css('top', panelTop);
 							if (typeof data == 'object') {
@@ -357,7 +357,7 @@
 		},
 
 		el: function (panel) {
-			var el = $('#layout_'+ this.name +'_panel_'+ panel +' .w2ui-panel-content');
+			var el = $('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-content');
 			if (el.length != 1) return null;
 			return el[0];
 		},
@@ -366,7 +366,7 @@
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.toolbar = false;
-			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-toolbar').hide();
+			$('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').hide();
 			this.resize();
 		},
 
@@ -374,7 +374,7 @@
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.toolbar = true;
-			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-toolbar').show();
+			$('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').show();
 			this.resize();
 		},
 
@@ -388,7 +388,7 @@
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.tabs = false;
-			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-tabs').hide();
+			$('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').hide();
 			this.resize();
 		},
 
@@ -396,7 +396,7 @@
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.tabs = true;
-			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-tabs').show();
+			$('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').show();
 			this.resize();
 		},
 
@@ -653,32 +653,32 @@
 				var rname = '#layout_'+ obj.name +'_resizer_'+ p.type;
 				// apply properties to the panel
 				var el = $(panel).css({ display: p.hidden ? 'none' : 'block' });
-				if (el.find('.w2ui-panel-content').length > 0) {
+				if (el.find('> .w2ui-panel-content').length > 0) {
 					el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				}
 				if (p.resizable === true) $(rname).show(); else $(rname).hide();
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.box = $(pname +' > .w2ui-panel-content')[0];
+					p.content.box = $(pname +'> .w2ui-panel-content')[0];
 					setTimeout(function () { p.content.render(); }, 1); // do not do .render(box);
 				} else {
-					$(pname +' > .w2ui-panel-content').html(p.content);
+					$(pname +'> .w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
-				var tmp = $(obj.box).find(pname +' .w2ui-panel-tabs');
+				var tmp = $(obj.box).find(pname +'> .w2ui-panel-tabs');
 				if (p.show.tabs) {
 					if (tmp.find('[name='+ p.tabs.name +']').length === 0 && p.tabs !== null) tmp.w2render(p.tabs); else p.tabs.refresh();
 				} else {
 					tmp.html('').removeClass('w2ui-tabs').hide();
 				}
-				tmp = $(obj.box).find(pname +' .w2ui-panel-toolbar');
+				tmp = $(obj.box).find(pname +'> .w2ui-panel-toolbar');
 				if (p.show.toolbar) {
 					if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar !== null) tmp.w2render(p.toolbar); else p.toolbar.refresh();
 				} else {
 					tmp.html('').removeClass('w2ui-toolbar').hide();
 				}
 				// show title
-				tmp = $(obj.box).find(pname +' .w2ui-panel-title');
+				tmp = $(obj.box).find(pname +'> .w2ui-panel-title');
 				if (p.title) {
 					tmp.html(p.title).show();
 				} else {
