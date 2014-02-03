@@ -27,6 +27,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- onComplete should pass widget as context (this)
 *	- add maxHeight for the w2menu
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
+*	- hidden and disabled in menus
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
@@ -1167,7 +1168,6 @@ w2utils.keyboard = (function (obj) {
 		function fixSize () {
 			var div1 = $('#w2ui-overlay'+ name);
 			var div2 = div1.find(' > div');
-			if (div2.width() < 30) options.width = 30;
 			// if goes over the screen, limit height and width
 			if (div1.length > 0) {
 				div2.height('auto').width('auto');
@@ -1177,11 +1177,7 @@ w2utils.keyboard = (function (obj) {
 				var h = div2.height();
 				var w = div2.width();
 				if (options.width && options.width < w) w = options.width;
-				var tmp = (w - 17) / 2;
-				if (tmp < 25) {
-					options.tipLeft = tmp + 1;
-					options.left = 25 - tmp;
-				}
+				if (w < 30) w = 30;
 				// alignment
 				switch(options.align) {
 					case 'both':
@@ -1196,11 +1192,21 @@ w2utils.keyboard = (function (obj) {
 						options.left = w2utils.getSize($(obj), 'width') - w + 10;
 						break;
 				}
+				// adjust position
+				var tmp = (w - 17) / 2;
+				var boxLeft  = options.left;
+				var boxWidth = options.width;
+				var tipLeft  = options.tipLeft;
+				if (w == 30) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
+				if (tmp < 25) {
+					boxLeft = 25 - tmp;
+					tipLeft = Math.floor(tmp);
+				}
 				// Y coord
 				div1.css({
-					top			: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + options.top + 7) + 'px',
-					left		: ($(obj).offset().left + options.left) + 'px',
-					'min-width' : (options.width ? options.width : 'auto'),
+					top			: (obj.offset().top + w2utils.getSize(obj, 'height') + options.top + 7) + 'px',
+					left		: ((obj.offset().left > 25 ? obj.offset().left : 25) + boxLeft) + 'px',
+					'min-width' : boxWidth,
 					'min-height': (options.height ? options.height : 'auto')
 				});
 				// $(window).height() - has a problem in FF20
@@ -1217,8 +1223,8 @@ w2utils.keyboard = (function (obj) {
 					}
 					div1.css('top', ($(obj).offset().top - h - 24 + options.top) + 'px');
 					div1.find('>style').html(
-						'#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(options.tipLeft) +'px; }'+
-						'#w2ui-overlay'+ name +':after { display: block; margin-left: '+ parseInt(options.tipLeft) +'px; }'
+						'#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'+
+						'#w2ui-overlay'+ name +':after { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'
 					);
 				} else {
 					// show under
@@ -1228,8 +1234,8 @@ w2utils.keyboard = (function (obj) {
 						div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
 					}
 					div1.find('>style').html(
-						'#w2ui-overlay'+ name +':before { display: block; margin-left: '+ parseInt(options.tipLeft) +'px; }'+
-						'#w2ui-overlay'+ name +':after { display: none; margin-left: '+ parseInt(options.tipLeft) +'px; }'
+						'#w2ui-overlay'+ name +':before { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'+
+						'#w2ui-overlay'+ name +':after { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'
 					);
 				}
 				// check width
@@ -1316,7 +1322,7 @@ w2utils.keyboard = (function (obj) {
 					if (img)  imgd = '<td><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
 					if (icon) imgd = '<td align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
 					// render only if non-empty
-					if (txt || txt === 0) {
+					if (typeof txt != 'undefined' && txt != '' && !(/^-+$/.test(txt))) {
 						var bg = (count % 2 == 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
 						if (options.altRows !== true) bg = '';
 						menu_html += 
@@ -1329,6 +1335,9 @@ w2utils.keyboard = (function (obj) {
 							'	<td>'+ txt +'</td>'+
 							'</tr>';
 						count++;
+					} else {
+						// horizontal line
+						menu_html += '<tr><td colspan="2" style="padding: 6px"><div style="border-top: 1px solid silver;"></div></td></tr>';						
 					}
 				}
 				options.items[f] = mitem;
@@ -1365,6 +1374,7 @@ w2utils.keyboard = (function (obj) {
 *	- add onParse - to converd data received from the server
 *	- move events into prototype
 *	- add colspans
+*	- add grid.focus()
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
@@ -1384,6 +1394,7 @@ w2utils.keyboard = (function (obj) {
 *	- rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
 * 	- new: recid - if id of the data is different from recid
 *	- new: parser - to converd data received from the server
+*	- change: rec.changes = {} and removed rec.changed
 *
 ************************************************************************/
 
@@ -1397,7 +1408,7 @@ w2utils.keyboard = (function (obj) {
 		this.url				= '';
 		this.columns			= []; 		// { field, caption, size, attr, render, hidden, gridMinWidth, [editable: {type, inTag, outTag, style, items}] }
 		this.columnGroups		= [];		// { span: int, caption: 'string', master: true/false }
-		this.records			= [];		// { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changed: true/false, changes: object }
+		this.records			= [];		// { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changes: object }
 		this.summary			= [];		// arry of summary records, same structure as records array
 		this.searches			= [];		// { type, caption, field, inTag, outTag, default, items, hidden }
 		this.searchData			= [];
@@ -1942,8 +1953,9 @@ w2utils.keyboard = (function (obj) {
 								}
 								break;
 							case 'between':
-								if (search.type == 'int' && parseInt(rec[search.field]) >= parseInt(val2) && parseInt(rec[search.field]) <= parseInt(val3)) fl++;
-								if (search.type == 'float' && parseFloat(rec[search.field]) >= parseFloat(val2) && parseFloat(rec[search.field]) <= parseFloat(val3)) fl++;
+								if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
+									if (parseFloat(rec[search.field]) >= parseFloat(val2) && parseFloat(rec[search.field]) <= parseFloat(val3)) fl++;
+								}
 								if (search.type == 'date') {
 									var tmp = new Date(Number(val3)); // create date
 									val3 = (new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate())).getTime(); // drop time
@@ -2390,8 +2402,16 @@ w2utils.keyboard = (function (obj) {
 				for (var s in this.searches) {
 					var search 	 = this.searches[s];
 					var operator = $('#grid_'+ this.name + '_operator_'+s).val();
-					var value1   = $('#grid_'+ this.name + '_field_'+s).val();
-					var value2   = $('#grid_'+ this.name + '_field2_'+s).val();
+					var field1	 = $('#grid_'+ this.name + '_field_'+s);
+					var field2	 = $('#grid_'+ this.name + '_field2_'+s);
+					var value1   = field1.val();
+					var value2   = field2.val();
+					if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
+						var fld1 = field1.data('w2field');
+						var fld2 = field2.data('w2field');
+						if (fld1) value1 = fld1.clean(value1);
+						if (fld2) value2 = fld2.clean(value2);
+					}
 					if ((value1 != '' && value1 != null) || (typeof value2 != 'undefined' && value2 != '')) {
 						var tmp = {
 							field	 : search.field,
@@ -2443,7 +2463,7 @@ w2utils.keyboard = (function (obj) {
 								var search = this.searches[s];
 								if (search.type == 'text' || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
 										|| (search.type == 'money' && w2utils.isMoney(value)) || (search.type == 'hex' && w2utils.isHex(value))
-										|| (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'alphaNumeric' && w2utils.isAlphaNumeric(value)) ) {
+										|| (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'alphanumeric' && w2utils.isAlphaNumeric(value)) ) {
 									var tmp = {
 										field	 : search.field,
 										type	 : search.type,
@@ -2567,8 +2587,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			// show search
 			$('#tb_'+ this.name +'_toolbar_item_search-advanced').w2overlay(
-				this.getSearchesHTML(),
-				{
+				this.getSearchesHTML(),	{
 					name	: 'searches-'+ this.name,
 					left	: -10,
 					'class'	: 'w2ui-grid-searches',
@@ -2912,33 +2931,32 @@ w2utils.keyboard = (function (obj) {
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
-			// need a time out because message might be already up)
-			setTimeout(function () { w2alert(msg, 'Error');	}, 1);
+			w2alert(msg, 'Error');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		getChanges: function () {
 			var changes = [];
-			var tmp  	= this.find({ changed: true });
-			for (var t in tmp) {
-				changes.push($.extend(true, { recid: tmp[t].recid }, tmp[t].changes));
+			for (var r in this.records) {
+				var rec = this.records[r];
+				if (typeof rec['changes'] != 'undefined') {
+					changes.push($.extend(true, { recid: rec.recid }, rec.changes));
+				}
 			}
 			return changes;
 		},
 
 		mergeChanges: function () {
-			var changed = this.getChanges();
-			for (var c in changed) {
-				var record = this.get(changed[c].recid);
-				for (var s in changed[c]) {
+			var changes = this.getChanges();
+			for (var c in changes) {
+				var record = this.get(changes[c].recid);
+				for (var s in changes[c]) {
 					if (s == 'recid') continue; // do not allow to change recid
-					try { eval('record.' + s + ' = changed[c][s]'); } catch (e) {}
-					delete record.changed;
+					try { eval('record.' + s + ' = changes[c][s]'); } catch (e) {}
 					delete record.changes;
 				}
 			}
-			$(this.box).find('.w2ui-editable input').removeClass('changed');
 			this.refresh();
 		},
 
@@ -2947,13 +2965,13 @@ w2utils.keyboard = (function (obj) {
 
 		save: function () {
 			var obj = this;
-			var changed = this.getChanges();
+			var changes = this.getChanges();
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'submit', changed: changed });
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'submit', changes: changes });
 			if (eventData.isCancelled === true) return false;
 			var url = (typeof this.url != 'object' ? this.url : this.url.save);
 			if (url) {
-				this.request('save-records', { 'changed' : eventData.changed }, null,
+				this.request('save-records', { 'changes' : eventData.changes }, null,
 					function () {
 						this.mergeChanges();
 						// event after
@@ -2995,7 +3013,7 @@ w2utils.keyboard = (function (obj) {
 			if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
 			if (typeof edit.style   == 'undefined') edit.style   = '';
 			if (typeof edit.items   == 'undefined') edit.items   = [];
-			var val = (rec.changed && typeof rec.changes[col.field] != 'undefined' ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+			var val = (rec.changes && typeof rec.changes[col.field] != 'undefined' ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
 			if (val == null || typeof val == 'undefined') val = '';
 			if (typeof value != 'undefined' && value != null) val = value;
 			var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
@@ -3032,6 +3050,9 @@ w2utils.keyboard = (function (obj) {
 					});
 			}
 			el.find('input, select')
+				.on('click', function (event) { 
+					event.stopPropagation(); 
+				})
 				.on('keydown', function (event) {
 					var cancel = false;
 					switch (event.keyCode) {
@@ -3119,7 +3140,8 @@ w2utils.keyboard = (function (obj) {
 							break;
 
 						case 27: // escape
-							var old = (rec.changed && typeof rec.changes[col.field]) != 'undefined' ? rec.changes[col.field] : obj.parseField(rec, col.field);
+							var old = obj.parseField(rec, col.field);
+							if (rec.changes && typeof rec.changes[col.field] != 'undefined') old = rec.changes[col.field];
 							this.value = typeof old != 'undefined' ? old : '';
 							this.blur();
 							setTimeout(function () { obj.select({ recid: recid, column: column }) }, 1);
@@ -3156,7 +3178,6 @@ w2utils.keyboard = (function (obj) {
 					// don't save new value
 				} else {
 					// default action
-					rec.changed = true;
 					rec.changes = rec.changes || {};
 					rec.changes[col.field] = eventData.value_new;
 					// event after
@@ -3164,13 +3185,15 @@ w2utils.keyboard = (function (obj) {
 				}
 			} else {
 				if (rec.changes) delete rec.changes[col.field];
-				if ($.isEmptyObject(rec.changes)) {
-					delete rec.changes;
-					delete rec.changed;
-				}
+				if ($.isEmptyObject(rec.changes)) delete rec.changes;
 			}
-			// refresh record
-			$(tr).replaceWith(this.getRecordHTML(index, tr.attr('line')));
+			// refresh cell
+			var cell = this.getCellHTML(index, column);
+			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
+				$(tr).find('[col='+ column +']').addClass('w2ui-changed').html(cell);
+			} else {
+				$(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
+			}
 		},
 
 		delete: function (force) {
@@ -3203,7 +3226,7 @@ w2utils.keyboard = (function (obj) {
 						var ind = this.get(recs[r].recid, true);
 						if (ind != null && fld != 'recid') {
 							this.records[ind][fld] = '';
-							if (this.records[ind].changed) delete this.records[ind].changes[fld];
+							if (this.records[ind].changes) delete this.records[ind].changes[fld];
 						}
 					}
 					this.refresh();
@@ -3852,6 +3875,7 @@ w2utils.keyboard = (function (obj) {
 			} else {
 				this.sortData = [];
 			}
+			this.selectNone();
 			// if local
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (!url) {
@@ -3940,7 +3964,6 @@ w2utils.keyboard = (function (obj) {
 				for (var dt in tmp) {
 					if (!this.columns[col + cnt]) continue;
 					var field = this.columns[col + cnt].field;
-					rec.changed = true;
 					rec.changes = rec.changes || {};
 					rec.changes[field] = tmp[dt];
 					cols.push(col + cnt);
@@ -3986,9 +4009,18 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		refreshCell: function (recid, field) {
-			var index	= this.get(recid, true);
-			var cIndex	= this.getColumn(field, true);
-			$('#grid_'+ this.name + '_rec_'+ recid +' [col='+ cIndex +']').html(this.getCellHTML(index, cIndex));
+			var index		= this.get(recid, true);
+			var col_ind		= this.getColumn(field, true);
+			var rec			= this.records[index];
+			var col			= this.columns[col_ind];
+			var cell		= $('#grid_'+ this.name + '_rec_'+ recid +' [col='+ col_ind +']');
+			// set cell html and changed flag
+			cell.html(this.getCellHTML(index, col_ind));
+			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
+				cell.addClass('w2ui-changed'); 
+			} else {
+				cell.removeClass('w2ui-changed');
+			}
 		},
 
 		refreshRow: function (recid) {
@@ -4822,23 +4854,38 @@ w2utils.keyboard = (function (obj) {
 			for (var s in this.searches) {
 				var search = this.searches[s];
 				var sdata  = this.getSearchData(search.field);
+				search.type = String(search.type).toLowerCase();
+				if (typeof search.options != 'object') search.options = {};
 				// init types
-				switch (String(search.type).toLowerCase()) {
-					case 'alphaNumeric':
+				switch (search.type) {
 					case 'text':
+					case 'alphanumeric':
+					case 'hex':
 						$('#grid_'+ this.name +'_operator_'+s).val('begins with');
+						if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
+							$('#grid_'+ this.name +'_field_' + s).w2field('clear').w2field(search.type, search.options);
+						}
 						break;
 
 					case 'int':
 					case 'float':
-					case 'hex':
 					case 'money':
+					case 'currency':
+					case 'percent':
 					case 'date':
-						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type);
-						$('#grid_'+ this.name +'_field2_'+s).w2field('clear').w2field(search.type);
+					case 'time':
+					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
+						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
+						$('#grid_'+ this.name +'_field2_'+s).w2field('clear').w2field(search.type, search.options);						
 						break;
 
 					case 'list':
+					case 'combo':
+					case 'enum':
+						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
+						break;
+
+					case 'select':
 						// build options
 						var options = '<option value="">--</option>';
 						for (var i in search.items) {
@@ -4857,6 +4904,9 @@ w2utils.keyboard = (function (obj) {
 						break;
 				}
 				if (sdata != null) {
+					if (sdata.type == 'int' && sdata.operator == 'in') {
+						$('#grid_'+ this.name +'_field_'+ s).w2field('clear').val(sdata.value);
+					}
 					$('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
 					if (!$.isArray(sdata.value)) {
 						if (typeof sdata.value != 'udefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
@@ -4871,8 +4921,11 @@ w2utils.keyboard = (function (obj) {
 				}
 			}
 			// add on change event
-			$('#w2ui-overlay-searches'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
-				if (evnt.keyCode == 13) { obj.search(); }
+			$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
+				if (evnt.keyCode == 13) { 
+					obj.search(); 
+					$().w2overlay();
+				}
 			});
 		},
 
@@ -5217,6 +5270,7 @@ w2utils.keyboard = (function (obj) {
 			var showBtn = false;
 			for (var i = 0; i < this.searches.length; i++) {
 				var s = this.searches[i];
+				s.type = String(s.type).toLowerCase();
 				if (s.hidden) continue;
 				var btn = '';
 				if (showBtn == false) {
@@ -5226,7 +5280,7 @@ w2utils.keyboard = (function (obj) {
 				if (typeof s.inTag   == 'undefined') s.inTag 	= '';
 				if (typeof s.outTag  == 'undefined') s.outTag 	= '';
 				if (typeof s.type	== 'undefined') s.type 	= 'text';
-				if (s.type == 'text') {
+				if (['text', 'alphanumeric'].indexOf(s.type) != -1) {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
 						'	<option value="begins with">'+ w2utils.lang('begins with') +'</option>'+
@@ -5234,24 +5288,27 @@ w2utils.keyboard = (function (obj) {
 						'	<option value="ends with">'+ w2utils.lang('ends with') +'</option>'+
 						'</select>';
 				}
-				if (s.type == 'int' || s.type == 'float' || s.type == 'date') {
+				if (['int', 'float', 'hex', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" '+
 						'	onchange="var range = $(\'#grid_'+ this.name + '_range_'+ i +'\'); range.hide(); '+
 						'			  var fld  = $(\'#grid_'+ this.name +'_field_'+ i +'\'); '+
 						'			  var fld2 = fld.parent().find(\'span input\'); '+
-						'			  if ($(this).val() == \'in\') fld.w2field(\'clear\'); else fld.w2field(\'clear\').w2field(\''+ s.type +'\');'+
+						'			  if ($(this).val() == \'in\') { fld.w2field(\'clear\'); } else fld.w2field(\'clear\').w2field(\''+ s.type +'\');'+
 						'			  if ($(this).val() == \'between\') { range.show(); fld2.w2field(\'clear\').w2field(\''+ s.type +'\'); }'+
 						'			  var obj = w2ui[\''+ this.name +'\'];'+
 						'			  fld.on(\'keypress\', function (evnt) { if (evnt.keyCode == 13) obj.search(); }); '+
 						'			  fld2.on(\'keypress\', function (evnt) { if (evnt.keyCode == 13) obj.search(); }); '+
 						'			">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
-						(s.type == 'date' ? '' : '<option value="in">'+ w2utils.lang('in') +'</option>')+
-						'	<option value="between">'+ w2utils.lang('between') +'</option>'+
+						(['int'].indexOf(s.type) != -1 ? '<option value="in">'+ w2utils.lang('in') +'</option>' : '') +
+						(['hex'].indexOf(s.type) == -1 ? '<option value="between">'+ w2utils.lang('between') +'</option>' : '')+
 						'</select>';
 				}
-				if (s.type == 'list') {
+				if (['select', 'list', 'combo'].indexOf(s.type) != -1) {
 					var operator =  'is <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
+				}
+				if (['enum'].indexOf(s.type) != -1) {
+					var operator =  'in <input type="hidden" value="in" id="grid_'+ this.name +'_operator_'+ i +'">';
 				}
 				html += '<tr>'+
 						'	<td class="close-btn">'+ btn +'</td>' +
@@ -5260,23 +5317,29 @@ w2utils.keyboard = (function (obj) {
 						'	<td class="value">';
 
 				switch (s.type) {
-					case 'alphaNumeric':
 					case 'text':
-						html += '<input rel="search" type="text" size="40" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
+					case 'alphanumeric':
+					case 'hex':
+					case 'list':
+					case 'combo':
+					case 'enum':
+						html += '<input rel="search" type="text" style="width: 300px;" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
 						break;
 
 					case 'int':
 					case 'float':
-					case 'hex':
 					case 'money':
+					case 'currency':
+					case 'percent':
 					case 'date':
+					case 'time':
 						html += '<input rel="search" type="text" size="12" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>'+
 								'<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">'+
-								'&nbsp;-&nbsp;&nbsp;<input rel="search" type="text" size="12" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
+								'&nbsp;-&nbsp;&nbsp;<input rel="search" type="text" style="width: 90px" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
 								'</span>';
 						break;
 
-					case 'list':
+					case 'select':
 						html += '<select rel="search" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'></select>';
 						break;
 
@@ -5338,8 +5401,8 @@ w2utils.keyboard = (function (obj) {
 						var sortStyle = '';
 						for (var si in obj.sortData) {
 							if (obj.sortData[si].field == col.field) {
-								if (obj.sortData[si].direction == 'asc')  sortStyle = 'w2ui-sort-down';
-								if (obj.sortData[si].direction == 'desc') sortStyle = 'w2ui-sort-up';
+								if (RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
+								if (RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
 							}
 						}
 						var resizer = "";
@@ -5407,8 +5470,8 @@ w2utils.keyboard = (function (obj) {
 					var sortStyle = '';
 					for (var si in obj.sortData) {
 						if (obj.sortData[si].field == col.field) {
-							if (obj.sortData[si].direction == 'asc')  sortStyle = 'w2ui-sort-down';
-							if (obj.sortData[si].direction == 'desc') sortStyle = 'w2ui-sort-up';
+							if (RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
+							if (RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
 						}
 					}
 					if (colg['master'] !== true || master) { // grouping of columns
@@ -5692,7 +5755,7 @@ w2utils.keyboard = (function (obj) {
 			while (true) {
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
-				var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
+				var isChanged = record.changes && typeof record.changes[col.field] != 'undefined';
 				var rec_cell  = this.getCellHTML(ind, col_ind, summary);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
@@ -5778,8 +5841,7 @@ w2utils.keyboard = (function (obj) {
 			var col  	= this.columns[col_ind];
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
 			var data 	= this.parseField(record, col.field);
-			var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
-			if (isChanged) data = record.changes[col.field];
+			if (record.changes && typeof record.changes[col.field] != 'undefined') data = record.changes[col.field];
 			if (data == null || typeof data == 'undefined') data = '';
 			return data;
 		},
@@ -6050,7 +6112,7 @@ w2utils.keyboard = (function (obj) {
 					return false;
 				}
 				var pname = '#layout_'+ this.name + '_panel_'+ p.type;
-				var tmp	  = $(pname + ' > .w2ui-panel-content');
+				var tmp	  = $(pname + '> .w2ui-panel-content');
 				var panelTop = 0;
 				if (tmp.length > 0) {
 					$(pname).scrollTop(0);
@@ -6066,9 +6128,9 @@ w2utils.keyboard = (function (obj) {
 					if (!p.hidden) {
 						if (transition !== null && transition !== '' && typeof transition != 'undefined') {
 							// apply transition
-							var div1 = $(pname + ' > .w2ui-panel-content');
+							var div1 = $(pname + '> .w2ui-panel-content');
 							div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>');
-							var div2 = $(pname + ' > .w2ui-panel-content.new-panel');
+							var div2 = $(pname + '> .w2ui-panel-content.new-panel');
 							div1.css('top', panelTop);
 							div2.css('top', panelTop);
 							if (typeof data == 'object') {
@@ -6255,7 +6317,7 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		el: function (panel) {
-			var el = $('#layout_'+ this.name +'_panel_'+ panel +' .w2ui-panel-content');
+			var el = $('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-content');
 			if (el.length != 1) return null;
 			return el[0];
 		},
@@ -6264,7 +6326,7 @@ w2utils.keyboard = (function (obj) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.toolbar = false;
-			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-toolbar').hide();
+			$('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').hide();
 			this.resize();
 		},
 
@@ -6272,7 +6334,7 @@ w2utils.keyboard = (function (obj) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.toolbar = true;
-			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-toolbar').show();
+			$('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').show();
 			this.resize();
 		},
 
@@ -6286,7 +6348,7 @@ w2utils.keyboard = (function (obj) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.tabs = false;
-			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-tabs').hide();
+			$('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').hide();
 			this.resize();
 		},
 
@@ -6294,7 +6356,7 @@ w2utils.keyboard = (function (obj) {
 			var pan = this.get(panel);
 			if (!pan) return;
 			pan.show.tabs = true;
-			$('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-tabs').show();
+			$('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').show();
 			this.resize();
 		},
 
@@ -6551,32 +6613,32 @@ w2utils.keyboard = (function (obj) {
 				var rname = '#layout_'+ obj.name +'_resizer_'+ p.type;
 				// apply properties to the panel
 				var el = $(panel).css({ display: p.hidden ? 'none' : 'block' });
-				if (el.find('.w2ui-panel-content').length > 0) {
+				if (el.find('> .w2ui-panel-content').length > 0) {
 					el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				}
 				if (p.resizable === true) $(rname).show(); else $(rname).hide();
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
-					p.content.box = $(pname +' > .w2ui-panel-content')[0];
-					p.content.render(); // do not do .render(box);
+					p.content.box = $(pname +'> .w2ui-panel-content')[0];
+					setTimeout(function () { p.content.render(); }, 1); // do not do .render(box);
 				} else {
-					$(pname +' > .w2ui-panel-content').html(p.content);
+					$(pname +'> .w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
-				var tmp = $(obj.box).find(pname +' .w2ui-panel-tabs');
+				var tmp = $(obj.box).find(pname +'> .w2ui-panel-tabs');
 				if (p.show.tabs) {
 					if (tmp.find('[name='+ p.tabs.name +']').length === 0 && p.tabs !== null) tmp.w2render(p.tabs); else p.tabs.refresh();
 				} else {
 					tmp.html('').removeClass('w2ui-tabs').hide();
 				}
-				tmp = $(obj.box).find(pname +' .w2ui-panel-toolbar');
+				tmp = $(obj.box).find(pname +'> .w2ui-panel-toolbar');
 				if (p.show.toolbar) {
 					if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar !== null) tmp.w2render(p.toolbar); else p.toolbar.refresh();
 				} else {
 					tmp.html('').removeClass('w2ui-toolbar').hide();
 				}
 				// show title
-				tmp = $(obj.box).find(pname +' .w2ui-panel-title');
+				tmp = $(obj.box).find(pname +'> .w2ui-panel-title');
 				if (p.title) {
 					tmp.html(p.title).show();
 				} else {
@@ -6936,6 +6998,7 @@ w2utils.keyboard = (function (obj) {
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
 *
 ************************************************************************/
 
@@ -7005,6 +7068,7 @@ var w2popup = {};
 			showMax			: false,
 			transition		: null
 		},
+		status		: 'closed', 	// string that describes current status
 		handlers	: [],
 		onOpen		: null,
 		onClose		: null,
@@ -7014,6 +7078,10 @@ var w2popup = {};
 
 		open: function (options) {
 			var obj = this;
+			if (w2popup.status == 'closing') {
+				setTimeout(function () { obj.open.call(obj, options); }, 100);
+				return;
+			}
 			// get old options and merge them
 			var old_options = $('#w2ui-popup').data('options');
 			var options = $.extend({}, this.defaults, { body : '' }, old_options, options);
@@ -7048,7 +7116,8 @@ var w2popup = {};
 			if ($('#w2ui-popup').length == 0) {
 				// trigger event
 				var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false });
-				if (eventData.isCancelled === true) return;			
+				if (eventData.isCancelled === true) return;
+				w2popup.status = 'opening';
 				// output message
 				w2popup.lockScreen(options);			
 				var msg = '<div id="w2ui-popup" class="w2ui-popup" style="'+
@@ -7098,6 +7167,7 @@ var w2popup = {};
 						'-o-transform': ''
 					});
 					// event after
+					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
 				}, options.speed * 1000);
 			} else {
@@ -7105,6 +7175,7 @@ var w2popup = {};
 				var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
 				if (eventData.isCancelled === true) return;			
 				// check if size changed
+				w2popup.status = 'opening';
 				if (typeof old_options == 'undefined' || old_options['width'] != options['width'] || old_options['height'] != options['height']) {
 					$('#w2ui-panel').remove();
 					w2popup.resize(options.width, options.height);
@@ -7128,6 +7199,7 @@ var w2popup = {};
 				$('#w2ui-popup').data('prev-size', null);
 				// call event onChange
 				setTimeout(function () {
+					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
 				}, 1);
 			}		
@@ -7150,6 +7222,7 @@ var w2popup = {};
 			function mvStart(event) {
 				if (!event) event = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
+				w2popup.status = 'moving';
 				tmp.resizing = true;
 				tmp.tmp_x = event.screenX;
 				tmp.tmp_y = event.screenY;
@@ -7190,6 +7263,7 @@ var w2popup = {};
 			function mvStop(evnt) {
 				if (tmp.resizing != true) return;
 				if (!evnt) evnt = window.event;
+				w2popup.status = 'open';
 				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x); 
 				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y); 			
 				$('#w2ui-popup').css({
@@ -7244,10 +7318,12 @@ var w2popup = {};
 		close: function (options) {
 			var obj = this;
 			var options = $.extend({}, $('#w2ui-popup').data('options'), options);
+			if ($('#w2ui-popup').length == 0) return;
 			// trigger event
 			var eventData = this.trigger({ phase: 'before', type: 'close', target: 'popup', options: options });
 			if (eventData.isCancelled === true) return;
 			// default behavior
+			w2popup.status = 'closing';
 			$('#w2ui-popup, #w2ui-panel').css({ 
 				'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform', 
 				'-webkit-transform': 'scale(0.9)',
@@ -7263,6 +7339,7 @@ var w2popup = {};
 			setTimeout(function () {
 				$('#w2ui-popup').remove();
 				$('#w2ui-panel').remove();
+				w2popup.status = 'closed';
 				// event after
 				obj.trigger($.extend(eventData, { phase: 'after'}));
 			}, options.speed * 1000);				
@@ -7284,12 +7361,14 @@ var w2popup = {};
 			// trigger event
 			var eventData = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options });
 			if (eventData.isCancelled === true) return;
+			w2popup.status = 'resizing';
 			// default behavior
 			options.maximized = true;
 			options.prevSize  = $('#w2ui-popup').css('width')+':'+$('#w2ui-popup').css('height');
 			$('#w2ui-popup').data('options', options);
 			// do resize
 			w2popup.resize(10000, 10000, function () {
+				w2popup.status = 'open';
 				obj.trigger($.extend(eventData, { phase: 'after'}));
 			});
 		},
@@ -7302,12 +7381,14 @@ var w2popup = {};
 			// trigger event
 			var eventData = this.trigger({ phase: 'before', type: 'min', target: 'popup', options: options });
 			if (eventData.isCancelled === true) return;
+			w2popup.status = 'resizing';
 			// default behavior
 			options.maximized = false;
 			options.prevSize  = null;
 			$('#w2ui-popup').data('options', options);
 			// do resize
 			w2popup.resize(size[0], size[1], function () {
+				w2popup.status = 'open';
 				obj.trigger($.extend(eventData, { phase: 'after'}));
 			});
 		},
@@ -7331,6 +7412,7 @@ var w2popup = {};
 		},
 		
 		load: function (options) {
+			w2popup.status = 'loading';
 			if (String(options.url) == 'undefined') {
 				console.log('ERROR: The url parameter is empty.');
 				return;
@@ -7541,7 +7623,7 @@ var w2popup = {};
 
 var w2alert = function (msg, title, callBack) {
 	if (typeof title == 'undefined') title = w2utils.lang('Notification');
-	if ($('#w2ui-popup').length > 0) {
+	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
 		w2popup.message({
 			width 	: 400,
 			height 	: 150,
@@ -7578,7 +7660,7 @@ var w2confirm = function (msg, title, callBack) {
 	if (typeof title == 'undefined') {
 		title = w2utils.lang('Confirmation');
 	}
-	if ($('#w2ui-popup').length > 0) {
+	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
 		w2popup.message({
 			width 	: 400,
 			height 	: 150,
@@ -8508,7 +8590,10 @@ var w2confirm = function (msg, title, callBack) {
 							}
 							if (it.type == 'menu') {
 								el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
-									select: function (event) { obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent }); }
+									select: function (event) { 										
+										obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent }); 
+										hideDrop();
+									}
 								}));
 							}
 							// window.click to hide it
@@ -8845,6 +8930,7 @@ var w2confirm = function (msg, title, callBack) {
 				.find('.w2ui-icon').addClass('w2ui-icon-selected');
 			new_node.selected = true;
 			this.selected = id;
+			return true;
 		},
 		
 		unselect: function (id) {
@@ -8860,60 +8946,65 @@ var w2confirm = function (msg, title, callBack) {
 		
 		toggle: function(id) {
 			var nd = this.get(id);
-			if (nd === null) return;
+			if (nd === null) return false;
 			if (nd.plus) {
 				this.set(id, { plus: false });
 				this.expand(id);
 				this.refresh(id);
 				return;
 			}
-			if (nd.nodes.length === 0) return;
-			if (this.get(id).expanded) this.collapse(id); else this.expand(id);
+			if (nd.nodes.length === 0) return false;
+			if (this.get(id).expanded) return this.collapse(id); else return this.expand(id);
 		},
 
 		collapse: function (id) {
-			var nd = this.get(id);
+			var obj = this;
+			var nd  = this.get(id);
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp('fast');		
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp(200);
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
 			nd.expanded = false;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize();
+			setTimeout(function () { obj.refresh(id); }, 200);
+			return true;
 		},
 
 		collapseAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
 			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return null;
+			if (parent.nodes === null) return false;
 			for (var i=0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === true) parent.nodes[i].expanded = false;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
 			}
 			this.refresh(parent.id);
+			return true;
 		},		
 	
 		expand: function (id) {
-			var nd = this.get(id);
+			var obj = this;
+			var nd  = this.get(id);
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
 			if (eventData.isCancelled === true) return false;
 			// default action
-			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown('fast');
+			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200);
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
 			nd.expanded = true;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			this.resize();
+			setTimeout(function () { obj.refresh(id); }, 200);
+			return true;
 		},
 		
 		expandAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
 			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return null;
+			if (parent.nodes === null) return false;
 			for (var i=0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === false) parent.nodes[i].expanded = true;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
@@ -8923,12 +9014,13 @@ var w2confirm = function (msg, title, callBack) {
 
 		expandParents: function (id) {
 			var node = this.get(id);
-			if (node === null) return;
+			if (node === null) return false;
 			if (node.parent) {
 				node.parent.expanded = true;
 				this.expandParents(node.parent.id);
 			}
 			this.refresh(id);
+			return true;
 		}, 
 
 		click: function (id, event) {
@@ -9228,8 +9320,7 @@ var w2confirm = function (msg, title, callBack) {
 				if (nd.group) {
 					html = 
 						'<div class="w2ui-node-group"  id="node_'+ nd.id +'"'+
-						'		onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
-						'					var sp=$(this).find(\'span:nth-child(1)\'); if (sp.html() == \''+ w2utils.lang('Hide') +'\') sp.html(\''+ w2utils.lang('Show') +'\'); else sp.html(\''+ w2utils.lang('Hide') +'\');"'+
+						'		onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
 						'		onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
 						'		onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
 						'	<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>'+
@@ -9583,7 +9674,7 @@ var w2confirm = function (msg, title, callBack) {
 					$(this.el).data('selected', options.selected);
 					if (options.url) this.request(0);
 					this.addSuffix();
-					$(this.el).attr('placeholder', options.placeholder);
+					$(this.el).attr('placeholder', options.placeholder).attr('autocomplete', 'off');
 					if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
 					break;
 
@@ -10709,7 +10800,7 @@ var w2confirm = function (msg, title, callBack) {
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul>'+
 						'		<li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-						'			<input type="text" style="width: 20px" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
+						'			<input type="text" style="width: 20px" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
 						'		</li>'
 						'	</ul>'+
 						'	</div>'+
@@ -11944,6 +12035,8 @@ var w2confirm = function (msg, title, callBack) {
 		this.box			= null;		// DOM Element that holds the element
 		this.name			= null;		// unique name for w2ui
 		this.vType			= null;
+		this.extraCols		= [];
+		this.itemExtra = {};
 		this.items			= [];
 		this.menu			= [];
 		this.multiselect	= true;		// multiselect support
@@ -11960,6 +12053,9 @@ var w2confirm = function (msg, title, callBack) {
 		this.onDestroy		= null;
 
 		$.extend(true, this, w2obj.listview, options);
+		for (var i = 0; i < this.extraCols.length; i++) {
+			this.itemExtra[this.extraCols[i].name] = '';
+		}
 	};
 
 	// ====================================================
@@ -11974,12 +12070,12 @@ var w2confirm = function (msg, title, callBack) {
 				method.vType = method.viewType;
 				delete method.viewType;
 			}
-			var itms  = method.items;
+			var itms = method.items;
 			obj = new w2listview(method);
 			$.extend(obj, { items: [], handlers: [] });
 			if ($.isArray(itms)) {
 				for (var i = 0; i < itms.length; i++) {
-					obj.items[i] = $.extend({}, w2listview.prototype.item, itms[i]);
+					obj.items[i] = $.extend({}, w2listview.prototype.item, obj.itemExtra, itms[i]);
 				}
 			}
 			if ($(this).length !== 0) {
@@ -12019,6 +12115,8 @@ var w2confirm = function (msg, title, callBack) {
 		viewType: function (value) {
 			if (arguments.length === 0) {
 				switch (this.vType) {
+					case 'table':
+						return 'table';
 					case 'icon-tile':
 						return 'icon-tile';
 					case 'icon-large':
@@ -12032,7 +12130,7 @@ var w2confirm = function (msg, title, callBack) {
 				this.vType = value;
 				var vt = 'w2ui-' + this.viewType();
 				$(this.box)
-					.removeClass('w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile')
+					.removeClass('w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile w2ui-table')
 					.addClass(vt);
 				return vt;
 			}
@@ -12060,7 +12158,7 @@ var w2confirm = function (msg, title, callBack) {
 					return;
 				}
 				// add item
-				var newItm = $.extend({}, w2listview.prototype.item, item[r]);
+				var newItm = $.extend({}, w2listview.prototype.item, this.itemExtra, item[r]);
 				if (id === null || typeof id === 'undefined') {
 					this.items.push(newItm);
 				} else {
@@ -12263,10 +12361,11 @@ var w2confirm = function (msg, title, callBack) {
 
 			function processNeighbor(neighbor) {
 				var newIdx = idx;
-				if (neighbor === 'up') newIdx = idx - colsCount();
-				if (neighbor === 'down') newIdx = idx + colsCount();
-				if (neighbor === 'left') newIdx = idx - 1;
-				if (neighbor === 'right') newIdx = idx + 1;
+				var colsCnt = colsCount();
+				if (neighbor === 'up') newIdx = idx - colsCnt;
+				if (neighbor === 'down') newIdx = idx + colsCnt;
+				if (neighbor === 'left' && colsCnt > 1) newIdx = idx - 1;
+				if (neighbor === 'right' && colsCnt > 1) newIdx = idx + 1;
 				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) {
 					obj.userSelect(obj.items[newIdx].id, event, false);
 				}
@@ -12330,8 +12429,13 @@ var w2confirm = function (msg, title, callBack) {
 			// default action
 			if (typeof id === 'undefined') {
 				// refresh all items
-				for (var i = 0; i < this.items.length; i++)
-					this.refresh(this.items[i].id);
+				var itms = document.createDocumentFragment();
+				for (var i = 0; i < this.items.length; i++) 
+					itms.appendChild(getItemElement(this.items[i]));
+				var lst = this.lastItm.parentNode;
+				while (lst.firstChild !== this.lastItm)
+					lst.removeChild(lst.firstChild);
+				this.lastItm.parentNode.insertBefore(itms, this.lastItm);
 			} else {
 				// refresh single item
 				var itm = document.getElementById('itm_'+ w2utils.escapeId(id));
@@ -12354,35 +12458,106 @@ var w2confirm = function (msg, title, callBack) {
 			return (new Date()).getTime() - time;
 
 			function getItemElement(item) {
-				var addClass = (item.icon !== null && typeof item.icon !== 'undefined') ? ' '+item.icon : ' icon-none';
-				if (item.img !== null && typeof item.img !== 'undefined') addClass = ' w2ui-icon '+item.img;
+				var imgClass = (item.icon !== null && typeof item.icon !== 'undefined') ? ' '+item.icon : ' icon-none';
+				if (item.img !== null && typeof item.img !== 'undefined') imgClass = ' w2ui-icon '+item.img;
 
-				var rslt = document.createElement('li');
+				var withDescription = (typeof item.description !== undefined && item.description !== '');
+				var withExtra = (obj.extraCols.length > 0);
+				var rslt = getItemTemplate(withDescription, withExtra);
 				rslt.id = 'itm_' + item.id;
-				rslt.onclick = function(event) {
-					w2ui[obj.name].click(item.id, event);
-				};
-				rslt.ondblclick = function(event) {
-					w2ui[obj.name].dblClick(item.id, event);
-				};
-				rslt.oncontextmenu = function(event) {
-					w2ui[obj.name].contextMenu(item.id, event);
-					if (event.preventDefault) event.preventDefault();
-				};
-
-				rslt.appendChild(getDiv('icon-small'+addClass));
-				rslt.appendChild(getDiv('icon-medium'+addClass));
-				rslt.appendChild(getDiv('icon-large'+addClass));
-				rslt.appendChild(getDiv('caption', item.caption));
-				rslt.appendChild(getDiv('description', item.description));
-
+				rslt.setAttribute('item_id', item.id);
+				var itmDiv = rslt.querySelector('div');
+				itmDiv.querySelector('div.w2ui-listview-img').className = 'w2ui-listview-img'+imgClass;
+				itmDiv.querySelector('div.caption').textContent = item.caption;
+				if (withDescription)
+					itmDiv.querySelector('div.description').textContent = item.description;
+				if (withExtra) {
+					var itmExtra = itmDiv.querySelector('div.extra div');
+					for (var i = 0; i < obj.extraCols.length; i++) {
+						var colName = obj.extraCols[i].name;
+						if (colName in item)
+							itmExtra.querySelector('div.'+colName).textContent = item[colName];
+					}
+				}
 				return rslt;
 			}
 
-			function getDiv(cls, txt) {
+			function getItemTemplate(withDescription, withExtra) {
+				var template, itmDiv;
+				if (!withDescription && !withExtra) {
+					if ('captionOnlyTemplate' in obj) {
+						template = obj.captionOnlyTemplate;
+					} else {
+						template = document.createElement('li');
+						template.setAttribute('onclick', 'w2ui[\''+obj.name+'\'].click(this.getAttribute(\'item_id\'), event);');
+						template.setAttribute('ondblclick', 'w2ui[\''+obj.name+'\'].dblClick(this.getAttribute(\'item_id\'), event);');
+						template.setAttribute('oncontextmenu', 'w2ui[\''+obj.name+'\'].contextMenu(this.getAttribute(\'item_id\'), event); if (event.preventDefault) event.preventDefault();');
+						itmDiv = appendDiv(template);
+						appendDiv(itmDiv, 'w2ui-listview-img');
+						appendDiv(itmDiv, 'caption');
+						obj.captionOnlyTemplate = template;
+					}
+
+				} else
+				if (withDescription && !withExtra) {
+					if ('captionWithDescription' in obj) {
+						template = obj.captionWithDescriptionTemplate;
+					} else {
+						template = getItemTemplate(false, false);
+						itmDiv = template.querySelector('div');
+						appendDiv(itmDiv, 'description');
+						obj.captionWithDescriptionTemplate = template;
+					}
+				} else
+				if (!withDescription && withExtra) {
+					if ('captionWithExtra' in obj) {
+						template = obj.captionWithExtra;
+					} else {
+						template = appendExtra(getItemTemplate(false, false));
+						obj.captionWithExtra = template;
+					}
+				} else
+				if (withDescription && withExtra) {
+					if ('captionWithDescriptionAndExtra' in obj) {
+						template = obj.captionWithDescriptionAndExtra;
+					} else {
+						template = appendExtra(getItemTemplate(true, false));
+						obj.captionWithDescriptionAndExtra = template;
+					}
+				}
+				return template.cloneNode(true);
+
+				function appendExtra(node) {
+					var itmDiv = node.querySelector('div');
+					var extra = appendDiv(itmDiv, 'extra');
+					extra.style.width = extraColsWidth() + 'px';
+					extra = appendDiv(extra);
+					for (var i = 0; i < obj.extraCols.length; i++) {
+						var col = obj.extraCols[i];
+						var extraCol = appendDiv(extra, col.name);
+						extraCol.style.width = col.width+'px';
+						if ('align' in col) extraCol.style.textAlign = col.align;
+						if ('paddingLeft' in col) extraCol.style.paddingLeft = col.paddingLeft+'px';
+						if ('paddingRight' in col) extraCol.style.paddingRight = col.paddingRight+'px';
+					}
+					return node;
+
+					function extraColsWidth() {
+						var rslt = 0;
+						for (var i = 0; i < obj.extraCols.length; i++) {
+							if (!('width' in obj.extraCols[i])) obj.extraCols[i].width = 100;
+							rslt += obj.extraCols[i].width;
+						}
+						return rslt;
+					}
+				}
+			}
+
+			function appendDiv(parentElement, cls, txt) {
 				var div = document.createElement('div');
-				div.className = cls;
+				if (typeof cls !== 'undefined') div.className = cls;
 				if (typeof txt !== 'undefined') div.textContent = txt;
+				parentElement.appendChild(div);
 				return div;
 			}
 
@@ -12400,19 +12575,21 @@ var w2confirm = function (msg, title, callBack) {
 						this.box.removeChild(this.box.lastChild);
 					$(this.box)
 						.removeAttr('name')
-						.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile');
+						.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile w2ui-table');
 				}
 				this.box = box;
 			}
 			if (!this.box) return false;
+			while (this.box.hasChildNodes())
+				this.box.removeChild(this.box.lastChild);
+			this.box.scrollTop = 0;
+
 			// render all items
 			var list = document.createElement('ul');
 			var lastItm = document.createElement('li');
 			lastItm.className = 'itmlast';
 			lastItm.style.display = 'none';
 			list.appendChild(lastItm);
-			while (this.box.hasChildNodes())
-				this.box.removeChild(this.box.lastChild);
 			$(this.box)
 				.attr('name', this.name)
 				.addClass('w2ui-reset w2ui-listview w2ui-' + this.viewType())
@@ -12434,7 +12611,7 @@ var w2confirm = function (msg, title, callBack) {
 				$(this.box)
 					.empty()
 					.removeAttr('name')
-					.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile');
+					.removeClass('w2ui-reset w2ui-listview w2ui-icon-small w2ui-icon-medium w2ui-icon-large w2ui-icon-tile w2ui-table');
 			}
 			delete w2ui[this.name];
 			// event after

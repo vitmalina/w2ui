@@ -2230,7 +2230,6 @@ select {
 }
 .w2ui-listview > ul {
   list-style-type: none;
-  font-size: 0;
   margin: 0;
   cursor: default;
 }
@@ -2238,7 +2237,6 @@ select {
   display: inline-block;
   vertical-align: top;
   overflow: hidden;
-  font-size: medium;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -2262,38 +2260,44 @@ select {
   background-image: linear-gradient(#69b1e0, #4a96d3);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff69b1e0', endColorstr='#ff4a96d3', GradientType=0);
 }
-.w2ui-listview > ul > li.w2ui-selected div,
-.w2ui-listview > ul > li.w2ui-selected:hover div {
-  color: #ffffff !important;
+.w2ui-listview > ul > li.w2ui-selected > div > div.caption,
+.w2ui-listview > ul > li.w2ui-selected:hover > div > div.caption {
+  color: #ffffff;
+}
+.w2ui-listview > ul > li.w2ui-selected > div > div.description,
+.w2ui-listview > ul > li.w2ui-selected:hover > div > div.description {
+  color: #dddddd;
+}
+.w2ui-listview > ul > li.w2ui-selected > div > div.extra > div > div,
+.w2ui-listview > ul > li.w2ui-selected:hover > div > div.extra > div > div {
+  color: #dddddd;
 }
 .w2ui-listview > ul > li:hover {
   background-color: #d7e1ef;
   border: 1px solid #2661a6;
 }
 .w2ui-listview > ul > li div {
-  color: #000000;
+  vertical-align: middle;
 }
-.w2ui-listview > ul > li div.icon-small {
-  font-size: 21px;
-}
-.w2ui-listview > ul > li div.icon-medium {
-  font-size: 57px;
-}
-.w2ui-listview > ul > li div.icon-large {
-  font-size: 114px;
-}
-.w2ui-listview > ul > li div.caption {
+.w2ui-listview > ul > li > div > div.caption {
   display: block;
   text-align: center;
   word-wrap: break-word;
   max-height: 50px;
-  font-size: 80%;
+  color: #000000;
+  font-size: 12px;
 }
-.w2ui-listview > ul > li div.description {
+.w2ui-listview > ul > li > div > div.description {
   display: none;
   text-align: left;
-  color: #808080;
-  font-size: 80%;
+  color: #777777;
+  font-size: 12px;
+}
+.w2ui-listview > ul > li > div > div.extra {
+  display: none;
+}
+.w2ui-listview > ul > li > div > div.extra > div > div {
+  color: #777777;
 }
 .w2ui-icon-small > ul {
   padding: 1px 0px 0px 1px;
@@ -2304,23 +2308,15 @@ select {
   width: 250px;
   white-space: nowrap;
 }
-.w2ui-icon-small > ul > li div.icon-small {
+.w2ui-icon-small > ul > li > div > div.w2ui-listview-img {
   display: inline-block;
   width: 26px;
   height: 22px;
-  float: left;
+  font-size: 21px;
   margin-right: 2px;
 }
-.w2ui-icon-small > ul > li div.icon-medium {
-  display: none;
-}
-.w2ui-icon-small > ul > li div.icon-large {
-  display: none;
-}
-.w2ui-icon-small > ul > li div.caption {
+.w2ui-icon-small > ul > li > div > div.caption {
   display: inline-block;
-  vertical-align: middle;
-  text-align: left;
 }
 .w2ui-icon-medium > ul {
   padding: 4px 0px 0px 4px;
@@ -2330,19 +2326,14 @@ select {
   padding: 4px;
   width: 100px;
 }
-.w2ui-icon-medium > ul > li div.icon-small {
-  display: none;
-}
-.w2ui-icon-medium > ul > li div.icon-medium {
+.w2ui-icon-medium > ul > li > div > div.w2ui-listview-img {
   display: block;
   width: 92px;
   height: 60px;
+  font-size: 57px;
   margin-left: auto;
   margin-right: auto;
   background-position: center;
-}
-.w2ui-icon-medium > ul > li div.icon-large {
-  display: none;
 }
 .w2ui-icon-large > ul {
   padding: 4px 0px 0px 4px;
@@ -2352,16 +2343,11 @@ select {
   padding: 4px;
   width: 160px;
 }
-.w2ui-icon-large > ul > li div.icon-small {
-  display: none;
-}
-.w2ui-icon-large > ul > li div.icon-medium {
-  display: none;
-}
-.w2ui-icon-large > ul > li div.icon-large {
+.w2ui-icon-large > ul > li > div > div.w2ui-listview-img {
   display: block;
   width: 152px;
   height: 120px;
+  font-size: 114px;
   margin-left: auto;
   margin-right: auto;
   background-position: center;
@@ -2371,28 +2357,82 @@ select {
 }
 .w2ui-icon-tile > ul > li {
   margin: 0px 1px 1px 0px;
-  padding: 5px;
+  padding: 4px;
   width: 250px;
   white-space: nowrap;
 }
-.w2ui-icon-tile > ul > li div.icon-small {
-  display: none;
-}
-.w2ui-icon-tile > ul > li div.icon-medium {
+.w2ui-icon-tile > ul > li > div > div.w2ui-listview-img {
   display: inline-block;
   width: 72px;
   height: 60px;
+  font-size: 57px;
   float: left;
-  margin-right: 5px;
+  margin-right: 4px;
 }
-.w2ui-icon-tile > ul > li div.icon-large {
-  display: none;
-}
-.w2ui-icon-tile > ul > li div.caption {
+.w2ui-icon-tile > ul > li > div > div.caption {
   text-align: left;
 }
-.w2ui-icon-tile > ul > li div.description {
+.w2ui-icon-tile > ul > li > div > div.description {
   display: block;
+}
+.w2ui-table > ul {
+  padding: 0;
+}
+.w2ui-table > ul > li {
+  width: 100%;
+  padding: 2px;
+  border-radius: 0px;
+  border-bottom: 1px dotted lightgray;
+}
+.w2ui-table > ul > li > div {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.w2ui-table > ul > li > div > div.w2ui-listview-img {
+  display: inline-block;
+  width: 38px;
+  height: 32px;
+  font-size: 31px;
+  margin-right: 2px;
+}
+.w2ui-table > ul > li > div > div.caption {
+  display: inline-block;
+}
+.w2ui-table > ul > li > div > div.extra {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  height: 100%;
+  background-color: #ffffff;
+}
+.w2ui-table > ul > li > div > div.extra > div:before {
+  display: inline-block;
+  height: 100%;
+  width: 0;
+  content: '';
+  vertical-align: middle;
+}
+.w2ui-table > ul > li > div > div.extra > div {
+  display: inline;
+}
+.w2ui-table > ul > li > div > div.extra > div > div {
+  display: inline-block;
+  font-size: 12px;
+}
+.w2ui-table > ul > li.w2ui-selected div.extra,
+.w2ui-table > ul > li.w2ui-selected:hover div.extra {
+  background-image: -webkit-linear-gradient(#69b1e0, #4a96d3);
+  background-image: -moz-linear-gradient(#69b1e0, #4a96d3);
+  background-image: -ms-linear-gradient(#69b1e0, #4a96d3);
+  background-image: -o-linear-gradient(#69b1e0, #4a96d3);
+  background-image: linear-gradient(#69b1e0, #4a96d3);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff69b1e0', endColorstr='#ff4a96d3', GradientType=0);
+}
+.w2ui-table > ul > li:hover div.extra {
+  background-color: #d7e1ef;
 }
 .w2ui-listview > ul > li div.icon-none {
   border: 1px solid rgba(102, 102, 102, 0.35);
