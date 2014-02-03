@@ -26,6 +26,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- onComplete should pass widget as context (this)
 *	- add maxHeight for the w2menu
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
+*	- hidden and disabled in menus
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
@@ -1166,7 +1167,6 @@ w2utils.keyboard = (function (obj) {
 		function fixSize () {
 			var div1 = $('#w2ui-overlay'+ name);
 			var div2 = div1.find(' > div');
-			if (div2.width() < 30) options.width = 30;
 			// if goes over the screen, limit height and width
 			if (div1.length > 0) {
 				div2.height('auto').width('auto');
@@ -1176,11 +1176,7 @@ w2utils.keyboard = (function (obj) {
 				var h = div2.height();
 				var w = div2.width();
 				if (options.width && options.width < w) w = options.width;
-				var tmp = (w - 17) / 2;
-				if (tmp < 25) {
-					options.tipLeft = tmp + 1;
-					options.left = 25 - tmp;
-				}
+				if (w < 30) w = 30;
 				// alignment
 				switch(options.align) {
 					case 'both':
@@ -1195,11 +1191,21 @@ w2utils.keyboard = (function (obj) {
 						options.left = w2utils.getSize($(obj), 'width') - w + 10;
 						break;
 				}
+				// adjust position
+				var tmp = (w - 17) / 2;
+				var boxLeft  = options.left;
+				var boxWidth = options.width;
+				var tipLeft  = options.tipLeft;
+				if (w == 30) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
+				if (tmp < 25) {
+					boxLeft = 25 - tmp;
+					tipLeft = Math.floor(tmp);
+				}
 				// Y coord
 				div1.css({
-					top			: ($(obj).offset().top + w2utils.getSize($(obj), 'height') + options.top + 7) + 'px',
-					left		: ($(obj).offset().left + options.left) + 'px',
-					'min-width' : (options.width ? options.width : 'auto'),
+					top			: (obj.offset().top + w2utils.getSize(obj, 'height') + options.top + 7) + 'px',
+					left		: ((obj.offset().left > 25 ? obj.offset().left : 25) + boxLeft) + 'px',
+					'min-width' : boxWidth,
 					'min-height': (options.height ? options.height : 'auto')
 				});
 				// $(window).height() - has a problem in FF20
@@ -1216,8 +1222,8 @@ w2utils.keyboard = (function (obj) {
 					}
 					div1.css('top', ($(obj).offset().top - h - 24 + options.top) + 'px');
 					div1.find('>style').html(
-						'#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(options.tipLeft) +'px; }'+
-						'#w2ui-overlay'+ name +':after { display: block; margin-left: '+ parseInt(options.tipLeft) +'px; }'
+						'#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'+
+						'#w2ui-overlay'+ name +':after { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'
 					);
 				} else {
 					// show under
@@ -1227,8 +1233,8 @@ w2utils.keyboard = (function (obj) {
 						div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
 					}
 					div1.find('>style').html(
-						'#w2ui-overlay'+ name +':before { display: block; margin-left: '+ parseInt(options.tipLeft) +'px; }'+
-						'#w2ui-overlay'+ name +':after { display: none; margin-left: '+ parseInt(options.tipLeft) +'px; }'
+						'#w2ui-overlay'+ name +':before { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'+
+						'#w2ui-overlay'+ name +':after { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'
 					);
 				}
 				// check width
@@ -1315,7 +1321,7 @@ w2utils.keyboard = (function (obj) {
 					if (img)  imgd = '<td><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
 					if (icon) imgd = '<td align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
 					// render only if non-empty
-					if (txt || txt === 0) {
+					if (typeof txt != 'undefined' && txt != '' && !(/^-+$/.test(txt))) {
 						var bg = (count % 2 == 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
 						if (options.altRows !== true) bg = '';
 						menu_html += 
@@ -1328,6 +1334,9 @@ w2utils.keyboard = (function (obj) {
 							'	<td>'+ txt +'</td>'+
 							'</tr>';
 						count++;
+					} else {
+						// horizontal line
+						menu_html += '<tr><td colspan="2" style="padding: 6px"><div style="border-top: 1px solid silver;"></div></td></tr>';						
 					}
 				}
 				options.items[f] = mitem;

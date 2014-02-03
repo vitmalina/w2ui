@@ -461,7 +461,10 @@
 							}
 							if (it.type == 'menu') {
 								el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
-									select: function (event) { obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent }); }
+									select: function (event) { 										
+										obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent }); 
+										hideDrop();
+									}
 								}));
 							}
 							// window.click to hide it
