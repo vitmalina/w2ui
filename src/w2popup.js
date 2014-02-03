@@ -13,6 +13,7 @@
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
 *
 ************************************************************************/
 
@@ -82,6 +83,7 @@ var w2popup = {};
 			showMax			: false,
 			transition		: null
 		},
+		status		: 'closed', 	// string that describes current status
 		handlers	: [],
 		onOpen		: null,
 		onClose		: null,
@@ -91,6 +93,10 @@ var w2popup = {};
 
 		open: function (options) {
 			var obj = this;
+			if (w2popup.status == 'closing') {
+				setTimeout(function () { obj.open.call(obj, options); }, 100);
+				return;
+			}
 			// get old options and merge them
 			var old_options = $('#w2ui-popup').data('options');
 			var options = $.extend({}, this.defaults, { body : '' }, old_options, options);
@@ -125,7 +131,8 @@ var w2popup = {};
 			if ($('#w2ui-popup').length == 0) {
 				// trigger event
 				var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false });
-				if (eventData.isCancelled === true) return;			
+				if (eventData.isCancelled === true) return;
+				w2popup.status = 'opening';
 				// output message
 				w2popup.lockScreen(options);			
 				var msg = '<div id="w2ui-popup" class="w2ui-popup" style="'+
@@ -175,6 +182,7 @@ var w2popup = {};
 						'-o-transform': ''
 					});
 					// event after
+					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
 				}, options.speed * 1000);
 			} else {
@@ -182,6 +190,7 @@ var w2popup = {};
 				var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
 				if (eventData.isCancelled === true) return;			
 				// check if size changed
+				w2popup.status = 'opening';
 				if (typeof old_options == 'undefined' || old_options['width'] != options['width'] || old_options['height'] != options['height']) {
 					$('#w2ui-panel').remove();
 					w2popup.resize(options.width, options.height);
@@ -205,6 +214,7 @@ var w2popup = {};
 				$('#w2ui-popup').data('prev-size', null);
 				// call event onChange
 				setTimeout(function () {
+					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
 				}, 1);
 			}		
@@ -227,6 +237,7 @@ var w2popup = {};
 			function mvStart(event) {
 				if (!event) event = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
+				w2popup.status = 'moving';
 				tmp.resizing = true;
 				tmp.tmp_x = event.screenX;
 				tmp.tmp_y = event.screenY;
@@ -267,6 +278,7 @@ var w2popup = {};
 			function mvStop(evnt) {
 				if (tmp.resizing != true) return;
 				if (!evnt) evnt = window.event;
+				w2popup.status = 'open';
 				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x); 
 				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y); 			
 				$('#w2ui-popup').css({
@@ -321,10 +333,12 @@ var w2popup = {};
 		close: function (options) {
 			var obj = this;
 			var options = $.extend({}, $('#w2ui-popup').data('options'), options);
+			if ($('#w2ui-popup').length == 0) return;
 			// trigger event
 			var eventData = this.trigger({ phase: 'before', type: 'close', target: 'popup', options: options });
 			if (eventData.isCancelled === true) return;
 			// default behavior
+			w2popup.status = 'closing';
 			$('#w2ui-popup, #w2ui-panel').css({ 
 				'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform', 
 				'-webkit-transform': 'scale(0.9)',
@@ -340,6 +354,7 @@ var w2popup = {};
 			setTimeout(function () {
 				$('#w2ui-popup').remove();
 				$('#w2ui-panel').remove();
+				w2popup.status = 'closed';
 				// event after
 				obj.trigger($.extend(eventData, { phase: 'after'}));
 			}, options.speed * 1000);				
@@ -361,12 +376,14 @@ var w2popup = {};
 			// trigger event
 			var eventData = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options });
 			if (eventData.isCancelled === true) return;
+			w2popup.status = 'resizing';
 			// default behavior
 			options.maximized = true;
 			options.prevSize  = $('#w2ui-popup').css('width')+':'+$('#w2ui-popup').css('height');
 			$('#w2ui-popup').data('options', options);
 			// do resize
 			w2popup.resize(10000, 10000, function () {
+				w2popup.status = 'open';
 				obj.trigger($.extend(eventData, { phase: 'after'}));
 			});
 		},
@@ -379,12 +396,14 @@ var w2popup = {};
 			// trigger event
 			var eventData = this.trigger({ phase: 'before', type: 'min', target: 'popup', options: options });
 			if (eventData.isCancelled === true) return;
+			w2popup.status = 'resizing';
 			// default behavior
 			options.maximized = false;
 			options.prevSize  = null;
 			$('#w2ui-popup').data('options', options);
 			// do resize
 			w2popup.resize(size[0], size[1], function () {
+				w2popup.status = 'open';
 				obj.trigger($.extend(eventData, { phase: 'after'}));
 			});
 		},
@@ -408,6 +427,7 @@ var w2popup = {};
 		},
 		
 		load: function (options) {
+			w2popup.status = 'loading';
 			if (String(options.url) == 'undefined') {
 				console.log('ERROR: The url parameter is empty.');
 				return;
@@ -618,7 +638,7 @@ var w2popup = {};
 
 var w2alert = function (msg, title, callBack) {
 	if (typeof title == 'undefined') title = w2utils.lang('Notification');
-	if ($('#w2ui-popup').length > 0) {
+	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
 		w2popup.message({
 			width 	: 400,
 			height 	: 150,
@@ -655,7 +675,7 @@ var w2confirm = function (msg, title, callBack) {
 	if (typeof title == 'undefined') {
 		title = w2utils.lang('Confirmation');
 	}
-	if ($('#w2ui-popup').length > 0) {
+	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
 		w2popup.message({
 			width 	: 400,
 			height 	: 150,
