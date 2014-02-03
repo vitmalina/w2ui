@@ -20,6 +20,9 @@ $(function () {
 		// 	remove	: 'remove',
 		// 	save	: 'save'
 		// },
+		url: {
+			remove: 'grid3.json'
+		},
 		show: { 
 			toolbar: true,
 			footer: true,
@@ -57,8 +60,15 @@ $(function () {
 			]
 		},
 		searches: [				
-			{ field: 'personid', caption: 'ID (int)', type: 'int' },
-			{ field: 'fname', caption: 'First Name', type: 'text' },
+			{ field: 'personid', caption: 'ID', type: 'int' },
+			{ field: 'fname', caption: 'First Name', type: 'enum', 
+				options: { 
+					items: [
+						{ id: 'avinash', text: 'Avinash'}, 
+						{ id: 'vitali', text:'Vitali'} 
+					]
+				}
+			},
 			{ field: 'lname', caption: 'Last Name', type: 'text' },
 			{ field: 'snumber', caption: 'Number', type: 'int' }
 		],

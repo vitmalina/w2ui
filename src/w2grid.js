@@ -22,6 +22,7 @@
 *	- add onParse - to converd data received from the server
 *	- move events into prototype
 *	- add colspans
+*	- add grid.focus()
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
@@ -41,6 +42,7 @@
 *	- rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
 * 	- new: recid - if id of the data is different from recid
 *	- new: parser - to converd data received from the server
+*	- change: rec.changes = {} and removed rec.changed
 *
 ************************************************************************/
 
@@ -54,7 +56,7 @@
 		this.url				= '';
 		this.columns			= []; 		// { field, caption, size, attr, render, hidden, gridMinWidth, [editable: {type, inTag, outTag, style, items}] }
 		this.columnGroups		= [];		// { span: int, caption: 'string', master: true/false }
-		this.records			= [];		// { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changed: true/false, changes: object }
+		this.records			= [];		// { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changes: object }
 		this.summary			= [];		// arry of summary records, same structure as records array
 		this.searches			= [];		// { type, caption, field, inTag, outTag, default, items, hidden }
 		this.searchData			= [];
@@ -599,8 +601,9 @@
 								}
 								break;
 							case 'between':
-								if (search.type == 'int' && parseInt(rec[search.field]) >= parseInt(val2) && parseInt(rec[search.field]) <= parseInt(val3)) fl++;
-								if (search.type == 'float' && parseFloat(rec[search.field]) >= parseFloat(val2) && parseFloat(rec[search.field]) <= parseFloat(val3)) fl++;
+								if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
+									if (parseFloat(rec[search.field]) >= parseFloat(val2) && parseFloat(rec[search.field]) <= parseFloat(val3)) fl++;
+								}
 								if (search.type == 'date') {
 									var tmp = new Date(Number(val3)); // create date
 									val3 = (new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate())).getTime(); // drop time
@@ -1047,8 +1050,16 @@
 				for (var s in this.searches) {
 					var search 	 = this.searches[s];
 					var operator = $('#grid_'+ this.name + '_operator_'+s).val();
-					var value1   = $('#grid_'+ this.name + '_field_'+s).val();
-					var value2   = $('#grid_'+ this.name + '_field2_'+s).val();
+					var field1	 = $('#grid_'+ this.name + '_field_'+s);
+					var field2	 = $('#grid_'+ this.name + '_field2_'+s);
+					var value1   = field1.val();
+					var value2   = field2.val();
+					if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
+						var fld1 = field1.data('w2field');
+						var fld2 = field2.data('w2field');
+						if (fld1) value1 = fld1.clean(value1);
+						if (fld2) value2 = fld2.clean(value2);
+					}
 					if ((value1 != '' && value1 != null) || (typeof value2 != 'undefined' && value2 != '')) {
 						var tmp = {
 							field	 : search.field,
@@ -1100,7 +1111,7 @@
 								var search = this.searches[s];
 								if (search.type == 'text' || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
 										|| (search.type == 'money' && w2utils.isMoney(value)) || (search.type == 'hex' && w2utils.isHex(value))
-										|| (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'alphaNumeric' && w2utils.isAlphaNumeric(value)) ) {
+										|| (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'alphanumeric' && w2utils.isAlphaNumeric(value)) ) {
 									var tmp = {
 										field	 : search.field,
 										type	 : search.type,
@@ -1224,8 +1235,7 @@
 			var obj = this;
 			// show search
 			$('#tb_'+ this.name +'_toolbar_item_search-advanced').w2overlay(
-				this.getSearchesHTML(),
-				{
+				this.getSearchesHTML(),	{
 					name	: 'searches-'+ this.name,
 					left	: -10,
 					'class'	: 'w2ui-grid-searches',
@@ -1569,33 +1579,32 @@
 				if (typeof callBack == 'function') callBack();
 				return false;
 			}
-			// need a time out because message might be already up)
-			setTimeout(function () { w2alert(msg, 'Error');	}, 1);
+			w2alert(msg, 'Error');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		getChanges: function () {
 			var changes = [];
-			var tmp  	= this.find({ changed: true });
-			for (var t in tmp) {
-				changes.push($.extend(true, { recid: tmp[t].recid }, tmp[t].changes));
+			for (var r in this.records) {
+				var rec = this.records[r];
+				if (typeof rec['changes'] != 'undefined') {
+					changes.push($.extend(true, { recid: rec.recid }, rec.changes));
+				}
 			}
 			return changes;
 		},
 
 		mergeChanges: function () {
-			var changed = this.getChanges();
-			for (var c in changed) {
-				var record = this.get(changed[c].recid);
-				for (var s in changed[c]) {
+			var changes = this.getChanges();
+			for (var c in changes) {
+				var record = this.get(changes[c].recid);
+				for (var s in changes[c]) {
 					if (s == 'recid') continue; // do not allow to change recid
-					try { eval('record.' + s + ' = changed[c][s]'); } catch (e) {}
-					delete record.changed;
+					try { eval('record.' + s + ' = changes[c][s]'); } catch (e) {}
 					delete record.changes;
 				}
 			}
-			$(this.box).find('.w2ui-editable input').removeClass('changed');
 			this.refresh();
 		},
 
@@ -1604,13 +1613,13 @@
 
 		save: function () {
 			var obj = this;
-			var changed = this.getChanges();
+			var changes = this.getChanges();
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'submit', changed: changed });
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'submit', changes: changes });
 			if (eventData.isCancelled === true) return false;
 			var url = (typeof this.url != 'object' ? this.url : this.url.save);
 			if (url) {
-				this.request('save-records', { 'changed' : eventData.changed }, null,
+				this.request('save-records', { 'changes' : eventData.changes }, null,
 					function () {
 						this.mergeChanges();
 						// event after
@@ -1652,7 +1661,7 @@
 			if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
 			if (typeof edit.style   == 'undefined') edit.style   = '';
 			if (typeof edit.items   == 'undefined') edit.items   = [];
-			var val = (rec.changed && typeof rec.changes[col.field] != 'undefined' ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+			var val = (rec.changes && typeof rec.changes[col.field] != 'undefined' ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
 			if (val == null || typeof val == 'undefined') val = '';
 			if (typeof value != 'undefined' && value != null) val = value;
 			var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
@@ -1689,6 +1698,9 @@
 					});
 			}
 			el.find('input, select')
+				.on('click', function (event) { 
+					event.stopPropagation(); 
+				})
 				.on('keydown', function (event) {
 					var cancel = false;
 					switch (event.keyCode) {
@@ -1776,7 +1788,8 @@
 							break;
 
 						case 27: // escape
-							var old = (rec.changed && typeof rec.changes[col.field]) != 'undefined' ? rec.changes[col.field] : obj.parseField(rec, col.field);
+							var old = obj.parseField(rec, col.field);
+							if (rec.changes && typeof rec.changes[col.field] != 'undefined') old = rec.changes[col.field];
 							this.value = typeof old != 'undefined' ? old : '';
 							this.blur();
 							setTimeout(function () { obj.select({ recid: recid, column: column }) }, 1);
@@ -1813,7 +1826,6 @@
 					// don't save new value
 				} else {
 					// default action
-					rec.changed = true;
 					rec.changes = rec.changes || {};
 					rec.changes[col.field] = eventData.value_new;
 					// event after
@@ -1821,13 +1833,15 @@
 				}
 			} else {
 				if (rec.changes) delete rec.changes[col.field];
-				if ($.isEmptyObject(rec.changes)) {
-					delete rec.changes;
-					delete rec.changed;
-				}
+				if ($.isEmptyObject(rec.changes)) delete rec.changes;
 			}
-			// refresh record
-			$(tr).replaceWith(this.getRecordHTML(index, tr.attr('line')));
+			// refresh cell
+			var cell = this.getCellHTML(index, column);
+			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
+				$(tr).find('[col='+ column +']').addClass('w2ui-changed').html(cell);
+			} else {
+				$(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
+			}
 		},
 
 		delete: function (force) {
@@ -1860,7 +1874,7 @@
 						var ind = this.get(recs[r].recid, true);
 						if (ind != null && fld != 'recid') {
 							this.records[ind][fld] = '';
-							if (this.records[ind].changed) delete this.records[ind].changes[fld];
+							if (this.records[ind].changes) delete this.records[ind].changes[fld];
 						}
 					}
 					this.refresh();
@@ -2509,6 +2523,7 @@
 			} else {
 				this.sortData = [];
 			}
+			this.selectNone();
 			// if local
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (!url) {
@@ -2597,7 +2612,6 @@
 				for (var dt in tmp) {
 					if (!this.columns[col + cnt]) continue;
 					var field = this.columns[col + cnt].field;
-					rec.changed = true;
 					rec.changes = rec.changes || {};
 					rec.changes[field] = tmp[dt];
 					cols.push(col + cnt);
@@ -2643,9 +2657,18 @@
 		},
 
 		refreshCell: function (recid, field) {
-			var index	= this.get(recid, true);
-			var cIndex	= this.getColumn(field, true);
-			$('#grid_'+ this.name + '_rec_'+ recid +' [col='+ cIndex +']').html(this.getCellHTML(index, cIndex));
+			var index		= this.get(recid, true);
+			var col_ind		= this.getColumn(field, true);
+			var rec			= this.records[index];
+			var col			= this.columns[col_ind];
+			var cell		= $('#grid_'+ this.name + '_rec_'+ recid +' [col='+ col_ind +']');
+			// set cell html and changed flag
+			cell.html(this.getCellHTML(index, col_ind));
+			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
+				cell.addClass('w2ui-changed'); 
+			} else {
+				cell.removeClass('w2ui-changed');
+			}
 		},
 
 		refreshRow: function (recid) {
@@ -3479,23 +3502,38 @@
 			for (var s in this.searches) {
 				var search = this.searches[s];
 				var sdata  = this.getSearchData(search.field);
+				search.type = String(search.type).toLowerCase();
+				if (typeof search.options != 'object') search.options = {};
 				// init types
-				switch (String(search.type).toLowerCase()) {
-					case 'alphaNumeric':
+				switch (search.type) {
 					case 'text':
+					case 'alphanumeric':
+					case 'hex':
 						$('#grid_'+ this.name +'_operator_'+s).val('begins with');
+						if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
+							$('#grid_'+ this.name +'_field_' + s).w2field('clear').w2field(search.type, search.options);
+						}
 						break;
 
 					case 'int':
 					case 'float':
-					case 'hex':
 					case 'money':
+					case 'currency':
+					case 'percent':
 					case 'date':
-						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type);
-						$('#grid_'+ this.name +'_field2_'+s).w2field('clear').w2field(search.type);
+					case 'time':
+					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
+						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
+						$('#grid_'+ this.name +'_field2_'+s).w2field('clear').w2field(search.type, search.options);						
 						break;
 
 					case 'list':
+					case 'combo':
+					case 'enum':
+						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
+						break;
+
+					case 'select':
 						// build options
 						var options = '<option value="">--</option>';
 						for (var i in search.items) {
@@ -3514,6 +3552,9 @@
 						break;
 				}
 				if (sdata != null) {
+					if (sdata.type == 'int' && sdata.operator == 'in') {
+						$('#grid_'+ this.name +'_field_'+ s).w2field('clear').val(sdata.value);
+					}
 					$('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
 					if (!$.isArray(sdata.value)) {
 						if (typeof sdata.value != 'udefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
@@ -3528,8 +3569,11 @@
 				}
 			}
 			// add on change event
-			$('#w2ui-overlay-searches'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
-				if (evnt.keyCode == 13) { obj.search(); }
+			$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
+				if (evnt.keyCode == 13) { 
+					obj.search(); 
+					$().w2overlay();
+				}
 			});
 		},
 
@@ -3874,6 +3918,7 @@
 			var showBtn = false;
 			for (var i = 0; i < this.searches.length; i++) {
 				var s = this.searches[i];
+				s.type = String(s.type).toLowerCase();
 				if (s.hidden) continue;
 				var btn = '';
 				if (showBtn == false) {
@@ -3883,7 +3928,7 @@
 				if (typeof s.inTag   == 'undefined') s.inTag 	= '';
 				if (typeof s.outTag  == 'undefined') s.outTag 	= '';
 				if (typeof s.type	== 'undefined') s.type 	= 'text';
-				if (s.type == 'text') {
+				if (['text', 'alphanumeric'].indexOf(s.type) != -1) {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
 						'	<option value="begins with">'+ w2utils.lang('begins with') +'</option>'+
@@ -3891,24 +3936,27 @@
 						'	<option value="ends with">'+ w2utils.lang('ends with') +'</option>'+
 						'</select>';
 				}
-				if (s.type == 'int' || s.type == 'float' || s.type == 'date') {
+				if (['int', 'float', 'hex', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" '+
 						'	onchange="var range = $(\'#grid_'+ this.name + '_range_'+ i +'\'); range.hide(); '+
 						'			  var fld  = $(\'#grid_'+ this.name +'_field_'+ i +'\'); '+
 						'			  var fld2 = fld.parent().find(\'span input\'); '+
-						'			  if ($(this).val() == \'in\') fld.w2field(\'clear\'); else fld.w2field(\'clear\').w2field(\''+ s.type +'\');'+
+						'			  if ($(this).val() == \'in\') { fld.w2field(\'clear\'); } else fld.w2field(\'clear\').w2field(\''+ s.type +'\');'+
 						'			  if ($(this).val() == \'between\') { range.show(); fld2.w2field(\'clear\').w2field(\''+ s.type +'\'); }'+
 						'			  var obj = w2ui[\''+ this.name +'\'];'+
 						'			  fld.on(\'keypress\', function (evnt) { if (evnt.keyCode == 13) obj.search(); }); '+
 						'			  fld2.on(\'keypress\', function (evnt) { if (evnt.keyCode == 13) obj.search(); }); '+
 						'			">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
-						(s.type == 'date' ? '' : '<option value="in">'+ w2utils.lang('in') +'</option>')+
-						'	<option value="between">'+ w2utils.lang('between') +'</option>'+
+						(['int'].indexOf(s.type) != -1 ? '<option value="in">'+ w2utils.lang('in') +'</option>' : '') +
+						(['hex'].indexOf(s.type) == -1 ? '<option value="between">'+ w2utils.lang('between') +'</option>' : '')+
 						'</select>';
 				}
-				if (s.type == 'list') {
+				if (['select', 'list', 'combo'].indexOf(s.type) != -1) {
 					var operator =  'is <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
+				}
+				if (['enum'].indexOf(s.type) != -1) {
+					var operator =  'in <input type="hidden" value="in" id="grid_'+ this.name +'_operator_'+ i +'">';
 				}
 				html += '<tr>'+
 						'	<td class="close-btn">'+ btn +'</td>' +
@@ -3917,23 +3965,29 @@
 						'	<td class="value">';
 
 				switch (s.type) {
-					case 'alphaNumeric':
 					case 'text':
-						html += '<input rel="search" type="text" size="40" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
+					case 'alphanumeric':
+					case 'hex':
+					case 'list':
+					case 'combo':
+					case 'enum':
+						html += '<input rel="search" type="text" style="width: 300px;" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
 						break;
 
 					case 'int':
 					case 'float':
-					case 'hex':
 					case 'money':
+					case 'currency':
+					case 'percent':
 					case 'date':
+					case 'time':
 						html += '<input rel="search" type="text" size="12" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>'+
 								'<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">'+
-								'&nbsp;-&nbsp;&nbsp;<input rel="search" type="text" size="12" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
+								'&nbsp;-&nbsp;&nbsp;<input rel="search" type="text" style="width: 90px" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
 								'</span>';
 						break;
 
-					case 'list':
+					case 'select':
 						html += '<select rel="search" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'></select>';
 						break;
 
@@ -3995,8 +4049,8 @@
 						var sortStyle = '';
 						for (var si in obj.sortData) {
 							if (obj.sortData[si].field == col.field) {
-								if (obj.sortData[si].direction == 'asc')  sortStyle = 'w2ui-sort-down';
-								if (obj.sortData[si].direction == 'desc') sortStyle = 'w2ui-sort-up';
+								if (RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
+								if (RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
 							}
 						}
 						var resizer = "";
@@ -4064,8 +4118,8 @@
 					var sortStyle = '';
 					for (var si in obj.sortData) {
 						if (obj.sortData[si].field == col.field) {
-							if (obj.sortData[si].direction == 'asc')  sortStyle = 'w2ui-sort-down';
-							if (obj.sortData[si].direction == 'desc') sortStyle = 'w2ui-sort-up';
+							if (RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
+							if (RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
 						}
 					}
 					if (colg['master'] !== true || master) { // grouping of columns
@@ -4349,7 +4403,7 @@
 			while (true) {
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
-				var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
+				var isChanged = record.changes && typeof record.changes[col.field] != 'undefined';
 				var rec_cell  = this.getCellHTML(ind, col_ind, summary);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
@@ -4435,8 +4489,7 @@
 			var col  	= this.columns[col_ind];
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
 			var data 	= this.parseField(record, col.field);
-			var isChanged = record.changed && typeof record.changes[col.field] != 'undefined';
-			if (isChanged) data = record.changes[col.field];
+			if (record.changes && typeof record.changes[col.field] != 'undefined') data = record.changes[col.field];
 			if (data == null || typeof data == 'undefined') data = '';
 			return data;
 		},
