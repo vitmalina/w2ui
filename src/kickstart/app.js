@@ -227,6 +227,17 @@ var app = (function () {
 	// -- INTERNAL METHODS
 
 	function init() {
+		setTimeout(function () {
+			w2popup.open({ 
+				width	: 300,
+				height 	: 60,
+				modal 	: true, 
+				body	: '<div style="text-align: center; font-size: 16px; padding-top: 20px; padding-left: 35px;">'+
+						  '		<div class="w2ui-spinner" style="width: 26px; height: 26px; position: absolute; margin-left: -35px; margin-top: -5px;"></div>'+
+						  '		Loading...'+
+						  '</div>'
+			});
+		}, 1);
 		// -- load utils
 		app.get(['app/conf/session.js'], function (data) {
 			try { for (var i in data) eval(data[i]); } catch (e) { }
@@ -250,45 +261,49 @@ var app = (function () {
 				} catch (e) {
 					app.include(files);
 				}
-				// init application UI
-				$('#app-toolbar').w2toolbar(app.config.app_toolbar);
-				$('#app-tabs').w2tabs(app.config.app_tabs);
-				$('#app-main').w2layout(app.config.app_layout);
-				// popin
-				//$().w2popup({ width: 300, height: 65, body: 
-				//	'<div style="font-size: 18px; color: #666; text-align: center; padding-top: 15px">Loading....</div>'} );
-				setTimeout(function () {
-					$('#app-container').fadeIn(200);
-					//$('#app-container').css({ '-webkit-transform': 'scale(1)', opacity: 1 });
+				initApp();
+				return;
+
+				function initApp() {
+					// check if ready
+					if ($('#app-main').length == 0) {
+						setTimeout(initApp, 100);
+						return;
+					}
+					// init application UI
+					$('#app-toolbar').w2toolbar(app.config.app_toolbar);
+					$('#app-tabs').w2tabs(app.config.app_tabs);
+					$('#app-main').w2layout(app.config.app_layout);
+					var top = 0;
+					// app toolbar
+					if (app.config.show.toolbar) {
+						$('#app-toolbar').css('height', '30px').show();
+						top += 30;
+					} else {
+						$('#app-toolbar').hide();
+					}
+					// app tabs
+					if (app.config.show.tabs) {
+						$('#app-tabs').css({ 'top': top + 'px', 'height': '30px' }).show();
+						top += 30;
+					} else {
+						$('#app-tabs').hide();
+					}
+					$('#app-top').css('height', top + 'px').show();
+					// app header
+					if (app.config.show.header) {
+						$('#app-header').css({ 'top': top + 'px', 'height': '60px' }).show();
+						top += 60;
+					} else {
+						$('#app-header').hide();
+					}
+					$('#app-main').css('top', top + 'px');
 					setTimeout(function () {
-						var top = 0;
-						// app toolbar
-						if (app.config.show.toolbar) {
-							$('#app-toolbar').css('height', '30px').show();
-							top += 30;
-						} else {
-							$('#app-toolbar').hide();
-						}
-						// app tabs
-						if (app.config.show.tabs) {
-							$('#app-tabs').css({ 'top': top + 'px', 'height': '30px' }).show();
-							top += 30;
-						} else {
-							$('#app-tabs').hide();
-						}
-						$('#app-top').css('height', top + 'px').show();
-						// app header
-						if (app.config.show.header) {
-							$('#app-header').css({ 'top': top + 'px', 'height': '60px' }).show();
-							top += 60;
-						} else {
-							$('#app-header').hide();
-						}
-						$('#app-main').css('top', top + 'px');
-						// init app
-						if (typeof app.start == 'function') app.start();
-					}, 200);
-				}, 100);
+						$('#app-container').fadeIn(300);
+						if (typeof app.start == 'function') app.start(); // init app
+						setTimeout(function () { w2popup.close(); }, 300);
+					}, 300);
+				}
 			});
 		});
 	}
