@@ -266,7 +266,7 @@
 					$(this.el).data('selected', options.selected);
 					if (options.url) this.request(0);
 					this.addSuffix();
-					$(this.el).attr('placeholder', options.placeholder);
+					$(this.el).attr('placeholder', options.placeholder).attr('autocomplete', 'off');
 					if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
 					break;
 
@@ -1392,7 +1392,7 @@
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul>'+
 						'		<li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-						'			<input type="text" style="width: 20px" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
+						'			<input type="text" style="width: 20px" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
 						'		</li>'
 						'	</ul>'+
 						'	</div>'+
