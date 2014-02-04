@@ -3665,7 +3665,7 @@
 			// body might be expanded by data
 			if (!this.fixedBody) {
 				// allow it to render records, then resize
-				setTimeout(function () {
+				//setTimeout(function () {
 					var calculatedHeight = w2utils.getSize(columns, 'height')
 						+ w2utils.getSize($('#grid_'+ obj.name +'_records table'), 'height');
 					obj.height = calculatedHeight
@@ -3677,7 +3677,7 @@
 					grid.css('height', obj.height);
 					body.css('height', calculatedHeight);
 					box.css('height', w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'));
-				}, 1);
+				//}, 1);
 			} else {
 				// fixed body height
 				var calculatedHeight =  grid.height()
