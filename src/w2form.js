@@ -524,6 +524,9 @@
 				if (field.html.caption == '') field.html.caption = field.name;
 				var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
 				// if (field.type == 'list') input = '<select name="'+ field.name +'" '+ field.html.attr +'></select>';
+                if ((field.type === 'pass') || (field.type === 'password')){
+                    input = '<input name="' + field.name + '" type = "password" ' + field.html.attr + '/>';
+                }
 				if (field.type == 'checkbox') input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
 				if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
 				html += '\n   <div class="w2ui-label '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ field.html.caption +':</div>'+
