@@ -5588,7 +5588,7 @@ w2utils.keyboard = (function (obj) {
 			var pan = obj.get(panel);
 			if (pan == null) return false;
 			// resize
-			$(obj.box).find(' > div .w2ui-panel').css({
+			$(obj.box).find(' > div > .w2ui-panel').css({
 				'-webkit-transition': '.35s',
 				'-moz-transition'	: '.35s',
 				'-ms-transition'	: '.35s',
@@ -5599,7 +5599,7 @@ w2utils.keyboard = (function (obj) {
 			}, 1);
 			// clean
 			setTimeout(function () { 
-				$(obj.box).find(' > div .w2ui-panel').css({
+				$(obj.box).find(' > div > .w2ui-panel').css({
 					'-webkit-transition': '0s',
 					'-moz-transition'	: '0s',
 					'-ms-transition'	: '0s',
@@ -5628,7 +5628,7 @@ w2utils.keyboard = (function (obj) {
 				if (p.resizabled) $('#layout_'+ obj.name +'_resizer_'+panel).show();
 				// resize
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });	
-				$(obj.box).find(' > div .w2ui-panel').css({
+				$(obj.box).find(' > div > .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
 					'-ms-transition'	: '.2s',
@@ -5641,7 +5641,7 @@ w2utils.keyboard = (function (obj) {
 				}, 250);
 				// clean
 				setTimeout(function () { 
-					$(obj.box).find(' > div .w2ui-panel').css({
+					$(obj.box).find(' > div > .w2ui-panel').css({
 						'-webkit-transition': '0s',
 						'-moz-transition'	: '0s',
 						'-ms-transition'	: '0s',
@@ -5671,7 +5671,7 @@ w2utils.keyboard = (function (obj) {
 			} else {
 				$('#layout_'+ obj.name +'_resizer_'+panel).hide();
 				// hide
-				$(obj.box).find(' > div .w2ui-panel').css({
+				$(obj.box).find(' > div > .w2ui-panel').css({
 					'-webkit-transition': '.2s',
 					'-moz-transition'	: '.2s',
 					'-ms-transition'	: '.2s',
@@ -5681,7 +5681,7 @@ w2utils.keyboard = (function (obj) {
 				setTimeout(function () { obj.resize(); }, 1);
 				// clean
 				setTimeout(function () { 
-					$(obj.box).find(' > div .w2ui-panel').css({
+					$(obj.box).find(' > div > .w2ui-panel').css({
 						'-webkit-transition': '0s',
 						'-moz-transition'	: '0s',
 						'-ms-transition'	: '0s',
@@ -5720,7 +5720,7 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		el: function (panel) {
-			var el = $('#layout_'+ this.name +'_panel_'+ panel +' .w2ui-panel-content');
+			var el = $('#layout_'+ this.name +'_panel_'+ panel +' > .w2ui-panel-content');
 			if (el.length != 1) return null;
 			return el[0];
 		},
@@ -5981,7 +5981,7 @@ w2utils.keyboard = (function (obj) {
 				if (p == null) return;
 				// apply properties to the panel
 				var el = $('#layout_'+ obj.name +'_panel_'+ panel).css({ display: p.hidden ? 'none' : 'block' });
-				el = el.find('.w2ui-panel-content');
+				el = el.find('> .w2ui-panel-content');
 				if (el.length > 0) el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				if (p.resizable === true) {
 					$('#layout_'+ this.name +'_resizer_'+ panel).show(); 
@@ -5996,13 +5996,13 @@ w2utils.keyboard = (function (obj) {
 					$('#layout_'+ obj.name + '_panel_'+ p.type +' > .w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
-				var tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-tabs');
+				var tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +'> .w2ui-panel-tabs');
 				if (p.show.tabs) { 
 					if (tmp.find('[name='+ p.tabs.name +']').length == 0 && p.tabs != null) tmp.w2render(p.tabs); else p.tabs.refresh(); 
 				} else {
 					tmp.html('').removeClass('w2ui-tabs').hide();
 				}
-				var tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +' .w2ui-panel-toolbar');
+				var tmp = $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type +'> .w2ui-panel-toolbar');
 				if (p.show.toolbar) { 
 					if (tmp.find('[name='+ p.toolbar.name +']').length == 0 && p.toolbar != null) tmp.w2render(p.toolbar); else p.toolbar.refresh(); 
 				} else {
