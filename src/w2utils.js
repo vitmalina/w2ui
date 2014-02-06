@@ -490,8 +490,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +';'+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-					div_old.style.cssText += cross('transition', time+'s') +';'+ cross('transform', 'translate3d(-'+ width +'px, 0, 0)', 'translate(-'+ width +'px, 0)');
+					div_new.style.cssText += cross('transition', time+'s linear') +';'+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+					div_old.style.cssText += cross('transition', time+'s linear') +';'+ cross('transform', 'translate3d(-'+ width +'px, 0, 0)', 'translate(-'+ width +'px, 0)');
 				}, 1);
 				break;
 
@@ -502,8 +502,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0px, 0, 0)', 'translate(0px, 0)');
-					div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d('+ width +'px, 0, 0)', 'translate('+ width +'px, 0)');
+					div_new.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'translate3d(0px, 0, 0)', 'translate(0px, 0)');
+					div_old.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'translate3d('+ width +'px, 0, 0)', 'translate('+ width +'px, 0)');
 				}, 1);
 				break;
 
@@ -514,8 +514,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-					div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, '+ height +'px, 0)', 'translate(0, '+ height +'px)');
+					div_new.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+					div_old.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'translate3d(0, '+ height +'px, 0)', 'translate(0, '+ height +'px)');
 				}, 1);
 				break;
 
@@ -526,8 +526,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-					div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+					div_new.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+					div_old.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
 				}, 1);
 				break;
 
@@ -538,8 +538,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(0deg)');
-					div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(180deg)');
+					div_new.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'rotateY(0deg)');
+					div_old.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'rotateY(180deg)');
 				}, 1);
 				break;
 
@@ -550,8 +550,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(0deg)');
-					div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(-180deg)');
+					div_new.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'rotateY(0deg)');
+					div_old.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'rotateY(-180deg)');
 				}, 1);
 				break;
 
@@ -562,8 +562,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(0deg)');
-					div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(-180deg)');
+					div_new.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'rotateX(0deg)');
+					div_old.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'rotateX(-180deg)');
 				}, 1);
 				break;
 
@@ -574,8 +574,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(0deg)');
-					div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(180deg)');
+					div_new.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'rotateX(0deg)');
+					div_old.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'rotateX(180deg)');
 				}, 1);
 				break;
 
@@ -586,8 +586,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'scale(1)') +'; opacity: 1;';
-					div_old.style.cssText += cross('transition', time+'s') +';';
+					div_new.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'scale(1)') +'; opacity: 1;';
+					div_old.style.cssText += cross('transition', time+'s linear') +';';
 				}, 1);
 				break;
 
@@ -598,8 +598,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time+'s') +'; opacity: 1;';
-					div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'scale(1.7)') +'; opacity: 0;';
+					div_new.style.cssText += cross('transition', time+'s linear') +'; opacity: 1;';
+					div_old.style.cssText += cross('transition', time+'s linear') +'; '+ cross('transform', 'scale(1.7)') +'; opacity: 0;';
 				}, 1);
 				break;
 
@@ -610,8 +610,8 @@ var w2utils = (function () {
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
 				window.setTimeout(function() {
-					div_new.style.cssText += cross('transition', time +'s') +'; opacity: 1;';
-					div_old.style.cssText += cross('transition', time +'s');
+					div_new.style.cssText += cross('transition', time +'s linear') +'; opacity: 1;';
+					div_old.style.cssText += cross('transition', time +'s linear');
 				}, 1);
 				break;
 		}
@@ -1045,10 +1045,10 @@ w2utils.keyboard = (function (obj) {
 					// monitor if moved
 					if ($('#w2ui-tag-'+tagID).data('position') != ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
 						$('#w2ui-tag-'+tagID).css({
-							'-webkit-transition': '.2s',
-							'-moz-transition': '.2s',
-							'-ms-transition': '.2s',
-							'-o-transition': '.2s',
+							'-webkit-transition': '.2s linear',
+							'-moz-transition'	: '.2s linear',
+							'-ms-transition'	: '.2s linear',
+							'-o-transition'		: '.2s linear',
 							left: ($(el).offset().left + el.offsetWidth) + 'px',
 							top: $(el).offset().top + 'px'
 						}).data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top);

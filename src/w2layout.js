@@ -226,10 +226,10 @@
 			if (pan === null) return false;
 			// resize
 			$(obj.box).find(' > div > .w2ui-panel').css({
-				'-webkit-transition': '.35s',
-				'-moz-transition'	: '.35s',
-				'-ms-transition'	: '.35s',
-				'-o-transition'		: '.35s'
+				'-webkit-transition': '.2s linear',
+				'-moz-transition'	: '.2s linear',
+				'-ms-transition'	: '.2s linear',
+				'-o-transition'		: '.2s linear'
 			});
 			setTimeout(function () {
 				obj.set(panel, { size: size });
@@ -266,10 +266,10 @@
 				// resize
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });
 				$(obj.box).find(' > div > .w2ui-panel').css({
-					'-webkit-transition': '.2s',
-					'-moz-transition'	: '.2s',
-					'-ms-transition'	: '.2s',
-					'-o-transition'		: '.2s'
+					'-webkit-transition': '.2s linear',
+					'-moz-transition'	: '.2s linear',
+					'-ms-transition'	: '.2s linear',
+					'-o-transition'		: '.2s linear'
 				});
 				setTimeout(function () { obj.resize(); }, 1);
 				// show
@@ -309,10 +309,10 @@
 				$('#layout_'+ obj.name +'_resizer_'+panel).hide();
 				// hide
 				$(obj.box).find(' > div > .w2ui-panel').css({
-					'-webkit-transition': '.2s',
-					'-moz-transition'	: '.2s',
-					'-ms-transition'	: '.2s',
-					'-o-transition'		: '.2s'
+					'-webkit-transition': '.2s linear',
+					'-moz-transition'	: '.2s linear',
+					'-ms-transition'	: '.2s linear',
+					'-o-transition'		: '.2s linear'
 				});
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'	});
 				setTimeout(function () { obj.resize(); }, 1);
