@@ -124,6 +124,7 @@ var w2utils = (function () {
 	function isDate (val, format, retDate) {
 		if (!val) return false;
 		if (!format) format = w2utils.settings.date_format;
+		val = String(val);
 		// convert month formats
 		if (RegExp('mon', 'ig').test(format)) {
 			format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
