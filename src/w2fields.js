@@ -23,6 +23,8 @@
 *	- added .btn with colors
 *	- added enum.style and file.style attributes
 *	- test all fields as Read Only
+*	- added openOnFocus
+*	- change: showAll -> applyFilter
 *
 ************************************************************************/
 
@@ -33,7 +35,6 @@
 		this.el			= null
 		this.helpers	= {}; // object or helper elements
 		this.type		= options.type || 'text';
-		this.type 		= String(this.type).toLowerCase();
 		this.options	= $.extend(true, {}, options);
 		this.onSearch	= options.onSearch		|| null;
 		this.onRequest	= options.onRequest		|| null;
@@ -73,6 +74,7 @@
 			if (typeof method == 'string' && typeof options == 'undefined') {
 				method = { type: method };
 			}
+			method.type = String(method.type).toLowerCase();
 			return this.each(function (index, el) {
 				var obj = $(el).data('w2field');
 				// if object is not defined, define it
@@ -85,6 +87,7 @@
 					return obj;
 				} else { // fully re-init
 					obj.clear();
+					if (method.type == 'clear') return;
 					var obj = new w2field(method);
 					$.extend(obj, { handlers: [] });
 					if (el) obj.el = $(el)[0];
@@ -125,13 +128,15 @@
 		custom: {},  // map of custom types
 
 		addType: function (type, handler) {
-			this.custom[String(type).toLowerCase()] = handler;
+			type = String(type).toLowerCase();
+			this.custom[type] = handler;
 			return true;
 		},
 
 		removeType: function (type) {
-			if (!this.custom[String(type).toLowerCase()]) return false;
-			delete this.custom[String(type).toLowerCase()];
+			type = String(type).toLowerCase();
+			if (!this.custom[type]) return false;
+			delete this.custom[type];
 			return true
 		},
 		
@@ -141,8 +146,8 @@
 			var defaults;
 
 			// Custom Types
-			if (typeof this.custom[this.type.toLowerCase()] == 'function') {
-				this.custom[this.type.toLowerCase()].call(this, options);
+			if (typeof this.custom[this.type] == 'function') {
+				this.custom[this.type].call(this, options);
 				return;
 			} 
 			// only for INPUT or TEXTAREA
@@ -247,18 +252,23 @@
 						cacheMax	: 500,
 						maxWidth	: null,			// max width for input control to grow
 						maxHeight	: 350,			// max height for input control to grow
-						match		: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
+						match		: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
 						silent		: true,
 						onSearch	: null,			// when search needs to be performed
 						onRequest	: null,			// when request is submitted
 						onLoad		: null,			// when data is received
 						render		: null, 		// render function for drop down item
-						showAll		: false, 		// weather to apply filter or not when typing
-						markSearch 	: true
+						suffix		: '',
+						openOnFocus : false,		// if to show overlay onclick or when typing
+						applyFilter	: true,
+						markSearch 	: false
 					};
+					if (this.type == 'list') {
+						defaults.openOnFocus = true;
+						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>';
+					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
-						suffix		: '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>',
 						altRows		: true			// alternate row color
 					});
 					this.options = options;
@@ -282,7 +292,8 @@
 						maxHeight	: 350,		// max height for input control to grow
 						match		: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
 						silent		: true,
-						showAll		: false, 	// weather to apply filter or not when typing
+						openOnFocus : false,		// if to show overlay onclick or when typing
+						applyFilter	: true,
 						markSearch 	: true,
 						render		: null, 	// render function for drop down item
 						itemRender	: null,		// render selected item
@@ -300,7 +311,7 @@
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
-						suffix		: '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>',
+						suffix		: '',
 						altRows		: true		// alternate row color
 					});
 					this.options = options;
@@ -345,7 +356,7 @@
 			// attach events
 			this.tmp = {
 				onChange	: function (event) { obj.change.call(obj, event) },
-				onClick		: function (event) { event.stopPropagation() },
+				onClick		: function (event) { event.stopPropagation(); if (obj.type == 'list') obj.updateOverlay(); },
 				onFocus		: function (event) { obj.focus.call(obj, event) },
 				onBlur 		: function (event) { obj.blur.call(obj, event) },
 				onKeydown	: function (event) { obj.keyDown.call(obj, event) },
@@ -377,10 +388,11 @@
 			var obj		 = this;
 			var options	 = this.options;
 			var tmp = $(this.el).data('tmp');
-			if (typeof tmp == 'undefined') return;
 			// restore paddings
-			if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
-			if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
+			if (typeof tmp != 'undefined') {
+				if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
+				if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
+			}
 			// if money then clear value
 			if (['money', 'currency'].indexOf(this.type) != -1) {
 				$(this.el).val($(this.el).val().replace(options.moneyRE, ''));
@@ -393,6 +405,7 @@
 			}
 			// remove events and data
 			$(this.el)
+				.val(this.clean($(this.el).val()))
 				.removeClass('w2field')
 				.removeData() // removes all attached data
 				.off('change', 	this.tmp.onChange)
@@ -405,6 +418,7 @@
 			// remove helpers
 			for (var h in this.helpers) $(this.helpers[h]).remove();
 			this.helpers = {};
+			this.type 	 = 'clear';
 		},
 
 		refresh: function () {
@@ -659,31 +673,8 @@
 				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();				
 				setTimeout(function () {
-					if (options.showAll !== true) obj.search();
-					$(obj.el).w2menu($.extend(true, {}, options, {
-						onSelect: function (event) {
-							if (obj.type == 'enum') {
-								var selected = $(obj.el).data('selected');
-								if (event.item) {
-									// trigger event
-									var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: event.item });
-									if (eventData.isCancelled === true) return;
-									// default behavior
-									if (selected.length >= options.max && options.max > 0) selected.pop();
-									delete event.item.hidden;
-									selected.push(event.item);
-									$(obj.el).data('selected', selected).change();
-									$(obj.helpers['multi']).find('input').val('').width(20);
-									obj.refresh();
-									$('#w2ui-overlay').remove();
-									// event after
-									obj.trigger($.extend(eventData, { phase: 'after' }));
-								}
-							} else {					
-								$(obj.el).data('selected', event.item).val(event.item.text).change().blur();
-							}
-						}
-					}));
+					 obj.search();
+					setTimeout(function () { obj.updateOverlay(); }, 1);
 				}, 1);
 			}
 			// file
@@ -939,6 +930,8 @@
 						} else {
 							if (item) $(this.el).data('selected', item).val(item.text).change();
 							if ($(this.el).val() == '' && $(this.el).data('selected')) $(this.el).removeData('selected').val('').change();
+							// hide overlay
+							this.tmp.force_hide = true;
 						}
 						break;
 					case 8: // delete
@@ -973,7 +966,14 @@
 						if (options.index == options.items.length-1 && options.items[options.index].hidden) {
 							while (options.items[options.index] && options.items[options.index].hidden) options.index--;
 						}
-						cancel = true;
+						// show overlay if not shown
+						var input = obj.el;
+						if (['enum'].indexOf(obj.type) != -1) input = obj.helpers['multi'].find('input');
+						if ($(input).val() == '' && $('#w2ui-overlay').length == 0) {
+							this.tmp.force_open = true;
+						} else {
+							cancel = true;
+						}
 						break;
 				}
 				if (cancel) {
@@ -1003,7 +1003,7 @@
 				setTimeout(function () {
 					obj.request();
 					// default behaviour
-					if (options.showAll !== true) obj.search();
+					obj.search();
 				}, 1);
 			}
 		},
@@ -1036,7 +1036,7 @@
 					if (eventData.isCancelled === true) return;
 					// default behavior
 					obj.tmp.xhr_loading = true;
-					if (options.showAll !== true) obj.search();
+					obj.search();
 					if (obj.tmp.xhr) obj.tmp.xhr.abort();
 					obj.tmp.xhr = $.ajax({
 							type : 'GET',
@@ -1067,7 +1067,7 @@
 							obj.tmp.xhr_total = data.items.length;
 							// items 
 							options.items = data.items;
-							if (options.showAll !== true) obj.search();
+							obj.search();
 							// event after
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 						});
@@ -1101,6 +1101,7 @@
 					try { 
 						var re = new RegExp(prefix + search + suffix, 'i');
 						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
+						if (options.applyFilter !== true) item.hidden = false; 
 					} catch (e) {}
 					// do not show selected items
 					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
@@ -1168,7 +1169,43 @@
 					el		= $(this.helpers['multi']);
 					input	= $(el).find('input'); 
 				}
-				if ($(input).is(':focus')) $(el).w2menu('refresh', options);
+				if ($(input).is(':focus')) {
+					if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
+						$().w2overlay();
+						return;
+					}
+					if (obj.tmp.force_hide) {
+						$().w2overlay();
+						delete obj.tmp.force_hide;
+						return;
+					} 
+					if ($(input).val() != '') delete obj.tmp.force_open;
+					$(el).w2menu('refresh', $.extend(true, {}, options, {
+						// selected with mouse
+						onSelect: function (event) {
+							if (obj.type == 'enum') {
+								var selected = $(obj.el).data('selected');
+								if (event.item) {
+									// trigger event
+									var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: event.item });
+									if (eventData.isCancelled === true) return;
+									// default behavior
+									if (selected.length >= options.max && options.max > 0) selected.pop();
+									delete event.item.hidden;
+									selected.push(event.item);
+									$(obj.el).data('selected', selected).change();
+									$(obj.helpers['multi']).find('input').val('').width(20);
+									obj.refresh();
+									$('#w2ui-overlay').remove();
+									// event after
+									obj.trigger($.extend(eventData, { phase: 'after' }));
+								}
+							} else {					
+								$(obj.el).data('selected', event.item).val(event.item.text).change();
+							}
+						}
+					}));
+				}
 				// display new selected item
 				var el  = $('#w2ui-overlay > div');
 				var cur = el.find('tr[index='+ options.index +']');
@@ -1276,9 +1313,6 @@
 							'margin-bottom'		: (parseInt($(obj.el).css('margin-bottom'), 10) + 1) + 'px',
 							'margin-left'		: $(obj.el).css('margin-left'),
 							'margin-right'		: 0
-						})
-						.on('click', function () {
-							$(obj).next().focus(); 
 						});
 					$(obj.el).css('padding-left', (helper.width() + parseInt($(obj.el).css('padding-left'), 10)) + 'px');
 					// remember helper
@@ -1359,9 +1393,6 @@
 							'margin-top'		: (parseInt($(obj.el).css('margin-top'), 10) + 1) + 'px',
 							'margin-bottom'		: (parseInt($(obj.el).css('margin-bottom'), 10) + 1) + 'px'
 						})
-						.on('click', function () { 
-							$(obj).prev().focus(); 
-						});
 					helper.css('margin-left', '-'+ (w2utils.getSize(helper, 'width') + parseInt($(obj.el).css('margin-right'), 10) + 2) + 'px');
 					pr += helper.width() + 3;
 					$(obj.el).css('padding-right', pr + 'px');
@@ -1388,7 +1419,7 @@
 									- parseInt($(obj.el).css('margin-right'), 10)) 
 									+ 'px;';
 			if (obj.type == 'enum') {
-				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box;">'+
+				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box; pointer-events: auto">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul>'+
 						'		<li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
@@ -1399,7 +1430,7 @@
 						'</div>';
 			} 
 			if (obj.type == 'file') {
-				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box;">'+
+				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box; pointer-events: auto">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
 						'	<input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">' 
