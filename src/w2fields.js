@@ -49,6 +49,7 @@
 		delete this.options.onSearch;
 		delete this.options.onRequest;
 		delete this.options.onLoad;
+		delete this.options.onError;
 		delete this.options.onClick;
 		delete this.options.onMouseOver;
 		delete this.options.onMouseOut;
@@ -252,6 +253,7 @@
 						onSearch	: null,			// when search needs to be performed
 						onRequest	: null,			// when request is submitted
 						onLoad		: null,			// when data is received
+						onError		: null,			// when data fails to load due to server error or other failure modes
 						render		: null, 		// render function for drop down item
 						showAll		: false, 		// weather to apply filter or not when typing
 						markSearch 	: true
@@ -292,6 +294,7 @@
 						onSearch	: null,		// when search needs to be performed
 						onRequest	: null,		// when request is submitted
 						onLoad		: null,		// when data is received
+						onError		: null,		// when data fails to load due to server error or other failure modes
 						onClick		: null,		// when an item is clicked
 						onAdd		: null,		// when an item is added
 						onRemove	: null,		// when an item is removed
@@ -344,13 +347,27 @@
 			}
 			// attach events
 			this.tmp = {
-				onChange	: function (event) { obj.change.call(obj, event) },
-				onClick		: function (event) { event.stopPropagation() },
-				onFocus		: function (event) { obj.focus.call(obj, event) },
-				onBlur 		: function (event) { obj.blur.call(obj, event) },
-				onKeydown	: function (event) { obj.keyDown.call(obj, event) },
-				onKeyup		: function (event) { obj.keyUp.call(obj, event) },
-				onKeypress	: function (event) { obj.keyPress.call(obj, event) }
+				onChange	: function (event) {
+								obj.change.call(obj, event);
+							  },
+				onClick		: function (event) {
+								event.stopPropagation();
+							  },
+				onFocus		: function (event) {
+								obj.focus.call(obj, event);
+							  },
+				onBlur 		: function (event) {
+								obj.blur.call(obj, event);
+							  },
+				onKeydown	: function (event) {
+								obj.keyDown.call(obj, event);
+							  },
+				onKeyup		: function (event) {
+								obj.keyUp.call(obj, event);
+							  },
+				onKeypress	: function (event) {
+								obj.keyPress.call(obj, event);
+							  }
 			}
 			$(this.el)
 				.addClass('w2field')
@@ -1068,6 +1085,25 @@
 							// items 
 							options.items = data.items;
 							if (options.showAll !== true) obj.search();
+							// event after
+							obj.trigger($.extend(eventData2, { phase: 'after' }));
+						})
+						.error(function (xhr, status, exceptionThrown) {
+							// trigger event
+							var errorObj = { status: status, exceptionThrown: exceptionThrown, rawResponseText: xhr.responseText };
+							var eventData2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
+							if (eventData2.isCancelled === true) return;
+
+							// default behavior
+							console.log('ERROR: server communication failed. The server should return', { status: 'success', items: [{ id: 1, text: 'item' }] }, ', instead the AJAX request produced this: ', errorObj);
+
+							obj.tmp.xhr_total	= 0;
+							obj.tmp.xhr_len 	= search.length;
+							obj.tmp.xhr_loading = false;
+							obj.tmp.xhr_match   = search.length;
+							obj.tmp.xhr_search  = $(obj.el).val();
+							//if (options.showAll !== true) obj.search();
+
 							// event after
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 						});
