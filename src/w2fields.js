@@ -38,6 +38,7 @@
 		this.onSearch	= options.onSearch		|| null;
 		this.onRequest	= options.onRequest		|| null;
 		this.onLoad		= options.onLoad		|| null;
+		this.onError	= options.onError		|| null;
 		this.onClick	= options.onClick		|| null;
 		this.onAdd		= options.onAdd			|| null;
 		this.onRemove	= options.onRemove		|| null;
