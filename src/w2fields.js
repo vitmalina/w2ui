@@ -385,9 +385,10 @@
 		},
 
 		clear: function () {
-			var obj		 = this;
-			var options	 = this.options;
-			var tmp = $(this.el).data('tmp');
+			var obj		= this;
+			var options	= this.options;
+			var tmp 	= $(this.el).data('tmp');
+			if (!this.tmp) return;
 			// restore paddings
 			if (typeof tmp != 'undefined') {
 				if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
