@@ -34,39 +34,45 @@
 		$('.alphanumeric').w2field('alphanumeric');
 		$('.list').w2field('combo', {
 			showAll: true,
-			url: 'http://w2ui.com:3000/api/enum/users',
+			url: '/api/enum/users',
 			// items: items
 			onRequest: function (event) {
-				// console.log('request', event);
+				console.log('list request', event);
 			},
 			onLoad: function (event) {
-				// console.log('load', event);
+				console.log('list load', event);
+			},
+			onError: function (event) {
+				console.log('list error', event);
 			}
 		});
 		$('.enum').w2field('enum', {
-			url: 'http://w2ui.com:3000/api/enum/users',
+			url: '/api/enum/users',
 			selected: [],
 			// items: items
 			onRequest: function (event) {
-				// console.log('request', event);
+				console.log('enum request', event);
 			},
 			onLoad: function (event) {
-				// console.log('load', event);
+				console.log('enum load', event);
+			},
+			onError: function (event) {
+				console.log('enum error', event);
 			},
 			onClick: function (event) {
-				// console.log('click', event);
+				console.log('enum click', event);
 			},
 			onMouseOver: function (event) {
-				// console.log('over', event);
+				console.log('enum over', event);
 			},
 			onMouseOut: function (event) {
-				// console.log('out', event);
+				console.log('enum out', event);
 			},
 			onRemove: function (event) {
-				// console.log('remove', event.item);
+				console.log('enum remove', event.item);
 			},
 			onAdd: function (event) {
-				// console.log('add', event.item);
+				console.log('enum add', event.item);
 			}
 		});
 		$('.file').w2field('file', {
