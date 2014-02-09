@@ -34,7 +34,9 @@ var w2popup = {};
 			method  = 'open';
 		}
 		method = method.toLowerCase();
-		if (method == 'load' && typeof options == 'string') options = { url: options };
+		if (method == 'load' && typeof options == 'string') {
+			options = $.extend({ url: options }, arguments.length > 2 ? arguments[2] : {});
+		}
 		if (method == 'open' && typeof options.url != 'undefined') method = 'load';
 		if (typeof options == 'undefined') options = {};
 		// load options from markup
@@ -683,8 +685,8 @@ var w2confirm = function (msg, title, callBack) {
 					  '		<div class="w2ui-centered" style="font-size: 13px;">'+ msg +'</div>'+
 					  '</div>'+
 					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
-					  '		<button id="No" class="w2ui-popup-btn btn">'+ w2utils.lang('No') +'</button>'+
 					  '		<button id="Yes" class="w2ui-popup-btn btn">'+ w2utils.lang('Yes') +'</button>'+
+					  '		<button id="No" class="w2ui-popup-btn btn">'+ w2utils.lang('No') +'</button>'+
 					  '</div>',
 			onOpen: function () {
 				$('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
