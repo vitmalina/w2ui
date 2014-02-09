@@ -97,7 +97,7 @@
 			hidden			: false,
 			disabled		: false,
 			group			: false,		// if true, it will build as a group
-			groupShowHide	: false,
+			groupShowHide	: true,
 			plus			: false,		// if true, plus will be shown even if there is no sub nodes
 			// events
 			onClick			: null,
