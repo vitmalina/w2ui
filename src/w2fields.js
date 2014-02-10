@@ -274,6 +274,8 @@
 						align 		: 'both',		// same width as control
 						altRows		: true			// alternate row color
 					});
+					options.items 	 = this.normMenu(options.items);
+					options.selected = this.normMenu(options.selected);
 					this.options = options;
 					if (!$.isPlainObject(options.selected)) options.selected = {};
 					$(this.el).data('selected', options.selected);
@@ -318,6 +320,8 @@
 						suffix		: '',
 						altRows		: true		// alternate row color
 					});
+					options.items 	 = this.normMenu(options.items);
+					options.selected = this.normMenu(options.selected);
 					this.options = options;
 					if (!$.isArray(options.selected)) options.selected = [];
 					$(this.el).data('selected', options.selected);
@@ -925,6 +929,7 @@
 								// default behavior
 								if (selected.length >= options.max && options.max > 0) selected.pop();
 								delete item.hidden;
+								delete this.tmp.force_open;
 								selected.push(item);
 								$(this.el).change();
 								$(this.helpers['multi']).find('input').val('').width(20);
@@ -1116,6 +1121,7 @@
 			var eventData = obj.trigger({ phase: 'before', type: 'search', target: target, search: search });
 			if (eventData.isCancelled === true) return;
 			if (obj.tmp.xhr_loading !== true) {
+				var shown = 0;
 				for (var i in options.items) {
 					var item = options.items[i];
 					var prefix = '';
@@ -1129,10 +1135,11 @@
 					} catch (e) {}
 					// do not show selected items
 					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
+					if (item.hidden !== true) shown++;
 				}
 				options.index = 0;
 				while (options.items[options.index] && options.items[options.index].hidden) options.index++;
-				if (search == '') options.index = -1;
+				if (shown <= 0) options.index = -1;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
 			}
@@ -1240,7 +1247,7 @@
 					var scrTop 	= el.scrollTop();
 					var height 	= el.height();
 					if (top < scrTop || top + cur.height() > scrTop + height) {
-						$('#w2ui-overlay > div').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 250, 'linear');
+						$('#w2ui-overlay > div').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
 					}
 				}
 			}
@@ -1597,6 +1604,19 @@
 				obj.refresh();
 				$(obj.el).trigger('change');
 			}
+		},
+
+		normMenu: function (menu) {
+			for (var m = 0; m < menu.length; m++) { 
+				if (typeof menu[m] == 'string') {
+					menu[m] = { id: menu[m], text: menu[m] };
+				} else {
+					if (typeof menu[m].text != 'undefined' && typeof menu[m].id == 'undefined') menu[m].id = menu[m].text;
+					if (typeof menu[m].text == 'undefined' && typeof menu[m].id != 'undefined') menu[m].text = menu[m].id;
+					if (typeof menu[m].caption != 'undefined') menu[m].text = menu[m].caption;
+				}
+			}
+			return menu
 		},
 
 		getColorHTML: function () {

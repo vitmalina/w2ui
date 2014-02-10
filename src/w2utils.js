@@ -533,7 +533,7 @@ var w2utils = (function () {
 
 			case 'flip-left':
 				// init divs
-				div_old.style.cssText += 'overflow: hidden; '+ cross('-transform', 'rotateY(0deg)');
+				div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(0deg)');
 				div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(-180deg)');
 				$(div_new).show();
 				// -- need a timing function because otherwise not working
@@ -1273,9 +1273,12 @@ w2utils.keyboard = (function (obj) {
 		if (menu == 'refresh') {
 			// if not show - call blur
 			if ($('#w2ui-overlay'+ name).length > 0) {
+				var tmp = $('#w2ui-overlay'+ name +' > div').scrollTop();
 				$('#w2ui-overlay'+ name +' > div').html(getMenuHTML(), options);
 				var fun = $('#w2ui-overlay'+ name).data('fixSize');
 				if (typeof fun == 'function') fun();
+				// reset scrollTop
+				$('#w2ui-overlay'+ name +' > div').scrollTop(tmp);
 			} else {
 				$(this).w2menu(options);
 			}
