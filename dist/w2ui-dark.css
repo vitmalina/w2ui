@@ -994,7 +994,7 @@ select {
   margin: 2px 1px 0px 2px;
   border-radius: 3px;
   width: auto;
-  padding: 2px 12px 1px 10px;
+  padding: 2px 10px 1px 7px;
   border: 1px solid #777f8c;
   background-color: #353d5b;
   white-space: nowrap;
@@ -1034,7 +1034,7 @@ select {
   float: right;
   width: 15px;
   height: 14px;
-  margin: -1px -9px 0px 5px;
+  margin: -1px -9px 0px 3px;
   border-radius: 15px;
 }
 .w2ui-list ul li .w2ui-list-remove:hover {
