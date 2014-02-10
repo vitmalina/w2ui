@@ -283,6 +283,7 @@ select {
 .w2ui-field-helper {
   position: absolute;
   display: inline-block;
+  pointer-events: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -599,7 +600,7 @@ select {
 .w2ui-list ul li {
   float: left;
   margin: 2px 1px 0px 2px;
-  border-radius: 10px;
+  border-radius: 3px;
   width: auto;
   padding: 2px 12px 1px 10px;
   border: 1px solid #88b0d6;
