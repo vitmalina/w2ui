@@ -1621,7 +1621,7 @@
 			if (url) {
 				this.request('save-records', { 'changes' : eventData.changes }, null,
 					function () {
-						this.mergeChanges();
+						obj.mergeChanges();
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
@@ -3557,7 +3557,7 @@
 					}
 					$('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
 					if (!$.isArray(sdata.value)) {
-						if (typeof sdata.value != 'udefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
+						if (typeof sdata.value != 'undefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
 					} else {
 						if (sdata.operator == 'in') {
 							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
@@ -3953,10 +3953,10 @@
 						'</select>';
 				}
 				if (['select', 'list', 'combo'].indexOf(s.type) != -1) {
-					var operator =  'is <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
+					var operator =  w2utils.lang('is') + ' <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
 				}
 				if (['enum'].indexOf(s.type) != -1) {
-					var operator =  'in <input type="hidden" value="in" id="grid_'+ this.name +'_operator_'+ i +'">';
+					var operator =  w2utils.lang('in') + ' <input type="hidden" value="in" id="grid_'+ this.name +'_operator_'+ i +'">';
 				}
 				html += '<tr>'+
 						'	<td class="close-btn">'+ btn +'</td>' +
