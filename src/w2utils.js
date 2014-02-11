@@ -703,31 +703,32 @@ var w2utils = (function () {
 	}
 
 	function getSize (el, type) {
+		var $el = $(el);
 		var bwidth = {
-			left: 	parseInt($(el).css('border-left-width')) || 0,
-			right:  parseInt($(el).css('border-right-width')) || 0,
-			top:  	parseInt($(el).css('border-top-width')) || 0,
-			bottom: parseInt($(el).css('border-bottom-width')) || 0
+			left: 	parseInt($el.css('border-left-width')) || 0,
+			right:  parseInt($el.css('border-right-width')) || 0,
+			top:  	parseInt($el.css('border-top-width')) || 0,
+			bottom: parseInt($el.css('border-bottom-width')) || 0
 		};
 		var mwidth = {
-			left: 	parseInt($(el).css('margin-left')) || 0,
-			right:  parseInt($(el).css('margin-right')) || 0,
-			top:  	parseInt($(el).css('margin-top')) || 0,
-			bottom: parseInt($(el).css('margin-bottom')) || 0
+			left: 	parseInt($el.css('margin-left')) || 0,
+			right:  parseInt($el.css('margin-right')) || 0,
+			top:  	parseInt($el.css('margin-top')) || 0,
+			bottom: parseInt($el.css('margin-bottom')) || 0
 		};
 		var pwidth = {
-			left: 	parseInt($(el).css('padding-left')) || 0,
-			right:  parseInt($(el).css('padding-right')) || 0,
-			top:  	parseInt($(el).css('padding-top')) || 0,
-			bottom: parseInt($(el).css('padding-bottom')) || 0
+			left: 	parseInt($el.css('padding-left')) || 0,
+			right:  parseInt($el.css('padding-right')) || 0,
+			top:  	parseInt($el.css('padding-top')) || 0,
+			bottom: parseInt($el.css('padding-bottom')) || 0
 		};
 		switch (type) {
-			case 'top': 	return bwidth.top + mwidth.top + pwidth.top; 
-			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom; 
-			case 'left': 	return bwidth.left + mwidth.left + pwidth.left; 
-			case 'right': 	return bwidth.right + mwidth.right + pwidth.right; 
-			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($(el).width()); 
-			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($(el).height());
+			case 'top': 	return bwidth.top + mwidth.top + pwidth.top;
+			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom;
+			case 'left': 	return bwidth.left + mwidth.left + pwidth.left;
+			case 'right': 	return bwidth.right + mwidth.right + pwidth.right;
+			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($el.width());
+			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($el.height());
 			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right; 
 			case '+height': return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
 		}
@@ -921,7 +922,8 @@ w2utils.keyboard = (function (obj) {
 		var tag = event.target.tagName;
 		var obj = $(event.target).parents('.w2ui-reset');
 		if (obj.length > 0) {
-			w2ui_name = obj.attr('name');
+			var name = obj.attr('name');
+			if (w2ui[name] && w2ui[name].keyboard) w2ui_name = name;
 		}
 	}
 
