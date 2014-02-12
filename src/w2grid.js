@@ -1149,9 +1149,14 @@
 							}
 						}
 					} else {
+						var el = $('#grid_'+ this.name +'_search_all');
 						var search = this.getSearch(field);
 						if (search == null) search = { field: field, type: 'text' };
 						if (search.field == field) this.last.caption = search.caption;
+						if (search.type == 'list') {
+							var tmp = el.data('selected');
+							if (tmp && !$.isEmptyObject(tmp)) value = tmp.id;
+						}
 						if (value != '') {
 							var op  = 'contains';
 							var val = value;
@@ -1279,19 +1284,21 @@
 						'</tr>';
 			}
 			html += "</table></div>";
-			$(el).w2overlay(html, { left: -15, top: 7 });
+			// need timer otherwise does nto show with list type
+			setTimeout(function () {
+				$(el).w2overlay(html, { left: -10 });
+			}, 1);
 		},
 
 		initAllField: function (field) {
 			var el 		= $('#grid_'+ this.name +'_search_all');
 			var search	= this.getSearch(field);
-			console.log(field, search, el.data('w2field'));
 			if (field == 'all') {
 				search = { field: 'all', caption: w2utils.lang('All Fields') };
 				el.w2field('clear');
 				el.change().focus();
 			} else {
-				el.w2field(search.type, search.options);
+				el.w2field(search.type, $.extend({}, search.options, { suffix: '' })); // always hide suffix
 				if (['list', 'enum'].indexOf(search.type) != -1) {
 					this.last.search = '';
 					this.last.item	 = '';
@@ -1319,15 +1326,16 @@
 			this.searchData  	= [];
 			this.last.search 	= '';
 			this.last.logic		= 'OR';
-			if (this.last.multi) {
-				if (!this.multiSearch) {
-					this.last.field 	= this.searches[0].field;
-					this.last.caption 	= this.searches[0].caption;
-				} else {
-					this.last.field  	= 'all';
-					this.last.caption 	= w2utils.lang('All Fields');
-				}
-			}
+			// --- do not reset to All Fields (I think)
+			// if (this.last.multi) {
+			// 	if (!this.multiSearch) {
+			// 		this.last.field 	= this.searches[0].field;
+			// 		this.last.caption 	= this.searches[0].caption;
+			// 	} else {
+			// 		this.last.field  	= 'all';
+			// 		this.last.caption 	= w2utils.lang('All Fields');
+			// 	}
+			// }
 			this.last.multi				= false;
 			this.last.xhr_offset 		= 0;
 			// reset scrolling position
@@ -2742,9 +2750,6 @@
 			this.searchClose();
 			// search placeholder
 			var el = $('#grid_'+ obj.name +'_search_all');
-			if (this.searches.length == 0) {
-				this.last.field = 'all';
-			}
 			if (!this.multiSearch && this.last.field == 'all' && this.searches.length > 0) {
 				this.last.field 	= this.searches[0].field;
 				this.last.caption 	= this.searches[0].caption;
@@ -3409,7 +3414,6 @@
 						'	<td>'+
 						'		<input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
 						'			placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
-						// '			onchange="w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, this.value); console.log(\'chagne\');"'+
 						'			onchange="'+
 						'				var val = this.value; '+
 						'				var fld = $(this).data(\'w2field\'); '+
@@ -4070,6 +4074,9 @@
 					case 'combo':
 					case 'enum':
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
+						if (search.type == 'combo') {
+							$('#grid_'+ this.name +'_operator_'+s).val('begins with');							
+						}
 						break;
 
 					case 'select':
