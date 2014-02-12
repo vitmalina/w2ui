@@ -1828,7 +1828,10 @@
 
 		editChange: function (el, index, column, event) {
 			// all other fields
-			var rec  	= this.records[index];
+			var summary = index < 0;
+			index = index < 0 ? -index - 1 : index;
+			var records = summary ? this.summary : this.records;
+			var rec  	= records[index];
 			var tr		= $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid));
 			var col		= this.columns[column];
 			var new_val	= el.value;
@@ -1859,11 +1862,13 @@
 				if ($.isEmptyObject(rec.changes)) delete rec.changes;
 			}
 			// refresh cell
-			var cell = this.getCellHTML(index, column);
-			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
-				$(tr).find('[col='+ column +']').addClass('w2ui-changed').html(cell);
-			} else {
-				$(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
+			var cell = this.getCellHTML(index, column, summary);
+			if (!summary) {
+				if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
+					$(tr).find('[col='+ column +']').addClass('w2ui-changed').html(cell);
+				} else {
+					$(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
+				}
 			}
 		},
 
@@ -2957,6 +2962,8 @@
 				var recid = (event.target.tagName == 'TR' ? $(event.target).attr('recid') : $(event.target).parents('tr').attr('recid'));
 				if (typeof recid == 'undefined') return;
 				var ind1  = obj.get(mv.recid, true);
+				// |:wolfmanx:| this happens on summary row and should probably be detected earlier
+				if (ind1 === null) return;
 				var ind2  = obj.get(recid, true);
 				var col1  = parseInt(mv.column);
 				var col2  = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
@@ -4478,13 +4485,13 @@
 					(record['style'] ? 'custom_style="'+ record['style'] +'"' : '') +
 				'>';
 			if (this.show.lineNumbers) {
-				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number" class="w2ui-col-number">'+
+				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" class="w2ui-col-number">'+
 								(summary !== true ? '<div>'+ lineNum +'</div>' : '') +
 							'</td>';
 			}
 			if (this.show.selectColumn) {
 				rec_html +=
-						'<td id="grid_'+ this.name +'_cell_'+ ind +'_select" class="w2ui-grid-data w2ui-col-select" '+
+						'<td id="grid_'+ this.name +'_cell_'+ ind +'_select' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-select" '+
 						'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							(summary !== true ?
 							'	<div>'+
@@ -4505,7 +4512,7 @@
 				if (record.expanded == 'none') tmp_img = '';
 				if (record.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>';
 				rec_html +=
-						'<td id="grid_'+ this.name +'_cell_'+ ind +'_expand" class="w2ui-grid-data w2ui-col-expand">'+
+						'<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
 							(summary !== true ?
 							'	<div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
 							'			onclick="w2ui[\''+ this.name +'\'].toggle(\''+ record.recid +'\', event); '+
@@ -4519,7 +4526,7 @@
 			while (true) {
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
-				var isChanged = record.changes && typeof record.changes[col.field] != 'undefined';
+				var isChanged = !summary && record.changes && typeof record.changes[col.field] != 'undefined';
 				var rec_cell  = this.getCellHTML(ind, col_ind, summary);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
@@ -4588,10 +4595,11 @@
 					}
 					// if editable checkbox
 					if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
+						var changeInd = summary ? -(ind + 1) : ind;
 						addStyle = 'text-align: center';
 						data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
 							   '	var obj = w2ui[\''+ this.name + '\']; '+
-							   '	obj.editChange.call(obj, this, '+ ind +', '+ col_ind +', event); ' +
+							   '	obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
 							   '">';
 					}
 					var data = '<div title="'+ title +'" style="'+ addStyle +'">'+ data +'</div>';
