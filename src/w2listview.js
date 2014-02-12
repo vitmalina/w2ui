@@ -6,8 +6,7 @@
 *	- Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*	- images support
-*	- PgUp/PgDown keys support
+*	- images support via 'src' attribute
 *
 ************************************************************************/
 
@@ -17,7 +16,7 @@
 		this.name			= null;		// unique name for w2ui
 		this.vType			= null;
 		this.extraCols		= [];
-		this.itemExtra = {};
+		this.itemExtra		= {};
 		this.items			= [];
 		this.menu			= [];
 		this.multiselect	= true;		// multiselect support
@@ -132,7 +131,10 @@
 				}
 				var unique = true;
 				for (var i = 0; i < this.items.length; i++) {
-					if (this.items[i].id == item[r].id) { unique = false; break; }
+					if (this.items[i].id == item[r].id) {
+						unique = false;
+						break;
+					}
 				}
 				if (!unique) {
 					console.log('ERROR: The parameter "id='+ item[r].id +'" is not unique within the current items. (obj: '+ this.name +')');
@@ -159,7 +161,7 @@
 				// remove from array
 				this.items.splice(idx, 1);
 				// remove from screen
-				$('#itm_'+ w2utils.escapeId(arguments[i])).remove();
+				$(this.itemNode(arguments[i])).remove();
 			}
 			return removed;
 		},
@@ -176,7 +178,9 @@
 			var i = 0;
 			if (arguments.length === 0) {
 				var all = [];
-				for (; i < this.items.length; i++) if (this.items[i].id !== null) all.push(this.items[i].id);
+				for (; i < this.items.length; i++) {
+					if (this.items[i].id !== null) all.push(this.items[i].id);
+				}
 				return all;
 			}
 			for (; i < this.items.length; i++) {
@@ -194,13 +198,14 @@
 
 			if (!addSelection) this.unselect();
 			if (!itm.selected) {
-				$('#itm_'+ w2utils.escapeId(id)).addClass('w2ui-selected');
+				$(this.itemNode(itm.id)).addClass('w2ui-selected');
 				itm.selected = true;
 			}
 			return itm.selected;
 		},
 
 		unselect: function (id) {
+			var obj = this;
 			var i = 0;
 			if (arguments.length === 0) {
 				for (; i < this.items.length; i++) doUnselect(this.items[i]);
@@ -211,7 +216,7 @@
 
 			function doUnselect(itm) {
 				if (itm !== null && itm.selected) {
-					$('#itm_'+ w2utils.escapeId(itm.id)).removeClass('w2ui-selected');
+					$(obj.itemNode(itm.id)).removeClass('w2ui-selected');
 					itm.selected = false;
 				}
 			}
@@ -225,17 +230,13 @@
 
 		scrollIntoView: function (id) {
 			if (typeof id !== 'undefined') {
-				var itm = this.get(id);
-				if (itm === null) return;
-				var $box	= $(this.box);
-				var node	= $('#itm_'+ w2utils.escapeId(id));
-				var offset	= node.offset().top - $box.offset().top;
-				var nodeHeight = w2utils.getSize(node, 'height');
-				if (offset + nodeHeight > $box.height()) {
-					$box.scrollTop($box.scrollTop() + offset + nodeHeight - $box.height());
-				}
-				if (offset <= 0) {
-					$box.scrollTop($box.scrollTop() + offset);
+				var node = this.itemNode(id);
+				if (node === null) return;
+				var nodeOffset = this.itemNodeOffsetInfo(node);
+				if (nodeOffset.top < this.box.scrollTop) {
+					$(this.box).scrollTop(nodeOffset.top);
+				} else if (nodeOffset.bottom > this.box.scrollTop + this.box.offsetHeight) {
+					$(this.box).scrollTop(nodeOffset.bottom - this.box.offsetHeight);
 				}
 			}
 		},
@@ -273,9 +274,9 @@
 			if (itm === null) return;
 			var oldItm = this.getFocused();
 			if (oldItm !== null) {
-				$('#itm_'+ w2utils.escapeId(oldItm.id)).removeClass('w2ui-focused');
+				$(this.itemNode(oldItm.id)).removeClass('w2ui-focused');
 			}
-			$('#itm_'+ w2utils.escapeId(id)).addClass('w2ui-focused');
+			$(this.itemNode(id)).addClass('w2ui-focused');
 			this.curFocused = id;
 
 			// update view
@@ -321,16 +322,43 @@
 			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default behaviour
-				if (event.keyCode == 13) obj.dblClick(obj.items[idx].id, event);
-				if (event.keyCode == 32) obj.click(obj.items[idx].id, event);
-				if (event.keyCode == 33) processNeighbor('pgUp');
-				if (event.keyCode == 34) processNeighbor('pgDown');
-				if (event.keyCode == 37) processNeighbor('left');
-				if (event.keyCode == 39) processNeighbor('right');
-				if (event.keyCode == 38) processNeighbor('up');
-				if (event.keyCode == 40) processNeighbor('down');
+				var cancelProcessing = true;
+				switch (event.keyCode) {
+					case 13:
+						obj.dblClick(obj.items[idx].id, event);
+						break;
+					case 32:
+						obj.click(obj.items[idx].id, event);
+						break;
+					case 33:
+						processNeighbor('pgUp');
+						break;
+					case 34:
+						processNeighbor('pgDown');
+						break;
+					case 36:
+						processNeighbor('home');
+						break;
+					case 35:
+						processNeighbor('end');
+						break;
+					case 37:
+						processNeighbor('left');
+						break;
+					case 38:
+						processNeighbor('up');
+						break;
+					case 39:
+						processNeighbor('right');
+						break;
+					case 40:
+						processNeighbor('down');
+						break;
+					default:
+						cancelProcessing = false;
+				}
 				// cancel event if needed
-				if ($.inArray(event.keyCode, [13, 32, 33, 34, 37, 38, 39, 40]) != -1) {
+				if (cancelProcessing) {
 					if (event.preventDefault) event.preventDefault();
 					if (event.stopPropagation) event.stopPropagation();
 				}
@@ -341,20 +369,70 @@
 			return rslt;
 
 			function processNeighbor(neighbor) {
-				var newIdx = idx;
-				var colsCnt = colsCount();
-				if (neighbor === 'up') newIdx = idx - colsCnt;
-				if (neighbor === 'down') newIdx = idx + colsCnt;
-				if (neighbor === 'left' && colsCnt > 1) newIdx = idx - 1;
-				if (neighbor === 'right' && colsCnt > 1) newIdx = idx + 1;
+				var newIdx = getNeighborIdx(neighbor);
 				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) {
 					obj.userSelect(obj.items[newIdx].id, event, false);
 				}
 			}
 
+			function getNeighborIdx(neighbor) {
+				var colsCnt = colsCount();
+				var newIdx, itmOffset;
+				switch (neighbor) {
+					case 'up':
+						return idx - colsCnt;
+					case 'down':
+						return idx + colsCnt;
+					case 'left':
+						return (colsCnt > 1) ? idx - 1 : idx;
+					case 'right':
+						return (colsCnt > 1) ? idx + 1 : idx;
+					case 'pgUp':
+						itmOffset = obj.itemNodeOffsetInfo(obj.itemNode(obj.items[idx].id));
+						var minTop = itmOffset.bottom - obj.box.offsetHeight;
+						newIdx = idx;
+						while (newIdx >= colsCnt) {
+							newIdx -= colsCnt;
+							if (obj.itemNodeOffsetInfo(obj.itemNode(obj.items[newIdx].id)).top < minTop) {
+								newIdx += colsCnt;
+								break;
+							}
+						}
+						return newIdx;
+					case 'pgDown':
+						itmOffset = obj.itemNodeOffsetInfo(obj.itemNode(obj.items[idx].id));
+						var maxBottom = itmOffset.top + obj.box.offsetHeight;
+						newIdx = idx;
+						while (newIdx < obj.items.length - colsCnt) {
+							newIdx += colsCnt;
+							if (obj.itemNodeOffsetInfo(obj.itemNode(obj.items[newIdx].id)).bottom > maxBottom) {
+								newIdx -= colsCnt;
+								break;
+							}
+						}
+						return newIdx;
+					case 'home':
+						return 0;
+					case 'end':
+						return obj.items.length - 1;
+					default:
+						return idx;
+				}
+			}
+
 			function colsCount() {
-				var lv = $(obj.box).find('> ul');
-				return parseInt(lv.width() / w2utils.getSize(lv.find('> li').get(0), 'width'), 10);
+				var vt = obj.viewType();
+				if (vt === 'table') return 1;
+				return parseInt($(obj.box).find('> ul').width() / itemWidth(vt), 10);
+			}
+
+			function itemWidth(viewType) {
+				obj.itemWidths = obj.itemWidths || {};
+				if (!(viewType in obj.itemWidths)) {
+					var itm = obj.itemNode(obj.items[idx].id);
+					obj.itemWidths[viewType] = w2utils.getSize(itm, 'width');
+				}
+				return obj.itemWidths[viewType];
 			}
 		},
 
@@ -368,7 +446,7 @@
 			if (rslt) {
 				// default action
 				if (obj.menu.length > 0) {
-					$('#itm_'+ w2utils.escapeId(id))
+					$(obj.itemNode(id))
 						.w2menu(obj.menu, {
 							left: (event ? event.offsetX || event.pageX : 50) - 25,
 							select: function (item, event, index) { obj.menuClick(id, index, event); }
@@ -391,6 +469,27 @@
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 			return rslt;
+		},
+
+		itemNodeId: function (id) {
+			return 'lv_' + this.name + '_itm_' + id;
+		},
+
+		itemNode: function (id) {
+			return document.getElementById(this.itemNodeId(id));
+		},
+
+		itemNodeOffsetInfo: function (node) {
+			var vt = this.viewType();
+			this.itemSpacing = this.itemSpacing || {};
+			if (!(vt in this.itemSpacing)) {
+				var $node = $(node);
+				this.itemSpacing[vt] = (parseInt($node.css('margin-top')) || 0) + (parseInt($node.css('margin-bottom')) || 0);
+			}
+			return {
+				top: node.offsetTop - this.itemSpacing[vt],
+				bottom: node.offsetTop + node.offsetHeight + this.itemSpacing[vt]
+			}
 		},
 
 		refresh: function (id) {
@@ -419,15 +518,14 @@
 				this.lastItm.parentNode.insertBefore(itms, this.lastItm);
 			} else {
 				// refresh single item
-				var itm = document.getElementById('itm_'+ w2utils.escapeId(id));
+				var itm = this.itemNode(id);
 				if (itm) {
 					// update existing
 					itm.parentNode.replaceChild(getItemElement(this.items[idx]), itm);
 				} else {
 					// create new
 					var nextItm;
-					if (idx != this.items.length-1)
-						nextItm = document.getElementById('itm_'+ w2utils.escapeId(this.items[idx+1].id));
+					if (idx != this.items.length-1) nextItm = this.itemNode(this.items[idx+1].id);
 					if (!nextItm) nextItm = this.lastItm;
 					nextItm.parentNode.insertBefore(getItemElement(this.items[idx]), nextItm);
 				}
@@ -445,19 +543,21 @@
 				var withDescription = (typeof item.description !== undefined && item.description !== '');
 				var withExtra = (obj.extraCols.length > 0);
 				var rslt = getItemTemplate(withDescription, withExtra);
-				rslt.id = 'itm_' + item.id;
+				rslt.id = obj.itemNodeId(item.id);
 				rslt.setAttribute('item_id', item.id);
 				var itmDiv = rslt.querySelector('div');
 				itmDiv.querySelector('div.w2ui-listview-img').className = 'w2ui-listview-img'+imgClass;
 				itmDiv.querySelector('div.caption').textContent = item.caption;
-				if (withDescription)
+				if (withDescription) {
 					itmDiv.querySelector('div.description').textContent = item.description;
+				}
 				if (withExtra) {
 					var itmExtra = itmDiv.querySelector('div.extra div');
 					for (var i = 0; i < obj.extraCols.length; i++) {
 						var colName = obj.extraCols[i].name;
-						if (colName in item)
+						if (colName in item) {
 							itmExtra.querySelector('div.'+colName).textContent = item[colName];
+						}
 					}
 				}
 				return rslt;
@@ -479,8 +579,7 @@
 						obj.captionOnlyTemplate = template;
 					}
 
-				} else
-				if (withDescription && !withExtra) {
+				} else if (withDescription && !withExtra) {
 					if ('captionWithDescription' in obj) {
 						template = obj.captionWithDescriptionTemplate;
 					} else {
@@ -489,16 +588,14 @@
 						appendDiv(itmDiv, 'description');
 						obj.captionWithDescriptionTemplate = template;
 					}
-				} else
-				if (!withDescription && withExtra) {
+				} else if (!withDescription && withExtra) {
 					if ('captionWithExtra' in obj) {
 						template = obj.captionWithExtra;
 					} else {
 						template = appendExtra(getItemTemplate(false, false));
 						obj.captionWithExtra = template;
 					}
-				} else
-				if (withDescription && withExtra) {
+				} else if (withDescription && withExtra) {
 					if ('captionWithDescriptionAndExtra' in obj) {
 						template = obj.captionWithDescriptionAndExtra;
 					} else {
@@ -516,17 +613,17 @@
 					for (var i = 0; i < obj.extraCols.length; i++) {
 						var col = obj.extraCols[i];
 						var extraCol = appendDiv(extra, col.name);
-						extraCol.style.width = col.width+'px';
+						extraCol.style.width = col.width + 'px';
 						if ('align' in col) extraCol.style.textAlign = col.align;
-						if ('paddingLeft' in col) extraCol.style.paddingLeft = col.paddingLeft+'px';
-						if ('paddingRight' in col) extraCol.style.paddingRight = col.paddingRight+'px';
+						if ('paddingLeft' in col) extraCol.style.paddingLeft = col.paddingLeft + 'px';
+						if ('paddingRight' in col) extraCol.style.paddingRight = col.paddingRight + 'px';
 					}
 					return node;
 
 					function extraColsWidth() {
 						var rslt = 0;
 						for (var i = 0; i < obj.extraCols.length; i++) {
-							if (!('width' in obj.extraCols[i])) obj.extraCols[i].width = 100;
+							obj.extraCols[i].width = ('width' in obj.extraCols[i]) ? parseInt(obj.extraCols[i].width, 10) : 100;
 							rslt += obj.extraCols[i].width;
 						}
 						return rslt;
