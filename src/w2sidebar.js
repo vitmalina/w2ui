@@ -177,7 +177,7 @@
 			for (var a = 0; a < arguments.length; a++) {
 				tmp = this.get(arguments[a]);
 				if (tmp === null) continue;
-				if (this.selected !== null && this.selected.id === tmp.id){
+				if (this.selected !== null && this.selected === tmp.id){
 					this.selected = null;
 				}
 				var ind  = this.get(tmp.parent, arguments[a], true);
@@ -291,10 +291,10 @@
 		},
 
 		select: function (id) {
-			if (this.selected == id) return false;
-			this.unselect(this.selected);
 			var new_node = this.get(id);
 			if (!new_node) return false;
+			if (this.selected == id && new_node.selected) return false;
+			this.unselect(this.selected);
 			$(this.box).find('#node_'+ w2utils.escapeId(id))
 				.addClass('w2ui-selected')
 				.find('.w2ui-icon').addClass('w2ui-icon-selected');
