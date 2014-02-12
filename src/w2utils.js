@@ -1294,11 +1294,14 @@ w2utils.keyboard = (function (obj) {
 			// since only one overlay can exist at a time
 			$.fn.w2menuHandler = function (event, index) {
 				if (typeof options.onSelect == 'function') {
-					options.onSelect({
-						index	: index,
-						item	: options.items[index],
-						originalEvent: event
-					}); 
+					// need time so that menu first hides
+					setTimeout(function () {
+						options.onSelect({
+							index	: index,
+							item	: options.items[index],
+							originalEvent: event
+						}); 
+					}, 10);
 				}
 			};
 			return $(this).w2overlay(getMenuHTML(), options);

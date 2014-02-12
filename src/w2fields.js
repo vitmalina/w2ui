@@ -244,27 +244,29 @@
 					$(this.el).attr('placeholder', options.placeholder ? options.placeholder : (options.format == 'h12' ? 'hh:mi pm' : 'hh:mi'));
 					break;
 
+				case 'datetime':
+					break;
+
 				case 'list':
 				case 'combo':
 					defaults = {
-						items		: [],
-						selected	: {},
-						placeholder	: '',
-						url 		: null, 		// url to pull data from
-						cacheMax	: 500,
-						maxWidth	: null,			// max width for input control to grow
-						maxHeight	: 350,			// max height for input control to grow
-						match		: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
-						silent		: true,
-						onSearch	: null,			// when search needs to be performed
-						onRequest	: null,			// when request is submitted
-						onLoad		: null,			// when data is received
-						onError		: null,			// when data fails to load due to server error or other failure modes
-						render		: null, 		// render function for drop down item
-						suffix		: '',
-						openOnFocus : false,		// if to show overlay onclick or when typing
-						applyFilter	: true,
-						markSearch 	: false
+						items			: [],
+						selected		: {},
+						placeholder		: '',
+						url 			: null, 		// url to pull data from
+						cacheMax		: 500,
+						maxDropHeight 	: 350,			// max height for drop down menu
+						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
+						silent			: true,
+						onSearch		: null,			// when search needs to be performed
+						onRequest		: null,			// when request is submitted
+						onLoad			: null,			// when data is received
+						onError			: null,			// when data fails to load due to server error or other failure modes
+						renderDrop		: null, 		// render function for drop down item
+						suffix			: '',
+						openOnFocus 	: false,		// if to show overlay onclick or when typing
+						applyFilter		: true,
+						markSearch 		: false
 					};
 					if (this.type == 'list') {
 						defaults.openOnFocus = true;
@@ -287,33 +289,32 @@
 
 				case 'enum':
 					defaults = {
-						items		: [],
-						selected	: [],
-						placeholder	: '',
-						max 		: 0,		// max number of selected items, 0 - unlim
-						url 		: null, 	// not implemented
-						cacheMax	: 500,
-						maxWidth	: null,		// max width for input control to grow
-						maxHeight	: 350,		// max height for input control to grow
-						match		: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
-						silent		: true,
-						openOnFocus : false,		// if to show overlay onclick or when typing
-						applyFilter	: true,
-						markSearch 	: true,
-						render		: null, 	// render function for drop down item
-						itemRender	: null,		// render selected item
-						itemsHeight : 350,		// max height for the control to grow
-						itemMaxWidth: 250,		// max width for a single item
-						style		: '',		// style for container div
-						onSearch	: null,		// when search needs to be performed
-						onRequest	: null,		// when request is submitted
-						onLoad		: null,		// when data is received
-						onError		: null,		// when data fails to load due to server error or other failure modes
-						onClick		: null,		// when an item is clicked
-						onAdd		: null,		// when an item is added
-						onRemove	: null,		// when an item is removed
-						onMouseOver : null,		// when an item is mouse over
-						onMouseOut	: null		// when an item is mouse out
+						items			: [],
+						selected		: [],
+						placeholder		: '',
+						max 			: 0,			// max number of selected items, 0 - unlim
+						url 			: null, 		// not implemented
+						cacheMax		: 500,
+						maxWidth		: 250,			// max width for a single item
+						maxHeight		: 350,			// max height for input control to grow
+						maxDropHeight 	: 350,			// max height for drop down menu
+						match			: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
+						silent			: true,
+						openOnFocus 	: false,		// if to show overlay onclick or when typing
+						applyFilter		: true,
+						markSearch 		: true,
+						renderDrop		: null, 		// render function for drop down item
+						renderItem		: null,			// render selected item
+						style			: '',			// style for container div
+						onSearch		: null,			// when search needs to be performed
+						onRequest		: null,			// when request is submitted
+						onLoad			: null,			// when data is received
+						onError			: null,			// when data fails to load due to server error or other failure modes
+						onClick			: null,			// when an item is clicked
+						onAdd			: null,			// when an item is added
+						onRemove		: null,			// when an item is removed
+						onMouseOver 	: null,			// when an item is mouse over
+						onMouseOut		: null			// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -332,23 +333,22 @@
 
 				case 'file':
 					defaults = {
-						selected	: [],
-						placeholder	: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
-						max 		: 0,
-						maxSize		: 0,		// max size of all files, 0 - unlim
-						maxFileSize	: 0,		// max size of a single file, 0 -unlim
-						maxWidth	: null,		// max width for input control to grow
-						maxHeight	: 350,		// max height for input control to grow
-						silent		: true,
-						itemRender	: null,		// render selected item
-						itemMaxWidth: 250,		// max width for a single item
-						itemsHeight : 350,		// max height for the control to grow
-						style		: '',		// style for container div
-						onClick		: null,		// when an item is clicked
-						onAdd		: null,		// when an item is added
-						onRemove	: null,		// when an item is removed
-						onMouseOver : null,		// when an item is mouse over
-						onMouseOut	: null,		// when an item is mouse out
+						selected		: [],
+						placeholder		: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
+						max 			: 0,
+						maxSize			: 0,		// max size of all files, 0 - unlim
+						maxFileSize		: 0,		// max size of a single file, 0 -unlim
+						maxWidth		: 250,		// max width for a single item
+						maxHeight		: 350,		// max height for input control to grow
+						maxDropHeight 	: 350,		// max height for drop down menu
+						silent			: true,
+						renderItem		: null,		// render selected item
+						style			: '',		// style for container div
+						onClick			: null,		// when an item is clicked
+						onAdd			: null,		// when an item is added
+						onRemove		: null,		// when an item is removed
+						onMouseOver 	: null,		// when an item is mouse over
+						onMouseOut		: null,		// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',	// same width as control
@@ -438,12 +438,12 @@
 			if (['enum', 'file'].indexOf(this.type) != -1) {
 				var html = '';
 				for (var s in selected) {
-					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.itemMaxWidth) + 'px">'+
+					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px">'+
 							   '	<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+	
 							   		(obj.type == 'enum' ? selected[s].text : selected[s].name + '<span class="file-size"> - '+ w2utils.size(selected[s].size) +'</span>') +
 							   '</li>';
-					if (typeof options.itemRender == 'function') {
-						item = options.itemRender(selected[s], s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
+					if (typeof options.renderItem == 'function') {
+						item = options.renderItem(selected[s], s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
 					}
 					if (item.indexOf('<li') == -1) item = '<li index="'+ s +'">' + item + '</li>';
 					html += item;
@@ -561,12 +561,12 @@
 				$(this.el).height('auto');
 				var cntHeight = $(div).find('> div').height() + w2utils.getSize(div, '+height') * 2;
 				if (cntHeight < 23) cntHeight = 23;
-				if (cntHeight > options.itemsHeight) cntHeight = options.itemsHeight;
+				if (cntHeight > options.maxHeight) cntHeight = options.maxHeight;
 				if (div.length > 0) div[0].scrollTop = 1000;
 				var inpHeight = w2utils.getSize($(this.el), 'height') - 2;
 				if (inpHeight > cntHeight) cntHeight = inpHeight
-				$(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.itemsHeight ? 'auto' : 'hidden') });
-				if (cntHeight < options.itemsHeight) $(div).prop('scrollTop', 0);
+				$(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden') });
+				if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0);
 				$(this.el).css({ 'height' : (cntHeight + 2) + 'px' });
 			}
 		},
@@ -588,7 +588,7 @@
 					if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
 					if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
 				}
-				if (val !== '') val = Number(val);
+				if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = '';
 			}
 			return val;
 		},
@@ -916,7 +916,6 @@
 				var selected	= $(this.el).data('selected');
 				// apply arrows
 				switch (key) {
-					case 37: // left
 					case 39: // right
 						if ($(this.el).val() != '') break;
 					case 13: // enter
@@ -1137,8 +1136,12 @@
 					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
 					if (item.hidden !== true) shown++;
 				}
-				options.index = 0;
-				while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+				if (obj.type != 'combo') { // don't preselect first for combo
+					options.index = 0;
+					while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+				} else {
+					options.index = -1;
+				}
 				if (shown <= 0) options.index = -1;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
@@ -1212,6 +1215,8 @@
 					} 
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
+						render		: options.renderDrop,
+						maxHeight	: options.maxDropHeight,
 						// selected with mouse
 						onSelect: function (event) {
 							if (obj.type == 'enum') {

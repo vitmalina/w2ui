@@ -15,6 +15,7 @@
 *
 * == 1.4 Changes ==
 *	- refactored for the new fields
+*	- added getChanges() - not complete
 *
 ************************************************************************/
 
@@ -26,7 +27,7 @@
 		this.header 		= '';
 		this.box			= null; 	// HTML element that hold this element
 		this.url			= '';
-		this.formURL    	= '';		// url where to get form HTML
+		this.formURL		= '';		// url where to get form HTML
 		this.formHTML   	= '';		// form HTML (might be loaded from the url)
 		this.page 			= 0;		// current page
 		this.recid			= 0;		// can be null or 0
@@ -148,7 +149,7 @@
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2form');
-		}    
+		}	
 	}		
 
 	// ====================================================
@@ -296,6 +297,21 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return errors;
+		},
+
+		getChanges: function () {
+			var differ = function(record, original, result) {
+				for (var i in record) {
+					if (typeof record[i] == "object") {
+						result[i] = differ(record[i], original[i] || {}, {});
+						if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
+					} else if (record[i] != original[i]) {
+						result[i] = record[i];
+					}
+				}
+				return result;
+			}
+			return differ(this.record, this.original, {});
 		},
 
 		request: function (postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
@@ -542,7 +558,7 @@
 			if (!$.isEmptyObject(this.actions)) {
 				buttons += '\n<div class="w2ui-buttons">';
 				for (var a in this.actions) {
-					buttons += '\n    <button name="'+ a +'" class="btn">'+ a + '</button>';
+					buttons += '\n	<button name="'+ a +'" class="btn">'+ a + '</button>';
 				}
 				buttons += '\n</div>';
 			}

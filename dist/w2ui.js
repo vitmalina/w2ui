@@ -2992,7 +2992,7 @@ w2utils.keyboard = (function (obj) {
 			if (url) {
 				this.request('save-records', { 'changes' : eventData.changes }, null,
 					function () {
-						this.mergeChanges();
+						obj.mergeChanges();
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
@@ -4876,6 +4876,87 @@ w2utils.keyboard = (function (obj) {
 			return;
 		},
 
+		initSearches: function () {
+			var obj = this;
+			// init searches
+			for (var s in this.searches) {
+				var search = this.searches[s];
+				var sdata  = this.getSearchData(search.field);
+				search.type = String(search.type).toLowerCase();
+				if (typeof search.options != 'object') search.options = {};
+				// init types
+				switch (search.type) {
+					case 'text':
+					case 'alphanumeric':
+					case 'hex':
+						$('#grid_'+ this.name +'_operator_'+s).val('begins with');
+						if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
+							$('#grid_'+ this.name +'_field_' + s).w2field('clear').w2field(search.type, search.options);
+						}
+						break;
+
+					case 'int':
+					case 'float':
+					case 'money':
+					case 'currency':
+					case 'percent':
+					case 'date':
+					case 'time':
+					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
+						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
+						$('#grid_'+ this.name +'_field2_'+s).w2field('clear').w2field(search.type, search.options);						
+						break;
+
+					case 'list':
+					case 'combo':
+					case 'enum':
+						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
+						break;
+
+					case 'select':
+						// build options
+						var options = '<option value="">--</option>';
+						for (var i in search.items) {
+							if ($.isPlainObject(search.items[i])) {
+								var val = search.items[i].id;
+								var txt = search.items[i].text;
+								if (typeof val == 'undefined' && typeof search.items[i].value != 'undefined')   val = search.items[i].value;
+								if (typeof txt == 'undefined' && typeof search.items[i].caption != 'undefined') txt = search.items[i].caption;
+								if (val == null) val = '';
+								options += '<option value="'+ val +'">'+ txt +'</option>';
+							} else {
+								options += '<option value="'+ search.items[i] +'">'+ search.items[i] +'</option>';
+							}
+						}
+						$('#grid_'+ this.name +'_field_'+s).html(options);
+						break;
+				}
+				if (sdata != null) {
+					if (sdata.type == 'int' && sdata.operator == 'in') {
+						$('#grid_'+ this.name +'_field_'+ s).w2field('clear').val(sdata.value);
+					}
+					$('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
+					if (!$.isArray(sdata.value)) {
+						if (typeof sdata.value != 'undefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
+					} else {
+						if (sdata.operator == 'in') {
+							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
+						} else {
+							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value[0]).trigger('change');
+							$('#grid_'+ this.name +'_field2_'+ s).val(sdata.value[1]).trigger('change');
+						}
+					}
+				}
+			}
+			// add on change event
+			$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
+				if (evnt.keyCode == 13) { 
+					obj.search(); 
+					$().w2overlay();
+				}
+			});
+		},
+
 		initResize: function () {
 			var obj = this;
 			//if (obj.resizing === true) return;
@@ -5244,10 +5325,10 @@ w2utils.keyboard = (function (obj) {
 						'</select>';
 				}
 				if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
-					var operator =  'is <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
+					var operator =  w2utils.lang('is') + ' <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
 				}
 				if (['enum'].indexOf(s.type) != -1) {
-					var operator =  'in <input type="hidden" value="in" id="grid_'+ this.name +'_operator_'+ i +'">';
+					var operator =  w2utils.lang('in') + ' <input type="hidden" value="in" id="grid_'+ this.name +'_operator_'+ i +'">';
 				}
 				html += '<tr>'+
 						'	<td class="close-btn">'+ btn +'</td>' +
