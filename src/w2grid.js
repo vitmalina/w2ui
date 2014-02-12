@@ -3344,19 +3344,17 @@
 			// body might be expanded by data
 			if (!this.fixedBody) {
 				// allow it to render records, then resize
-				setTimeout(function () {
-					var calculatedHeight = w2utils.getSize(columns, 'height')
-						+ w2utils.getSize($('#grid_'+ obj.name +'_records table'), 'height');
-					obj.height = calculatedHeight 
-						+ w2utils.getSize(grid, '+height')
-						+ (obj.show.header ? w2utils.getSize(header, 'height') : 0)
-						+ (obj.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
-						+ (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
-						+ (obj.show.footer ? w2utils.getSize(footer, 'height') : 0);
-					grid.css('height', obj.height);
-					body.css('height', calculatedHeight);
-					box.css('height', w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'));
-				}, 1);
+				var calculatedHeight = w2utils.getSize(columns, 'height')
+					+ w2utils.getSize($('#grid_'+ obj.name +'_records table'), 'height');
+				obj.height = calculatedHeight 
+					+ w2utils.getSize(grid, '+height')
+					+ (obj.show.header ? w2utils.getSize(header, 'height') : 0)
+					+ (obj.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
+					+ (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
+					+ (obj.show.footer ? w2utils.getSize(footer, 'height') : 0);
+				grid.css('height', obj.height);
+				body.css('height', calculatedHeight);
+				box.css('height', w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'));
 			} else {
 				// fixed body height
 				var calculatedHeight =  grid.height()
