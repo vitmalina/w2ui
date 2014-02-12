@@ -270,7 +270,6 @@
 			var added = 0;
 			for (var o in record) {
 				if (!this.recid && typeof record[o].recid == 'undefined') record[o].recid = record[o][this.recid];
-				// if (!this.recid) record[o].recid = record[o][this.recid];
 				if (record[o].recid == null || typeof record[o].recid == 'undefined') {
 					console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
 					continue;
