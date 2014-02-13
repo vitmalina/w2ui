@@ -3964,7 +3964,8 @@
 				if (typeof s.outTag  == 'undefined') s.outTag 	= '';
 				if (typeof s.type	== 'undefined') s.type 	= 'text';
 				if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
-					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
+					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i + '"' +
+						'	onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
 						'	<option value="begins with">'+ w2utils.lang('begins with') +'</option>'+
 						'	<option value="contains">'+ w2utils.lang('contains') +'</option>'+
@@ -3973,7 +3974,8 @@
 				}
 				if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" '+
-						'		onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');">'+
+						'		onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');"' +
+						'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
 						(['int'].indexOf(s.type) != -1 ? '<option value="in">'+ w2utils.lang('in') +'</option>' : '') +
 						'<option value="between">'+ w2utils.lang('between') +'</option>'+
@@ -4015,7 +4017,8 @@
 						break;
 
 					case 'select':
-						html += '<select rel="search" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'></select>';
+						html += '<select rel="search" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" ' +
+						'onClick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+ s.inTag +'></select>';
 						break;
 
 				}
