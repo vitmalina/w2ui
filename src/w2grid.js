@@ -1863,12 +1863,10 @@
 			}
 			// refresh cell
 			var cell = this.getCellHTML(index, column, summary);
-			if (!summary) {
-				if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
-					$(tr).find('[col='+ column +']').addClass('w2ui-changed').html(cell);
-				} else {
-					$(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
-				}
+			if (!summary &&rec.changes && typeof rec.changes[col.field] != 'undefined') {
+				$(tr).find('[col='+ column +']').addClass('w2ui-changed').html(cell);
+			} else {
+				$(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
 			}
 		},
 
