@@ -9,13 +9,14 @@
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
 *	- add more panel title positions (left=rotated, right=rotated, bottom)
-*	- add resizer click, dblclick events, add resizer style ...
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- added panel title
 *	- added panel.maxSize property
 *	- fixed resize bugs
+*	- BUG resize problems (resizer flashes, not very snappy, % should stay in percent)
+*	- added onResizerClick event
 *
 ************************************************************************/
 
@@ -30,13 +31,14 @@
 		this.resizer	= 4;		// resizer width or height
 		this.style		= '';
 
-		this.onShow		= null;
-		this.onHide		= null;
-		this.onResizing = null;
-		this.onRender	= null;
-		this.onRefresh	= null;
-		this.onResize	= null;
-		this.onDestroy	= null;
+		this.onShow			= null;
+		this.onHide			= null;
+		this.onResizing 	= null;
+		this.onResizerClick	= null
+		this.onRender		= null;
+		this.onRefresh		= null;
+		this.onResize		= null;
+		this.onDestroy		= null;
 
 		$.extend(true, this, w2obj.layout, options);
 	};
@@ -341,7 +343,7 @@
 			var obj = this.get(panel, true);
 			if (obj === null) return false;
 			$.extend(this.panels[obj], options);
-			this.refresh(panel);
+			if (typeof options['content'] != 'undefined') this.refresh(panel); // refresh only when content changed
 			this.resize(); // resize is needed when panel size is changed
 			return true;
 		},
@@ -450,8 +452,8 @@
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 			// reinit events
 			setTimeout(function () { // needed this timeout to allow browser to render first if there are tabs or toolbar
-				obj.resize();
 				initEvents();
+				obj.resize();
 			}, 0);
 			return (new Date()).getTime() - time;
 
@@ -461,8 +463,8 @@
 						w2ui[obj.name].resize();
 					},
 					resizeStart : resizeStart,
-					mousemove	: resizeMove,
-					mouseup		: resizeStop
+					mouseMove	: resizeMove,
+					mouseUp		: resizeStop
 				};
 				$(window).on('resize', obj.tmp.events.resize);
 			}
@@ -471,8 +473,8 @@
 				if (!obj.box) return;
 				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
-				$(document).on('mousemove', obj.tmp.events.mousemove);
-				$(document).on('mouseup', obj.tmp.events.mouseup);
+				$(document).off('mousemove', obj.tmp.events.mouseMove).on('mousemove', obj.tmp.events.mouseMove);
+				$(document).off('mouseup', obj.tmp.events.mouseUp).on('mouseup', obj.tmp.events.mouseUp);
 				obj.tmp.resize = {
 					type	: type,
 					x		: evnt.screenX,
@@ -496,8 +498,8 @@
 				if (!obj.box) return;
 				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
-				$(document).off('mousemove', obj.tmp.events.mousemove);
-				$(document).off('mouseup', obj.tmp.events.mouseup);
+				$(document).off('mousemove', obj.tmp.events.mouseMove);
+				$(document).off('mouseup', obj.tmp.events.mouseUp);
 				if (typeof obj.tmp.resize == 'undefined') return;
 				// unlock all panels
 				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
@@ -773,8 +775,14 @@
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ns-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('top', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -810,8 +818,14 @@
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ew-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('left', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -846,8 +860,14 @@
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ew-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('right', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -880,8 +900,14 @@
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ns-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('bottom', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -937,8 +963,14 @@
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ns-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('preview', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
