@@ -832,6 +832,9 @@
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
 			if (eventData.isCancelled === true) return false;
 			// default actions
+			if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
+				this.original = $.extend(true, {}, this.record);
+			}
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
 						'	<div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar"></div>' +

@@ -269,8 +269,11 @@
 						markSearch 		: false
 					};
 					if (this.type == 'list') {
+						defaults.search = (options.items && options.items.length >= 10 ? true : false);
 						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>';
+						$(this.el).addClass('w2ui-select');
+						this.addFocus();
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -560,7 +563,7 @@
 				// adjust height
 				$(this.el).height('auto');
 				var cntHeight = $(div).find('> div').height() + w2utils.getSize(div, '+height') * 2;
-				if (cntHeight < 23) cntHeight = 23;
+				if (cntHeight < 26) cntHeight = 26;
 				if (cntHeight > options.maxHeight) cntHeight = options.maxHeight;
 				if (div.length > 0) div[0].scrollTop = 1000;
 				var inpHeight = w2utils.getSize($(this.el), 'height') - 2;
@@ -677,18 +680,24 @@
 					setTimeout(function () { obj.updateOverlay(); }, 1);
 				}, 1);
 			}
+			// list
+			if (this.type == 'list') {
+				this.helpers['focus'].focus();
+				$('#w2ui-overlay').find('#menu-search').focus();
+				$(this.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+			}
 			// menu
-			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['combo', 'enum'].indexOf(this.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();				
 				setTimeout(function () {
-					 obj.search();
+					obj.search();
 					setTimeout(function () { obj.updateOverlay(); }, 1);
 				}, 1);
 			}
 			// file
 			if (this.type == 'file') {
-				$(this.helpers['multi']).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
+				$(this.helpers['multi']).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 			}
 		},
 
@@ -697,7 +706,7 @@
 			var options = obj.options;
 			var val 	= $(this.el).val().trim();
 			// hide overlay
-			if (['color', 'date', 'time', 'list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['color', 'date', 'time', 'combo', 'enum'].indexOf(this.type) != -1) {
 				$('#w2ui-overlay').remove();
 			}
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
@@ -735,27 +744,12 @@
 					}
 				}
 			}
-			// make sure element exists
-			if (['list'].indexOf(this.type) != -1) {
-				if (typeof val == 'undefined') return;
-				// make sure element exists
-				var flag = false;
-				for (var i in options.items) {
-					var it = options.items[i];
-					if (typeof it == 'object' && it.text == val) flag = true;
-					if (typeof it == 'string' && it == val) flag = true;
-				}
-				if (!flag && val !== '') {
-					$(this.el).val('').removeData('selected').change();
-					if (options.silent === false) {
-						$(this.el).w2tag('Not in list');
-						setTimeout(function () { $(this.el).w2tag(''); }, 3000);
-					}
-					for (var i in options.items) delete options.items.hidden;
-				}
+			if (this.type == 'list') {
+				var el = $('#w2ui-overlay').data('element');
+				if (el != obj.el) $(this.el).css({ 'outline': 'none' });
 			}
 			// clear search input
-			if (['enum'].indexOf(this.type) != -1) {
+			if (this.type == 'enum') {
 				$(this.helpers['multi']).find('input').val('').width(20);
 			}
 			// file
@@ -781,24 +775,6 @@
 			// update date popup
 			if (['date', 'time'].indexOf(this.type) != -1) {
 				setTimeout(function () { obj.updateOverlay(); }, 1);
-			}
-			// list/select
-			if (['list'].indexOf(this.type) != -1) {
-				if (event.keyCode == 13) {
-					var val = $(this.el).val();
-					if (typeof val == 'undefined') return;
-					// make sure element exists
-					var item = null;
-					for (var i in options.items) {
-						if (options.items[i].text == val) { item = options.items[i]; break; }
-					}
-					var current = $(this.el).data('selected');
-					if (!item) {
-						$(this.el).val('').removeData('selected');
-					} else if (!current || current.id != item.id) {
-						$(this.el).data('selected', item);
-					}
-				}
 			}
 		},
 
@@ -910,7 +886,7 @@
 				}
 			}
 			// list/select/combo
-			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['combo', 'enum'].indexOf(this.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
 				var cancel		= false;
 				var selected	= $(this.el).data('selected');
@@ -1111,6 +1087,7 @@
 			var search 	= $(obj.el).val();
 			var target	= obj.el;
 			var ids = [];
+			if (obj.type == 'list') return; // list has its own search field
 			if (['enum'].indexOf(obj.type) != -1) {
 				target = $(obj.helpers['multi']).find('input');
 				search = target.val();
@@ -1203,7 +1180,7 @@
 					el		= $(this.helpers['multi']);
 					input	= $(el).find('input'); 
 				}
-				if ($(input).is(':focus')) {
+				if ($(input).is(':focus') || this.type == 'list') {
 					if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
 						$().w2overlay();
 						return;
@@ -1236,24 +1213,26 @@
 									// event after
 									obj.trigger($.extend(eventData, { phase: 'after' }));
 								}
+							} else if (obj.type == 'list') {
+								if (typeof event.item != 'undefined') {
+									$(obj.el).data('selected', event.item).val(event.item.text).change();
+								}
+								// hide overlay, focus helper
+								setTimeout(function () {
+									$('#w2ui-overlay').remove();
+									obj.helpers['focus'].find('input').focus(); 
+								}, 1);
 							} else {					
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
 							}
+						},
+						onHide: function (event) {
+							// need time out for poup to finaly get hidden
+							setTimeout(function () {
+								if (obj.type == 'list') obj.blur();
+							}, 1);	
 						}
 					}));
-				}
-				// display new selected item
-				var el  = $('#w2ui-overlay > div');
-				var cur = el.find('tr[index='+ options.index +']');
-				el.find('tr.w2ui-selected').removeClass('w2ui-selected');
-				cur.addClass('w2ui-selected');
-				if (cur.length > 0 ) {
-					var top  	= cur[0].offsetTop - 5; // 5 is margin top
-					var scrTop 	= el.scrollTop();
-					var height 	= el.height();
-					if (top < scrTop || top + cur.height() > scrTop + height) {
-						$('#w2ui-overlay > div').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
-					}
 				}
 			}
 		},
@@ -1490,7 +1469,7 @@
 						if ($('#w2ui-overlay').length == 0) obj.focus(event);
 					})
 					.on('focus', function (event) {
-						$(div).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
+						$(div).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 						obj.focus(event);
 						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					})
@@ -1550,6 +1529,35 @@
 			}
 			obj.refresh();
 		},
+
+		addFocus: function () {
+			var obj = this;
+			setTimeout(function () {
+				var helper;
+				$(obj.el).before('<div class="w2ui-field-helper" style="margin-left: 200px; opacity: 0"><input type="text" size="1"></div>');
+				helper = $(obj.el).prev();
+				obj.helpers['focus'] = helper;
+				var index = $(obj.el).attr('tabindex');
+				var input = helper.find('input');
+				if (index > 0) input.attr('tabindex', index);
+				$(obj.el).attr('tabindex', -1);
+				input
+					.on('blur', function () {
+						obj.blur();
+					})
+					.on('focus', function () {
+						obj.focus();
+					})
+					.on('keydown', function (event) {
+						if (event.keyCode == 40 || event.keyCode == 13) {
+							setTimeout(function () { obj.updateOverlay(); }, 100);
+						}
+						if (event.keyCode == 27) {
+							$(obj.el).val('').removeData('selected').change();
+						}
+					});
+			}, 1);
+		},		
 
 		addFile: function (file) {
 			var obj		 = this;
@@ -1702,7 +1710,7 @@
 				var className = ''; 
 				if (ci % 7 == 6)  className = ' w2ui-saturday';
 				if (ci % 7 === 0) className = ' w2ui-sunday';
-				if (dt == today)  className += ' w2ui-today';
+				if (dt == today)  className+= ' w2ui-today';
 				
 				var dspDay	 = day;
 				var col		 = '';
