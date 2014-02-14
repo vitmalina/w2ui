@@ -65,13 +65,24 @@
 				{ name: 'field.color', type: 'color', required: true },
 				{ name: 'field.list', type: 'list', required: true, 
 					options: { 
-						showAll: true,
-						items: [{ id: 0, text: 'Pickle, Susan' }, { id: 1, text: 'Adams, John' }]
+						match: 'contains',
+						items: [
+							{ id: 0, text: 'Pickle, Susan' }, 
+							{ id: 1, text: 'Adams, John' },
+							{ id: 2, text: 'Openhimer, Peter' },
+							{ id: 3, text: 'Woznyak, Steve' },
+							{ id: 4, text: 'Rusevelt, Franklin' },
+							{ id: 5, text: 'Stalone, Silvester' },
+							{ id: 6, text: 'Mann, Fred' },
+							{ id: 6, text: 'Ford, Mary' },
+							{ id: 8, text: 'Purky, Mon' },
+							{ id: 9, text: 'Min, Hla' }
+						]
 					}
 				},
 				{ name: 'field.combo', type: 'combo', required: true, 
 					options: { 
-						showAll: true,
+						applyFilter: true,
 						url : 'listdat.json'
 					}
 				},
@@ -154,11 +165,11 @@
 				</div>
 				<div class="w2ui-label">List:</div>
 				<div class="w2ui-field">
-					<input name="field.list">
+					<input name="field.list" style="width: 200px">
 				</div>
 				<div class="w2ui-label">Combo:</div>
 				<div class="w2ui-field">
-					<input name="field.combo"> (from url)
+					<input name="field.combo" style="width: 200px"> (from url)
 				</div>
 			</div>
 			<div class="w2ui-group-title">

@@ -2,7 +2,7 @@
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
 <link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" /> 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.1/jquery.min.js"></script>
+<script type="text/javascript" src="../libs/jquery/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script>
@@ -14,7 +14,6 @@
 		for (var i = 0; i < 50; i++) {
 			var item = { 
 				id 		: (i + 1),
-				icon	: 'fa-user',
 				fname	: fname[Math.floor(Math.random() * fname.length)], 
 				lname	: lname[Math.floor(Math.random() * lname.length)],
 				email	: 'vm@gmail.com', manager: '--',
@@ -32,10 +31,20 @@
 		$('.money').w2field('currency');
 		$('.hex').w2field('hex');
 		$('.alphanumeric').w2field('alphanumeric');
-		$('.list').w2field('combo', {
+		$('.combo').w2field('combo', {
+			// url: 'http://w2ui.com:3000/api/enum/users',
+			items: items,
+			onRequest: function (event) {
+				// console.log('request', event);
+			},
+			onLoad: function (event) {
+				// console.log('load', event);
+			}
+		});
+		$('.list').w2field('list', {
 			showAll: true,
-			url: '/api/enum/users',
-			// items: items
+			// url: '/api/enum/users',
+			items: items,
 			onRequest: function (event) {
 				console.log('list request', event);
 			},
@@ -47,8 +56,13 @@
 			}
 		});
 		$('.enum').w2field('enum', {
-			url: '/api/enum/users',
+			// url: '/api/enum/users',
+			items: items,
 			selected: [],
+			renderItem1: function (item, options, del) {
+				console.log('render', arguments);
+				return 'some' + del;
+			},
 			// items: items
 			onRequest: function (event) {
 				console.log('enum request', event);
@@ -171,7 +185,11 @@
 			<div class="w2ui-field">
 				<input id="time" class="time" type="text" size="20"/>
 			</div>
-		<div class="w2ui-label">list/select:</div>
+		<div class="w2ui-label">combo:</div>
+			<div class="w2ui-field">
+				<input class="combo" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
+			</div>
+		<div class="w2ui-label">list:</div>
 			<div class="w2ui-field">
 				<input class="list" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
 			</div>
