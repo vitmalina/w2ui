@@ -37,6 +37,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- improoved overlays (better positioning, refresh, etc.)
 *	- multiple overlay at the same time (if it has name)
 *	- overlay options.css removed, I have added options.style 
+*	- ability to open searchable w2menu
 *
 ************************************************/
 
@@ -704,31 +705,32 @@ var w2utils = (function () {
 	}
 
 	function getSize (el, type) {
+		var $el = $(el);
 		var bwidth = {
-			left: 	parseInt($(el).css('border-left-width')) || 0,
-			right:  parseInt($(el).css('border-right-width')) || 0,
-			top:  	parseInt($(el).css('border-top-width')) || 0,
-			bottom: parseInt($(el).css('border-bottom-width')) || 0
+			left: 	parseInt($el.css('border-left-width')) || 0,
+			right:  parseInt($el.css('border-right-width')) || 0,
+			top:  	parseInt($el.css('border-top-width')) || 0,
+			bottom: parseInt($el.css('border-bottom-width')) || 0
 		};
 		var mwidth = {
-			left: 	parseInt($(el).css('margin-left')) || 0,
-			right:  parseInt($(el).css('margin-right')) || 0,
-			top:  	parseInt($(el).css('margin-top')) || 0,
-			bottom: parseInt($(el).css('margin-bottom')) || 0
+			left: 	parseInt($el.css('margin-left')) || 0,
+			right:  parseInt($el.css('margin-right')) || 0,
+			top:  	parseInt($el.css('margin-top')) || 0,
+			bottom: parseInt($el.css('margin-bottom')) || 0
 		};
 		var pwidth = {
-			left: 	parseInt($(el).css('padding-left')) || 0,
-			right:  parseInt($(el).css('padding-right')) || 0,
-			top:  	parseInt($(el).css('padding-top')) || 0,
-			bottom: parseInt($(el).css('padding-bottom')) || 0
+			left: 	parseInt($el.css('padding-left')) || 0,
+			right:  parseInt($el.css('padding-right')) || 0,
+			top:  	parseInt($el.css('padding-top')) || 0,
+			bottom: parseInt($el.css('padding-bottom')) || 0
 		};
 		switch (type) {
-			case 'top': 	return bwidth.top + mwidth.top + pwidth.top; 
-			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom; 
-			case 'left': 	return bwidth.left + mwidth.left + pwidth.left; 
-			case 'right': 	return bwidth.right + mwidth.right + pwidth.right; 
-			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($(el).width()); 
-			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($(el).height());
+			case 'top': 	return bwidth.top + mwidth.top + pwidth.top;
+			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom;
+			case 'left': 	return bwidth.left + mwidth.left + pwidth.left;
+			case 'right': 	return bwidth.right + mwidth.right + pwidth.right;
+			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($el.width());
+			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($el.height());
 			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right; 
 			case '+height': return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
 		}
@@ -922,7 +924,8 @@ w2utils.keyboard = (function (obj) {
 		var tag = event.target.tagName;
 		var obj = $(event.target).parents('.w2ui-reset');
 		if (obj.length > 0) {
-			w2ui_name = obj.attr('name');
+			var name = obj.attr('name');
+			if (w2ui[name] && w2ui[name].keyboard) w2ui_name = name;
 		}
 	}
 
@@ -1104,10 +1107,11 @@ w2utils.keyboard = (function (obj) {
 			style		: '',		// additional style for main div
 			'class'		: '',		// additional class name for main dvi
 			onShow		: null, 	// event on show
-			onHide		: null		// event on hide
+			onHide		: null,		// event on hide
+			tmp			: {}
 		}
 		if (!$.isPlainObject(options)) options = {};
-		options = $.extend(true, {}, defaults, options);
+		options = $.extend({}, defaults, options);
 		if (options.name) name = '-' + options.name;
 		// if empty then hide
 		if (this.length == 0 || html == '' || typeof html == 'undefined') { 
@@ -1134,7 +1138,7 @@ w2utils.keyboard = (function (obj) {
 		var bc  = div2.css('background-color'); 
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div1.css('background-color', bc);
 
-		div1.data('obj', obj)
+		div1.data('element', obj.length > 0 ? obj[0] : null)
 			.data('hide', hide)
 			.data('fixSize', fixSize)
 			.fadeIn('fast').on('mousedown', function (event) { 
@@ -1179,6 +1183,11 @@ w2utils.keyboard = (function (obj) {
 				var w = div2.width();
 				if (options.width && options.width < w) w = options.width;
 				if (w < 30) w = 30;
+				// if content of specific height
+				if (options.tmp.contentHeight) {
+					h = options.tmp.contentHeight;
+					div2.height(h);
+				}
 				// alignment
 				switch(options.align) {
 					case 'both':
@@ -1198,7 +1207,7 @@ w2utils.keyboard = (function (obj) {
 				var boxLeft  = options.left;
 				var boxWidth = options.width;
 				var tipLeft  = options.tipLeft;
-				if (w == 30) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
+				if (w == 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
 				if (tmp < 25) {
 					boxLeft = 25 - tmp;
 					tipLeft = Math.floor(tmp);
@@ -1268,18 +1277,19 @@ w2utils.keyboard = (function (obj) {
 			index		: null, 	// current selected
 			items 		: [],
 			render		: null,
-			onSelect 	: null
+			onSelect 	: null,
+			tmp			: {}
 		}
+		var obj  = this;
 		var name = '';
 		if (menu == 'refresh') {
 			// if not show - call blur
 			if ($('#w2ui-overlay'+ name).length > 0) {
-				var tmp = $('#w2ui-overlay'+ name +' > div').scrollTop();
-				$('#w2ui-overlay'+ name +' > div').html(getMenuHTML(), options);
-				var fun = $('#w2ui-overlay'+ name).data('fixSize');
-				if (typeof fun == 'function') fun();
-				// reset scrollTop
-				$('#w2ui-overlay'+ name +' > div').scrollTop(tmp);
+				options = $.extend($.fn.w2menuOptions, options);
+				var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+				$('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
+				$('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
+				fixSize();
 			} else {
 				$(this).w2menu(options);
 			}
@@ -1287,20 +1297,130 @@ w2utils.keyboard = (function (obj) {
 			if (arguments.length == 1) options = menu; else options.items = menu;
 			if (typeof options != 'object') options = {};
 			options = $.extend({}, defaults, options);
+			$.fn.w2menuOptions = options;
 			if (options.name) name = '-' + options.name;
 			if (typeof options.select == 'function' && typeof options.onSelect != 'function') options.onSelect = options.select;
 			if (typeof options.onRender == 'function' && typeof options.render != 'function') options.render = options.onRender;
 			// since only one overlay can exist at a time
 			$.fn.w2menuHandler = function (event, index) {
 				if (typeof options.onSelect == 'function') {
-					options.onSelect({
-						index	: index,
-						item	: options.items[index],
-						originalEvent: event
-					}); 
+					// need time so that menu first hides
+					setTimeout(function () {
+						options.onSelect({
+							index	: index,
+							item	: options.items[index],
+							originalEvent: event
+						}); 
+					}, 10);
 				}
 			};
-			return $(this).w2overlay(getMenuHTML(), options);
+			var html = '';
+			if (options.search) {
+				html += 
+					'<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
+					'	<div class="w2ui-icon icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
+					'	<input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();">'+
+					'</div>';
+				options.style += ';background-color: #ECECEC';
+				options.index = 0;
+				for (var i in options.items) options.items[i].hidden = false;
+			}
+			html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%; overflow: auto;">' + 
+						getMenuHTML() + 
+					'</div>';
+			var ret = $(this).w2overlay(html, options);
+			$('#w2ui-overlay'+ name +' #menu-search')
+				.focus()
+				.on('keyup', change)
+				.on('keydown', function (event) {
+					// cancel tab key
+					if (event.keyCode == 9) { event.stopPropagation(); event.preventDefault(); }
+				});				
+			fixSize();
+			return ret;
+		}
+
+		function fixSize() {
+			setTimeout(function () { 
+				// show selected
+				$('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected');
+				var cur 	= $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
+				var scrTop 	= $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+				cur.addClass('w2ui-selected');
+				if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
+				var tmp = $('#w2ui-overlay'+ name).data().fixSize;
+				if (typeof tmp == 'function') tmp();
+				// scroll into view
+				if (cur.length > 0) {
+					var top  	= cur[0].offsetTop - 5; // 5 is margin top
+					var el 		= $('#w2ui-overlay'+ name +' div.menu');
+					var height 	= el.height();
+					$('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
+					if (top < scrTop || top + cur.height() > scrTop + height) {
+						$('#w2ui-overlay'+ name +' div.menu').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
+					}
+				}				
+			}, 1);			
+		}
+
+		function change(event) {
+			var search	= this.value;
+			var key 	= event.keyCode;
+			var cancel  = false;
+			switch(key) {
+				case 13: // enter
+					$('#w2ui-overlay'+ name).remove();
+					$.fn.w2menuHandler(event, options.index);
+					break;
+				case 27: // escape
+					$('#w2ui-overlay'+ name).remove();
+					$.fn.w2menuHandler(event, -1);
+					break;
+				case 38: // up
+					options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
+					options.index--;
+					while (options.index > 0 && options.items[options.index].hidden) options.index--;
+					if (options.index == 0 && options.items[options.index].hidden) {
+						while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+					}
+					if (options.index < 0) options.index = 0;
+					cancel = true;
+					break;
+				case 40: // down
+					options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
+					options.index++;
+					while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
+					if (options.index == options.items.length-1 && options.items[options.index].hidden) {
+						while (options.items[options.index] && options.items[options.index].hidden) options.index--;
+					}
+					if (options.index >= options.items.length) options.index = options.items.length - 1;
+					cancel = true;
+					break;
+			}		
+			// filter
+			if (!cancel) {
+				var shown  = 0;
+				for (var i in options.items) {
+					var item = options.items[i];
+					var prefix = '';
+					var suffix = '';
+					if (['is', 'begins with'].indexOf(options.match) != -1) prefix = '^';
+					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
+					try { 
+						var re = new RegExp(prefix + search + suffix, 'i');
+						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
+						if (options.applyFilter !== true) item.hidden = false; 
+					} catch (e) {}
+					// do not show selected items
+					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
+					if (item.hidden !== true) shown++;
+				}
+				options.index = 0;
+				while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
+				if (shown <= 0) options.index = -1;
+			}
+			$(obj).w2menu('refresh', options);
+			fixSize();
 		}
 
 		function getMenuHTML () { 
@@ -1331,8 +1451,8 @@ w2utils.keyboard = (function (obj) {
 						if (options.altRows !== true) bg = '';
 						menu_html += 
 							'<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
-							'		class="'+ bg +' '+ (options.index == count ? 'w2ui-selected' : '') +'"'+
-							'		onclick="$(\'#w2ui-overlay\').remove(); $.fn.w2menuHandler(event, \''+ f +'\'); event.stopPropagation();" '+
+							'		class="'+ bg +' '+ (options.index == f ? 'w2ui-selected' : '') +'"'+
+							'		onclick="$(\'#w2ui-overlay'+ name +'\').remove(); $.fn.w2menuHandler(event, \''+ f +'\'); event.stopPropagation();" '+
 							'		onmouseover="$(this).addClass(\'w2ui-selected\');" '+
 							'		onmouseout="$(this).removeClass(\'w2ui-selected\');">'+
 								imgd +
@@ -1380,6 +1500,8 @@ w2utils.keyboard = (function (obj) {
 *	- add colspans
 *	- add grid.focus()
 *	- add showExtra, KickIn Infinite scroll when so many records
+*	- get rid of this.buffered
+*	- allow this.total to be unknown (-1)
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
@@ -2505,9 +2627,14 @@ w2utils.keyboard = (function (obj) {
 							}
 						}
 					} else {
+						var el = $('#grid_'+ this.name +'_search_all');
 						var search = this.getSearch(field);
 						if (search == null) search = { field: field, type: 'text' };
 						if (search.field == field) this.last.caption = search.caption;
+						if (search.type == 'list') {
+							var tmp = el.data('selected');
+							if (tmp && !$.isEmptyObject(tmp)) value = tmp.id;
+						}
 						if (value != '') {
 							var op  = 'contains';
 							var val = value;
@@ -2635,19 +2762,21 @@ w2utils.keyboard = (function (obj) {
 						'</tr>';
 			}
 			html += "</table></div>";
-			$(el).w2overlay(html, { left: -15, top: 7 });
+			// need timer otherwise does nto show with list type
+			setTimeout(function () {
+				$(el).w2overlay(html, { left: -10 });
+			}, 1);
 		},
 
 		initAllField: function (field) {
 			var el 		= $('#grid_'+ this.name +'_search_all');
 			var search	= this.getSearch(field);
-			console.log(field, search, el.data('w2field'));
 			if (field == 'all') {
 				search = { field: 'all', caption: w2utils.lang('All Fields') };
 				el.w2field('clear');
 				el.change().focus();
 			} else {
-				el.w2field(search.type, search.options);
+				el.w2field(search.type, $.extend({}, search.options, { suffix: '' })); // always hide suffix
 				if (['list', 'enum'].indexOf(search.type) != -1) {
 					this.last.search = '';
 					this.last.item	 = '';
@@ -2675,15 +2804,16 @@ w2utils.keyboard = (function (obj) {
 			this.searchData  	= [];
 			this.last.search 	= '';
 			this.last.logic		= 'OR';
-			if (this.last.multi) {
-				if (!this.multiSearch) {
-					this.last.field 	= this.searches[0].field;
-					this.last.caption 	= this.searches[0].caption;
-				} else {
-					this.last.field  	= 'all';
-					this.last.caption 	= w2utils.lang('All Fields');
-				}
-			}
+			// --- do not reset to All Fields (I think)
+			// if (this.last.multi) {
+			// 	if (!this.multiSearch) {
+			// 		this.last.field 	= this.searches[0].field;
+			// 		this.last.caption 	= this.searches[0].caption;
+			// 	} else {
+			// 		this.last.field  	= 'all';
+			// 		this.last.caption 	= w2utils.lang('All Fields');
+			// 	}
+			// }
 			this.last.multi				= false;
 			this.last.xhr_offset 		= 0;
 			// reset scrolling position
@@ -3176,7 +3306,10 @@ w2utils.keyboard = (function (obj) {
 
 		editChange: function (el, index, column, event) {
 			// all other fields
-			var rec  	= this.records[index];
+			var summary = index < 0;
+			index = index < 0 ? -index - 1 : index;
+			var records = summary ? this.summary : this.records;
+			var rec  	= records[index];
 			var tr		= $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid));
 			var col		= this.columns[column];
 			var new_val	= el.value;
@@ -3207,11 +3340,13 @@ w2utils.keyboard = (function (obj) {
 				if ($.isEmptyObject(rec.changes)) delete rec.changes;
 			}
 			// refresh cell
-			var cell = this.getCellHTML(index, column);
-			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
-				$(tr).find('[col='+ column +']').addClass('w2ui-changed').html(cell);
-			} else {
-				$(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
+			var cell = this.getCellHTML(index, column, summary);
+			if (!summary) {
+				if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
+					$(tr).find('[col='+ column +']').addClass('w2ui-changed').html(cell);
+				} else {
+					$(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
+				}
 			}
 		},
 
@@ -4098,9 +4233,6 @@ w2utils.keyboard = (function (obj) {
 			this.searchClose();
 			// search placeholder
 			var el = $('#grid_'+ obj.name +'_search_all');
-			if (this.searches.length == 0) {
-				this.last.field = 'all';
-			}
 			if (!this.multiSearch && this.last.field == 'all' && this.searches.length > 0) {
 				this.last.field 	= this.searches[0].field;
 				this.last.caption 	= this.searches[0].caption;
@@ -4308,6 +4440,8 @@ w2utils.keyboard = (function (obj) {
 				var recid = (event.target.tagName == 'TR' ? $(event.target).attr('recid') : $(event.target).parents('tr').attr('recid'));
 				if (typeof recid == 'undefined') return;
 				var ind1  = obj.get(mv.recid, true);
+				// |:wolfmanx:| this happens on summary row and should probably be detected earlier
+				if (ind1 === null) return;
 				var ind2  = obj.get(recid, true);
 				var col1  = parseInt(mv.column);
 				var col2  = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
@@ -4765,7 +4899,6 @@ w2utils.keyboard = (function (obj) {
 						'	<td>'+
 						'		<input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
 						'			placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
-						// '			onchange="w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, this.value); console.log(\'chagne\');"'+
 						'			onchange="'+
 						'				var val = this.value; '+
 						'				var fld = $(this).data(\'w2field\'); '+
@@ -5089,19 +5222,17 @@ w2utils.keyboard = (function (obj) {
 			// body might be expanded by data
 			if (!this.fixedBody) {
 				// allow it to render records, then resize
-				setTimeout(function () {
-					var calculatedHeight = w2utils.getSize(columns, 'height')
-						+ w2utils.getSize($('#grid_'+ obj.name +'_records table'), 'height');
-					obj.height = calculatedHeight
-						+ w2utils.getSize(grid, '+height')
-						+ (obj.show.header ? w2utils.getSize(header, 'height') : 0)
-						+ (obj.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
-						+ (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
-						+ (obj.show.footer ? w2utils.getSize(footer, 'height') : 0);
-					grid.css('height', obj.height);
-					body.css('height', calculatedHeight);
-					box.css('height', w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'));
-				}, 1);
+				var calculatedHeight = w2utils.getSize(columns, 'height')
+					+ w2utils.getSize($('#grid_'+ obj.name +'_records table'), 'height');
+				obj.height = calculatedHeight
+					+ w2utils.getSize(grid, '+height')
+					+ (obj.show.header ? w2utils.getSize(header, 'height') : 0)
+					+ (obj.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
+					+ (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
+					+ (obj.show.footer ? w2utils.getSize(footer, 'height') : 0);
+				grid.css('height', obj.height);
+				body.css('height', calculatedHeight);
+				box.css('height', w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'));
 			} else {
 				// fixed body height
 				var calculatedHeight =  grid.height()
@@ -5426,6 +5557,9 @@ w2utils.keyboard = (function (obj) {
 					case 'combo':
 					case 'enum':
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
+						if (search.type == 'combo') {
+							$('#grid_'+ this.name +'_operator_'+s).val('begins with');							
+						}
 						break;
 
 					case 'select':
@@ -5827,13 +5961,13 @@ w2utils.keyboard = (function (obj) {
 					(record['style'] ? 'custom_style="'+ record['style'] +'"' : '') +
 				'>';
 			if (this.show.lineNumbers) {
-				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number" class="w2ui-col-number">'+
+				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" class="w2ui-col-number">'+
 								(summary !== true ? '<div>'+ lineNum +'</div>' : '') +
 							'</td>';
 			}
 			if (this.show.selectColumn) {
 				rec_html +=
-						'<td id="grid_'+ this.name +'_cell_'+ ind +'_select" class="w2ui-grid-data w2ui-col-select" '+
+						'<td id="grid_'+ this.name +'_cell_'+ ind +'_select' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-select" '+
 						'		onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 							(summary !== true ?
 							'	<div>'+
@@ -5854,7 +5988,7 @@ w2utils.keyboard = (function (obj) {
 				if (record.expanded == 'none') tmp_img = '';
 				if (record.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>';
 				rec_html +=
-						'<td id="grid_'+ this.name +'_cell_'+ ind +'_expand" class="w2ui-grid-data w2ui-col-expand">'+
+						'<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
 							(summary !== true ?
 							'	<div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
 							'			onclick="w2ui[\''+ this.name +'\'].toggle(\''+ record.recid +'\', event); '+
@@ -5868,7 +6002,7 @@ w2utils.keyboard = (function (obj) {
 			while (true) {
 				var col = this.columns[col_ind];
 				if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
-				var isChanged = record.changes && typeof record.changes[col.field] != 'undefined';
+				var isChanged = !summary && record.changes && typeof record.changes[col.field] != 'undefined';
 				var rec_cell  = this.getCellHTML(ind, col_ind, summary);
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
@@ -5937,10 +6071,11 @@ w2utils.keyboard = (function (obj) {
 					}
 					// if editable checkbox
 					if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
+						var changeInd = summary ? -(ind + 1) : ind;
 						addStyle = 'text-align: center';
 						data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
 							   '	var obj = w2ui[\''+ this.name + '\']; '+
-							   '	obj.editChange.call(obj, this, '+ ind +', '+ col_ind +', event); ' +
+							   '	obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
 							   '">';
 					}
 					var data = '<div title="'+ title +'" style="'+ addStyle +'">'+ data +'</div>';
@@ -6082,13 +6217,14 @@ w2utils.keyboard = (function (obj) {
 *	- onResize for the panel
 *	- problem with layout.html (see in 1.3)
 *	- add more panel title positions (left=rotated, right=rotated, bottom)
-*	- add resizer click, dblclick events, add resizer style ...
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- added panel title
 *	- added panel.maxSize property
 *	- fixed resize bugs
+*	- BUG resize problems (resizer flashes, not very snappy, % should stay in percent)
+*	- added onResizerClick event
 *
 ************************************************************************/
 
@@ -6103,13 +6239,14 @@ w2utils.keyboard = (function (obj) {
 		this.resizer	= 4;		// resizer width or height
 		this.style		= '';
 
-		this.onShow		= null;
-		this.onHide		= null;
-		this.onResizing = null;
-		this.onRender	= null;
-		this.onRefresh	= null;
-		this.onResize	= null;
-		this.onDestroy	= null;
+		this.onShow			= null;
+		this.onHide			= null;
+		this.onResizing 	= null;
+		this.onResizerClick	= null
+		this.onRender		= null;
+		this.onRefresh		= null;
+		this.onResize		= null;
+		this.onDestroy		= null;
 
 		$.extend(true, this, w2obj.layout, options);
 	};
@@ -6414,7 +6551,7 @@ w2utils.keyboard = (function (obj) {
 			var obj = this.get(panel, true);
 			if (obj === null) return false;
 			$.extend(this.panels[obj], options);
-			this.refresh(panel);
+			if (typeof options['content'] != 'undefined') this.refresh(panel); // refresh only when content changed
 			this.resize(); // resize is needed when panel size is changed
 			return true;
 		},
@@ -6523,8 +6660,8 @@ w2utils.keyboard = (function (obj) {
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 			// reinit events
 			setTimeout(function () { // needed this timeout to allow browser to render first if there are tabs or toolbar
-				obj.resize();
 				initEvents();
+				obj.resize();
 			}, 0);
 			return (new Date()).getTime() - time;
 
@@ -6534,8 +6671,8 @@ w2utils.keyboard = (function (obj) {
 						w2ui[obj.name].resize();
 					},
 					resizeStart : resizeStart,
-					mousemove	: resizeMove,
-					mouseup		: resizeStop
+					mouseMove	: resizeMove,
+					mouseUp		: resizeStop
 				};
 				$(window).on('resize', obj.tmp.events.resize);
 			}
@@ -6544,8 +6681,8 @@ w2utils.keyboard = (function (obj) {
 				if (!obj.box) return;
 				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
-				$(document).on('mousemove', obj.tmp.events.mousemove);
-				$(document).on('mouseup', obj.tmp.events.mouseup);
+				$(document).off('mousemove', obj.tmp.events.mouseMove).on('mousemove', obj.tmp.events.mouseMove);
+				$(document).off('mouseup', obj.tmp.events.mouseUp).on('mouseup', obj.tmp.events.mouseUp);
 				obj.tmp.resize = {
 					type	: type,
 					x		: evnt.screenX,
@@ -6569,8 +6706,8 @@ w2utils.keyboard = (function (obj) {
 				if (!obj.box) return;
 				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
-				$(document).off('mousemove', obj.tmp.events.mousemove);
-				$(document).off('mouseup', obj.tmp.events.mouseup);
+				$(document).off('mousemove', obj.tmp.events.mouseMove);
+				$(document).off('mouseup', obj.tmp.events.mouseUp);
 				if (typeof obj.tmp.resize == 'undefined') return;
 				// unlock all panels
 				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
@@ -6846,8 +6983,14 @@ w2utils.keyboard = (function (obj) {
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ns-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('top', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -6883,8 +7026,14 @@ w2utils.keyboard = (function (obj) {
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ew-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('left', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -6919,8 +7068,14 @@ w2utils.keyboard = (function (obj) {
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ew-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('right', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -6953,8 +7108,14 @@ w2utils.keyboard = (function (obj) {
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ns-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('bottom', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -7010,8 +7171,14 @@ w2utils.keyboard = (function (obj) {
 						'width': w + 'px',
 						'height': h + 'px',
 						'cursor': 'ns-resize'
-					}).bind('mousedown', function (event) {
+					}).off('mousedown').on('mousedown', function (event) {
+						// event before
+						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
+						if (eventData.isCancelled === true) return false;
+						// default action
 						w2ui[obj.name].tmp.events.resizeStart('preview', event);
+						// event after
+						obj.trigger($.extend(eventData, { phase: 'after' }));
 						return false;
 					});
 				}
@@ -8923,7 +9090,7 @@ var w2confirm = function (msg, title, callBack) {
 			for (var a = 0; a < arguments.length; a++) {
 				tmp = this.get(arguments[a]);
 				if (tmp === null) continue;
-				if (this.selected !== null && this.selected.id === tmp.id){
+				if (this.selected !== null && this.selected === tmp.id){
 					this.selected = null;
 				}
 				var ind  = this.get(tmp.parent, arguments[a], true);
@@ -9037,10 +9204,10 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		select: function (id) {
-			if (this.selected == id) return false;
-			this.unselect(this.selected);
 			var new_node = this.get(id);
 			if (!new_node) return false;
+			if (this.selected == id && new_node.selected) return false;
+			this.unselect(this.selected);
 			$(this.box).find('#node_'+ w2utils.escapeId(id))
 				.addClass('w2ui-selected')
 				.find('.w2ui-icon').addClass('w2ui-icon-selected');
@@ -9768,31 +9935,36 @@ var w2confirm = function (msg, title, callBack) {
 					$(this.el).attr('placeholder', options.placeholder ? options.placeholder : (options.format == 'h12' ? 'hh:mi pm' : 'hh:mi'));
 					break;
 
+				case 'datetime':
+					break;
+
 				case 'list':
 				case 'combo':
 					defaults = {
-						items		: [],
-						selected	: {},
-						placeholder	: '',
-						url 		: null, 		// url to pull data from
-						cacheMax	: 500,
-						maxWidth	: null,			// max width for input control to grow
-						maxHeight	: 350,			// max height for input control to grow
-						match		: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
-						silent		: true,
-						onSearch	: null,			// when search needs to be performed
-						onRequest	: null,			// when request is submitted
-						onLoad		: null,			// when data is received
-						onError		: null,			// when data fails to load due to server error or other failure modes
-						render		: null, 		// render function for drop down item
-						suffix		: '',
-						openOnFocus : false,		// if to show overlay onclick or when typing
-						applyFilter	: true,
-						markSearch 	: false
+						items			: [],
+						selected		: {},
+						placeholder		: '',
+						url 			: null, 		// url to pull data from
+						cacheMax		: 500,
+						maxDropHeight 	: 350,			// max height for drop down menu
+						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
+						silent			: true,
+						onSearch		: null,			// when search needs to be performed
+						onRequest		: null,			// when request is submitted
+						onLoad			: null,			// when data is received
+						onError			: null,			// when data fails to load due to server error or other failure modes
+						renderDrop		: null, 		// render function for drop down item
+						suffix			: '',
+						openOnFocus 	: false,		// if to show overlay onclick or when typing
+						applyFilter		: true,
+						markSearch 		: false
 					};
 					if (this.type == 'list') {
+						defaults.search = (options.items && options.items.length >= 10 ? true : false);
 						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>';
+						$(this.el).addClass('w2ui-select');
+						this.addFocus();
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -9811,33 +9983,32 @@ var w2confirm = function (msg, title, callBack) {
 
 				case 'enum':
 					defaults = {
-						items		: [],
-						selected	: [],
-						placeholder	: '',
-						max 		: 0,		// max number of selected items, 0 - unlim
-						url 		: null, 	// not implemented
-						cacheMax	: 500,
-						maxWidth	: null,		// max width for input control to grow
-						maxHeight	: 350,		// max height for input control to grow
-						match		: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
-						silent		: true,
-						openOnFocus : false,		// if to show overlay onclick or when typing
-						applyFilter	: true,
-						markSearch 	: true,
-						render		: null, 	// render function for drop down item
-						itemRender	: null,		// render selected item
-						itemsHeight : 350,		// max height for the control to grow
-						itemMaxWidth: 250,		// max width for a single item
-						style		: '',		// style for container div
-						onSearch	: null,		// when search needs to be performed
-						onRequest	: null,		// when request is submitted
-						onLoad		: null,		// when data is received
-						onError		: null,		// when data fails to load due to server error or other failure modes
-						onClick		: null,		// when an item is clicked
-						onAdd		: null,		// when an item is added
-						onRemove	: null,		// when an item is removed
-						onMouseOver : null,		// when an item is mouse over
-						onMouseOut	: null		// when an item is mouse out
+						items			: [],
+						selected		: [],
+						placeholder		: '',
+						max 			: 0,			// max number of selected items, 0 - unlim
+						url 			: null, 		// not implemented
+						cacheMax		: 500,
+						maxWidth		: 250,			// max width for a single item
+						maxHeight		: 350,			// max height for input control to grow
+						maxDropHeight 	: 350,			// max height for drop down menu
+						match			: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
+						silent			: true,
+						openOnFocus 	: false,		// if to show overlay onclick or when typing
+						applyFilter		: true,
+						markSearch 		: true,
+						renderDrop		: null, 		// render function for drop down item
+						renderItem		: null,			// render selected item
+						style			: '',			// style for container div
+						onSearch		: null,			// when search needs to be performed
+						onRequest		: null,			// when request is submitted
+						onLoad			: null,			// when data is received
+						onError			: null,			// when data fails to load due to server error or other failure modes
+						onClick			: null,			// when an item is clicked
+						onAdd			: null,			// when an item is added
+						onRemove		: null,			// when an item is removed
+						onMouseOver 	: null,			// when an item is mouse over
+						onMouseOut		: null			// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -9856,23 +10027,22 @@ var w2confirm = function (msg, title, callBack) {
 
 				case 'file':
 					defaults = {
-						selected	: [],
-						placeholder	: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
-						max 		: 0,
-						maxSize		: 0,		// max size of all files, 0 - unlim
-						maxFileSize	: 0,		// max size of a single file, 0 -unlim
-						maxWidth	: null,		// max width for input control to grow
-						maxHeight	: 350,		// max height for input control to grow
-						silent		: true,
-						itemRender	: null,		// render selected item
-						itemMaxWidth: 250,		// max width for a single item
-						itemsHeight : 350,		// max height for the control to grow
-						style		: '',		// style for container div
-						onClick		: null,		// when an item is clicked
-						onAdd		: null,		// when an item is added
-						onRemove	: null,		// when an item is removed
-						onMouseOver : null,		// when an item is mouse over
-						onMouseOut	: null,		// when an item is mouse out
+						selected		: [],
+						placeholder		: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
+						max 			: 0,
+						maxSize			: 0,		// max size of all files, 0 - unlim
+						maxFileSize		: 0,		// max size of a single file, 0 -unlim
+						maxWidth		: 250,		// max width for a single item
+						maxHeight		: 350,		// max height for input control to grow
+						maxDropHeight 	: 350,		// max height for drop down menu
+						silent			: true,
+						renderItem		: null,		// render selected item
+						style			: '',		// style for container div
+						onClick			: null,		// when an item is clicked
+						onAdd			: null,		// when an item is added
+						onRemove		: null,		// when an item is removed
+						onMouseOver 	: null,		// when an item is mouse over
+						onMouseOut		: null,		// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',	// same width as control
@@ -9962,12 +10132,12 @@ var w2confirm = function (msg, title, callBack) {
 			if (['enum', 'file'].indexOf(this.type) != -1) {
 				var html = '';
 				for (var s in selected) {
-					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.itemMaxWidth) + 'px">'+
+					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px">'+
 							   '	<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+	
 							   		(obj.type == 'enum' ? selected[s].text : selected[s].name + '<span class="file-size"> - '+ w2utils.size(selected[s].size) +'</span>') +
 							   '</li>';
-					if (typeof options.itemRender == 'function') {
-						item = options.itemRender(selected[s], s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
+					if (typeof options.renderItem == 'function') {
+						item = options.renderItem(selected[s], s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
 					}
 					if (item.indexOf('<li') == -1) item = '<li index="'+ s +'">' + item + '</li>';
 					html += item;
@@ -10084,13 +10254,13 @@ var w2confirm = function (msg, title, callBack) {
 				// adjust height
 				$(this.el).height('auto');
 				var cntHeight = $(div).find('> div').height() + w2utils.getSize(div, '+height') * 2;
-				if (cntHeight < 23) cntHeight = 23;
-				if (cntHeight > options.itemsHeight) cntHeight = options.itemsHeight;
+				if (cntHeight < 26) cntHeight = 26;
+				if (cntHeight > options.maxHeight) cntHeight = options.maxHeight;
 				if (div.length > 0) div[0].scrollTop = 1000;
 				var inpHeight = w2utils.getSize($(this.el), 'height') - 2;
 				if (inpHeight > cntHeight) cntHeight = inpHeight
-				$(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.itemsHeight ? 'auto' : 'hidden') });
-				if (cntHeight < options.itemsHeight) $(div).prop('scrollTop', 0);
+				$(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden') });
+				if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0);
 				$(this.el).css({ 'height' : (cntHeight + 2) + 'px' });
 			}
 		},
@@ -10112,7 +10282,7 @@ var w2confirm = function (msg, title, callBack) {
 					if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
 					if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
 				}
-				if (val !== '') val = Number(val);
+				if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = '';
 			}
 			return val;
 		},
@@ -10201,18 +10371,24 @@ var w2confirm = function (msg, title, callBack) {
 					setTimeout(function () { obj.updateOverlay(); }, 1);
 				}, 1);
 			}
+			// list
+			if (this.type == 'list') {
+				this.helpers['focus'].focus();
+				$('#w2ui-overlay').find('#menu-search').focus();
+				$(this.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+			}
 			// menu
-			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['combo', 'enum'].indexOf(this.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();				
 				setTimeout(function () {
-					 obj.search();
+					obj.search();
 					setTimeout(function () { obj.updateOverlay(); }, 1);
 				}, 1);
 			}
 			// file
 			if (this.type == 'file') {
-				$(this.helpers['multi']).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
+				$(this.helpers['multi']).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 			}
 		},
 
@@ -10221,7 +10397,7 @@ var w2confirm = function (msg, title, callBack) {
 			var options = obj.options;
 			var val 	= $(this.el).val().trim();
 			// hide overlay
-			if (['color', 'date', 'time', 'list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['color', 'date', 'time', 'combo', 'enum'].indexOf(this.type) != -1) {
 				$('#w2ui-overlay').remove();
 			}
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
@@ -10259,27 +10435,12 @@ var w2confirm = function (msg, title, callBack) {
 					}
 				}
 			}
-			// make sure element exists
-			if (['list'].indexOf(this.type) != -1) {
-				if (typeof val == 'undefined') return;
-				// make sure element exists
-				var flag = false;
-				for (var i in options.items) {
-					var it = options.items[i];
-					if (typeof it == 'object' && it.text == val) flag = true;
-					if (typeof it == 'string' && it == val) flag = true;
-				}
-				if (!flag && val !== '') {
-					$(this.el).val('').removeData('selected').change();
-					if (options.silent === false) {
-						$(this.el).w2tag('Not in list');
-						setTimeout(function () { $(this.el).w2tag(''); }, 3000);
-					}
-					for (var i in options.items) delete options.items.hidden;
-				}
+			if (this.type == 'list') {
+				var el = $('#w2ui-overlay').data('element');
+				if (el != obj.el) $(this.el).css({ 'outline': 'none' });
 			}
 			// clear search input
-			if (['enum'].indexOf(this.type) != -1) {
+			if (this.type == 'enum') {
 				$(this.helpers['multi']).find('input').val('').width(20);
 			}
 			// file
@@ -10305,24 +10466,6 @@ var w2confirm = function (msg, title, callBack) {
 			// update date popup
 			if (['date', 'time'].indexOf(this.type) != -1) {
 				setTimeout(function () { obj.updateOverlay(); }, 1);
-			}
-			// list/select
-			if (['list'].indexOf(this.type) != -1) {
-				if (event.keyCode == 13) {
-					var val = $(this.el).val();
-					if (typeof val == 'undefined') return;
-					// make sure element exists
-					var item = null;
-					for (var i in options.items) {
-						if (options.items[i].text == val) { item = options.items[i]; break; }
-					}
-					var current = $(this.el).data('selected');
-					if (!item) {
-						$(this.el).val('').removeData('selected');
-					} else if (!current || current.id != item.id) {
-						$(this.el).data('selected', item);
-					}
-				}
 			}
 		},
 
@@ -10434,13 +10577,12 @@ var w2confirm = function (msg, title, callBack) {
 				}
 			}
 			// list/select/combo
-			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['combo', 'enum'].indexOf(this.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
 				var cancel		= false;
 				var selected	= $(this.el).data('selected');
 				// apply arrows
 				switch (key) {
-					case 37: // left
 					case 39: // right
 						if ($(this.el).val() != '') break;
 					case 13: // enter
@@ -10636,6 +10778,7 @@ var w2confirm = function (msg, title, callBack) {
 			var search 	= $(obj.el).val();
 			var target	= obj.el;
 			var ids = [];
+			if (obj.type == 'list') return; // list has its own search field
 			if (['enum'].indexOf(obj.type) != -1) {
 				target = $(obj.helpers['multi']).find('input');
 				search = target.val();
@@ -10661,8 +10804,12 @@ var w2confirm = function (msg, title, callBack) {
 					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
 					if (item.hidden !== true) shown++;
 				}
-				options.index = 0;
-				while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+				if (obj.type != 'combo') { // don't preselect first for combo
+					options.index = 0;
+					while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+				} else {
+					options.index = -1;
+				}
 				if (shown <= 0) options.index = -1;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
@@ -10724,7 +10871,7 @@ var w2confirm = function (msg, title, callBack) {
 					el		= $(this.helpers['multi']);
 					input	= $(el).find('input'); 
 				}
-				if ($(input).is(':focus')) {
+				if ($(input).is(':focus') || this.type == 'list') {
 					if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
 						$().w2overlay();
 						return;
@@ -10736,6 +10883,8 @@ var w2confirm = function (msg, title, callBack) {
 					} 
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
+						render		: options.renderDrop,
+						maxHeight	: options.maxDropHeight,
 						// selected with mouse
 						onSelect: function (event) {
 							if (obj.type == 'enum') {
@@ -10755,24 +10904,26 @@ var w2confirm = function (msg, title, callBack) {
 									// event after
 									obj.trigger($.extend(eventData, { phase: 'after' }));
 								}
+							} else if (obj.type == 'list') {
+								if (typeof event.item != 'undefined') {
+									$(obj.el).data('selected', event.item).val(event.item.text).change();
+								}
+								// hide overlay, focus helper
+								setTimeout(function () {
+									$('#w2ui-overlay').remove();
+									obj.helpers['focus'].find('input').focus(); 
+								}, 1);
 							} else {					
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
 							}
+						},
+						onHide: function (event) {
+							// need time out for poup to finaly get hidden
+							setTimeout(function () {
+								if (obj.type == 'list') obj.blur();
+							}, 1);	
 						}
 					}));
-				}
-				// display new selected item
-				var el  = $('#w2ui-overlay > div');
-				var cur = el.find('tr[index='+ options.index +']');
-				el.find('tr.w2ui-selected').removeClass('w2ui-selected');
-				cur.addClass('w2ui-selected');
-				if (cur.length > 0 ) {
-					var top  	= cur[0].offsetTop - 5; // 5 is margin top
-					var scrTop 	= el.scrollTop();
-					var height 	= el.height();
-					if (top < scrTop || top + cur.height() > scrTop + height) {
-						$('#w2ui-overlay > div').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
-					}
 				}
 			}
 		},
@@ -11009,7 +11160,7 @@ var w2confirm = function (msg, title, callBack) {
 						if ($('#w2ui-overlay').length == 0) obj.focus(event);
 					})
 					.on('focus', function (event) {
-						$(div).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
+						$(div).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 						obj.focus(event);
 						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					})
@@ -11069,6 +11220,35 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			obj.refresh();
 		},
+
+		addFocus: function () {
+			var obj = this;
+			setTimeout(function () {
+				var helper;
+				$(obj.el).before('<div class="w2ui-field-helper" style="margin-left: 200px; opacity: 0"><input type="text" size="1"></div>');
+				helper = $(obj.el).prev();
+				obj.helpers['focus'] = helper;
+				var index = $(obj.el).attr('tabindex');
+				var input = helper.find('input');
+				if (index > 0) input.attr('tabindex', index);
+				$(obj.el).attr('tabindex', -1);
+				input
+					.on('blur', function () {
+						obj.blur();
+					})
+					.on('focus', function () {
+						obj.focus();
+					})
+					.on('keydown', function (event) {
+						if (event.keyCode == 40 || event.keyCode == 13) {
+							setTimeout(function () { obj.updateOverlay(); }, 100);
+						}
+						if (event.keyCode == 27) {
+							$(obj.el).val('').removeData('selected').change();
+						}
+					});
+			}, 1);
+		},		
 
 		addFile: function (file) {
 			var obj		 = this;
@@ -11221,7 +11401,7 @@ var w2confirm = function (msg, title, callBack) {
 				var className = ''; 
 				if (ci % 7 == 6)  className = ' w2ui-saturday';
 				if (ci % 7 === 0) className = ' w2ui-sunday';
-				if (dt == today)  className += ' w2ui-today';
+				if (dt == today)  className+= ' w2ui-today';
 				
 				var dspDay	 = day;
 				var col		 = '';
@@ -12147,6 +12327,9 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
 			if (eventData.isCancelled === true) return false;
 			// default actions
+			if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
+				this.original = $.extend(true, {}, this.record);
+			}
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
 						'	<div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar"></div>' +
@@ -12236,8 +12419,7 @@ var w2confirm = function (msg, title, callBack) {
 *	- Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*	- images support
-*	- PgUp/PgDown keys support
+*	- images support via 'src' attribute
 *
 ************************************************************************/
 
@@ -12247,7 +12429,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.name			= null;		// unique name for w2ui
 		this.vType			= null;
 		this.extraCols		= [];
-		this.itemExtra = {};
+		this.itemExtra		= {};
 		this.items			= [];
 		this.menu			= [];
 		this.multiselect	= true;		// multiselect support
@@ -12362,7 +12544,10 @@ var w2confirm = function (msg, title, callBack) {
 				}
 				var unique = true;
 				for (var i = 0; i < this.items.length; i++) {
-					if (this.items[i].id == item[r].id) { unique = false; break; }
+					if (this.items[i].id == item[r].id) {
+						unique = false;
+						break;
+					}
 				}
 				if (!unique) {
 					console.log('ERROR: The parameter "id='+ item[r].id +'" is not unique within the current items. (obj: '+ this.name +')');
@@ -12389,7 +12574,7 @@ var w2confirm = function (msg, title, callBack) {
 				// remove from array
 				this.items.splice(idx, 1);
 				// remove from screen
-				$('#itm_'+ w2utils.escapeId(arguments[i])).remove();
+				$(this.itemNode(arguments[i])).remove();
 			}
 			return removed;
 		},
@@ -12406,7 +12591,9 @@ var w2confirm = function (msg, title, callBack) {
 			var i = 0;
 			if (arguments.length === 0) {
 				var all = [];
-				for (; i < this.items.length; i++) if (this.items[i].id !== null) all.push(this.items[i].id);
+				for (; i < this.items.length; i++) {
+					if (this.items[i].id !== null) all.push(this.items[i].id);
+				}
 				return all;
 			}
 			for (; i < this.items.length; i++) {
@@ -12424,13 +12611,14 @@ var w2confirm = function (msg, title, callBack) {
 
 			if (!addSelection) this.unselect();
 			if (!itm.selected) {
-				$('#itm_'+ w2utils.escapeId(id)).addClass('w2ui-selected');
+				$(this.itemNode(itm.id)).addClass('w2ui-selected');
 				itm.selected = true;
 			}
 			return itm.selected;
 		},
 
 		unselect: function (id) {
+			var obj = this;
 			var i = 0;
 			if (arguments.length === 0) {
 				for (; i < this.items.length; i++) doUnselect(this.items[i]);
@@ -12441,7 +12629,7 @@ var w2confirm = function (msg, title, callBack) {
 
 			function doUnselect(itm) {
 				if (itm !== null && itm.selected) {
-					$('#itm_'+ w2utils.escapeId(itm.id)).removeClass('w2ui-selected');
+					$(obj.itemNode(itm.id)).removeClass('w2ui-selected');
 					itm.selected = false;
 				}
 			}
@@ -12455,17 +12643,13 @@ var w2confirm = function (msg, title, callBack) {
 
 		scrollIntoView: function (id) {
 			if (typeof id !== 'undefined') {
-				var itm = this.get(id);
-				if (itm === null) return;
-				var $box	= $(this.box);
-				var node	= $('#itm_'+ w2utils.escapeId(id));
-				var offset	= node.offset().top - $box.offset().top;
-				var nodeHeight = w2utils.getSize(node, 'height');
-				if (offset + nodeHeight > $box.height()) {
-					$box.scrollTop($box.scrollTop() + offset + nodeHeight - $box.height());
-				}
-				if (offset <= 0) {
-					$box.scrollTop($box.scrollTop() + offset);
+				var node = this.itemNode(id);
+				if (node === null) return;
+				var nodeOffset = this.itemNodeOffsetInfo(node);
+				if (nodeOffset.top < this.box.scrollTop) {
+					$(this.box).scrollTop(nodeOffset.top);
+				} else if (nodeOffset.bottom > this.box.scrollTop + this.box.offsetHeight) {
+					$(this.box).scrollTop(nodeOffset.bottom - this.box.offsetHeight);
 				}
 			}
 		},
@@ -12503,9 +12687,9 @@ var w2confirm = function (msg, title, callBack) {
 			if (itm === null) return;
 			var oldItm = this.getFocused();
 			if (oldItm !== null) {
-				$('#itm_'+ w2utils.escapeId(oldItm.id)).removeClass('w2ui-focused');
+				$(this.itemNode(oldItm.id)).removeClass('w2ui-focused');
 			}
-			$('#itm_'+ w2utils.escapeId(id)).addClass('w2ui-focused');
+			$(this.itemNode(id)).addClass('w2ui-focused');
 			this.curFocused = id;
 
 			// update view
@@ -12551,16 +12735,43 @@ var w2confirm = function (msg, title, callBack) {
 			var rslt = eventData.isCancelled !== true;
 			if (rslt) {
 				// default behaviour
-				if (event.keyCode == 13) obj.dblClick(obj.items[idx].id, event);
-				if (event.keyCode == 32) obj.click(obj.items[idx].id, event);
-				if (event.keyCode == 33) processNeighbor('pgUp');
-				if (event.keyCode == 34) processNeighbor('pgDown');
-				if (event.keyCode == 37) processNeighbor('left');
-				if (event.keyCode == 39) processNeighbor('right');
-				if (event.keyCode == 38) processNeighbor('up');
-				if (event.keyCode == 40) processNeighbor('down');
+				var cancelProcessing = true;
+				switch (event.keyCode) {
+					case 13:
+						obj.dblClick(obj.items[idx].id, event);
+						break;
+					case 32:
+						obj.click(obj.items[idx].id, event);
+						break;
+					case 33:
+						processNeighbor('pgUp');
+						break;
+					case 34:
+						processNeighbor('pgDown');
+						break;
+					case 36:
+						processNeighbor('home');
+						break;
+					case 35:
+						processNeighbor('end');
+						break;
+					case 37:
+						processNeighbor('left');
+						break;
+					case 38:
+						processNeighbor('up');
+						break;
+					case 39:
+						processNeighbor('right');
+						break;
+					case 40:
+						processNeighbor('down');
+						break;
+					default:
+						cancelProcessing = false;
+				}
 				// cancel event if needed
-				if ($.inArray(event.keyCode, [13, 32, 33, 34, 37, 38, 39, 40]) != -1) {
+				if (cancelProcessing) {
 					if (event.preventDefault) event.preventDefault();
 					if (event.stopPropagation) event.stopPropagation();
 				}
@@ -12571,20 +12782,70 @@ var w2confirm = function (msg, title, callBack) {
 			return rslt;
 
 			function processNeighbor(neighbor) {
-				var newIdx = idx;
-				var colsCnt = colsCount();
-				if (neighbor === 'up') newIdx = idx - colsCnt;
-				if (neighbor === 'down') newIdx = idx + colsCnt;
-				if (neighbor === 'left' && colsCnt > 1) newIdx = idx - 1;
-				if (neighbor === 'right' && colsCnt > 1) newIdx = idx + 1;
+				var newIdx = getNeighborIdx(neighbor);
 				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) {
 					obj.userSelect(obj.items[newIdx].id, event, false);
 				}
 			}
 
+			function getNeighborIdx(neighbor) {
+				var colsCnt = colsCount();
+				var newIdx, itmOffset;
+				switch (neighbor) {
+					case 'up':
+						return idx - colsCnt;
+					case 'down':
+						return idx + colsCnt;
+					case 'left':
+						return (colsCnt > 1) ? idx - 1 : idx;
+					case 'right':
+						return (colsCnt > 1) ? idx + 1 : idx;
+					case 'pgUp':
+						itmOffset = obj.itemNodeOffsetInfo(obj.itemNode(obj.items[idx].id));
+						var minTop = itmOffset.bottom - obj.box.offsetHeight;
+						newIdx = idx;
+						while (newIdx >= colsCnt) {
+							newIdx -= colsCnt;
+							if (obj.itemNodeOffsetInfo(obj.itemNode(obj.items[newIdx].id)).top < minTop) {
+								newIdx += colsCnt;
+								break;
+							}
+						}
+						return newIdx;
+					case 'pgDown':
+						itmOffset = obj.itemNodeOffsetInfo(obj.itemNode(obj.items[idx].id));
+						var maxBottom = itmOffset.top + obj.box.offsetHeight;
+						newIdx = idx;
+						while (newIdx < obj.items.length - colsCnt) {
+							newIdx += colsCnt;
+							if (obj.itemNodeOffsetInfo(obj.itemNode(obj.items[newIdx].id)).bottom > maxBottom) {
+								newIdx -= colsCnt;
+								break;
+							}
+						}
+						return newIdx;
+					case 'home':
+						return 0;
+					case 'end':
+						return obj.items.length - 1;
+					default:
+						return idx;
+				}
+			}
+
 			function colsCount() {
-				var lv = $(obj.box).find('> ul');
-				return parseInt(lv.width() / w2utils.getSize(lv.find('> li').get(0), 'width'), 10);
+				var vt = obj.viewType();
+				if (vt === 'table') return 1;
+				return parseInt($(obj.box).find('> ul').width() / itemWidth(vt), 10);
+			}
+
+			function itemWidth(viewType) {
+				obj.itemWidths = obj.itemWidths || {};
+				if (!(viewType in obj.itemWidths)) {
+					var itm = obj.itemNode(obj.items[idx].id);
+					obj.itemWidths[viewType] = w2utils.getSize(itm, 'width');
+				}
+				return obj.itemWidths[viewType];
 			}
 		},
 
@@ -12598,7 +12859,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (rslt) {
 				// default action
 				if (obj.menu.length > 0) {
-					$('#itm_'+ w2utils.escapeId(id))
+					$(obj.itemNode(id))
 						.w2menu(obj.menu, {
 							left: (event ? event.offsetX || event.pageX : 50) - 25,
 							select: function (item, event, index) { obj.menuClick(id, index, event); }
@@ -12621,6 +12882,27 @@ var w2confirm = function (msg, title, callBack) {
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 			return rslt;
+		},
+
+		itemNodeId: function (id) {
+			return 'lv_' + this.name + '_itm_' + id;
+		},
+
+		itemNode: function (id) {
+			return document.getElementById(this.itemNodeId(id));
+		},
+
+		itemNodeOffsetInfo: function (node) {
+			var vt = this.viewType();
+			this.itemSpacing = this.itemSpacing || {};
+			if (!(vt in this.itemSpacing)) {
+				var $node = $(node);
+				this.itemSpacing[vt] = (parseInt($node.css('margin-top')) || 0) + (parseInt($node.css('margin-bottom')) || 0);
+			}
+			return {
+				top: node.offsetTop - this.itemSpacing[vt],
+				bottom: node.offsetTop + node.offsetHeight + this.itemSpacing[vt]
+			}
 		},
 
 		refresh: function (id) {
@@ -12649,15 +12931,14 @@ var w2confirm = function (msg, title, callBack) {
 				this.lastItm.parentNode.insertBefore(itms, this.lastItm);
 			} else {
 				// refresh single item
-				var itm = document.getElementById('itm_'+ w2utils.escapeId(id));
+				var itm = this.itemNode(id);
 				if (itm) {
 					// update existing
 					itm.parentNode.replaceChild(getItemElement(this.items[idx]), itm);
 				} else {
 					// create new
 					var nextItm;
-					if (idx != this.items.length-1)
-						nextItm = document.getElementById('itm_'+ w2utils.escapeId(this.items[idx+1].id));
+					if (idx != this.items.length-1) nextItm = this.itemNode(this.items[idx+1].id);
 					if (!nextItm) nextItm = this.lastItm;
 					nextItm.parentNode.insertBefore(getItemElement(this.items[idx]), nextItm);
 				}
@@ -12675,19 +12956,21 @@ var w2confirm = function (msg, title, callBack) {
 				var withDescription = (typeof item.description !== undefined && item.description !== '');
 				var withExtra = (obj.extraCols.length > 0);
 				var rslt = getItemTemplate(withDescription, withExtra);
-				rslt.id = 'itm_' + item.id;
+				rslt.id = obj.itemNodeId(item.id);
 				rslt.setAttribute('item_id', item.id);
 				var itmDiv = rslt.querySelector('div');
 				itmDiv.querySelector('div.w2ui-listview-img').className = 'w2ui-listview-img'+imgClass;
 				itmDiv.querySelector('div.caption').textContent = item.caption;
-				if (withDescription)
+				if (withDescription) {
 					itmDiv.querySelector('div.description').textContent = item.description;
+				}
 				if (withExtra) {
 					var itmExtra = itmDiv.querySelector('div.extra div');
 					for (var i = 0; i < obj.extraCols.length; i++) {
 						var colName = obj.extraCols[i].name;
-						if (colName in item)
+						if (colName in item) {
 							itmExtra.querySelector('div.'+colName).textContent = item[colName];
+						}
 					}
 				}
 				return rslt;
@@ -12709,8 +12992,7 @@ var w2confirm = function (msg, title, callBack) {
 						obj.captionOnlyTemplate = template;
 					}
 
-				} else
-				if (withDescription && !withExtra) {
+				} else if (withDescription && !withExtra) {
 					if ('captionWithDescription' in obj) {
 						template = obj.captionWithDescriptionTemplate;
 					} else {
@@ -12719,16 +13001,14 @@ var w2confirm = function (msg, title, callBack) {
 						appendDiv(itmDiv, 'description');
 						obj.captionWithDescriptionTemplate = template;
 					}
-				} else
-				if (!withDescription && withExtra) {
+				} else if (!withDescription && withExtra) {
 					if ('captionWithExtra' in obj) {
 						template = obj.captionWithExtra;
 					} else {
 						template = appendExtra(getItemTemplate(false, false));
 						obj.captionWithExtra = template;
 					}
-				} else
-				if (withDescription && withExtra) {
+				} else if (withDescription && withExtra) {
 					if ('captionWithDescriptionAndExtra' in obj) {
 						template = obj.captionWithDescriptionAndExtra;
 					} else {
@@ -12746,17 +13026,17 @@ var w2confirm = function (msg, title, callBack) {
 					for (var i = 0; i < obj.extraCols.length; i++) {
 						var col = obj.extraCols[i];
 						var extraCol = appendDiv(extra, col.name);
-						extraCol.style.width = col.width+'px';
+						extraCol.style.width = col.width + 'px';
 						if ('align' in col) extraCol.style.textAlign = col.align;
-						if ('paddingLeft' in col) extraCol.style.paddingLeft = col.paddingLeft+'px';
-						if ('paddingRight' in col) extraCol.style.paddingRight = col.paddingRight+'px';
+						if ('paddingLeft' in col) extraCol.style.paddingLeft = col.paddingLeft + 'px';
+						if ('paddingRight' in col) extraCol.style.paddingRight = col.paddingRight + 'px';
 					}
 					return node;
 
 					function extraColsWidth() {
 						var rslt = 0;
 						for (var i = 0; i < obj.extraCols.length; i++) {
-							if (!('width' in obj.extraCols[i])) obj.extraCols[i].width = 100;
+							obj.extraCols[i].width = ('width' in obj.extraCols[i]) ? parseInt(obj.extraCols[i].width, 10) : 100;
 							rslt += obj.extraCols[i].width;
 						}
 						return rslt;

@@ -37,6 +37,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- improoved overlays (better positioning, refresh, etc.)
 *	- multiple overlay at the same time (if it has name)
 *	- overlay options.css removed, I have added options.style 
+*	- ability to open searchable w2menu
 *
 ************************************************/
 
@@ -704,31 +705,32 @@ var w2utils = (function () {
 	}
 
 	function getSize (el, type) {
+		var $el = $(el);
 		var bwidth = {
-			left: 	parseInt($(el).css('border-left-width')) || 0,
-			right:  parseInt($(el).css('border-right-width')) || 0,
-			top:  	parseInt($(el).css('border-top-width')) || 0,
-			bottom: parseInt($(el).css('border-bottom-width')) || 0
+			left: 	parseInt($el.css('border-left-width')) || 0,
+			right:  parseInt($el.css('border-right-width')) || 0,
+			top:  	parseInt($el.css('border-top-width')) || 0,
+			bottom: parseInt($el.css('border-bottom-width')) || 0
 		};
 		var mwidth = {
-			left: 	parseInt($(el).css('margin-left')) || 0,
-			right:  parseInt($(el).css('margin-right')) || 0,
-			top:  	parseInt($(el).css('margin-top')) || 0,
-			bottom: parseInt($(el).css('margin-bottom')) || 0
+			left: 	parseInt($el.css('margin-left')) || 0,
+			right:  parseInt($el.css('margin-right')) || 0,
+			top:  	parseInt($el.css('margin-top')) || 0,
+			bottom: parseInt($el.css('margin-bottom')) || 0
 		};
 		var pwidth = {
-			left: 	parseInt($(el).css('padding-left')) || 0,
-			right:  parseInt($(el).css('padding-right')) || 0,
-			top:  	parseInt($(el).css('padding-top')) || 0,
-			bottom: parseInt($(el).css('padding-bottom')) || 0
+			left: 	parseInt($el.css('padding-left')) || 0,
+			right:  parseInt($el.css('padding-right')) || 0,
+			top:  	parseInt($el.css('padding-top')) || 0,
+			bottom: parseInt($el.css('padding-bottom')) || 0
 		};
 		switch (type) {
-			case 'top': 	return bwidth.top + mwidth.top + pwidth.top; 
-			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom; 
-			case 'left': 	return bwidth.left + mwidth.left + pwidth.left; 
-			case 'right': 	return bwidth.right + mwidth.right + pwidth.right; 
-			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($(el).width()); 
-			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($(el).height());
+			case 'top': 	return bwidth.top + mwidth.top + pwidth.top;
+			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom;
+			case 'left': 	return bwidth.left + mwidth.left + pwidth.left;
+			case 'right': 	return bwidth.right + mwidth.right + pwidth.right;
+			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($el.width());
+			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($el.height());
 			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right; 
 			case '+height': return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
 		}
@@ -922,7 +924,8 @@ w2utils.keyboard = (function (obj) {
 		var tag = event.target.tagName;
 		var obj = $(event.target).parents('.w2ui-reset');
 		if (obj.length > 0) {
-			w2ui_name = obj.attr('name');
+			var name = obj.attr('name');
+			if (w2ui[name] && w2ui[name].keyboard) w2ui_name = name;
 		}
 	}
 
@@ -1104,10 +1107,11 @@ w2utils.keyboard = (function (obj) {
 			style		: '',		// additional style for main div
 			'class'		: '',		// additional class name for main dvi
 			onShow		: null, 	// event on show
-			onHide		: null		// event on hide
+			onHide		: null,		// event on hide
+			tmp			: {}
 		}
 		if (!$.isPlainObject(options)) options = {};
-		options = $.extend(true, {}, defaults, options);
+		options = $.extend({}, defaults, options);
 		if (options.name) name = '-' + options.name;
 		// if empty then hide
 		if (this.length == 0 || html == '' || typeof html == 'undefined') { 
@@ -1134,7 +1138,7 @@ w2utils.keyboard = (function (obj) {
 		var bc  = div2.css('background-color'); 
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div1.css('background-color', bc);
 
-		div1.data('obj', obj)
+		div1.data('element', obj.length > 0 ? obj[0] : null)
 			.data('hide', hide)
 			.data('fixSize', fixSize)
 			.fadeIn('fast').on('mousedown', function (event) { 
@@ -1179,6 +1183,11 @@ w2utils.keyboard = (function (obj) {
 				var w = div2.width();
 				if (options.width && options.width < w) w = options.width;
 				if (w < 30) w = 30;
+				// if content of specific height
+				if (options.tmp.contentHeight) {
+					h = options.tmp.contentHeight;
+					div2.height(h);
+				}
 				// alignment
 				switch(options.align) {
 					case 'both':
@@ -1198,7 +1207,7 @@ w2utils.keyboard = (function (obj) {
 				var boxLeft  = options.left;
 				var boxWidth = options.width;
 				var tipLeft  = options.tipLeft;
-				if (w == 30) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
+				if (w == 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
 				if (tmp < 25) {
 					boxLeft = 25 - tmp;
 					tipLeft = Math.floor(tmp);
@@ -1268,18 +1277,19 @@ w2utils.keyboard = (function (obj) {
 			index		: null, 	// current selected
 			items 		: [],
 			render		: null,
-			onSelect 	: null
+			onSelect 	: null,
+			tmp			: {}
 		}
+		var obj  = this;
 		var name = '';
 		if (menu == 'refresh') {
 			// if not show - call blur
 			if ($('#w2ui-overlay'+ name).length > 0) {
-				var tmp = $('#w2ui-overlay'+ name +' > div').scrollTop();
-				$('#w2ui-overlay'+ name +' > div').html(getMenuHTML(), options);
-				var fun = $('#w2ui-overlay'+ name).data('fixSize');
-				if (typeof fun == 'function') fun();
-				// reset scrollTop
-				$('#w2ui-overlay'+ name +' > div').scrollTop(tmp);
+				options = $.extend($.fn.w2menuOptions, options);
+				var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+				$('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
+				$('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
+				fixSize();
 			} else {
 				$(this).w2menu(options);
 			}
@@ -1287,20 +1297,130 @@ w2utils.keyboard = (function (obj) {
 			if (arguments.length == 1) options = menu; else options.items = menu;
 			if (typeof options != 'object') options = {};
 			options = $.extend({}, defaults, options);
+			$.fn.w2menuOptions = options;
 			if (options.name) name = '-' + options.name;
 			if (typeof options.select == 'function' && typeof options.onSelect != 'function') options.onSelect = options.select;
 			if (typeof options.onRender == 'function' && typeof options.render != 'function') options.render = options.onRender;
 			// since only one overlay can exist at a time
 			$.fn.w2menuHandler = function (event, index) {
 				if (typeof options.onSelect == 'function') {
-					options.onSelect({
-						index	: index,
-						item	: options.items[index],
-						originalEvent: event
-					}); 
+					// need time so that menu first hides
+					setTimeout(function () {
+						options.onSelect({
+							index	: index,
+							item	: options.items[index],
+							originalEvent: event
+						}); 
+					}, 10);
 				}
 			};
-			return $(this).w2overlay(getMenuHTML(), options);
+			var html = '';
+			if (options.search) {
+				html += 
+					'<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
+					'	<div class="w2ui-icon icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
+					'	<input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();">'+
+					'</div>';
+				options.style += ';background-color: #ECECEC';
+				options.index = 0;
+				for (var i in options.items) options.items[i].hidden = false;
+			}
+			html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%; overflow: auto;">' + 
+						getMenuHTML() + 
+					'</div>';
+			var ret = $(this).w2overlay(html, options);
+			$('#w2ui-overlay'+ name +' #menu-search')
+				.focus()
+				.on('keyup', change)
+				.on('keydown', function (event) {
+					// cancel tab key
+					if (event.keyCode == 9) { event.stopPropagation(); event.preventDefault(); }
+				});				
+			fixSize();
+			return ret;
+		}
+
+		function fixSize() {
+			setTimeout(function () { 
+				// show selected
+				$('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected');
+				var cur 	= $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
+				var scrTop 	= $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+				cur.addClass('w2ui-selected');
+				if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
+				var tmp = $('#w2ui-overlay'+ name).data().fixSize;
+				if (typeof tmp == 'function') tmp();
+				// scroll into view
+				if (cur.length > 0) {
+					var top  	= cur[0].offsetTop - 5; // 5 is margin top
+					var el 		= $('#w2ui-overlay'+ name +' div.menu');
+					var height 	= el.height();
+					$('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
+					if (top < scrTop || top + cur.height() > scrTop + height) {
+						$('#w2ui-overlay'+ name +' div.menu').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
+					}
+				}				
+			}, 1);			
+		}
+
+		function change(event) {
+			var search	= this.value;
+			var key 	= event.keyCode;
+			var cancel  = false;
+			switch(key) {
+				case 13: // enter
+					$('#w2ui-overlay'+ name).remove();
+					$.fn.w2menuHandler(event, options.index);
+					break;
+				case 27: // escape
+					$('#w2ui-overlay'+ name).remove();
+					$.fn.w2menuHandler(event, -1);
+					break;
+				case 38: // up
+					options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
+					options.index--;
+					while (options.index > 0 && options.items[options.index].hidden) options.index--;
+					if (options.index == 0 && options.items[options.index].hidden) {
+						while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+					}
+					if (options.index < 0) options.index = 0;
+					cancel = true;
+					break;
+				case 40: // down
+					options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
+					options.index++;
+					while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
+					if (options.index == options.items.length-1 && options.items[options.index].hidden) {
+						while (options.items[options.index] && options.items[options.index].hidden) options.index--;
+					}
+					if (options.index >= options.items.length) options.index = options.items.length - 1;
+					cancel = true;
+					break;
+			}		
+			// filter
+			if (!cancel) {
+				var shown  = 0;
+				for (var i in options.items) {
+					var item = options.items[i];
+					var prefix = '';
+					var suffix = '';
+					if (['is', 'begins with'].indexOf(options.match) != -1) prefix = '^';
+					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
+					try { 
+						var re = new RegExp(prefix + search + suffix, 'i');
+						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
+						if (options.applyFilter !== true) item.hidden = false; 
+					} catch (e) {}
+					// do not show selected items
+					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
+					if (item.hidden !== true) shown++;
+				}
+				options.index = 0;
+				while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
+				if (shown <= 0) options.index = -1;
+			}
+			$(obj).w2menu('refresh', options);
+			fixSize();
 		}
 
 		function getMenuHTML () { 
@@ -1331,8 +1451,8 @@ w2utils.keyboard = (function (obj) {
 						if (options.altRows !== true) bg = '';
 						menu_html += 
 							'<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
-							'		class="'+ bg +' '+ (options.index == count ? 'w2ui-selected' : '') +'"'+
-							'		onclick="$(\'#w2ui-overlay\').remove(); $.fn.w2menuHandler(event, \''+ f +'\'); event.stopPropagation();" '+
+							'		class="'+ bg +' '+ (options.index == f ? 'w2ui-selected' : '') +'"'+
+							'		onclick="$(\'#w2ui-overlay'+ name +'\').remove(); $.fn.w2menuHandler(event, \''+ f +'\'); event.stopPropagation();" '+
 							'		onmouseover="$(this).addClass(\'w2ui-selected\');" '+
 							'		onmouseout="$(this).removeClass(\'w2ui-selected\');">'+
 								imgd +
@@ -1600,31 +1720,36 @@ w2utils.keyboard = (function (obj) {
 					$(this.el).attr('placeholder', options.placeholder ? options.placeholder : (options.format == 'h12' ? 'hh:mi pm' : 'hh:mi'));
 					break;
 
+				case 'datetime':
+					break;
+
 				case 'list':
 				case 'combo':
 					defaults = {
-						items		: [],
-						selected	: {},
-						placeholder	: '',
-						url 		: null, 		// url to pull data from
-						cacheMax	: 500,
-						maxWidth	: null,			// max width for input control to grow
-						maxHeight	: 350,			// max height for input control to grow
-						match		: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
-						silent		: true,
-						onSearch	: null,			// when search needs to be performed
-						onRequest	: null,			// when request is submitted
-						onLoad		: null,			// when data is received
-						onError		: null,			// when data fails to load due to server error or other failure modes
-						render		: null, 		// render function for drop down item
-						suffix		: '',
-						openOnFocus : false,		// if to show overlay onclick or when typing
-						applyFilter	: true,
-						markSearch 	: false
+						items			: [],
+						selected		: {},
+						placeholder		: '',
+						url 			: null, 		// url to pull data from
+						cacheMax		: 500,
+						maxDropHeight 	: 350,			// max height for drop down menu
+						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
+						silent			: true,
+						onSearch		: null,			// when search needs to be performed
+						onRequest		: null,			// when request is submitted
+						onLoad			: null,			// when data is received
+						onError			: null,			// when data fails to load due to server error or other failure modes
+						renderDrop		: null, 		// render function for drop down item
+						suffix			: '',
+						openOnFocus 	: false,		// if to show overlay onclick or when typing
+						applyFilter		: true,
+						markSearch 		: false
 					};
 					if (this.type == 'list') {
+						defaults.search = (options.items && options.items.length >= 10 ? true : false);
 						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>';
+						$(this.el).addClass('w2ui-select');
+						this.addFocus();
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -1643,33 +1768,32 @@ w2utils.keyboard = (function (obj) {
 
 				case 'enum':
 					defaults = {
-						items		: [],
-						selected	: [],
-						placeholder	: '',
-						max 		: 0,		// max number of selected items, 0 - unlim
-						url 		: null, 	// not implemented
-						cacheMax	: 500,
-						maxWidth	: null,		// max width for input control to grow
-						maxHeight	: 350,		// max height for input control to grow
-						match		: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
-						silent		: true,
-						openOnFocus : false,		// if to show overlay onclick or when typing
-						applyFilter	: true,
-						markSearch 	: true,
-						render		: null, 	// render function for drop down item
-						itemRender	: null,		// render selected item
-						itemsHeight : 350,		// max height for the control to grow
-						itemMaxWidth: 250,		// max width for a single item
-						style		: '',		// style for container div
-						onSearch	: null,		// when search needs to be performed
-						onRequest	: null,		// when request is submitted
-						onLoad		: null,		// when data is received
-						onError		: null,		// when data fails to load due to server error or other failure modes
-						onClick		: null,		// when an item is clicked
-						onAdd		: null,		// when an item is added
-						onRemove	: null,		// when an item is removed
-						onMouseOver : null,		// when an item is mouse over
-						onMouseOut	: null		// when an item is mouse out
+						items			: [],
+						selected		: [],
+						placeholder		: '',
+						max 			: 0,			// max number of selected items, 0 - unlim
+						url 			: null, 		// not implemented
+						cacheMax		: 500,
+						maxWidth		: 250,			// max width for a single item
+						maxHeight		: 350,			// max height for input control to grow
+						maxDropHeight 	: 350,			// max height for drop down menu
+						match			: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
+						silent			: true,
+						openOnFocus 	: false,		// if to show overlay onclick or when typing
+						applyFilter		: true,
+						markSearch 		: true,
+						renderDrop		: null, 		// render function for drop down item
+						renderItem		: null,			// render selected item
+						style			: '',			// style for container div
+						onSearch		: null,			// when search needs to be performed
+						onRequest		: null,			// when request is submitted
+						onLoad			: null,			// when data is received
+						onError			: null,			// when data fails to load due to server error or other failure modes
+						onClick			: null,			// when an item is clicked
+						onAdd			: null,			// when an item is added
+						onRemove		: null,			// when an item is removed
+						onMouseOver 	: null,			// when an item is mouse over
+						onMouseOut		: null			// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -1688,23 +1812,22 @@ w2utils.keyboard = (function (obj) {
 
 				case 'file':
 					defaults = {
-						selected	: [],
-						placeholder	: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
-						max 		: 0,
-						maxSize		: 0,		// max size of all files, 0 - unlim
-						maxFileSize	: 0,		// max size of a single file, 0 -unlim
-						maxWidth	: null,		// max width for input control to grow
-						maxHeight	: 350,		// max height for input control to grow
-						silent		: true,
-						itemRender	: null,		// render selected item
-						itemMaxWidth: 250,		// max width for a single item
-						itemsHeight : 350,		// max height for the control to grow
-						style		: '',		// style for container div
-						onClick		: null,		// when an item is clicked
-						onAdd		: null,		// when an item is added
-						onRemove	: null,		// when an item is removed
-						onMouseOver : null,		// when an item is mouse over
-						onMouseOut	: null,		// when an item is mouse out
+						selected		: [],
+						placeholder		: w2utils.lang('Attach files by dragging and dropping or Click to Select'),
+						max 			: 0,
+						maxSize			: 0,		// max size of all files, 0 - unlim
+						maxFileSize		: 0,		// max size of a single file, 0 -unlim
+						maxWidth		: 250,		// max width for a single item
+						maxHeight		: 350,		// max height for input control to grow
+						maxDropHeight 	: 350,		// max height for drop down menu
+						silent			: true,
+						renderItem		: null,		// render selected item
+						style			: '',		// style for container div
+						onClick			: null,		// when an item is clicked
+						onAdd			: null,		// when an item is added
+						onRemove		: null,		// when an item is removed
+						onMouseOver 	: null,		// when an item is mouse over
+						onMouseOut		: null,		// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',	// same width as control
@@ -1794,12 +1917,12 @@ w2utils.keyboard = (function (obj) {
 			if (['enum', 'file'].indexOf(this.type) != -1) {
 				var html = '';
 				for (var s in selected) {
-					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.itemMaxWidth) + 'px">'+
+					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px">'+
 							   '	<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+	
 							   		(obj.type == 'enum' ? selected[s].text : selected[s].name + '<span class="file-size"> - '+ w2utils.size(selected[s].size) +'</span>') +
 							   '</li>';
-					if (typeof options.itemRender == 'function') {
-						item = options.itemRender(selected[s], s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
+					if (typeof options.renderItem == 'function') {
+						item = options.renderItem(selected[s], s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
 					}
 					if (item.indexOf('<li') == -1) item = '<li index="'+ s +'">' + item + '</li>';
 					html += item;
@@ -1916,13 +2039,13 @@ w2utils.keyboard = (function (obj) {
 				// adjust height
 				$(this.el).height('auto');
 				var cntHeight = $(div).find('> div').height() + w2utils.getSize(div, '+height') * 2;
-				if (cntHeight < 23) cntHeight = 23;
-				if (cntHeight > options.itemsHeight) cntHeight = options.itemsHeight;
+				if (cntHeight < 26) cntHeight = 26;
+				if (cntHeight > options.maxHeight) cntHeight = options.maxHeight;
 				if (div.length > 0) div[0].scrollTop = 1000;
 				var inpHeight = w2utils.getSize($(this.el), 'height') - 2;
 				if (inpHeight > cntHeight) cntHeight = inpHeight
-				$(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.itemsHeight ? 'auto' : 'hidden') });
-				if (cntHeight < options.itemsHeight) $(div).prop('scrollTop', 0);
+				$(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden') });
+				if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0);
 				$(this.el).css({ 'height' : (cntHeight + 2) + 'px' });
 			}
 		},
@@ -1944,7 +2067,7 @@ w2utils.keyboard = (function (obj) {
 					if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
 					if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
 				}
-				if (val !== '') val = Number(val);
+				if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = '';
 			}
 			return val;
 		},
@@ -2033,18 +2156,24 @@ w2utils.keyboard = (function (obj) {
 					setTimeout(function () { obj.updateOverlay(); }, 1);
 				}, 1);
 			}
+			// list
+			if (this.type == 'list') {
+				this.helpers['focus'].focus();
+				$('#w2ui-overlay').find('#menu-search').focus();
+				$(this.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+			}
 			// menu
-			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['combo', 'enum'].indexOf(this.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
 				$("#w2ui-overlay").remove();				
 				setTimeout(function () {
-					 obj.search();
+					obj.search();
 					setTimeout(function () { obj.updateOverlay(); }, 1);
 				}, 1);
 			}
 			// file
 			if (this.type == 'file') {
-				$(this.helpers['multi']).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
+				$(this.helpers['multi']).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 			}
 		},
 
@@ -2053,7 +2182,7 @@ w2utils.keyboard = (function (obj) {
 			var options = obj.options;
 			var val 	= $(this.el).val().trim();
 			// hide overlay
-			if (['color', 'date', 'time', 'list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['color', 'date', 'time', 'combo', 'enum'].indexOf(this.type) != -1) {
 				$('#w2ui-overlay').remove();
 			}
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
@@ -2091,27 +2220,12 @@ w2utils.keyboard = (function (obj) {
 					}
 				}
 			}
-			// make sure element exists
-			if (['list'].indexOf(this.type) != -1) {
-				if (typeof val == 'undefined') return;
-				// make sure element exists
-				var flag = false;
-				for (var i in options.items) {
-					var it = options.items[i];
-					if (typeof it == 'object' && it.text == val) flag = true;
-					if (typeof it == 'string' && it == val) flag = true;
-				}
-				if (!flag && val !== '') {
-					$(this.el).val('').removeData('selected').change();
-					if (options.silent === false) {
-						$(this.el).w2tag('Not in list');
-						setTimeout(function () { $(this.el).w2tag(''); }, 3000);
-					}
-					for (var i in options.items) delete options.items.hidden;
-				}
+			if (this.type == 'list') {
+				var el = $('#w2ui-overlay').data('element');
+				if (el != obj.el) $(this.el).css({ 'outline': 'none' });
 			}
 			// clear search input
-			if (['enum'].indexOf(this.type) != -1) {
+			if (this.type == 'enum') {
 				$(this.helpers['multi']).find('input').val('').width(20);
 			}
 			// file
@@ -2137,24 +2251,6 @@ w2utils.keyboard = (function (obj) {
 			// update date popup
 			if (['date', 'time'].indexOf(this.type) != -1) {
 				setTimeout(function () { obj.updateOverlay(); }, 1);
-			}
-			// list/select
-			if (['list'].indexOf(this.type) != -1) {
-				if (event.keyCode == 13) {
-					var val = $(this.el).val();
-					if (typeof val == 'undefined') return;
-					// make sure element exists
-					var item = null;
-					for (var i in options.items) {
-						if (options.items[i].text == val) { item = options.items[i]; break; }
-					}
-					var current = $(this.el).data('selected');
-					if (!item) {
-						$(this.el).val('').removeData('selected');
-					} else if (!current || current.id != item.id) {
-						$(this.el).data('selected', item);
-					}
-				}
 			}
 		},
 
@@ -2266,13 +2362,12 @@ w2utils.keyboard = (function (obj) {
 				}
 			}
 			// list/select/combo
-			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+			if (['combo', 'enum'].indexOf(this.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
 				var cancel		= false;
 				var selected	= $(this.el).data('selected');
 				// apply arrows
 				switch (key) {
-					case 37: // left
 					case 39: // right
 						if ($(this.el).val() != '') break;
 					case 13: // enter
@@ -2468,6 +2563,7 @@ w2utils.keyboard = (function (obj) {
 			var search 	= $(obj.el).val();
 			var target	= obj.el;
 			var ids = [];
+			if (obj.type == 'list') return; // list has its own search field
 			if (['enum'].indexOf(obj.type) != -1) {
 				target = $(obj.helpers['multi']).find('input');
 				search = target.val();
@@ -2493,8 +2589,12 @@ w2utils.keyboard = (function (obj) {
 					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
 					if (item.hidden !== true) shown++;
 				}
-				options.index = 0;
-				while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+				if (obj.type != 'combo') { // don't preselect first for combo
+					options.index = 0;
+					while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+				} else {
+					options.index = -1;
+				}
 				if (shown <= 0) options.index = -1;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
@@ -2556,7 +2656,7 @@ w2utils.keyboard = (function (obj) {
 					el		= $(this.helpers['multi']);
 					input	= $(el).find('input'); 
 				}
-				if ($(input).is(':focus')) {
+				if ($(input).is(':focus') || this.type == 'list') {
 					if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
 						$().w2overlay();
 						return;
@@ -2568,6 +2668,8 @@ w2utils.keyboard = (function (obj) {
 					} 
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
+						render		: options.renderDrop,
+						maxHeight	: options.maxDropHeight,
 						// selected with mouse
 						onSelect: function (event) {
 							if (obj.type == 'enum') {
@@ -2587,24 +2689,26 @@ w2utils.keyboard = (function (obj) {
 									// event after
 									obj.trigger($.extend(eventData, { phase: 'after' }));
 								}
+							} else if (obj.type == 'list') {
+								if (typeof event.item != 'undefined') {
+									$(obj.el).data('selected', event.item).val(event.item.text).change();
+								}
+								// hide overlay, focus helper
+								setTimeout(function () {
+									$('#w2ui-overlay').remove();
+									obj.helpers['focus'].find('input').focus(); 
+								}, 1);
 							} else {					
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
 							}
+						},
+						onHide: function (event) {
+							// need time out for poup to finaly get hidden
+							setTimeout(function () {
+								if (obj.type == 'list') obj.blur();
+							}, 1);	
 						}
 					}));
-				}
-				// display new selected item
-				var el  = $('#w2ui-overlay > div');
-				var cur = el.find('tr[index='+ options.index +']');
-				el.find('tr.w2ui-selected').removeClass('w2ui-selected');
-				cur.addClass('w2ui-selected');
-				if (cur.length > 0 ) {
-					var top  	= cur[0].offsetTop - 5; // 5 is margin top
-					var scrTop 	= el.scrollTop();
-					var height 	= el.height();
-					if (top < scrTop || top + cur.height() > scrTop + height) {
-						$('#w2ui-overlay > div').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
-					}
 				}
 			}
 		},
@@ -2841,7 +2945,7 @@ w2utils.keyboard = (function (obj) {
 						if ($('#w2ui-overlay').length == 0) obj.focus(event);
 					})
 					.on('focus', function (event) {
-						$(div).css({ 'outline': 'auto 5px -webkit-focus-ring-color', 'outline-offset': '-2px' });
+						$(div).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 						obj.focus(event);
 						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					})
@@ -2901,6 +3005,35 @@ w2utils.keyboard = (function (obj) {
 			}
 			obj.refresh();
 		},
+
+		addFocus: function () {
+			var obj = this;
+			setTimeout(function () {
+				var helper;
+				$(obj.el).before('<div class="w2ui-field-helper" style="margin-left: 200px; opacity: 0"><input type="text" size="1"></div>');
+				helper = $(obj.el).prev();
+				obj.helpers['focus'] = helper;
+				var index = $(obj.el).attr('tabindex');
+				var input = helper.find('input');
+				if (index > 0) input.attr('tabindex', index);
+				$(obj.el).attr('tabindex', -1);
+				input
+					.on('blur', function () {
+						obj.blur();
+					})
+					.on('focus', function () {
+						obj.focus();
+					})
+					.on('keydown', function (event) {
+						if (event.keyCode == 40 || event.keyCode == 13) {
+							setTimeout(function () { obj.updateOverlay(); }, 100);
+						}
+						if (event.keyCode == 27) {
+							$(obj.el).val('').removeData('selected').change();
+						}
+					});
+			}, 1);
+		},		
 
 		addFile: function (file) {
 			var obj		 = this;
@@ -3053,7 +3186,7 @@ w2utils.keyboard = (function (obj) {
 				var className = ''; 
 				if (ci % 7 == 6)  className = ' w2ui-saturday';
 				if (ci % 7 === 0) className = ' w2ui-sunday';
-				if (dt == today)  className += ' w2ui-today';
+				if (dt == today)  className+= ' w2ui-today';
 				
 				var dspDay	 = day;
 				var col		 = '';
