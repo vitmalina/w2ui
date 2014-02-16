@@ -42,7 +42,9 @@
 			}
 		});
 		$('.list').w2field('list', {
-			showAll: true,
+			// search: false,
+			applyFilter: true,
+			markSearch: true,
 			// url: '/api/enum/users',
 			items: items,
 			onRequest: function (event) {
