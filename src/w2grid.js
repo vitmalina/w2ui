@@ -26,6 +26,7 @@
 *	- add showExtra, KickIn Infinite scroll when so many records
 *	- get rid of this.buffered
 *	- allow this.total to be unknown (-1)
+*	- editable fields -> LIST type is not working
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
@@ -615,15 +616,19 @@
 								}
 								break;
 							case 'in':
-								if (sdata.value.indexOf(val1) !== -1) fl++;
+								if (sdata.svalue) {
+									if (sdata.svalue.indexOf(val1) !== -1) fl++;
+								} else {
+									if (sdata.value.indexOf(val1) !== -1) fl++;
+								}
 								break;
-							case 'begins with':
+							case 'begins':
 								if (val1.indexOf(val2) == 0) fl++; // do not hide record
 								break;
 							case 'contains':
 								if (val1.indexOf(val2) >= 0) fl++; // do not hide record
 								break;
-							case 'ends with':
+							case 'ends':
 								if (val1.indexOf(val2) == val1.length - val2.length) fl++; // do not hide record
 								break;
 						}
@@ -1058,11 +1063,24 @@
 					var field2	 = $('#grid_'+ this.name + '_field2_'+s);
 					var value1   = field1.val();
 					var value2   = field2.val();
+					var svalue   = null;
 					if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
 						var fld1 = field1.data('w2field');
 						var fld2 = field2.data('w2field');
 						if (fld1) value1 = fld1.clean(value1);
 						if (fld2) value2 = fld2.clean(value2);
+					}
+					if (['list', 'enum'].indexOf(search.type) != -1) {
+						value1 = field1.data('selected');
+						if ($.isArray(value1)) {
+							svalue = [];
+							for (var v in value1) {
+								svalue.push(w2utils.isFloat(value1[v].id) ? parseFloat(value1[v].id) : String(value1[v].id).toLowerCase());
+								delete value1[v].hidden;
+							}
+						} else {
+							value1 = value1.id;
+						}
 					}
 					if ((value1 != '' && value1 != null) || (typeof value2 != 'undefined' && value2 != '')) {
 						var tmp = {
@@ -1072,11 +1090,12 @@
 						}
 						if (operator == 'between') {
 							$.extend(tmp, { value: [value1, value2] });
-						} else if (operator == 'in') {
+						} else if (operator == 'in' && typeof value1 == 'string') {
 							$.extend(tmp, { value: value1.split(',') });
 						} else {
 							$.extend(tmp, { value: value1 });
 						}
+						if (svalue) $.extend(tmp, { svalue: svalue });
 						// conver date to unix time
 						try {
 							if (search.type == 'date' && operator == 'between') {
@@ -1300,7 +1319,9 @@
 				el.w2field('clear');
 				el.change().focus();
 			} else {
-				el.w2field(search.type, $.extend({}, search.options, { suffix: '' })); // always hide suffix
+				var st = search.type;
+				if (['enum', 'select'].indexOf(st) != -1) st = 'list';
+				el.w2field(st, $.extend({}, search.options, { suffix: '' })); // always hide suffix
 				if (['list', 'enum'].indexOf(search.type) != -1) {
 					this.last.search = '';
 					this.last.item	 = '';
@@ -1718,7 +1739,8 @@
 						'>' + edit.outTag);
 				el.find('input')
 					.w2field(edit.type, $.extend(edit, { selected: val }))
-					.on('blur', function (event) { 
+					.on('blur', function (event) {
+						if (edit.type == 'list') return; 
 						obj.editChange.call(obj, this, index, column, event); 
 					});
 			}
@@ -3533,87 +3555,6 @@
 			return;
 		},
 
-		initSearches: function () {
-			var obj = this;
-			// init searches
-			for (var s in this.searches) {
-				var search = this.searches[s];
-				var sdata  = this.getSearchData(search.field);
-				search.type = String(search.type).toLowerCase();
-				if (typeof search.options != 'object') search.options = {};
-				// init types
-				switch (search.type) {
-					case 'text':
-					case 'alphanumeric':
-					case 'hex':
-						$('#grid_'+ this.name +'_operator_'+s).val('begins with');
-						if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
-							$('#grid_'+ this.name +'_field_' + s).w2field('clear').w2field(search.type, search.options);
-						}
-						break;
-
-					case 'int':
-					case 'float':
-					case 'money':
-					case 'currency':
-					case 'percent':
-					case 'date':
-					case 'time':
-					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
-						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
-						$('#grid_'+ this.name +'_field2_'+s).w2field('clear').w2field(search.type, search.options);						
-						break;
-
-					case 'list':
-					case 'combo':
-					case 'enum':
-						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
-						break;
-
-					case 'select':
-						// build options
-						var options = '<option value="">--</option>';
-						for (var i in search.items) {
-							if ($.isPlainObject(search.items[i])) {
-								var val = search.items[i].id;
-								var txt = search.items[i].text;
-								if (typeof val == 'undefined' && typeof search.items[i].value != 'undefined')   val = search.items[i].value;
-								if (typeof txt == 'undefined' && typeof search.items[i].caption != 'undefined') txt = search.items[i].caption;
-								if (val == null) val = '';
-								options += '<option value="'+ val +'">'+ txt +'</option>';
-							} else {
-								options += '<option value="'+ search.items[i] +'">'+ search.items[i] +'</option>';
-							}
-						}
-						$('#grid_'+ this.name +'_field_'+s).html(options);
-						break;
-				}
-				if (sdata != null) {
-					if (sdata.type == 'int' && sdata.operator == 'in') {
-						$('#grid_'+ this.name +'_field_'+ s).w2field('clear').val(sdata.value);
-					}
-					$('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
-					if (!$.isArray(sdata.value)) {
-						if (typeof sdata.value != 'undefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
-					} else {
-						if (sdata.operator == 'in') {
-							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
-						} else {
-							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value[0]).trigger('change');
-							$('#grid_'+ this.name +'_field2_'+ s).val(sdata.value[1]).trigger('change');
-						}
-					}
-				}
-			}
-			// add on change event
-			$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
-				if (evnt.keyCode == 13) { 
-					obj.search(); 
-					$().w2overlay();
-				}
-			});
-		},
-
 		initResize: function () {
 			var obj = this;
 			//if (obj.resizing === true) return;
@@ -3966,9 +3907,9 @@
 				if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
-						'	<option value="begins with">'+ w2utils.lang('begins with') +'</option>'+
+						'	<option value="begins">'+ w2utils.lang('begins') +'</option>'+
 						'	<option value="contains">'+ w2utils.lang('contains') +'</option>'+
-						'	<option value="ends with">'+ w2utils.lang('ends with') +'</option>'+
+						'	<option value="ends">'+ w2utils.lang('ends') +'</option>'+
 						'</select>';
 				}
 				if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
@@ -3980,15 +3921,21 @@
 						'</select>';
 				}
 				if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
-					var operator =  w2utils.lang('is') + ' <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
+					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
+						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
+						'</select>';
 				}
 				if (['enum'].indexOf(s.type) != -1) {
-					var operator =  w2utils.lang('in') + ' <input type="hidden" value="in" id="grid_'+ this.name +'_operator_'+ i +'">';
+					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
+						'	<option value="in">'+ w2utils.lang('in') +'</option>'+
+						'</select>';
 				}
 				html += '<tr>'+
 						'	<td class="close-btn">'+ btn +'</td>' +
 						'	<td class="caption">'+ s.caption +'</td>' +
-						'	<td class="operator">'+ operator +'</td>'+
+						'	<td class="operator">'+ operator +
+								'<div class="arrow-down" style="position: absolute; display: inline-block; margin: 9px 0px 0px -13px; pointer-events: none;"></div>'+
+						'	</td>'+
 						'	<td class="value">';
 
 				switch (s.type) {
@@ -4056,7 +4003,7 @@
 				switch (search.type) {
 					case 'text':
 					case 'alphanumeric':
-						$('#grid_'+ this.name +'_operator_'+s).val('begins with');
+						$('#grid_'+ this.name +'_operator_'+s).val('begins');
 						if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
 							$('#grid_'+ this.name +'_field_' + s).w2field(search.type, search.options);
 						}
@@ -4080,25 +4027,30 @@
 					case 'list':
 					case 'combo':
 					case 'enum':
-						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
+						var options = search.options;
+						if (search.type == 'list') options.selected = {};
+						if (search.type == 'enum') options.selected = [];
+						if (sdata) options.selected = sdata.value;
+						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, options);
 						if (search.type == 'combo') {
-							$('#grid_'+ this.name +'_operator_'+s).val('begins with');							
+							$('#grid_'+ this.name +'_operator_'+s).val('begins');							
 						}
 						break;
 
 					case 'select':
 						// build options
 						var options = '<option value="">--</option>';
-						for (var i in search.items) {
-							if ($.isPlainObject(search.items[i])) {
-								var val = search.items[i].id;
-								var txt = search.items[i].text;
-								if (typeof val == 'undefined' && typeof search.items[i].value != 'undefined')   val = search.items[i].value;
-								if (typeof txt == 'undefined' && typeof search.items[i].caption != 'undefined') txt = search.items[i].caption;
+						for (var i in search.options.items) {
+							var si = search.options.items[i];
+							if ($.isPlainObject(search.options.items[i])) {
+								var val = si.id;
+								var txt = si.text;
+								if (typeof val == 'undefined' && typeof si.value != 'undefined')   val = si.value;
+								if (typeof txt == 'undefined' && typeof si.caption != 'undefined') txt = si.caption;
 								if (val == null) val = '';
 								options += '<option value="'+ val +'">'+ txt +'</option>';
 							} else {
-								options += '<option value="'+ search.items[i] +'">'+ search.items[i] +'</option>';
+								options += '<option value="'+ si +'">'+ si +'</option>';
 							}
 						}
 						$('#grid_'+ this.name +'_field_'+s).html(options);

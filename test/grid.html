@@ -60,10 +60,10 @@ $(function () {
 			]
 		},
 
-		// possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, -- select, enum, date, time
+		// possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select --, date, time
 		searches: [				
 			{ field: 'personid', caption: 'ID', type: 'int' },
-			{ field: 'fname', caption: 'First Name', type: 'enum', 
+			{ field: 'fname', caption: 'First Name', type: 'list', 
 				options: { 
 					applyFilter: true,
 					items: [

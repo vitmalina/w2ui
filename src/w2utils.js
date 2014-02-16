@@ -1186,6 +1186,20 @@ w2utils.keyboard = (function (obj) {
 				if (options.tmp.contentHeight) {
 					h = options.tmp.contentHeight;
 					div2.height(h);
+					setTimeout(function () {
+						if (div2.height() > div2.find('div.menu > table').height()) {
+							div2.find('div.menu').css('overflow-y', 'hidden');
+						}
+					}, 1);
+				}
+				if (options.tmp.contentWidth) {
+					w = options.tmp.contentWidth;
+					div2.width(w);
+					setTimeout(function () {
+						if (div2.width() > div2.find('div.menu > table').width()) {
+							div2.find('div.menu').css('overflow-x', 'hidden');
+						}
+					}, 1);
 				}
 				// alignment
 				switch(options.align) {
@@ -1347,6 +1361,7 @@ w2utils.keyboard = (function (obj) {
 				var scrTop 	= $('#w2ui-overlay'+ name +' div.menu').scrollTop();
 				cur.addClass('w2ui-selected');
 				if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
+				if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
 				var tmp = $('#w2ui-overlay'+ name).data().fixSize;
 				if (typeof tmp == 'function') tmp();
 				// scroll into view
@@ -1451,9 +1466,12 @@ w2utils.keyboard = (function (obj) {
 						menu_html += 
 							'<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
 							'		class="'+ bg +' '+ (options.index == f ? 'w2ui-selected' : '') +'"'+
-							'		onclick="$(\'#w2ui-overlay'+ name +'\').remove(); $.fn.w2menuHandler(event, \''+ f +'\'); event.stopPropagation();" '+
-							'		onmouseover="$(this).addClass(\'w2ui-selected\');" '+
-							'		onmouseout="$(this).removeClass(\'w2ui-selected\');">'+
+							'		onclick="var obj = this; $(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); '+
+							'			$(this).addClass(\'w2ui-selected\'); event.stopPropagation();'+
+							'			setTimeout(function () {'+
+							'				$(\'#w2ui-overlay'+ name +'\').remove(); '+
+							'				$.fn.w2menuHandler(event, \''+ f +'\'); '+
+							'			}, 100);">'+
 								imgd +
 							'	<td>'+ txt +'</td>'+
 							'</tr>';

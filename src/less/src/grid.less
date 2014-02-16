@@ -52,7 +52,7 @@
 		margin-right: 3px;
 
 		.w2ui-search-all {
-			outline: none;
+			outline: none !important;
 			width: 160px;
 			border-radius: 10px;
 			line-height: 100%;
@@ -388,8 +388,8 @@
 
 		input {
 			//outline: none;
-			border: 0px;
-			border-radius: 0px;
+			border: 1px solid #aaa;
+			border-radius: 2px;
 			margin: 0px; 
 			padding: 4px 3px;			
 			width: 100%;
@@ -610,6 +610,16 @@
 				padding: 0px 10px;
 				padding-right: 5px;
 				border-right: @grid-searches-inner-border;
+			}
+			&.operator select {
+				width: 100%;
+				color: black;
+				padding: 0px 15px 0px 5px;
+				-webkit-appearance: none;
+				-moz-appearance: none;
+				-ms-appearance: none;
+				-o-appearance: none;
+				.linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
 			}
 			&.value {					
 				padding-right: 5px;
