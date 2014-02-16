@@ -228,17 +228,19 @@ var app = (function () {
 	// -- INTERNAL METHODS
 
 	function init() {
-		setTimeout(function () {
-			w2popup.open({ 
-				width	: 300,
-				height 	: 60,
-				modal 	: true, 
-				body	: '<div style="text-align: center; font-size: 16px; padding-top: 20px; padding-left: 35px;">'+
-						  '		<div class="w2ui-spinner" style="width: 26px; height: 26px; position: absolute; margin-left: -35px; margin-top: -5px;"></div>'+
-						  '		Loading...'+
-						  '</div>'
-			});
-		}, 1);
+		if (document.location.href.indexOf('login.html') == -1) {
+			setTimeout(function () {
+				w2popup.open({ 
+					width	: 300,
+					height 	: 60,
+					modal 	: true, 
+					body	: '<div style="text-align: center; font-size: 16px; padding-top: 20px; padding-left: 35px;">'+
+							  '		<div class="w2ui-spinner" style="width: 26px; height: 26px; position: absolute; margin-left: -35px; margin-top: -5px;"></div>'+
+							  '		Loading...'+
+							  '</div>'
+				});
+			}, 1);
+		}
 		// -- load utils
 		app.get(['app/conf/session.js'], function (data) {
 			try { for (var i in data) eval(data[i]); } catch (e) { }

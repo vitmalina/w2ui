@@ -202,6 +202,10 @@ select {
   padding: 8px 10px 8px 5px;
   width: auto;
 }
+.w2ui-overlay table.w2ui-drop-menu tr:hover {
+  color: inherit;
+  background-color: #e6f0ff;
+}
 .w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected {
   background-color: #d7e4f2;
 }
@@ -545,6 +549,7 @@ select {
 }
 .w2ui-select {
   cursor: default;
+  color: black !important;
   background-image: -webkit-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: -moz-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: -ms-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);

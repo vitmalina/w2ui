@@ -1187,6 +1187,20 @@ w2utils.keyboard = (function (obj) {
 				if (options.tmp.contentHeight) {
 					h = options.tmp.contentHeight;
 					div2.height(h);
+					setTimeout(function () {
+						if (div2.height() > div2.find('div.menu > table').height()) {
+							div2.find('div.menu').css('overflow-y', 'hidden');
+						}
+					}, 1);
+				}
+				if (options.tmp.contentWidth) {
+					w = options.tmp.contentWidth;
+					div2.width(w);
+					setTimeout(function () {
+						if (div2.width() > div2.find('div.menu > table').width()) {
+							div2.find('div.menu').css('overflow-x', 'hidden');
+						}
+					}, 1);
 				}
 				// alignment
 				switch(options.align) {
@@ -1348,6 +1362,7 @@ w2utils.keyboard = (function (obj) {
 				var scrTop 	= $('#w2ui-overlay'+ name +' div.menu').scrollTop();
 				cur.addClass('w2ui-selected');
 				if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
+				if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
 				var tmp = $('#w2ui-overlay'+ name).data().fixSize;
 				if (typeof tmp == 'function') tmp();
 				// scroll into view
@@ -1452,9 +1467,12 @@ w2utils.keyboard = (function (obj) {
 						menu_html += 
 							'<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
 							'		class="'+ bg +' '+ (options.index == f ? 'w2ui-selected' : '') +'"'+
-							'		onclick="$(\'#w2ui-overlay'+ name +'\').remove(); $.fn.w2menuHandler(event, \''+ f +'\'); event.stopPropagation();" '+
-							'		onmouseover="$(this).addClass(\'w2ui-selected\');" '+
-							'		onmouseout="$(this).removeClass(\'w2ui-selected\');">'+
+							'		onclick="var obj = this; $(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); '+
+							'			$(this).addClass(\'w2ui-selected\'); event.stopPropagation();'+
+							'			setTimeout(function () {'+
+							'				$(\'#w2ui-overlay'+ name +'\').remove(); '+
+							'				$.fn.w2menuHandler(event, \''+ f +'\'); '+
+							'			}, 100);">'+
 								imgd +
 							'	<td>'+ txt +'</td>'+
 							'</tr>';
@@ -1502,6 +1520,7 @@ w2utils.keyboard = (function (obj) {
 *	- add showExtra, KickIn Infinite scroll when so many records
 *	- get rid of this.buffered
 *	- allow this.total to be unknown (-1)
+*	- editable fields -> LIST type is not working
 *
 * == 1.4 changes
 *	- search-logic -> searchLogic
@@ -2091,15 +2110,19 @@ w2utils.keyboard = (function (obj) {
 								}
 								break;
 							case 'in':
-								if (sdata.value.indexOf(val1) !== -1) fl++;
+								if (sdata.svalue) {
+									if (sdata.svalue.indexOf(val1) !== -1) fl++;
+								} else {
+									if (sdata.value.indexOf(val1) !== -1) fl++;
+								}
 								break;
-							case 'begins with':
+							case 'begins':
 								if (val1.indexOf(val2) == 0) fl++; // do not hide record
 								break;
 							case 'contains':
 								if (val1.indexOf(val2) >= 0) fl++; // do not hide record
 								break;
-							case 'ends with':
+							case 'ends':
 								if (val1.indexOf(val2) == val1.length - val2.length) fl++; // do not hide record
 								break;
 						}
@@ -2534,11 +2557,24 @@ w2utils.keyboard = (function (obj) {
 					var field2	 = $('#grid_'+ this.name + '_field2_'+s);
 					var value1   = field1.val();
 					var value2   = field2.val();
+					var svalue   = null;
 					if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
 						var fld1 = field1.data('w2field');
 						var fld2 = field2.data('w2field');
 						if (fld1) value1 = fld1.clean(value1);
 						if (fld2) value2 = fld2.clean(value2);
+					}
+					if (['list', 'enum'].indexOf(search.type) != -1) {
+						value1 = field1.data('selected');
+						if ($.isArray(value1)) {
+							svalue = [];
+							for (var v in value1) {
+								svalue.push(w2utils.isFloat(value1[v].id) ? parseFloat(value1[v].id) : String(value1[v].id).toLowerCase());
+								delete value1[v].hidden;
+							}
+						} else {
+							value1 = value1.id;
+						}
 					}
 					if ((value1 != '' && value1 != null) || (typeof value2 != 'undefined' && value2 != '')) {
 						var tmp = {
@@ -2548,11 +2584,12 @@ w2utils.keyboard = (function (obj) {
 						}
 						if (operator == 'between') {
 							$.extend(tmp, { value: [value1, value2] });
-						} else if (operator == 'in') {
+						} else if (operator == 'in' && typeof value1 == 'string') {
 							$.extend(tmp, { value: value1.split(',') });
 						} else {
 							$.extend(tmp, { value: value1 });
 						}
+						if (svalue) $.extend(tmp, { svalue: svalue });
 						// conver date to unix time
 						try {
 							if (search.type == 'date' && operator == 'between') {
@@ -2776,7 +2813,9 @@ w2utils.keyboard = (function (obj) {
 				el.w2field('clear');
 				el.change().focus();
 			} else {
-				el.w2field(search.type, $.extend({}, search.options, { suffix: '' })); // always hide suffix
+				var st = search.type;
+				if (['enum', 'select'].indexOf(st) != -1) st = 'list';
+				el.w2field(st, $.extend({}, search.options, { suffix: '' })); // always hide suffix
 				if (['list', 'enum'].indexOf(search.type) != -1) {
 					this.last.search = '';
 					this.last.item	 = '';
@@ -3194,7 +3233,8 @@ w2utils.keyboard = (function (obj) {
 						'>' + edit.outTag);
 				el.find('input')
 					.w2field(edit.type, $.extend(edit, { selected: val }))
-					.on('blur', function (event) { 
+					.on('blur', function (event) {
+						if (edit.type == 'list') return; 
 						obj.editChange.call(obj, this, index, column, event); 
 					});
 			}
@@ -5009,87 +5049,6 @@ w2utils.keyboard = (function (obj) {
 			return;
 		},
 
-		initSearches: function () {
-			var obj = this;
-			// init searches
-			for (var s in this.searches) {
-				var search = this.searches[s];
-				var sdata  = this.getSearchData(search.field);
-				search.type = String(search.type).toLowerCase();
-				if (typeof search.options != 'object') search.options = {};
-				// init types
-				switch (search.type) {
-					case 'text':
-					case 'alphanumeric':
-					case 'hex':
-						$('#grid_'+ this.name +'_operator_'+s).val('begins with');
-						if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
-							$('#grid_'+ this.name +'_field_' + s).w2field('clear').w2field(search.type, search.options);
-						}
-						break;
-
-					case 'int':
-					case 'float':
-					case 'money':
-					case 'currency':
-					case 'percent':
-					case 'date':
-					case 'time':
-					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
-						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
-						$('#grid_'+ this.name +'_field2_'+s).w2field('clear').w2field(search.type, search.options);						
-						break;
-
-					case 'list':
-					case 'combo':
-					case 'enum':
-						$('#grid_'+ this.name +'_field_'+s).w2field('clear').w2field(search.type, search.options);
-						break;
-
-					case 'select':
-						// build options
-						var options = '<option value="">--</option>';
-						for (var i in search.items) {
-							if ($.isPlainObject(search.items[i])) {
-								var val = search.items[i].id;
-								var txt = search.items[i].text;
-								if (typeof val == 'undefined' && typeof search.items[i].value != 'undefined')   val = search.items[i].value;
-								if (typeof txt == 'undefined' && typeof search.items[i].caption != 'undefined') txt = search.items[i].caption;
-								if (val == null) val = '';
-								options += '<option value="'+ val +'">'+ txt +'</option>';
-							} else {
-								options += '<option value="'+ search.items[i] +'">'+ search.items[i] +'</option>';
-							}
-						}
-						$('#grid_'+ this.name +'_field_'+s).html(options);
-						break;
-				}
-				if (sdata != null) {
-					if (sdata.type == 'int' && sdata.operator == 'in') {
-						$('#grid_'+ this.name +'_field_'+ s).w2field('clear').val(sdata.value);
-					}
-					$('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
-					if (!$.isArray(sdata.value)) {
-						if (typeof sdata.value != 'undefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
-					} else {
-						if (sdata.operator == 'in') {
-							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
-						} else {
-							$('#grid_'+ this.name +'_field_'+ s).val(sdata.value[0]).trigger('change');
-							$('#grid_'+ this.name +'_field2_'+ s).val(sdata.value[1]).trigger('change');
-						}
-					}
-				}
-			}
-			// add on change event
-			$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
-				if (evnt.keyCode == 13) { 
-					obj.search(); 
-					$().w2overlay();
-				}
-			});
-		},
-
 		initResize: function () {
 			var obj = this;
 			//if (obj.resizing === true) return;
@@ -5442,9 +5401,9 @@ w2utils.keyboard = (function (obj) {
 				if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
 					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
 						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
-						'	<option value="begins with">'+ w2utils.lang('begins with') +'</option>'+
+						'	<option value="begins">'+ w2utils.lang('begins') +'</option>'+
 						'	<option value="contains">'+ w2utils.lang('contains') +'</option>'+
-						'	<option value="ends with">'+ w2utils.lang('ends with') +'</option>'+
+						'	<option value="ends">'+ w2utils.lang('ends') +'</option>'+
 						'</select>';
 				}
 				if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
@@ -5456,15 +5415,21 @@ w2utils.keyboard = (function (obj) {
 						'</select>';
 				}
 				if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
-					var operator =  w2utils.lang('is') + ' <input type="hidden" value="is" id="grid_'+ this.name +'_operator_'+ i +'">';
+					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
+						'	<option value="is">'+ w2utils.lang('is') +'</option>'+
+						'</select>';
 				}
 				if (['enum'].indexOf(s.type) != -1) {
-					var operator =  w2utils.lang('in') + ' <input type="hidden" value="in" id="grid_'+ this.name +'_operator_'+ i +'">';
+					var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
+						'	<option value="in">'+ w2utils.lang('in') +'</option>'+
+						'</select>';
 				}
 				html += '<tr>'+
 						'	<td class="close-btn">'+ btn +'</td>' +
 						'	<td class="caption">'+ s.caption +'</td>' +
-						'	<td class="operator">'+ operator +'</td>'+
+						'	<td class="operator">'+ operator +
+								'<div class="arrow-down" style="position: absolute; display: inline-block; margin: 9px 0px 0px -13px; pointer-events: none;"></div>'+
+						'	</td>'+
 						'	<td class="value">';
 
 				switch (s.type) {
@@ -5532,7 +5497,7 @@ w2utils.keyboard = (function (obj) {
 				switch (search.type) {
 					case 'text':
 					case 'alphanumeric':
-						$('#grid_'+ this.name +'_operator_'+s).val('begins with');
+						$('#grid_'+ this.name +'_operator_'+s).val('begins');
 						if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
 							$('#grid_'+ this.name +'_field_' + s).w2field(search.type, search.options);
 						}
@@ -5556,25 +5521,30 @@ w2utils.keyboard = (function (obj) {
 					case 'list':
 					case 'combo':
 					case 'enum':
-						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
+						var options = search.options;
+						if (search.type == 'list') options.selected = {};
+						if (search.type == 'enum') options.selected = [];
+						if (sdata) options.selected = sdata.value;
+						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, options);
 						if (search.type == 'combo') {
-							$('#grid_'+ this.name +'_operator_'+s).val('begins with');							
+							$('#grid_'+ this.name +'_operator_'+s).val('begins');							
 						}
 						break;
 
 					case 'select':
 						// build options
 						var options = '<option value="">--</option>';
-						for (var i in search.items) {
-							if ($.isPlainObject(search.items[i])) {
-								var val = search.items[i].id;
-								var txt = search.items[i].text;
-								if (typeof val == 'undefined' && typeof search.items[i].value != 'undefined')   val = search.items[i].value;
-								if (typeof txt == 'undefined' && typeof search.items[i].caption != 'undefined') txt = search.items[i].caption;
+						for (var i in search.options.items) {
+							var si = search.options.items[i];
+							if ($.isPlainObject(search.options.items[i])) {
+								var val = si.id;
+								var txt = si.text;
+								if (typeof val == 'undefined' && typeof si.value != 'undefined')   val = si.value;
+								if (typeof txt == 'undefined' && typeof si.caption != 'undefined') txt = si.caption;
 								if (val == null) val = '';
 								options += '<option value="'+ val +'">'+ txt +'</option>';
 							} else {
-								options += '<option value="'+ search.items[i] +'">'+ search.items[i] +'</option>';
+								options += '<option value="'+ si +'">'+ si +'</option>';
 							}
 						}
 						$('#grid_'+ this.name +'_field_'+s).html(options);
@@ -9702,6 +9672,7 @@ var w2confirm = function (msg, title, callBack) {
 *	- prefix and suffix are slow (100ms or so)
 *	- multiple date selection
 *	- month selection, year selections
+*	- arrows no longer work (for int)
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -9962,8 +9933,8 @@ var w2confirm = function (msg, title, callBack) {
 					if (this.type == 'list') {
 						defaults.search = (options.items && options.items.length >= 10 ? true : false);
 						defaults.openOnFocus = true;
-						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 8) / 2) +'px;"></div>';
-						$(this.el).addClass('w2ui-select');
+						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
+						$(this.el).addClass('w2ui-select').attr('readonly', true);
 						this.addFocus();
 					}
 					options = $.extend({}, defaults, options, {
@@ -10106,6 +10077,9 @@ var w2confirm = function (msg, title, callBack) {
 			if (this.type == 'color') {
 				$(this.el).removeAttr('maxlength');
 			}
+			if (this.type == 'list') {
+				$(this.el).removeClass('w2ui-select').removeAttr('readonly');
+			}
 			// remove events and data
 			$(this.el)
 				.val(this.clean($(this.el).val()))
@@ -10132,17 +10106,17 @@ var w2confirm = function (msg, title, callBack) {
 			if (['enum', 'file'].indexOf(this.type) != -1) {
 				var html = '';
 				for (var s in selected) {
-					var item = '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px">'+
-							   '	<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+	
-							   		(obj.type == 'enum' ? selected[s].text : selected[s].name + '<span class="file-size"> - '+ w2utils.size(selected[s].size) +'</span>') +
-							   '</li>';
+					var it  = selected[s];
+					var ren = '';
 					if (typeof options.renderItem == 'function') {
-						item = options.renderItem(selected[s], s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
+						ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
+					} else {
+						ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+	
+							  (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.size(it.size) +'</span>');
 					}
-					if (item.indexOf('<li') == -1) item = '<li index="'+ s +'">' + item + '</li>';
-					html += item;
+					html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+ 
+							ren +'</li>';
 				}
-
 				var div = obj.helpers['multi'];
 				var ul  = div.find('ul');
 				div.attr('style', div.attr('style') + ';' + options.style);
@@ -10373,8 +10347,14 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// list
 			if (this.type == 'list') {
-				this.helpers['focus'].focus();
-				$('#w2ui-overlay').find('#menu-search').focus();
+				setTimeout(function () { 
+					if (options.search) {
+						$('#w2ui-overlay').find('#menu-search').focus();
+					} else {
+						// to avoid infinite loop force_focus is set
+						obj.helpers['focus'].find('input').data('force_focus', true).focus(); 
+					}
+				}, 1);
 				$(this.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 			}
 			// menu
@@ -10577,8 +10557,8 @@ var w2confirm = function (msg, title, callBack) {
 				}
 			}
 			// list/select/combo
-			if (['combo', 'enum'].indexOf(this.type) != -1) {
-				if ($(obj.el).attr('readonly')) return;
+			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+				if ($(obj.el).attr('readonly') && obj.type != 'list') return;
 				var cancel		= false;
 				var selected	= $(this.el).data('selected');
 				// apply arrows
@@ -10607,7 +10587,11 @@ var w2confirm = function (msg, title, callBack) {
 							if (item) $(this.el).data('selected', item).val(item.text).change();
 							if ($(this.el).val() == '' && $(this.el).data('selected')) $(this.el).removeData('selected').val('').change();
 							// hide overlay
-							this.tmp.force_hide = true;
+							if (this.type == 'list') {
+								$('#w2ui-overlay').remove();
+							} else {
+								this.tmp.force_hide = true;
+							}
 						}
 						break;
 					case 8: // delete
@@ -11225,7 +11209,7 @@ var w2confirm = function (msg, title, callBack) {
 			var obj = this;
 			setTimeout(function () {
 				var helper;
-				$(obj.el).before('<div class="w2ui-field-helper" style="margin-left: 200px; opacity: 0"><input type="text" size="1"></div>');
+				$(obj.el).before('<div class="w2ui-field-helper" style="margin-left: -30px; opacity: 0"><input type="text" size="1"></div>');
 				helper = $(obj.el).prev();
 				obj.helpers['focus'] = helper;
 				var index = $(obj.el).attr('tabindex');
@@ -11237,16 +11221,30 @@ var w2confirm = function (msg, title, callBack) {
 						obj.blur();
 					})
 					.on('focus', function () {
+						if ($(this).data('force_focus')) {
+							$(this).removeData('force_focus')
+							return;
+						}
 						obj.focus();
 					})
+					.on('keyup', function (event) { obj.keyUp(event) })				
 					.on('keydown', function (event) {
 						if (event.keyCode == 40 || event.keyCode == 13) {
-							setTimeout(function () { obj.updateOverlay(); }, 100);
+							if ($('#w2ui-overlay').length == 0) {
+								setTimeout(function () { 
+									obj.updateOverlay(); 
+									setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 1);
+								}, 110);
+								return;
+							} 
 						}
-						if (event.keyCode == 27) {
+						if (event.keyCode == 27 && $('#w2ui-overlay').length == 0) {
 							$(obj.el).val('').removeData('selected').change();
+							return;
 						}
-					});
+						obj.keyDown(event);
+					})
+					.on('keypress', function (event) { obj.keyPress(event); });
 			}, 1);
 		},		
 

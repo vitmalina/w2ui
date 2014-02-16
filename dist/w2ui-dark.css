@@ -375,6 +375,10 @@ select {
   padding: 8px 10px 8px 5px;
   width: auto;
 }
+.w2ui-overlay table.w2ui-drop-menu tr:hover {
+  color: #dae4f8;
+  background-color: #363f5d;
+}
 .w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected {
   background-color: #0e1015;
 }
@@ -937,6 +941,7 @@ select {
 }
 .w2ui-select {
   cursor: default;
+  color: black !important;
   background-image: -webkit-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: -moz-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: -ms-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
@@ -1215,7 +1220,7 @@ select {
   margin-right: 3px;
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-all {
-  outline: none;
+  outline: none !important;
   width: 160px;
   border-radius: 10px;
   line-height: 100%;
@@ -1519,8 +1524,8 @@ select {
   padding: 0px !important;
 }
 .w2ui-grid .w2ui-editable input {
-  border: 0px;
-  border-radius: 0px;
+  border: 1px solid #aaa;
+  border-radius: 2px;
   margin: 0px;
   padding: 4px 3px;
   width: 100%;
@@ -1721,6 +1726,20 @@ select {
   padding: 0px 10px;
   padding-right: 5px;
   border-right: 1px solid #3b4260;
+}
+.w2ui-overlay .w2ui-grid-searches table td.operator select {
+  width: 100%;
+  color: black;
+  padding: 0px 15px 0px 5px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  background-image: -webkit-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
+  background-image: -moz-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
+  background-image: -ms-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
+  background-image: -o-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
+  background-image: linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
 }
 .w2ui-overlay .w2ui-grid-searches table td.value {
   padding-right: 5px;
