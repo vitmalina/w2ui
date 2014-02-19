@@ -1740,112 +1740,115 @@
 				el.find('input')
 					.w2field(edit.type, $.extend(edit, { selected: val }))
 					.on('blur', function (event) {
-						if (edit.type == 'list') return; 
+						if ($(this).data('focused')) return;
 						obj.editChange.call(obj, this, index, column, event); 
 					});
 			}
-			el.find('input, select')
-				.on('click', function (event) { 
-					event.stopPropagation(); 
-				})
-				.on('keydown', function (event) {
-					var cancel = false;
-					switch (event.keyCode) {
-						case 9:  // tab
-							cancel = true;
-							var next_rec = recid;
-							var next_col = event.shiftKey ? obj.prevCell(column, true) : obj.nextCell(column, true);
-							// next or prev row
-							if (next_col === false) {
-								var tmp = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
-								if (tmp != null && tmp != index) {
-									next_rec = obj.records[tmp].recid;
-									// find first editable row
-									for (var c in obj.columns) {
-										var tmp = obj.columns[c].editable;
-										if (typeof tmp != 'undefined' && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
-											next_col = parseInt(c);
-											if (!event.shiftKey) break;
+			setTimeout(function () {
+				el.find('input, select')
+					.on('click', function (event) { 
+						event.stopPropagation(); 
+					})
+					.on('keydown', function (event) {
+						var cancel = false;
+						switch (event.keyCode) {
+							case 9:  // tab
+								cancel = true;
+								var next_rec = recid;
+								var next_col = event.shiftKey ? obj.prevCell(column, true) : obj.nextCell(column, true);
+								// next or prev row
+								if (next_col === false) {
+									var tmp = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
+									if (tmp != null && tmp != index) {
+										next_rec = obj.records[tmp].recid;
+										// find first editable row
+										for (var c in obj.columns) {
+											var tmp = obj.columns[c].editable;
+											if (typeof tmp != 'undefined' && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
+												next_col = parseInt(c);
+												if (!event.shiftKey) break;
+											}
 										}
 									}
+
 								}
-
-							}
-							if (next_rec === false) next_rec = recid;
-							if (next_col === false) next_col = column;
-							// init new or same record
-							this.blur();
-							setTimeout(function () {
-								if (obj.selectType != 'row') {
-									obj.selectNone();
-									obj.select({ recid: next_rec, column: next_col });
-								} else {
-									obj.editField(next_rec, next_col, null, event);
-								}
-							}, 1);
-							break;
-
-						case 13: // enter
-							this.blur();
-							var next = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
-							if (next != null && next != index) {
-								setTimeout(function () {
-									if (obj.selectType != 'row') {
-										obj.selectNone();
-										obj.select({ recid: obj.records[next].recid, column: column });
-									} else {
-										obj.editField(obj.records[next].recid, column, null, event);
-									}
-								}, 100);
-							}
-							break;
-
-						case 38: // up arrow
-							if (!event.shiftKey) break;
-							cancel = true;
-							var next = obj.prevRow(index);
-							if (next != index) {
+								if (next_rec === false) next_rec = recid;
+								if (next_col === false) next_col = column;
+								// init new or same record
 								this.blur();
 								setTimeout(function () {
 									if (obj.selectType != 'row') {
 										obj.selectNone();
-										obj.select({ recid: obj.records[next].recid, column: column });
+										obj.select({ recid: next_rec, column: next_col });
 									} else {
-										obj.editField(obj.records[next].recid, column, null, event);
+										obj.editField(next_rec, next_col, null, event);
 									}
 								}, 1);
-							}
-							break;
+								break;
 
-						case 40: // down arrow
-							if (!event.shiftKey) break;
-							cancel = true;
-							var next = obj.nextRow(index);
-							if (next != null && next != index) {
+							case 13: // enter
+								if ($(this).data('focused')) return;
 								this.blur();
-								setTimeout(function () {
-									if (obj.selectType != 'row') {
-										obj.selectNone();
-										obj.select({ recid: obj.records[next].recid, column: column });
-									} else {
-										obj.editField(obj.records[next].recid, column, null, event);
-									}
-								}, 1);
-							}
-							break;
+								var next = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
+								if (next != null && next != index) {
+									setTimeout(function () {
+										if (obj.selectType != 'row') {
+											obj.selectNone();
+											obj.select({ recid: obj.records[next].recid, column: column });
+										} else {
+											obj.editField(obj.records[next].recid, column, null, event);
+										}
+									}, 100);
+								}
+								break;
 
-						case 27: // escape
-							var old = obj.parseField(rec, col.field);
-							if (rec.changes && typeof rec.changes[col.field] != 'undefined') old = rec.changes[col.field];
-							this.value = typeof old != 'undefined' ? old : '';
-							this.blur();
-							setTimeout(function () { obj.select({ recid: recid, column: column }) }, 1);
-							break;
-					}
-					if (cancel) if (event.preventDefault) event.preventDefault();
-				});
-			// focus and select
-			setTimeout(function () { el.find('input').focus().select(); }, 1);
+							case 38: // up arrow
+								if (!event.shiftKey) break;
+								cancel = true;
+								var next = obj.prevRow(index);
+								if (next != index) {
+									this.blur();
+									setTimeout(function () {
+										if (obj.selectType != 'row') {
+											obj.selectNone();
+											obj.select({ recid: obj.records[next].recid, column: column });
+										} else {
+											obj.editField(obj.records[next].recid, column, null, event);
+										}
+									}, 1);
+								}
+								break;
+
+							case 40: // down arrow
+								if (!event.shiftKey) break;
+								cancel = true;
+								var next = obj.nextRow(index);
+								if (next != null && next != index) {
+									this.blur();
+									setTimeout(function () {
+										if (obj.selectType != 'row') {
+											obj.selectNone();
+											obj.select({ recid: obj.records[next].recid, column: column });
+										} else {
+											obj.editField(obj.records[next].recid, column, null, event);
+										}
+									}, 1);
+								}
+								break;
+
+							case 27: // escape
+								var old = obj.parseField(rec, col.field);
+								if (rec.changes && typeof rec.changes[col.field] != 'undefined') old = rec.changes[col.field];
+								this.value = typeof old != 'undefined' ? old : '';
+								this.blur();
+								setTimeout(function () { obj.select({ recid: recid, column: column }) }, 1);
+								break;
+						}
+						if (cancel) if (event.preventDefault) event.preventDefault();
+					});
+				// focus and select
+				el.find('input').select().focus();
+			}, 50);
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
