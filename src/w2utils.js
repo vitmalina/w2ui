@@ -1140,6 +1140,7 @@ w2utils.keyboard = (function (obj) {
 		div1.data('element', obj.length > 0 ? obj[0] : null)
 			.data('hide', hide)
 			.data('fixSize', fixSize)
+			.data('position', $(obj).offset().left + 'x' + $(obj).offset().top)
 			.fadeIn('fast').on('mousedown', function (event) { 
 				$('#w2ui-overlay'+ name).data('keepOpen', true); 
 				if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault(); 
@@ -1152,7 +1153,21 @@ w2utils.keyboard = (function (obj) {
 			$(document).off('click', hide).on('click', hide);
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 10);
+
+		monitor();
 		return $(this);
+
+		// monitor position
+		function monitor() {
+			var tmp = $('#w2ui-overlay'+ name);
+			if (tmp.length == 0) return;
+			var pos = $(obj).offset().left + 'x' + $(obj).offset().top;
+			if (tmp.data('position') != pos) {
+				hide();
+			} else {
+				setTimeout(monitor, 250);
+			}
+		}
 
 		// click anywhere else hides the drop down
 		function hide () {
@@ -1235,7 +1250,7 @@ w2utils.keyboard = (function (obj) {
 				// $(window).height() - has a problem in FF20
 				var maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
 				var maxWidth  = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
-				if (maxHeight > -30 && maxHeight < 210) {
+				if (maxHeight > -50 && maxHeight < 210) {
 					// show on top
 					maxHeight = div2.offset().top - $(document).scrollTop() - 7;
 					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
@@ -1343,7 +1358,6 @@ w2utils.keyboard = (function (obj) {
 					'</div>';
 			var ret = $(this).w2overlay(html, options);
 			$('#w2ui-overlay'+ name +' #menu-search')
-				.focus()
 				.on('keyup', change)
 				.on('keydown', function (event) {
 					// cancel tab key
@@ -1362,7 +1376,7 @@ w2utils.keyboard = (function (obj) {
 				cur.addClass('w2ui-selected');
 				if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
 				if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
-				var tmp = $('#w2ui-overlay'+ name).data().fixSize;
+				var tmp = $('#w2ui-overlay'+ name).data('fixSize');
 				if (typeof tmp == 'function') tmp();
 				// scroll into view
 				if (cur.length > 0) {
