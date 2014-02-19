@@ -4291,7 +4291,7 @@
 			var tr2 = records.find('#grid_'+ this.name +'_rec_bottom');
 			// if row is expanded
 			if (String(tr1.next().prop('id')).indexOf('_expanded_row') != -1) tr1.next().remove();
-			if (String(tr2.prev().prop('id')).indexOf('_expanded_row') != -1) tr2.prev().remove();
+			if (this.total > end && String(tr2.prev().prop('id')).indexOf('_expanded_row') != -1) tr2.prev().remove();
 			var first = parseInt(tr1.next().attr('line'));
 			var last  = parseInt(tr2.prev().attr('line'));
 			//$('#log').html('buffer: '+ this.buffered +' start-end: ' + start + '-'+ end + ' ===> first-last: ' + first + '-' + last);
