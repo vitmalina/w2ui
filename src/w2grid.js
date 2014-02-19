@@ -47,6 +47,7 @@
 * 	- new: recid - if id of the data is different from recid
 *	- new: parser - to converd data received from the server
 *	- change: rec.changes = {} and removed rec.changed
+*	- record.style can be a string or an object (for cell formatting)
 *
 ************************************************************************/
 
@@ -4436,8 +4437,8 @@
 					 )
 					: ''
 				) +
-				' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && record['style'] ? record['style'] : '') +'" '+
-					(record['style'] ? 'custom_style="'+ record['style'] +'"' : '') +
+				' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
+					( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
 				'>';
 			if (this.show.lineNumbers) {
 				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" class="w2ui-col-number">'+
@@ -4486,12 +4487,15 @@
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
-					if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle = 'text-align: right';
+					if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
+				}
+				if (typeof record.style == 'object' && typeof record.style[col_ind] == 'string') {
+					addStyle += record.style[col_ind] + ';';
 				}
 				var isCellSelected = false;
 				if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
 				rec_html += '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + (isChanged ? ' w2ui-changed' : '') +'" col="'+ col_ind +'" '+
-							'	style="'+ addStyle + ';' + (typeof col.style != 'undefined' ? col.style : '') +'" '+
+							'	style="'+ addStyle + (typeof col.style != 'undefined' ? col.style : '') +'" '+
 										  (typeof col.attr != 'undefined' ? col.attr : '') +'>'+
 								rec_cell +
 							'</td>';
