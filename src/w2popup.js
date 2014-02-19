@@ -101,7 +101,9 @@ var w2popup = {};
 			}
 			// get old options and merge them
 			var old_options = $('#w2ui-popup').data('options');
-			var options = $.extend({}, this.defaults, { body : '' }, old_options, options);
+			var options = $.extend({}, this.defaults, { body : '' }, old_options, options, { maximized: false });
+			// need timer because popup might not be open
+			setTimeout(function () { $('#w2ui-popup').data('options', options); }, 100);
 			// if new - reset event handlers
 			if ($('#w2ui-popup').length == 0) {
 				w2popup.handlers	 = [];
@@ -185,7 +187,9 @@ var w2popup = {};
 					});
 					// event after
 					w2popup.status = 'open';
-					obj.trigger($.extend(eventData, { phase: 'after' }));
+					setTimeout(function () { 
+						obj.trigger($.extend(eventData, { phase: 'after' }));
+					}, 50);
 				}, options.speed * 1000);
 			} else {
 				// trigger event
@@ -203,7 +207,7 @@ var w2popup = {};
 				$('#w2ui-popup .w2ui-msg-buttons').html(options.buttons);
 				$('#w2ui-popup .w2ui-msg-title').html(
 					  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>' : '')+ 
-					  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.max()">Max</div>' : '') + 
+					  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') + 
 					  options.title);
 				// transition
 				var div_old = $('#w2ui-popup .w2ui-box1')[0];
@@ -218,12 +222,11 @@ var w2popup = {};
 				setTimeout(function () {
 					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
-				}, 1);
+				}, 50);
 			}		
 			// save new options
 			options._last_w2ui_name = w2utils.keyboard.active();
-			w2utils.keyboard.active(null);
-			$('#w2ui-popup').data('options', options);
+			w2utils.keyboard.active(null);			
 			// keyboard events 
 			if (options.keyboard) $(document).on('keydown', this.keydown);
 
