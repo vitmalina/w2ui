@@ -48,6 +48,7 @@
 *	- new: parser - to converd data received from the server
 *	- change: rec.changes = {} and removed rec.changed
 *	- record.style can be a string or an object (for cell formatting)
+*	- col.resizable = true by default
 *
 ************************************************************************/
 
@@ -3108,14 +3109,14 @@
 						'<tr><td colspan="2" style="padding: 0px">'+
 						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
 						'		'+ w2utils.lang('Skip') +' <input type="text" style="width: 45px" value="'+ this.offset +'" '+
-						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value);"> '+ w2utils.lang('Records')+
+						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); $(\'#w2ui-overlay\').remove();"> '+ w2utils.lang('Records')+
 						'	</div>'+
 						'</td></tr>';
 			}
-			col_html +=	'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
+			col_html +=	'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\').remove();">'+
 						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Toggle Line Numbers') +'</div>'+
 						'</td></tr>'+
-						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\');">'+
+						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\').remove();">'+
 						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
 						'</td></tr>';
 			col_html += "</table></div>";
@@ -4133,7 +4134,7 @@
 							}
 						}
 						var resizer = "";
-						if (col.resizable == true) {
+						if (col.resizable !== false) {
 							resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
 						}
 						html += '<td class="w2ui-head '+ sortStyle +'" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
@@ -4203,7 +4204,7 @@
 					}
 					if (colg['master'] !== true || master) { // grouping of columns
 						var resizer = "";
-						if (col.resizable == true) {
+						if (col.resizable !== false) {
 							resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
 						}
 						html += '<td col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
@@ -4542,24 +4543,24 @@
 					}
 				}
 			} else {
+				// if editable checkbox
+				var addStyle = '';
+				if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
+					var changeInd = summary ? -(ind + 1) : ind;
+					addStyle = 'text-align: center';
+					data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
+						   '	var obj = w2ui[\''+ this.name + '\']; '+
+						   '	obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
+						   '">';
+				}
 				if (!this.show.recordTitles) {
-					var data = '<div>'+ data +'</div>';
+					var data = '<div style="'+ addStyle +'">'+ data +'</div>';
 				} else {
-					var addStyle = '';
 					// title overwrite
 					var title = String(data).replace(/"/g, "''");
 					if (typeof col.title != 'undefined') {
 						if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
 						if (typeof col.title == 'string')   title = col.title;
-					}
-					// if editable checkbox
-					if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
-						var changeInd = summary ? -(ind + 1) : ind;
-						addStyle = 'text-align: center';
-						data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
-							   '	var obj = w2ui[\''+ this.name + '\']; '+
-							   '	obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
-							   '">';
 					}
 					var data = '<div title="'+ title +'" style="'+ addStyle +'">'+ data +'</div>';
 				}
