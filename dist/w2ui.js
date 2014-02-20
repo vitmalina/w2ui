@@ -1555,6 +1555,8 @@ w2utils.keyboard = (function (obj) {
 * 	- new: recid - if id of the data is different from recid
 *	- new: parser - to converd data received from the server
 *	- change: rec.changes = {} and removed rec.changed
+*	- record.style can be a string or an object (for cell formatting)
+*	- col.resizable = true by default
 *
 ************************************************************************/
 
@@ -4615,14 +4617,14 @@ w2utils.keyboard = (function (obj) {
 						'<tr><td colspan="2" style="padding: 0px">'+
 						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
 						'		'+ w2utils.lang('Skip') +' <input type="text" style="width: 45px" value="'+ this.offset +'" '+
-						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value);"> '+ w2utils.lang('Records')+
+						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); $(\'#w2ui-overlay\').remove();"> '+ w2utils.lang('Records')+
 						'	</div>'+
 						'</td></tr>';
 			}
-			col_html +=	'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
+			col_html +=	'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\').remove();">'+
 						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Toggle Line Numbers') +'</div>'+
 						'</td></tr>'+
-						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\');">'+
+						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\').remove();">'+
 						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
 						'</td></tr>';
 			col_html += "</table></div>";
@@ -5640,7 +5642,7 @@ w2utils.keyboard = (function (obj) {
 							}
 						}
 						var resizer = "";
-						if (col.resizable == true) {
+						if (col.resizable !== false) {
 							resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
 						}
 						html += '<td class="w2ui-head '+ sortStyle +'" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
@@ -5710,7 +5712,7 @@ w2utils.keyboard = (function (obj) {
 					}
 					if (colg['master'] !== true || master) { // grouping of columns
 						var resizer = "";
-						if (col.resizable == true) {
+						if (col.resizable !== false) {
 							resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
 						}
 						html += '<td col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
@@ -5798,7 +5800,7 @@ w2utils.keyboard = (function (obj) {
 			var tr2 = records.find('#grid_'+ this.name +'_rec_bottom');
 			// if row is expanded
 			if (String(tr1.next().prop('id')).indexOf('_expanded_row') != -1) tr1.next().remove();
-			if (String(tr2.prev().prop('id')).indexOf('_expanded_row') != -1) tr2.prev().remove();
+			if (this.total > end && String(tr2.prev().prop('id')).indexOf('_expanded_row') != -1) tr2.prev().remove();
 			var first = parseInt(tr1.next().attr('line'));
 			var last  = parseInt(tr2.prev().attr('line'));
 			//$('#log').html('buffer: '+ this.buffered +' start-end: ' + start + '-'+ end + ' ===> first-last: ' + first + '-' + last);
@@ -5944,8 +5946,8 @@ w2utils.keyboard = (function (obj) {
 					 )
 					: ''
 				) +
-				' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && record['style'] ? record['style'] : '') +'" '+
-					(record['style'] ? 'custom_style="'+ record['style'] +'"' : '') +
+				' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
+					( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
 				'>';
 			if (this.show.lineNumbers) {
 				rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" class="w2ui-col-number">'+
@@ -5994,12 +5996,15 @@ w2utils.keyboard = (function (obj) {
 				var addStyle  = '';
 				if (typeof col.render == 'string') {
 					var tmp = col.render.toLowerCase().split(':');
-					if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle = 'text-align: right';
+					if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
+				}
+				if (typeof record.style == 'object' && typeof record.style[col_ind] == 'string') {
+					addStyle += record.style[col_ind] + ';';
 				}
 				var isCellSelected = false;
 				if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
 				rec_html += '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + (isChanged ? ' w2ui-changed' : '') +'" col="'+ col_ind +'" '+
-							'	style="'+ addStyle + ';' + (typeof col.style != 'undefined' ? col.style : '') +'" '+
+							'	style="'+ addStyle + (typeof col.style != 'undefined' ? col.style : '') +'" '+
 										  (typeof col.attr != 'undefined' ? col.attr : '') +'>'+
 								rec_cell +
 							'</td>';
@@ -6046,24 +6051,24 @@ w2utils.keyboard = (function (obj) {
 					}
 				}
 			} else {
+				// if editable checkbox
+				var addStyle = '';
+				if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
+					var changeInd = summary ? -(ind + 1) : ind;
+					addStyle = 'text-align: center';
+					data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
+						   '	var obj = w2ui[\''+ this.name + '\']; '+
+						   '	obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
+						   '">';
+				}
 				if (!this.show.recordTitles) {
-					var data = '<div>'+ data +'</div>';
+					var data = '<div style="'+ addStyle +'">'+ data +'</div>';
 				} else {
-					var addStyle = '';
 					// title overwrite
 					var title = String(data).replace(/"/g, "''");
 					if (typeof col.title != 'undefined') {
 						if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
 						if (typeof col.title == 'string')   title = col.title;
-					}
-					// if editable checkbox
-					if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
-						var changeInd = summary ? -(ind + 1) : ind;
-						addStyle = 'text-align: center';
-						data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
-							   '	var obj = w2ui[\''+ this.name + '\']; '+
-							   '	obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
-							   '">';
 					}
 					var data = '<div title="'+ title +'" style="'+ addStyle +'">'+ data +'</div>';
 				}
