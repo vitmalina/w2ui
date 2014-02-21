@@ -3358,7 +3358,10 @@ w2utils.keyboard = (function (obj) {
 						if (cancel) if (event.preventDefault) event.preventDefault();
 					});
 				// focus and select
-				el.find('input').select().focus();
+				var tmp = el.find('input').focus();
+				// set cursor to the end
+				if (value != null) tmp[0].setSelectionRange(tmp.val().length, tmp.val().length); 
+
 			}, 50);
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
