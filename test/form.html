@@ -52,7 +52,7 @@
 				"field.currency": '40',
 				"field.percent" : '50',
 				"field.alpha" 	: '60',
-				"field.select"	: 3,
+				"field.select"	: 'second',
 				"field.check"	: 33,
 				// "field.radio"	: '1'
 			},
@@ -99,7 +99,7 @@
 				{ name: 'field.percent', type: 'percent', required: true },
 				{ name: 'field.alpha', type: 'alphanumeric', required: true },
 				// third page
-				{ name: 'field.select', type: 'select', required: true },
+				{ name: 'field.select', type: 'select', required: true, options: { items: ['fist', 'second'] } },
 				{ name: 'field.check', type: 'checkbox', required: true },
 				{ name: 'field.radio', type: 'radio', required: true },
 			],

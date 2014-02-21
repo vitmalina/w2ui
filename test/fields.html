@@ -96,7 +96,10 @@
 				console.log('enum remove', event.item);
 			},
 			onAdd: function (event) {
-				console.log('enum add', event.item);
+				console.log('enum add', event);
+			},
+			onNew: function (event) {
+				console.log('enum new', event);
 			}
 		});
 		$('.file').w2field('file', {

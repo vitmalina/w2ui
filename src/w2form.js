@@ -791,6 +791,15 @@
 
 					// standard HTML
 					case 'select':
+						// generate options
+						var items = field.options.items;
+						if (typeof items != 'undefined' && items.length > 0) {
+							items = w2obj.field.prototype.normMenu(items);
+							$(field.el).html('');
+							for (var it in items) {
+								$(field.el).append('<option value="'+ items[it].id +'">' + items[it].text + '</option');
+							}
+						}
 						$(field.el).val(value);
 						break;
 					case 'radio':

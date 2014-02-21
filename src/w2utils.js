@@ -191,8 +191,10 @@ var w2utils = (function () {
 		var sec = (d2.getTime() - d1.getTime()) / 1000;
 		var amount = '';
 		var type   = '';
-		
-		if (sec < 60) {
+		if (sec < 0) {
+			amount = '<span style="color: #aaa">future</span>';
+			type   = '';
+		} else if (sec < 60) {
 			amount = Math.floor(sec);
 			type   = 'sec';
 			if (sec < 0) { amount = 0; type = 'sec' }

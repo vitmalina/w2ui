@@ -13,22 +13,21 @@
 *	- easy bubbles in the grid
 *	- possibly add context menu similar to sidebar's
 *	- More than 2 layers of header groups
-*	- for search fields one should be able to pass w2field options
-*	- add enum to advanced search fields
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
 *	- problem with .set() and arrays, array get extended too, but should be replaced
-*	- add onParse - to converd data received from the server
 *	- move events into prototype
 *	- add colspans
 *	- add grid.focus()
 *	- add showExtra, KickIn Infinite scroll when so many records
 *	- get rid of this.buffered
 *	- allow this.total to be unknown (-1)
-*	- editable fields -> LIST type is not working
 *
 * == 1.4 changes
+*	- for search fields one should be able to pass w2field options
+*	- add enum to advanced search fields
+*	- editable fields -> LIST type is not working
 *	- search-logic -> searchLogic
 * 	- new: refreshRow(recid) - should it be part of refresh?
 * 	- new: refreshCell(recid, field) - should it be part of refresh?
@@ -4533,6 +4532,10 @@
 						if (tmp[0] == 'int')	 { tmp[1] = 0; }
 						// format
 						data = '<div>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
+					}
+					if (tmp[0] == 'time') {
+						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_display;
+						data = '<div>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
 					}
 					if (tmp[0] == 'date') {
 						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
