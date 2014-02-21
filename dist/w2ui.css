@@ -546,6 +546,7 @@ select {
 }
 .w2ui-label {
   float: left;
+  clear: left;
   margin-top: 7px;
   margin-bottom: 3px;
   width: 120px;

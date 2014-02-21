@@ -192,8 +192,10 @@ var w2utils = (function () {
 		var sec = (d2.getTime() - d1.getTime()) / 1000;
 		var amount = '';
 		var type   = '';
-		
-		if (sec < 60) {
+		if (sec < 0) {
+			amount = '<span style="color: #aaa">future</span>';
+			type   = '';
+		} else if (sec < 60) {
 			amount = Math.floor(sec);
 			type   = 'sec';
 			if (sec < 0) { amount = 0; type = 'sec' }
@@ -1521,22 +1523,21 @@ w2utils.keyboard = (function (obj) {
 *	- easy bubbles in the grid
 *	- possibly add context menu similar to sidebar's
 *	- More than 2 layers of header groups
-*	- for search fields one should be able to pass w2field options
-*	- add enum to advanced search fields
 *	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
 *	- problem with .set() and arrays, array get extended too, but should be replaced
-*	- add onParse - to converd data received from the server
 *	- move events into prototype
 *	- add colspans
 *	- add grid.focus()
 *	- add showExtra, KickIn Infinite scroll when so many records
 *	- get rid of this.buffered
 *	- allow this.total to be unknown (-1)
-*	- editable fields -> LIST type is not working
 *
 * == 1.4 changes
+*	- for search fields one should be able to pass w2field options
+*	- add enum to advanced search fields
+*	- editable fields -> LIST type is not working
 *	- search-logic -> searchLogic
 * 	- new: refreshRow(recid) - should it be part of refresh?
 * 	- new: refreshCell(recid, field) - should it be part of refresh?
@@ -6042,6 +6043,10 @@ w2utils.keyboard = (function (obj) {
 						// format
 						data = '<div>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
 					}
+					if (tmp[0] == 'time') {
+						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_display;
+						data = '<div>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
+					}
 					if (tmp[0] == 'date') {
 						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
 						data = '<div>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
@@ -9712,6 +9717,8 @@ var w2confirm = function (msg, title, callBack) {
 *	- test all fields as Read Only
 *	- added openOnFocus
 *	- change: showAll -> applyFilter
+*	- color: select with keyboard
+*	- enum: addNew event
 *
 ************************************************************************/
 
@@ -9729,6 +9736,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.onError	= options.onError		|| null;
 		this.onClick	= options.onClick		|| null;
 		this.onAdd		= options.onAdd			|| null;
+		this.onNew		= options.onNew			|| null;
 		this.onRemove	= options.onRemove		|| null;
 		this.onMouseOver= options.onMouseOver	|| null;
 		this.onMouseOut	= options.onMouseOut	|| null;
@@ -9815,6 +9823,17 @@ var w2confirm = function (msg, title, callBack) {
 	w2field.prototype = {
 
 		custom: {},  // map of custom types
+
+		pallete: [
+			['000000', '444444', '666666', '999999', 'CCCCCC', 'EEEEEE', 'F3F3F3', 'FFFFFF'],
+			['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '0424F3', '9B24F4', 'FF21F5'],
+			['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
+			['EA9899', 'F9CB9C', 'FEE599', 'B6D7A8', 'A2C4C9', '9FC5E8', 'B4A7D6', 'D5A6BD'],
+			['E06666', 'F6B26B', 'FED966', '93C47D', '76A5AF', '6FA8DC', '8E7CC3', 'C27BA0'],
+			['CC0814', 'E69138', 'F1C232', '6AA84F', '45818E', '3D85C6', '674EA7', 'A54D79'],
+			['99050C', 'B45F17', 'BF901F', '37761D', '124F5C', '0A5394', '351C75', '741B47'],
+			['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030']
+		],
 
 		addType: function (type, handler) {
 			type = String(type).toLowerCase();
@@ -10003,12 +10022,13 @@ var w2confirm = function (msg, title, callBack) {
 						onError			: null,			// when data fails to load due to server error or other failure modes
 						onClick			: null,			// when an item is clicked
 						onAdd			: null,			// when an item is added
+						onNew			: null,			// when new item should be added
 						onRemove		: null,			// when an item is removed
 						onMouseOver 	: null,			// when an item is mouse over
 						onMouseOut		: null			// when an item is mouse out
 					};
 					options = $.extend({}, defaults, options, {
-						align 		: 'both',		// same width as control
+						align 		: 'both',	// same width as control
 						suffix		: '',
 						altRows		: true		// alternate row color
 					});
@@ -10333,7 +10353,8 @@ var w2confirm = function (msg, title, callBack) {
 			if (this.type == 'color') {
 				var color = '#' + $(this.el).val();
 				if ($(this.el).val().length != 6 && $(this.el).val().length != 3) color = '';
-				$(this.el).next().find('div').css('background-color', color);				
+				$(this.el).next().find('div').css('background-color', color);
+				if ($(obj.el).is(':focus')) this.updateOverlay();			
 			}
 		},
 
@@ -10553,6 +10574,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// color
 			if (obj.type == 'color') {
+				// paste
 				if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
 					$(obj.el).prop('maxlength', 7);
 					setTimeout(function () {
@@ -10561,6 +10583,35 @@ var w2confirm = function (msg, title, callBack) {
 						if (!w2utils.isHex(val)) val = '';
 						$(obj).val(val).prop('maxlength', 6).change();
 					}, 20);
+				}
+				if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
+					if (typeof obj.tmp.cind1 == 'undefined') {
+						obj.tmp.cind1 = -1;
+						obj.tmp.cind2 = -1;
+					} else {
+						switch (key) {
+							case 38: // up
+								obj.tmp.cind1--;
+								break;
+							case 40: // down
+								obj.tmp.cind1++;
+								break;
+							case 39: // right
+								obj.tmp.cind2++;
+								break;
+							case 37: // left
+								obj.tmp.cind2--;
+								break;
+						}
+						if (obj.tmp.cind1 < 0) obj.tmp.cind1 = 0;
+						if (obj.tmp.cind1 > this.pallete.length - 1) obj.tmp.cind1 = this.pallete.length - 1;
+						if (obj.tmp.cind2 < 0) obj.tmp.cind2 = 0;
+						if (obj.tmp.cind2 > this.pallete[0].length - 1) obj.tmp.cind2 = this.pallete[0].length - 1;
+					}
+					if ([37, 38, 39, 40].indexOf(key) != -1) {
+						$(obj.el).val(this.pallete[obj.tmp.cind1][obj.tmp.cind2]).change();
+						event.preventDefault();
+					}
 				}
 			}
 			// list/select/combo
@@ -10573,20 +10624,39 @@ var w2confirm = function (msg, title, callBack) {
 					case 39: // right
 						if ($(obj.el).val() != '') break;
 					case 13: // enter
-						var item = options.items[options.index];
+						var item  = options.items[options.index];
+						var multi = $(obj.helpers['multi']).find('input');
 						if (['enum'].indexOf(obj.type) != -1) {
 							if (item) {
 								// trigger event
 								var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
 								if (eventData.isCancelled === true) return;
+								item = eventData.item; // need to reassign because it could be recreated by user
 								// default behavior
 								if (selected.length >= options.max && options.max > 0) selected.pop();
 								delete item.hidden;
 								delete obj.tmp.force_open;
 								selected.push(item);
 								$(obj.el).change();
-								$(obj.helpers['multi']).find('input').val('').width(20);
+								multi.val('').width(20);
 								obj.refresh();
+								// event after
+								obj.trigger($.extend(eventData, { phase: 'after' }));
+							} else {
+								// trigger event
+								item = { id: multi.val(), text: multi.val() }
+								var eventData = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
+								if (eventData.isCancelled === true) return;
+								item = eventData.item; // need to reassign because it could be recreated by user
+								// default behavior
+								if (typeof obj.onNew == 'function') {
+									if (selected.length >= options.max && options.max > 0) selected.pop();
+									delete obj.tmp.force_open;
+									selected.push(item);
+									$(obj.el).change();
+									multi.val('').width(20);
+									obj.refresh();
+								}
 								// event after
 								obj.trigger($.extend(eventData, { phase: 'after' }));
 							}
@@ -10819,14 +10889,19 @@ var w2confirm = function (msg, title, callBack) {
 			if (this.type == 'color') {
 				if ($('#w2ui-overlay').length == 0) {
 					$(obj.el).w2overlay(obj.getColorHTML());
-					// bind events
-					$('#w2ui-overlay .color')
-						.on('mousedown', function (event) {
-							var color = $(event.originalEvent.target).attr('name');
-							$(obj.el).val(color).change();
-							setTimeout(function () { $('#w2ui-overlay').remove(); }, 150);
-						});
-				} 
+				} else {
+					$('#w2ui-overlay').html(obj.getColorHTML());
+				}
+				// bind events
+				$('#w2ui-overlay .color')
+					.on('mousedown', function (event) {
+						var color = $(event.originalEvent.target).attr('name');
+						var index = $(event.originalEvent.target).attr('index').split(':');
+						obj.tmp.cind1 = index[0];
+						obj.tmp.cind2 = index[1];
+						$(obj.el).val(color).change();
+						setTimeout(function () { $('#w2ui-overlay').remove(); }, 150);
+					});
 			}
 			// date
 			if (this.type == 'date') {
@@ -10931,7 +11006,7 @@ var w2confirm = function (msg, title, callBack) {
 									$('#w2ui-overlay').remove();
 									if (options.search) obj.helpers['focus'].find('input').focus(); 
 								}, 1);
-							} else {					
+							} else {
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
 							}
 						},
@@ -11073,6 +11148,7 @@ var w2confirm = function (msg, title, callBack) {
 							'padding'		: 0,
 							'margin-top'	: (parseInt($(obj.el).css('margin-top'), 10) + 1) + 'px',
 							'margin-bottom'	: 0,
+							'pointer-events': 'auto',
 							'border-left'	: '1px solid silver'
 						})
 						.css('margin-left', '-'+ (helper.width() + parseInt($(obj.el).css('margin-right'), 10) + 12) + 'px')
@@ -11374,22 +11450,12 @@ var w2confirm = function (msg, title, callBack) {
 		getColorHTML: function () {
 			var html =  '<div class="w2ui-color">'+ 
 						'<table cellspacing="5">';
-			var colors	= [
-				['000000', '444444', '666666', '999999', 'CCCCCC', 'EEEEEE', 'F3F3F3', 'FFFFFF'],
-				['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '0424F3', '9B24F4', 'FF21F5'],
-				['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
-				['EA9899', 'F9CB9C', 'FEE599', 'B6D7A8', 'A2C4C9', '9FC5E8', 'B4A7D6', 'D5A6BD'],
-				['E06666', 'F6B26B', 'FED966', '93C47D', '76A5AF', '6FA8DC', '8E7CC3', 'C27BA0'],
-				['CC0814', 'E69138', 'F1C232', '6AA84F', '45818E', '3D85C6', '674EA7', 'A54D79'],
-				['99050C', 'B45F17', 'BF901F', '37761D', '124F5C', '0A5394', '351C75', '741B47'],
-				['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030']
-			];
 			for (var i=0; i<8; i++) {
 				html += '<tr>';
 				for (var j=0; j<8; j++) {
 					html += '<td>'+
-							'	<div class="color" style="background-color: #'+ colors[i][j] +';" name="'+ colors[i][j] +'">'+
-							'		'+ ($(this.el).val() == colors[i][j] ? '&#149;' : '&nbsp;')+
+							'	<div class="color" style="background-color: #'+ this.pallete[i][j] +';" name="'+ this.pallete[i][j] +'" index="'+ i + ':' + j +'">'+
+							'		'+ ($(this.el).val() == this.pallete[i][j] ? '&#149;' : '&nbsp;')+
 							'	</div>'+
 							'</td>';
 				}
@@ -12334,6 +12400,15 @@ var w2confirm = function (msg, title, callBack) {
 
 					// standard HTML
 					case 'select':
+						// generate options
+						var items = field.options.items;
+						if (typeof items != 'undefined' && items.length > 0) {
+							items = w2obj.field.prototype.normMenu(items);
+							$(field.el).html('');
+							for (var it in items) {
+								$(field.el).append('<option value="'+ items[it].id +'">' + items[it].text + '</option');
+							}
+						}
 						$(field.el).val(value);
 						break;
 					case 'radio':
