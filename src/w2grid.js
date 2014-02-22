@@ -1734,16 +1734,18 @@
 					});
 			} else {
 				el.addClass('w2ui-editable')
-					.html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" value="'+ (typeof val != 'object' ? val : '') +'" '+
+					.html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" '+
 						'	type="text" style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
 						'	column="'+ column +'" '+ edit.inTag +
 						'>' + edit.outTag);
+				if (value == null) el.find('input').val(val != 'object' ? val : '');
 				el.find('input')
 					.w2field(edit.type, $.extend(edit, { selected: val }))
 					.on('blur', function (event) {
 						if ($(this).data('focused')) return;
 						obj.editChange.call(obj, this, index, column, event); 
 					});
+				if (value != null) el.find('input').val(val != 'object' ? val : '');
 			}
 			setTimeout(function () {
 				el.find('input, select')
@@ -1848,9 +1850,13 @@
 						if (cancel) if (event.preventDefault) event.preventDefault();
 					});
 				// focus and select
-				var tmp = el.find('input').focus();
-				// set cursor to the end
-				if (value != null) tmp[0].setSelectionRange(tmp.val().length, tmp.val().length); 
+				var tmp = el.find('input').focus();				
+				if (value != null) { 
+					// set cursor to the end
+					tmp[0].setSelectionRange(tmp.val().length, tmp.val().length); 
+				} else {
+					tmp.select();	
+				}
 
 			}, 50);
 			// event after
