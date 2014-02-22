@@ -269,6 +269,7 @@
 						selected		: {},
 						placeholder		: '',
 						url 			: null, 		// url to pull data from
+						prepopulate		: true,
 						cacheMax		: 500,
 						maxDropHeight 	: 350,			// max height for drop down menu
 						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
@@ -313,6 +314,7 @@
 						placeholder		: '',
 						max 			: 0,			// max number of selected items, 0 - unlim
 						url 			: null, 		// not implemented
+						prepopulate		: true,			// if true pull records from url during init
 						cacheMax		: 500,
 						maxWidth		: 250,			// max width for a single item
 						maxHeight		: 350,			// max height for input control to grow
@@ -377,7 +379,6 @@
 					this.options = options;
 					if (!$.isArray(options.selected)) options.selected = [];
 					$(this.el).data('selected', options.selected);
-					if (options.url) this.request(0);
 					this.addMulti();
 					break;
 			}
@@ -1064,19 +1065,28 @@
 			var obj 	 = this;
 			var options  = this.options;			
 			var search 	 = $(obj.el).val() || '';
+			if (obj.type == 'enum') {
+				var tmp = $(obj.helpers['multi']).find('input');
+				if (tmp.length == 0) return;
+				search = tmp.val();
+			}
+			if (search == '' && !options.prepopulate) return;
 			if (typeof interval == 'undefined') interval = 350;
+			if (typeof obj.tmp.xhr_search == 'undefined') obj.tmp.xhr_search = '';
 			if (typeof obj.tmp.xhr_total == 'undefined') obj.tmp.xhr_total = -1;
-			if (typeof obj.tmp.xhr_len == 'undefined') obj.tmp.xhr_len = -1;
-			if (typeof obj.tmp.xhr_match == 'undefined') obj.tmp.xhr_match = -1;
-			// timeout
-			clearTimeout(obj.tmp.timeout);
-			obj.tmp.timeout = setTimeout(function () {
-				if (options.url && (
-						(options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
-						(search.length > obj.tmp.xhr_len && obj.tmp.xhr_total > options.cacheMax) ||
-						(search.length < obj.tmp.xhr_match && search.length != obj.tmp.xhr_len)
-					)
-				) {
+			// check if need to search
+			if (options.url && (
+					(options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
+					(obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
+					(search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) != obj.tmp.xhr_search) ||
+					(search.length < obj.tmp.xhr_search.length)
+				)) {
+				// empty list
+				obj.tmp.xhr_loading = true;
+				obj.search();
+				// timeout
+				clearTimeout(obj.tmp.timeout);
+				obj.tmp.timeout = setTimeout(function () {
 					// trigger event
 					var url  	 = options.url;
 					var postData = { 
@@ -1085,18 +1095,18 @@
 					};
 					var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
 					if (eventData.isCancelled === true) return;
-					// default behavior
-					obj.tmp.xhr_loading = true;
-					obj.search();
+					url		 = eventData.url;
+					postData = eventData.postData;
+					// console.log('REMOTE SEARCH:', search);
 					if (obj.tmp.xhr) obj.tmp.xhr.abort();
 					obj.tmp.xhr = $.ajax({
 							type : 'POST',
-							url	 : eventData.url,
-							data : eventData.postData
+							url	 : url,
+							data : postData
 						})
 						.done(function (data, status, xhr) {
 							// trigger event
-							var eventData2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: search, data: data, xhr: xhr });
+							var eventData2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr });
 							if (eventData2.isCancelled === true) return;
 							// default behavior
 							data = eventData2.data;
@@ -1104,19 +1114,15 @@
 								console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
 								return;
 							}
-							obj.tmp.xhr_total	= 0;
-							obj.tmp.xhr_len 	= search.length;
+							// remove all extra items if more then needed for cache							
+							if (data.items.length > options.cacheMax) data.items.splice(options.cacheMax, 100000);
+							// remember stats
 							obj.tmp.xhr_loading = false;
-							if (data.items.length < options.cacheMax) {
-								obj.tmp.xhr_match = search.length;
-								obj.tmp.xhr_search = $(obj.el).val();
-							} else {
-								data.items.push({ id: 'more', text: '...' });
-							}
-							obj.tmp.xhr_total = data.items.length;
-							// items 
-							options.items = data.items;
+							obj.tmp.xhr_search 	= search;
+							obj.tmp.xhr_total 	= data.items.length;
+							options.items 		= data.items;
 							obj.search();
+							// console.log('-->', 'retrieved:', obj.tmp.xhr_total);
 							// event after
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 						})
@@ -1125,24 +1131,21 @@
 							var errorObj = { status: status, exceptionThrown: exceptionThrown, rawResponseText: xhr.responseText };
 							var eventData2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
 							if (eventData2.isCancelled === true) return;
-
 							// default behavior
 							console.log('ERROR: server communication failed. The server should return', { status: 'success', items: [{ id: 1, text: 'item' }] }, ', instead the AJAX request produced this: ', errorObj);
-
-							obj.tmp.xhr_total	= 0;
-							obj.tmp.xhr_len 	= search.length;
+							// reset stats
+							options.items 		= [];
 							obj.tmp.xhr_loading = false;
-							obj.tmp.xhr_match   = search.length;
-							obj.tmp.xhr_search  = $(obj.el).val();
-							//if (options.showAll !== true) obj.search();
-
+							obj.tmp.xhr_search  = '';
+							obj.tmp.xhr_total	= -1;
+							obj.search();
 							// event after
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 						});
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
-				}
-			}, interval);
+				}, interval);
+			}
 		},
 
 		search: function () {
@@ -1184,8 +1187,13 @@
 					options.index = -1;
 				}
 				if (shown <= 0) options.index = -1;
+				options.spinner = false;
 				obj.updateOverlay();
 				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
+			} else {
+				options.items.splice(0, options.cacheMax);
+				options.spinner = true;
+				obj.updateOverlay();
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
