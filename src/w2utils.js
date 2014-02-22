@@ -1162,6 +1162,7 @@ w2utils.keyboard = (function (obj) {
 		// monitor position
 		function monitor() {
 			var tmp = $('#w2ui-overlay'+ name);
+			if (tmp.data('element') != obj[0]) return; // it if it different overlay
 			if (tmp.length == 0) return;
 			var pos = $(obj).offset().left + 'x' + $(obj).offset().top;
 			if (tmp.data('position') != pos) {
@@ -1222,7 +1223,7 @@ w2utils.keyboard = (function (obj) {
 				switch(options.align) {
 					case 'both':
 						options.left = 17;
-						options.width = w2utils.getSize($(obj), 'width');
+						if (options.width == 0)	options.width = w2utils.getSize($(obj), 'width');
 						break;
 					case 'left':
 						options.left = 17;
@@ -1454,6 +1455,12 @@ w2utils.keyboard = (function (obj) {
 		}
 
 		function getMenuHTML () { 
+			if (options.spinner) {
+				return  '<table class="w2ui-drop-menu"><tr><td style="padding: 10px; text-align: center;">'+
+						'	<div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px; left: 2px;"></div> '+
+						'	<div style="display: inline-block; padding: 5px;"> Loading...</div>'+
+						'</td></tr></table>';
+			}
 			var count		= 0;
 			var menu_html	= '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
 			for (var f = 0; f < options.items.length; f++) { 
