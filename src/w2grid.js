@@ -895,7 +895,7 @@
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 			// all selected?
-			if (sel.indexes.length == this.records.length) {
+			if (sel.indexes.length == this.records.length || (this.searchData.length !== 0 && sel.indexes.length == this.last.searchIds.length)) {
 				$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			} else {
 				$('#grid_'+ this.name +'_check_all').prop('checked', false);
@@ -952,7 +952,7 @@
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
 			// all selected?
-			if (sel.indexes.length == this.records.length) {
+			if (sel.indexes.length == this.records.length || (this.searchData.length !== 0 && sel.indexes.length == this.last.searchIds.length)) {
 				$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			} else {
 				$('#grid_'+ this.name +'_check_all').prop('checked', false);
@@ -974,17 +974,17 @@
 			var cols = [];
 			for (var c in this.columns) cols.push(parseInt(c));
 			// if local data source and searched	
+			sel.indexes = [];
 			if (!url && this.searchData.length !== 0) {
 				// local search applied
-				for (var i=0; i<this.last.searchIds.length; i++) {
-					sel.indexes.push(r);
-					if (this.selectType != 'row') sel.columns[r] = cols.slice(); // .slice makes copy of the array
+				for (var i=0; i < this.last.searchIds.length; i++) {
+					sel.indexes.push(this.last.searchIds[i]);
+					if (this.selectType != 'row') sel.columns[this.last.searchIds[i]] = cols.slice(); // .slice makes copy of the array
 				}
 			} else {
-				sel.indexes = [];
-				for (var r in this.records) {
-					sel.indexes.push(r);
-					if (this.selectType != 'row') sel.columns[r] = cols.slice(); // .slice makes copy of the array
+				for (var i=0; i < this.records.length; i++) {
+					sel.indexes.push(i);
+					if (this.selectType != 'row') sel.columns[i] = cols.slice(); // .slice makes copy of the array
 				}
 			}
 			this.refresh();
@@ -2036,13 +2036,17 @@
 				if (((!event.ctrlKey && !event.shiftKey && !event.metaKey) || !this.multiSelect) && !this.showSelectColumn) {
 					if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
 					if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
-					this.select({ recid: recid, column: column });
+					if (flag === true) {
+						this.unselect({ recid: recid, column: column });
+					} else {
+						this.select({ recid: recid, column: column });
+					}
 				} else {
 					if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
 					if (flag === true) {
 						this.unselect({ recid: recid, column: column });
 					} else {
-						this.select({ recid: record.recid, column: column });
+						this.select({ recid: recid, column: column });
 					}
 				}
 			}
@@ -2854,7 +2858,8 @@
 				$('#grid_'+ this.name +'_searchClear').hide();
 			}
 			// all selected?
-			if (this.last.selection.indexes.length == this.records.length) {
+			var sel = this.last.selection;
+			if (sel.indexes.length == this.records.length || (this.searchData.length !== 0 && sel.indexes.length == this.last.searchIds.length)) {
 				$('#grid_'+ this.name +'_check_all').prop('checked', true);
 			} else {
 				$('#grid_'+ this.name +'_check_all').prop('checked', false);

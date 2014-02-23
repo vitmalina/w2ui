@@ -29,7 +29,7 @@ $(function () {
 			header: true,
 			emptyRecords: true,
 			columnHeaders: true,
-			//selectColumn: true,
+			selectColumn: true,
 			//expandColumn: true,
 			lineNumbers: true,
 			toolbarDelete: true,
@@ -79,7 +79,7 @@ $(function () {
 			},
 			{ field: 'lname', caption: 'Last Name', type: 'text' }
 		],
-		sortData: [ { field: 'personid', direction: 'asc' } ],
+		// sortData: [ { field: 'personid', direction: 'asc' } ],
 		columnGroups1: [
 			{ caption: '', span: 1 },
 			{ caption: 'General Information', span: 2},
@@ -89,7 +89,7 @@ $(function () {
 		],
 		columns: [				
 			{ field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true },
-			{ field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true },
+			{ field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
 			{ field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true },
 			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
 			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
@@ -159,6 +159,10 @@ $(function () {
 				]
 			});
 		},
+		onAdd: function (event) {
+			this.add({ recid: 100 });
+			this.editField(100, 1)
+		},
 		summary: [
 			//{ recid: 1, lname: 'Vitali Malinsouski', fname: '<span style="float: right">Total:</span>', sdate: '444' }
 		]		
@@ -171,7 +175,7 @@ $(function () {
 	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
 	var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
 	// add 10k records
-	for (var i = 0; i < 2500; i++) {
+	for (var i = 0; i < 15; i++) {
 		w2ui['grid'].records.push({ 
 			recid : (i + 1),
 			personid: i+1,
