@@ -463,7 +463,7 @@ var w2popup = {};
 				if ($('#w2ui-tmp > style').length > 0) {
 					var style = $('<div>').append($('#w2ui-tmp > style').clone()).html();
 					if ($('#w2ui-popup #div-style').length == 0) {
-						$('#w2ui-ppopup').append('<div id="div-style" style="position: absolute; left: -100; width: 1px"></div>');
+						$('#w2ui-popup').append('<div id="div-style" style="position: absolute; left: -100; width: 1px"></div>');
 					}
 					$('#w2ui-popup #div-style').html(style);
 				}
