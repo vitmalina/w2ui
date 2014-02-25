@@ -124,7 +124,7 @@
       }
 
       &.w2ui-selected,
-      &.w2ui-selected:hover {
+      &.w2ui-selected.hover {
         .linear-gradient-vertical(@listview-item-selected-linear-gradient-start, @listview-item-selected-linear-gradient-end);
 
         > div {
@@ -142,7 +142,7 @@
         }
       }
 
-      &:hover {
+      &.hover {
         .linear-gradient-vertical(@listview-item-hover-background-color-start, @listview-item-hover-background-color-end);
         .border(1px, solid, @listview-item-border-selection-color);
         .border-debug(black);
@@ -339,11 +339,11 @@
     }
 
     &.w2ui-selected div.extra,
-    &.w2ui-selected:hover div.extra {
+    &.w2ui-selected.hover div.extra {
       .linear-gradient-vertical(@listview-item-selected-linear-gradient-start, @listview-item-selected-linear-gradient-end);
     }
 
-    &:hover div.extra {
+    &.hover div.extra {
       .linear-gradient-vertical(@listview-item-hover-background-color-start, @listview-item-hover-background-color-end);
     }
   }
