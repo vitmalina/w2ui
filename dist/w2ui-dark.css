@@ -2355,22 +2355,22 @@ select {
   border: 1px solid #111111;
 }
 .w2ui-listview > ul > li.w2ui-selected,
-.w2ui-listview > ul > li.w2ui-selected:hover {
+.w2ui-listview > ul > li.w2ui-selected.hover {
   background-color: #202530;
 }
 .w2ui-listview > ul > li.w2ui-selected > div > div.caption,
-.w2ui-listview > ul > li.w2ui-selected:hover > div > div.caption {
+.w2ui-listview > ul > li.w2ui-selected.hover > div > div.caption {
   color: #eeeeee;
 }
 .w2ui-listview > ul > li.w2ui-selected > div > div.description,
-.w2ui-listview > ul > li.w2ui-selected:hover > div > div.description {
+.w2ui-listview > ul > li.w2ui-selected.hover > div > div.description {
   color: #808080;
 }
 .w2ui-listview > ul > li.w2ui-selected > div > div.extra > div > div,
-.w2ui-listview > ul > li.w2ui-selected:hover > div > div.extra > div > div {
+.w2ui-listview > ul > li.w2ui-selected.hover > div > div.extra > div > div {
   color: #808080;
 }
-.w2ui-listview > ul > li:hover {
+.w2ui-listview > ul > li.hover {
   background-color: #373f52;
   border: 1px solid #111111;
 }
@@ -2521,10 +2521,10 @@ select {
   font-size: 12px;
 }
 .w2ui-table > ul > li.w2ui-selected div.extra,
-.w2ui-table > ul > li.w2ui-selected:hover div.extra {
+.w2ui-table > ul > li.w2ui-selected.hover div.extra {
   background-color: #202530;
 }
-.w2ui-table > ul > li:hover div.extra {
+.w2ui-table > ul > li.hover div.extra {
   background-color: #373f52;
 }
 .w2ui-listview > ul > li div.icon-none {

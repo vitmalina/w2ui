@@ -3591,17 +3591,14 @@ w2utils.keyboard = (function (obj) {
 			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default behavior
+			var empty	= false;
 			var records = $('#grid_'+ obj.name +'_records');
 			var sel 	= obj.getSelection();
-			if (sel.length == 0) {
-				var ind = Math.floor((records[0].scrollTop + (records.height() / 2.1)) / obj.recordHeight);
-				obj.select({ recid: obj.records[ind].recid, column: 0});
-				sel = obj.getSelection();
-			}
-			var recid	= sel[0];
+			if (sel.length == 0) empty = true;
+			var recid	= sel[0] || null;
 			var columns = [];
 			var recid2  = sel[sel.length-1];
-			if (typeof recid == 'object') {
+			if (typeof recid == 'object' && recid != null) {
 				recid 	= sel[0].recid;
 				columns	= [];
 				var ii = 0;
@@ -3615,7 +3612,7 @@ w2utils.keyboard = (function (obj) {
 			var ind		= obj.get(recid, true);
 			var ind2	= obj.get(recid2, true);
 			var rec 	= obj.get(recid);
-			var recEL	= $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid));
+			var recEL	= $('#grid_'+ obj.name +'_rec_'+ (ind !== null ? w2utils.escapeId(obj.records[ind].recid) : 'none'));
 			var cancel  = false;
 			switch (event.keyCode) {
 				case 8:  // backspace
@@ -3668,6 +3665,7 @@ w2utils.keyboard = (function (obj) {
 					break;
 
 				case 37: // left
+					if (empty) break;
 					// check if this is subgrid
 					var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).parents('tr');
 					if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
@@ -3721,6 +3719,7 @@ w2utils.keyboard = (function (obj) {
 
 				case 9:  // tab
 				case 39: // right
+					if (empty) break;
 					if (this.selectType == 'row') {
 						if (recEL.length <= 0 || rec.expanded === true || obj.show.expandColumn !== true) break;
 						obj.expand(recid, event);
@@ -3759,6 +3758,7 @@ w2utils.keyboard = (function (obj) {
 					break;
 
 				case 38: // up
+					if (empty) selectTopRecord();
 					if (recEL.length <= 0) break;
 					// move to the previous record
 					var prev = obj.prevRow(ind);
@@ -3822,6 +3822,7 @@ w2utils.keyboard = (function (obj) {
 					break;
 
 				case 40: // down
+					if (empty) selectTopRecord();
 					if (recEL.length <= 0) break;
 					// jump into subgrid
 					if (obj.records[ind2].expanded) {
@@ -3885,6 +3886,7 @@ w2utils.keyboard = (function (obj) {
 					break;
 
 				case 86: // v - paste
+					if (empty) break;
 					if (event.ctrlKey || event.metaKey) {
 						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;"></textarea>');
 						$('#_tmp_copy_data').focus();
@@ -3896,10 +3898,12 @@ w2utils.keyboard = (function (obj) {
 					break;
 
 				case 88: // x - cut
+					if (empty) break;
 					if (event.ctrlKey || event.metaKey) {
 						setTimeout(function () { obj.delete(true); }, 100);
 					}
 				case 67: // c - copy
+					if (empty) break;
 					if (event.ctrlKey || event.metaKey) {
 						var text = obj.copy();
 						$('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;">'+ text +'</textarea>');
@@ -3924,6 +3928,12 @@ w2utils.keyboard = (function (obj) {
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
+
+			function selectTopRecord() {
+				var ind = Math.floor((records[0].scrollTop + (records.height() / 2.1)) / obj.recordHeight);
+				if (!obj.records[ind]) ind = 0;
+				obj.select({ recid: obj.records[ind].recid, column: 0});
+			}
 
 			function tmpUnselect () {
 				if (obj.last.sel_type != 'click') return false;
@@ -6379,14 +6389,12 @@ w2utils.keyboard = (function (obj) {
 					console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
 					return false;
 				}
-				var pname = '#layout_'+ this.name + '_panel_'+ p.type;
-				var tmp	  = $(pname + '> .w2ui-panel-content');
+				var pname 	= '#layout_'+ this.name + '_panel_'+ p.type;
+				var current = $(pname + '> .w2ui-panel-content');
 				var panelTop = 0;
-				if (tmp.length > 0) {
+				if (current.length > 0) {
 					$(pname).scrollTop(0);
-					panelTop = $(tmp).position().top;
-					tmp.attr('class', 'w2ui-panel-content');
-					if (p.style) tmp[0].style.cssText = p.style;
+					panelTop = $(current).position().top;
 				}
 				if (p.content === '') {
 					p.content = data;
@@ -6888,9 +6896,14 @@ w2utils.keyboard = (function (obj) {
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
 					p.content.box = $(pname +'> .w2ui-panel-content')[0];
-					setTimeout(function () { p.content.render(); }, 1); // do not do .render(box);
+					setTimeout(function () { 
+						// need to remove unnecessary classes
+						$(pname +'> .w2ui-panel-content').removeClass().addClass('w2ui-panel-content')
+						p.content.render(); // do not do .render(box);
+					}, 1); 
 				} else {
-					$(pname +'> .w2ui-panel-content').html(p.content);
+					// need to remove unnecessary classes
+					$(pname +'> .w2ui-panel-content').removeClass().addClass('w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
 				var tmp = $(obj.box).find(pname +'> .w2ui-panel-tabs');
@@ -7761,55 +7774,62 @@ var w2popup = {};
 			if (parseInt(options.height) < 10) options.height = 10;
 			if (typeof options.hideOnClick == 'undefined') options.hideOnClick = false;
 
-			var head = $('#w2ui-popup .w2ui-msg-title');
-			if ($('#w2ui-popup .w2ui-popup-message').length == 0) {
-				var pwidth = parseInt($('#w2ui-popup').width());
+			var head 	 = $('#w2ui-popup .w2ui-msg-title');
+			var pwidth 	 = parseInt($('#w2ui-popup').width());
+			var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
+			// remove message
+			if ($.trim(options.html) == '') {
+				$('#w2ui-popup #w2ui-message'+ (msgCount-1)).css('z-Index', 250);
+				var options = $('#w2ui-popup #w2ui-message'+ (msgCount-1)).data('options');
+				$('#w2ui-popup #w2ui-message'+ (msgCount-1)).remove();
+				if (typeof options.onClose == 'function') options.onClose();
+				if (msgCount == 1) { 
+					w2popup.unlock(); 
+				} else {
+					$('#w2ui-popup #w2ui-message'+ (msgCount-2)).show();
+				}
+			} else { 
+				// hide previous messages
+				$('#w2ui-popup .w2ui-popup-message').hide();
+				// add message
 				$('#w2ui-popup .w2ui-box1')
-					.before('<div class="w2ui-popup-message" style="display: none; ' +
+					.before('<div id="w2ui-message'+ msgCount +'" class="w2ui-popup-message" style="display: none; ' +
 								(head.length == 0 ? 'top: 0px;' : 'top: '+ w2utils.getSize(head, 'height') + 'px;') +
 					        	(typeof options.width  != 'undefined' ? 'width: '+ options.width + 'px; left: '+ ((pwidth - options.width) / 2) +'px;' : 'left: 10px; right: 10px;') +
 					        	(typeof options.height != 'undefined' ? 'height: '+ options.height + 'px;' : 'bottom: 6px;') +
 					        	'-webkit-transition: .3s; -moz-transition: .3s; -ms-transition: .3s; -o-transition: .3s;"' +
 								(options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>'+
 							'</div>');
-				$('#w2ui-popup .w2ui-popup-message').data('options', options);
-			} else {
-				if (typeof options.width  == 'undefined') options.width  = w2utils.getSize($('#w2ui-popup .w2ui-popup-message'), 'width');
-				if (typeof options.height == 'undefined') options.height = w2utils.getSize($('#w2ui-popup .w2ui-popup-message'), 'height');
-			}
-			var display = $('#w2ui-popup .w2ui-popup-message').css('display');
-			$('#w2ui-popup .w2ui-popup-message').css({
-				'-webkit-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-				'-moz-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-				'-ms-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-				'-o-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)')
-			});
-			if (display == 'none') {
-				$('#w2ui-popup .w2ui-popup-message').show().html(options.html);
-				setTimeout(function() {
-					$('#w2ui-popup .w2ui-popup-message').css({
-						'-webkit-transition': '0s',	'-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s',
-						'z-Index': 1500
-					}); // has to be on top of lock 
-					w2popup.lock();
-					if (typeof options.onOpen == 'function') options.onOpen();
-				}, 300);
-			} else {
-				$('#w2ui-popup .w2ui-popup-message').css('z-Index', 250);
-				var options = $('#w2ui-popup .w2ui-popup-message').data('options');
-				$('#w2ui-popup .w2ui-popup-message').remove();
-				w2popup.unlock();				
-				if (typeof options.onClose == 'function') options.onClose();
-			}
-			// timer needs to animation
-			setTimeout(function () {
-				$('#w2ui-popup .w2ui-popup-message').css({
-					'-webkit-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-					'-moz-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-					'-ms-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-					'-o-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)')
+				$('#w2ui-popup #w2ui-message'+ msgCount).data('options', options);
+				var display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display');
+				$('#w2ui-popup #w2ui-message'+ msgCount).css({
+					'-webkit-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
+					'-moz-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
+					'-ms-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
+					'-o-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)')
 				});
-			}, 1);
+				if (display == 'none') {
+					$('#w2ui-popup #w2ui-message'+ msgCount).show().html(options.html);
+					// timer needs to animation
+					setTimeout(function () {
+						$('#w2ui-popup #w2ui-message'+ msgCount).css({
+							'-webkit-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
+							'-moz-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
+							'-ms-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
+							'-o-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)')
+						});
+					}, 1);
+					// timer for lock
+					setTimeout(function() {
+						$('#w2ui-popup #w2ui-message'+ msgCount).css({
+							'-webkit-transition': '0s',	'-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s',
+							'z-Index': 1500
+						}); // has to be on top of lock 
+						if (msgCount == 0) w2popup.lock();
+						if (typeof options.onOpen == 'function') options.onOpen();
+					}, 300);
+				}
+			}
 		},
 
 		lock: function (msg, showSpinner) {
@@ -8269,6 +8289,8 @@ var w2confirm = function (msg, title, callBack) {
 				if (tab.disabled) { jq_el.css({ 'opacity': '0.2', '-moz-opacity': '0.2', '-webkit-opacity': '0.2', '-o-opacity': '0.2', 'filter': 'alpha(opacity=20)' }); }
 							else { jq_el.css({ 'opacity': '1', '-moz-opacity': '1', '-webkit-opacity': '1', '-o-opacity': '1', 'filter': 'alpha(opacity=100)' }); }
 			}
+			// right html
+			$('#tabs_'+ this.name +'_right').html(this.right);
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
@@ -12953,8 +12975,9 @@ var w2confirm = function (msg, title, callBack) {
 					case 'right':
 						return (colsCnt > 1) ? idx + 1 : idx;
 					case 'pgUp':
+						if (idx < colsCnt) return 0;
 						itmOffset = obj.itemNodeOffsetInfo(obj.itemNode(obj.items[idx].id));
-						var minTop = itmOffset.bottom - obj.box.offsetHeight;
+						var minTop = itmOffset.bottom - obj.box.offsetHeight - allowedOverflow(itmOffset);
 						newIdx = idx;
 						while (newIdx >= colsCnt) {
 							newIdx -= colsCnt;
@@ -12965,8 +12988,9 @@ var w2confirm = function (msg, title, callBack) {
 						}
 						return newIdx;
 					case 'pgDown':
+						if (idx >= obj.items.length - colsCnt) return obj.items.length - 1;
 						itmOffset = obj.itemNodeOffsetInfo(obj.itemNode(obj.items[idx].id));
-						var maxBottom = itmOffset.top + obj.box.offsetHeight;
+						var maxBottom = itmOffset.top + obj.box.offsetHeight + allowedOverflow(itmOffset);
 						newIdx = idx;
 						while (newIdx < obj.items.length - colsCnt) {
 							newIdx += colsCnt;
@@ -12982,6 +13006,10 @@ var w2confirm = function (msg, title, callBack) {
 						return obj.items.length - 1;
 					default:
 						return idx;
+				}
+
+				function allowedOverflow(offset) {
+					return parseInt((offset.bottom - offset.top) / 2);
 				}
 			}
 
@@ -13135,6 +13163,8 @@ var w2confirm = function (msg, title, callBack) {
 						template = obj.captionOnlyTemplate;
 					} else {
 						template = document.createElement('li');
+						template.setAttribute('onmouseover', '$(this).addClass(\'hover\');');
+						template.setAttribute('onmouseout', '$(this).removeClass(\'hover\');');
 						template.setAttribute('onclick', 'w2ui[\''+obj.name+'\'].click(this.getAttribute(\'item_id\'), event);');
 						template.setAttribute('ondblclick', 'w2ui[\''+obj.name+'\'].dblClick(this.getAttribute(\'item_id\'), event);');
 						template.setAttribute('oncontextmenu', 'w2ui[\''+obj.name+'\'].contextMenu(this.getAttribute(\'item_id\'), event); if (event.preventDefault) event.preventDefault();');

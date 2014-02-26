@@ -2346,7 +2346,7 @@ select {
   border: 1px solid #2661a6;
 }
 .w2ui-listview > ul > li.w2ui-selected,
-.w2ui-listview > ul > li.w2ui-selected:hover {
+.w2ui-listview > ul > li.w2ui-selected.hover {
   background-image: -webkit-linear-gradient(#69b1e0, #4a96d3);
   background-image: -moz-linear-gradient(#69b1e0, #4a96d3);
   background-image: -ms-linear-gradient(#69b1e0, #4a96d3);
@@ -2355,18 +2355,18 @@ select {
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff69b1e0', endColorstr='#ff4a96d3', GradientType=0);
 }
 .w2ui-listview > ul > li.w2ui-selected > div > div.caption,
-.w2ui-listview > ul > li.w2ui-selected:hover > div > div.caption {
+.w2ui-listview > ul > li.w2ui-selected.hover > div > div.caption {
   color: #ffffff;
 }
 .w2ui-listview > ul > li.w2ui-selected > div > div.description,
-.w2ui-listview > ul > li.w2ui-selected:hover > div > div.description {
+.w2ui-listview > ul > li.w2ui-selected.hover > div > div.description {
   color: #dddddd;
 }
 .w2ui-listview > ul > li.w2ui-selected > div > div.extra > div > div,
-.w2ui-listview > ul > li.w2ui-selected:hover > div > div.extra > div > div {
+.w2ui-listview > ul > li.w2ui-selected.hover > div > div.extra > div > div {
   color: #dddddd;
 }
-.w2ui-listview > ul > li:hover {
+.w2ui-listview > ul > li.hover {
   background-color: #d7e1ef;
   border: 1px solid #2661a6;
 }
@@ -2517,7 +2517,7 @@ select {
   font-size: 12px;
 }
 .w2ui-table > ul > li.w2ui-selected div.extra,
-.w2ui-table > ul > li.w2ui-selected:hover div.extra {
+.w2ui-table > ul > li.w2ui-selected.hover div.extra {
   background-image: -webkit-linear-gradient(#69b1e0, #4a96d3);
   background-image: -moz-linear-gradient(#69b1e0, #4a96d3);
   background-image: -ms-linear-gradient(#69b1e0, #4a96d3);
@@ -2525,7 +2525,7 @@ select {
   background-image: linear-gradient(#69b1e0, #4a96d3);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff69b1e0', endColorstr='#ff4a96d3', GradientType=0);
 }
-.w2ui-table > ul > li:hover div.extra {
+.w2ui-table > ul > li.hover div.extra {
   background-color: #d7e1ef;
 }
 .w2ui-listview > ul > li div.icon-none {
