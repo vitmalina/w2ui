@@ -153,14 +153,12 @@
 					console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
 					return false;
 				}
-				var pname = '#layout_'+ this.name + '_panel_'+ p.type;
-				var tmp	  = $(pname + '> .w2ui-panel-content');
+				var pname 	= '#layout_'+ this.name + '_panel_'+ p.type;
+				var current = $(pname + '> .w2ui-panel-content');
 				var panelTop = 0;
-				if (tmp.length > 0) {
+				if (current.length > 0) {
 					$(pname).scrollTop(0);
-					panelTop = $(tmp).position().top;
-					tmp.attr('class', 'w2ui-panel-content');
-					if (p.style) tmp[0].style.cssText = p.style;
+					panelTop = $(current).position().top;
 				}
 				if (p.content === '') {
 					p.content = data;
@@ -662,9 +660,14 @@
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
 					p.content.box = $(pname +'> .w2ui-panel-content')[0];
-					setTimeout(function () { p.content.render(); }, 1); // do not do .render(box);
+					setTimeout(function () { 
+						// need to remove unnecessary classes
+						$(pname +'> .w2ui-panel-content').removeClass().addClass('w2ui-panel-content')
+						p.content.render(); // do not do .render(box);
+					}, 1); 
 				} else {
-					$(pname +'> .w2ui-panel-content').html(p.content);
+					// need to remove unnecessary classes
+					$(pname +'> .w2ui-panel-content').removeClass().addClass('w2ui-panel-content').html(p.content);
 				}
 				// if there are tabs and/or toolbar - render it
 				var tmp = $(obj.box).find(pname +'> .w2ui-panel-tabs');
