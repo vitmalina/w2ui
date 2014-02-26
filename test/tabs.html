@@ -9,6 +9,7 @@
 		$('#tabs').w2tabs({
 			name: 'tabs',
 			active: 'tab1',
+			right: '12232',
 			tabs: [
 				{ id: 'tab1.1', text: 'Tab 1' },
 				{ id: 'tab2.2', caption: 'Tab 2', closable: true },
@@ -26,6 +27,8 @@
 		w2ui['tabs'].get('tab2.2').caption = '<div style="width: 300px">new and long</div>'; 
 		w2ui['tabs'].refresh();		
 	}
+	w2ui.tabs.right = 'new right';
+	w2ui.tabs.refresh();
 </script>
 <body>
 	<div id="tabs" style="padding: 5px;"></div>
