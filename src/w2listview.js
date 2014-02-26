@@ -388,8 +388,9 @@
 					case 'right':
 						return (colsCnt > 1) ? idx + 1 : idx;
 					case 'pgUp':
+						if (idx < colsCnt) return 0;
 						itmOffset = obj.itemNodeOffsetInfo(obj.itemNode(obj.items[idx].id));
-						var minTop = itmOffset.bottom - obj.box.offsetHeight;
+						var minTop = itmOffset.bottom - obj.box.offsetHeight - allowedOverflow(itmOffset);
 						newIdx = idx;
 						while (newIdx >= colsCnt) {
 							newIdx -= colsCnt;
@@ -400,8 +401,9 @@
 						}
 						return newIdx;
 					case 'pgDown':
+						if (idx >= obj.items.length - colsCnt) return obj.items.length - 1;
 						itmOffset = obj.itemNodeOffsetInfo(obj.itemNode(obj.items[idx].id));
-						var maxBottom = itmOffset.top + obj.box.offsetHeight;
+						var maxBottom = itmOffset.top + obj.box.offsetHeight + allowedOverflow(itmOffset);
 						newIdx = idx;
 						while (newIdx < obj.items.length - colsCnt) {
 							newIdx += colsCnt;
@@ -417,6 +419,10 @@
 						return obj.items.length - 1;
 					default:
 						return idx;
+				}
+
+				function allowedOverflow(offset) {
+					return parseInt((offset.bottom - offset.top) / 2);
 				}
 			}
 
@@ -570,6 +576,8 @@
 						template = obj.captionOnlyTemplate;
 					} else {
 						template = document.createElement('li');
+						template.setAttribute('onmouseover', '$(this).addClass(\'hover\');');
+						template.setAttribute('onmouseout', '$(this).removeClass(\'hover\');');
 						template.setAttribute('onclick', 'w2ui[\''+obj.name+'\'].click(this.getAttribute(\'item_id\'), event);');
 						template.setAttribute('ondblclick', 'w2ui[\''+obj.name+'\'].dblClick(this.getAttribute(\'item_id\'), event);');
 						template.setAttribute('oncontextmenu', 'w2ui[\''+obj.name+'\'].contextMenu(this.getAttribute(\'item_id\'), event); if (event.preventDefault) event.preventDefault();');
