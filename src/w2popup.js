@@ -478,55 +478,62 @@ var w2popup = {};
 			if (parseInt(options.height) < 10) options.height = 10;
 			if (typeof options.hideOnClick == 'undefined') options.hideOnClick = false;
 
-			var head = $('#w2ui-popup .w2ui-msg-title');
-			if ($('#w2ui-popup .w2ui-popup-message').length == 0) {
-				var pwidth = parseInt($('#w2ui-popup').width());
+			var head 	 = $('#w2ui-popup .w2ui-msg-title');
+			var pwidth 	 = parseInt($('#w2ui-popup').width());
+			var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
+			// remove message
+			if ($.trim(options.html) == '') {
+				$('#w2ui-popup #w2ui-message'+ (msgCount-1)).css('z-Index', 250);
+				var options = $('#w2ui-popup #w2ui-message'+ (msgCount-1)).data('options');
+				$('#w2ui-popup #w2ui-message'+ (msgCount-1)).remove();
+				if (typeof options.onClose == 'function') options.onClose();
+				if (msgCount == 1) { 
+					w2popup.unlock(); 
+				} else {
+					$('#w2ui-popup #w2ui-message'+ (msgCount-2)).show();
+				}
+			} else { 
+				// hide previous messages
+				$('#w2ui-popup .w2ui-popup-message').hide();
+				// add message
 				$('#w2ui-popup .w2ui-box1')
-					.before('<div class="w2ui-popup-message" style="display: none; ' +
+					.before('<div id="w2ui-message'+ msgCount +'" class="w2ui-popup-message" style="display: none; ' +
 								(head.length == 0 ? 'top: 0px;' : 'top: '+ w2utils.getSize(head, 'height') + 'px;') +
 					        	(typeof options.width  != 'undefined' ? 'width: '+ options.width + 'px; left: '+ ((pwidth - options.width) / 2) +'px;' : 'left: 10px; right: 10px;') +
 					        	(typeof options.height != 'undefined' ? 'height: '+ options.height + 'px;' : 'bottom: 6px;') +
 					        	'-webkit-transition: .3s; -moz-transition: .3s; -ms-transition: .3s; -o-transition: .3s;"' +
 								(options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>'+
 							'</div>');
-				$('#w2ui-popup .w2ui-popup-message').data('options', options);
-			} else {
-				if (typeof options.width  == 'undefined') options.width  = w2utils.getSize($('#w2ui-popup .w2ui-popup-message'), 'width');
-				if (typeof options.height == 'undefined') options.height = w2utils.getSize($('#w2ui-popup .w2ui-popup-message'), 'height');
-			}
-			var display = $('#w2ui-popup .w2ui-popup-message').css('display');
-			$('#w2ui-popup .w2ui-popup-message').css({
-				'-webkit-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-				'-moz-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-				'-ms-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-				'-o-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)')
-			});
-			if (display == 'none') {
-				$('#w2ui-popup .w2ui-popup-message').show().html(options.html);
-				setTimeout(function() {
-					$('#w2ui-popup .w2ui-popup-message').css({
-						'-webkit-transition': '0s',	'-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s',
-						'z-Index': 1500
-					}); // has to be on top of lock 
-					w2popup.lock();
-					if (typeof options.onOpen == 'function') options.onOpen();
-				}, 300);
-			} else {
-				$('#w2ui-popup .w2ui-popup-message').css('z-Index', 250);
-				var options = $('#w2ui-popup .w2ui-popup-message').data('options');
-				$('#w2ui-popup .w2ui-popup-message').remove();
-				w2popup.unlock();				
-				if (typeof options.onClose == 'function') options.onClose();
-			}
-			// timer needs to animation
-			setTimeout(function () {
-				$('#w2ui-popup .w2ui-popup-message').css({
-					'-webkit-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-					'-moz-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-					'-ms-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-					'-o-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)')
+				$('#w2ui-popup #w2ui-message'+ msgCount).data('options', options);
+				var display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display');
+				$('#w2ui-popup #w2ui-message'+ msgCount).css({
+					'-webkit-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
+					'-moz-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
+					'-ms-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
+					'-o-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)')
 				});
-			}, 1);
+				if (display == 'none') {
+					$('#w2ui-popup #w2ui-message'+ msgCount).show().html(options.html);
+					// timer needs to animation
+					setTimeout(function () {
+						$('#w2ui-popup #w2ui-message'+ msgCount).css({
+							'-webkit-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
+							'-moz-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
+							'-ms-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
+							'-o-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)')
+						});
+					}, 1);
+					// timer for lock
+					setTimeout(function() {
+						$('#w2ui-popup #w2ui-message'+ msgCount).css({
+							'-webkit-transition': '0s',	'-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s',
+							'z-Index': 1500
+						}); // has to be on top of lock 
+						if (msgCount == 0) w2popup.lock();
+						if (typeof options.onOpen == 'function') options.onOpen();
+					}, 300);
+				}
+			}
 		},
 
 		lock: function (msg, showSpinner) {
