@@ -42,7 +42,7 @@ for (var f in files) {
 		}
 		html[wid + '-' + type] += 
 			'<div class="obj-property">\n'+
-			'	<a href="<?=$site_root?>/docs/'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- function (event)</span>\n'+
+			'	<a href="'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- function (event)</span>\n'+
 			'</div>\n'+
 			'<div class="obj-property-desc">\n'+
 			'	'	+  desc + '\n'+
@@ -54,7 +54,7 @@ for (var f in files) {
 		}
 		html[wid + '-' + type] += 
 			'<div class="obj-property">\n'+
-			'	<a href="<?=$site_root?>/docs/'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
+			'	<a href="'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
 			'</div>\n'+
 			'<div class="obj-property-desc">\n'+
 			'	'	+  desc + '\n'+
@@ -66,7 +66,7 @@ for (var f in files) {
 		}
 		html[wid + '-' + type] += 
 			'<div class="obj-property">\n'+
-			'	<a href="<?=$site_root?>/docs/'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
+			'	<a href="'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
 			'</div>\n'+
 			'<div class="obj-property-desc">\n'+
 			'	'	+  desc + '\n'+
