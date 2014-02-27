@@ -678,7 +678,7 @@ var w2utils = (function () {
 	
 	function lock (box, msg, spinner) {
 		var options = {};
-		if (typeof msg == 'object') {
+		if (typeof msg === 'object') {
 			options = msg; 
 		} else {
 			options.msg 	= msg;
