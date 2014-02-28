@@ -197,13 +197,82 @@ test( "w2utils.isDate()", function() {
 	ok( w2utils.isDate('January 5, 2013', 'Month dd, yyyy') === true, "'January 5, 2013', 'Month dd, yyyy'");
 });
 
+test( "w2utils.isTime()", function() {
+	var values = {
+		1 			: false,
+		0 			: false,
+		'2'			: false,
+		'-1' 		: false,
+		'+1' 		: false,
+		'1.' 		: false,
+		'1.0' 		: false,
+		'1:0' 		: false,
+		':01' 		: false,
+		' :01' 		: false,
+		'1:00' 		: true,
+		'01:00'		: true,
+		'001:000'	: false,
+		'001:00'	: false,
+		'01:000'	: false,
+		'1 : 0' 	: false,
+		'1PM' 		: true,
+		'1AM' 		: true,
+		'0AM' 		: false,
+		'12AM' 		: true,
+		'0PM' 		: false,
+		'12PM' 		: true,
+		'0:00AM'	: true,
+		'4:00'		: true,
+		'4:000'		: false,
+		'-4:00'		: false,
+		'1:00AM'	: true,
+		'13:00AM'	: false,
+		'12:00AM'	: true,
+		'12:01AM'	: true,
+		'00:00AM'	: true,
+		'13:00PM'	: false,
+		'12:00PM'	: true,
+		'12:01PM'	: true,
+		'00:00PM'	: true,
+		'13:00 PM'	: false,
+		'12:00 PM'	: true,
+		'00:00 PM'	: true,
+		' 6:30 '	: true,
+		' 6 : 30 '	: false,
+		' 6 : 3 0 '	: false,
+		'13:00'		: true,
+		'23:00'		: true,
+		'24:00'		: true,
+		'24:01'		: false,
+		'25:00'		: false,
+		'12:00'		: true,
+		'12:01'		: true,
+		'12:59'		: true,
+		'11:60'		: false,
+		'11:-1'		: false,
+		'11:0'		: false,
+		'11:0AM'	: false,
+		'11:0 AM'	: false,
+		'00:00'		: true
+	};
+	ok( w2utils.isTime() === false,  			"- no argument -" );
+	ok( w2utils.isTime('') === false, 			"- blank -" );
+	ok( w2utils.isTime(null) === false, 		"- null -" );
+	ok( w2utils.isTime(undefined) === false,	"- undefined -" );
+	ok( w2utils.isTime({}) === false, 			"- object -" );
+	ok( w2utils.isTime([]) === false, 			"- array -" );
+	for (var v in values) {
+		ok( w2utils.isTime(v) === values[v], 'Test: ' + v);
+	}
+});
+
 test( "w2utils.base64encode(), w2utils.base64decode()", function() {
-	ok( 
-		w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text', 
-		"Simple text" 
+	ok(
+		w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text',
+		"Simple text"
 	);
-	ok( 
-		w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\', 
-		"Text with special characters" 
+	ok(
+		w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\',
+		"Text with special characters"
 	);
 });
