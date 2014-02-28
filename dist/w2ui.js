@@ -4046,7 +4046,7 @@ w2utils.keyboard = (function (obj) {
 			$('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').show();
 			$('#grid_'+ this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('<div class="w2ui-spinner" style="width: 16px; height: 16px; margin: -2px 2px;"></div>');
 			rec.expanded = true;
-			// check if height of expaned row > 5 then remove spinner
+			// check if height of expanded row > 5 then remove spinner
 			setTimeout(ready, 300);
 			function ready() {
 				var div1 = $('#grid_'+ obj.name +'_rec_'+ id +'_expanded');
