@@ -652,22 +652,26 @@
 				var pname = '#layout_'+ obj.name + '_panel_'+ p.type;
 				var rname = '#layout_'+ obj.name +'_resizer_'+ p.type;
 				// apply properties to the panel
-				var el = $(panel).css({ display: p.hidden ? 'none' : 'block' });
-				if (el.find('> .w2ui-panel-content').length > 0) {
-					el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
-				}
+				$(panel).css({ display: p.hidden ? 'none' : 'block' });
 				if (p.resizable === true) $(rname).show(); else $(rname).hide();
 				// insert content
 				if (typeof p.content == 'object' && p.content.render) {
 					p.content.box = $(pname +'> .w2ui-panel-content')[0];
 					setTimeout(function () { 
 						// need to remove unnecessary classes
-						$(pname +'> .w2ui-panel-content').removeClass().addClass('w2ui-panel-content')
+						$(pname +'> .w2ui-panel-content')
+							.removeClass()
+							.addClass('w2ui-panel-content')
+							.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 						p.content.render(); // do not do .render(box);
 					}, 1); 
 				} else {
 					// need to remove unnecessary classes
-					$(pname +'> .w2ui-panel-content').removeClass().addClass('w2ui-panel-content').html(p.content);
+					$(pname +'> .w2ui-panel-content')
+						.removeClass()
+						.addClass('w2ui-panel-content')
+						.html(p.content)
+						.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				}
 				// if there are tabs and/or toolbar - render it
 				var tmp = $(obj.box).find(pname +'> .w2ui-panel-tabs');
