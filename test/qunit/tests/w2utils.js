@@ -49,7 +49,7 @@ test( "w2utils.isInt()", function() {
 	var values = {
 		1 			: true,
 		0 			: true,
-		'1'			: true,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: false,
@@ -76,7 +76,10 @@ test( "w2utils.isFloat()", function() {
 		1 			: true,
 		0 			: true,
 		1.0e3		: true,
-		'1'			: true,
+		'x'			: false,
+		'-1x'		: false,
+		'x-1'		: false,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: true,
@@ -95,6 +98,10 @@ test( "w2utils.isFloat()", function() {
 	ok( w2utils.isFloat(undefined) === false,	"- undefined -" );
 	ok( w2utils.isFloat({}) === false, 			"- object -" );
 	ok( w2utils.isFloat([]) === false, 			"- array -" );
+	ok( w2utils.isFloat(1/0) === true, 			"- +Infinity is a float -" );
+	ok( w2utils.isFloat(-1/0) === true,			"- -Infinity is a float -" );
+	ok( w2utils.isFloat(0/0) === false, 			"- NaN is NOT a float -" );
+
 	for (var v in values) {
 		ok( w2utils.isFloat(v) === values[v], 'Test: ' + v);
 	}
@@ -198,12 +205,12 @@ test( "w2utils.isDate()", function() {
 });
 
 test( "w2utils.base64encode(), w2utils.base64decode()", function() {
-	ok( 
-		w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text', 
-		"Simple text" 
+	ok(
+		w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text',
+		"Simple text"
 	);
-	ok( 
-		w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\', 
-		"Text with special characters" 
+	ok(
+		w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\',
+		"Text with special characters"
 	);
 });
