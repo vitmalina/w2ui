@@ -24,6 +24,10 @@ ul {
 	margin: 10px 0px 10px 40px;
 }
 
+p + p {
+	margin-top: 1em;
+}
+
 #main_layout {
 	position: absolute; 
 	width: 100%; 
