@@ -32,6 +32,7 @@
 		this.onRefresh		= null;
 		this.onDestroy		= null;
 
+		$.extend(this, { handlers: [] });
 		$.extend(true, this, w2obj.listview, options);
 		for (var i = 0; i < this.extraCols.length; i++) {
 			this.itemExtra[this.extraCols[i].name] = '';
@@ -52,7 +53,6 @@
 			}
 			var itms = method.items;
 			obj = new w2listview(method);
-			$.extend(obj, { items: [], handlers: [] });
 			if ($.isArray(itms)) {
 				for (var i = 0; i < itms.length; i++) {
 					obj.items[i] = $.extend({}, w2listview.prototype.item, obj.itemExtra, itms[i]);
@@ -123,32 +123,22 @@
 		insert: function (id, item) {
 			if (!$.isArray(item)) item = [item];
 			// assume it is array
-			for (var r = 0; r < item.length; r++) {
+			for (var i = 0; i < item.length; i++) {
 				// checks
-				if (typeof item[r].id === 'undefined') {
+				if (typeof item[i].id === 'undefined') {
 					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
 					return;
 				}
-				var unique = true;
-				for (var i = 0; i < this.items.length; i++) {
-					if (this.items[i].id == item[r].id) {
-						unique = false;
-						break;
-					}
-				}
-				if (!unique) {
-					console.log('ERROR: The parameter "id='+ item[r].id +'" is not unique within the current items. (obj: '+ this.name +')');
-					return;
-				}
+				if (!$.fn.w2checkUniqueId(item[i].id, this.items, 'items', this.name)) return;
 				// add item
-				var newItm = $.extend({}, w2listview.prototype.item, this.itemExtra, item[r]);
+				var newItm = $.extend({}, w2listview.prototype.item, this.itemExtra, item[i]);
 				if (id === null || typeof id === 'undefined') {
 					this.items.push(newItm);
 				} else {
 					var middle = this.get(id, true);
 					this.items = this.items.slice(0, middle).concat([newItm], this.items.slice(middle));
 				}
-				this.refresh(item[r].id);
+				this.refresh(item[i].id);
 			}
 		},
 
@@ -370,7 +360,7 @@
 
 			function processNeighbor(neighbor) {
 				var newIdx = getNeighborIdx(neighbor);
-				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) {
+				if (newIdx >= 0 && newIdx < obj.items.length && newIdx !== idx) {
 					obj.userSelect(obj.items[newIdx].id, event, false);
 				}
 			}
@@ -495,7 +485,7 @@
 			return {
 				top: node.offsetTop - this.itemSpacing[vt],
 				bottom: node.offsetTop + node.offsetHeight + this.itemSpacing[vt]
-			}
+			};
 		},
 
 		refresh: function (id) {
@@ -531,7 +521,7 @@
 				} else {
 					// create new
 					var nextItm;
-					if (idx != this.items.length-1) nextItm = this.itemNode(this.items[idx+1].id);
+					if (idx !== this.items.length-1) nextItm = this.itemNode(this.items[idx+1].id);
 					if (!nextItm) nextItm = this.lastItm;
 					nextItm.parentNode.insertBefore(getItemElement(this.items[idx]), nextItm);
 				}
