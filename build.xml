@@ -43,7 +43,7 @@
 		</exec>
 		<exec executable="cmd" output="dist/w2ui.min.css" osfamily="windows">
 		  <arg value="/c"/>
-		  <arg value="lessc"/>
+		  <arg value="cleancss"/>
 		  <arg value="dist/w2ui.css"/>
 		</exec>
 
@@ -139,7 +139,7 @@
 		</exec>
 		<exec executable="cmd" output="dist/w2ui-fields.min.css" osfamily="windows">
 		  <arg value="/c"/>
-		  <arg value="lessc"/>
+		  <arg value="cleancss"/>
 		  <arg value="dist/w2ui-fields.css"/>
 		</exec>
 
