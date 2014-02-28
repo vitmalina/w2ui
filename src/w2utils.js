@@ -27,6 +27,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- add maxHeight for the w2menu
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *	- hidden and disabled in menus
+*	- new regex for emails /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
@@ -1116,13 +1117,18 @@ w2utils.keyboard = (function (obj) {
 		if (options.name) name = '-' + options.name;
 		// if empty then hide
 		if (this.length == 0 || html == '' || typeof html == 'undefined') { 
-			$(document).off('click', $('#w2ui-overlay'+ name).data('hide'));
-			$('#w2ui-overlay'+ name).remove();
+			if ($('#w2ui-overlay'+ name).length > 0) {
+				var tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
+				if (typeof tmp_hide == 'function') tmp_hide();
+			} else {
+				$('#w2ui-overlay'+ name).remove();	
+			}
 			return $(this); 
 		}
 		if ($('#w2ui-overlay'+ name).length > 0) {
-			$(document).off('click', $('#w2ui-overlay'+ name).data('hide'));
-			$('#w2ui-overlay'+ name).remove();
+			var tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
+			$(document).off('click', tmp_hide);
+			if (typeof tmp_hide == 'function') tmp_hide();
 		}
 		$('body').append(
 			'<div id="w2ui-overlay'+ name +'" style="display: none"'+
@@ -1140,18 +1146,19 @@ w2utils.keyboard = (function (obj) {
 		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div1.css('background-color', bc);
 
 		div1.data('element', obj.length > 0 ? obj[0] : null)
-			.data('hide', hide)
-			.data('fixSize', fixSize)
+			.data('options', options)
 			.data('position', $(obj).offset().left + 'x' + $(obj).offset().top)
 			.fadeIn('fast').on('mousedown', function (event) { 
 				$('#w2ui-overlay'+ name).data('keepOpen', true); 
 				if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault(); 
 			});
+		div1[0].hide	= hide;
+		div1[0].resize	= resize;
 
 		// need time to display
-		fixSize();
+		resize();
 		setTimeout(function () {
-			fixSize();
+			resize();
 			$(document).off('click', hide).on('click', hide);
 			if (typeof options.onShow == 'function') options.onShow();
 		}, 10);
@@ -1187,7 +1194,7 @@ w2utils.keyboard = (function (obj) {
 			clearInterval(div1.data('timer'));
 		}
 
-		function fixSize () {
+		function resize () {
 			var div1 = $('#w2ui-overlay'+ name);
 			var div2 = div1.find(' > div');
 			// if goes over the screen, limit height and width
@@ -1209,6 +1216,7 @@ w2utils.keyboard = (function (obj) {
 							div2.find('div.menu').css('overflow-y', 'hidden');
 						}
 					}, 1);
+					setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
 				}
 				if (options.tmp.contentWidth) {
 					w = options.tmp.contentWidth;
@@ -1218,6 +1226,7 @@ w2utils.keyboard = (function (obj) {
 							div2.find('div.menu').css('overflow-x', 'hidden');
 						}
 					}, 1);
+					setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
 				}
 				// alignment
 				switch(options.align) {
@@ -1285,7 +1294,7 @@ w2utils.keyboard = (function (obj) {
 				if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth;
 				if (w > maxWidth && options.align != 'both') {
 					options.align = 'right';
-					setTimeout(function () { fixSize(); }, 1);
+					setTimeout(function () { resize(); }, 1);
 				}
 				// check scroll bar
 				if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
@@ -1320,7 +1329,7 @@ w2utils.keyboard = (function (obj) {
 				var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
 				$('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
 				$('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
-				fixSize();
+				mresize();
 			} else {
 				$(this).w2menu(options);
 			}
@@ -1360,17 +1369,19 @@ w2utils.keyboard = (function (obj) {
 						getMenuHTML() + 
 					'</div>';
 			var ret = $(this).w2overlay(html, options);
-			$('#w2ui-overlay'+ name +' #menu-search')
-				.on('keyup', change)
-				.on('keydown', function (event) {
-					// cancel tab key
-					if (event.keyCode == 9) { event.stopPropagation(); event.preventDefault(); }
-				});				
-			fixSize();
+			setTimeout(function () {
+				$('#w2ui-overlay'+ name +' #menu-search')
+					.on('keyup', change)
+					.on('keydown', function (event) {
+						// cancel tab key
+						if (event.keyCode == 9) { event.stopPropagation(); event.preventDefault(); }
+					});
+			}, 200);
+			mresize();
 			return ret;
 		}
 
-		function fixSize() {
+		function mresize() {
 			setTimeout(function () { 
 				// show selected
 				$('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected');
@@ -1379,8 +1390,7 @@ w2utils.keyboard = (function (obj) {
 				cur.addClass('w2ui-selected');
 				if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
 				if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
-				var tmp = $('#w2ui-overlay'+ name).data('fixSize');
-				if (typeof tmp == 'function') tmp();
+				$('#w2ui-overlay'+ name)[0].resize();
 				// scroll into view
 				if (cur.length > 0) {
 					var top  	= cur[0].offsetTop - 5; // 5 is margin top
@@ -1403,6 +1413,7 @@ w2utils.keyboard = (function (obj) {
 					$('#w2ui-overlay'+ name).remove();
 					$.fn.w2menuHandler(event, options.index);
 					break;
+				case 9:  // tab
 				case 27: // escape
 					$('#w2ui-overlay'+ name).remove();
 					$.fn.w2menuHandler(event, -1);
@@ -1451,7 +1462,7 @@ w2utils.keyboard = (function (obj) {
 				if (shown <= 0) options.index = -1;
 			}
 			$(obj).w2menu('refresh', options);
-			fixSize();
+			mresize();
 		}
 
 		function getMenuHTML () { 
@@ -1489,12 +1500,10 @@ w2utils.keyboard = (function (obj) {
 						menu_html += 
 							'<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
 							'		class="'+ bg +' '+ (options.index == f ? 'w2ui-selected' : '') +'"'+
-							'		onclick="var obj = this; $(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); '+
-							'			$(this).addClass(\'w2ui-selected\'); event.stopPropagation();'+
-							'			setTimeout(function () {'+
-							'				$(\'#w2ui-overlay'+ name +'\').remove(); '+
-							'				$.fn.w2menuHandler(event, \''+ f +'\'); '+
-							'			}, 100);">'+
+							'		onmousedown="$(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); $(this).addClass(\'w2ui-selected\');"'+
+							'		onclick="event.stopPropagation();'+
+							'			$(\'#w2ui-overlay'+ name +'\').remove(); '+
+							'			$.fn.w2menuHandler(event, \''+ f +'\');">'+
 								imgd +
 							'	<td>'+ txt +'</td>'+
 							'</tr>';

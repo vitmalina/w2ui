@@ -12,6 +12,8 @@
 *	- multiple date selection
 *	- month selection, year selections
 *	- arrows no longer work (for int)
+*	- add postData for autocomplete
+*	- form to support cutstom types
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -385,7 +387,7 @@
 			// attach events
 			this.tmp = {
 				onChange	: function (event) { obj.change.call(obj, event) },
-				onClick		: function (event) { obj.updateOverlay(); event.stopPropagation(); },
+				onClick		: function (event) { obj.click.call(obj, event) },
 				onFocus		: function (event) { obj.focus.call(obj, event) },
 				onBlur 		: function (event) { obj.blur.call(obj, event) },
 				onKeydown	: function (event) { obj.keyDown.call(obj, event) },
@@ -668,13 +670,25 @@
 			}
 		},
 
+		click: function (event) {
+			event.stopPropagation(); 
+			// lists
+			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+				if (!$(this.el).is(':focus')) this.focus(event);
+			}
+			// other fields with drops
+			if (['date', 'time', 'color'].indexOf(this.type) != -1) {
+				this.updateOverlay();
+			}
+		},
+
 		focus: function (event) {
 			var obj 	= this;
 			var options = this.options;
 			// color, date, time
 			if (['color', 'date', 'time'].indexOf(obj.type) !== -1) {
 				if ($(obj.el).attr('readonly')) return;
-				$("#w2ui-overlay").remove();
+				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 				setTimeout(function () { obj.updateOverlay(); }, 150);
 			}
 			// list
@@ -683,11 +697,13 @@
 					obj.helpers['focus'].find('input').focus();
 				} else {
 					$(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
-					setTimeout(function () { 
+					setTimeout(function () { 						
 						if (!options.search) {
 							$(obj.el).data('keep_focus', true);
 							setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
 							obj.helpers['focus'].find('input').focus(); 
+						} else {
+							setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
 						}
 					}, 10);
 					obj.updateOverlay();
@@ -696,7 +712,7 @@
 			// menu
 			if (['combo', 'enum'].indexOf(obj.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
-				$("#w2ui-overlay").remove();				
+				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 				setTimeout(function () {
 					obj.search();
 					setTimeout(function () { obj.updateOverlay(); }, 1);
@@ -714,7 +730,7 @@
 			var val 	= $(obj.el).val().trim();
 			// hide overlay
 			if (['color', 'date', 'time', 'combo', 'enum'].indexOf(obj.type) != -1) {
-				$('#w2ui-overlay').remove();
+				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 			}
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
 				if (val !== '' && !obj.checkType(val)) { 
@@ -975,7 +991,7 @@
 							if ($(obj.el).val() == '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').change();
 							// hide overlay
 							if (obj.type == 'list') {
-								$('#w2ui-overlay').remove();
+								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 							} else {
 								obj.tmp.force_hide = true;
 							}
@@ -1217,7 +1233,12 @@
 						obj.tmp.cind1 = index[0];
 						obj.tmp.cind2 = index[1];
 						$(obj.el).val(color).change();
-						setTimeout(function () { $('#w2ui-overlay').remove(); }, 150);
+						$(this).html('&#149;');
+					})
+					.on('mouseup', function () {
+						setTimeout(function () { 
+							if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); 
+						}, 10);
 					});
 			}
 			// date
@@ -1232,11 +1253,17 @@
 				if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
 				(function refreshCalendar(month, year) {
 					$('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year));
-					$('#w2ui-overlay .w2ui-date').on('mousedown', function () {
-						var day = $(this).attr('date');
-						$(obj.el).val(day).change();
-						setTimeout(function () { $('#w2ui-overlay').remove(); }, 150);
-					});
+					$('#w2ui-overlay .w2ui-date')
+						.on('mousedown', function () {
+							var day = $(this).attr('date');
+							$(obj.el).val(day).change();
+							$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+						})
+						.on('mouseup', function () {
+							setTimeout(function () { 
+								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); 
+							}, 10);
+						});
 					$('#w2ui-overlay .previous').on('mousedown', function () {
 						var tmp = obj.options.current.split('/');
 						tmp[0]  = parseInt(tmp[0]) - 1;
@@ -1258,20 +1285,27 @@
 				}
 				var h24 = (this.options.format == 'h24' ? true : false);
 				$('#w2ui-overlay > div').html(obj.getHourHTML());
-				$('#w2ui-overlay .w2ui-time').on('mousedown', function () {
-					var hour = $(this).attr('hour');
-					$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
-					setTimeout(function () {
-						$('#w2ui-overlay').remove();
+				$('#w2ui-overlay .w2ui-time')
+					.on('mousedown', function (event) {
+						$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+						var hour = $(this).attr('hour');
+						$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+					})
+					.on('mouseup', function () {
+						var hour = $(this).attr('hour');
+						if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 						$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
 						$('#w2ui-overlay > div').html(obj.getMinHTML(hour));
-						$('#w2ui-overlay .w2ui-time').on('mousedown', function () {
-							var min = $(this).attr('min');
-							$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
-							setTimeout(function () { $('#w2ui-overlay').remove(); }, 150);
-						});
-					}, 150);
-				});
+						$('#w2ui-overlay .w2ui-time')
+							.on('mousedown', function () {
+								$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+								var min = $(this).attr('min');
+								$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+							})
+							.on('mouseup', function () {
+								setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
+							});
+					});
 			}
 			// list
 			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
@@ -1310,7 +1344,7 @@
 									$(obj.el).data('selected', selected).change();
 									$(obj.helpers['multi']).find('input').val('').width(20);
 									obj.refresh();
-									$('#w2ui-overlay').remove();
+									if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 									// event after
 									obj.trigger($.extend(eventData, { phase: 'after' }));
 								}
@@ -1663,7 +1697,7 @@
 							if ($(obj.el).data('focused')) {
 								$(obj.el).removeData('focused');
 								$(obj.el).triggerHandler('blur');
-								$('#w2ui-overlay').remove();
+								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 							}
 						}, 30);
 					})
