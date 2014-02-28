@@ -188,22 +188,33 @@ test( "w2utils.isDate()", function() {
 	ok( w2utils.isDate('13-1-31', 'yy-mm-dd') === true, "'13-1-31', 'yy-mm-dd'" );
 	ok( w2utils.isDate('31-1-13', 'dd-mm-yy') === true, "'31-1-13', 'dd-mm-yy'" );
 	ok( w2utils.isDate('2/29/2008', 'mm/dd/yyyy') === true, "'2/29/2008', 'mm/dd/yyyy' - Leap Year" );
-	ok( w2utils.isDate('2/29/2009', 'mm/dd/yyyy') === false,"'2/29/2009', 'mm/dd/yyyy' - Not Leap Year" );
-	ok( w2utils.isDate('24/29/2009', 'mm/dd/yyyy')=== false,"'24/29/2009', Wrong date" );
-	ok( w2utils.isDate('dk3', '') === false,"'dk3', Wrong date" );
+	ok( w2utils.isDate('2/29/2009', 'mm/dd/yyyy') === false, "'2/29/2009', 'mm/dd/yyyy' - Not Leap Year" );
+	ok( w2utils.isDate('24/29/2009', 'mm/dd/yyyy') === false, "'24/29/2009', Wrong date" );
+	ok( w2utils.isDate('dk3', '') === false, "'dk3', Wrong date" );
 	ok( w2utils.isDate('31 Jan, 2013', 'dd Mon, yyyy') === true, "'1 Jun, 2013', 'dd Mon, yyyy'");
 	ok( w2utils.isDate('30 Feb, 2013', 'dd Mon, yyyy') === false, "'30 Feb, 2013', 'dd Mon, yyyy'");
 	ok( w2utils.isDate('1 January, 2013', 'dd Month, yyyy') === true, "'1 January, 2013', 'dd Month, yyyy'");
 	ok( w2utils.isDate('January 5, 2013', 'Month dd, yyyy') === true, "'January 5, 2013', 'Month dd, yyyy'");
+
+	ok( w2utils.isDate(new Date()) === true, "current date");
+
+	ok( w2utils.isDate() === false,  			"- no argument -" );
+	ok( w2utils.isDate('') === false, 			"- blank -" );
+	ok( w2utils.isDate(null) === false, 		"- null -" );
+	ok( w2utils.isDate(undefined) === false,	"- undefined -" );
+	ok( w2utils.isDate({}) === false, 			"- object -" );
+	ok( w2utils.isDate([]) === false, 			"- array -" );
+	ok( w2utils.isDate(1300) === false,			"- integer -" );
+	ok( w2utils.isDate(500.5) === false,		"- number -" );
 });
 
 test( "w2utils.base64encode(), w2utils.base64decode()", function() {
-	ok( 
-		w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text', 
-		"Simple text" 
+	ok(
+		w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text',
+		"Simple text"
 	);
-	ok( 
-		w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\', 
-		"Text with special characters" 
+	ok(
+		w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\',
+		"Text with special characters"
 	);
 });
