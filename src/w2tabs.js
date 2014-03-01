@@ -30,6 +30,7 @@
 		this.onResize	= null;
 		this.onDestroy	= null;
 
+		$.extend(this, { handlers: [] });
 		$.extend(true, this, w2obj.tabs, options);
 	};
 
@@ -39,25 +40,26 @@
 	$.fn.w2tabs = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2tabs')) return;
+			if (!$.fn.w2checkNameParam(method, 'w2tabs')) return undefined;
 			// extend tabs
 			var tabs   = method.tabs;
 			var object = new w2tabs(method);
-			$.extend(object, { tabs: [], handlers: [] });
-			for (var i in tabs) { object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]); }
+			for (var i = 0; i < tabs.length; i++) {
+				object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]);
+			}
 			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
 			// register new object
 			w2ui[object.name] = object;
 			return object;
-
 		} else if (w2ui[$(this).attr('name')]) {
 			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2tabs' );
+			return undefined;
 		}
 	};
 
@@ -66,7 +68,7 @@
 
 	w2tabs.prototype = {
 		tab : {
-			id			: null,		// commnad to be sent to all event handlers
+			id			: null,		// command to be sent to all event handlers
 			text		: '',
 			hidden		: false,
 			disabled	: false,
@@ -84,31 +86,26 @@
 		insert: function (id, tab) {
 			if (!$.isArray(tab)) tab = [tab];
 			// assume it is array
-			for (var r in tab) {
+			for (var i = 0; i < tab.length; i++) {
 				// checks
-				if (String(tab[r].id) == 'undefined') {
+				if (typeof tab[i].id === 'undefined') {
 					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
 					return;
 				}
-				var unique = true;
-				for (var i in this.tabs) { if (this.tabs[i].id == tab[r].id) { unique = false; break; } }
-				if (!unique) {
-					console.log('ERROR: The parameter "id='+ tab[r].id +'" is not unique within the current tabs. (obj: '+ this.name +')');
-					return;
-				}
-				if (!w2utils.isAlphaNumeric(tab[r].id)) {
-					console.log('ERROR: The parameter "id='+ tab[r].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
+				if (!$.fn.w2checkUniqueId(tab[i].id, this.tabs, 'tabs', this.name)) return;
+				if (!w2utils.isAlphaNumeric(tab[i].id)) {
+					console.log('ERROR: The parameter "id='+ tab[i].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
 					return;
 				}
 				// add tab
-				tab = $.extend({}, tab, tab[r]);
-				if (id === null || typeof id == 'undefined') {
-					this.tabs.push(tab);
+				var newTab = $.extend({}, w2tabs.prototype.tab, tab[i]);
+				if (id === null || typeof id === 'undefined') {
+					this.tabs.push(newTab);
 				} else {
 					var middle = this.get(id, true);
-					this.tabs = this.tabs.slice(0, middle).concat([tab], this.tabs.slice(middle));
+					this.tabs = this.tabs.slice(0, middle).concat([newTab], this.tabs.slice(middle));
 				}
-				this.refresh(tab[r].id);
+				this.refresh(tab[i].id);
 			}
 		},
 
@@ -127,7 +124,7 @@
 		},
 
 		select: function (id) {
-			if (this.get(id) === null || this.active == id) return false;
+			if (this.active === id || this.get(id) === null) return false;
 			this.active = id;
 			this.refresh();
 			return true;
@@ -142,14 +139,20 @@
 		},
 
 		get: function (id, returnIndex) {
+			var i = 0;
 			if (arguments.length === 0) {
 				var all = [];
-				for (var i = 0; i < this.tabs.length; i++) if (this.tabs[i].id !== null) all.push(this.tabs[i].id);
+				for (; i < this.tabs.length; i++) {
+					if (this.tabs[i].id !== null) {
+						all.push(this.tabs[i].id);
+					}
+				}
 				return all;
-			}
-			for (var i1 in this.tabs) {
-				if (this.tabs[i1].id == id) {
-					if (returnIndex === true) return i1; else return this.tabs[i1];
+			} else {
+				for (; i < this.tabs.length; i++) {
+					if (this.tabs[i].id === id) {
+						return (returnIndex === true ? i : this.tabs[i]);
+					}
 				}
 			}
 			return null;
@@ -206,41 +209,42 @@
 		refresh: function (id) {
 			var time = (new Date()).getTime();
 			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			if (String(id) == 'undefined') {
-				// refresh all
-				for (var i in this.tabs) this.refresh(this.tabs[i].id);
-			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), object: this.get(id) });
+			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), object: this.get(id) });
 			if (eventData.isCancelled === true) return false;
-			// create or refresh only one item
-			var tab = this.get(id);
-			if (tab === null) return;
-			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
-
-			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
-			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);"></div>' : '') +
-						'	<div class="w2ui-tab'+ (this.active == tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
-						'		title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
-						'		onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
-			if (jq_el.length === 0) {
-				// does not exist - create it
-				var addStyle = '';
-				if (tab.hidden) { addStyle += 'display: none;'; }
-				if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
-				html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
-				if (this.get(id, true) != this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).length > 0) {
-					$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).before(html);
-				} else {
-					$(this.box).find('#tabs_'+ this.name +'_right').before(html);
-				}
+			if (typeof id === 'undefined') {
+				// refresh all
+				for (var i = 0; i < this.tabs.length; i++) this.refresh(this.tabs[i].id);
 			} else {
-				// refresh
-				jq_el.html(tabHTML);
-				if (tab.hidden) { jq_el.css('display', 'none'); }
-							else { jq_el.css('display', ''); }
-				if (tab.disabled) { jq_el.css({ 'opacity': '0.2', '-moz-opacity': '0.2', '-webkit-opacity': '0.2', '-o-opacity': '0.2', 'filter': 'alpha(opacity=20)' }); }
-							else { jq_el.css({ 'opacity': '1', '-moz-opacity': '1', '-webkit-opacity': '1', '-o-opacity': '1', 'filter': 'alpha(opacity=100)' }); }
+				// create or refresh only one item
+				var tab = this.get(id);
+				if (tab === null) return false;
+				if (typeof tab.caption !== 'undefined') tab.text = tab.caption;
+
+				var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
+				var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);"></div>' : '') +
+					'	<div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
+					'		title="'+ (typeof tab.hint !== 'undefined' ? tab.hint : '') +'"'+
+					'		onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
+				if (jq_el.length === 0) {
+					// does not exist - create it
+					var addStyle = '';
+					if (tab.hidden) { addStyle += 'display: none;'; }
+					if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
+					var html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
+					if (this.get(id, true) !== this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).length > 0) {
+						$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).before(html);
+					} else {
+						$(this.box).find('#tabs_'+ this.name +'_right').before(html);
+					}
+				} else {
+					// refresh
+					jq_el.html(tabHTML);
+					if (tab.hidden) { jq_el.css('display', 'none'); }
+					else { jq_el.css('display', ''); }
+					if (tab.disabled) { jq_el.css({ 'opacity': '0.2', '-moz-opacity': '0.2', '-webkit-opacity': '0.2', '-o-opacity': '0.2', 'filter': 'alpha(opacity=20)' }); }
+					else { jq_el.css({ 'opacity': '1', '-moz-opacity': '1', '-webkit-opacity': '1', '-o-opacity': '1', 'filter': 'alpha(opacity=100)' }); }
+				}
 			}
 			// right html
 			$('#tabs_'+ this.name +'_right').html(this.right);
@@ -256,7 +260,7 @@
 			if (eventData.isCancelled === true) return false;
 			// default action
 			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			if (String(box) != 'undefined' && box !== null) {
+			if (typeof box !== 'undefined' && box !== null) {
 				if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -265,7 +269,7 @@
 				}
 				this.box = box;
 			}
-			if (!this.box) return;
+			if (!this.box) return false;
 			// render all buttons
 			var html =	'<table cellspacing="0" cellpadding="1" width="100%">'+
 						'	<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
@@ -285,10 +289,13 @@
 			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			if (eventData.isCancelled === true) return false;
-			// empty function
-			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));
+			var rslt = eventData.isCancelled !== true;
+			if (rslt) {
+				// empty function
+				// event after
+				this.trigger($.extend(eventData, { phase: 'after' }));
+			}
+			return rslt;
 		},
 
 		destroy: function () {
@@ -305,6 +312,7 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return true;
 		},
 
 		// ===================================================
@@ -322,6 +330,7 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh(id);
+			return true;
 		},
 
 		animateClose: function(id, event) {
@@ -352,38 +361,34 @@
 			// event before
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh();
+			return true;
 		},
 
 		animateInsert: function(id, tab) {
 			if (this.get(id) === null) return;
 			if (!$.isPlainObject(tab)) return;
 			// check for unique
-			var unique = true;
-			for (var i in this.tabs) { if (this.tabs[i].id == tab.id) { unique = false; break; } }
-			if (!unique) {
-				console.log('ERROR: The parameter "id='+ tab.id +'" is not unique within the current tabs. (obj: '+ this.name +')');
-				return;
-			}
+			if (!$.fn.w2checkUniqueId(tab.id, this.tabs, 'tabs', this.name)) return;
 			// insert simple div
 			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
 			if (jq_el.length !== 0) return; // already exists
 			// measure width
-			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
+			if (typeof tab.caption !== 'undefined') tab.text = tab.caption;
 			var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
 				'<table cellspacing="0" cellpadding="1" width="100%"><tr>'+
 				'<td id="_tmp_simple_tab" style="" valign="middle">'+
 					(tab.closable ? '<div class="w2ui-tab-close"></div>' : '') +
-				'	<div class="w2ui-tab '+ (this.active == tab.id ? 'active' : '') +'">'+ tab.text +'</div>'+
+				'	<div class="w2ui-tab '+ (this.active === tab.id ? 'active' : '') +'">'+ tab.text +'</div>'+
 				'</td></tr></table>'+
 				'</div>';
 			$('body').append(tmp);
 			// create dummy element
-			tabHTML = '<div style="width: 1px; -webkit-transition: 0.2s; -moz-transition: 0.2s; -ms-transition: 0.2s; -o-transition: 0.2s;">&nbsp;</div>';
+			var tabHTML = '<div style="width: 1px; -webkit-transition: 0.2s; -moz-transition: 0.2s; -ms-transition: 0.2s; -o-transition: 0.2s;">&nbsp;</div>';
 			var addStyle = '';
 			if (tab.hidden) { addStyle += 'display: none;'; }
 			if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
-			html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
-			if (this.get(id, true) != this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).length > 0) {
+			var html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
+			if (this.get(id, true) !== this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).length > 0) {
 				$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).before(html);
 			} else {
 				$(this.box).find('#tabs_'+ this.name +'_right').before(html);
@@ -405,3 +410,4 @@
 	$.extend(w2tabs.prototype, w2utils.event);
 	w2obj.tabs = w2tabs;
 })();
+
