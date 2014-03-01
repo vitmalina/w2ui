@@ -6,6 +6,9 @@
 var fs 	  = require('fs');
 var files = fs.readdirSync('details');
 
+var rPath = ''; // for website should be '<?=$site_root?>/docs/'
+// var rPath = '<?=$site_root?>/docs/';
+
 console.log('--------- Generating Help Files ------------');
 
 // clear folder
@@ -42,7 +45,7 @@ for (var f in files) {
 		}
 		html[wid + '-' + type] += 
 			'<div class="obj-property">\n'+
-			'	<a href="'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- function (event)</span>\n'+
+			'	<a href="'+ rPath + wid +'.'+ prop +'">'+ prop +'</a> <span>- function (event)</span>\n'+
 			'</div>\n'+
 			'<div class="obj-property-desc">\n'+
 			'	'	+  desc + '\n'+
@@ -54,7 +57,7 @@ for (var f in files) {
 		}
 		html[wid + '-' + type] += 
 			'<div class="obj-property">\n'+
-			'	<a href="'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
+			'	<a href="'+ rPath + wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
 			'</div>\n'+
 			'<div class="obj-property-desc">\n'+
 			'	'	+  desc + '\n'+
@@ -66,7 +69,7 @@ for (var f in files) {
 		}
 		html[wid + '-' + type] += 
 			'<div class="obj-property">\n'+
-			'	<a href="'+ wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
+			'	<a href="'+ rPath + wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
 			'</div>\n'+
 			'<div class="obj-property-desc">\n'+
 			'	'	+  desc + '\n'+
