@@ -193,7 +193,7 @@ function doClick (cmd, data) {
 		}		
 	} else {
 		var tmp  = cmd.split('.');
-		switch(tmp[1]) {
+		switch (tmp[1]) {
 			case 'box'		: cmd = 'common.box'; break;
 			case 'name'		: cmd = 'common.name'; break;
 			case 'handlers'	: cmd = 'common.handlers'; break;
