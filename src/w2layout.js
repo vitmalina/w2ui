@@ -34,7 +34,7 @@
 		this.onShow			= null;
 		this.onHide			= null;
 		this.onResizing 	= null;
-		this.onResizerClick	= null
+		this.onResizerClick	= null;
 		this.onRender		= null;
 		this.onRefresh		= null;
 		this.onResize		= null;
@@ -50,11 +50,11 @@
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
 			if (!w2utils.checkName(method, 'w2layout')) return;
-			var panels = method.panels;
+			var panels = method.panels || [];
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
 			// add defined panels panels
-			for (var p in panels) {
+			for (var p = 0, len = panels.length; p < len; p++) {
 				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]);
 				if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);
 				if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
@@ -62,7 +62,7 @@
 			// add all other panels
 			for (var p1 in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) {
 				if (object.get(p1) !== null) continue;
-				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 == 'main' ? false : true), size: 50 }));
+				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 !== 'main'), size: 50 }));
 			}
 			if ($(this).length > 0) {
 				object.render($(this)[0]);
@@ -743,7 +743,7 @@
 			for (var p in { 'top':'', 'left':'', 'right':'', 'bottom':'', 'preview':'' }) {
 				var tmp = this.get(p);
 				var str = String(tmp.size);
-				if (tmp && str.substr(str.length-1) == '%') {
+				if (tmp && str.substr(str.length-1) === '%') {
 					var tmph = height;
 					if (tmp.type == 'preview') {
 						tmph = tmph -

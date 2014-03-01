@@ -177,7 +177,7 @@
 			for (var a = 0; a < arguments.length; a++) {
 				tmp = this.get(arguments[a]);
 				if (tmp === null) continue;
-				if (this.selected !== null && this.selected === tmp.id){
+				if (this.selected !== null && this.selected === tmp.id) {
 					this.selected = null;
 				}
 				var ind  = this.get(tmp.parent, arguments[a], true);
@@ -200,14 +200,14 @@
 			// searches all nested nodes
 			this._tmp = null;
 			if (typeof parent == 'string') parent = this.get(parent);
-			if (parent.nodes === null) return null;
-			for (var i=0; i < parent.nodes.length; i++) {
-				if (parent.nodes[i].id == id) {
+			if (parent.nodes == null) return null;
+			for (var i = 0; i < parent.nodes.length; i++) {
+				if (parent.nodes[i].id === id) {
 					// make sure nodes inserted correctly
-					var nodes  = node.nodes;
+					var nodes = node.nodes;
 					$.extend(parent.nodes[i], node, { nodes: [] });
-					if (typeof nodes != 'undefined') {
-						this.add(parent.nodes[i], nodes); 
+					if (nodes != null) {
+						this.add(parent.nodes[i], nodes);
 					}
 					this.refresh(id);
 					return true;
@@ -228,9 +228,9 @@
 			}
 			// searches all nested nodes
 			this._tmp = null;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return null;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return null;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].id == id) {
 					if (returnIndex === true) return i; else return parent.nodes[i];
 				} else {
@@ -345,9 +345,9 @@
 
 		collapseAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return false;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return false;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === true) parent.nodes[i].expanded = false;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
 			}
@@ -373,9 +373,9 @@
 		
 		expandAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return false;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return false;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === false) parent.nodes[i].expanded = true;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
 			}
@@ -643,7 +643,7 @@
 				height: $(this.box).height() + 'px'
 			});
 			var obj = this;
-			var node;
+			var node, nd;
 			var nm;
 			if (typeof id == 'undefined') {
 				node	= this;
@@ -654,7 +654,7 @@
 				nm		= '#node_'+ w2utils.escapeId(node.id) + '_sub';
 			}
 			var nodeHTML;
-			if (node != this) {
+			if (node !== this) {
 				var tmp	= '#node_'+ w2utils.escapeId(node.id);
 				nodeHTML	= getNodeHTML(node);
 				$(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
@@ -665,10 +665,11 @@
 			}
 			// refresh sub nodes
 			$(this.box).find(nm).html('');
-			for (var i=0; i < node.nodes.length; i++) {
-				nodeHTML = getNodeHTML(node.nodes[i]);
+			for (var i = 0; i < node.nodes.length; i++) {
+				nd = node.nodes[i];
+				nodeHTML = getNodeHTML(nd);
 				$(this.box).find(nm).append(nodeHTML);
-				if (node.nodes[i].nodes.length !== 0) { this.refresh(node.nodes[i].id); }
+				if (nd.nodes.length !== 0) { this.refresh(nd.id); }
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
