@@ -85,7 +85,9 @@ var w2utils = (function () {
 		lang			: lang,
 		locale			: locale,
 		getSize			: getSize,
-		scrollBarSize	: scrollBarSize
+		scrollBarSize	: scrollBarSize,
+		checkName		: checkName,
+		checkUniqueId	: checkUniqueId
 	};
 	return obj;
 	
@@ -785,6 +787,36 @@ var w2utils = (function () {
 		return tmp.scrollBarSize;
 	}
 
+
+    function checkName (params, component) { // was w2checkNameParam
+		if (!params || typeof params.name === 'undefined') {
+			console.log('ERROR: The parameter "name" is required but not supplied in $().'+ component +'().');
+			return false;
+		}
+		if (typeof w2ui[params.name] !== 'undefined') {
+			console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ params.name +').');
+			return false;
+		}
+		if (!w2utils.isAlphaNumeric(params.name)) {
+			console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
+			return false;
+		}
+		return true;
+	};
+
+	function checkUniqueId (id, items, itemsDecription, objName) { // was w2checkUniqueId
+		if (!$.isArray(items)) items = [items];
+		for (var i = 0; i < items.length; i++) {
+			if (items[i].id === id) {
+				console.log('ERROR: The parameter "id='+ id +'" is not unique within the current '+ itemsDecription +'. (obj: '+ objName +')');
+				return false;
+			}
+		}
+		return true;
+	};
+
+
+
 })();
 
 /***********************************************************
@@ -969,33 +1001,6 @@ w2utils.keyboard = (function (obj) {
 		if (!name && this.length > 0) name = this.attr('name');
 		if (typeof name === 'string' && w2ui[name]) w2ui[name].destroy();
 		if (typeof name === 'object') name.destroy();
-	};
-
-    $.fn.w2checkNameParam = function (params, component) {
-		if (!params || typeof params.name === 'undefined') {
-			console.log('ERROR: The parameter "name" is required but not supplied in $().'+ component +'().');
-			return false;
-		}
-		if (typeof w2ui[params.name] !== 'undefined') {
-			console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ params.name +').');
-			return false;
-		}
-		if (!w2utils.isAlphaNumeric(params.name)) {
-			console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-			return false;
-		}
-		return true;
-	};
-
-	$.fn.w2checkUniqueId = function (id, items, itemsDecription, objName) {
-		if (!$.isArray(items)) items = [items];
-		for (var i = 0; i < items.length; i++) {
-			if (items[i].id === id) {
-				console.log('ERROR: The parameter "id='+ id +'" is not unique within the current '+ itemsDecription +'. (obj: '+ objName +')');
-				return false;
-			}
-		}
-		return true;
 	};
 
 	$.fn.w2marker = function (str) {

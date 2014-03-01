@@ -40,7 +40,7 @@
 	$.fn.w2tabs = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2tabs')) return;
+			if (!w2utils.checkName(method, 'w2tabs')) return;
 			// extend tabs
 			var tabs   = method.tabs;
 			var object = new w2tabs(method);
@@ -92,11 +92,7 @@
 					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
 					return;
 				}
-				if (!$.fn.w2checkUniqueId(tab[i].id, this.tabs, 'tabs', this.name)) return;
-				if (!w2utils.isAlphaNumeric(tab[i].id)) {
-					console.log('ERROR: The parameter "id='+ tab[i].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
-					return;
-				}
+				if (!w2utils.checkUniqueId(tab[i].id, this.tabs, 'tabs', this.name)) return;
 				// add tab
 				var newTab = $.extend({}, w2tabs.prototype.tab, tab[i]);
 				if (id === null || typeof id === 'undefined') {
@@ -365,7 +361,7 @@
 			if (this.get(id) === null) return;
 			if (!$.isPlainObject(tab)) return;
 			// check for unique
-			if (!$.fn.w2checkUniqueId(tab.id, this.tabs, 'tabs', this.name)) return;
+			if (!w2utils.checkUniqueId(tab.id, this.tabs, 'tabs', this.name)) return;
 			// insert simple div
 			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
 			if (jq_el.length !== 0) return; // already exists

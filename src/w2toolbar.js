@@ -35,7 +35,7 @@
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2toolbar')) return;
+			if (!w2utils.checkName(method, 'w2toolbar')) return;
 			// extend items
 			var items = method.items;
 			var object = new w2toolbar(method);
@@ -102,11 +102,7 @@
 					console.log('ERROR: The parameter "id" is required but not supplied in w2toolbar.add() method.');
 					return;
 				}
-				if (!$.fn.w2checkUniqueId(items[o].id, this.items, 'toolbar items', this.name)) return;
-				if (!w2utils.isAlphaNumeric(items[o].id)) {
-					console.log('ERROR: The parameter "id" must be alpha-numeric + "-_".');
-					return;
-				}
+				if (!w2utils.checkUniqueId(items[o].id, this.items, 'toolbar items', this.name)) return;
 				// add item
 				var it = $.extend({}, w2toolbar.prototype.item, items[o]);
 				if (id === null || typeof id === 'undefined') {

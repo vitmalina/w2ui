@@ -183,7 +183,7 @@
 	$.fn.w2grid = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2grid')) return;
+			if (!w2utils.checkName(method, 'w2grid')) return;
 			// remember items
 			var columns		= method.columns;
 			var columnGroups= method.columnGroups;

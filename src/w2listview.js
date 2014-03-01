@@ -46,7 +46,7 @@
 		var obj;
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2listview')) return undefined;
+			if (!w2utils.checkName(method, 'w2listview')) return undefined;
 			if (typeof method.viewType !== 'undefined') {
 				method.vType = method.viewType;
 				delete method.viewType;
@@ -129,7 +129,7 @@
 					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
 					return;
 				}
-				if (!$.fn.w2checkUniqueId(item[i].id, this.items, 'items', this.name)) return;
+				if (!w2utils.checkUniqueId(item[i].id, this.items, 'items', this.name)) return;
 				// add item
 				var newItm = $.extend({}, w2listview.prototype.item, this.itemExtra, item[i]);
 				if (id === null || typeof id === 'undefined') {
