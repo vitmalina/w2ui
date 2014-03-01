@@ -43,7 +43,7 @@
 		</exec>
 		<exec executable="cmd" output="dist/w2ui.min.css" osfamily="windows">
 		  <arg value="/c"/>
-		  <arg value="lessc"/>
+		  <arg value="cleancss"/>
 		  <arg value="dist/w2ui.css"/>
 		</exec>
 
@@ -139,7 +139,7 @@
 		</exec>
 		<exec executable="cmd" output="dist/w2ui-fields.min.css" osfamily="windows">
 		  <arg value="/c"/>
-		  <arg value="lessc"/>
+		  <arg value="cleancss"/>
 		  <arg value="dist/w2ui-fields.css"/>
 		</exec>
 
@@ -226,7 +226,16 @@
 		</replaceregexp>
 	</target>
 
-	<target name="build" depends="clean,js,css">
+	<target name="doc">
+		<echo message="------- W2UI -------"/>
+
+		<echo message="Regenerate Documentation Index Files"/>
+		<exec executable="node" dir="docs">
+			<arg value="generate.js"/>
+		</exec>
+	</target>
+
+	<target name="build" depends="clean,js,css,doc">
 		<echo message="Wrapping Up"/>
 	</target>
 </project>

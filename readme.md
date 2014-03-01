@@ -1,6 +1,6 @@
 ## W2UI 1.3 - MIT License
 
-W2UI is modern, intuitive JavaScript UI library for buidling rich data-driven web application. The library has
+W2UI is modern, intuitive JavaScript UI library for building rich data-driven web application. The library has
 a small footprint and no dependencies except jQuery. The library has the following widgets:
 
 * w2layout
@@ -58,13 +58,13 @@ Please make sure that the same issue was not previously submitted by someone els
 
 ## Building 
 
-I use ANT to build the project. It does the folloing
+I use ANT to build the project. It does the following
 
 - Compiles LESS files
 - Concatenates and minifies CSS files
 - Concatenates and minifies JS files 
 
-In order to be able to use ANT, you will need to install Node.JS and NMP on your machine, then run the following commands to install dependencies
+In order to be able to use ANT, you will need to install Node.JS and NPM on your machine, then run the following command to install dependencies
 
 ```
 sudo npm install less -g
@@ -74,7 +74,7 @@ sudo npm install uglify-js@1 -g
 
 ## Other Build Tools
 
-You can use other toold to build. Grunt seems to be promissing, and will do everything you need. You still need to install same dependencies
+You can use other tools to build. Grunt seems to be promissing, and will do everything you need. You still need to install same dependencies
 if you want to use grunt.
 
 ## Contributing
