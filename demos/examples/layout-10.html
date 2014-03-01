@@ -1,7 +1,13 @@
 <div class="content">
 	<div id="example_title">
 		<h1>Panel with Title</h1>
+		<p>
 		A layout panel may be created with a title.
+		</p>
+		
+		<p>
+		You can dynamically load content into the main panel; this is done so you can observe the overflow behaviour of the panel (scrollbars).
+		</p>
 	</div>
 	<div id="example_view"></div>
 	<div id="example_code"></div>
@@ -9,6 +15,14 @@
 
 <!--CODE-->
 <div id="layout" style="width: 100%; height: 400px;"></div>
+
+<div style="height: 20px;"></div>
+
+
+<span style="display: inline-block; width: 50px;"> Main: </span>
+<input type="button" value="Set Content" onclick="w2ui['layout'].content('main', 'This is some content set manually')">
+<input type="button" value="Load Content 1" onclick="w2ui['layout'].load('main', 'data/content1.html')">
+<input type="button" value="Load Content 2" onclick="w2ui['layout'].load('main', 'data/content2.html')">
 
 <!--CODE-->
 $(function () {	
