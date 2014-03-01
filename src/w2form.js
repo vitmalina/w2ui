@@ -90,7 +90,7 @@
 				$.extend(true, object.tabs, { tabs: [] });
 				for (var t in tabs) {
 					var tmp = tabs[t];
-					if (typeof tmp == 'object') object.tabs.tabs.push(tmp); else object.tabs.tabs.push({ id: tmp, caption: tmp });
+					if (typeof tmp === 'object') object.tabs.tabs.push(tmp); else object.tabs.tabs.push({ id: tmp, caption: tmp });
 				}
 			} else {
 				$.extend(true, object.tabs, tabs);
