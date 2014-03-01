@@ -1130,7 +1130,7 @@
 								console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
 								return;
 							}
-							// remove all extra items if more then needed for cache							
+							// remove all extra items if more then needed for cache
 							if (data.items.length > options.cacheMax) data.items.splice(options.cacheMax, 100000);
 							// remember stats
 							obj.tmp.xhr_loading = false;
@@ -1801,9 +1801,9 @@
 		getColorHTML: function () {
 			var html =  '<div class="w2ui-color">'+
 						'<table cellspacing="5">';
-			for (var i=0; i<8; i++) {
+			for (var i = 0; i < 8; i++) {
 				html += '<tr>';
-				for (var j=0; j<8; j++) {
+				for (var j = 0; j < 8; j++) {
 					html += '<td>'+
 							'	<div class="color" style="background-color: #'+ this.pallete[i][j] +';" name="'+ this.pallete[i][j] +'" index="'+ i + ':' + j +'">'+
 							'		'+ ($(this.el).val() == this.pallete[i][j] ? '&#149;' : '&nbsp;')+

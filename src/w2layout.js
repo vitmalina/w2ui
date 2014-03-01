@@ -34,7 +34,7 @@
 		this.onShow			= null;
 		this.onHide			= null;
 		this.onResizing 	= null;
-		this.onResizerClick	= null
+		this.onResizerClick	= null;
 		this.onRender		= null;
 		this.onRefresh		= null;
 		this.onResize		= null;
@@ -52,11 +52,11 @@
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
 			if (!w2utils.checkName(method, 'w2layout')) return;
-			var panels = method.panels;
+			var panels = method.panels || [];
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
 			// add defined panels
-			for (var p in panels) {
+			for (var p = 0, len = panels.length; p < len; p++) {
 				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]);
 				if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);
 				if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
@@ -65,7 +65,7 @@
 			for (var p1 in w2layout_panels) {
 				p1 = w2layout_panels[p1];
 				if (object.get(p1) !== null) continue;
-				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 == 'main' ? false : true), size: 50 }));
+				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 !== 'main'), size: 50 }));
 			}
 			if ($(this).length > 0) {
 				object.render($(this)[0]);
