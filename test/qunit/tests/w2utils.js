@@ -49,7 +49,7 @@ test( "w2utils.isInt()", function() {
 	var values = {
 		1 			: true,
 		0 			: true,
-		'1'			: true,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: false,
@@ -111,7 +111,7 @@ test( "w2utils.isMoney() - Default Format", function() {
 	var values = {
 		1 			: true,
 		0 			: true,
-		'1'			: true,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: false,
@@ -148,7 +148,7 @@ test( "w2utils.isMoney() - EU Format", function() {
 	var values = {
 		1 			: true,
 		0 			: true,
-		'1'			: true,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: false,
