@@ -127,60 +127,96 @@ var w2utils = (function () {
 
 	function isDate (val, format, retDate) {
 		if (!val) return false;
-		if (!format) format = w2utils.settings.date_format;
-		val = String(val);
-		// convert month formats
-		if (RegExp('mon', 'ig').test(format)) {
-			format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
-			val	= val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
-			for (var m = 0; m < w2utils.settings.fullmonths.length; m++) {
-				var t = w2utils.settings.fullmonths[m];
-				val = val.replace(RegExp(t, 'ig'), (parseInt(m) + 1)).replace(RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
-			}
-		}
-		// format date
-		var tmp  = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/');
-		var tmp2 = format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
+
 		var dt   = 'Invalid Date';
 		var month, day, year;
-		if (tmp2 === 'mm/dd/yyyy') { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
-		if (tmp2 === 'm/d/yyyy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
-		if (tmp2 === 'dd/mm/yyyy') { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
-		if (tmp2 === 'd/m/yyyy')   { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
-		if (tmp2 === 'yyyy/dd/mm') { month = tmp[2]; day = tmp[1]; year = tmp[0]; }
-		if (tmp2 === 'yyyy/d/m')   { month = tmp[2]; day = tmp[1]; year = tmp[0]; }
-		if (tmp2 === 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; }
-		if (tmp2 === 'yyyy/m/d')   { month = tmp[1]; day = tmp[2]; year = tmp[0]; }
-		if (tmp2 === 'mm/dd/yy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
-		if (tmp2 === 'm/d/yy')     { month = tmp[0]; day = tmp[1]; year = parseInt(tmp[2]) + 1900; }
-		if (tmp2 === 'dd/mm/yy')   { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
-		if (tmp2 === 'd/m/yy')     { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
-		if (tmp2 === 'yy/dd/mm')   { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; }
-		if (tmp2 === 'yy/d/m')     { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; }
-		if (tmp2 === 'yy/mm/dd')   { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; }
-		if (tmp2 === 'yy/m/d')     { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; }
-		dt = new Date(month + '/' + day + '/' + year);
+
+		if (format == null) format = w2utils.settings.date_format;
+
+		if (typeof val.getUTCFullYear === 'function' && typeof val.getUTCMonth === 'function' && typeof val.getUTCDate === 'function') {
+			year = val.getUTCFullYear();
+			month = val.getUTCMonth();
+			day = val.getUTCDate();
+		} else if (typeof val.getFullYear === 'function' && typeof val.getMonth === 'function' && typeof val.getDate === 'function') {
+			year = val.getFullYear();
+			month = val.getMonth();
+			day = val.getDate();
+		} else {
+			val = String(val);
+			// convert month formats
+			if (RegExp('mon', 'ig').test(format)) {
+				format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
+				val	= val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
+				for (var m = 0, len = w2utils.settings.fullmonths.length; m < len; m++) {
+					var t = w2utils.settings.fullmonths[m];
+					val = val.replace(RegExp(t, 'ig'), (parseInt(m) + 1)).replace(RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
+				}
+			}
+			// format date
+			var tmp  = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/');
+			var tmp2 = format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
+			if (tmp2 === 'mm/dd/yyyy') { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
+			if (tmp2 === 'm/d/yyyy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
+			if (tmp2 === 'dd/mm/yyyy') { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
+			if (tmp2 === 'd/m/yyyy')   { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
+			if (tmp2 === 'yyyy/dd/mm') { month = tmp[2]; day = tmp[1]; year = tmp[0]; }
+			if (tmp2 === 'yyyy/d/m')   { month = tmp[2]; day = tmp[1]; year = tmp[0]; }
+			if (tmp2 === 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; }
+			if (tmp2 === 'yyyy/m/d')   { month = tmp[1]; day = tmp[2]; year = tmp[0]; }
+			if (tmp2 === 'mm/dd/yy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
+			if (tmp2 === 'm/d/yy')     { month = tmp[0]; day = tmp[1]; year = parseInt(tmp[2]) + 1900; }
+			if (tmp2 === 'dd/mm/yy')   { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
+			if (tmp2 === 'd/m/yy')     { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
+			if (tmp2 === 'yy/dd/mm')   { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; }
+			if (tmp2 === 'yy/d/m')     { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; }
+			if (tmp2 === 'yy/mm/dd')   { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; }
+			if (tmp2 === 'yy/m/d')     { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; }
+		}
+		if (!isInt(year)) return false;
+		if (!isInt(month)) return false;
+		if (!isInt(day)) return false;
+		year = +year;
+		month = +month;
+		day = +day;
+		dt = new Date(year, month - 1, day);
 		// do checks
-		if (typeof month === 'undefined') return false;
+		if (month == null) return false;
 		if (dt === 'Invalid Date') return false;
-		if ((dt.getMonth()+1 !== month) || (dt.getDate() !== day) || (dt.getFullYear() !== year)) return false;
+		if ((dt.getMonth() + 1 !== month) || (dt.getDate() !== day) || (dt.getFullYear() !== year)) return false;
 		if (retDate === true) return dt; else return true;
 	}
 
-	function isTime (val) {
+	function isTime (val, retTime) {
 		// Both formats 10:20pm and 22:20
-		if (String(val) === 'undefined') return false;
-		var max;
-		// -- process american foramt
+		if (val == null) return false;
+		var max, pm;
+		// -- process american format
+		val = String(val);
 		val = val.toUpperCase();
-		if (val.indexOf('PM') >= 0 || val.indexOf('AM') >= 0) max = 12; else max = 23;
-		val = $.trim(val.replace('AM', ''));
-		val = $.trim(val.replace('PM', ''));
+		pm = val.indexOf('PM') >= 0;
+		var ampm = (pm || val.indexOf('AM') >= 0);
+		if (ampm) max = 12; else max = 24;
+		val = val.replace('AM', '').replace('PM', '');
+		val = $.trim(val);
 		// ---
 		var tmp = val.split(':');
-		if (tmp.length !== 2) { return false; }
-		if (tmp[0] === '' || parseInt(tmp[0]) < 0 || parseInt(tmp[0]) > max || !this.isInt(tmp[0])) { return false; }
-		if (tmp[1] === '' || parseInt(tmp[1]) < 0 || parseInt(tmp[1]) > 59 || !this.isInt(tmp[1])) { return false; }
+		var h = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0);
+		// accept edge case: 3PM is a good timestamp, but 3 (without AM or PM) is NOT:
+		if ((!ampm || tmp.length !== 1) && tmp.length !== 2) { return false; }
+		if (tmp[0] === '' || h < 0 || h > max || !this.isInt(tmp[0]) || tmp[0].length > 2) { return false; }
+		if (tmp.length === 2 && (tmp[1] === '' || m < 0 || m > 59 || !this.isInt(tmp[1]) || tmp[1].length !== 2)) { return false; }
+		// check the edge cases: 12:01AM is ok, as is 12:01PM, but 24:01 is NOT ok while 24:00 is (midnight; equivalent to 00:00).
+		// meanwhile, there is 00:00 which is ok, but 0AM nor 0PM are okay, while 0:01AM and 0:00AM are.
+		if (!ampm && max === h && m !== 0) { return false; }
+		if (ampm && tmp.length === 1 && h === 0) { return false; }
+
+		if (retTime === true) {
+			if (pm) h += 12;
+			return {
+				hours: h,
+				minutes: m
+			};
+		}
 		return true;
 	}
 
