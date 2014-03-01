@@ -227,7 +227,7 @@
 			// init toolbar
 			object.initToolbar();
 			// render if necessary
-			if ($(this).length != 0) {
+			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
 			// register new object
@@ -299,7 +299,7 @@
 			// check if property is nested - needed for speed
 			for (var o in obj) if (String(o).indexOf('.') != -1) hasDots = true;
 			// look for an item
-			for (var i=0; i<this.records.length; i++) {
+			for (var i = 0; i < this.records.length; i++) {
 				var match = true;
 				for (var o in obj) {
 					var val = this.records[i][o];
@@ -334,7 +334,7 @@
 		},
 
 		get: function (recid, returnIndex) {
-			for (var i=0; i<this.records.length; i++) {
+			for (var i = 0; i < this.records.length; i++) {
 				if (this.records[i].recid == recid) {
 					if (returnIndex === true) return i; else return this.records[i];
 				}
@@ -392,7 +392,7 @@
 		},
 
 		getColumn: function (field, returnIndex) {
-			for (var i=0; i<this.columns.length; i++) {
+			for (var i = 0; i < this.columns.length; i++) {
 				if (this.columns[i].field == field) {
 					if (returnIndex === true) return i; else return this.columns[i];
 				}
@@ -473,7 +473,7 @@
 		},
 
 		getSearch: function (field, returnIndex) {
-			for (var i=0; i<this.searches.length; i++) {
+			for (var i = 0; i < this.searches.length; i++) {
 				if (this.searches[i].field == field) {
 					if (returnIndex === true) return i; else return this.searches[i];
 				}
@@ -977,12 +977,12 @@
 			sel.indexes = [];
 			if (!url && this.searchData.length !== 0) {
 				// local search applied
-				for (var i=0; i < this.last.searchIds.length; i++) {
+				for (var i = 0; i < this.last.searchIds.length; i++) {
 					sel.indexes.push(this.last.searchIds[i]);
 					if (this.selectType != 'row') sel.columns[this.last.searchIds[i]] = cols.slice(); // .slice makes copy of the array
 				}
 			} else {
-				for (var i=0; i < this.records.length; i++) {
+				for (var i = 0; i < this.records.length; i++) {
 					sel.indexes.push(i);
 					if (this.selectType != 'row') sel.columns[i] = cols.slice(); // .slice makes copy of the array
 				}
@@ -1571,7 +1571,7 @@
 							status		 : 'error',
 							message		 : this.msgNotJSON,
 							responseText : responseText
-						}
+						};
 					}
 					if (data['status'] == 'error') {
 						obj.error(data['message']);
@@ -3792,7 +3792,7 @@
 				var percent = 0;
 				// gridMinWidth processiong
 				var restart = false;
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (typeof col.gridMinWidth != 'undefined') {
 						if (col.gridMinWidth > width_box && col.hidden !== true) {
@@ -3810,7 +3810,7 @@
 					return;
 				}
 				// assign PX column s
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (col.hidden) continue;
 					if (String(col.size).substr(String(col.size).length-2).toLowerCase() == 'px') {
@@ -3825,7 +3825,7 @@
 				}
 				// if sum != 100% -- reassign proportionally
 				if (percent != 100 && percent > 0) {
-					for (var i=0; i<this.columns.length; i++) {
+					for (var i = 0; i < this.columns.length; i++) {
 						var col = this.columns[i];
 						if (col.hidden) continue;
 						if (col.sizeType == '%') {
@@ -3834,7 +3834,7 @@
 					}
 				}
 				// calculate % columns
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (col.hidden) continue;
 					if (col.sizeType == '%') {
@@ -3850,7 +3850,7 @@
 			}
 			// fix margin of error that is due percentage calculations
 			var width_cols = 0;
-			for (var i=0; i<this.columns.length; i++) {
+			for (var i = 0; i < this.columns.length; i++) {
 				var col = this.columns[i];
 				if (col.hidden) continue;
 				if (typeof col.min == 'undefined') col.min = 20;

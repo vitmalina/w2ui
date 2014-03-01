@@ -1,4 +1,5 @@
-<?
+<?php
+
 require("w2db.php");
 require("w2lib.php");
 
@@ -40,4 +41,3 @@ switch ($_REQUEST['name']."::".$_REQUEST['cmd']) {
 		$w2grid->outputJSON($res);
 		break;
 }
-?>

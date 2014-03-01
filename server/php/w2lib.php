@@ -1,4 +1,4 @@
-<?
+<?php
 /**************************************************
 *	This class helps streamline w2ui requests
 * 
@@ -287,4 +287,3 @@ class w2grid_class {
 		echo json_encode($data);
 	}
 }
-?>

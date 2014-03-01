@@ -1,4 +1,4 @@
-<?
+<?php
 /***********************************************************************************
 *   This library provides interface for database connections
 *   Only MySQL and PostreSQL databases are supported
@@ -30,7 +30,7 @@ class dbConnection {
 	function __construct($dbType) {
 		$dbType = strtolower($dbType);
 		if ($dbType != 'postgres' && $dbType != 'mysql') {
-			die('<b>ERROR:</b> Only two database types are supported, postgres and mysql... <b>w2db.php, line 34</b>');
+			die('<b>ERROR:</b> Only two database types are supported, postgres and mysql... <b>w2db.php, line ' . __LINE__ . '</b>');
 		}
 		$this->dbType = $dbType;
 	}
@@ -38,16 +38,16 @@ class dbConnection {
 	// -- Clean up
 	function __destruct() {
 		if ($this->dbConn == null) return;
-		if ($this->dbType == 'postgres') { @pg_close($this->dbConn);}
-		if ($this->dbType == 'mysql') {  @mysql_close($this->dbConn); }
+		if ($this->dbType == 'postgres') { @pg_close($this->dbConn); }
+		if ($this->dbType == 'mysql') { @mysql_close($this->dbConn); }
 	}
 	
 	// -- Connect to the db
-	public function connect($dbIP, $dbUser, $dbPass, $dbName, $dbPort=null) {		
+	public function connect($dbIP, $dbUser, $dbPass, $dbName, $dbPort = null) {		
 		// check parameters
-		if ($dbIP   == '') die('<b>ERROR:</b> no database host provided... <b>system/libs/phpDB.php, line 32</b>');
-		if ($dbName == '') die('<b>ERROR:</b> no database name provided... <b>system/libs/phpDB.php, line 33</b>');
-		if ($dbUser == '') die('<b>ERROR:</b> no database user provided... <b>system/libs/phpDB.php, line 34</b>');
+		if ($dbIP   == '') die('<b>ERROR:</b> no database host provided... <b>w2db.php, line ' . __LINE__ . '</b>');
+		if ($dbName == '') die('<b>ERROR:</b> no database name provided... <b>w2db.php, line ' . __LINE__ . '</b>');
+		if ($dbUser == '') die('<b>ERROR:</b> no database user provided... <b>w2db.php, line ' . __LINE__ . '</b>');
 		//if ($dbPass == '') die('no database password provided');
 		$this->dbName = $dbName;
 		
@@ -282,4 +282,3 @@ class dbRecordSet {
 		}
 	}
 }
-?>
