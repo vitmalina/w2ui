@@ -1,0 +1,17 @@
+{
+  "name": "w2ui",
+  "version": "1.4.0",
+  "title": "W2UI: New JavaScript UI Library",
+  "description": "Complete set of JavaScript UI widget for development of data-driven web applications. Includes layout, grid, toolbar, sidebar, tabs, forms, fields, popup, overlay",
+  "license": "MIT",
+  "repository": "https://github.com/vitmalina/w2ui",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-less": "~0.9.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-uglify": "~0.3.2",
+    "grunt-shell": "~0.6.4"
+  }
+}
