@@ -4,7 +4,7 @@
 * 		- w2popup	 	- popup widget
 *		- $().w2popup	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
-* 
+*
 * == NICE TO HAVE ==
 *	- when maximized, align the slide down message
 *	- bug: after transfer to another content, message does not work
@@ -23,14 +23,14 @@ var w2popup = {};
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
-	$.fn.w2popup = function(method, options) {	
+
+	$.fn.w2popup = function(method, options) {
 		if (typeof method  == 'undefined') {
 			options = {};
 			method  = 'open';
 		}
 		if ($.isPlainObject(method)) {
-			options = method;		
+			options = method;
 			method  = 'open';
 		}
 		method = method.toLowerCase();
@@ -63,11 +63,11 @@ var w2popup = {};
 		// show popup
 		return w2popup[method]($.extend({}, dlgOptions, options));
 	};
-	
+
 	// ====================================================
 	// -- Implementation of core functionality (SINGELTON)
-	
-	w2popup = {	
+
+	w2popup = {
 		defaults: {
 			title			: '',
 			body			: '',
@@ -138,18 +138,18 @@ var w2popup = {};
 				if (eventData.isCancelled === true) return;
 				w2popup.status = 'opening';
 				// output message
-				w2popup.lockScreen(options);			
+				w2popup.lockScreen(options);
 				var msg = '<div id="w2ui-popup" class="w2ui-popup" style="'+
 								'width: '+ parseInt(options.width) +'px; height: '+ parseInt(options.height) +'px; opacity: 0; '+
 								'-webkit-transform: scale(0.8); -moz-transform: scale(0.8); -ms-transform: scale(0.8); -o-transform: scale(0.8); '+
 								'left: '+ left +'px; top: '+ top +'px;">';
-				if (options.title != '') { 
+				if (options.title != '') {
 					msg +='<div class="w2ui-msg-title">'+
 						  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close(); '+
-						  					   'if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">Close</div>' : '')+ 
-						  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') + 
+						  					   'if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">Close</div>' : '')+
+						  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') +
 							  options.title +
-						  '</div>'; 
+						  '</div>';
 				}
 				msg += '<div class="w2ui-box1" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
 				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'">'+ options.body +'</div>';
@@ -157,22 +157,22 @@ var w2popup = {};
 				msg += '<div class="w2ui-box2" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
 				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'"></div>';
 				msg += '</div>';
-				if (options.buttons != '') { 
-					msg += '<div class="w2ui-msg-buttons">'+ options.buttons +'</div>'; 
+				if (options.buttons != '') {
+					msg += '<div class="w2ui-msg-buttons">'+ options.buttons +'</div>';
 				}
 				msg += '</div>';
 				$('body').append(msg);
 				// allow element to render
 				setTimeout(function () {
 					$('#w2ui-popup .w2ui-box2').hide();
-					$('#w2ui-popup').css({ 
-						'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform', 
+					$('#w2ui-popup').css({
+						'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform',
 						'-webkit-transform': 'scale(1)',
-						'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform', 
+						'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform',
 						'-moz-transform': 'scale(1)',
-						'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform', 
+						'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform',
 						'-ms-transform': 'scale(1)',
-						'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform', 
+						'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform',
 						'-o-transform': 'scale(1)',
 						'opacity': '1'
 					});
@@ -187,14 +187,14 @@ var w2popup = {};
 					});
 					// event after
 					w2popup.status = 'open';
-					setTimeout(function () { 
+					setTimeout(function () {
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}, 50);
 				}, options.speed * 1000);
 			} else {
 				// trigger event
 				var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
-				if (eventData.isCancelled === true) return;			
+				if (eventData.isCancelled === true) return;
 				// check if size changed
 				w2popup.status = 'opening';
 				if (typeof old_options == 'undefined' || old_options['width'] != options['width'] || old_options['height'] != options['height']) {
@@ -205,16 +205,16 @@ var w2popup = {};
 				if (body.length > 0) body[0].style.cssText = options.style;
 				$('#w2ui-popup .w2ui-msg-buttons').html(options.buttons);
 				$('#w2ui-popup .w2ui-msg-title').html(
-					  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>' : '')+ 
-					  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') + 
+					  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>' : '')+
+					  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') +
 					  options.title);
 				// transition
 				var div_old = $('#w2ui-popup .w2ui-box1')[0];
 				var div_new = $('#w2ui-popup .w2ui-box2')[0];
 				w2utils.transition(div_old, div_new, options.transition);
 				div_new.className = 'w2ui-box1';
-				div_old.className = 'w2ui-box2';	
-				$(div_new).addClass('w2ui-current-box');		
+				div_old.className = 'w2ui-box2';
+				$(div_new).addClass('w2ui-current-box');
 				// remove max state
 				$('#w2ui-popup').data('prev-size', null);
 				// call event onChange
@@ -222,15 +222,15 @@ var w2popup = {};
 					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
 				}, 50);
-			}		
+			}
 			// save new options
 			options._last_w2ui_name = w2utils.keyboard.active();
-			w2utils.keyboard.active(null);			
-			// keyboard events 
+			w2utils.keyboard.active(null);
+			// keyboard events
 			if (options.keyboard) $(document).on('keydown', this.keydown);
 
 			// initialize move
-			var tmp = { 
+			var tmp = {
 				resizing: false,
 				mvMove	: mvMove,
 				mvStop	: mvStop
@@ -251,12 +251,12 @@ var w2popup = {};
 				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 				if (event.preventDefault) event.preventDefault(); else return false;
 			}
-			
+
 			function mvMove(evnt) {
 				if (tmp.resizing != true) return;
 				if (!evnt) evnt = window.event;
-				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x); 
-				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y); 
+				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x);
+				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y);
 				$('#w2ui-popup').css({
 					'-webkit-transition': 'none',
 					'-webkit-transform': 'translate3d('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px, 0px)',
@@ -268,13 +268,13 @@ var w2popup = {};
 					'-o-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)'
 				});
 			}
-		
+
 			function mvStop(evnt) {
 				if (tmp.resizing != true) return;
 				if (!evnt) evnt = window.event;
 				w2popup.status = 'open';
-				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x); 
-				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y); 			
+				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x);
+				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y);
 				$('#w2ui-popup').css({
 					'-webkit-transition': 'none',
 					'-webkit-transform': 'translate3d(0px, 0px, 0px)',
@@ -291,8 +291,8 @@ var w2popup = {};
 				$(document).off('mousemove', tmp.mvMove);
 				$(document).off('mouseup', tmp.mvStop);
 				w2popup.unlock();
-			}		
-			return this;		
+			}
+			return this;
 		},
 
 		keydown: function (event) {
@@ -303,7 +303,7 @@ var w2popup = {};
 			if (eventData.isCancelled === true) return;
 			// default behavior
 			switch (event.keyCode) {
-				case 27: 
+				case 27:
 					event.preventDefault();
 					if ($('#w2ui-popup .w2ui-popup-message').length > 0) w2popup.message(); else w2popup.close();
 					break;
@@ -311,7 +311,7 @@ var w2popup = {};
 			// event after
 			w2popup.trigger($.extend(eventData, { phase: 'after'}));
 		},
-		
+
 		close: function (options) {
 			var obj = this;
 			var options = $.extend({}, $('#w2ui-popup').data('options'), options);
@@ -324,32 +324,32 @@ var w2popup = {};
 			$('#w2ui-popup').css({ 
 				'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform', 
 				'-webkit-transform': 'scale(0.9)',
-				'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform', 
+				'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform',
 				'-moz-transform': 'scale(0.9)',
-				'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform', 
+				'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform',
 				'-ms-transform': 'scale(0.9)',
-				'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform', 
+				'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform',
 				'-o-transform': 'scale(0.9)',
 				'opacity': '0'
-			});		
-			w2popup.unlockScreen();
+			});
+			w2popup.unlockScreen(options);
 			setTimeout(function () {
 				$('#w2ui-popup').remove();
 				w2popup.status = 'closed';
 				// event after
 				obj.trigger($.extend(eventData, { phase: 'after'}));
-			}, options.speed * 1000);				
+			}, options.speed * 1000);
 			// restore active
 			w2utils.keyboard.active(options._last_w2ui_name);
 			// remove keyboard events
-			if (options.keyboard) $(document).off('keydown', this.keydown);			
+			if (options.keyboard) $(document).off('keydown', this.keydown);
 		},
-		
+
 		toggle: function () {
 			var options = $('#w2ui-popup').data('options');
 			if (options.maximized === true) w2popup.min(); else w2popup.max();
 		},
-		
+
 		max: function () {
 			var obj = this;
 			var options = $('#w2ui-popup').data('options');
@@ -396,7 +396,7 @@ var w2popup = {};
 		set: function (options) {
 			w2popup.open(options);
 		},
-		
+
 		clear: function() {
 			$('#w2ui-popup .w2ui-msg-title').html('');
 			$('#w2ui-popup .w2ui-msg-body').html('');
@@ -406,7 +406,7 @@ var w2popup = {};
 		reset: function () {
 			w2popup.open(w2popup.defaults);
 		},
-		
+
 		load: function (options) {
 			w2popup.status = 'loading';
 			if (String(options.url) == 'undefined') {
@@ -446,7 +446,7 @@ var w2popup = {};
 				$('#w2ui-tmp').remove();
 			}
 		},
-		
+
 		message: function (options) {
 			$().w2tag(); // hide all tags
 			if (!options) options = { width: 200, height: 100 };
@@ -463,12 +463,12 @@ var w2popup = {};
 				var options = $('#w2ui-popup #w2ui-message'+ (msgCount-1)).data('options');
 				$('#w2ui-popup #w2ui-message'+ (msgCount-1)).remove();
 				if (typeof options.onClose == 'function') options.onClose();
-				if (msgCount == 1) { 
-					w2popup.unlock(); 
+				if (msgCount == 1) {
+					w2popup.unlock();
 				} else {
 					$('#w2ui-popup #w2ui-message'+ (msgCount-2)).show();
 				}
-			} else { 
+			} else {
 				// hide previous messages
 				$('#w2ui-popup .w2ui-popup-message').hide();
 				// add message
@@ -504,7 +504,7 @@ var w2popup = {};
 						$('#w2ui-popup #w2ui-message'+ msgCount).css({
 							'-webkit-transition': '0s',	'-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s',
 							'z-Index': 1500
-						}); // has to be on top of lock 
+						}); // has to be on top of lock
 						if (msgCount == 0) w2popup.lock();
 						if (typeof options.onOpen == 'function') options.onOpen();
 					}, 300);
@@ -518,12 +518,12 @@ var w2popup = {};
 			w2utils.lock.apply(window, args);
 		},
 
-		unlock: function () { 
+		unlock: function () {
 			w2utils.unlock($('#w2ui-popup'));
 		},
-		
+
 		// --- INTERNAL FUNCTIONS
-		
+
 		lockScreen: function (options) {
 			if ($('#w2ui-lock').length > 0) return false;
 			if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
@@ -533,36 +533,36 @@ var w2popup = {};
 			$('body').append('<div id="w2ui-lock" '+
 				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; if (event.preventDefault) event.preventDefault(); else return false;"'+
 				'	style="position: '+(w2utils.engine == 'IE5' ? 'absolute' : 'fixed')+'; z-Index: 1199; left: 0px; top: 0px; '+
-				'		   padding: 0px; margin: 0px; background-color: '+ options.color +'; width: 100%; height: 100%; opacity: 0;"></div>');	
+				'		   padding: 0px; margin: 0px; background-color: '+ options.color +'; width: 100%; height: 100%; opacity: 0;"></div>');
 			// lock screen
 			setTimeout(function () {
-				$('#w2ui-lock').css({ 
-					'-webkit-transition': options.speed +'s opacity', 
-					'-moz-transition': options.speed +'s opacity', 
-					'-ms-transition': options.speed +'s opacity', 
-					'-o-transition': options.speed +'s opacity', 
-					'opacity': options.opacity 
+				$('#w2ui-lock').css({
+					'-webkit-transition': options.speed +'s opacity',
+					'-moz-transition': options.speed +'s opacity',
+					'-ms-transition': options.speed +'s opacity',
+					'-o-transition': options.speed +'s opacity',
+					'opacity': options.opacity
 				});
 			}, 1);
 			// add events
-			if (options.modal == true) { 
+			if (options.modal == true) {
 				$('#w2ui-lock').on('mousedown', function () {
-					$('#w2ui-lock').css({ 
-						'-webkit-transition': '.1s', 
-						'-moz-transition': '.1s', 
-						'-ms-transition': '.1s', 
-						'-o-transition': '.1s', 
+					$('#w2ui-lock').css({
+						'-webkit-transition': '.1s',
+						'-moz-transition': '.1s',
+						'-ms-transition': '.1s',
+						'-o-transition': '.1s',
 						'opacity': '0.6'
-					});			
+					});
 					// if (window.getSelection) window.getSelection().removeAllRanges();
-				}); 
+				});
 				$('#w2ui-lock').on('mouseup', function () {
 					setTimeout(function () {
-						$('#w2ui-lock').css({ 
-							'-webkit-transition': '.1s', 
-							'-moz-transition': '.1s', 
-							'-ms-transition': '.1s', 
-							'-o-transition': '.1s', 
+						$('#w2ui-lock').css({
+							'-webkit-transition': '.1s',
+							'-moz-transition': '.1s',
+							'-ms-transition': '.1s',
+							'-o-transition': '.1s',
 							'opacity': options.opacity
 						});
 					}, 100);
@@ -573,30 +573,32 @@ var w2popup = {};
 			}
 			return true;
 		},
-		
-		unlockScreen: function () {
-			if ($('#w2ui-lock').length == 0) return false;	
-			var options = $.extend({}, $('#w2ui-popup').data('options'), options);		
-			$('#w2ui-lock').css({ 
-				'-webkit-transition': options.speed +'s opacity', 
-				'-moz-transition': options.speed +'s opacity', 
-				'-ms-transition': options.speed +'s opacity', 
-				'-o-transition': options.speed +'s opacity', 
+
+		unlockScreen: function (options) {
+			if ($('#w2ui-lock').length == 0) return false;
+			if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
+			if (typeof options == 'undefined') options = {};
+			options = $.extend({}, w2popup.defaults, options);
+			$('#w2ui-lock').css({
+				'-webkit-transition': options.speed +'s opacity',
+				'-moz-transition': options.speed +'s opacity',
+				'-ms-transition': options.speed +'s opacity',
+				'-o-transition': options.speed +'s opacity',
 				'opacity': 0
 			});
-			setTimeout(function () { 
-				$('#w2ui-lock').remove(); 
-			}, options.speed * 1000); 
+			setTimeout(function () {
+				$('#w2ui-lock').remove();
+			}, options.speed * 1000);
 			return true;
 		},
-		
+
 		resize: function (width, height, callBack) {
 			var options = $('#w2ui-popup').data('options');
 			// calculate new position
 			if (parseInt($(window).width())  - 10 < parseInt(width))  width  = parseInt($(window).width())  - 10;
 			if (parseInt($(window).height()) - 10 < parseInt(height)) height = parseInt($(window).height()) - 10;
 			var top  = ((parseInt($(window).height()) - parseInt(height)) / 2) * 0.8;
-			var left = (parseInt($(window).width()) - parseInt(width)) / 2;		
+			var left = (parseInt($(window).width()) - parseInt(width)) / 2;
 			// resize there
 			$('#w2ui-popup').css({
 				'-webkit-transition': options.speed + 's width, '+ options.speed + 's height, '+ options.speed + 's left, '+ options.speed + 's top',
@@ -636,9 +638,9 @@ var w2alert = function (msg, title, callBack) {
 					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
 					  '		<button onclick="w2popup.message();" class="w2ui-popup-btn btn">'+ w2utils.lang('Ok') +'</button>'+
 					  '</div>',
-			onClose : function () { 
-				if (typeof callBack == 'function') callBack(); 
-			} 
+			onClose : function () {
+				if (typeof callBack == 'function') callBack();
+			}
 		});
 	} else {
 		w2popup.open({
@@ -648,16 +650,16 @@ var w2alert = function (msg, title, callBack) {
 			title 	: title,
 			body    : '<div class="w2ui-centered" style="font-size: 13px;">' + msg +'</div>',
 			buttons : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">'+ w2utils.lang('Ok') +'</button>',
-			onClose : function () { 
-				if (typeof callBack == 'function') callBack(); 
-			} 
+			onClose : function () {
+				if (typeof callBack == 'function') callBack();
+			}
 		});
 	}
 };
 
 var w2confirm = function (msg, title, callBack) {
 	if (typeof callBack == 'undefined' || typeof title == 'function') {
-		callBack = title; 
+		callBack = title;
 		title = w2utils.lang('Confirmation');
 	}
 	if (typeof title == 'undefined') {
@@ -691,7 +693,7 @@ var w2confirm = function (msg, title, callBack) {
 						w2popup.message();
 						break
 				}
-			} 
+			}
 		});
 	} else {
 		w2popup.open({
@@ -722,7 +724,7 @@ var w2confirm = function (msg, title, callBack) {
 						w2popup.close();
 						break
 				}
-			} 
+			}
 		});
 	}
 };
