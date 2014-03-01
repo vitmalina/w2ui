@@ -42,7 +42,7 @@
 			// check name parameter
 			if (!w2utils.checkName(method, 'w2tabs')) return;
 			// extend tabs
-			var tabs   = method.tabs;
+			var tabs   = method.tabs || [];
 			var object = new w2tabs(method);
 			for (var i = 0; i < tabs.length; i++) {
 				object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]);
