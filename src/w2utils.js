@@ -97,7 +97,7 @@ var w2utils = (function () {
 	}
 		
 	function isFloat (val) {
-		return (typeof val === 'number' || (typeof val === 'string' && val !== '' && Number(val) + '' !== 'NaN'));
+		return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val));
 	}
 
 	function isMoney (val) {
