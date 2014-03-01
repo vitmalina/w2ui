@@ -198,7 +198,6 @@ var w2popup = {};
 				// check if size changed
 				w2popup.status = 'opening';
 				if (typeof old_options == 'undefined' || old_options['width'] != options['width'] || old_options['height'] != options['height']) {
-					$('#w2ui-panel').remove();
 					w2popup.resize(options.width, options.height);
 				}
 				// show new items
@@ -268,16 +267,6 @@ var w2popup = {};
 					'-o-transition': 'none',
 					'-o-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)'
 				});
-				$('#w2ui-panel').css({
-					'-webkit-transition': 'none',
-					'-webkit-transform': 'translate3d('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px, 0px)',
-					'-moz-transition': 'none',
-					'-moz-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)',
-					'-ms-transition': 'none',
-					'-ms-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px',
-					'-o-transition': 'none',
-					'-o-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)'
-				});
 			}
 		
 			function mvStop(evnt) {
@@ -297,18 +286,6 @@ var w2popup = {};
 					'-o-transform': 'translate(0px, 0px)',
 					'left': (parseInt($('#w2ui-popup').css('left')) + parseInt(tmp.tmp_div_x)) + 'px',
 					'top':	(parseInt($('#w2ui-popup').css('top'))  + parseInt(tmp.tmp_div_y)) + 'px'
-				});
-				$('#w2ui-panel').css({
-					'-webkit-transition': 'none',
-					'-webkit-transform': 'translate3d(0px, 0px, 0px)',
-					'-moz-transition': 'none',
-					'-moz-transform': 'translate(0px, 0px)',
-					'-ms-transition': 'none',
-					'-ms-transform': 'translate(0px, 0px)',
-					'-o-transition': 'none',
-					'-o-transform': 'translate(0px, 0px)',
-					'left': (parseInt($('#w2ui-panel').css('left')) + parseInt(tmp.tmp_div_x)) + 'px',
-					'top':	(parseInt($('#w2ui-panel').css('top'))  + parseInt(tmp.tmp_div_y)) + 'px'
 				});
 				tmp.resizing = false;
 				$(document).off('mousemove', tmp.mvMove);
@@ -344,7 +321,7 @@ var w2popup = {};
 			if (eventData.isCancelled === true) return;
 			// default behavior
 			w2popup.status = 'closing';
-			$('#w2ui-popup, #w2ui-panel').css({ 
+			$('#w2ui-popup').css({ 
 				'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform', 
 				'-webkit-transform': 'scale(0.9)',
 				'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform', 
@@ -358,7 +335,6 @@ var w2popup = {};
 			w2popup.unlockScreen();
 			setTimeout(function () {
 				$('#w2ui-popup').remove();
-				$('#w2ui-panel').remove();
 				w2popup.status = 'closed';
 				// event after
 				obj.trigger($.extend(eventData, { phase: 'after'}));
