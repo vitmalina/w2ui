@@ -49,7 +49,7 @@ test( "w2utils.isInt()", function() {
 	var values = {
 		1 			: true,
 		0 			: true,
-		'1'			: true,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: false,
@@ -76,7 +76,7 @@ test( "w2utils.isFloat()", function() {
 		1 			: true,
 		0 			: true,
 		1.0e3		: true,
-		'1'			: true,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: true,
@@ -104,7 +104,7 @@ test( "w2utils.isMoney() - Default Format", function() {
 	var values = {
 		1 			: true,
 		0 			: true,
-		'1'			: true,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: false,
@@ -141,7 +141,7 @@ test( "w2utils.isMoney() - EU Format", function() {
 	var values = {
 		1 			: true,
 		0 			: true,
-		'1'			: true,
+		'2'			: true,
 		'-1' 		: true,
 		'+1' 		: true,
 		'1.' 		: false,
@@ -198,12 +198,12 @@ test( "w2utils.isDate()", function() {
 });
 
 test( "w2utils.base64encode(), w2utils.base64decode()", function() {
-	ok( 
-		w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text', 
-		"Simple text" 
+	ok(
+		w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text',
+		"Simple text"
 	);
-	ok( 
-		w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\', 
-		"Text with special characters" 
+	ok(
+		w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\',
+		"Text with special characters"
 	);
 });
