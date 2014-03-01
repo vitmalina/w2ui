@@ -40,7 +40,7 @@
 	$.fn.w2tabs = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2tabs')) return undefined;
+			if (!$.fn.w2checkNameParam(method, 'w2tabs')) return;
 			// extend tabs
 			var tabs   = method.tabs;
 			var object = new w2tabs(method);
@@ -139,17 +139,17 @@
 		},
 
 		get: function (id, returnIndex) {
-			var i = 0;
+			var i;
 			if (arguments.length === 0) {
 				var all = [];
-				for (; i < this.tabs.length; i++) {
+				for (i = 0; i < this.tabs.length; i++) {
 					if (this.tabs[i].id !== null) {
 						all.push(this.tabs[i].id);
 					}
 				}
 				return all;
 			} else {
-				for (; i < this.tabs.length; i++) {
+				for (i = 0; i < this.tabs.length; i++) {
 					if (this.tabs[i].id === id) {
 						return (returnIndex === true ? i : this.tabs[i]);
 					}
@@ -286,16 +286,16 @@
 		},
 
 		resize: function () {
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			var rslt = eventData.isCancelled !== true;
-			if (rslt) {
-				// empty function
-				// event after
-				this.trigger($.extend(eventData, { phase: 'after' }));
-			}
-			return rslt;
+			if (eventData.isCancelled === true) return false;
+
+			// intentionaly blank
+
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 
 		destroy: function () {
@@ -312,7 +312,6 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			return true;
 		},
 
 		// ===================================================
@@ -330,7 +329,6 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh(id);
-			return true;
 		},
 
 		animateClose: function(id, event) {
@@ -361,7 +359,6 @@
 			// event before
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.refresh();
-			return true;
 		},
 
 		animateInsert: function(id, tab) {

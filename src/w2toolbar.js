@@ -35,7 +35,7 @@
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2toolbar')) return undefined;
+			if (!$.fn.w2checkNameParam(method, 'w2toolbar')) return;
 			// extend items
 			var items = method.items;
 			var object = new w2toolbar(method);
@@ -57,7 +57,6 @@
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2toolbar' );
-			return undefined;
 		}
 	};
 
@@ -230,6 +229,7 @@
 		},
 
 		render: function (box) {
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
@@ -243,7 +243,7 @@
 				}
 				this.box = box;
 			}
-			if (!this.box) return false;
+			if (!this.box) return;
 			// render all buttons
 			var html =	'<table cellspacing="0" cellpadding="0" width="100%">'+
 						'<tr>';
@@ -269,7 +269,7 @@
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
-			return true;
+			return (new Date()).getTime() - time;
 		},
 
 		refresh: function (id) {
@@ -323,7 +323,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.isCancelled === true) return false;
 
-			// empty function
+			// intentionaly blank
 
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -333,21 +333,18 @@
 		destroy: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-			var rslt = eventData.isCancelled !== true;
-			if (rslt) {
-				// clean up
-				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
-					$(this.box)
-						.removeAttr('name')
-						.removeClass('w2ui-reset w2ui-toolbar')
-						.html('');
-				}
-				$(this.box).html('');
-				delete w2ui[this.name];
-				// event after
-				this.trigger($.extend(eventData, { phase: 'after' }));
+			if (eventData.isCancelled === true) return false;
+			// clean up
+			if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
+				$(this.box)
+					.removeAttr('name')
+					.removeClass('w2ui-reset w2ui-toolbar')
+					.html('');
 			}
-			return rslt;
+			$(this.box).html('');
+			delete w2ui[this.name];
+			// event after
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		// ========================================
@@ -408,20 +405,18 @@
 		},
 
 		menuClick: function (event) {
-			var rslt = event.item && !event.item.disabled;
-			if (rslt) {
+			var obj = this;
+			if (event.item && !event.item.disabled) {
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id + ':' + event.subItem.id, item: event.item,
 					subItem: event.subItem, originalEvent: event.originalEvent });
-				rslt = eventData.isCancelled !== true;
-				if (rslt) {
-					// intentionaly blank
+				if (eventData.isCancelled === true) return false;
 
-					// event after
-					this.trigger($.extend(eventData, { phase: 'after' }));
-				}
+				// intentionaly blank
+
+				// event after
+				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
-			return rslt;
 		},
 
 		click: function (id, event) {
@@ -493,7 +488,6 @@
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
-			return true;
 		}
 	};
 

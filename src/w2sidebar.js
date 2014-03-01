@@ -573,6 +573,7 @@
 		},
 				
 		render: function (box) {
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
 			if (eventData.isCancelled === true) return false;
@@ -616,6 +617,7 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// ---
 			this.refresh();
+			return (new Date()).getTime() - time;
 		},
 		
 		refresh: function (id) {
