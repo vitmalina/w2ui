@@ -838,7 +838,7 @@ var w2utils = (function () {
 			return false;
 		}
 		return true;
-	};
+	}
 
 	function checkUniqueId (id, items, itemsDecription, objName) { // was w2checkUniqueId
 		if (!$.isArray(items)) items = [items];
@@ -849,7 +849,7 @@ var w2utils = (function () {
 			}
 		}
 		return true;
-	};
+	}
 
 
 
@@ -857,7 +857,7 @@ var w2utils = (function () {
 
 /***********************************************************
 *  Generic Event Object
-*  --- This object is reused across all other 
+*  --- This object is reused across all other
 *  --- widgets in w2ui.
 *
 *********************************************************/

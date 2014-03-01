@@ -53,7 +53,7 @@
 			var panels = method.panels;
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
-			// add defined panels panels
+			// add defined panels
 			for (var p in panels) {
 				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]);
 				if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);

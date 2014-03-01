@@ -576,7 +576,6 @@
 						appendDiv(itmDiv, 'caption');
 						obj.captionOnlyTemplate = template;
 					}
-
 				} else if (withDescription && !withExtra) {
 					if ('captionWithDescription' in obj) {
 						template = obj.captionWithDescriptionTemplate;

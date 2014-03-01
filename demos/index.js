@@ -178,8 +178,8 @@ $(function () {
 			$.get('examples/'+ cmd +'.html', function (data) {
 				var tmp = data.split('<!--CODE-->');
 				if (tmp.length == 1) {
-					alert('ERORR: cannot parse example.');
-					console.log('ERORR: cannot parse example.', data);
+					alert('ERROR: cannot parse example.');
+					console.log('ERROR: cannot parse example.', data);
 					return;
 				}
 				var html = tmp[1] ? $.trim(tmp[1]) : '';
@@ -240,6 +240,7 @@ $(function () {
 				w2ui['demo-sidebar'].expand('combo');
 				w2ui['demo-sidebar'].click(tmp[1] || 'combo-1');
 				break;
+
 			case '#!layout':
 				w2ui['demo-sidebar'].expand('layout');
 				w2ui['demo-sidebar'].click(tmp[1] || 'layout-1');
@@ -264,6 +265,7 @@ $(function () {
 				w2ui['demo-sidebar'].expand('listview');
 				w2ui['demo-sidebar'].click(tmp[1] || 'listview-1');
 				break;
+
 			case '#!tabs':
 				w2ui['demo-sidebar'].expand('tabs');
 				w2ui['demo-sidebar'].click(tmp[1] || 'tabs-1');

@@ -91,7 +91,7 @@
 			img				: null,
 			icon			: null,
 			nodes			: [],
-			style			: '',			// additiona style for subitems
+			style			: '',			// additional style for subitems
 			selected		: false,
 			expanded		: false,
 			hidden			: false,
@@ -252,8 +252,8 @@
 			if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
 			return hidden;
 		},
-		
-		show: function () {
+
+		show: function () { // multiple arguments
 			var shown = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
