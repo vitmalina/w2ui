@@ -36,7 +36,7 @@
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!w2utils.checkName(method, 'w2toolbar')) return;
+			if (!w2utils.checkName(method, 'w2toolbar')) return undefined;
 			// extend items
 			var items = method.items || [];
 			var object = new w2toolbar(method);
@@ -56,6 +56,7 @@
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2toolbar' );
+			return undefined;
 		}
 	};
 
