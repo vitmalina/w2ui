@@ -252,6 +252,7 @@
 
 		msgDelete	: 'Are you sure you want to delete selected records?',
 		msgNotJSON 	: 'Returned data is not in valid JSON format.',
+		msgAJAXerror: 'AJAX error. See console for more details.',
 		msgRefresh	: 'Refreshing...',
 
 		// for easy button overwrite
@@ -1537,15 +1538,15 @@
 			if (this.last.xhr_cmd == 'delete-records') event_name = 'deleted';
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
 			if (eventData.isCancelled === true) {
-				if (typeof callBack == 'function') callBack();
+				if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 				return false;
 			}
 			// parse server response
+			var data;
 			var responseText = this.last.xhr.responseText;
 			if (status != 'error') {
 				// default action
 				if (typeof responseText != 'undefined' && responseText != '') {
-					var data;
 					// check if the onLoad handler has not already parsed the data
 					if (typeof responseText == "object") {
 						data = responseText;
@@ -1557,6 +1558,8 @@
 							}
 						} else {
 							// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
+							//
+							// TODO: avoid (potentially malicious) code injection from the response.
 							try { eval('data = '+ responseText); } catch (e) { }
 						}
 					}
@@ -1604,7 +1607,12 @@
 					}
 				}
 			} else {
-				obj.error('AJAX Error. See console for more details.');
+				obj.error(this.msgAJAXerror);
+				data = {
+					status		 : 'error',
+					message		 : this.msgAJAXerror,
+					responseText : responseText
+				};
 			}
 			// event after
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -1617,7 +1625,7 @@
 			// do not refresh if loading on infinite scroll
 			if (this.last.xhr_offset == 0) this.refresh(); else this.scroll();
 			// call back
-			if (typeof callBack == 'function') callBack();
+			if (typeof callBack == 'function') callBack(data);
 		},
 
 		error: function (msg) {
