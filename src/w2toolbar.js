@@ -39,7 +39,7 @@
 			// extend items
 			var items = method.items || [];
 			var object = new w2toolbar(method);
-			$.extend(object, { items: [], handlers: [] });			
+			$.extend(object, { items: [], handlers: [] });
 			for (var i = 0; i < items.length; i++) {
 				object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]);
 			}
@@ -456,7 +456,7 @@
 							if (it.type === 'menu') {
 								el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
 									select: function (event) {
-										obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent }); 
+										obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent });
 										hideDrop();
 									}
 								}));

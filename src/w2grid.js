@@ -38,7 +38,7 @@
 *	- refactored inline editing
 *	- new: getCellValue(ind, col_ind, [summary])
 * 	- refactored selection
-*	- removed: record.selected 
+*	- removed: record.selected
 *	- new: nextCell, prevCell, nextRow, prevRow
 *	- new: editChange(el, index, column, event)
 *	- new: method - overwrite default ajax method (see also w2utils.settings.RESTfull)
@@ -973,7 +973,7 @@
 			var sel  = this.last.selection;
 			var cols = [];
 			for (var c in this.columns) cols.push(parseInt(c));
-			// if local data source and searched	
+			// if local data source and searched
 			sel.indexes = [];
 			if (!url && this.searchData.length !== 0) {
 				// local search applied
@@ -1334,10 +1334,10 @@
 				setTimeout(function () { el.change().focus(); }, 1);
 			}
 			// update field
-			if (this.last.search != '') { 
-				this.search(search.field, this.last.search); 
-			} else { 
-				this.last.field = search.field; 
+			if (this.last.search != '') {
+				this.search(search.field, this.last.search);
+			} else {
+				this.last.field = search.field;
 				this.last.caption = search.caption;
 			}
 			el.attr('placeholder', search.caption);
@@ -1549,7 +1549,7 @@
 					// check if the onLoad handler has not already parsed the data
 					if (typeof responseText == "object") {
 						data = responseText;
-					} else {						
+					} else {
 						if (typeof obj.parser == 'function') {
 							data = obj.parser(responseText);
 							if (typeof data != 'object') {
@@ -1557,7 +1557,7 @@
 							}
 						} else {
 							// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
-							try { eval('data = '+ responseText); } catch (e) { }	
+							try { eval('data = '+ responseText); } catch (e) { }
 						}
 					}
 					// convert recids
@@ -1728,11 +1728,11 @@
 						'	'+ edit.inTag +
 						'>'+ html +'</select>' + edit.outTag);
 				el.find('select').focus()
-					.on('change', function (event) { 
+					.on('change', function (event) {
 						delete obj.last.move;
 					})
-					.on('blur', function (event) { 
-						obj.editChange.call(obj, this, index, column, event); 
+					.on('blur', function (event) {
+						obj.editChange.call(obj, this, index, column, event);
 					});
 			} else {
 				el.addClass('w2ui-editable')
@@ -1745,14 +1745,14 @@
 					.w2field(edit.type, $.extend(edit, { selected: val }))
 					.on('blur', function (event) {
 						if ($(this).data('focused')) return;
-						obj.editChange.call(obj, this, index, column, event); 
+						obj.editChange.call(obj, this, index, column, event);
 					});
 				if (value != null) el.find('input').val(val != 'object' ? val : '');
 			}
 			setTimeout(function () {
 				el.find('input, select')
-					.on('click', function (event) { 
-						event.stopPropagation(); 
+					.on('click', function (event) {
+						event.stopPropagation();
 					})
 					.on('keydown', function (event) {
 						var cancel = false;
@@ -1852,12 +1852,12 @@
 						if (cancel) if (event.preventDefault) event.preventDefault();
 					});
 				// focus and select
-				var tmp = el.find('input').focus();				
-				if (value != null) { 
+				var tmp = el.find('input').focus();
+				if (value != null) {
 					// set cursor to the end
-					tmp[0].setSelectionRange(tmp.val().length, tmp.val().length); 
+					tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
 				} else {
-					tmp.select();	
+					tmp.select();
 				}
 
 			}, 50);
@@ -1883,7 +1883,7 @@
 			if (el.type == 'checkbox') new_val = el.checked;
 			if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
 				// change event
-				var eventData = this.trigger({ 
+				var eventData = this.trigger({
 					phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
 					value_new: new_val, value_previous: (rec.changes ? rec.changes[col.field]: old_val), value_original: old_val
 				});
@@ -2746,7 +2746,7 @@
 			// set cell html and changed flag
 			cell.html(this.getCellHTML(index, col_ind));
 			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
-				cell.addClass('w2ui-changed'); 
+				cell.addClass('w2ui-changed');
 			} else {
 				cell.removeClass('w2ui-changed');
 			}
@@ -3074,7 +3074,7 @@
 					var ind1 = obj.get(mv.from, true);
 					var tmp  = obj.records[ind1];
 					obj.records.splice(ind1, 1);
-					var ind2 = obj.get(mv.to, true);					
+					var ind2 = obj.get(mv.to, true);
 					if (ind1 > ind2) obj.records.splice(ind2, 0, tmp); else obj.records.splice(ind2+1, 0, tmp);
 					$('#grid_'+ obj.name + '_ghost').remove();
 					obj.refresh();
@@ -3550,10 +3550,10 @@
 							} else {
 								obj.searchOpen();
 								event.originalEvent.stopPropagation();
-								function tmp_close() { 
-									if ($('#w2ui-overlay-searches-'+ obj.name).data('keepOpen') === true) return; 
-									tb.uncheck(id); 
-									$(document).off('click', 'body', tmp_close); 
+								function tmp_close() {
+									if ($('#w2ui-overlay-searches-'+ obj.name).data('keepOpen') === true) return;
+									tb.uncheck(id);
+									$(document).off('click', 'body', tmp_close);
 								}
 								$(document).on('click', 'body', tmp_close);
 							}
@@ -4014,9 +4014,9 @@
 		initOperator: function (el, search_ind) {
 			var obj		= this;
 			var search	= obj.searches[search_ind];
- 			var range	= $('#grid_'+ obj.name + '_range_'+ search_ind); 
-			var fld1	= $('#grid_'+ obj.name +'_field_'+ search_ind); 
-			var fld2	= fld1.parent().find('span input'); 
+ 			var range	= $('#grid_'+ obj.name + '_range_'+ search_ind);
+			var fld1	= $('#grid_'+ obj.name +'_field_'+ search_ind);
+			var fld2	= fld1.parent().find('span input');
 			if ($(el).val() == 'in') { fld1.w2field('clear'); } else { fld1.w2field(search.type); }
 			if ($(el).val() == 'between') { range.show(); fld2.w2field(search.type); } else { range.hide(); }
 		},
@@ -4048,7 +4048,7 @@
 					case 'time':
 					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
-						$('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);						
+						$('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
 						break;
 
 					case 'hex':
@@ -4063,7 +4063,7 @@
 						if (sdata) options.selected = sdata.value;
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, options);
 						if (search.type == 'combo') {
-							$('#grid_'+ this.name +'_operator_'+s).val('begins');							
+							$('#grid_'+ this.name +'_operator_'+s).val('begins');
 						}
 						break;
 
@@ -4105,8 +4105,8 @@
 			}
 			// add on change event
 			$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
-				if (evnt.keyCode == 13 && (evnt.ctrlKey || evnt.metaKey)) { 
-					obj.search(); 
+				if (evnt.keyCode == 13 && (evnt.ctrlKey || evnt.metaKey)) {
+					obj.search();
 					$().w2overlay();
 				}
 			});
@@ -4660,13 +4660,13 @@
 			}
 			return val;
 		},
-		
+
 		nextCell: function (col_ind, editable) {
 			var check = col_ind + 1;
 			if (this.columns.length == check) return false;
 			if (editable === true) {
 				var edit = this.columns[check].editable;
-				if (this.columns[check].hidden || typeof edit == 'undefined' 
+				if (this.columns[check].hidden || typeof edit == 'undefined'
 					|| (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.nextCell(check, editable);
 			}
 			return check;
@@ -4677,11 +4677,11 @@
 			if (check < 0) return false;
 			if (editable === true) {
 				var edit = this.columns[check].editable;
-				if (this.columns[check].hidden || typeof edit == 'undefined' 
+				if (this.columns[check].hidden || typeof edit == 'undefined'
 					|| (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.prevCell(check, editable);
 			}
 			return check;
-		}, 
+		},
 
 		nextRow: function (ind) {
 			if ((ind + 1 < this.records.length && this.last.searchIds.length == 0) // if there are more records

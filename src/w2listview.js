@@ -500,13 +500,13 @@
 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), object: this.items[idx] });
-			if (eventData.isCancelled === true) return false;	
+			if (eventData.isCancelled === true) return false;
 
 			// default action
 			if (typeof id === 'undefined') {
 				// refresh all items
 				var itms = document.createDocumentFragment();
-				for (var i = 0; i < this.items.length; i++) 
+				for (var i = 0; i < this.items.length; i++)
 					itms.appendChild(getItemElement(this.items[i]));
 				var lst = this.lastItm.parentNode;
 				while (lst.firstChild !== this.lastItm)

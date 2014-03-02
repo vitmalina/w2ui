@@ -56,7 +56,7 @@
 		this.onRefresh		= null;
 		this.onResize 		= null;
 		this.onDestroy		= null;
-		this.onAction		= null; 
+		this.onAction		= null;
 		this.onToolbar 		= null;
 		this.onError		= null;
 
@@ -68,10 +68,10 @@
 
 		$.extend(true, this, w2obj.form, options);
 	};
-	
+
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
+
 	$.fn.w2form = function(method) {
 		if (typeof method === 'object' || !method ) {
 			var obj = this;
@@ -97,7 +97,7 @@
 			}
 			$.extend(true, object.toolbar, toolbar);
 			// reassign variables
-			for (var p in fields)  	object.fields[p]   	= $.extend(true, {}, fields[p]); 
+			for (var p in fields)  	object.fields[p]   	= $.extend(true, {}, fields[p]);
 			for (var p in record) {
 				if ($.isPlainObject(record[p])) {
 					object.record[p] = $.extend(true, {}, record[p]);
@@ -112,7 +112,7 @@
 					object.original[p] = original[p];
 				}
 			}
-			if (obj.length > 0) object.box = obj[0];			
+			if (obj.length > 0) object.box = obj[0];
 			// render if necessary
 			if (object.formURL != '') {
 				$.get(object.formURL, function (data) {
@@ -142,7 +142,7 @@
 				object.render(object.box);
 			}
 			return object;
-		
+
 		} else if (w2ui[$(this).attr('name')]) {
 			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
@@ -154,7 +154,7 @@
 
 	// ====================================================
 	// -- Implementation of core functionality
-	
+
 	w2form.prototype = {
 
 		get: function (field, returnIndex) {
@@ -176,7 +176,7 @@
 			}
 			return false;
 		},
-	
+
 		reload: function (callBack) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (url && this.recid != 0) {
@@ -198,7 +198,7 @@
 			$().w2tag();
 			this.refresh();
 		},
-		
+
 		error: function (msg) {
 			var obj = this;
 			// let the management of the error outside of the grid
@@ -225,32 +225,32 @@
 					case 'int':
 						if (this.record[field.name] && !w2utils.isInt(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not an integer') });
-						} 
+						}
 						break;
 					case 'float':
 						if (this.record[field.name] && !w2utils.isFloat(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not a float') });
-						} 
+						}
 						break;
 					case 'money':
 						if (this.record[field.name] && !w2utils.isMoney(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not in money format') });
-						} 
+						}
 						break;
 					case 'color':
 					case 'hex':
 						if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not a hex number') });
-						} 
+						}
 						break;
 					case 'email':
 						if (this.record[field.name] && !w2utils.isEmail(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not a valid email') });
-						} 
+						}
 						break;
 					case 'checkbox':
 						// convert true/false
-						if (this.record[field.name] == true) this.record[field.name] = 1; else this.record[field.name] = 0; 
+						if (this.record[field.name] == true) this.record[field.name] = 1; else this.record[field.name] = 0;
 						break;
 					case 'date':
 						// format date before submit
@@ -352,7 +352,7 @@
 				complete	: function (xhr, status) {
 					obj.unlock();
 					// event before
-					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr, status: status });	
+					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr, status: status });
 					if (eventData.isCancelled === true) {
 						if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 						return false;
@@ -437,9 +437,9 @@
 				params.record = $.extend(true, {}, obj.record);
 				// event before
 				var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
-				if (eventData.isCancelled === true) { 
-					if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' }); 
-					return false; 
+				if (eventData.isCancelled === true) {
+					if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
+					return false;
 				}
 				// default action
 				var url = eventData.url;
@@ -465,7 +465,7 @@
 						obj.unlock();
 
 						// event before
-						var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
+						var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });
 						if (eventData.isCancelled === true) {
 							if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
 							return false;
@@ -518,7 +518,7 @@
 			w2utils.lock.apply(window, args);
 		},
 
-		unlock: function () { 
+		unlock: function () {
 			var obj = this;
 			setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
 		},
@@ -567,7 +567,7 @@
 
 		action: function (action, event) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });	
+			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default actions
 			if (typeof (this.actions[action]) == 'function') {
@@ -590,14 +590,14 @@
 			var page	= $(this.box).find('> div .w2ui-page');
 			var cpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page);
 			var dpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page + ' > div');
-			var buttons	= $(this.box).find('> div .w2ui-buttons');		
+			var buttons	= $(this.box).find('> div .w2ui-buttons');
 			// if no height, calculate it
 			resizeElements();
 			if (parseInt($(this.box).height()) == 0 || $(this.box).data('auto-size') === true) {
 				$(this.box).height(
-					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
-					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
-					(this.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0) + 
+					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
+					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) +
+					(this.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0) +
 					(page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
 					(buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
 				);
@@ -613,7 +613,7 @@
 				toolbar.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
 				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
 							  + (obj.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0));
-				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0) 
+				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
 							  + (obj.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') + 5 : 0)
 							  + (obj.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') + 5 : 0));
 				page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
@@ -638,7 +638,7 @@
 						}
 					}
 				}
-			});			
+			});
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
 			if (eventData.isCancelled === true) return false;
@@ -702,11 +702,11 @@
 					if (value_new === value_previous) return;
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-					if (eventData.isCancelled === true) { 
+					if (eventData.isCancelled === true) {
 						$(this).val(obj.record[this.name]); // return previous value
 						return false;
 					}
-					// default action 
+					// default action
 					var val = this.value;
 					if (this.type == 'select')   val = this.value;
 					if (this.type == 'checkbox') val = this.checked ? true : false;
@@ -777,7 +777,7 @@
 						if (field.type == 'combo' && !$.isPlainObject(value)) {
 							field.el.value = value;
 						} else if ($.isPlainObject(value) && typeof value.text != 'undefined') {
-							field.el.value = value.text; 
+							field.el.value = value.text;
 						} else {
 							field.el.value = '';
 						}
@@ -813,7 +813,7 @@
 						break;
 					default:
 						$(field.el).w2field($.extend({}, field.options, { type: field.type }));
-						break;						
+						break;
 				}
 			}
 			// wrap pages in div
@@ -841,7 +841,7 @@
 			}
 			if (!this.isGenerated) return;
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });
 			if (eventData.isCancelled === true) return false;
 			// default actions
 			if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
@@ -887,7 +887,7 @@
 			this.resize();
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (url && this.recid != 0) {
-				this.request(); 
+				this.request();
 			} else {
 				this.refresh();
 			}
@@ -906,9 +906,9 @@
 			return (new Date()).getTime() - time;
 		},
 
-		destroy: function () { 
+		destroy: function () {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });	
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
 			if (eventData.isCancelled === true) return false;
 			// clean up
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
@@ -925,7 +925,7 @@
 			$(window).off('resize', 'body')
 		}
 	};
-	
+
 	$.extend(w2form.prototype, w2utils.event);
 	w2obj.form = w2form;
 })();

@@ -67,14 +67,14 @@
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
+
 	$.fn.w2field = function (method, options) {
 		// call direct
 		if (this.length == 0) {
 			var pr = w2field.prototype;
 			if (pr[method]) {
 				return pr[method].apply(pr, Array.prototype.slice.call(arguments, 1));
-			}   
+			}
 		} else {
 			if (typeof method == 'string' && typeof options == 'object') {
 				method = $.extend(true, {}, options, { type: method });
@@ -106,15 +106,15 @@
 				return null;
 			});
 		}
-	}	
+	}
 
 	// ====================================================
 	// -- Implementation of core functionality
 
 	/* 	To add custom types
 		$().w2field('addType', 'myType', function (options) {
-			$(this.el).on('keypress', function (event) { 
-				if (event.metaKey || event.ctrlKey || event.altKey 
+			$(this.el).on('keypress', function (event) {
+				if (event.metaKey || event.ctrlKey || event.altKey
 					|| (event.charCode != event.keyCode && event.keyCode > 0)) return;
 				var ch = String.fromCharCode(event.charCode);
 				if (ch != 'a' && ch != 'b' && ch != 'c') {
@@ -124,11 +124,11 @@
 			});
 			$(this.el).on('blur', function (event)  { // keyCode & charCode differ in FireFox
 				var ch = this.value;
-				if (ch != 'a' && ch != 'b' && ch != 'c') { 
+				if (ch != 'a' && ch != 'b' && ch != 'c') {
 					$(this).w2tag(w2utils.lang("Not a single charecter from the set of 'abc'"));
 				}
 			});
-		});	
+		});
 	*/
 
 	w2field.prototype = {
@@ -158,7 +158,7 @@
 			delete this.custom[type];
 			return true
 		},
-		
+
 		init: function () {
 			var obj 	= this;
 			var options = this.options;
@@ -168,7 +168,7 @@
 			if (typeof this.custom[this.type] == 'function') {
 				this.custom[this.type].call(this, options);
 				return;
-			} 
+			}
 			// only for INPUT or TEXTAREA
 			if (['INPUT', 'TEXTAREA'].indexOf(this.el.tagName) == -1) {
 				console.log('ERROR: w2field could only be applied to INPUT or TEXTAREA.', this.el);
@@ -187,7 +187,7 @@
 					defaults = {
 						min				: null,
 						max				: null,
-						placeholder		: '', 
+						placeholder		: '',
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
@@ -218,7 +218,7 @@
 					defaults = {
 						prefix		: '#',
 						suffix		: '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&nbsp;</div>',
-						placeholder	: '', 
+						placeholder	: '',
 						arrows		: false,
 						keyboard	: false
 					};
@@ -234,7 +234,7 @@
 				case 'date':
 					defaults = {
 						format		: w2utils.settings.date_format, // date format
-						placeholder	: '', 
+						placeholder	: '',
 						keyboard	: true,
 						silent		: true,
 						start		: '',		// string or jquery object
@@ -250,7 +250,7 @@
 				case 'time':
 					defaults = {
 						format		: w2utils.settings.time_format,
-						placeholder	: '', 
+						placeholder	: '',
 						keyboard	: true,
 						silent		: true,
 						start		: '',
@@ -469,10 +469,10 @@
 					if (typeof options.renderItem == 'function') {
 						ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
 					} else {
-						ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+	
+						ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+
 							  (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.size(it.size) +'</span>');
 					}
-					html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+ 
+					html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
 							ren +'</li>';
 				}
 				var div = obj.helpers['multi'];
@@ -486,7 +486,7 @@
 				if (html != '') {
 					ul.prepend(html);
 				} else if (typeof options.placeholder != 'undefined') {
-					var style = 
+					var style =
 						'padding-top: ' + $(this.el).css('padding-top') + ';'+
 						'padding-left: ' + $(this.el).css('padding-left') + '; ' +
 						'box-sizing: ' + $(this.el).css('box-sizing') + '; ' +
@@ -516,8 +516,8 @@
 							selected.splice($(event.target).attr('index'), 1);
 							$(obj.el).trigger('change');
 							$(event.target).parent().fadeOut('fast');
-							setTimeout(function () { 
-								obj.refresh(); 
+							setTimeout(function () {
+								obj.refresh();
 								// event after
 								obj.trigger($.extend(eventData, { phase: 'after' }));
 							}, 300);
@@ -647,7 +647,7 @@
 		change: function (event) {
 			var obj 	= this;
 			var options = obj.options;
-			// numeric 
+			// numeric
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
 				// check max/min
 				var val 	=  $(this.el).val();
@@ -666,12 +666,12 @@
 				var color = '#' + $(this.el).val();
 				if ($(this.el).val().length != 6 && $(this.el).val().length != 3) color = '';
 				$(this.el).next().find('div').css('background-color', color);
-				if ($(obj.el).is(':focus')) this.updateOverlay();			
+				if ($(obj.el).is(':focus')) this.updateOverlay();
 			}
 		},
 
 		click: function (event) {
-			event.stopPropagation(); 
+			event.stopPropagation();
 			// lists
 			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
 				if (!$(this.el).is(':focus')) this.focus(event);
@@ -697,11 +697,11 @@
 					obj.helpers['focus'].find('input').focus();
 				} else {
 					$(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
-					setTimeout(function () { 						
+					setTimeout(function () {
 						if (!options.search) {
 							$(obj.el).data('keep_focus', true);
 							setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
-							obj.helpers['focus'].find('input').focus(); 
+							obj.helpers['focus'].find('input').focus();
 						} else {
 							setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
 						}
@@ -724,7 +724,7 @@
 			}
 		},
 
-		blur: function (event) {			
+		blur: function (event) {
 			var obj 	= this;
 			var options = obj.options;
 			var val 	= $(obj.el).val().trim();
@@ -733,7 +733,7 @@
 				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 			}
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
-				if (val !== '' && !obj.checkType(val)) { 
+				if (val !== '' && !obj.checkType(val)) {
 					$(obj.el).val('').change();
 					if (options.silent === false) {
 						$(obj.el).w2tag('Not a valid number');
@@ -770,7 +770,7 @@
 			if (obj.type == 'list') {
 				if ($(obj.el).data('focused')) {
 					obj.helpers['focus'].find('input').blur();
-				} else {					
+				} else {
 					$(obj.el).css({ 'outline': 'none' });
 				}
 			}
@@ -808,7 +808,7 @@
 			var obj 	= this;
 			var options = obj.options;
 			var key 	= event.keyCode || (extra && extra.keyCode);
-			// numeric 
+			// numeric
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
 				if (!options.keyboard) return;
 				var cancel = false;
@@ -829,9 +829,9 @@
 				}
 				if (cancel) {
 					event.preventDefault();
-					setTimeout(function () { 
+					setTimeout(function () {
 						// set cursor to the end
-						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length); 
+						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
 					}, 0);
 				}
 			}
@@ -841,7 +841,7 @@
 				var cancel  = false;
 				var daymil  = 24*60*60*1000;
 				var inc		= 1;
-				if (event.ctrlKey || event.metaKey) inc = 10; 
+				if (event.ctrlKey || event.metaKey) inc = 10;
 				var dt = w2utils.isDate($(obj.el).val(), options.format, true);
 				if (!dt) { dt = new Date(); daymil = 0; }
 				switch (key) {
@@ -862,9 +862,9 @@
 				}
 				if (cancel) {
 					event.preventDefault();
-					setTimeout(function () { 
+					setTimeout(function () {
 						// set cursor to the end
-						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length); 
+						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
 						obj.updateOverlay();
 					}, 0);
 				}
@@ -874,7 +874,7 @@
 				if (!options.keyboard) return;
 				var cancel  = false;
 				var inc		= 1;
-				if (event.ctrlKey || event.metaKey) inc = 60; 
+				if (event.ctrlKey || event.metaKey) inc = 60;
 				var val = $(obj.el).val();
 				var time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
 				switch (key) {
@@ -892,9 +892,9 @@
 				if (cancel) {
 					$(obj.el).val(obj.fromMin(time)).change();
 					event.preventDefault();
-					setTimeout(function () { 
+					setTimeout(function () {
 						// set cursor to the end
-						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length); 
+						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
 					}, 0);
 				}
 			}
@@ -1045,13 +1045,13 @@
 					obj.updateOverlay();
 					// cancel event
 					event.preventDefault();
-					setTimeout(function () { 
+					setTimeout(function () {
 						// set cursor to the end
 						if (['enum'].indexOf(obj.type) != -1) {
 							var tmp = obj.helpers['multi'].find('input').get(0);
-							tmp.setSelectionRange(tmp.value.length, tmp.value.length); 
+							tmp.setSelectionRange(tmp.value.length, tmp.value.length);
 						} else {
-							obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length); 
+							obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
 						}
 					}, 0);
 					return;
@@ -1079,7 +1079,7 @@
 
 		request: function (interval) {
 			var obj 	 = this;
-			var options  = this.options;			
+			var options  = this.options;
 			var search 	 = $(obj.el).val() || '';
 			if (obj.type == 'enum') {
 				var tmp = $(obj.helpers['multi']).find('input');
@@ -1105,8 +1105,8 @@
 				obj.tmp.timeout = setTimeout(function () {
 					// trigger event
 					var url  	 = options.url;
-					var postData = { 
-						search	: search, 
+					var postData = {
+						search	: search,
 						max 	: options.cacheMax
 					};
 					var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
@@ -1187,10 +1187,10 @@
 					var suffix = '';
 					if (['is', 'begins with'].indexOf(options.match) != -1) prefix = '^';
 					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
-					try { 
+					try {
 						var re = new RegExp(prefix + search + suffix, 'i');
-						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
-						if (options.applyFilter !== true) item.hidden = false; 
+						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
+						if (options.applyFilter !== true) item.hidden = false;
 					} catch (e) {}
 					// do not show selected items
 					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
@@ -1236,18 +1236,18 @@
 						$(this).html('&#149;');
 					})
 					.on('mouseup', function () {
-						setTimeout(function () { 
-							if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); 
+						setTimeout(function () {
+							if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
 						}, 10);
 					});
 			}
 			// date
 			if (this.type == 'date') {
 				if ($('#w2ui-overlay').length == 0) {
-					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', { 
+					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
 						css: { "background-color": "#f5f5f5" }
 					});
-				} 
+				}
 				var month, year;
 				var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
 				if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
@@ -1260,8 +1260,8 @@
 							$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
 						})
 						.on('mouseup', function () {
-							setTimeout(function () { 
-								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); 
+							setTimeout(function () {
+								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
 							}, 10);
 						});
 					$('#w2ui-overlay .previous').on('mousedown', function () {
@@ -1279,8 +1279,8 @@
 			// date
 			if (this.type == 'time') {
 				if ($('#w2ui-overlay').length == 0) {
-					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time" onclick="event.stopPropagation();"></div>', { 
-						css: { "background-color": "#fff" } 
+					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time" onclick="event.stopPropagation();"></div>', {
+						css: { "background-color": "#fff" }
 					});
 				}
 				var h24 = (this.options.format == 'h24' ? true : false);
@@ -1313,7 +1313,7 @@
 				var input	= this.el;
 				if (this.type == 'enum') {
 					el		= $(this.helpers['multi']);
-					input	= $(el).find('input'); 
+					input	= $(el).find('input');
 				}
 				if ($(input).is(':focus') || this.type == 'list') {
 					if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
@@ -1324,7 +1324,7 @@
 						$().w2overlay();
 						delete obj.tmp.force_hide;
 						return;
-					} 
+					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
 						render		: options.renderDrop,
@@ -1355,7 +1355,7 @@
 								// hide overlay, focus helper
 								setTimeout(function () {
 									$('#w2ui-overlay').remove();
-									if (options.search) obj.helpers['focus'].find('input').focus(); 
+									if (options.search) obj.helpers['focus'].find('input').focus();
 								}, 1);
 							} else {
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
@@ -1365,7 +1365,7 @@
 							// need time out for poup to finaly get hidden
 							setTimeout(function () {
 								if (obj.type == 'list') obj.blur();
-							}, 1);	
+							}, 1);
 						}
 					}));
 				}
@@ -1377,7 +1377,7 @@
 			if (this.type == 'date') {
 				var dt = w2utils.isDate(str, this.options.format, true);
 				if (dt) {
-					// enable range 
+					// enable range
 					if (this.options.start || this.options.end) {
 						var st = (typeof this.options.start == 'string' ? this.options.start : $(this.options.start).val());
 						var en = (typeof this.options.end == 'string' ? this.options.end : $(this.options.end).val());
@@ -1392,7 +1392,7 @@
 					}
 					// block predefined dates
 					if (this.options.blocked && $.inArray(str, this.options.blocked) != -1) inRange = false;
-				} 
+				}
 			}
 			if (this.type == 'time') {
 				if (this.options.start || this.options.end) {
@@ -1431,7 +1431,7 @@
 				case 'hex':
 				case 'color':
 					return w2utils.isHex(ch);
-				case 'alphanumeric': 
+				case 'alphanumeric':
 					return w2utils.isAlphaNumeric(ch);
 			}
 			return true;
@@ -1446,7 +1446,7 @@
 				$(obj.el).data('tmp', tmp);
 				if (obj.options.prefix !== '') {
 					$(obj.el).before(
-						'<div class="w2ui-field-helper">'+ 
+						'<div class="w2ui-field-helper">'+
 							obj.options.prefix +
 						'</div>'
 					);
@@ -1481,7 +1481,7 @@
 				pr = parseInt($(obj.el).css('padding-right'), 10);
 				if (obj.options.arrows) {
 					$(obj.el).after(
-						'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+ 
+						'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+
 						'	<div class="w2ui-field-up" type="up">'+
 						'		<div class="arrow-up" type="up"></div>'+
 						'	</div>'+
@@ -1515,8 +1515,8 @@
 							// update function
 							function update(notimer) {
 								$(obj.el).focus();
-								obj.keyDown($.Event("keydown"), { 
-									keyCode : ($(event.target).attr('type') == 'up' ? 38 : 40) 
+								obj.keyDown($.Event("keydown"), {
+									keyCode : ($(event.target).attr('type') == 'up' ? 38 : 40)
 								});
 								if (notimer !== false) $('body').data('_field_update_timer', setTimeout(update, 60));
 							}
@@ -1528,8 +1528,8 @@
 				}
 				if (obj.options.suffix !== '') {
 					$(obj.el).after(
-						'<div class="w2ui-field-helper">'+ 
-							obj.options.suffix + 
+						'<div class="w2ui-field-helper">'+
+							obj.options.suffix +
 						'</div>');
 					helper = $(obj.el).next();
 					helper
@@ -1550,7 +1550,7 @@
 					// remember helper
 					obj.helpers['suffix'] = helper;
 				}
-			}, 1);	
+			}, 1);
 		},
 
 		addMulti: function () {
@@ -1560,14 +1560,14 @@
 			$(obj.helpers['multi']).remove();
 			// build helper
 			var html   = '';
-			var margin = 
+			var margin =
 				'margin-top		: 0px; ' +
 				'margin-bottom	: 0px; ' +
 				'margin-left	: ' + $(obj.el).css('margin-left') + '; ' +
-				'margin-right	: ' + $(obj.el).css('margin-right') + '; '+				
-				'width			: ' + (w2utils.getSize(obj.el, 'width') 
-									- parseInt($(obj.el).css('margin-left'), 10) 
-									- parseInt($(obj.el).css('margin-right'), 10)) 
+				'margin-right	: ' + $(obj.el).css('margin-right') + '; '+
+				'width			: ' + (w2utils.getSize(obj.el, 'width')
+									- parseInt($(obj.el).css('margin-left'), 10)
+									- parseInt($(obj.el).css('margin-right'), 10))
 									+ 'px;';
 			if (obj.type == 'enum') {
 				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box; pointer-events: auto">'+
@@ -1579,14 +1579,14 @@
 						'	</ul>'+
 						'	</div>'+
 						'</div>';
-			} 
+			}
 			if (obj.type == 'file') {
 				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box; pointer-events: auto">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
-						'	<input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">' 
+						'	<input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">'
 						'	</div>'+
-						'</div>';				
+						'</div>';
 			}
 			$(obj.el)
 				.before(html)
@@ -1596,7 +1596,7 @@
 				});
 
 			var div	= $(obj.el).prev();
-			obj.helpers['multi'] = div;	
+			obj.helpers['multi'] = div;
 			if (obj.type == 'enum') {
 				$(obj.el).attr('tabindex', -1);
 				// INPUT events
@@ -1614,8 +1614,8 @@
 						obj.blur(event);
 						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					})
-					.on('keyup', 	function (event) { obj.keyUp(event) })				
-					.on('keydown', 	function (event) { obj.keyDown(event) })				
+					.on('keyup', 	function (event) { obj.keyUp(event) })
+					.on('keydown', 	function (event) { obj.keyDown(event) })
 					.on('keypress', function (event) { div.find('.w2ui-enum-placeholder').remove(); obj.keyPress(event); });
 				// MAIN div
 				div.on('click', function (event) { $(this).find('input').focus(); });
@@ -1646,14 +1646,14 @@
 						event.preventDefault();
 						event.stopPropagation();
 					})
-					.on('dragover', function (event) { 
+					.on('dragover', function (event) {
 						// cancel to stop browser behaviour
 						event.preventDefault();
 						event.stopPropagation();
 					});
 				div.find('input')
-					.on('click', function (event) { 
-						event.stopPropagation(); 
+					.on('click', function (event) {
+						event.stopPropagation();
 					})
 					.on('change', function () {
 						if (typeof this.files !== "undefined") {
@@ -1701,19 +1701,19 @@
 							}
 						}, 30);
 					})
-					.on('keyup', function (event) { obj.keyUp(event) })				
+					.on('keyup', function (event) { obj.keyUp(event) })
 					.on('keydown', function (event) {
 						if (event.keyCode == 40) {
 							if ($('#w2ui-overlay').length == 0) {
-								setTimeout(function () { 
-									obj.updateOverlay(); 
+								setTimeout(function () {
+									obj.updateOverlay();
 									setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
 									// -- keep focus
 									$(obj.el).data('keep_focus', true);
 									setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
 								}, 10);
 								return;
-							} 
+							}
 						}
 						if (event.keyCode == 27 && $('#w2ui-overlay').length == 0) {
 							$(obj.el).val('').removeData('selected').change();
@@ -1723,7 +1723,7 @@
 					})
 					.on('keypress', function (event) { obj.keyPress(event); });
 			}, 1);
-		},		
+		},
 
 		addFile: function (file) {
 			var obj		 = this;
@@ -1786,7 +1786,7 @@
 		},
 
 		normMenu: function (menu) {
-			for (var m = 0; m < menu.length; m++) { 
+			for (var m = 0; m < menu.length; m++) {
 				if (typeof menu[m] == 'string') {
 					menu[m] = { id: menu[m], text: menu[m] };
 				} else {
@@ -1799,7 +1799,7 @@
 		},
 
 		getColorHTML: function () {
-			var html =  '<div class="w2ui-color">'+ 
+			var html =  '<div class="w2ui-color">'+
 						'<table cellspacing="5">';
 			for (var i = 0; i < 8; i++) {
 				html += '<tr>';
@@ -1830,7 +1830,7 @@
 			if (month < 1 || month === 0)  { month += 12; year--; }
 			if (year/4 == Math.floor(year/4)) { daysCount[1] = '29'; } else { daysCount[1] = '28'; }
 			this.options.current = month + '/' + year;
-			
+
 			// start with the required date
 			td = new Date(year, month-1, 1);
 			var weekDay = td.getDay();
@@ -1839,16 +1839,16 @@
 			for ( var i = 0, len = tabDays.length; i < len; i++) {
 				dayTitle += '<td>' + tabDays[i] + '</td>';
 			}
-			var html  = 
+			var html  =
 				'<div class="w2ui-calendar-title title">'+
 				'	<div class="w2ui-calendar-previous previous"> <div></div> </div>'+
-				'	<div class="w2ui-calendar-next next"> <div></div> </div> '+ 
-						months[month-1] +', '+ year + 
+				'	<div class="w2ui-calendar-next next"> <div></div> </div> '+
+						months[month-1] +', '+ year +
 				'</div>'+
 				'<table class="w2ui-calendar-days" cellspacing="0">'+
 				'	<tr class="w2ui-day-title">' + dayTitle + '</tr>'+
 				'	<tr>';
-					
+
 			var day = 1;
 			for (var ci=1; ci<43; ci++) {
 				if (weekDay === 0 && ci == 1) {
@@ -1862,12 +1862,12 @@
 					}
 				}
 				var dt  = year + '/' + month + '/' + day;
-				
-				var className = ''; 
+
+				var className = '';
 				if (ci % 7 == 6)  className = ' w2ui-saturday';
 				if (ci % 7 === 0) className = ' w2ui-sunday';
 				if (dt == today)  className+= ' w2ui-today';
-				
+
 				var dspDay	 = day;
 				var col		 = '';
 				var bgcol	 = '';
@@ -1878,7 +1878,7 @@
 					col		= 'color: ' + tmp[1] + ';';
 				}
 				html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' : 'w2ui-blocked') + className + '" style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
-							dspDay + 
+							dspDay +
 						'</td>';
 				if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';
 				day++;
@@ -1890,7 +1890,7 @@
 		getHourHTML: function () {
 			var tmp = [];
 			var h24 = (this.options.format == 'h24' ? true : false);
-			for (var a=0; a<24; a++) {				
+			for (var a=0; a<24; a++) {
 				var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
 				if (a == 12 && !h24) time = '12:00 pm';
 				if (!tmp[Math.floor(a/8)]) tmp[Math.floor(a/8)] = '';
@@ -1898,7 +1898,7 @@
 				var tm2 = this.fromMin(this.toMin(time) + 59);
 				tmp[Math.floor(a/8)] += '<div class="'+ (this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
 			}
-			var html = 
+			var html =
 				'<div class="w2ui-calendar-time"><table><tr>'+
 				'	<td>'+ tmp[0] +'</td>' +
 				'	<td>'+ tmp[1] +'</td>' +
@@ -1911,13 +1911,13 @@
 			if (typeof hour == 'undefined') hour = 0;
 			var h24 = (this.options.format == 'h24' ? true : false);
 			var tmp = [];
-			for (var a=0; a<60; a+=5) {				
+			for (var a=0; a<60; a+=5) {
 				var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
 				var ind = a < 20 ? 0 : (a < 40 ? 1 : 2);
 				if (!tmp[ind]) tmp[ind] = '';
 				tmp[ind] += '<div class="'+ (this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
 			}
-			var html = 
+			var html =
 				'<div class="w2ui-calendar-time"><table><tr>'+
 				'	<td>'+ tmp[0] +'</td>' +
 				'	<td>'+ tmp[1] +'</td>' +
@@ -1933,7 +1933,7 @@
 				tmp[0] = parseInt(tmp[0]);
 				tmp[1] = parseInt(tmp[1]);
 				if (str.indexOf('pm') != -1 && tmp[0] != 12) tmp[0] += 12;
-			} else {				
+			} else {
 				return null;
 			}
 			return tmp[0] * 60 + tmp[1];
