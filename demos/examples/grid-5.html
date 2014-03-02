@@ -13,6 +13,7 @@
 <div id="grid" style="width: 100%; height: 350px; overflow: hidden;"></div>
 
 <!--CODE-->
+<script>
 $(function () {
 	$('#grid').w2grid({ 
 		name: 'grid', 
@@ -25,10 +26,12 @@ $(function () {
 	});	
 	w2ui['grid'].load('data/list.json');
 });
+</script>
 
 <!--CODE-->
 
 <!--CODE-->
+<script type="text/json">
 {
 	"total": 9,
 	"records": [
@@ -43,3 +46,4 @@ $(function () {
 		{ "recid": 9, "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
 	]
 }
+</script>

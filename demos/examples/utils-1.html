@@ -23,6 +23,7 @@
 <div style="float: left; width: 130px;">Show Date</div>      <div id="goDate" style="margin-left: 130px;">...</div>
 
 <!--CODE-->
+<script>
 function update() {
 	$('#isInt').html(w2utils.isInt($('#str')[0].value) ? 'Yes' : '-');
 	$('#isFloat').html(w2utils.isFloat($('#str')[0].value) ? 'Yes' : '-');
@@ -40,3 +41,4 @@ function update() {
 		$('#goDate').html('-');
 	}
 }
+</script>
