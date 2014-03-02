@@ -75,6 +75,7 @@ function openPopup () {
 		},
 		onOpen	: function (event) {
 			event.onComplete = function () {
+				// specifying an onOpen handler instead is equivalent to specifying an onBeforeOpen handler, which would make this code execute too early and hence not deliver.
 				$('#w2ui-popup #form').w2render('foo');
 			}
 		}
