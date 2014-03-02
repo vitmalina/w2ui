@@ -42,6 +42,7 @@
 		this.style 			= '';
 		this.focus			= 0;		// focus first or other element
 		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
+		this.msgAJAXerror   = w2utils.lang('AJAX error. See console for more details.');
 		this.msgRefresh		= w2utils.lang('Refreshing...');
 		this.msgSaving		= w2utils.lang('Saving...');
 
@@ -354,16 +355,18 @@
 						return false;
 					}
 					// parse server response
+					var data;
 					var responseText = obj.last.xhr.responseText;
 					if (status != 'error') {
 						// default action
 						if (typeof responseText != 'undefined' && responseText != '') {
-							var data;
 							// check if the onLoad handler has not already parsed the data
 							if (typeof responseText == "object") {
 								data = responseText;
 							} else {
 								// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
+								//
+								// TODO: avoid (potentially malicious) code injection from the response.
 								try { eval('data = '+ responseText); } catch (e) { }
 							}
 							if (typeof data == 'undefined') {
@@ -382,6 +385,11 @@
 						}
 					} else {
 						obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
+						data = {
+							status		 : 'error',
+							message		 : obj.msgAJAXerror,
+							responseText : responseText
+						};
 					}
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -467,16 +475,18 @@
 							return false;
 						}
 						// parse server response
+						var data;
 						var responseText = xhr.responseText;
 						if (status != 'error') {
 							// default action
 							if (typeof responseText != 'undefined' && responseText != '') {
-								var data;
 								// check if the onLoad handler has not already parsed the data
 								if (typeof responseText == "object") {
 									data = responseText;
 								} else {
 									// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
+									//
+									// TODO: avoid (potentially malicious) code injection from the response.
 									try { eval('data = '+ responseText); } catch (e) { }
 								}
 								if (typeof data == 'undefined') {
@@ -494,6 +504,11 @@
 							}
 						} else {
 							obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
+							data = {
+								status		 : 'error',
+								message		 : obj.msgAJAXerror,
+								responseText : responseText
+							};
 						}
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
