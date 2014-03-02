@@ -121,16 +121,15 @@
 		},
 
 		insert: function (parent, before, nodes) {
-			var txt;
-			var ind;
-			var tmp;
+			var txt, ind, tmp, node, nd;
 			if (arguments.length == 2) {
 				// need to be in reverse order
 				nodes	= arguments[1];
 				before	= arguments[0];
 				ind		= this.get(before);
 				if (ind === null) {
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+					if (!$.isArray(nodes)) nodes = [nodes];
+					txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
 					console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
 					return null;
 				}
@@ -139,33 +138,36 @@
 			if (typeof parent == 'string') parent = this.get(parent);
 			if (!$.isArray(nodes)) nodes = [nodes];
 			for (var o in nodes) {
-				if (typeof nodes[o].id == 'undefined') {
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+				node = nodes[o];
+				if (typeof node.id == null) {
+					txt = (node.caption != null ? node.caption : node.text);
 					console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.');
 					continue;
 				}
-				if (this.get(this, nodes[o].id) !== null) {
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
-					console.log('ERROR: Cannot insert node with id='+ nodes[o].id +' (text: '+ txt + ') because another node with the same id already exists.');
+				if (this.get(this, node.id) !== null) {
+					txt = (node.caption != null ? node.caption : node.text);
+					console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ txt + ') because another node with the same id already exists.');
 					continue;
 				}
-				tmp = $.extend({}, w2sidebar.prototype.node, nodes[o]);
+				tmp = $.extend({}, w2sidebar.prototype.node, node);
 				tmp.sidebar	= this;
-				tmp.parent	= parent;
-				var nd		= tmp.nodes;
-				tmp.nodes	= []; // very important to re-init empty nodes array
+				tmp.parent = parent;
+				nd = tmp.nodes || [];
+				tmp.nodes = []; // very important to re-init empty nodes array
 				if (before === null) { // append to the end
 					parent.nodes.push(tmp);
 				} else {
 					ind = this.get(parent, before, true);
 					if (ind === null) {
-						txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
+						txt = (node.caption != null ? node.caption : node.text);
 						console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
 						return null;
 					}
 					parent.nodes.splice(ind, 0, tmp);
 				}
-				if (typeof nd != 'undefined' && nd.length > 0) { this.insert(tmp, null, nd); }
+				if (nd.length > 0) {
+					this.insert(tmp, null, nd);
+				}
 			}
 			this.refresh(parent.id);
 			return tmp;
