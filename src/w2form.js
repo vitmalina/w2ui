@@ -149,8 +149,8 @@
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2form');
-		}	
-	}		
+		}
+	};
 
 	// ====================================================
 	// -- Implementation of core functionality
@@ -367,7 +367,7 @@
 							if (typeof responseText == "object") {
 								data = responseText;
 							} else {
-								// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+								// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
 								try { eval('data = '+ responseText); } catch (e) { }
 							}
 							if (typeof data == 'undefined') {
@@ -480,7 +480,7 @@
 								if (typeof responseText == "object") {
 									data = responseText;
 								} else {
-									// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+									// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
 									try { eval('data = '+ responseText); } catch (e) { }
 								}
 								if (typeof data == 'undefined') {

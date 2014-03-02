@@ -11,8 +11,8 @@ $w2grid = new w2grid_class();
 
 class w2grid_class {
 	// constructor/destructor
-	public function __consturct() {}
-	public function __descruct() {}
+	public function __construct() {}
+	public function __destruct() {}
 
 	public function getRecords($sql, $cql, $request) {
 		global $db, $dbType;

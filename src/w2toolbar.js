@@ -64,7 +64,7 @@
 
 	w2toolbar.prototype = {
 		item: {
-			id		: null,		// commnad to be sent to all event handlers
+			id		: null,		// command to be sent to all event handlers
 			type	: 'button',	// button, check, radio, drop, menu, break, html, spacer
 			text	: '',
 			html	: '',

@@ -1556,7 +1556,7 @@
 								console.log('ERROR: Your parser did not return proper object');
 							}
 						} else {
-							// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+							// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
 							try { eval('data = '+ responseText); } catch (e) { }	
 						}
 					}
@@ -1571,7 +1571,7 @@
 							status		 : 'error',
 							message		 : this.msgNotJSON,
 							responseText : responseText
-						}
+						};
 					}
 					if (data['status'] == 'error') {
 						obj.error(data['message']);
@@ -4538,7 +4538,7 @@
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
 			var data 	= this.getCellValue(ind, col_ind, summary);
 			var edit 	= col.editable;
-			// various renderers			
+			// various renderers
 			if (typeof col.render != 'undefined') {
 				if (typeof col.render == 'function') {
 					data = $.trim(col.render.call(this, record, ind, col_ind));

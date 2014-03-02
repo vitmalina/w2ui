@@ -85,5 +85,5 @@ Your contributions are welcome. However, few things you need to know before cont
 2. If you are changing JS files - do all changes in /src folder
 3. If you are changing CSS files - do all changes in LESS in /src/less/src
 4. If you want to help with unit test - do all changes in /test/qunit
-5. If you want to change documenation - do all chnages in /docs
+5. If you want to change documenation - do all changes in /docs
 6. If you want to add demos - do all changes in /demos
