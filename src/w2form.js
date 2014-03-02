@@ -615,8 +615,8 @@
 			if (parseInt($(this.box).height()) == 0 || $(this.box).data('auto-size') === true) {
 				$(this.box).height(
 					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
-					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) +
-					(this.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0) +
+					((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
+					((typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
 					(page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
 					(buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
 				);
@@ -631,10 +631,10 @@
 				main.width($(obj.box).width()).height($(obj.box).height());
 				toolbar.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
 				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
-							  + (obj.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0));
+							  + ((typeof obj.toolbar == 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0));
 				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
-							  + (obj.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') + 5 : 0)
-							  + (obj.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') + 5 : 0));
+							  + ((typeof obj.toolbar == 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') + 5 : 0)
+							  + ((typeof obj.tabs === 'object' && $.isArray(obj.tabs.tabs) && obj.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') + 5 : 0));
 				page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
 			}
 		},
@@ -666,7 +666,7 @@
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
 			$(this.box).find('.w2ui-form-header').html(this.header);
 			// refresh tabs if needed
-			if (typeof this.tabs == 'object' && this.tabs.tabs.length > 0) {
+			if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
 				$('#form_'+ this.name +'_tabs').show();
 				this.tabs.active = this.tabs.tabs[this.page].id;
 				this.tabs.refresh();
@@ -674,7 +674,7 @@
 				$('#form_'+ this.name +'_tabs').hide();
 			}
 			// refresh tabs if needed
-			if (typeof this.toolbar == 'object' && this.toolbar.items.length > 0) {
+			if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
 				$('#form_'+ this.name +'_toolbar').show();
 				this.toolbar.refresh();
 			} else {
