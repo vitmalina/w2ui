@@ -198,7 +198,6 @@
 				parent	= this;
 			}
 			// searches all nested nodes
-			this._tmp = null;
 			if (typeof parent == 'string') parent = this.get(parent);
 			if (parent.nodes == null) return null;
 			for (var i = 0; i < parent.nodes.length; i++) {
@@ -212,8 +211,8 @@
 					this.refresh(id);
 					return true;
 				} else {
-					this._tmp = this.set(parent.nodes[i], id, node);
-					if (this._tmp) return true;
+					var rv = this.set(parent.nodes[i], id, node);
+					if (rv) return true;
 				}
 			}
 			return false;
@@ -227,18 +226,17 @@
 				parent		= this;
 			}
 			// searches all nested nodes
-			this._tmp = null;
 			if (typeof parent == 'string') parent = this.get(parent);
 			if (parent.nodes == null) return null;
 			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].id == id) {
 					if (returnIndex === true) return i; else return parent.nodes[i];
 				} else {
-					this._tmp = this.get(parent.nodes[i], id, returnIndex);
-					if (this._tmp || this._tmp === 0) return this._tmp;
+					var rv = this.get(parent.nodes[i], id, returnIndex);
+					if (rv || rv === 0) return rv;
 				}
 			}
-			return this._tmp;
+			return null;
 		},
 
 		hide: function () { // multiple arguments
