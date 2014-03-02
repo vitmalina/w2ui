@@ -104,7 +104,7 @@
 				if (!w2utils.checkUniqueId(items[o].id, this.items, 'toolbar items', this.name)) return;
 				// add item
 				var it = $.extend({}, w2toolbar.prototype.item, items[o]);
-				if (id === null || typeof id === 'undefined') {
+				if (id == null) {
 					this.items.push(it);
 				} else {
 					var middle = this.get(id, true);
@@ -229,7 +229,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 
-			if (typeof box !== 'undefined' && box !== null) {
+			if (box != null) {
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -244,7 +244,7 @@
 						'<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
-				if (typeof it.id === 'undefined' || it.id === null) it.id = "item_" + i;
+				if (it.id == null) it.id = "item_" + i;
 				if (it === null)  continue;
 				if (it.type === 'spacer') {
 					html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
@@ -273,11 +273,11 @@
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), item: this.get(id) });
 			if (eventData.isCancelled === true) return false;
 
-			if (typeof id === 'undefined') {
+			if (id == null) {
 				// refresh all
 				for (var i = 0; i < this.items.length; i++) {
 					var it1 = this.items[i];
-					if (typeof it1.id === 'undefined' || it1.id === null) it1.id = "item_" + i;
+					if (it1.id == null) it1.id = "item_" + i;
 					this.refresh(it1.id);
 				}
 			}
@@ -395,7 +395,7 @@
 			var newHTML = '';
 			if (typeof item.onRender === 'function') newHTML = item.onRender.call(this, item.id, html);
 			if (typeof this.onRender === 'function') newHTML = this.onRender(item.id, html);
-			if (newHTML !== '' && typeof newHTML !== 'undefined') html = newHTML;
+			if (newHTML !== '' && newHTML != null) html = newHTML;
 			return html;
 		},
 
@@ -429,7 +429,7 @@
 				if (it.type === 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
 						var itt = this.items[i];
-						if (itt === null || itt.id === it.id || itt.type !== 'radio') continue;
+						if (itt == null || itt.id === it.id || itt.type !== 'radio') continue;
 						if (itt.group === it.group && itt.checked) {
 							itt.checked = false;
 							this.refresh(itt.id);
