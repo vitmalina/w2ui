@@ -477,7 +477,7 @@
 					html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
 							ren +'</li>';
 				}
-				var div = obj.helpers['multi'];
+				var div = obj.helpers.multi;
 				var ul  = div.find('ul');
 				div.attr('style', div.attr('style') + ';' + options.style);
 				if ($(obj.el).attr('readonly')) div.addClass('w2ui-readonly'); else div.removeClass('w2ui-readonly');
@@ -696,14 +696,14 @@
 			// list
 			if (obj.type == 'list') {
 				if (!$(obj.el).data('focused')) {
-					obj.helpers['focus'].find('input').focus();
+					obj.helpers.focus.find('input').focus();
 				} else {
 					$(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 					setTimeout(function () {
 						if (!options.search) {
 							$(obj.el).data('keep_focus', true);
 							setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
-							obj.helpers['focus'].find('input').focus();
+							obj.helpers.focus.find('input').focus();
 						} else {
 							setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
 						}
@@ -722,7 +722,7 @@
 			}
 			// file
 			if (obj.type == 'file') {
-				$(obj.helpers['multi']).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+				$(obj.helpers.multi).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 			}
 		},
 
@@ -771,18 +771,18 @@
 			}
 			if (obj.type == 'list') {
 				if ($(obj.el).data('focused')) {
-					obj.helpers['focus'].find('input').blur();
+					obj.helpers.focus.find('input').blur();
 				} else {
 					$(obj.el).css({ 'outline': 'none' });
 				}
 			}
 			// clear search input
 			if (obj.type == 'enum') {
-				$(obj.helpers['multi']).find('input').val('').width(20);
+				$(obj.helpers.multi).find('input').val('').width(20);
 			}
 			// file
 			if (obj.type == 'file') {
-				$(obj.helpers['multi']).css({ 'outline': 'none' });
+				$(obj.helpers.multi).css({ 'outline': 'none' });
 			}
 		},
 
@@ -953,7 +953,7 @@
 						if ($(obj.el).val() != '') break;
 					case 13: // enter
 						var item  = options.items[options.index];
-						var multi = $(obj.helpers['multi']).find('input');
+						var multi = $(obj.helpers.multi).find('input');
 						if (['enum'].indexOf(obj.type) != -1) {
 							if (item) {
 								// trigger event
@@ -1001,7 +1001,7 @@
 						break;
 					case 8: // delete
 						if (['enum'].indexOf(obj.type) != -1) {
-							if ($(obj.helpers['multi']).find('input').val() == '' && selected.length > 0) {
+							if ($(obj.helpers.multi).find('input').val() == '' && selected.length > 0) {
 								var item = selected[selected.length - 1];
 								// trigger event
 								var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -1033,7 +1033,7 @@
 						}
 						// show overlay if not shown
 						var input = obj.el;
-						if (['enum'].indexOf(obj.type) != -1) input = obj.helpers['multi'].find('input');
+						if (['enum'].indexOf(obj.type) != -1) input = obj.helpers.multi.find('input');
 						if ($(input).val() == '' && $('#w2ui-overlay').length == 0) {
 							obj.tmp.force_open = true;
 						} else {
@@ -1050,7 +1050,7 @@
 					setTimeout(function () {
 						// set cursor to the end
 						if (['enum'].indexOf(obj.type) != -1) {
-							var tmp = obj.helpers['multi'].find('input').get(0);
+							var tmp = obj.helpers.multi.find('input').get(0);
 							tmp.setSelectionRange(tmp.value.length, tmp.value.length);
 						} else {
 							obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
@@ -1060,7 +1060,7 @@
 				}
 				// expand input
 				if (['enum'].indexOf(obj.type) != -1) {
-					var input  = obj.helpers['multi'].find('input');
+					var input  = obj.helpers.multi.find('input');
 					var search = input.val();
 					input.width(((search.length + 2) * 8) + 'px');
 				}
@@ -1084,7 +1084,7 @@
 			var options  = this.options;
 			var search 	 = $(obj.el).val() || '';
 			if (obj.type == 'enum') {
-				var tmp = $(obj.helpers['multi']).find('input');
+				var tmp = $(obj.helpers.multi).find('input');
 				if (tmp.length == 0) return;
 				search = tmp.val();
 			}
@@ -1174,7 +1174,7 @@
 			var ids = [];
 			if (obj.type == 'list') return; // list has its own search field
 			if (['enum'].indexOf(obj.type) != -1) {
-				target = $(obj.helpers['multi']).find('input');
+				target = $(obj.helpers.multi).find('input');
 				search = target.val();
 				for (var s in options.selected) { ids.push(options.selected[s].id); }
 			}
@@ -1314,7 +1314,7 @@
 				var el		= this.el;
 				var input	= this.el;
 				if (this.type == 'enum') {
-					el		= $(this.helpers['multi']);
+					el		= $(this.helpers.multi);
 					input	= $(el).find('input');
 				}
 				if ($(input).is(':focus') || this.type == 'list') {
@@ -1344,7 +1344,7 @@
 									delete event.item.hidden;
 									selected.push(event.item);
 									$(obj.el).data('selected', selected).change();
-									$(obj.helpers['multi']).find('input').val('').width(20);
+									$(obj.helpers.multi).find('input').val('').width(20);
 									obj.refresh();
 									if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 									// event after
@@ -1357,7 +1357,7 @@
 								// hide overlay, focus helper
 								setTimeout(function () {
 									$('#w2ui-overlay').remove();
-									if (options.search) obj.helpers['focus'].find('input').focus();
+									if (options.search) obj.helpers.focus.find('input').focus();
 								}, 1);
 							} else {
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
@@ -1468,7 +1468,7 @@
 						});
 					$(obj.el).css('padding-left', (helper.width() + parseInt($(obj.el).css('padding-left'), 10)) + 'px');
 					// remember helper
-					obj.helpers['prefix'] = helper;
+					obj.helpers.prefix = helper;
 				}
 			}, 1);
 		},
@@ -1526,7 +1526,7 @@
 					pr += helper.width() + 12;
 					$(obj.el).css('padding-right', pr + 'px');
 					// remember helper
-					obj.helpers['arrows'] = helper;
+					obj.helpers.arrows = helper;
 				}
 				if (obj.options.suffix !== '') {
 					$(obj.el).after(
@@ -1550,7 +1550,7 @@
 					pr += helper.width() + 3;
 					$(obj.el).css('padding-right', pr + 'px');
 					// remember helper
-					obj.helpers['suffix'] = helper;
+					obj.helpers.suffix = helper;
 				}
 			}, 1);
 		},
@@ -1559,7 +1559,7 @@
 			var obj		 = this;
 			var options	 = this.options;
 			// clean up & init
-			$(obj.helpers['multi']).remove();
+			$(obj.helpers.multi).remove();
 			// build helper
 			var html   = '';
 			var margin =
@@ -1598,7 +1598,7 @@
 				});
 
 			var div	= $(obj.el).prev();
-			obj.helpers['multi'] = div;
+			obj.helpers.multi = div;
 			if (obj.type == 'enum') {
 				$(obj.el).attr('tabindex', -1);
 				// INPUT events
@@ -1674,7 +1674,7 @@
 				var helper;
 				$(obj.el).before('<div class="w2ui-field-helper" style="margin-left: 30px; opacity: 0"><input type="text" size="1"></div>');
 				helper = $(obj.el).prev();
-				obj.helpers['focus'] = helper;
+				obj.helpers.focus = helper;
 				var index = $(obj.el).attr('tabindex');
 				var input = helper.find('input');
 				if (index > 0) input.attr('tabindex', index);
@@ -1866,9 +1866,9 @@
 				var dt  = year + '/' + month + '/' + day;
 
 				var className = '';
-				if (ci % 7 == 6)  className = ' w2ui-saturday';
-				if (ci % 7 === 0) className = ' w2ui-sunday';
-				if (dt == today)  className+= ' w2ui-today';
+				if (ci % 7 == 6)  className  = ' w2ui-saturday';
+				if (ci % 7 === 0) className  = ' w2ui-sunday';
+				if (dt == today)  className += ' w2ui-today';
 
 				var dspDay	 = day;
 				var col		 = '';
