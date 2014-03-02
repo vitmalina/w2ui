@@ -750,8 +750,9 @@
 				p = w2layout_panels[p];
 				if (p === 'main') continue;
 				var tmp = this.get(p);
-				var str = String(tmp.size);
-				if (tmp && str.substr(str.length-1) === '%') {
+				if (!tmp) continue;
+				var str = String(tmp.size || 0);
+				if (str.substr(str.length-1) == '%') {
 					var tmph = height;
 					if (tmp.type == 'preview') {
 						tmph = tmph -
@@ -762,7 +763,7 @@
 				} else {
 					tmp.sizeCalculated = parseInt(tmp.size);
 				}
-				if (tmp.sizeCalculated < parseInt(tmp.minSize)) tmp.sizeCalculated = parseInt(tmp.minSize);
+				tmp.sizeCalculated = Math.max(tmp.sizeCalculated, parseInt(tmp.minSize));
 			}
 			// top if any
 			if (ptop !== null && ptop.hidden !== true) {
@@ -999,16 +1000,18 @@
 				var pan = this.get(p1);
 				var tmp2 = '#layout_'+ this.name +'_panel_'+ p1 +' > .w2ui-panel-';
 				var tabHeight = 0;
-				if (pan.title) {
-					tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height');
-				}
-				if (pan.show.tabs) {
-					if (pan.tabs !== null && w2ui[this.name +'_'+ p1 +'_tabs']) w2ui[this.name +'_'+ p1 +'_tabs'].resize();
-					tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height');
-				}
-				if (pan.show.toolbar) {
-					if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
-					tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+				if (pan) {
+					if (pan.title) {
+						tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
+					if (pan.show.tabs) {
+						if (pan.tabs !== null && w2ui[this.name +'_'+ p1 +'_tabs']) w2ui[this.name +'_'+ p1 +'_tabs'].resize();
+						tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
+					if (pan.show.toolbar) {
+						if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
+						tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
 				}
 				$(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' });
 			}
