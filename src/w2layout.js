@@ -347,7 +347,6 @@
 		},
 
 		get: function (panel, returnIndex) {
-			var obj = null;
 			for (var p in this.panels) {
 				if (this.panels[p].type == panel) {
 					if (returnIndex === true) return p; else return this.panels[p];
