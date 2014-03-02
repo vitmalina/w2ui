@@ -282,7 +282,7 @@
 				} else if (['enum', 'file'].indexOf(err.field.type) != -1) {
 					(function (err) {
 						setTimeout(function () {
-							var fld = $(err.field.el).data('w2field').helpers['multi'];
+							var fld = $(err.field.el).data('w2field').helpers.multi;
 							$(err.field.el).w2tag(err.error);
 							$(fld).addClass('w2ui-error');
 						}, 1);
@@ -731,7 +731,7 @@
 					}
 					if (['enum', 'file'].indexOf(field.type) != -1) {
 						if (val.length > 0) {
-							var fld = $(field.el).data('w2field').helpers['multi'];
+							var fld = $(field.el).data('w2field').helpers.multi;
 							$(fld).removeClass('w2ui-error');
 						}
 					}
