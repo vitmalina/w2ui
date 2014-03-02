@@ -563,7 +563,7 @@
 			function getItemTemplate(withDescription, withExtra) {
 				var template, itmDiv;
 				if (!withDescription && !withExtra) {
-					if ('captionOnlyTemplate' in obj) {
+					if (obj.captionOnlyTemplate != null) {
 						template = obj.captionOnlyTemplate;
 					} else {
 						template = document.createElement('li');
@@ -578,7 +578,7 @@
 						obj.captionOnlyTemplate = template;
 					}
 				} else if (withDescription && !withExtra) {
-					if ('captionWithDescription' in obj) {
+					if (obj.captionWithDescriptionTemplate != null) {
 						template = obj.captionWithDescriptionTemplate;
 					} else {
 						template = getItemTemplate(false, false);
@@ -587,14 +587,14 @@
 						obj.captionWithDescriptionTemplate = template;
 					}
 				} else if (!withDescription && withExtra) {
-					if ('captionWithExtra' in obj) {
+					if (obj.captionWithExtra != null) {
 						template = obj.captionWithExtra;
 					} else {
 						template = appendExtra(getItemTemplate(false, false));
 						obj.captionWithExtra = template;
 					}
 				} else if (withDescription && withExtra) {
-					if ('captionWithDescriptionAndExtra' in obj) {
+					if (obj.captionWithDescriptionAndExtra != null) {
 						template = obj.captionWithDescriptionAndExtra;
 					} else {
 						template = appendExtra(getItemTemplate(true, false));
@@ -612,16 +612,16 @@
 						var col = obj.extraCols[i];
 						var extraCol = appendDiv(extra, col.name);
 						extraCol.style.width = col.width + 'px';
-						if ('align' in col) extraCol.style.textAlign = col.align;
-						if ('paddingLeft' in col) extraCol.style.paddingLeft = col.paddingLeft + 'px';
-						if ('paddingRight' in col) extraCol.style.paddingRight = col.paddingRight + 'px';
+						if (col.align != null) extraCol.style.textAlign = col.align;
+						if (col.paddingLeft != null) extraCol.style.paddingLeft = col.paddingLeft + 'px';
+						if (col.paddingRight != null) extraCol.style.paddingRight = col.paddingRight + 'px';
 					}
 					return node;
 
 					function extraColsWidth() {
 						var rslt = 0;
 						for (var i = 0; i < obj.extraCols.length; i++) {
-							obj.extraCols[i].width = ('width' in obj.extraCols[i]) ? parseInt(obj.extraCols[i].width, 10) : 100;
+							obj.extraCols[i].width = (obj.extraCols[i].width != null ? parseInt(obj.extraCols[i].width, 10) : 100);
 							rslt += obj.extraCols[i].width;
 						}
 						return rslt;
