@@ -27,6 +27,7 @@
 	onclick="var obj = w2ui['grid']; obj.show.expandColumn = !obj.show.expandColumn; w2ui['grid'].refresh();">
 
 <!--CODE-->
+<script>
 $(function () {
 	$('#grid').w2grid({ 
 		name: 'grid', 
@@ -57,10 +58,12 @@ $(function () {
 		}
 	});	
 });
+</script>
 
 <!--CODE-->
 
 <!--CODE-->
+<script type="text/json">
 {
 	"total": 9,
 	"records": [
@@ -75,3 +78,4 @@ $(function () {
 		{ "recid": 9, "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
 	]
 }
+</script>

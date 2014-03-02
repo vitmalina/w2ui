@@ -60,8 +60,10 @@
 <input type="button" value="Go" onclick="go()">	
 
 <!--CODE-->
+<script>
 var current = 'box1';
 function go() {
 	if (current == 'box1') { current = 'box2'; w2utils.transition($('#box1')[0], $('#box2')[0], $('#trans').val()); return; }
 	if (current == 'box2') { current = 'box1'; w2utils.transition($('#box2')[0], $('#box1')[0], $('#trans').val()); return; }
 }
+</script>

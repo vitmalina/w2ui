@@ -24,6 +24,7 @@
 <input type="button" value="Remove Cell Format" onclick="cellFormat(false)">
 
 <!--CODE-->
+<script>
 // widget configuration
 var config = {
 	grid: { 
@@ -62,7 +63,7 @@ $(function () {
 	// create columns
 	var tmp 	= 'abcdefghijklmnoprst';
 	var values 	= {};
-	for (var i=0; i < tmp.length; i++) {
+	for (var i = 0; i < tmp.length; i++) {
 		w2ui.grid.columns.push({
 			field: tmp[i],
 			caption: '<div style="text-align: center">' + tmp[i].toUpperCase() + '</div>',
@@ -135,3 +136,4 @@ w2ui.grid.refreshRow = function (recid) {
 	}
 
 } 
+</script>
