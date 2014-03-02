@@ -14,7 +14,7 @@
 <!--CODE-->
 <div id="form" style="width: 750px;">
 	<div class="w2ui-page page-0">
-		<div style="width: 340px; float: left;">
+		<div style="width: 340px; float: left; margin-right: 0px;">
 			<div style="padding: 3px; font-weight: bold; color: #777;">General</div>
 			<div class="w2ui-group" style="height: 185px;">
 				<div class="w2ui-label w2ui-span4">First Name:</div>
@@ -31,7 +31,7 @@
 				</div>
 			</div>
 		</div>
-		<div style="margin-left: 350px;">
+		<div style="width: 380px; float: right; margin-left: 0px;">
 			<div style="padding: 3px; font-weight: bold; color: #777;">Address</div>
 			<div class="w2ui-group" style="height: 185px;">
 				<div class="w2ui-label w2ui-span5">Address Line 1:</div>
@@ -82,6 +82,7 @@
 </div>
 
 <!--CODE-->
+<script>
 $(function () {
 	$('#form').w2form({ 
 		name   : 'form',
@@ -110,3 +111,4 @@ $(function () {
 		}
 	});
 });
+</script>

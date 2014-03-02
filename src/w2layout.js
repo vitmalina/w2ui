@@ -25,6 +25,7 @@
 		this.box		= null;		// DOM Element that holds the element
 		this.name		= null;		// unique name for w2ui
 		this.panels		= [];
+		this.handlers	= [];
 		this.tmp		= {};
 
 		this.padding	= 1;		// panel padding
@@ -34,14 +35,16 @@
 		this.onShow			= null;
 		this.onHide			= null;
 		this.onResizing 	= null;
-		this.onResizerClick	= null
+		this.onResizerClick	= null;
 		this.onRender		= null;
 		this.onRefresh		= null;
 		this.onResize		= null;
 		this.onDestroy		= null;
 
-		$.extend(true, this, w2obj.layout, options);
+		w2utils.deepCopy(this, w2obj.layout, options);
 	};
+
+	/* @const */ var w2layout_panels = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
@@ -50,19 +53,19 @@
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
 			if (!w2utils.checkName(method, 'w2layout')) return;
-			var panels = method.panels;
+			var panels = method.panels || [];
 			var object = new w2layout(method);
-			$.extend(object, { handlers: [], panels: [] });
 			// add defined panels
-			for (var p in panels) {
-				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]);
+			for (var p = 0, len = panels.length; p < len; p++) {
+				object.panels[p] = w2utils.deepCopy({}, w2layout.prototype.panel, panels[p]);
 				if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);
 				if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
 			}
 			// add all other panels
-			for (var p1 in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) {
+			for (var p1 in w2layout_panels) {
+				p1 = w2layout_panels[p1];
 				if (object.get(p1) !== null) continue;
-				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 == 'main' ? false : true), size: 50 }));
+				object.panels.push(w2utils.deepCopy({}, w2layout.prototype.panel, { type: p1, hidden: (p1 !== 'main'), size: 50 }));
 			}
 			if ($(this).length > 0) {
 				object.render($(this)[0]);
@@ -127,6 +130,7 @@
 				toolbar	: false,
 				tabs	: false
 			},
+			handlers	: [],
 			onRefresh	: null,
 			onShow		: null,
 			onHide		: null
@@ -347,7 +351,6 @@
 		},
 
 		get: function (panel, returnIndex) {
-			var obj = null;
 			for (var p in this.panels) {
 				if (this.panels[p].type == panel) {
 					if (returnIndex === true) return p; else return this.panels[p];
@@ -430,16 +433,16 @@
 				.html('<div></div>');
 			if ($(obj.box).length > 0) $(obj.box)[0].style.cssText += obj.style;
 			// create all panels
-			var tmp = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
-			for (var t in tmp) {
-				var pan  = obj.get(tmp[t]);
-				var html =  '<div id="layout_'+ obj.name + '_panel_'+ tmp[t] +'" class="w2ui-panel">'+
+			for (var p1 in w2layout_panels) {
+				p1 = w2layout_panels[p1];
+				var pan  = obj.get(p1);
+				var html =  '<div id="layout_'+ obj.name + '_panel_'+ p1 +'" class="w2ui-panel">'+
 							'	<div class="w2ui-panel-title"></div>'+
 							'	<div class="w2ui-panel-tabs"></div>'+
 							'	<div class="w2ui-panel-toolbar"></div>'+
 							'	<div class="w2ui-panel-content"></div>'+
 							'</div>'+
-							'<div id="layout_'+ obj.name + '_resizer_'+ tmp[t] +'" class="w2ui-resizer"></div>';
+							'<div id="layout_'+ obj.name + '_resizer_'+ p1 +'" class="w2ui-resizer"></div>';
 				$(obj.box).find(' > div').append(html);
 				// tabs are rendered in refresh()
 			}
@@ -482,8 +485,10 @@
 					value	: 0
 				};
 				// lock all panels
-				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
-				for (var p in panels) obj.lock(panels[p], { opacity: 0 });
+				for (var p1 in w2layout_panels) {
+					p1 = w2layout_panels[p1];
+					obj.lock(p1, { opacity: 0 });
+				}
 				if (type == 'left' || type == 'right') {
 					obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left);
 				}
@@ -500,8 +505,9 @@
 				$(document).off('mouseup', obj.tmp.events.mouseUp);
 				if (typeof obj.tmp.resize == 'undefined') return;
 				// unlock all panels
-				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
-				for (var p in panels) obj.unlock(panels[p]);
+				for (var p1 in w2layout_panels) {
+					obj.unlock(w2layout_panels[p1]);
+				}
 				// set new size
 				if (obj.tmp.diff_x !== 0 || obj.tmp.resize.diff_y !== 0) { // only recalculate if changed
 					var ptop	= obj.get('top');
@@ -670,7 +676,7 @@
 					$(pname +'> .w2ui-panel-content')
 						.removeClass()
 						.addClass('w2ui-panel-content')
-						.html(p.content)
+						.html(w2utils.render(p.content))
 						.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				}
 				// if there are tabs and/or toolbar - render it
@@ -740,10 +746,13 @@
 			var sbottom = (pbottom !== null && pbottom.hidden !== true ? true : false);
 			var l, t, w, h, e;
 			// calculate %
-			for (var p in { 'top':'', 'left':'', 'right':'', 'bottom':'', 'preview':'' }) {
+			for (var p in w2layout_panels) {
+				p = w2layout_panels[p];
+				if (p === 'main') continue;
 				var tmp = this.get(p);
-				var str = String(tmp.size);
-				if (tmp && str.substr(str.length-1) == '%') {
+				if (!tmp) continue;
+				var str = String(tmp.size || 0);
+				if (str.substr(str.length-1) == '%') {
 					var tmph = height;
 					if (tmp.type == 'preview') {
 						tmph = tmph -
@@ -754,7 +763,7 @@
 				} else {
 					tmp.sizeCalculated = parseInt(tmp.size);
 				}
-				if (tmp.sizeCalculated < parseInt(tmp.minSize)) tmp.sizeCalculated = parseInt(tmp.minSize);
+				tmp.sizeCalculated = Math.max(tmp.sizeCalculated, parseInt(tmp.minSize));
 			}
 			// top if any
 			if (ptop !== null && ptop.hidden !== true) {
@@ -986,20 +995,23 @@
 			}
 
 			// display tabs and toolbar if needed
-			for (var p1 in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) {
+			for (var p1 in w2layout_panels) {
+				p1 = w2layout_panels[p1];
 				var pan = this.get(p1);
 				var tmp2 = '#layout_'+ this.name +'_panel_'+ p1 +' > .w2ui-panel-';
 				var tabHeight = 0;
-				if (pan.title) {
-					tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height');
-				}
-				if (pan.show.tabs) {
-					if (pan.tabs !== null && w2ui[this.name +'_'+ p1 +'_tabs']) w2ui[this.name +'_'+ p1 +'_tabs'].resize();
-					tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height');
-				}
-				if (pan.show.toolbar) {
-					if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
-					tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+				if (pan) {
+					if (pan.title) {
+						tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
+					if (pan.show.tabs) {
+						if (pan.tabs !== null && w2ui[this.name +'_'+ p1 +'_tabs']) w2ui[this.name +'_'+ p1 +'_tabs'].resize();
+						tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
+					if (pan.show.toolbar) {
+						if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
+						tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
 				}
 				$(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' });
 			}
@@ -1040,7 +1052,7 @@
 		},
 
 		lock: function (panel, msg, showSpinner) {
-			if ($.inArray(String(panel), ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
+			if ($.inArray(String(panel), w2layout_panels) == -1) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
@@ -1050,7 +1062,7 @@
 		},
 
 		unlock: function (panel) {
-			if ($.inArray(String(panel), ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
+			if ($.inArray(String(panel), w2layout_panels) == -1) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}

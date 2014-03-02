@@ -17,6 +17,7 @@
 <input type="button" value="Remove All Added Records" onclick="removeRecords();">
 
 <!--CODE-->
+<script>
 $(function () {	
 	$('#grid').w2grid({ 
 		name: 'grid', 
@@ -83,3 +84,4 @@ function removeRecords() {
 	w2ui.grid.total = 2;
 	w2ui.grid.refresh();
 }
+</script>

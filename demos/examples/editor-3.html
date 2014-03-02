@@ -9,51 +9,14 @@
 		btn-italic, btn-formating, btn-break3, btn-color, btn-bgcolor, btn-break4, btn-paste, btn-clear, btn-source, btn-break5, btn-align, btn-spacing, btn-lists, 
 		btn-break6, btn-indent, btn-outdent, btn-break7, btn-link, btn-unlink, btn-break8, btn-fullscreen.
 	</div>
+	<div id="example_view"></div>
+	<div id="example_code"></div>
+</div>
 	
-	<div id="example_view">
-		<div id="emailEditor" style="width: 100%; height: 200px; width: 400px;"></div>
-	</div>
-	
-	<div id="example_html">
-		<h2>HTML</h2>
-		<textarea class="preview">
+<!--CODE-->
 <div id="emailEditor" style="width: 100%; height: 200px; width: 400px;"></div>
-		</textarea>
-	</div>
-	
-	<div id="example_js">
-		<h2>JavaScript</h2>
-		<textarea class="preview">
-$('#emailEditor').w2editor({ 
-	name: 'emailEditor', 
-	smallToolbar: false,
-	content: 'Predefined content...',
-	showButtons: {
-		"btn-break1": false,
-		"btn-paragraph": false,
-		"btn-font": false,
-		"btn-size": false,
-		"btn-formating": false,
-		"btn-source": false,
-		"btn-break5": false,
-		"btn-align": false,
-		"btn-spacing": false,
-		"btn-lists": false,
-		"btn-break6": false,
-		"btn-indent": false,
-		"btn-outdent": false,
-		"btn-break7": false,
-		"btn-link": false,
-		"btn-unlink": false,
-		"btn-break8": false,
-		"btn-fullscreen": false			
-	}
-});
-		</textarea>
-</div>
 
-</div>
-
+<!--CODE-->
 <script>
 $(document).ready(function () {
 	if ($.w2ui['emailEditor']) $.w2ui['emailEditor'].destroy();

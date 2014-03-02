@@ -14,6 +14,7 @@
 </div>
 
 <!--CODE-->
+<script>
 // widget configuration
 var config = {
 	layout: {
@@ -50,7 +51,7 @@ var config = {
 				var sel = grid.getSelection();
 				if (sel.length == 1) {
 					form.recid  = sel[0];
-					form.record = $.extend(true, {}, grid.get(sel[0]));
+					form.record = w2utils.deepCopy({}, grid.get(sel[0]));
 					form.refresh();
 				} else {
 					form.clear();
@@ -76,7 +77,7 @@ var config = {
 				var errors = this.validate();
 				if (errors.length > 0) return;
 				if (this.recid == 0) {
-					w2ui.grid.add($.extend(true, { recid: w2ui.grid.records.length + 1 }, this.record));
+					w2ui.grid.add(w2utils.deepCopy({ recid: w2ui.grid.records.length + 1 }, this.record));
 					w2ui.grid.selectNone();
 					this.clear();
 				} else {
@@ -122,3 +123,4 @@ function openPopup() {
 		}
 	});
 }
+</script>

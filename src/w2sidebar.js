@@ -25,6 +25,7 @@
 		this.sidebar		= null;
 		this.parent			= null;
 		this.nodes			= [];	// Sidebar child nodes
+		this.handlers		= [];
 		this.menu			= [];
 		this.selected		= null;	// current selected node (readonly)
 		this.img			= null;
@@ -45,7 +46,7 @@
 		this.onResize		= null;
 		this.onDestroy		= null;
 
-		$.extend(true, this, w2obj.sidebar, options);
+		w2utils.deepCopy(this, w2obj.sidebar, options);
 	};
 
 	// ====================================================
@@ -56,12 +57,11 @@
 			// check name parameter
 			if (!w2utils.checkName(method, 'w2sidebar')) return;
 			// extend items
-			var nodes  = method.nodes;
-			var object = new w2sidebar(method); 
-			$.extend(object, { handlers: [], nodes: [] });
-			if (typeof nodes != 'undefined') {
-				object.add(object, nodes); 
-			}
+			var nodes  = method.nodes || [];
+			var object = new w2sidebar(method);
+            // nuke the nodes ref in `object` itself so that the .add() method can do a proper job of (re)adding the nodes next:
+			object.nodes = [];
+			object.add(object, nodes);
 			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
@@ -69,19 +69,19 @@
 			// register new object
 			w2ui[object.name] = object;
 			return object;
-			
+
 		} else if (w2ui[$(this).attr('name')]) {
 			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2sidebar' );
-		}    
+		}
 	};
-	
+
 	// ====================================================
 	// -- Implementation of core functionality
-	
+
 	w2sidebar.prototype = {
 
 		node: {
@@ -109,7 +109,7 @@
 			parent			: null,	// node object
 			sidebar			: null
 		},
-		
+
 		add: function (parent, nodes) {
 			if (arguments.length == 1) {
 				// need to be in reverse order
@@ -119,65 +119,67 @@
 			if (typeof parent == 'string') parent = this.get(parent);
 			return this.insert(parent, null, nodes);
 		},
-		
+
 		insert: function (parent, before, nodes) {
-			var txt;
-			var ind;
-			var tmp;
+			var txt, ind, tmp, node, nd;
 			if (arguments.length == 2) {
 				// need to be in reverse order
 				nodes	= arguments[1];
 				before	= arguments[0];
 				ind		= this.get(before);
 				if (ind === null) {
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
-					console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
-					return null; 
+					if (!$.isArray(nodes)) nodes = [nodes];
+					txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
+					console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+					return null;
 				}
 				parent	= this.get(before).parent;
 			}
 			if (typeof parent == 'string') parent = this.get(parent);
 			if (!$.isArray(nodes)) nodes = [nodes];
 			for (var o in nodes) {
-				if (typeof nodes[o].id == 'undefined') { 
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);					
-					console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.'); 
+				node = nodes[o];
+				if (typeof node.id == null) {
+					txt = (node.caption != null ? node.caption : node.text);
+					console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.');
 					continue;
 				}
-				if (this.get(this, nodes[o].id) !== null) { 
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
-					console.log('ERROR: Cannot insert node with id='+ nodes[o].id +' (text: '+ txt + ') because another node with the same id already exists.'); 
+				if (this.get(this, node.id) !== null) {
+					txt = (node.caption != null ? node.caption : node.text);
+					console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ txt + ') because another node with the same id already exists.');
 					continue;
 				}
-				tmp = $.extend({}, w2sidebar.prototype.node, nodes[o]);
+				tmp = $.extend({}, w2sidebar.prototype.node, node);
 				tmp.sidebar	= this;
-				tmp.parent	= parent;
-				var nd		= tmp.nodes;
-				tmp.nodes	= []; // very important to re-init empty nodes array
+				tmp.parent = parent;
+				nd = tmp.nodes || [];
+				tmp.nodes = []; // very important to re-init empty nodes array
 				if (before === null) { // append to the end
-					parent.nodes.push(tmp);	
+					parent.nodes.push(tmp);
 				} else {
 					ind = this.get(parent, before, true);
 					if (ind === null) {
-						txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
-						console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
-						return null; 
+						txt = (node.caption != null ? node.caption : node.text);
+						console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+						return null;
 					}
 					parent.nodes.splice(ind, 0, tmp);
 				}
-				if (typeof nd != 'undefined' && nd.length > 0) { this.insert(tmp, null, nd); }
+				if (nd.length > 0) {
+					this.insert(tmp, null, nd);
+				}
 			}
 			this.refresh(parent.id);
 			return tmp;
 		},
-		
+
 		remove: function () { // multiple arguments
 			var deleted = 0;
 			var tmp;
 			for (var a = 0; a < arguments.length; a++) {
 				tmp = this.get(arguments[a]);
 				if (tmp === null) continue;
-				if (this.selected !== null && this.selected === tmp.id){
+				if (this.selected !== null && this.selected === tmp.id) {
 					this.selected = null;
 				}
 				var ind  = this.get(tmp.parent, arguments[a], true);
@@ -189,8 +191,8 @@
 			if (deleted > 0 && arguments.length == 1) this.refresh(tmp.parent.id); else this.refresh();
 			return deleted;
 		},
-		
-		set: function (parent, id, node) { 
+
+		set: function (parent, id, node) {
 			if (arguments.length == 2) {
 				// need to be in reverse order
 				node	= id;
@@ -198,22 +200,21 @@
 				parent	= this;
 			}
 			// searches all nested nodes
-			this._tmp = null;
 			if (typeof parent == 'string') parent = this.get(parent);
-			if (parent.nodes === null) return null;
-			for (var i=0; i < parent.nodes.length; i++) {
-				if (parent.nodes[i].id == id) {
+			if (parent.nodes == null) return null;
+			for (var i = 0; i < parent.nodes.length; i++) {
+				if (parent.nodes[i].id === id) {
 					// make sure nodes inserted correctly
-					var nodes  = node.nodes;
+					var nodes = node.nodes;
 					$.extend(parent.nodes[i], node, { nodes: [] });
-					if (typeof nodes != 'undefined') {
-						this.add(parent.nodes[i], nodes); 
+					if (nodes != null) {
+						this.add(parent.nodes[i], nodes);
 					}
 					this.refresh(id);
 					return true;
 				} else {
-					this._tmp = this.set(parent.nodes[i], id, node);
-					if (this._tmp) return true;
+					var rv = this.set(parent.nodes[i], id, node);
+					if (rv) return true;
 				}
 			}
 			return false;
@@ -227,18 +228,17 @@
 				parent		= this;
 			}
 			// searches all nested nodes
-			this._tmp = null;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return null;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return null;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].id == id) {
 					if (returnIndex === true) return i; else return parent.nodes[i];
 				} else {
-					this._tmp = this.get(parent.nodes[i], id, returnIndex);
-					if (this._tmp || this._tmp === 0) return this._tmp;
+					var rv = this.get(parent.nodes[i], id, returnIndex);
+					if (rv || rv === 0) return rv;
 				}
 			}
-			return this._tmp;
+			return null;
 		},
 
 		hide: function () { // multiple arguments
@@ -264,7 +264,7 @@
 			if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
 			return shown;
 		},
-	
+
 		disable: function () { // multiple arguments
 			var disabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -277,7 +277,7 @@
 			if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
 			return disabled;
 		},
-		
+
 		enable: function () { // multiple arguments
 			var enabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -302,7 +302,7 @@
 			this.selected = id;
 			return true;
 		},
-		
+
 		unselect: function (id) {
 			var current = this.get(id);
 			if (!current) return false;
@@ -313,7 +313,7 @@
 			if (this.selected == id) this.selected = null;
 			return true;
 		},
-		
+
 		toggle: function(id) {
 			var nd = this.get(id);
 			if (nd === null) return false;
@@ -345,21 +345,21 @@
 
 		collapseAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return false;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return false;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === true) parent.nodes[i].expanded = false;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
 			}
 			this.refresh(parent.id);
 			return true;
-		},		
-	
+		},
+
 		expand: function (id) {
 			var obj = this;
 			var nd  = this.get(id);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200);
@@ -370,17 +370,17 @@
 			setTimeout(function () { obj.refresh(id); }, 200);
 			return true;
 		},
-		
+
 		expandAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return false;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return false;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === false) parent.nodes[i].expanded = true;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
 			}
 			this.refresh(parent.id);
-		},		
+		},
 
 		expandParents: function (id) {
 			var node = this.get(id);
@@ -391,7 +391,7 @@
 			}
 			this.refresh(id);
 			return true;
-		}, 
+		},
 
 		click: function (id, event) {
 			var obj = this;
@@ -405,7 +405,7 @@
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: nd });	
+				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: nd });
 				if (eventData.isCancelled === true) {
 					// restore selection
 					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
@@ -426,7 +426,7 @@
 			var nd  = obj.get(obj.selected);
 			if (!nd || obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });	
+			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default behaviour
 			if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
@@ -452,7 +452,7 @@
 			// cancel event if needed
 			if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
 				if (event.preventDefault) event.preventDefault();
-				if (event.stopPropagation) event.stopPropagation();				
+				if (event.stopPropagation) event.stopPropagation();
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -526,7 +526,7 @@
 		},
 
 		dblClick: function (id, event) {
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			var nd = this.get(id);
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
@@ -536,7 +536,7 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
-	
+
 		contextMenu: function (id, event) {
 			var obj = this;
 			var nd  = obj.get(id);
@@ -544,13 +544,13 @@
 			// need timeout to allow click to finish first
 			setTimeout(function () {
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });	
-				if (eventData.isCancelled === true) return false;		
+				var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
+				if (eventData.isCancelled === true) return false;
 				// default action
 				if (nd.group || nd.disabled) return;
 				if (obj.menu.length > 0) {
 					$(obj.box).find('#node_'+ w2utils.escapeId(id))
-						.w2menu(obj.menu, { 
+						.w2menu(obj.menu, {
 							left: (event ? event.offsetX || event.pageX : 50) - 25,
 							select: function (item, event, index) { obj.menuClick(id, index, event); }
 						}
@@ -564,21 +564,21 @@
 		menuClick: function (itemId, index, event) {
 			var obj = this;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });	
-			if (eventData.isCancelled === true) return false;		
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
+			if (eventData.isCancelled === true) return false;
 			// default action
 			// -- empty
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
-				
+
 		render: function (box) {
 			var time = (new Date()).getTime();
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
+			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			if (typeof box != 'undefined' && box !== null) { 
+			if (typeof box != 'undefined' && box !== null) {
 				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -619,17 +619,17 @@
 			this.refresh();
 			return (new Date()).getTime() - time;
 		},
-		
+
 		refresh: function (id) {
 			var time = (new Date()).getTime();
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
+			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });
 			if (eventData.isCancelled === true) return false;
 			// adjust top and bottom
 			if (this.topHTML !== '') {
 				$(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
-				$(this.box).find('.w2ui-sidebar-div')					
+				$(this.box).find('.w2ui-sidebar-div')
 					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
 			}
 			if (this.bottomHTML !== '') {
@@ -643,7 +643,7 @@
 				height: $(this.box).height() + 'px'
 			});
 			var obj = this;
-			var node;
+			var node, nd;
 			var nm;
 			if (typeof id == 'undefined') {
 				node	= this;
@@ -654,7 +654,7 @@
 				nm		= '#node_'+ w2utils.escapeId(node.id) + '_sub';
 			}
 			var nodeHTML;
-			if (node != this) {
+			if (node !== this) {
 				var tmp	= '#node_'+ w2utils.escapeId(node.id);
 				nodeHTML	= getNodeHTML(node);
 				$(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
@@ -665,15 +665,16 @@
 			}
 			// refresh sub nodes
 			$(this.box).find(nm).html('');
-			for (var i=0; i < node.nodes.length; i++) {
-				nodeHTML = getNodeHTML(node.nodes[i]);
+			for (var i = 0; i < node.nodes.length; i++) {
+				nd = node.nodes[i];
+				nodeHTML = getNodeHTML(nd);
 				$(this.box).find(nm).append(nodeHTML);
-				if (node.nodes[i].nodes.length !== 0) { this.refresh(node.nodes[i].id); }
+				if (nd.nodes.length !== 0) { this.refresh(nd.id); }
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
-			
+
 			function getNodeHTML(nd) {
 				var html = '';
 				var img  = nd.img;
@@ -687,10 +688,10 @@
 					if (tmp.group) level--;
 					tmp = tmp.parent;
 					level++;
-				}	
+				}
 				if (typeof nd.caption != 'undefined') nd.text = nd.caption;
 				if (nd.group) {
-					html = 
+					html =
 						'<div class="w2ui-node-group"  id="node_'+ nd.id +'"'+
 						'		onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
 						'		onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
@@ -704,7 +705,7 @@
 					tmp = '';
 					if (img) tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
 					if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
-					html = 
+					html =
 					'<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
 						'	ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
 						'	oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
@@ -712,10 +713,10 @@
 						'	onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
 						'<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
 						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
-						'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+ 
+						'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 						'	<div class="w2ui-expand">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
 						'</td>'+
-						'<td class="w2ui-node-data" nowrap>'+ 
+						'<td class="w2ui-node-data" nowrap>'+
 							tmp +
 							(nd.count !== '' ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
@@ -727,10 +728,10 @@
 				return html;
 			}
 		},
-	
+
 		resize: function () {
 			var time = (new Date()).getTime();
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.isCancelled === true) return false;
@@ -746,10 +747,10 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
 		},
-		
-		destroy: function () { 
+
+		destroy: function () {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
+			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
 			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
@@ -760,7 +761,7 @@
 			}
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		lock: function (msg, showSpinner) {
@@ -770,11 +771,11 @@
 			w2utils.lock.apply(window, args);
 		},
 
-		unlock: function () { 
+		unlock: function () {
 			w2utils.unlock(this.box);
 		}
 	};
-	
+
 	$.extend(w2sidebar.prototype, w2utils.event);
 	w2obj.sidebar = w2sidebar;
 })();

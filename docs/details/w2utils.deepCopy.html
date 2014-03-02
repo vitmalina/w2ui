@@ -1,0 +1,70 @@
+Clone (deep copy) all source objects' attributes into the destination object and return a reference to it, yet keeps all object references in any <code>parent</code> attributes intact.
+
+<div class="definition">
+	w2utils.deepCopy(dst, src...)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>dst</td>
+		<td><b>object</b>, target object which will be extended with src's attributes</td>
+	</tr>
+	<tr>
+		<td>src...</td>
+		<td><b>objects</b>, zero or more source objects which will extend with <code>dst</code> object's attributes.</td>
+	</tr>
+	</table>
+</div>
+
+Returns <code>dst</code>.
+
+
+<h4>Description</h4>
+
+Works very similar to jQuery's <a href="http://api.jquery.com/jquery.extend/"><code>$.extend(true, ...)</code></a> deep copy mode, yet does <em>not</em>, at any depth level, clone (deep copy) any attributes named <code>parent</code> in order to keep w2ui-internal parent-child reference structures intact.
+
+While <code>dst</code> will be modified, all <code>src</code> source objects are guaranteed unchanged.
+
+
+
+<h5>Notes</h5>
+
+<ul>
+<li>
+While <code>deepCopy</code> accepts objects, <em>arrays</em> and <em>functions</em> as <code>src</code> arguments, it will ignore all other <code>src</code> parameter types.
+</li>
+<li>
+When <code>deepCopy</code> receives a <em>function</em> as a <code>src</code>, its public interface, both attributes and methods (functions) are cloned into the destination object. This includes all public interfaces (attributes and methods) in its <em>prototype</em>. Hence <code>deepCopy</code> can be used to <em>derive</em> a function object from an existing template in a way similar to extended a function object using jQuery's <code>$.extend()</code>.
+</li>
+<li>
+	<p>
+	These behaviours are designed to prevent browser lockup or crash when throwing arbitrary object graphs at <code>deepCopy</code> as source. <code>deepCopy</code> is designed to survive such user code abuse.
+	</p>
+
+	<ul>
+	<li>
+	When the clone depth is getting out of hand, an error is thrown (currently hardwired at depth level 10). jQuery's <a href="http://api.jquery.com/jquery.extend/"><code>$.extend()</code></a> would simply cause an infinite loop and crash the JavaScript engine under such circumstances.
+	</li>
+	<li>
+	When the (recursive) clone operation within detects a cyclic object reference, an exception is thrown.  jQuery's <a href="http://api.jquery.com/jquery.extend/"><code>$.extend()</code></a> would simply cause an infinite loop and crash the JavaScript engine under such circumstances.
+	</li>
+	</ul>
+</li>
+</ul>
+
+<textarea class="javascript">
+var src1 = { attr: 1, el: 'x' };
+var src2 = { attr: 2, other: { attr: 3 }, parent: { attr: 4 } };
+var src3 = null; // just showing deepCopy survives non-objects as source arg
+var d = {};
+
+var a = w2utils.deepCopy(d, src1, src2, src3);
+assert(a === d);
+assert(a.attr === 2);
+assert(a.el === 'x');
+assert(a.other);
+assert(a.other !== src2.other);
+assert(a.parent);
+assert(a.parent === src2.parent);
+</textarea>

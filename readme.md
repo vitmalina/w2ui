@@ -14,6 +14,7 @@ a small footprint and no dependencies except jQuery. The library has the followi
 
 The complete library is only **56Kb** (minified & gzipped)
 
+
 ## Who Uses It
 
 If you're using w2ui I'd love to hear about it and will be compiling a list of projects that use it. Please email me at vitmalina@gmail.com and
@@ -44,6 +45,7 @@ return JSON format from the server (or write a converter into JSON format on the
 
 [Getting Started Guide](http://w2ui.com/web/get-started)
 
+
 ## Documentation & Demos
 
 You can find documentation and demos here:
@@ -51,12 +53,14 @@ You can find documentation and demos here:
 * [http://w2ui.com/web/docs](http://w2ui.com/web/docs) - documentation
 * [http://w2ui.com/web/demos](http://w2ui.com/web/demos) - demos
 
+
 ## Bug Tracking
 
 Have a bug or a feature request? Please open an issue here [https://github.com/vitmalina/w2ui/issues](https://github.com/vitmalina/w2ui/issues). 
 Please make sure that the same issue was not previously submitted by someone else.
 
-## Building 
+
+## Building
 
 I use ANT to build the project. It does the following
 
@@ -72,10 +76,26 @@ sudo npm install clean-css -g
 sudo npm install uglify-js@1 -g
 ```
 
+
+## File Structure
+
+```
+- dist 			- compiled JS files, plus compiled CSS files 
+- src 			- source JS files
+  - kickstart 		- copy of another project used with the demos (not part of w2ui itself)
+  - less 		- LESS files (source for css)
+- demos 		- all demos, same as on the website
+- libs			- auxilary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
+- server		- example implementations for a server implementation communicating with w2ui instances
+- test 			- feature testing files
+```
+
+
 ## Other Build Tools
 
 You can use other tools to build. Grunt seems to be promissing, and will do everything you need. You still need to install same dependencies
 if you want to use grunt.
+
 
 ## Contributing
 
@@ -87,3 +107,4 @@ Your contributions are welcome. However, few things you need to know before cont
 4. If you want to help with unit test - do all changes in /test/qunit
 5. If you want to change documenation - do all changes in /docs
 6. If you want to add demos - do all changes in /demos
+

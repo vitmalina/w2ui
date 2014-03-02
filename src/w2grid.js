@@ -38,7 +38,7 @@
 *	- refactored inline editing
 *	- new: getCellValue(ind, col_ind, [summary])
 * 	- refactored selection
-*	- removed: record.selected 
+*	- removed: record.selected
 *	- new: nextCell, prevCell, nextRow, prevRow
 *	- new: editChange(el, index, column, event)
 *	- new: method - overwrite default ajax method (see also w2utils.settings.RESTfull)
@@ -68,6 +68,7 @@
 		this.sortData			= [];
 		this.postData			= {};
 		this.toolbar			= {}; 		// if not empty object; then it is toolbar object
+		this.handlers			= [];
 
 		this.show = {
 			header			: false,
@@ -174,7 +175,7 @@
 			navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
 			navigator.userAgent.toLowerCase().indexOf('ipad') != -1) ? true : false;
 
-		$.extend(true, this, w2obj.grid, options);
+		w2utils.deepCopy(this, w2obj.grid, options);
 	};
 
 	// ====================================================
@@ -195,16 +196,15 @@
 			var toolbar		= method.toolbar;
 			// extend items
 			var object = new w2grid(method);
-			$.extend(object, { postData: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
 			if (object.onExpand != null) object.show.expandColumn = true;
-			$.extend(true, object.toolbar, toolbar);
+			w2utils.deepCopy(object.toolbar, toolbar);
 			// reassign variables
-			for (var p in columns)		object.columns[p]		= $.extend(true, {}, columns[p]);
-			for (var p in columnGroups) object.columnGroups[p] 	= $.extend(true, {}, columnGroups[p]);
-			for (var p in searches)   	object.searches[p]   	= $.extend(true, {}, searches[p]);
-			for (var p in searchData) 	object.searchData[p] 	= $.extend(true, {}, searchData[p]);
-			for (var p in sortData)		object.sortData[p]  	= $.extend(true, {}, sortData[p]);
-			object.postData = $.extend(true, {}, postData);
+			for (var p in columns)		object.columns[p]		= w2utils.deepCopy({}, columns[p]);
+			for (var p in columnGroups) object.columnGroups[p] 	= w2utils.deepCopy({}, columnGroups[p]);
+			for (var p in searches)   	object.searches[p]   	= w2utils.deepCopy({}, searches[p]);
+			for (var p in searchData) 	object.searchData[p] 	= w2utils.deepCopy({}, searchData[p]);
+			for (var p in sortData)		object.sortData[p]  	= w2utils.deepCopy({}, sortData[p]);
+			object.postData = w2utils.deepCopy({}, postData);
 
 			// check if there are records without recid
 			for (var r in records) {
@@ -212,7 +212,7 @@
 					console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
 					return;
 				}
-				object.records[r] = $.extend(true, {}, records[r]);
+				object.records[r] = w2utils.deepCopy({}, records[r]);
 			}
 			if (object.records.length > 0) object.buffered = object.records.length;
 			// add searches
@@ -227,7 +227,7 @@
 			// init toolbar
 			object.initToolbar();
 			// render if necessary
-			if ($(this).length != 0) {
+			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
 			// register new object
@@ -252,6 +252,7 @@
 
 		msgDelete	: 'Are you sure you want to delete selected records?',
 		msgNotJSON 	: 'Returned data is not in valid JSON format.',
+		msgAJAXerror: 'AJAX error. See console for more details.',
 		msgRefresh	: 'Refreshing...',
 
 		// for easy button overwrite
@@ -299,7 +300,7 @@
 			// check if property is nested - needed for speed
 			for (var o in obj) if (String(o).indexOf('.') != -1) hasDots = true;
 			// look for an item
-			for (var i=0; i<this.records.length; i++) {
+			for (var i = 0; i < this.records.length; i++) {
 				var match = true;
 				for (var o in obj) {
 					var val = this.records[i][o];
@@ -321,20 +322,20 @@
 			// update all records
 			if (recid == null) {
 				for (var r in this.records) {
-					$.extend(true, this.records[r], record); // recid is the whole record
+					w2utils.deepCopy(this.records[r], record); // recid is the whole record
 				}
 				if (noRefresh !== true) this.refresh();
 			} else { // find record to update
 				var ind = this.get(recid, true);
 				if (ind == null) return false;
-				$.extend(true, this.records[ind], record);
+				w2utils.deepCopy(this.records[ind], record);
 				if (noRefresh !== true) this.refreshRow(recid); // refresh only that record
 			}
 			return true;
 		},
 
 		get: function (recid, returnIndex) {
-			for (var i=0; i<this.records.length; i++) {
+			for (var i = 0; i < this.records.length; i++) {
 				if (this.records[i].recid == recid) {
 					if (returnIndex === true) return i; else return this.records[i];
 				}
@@ -392,7 +393,7 @@
 		},
 
 		getColumn: function (field, returnIndex) {
-			for (var i=0; i<this.columns.length; i++) {
+			for (var i = 0; i < this.columns.length; i++) {
 				if (this.columns[i].field == field) {
 					if (returnIndex === true) return i; else return this.columns[i];
 				}
@@ -473,7 +474,7 @@
 		},
 
 		getSearch: function (field, returnIndex) {
-			for (var i=0; i<this.searches.length; i++) {
+			for (var i = 0; i < this.searches.length; i++) {
 				if (this.searches[i].field == field) {
 					if (returnIndex === true) return i; else return this.searches[i];
 				}
@@ -973,16 +974,16 @@
 			var sel  = this.last.selection;
 			var cols = [];
 			for (var c in this.columns) cols.push(parseInt(c));
-			// if local data source and searched	
+			// if local data source and searched
 			sel.indexes = [];
 			if (!url && this.searchData.length !== 0) {
 				// local search applied
-				for (var i=0; i < this.last.searchIds.length; i++) {
+				for (var i = 0; i < this.last.searchIds.length; i++) {
 					sel.indexes.push(this.last.searchIds[i]);
 					if (this.selectType != 'row') sel.columns[this.last.searchIds[i]] = cols.slice(); // .slice makes copy of the array
 				}
 			} else {
-				for (var i=0; i < this.records.length; i++) {
+				for (var i = 0; i < this.records.length; i++) {
 					sel.indexes.push(i);
 					if (this.selectType != 'row') sel.columns[i] = cols.slice(); // .slice makes copy of the array
 				}
@@ -1227,7 +1228,7 @@
 					var search 	= this.getSearch(data.field);
 					if (search == null) search = { type: 'text', operator: 'contains' };
 					// merge current field and search if any
-					searchData.push($.extend(true, {}, search, data));
+					searchData.push(w2utils.deepCopy({}, search, data));
 				}
 			}
 			// event before
@@ -1334,10 +1335,10 @@
 				setTimeout(function () { el.change().focus(); }, 1);
 			}
 			// update field
-			if (this.last.search != '') { 
-				this.search(search.field, this.last.search); 
-			} else { 
-				this.last.field = search.field; 
+			if (this.last.search != '') {
+				this.search(search.field, this.last.search);
+			} else {
+				this.last.field = search.field;
 				this.last.caption = search.caption;
 			}
 			el.attr('placeholder', search.caption);
@@ -1537,19 +1538,19 @@
 			if (this.last.xhr_cmd == 'delete-records') event_name = 'deleted';
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
 			if (eventData.isCancelled === true) {
-				if (typeof callBack == 'function') callBack();
+				if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 				return false;
 			}
 			// parse server response
+			var data;
 			var responseText = this.last.xhr.responseText;
 			if (status != 'error') {
 				// default action
 				if (typeof responseText != 'undefined' && responseText != '') {
-					var data;
 					// check if the onLoad handler has not already parsed the data
 					if (typeof responseText == "object") {
 						data = responseText;
-					} else {						
+					} else {
 						if (typeof obj.parser == 'function') {
 							data = obj.parser(responseText);
 							if (typeof data != 'object') {
@@ -1557,7 +1558,9 @@
 							}
 						} else {
 							// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
-							try { eval('data = '+ responseText); } catch (e) { }	
+							//
+							// TODO: avoid (potentially malicious) code injection from the response.
+							try { eval('data = '+ responseText); } catch (e) { }
 						}
 					}
 					// convert recids
@@ -1582,14 +1585,14 @@
 								this.summary = [];
 								//data.xhr_status=data.status;
 								delete data.status;
-								$.extend(true, this, data);
+								w2utils.deepCopy(this, data);
 								this.buffered = this.records.length;
 							} else {
 								var records = data.records;
 								delete data.records;
 								//data.xhr_status=data.status;
 								delete data.status;
-								$.extend(true, this, data);
+								w2utils.deepCopy(this, data);
 								for (var r in records) {
 									this.records.push(records[r]);
 								}
@@ -1604,7 +1607,12 @@
 					}
 				}
 			} else {
-				obj.error('AJAX Error. See console for more details.');
+				obj.error(this.msgAJAXerror);
+				data = {
+					status		 : 'error',
+					message		 : this.msgAJAXerror,
+					responseText : responseText
+				};
 			}
 			// event after
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -1617,7 +1625,7 @@
 			// do not refresh if loading on infinite scroll
 			if (this.last.xhr_offset == 0) this.refresh(); else this.scroll();
 			// call back
-			if (typeof callBack == 'function') callBack();
+			if (typeof callBack == 'function') callBack(data);
 		},
 
 		error: function (msg) {
@@ -1638,7 +1646,7 @@
 			for (var r in this.records) {
 				var rec = this.records[r];
 				if (typeof rec['changes'] != 'undefined') {
-					changes.push($.extend(true, { recid: rec.recid }, rec.changes));
+					changes.push(w2utils.deepCopy({ recid: rec.recid }, rec.changes));
 				}
 			}
 			return changes;
@@ -1728,11 +1736,11 @@
 						'	'+ edit.inTag +
 						'>'+ html +'</select>' + edit.outTag);
 				el.find('select').focus()
-					.on('change', function (event) { 
+					.on('change', function (event) {
 						delete obj.last.move;
 					})
-					.on('blur', function (event) { 
-						obj.editChange.call(obj, this, index, column, event); 
+					.on('blur', function (event) {
+						obj.editChange.call(obj, this, index, column, event);
 					});
 			} else {
 				el.addClass('w2ui-editable')
@@ -1745,14 +1753,14 @@
 					.w2field(edit.type, $.extend(edit, { selected: val }))
 					.on('blur', function (event) {
 						if ($(this).data('focused')) return;
-						obj.editChange.call(obj, this, index, column, event); 
+						obj.editChange.call(obj, this, index, column, event);
 					});
 				if (value != null) el.find('input').val(val != 'object' ? val : '');
 			}
 			setTimeout(function () {
 				el.find('input, select')
-					.on('click', function (event) { 
-						event.stopPropagation(); 
+					.on('click', function (event) {
+						event.stopPropagation();
 					})
 					.on('keydown', function (event) {
 						var cancel = false;
@@ -1852,12 +1860,12 @@
 						if (cancel) if (event.preventDefault) event.preventDefault();
 					});
 				// focus and select
-				var tmp = el.find('input').focus();				
-				if (value != null) { 
+				var tmp = el.find('input').focus();
+				if (value != null) {
 					// set cursor to the end
-					tmp[0].setSelectionRange(tmp.val().length, tmp.val().length); 
+					tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
 				} else {
-					tmp.select();	
+					tmp.select();
 				}
 
 			}, 50);
@@ -1883,7 +1891,7 @@
 			if (el.type == 'checkbox') new_val = el.checked;
 			if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
 				// change event
-				var eventData = this.trigger({ 
+				var eventData = this.trigger({
 					phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
 					value_new: new_val, value_previous: (rec.changes ? rec.changes[col.field]: old_val), value_original: old_val
 				});
@@ -2746,7 +2754,7 @@
 			// set cell html and changed flag
 			cell.html(this.getCellHTML(index, col_ind));
 			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
-				cell.addClass('w2ui-changed'); 
+				cell.addClass('w2ui-changed');
 			} else {
 				cell.removeClass('w2ui-changed');
 			}
@@ -3074,7 +3082,7 @@
 					var ind1 = obj.get(mv.from, true);
 					var tmp  = obj.records[ind1];
 					obj.records.splice(ind1, 1);
-					var ind2 = obj.get(mv.to, true);					
+					var ind2 = obj.get(mv.to, true);
 					if (ind1 > ind2) obj.records.splice(ind2, 0, tmp); else obj.records.splice(ind2+1, 0, tmp);
 					$('#grid_'+ obj.name + '_ghost').remove();
 					obj.refresh();
@@ -3452,16 +3460,17 @@
 			if (typeof this.toolbar['render'] == 'undefined') {
 				var tmp_items = this.toolbar.items;
 				this.toolbar.items = [];
-				this.toolbar = $().w2toolbar($.extend(true, {}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
+				var toolbar_options = w2utils.deepCopy({}, this.toolbar, { name: this.name +'_toolbar', owner: this });
+				this.toolbar = $().w2toolbar(toolbar_options);
 
 				// =============================================
 				// ------ Toolbar Generic buttons
 
 				if (this.show.toolbarReload) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['reload']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['reload']));
 				}
 				if (this.show.toolbarColumns) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['columns']));
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
@@ -3491,26 +3500,26 @@
 						'</div>';
 					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
-						this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
+						this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['search-go']));
 					}
 				}
 				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['add']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['add']));
 				}
 				if (this.show.toolbarEdit) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['edit']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['edit']));
 				}
 				if (this.show.toolbarDelete) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['delete']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['delete']));
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
 						this.toolbar.items.push({ type: 'break', id: 'break2' });
 					}
-					this.toolbar.items.push($.extend(true, {}, this.buttons['save']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['save']));
 				}
 				// add original buttons
 				for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
@@ -3550,10 +3559,10 @@
 							} else {
 								obj.searchOpen();
 								event.originalEvent.stopPropagation();
-								function tmp_close() { 
-									if ($('#w2ui-overlay-searches-'+ obj.name).data('keepOpen') === true) return; 
-									tb.uncheck(id); 
-									$(document).off('click', 'body', tmp_close); 
+								function tmp_close() {
+									if ($('#w2ui-overlay-searches-'+ obj.name).data('keepOpen') === true) return;
+									tb.uncheck(id);
+									$(document).off('click', 'body', tmp_close);
 								}
 								$(document).on('click', 'body', tmp_close);
 							}
@@ -3792,7 +3801,7 @@
 				var percent = 0;
 				// gridMinWidth processiong
 				var restart = false;
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (typeof col.gridMinWidth != 'undefined') {
 						if (col.gridMinWidth > width_box && col.hidden !== true) {
@@ -3810,7 +3819,7 @@
 					return;
 				}
 				// assign PX column s
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (col.hidden) continue;
 					if (String(col.size).substr(String(col.size).length-2).toLowerCase() == 'px') {
@@ -3825,7 +3834,7 @@
 				}
 				// if sum != 100% -- reassign proportionally
 				if (percent != 100 && percent > 0) {
-					for (var i=0; i<this.columns.length; i++) {
+					for (var i = 0; i < this.columns.length; i++) {
 						var col = this.columns[i];
 						if (col.hidden) continue;
 						if (col.sizeType == '%') {
@@ -3834,7 +3843,7 @@
 					}
 				}
 				// calculate % columns
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (col.hidden) continue;
 					if (col.sizeType == '%') {
@@ -3850,7 +3859,7 @@
 			}
 			// fix margin of error that is due percentage calculations
 			var width_cols = 0;
-			for (var i=0; i<this.columns.length; i++) {
+			for (var i = 0; i < this.columns.length; i++) {
 				var col = this.columns[i];
 				if (col.hidden) continue;
 				if (typeof col.min == 'undefined') col.min = 20;
@@ -4014,9 +4023,9 @@
 		initOperator: function (el, search_ind) {
 			var obj		= this;
 			var search	= obj.searches[search_ind];
- 			var range	= $('#grid_'+ obj.name + '_range_'+ search_ind); 
-			var fld1	= $('#grid_'+ obj.name +'_field_'+ search_ind); 
-			var fld2	= fld1.parent().find('span input'); 
+ 			var range	= $('#grid_'+ obj.name + '_range_'+ search_ind);
+			var fld1	= $('#grid_'+ obj.name +'_field_'+ search_ind);
+			var fld2	= fld1.parent().find('span input');
 			if ($(el).val() == 'in') { fld1.w2field('clear'); } else { fld1.w2field(search.type); }
 			if ($(el).val() == 'between') { range.show(); fld2.w2field(search.type); } else { range.hide(); }
 		},
@@ -4048,7 +4057,7 @@
 					case 'time':
 					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
-						$('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);						
+						$('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
 						break;
 
 					case 'hex':
@@ -4063,7 +4072,7 @@
 						if (sdata) options.selected = sdata.value;
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, options);
 						if (search.type == 'combo') {
-							$('#grid_'+ this.name +'_operator_'+s).val('begins');							
+							$('#grid_'+ this.name +'_operator_'+s).val('begins');
 						}
 						break;
 
@@ -4105,8 +4114,8 @@
 			}
 			// add on change event
 			$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
-				if (evnt.keyCode == 13 && (evnt.ctrlKey || evnt.metaKey)) { 
-					obj.search(); 
+				if (evnt.keyCode == 13 && (evnt.ctrlKey || evnt.metaKey)) {
+					obj.search();
 					$().w2overlay();
 				}
 			});
@@ -4145,7 +4154,7 @@
 							'</td>';
 				}
 				var ii = 0;
-				for (var i=0; i<obj.columnGroups.length; i++) {
+				for (var i = 0; i < obj.columnGroups.length; i++) {
 					var colg = obj.columnGroups[i];
 					var col  = obj.columns[ii];
 					if (typeof colg.span == 'undefined' || colg.span != parseInt(colg.span)) colg.span = 1;
@@ -4211,14 +4220,14 @@
 				}
 				var ii = 0;
 				var id = 0;
-				for (var i=0; i<obj.columns.length; i++) {
+				for (var i = 0; i < obj.columns.length; i++) {
 					var col  = obj.columns[i];
 					var colg = {};
 					if (i == id) {
-						id = id + (typeof obj.columnGroups[ii] != 'undefined' ? parseInt(obj.columnGroups[ii].span) : 0);
+						id = id + (typeof obj.columnGroups[ii] !== 'undefined' ? parseInt(obj.columnGroups[ii].span) : 0);
 						ii++;
 					}
-					if (typeof obj.columnGroups[ii-1] != 'undefined') var colg = obj.columnGroups[ii-1];
+					if (typeof obj.columnGroups[ii - 1] !== 'undefined') var colg = obj.columnGroups[ii - 1];
 					if (col.hidden) continue;
 					var sortStyle = '';
 					for (var si in obj.sortData) {
@@ -4660,13 +4669,13 @@
 			}
 			return val;
 		},
-		
+
 		nextCell: function (col_ind, editable) {
 			var check = col_ind + 1;
 			if (this.columns.length == check) return false;
 			if (editable === true) {
 				var edit = this.columns[check].editable;
-				if (this.columns[check].hidden || typeof edit == 'undefined' 
+				if (this.columns[check].hidden || typeof edit == 'undefined'
 					|| (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.nextCell(check, editable);
 			}
 			return check;
@@ -4677,11 +4686,11 @@
 			if (check < 0) return false;
 			if (editable === true) {
 				var edit = this.columns[check].editable;
-				if (this.columns[check].hidden || typeof edit == 'undefined' 
+				if (this.columns[check].hidden || typeof edit == 'undefined'
 					|| (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.prevCell(check, editable);
 			}
 			return check;
-		}, 
+		},
 
 		nextRow: function (ind) {
 			if ((ind + 1 < this.records.length && this.last.searchIds.length == 0) // if there are more records

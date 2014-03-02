@@ -18,6 +18,7 @@
 		this.extraCols		= [];
 		this.itemExtra		= {};
 		this.items			= [];
+		this.handlers		= [];
 		this.menu			= [];
 		this.multiselect	= true;		// multiselect support
 		this.keyboard		= true;		// keyboard support
@@ -32,8 +33,8 @@
 		this.onRefresh		= null;
 		this.onDestroy		= null;
 
-		$.extend(this, { handlers: [] });
-		$.extend(true, this, w2obj.listview, options);
+		w2utils.deepCopy(this, w2obj.listview, options);
+
 		for (var i = 0; i < this.extraCols.length; i++) {
 			this.itemExtra[this.extraCols[i].name] = '';
 		}
@@ -51,12 +52,10 @@
 				method.vType = method.viewType;
 				delete method.viewType;
 			}
-			var itms = method.items;
+			var items = method.items || [];
 			obj = new w2listview(method);
-			if ($.isArray(itms)) {
-				for (var i = 0; i < itms.length; i++) {
-					obj.items[i] = $.extend({}, w2listview.prototype.item, obj.itemExtra, itms[i]);
-				}
+			for (var i = 0, len = items.length; i < len; i++) {
+				obj.items[i] = $.extend({}, w2listview.prototype.item, obj.itemExtra, items[i]);
 			}
 			if ($(this).length !== 0) {
 				obj.render($(this)[0]);
@@ -445,7 +444,9 @@
 					$(obj.itemNode(id))
 						.w2menu(obj.menu, {
 							left: (event ? event.offsetX || event.pageX : 50) - 25,
-							select: function (item, event, index) { obj.menuClick(id, index, event); }
+							select: function (item, event, index) {
+								obj.menuClick(id, index, event);
+							}
 						});
 				}
 				// event after
@@ -500,13 +501,13 @@
 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), object: this.items[idx] });
-			if (eventData.isCancelled === true) return false;	
+			if (eventData.isCancelled === true) return false;
 
 			// default action
 			if (typeof id === 'undefined') {
 				// refresh all items
 				var itms = document.createDocumentFragment();
-				for (var i = 0; i < this.items.length; i++) 
+				for (var i = 0; i < this.items.length; i++)
 					itms.appendChild(getItemElement(this.items[i]));
 				var lst = this.lastItm.parentNode;
 				while (lst.firstChild !== this.lastItm)
@@ -562,7 +563,7 @@
 			function getItemTemplate(withDescription, withExtra) {
 				var template, itmDiv;
 				if (!withDescription && !withExtra) {
-					if ('captionOnlyTemplate' in obj) {
+					if (obj.captionOnlyTemplate != null) {
 						template = obj.captionOnlyTemplate;
 					} else {
 						template = document.createElement('li');
@@ -577,7 +578,7 @@
 						obj.captionOnlyTemplate = template;
 					}
 				} else if (withDescription && !withExtra) {
-					if ('captionWithDescription' in obj) {
+					if (obj.captionWithDescriptionTemplate != null) {
 						template = obj.captionWithDescriptionTemplate;
 					} else {
 						template = getItemTemplate(false, false);
@@ -586,14 +587,14 @@
 						obj.captionWithDescriptionTemplate = template;
 					}
 				} else if (!withDescription && withExtra) {
-					if ('captionWithExtra' in obj) {
+					if (obj.captionWithExtra != null) {
 						template = obj.captionWithExtra;
 					} else {
 						template = appendExtra(getItemTemplate(false, false));
 						obj.captionWithExtra = template;
 					}
 				} else if (withDescription && withExtra) {
-					if ('captionWithDescriptionAndExtra' in obj) {
+					if (obj.captionWithDescriptionAndExtra != null) {
 						template = obj.captionWithDescriptionAndExtra;
 					} else {
 						template = appendExtra(getItemTemplate(true, false));
@@ -611,16 +612,16 @@
 						var col = obj.extraCols[i];
 						var extraCol = appendDiv(extra, col.name);
 						extraCol.style.width = col.width + 'px';
-						if ('align' in col) extraCol.style.textAlign = col.align;
-						if ('paddingLeft' in col) extraCol.style.paddingLeft = col.paddingLeft + 'px';
-						if ('paddingRight' in col) extraCol.style.paddingRight = col.paddingRight + 'px';
+						if (col.align != null) extraCol.style.textAlign = col.align;
+						if (col.paddingLeft != null) extraCol.style.paddingLeft = col.paddingLeft + 'px';
+						if (col.paddingRight != null) extraCol.style.paddingRight = col.paddingRight + 'px';
 					}
 					return node;
 
 					function extraColsWidth() {
 						var rslt = 0;
 						for (var i = 0; i < obj.extraCols.length; i++) {
-							obj.extraCols[i].width = ('width' in obj.extraCols[i]) ? parseInt(obj.extraCols[i].width, 10) : 100;
+							obj.extraCols[i].width = (obj.extraCols[i].width != null ? parseInt(obj.extraCols[i].width, 10) : 100);
 							rslt += obj.extraCols[i].width;
 						}
 						return rslt;

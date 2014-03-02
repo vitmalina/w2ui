@@ -26,7 +26,7 @@ $(function () {
 	w2ui['main_layout'].content('left', $().w2sidebar({
 		name: 'demo-sidebar',
 		img: null,
-		nodes: [ 
+		nodes: [
 			{ id: 'combo', text: 'Combinations', img: 'icon-folder', group1: true,
 				nodes: [
 					{ id: 'combo-1', text: 'Sidebar & Grid', icon: 'fa-star-empty' },
@@ -186,36 +186,42 @@ $(function () {
 				var js   = tmp[2] ? $.trim(tmp[2]) : '';
 				var css  = tmp[3] ? $.trim(tmp[3]) : '';
 				var json = tmp[4] ? $.trim(tmp[4]) : '';
+				js = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
+				js = $.trim(js);
+				css = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '');
+				css = $.trim(css);
+				json = json.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
+				json = $.trim(json);
 				w2ui['main_layout'].content('main', tmp[0]);
 				$('#example_view').html(
-						'<h2>Preview</h2>'+ html + 
-						'<script type="text/javascript">' + js +'</script>' + 
+						'<h2>Preview</h2>'+ html +
+						'<script type="text/javascript">' + js + '</script>' +
 						'<style>' + css + '</style>');
 				var code = '<!DOCTYPE html>\n'+
 						   '<html>\n'+
 						   '<head>\n'+
 						   '	<title>W2UI Demo: '+ cmd +'</title>\n'+
-						   '	<link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui-1.3.min.css" />\n'+
+						   '	<link rel="stylesheet" type="text/css" href="dist/w2ui.css" />\n'+
 						   '	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>\n'+
-						   '	<script type="text/javascript" src="//w2ui.com/src/w2ui-1.3.min.js"></script>\n'+
+						   '	<script type="text/javascript" src="dist/w2ui.js"></script>\n'+
 						   '</head>\n'+
 						   '<body>\n\n'+
 						   html + '\n\n'+
 						   (js != '' ? '<script type="text/javascript">\n' + js + '\n</script>\n\n' : '') +
-						   (css != '' ? '<style>\n' + css + '</style>\n\n' : '') + 
+						   (css != '' ? '<style>\n' + css + '</style>\n\n' : '') +
 						   '</body>\n'+
 						   '</html>';
 				$('#example_code').html('<a href="javascript:" onclick="$(this).next().show(); initCode(); $(this).hide();" class="btn-source">Show Source Code</a>'+
 					'<div id="sourcecode" style="display: none;">'+
 					'<h2>Complete Code '+
 					'<span style="font-weight: normal; padding-left: 10px;">- &nbsp;&nbsp;Copy & paste into your editor or <a href="javascript:" class="jsfiddle">fiddle with code online</a></span> </h2>'+
-					'<textarea class="preview" id="code">'+ 
+					'<textarea class="preview" id="code">'+
 						code.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +
 					'</textarea>'+
-					(json != '' ? 
+					(json != '' ?
 						'<h2>JSON file</h2>'+
 						'<textarea class="json" id="json">'+ json +'</textarea>'
-						: 
+						:
 						'')+
 					'</div>'+
 					'<div style="display: none">'+
@@ -232,9 +238,9 @@ $(function () {
 	}));
 
 	// check hash
-	setTimeout(function () { 
+	setTimeout(function () {
 		var tmp = String(document.location.hash).split('/');
-		switch(tmp[0]) {
+		switch (tmp[0]) {
 			default:
 			case '#!combo':
 				w2ui['demo-sidebar'].expand('combo');
@@ -294,7 +300,7 @@ function initCode() {
 	var text = $('#example_code .preview');
 	if (text.length > 0) {
 		var cm = CodeMirror(
-			function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
+			function(elt) { text[0].parentNode.replaceChild(elt, text[0]); },
 			{
 				value		: $.trim(text.val()),
 				mode		: "text/html",
@@ -308,7 +314,7 @@ function initCode() {
 	var text = $('#example_code .json');
 	if (text.length > 0) {
 		var cm = CodeMirror(
-			function(elt) { text[0].parentNode.replaceChild(elt, text[0]); }, 
+			function(elt) { text[0].parentNode.replaceChild(elt, text[0]); },
 			{
 					value		: $.trim(text.val()),
 				mode		: "javascript",

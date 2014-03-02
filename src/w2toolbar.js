@@ -19,6 +19,7 @@
 		this.box		= null;		// DOM Element that holds the element
 		this.name		= null;		// unique name for w2ui
 		this.items		= [];
+		this.handlers	= [];
 		this.right		= '';		// HTML text on the right of toolbar
 		this.onClick	= null;
 		this.onRender	= null;
@@ -26,7 +27,7 @@
 		this.onResize	= null;
 		this.onDestroy	= null;
 
-		$.extend(true, this, w2obj.toolbar, options);
+		w2utils.deepCopy(this, w2obj.toolbar, options);
 	};
 
 	// ====================================================
@@ -35,12 +36,11 @@
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!w2utils.checkName(method, 'w2toolbar')) return;
+			if (!w2utils.checkName(method, 'w2toolbar')) return undefined;
 			// extend items
 			var items = method.items || [];
 			var object = new w2toolbar(method);
-			$.extend(object, { items: [], handlers: [] });			
-			for (var i = 0; i < items.length; i++) {
+			for (var i = 0, len = items.length; i < len; i++) {
 				object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]);
 			}
 			if ($(this).length !== 0) {
@@ -56,6 +56,7 @@
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2toolbar' );
+			return undefined;
 		}
 	};
 
@@ -86,7 +87,7 @@
 
 		insert: function (id, items) {
 			if (!$.isArray(items)) items = [items];
-			for (var o = 0; o < items.length; o++) {
+			for (var o = 0, len = items.length; o < len; o++) {
 				// checks
 				if (typeof items[o].type === 'undefined') {
 					console.log('ERROR: The parameter "type" is required but not supplied in w2toolbar.add() method.');
@@ -104,7 +105,7 @@
 				if (!w2utils.checkUniqueId(items[o].id, this.items, 'toolbar items', this.name)) return;
 				// add item
 				var it = $.extend({}, w2toolbar.prototype.item, items[o]);
-				if (id === null || typeof id === 'undefined') {
+				if (id == null) {
 					this.items.push(it);
 				} else {
 					var middle = this.get(id, true);
@@ -229,7 +230,7 @@
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 
-			if (typeof box !== 'undefined' && box !== null) {
+			if (box != null) {
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -238,13 +239,13 @@
 				}
 				this.box = box;
 			}
-			if (!this.box) return;
+			if (!this.box) return false;
 			// render all buttons
 			var html =	'<table cellspacing="0" cellpadding="0" width="100%">'+
 						'<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
-				if (typeof it.id === 'undefined' || it.id === null) it.id = "item_" + i;
+				if (it.id == null) it.id = "item_" + i;
 				if (it === null)  continue;
 				if (it.type === 'spacer') {
 					html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
@@ -273,11 +274,11 @@
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), item: this.get(id) });
 			if (eventData.isCancelled === true) return false;
 
-			if (typeof id === 'undefined') {
+			if (id == null) {
 				// refresh all
 				for (var i = 0; i < this.items.length; i++) {
 					var it1 = this.items[i];
-					if (typeof it1.id === 'undefined' || it1.id === null) it1.id = "item_" + i;
+					if (it1.id == null) it1.id = "item_" + i;
 					this.refresh(it1.id);
 				}
 			}
@@ -340,6 +341,7 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return true;
 		},
 
 		// ========================================
@@ -395,7 +397,7 @@
 			var newHTML = '';
 			if (typeof item.onRender === 'function') newHTML = item.onRender.call(this, item.id, html);
 			if (typeof this.onRender === 'function') newHTML = this.onRender(item.id, html);
-			if (newHTML !== '' && typeof newHTML !== 'undefined') html = newHTML;
+			if (newHTML !== '' && newHTML != null) html = newHTML;
 			return html;
 		},
 
@@ -411,7 +413,9 @@
 
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
+                return true;
 			}
+            return false;
 		},
 
 		click: function (id, event) {
@@ -429,7 +433,7 @@
 				if (it.type === 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
 						var itt = this.items[i];
-						if (itt === null || itt.id === it.id || itt.type !== 'radio') continue;
+						if (itt == null || itt.id === it.id || itt.type !== 'radio') continue;
 						if (itt.group === it.group && itt.checked) {
 							itt.checked = false;
 							this.refresh(itt.id);
@@ -456,7 +460,7 @@
 							if (it.type === 'menu') {
 								el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
 									select: function (event) {
-										obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent }); 
+										obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent });
 										hideDrop();
 									}
 								}));
@@ -483,6 +487,7 @@
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
+			return true;
 		}
 	};
 

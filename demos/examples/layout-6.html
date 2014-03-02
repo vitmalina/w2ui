@@ -24,6 +24,7 @@
 <input type="button" value="Toggle Bottom" onclick="w2ui['layout'].toggle('bottom', window.instant)">
 
 <!--CODE-->
+<script>
 var instant = false;
 $(function () {	
 	var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
@@ -45,3 +46,4 @@ $(function () {
 		$('#eventList').html( log + (log != '' ? '<br>' : '') + event.type + ': '+ event.target);
 	});
 });
+</script>

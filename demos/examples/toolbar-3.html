@@ -11,6 +11,7 @@
 <div id="toolbar" style="padding: 4px; border: 1px solid silver; border-radius: 3px"></div>
 
 <!--CODE-->
+<script>
 $(function () {
 	var btnCount = 0;
 	$('#toolbar').w2toolbar({
@@ -23,7 +24,7 @@ $(function () {
 			{ type: 'break',  id: 'break1' }
 		],
 		onClick: function (event) {
-			switch(event.target) {
+			switch (event.target) {
 				case 'append':
 					this.add({ type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
 					btnCount++;
@@ -41,3 +42,4 @@ $(function () {
 		}
 	});
 });
+</script>

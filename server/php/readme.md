@@ -19,8 +19,8 @@ The database connection information is in users.php file.
 
 ### JSON Structures
 
-I have generated sample JSON structures that are ruturned from the server. You can replace URL property of the grid to "users.json" and the form
-to "user-edit.json" to run this example without a dtabase.
+I have generated sample JSON structures that are returned from the server. You can replace URL property of the grid to "users.json" and the form
+to "user-edit.json" to run this example without a database.
 
 #### grid
 
