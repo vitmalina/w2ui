@@ -195,9 +195,9 @@ $(function () {
 						   '<html>\n'+
 						   '<head>\n'+
 						   '	<title>W2UI Demo: '+ cmd +'</title>\n'+
-						   '	<link rel="stylesheet" type="text/css" href="//w2ui.com/src/w2ui-1.3.min.css" />\n'+
+						   '	<link rel="stylesheet" type="text/css" href="dist/w2ui.css" />\n'+
 						   '	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>\n'+
-						   '	<script type="text/javascript" src="//w2ui.com/src/w2ui-1.3.min.js"></script>\n'+
+						   '	<script type="text/javascript" src="dist/w2ui.js"></script>\n'+
 						   '</head>\n'+
 						   '<body>\n\n'+
 						   html + '\n\n'+
