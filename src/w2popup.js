@@ -37,7 +37,7 @@ var w2popup = {};
 		if (method === 'load' && typeof options === 'string') {
 			options = $.extend({ url: options }, arguments.length > 2 ? arguments[2] : {});
 		}
-		if (method === 'open' && options.url != null) method = 'load';
+		if (method === 'open' && typeof options.url != 'undefined') method = 'load';
 		options = options || {};
 		// load options from markup
 		var dlgOptions = {};
