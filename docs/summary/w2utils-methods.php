@@ -154,6 +154,13 @@
 </div>
 
 <div class="obj-property">
+	<a href="w2utils.render">render</a> <span>- render(content, options)</span>
+</div>
+<div class="obj-property-desc">
+	Returns the content as a string or JSON object.
+</div>
+
+<div class="obj-property">
 	<a href="w2utils.scrollBarSize">scrollBarSize</a> <span>- w2utils.scrollBarSize()</span>
 </div>
 <div class="obj-property-desc">

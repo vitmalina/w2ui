@@ -74,6 +74,7 @@ var w2utils = (function () {
 		formatDate		: formatDate,
 		formatTime		: formatTime,
 		formatDateTime  : formatDateTime,
+		render 			: render,
 		stripTags		: stripTags,
 		encodeTags		: encodeTags,
 		escapeId		: escapeId,
@@ -370,6 +371,104 @@ var w2utils = (function () {
 			fmt = format.split('|');
 		}
 		return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1]);
+	}
+
+	function render(content, options) {
+		options = $.extend({}, {
+			depth: 2,
+			renderFunctions: true,	// when false, it is rendered as an empty string. when set to a string value, that string is used as the render output instead
+			renderArrays: true,	    // when false, it is rendered by joining its elements similar to .toString(). when set to a string value, that string is used as the render output instead
+			renderObjects: true,	// when false, it is rendered as an empty string. when set to a string value, that string is used as the render output instead
+			format: 'html'
+		}, options);
+
+		switch (typeof content) {
+		case 'string':
+			return content;
+
+		case 'number':
+			if (options.format !== 'json') {
+				return '' + content;
+			}
+			return content;
+
+		case 'boolean':
+			if (options.format !== 'json') {
+				return content ? 'true' : 'false';
+			}
+			return content;
+
+		case 'function':
+			if (!options.renderFunctions) {
+				return '';
+			} else if (options.renderFunctions !== true) {
+				return render((typeof options.renderFunctions === 'function' ? options.renderFunctions(content, options) : options.renderFunctions), $.extend({}, options, { format: 'string' }));
+			} else if (options.format === 'html') {
+				return '<pre class="w2utils-display-function">' + encodeTags(String(content)) + '</pre>';
+			}
+			return String(content);
+
+		case 'undefined':
+			return 'undefined';
+
+		default:
+		case 'object':
+			var markers = ['{', '}', '(OBJECT)', 'object'];
+			var obj, s, a, nl, s2;
+
+			if (content == null) {
+				if (options.format !== 'json') {
+					return 'null';
+				}
+				return content;
+			} else if ($.isArray(content)) {
+				if (options.renderArrays === false) {
+					return content.join('');
+				} else if (options.renderArrays !== true) {
+					return render((typeof options.renderArrays === 'function' ? options.renderArrays(content, options) : options.renderArrays), $.extend({}, options, { format: 'string' }));
+				}
+				markers = ['[', ']', '(ARRAY)', 'array'];
+			} else {
+				if (!options.renderObjects) {
+					return '';
+				} else if (options.renderObjects !== true) {
+					return render((typeof options.renderObjects === 'function' ? options.renderObjects(content, options) : options.renderObjects), $.extend({}, options, { format: 'string' }));
+				}
+			}
+
+			if (options.depth > 0) {
+				if (options.format !== 'json') {
+					obj = [];
+					for (a in content) {
+						s = render(a, $.extend({}, options, { format: 'string', depth: 0 }));
+						s += ': ';
+						s2 = render(content[a], $.extend({}, options, { format: 'string', depth: options.depth - 1 }));
+						s += s2.replace(/\n/g, '\n  ');
+						s = s.replace(/\n +([}\]])$/, '\n$1');
+						obj.push(s);
+					}
+					nl = (obj.length > 0 ? '\n' : '');
+					s = markers[0] + nl + obj.join('\n');
+					s = s.replace(/\n/g, '\n  ');
+					s += nl + markers[1];
+					if (options.format === 'html') {
+						return '<pre class="w2utils-display-' + markers[3] + '">' + encodeTags(s) + '</pre>';
+					}
+					return s;
+				} else {
+					if ($.isArray(content)) {
+						obj = [];
+					} else {
+						obj = {};
+					}
+					for (a in content) {
+						obj[a] = render(content[a], $.extend({}, options, { depth: options.depth - 1 }));
+					}
+					return obj;
+				}
+			}
+			return markers[2];
+		}
 	}
 
 	function stripTags (html) {

@@ -1,0 +1,85 @@
+Returns the content as a string or JSON object.
+
+<div class="definition">
+	render(content, options)
+</div>
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>content</td>
+		<td><b>any</b>, any JavaScript value</td>
+	</tr>
+	<tr>
+		<td>options</td>
+		<td><b>object</b>, specifies the available render options. May be omitted in which case the default render settings are assumed</td>
+	</tr>
+	</table>
+</div>
+
+These options are supported:
+
+			depth: 2,
+			renderFunctions: true,	// when false, it is rendered as an empty string. when set to a string value, that string is used as the render output instead
+			renderArrays: true,	    // when false, it is rendered by joining its elements similar to .toString(). when set to a string value, that string is used as the render output instead
+			renderObjects: true,	// when false, it is rendered as an empty string. when set to a string value, that string is used as the render output instead
+			format: 'html'
+
+<div class="arguments">
+	<table>
+	<tr>
+		<td>format</td>
+		<td><b>string</b>, (default: <code>html</code>) supported render output types are <code>html</code>, <code>string</code> and <code>json</code></td>
+	</tr>
+	<tr>
+		<td>depth</td>
+		<td><b>int</b>, (default: 2) the number of levels the renderer will traverse in the <code>content</code>: this limits the depth of traversal of arrays and objects</td>
+	</tr>
+	<tr>
+		<td>renderObjects</td>
+		<td><b>any</b>, (default: true) when set to <code>false</code>, objects are represented by an empty string; when set to <code>true</code> an object is traversed and printed as a multiline JavaScript-format-like set (without doublequotes around strings), unless the format is <code>json</code> in which case the processed object is returned, where each attribute is processed through <code>w2utils.render</code>; when <code>renderOptions</code> is a function that function will be invoked with the parameters <code>(content, options)</code> as available at the current traversal level and the return value of this function call is used verbatim. Any other value for <code>renderOptions</code> will be coerced to a string and used as the text representing the object in the output</td>
+	</tr>
+	<tr>
+		<td>renderFunctions</td>
+		<td><b>any</b>, (default: true) the same rule set applies as for <code>renderObjects</code></td>
+	</tr>
+	<tr>
+		<td>renderArrays</td>
+		<td><b>any</b>, (default: true) the same rule set applies as for <code>renderObjects</code> with one alteration: when <code>renderArrays</code> is set to <code>false</code>, its values will be coerced to string and concatenated into the string returned by this <code>w2utils.render</code> call</td>
+	</tr>
+	</table>
+</div>
+
+
+The method will return either a string (for formats <code>string</code> and <code>html</code>) or a valid JSON object (for format <code>json</code>)
+
+<h4>Description</h4>
+
+<p>
+This function can be used to ensure the expected string representation is (at least technically) comprehensible: a <code>null</code> content value is represent by the string <code>"null"</code> rather than an empty string, while objects, functions, etc., which do not produce anything legible through <code>String()</code> coercion, are rendered to reasonable string representations.
+</p>
+<p>
+Use this function when your reguolarly expected value is a string, but you want to 'catch' other types and have them printed at least showing <em>something</em>; the fact that <code>w2utils.render</code> creates string representations of objects and functions also means that any <em>unexpected</em> arrival of such types at the <code>w2utils.render</code> call will become clearly visible in the output, aiding fast problem analysis (a lot of these 'incorrect value types' would otherwise turn up as empty strings and hide under the grass, so to speak).
+</p>
+<p>
+<code>w2utils.render</code> can also be used to turn any arbitrary object into a representative object which is legal JSON; the <code>options.depth</code> limit ensures that any cyclic object instances do not crash the system while still producing a JSON object which can be used for (remote?) diagnosis.
+</p>
+
+<textarea class="javascript">
+var obj = {
+	tag: 'a',
+	value: 42,
+	method: function (t) { return t + 7; }
+};
+var log = $('.log-panel');
+if (!log.length) {
+	log = $('<div class="log-panel">');
+	$('body').append(log);
+}
+var div = $('<div />').html(w2utils.render(obj));
+log.append(div);
+var div = $('<div />').html(w2utils.render(666));
+log.append(div);
+var div = $('<div />').html(w2utils.render("Hell's Kitchen"));
+log.append(div);
+</textarea>

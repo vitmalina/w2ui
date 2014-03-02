@@ -676,7 +676,7 @@
 					$(pname +'> .w2ui-panel-content')
 						.removeClass()
 						.addClass('w2ui-panel-content')
-						.html(p.content)
+						.html(w2utils.render(p.content))
 						.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				}
 				// if there are tabs and/or toolbar - render it
