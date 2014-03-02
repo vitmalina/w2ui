@@ -239,7 +239,7 @@
 				}
 				this.box = box;
 			}
-			if (!this.box) return;
+			if (!this.box) return false;
 			// render all buttons
 			var html =	'<table cellspacing="0" cellpadding="0" width="100%">'+
 						'<tr>';
@@ -341,6 +341,7 @@
 			delete w2ui[this.name];
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return true;
 		},
 
 		// ========================================
@@ -412,7 +413,9 @@
 
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
+                return true;
 			}
+            return false;
 		},
 
 		click: function (id, event) {
@@ -484,6 +487,7 @@
 				// event after
 				this.trigger($.extend(eventData, { phase: 'after' }));
 			}
+			return true;
 		}
 	};
 
