@@ -19,6 +19,7 @@
 		this.box		= null;		// DOM Element that holds the element
 		this.name		= null;		// unique name for w2ui
 		this.items		= [];
+		this.handlers	= [];
 		this.right		= '';		// HTML text on the right of toolbar
 		this.onClick	= null;
 		this.onRender	= null;
@@ -26,7 +27,7 @@
 		this.onResize	= null;
 		this.onDestroy	= null;
 
-		$.extend(true, this, w2obj.toolbar, options);
+		w2utils.deepCopy(this, w2obj.toolbar, options);
 	};
 
 	// ====================================================
@@ -39,8 +40,7 @@
 			// extend items
 			var items = method.items || [];
 			var object = new w2toolbar(method);
-			$.extend(object, { items: [], handlers: [] });
-			for (var i = 0; i < items.length; i++) {
+			for (var i = 0, len = items.length; i < len; i++) {
 				object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]);
 			}
 			if ($(this).length !== 0) {
@@ -86,7 +86,7 @@
 
 		insert: function (id, items) {
 			if (!$.isArray(items)) items = [items];
-			for (var o = 0; o < items.length; o++) {
+			for (var o = 0, len = items.length; o < len; o++) {
 				// checks
 				if (typeof items[o].type === 'undefined') {
 					console.log('ERROR: The parameter "type" is required but not supplied in w2toolbar.add() method.');

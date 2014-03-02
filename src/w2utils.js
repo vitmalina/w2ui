@@ -87,7 +87,8 @@ var w2utils = (function () {
 		getSize			: getSize,
 		scrollBarSize	: scrollBarSize,
 		checkName		: checkName,
-		checkUniqueId	: checkUniqueId
+		checkUniqueId	: checkUniqueId,
+		deepCopy		: deepCopy
 	};
 	return obj;
 
@@ -793,7 +794,7 @@ var w2utils = (function () {
 			async	: false,
 			cache	: false,
 			success : function (data, status, xhr) {
-				w2utils.settings = $.extend(true, w2utils.settings, data);
+				w2utils.settings = w2utils.deepCopy(w2utils.settings, data);
 				// apply translation to some prototype functions
 				var p = w2obj.grid.prototype;
 				for (var b in p.buttons) {
@@ -852,6 +853,110 @@ var w2utils = (function () {
 	}
 
 
+	// Creates a deep clone of the src series into dst and returns the updated dst.
+	//
+	// This is similar to $.extend(true, dst, src, ...) except that:
+	// 1) any 'owner' attribute is referenced verbatim, i.e. is NOT cloned
+	//    but kept as a proper JavaScript reference in order to keep
+	//    parent/child chains intact.
+	// 2) when the clone depth is getting out of hand, an error is thrown.
+	//    $.extend() would simply cause an infinite loop and crash
+	//    the JavaScript engine under such circumstances.
+	function deepCopy(dst, src /* ... */) {
+		var args = Array.prototype.slice.call(arguments, 0);
+		var reftable = [];
+		var dst = args.shift();
+		if (typeof dst !== 'object') {
+			args.unshift(args);
+			dst = {};
+		}
+		for (var i = 0, len = args.length; i < len; i++) {
+			__deepCopy(0, dst, args[i]);
+		}
+		return dst;
+
+		function __deepCopy(depth, dst, src) {
+			if (depth > 10) {
+				throw new Error('deepCopy going nuts on a cyclic ref?');
+			}
+			var el, obj, obj, i, j;
+			if (src && typeof src === 'object') {
+				if (reftable.indexOf(src) !== -1) {
+					throw new Error('deepCopy going nuts on a cyclic ref!');
+				}
+				reftable.push(src);
+				for (i in src) {
+					el = src[i];
+					if (i === 'owner') {
+						dst[i] = el;
+					} else if (typeof el === 'object' && el !== null) {
+						if (reftable.indexOf(el) !== -1) {
+							throw new Error('deepCopy going nuts on a cyclic ref!');
+						}
+						if ($.isArray(el)) {
+							reftable.push(el);
+							var da = dst[i] || [];
+							for (j in el) {
+								if (j == +j) {
+									j = +j;
+									v = el[j];
+									if (typeof v === 'object' && v !== null) {
+										obj = {};
+										__deepCopy(depth + 1, obj, v);
+										da[j] = obj;
+									} else {
+										da[j] = v;
+									}
+								}
+							}
+							dst[i] = da;
+							reftable.pop();
+						} else {
+							obj = dst[i] || {};
+							__deepCopy(depth + 1, obj, el);
+							dst[i] = obj;
+						}
+					} else {
+						dst[i] = el;
+					}
+				}
+				reftable.pop();
+			} else if (typeof src === 'function') {
+				if (reftable.indexOf(src) !== -1) {
+					throw new Error('deepCopy going nuts on a cyclic ref!');
+				}
+				reftable.push(src);
+				var src2 = src.prototype;
+				for (i in src2) {
+					el = src2[i];
+					if (i === undefined) {
+						continue;
+					} else if (typeof el === 'object' && el !== null) {
+						obj = dst[i] || {};
+						__deepCopy(depth + 1, obj, el);
+						dst[i] = obj;
+					} else {
+						dst[i] = el;
+					}
+				}
+				for (i in src) {
+					el = src[i];
+					if (i === undefined) {
+						continue;
+					} else if (typeof el === 'object' && el !== null) {
+						obj = dst[i] || {};
+						__deepCopy(depth + 1, obj, el);
+						dst[i] = obj;
+					} else {
+						dst[i] = el;
+					}
+				}
+				reftable.pop();
+			} else if (src != null) {
+				throw new Error('deepCopy does not tolerate non-object/array parameters to extend the destination object!');
+			}
+		}
+	}
 
 })();
 
@@ -1097,7 +1202,7 @@ w2utils.keyboard = (function (obj) {
 				$('#w2ui-tag-'+tagID).remove();
 				// insert
 				$('body').append(
-					'<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') +
+                    '<div id="w2ui-tag-' + tagOrigID + '" class="w2ui-tag ' + ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') +
 					'" style=""></div>');
 
 				var timer = setInterval(function () {

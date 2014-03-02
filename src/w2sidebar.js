@@ -25,6 +25,7 @@
 		this.sidebar		= null;
 		this.parent			= null;
 		this.nodes			= [];	// Sidebar child nodes
+		this.handlers		= [];
 		this.menu			= [];
 		this.selected		= null;	// current selected node (readonly)
 		this.img			= null;
@@ -45,7 +46,7 @@
 		this.onResize		= null;
 		this.onDestroy		= null;
 
-		$.extend(true, this, w2obj.sidebar, options);
+		w2utils.deepCopy(this, w2obj.sidebar, options);
 	};
 
 	// ====================================================
@@ -56,12 +57,11 @@
 			// check name parameter
 			if (!w2utils.checkName(method, 'w2sidebar')) return;
 			// extend items
-			var nodes  = method.nodes;
+			var nodes  = method.nodes || [];
 			var object = new w2sidebar(method);
-			$.extend(object, { handlers: [], nodes: [] });
-			if (typeof nodes != 'undefined') {
-				object.add(object, nodes);
-			}
+            // nuke the nodes ref in `object` itself so that the .add() method can do a proper job of (re)adding the nodes next:
+			object.nodes = [];
+			object.add(object, nodes);
 			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}

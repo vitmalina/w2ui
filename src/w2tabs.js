@@ -21,6 +21,7 @@
 		this.name		= null;		// unique name for w2ui
 		this.active		= null;
 		this.tabs		= [];
+		this.handlers	= [];
 		this.right		= '';
 		this.style		= '';
 		this.onClick	= null;
@@ -30,8 +31,7 @@
 		this.onResize	= null;
 		this.onDestroy	= null;
 
-		$.extend(this, { handlers: [] });
-		$.extend(true, this, w2obj.tabs, options);
+		w2utils.deepCopy(this, w2obj.tabs, options);
 	};
 
 	// ====================================================

@@ -39,8 +39,9 @@
 		// public properties
 		this.el			= null
 		this.helpers	= {}; // object or helper elements
+		this.handlers	= [];
 		this.type		= options.type || 'text';
-		this.options	= $.extend(true, {}, options);
+		this.options	= w2utils.deepCopy({}, options);
 		this.onSearch	= options.onSearch		|| null;
 		this.onRequest	= options.onRequest		|| null;
 		this.onLoad		= options.onLoad		|| null;
@@ -59,10 +60,13 @@
 		delete this.options.onLoad;
 		delete this.options.onError;
 		delete this.options.onClick;
+		delete this.options.onAdd;
+		delete this.options.onNew;
+		delete this.options.onRemove;
 		delete this.options.onMouseOver;
 		delete this.options.onMouseOut;
 		// extend with defaults
-		$.extend(true, this, w2obj.field);
+		w2utils.deepCopy(this, w2obj.field);
 	};
 
 	// ====================================================
@@ -77,7 +81,7 @@
 			}
 		} else {
 			if (typeof method == 'string' && typeof options == 'object') {
-				method = $.extend(true, {}, options, { type: method });
+				method = w2utils.deepCopy({}, options, { type: method });
 			}
 			if (typeof method == 'string' && typeof options == 'undefined') {
 				method = { type: method };
@@ -88,7 +92,6 @@
 				// if object is not defined, define it
 				if (typeof obj == 'undefined') {
 					var obj = new w2field(method);
-					$.extend(obj, { handlers: [] });
 					if (el) obj.el = $(el)[0];
 					obj.init();
 					$(el).data('w2field', obj);
@@ -97,7 +100,6 @@
 					obj.clear();
 					if (method.type == 'clear') return;
 					var obj = new w2field(method);
-					$.extend(obj, { handlers: [] });
 					if (el) obj.el = $(el)[0];
 					obj.init();
 					$(el).data('w2field', obj);
@@ -199,7 +201,7 @@
 						prefix			: '',
 						suffix			: ''
 					};
-					this.options = $.extend(true, {}, defaults, options);
+					this.options = w2utils.deepCopy({}, defaults, options);
 					options = this.options; // since object is re-created, need to re-assign
 					options.numberRE  = new RegExp('['+ options.groupSymbol + ']', 'g');
 					options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol + ']', 'g');
@@ -242,7 +244,7 @@
 						blocked		: {},		// { '4/11/2011': 'yes' }
 						colored		: {}		// { '4/11/2011': 'red:white' }
 					};
-					this.options = $.extend(true, {}, defaults, options);
+					this.options = w2utils.deepCopy({}, defaults, options);
 					options = this.options; // since object is re-created, need to re-assign
 					$(this.el).attr('placeholder', options.placeholder ? options.placeholder : options.format);
 					break;
@@ -256,7 +258,7 @@
 						start		: '',
 						end			: ''
 					};
-					this.options = $.extend(true, {}, defaults, options);
+					this.options = w2utils.deepCopy({}, defaults, options);
 					options = this.options; // since object is re-created, need to re-assign
 					$(this.el).attr('placeholder', options.placeholder ? options.placeholder : (options.format == 'h12' ? 'hh:mi pm' : 'hh:mi'));
 					break;
@@ -1326,7 +1328,7 @@
 						return;
 					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
-					$(el).w2menu('refresh', $.extend(true, {}, options, {
+					$(el).w2menu('refresh', w2utils.deepCopy({}, options, {
 						render		: options.renderDrop,
 						maxHeight	: options.maxDropHeight,
 						// selected with mouse

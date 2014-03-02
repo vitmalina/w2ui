@@ -25,6 +25,7 @@
 		this.box		= null;		// DOM Element that holds the element
 		this.name		= null;		// unique name for w2ui
 		this.panels		= [];
+		this.handlers	= [];
 		this.tmp		= {};
 
 		this.padding	= 1;		// panel padding
@@ -40,7 +41,7 @@
 		this.onResize		= null;
 		this.onDestroy		= null;
 
-		$.extend(true, this, w2obj.layout, options);
+		w2utils.deepCopy(this, w2obj.layout, options);
 	};
 
 	// ====================================================
@@ -52,17 +53,16 @@
 			if (!w2utils.checkName(method, 'w2layout')) return;
 			var panels = method.panels || [];
 			var object = new w2layout(method);
-			$.extend(object, { handlers: [], panels: [] });
 			// add defined panels
 			for (var p = 0, len = panels.length; p < len; p++) {
-				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]);
+				object.panels[p] = w2utils.deepCopy({}, w2layout.prototype.panel, panels[p]);
 				if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);
 				if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
 			}
 			// add all other panels
 			for (var p1 in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) {
 				if (object.get(p1) !== null) continue;
-				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 !== 'main'), size: 50 }));
+				object.panels.push(w2utils.deepCopy({}, w2layout.prototype.panel, { type: p1, hidden: (p1 !== 'main'), size: 50 }));
 			}
 			if ($(this).length > 0) {
 				object.render($(this)[0]);
@@ -127,6 +127,7 @@
 				toolbar	: false,
 				tabs	: false
 			},
+			handlers	: [],
 			onRefresh	: null,
 			onShow		: null,
 			onHide		: null

@@ -38,6 +38,7 @@
 		this.postData		= {};
 		this.toolbar		= {};		// if not empty, then it is toolbar
 		this.tabs 			= {}; 		// if not empty, then it is tabs object
+		this.handlers 		= [];
 
 		this.style 			= '';
 		this.focus			= 0;		// focus first or other element
@@ -66,7 +67,7 @@
 			xhr	: null		// jquery xhr requests
 		}
 
-		$.extend(true, this, w2obj.form, options);
+		w2utils.deepCopy(this, w2obj.form, options);
 	};
 
 	// ====================================================
@@ -85,29 +86,30 @@
 			var tabs		= method.tabs;
 			// extend items
 			var object = new w2form(method);
-			$.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [] });
 			if ($.isArray(tabs)) {
-				$.extend(true, object.tabs, { tabs: [] });
+				w2utils.deepCopy(object.tabs, { tabs: [] });
 				for (var t in tabs) {
 					var tmp = tabs[t];
 					if (typeof tmp === 'object') object.tabs.tabs.push(tmp); else object.tabs.tabs.push({ id: tmp, caption: tmp });
 				}
 			} else {
-				$.extend(true, object.tabs, tabs);
+				w2utils.deepCopy(object.tabs, tabs);
 			}
-			$.extend(true, object.toolbar, toolbar);
+			w2utils.deepCopy(object.toolbar, toolbar);
 			// reassign variables
-			for (var p in fields)  	object.fields[p]   	= $.extend(true, {}, fields[p]);
+			for (var p in fields) {
+				object.fields[p] = w2utils.deepCopy({}, fields[p]);
+			}
 			for (var p in record) {
 				if ($.isPlainObject(record[p])) {
-					object.record[p] = $.extend(true, {}, record[p]);
+					object.record[p] = w2utils.deepCopy({}, record[p]);
 				} else {
 					object.record[p] = record[p];
 				}
 			}
 			for (var p in original) {
 				if ($.isPlainObject(original[p])) {
-					object.original[p] = $.extend(true, {}, original[p]);
+					object.original[p] = w2utils.deepCopy({}, original[p]);
 				} else {
 					object.original[p] = original[p];
 				}
@@ -434,7 +436,7 @@
 				// append other params
 				$.extend(params, obj.postData);
 				$.extend(params, postData);
-				params.record = $.extend(true, {}, obj.record);
+				params.record = w2utils.deepCopy({}, obj.record);
 				// event before
 				var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
 				if (eventData.isCancelled === true) {
@@ -536,7 +538,7 @@
 				var html = '';
 				var field = this.fields[f];
 				if (typeof field.html == 'undefined') field.html = {};
-				field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
+				field.html = w2utils.deepCopy({ caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
 				if (field.html.caption == '') field.html.caption = field.name;
 				var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
 				// if (field.type == 'list') input = '<select name="'+ field.name +'" '+ field.html.attr +'></select>';
@@ -682,17 +684,17 @@
 						var cv = obj.record[this.name];
 						if ($.isArray(nv)) {
 							value_new = [];
-							for (var i in nv) value_new[i] = $.extend(true, {}, nv[i]); // clone array
+							for (var i in nv) value_new[i] = w2utils.deepCopy({}, nv[i]); // clone array
 						}
 						if ($.isPlainObject(nv)) {
-							value_new = $.extend(true, {}, nv); // clone object
+							value_new = w2utils.deepCopy({}, nv); // clone object
 						}
 						if ($.isArray(cv)) {
 							value_previous = [];
-							for (var i in cv) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+							for (var i in cv) value_previous[i] = w2utils.deepCopy({}, cv[i]); // clone array
 						}
 						if ($.isPlainObject(cv)) {
-							value_previous = $.extend(true, {}, cv); // clone object
+							value_previous = w2utils.deepCopy({}, cv); // clone object
 						}
 					}
 					// clean extra chars
@@ -845,7 +847,7 @@
 			if (eventData.isCancelled === true) return false;
 			// default actions
 			if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
-				this.original = $.extend(true, {}, this.record);
+				this.original = w2utils.deepCopy({}, this.record);
 			}
 			var html =  '<div>' +
 						(this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +

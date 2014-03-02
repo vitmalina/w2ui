@@ -68,6 +68,7 @@
 		this.sortData			= [];
 		this.postData			= {};
 		this.toolbar			= {}; 		// if not empty object; then it is toolbar object
+		this.handlers			= [];
 
 		this.show = {
 			header			: false,
@@ -174,7 +175,7 @@
 			navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
 			navigator.userAgent.toLowerCase().indexOf('ipad') != -1) ? true : false;
 
-		$.extend(true, this, w2obj.grid, options);
+		w2utils.deepCopy(this, w2obj.grid, options);
 	};
 
 	// ====================================================
@@ -195,16 +196,15 @@
 			var toolbar		= method.toolbar;
 			// extend items
 			var object = new w2grid(method);
-			$.extend(object, { postData: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
 			if (object.onExpand != null) object.show.expandColumn = true;
-			$.extend(true, object.toolbar, toolbar);
+			w2utils.deepCopy(object.toolbar, toolbar);
 			// reassign variables
-			for (var p in columns)		object.columns[p]		= $.extend(true, {}, columns[p]);
-			for (var p in columnGroups) object.columnGroups[p] 	= $.extend(true, {}, columnGroups[p]);
-			for (var p in searches)   	object.searches[p]   	= $.extend(true, {}, searches[p]);
-			for (var p in searchData) 	object.searchData[p] 	= $.extend(true, {}, searchData[p]);
-			for (var p in sortData)		object.sortData[p]  	= $.extend(true, {}, sortData[p]);
-			object.postData = $.extend(true, {}, postData);
+			for (var p in columns)		object.columns[p]		= w2utils.deepCopy({}, columns[p]);
+			for (var p in columnGroups) object.columnGroups[p] 	= w2utils.deepCopy({}, columnGroups[p]);
+			for (var p in searches)   	object.searches[p]   	= w2utils.deepCopy({}, searches[p]);
+			for (var p in searchData) 	object.searchData[p] 	= w2utils.deepCopy({}, searchData[p]);
+			for (var p in sortData)		object.sortData[p]  	= w2utils.deepCopy({}, sortData[p]);
+			object.postData = w2utils.deepCopy({}, postData);
 
 			// check if there are records without recid
 			for (var r in records) {
@@ -212,7 +212,7 @@
 					console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
 					return;
 				}
-				object.records[r] = $.extend(true, {}, records[r]);
+				object.records[r] = w2utils.deepCopy({}, records[r]);
 			}
 			if (object.records.length > 0) object.buffered = object.records.length;
 			// add searches
@@ -321,13 +321,13 @@
 			// update all records
 			if (recid == null) {
 				for (var r in this.records) {
-					$.extend(true, this.records[r], record); // recid is the whole record
+					w2utils.deepCopy(this.records[r], record); // recid is the whole record
 				}
 				if (noRefresh !== true) this.refresh();
 			} else { // find record to update
 				var ind = this.get(recid, true);
 				if (ind == null) return false;
-				$.extend(true, this.records[ind], record);
+				w2utils.deepCopy(this.records[ind], record);
 				if (noRefresh !== true) this.refreshRow(recid); // refresh only that record
 			}
 			return true;
@@ -1227,7 +1227,7 @@
 					var search 	= this.getSearch(data.field);
 					if (search == null) search = { type: 'text', operator: 'contains' };
 					// merge current field and search if any
-					searchData.push($.extend(true, {}, search, data));
+					searchData.push(w2utils.deepCopy({}, search, data));
 				}
 			}
 			// event before
@@ -1582,14 +1582,14 @@
 								this.summary = [];
 								//data.xhr_status=data.status;
 								delete data.status;
-								$.extend(true, this, data);
+								w2utils.deepCopy(this, data);
 								this.buffered = this.records.length;
 							} else {
 								var records = data.records;
 								delete data.records;
 								//data.xhr_status=data.status;
 								delete data.status;
-								$.extend(true, this, data);
+								w2utils.deepCopy(this, data);
 								for (var r in records) {
 									this.records.push(records[r]);
 								}
@@ -1638,7 +1638,7 @@
 			for (var r in this.records) {
 				var rec = this.records[r];
 				if (typeof rec['changes'] != 'undefined') {
-					changes.push($.extend(true, { recid: rec.recid }, rec.changes));
+					changes.push(w2utils.deepCopy({ recid: rec.recid }, rec.changes));
 				}
 			}
 			return changes;
@@ -3452,16 +3452,17 @@
 			if (typeof this.toolbar['render'] == 'undefined') {
 				var tmp_items = this.toolbar.items;
 				this.toolbar.items = [];
-				this.toolbar = $().w2toolbar($.extend(true, {}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
+				var toolbar_options = w2utils.deepCopy({}, this.toolbar, { name: this.name +'_toolbar', owner: this });
+				this.toolbar = $().w2toolbar(toolbar_options);
 
 				// =============================================
 				// ------ Toolbar Generic buttons
 
 				if (this.show.toolbarReload) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['reload']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['reload']));
 				}
 				if (this.show.toolbarColumns) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['columns']));
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
@@ -3491,26 +3492,26 @@
 						'</div>';
 					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
-						this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
+						this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['search-go']));
 					}
 				}
 				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
 					this.toolbar.items.push({ type: 'break', id: 'break1' });
 				}
 				if (this.show.toolbarAdd) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['add']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['add']));
 				}
 				if (this.show.toolbarEdit) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['edit']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['edit']));
 				}
 				if (this.show.toolbarDelete) {
-					this.toolbar.items.push($.extend(true, {}, this.buttons['delete']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['delete']));
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
 						this.toolbar.items.push({ type: 'break', id: 'break2' });
 					}
-					this.toolbar.items.push($.extend(true, {}, this.buttons['save']));
+					this.toolbar.items.push(w2utils.deepCopy({}, this.buttons['save']));
 				}
 				// add original buttons
 				for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
@@ -4145,7 +4146,7 @@
 							'</td>';
 				}
 				var ii = 0;
-				for (var i=0; i<obj.columnGroups.length; i++) {
+				for (var i = 0; i < obj.columnGroups.length; i++) {
 					var colg = obj.columnGroups[i];
 					var col  = obj.columns[ii];
 					if (typeof colg.span == 'undefined' || colg.span != parseInt(colg.span)) colg.span = 1;
@@ -4211,14 +4212,14 @@
 				}
 				var ii = 0;
 				var id = 0;
-				for (var i=0; i<obj.columns.length; i++) {
+				for (var i = 0; i < obj.columns.length; i++) {
 					var col  = obj.columns[i];
 					var colg = {};
 					if (i == id) {
-						id = id + (typeof obj.columnGroups[ii] != 'undefined' ? parseInt(obj.columnGroups[ii].span) : 0);
+						id = id + (typeof obj.columnGroups[ii] !== 'undefined' ? parseInt(obj.columnGroups[ii].span) : 0);
 						ii++;
 					}
-					if (typeof obj.columnGroups[ii-1] != 'undefined') var colg = obj.columnGroups[ii-1];
+					if (typeof obj.columnGroups[ii - 1] !== 'undefined') var colg = obj.columnGroups[ii - 1];
 					if (col.hidden) continue;
 					var sortStyle = '';
 					for (var si in obj.sortData) {

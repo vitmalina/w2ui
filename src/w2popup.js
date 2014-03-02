@@ -96,14 +96,18 @@ var w2popup = {};
 		open: function (options) {
 			var obj = this;
 			if (w2popup.status == 'closing') {
-				setTimeout(function () { obj.open.call(obj, options); }, 100);
+				setTimeout(function () {
+					obj.open.call(obj, options);
+				}, 100);
 				return;
 			}
 			// get old options and merge them
 			var old_options = $('#w2ui-popup').data('options');
 			var options = $.extend({}, this.defaults, { body : '' }, old_options, options, { maximized: false });
 			// need timer because popup might not be open
-			setTimeout(function () { $('#w2ui-popup').data('options', options); }, 100);
+			setTimeout(function () {
+				$('#w2ui-popup').data('options', options);
+			}, 100);
 			// if new - reset event handlers
 			if ($('#w2ui-popup').length == 0) {
 				w2popup.handlers	 = [];
@@ -616,7 +620,7 @@ var w2popup = {};
 				}, options.speed * 1000);
 			}
 		}
-	}
+	};
 
 	// merge in event handling
 	$.extend(w2popup, w2utils.event);

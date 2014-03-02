@@ -18,6 +18,7 @@
 		this.extraCols		= [];
 		this.itemExtra		= {};
 		this.items			= [];
+		this.handlers		= [];
 		this.menu			= [];
 		this.multiselect	= true;		// multiselect support
 		this.keyboard		= true;		// keyboard support
@@ -32,8 +33,8 @@
 		this.onRefresh		= null;
 		this.onDestroy		= null;
 
-		$.extend(this, { handlers: [] });
-		$.extend(true, this, w2obj.listview, options);
+		w2utils.deepCopy(this, w2obj.listview, options);
+
 		for (var i = 0; i < this.extraCols.length; i++) {
 			this.itemExtra[this.extraCols[i].name] = '';
 		}
@@ -51,12 +52,10 @@
 				method.vType = method.viewType;
 				delete method.viewType;
 			}
-			var itms = method.items;
+			var items = method.items || [];
 			obj = new w2listview(method);
-			if ($.isArray(itms)) {
-				for (var i = 0; i < itms.length; i++) {
-					obj.items[i] = $.extend({}, w2listview.prototype.item, obj.itemExtra, itms[i]);
-				}
+			for (var i = 0, len = items.length; i < len; i++) {
+				obj.items[i] = $.extend({}, w2listview.prototype.item, obj.itemExtra, items[i]);
 			}
 			if ($(this).length !== 0) {
 				obj.render($(this)[0]);
@@ -445,7 +444,9 @@
 					$(obj.itemNode(id))
 						.w2menu(obj.menu, {
 							left: (event ? event.offsetX || event.pageX : 50) - 25,
-							select: function (item, event, index) { obj.menuClick(id, index, event); }
+							select: function (item, event, index) {
+								obj.menuClick(id, index, event);
+							}
 						});
 				}
 				// event after
