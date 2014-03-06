@@ -254,7 +254,7 @@
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, object: this.get(panel), immediate: immediate });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 
 			var p = obj.get(panel);
 			if (p === null) return false;
@@ -298,7 +298,7 @@
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, object: this.get(panel), immediate: immediate });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 
 			var p = obj.get(panel);
 			if (p === null) return false;
@@ -414,7 +414,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = obj.trigger({ phase: 'before', type: 'render', target: obj.name, box: box });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 
 			if (typeof box != 'undefined' && box !== null) {
 				if ($(obj.box).find('#layout_'+ obj.name +'_panel_main').length > 0) {
@@ -561,7 +561,7 @@
 				var tmp = obj.tmp.resize;
 				var eventData = obj.trigger({ phase: 'before', type: 'resizing', target: obj.name, object: panel, originalEvent: evnt,
 					panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 });
-				if (eventData.isCancelled === true) return false;
+				if (eventData.isCancelled === true) return;
 
 				var p			= $('#layout_'+ obj.name + '_resizer_'+ tmp.type);
 				var resize_x	= (evnt.screenX - tmp.x);
@@ -719,7 +719,7 @@
 			var tmp = this.tmp.resize;
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name,
 				panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0  });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			if (this.padding < 0) this.padding = 0;
 
 			// layout itself
@@ -793,7 +793,7 @@
 					}).off('mousedown').on('mousedown', function (event) {
 						// event before
 						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
-						if (eventData.isCancelled === true) return false;
+						if (eventData.isCancelled === true) return;
 						// default action
 						w2ui[obj.name].tmp.events.resizeStart('top', event);
 						// event after
@@ -836,7 +836,7 @@
 					}).off('mousedown').on('mousedown', function (event) {
 						// event before
 						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
-						if (eventData.isCancelled === true) return false;
+						if (eventData.isCancelled === true) return;
 						// default action
 						w2ui[obj.name].tmp.events.resizeStart('left', event);
 						// event after
@@ -878,7 +878,7 @@
 					}).off('mousedown').on('mousedown', function (event) {
 						// event before
 						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
-						if (eventData.isCancelled === true) return false;
+						if (eventData.isCancelled === true) return;
 						// default action
 						w2ui[obj.name].tmp.events.resizeStart('right', event);
 						// event after
@@ -918,7 +918,7 @@
 					}).off('mousedown').on('mousedown', function (event) {
 						// event before
 						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
-						if (eventData.isCancelled === true) return false;
+						if (eventData.isCancelled === true) return;
 						// default action
 						w2ui[obj.name].tmp.events.resizeStart('bottom', event);
 						// event after
@@ -981,7 +981,7 @@
 					}).off('mousedown').on('mousedown', function (event) {
 						// event before
 						var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
-						if (eventData.isCancelled === true) return false;
+						if (eventData.isCancelled === true) return;
 						// default action
 						w2ui[obj.name].tmp.events.resizeStart('preview', event);
 						// event after
@@ -1034,7 +1034,7 @@
 		destroy: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			if (typeof w2ui[this.name] == 'undefined') return false;
 			// clean up
 			if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {

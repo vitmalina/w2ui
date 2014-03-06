@@ -207,7 +207,7 @@
 			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), object: this.get(id) });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			if (typeof id === 'undefined') {
 				// refresh all
 				for (var i = 0; i < this.tabs.length; i++) this.refresh(this.tabs[i].id);
@@ -253,7 +253,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// default action
 			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			if (typeof box !== 'undefined' && box !== null) {
@@ -285,7 +285,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 
 			// intentionaly blank
 
@@ -297,7 +297,7 @@
 		destroy: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// clean up
 			if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
 				$(this.box)
@@ -318,7 +318,7 @@
 			if (tab === null || tab.disabled) return false;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, object: this.get(id), originalEvent: event });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// default action
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
 			this.active = tab.id;
@@ -332,7 +332,7 @@
 			if (tab === null || tab.disabled) return false;
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// default action
 			var obj = this;
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css({

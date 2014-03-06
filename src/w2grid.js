@@ -1480,7 +1480,7 @@
 			// event before
 			if (cmd == 'get-records') {
 				var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
-				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack(); return false; }
+				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack(); return; }
 			} else {
 				var eventData = { url: url, postData: params };
 			}
@@ -1540,7 +1540,7 @@
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
 			if (eventData.isCancelled === true) {
 				if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
-				return false;
+				return;
 			}
 			// parse server response
 			var data;
@@ -1635,7 +1635,7 @@
 			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
 			if (eventData.isCancelled === true) {
 				if (typeof callBack == 'function') callBack();
-				return false;
+				return;
 			}
 			w2alert(msg, 'Error');
 			// event after
@@ -1674,7 +1674,7 @@
 			var changes = this.getChanges();
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'submit', changes: changes });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			var url = (typeof this.url != 'object' ? this.url : this.url.save);
 			if (url) {
 				this.request('save-records', { 'changes' : eventData.changes }, null,
@@ -1924,7 +1924,7 @@
 			var obj = this;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			force = eventData.force;
 			// default action
 			var recs = this.getSelection();
@@ -1982,7 +1982,7 @@
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, originalEvent: event });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// if it is subgrid unselect top grid
 			var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).parents('tr');
 			if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
@@ -2070,7 +2070,7 @@
 		columnClick: function (field, event) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// default behaviour
 			this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
 			// event after
@@ -2083,7 +2083,7 @@
 			if (obj.keyboard !== true) return;
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// default behavior
 			var empty	= false;
 			var records = $('#grid_'+ obj.name +'_records');
@@ -2493,7 +2493,7 @@
 			}
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, originalEvent: event });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// default action
 			this.selectNone();
 			var col = this.columns[column];
@@ -2533,7 +2533,7 @@
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', ready: ready });
 			if (eventData.isCancelled === true) {
 				$('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove();
-				return false;
+				return;
 			}
 			// default action
 			$('#grid_'+ this.name +'_rec_'+ id).attr('expanded', 'yes').addClass('w2ui-expanded');
@@ -2564,7 +2564,7 @@
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid,
 				box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded' });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// default action
 			$('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded');
 			$('#grid_'+ this.name +'_rec_'+ id +'_expanded').css('opacity', 0);
@@ -2585,7 +2585,7 @@
 		sort: function (field, direction, multiField) { // if no params - clears sort
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, multiField: multiField });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// check if needed to quit
 			if (typeof field != 'undefined') {
 				// default action
@@ -2732,7 +2732,7 @@
 				.css('height', $(this.box).height());
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// resize
 			obj.resizeBoxes();
 			obj.resizeRecords();
@@ -2787,7 +2787,7 @@
 			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// -- header
 			if (this.show.header) {
 				$('#grid_'+ this.name +'_header').html(this.header +'&nbsp;').show();
@@ -2927,7 +2927,7 @@
 			if (this.last.sortData == null) this.last.sortData = this.sortData;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// insert Elements
 			$(this.box)
 				.attr('name', this.name)
@@ -3097,7 +3097,7 @@
 		destroy: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// remove events
 			$(window).off('resize', this.tmp_resize);
 			// clean up
@@ -3410,7 +3410,7 @@
 		columnOnOff: function (el, event, field, value) {
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, originalEvent: event });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// regular processing
 			var obj = this;
 			// collapse expanded rows
@@ -3530,7 +3530,7 @@
 				var obj = this;
 				this.toolbar.on('click', function (event) {
 					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
-					if (eventData.isCancelled === true) return false;
+					if (eventData.isCancelled === true) return;
 					var id = event.target;
 					switch (id) {
 						case 'reload':

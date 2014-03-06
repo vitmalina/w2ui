@@ -227,7 +227,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 
 			if (box != null) {
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
@@ -271,7 +271,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), item: this.get(id) });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 
 			if (id == null) {
 				// refresh all
@@ -316,7 +316,7 @@
 			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 
 			// intentionaly blank
 
@@ -328,7 +328,7 @@
 		destroy: function () {
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-			if (eventData.isCancelled === true) return false;
+			if (eventData.isCancelled === true) return;
 			// clean up
 			if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 				$(this.box)
@@ -405,7 +405,7 @@
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id + ':' + event.subItem.id, item: event.item,
 					subItem: event.subItem, originalEvent: event.originalEvent });
-				if (eventData.isCancelled === true) return false;
+				if (eventData.isCancelled === true) return;
 
 				// intentionaly blank
 
@@ -421,7 +421,7 @@
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id !== 'undefined' ? id : this.name),
 					item: this.get(id), originalEvent: event });
-				if (eventData.isCancelled === true) return false;
+				if (eventData.isCancelled === true) return;
 
 				var btn = $('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button');
 				btn.removeClass('down');
