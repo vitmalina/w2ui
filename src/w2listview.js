@@ -536,7 +536,7 @@
 				var imgClass = (item.icon !== null && typeof item.icon !== 'undefined') ? ' '+item.icon : ' icon-none';
 				if (item.img !== null && typeof item.img !== 'undefined') imgClass = ' w2ui-icon '+item.img;
 
-				var withDescription = (typeof item.description !== undefined && item.description !== '');
+				var withDescription = (typeof item.description !== 'undefined' && item.description !== '');
 				var withExtra = (obj.extraCols.length > 0);
 				var rslt = getItemTemplate(withDescription, withExtra);
 				rslt.id = obj.itemNodeId(item.id);
