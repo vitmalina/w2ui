@@ -37,11 +37,7 @@ var w2popup = {};
 		if (method === 'load' && typeof options === 'string') {
 			options = $.extend({ url: options }, arguments.length > 2 ? arguments[2] : {});
 		}
-<<<<<<< HEAD
-		if (method === 'open' && typeof options.url != 'undefined') method = 'load';
-=======
 		if (method === 'open' && options.url != null) method = 'load';
->>>>>>> 575bdf1... - all the lines `if (parent.nodes === null) return null;` were too happy to use triple equal `===` as parent.nodes = undefined slipped through and caused crashes
 		options = options || {};
 		// load options from markup
 		var dlgOptions = {};
