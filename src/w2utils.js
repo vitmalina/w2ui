@@ -1170,6 +1170,7 @@ w2utils.keyboard = (function (obj) {
 			'class'		: '',		// additional class name for main dvi
 			onShow		: null,		// event on show
 			onHide		: null,		// event on hide
+			openAbove	: false,	// show abover control
 			tmp			: {}
 		};
 		if (!$.isPlainObject(options)) options = {};
@@ -1323,7 +1324,7 @@ w2utils.keyboard = (function (obj) {
 				// $(window).height() - has a problem in FF20
 				var maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
 				var maxWidth  = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
-				if (maxHeight > -50 && maxHeight < 210) {
+				if ((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) {
 					// show on top
 					maxHeight = div2.offset().top - $(document).scrollTop() - 7;
 					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;

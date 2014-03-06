@@ -23,6 +23,7 @@
 *	- add showExtra, KickIn Infinite scroll when so many records
 *	- get rid of this.buffered
 *	- allow this.total to be unknown (-1)
+*	- after edit stay on the same record 
 *
 * == 1.4 changes
 *	- for search fields one should be able to pass w2field options
