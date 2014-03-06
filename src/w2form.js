@@ -191,10 +191,6 @@
 		clear: function () {
 			this.recid  = 0;
 			this.record = {};
-			// clear all enum fields
-			for (var f in this.fields) {
-				var field = this.fields[f];
-			}
 			$().w2tag();
 			this.refresh();
 		},
