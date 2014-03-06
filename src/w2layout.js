@@ -1051,7 +1051,7 @@
 		},
 
 		lock: function (panel, msg, showSpinner) {
-			if ($.inArray(String(panel), w2layout_panels) == -1) {
+			if (w2layout_panels.indexOf(panel) == -1) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
@@ -1061,7 +1061,7 @@
 		},
 
 		unlock: function (panel) {
-			if ($.inArray(String(panel), w2layout_panels) == -1) {
+			if (w2layout_panels.indexOf(panel) == -1) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
