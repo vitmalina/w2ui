@@ -62,13 +62,15 @@ Please make sure that the same issue was not previously submitted by someone els
 
 ## Building
 
-I use ANT to build the project. It does the following
+I have switched to Grunt as a build tool. You will find Gruntfile.js in the root. You still can build with ANT if you are more comformatble with it. 
+Both processes will produces same w2ui.js and w2ui.css files. Grunt has a few more tasks, such as watch, to auto compiles less and js files as you 
+develop. Both tools will do the following:
 
-- Compiles LESS files
-- Concatenates and minifies CSS files
-- Concatenates and minifies JS files 
+- Compile LESS files
+- Concatenate and minify CSS files
+- Concatenate, uglify and minify JS files 
 
-In order to be able to use ANT, you will need to install Node.JS and NPM on your machine, then run the following command to install dependencies
+To use ANT, you will need to install NodeJS and NPM, then run the following command to install dependencies
 
 ```
 sudo npm install less -g
@@ -76,25 +78,26 @@ sudo npm install clean-css -g
 sudo npm install uglify-js@1 -g
 ```
 
+To use Grunt, you will still need to install NodeJS and NPM, then run npm install that will install all dependencies as
+they are described in package.json file.
+
+```
+sudo npm install
+```
 
 ## File Structure
 
 ```
-- dist 			- compiled JS files, plus compiled CSS files 
+- dist 			- compiled JS and CSS files 
 - src 			- source JS files
-  - kickstart 		- copy of another project used with the demos (not part of w2ui itself)
+  - kickstart 	- copy of another project used with the demos (not part of w2ui itself)
   - less 		- LESS files (source for css)
 - demos 		- all demos, same as on the website
 - libs			- auxilary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
 - server		- example implementations for a server implementation communicating with w2ui instances
 - test 			- feature testing files
+  - qunit		- some qunit test
 ```
-
-
-## Other Build Tools
-
-You can use other tools to build. Grunt seems to be promissing, and will do everything you need. You still need to install same dependencies
-if you want to use grunt.
 
 
 ## Contributing
