@@ -287,17 +287,15 @@
 						markSearch 		: false
 					};
 					if (this.type == 'list') {
-						defaults.search = (options.items && options.items.length >= 10 ? true : false);
+						// defaults.search = (options.items && options.items.length >= 10 ? true : false);
+						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
-						$(this.el).addClass('w2ui-select').attr('readonly', true);
-						this.addFocus();
+						$(this.el).addClass('w2ui-select');
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
 						altRows		: true			// alternate row color
 					});
-					if (this.type == 'combo') options.search = false; // always false for combo because it uses main input for search
-					if (this.type == 'list') options.openOnFocus = true; // always true for list otherwise makes no sense
 					options.items 	 = this.normMenu(options.items);
 					options.selected = this.normMenu(options.selected);
 					this.options = options;
@@ -436,7 +434,7 @@
 				$(this.el).removeAttr('maxlength');
 			}
 			if (this.type == 'list') {
-				$(this.el).removeClass('w2ui-select').removeAttr('readonly');
+				$(this.el).removeClass('w2ui-select');
 			}
 			// remove events and data
 			$(this.el)
@@ -460,6 +458,7 @@
 			var obj		 = this;
 			var options	 = this.options;
 			var selected = $(this.el).data('selected');
+			var time 	 = (new Date()).getTime();
 			// enum
 			if (['enum', 'file'].indexOf(this.type) != -1) {
 				var html = '';
@@ -595,6 +594,7 @@
 				if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0);
 				$(this.el).css({ 'height' : (cntHeight + 2) + 'px' });
 			}
+			return (new Date()).getTime() - time;
 		},
 
 		reset: function () {
@@ -691,26 +691,8 @@
 				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 				setTimeout(function () { obj.updateOverlay(); }, 150);
 			}
-			// list
-			if (obj.type == 'list') {
-				if (!$(obj.el).data('focused')) {
-					obj.helpers.focus.find('input').focus();
-				} else {
-					$(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
-					setTimeout(function () {
-						if (!options.search) {
-							$(obj.el).data('keep_focus', true);
-							setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
-							obj.helpers.focus.find('input').focus();
-						} else {
-							setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
-						}
-					}, 10);
-					obj.updateOverlay();
-				}
-			}
 			// menu
-			if (['combo', 'enum'].indexOf(obj.type) != -1) {
+			if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
 				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 				setTimeout(function () {
@@ -729,7 +711,7 @@
 			var options = obj.options;
 			var val 	= $(obj.el).val().trim();
 			// hide overlay
-			if (['color', 'date', 'time', 'combo', 'enum'].indexOf(obj.type) != -1) {
+			if (['color', 'date', 'time', 'list', 'combo', 'enum'].indexOf(obj.type) != -1) {
 				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 			}
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
@@ -765,13 +747,6 @@
 							setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
 						}
 					}
-				}
-			}
-			if (obj.type == 'list') {
-				if ($(obj.el).data('focused')) {
-					obj.helpers.focus.find('input').blur();
-				} else {
-					$(obj.el).css({ 'outline': 'none' });
 				}
 			}
 			// clear search input
@@ -942,7 +917,7 @@
 			}
 			// list/select/combo
 			if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
-				if ($(obj.el).attr('readonly') && obj.type != 'list') return;
+				if ($(obj.el).attr('readonly')) return;
 				var cancel		= false;
 				var selected	= $(obj.el).data('selected');
 				// apply arrows
@@ -990,11 +965,7 @@
 							if (item) $(obj.el).data('selected', item).val(item.text).change();
 							if ($(obj.el).val() == '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').change();
 							// hide overlay
-							if (obj.type == 'list') {
-								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
-							} else {
-								obj.tmp.force_hide = true;
-							}
+							obj.tmp.force_hide = true;
 						}
 						break;
 					case 8: // delete
@@ -1126,6 +1097,7 @@
 							if (eventData2.isCancelled === true) return;
 							// default behavior
 							data = eventData2.data;
+							if (typeof data == 'string') data = JSON.parse(data);
 							if (data.status != 'success') {
 								console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
 								return;
@@ -1170,7 +1142,6 @@
 			var search 	= $(obj.el).val();
 			var target	= obj.el;
 			var ids = [];
-			if (obj.type == 'list') return; // list has its own search field
 			if (['enum'].indexOf(obj.type) != -1) {
 				target = $(obj.helpers.multi).find('input');
 				search = target.val();
@@ -1315,7 +1286,7 @@
 					el		= $(this.helpers.multi);
 					input	= $(el).find('input');
 				}
-				if ($(input).is(':focus') || this.type == 'list') {
+				if ($(input).is(':focus')) {
 					if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
 						$().w2overlay();
 						return;
@@ -1327,6 +1298,7 @@
 					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
+						search		: false,
 						render		: options.renderDrop,
 						maxHeight	: options.maxDropHeight,
 						// selected with mouse
@@ -1348,24 +1320,9 @@
 									// event after
 									obj.trigger($.extend(eventData, { phase: 'after' }));
 								}
-							} else if (obj.type == 'list') {
-								if (typeof event.item != 'undefined') {
-									$(obj.el).data('selected', event.item).val(event.item.text).change();
-								}
-								// hide overlay, focus helper
-								setTimeout(function () {
-									$('#w2ui-overlay').remove();
-									if (options.search) obj.helpers.focus.find('input').focus();
-								}, 1);
 							} else {
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
 							}
-						},
-						onHide: function (event) {
-							// need time out for poup to finaly get hidden
-							setTimeout(function () {
-								if (obj.type == 'list') obj.blur();
-							}, 1);
 						}
 					}));
 				}
@@ -1664,66 +1621,7 @@
 					});
 			}
 			obj.refresh();
-		},
-
-		addFocus: function () {
-			var obj 	= this;
-			setTimeout(function () {
-				var helper;
-				$(obj.el).before('<div class="w2ui-field-helper" style="margin-left: 30px; opacity: 0"><input type="text" size="1"></div>');
-				helper = $(obj.el).prev();
-				obj.helpers.focus = helper;
-				var index = $(obj.el).attr('tabindex');
-				var input = helper.find('input');
-				if (index > 0) input.attr('tabindex', index);
-				$(obj.el).attr('tabindex', -1);
-				input
-					.on('focus', function (event) {
-						var options = obj.options; // need it in this function
-						if (!$(obj.el).data('focused')) {
-							$(obj.el).data('focused', true);
-							$(obj.el).triggerHandler('focus');
-							if (options.search) {
-								setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
-							}
-							// -- keep focus
-							$(obj.el).data('keep_focus', true);
-							setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
-						}
-					})
-					.on('blur', function (event) {
-						setTimeout(function () {
-							if ($(obj.el).data('keep_focus')) return;
-							if ($(obj.el).data('focused')) {
-								$(obj.el).removeData('focused');
-								$(obj.el).triggerHandler('blur');
-								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
-							}
-						}, 30);
-					})
-					.on('keyup', function (event) { obj.keyUp(event) })
-					.on('keydown', function (event) {
-						if (event.keyCode == 40) {
-							if ($('#w2ui-overlay').length == 0) {
-								setTimeout(function () {
-									obj.updateOverlay();
-									setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
-									// -- keep focus
-									$(obj.el).data('keep_focus', true);
-									setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
-								}, 10);
-								return;
-							}
-						}
-						if (event.keyCode == 27 && $('#w2ui-overlay').length == 0) {
-							$(obj.el).val('').removeData('selected').change();
-							return;
-						}
-						obj.keyDown(event);
-					})
-					.on('keypress', function (event) { obj.keyPress(event); });
-			}, 1);
-		},
+		},	
 
 		addFile: function (file) {
 			var obj		 = this;
