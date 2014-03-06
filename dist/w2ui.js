@@ -222,7 +222,7 @@ var w2utils = (function () {
 	}
 
 	function age (dateStr) {
-		if (dateStr === '' || typeof dateStr === 'undefined' || dateStr === null) return '';
+		if (dateStr === '' || dateStr == null) return '';
 		var d1 = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
 		if (d1 === 'Invalid Date') return '';
@@ -258,7 +258,7 @@ var w2utils = (function () {
 	}
 
 	function date (dateStr) {
-		if (dateStr === '' || typeof dateStr === 'undefined' || dateStr === null) return '';
+		if (dateStr === '' || dateStr == null) return '';
 		var d1 = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
 		if (d1 === 'Invalid Date') return '';
@@ -292,12 +292,12 @@ var w2utils = (function () {
 
 	function formatNumber (val, groupSymbol) {
 		var ret = '';
-		if (typeof groupSymbol === 'undefined') groupSymbol = w2utils.settings.groupSymbol || ',';
+		if (groupSymbol == null) groupSymbol = w2utils.settings.groupSymbol || ',';
 		// check if this is a number
 		if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
 			tmp = String(val).split('.');
-			ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1"+ groupSymbol);
-			if (typeof tmp[1] !== 'undefined') ret += '.' + tmp[1];
+			ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + groupSymbol);
+			if (tmp[1] != null) ret += '.' + tmp[1];
 		}
 		return ret;
 	}
@@ -305,8 +305,8 @@ var w2utils = (function () {
 	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format === 'undefined') format = this.settings.date_format;
-		if (typeof dateStr === 'undefined' || dateStr === '' || dateStr === null) return '';
+		if (!format) format = this.settings.date_format;
+		if (dateStr === '' || dateStr == null) return '';
 
 		var dt = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
@@ -321,18 +321,18 @@ var w2utils = (function () {
 			.replace(/yyyy/g, year)
 			.replace(/yyy/g, year)
 			.replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
-			.replace(/(^|[^a-z$])y/g, '$1'+year)			// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])y/g, '$1' + year) 			// only y's that are not preceeded by a letter
 			.replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
 			.replace(/dd/g, (date < 10 ? '0' : '') + date)
-			.replace(/(^|[^a-z$])m/g, '$1'+ (month + 1))	// only y's that are not preceeded by a letter
-			.replace(/(^|[^a-z$])d/g, '$1' + date);			// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])m/g, '$1' + (month + 1)) 	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])d/g, '$1' + date); 		// only y's that are not preceeded by a letter
 	}
 
 	function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format === 'undefined') format = (this.settings.time_format === 'h12' ? 'hh:mi pm' : 'h24:mi');
-		if (typeof dateStr === 'undefined' || dateStr === '' || dateStr === null) return '';
+		if (!format) format = (this.settings.time_format === 'h12' ? 'hh:mi pm' : 'h24:mi');
+		if (dateStr === '' || dateStr == null) return '';
 
 		var dt = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
@@ -403,7 +403,7 @@ var w2utils = (function () {
 	}
 
 	function escapeId (id) {
-		if (typeof id === 'undefined' || id === '' || id === null) return '';
+		if (id === '' || id == null) return '';
 		return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1');
 	}
 
@@ -484,7 +484,7 @@ var w2utils = (function () {
 		function utf8_decode (utftext) {
 			var string = "";
 			var i = 0;
-			var c = 0, c2 = 0, c3 = 0;
+			var c = 0, c2, c3;
 
 			while ( i < utftext.length ) {
 				c = utftext.charCodeAt(i);
@@ -733,7 +733,7 @@ var w2utils = (function () {
 		var mess = $(box).find('.w2ui-lock-msg');
 		if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' });
 		if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
-		if (typeof options.opacity !== 'undefined') $lock.css('opacity', options.opacity);
+		if (options.opacity != null) $lock.css('opacity', options.opacity);
 		$lock.fadeIn(200);
 		mess.html(options.msg).fadeIn(200);
 		// hide all tags (do not hide overlays as the form can be in overlay)
@@ -780,7 +780,7 @@ var w2utils = (function () {
 
 	function lang (phrase) {
 		var translation = this.settings.phrases[phrase];
-		if (typeof translation === 'undefined') return phrase; else return translation;
+		if (translation == null) return phrase; else return translation;
 	}
 
 	function locale (locale) {
@@ -868,21 +868,21 @@ w2utils.event = {
 	on: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, eventData);
-		
-		if (typeof eventData.type === 'undefined') { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
-		if (typeof handler === 'undefined') { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
+
+		if (!eventData.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
+		if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
 		this.handlers.push({ event: eventData, handler: handler });
 	},
 
 	off: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, eventData);
-	
-		if (typeof eventData.type === 'undefined') { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
-		if (typeof handler === 'undefined') { handler = null;  }
+
+		if (!eventData.type) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
+		if (!handler) { handler = null; }
 		// remove handlers
 		var newHandlers = [];
-		for (var h = 0; h < this.handlers.length; h++) {
+		for (var h = 0, len = this.handlers.length; h < len; h++) {
 			var t = this.handlers[h];
 			if ((t.event.type === eventData.type || eventData.type === '*') &&
 				(t.event.target === eventData.target || eventData.target === null) &&
@@ -902,8 +902,8 @@ w2utils.event = {
 				stopPropagation : function () { this.isStopped   = true; }
 			});
 		var args, fun, tmp;
-		if (typeof eventData.target === 'undefined') eventData.target = null;
-		// process events in REVERSE order 
+		if (eventData.target == null) eventData.target = null;
+		// process events in REVERSE order
 		for (var h = this.handlers.length-1; h >= 0; h--) {
 			var item = this.handlers[h];
 			if ((item.event.type === eventData.type || item.event.type === '*') &&
@@ -939,7 +939,7 @@ w2utils.event = {
 			if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 		}
 		// item object events
-		if (typeof eventData.object !== 'undefined' && eventData.object !== null && eventData.phase === 'before' &&
+		if (eventData.object != null && eventData.phase === 'before' &&
 			typeof eventData.object[funName] === 'function')
 		{
 			fun = eventData.object[funName];
@@ -955,8 +955,8 @@ w2utils.event = {
 			if (eventData.isStopped === true || eventData.stop === true) return eventData;
 		}
 		// execute onComplete
-		if (eventData.phase === 'after' && typeof eventData.onComplete === 'function')	eventData.onComplete.call(this, eventData);
-	
+		if (eventData.phase === 'after' && typeof eventData.onComplete === 'function') eventData.onComplete.call(this, eventData);
+
 		return eventData;
 	}
 };
@@ -1041,9 +1041,9 @@ w2utils.keyboard = (function (obj) {
 	};
 
 	$.fn.w2marker = function (str) {
-		if (str === '' || typeof str === 'undefined') { // remove marker
-			return $(this).each(function (index, el) {			
-				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark		
+		if (str === '' || str == null) { // remove marker
+			return $(this).each(function (index, el) {
+				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
 			});
 		} else { // add marker
 			return $(this).each(function (index, el) {
@@ -1058,7 +1058,7 @@ w2utils.keyboard = (function (obj) {
 					el.innerHTML = el.innerHTML.replace(regex, replaceValue);
 				}
 				function replaceValue(matched) { // mark new
-						return '<span class="w2ui-marker">' + matched + '</span>';
+					return '<span class="w2ui-marker">' + matched + '</span>';
 				}
 			});
 		}
@@ -1074,7 +1074,7 @@ w2utils.keyboard = (function (obj) {
 		if ($(this).length === 0) {
 			$('.w2ui-tag').each(function (index, elem) {
 				var opt = $(elem).data('options');
-				if (typeof opt === 'undefined') opt = {};
+				if (opt == null) opt = {};
 				$($(elem).data('taged-el')).removeClass( opt['class'] );
 				clearInterval($(elem).data('timer'));
 				$(elem).remove();
@@ -1085,7 +1085,7 @@ w2utils.keyboard = (function (obj) {
 			// show or hide tag
 			var tagOrigID = el.id;
 			var tagID = w2utils.escapeId(el.id);
-			if (text === '' || text === null || typeof text === 'undefined') {
+			if (text === '' || text == null) {
 				$('#w2ui-tag-'+tagID).css('opacity', 0);
 				setTimeout(function () {
 					// remmove element
@@ -1179,7 +1179,7 @@ w2utils.keyboard = (function (obj) {
 		if (options.name) name = '-' + options.name;
 		// if empty then hide
 		var tmp_hide;
-		if (this.length === 0 || html === '' || typeof html === 'undefined') {
+		if (this.length === 0 || html === '' || html == null) {
 			if ($('#w2ui-overlay'+ name).length > 0) {
 				tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
 				if (typeof tmp_hide === 'function') tmp_hide();
@@ -1205,8 +1205,8 @@ w2utils.keyboard = (function (obj) {
 		var div2 = div1.find(' > div');
 		div2.html(html);
 		// pick bg color of first div
-		var bc  = div2.css('background-color'); 
-		if (typeof bc !== 'undefined' && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
+		var bc  = div2.css('background-color');
+		if (bc != null && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
 
 		div1.data('element', obj.length > 0 ? obj[0] : null)
 			.data('options', options)
@@ -1292,10 +1292,10 @@ w2utils.keyboard = (function (obj) {
 					setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
 				}
 				// alignment
-				switch(options.align) {
+				switch (options.align) {
 					case 'both':
 						options.left = 17;
-						if (options.width === 0)	options.width = w2utils.getSize($(obj), 'width');
+						if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
 						break;
 					case 'left':
 						options.left = 17;
@@ -1471,7 +1471,7 @@ w2utils.keyboard = (function (obj) {
 			var search	= this.value;
 			var key		= event.keyCode;
 			var cancel	= false;
-			switch(key) {
+			switch (key) {
 				case 13: // enter
 					$('#w2ui-overlay'+ name).remove();
 					$.fn.w2menuHandler(event, options.index);
@@ -1543,13 +1543,13 @@ w2utils.keyboard = (function (obj) {
 				if (typeof mitem === 'string') {
 					mitem = { id: mitem, text: mitem };
 				} else {
-					if (typeof mitem.text !== 'undefined' && typeof mitem.id === 'undefined') mitem.id = mitem.text;
-					if (typeof mitem.text === 'undefined' && typeof mitem.id !== 'undefined') mitem.text = mitem.id;
-					if (typeof mitem.caption !== 'undefined') mitem.text = mitem.caption;
+					if (mitem.text != null && mitem.id == null) mitem.id = mitem.text;
+					if (mitem.text == null && mitem.id != null) mitem.text = mitem.id;
+					if (mitem.caption != null) mitem.text = mitem.caption;
 					img  = mitem.img;
 					icon = mitem.icon;
-					if (typeof img  === 'undefined') img  = null;
-					if (typeof icon === 'undefined') icon = null;
+					if (img  == null) img  = null;
+					if (icon == null) icon = null;
 				}
 				if (mitem.hidden !== true) {
 					var imgd = '';
@@ -1819,7 +1819,7 @@ w2utils.keyboard = (function (obj) {
 			// init toolbar
 			object.initToolbar();
 			// render if necessary
-			if ($(this).length != 0) {
+			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
 			// register new object
@@ -1892,7 +1892,7 @@ w2utils.keyboard = (function (obj) {
 			// check if property is nested - needed for speed
 			for (var o in obj) if (String(o).indexOf('.') != -1) hasDots = true;
 			// look for an item
-			for (var i=0; i<this.records.length; i++) {
+			for (var i = 0; i < this.records.length; i++) {
 				var match = true;
 				for (var o in obj) {
 					var val = this.records[i][o];
@@ -1927,7 +1927,7 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		get: function (recid, returnIndex) {
-			for (var i=0; i<this.records.length; i++) {
+			for (var i = 0; i < this.records.length; i++) {
 				if (this.records[i].recid == recid) {
 					if (returnIndex === true) return i; else return this.records[i];
 				}
@@ -1985,7 +1985,7 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		getColumn: function (field, returnIndex) {
-			for (var i=0; i<this.columns.length; i++) {
+			for (var i = 0; i < this.columns.length; i++) {
 				if (this.columns[i].field == field) {
 					if (returnIndex === true) return i; else return this.columns[i];
 				}
@@ -2066,7 +2066,7 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		getSearch: function (field, returnIndex) {
-			for (var i=0; i<this.searches.length; i++) {
+			for (var i = 0; i < this.searches.length; i++) {
 				if (this.searches[i].field == field) {
 					if (returnIndex === true) return i; else return this.searches[i];
 				}
@@ -2570,12 +2570,12 @@ w2utils.keyboard = (function (obj) {
 			sel.indexes = [];
 			if (!url && this.searchData.length !== 0) {
 				// local search applied
-				for (var i=0; i < this.last.searchIds.length; i++) {
+				for (var i = 0; i < this.last.searchIds.length; i++) {
 					sel.indexes.push(this.last.searchIds[i]);
 					if (this.selectType != 'row') sel.columns[this.last.searchIds[i]] = cols.slice(); // .slice makes copy of the array
 				}
 			} else {
-				for (var i=0; i < this.records.length; i++) {
+				for (var i = 0; i < this.records.length; i++) {
 					sel.indexes.push(i);
 					if (this.selectType != 'row') sel.columns[i] = cols.slice(); // .slice makes copy of the array
 				}
@@ -5392,7 +5392,7 @@ w2utils.keyboard = (function (obj) {
 				var percent = 0;
 				// gridMinWidth processiong
 				var restart = false;
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (typeof col.gridMinWidth != 'undefined') {
 						if (col.gridMinWidth > width_box && col.hidden !== true) {
@@ -5410,7 +5410,7 @@ w2utils.keyboard = (function (obj) {
 					return;
 				}
 				// assign PX column s
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (col.hidden) continue;
 					if (String(col.size).substr(String(col.size).length-2).toLowerCase() == 'px') {
@@ -5425,7 +5425,7 @@ w2utils.keyboard = (function (obj) {
 				}
 				// if sum != 100% -- reassign proportionally
 				if (percent != 100 && percent > 0) {
-					for (var i=0; i<this.columns.length; i++) {
+					for (var i = 0; i < this.columns.length; i++) {
 						var col = this.columns[i];
 						if (col.hidden) continue;
 						if (col.sizeType == '%') {
@@ -5434,7 +5434,7 @@ w2utils.keyboard = (function (obj) {
 					}
 				}
 				// calculate % columns
-				for (var i=0; i<this.columns.length; i++) {
+				for (var i = 0; i < this.columns.length; i++) {
 					var col = this.columns[i];
 					if (col.hidden) continue;
 					if (col.sizeType == '%') {
@@ -5450,7 +5450,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			// fix margin of error that is due percentage calculations
 			var width_cols = 0;
-			for (var i=0; i<this.columns.length; i++) {
+			for (var i = 0; i < this.columns.length; i++) {
 				var col = this.columns[i];
 				if (col.hidden) continue;
 				if (typeof col.min == 'undefined') col.min = 20;
@@ -6356,7 +6356,7 @@ w2utils.keyboard = (function (obj) {
 		this.onShow			= null;
 		this.onHide			= null;
 		this.onResizing 	= null;
-		this.onResizerClick	= null
+		this.onResizerClick	= null;
 		this.onRender		= null;
 		this.onRefresh		= null;
 		this.onResize		= null;
@@ -6374,11 +6374,11 @@ w2utils.keyboard = (function (obj) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
 			if (!w2utils.checkName(method, 'w2layout')) return;
-			var panels = method.panels;
+			var panels = method.panels || [];
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
 			// add defined panels
-			for (var p in panels) {
+			for (var p = 0, len = panels.length; p < len; p++) {
 				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]);
 				if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);
 				if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
@@ -6387,7 +6387,7 @@ w2utils.keyboard = (function (obj) {
 			for (var p1 in w2layout_panels) {
 				p1 = w2layout_panels[p1];
 				if (object.get(p1) !== null) continue;
-				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 == 'main' ? false : true), size: 50 }));
+				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 !== 'main'), size: 50 }));
 			}
 			if ($(this).length > 0) {
 				object.render($(this)[0]);
@@ -7423,7 +7423,7 @@ var w2popup = {};
 	// -- Registers as a jQuery plugin
 
 	$.fn.w2popup = function(method, options) {
-		if (typeof method  == 'undefined') {
+		if (typeof method === 'undefined') {
 			options = {};
 			method  = 'open';
 		}
@@ -7432,14 +7432,14 @@ var w2popup = {};
 			method  = 'open';
 		}
 		method = method.toLowerCase();
-		if (method == 'load' && typeof options == 'string') {
+		if (method === 'load' && typeof options === 'string') {
 			options = $.extend({ url: options }, arguments.length > 2 ? arguments[2] : {});
 		}
-		if (method === 'open' && typeof options.url != 'undefined') method = 'load';
+		if (method === 'open' && options.url != null) method = 'load';
 		options = options || {};
 		// load options from markup
 		var dlgOptions = {};
-		if ($(this).length > 0 ) {
+		if ($(this).length > 0) {
 			if ($(this).find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
 				if ($(this).find('div[rel=title]').length > 0) {
 					dlgOptions['title'] = $(this).find('div[rel=title]').html();
@@ -7449,11 +7449,11 @@ var w2popup = {};
 					dlgOptions['style'] = $(this).find('div[rel=body]')[0].style.cssText;
 				}
 				if ($(this).find('div[rel=buttons]').length > 0) {
-					dlgOptions['buttons'] 	= $(this).find('div[rel=buttons]').html();
+					dlgOptions['buttons'] = $(this).find('div[rel=buttons]').html();
 				}
 			} else {
-				dlgOptions['title']  = '&nbsp;';
-				dlgOptions['body']   = $(this).html();
+				dlgOptions['title'] = '&nbsp;';
+				dlgOptions['body']  = $(this).html();
 			}
 			if (parseInt($(this).css('width')) != 0)  dlgOptions['width']  = parseInt($(this).css('width'));
 			if (parseInt($(this).css('height')) != 0) dlgOptions['height'] = parseInt($(this).css('height'));
@@ -7523,7 +7523,7 @@ var w2popup = {};
 			if (window.innerHeight == undefined) {
 				var width  = document.documentElement.offsetWidth;
 				var height = document.documentElement.offsetHeight;
-				if (w2utils.engine == 'IE7') { width += 21; height += 4; }
+				if (w2utils.engine === 'IE7') { width += 21; height += 4; }
 			} else {
 				var width  = window.innerWidth;
 				var height = window.innerHeight;
@@ -7541,9 +7541,9 @@ var w2popup = {};
 				// output message
 				w2popup.lockScreen(options);
 				var msg = '<div id="w2ui-popup" class="w2ui-popup" style="'+
-								'width: '+ parseInt(options.width) +'px; height: '+ parseInt(options.height) +'px; opacity: 0; '+
+								'width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; opacity: 0; '+
 								'-webkit-transform: scale(0.8); -moz-transform: scale(0.8); -ms-transform: scale(0.8); -o-transform: scale(0.8); '+
-								'left: '+ left +'px; top: '+ top +'px;">';
+								'left: ' + left + 'px; top: ' + top + 'px;">';
 				if (options.title != '') {
 					msg +='<div class="w2ui-msg-title">'+
 						  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close(); '+
@@ -7553,13 +7553,13 @@ var w2popup = {};
 						  '</div>';
 				}
 				msg += '<div class="w2ui-box1" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
-				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'">'+ options.body +'</div>';
+				msg += '<div class="w2ui-msg-body' + (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') + '" style="' + options.style + '">' + options.body + '</div>';
 				msg += '</div>';
 				msg += '<div class="w2ui-box2" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
-				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'"></div>';
+				msg += '<div class="w2ui-msg-body' + (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') + '" style="' + options.style + '"></div>';
 				msg += '</div>';
 				if (options.buttons != '') {
-					msg += '<div class="w2ui-msg-buttons">'+ options.buttons +'</div>';
+					msg += '<div class="w2ui-msg-buttons">' + options.buttons + '</div>';
 				}
 				msg += '</div>';
 				$('body').append(msg);
@@ -7567,13 +7567,13 @@ var w2popup = {};
 				setTimeout(function () {
 					$('#w2ui-popup .w2ui-box2').hide();
 					$('#w2ui-popup').css({
-						'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform',
+						'-webkit-transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
 						'-webkit-transform': 'scale(1)',
-						'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform',
+						'-moz-transition': options.speed + 's opacity, ' + options.speed + 's -moz-transform',
 						'-moz-transform': 'scale(1)',
-						'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform',
+						'-ms-transition': options.speed + 's opacity, ' + options.speed + 's -ms-transform',
 						'-ms-transform': 'scale(1)',
-						'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform',
+						'-o-transition': options.speed + 's opacity, ' + options.speed + 's -o-transform',
 						'-o-transform': 'scale(1)',
 						'opacity': '1'
 					});
@@ -7724,14 +7724,14 @@ var w2popup = {};
 			if (eventData.isCancelled === true) return;
 			// default behavior
 			w2popup.status = 'closing';
-			$('#w2ui-popup').css({ 
-				'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform', 
+			$('#w2ui-popup').css({
+				'-webkit-transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
 				'-webkit-transform': 'scale(0.9)',
-				'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform',
+				'-moz-transition': options.speed + 's opacity, ' + options.speed + 's -moz-transform',
 				'-moz-transform': 'scale(0.9)',
-				'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform',
+				'-ms-transition': options.speed + 's opacity, ' + options.speed + 's -ms-transform',
 				'-ms-transform': 'scale(0.9)',
-				'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform',
+				'-o-transition': options.speed + 's opacity, ' + options.speed + 's -o-transform',
 				'-o-transform': 'scale(0.9)',
 				'opacity': '0'
 			});
@@ -7839,9 +7839,9 @@ var w2popup = {};
 			}
 			function popup(html, selector) {
 				delete options.url;
-				$('body').append('<div id="w2ui-tmp" style="display: none">'+ html +'</div>');
+				$('body').append('<div id="w2ui-tmp" style="display: none">' + html + '</div>');
 				if (typeof selector != 'undefined' && $('#w2ui-tmp #'+selector).length > 0) {
-					$('#w2ui-tmp #'+ selector).w2popup(options);
+					$('#w2ui-tmp #' + selector).w2popup(options);
 				} else {
 					$('#w2ui-tmp > div').w2popup(options);
 				}
@@ -7883,30 +7883,30 @@ var w2popup = {};
 				$('#w2ui-popup .w2ui-popup-message').hide();
 				// add message
 				$('#w2ui-popup .w2ui-box1')
-					.before('<div id="w2ui-message'+ msgCount +'" class="w2ui-popup-message" style="display: none; ' +
-								(head.length == 0 ? 'top: 0px;' : 'top: '+ w2utils.getSize(head, 'height') + 'px;') +
-					        	(typeof options.width  != 'undefined' ? 'width: '+ options.width + 'px; left: '+ ((pwidth - options.width) / 2) +'px;' : 'left: 10px; right: 10px;') +
-					        	(typeof options.height != 'undefined' ? 'height: '+ options.height + 'px;' : 'bottom: 6px;') +
+					.before('<div id="w2ui-message' + msgCount + '" class="w2ui-popup-message" style="display: none; ' +
+								(head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
+					        	(typeof options.width  != 'undefined' ? 'width: ' + options.width + 'px; left: ' + ((pwidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
+					        	(typeof options.height != 'undefined' ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
 					        	'-webkit-transition: .3s; -moz-transition: .3s; -ms-transition: .3s; -o-transition: .3s;"' +
-								(options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>'+
+								(options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
 							'</div>');
 				$('#w2ui-popup #w2ui-message'+ msgCount).data('options', options);
 				var display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display');
 				$('#w2ui-popup #w2ui-message'+ msgCount).css({
-					'-webkit-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-					'-moz-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-					'-ms-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)'),
-					'-o-transform': (display == 'none' ? 'translateY(-'+ options.height + 'px)': 'translateY(0px)')
+					'-webkit-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
+					'-moz-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
+					'-ms-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
+					'-o-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
 				});
 				if (display == 'none') {
 					$('#w2ui-popup #w2ui-message'+ msgCount).show().html(options.html);
 					// timer needs to animation
 					setTimeout(function () {
 						$('#w2ui-popup #w2ui-message'+ msgCount).css({
-							'-webkit-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-							'-moz-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-							'-ms-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)'),
-							'-o-transform': (display == 'none' ? 'translateY(0px)': 'translateY(-'+ options.height +'px)')
+							'-webkit-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
+							'-moz-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
+							'-ms-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
+							'-o-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
 						});
 					}, 1);
 					// timer for lock
@@ -7940,17 +7940,17 @@ var w2popup = {};
 			if (typeof options == 'undefined') options = {};
 			options = $.extend({}, w2popup.defaults, options);
 			// show element
-			$('body').append('<div id="w2ui-lock" '+
+			$('body').append('<div id="w2ui-lock" ' +
 				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; if (event.preventDefault) event.preventDefault(); else return false;"'+
-				'	style="position: '+(w2utils.engine == 'IE5' ? 'absolute' : 'fixed')+'; z-Index: 1199; left: 0px; top: 0px; '+
-				'		   padding: 0px; margin: 0px; background-color: '+ options.color +'; width: 100%; height: 100%; opacity: 0;"></div>');
+				'	style="position: ' + (w2utils.engine == 'IE5' ? 'absolute' : 'fixed') + '; z-Index: 1199; left: 0px; top: 0px; ' +
+				'		   padding: 0px; margin: 0px; background-color: ' + options.color + '; width: 100%; height: 100%; opacity: 0;"></div>');
 			// lock screen
 			setTimeout(function () {
 				$('#w2ui-lock').css({
-					'-webkit-transition': options.speed +'s opacity',
-					'-moz-transition': options.speed +'s opacity',
-					'-ms-transition': options.speed +'s opacity',
-					'-o-transition': options.speed +'s opacity',
+					'-webkit-transition': options.speed + 's opacity',
+					'-moz-transition': options.speed + 's opacity',
+					'-ms-transition': options.speed + 's opacity',
+					'-o-transition': options.speed + 's opacity',
 					'opacity': options.opacity
 				});
 			}, 1);
@@ -7990,10 +7990,10 @@ var w2popup = {};
 			if (typeof options == 'undefined') options = {};
 			options = $.extend({}, w2popup.defaults, options);
 			$('#w2ui-lock').css({
-				'-webkit-transition': options.speed +'s opacity',
-				'-moz-transition': options.speed +'s opacity',
-				'-ms-transition': options.speed +'s opacity',
-				'-o-transition': options.speed +'s opacity',
+				'-webkit-transition': options.speed + 's opacity',
+				'-moz-transition': options.speed + 's opacity',
+				'-ms-transition': options.speed + 's opacity',
+				'-o-transition': options.speed + 's opacity',
 				'opacity': 0
 			});
 			setTimeout(function () {
@@ -8011,10 +8011,10 @@ var w2popup = {};
 			var left = (parseInt($(window).width()) - parseInt(width)) / 2;
 			// resize there
 			$('#w2ui-popup').css({
-				'-webkit-transition': options.speed + 's width, '+ options.speed + 's height, '+ options.speed + 's left, '+ options.speed + 's top',
-				'-moz-transition': options.speed + 's width, '+ options.speed + 's height, '+ options.speed + 's left, '+ options.speed + 's top',
-				'-ms-transition': options.speed + 's width, '+ options.speed + 's height, '+ options.speed + 's left, '+ options.speed + 's top',
-				'-o-transition': options.speed + 's width, '+ options.speed + 's height, '+ options.speed + 's left, '+ options.speed + 's top',
+				'-webkit-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
+				'-moz-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
+				'-ms-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
+				'-o-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
 				'top': top,
 				'left': left,
 				'width': width,
@@ -8042,11 +8042,11 @@ var w2alert = function (msg, title, callBack) {
 		w2popup.message({
 			width 	: 400,
 			height 	: 150,
-			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 45px; overflow: auto">'+
-					  '		<div class="w2ui-centered" style="font-size: 13px;">'+ msg +'</div>'+
-					  '</div>'+
-					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
-					  '		<button onclick="w2popup.message();" class="w2ui-popup-btn btn">'+ w2utils.lang('Ok') +'</button>'+
+			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 45px; overflow: auto">' +
+					  '		<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
+					  '</div>' +
+					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
+					  '		<button onclick="w2popup.message();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>' +
 					  '</div>',
 			onClose : function () {
 				if (typeof callBack == 'function') callBack();
@@ -8058,8 +8058,8 @@ var w2alert = function (msg, title, callBack) {
 			height 	: 200,
 			showMax : false,
 			title 	: title,
-			body    : '<div class="w2ui-centered" style="font-size: 13px;">' + msg +'</div>',
-			buttons : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">'+ w2utils.lang('Ok') +'</button>',
+			body    : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
+			buttons : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>',
 			onClose : function () {
 				if (typeof callBack == 'function') callBack();
 			}
@@ -8079,12 +8079,12 @@ var w2confirm = function (msg, title, callBack) {
 		w2popup.message({
 			width 	: 400,
 			height 	: 150,
-			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">'+
-					  '		<div class="w2ui-centered" style="font-size: 13px;">'+ msg +'</div>'+
-					  '</div>'+
-					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
-					  '		<button id="Yes" class="w2ui-popup-btn btn">'+ w2utils.lang('Yes') +'</button>'+
-					  '		<button id="No" class="w2ui-popup-btn btn">'+ w2utils.lang('No') +'</button>'+
+			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">' +
+					  '		<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
+					  '</div>' +
+					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
+					  '		<button id="Yes" class="w2ui-popup-btn btn">' + w2utils.lang('Yes') + '</button>' +
+					  '		<button id="No" class="w2ui-popup-btn btn">' + w2utils.lang('No') + '</button>' +
 					  '</div>',
 			onOpen: function () {
 				$('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
@@ -8112,9 +8112,9 @@ var w2confirm = function (msg, title, callBack) {
 			title   	: title,
 			modal		: true,
 			showClose	: false,
-			body		: '<div class="w2ui-centered" style="font-size: 13px;">' + msg +'</div>',
-			buttons		: '<button id="No" class="w2ui-popup-btn btn">'+ w2utils.lang('No') +'</button>'+
-						  '<button id="Yes" class="w2ui-popup-btn btn">'+ w2utils.lang('Yes') +'</button>',
+			body		: '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
+			buttons		: '<button id="No" class="w2ui-popup-btn btn">' + w2utils.lang('No') + '</button>'+
+						  '<button id="Yes" class="w2ui-popup-btn btn">' + w2utils.lang('Yes') + '</button>',
 			onOpen: function (event) {
 				event.onComplete = function () {
 					$('#w2ui-popup .w2ui-popup-btn').on('click', function (event) {
@@ -8651,7 +8651,7 @@ var w2confirm = function (msg, title, callBack) {
 				if (!w2utils.checkUniqueId(items[o].id, this.items, 'toolbar items', this.name)) return;
 				// add item
 				var it = $.extend({}, w2toolbar.prototype.item, items[o]);
-				if (id === null || typeof id === 'undefined') {
+				if (id == null) {
 					this.items.push(it);
 				} else {
 					var middle = this.get(id, true);
@@ -8776,7 +8776,7 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 
-			if (typeof box !== 'undefined' && box !== null) {
+			if (box != null) {
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -8791,7 +8791,7 @@ var w2confirm = function (msg, title, callBack) {
 						'<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
-				if (typeof it.id === 'undefined' || it.id === null) it.id = "item_" + i;
+				if (it.id == null) it.id = "item_" + i;
 				if (it === null)  continue;
 				if (it.type === 'spacer') {
 					html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
@@ -8820,11 +8820,11 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), item: this.get(id) });
 			if (eventData.isCancelled === true) return false;
 
-			if (typeof id === 'undefined') {
+			if (id == null) {
 				// refresh all
 				for (var i = 0; i < this.items.length; i++) {
 					var it1 = this.items[i];
-					if (typeof it1.id === 'undefined' || it1.id === null) it1.id = "item_" + i;
+					if (it1.id == null) it1.id = "item_" + i;
 					this.refresh(it1.id);
 				}
 			}
@@ -8942,7 +8942,7 @@ var w2confirm = function (msg, title, callBack) {
 			var newHTML = '';
 			if (typeof item.onRender === 'function') newHTML = item.onRender.call(this, item.id, html);
 			if (typeof this.onRender === 'function') newHTML = this.onRender(item.id, html);
-			if (newHTML !== '' && typeof newHTML !== 'undefined') html = newHTML;
+			if (newHTML !== '' && newHTML != null) html = newHTML;
 			return html;
 		},
 
@@ -8976,7 +8976,7 @@ var w2confirm = function (msg, title, callBack) {
 				if (it.type === 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
 						var itt = this.items[i];
-						if (itt === null || itt.id === it.id || itt.type !== 'radio') continue;
+						if (itt == null || itt.id === it.id || itt.type !== 'radio') continue;
 						if (itt.group === it.group && itt.checked) {
 							itt.checked = false;
 							this.refresh(itt.id);
@@ -9219,7 +9219,7 @@ var w2confirm = function (msg, title, callBack) {
 			for (var a = 0; a < arguments.length; a++) {
 				tmp = this.get(arguments[a]);
 				if (tmp === null) continue;
-				if (this.selected !== null && this.selected === tmp.id){
+				if (this.selected !== null && this.selected === tmp.id) {
 					this.selected = null;
 				}
 				var ind  = this.get(tmp.parent, arguments[a], true);
@@ -9241,14 +9241,14 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// searches all nested nodes
 			if (typeof parent == 'string') parent = this.get(parent);
-			if (parent.nodes === null) return null;
-			for (var i=0; i < parent.nodes.length; i++) {
-				if (parent.nodes[i].id == id) {
+			if (parent.nodes == null) return null;
+			for (var i = 0; i < parent.nodes.length; i++) {
+				if (parent.nodes[i].id === id) {
 					// make sure nodes inserted correctly
-					var nodes  = node.nodes;
+					var nodes = node.nodes;
 					$.extend(parent.nodes[i], node, { nodes: [] });
-					if (typeof nodes != 'undefined') {
-						this.add(parent.nodes[i], nodes); 
+					if (nodes != null) {
+						this.add(parent.nodes[i], nodes);
 					}
 					this.refresh(id);
 					return true;
@@ -9385,9 +9385,9 @@ var w2confirm = function (msg, title, callBack) {
 
 		collapseAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return false;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return false;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === true) parent.nodes[i].expanded = false;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
 			}
@@ -9413,9 +9413,9 @@ var w2confirm = function (msg, title, callBack) {
 
 		expandAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return false;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return false;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].expanded === false) parent.nodes[i].expanded = true;
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
 			}
@@ -9683,7 +9683,7 @@ var w2confirm = function (msg, title, callBack) {
 				height: $(this.box).height() + 'px'
 			});
 			var obj = this;
-			var node;
+			var node, nd;
 			var nm;
 			if (typeof id == 'undefined') {
 				node	= this;
@@ -9694,7 +9694,7 @@ var w2confirm = function (msg, title, callBack) {
 				nm		= '#node_'+ w2utils.escapeId(node.id) + '_sub';
 			}
 			var nodeHTML;
-			if (node != this) {
+			if (node !== this) {
 				var tmp	= '#node_'+ w2utils.escapeId(node.id);
 				nodeHTML	= getNodeHTML(node);
 				$(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
@@ -9705,10 +9705,11 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// refresh sub nodes
 			$(this.box).find(nm).html('');
-			for (var i=0; i < node.nodes.length; i++) {
-				nodeHTML = getNodeHTML(node.nodes[i]);
+			for (var i = 0; i < node.nodes.length; i++) {
+				nd = node.nodes[i];
+				nodeHTML = getNodeHTML(nd);
 				$(this.box).find(nm).append(nodeHTML);
-				if (node.nodes[i].nodes.length !== 0) { this.refresh(node.nodes[i].id); }
+				if (nd.nodes.length !== 0) { this.refresh(nd.id); }
 			}
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -10951,7 +10952,7 @@ var w2confirm = function (msg, title, callBack) {
 								console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
 								return;
 							}
-							// remove all extra items if more then needed for cache							
+							// remove all extra items if more then needed for cache
 							if (data.items.length > options.cacheMax) data.items.splice(options.cacheMax, 100000);
 							// remember stats
 							obj.tmp.xhr_loading = false;
@@ -11622,9 +11623,9 @@ var w2confirm = function (msg, title, callBack) {
 		getColorHTML: function () {
 			var html =  '<div class="w2ui-color">'+
 						'<table cellspacing="5">';
-			for (var i=0; i<8; i++) {
+			for (var i = 0; i < 8; i++) {
 				html += '<tr>';
-				for (var j=0; j<8; j++) {
+				for (var j = 0; j < 8; j++) {
 					html += '<td>'+
 							'	<div class="color" style="background-color: #'+ this.pallete[i][j] +';" name="'+ this.pallete[i][j] +'" index="'+ i + ':' + j +'">'+
 							'		'+ ($(this.el).val() == this.pallete[i][j] ? '&#149;' : '&nbsp;')+
@@ -11873,7 +11874,7 @@ var w2confirm = function (msg, title, callBack) {
 				$.extend(true, object.tabs, { tabs: [] });
 				for (var t in tabs) {
 					var tmp = tabs[t];
-					if (typeof tmp == 'object') object.tabs.tabs.push(tmp); else object.tabs.tabs.push({ id: tmp, caption: tmp });
+					if (typeof tmp === 'object') object.tabs.tabs.push(tmp); else object.tabs.tabs.push({ id: tmp, caption: tmp });
 				}
 			} else {
 				$.extend(true, object.tabs, tabs);

@@ -222,7 +222,7 @@ var w2utils = (function () {
 	}
 
 	function age (dateStr) {
-		if (dateStr === '' || typeof dateStr === 'undefined' || dateStr === null) return '';
+		if (dateStr === '' || dateStr == null) return '';
 		var d1 = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
 		if (d1 === 'Invalid Date') return '';
@@ -258,7 +258,7 @@ var w2utils = (function () {
 	}
 
 	function date (dateStr) {
-		if (dateStr === '' || typeof dateStr === 'undefined' || dateStr === null) return '';
+		if (dateStr === '' || dateStr == null) return '';
 		var d1 = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
 		if (d1 === 'Invalid Date') return '';
@@ -292,12 +292,12 @@ var w2utils = (function () {
 
 	function formatNumber (val, groupSymbol) {
 		var ret = '';
-		if (typeof groupSymbol === 'undefined') groupSymbol = w2utils.settings.groupSymbol || ',';
+		if (groupSymbol == null) groupSymbol = w2utils.settings.groupSymbol || ',';
 		// check if this is a number
 		if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
 			tmp = String(val).split('.');
-			ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1"+ groupSymbol);
-			if (typeof tmp[1] !== 'undefined') ret += '.' + tmp[1];
+			ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + groupSymbol);
+			if (tmp[1] != null) ret += '.' + tmp[1];
 		}
 		return ret;
 	}
@@ -305,8 +305,8 @@ var w2utils = (function () {
 	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format === 'undefined') format = this.settings.date_format;
-		if (typeof dateStr === 'undefined' || dateStr === '' || dateStr === null) return '';
+		if (!format) format = this.settings.date_format;
+		if (dateStr === '' || dateStr == null) return '';
 
 		var dt = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
@@ -321,18 +321,18 @@ var w2utils = (function () {
 			.replace(/yyyy/g, year)
 			.replace(/yyy/g, year)
 			.replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
-			.replace(/(^|[^a-z$])y/g, '$1'+year)			// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])y/g, '$1' + year) 			// only y's that are not preceeded by a letter
 			.replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
 			.replace(/dd/g, (date < 10 ? '0' : '') + date)
-			.replace(/(^|[^a-z$])m/g, '$1'+ (month + 1))	// only y's that are not preceeded by a letter
-			.replace(/(^|[^a-z$])d/g, '$1' + date);			// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])m/g, '$1' + (month + 1)) 	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])d/g, '$1' + date); 		// only y's that are not preceeded by a letter
 	}
 
 	function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format === 'undefined') format = (this.settings.time_format === 'h12' ? 'hh:mi pm' : 'h24:mi');
-		if (typeof dateStr === 'undefined' || dateStr === '' || dateStr === null) return '';
+		if (!format) format = (this.settings.time_format === 'h12' ? 'hh:mi pm' : 'h24:mi');
+		if (dateStr === '' || dateStr == null) return '';
 
 		var dt = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
@@ -403,7 +403,7 @@ var w2utils = (function () {
 	}
 
 	function escapeId (id) {
-		if (typeof id === 'undefined' || id === '' || id === null) return '';
+		if (id === '' || id == null) return '';
 		return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1');
 	}
 
@@ -484,7 +484,7 @@ var w2utils = (function () {
 		function utf8_decode (utftext) {
 			var string = "";
 			var i = 0;
-			var c = 0, c2 = 0, c3 = 0;
+			var c = 0, c2, c3;
 
 			while ( i < utftext.length ) {
 				c = utftext.charCodeAt(i);
@@ -733,7 +733,7 @@ var w2utils = (function () {
 		var mess = $(box).find('.w2ui-lock-msg');
 		if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' });
 		if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
-		if (typeof options.opacity !== 'undefined') $lock.css('opacity', options.opacity);
+		if (options.opacity != null) $lock.css('opacity', options.opacity);
 		$lock.fadeIn(200);
 		mess.html(options.msg).fadeIn(200);
 		// hide all tags (do not hide overlays as the form can be in overlay)
@@ -780,7 +780,7 @@ var w2utils = (function () {
 
 	function lang (phrase) {
 		var translation = this.settings.phrases[phrase];
-		if (typeof translation === 'undefined') return phrase; else return translation;
+		if (translation == null) return phrase; else return translation;
 	}
 
 	function locale (locale) {
@@ -868,21 +868,21 @@ w2utils.event = {
 	on: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, eventData);
-		
-		if (typeof eventData.type === 'undefined') { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
-		if (typeof handler === 'undefined') { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
+
+		if (!eventData.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
+		if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
 		this.handlers.push({ event: eventData, handler: handler });
 	},
 
 	off: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, eventData);
-	
-		if (typeof eventData.type === 'undefined') { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
-		if (typeof handler === 'undefined') { handler = null;  }
+
+		if (!eventData.type) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
+		if (!handler) { handler = null; }
 		// remove handlers
 		var newHandlers = [];
-		for (var h = 0; h < this.handlers.length; h++) {
+		for (var h = 0, len = this.handlers.length; h < len; h++) {
 			var t = this.handlers[h];
 			if ((t.event.type === eventData.type || eventData.type === '*') &&
 				(t.event.target === eventData.target || eventData.target === null) &&
@@ -902,8 +902,8 @@ w2utils.event = {
 				stopPropagation : function () { this.isStopped   = true; }
 			});
 		var args, fun, tmp;
-		if (typeof eventData.target === 'undefined') eventData.target = null;
-		// process events in REVERSE order 
+		if (eventData.target == null) eventData.target = null;
+		// process events in REVERSE order
 		for (var h = this.handlers.length-1; h >= 0; h--) {
 			var item = this.handlers[h];
 			if ((item.event.type === eventData.type || item.event.type === '*') &&
@@ -939,7 +939,7 @@ w2utils.event = {
 			if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 		}
 		// item object events
-		if (typeof eventData.object !== 'undefined' && eventData.object !== null && eventData.phase === 'before' &&
+		if (eventData.object != null && eventData.phase === 'before' &&
 			typeof eventData.object[funName] === 'function')
 		{
 			fun = eventData.object[funName];
@@ -955,8 +955,8 @@ w2utils.event = {
 			if (eventData.isStopped === true || eventData.stop === true) return eventData;
 		}
 		// execute onComplete
-		if (eventData.phase === 'after' && typeof eventData.onComplete === 'function')	eventData.onComplete.call(this, eventData);
-	
+		if (eventData.phase === 'after' && typeof eventData.onComplete === 'function') eventData.onComplete.call(this, eventData);
+
 		return eventData;
 	}
 };
@@ -1041,9 +1041,9 @@ w2utils.keyboard = (function (obj) {
 	};
 
 	$.fn.w2marker = function (str) {
-		if (str === '' || typeof str === 'undefined') { // remove marker
-			return $(this).each(function (index, el) {			
-				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark		
+		if (str === '' || str == null) { // remove marker
+			return $(this).each(function (index, el) {
+				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
 			});
 		} else { // add marker
 			return $(this).each(function (index, el) {
@@ -1058,7 +1058,7 @@ w2utils.keyboard = (function (obj) {
 					el.innerHTML = el.innerHTML.replace(regex, replaceValue);
 				}
 				function replaceValue(matched) { // mark new
-						return '<span class="w2ui-marker">' + matched + '</span>';
+					return '<span class="w2ui-marker">' + matched + '</span>';
 				}
 			});
 		}
@@ -1074,7 +1074,7 @@ w2utils.keyboard = (function (obj) {
 		if ($(this).length === 0) {
 			$('.w2ui-tag').each(function (index, elem) {
 				var opt = $(elem).data('options');
-				if (typeof opt === 'undefined') opt = {};
+				if (opt == null) opt = {};
 				$($(elem).data('taged-el')).removeClass( opt['class'] );
 				clearInterval($(elem).data('timer'));
 				$(elem).remove();
@@ -1085,7 +1085,7 @@ w2utils.keyboard = (function (obj) {
 			// show or hide tag
 			var tagOrigID = el.id;
 			var tagID = w2utils.escapeId(el.id);
-			if (text === '' || text === null || typeof text === 'undefined') {
+			if (text === '' || text == null) {
 				$('#w2ui-tag-'+tagID).css('opacity', 0);
 				setTimeout(function () {
 					// remmove element
@@ -1179,7 +1179,7 @@ w2utils.keyboard = (function (obj) {
 		if (options.name) name = '-' + options.name;
 		// if empty then hide
 		var tmp_hide;
-		if (this.length === 0 || html === '' || typeof html === 'undefined') {
+		if (this.length === 0 || html === '' || html == null) {
 			if ($('#w2ui-overlay'+ name).length > 0) {
 				tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
 				if (typeof tmp_hide === 'function') tmp_hide();
@@ -1205,8 +1205,8 @@ w2utils.keyboard = (function (obj) {
 		var div2 = div1.find(' > div');
 		div2.html(html);
 		// pick bg color of first div
-		var bc  = div2.css('background-color'); 
-		if (typeof bc !== 'undefined' && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
+		var bc  = div2.css('background-color');
+		if (bc != null && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
 
 		div1.data('element', obj.length > 0 ? obj[0] : null)
 			.data('options', options)
@@ -1292,10 +1292,10 @@ w2utils.keyboard = (function (obj) {
 					setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
 				}
 				// alignment
-				switch(options.align) {
+				switch (options.align) {
 					case 'both':
 						options.left = 17;
-						if (options.width === 0)	options.width = w2utils.getSize($(obj), 'width');
+						if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
 						break;
 					case 'left':
 						options.left = 17;
@@ -1471,7 +1471,7 @@ w2utils.keyboard = (function (obj) {
 			var search	= this.value;
 			var key		= event.keyCode;
 			var cancel	= false;
-			switch(key) {
+			switch (key) {
 				case 13: // enter
 					$('#w2ui-overlay'+ name).remove();
 					$.fn.w2menuHandler(event, options.index);
@@ -1543,13 +1543,13 @@ w2utils.keyboard = (function (obj) {
 				if (typeof mitem === 'string') {
 					mitem = { id: mitem, text: mitem };
 				} else {
-					if (typeof mitem.text !== 'undefined' && typeof mitem.id === 'undefined') mitem.id = mitem.text;
-					if (typeof mitem.text === 'undefined' && typeof mitem.id !== 'undefined') mitem.text = mitem.id;
-					if (typeof mitem.caption !== 'undefined') mitem.text = mitem.caption;
+					if (mitem.text != null && mitem.id == null) mitem.id = mitem.text;
+					if (mitem.text == null && mitem.id != null) mitem.text = mitem.id;
+					if (mitem.caption != null) mitem.text = mitem.caption;
 					img  = mitem.img;
 					icon = mitem.icon;
-					if (typeof img  === 'undefined') img  = null;
-					if (typeof icon === 'undefined') icon = null;
+					if (img  == null) img  = null;
+					if (icon == null) icon = null;
 				}
 				if (mitem.hidden !== true) {
 					var imgd = '';
@@ -2721,7 +2721,7 @@ w2utils.keyboard = (function (obj) {
 								console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
 								return;
 							}
-							// remove all extra items if more then needed for cache							
+							// remove all extra items if more then needed for cache
 							if (data.items.length > options.cacheMax) data.items.splice(options.cacheMax, 100000);
 							// remember stats
 							obj.tmp.xhr_loading = false;
@@ -3392,9 +3392,9 @@ w2utils.keyboard = (function (obj) {
 		getColorHTML: function () {
 			var html =  '<div class="w2ui-color">'+
 						'<table cellspacing="5">';
-			for (var i=0; i<8; i++) {
+			for (var i = 0; i < 8; i++) {
 				html += '<tr>';
-				for (var j=0; j<8; j++) {
+				for (var j = 0; j < 8; j++) {
 					html += '<td>'+
 							'	<div class="color" style="background-color: #'+ this.pallete[i][j] +';" name="'+ this.pallete[i][j] +'" index="'+ i + ':' + j +'">'+
 							'		'+ ($(this.el).val() == this.pallete[i][j] ? '&#149;' : '&nbsp;')+
