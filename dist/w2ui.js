@@ -5,9 +5,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 /************************************************
 *   Library: Web 2.0 UI for jQuery
 *   - Following objects are defines
-*   	- w2ui 				- object that will contain all widgets
+*		- w2ui				- object that will contain all widgets
 *		- w2obj				- object with widget prototypes
-*		- w2utils 			- basic utilities
+*		- w2utils			- basic utilities
 *		- $().w2render		- common render
 *		- $().w2destroy		- common destroy
 *		- $().w2marker		- marker plugin
@@ -22,21 +22,22 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- date has problems in FF new Date('yyyy-mm-dd') breaks
 *	- bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *	- overlay should be displayed where more space (on top or on bottom)
-* 	- write and article how to replace certain framework functions
+*	- write and article how to replace certain framework functions
 *	- format date and time is buggy
 *	- onComplete should pass widget as context (this)
 *	- add maxHeight for the w2menu
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *	- hidden and disabled in menus
+*	- new regex for emails /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
-* 	- updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
+*	- updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
 *	- formatNumer(num, groupSymbol) - added new param
 *	- improved localization support (currency prefix, suffix, numbger group symbol)
 *	- improoved overlays (better positioning, refresh, etc.)
 *	- multiple overlay at the same time (if it has name)
-*	- overlay options.css removed, I have added options.style 
+*	- overlay options.css removed, I have added options.style
 *	- ability to open searchable w2menu
 *
 ************************************************/
@@ -55,7 +56,7 @@ var w2utils = (function () {
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 			"shortdays"		: ["M", "T", "W", "T", "F", "S", "S"],
-			"fulldays" 		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+			"fulldays"		: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
 			"RESTfull"		: false,
 			"phrases"		: {} // empty object for english phrases
 		},
@@ -67,12 +68,12 @@ var w2utils = (function () {
 		isEmail			: isEmail,
 		isDate			: isDate,
 		isTime			: isTime,
-		age 			: age,
-		date 			: date,
-		size 			: size,
+		age				: age,
+		date			: date,
+		size			: size,
 		formatNumber	: formatNumber,
 		formatDate		: formatDate,
-		formatTime  	: formatTime,
+		formatTime		: formatTime,
 		formatDateTime  : formatDateTime,
 		stripTags		: stripTags,
 		encodeTags		: encodeTags,
@@ -82,111 +83,149 @@ var w2utils = (function () {
 		transition		: transition,
 		lock			: lock,
 		unlock			: unlock,
-		lang 			: lang,
-		locale	 		: locale,
+		lang			: lang,
+		locale			: locale,
 		getSize			: getSize,
-		scrollBarSize	: scrollBarSize
-	}
+		scrollBarSize	: scrollBarSize,
+		checkName		: checkName,
+		checkUniqueId	: checkUniqueId
+	};
 	return obj;
-	
+
 	function isInt (val) {
 		var re = /^[-+]?[0-9]+$/;
-		return re.test(val);		
+		return re.test(val);
 	}
-		
+
 	function isFloat (val) {
-		return typeof val == 'number' || (typeof val == 'string' && val != '' && Number(val) + '' != 'NaN') ? true : false;
+		return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val));
 	}
 
 	function isMoney (val) {
 		var se = w2utils.settings;
 		var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\.]?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
-		if (typeof val == 'string') {
+		if (typeof val === 'string') {
 			val = val.replace(new RegExp(se.groupSymbol, 'g'), '');
 		}
-		if (typeof val == 'object' || val == '') return false;
-		return re.test(val);		
+		if (typeof val === 'object' || val === '') return false;
+		return re.test(val);
 	}
-		
+
 	function isHex (val) {
 		var re = /^[a-fA-F0-9]+$/;
-		return re.test(val);		
+		return re.test(val);
 	}
-	
+
 	function isAlphaNumeric (val) {
 		var re = /^[a-zA-Z0-9_-]+$/;
-		return re.test(val);		
+		return re.test(val);
 	}
-	
+
 	function isEmail (val) {
 		var email = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-		return email.test(val); 
+		return email.test(val);
 	}
 
 	function isDate (val, format, retDate) {
 		if (!val) return false;
-		if (!format) format = w2utils.settings.date_format;
-		val = String(val);
-		// convert month formats
-		if (RegExp('mon', 'ig').test(format)) {
-			format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
-			val	= val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
-			for (var m in w2utils.settings.fullmonths) {
-				var t = w2utils.settings.fullmonths[m];
-				val = val.replace(RegExp(t, 'ig'), (parseInt(m) + 1)).replace(RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
-			}
-		}
-		// format date
-		var tmp  = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/');
-		var tmp2 = format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
+
 		var dt   = 'Invalid Date';
 		var month, day, year;
-		if (tmp2 == 'mm/dd/yyyy') { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
-		if (tmp2 == 'm/d/yyyy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
-		if (tmp2 == 'dd/mm/yyyy') { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
-		if (tmp2 == 'd/m/yyyy')   { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
-		if (tmp2 == 'yyyy/dd/mm') { month = tmp[2]; day = tmp[1]; year = tmp[0]; } 
-		if (tmp2 == 'yyyy/d/m')   { month = tmp[2]; day = tmp[1]; year = tmp[0]; } 
-		if (tmp2 == 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; } 
-		if (tmp2 == 'yyyy/m/d')   { month = tmp[1]; day = tmp[2]; year = tmp[0]; } 
-		if (tmp2 == 'mm/dd/yy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
-		if (tmp2 == 'm/d/yy')     { month = tmp[0]; day = tmp[1]; year = parseInt(tmp[2]) + 1900; }
-		if (tmp2 == 'dd/mm/yy')   { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
-		if (tmp2 == 'd/m/yy')     { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
-		if (tmp2 == 'yy/dd/mm')   { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; } 
-		if (tmp2 == 'yy/d/m')     { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; } 
-		if (tmp2 == 'yy/mm/dd')   { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; } 
-		if (tmp2 == 'yy/m/d')     { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; } 
-		dt = new Date(month + '/' + day + '/' + year);
+
+		if (format == null) format = w2utils.settings.date_format;
+
+		if (typeof val.getUTCFullYear === 'function' && typeof val.getUTCMonth === 'function' && typeof val.getUTCDate === 'function') {
+			year = val.getUTCFullYear();
+			month = val.getUTCMonth();
+			day = val.getUTCDate();
+		} else if (typeof val.getFullYear === 'function' && typeof val.getMonth === 'function' && typeof val.getDate === 'function') {
+			year = val.getFullYear();
+			month = val.getMonth();
+			day = val.getDate();
+		} else {
+			val = String(val);
+			// convert month formats
+			if (RegExp('mon', 'ig').test(format)) {
+				format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
+				val	= val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
+				for (var m = 0, len = w2utils.settings.fullmonths.length; m < len; m++) {
+					var t = w2utils.settings.fullmonths[m];
+					val = val.replace(RegExp(t, 'ig'), (parseInt(m) + 1)).replace(RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
+				}
+			}
+			// format date
+			var tmp  = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/');
+			var tmp2 = format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase();
+			if (tmp2 === 'mm/dd/yyyy') { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
+			if (tmp2 === 'm/d/yyyy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
+			if (tmp2 === 'dd/mm/yyyy') { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
+			if (tmp2 === 'd/m/yyyy')   { month = tmp[1]; day = tmp[0]; year = tmp[2]; }
+			if (tmp2 === 'yyyy/dd/mm') { month = tmp[2]; day = tmp[1]; year = tmp[0]; }
+			if (tmp2 === 'yyyy/d/m')   { month = tmp[2]; day = tmp[1]; year = tmp[0]; }
+			if (tmp2 === 'yyyy/mm/dd') { month = tmp[1]; day = tmp[2]; year = tmp[0]; }
+			if (tmp2 === 'yyyy/m/d')   { month = tmp[1]; day = tmp[2]; year = tmp[0]; }
+			if (tmp2 === 'mm/dd/yy')   { month = tmp[0]; day = tmp[1]; year = tmp[2]; }
+			if (tmp2 === 'm/d/yy')     { month = tmp[0]; day = tmp[1]; year = parseInt(tmp[2]) + 1900; }
+			if (tmp2 === 'dd/mm/yy')   { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
+			if (tmp2 === 'd/m/yy')     { month = tmp[1]; day = tmp[0]; year = parseInt(tmp[2]) + 1900; }
+			if (tmp2 === 'yy/dd/mm')   { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; }
+			if (tmp2 === 'yy/d/m')     { month = tmp[2]; day = tmp[1]; year = parseInt(tmp[0]) + 1900; }
+			if (tmp2 === 'yy/mm/dd')   { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; }
+			if (tmp2 === 'yy/m/d')     { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900; }
+		}
+		if (!isInt(year)) return false;
+		if (!isInt(month)) return false;
+		if (!isInt(day)) return false;
+		year = +year;
+		month = +month;
+		day = +day;
+		dt = new Date(year, month - 1, day);
 		// do checks
-		if (typeof month == 'undefined') return false;
-		if (dt == 'Invalid Date') return false;
-		if ((dt.getMonth()+1 != month) || (dt.getDate() != day) || (dt.getFullYear() != year)) return false;
+		if (month == null) return false;
+		if (dt === 'Invalid Date') return false;
+		if ((dt.getMonth() + 1 !== month) || (dt.getDate() !== day) || (dt.getFullYear() !== year)) return false;
 		if (retDate === true) return dt; else return true;
 	}
 
-	function isTime (val) {
+	function isTime (val, retTime) {
 		// Both formats 10:20pm and 22:20
-		if (String(val) == 'undefined') return false;
-		var max;
-		// -- process american foramt
+		if (val == null) return false;
+		var max, pm;
+		// -- process american format
+		val = String(val);
 		val = val.toUpperCase();
-		if (val.indexOf('PM') >= 0 || val.indexOf('AM') >= 0) max = 12; else max = 23;
-		val = $.trim(val.replace('AM', ''));
-		val = $.trim(val.replace('PM', ''));
+		pm = val.indexOf('PM') >= 0;
+		var ampm = (pm || val.indexOf('AM') >= 0);
+		if (ampm) max = 12; else max = 24;
+		val = val.replace('AM', '').replace('PM', '');
+		val = $.trim(val);
 		// ---
 		var tmp = val.split(':');
-		if (tmp.length != 2) { return false; }
-		if (tmp[0] == '' || parseInt(tmp[0]) < 0 || parseInt(tmp[0]) > max || !this.isInt(tmp[0])) { return false; }
-		if (tmp[1] == '' || parseInt(tmp[1]) < 0 || parseInt(tmp[1]) > 59 || !this.isInt(tmp[1])) { return false; }
+		var h = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0);
+		// accept edge case: 3PM is a good timestamp, but 3 (without AM or PM) is NOT:
+		if ((!ampm || tmp.length !== 1) && tmp.length !== 2) { return false; }
+		if (tmp[0] === '' || h < 0 || h > max || !this.isInt(tmp[0]) || tmp[0].length > 2) { return false; }
+		if (tmp.length === 2 && (tmp[1] === '' || m < 0 || m > 59 || !this.isInt(tmp[1]) || tmp[1].length !== 2)) { return false; }
+		// check the edge cases: 12:01AM is ok, as is 12:01PM, but 24:01 is NOT ok while 24:00 is (midnight; equivalent to 00:00).
+		// meanwhile, there is 00:00 which is ok, but 0AM nor 0PM are okay, while 0:01AM and 0:00AM are.
+		if (!ampm && max === h && m !== 0) { return false; }
+		if (ampm && tmp.length === 1 && h === 0) { return false; }
+
+		if (retTime === true) {
+			if (pm) h += 12;
+			return {
+				hours: h,
+				minutes: m
+			};
+		}
 		return true;
 	}
 
 	function age (dateStr) {
-		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
+		if (dateStr === '' || typeof dateStr === 'undefined' || dateStr === null) return '';
 		var d1 = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-		if (d1 == 'Invalid Date') return '';
+		if (d1 === 'Invalid Date') return '';
 
 		var d2  = new Date();
 		var sec = (d2.getTime() - d1.getTime()) / 1000;
@@ -198,7 +237,7 @@ var w2utils = (function () {
 		} else if (sec < 60) {
 			amount = Math.floor(sec);
 			type   = 'sec';
-			if (sec < 0) { amount = 0; type = 'sec' }
+			if (sec < 0) { amount = 0; type = 'sec'; }
 		} else if (sec < 60*60) {
 			amount = Math.floor(sec/60);
 			type   = 'min';
@@ -214,90 +253,90 @@ var w2utils = (function () {
 		} else if (sec >= 12*30*24*60*60) {
 			amount = Math.floor(sec/12/30/24/60/60*10)/10;
 			type   = 'year';
-		}		
+		}
 		return amount + ' ' + type + (amount > 1 ? 's' : '');
-	}	
-		
+	}
+
 	function date (dateStr) {
-		if (dateStr == '' || typeof dateStr == 'undefined' || dateStr == null) return '';
+		if (dateStr === '' || typeof dateStr === 'undefined' || dateStr === null) return '';
 		var d1 = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-		if (d1 == 'Invalid Date') return '';
+		if (d1 === 'Invalid Date') return '';
 
 		var months = w2utils.settings.shortmonths;
 		var d2   = new Date(); // today
-		var d3   = new Date(); 
+		var d3   = new Date();
 		d3.setTime(d3.getTime() - 86400000); // yesterday
-		
+
 		var dd1  = months[d1.getMonth()] + ' ' + d1.getDate() + ', ' + d1.getFullYear();
 		var dd2  = months[d2.getMonth()] + ' ' + d2.getDate() + ', ' + d2.getFullYear();
 		var dd3  = months[d3.getMonth()] + ' ' + d3.getDate() + ', ' + d3.getFullYear();
-		
+
 		var time = (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am');
 		var dsp = dd1;
-		if (dd1 == dd2) dsp = time;
-		if (dd1 == dd3) dsp = w2utils.lang('Yesterday');
+		if (dd1 === dd2) dsp = time;
+		if (dd1 === dd3) dsp = w2utils.lang('Yesterday');
 
 		return '<span title="'+ dd1 +' ' + time2 +'">'+ dsp +'</span>';
 	}
 
 	function size (sizeStr) {
-		if (!w2utils.isFloat(sizeStr) || sizeStr == '') return '';
+		if (!w2utils.isFloat(sizeStr) || sizeStr === '') return '';
 		sizeStr = parseFloat(sizeStr);
-		if (sizeStr == 0) return 0;
+		if (sizeStr === 0) return 0;
 		var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
 		var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
-		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i == 0 ? 0 : 1) + ' ' + sizes[i];
+		return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + sizes[i];
 	}
 
 	function formatNumber (val, groupSymbol) {
 		var ret = '';
-		if (typeof groupSymbol == 'undefined') groupSymbol = w2utils.settings.groupSymbol || ',';
+		if (typeof groupSymbol === 'undefined') groupSymbol = w2utils.settings.groupSymbol || ',';
 		// check if this is a number
 		if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
 			tmp = String(val).split('.');
 			ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1"+ groupSymbol);
-			if (typeof tmp[1] != 'undefined') ret += '.' + tmp[1];
+			if (typeof tmp[1] !== 'undefined') ret += '.' + tmp[1];
 		}
 		return ret;
 	}
-	
+
 	function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format == 'undefined') format = this.settings.date_format;
-		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
+		if (typeof format === 'undefined') format = this.settings.date_format;
+		if (typeof dateStr === 'undefined' || dateStr === '' || dateStr === null) return '';
 
 		var dt = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
-		if (dt == 'Invalid Date') return '';
+		if (dt === 'Invalid Date') return '';
 
-		var year 	= dt.getFullYear();
-		var month 	= dt.getMonth();
-		var date 	= dt.getDate();
+		var year	= dt.getFullYear();
+		var month	= dt.getMonth();
+		var date	= dt.getDate();
 		return format.toLowerCase()
 			.replace('month', w2utils.settings.fullmonths[month])
 			.replace('mon', w2utils.settings.shortmonths[month])
 			.replace(/yyyy/g, year)
 			.replace(/yyy/g, year)
 			.replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
-			.replace(/(^|[^a-z$])y/g, '$1'+year) 			// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])y/g, '$1'+year)			// only y's that are not preceeded by a letter
 			.replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
 			.replace(/dd/g, (date < 10 ? '0' : '') + date)
-			.replace(/(^|[^a-z$])m/g, '$1'+ (month + 1)) 	// only y's that are not preceeded by a letter
-			.replace(/(^|[^a-z$])d/g, '$1' + date); 		// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])m/g, '$1'+ (month + 1))	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])d/g, '$1' + date);			// only y's that are not preceeded by a letter
 	}
 
 	function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
 		var months = w2utils.settings.shortmonths;
 		var fullMonths = w2utils.settings.fullmonths;
-		if (typeof format == 'undefined') format = (this.settings.time_format == 'h12' ? 'hh:mi pm' : 'h24:mi');
-		if (typeof dateStr == 'undefined' || dateStr == '' || dateStr == null) return '';
+		if (typeof format === 'undefined') format = (this.settings.time_format === 'h12' ? 'hh:mi pm' : 'h24:mi');
+		if (typeof dateStr === 'undefined' || dateStr === '' || dateStr === null) return '';
 
 		var dt = new Date(dateStr);
 		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
-		if (dt == 'Invalid Date') return '';
+		if (dt === 'Invalid Date') return '';
 
 		var type = 'am';
 		var hour = dt.getHours();
@@ -306,8 +345,8 @@ var w2utils = (function () {
 		var sec  = dt.getSeconds();
 		if (min < 10) min = '0' + min;
 		if (sec < 10) sec = '0' + sec;
-		if (format.indexOf('am') != -1 || format.indexOf('pm') != -1) {
-			if (hour >= 12) type = 'pm'; 
+		if (format.indexOf('am') !== -1 || format.indexOf('pm') !== -1) {
+			if (hour >= 12) type = 'pm';
 			if (hour > 12)  hour = hour - 12;
 		}
 		return format.toLowerCase()
@@ -318,14 +357,14 @@ var w2utils = (function () {
 			.replace('mm', min)
 			.replace('mi', min)
 			.replace('ss', sec)
-			.replace(/(^|[^a-z$])h/g, '$1' + hour) 	// only y's that are not preceeded by a letter
-			.replace(/(^|[^a-z$])m/g, '$1' + min) 	// only y's that are not preceeded by a letter
-			.replace(/(^|[^a-z$])s/g, '$1' + sec); 	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])h/g, '$1' + hour)	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])m/g, '$1' + min)	// only y's that are not preceeded by a letter
+			.replace(/(^|[^a-z$])s/g, '$1' + sec);	// only y's that are not preceeded by a letter
 	}
 
 	function formatDateTime(dateStr, format) {
 		var fmt;
-		if (typeof format != 'string') {
+		if (typeof format !== 'string') {
 			fmt = [this.settings.date_format, this.settings.time_format];
 		} else {
 			fmt = format.split('|');
@@ -334,7 +373,7 @@ var w2utils = (function () {
 	}
 
 	function stripTags (html) {
-		if (html == null) return html;
+		if (html === null) return html;
 		switch (typeof html) {
 			case 'number':
 				break;
@@ -349,7 +388,7 @@ var w2utils = (function () {
 	}
 
 	function encodeTags (html) {
-		if (html == null) return html;
+		if (html === null) return html;
 		switch (typeof html) {
 			case 'number':
 				break;
@@ -364,7 +403,7 @@ var w2utils = (function () {
 	}
 
 	function escapeId (id) {
-		if (typeof id == 'undefined' || id == '' || id == null) return '';
+		if (typeof id === 'undefined' || id === '' || id === null) return '';
 		return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1');
 	}
 
@@ -433,10 +472,10 @@ var w2utils = (function () {
 			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
 			chr3 = ((enc3 & 3) << 6) | enc4;
 			output = output + String.fromCharCode(chr1);
-			if (enc3 != 64) {
+			if (enc3 !== 64) {
 				output = output + String.fromCharCode(chr2);
 			}
-			if (enc4 != 64) {
+			if (enc4 !== 64) {
 				output = output + String.fromCharCode(chr3);
 			}
 		}
@@ -445,7 +484,7 @@ var w2utils = (function () {
 		function utf8_decode (utftext) {
 			var string = "";
 			var i = 0;
-			var c = 0, c1 = 0, c2 = 0;
+			var c = 0, c2 = 0, c3 = 0;
 
 			while ( i < utftext.length ) {
 				c = utftext.charCodeAt(i);
@@ -471,21 +510,21 @@ var w2utils = (function () {
 
 		return output;
 	}
-	
+
 	function transition (div_old, div_new, type, callBack) {
 		var width  = $(div_old).width();
 		var height = $(div_old).height();
 		var time   = 0.5;
-				
+
 		if (!div_old || !div_new) {
 			console.log('ERROR: Cannot do transition when one of the divs is null');
 			return;
 		}
-		 
+
 		div_old.parentNode.style.cssText += cross('perspective', '700px') +'; overflow: hidden;';
 		div_old.style.cssText += '; position: absolute; z-index: 1019; '+ cross('backface-visibility', 'hidden');
 		div_new.style.cssText += '; position: absolute; z-index: 1020; '+ cross('backface-visibility', 'hidden');
-		
+
 		switch (type) {
 			case 'slide-left':
 				// init divs
@@ -619,44 +658,44 @@ var w2utils = (function () {
 				}, 1);
 				break;
 		}
-		
+
 		setTimeout(function () {
-			if (type == 'slide-down') {
+			if (type === 'slide-down') {
 				$(div_old).css('z-index', '1019');
 				$(div_new).css('z-index', '1020');
 			}
 			if (div_new) {
-				$(div_new).css({ 
-					'opacity': '1', 
-					'-webkit-transition': '', 
-					'-moz-transition': '', 
-					'-ms-transition': '', 
-					'-o-transition': '', 
-					'-webkit-transform': '', 
-					'-moz-transform': '', 
-					'-ms-transform': '', 
-					'-o-transform': '', 
-					'-webkit-backface-visibility': '', 
-					'-moz-backface-visibility': '', 
-					'-ms-backface-visibility': '', 
-					'-o-backface-visibility': '' 
+				$(div_new).css({
+					'opacity': '1',
+					'-webkit-transition': '',
+					'-moz-transition': '',
+					'-ms-transition': '',
+					'-o-transition': '',
+					'-webkit-transform': '',
+					'-moz-transform': '',
+					'-ms-transform': '',
+					'-o-transform': '',
+					'-webkit-backface-visibility': '',
+					'-moz-backface-visibility': '',
+					'-ms-backface-visibility': '',
+					'-o-backface-visibility': ''
 				});
 			}
 			if (div_old) {
-				$(div_old).css({ 
-					'opacity': '1', 
-					'-webkit-transition': '', 
-					'-moz-transition': '', 
-					'-ms-transition': '', 
-					'-o-transition': '', 
-					'-webkit-transform': '', 
-					'-moz-transform': '', 
-					'-ms-transform': '', 
-					'-o-transform': '', 
-					'-webkit-backface-visibility': '', 
-					'-moz-backface-visibility': '', 
-					'-ms-backface-visibility': '', 
-					'-o-backface-visibility': '' 
+				$(div_old).css({
+					'opacity': '1',
+					'-webkit-transition': '',
+					'-moz-transition': '',
+					'-ms-transition': '',
+					'-o-transition': '',
+					'-webkit-transform': '',
+					'-moz-transform': '',
+					'-ms-transform': '',
+					'-o-transform': '',
+					'-webkit-backface-visibility': '',
+					'-moz-backface-visibility': '',
+					'-ms-backface-visibility': '',
+					'-o-backface-visibility': ''
 				});
 				if (div_old.parentNode) $(div_old.parentNode).css({
 					'-webkit-perspective': '',
@@ -665,43 +704,43 @@ var w2utils = (function () {
 					'-o-perspective': ''
 				});
 			}
-			if (typeof callBack == 'function') callBack();
+			if (typeof callBack === 'function') callBack();
 		}, time * 1000);
-		
+
 		function cross(property, value, none_webkit_value) {
 			var isWebkit=!!window.webkitURL; // jQuery no longer supports $.browser - RR
-			if (!isWebkit && typeof none_webkit_value != 'undefined') value = none_webkit_value;
+			if (!isWebkit && typeof none_webkit_value !== 'undefined') value = none_webkit_value;
 			return ';'+ property +': '+ value +'; -webkit-'+ property +': '+ value +'; -moz-'+ property +': '+ value +'; '+
-				   '-ms-'+ property +': '+ value +'; -o-'+ property +': '+ value +';';
+				'-ms-'+ property +': '+ value +'; -o-'+ property +': '+ value +';';
 		}
 	}
-	
+
 	function lock (box, msg, spinner) {
 		var options = {};
-		if (typeof msg == 'object') {
-			options = msg; 
+		if (typeof msg === 'object') {
+			options = msg;
 		} else {
-			options.msg 	= msg;
+			options.msg		= msg;
 			options.spinner = spinner;
 		}
-		if (!options.msg && options.msg != 0) options.msg = '';
+		if (!options.msg && options.msg !== 0) options.msg = '';
 		w2utils.unlock(box);
 		$(box).find('>:first-child').before(
 			'<div class="w2ui-lock"></div>'+
 			'<div class="w2ui-lock-msg"></div>'
 		);
-		var lock = $(box).find('.w2ui-lock');
+		var $lock = $(box).find('.w2ui-lock');
 		var mess = $(box).find('.w2ui-lock-msg');
-		if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' }); 
+		if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' });
 		if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
-		if (typeof options.opacity != 'undefined') lock.css('opacity', options.opacity);
-		lock.fadeIn(200);
+		if (typeof options.opacity !== 'undefined') $lock.css('opacity', options.opacity);
+		$lock.fadeIn(200);
 		mess.html(options.msg).fadeIn(200);
 		// hide all tags (do not hide overlays as the form can be in overlay)
 		$().w2tag();
 	}
 
-	function unlock (box) { 
+	function unlock (box) {
 		$(box).find('.w2ui-lock').remove();
 		$(box).find('.w2ui-lock-msg').remove();
 	}
@@ -709,58 +748,58 @@ var w2utils = (function () {
 	function getSize (el, type) {
 		var $el = $(el);
 		var bwidth = {
-			left: 	parseInt($el.css('border-left-width')) || 0,
-			right:  parseInt($el.css('border-right-width')) || 0,
-			top:  	parseInt($el.css('border-top-width')) || 0,
-			bottom: parseInt($el.css('border-bottom-width')) || 0
+			left:	parseInt($el.css('border-left-width')) || 0,
+			right:	parseInt($el.css('border-right-width')) || 0,
+			top:	parseInt($el.css('border-top-width')) || 0,
+			bottom:	parseInt($el.css('border-bottom-width')) || 0
 		};
 		var mwidth = {
-			left: 	parseInt($el.css('margin-left')) || 0,
-			right:  parseInt($el.css('margin-right')) || 0,
-			top:  	parseInt($el.css('margin-top')) || 0,
-			bottom: parseInt($el.css('margin-bottom')) || 0
+			left:	parseInt($el.css('margin-left')) || 0,
+			right:	parseInt($el.css('margin-right')) || 0,
+			top:	parseInt($el.css('margin-top')) || 0,
+			bottom:	parseInt($el.css('margin-bottom')) || 0
 		};
 		var pwidth = {
-			left: 	parseInt($el.css('padding-left')) || 0,
-			right:  parseInt($el.css('padding-right')) || 0,
-			top:  	parseInt($el.css('padding-top')) || 0,
-			bottom: parseInt($el.css('padding-bottom')) || 0
+			left:	parseInt($el.css('padding-left')) || 0,
+			right:	parseInt($el.css('padding-right')) || 0,
+			top:	parseInt($el.css('padding-top')) || 0,
+			bottom:	parseInt($el.css('padding-bottom')) || 0
 		};
 		switch (type) {
-			case 'top': 	return bwidth.top + mwidth.top + pwidth.top;
-			case 'bottom': 	return bwidth.bottom + mwidth.bottom + pwidth.bottom;
-			case 'left': 	return bwidth.left + mwidth.left + pwidth.left;
-			case 'right': 	return bwidth.right + mwidth.right + pwidth.right;
-			case 'width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($el.width());
-			case 'height': 	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($el.height());
-			case '+width': 	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right; 
-			case '+height': return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
+			case 'top':		return bwidth.top + mwidth.top + pwidth.top;
+			case 'bottom':	return bwidth.bottom + mwidth.bottom + pwidth.bottom;
+			case 'left':	return bwidth.left + mwidth.left + pwidth.left;
+			case 'right':	return bwidth.right + mwidth.right + pwidth.right;
+			case 'width':	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($el.width());
+			case 'height':	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($el.height());
+			case '+width':	return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right;
+			case '+height':	return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
 		}
 		return 0;
 	}
 
 	function lang (phrase) {
 		var translation = this.settings.phrases[phrase];
-		if (typeof translation == 'undefined') return phrase; else return translation;
+		if (typeof translation === 'undefined') return phrase; else return translation;
 	}
 
 	function locale (locale) {
 		if (!locale) locale = 'en-us';
-		if (locale.length == 5) locale = 'locale/'+ locale +'.json';
+		if (locale.length === 5) locale = 'locale/'+ locale +'.json';
 		// load from the file
 		$.ajax({
 			url		: locale,
 			type	: "GET",
 			dataType: "JSON",
 			async	: false,
-			cache 	: false,
+			cache	: false,
 			success : function (data, status, xhr) {
 				w2utils.settings = $.extend(true, w2utils.settings, data);
 				// apply translation to some prototype functions
 				var p = w2obj.grid.prototype;
 				for (var b in p.buttons) {
-					p.buttons[b].caption = w2utils.lang(p.buttons[b].caption);
-					p.buttons[b].hint 	 = w2utils.lang(p.buttons[b].hint);
+					p.buttons[b].caption	= w2utils.lang(p.buttons[b].caption);
+					p.buttons[b].hint		= w2utils.lang(p.buttons[b].hint);
 				}
 				p.msgDelete		= w2utils.lang(p.msgDelete);
 				p.msgNotJSON	= w2utils.lang(p.msgNotJSON);
@@ -773,10 +812,11 @@ var w2utils = (function () {
 	}
 
 	function scrollBarSize () {
-		if (tmp.scrollBarSize) return tmp.scrollBarSize; 
-		var html = '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
-				   '	<div style="height: 120px">1</div>'+
-				   '</div>';
+		if (tmp.scrollBarSize) return tmp.scrollBarSize;
+		var html =
+			'<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
+			'	<div style="height: 120px">1</div>'+
+			'</div>';
 		$('body').append(html);
 		tmp.scrollBarSize = 100 - $('#_scrollbar_width > div').width();
 		$('#_scrollbar_width').remove();
@@ -784,11 +824,41 @@ var w2utils = (function () {
 		return tmp.scrollBarSize;
 	}
 
+
+    function checkName (params, component) { // was w2checkNameParam
+		if (!params || typeof params.name === 'undefined') {
+			console.log('ERROR: The parameter "name" is required but not supplied in $().'+ component +'().');
+			return false;
+		}
+		if (typeof w2ui[params.name] !== 'undefined') {
+			console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ params.name +').');
+			return false;
+		}
+		if (!w2utils.isAlphaNumeric(params.name)) {
+			console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
+			return false;
+		}
+		return true;
+	}
+
+	function checkUniqueId (id, items, itemsDecription, objName) { // was w2checkUniqueId
+		if (!$.isArray(items)) items = [items];
+		for (var i = 0; i < items.length; i++) {
+			if (items[i].id === id) {
+				console.log('ERROR: The parameter "id='+ id +'" is not unique within the current '+ itemsDecription +'. (obj: '+ objName +')');
+				return false;
+			}
+		}
+		return true;
+	}
+
+
+
 })();
 
 /***********************************************************
 *  Generic Event Object
-*  --- This object is reused across all other 
+*  --- This object is reused across all other
 *  --- widgets in w2ui.
 *
 *********************************************************/
@@ -799,66 +869,69 @@ w2utils.event = {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, eventData);
 		
-		if (typeof eventData.type == 'undefined') { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
-		if (typeof handler == 'undefined') { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
+		if (typeof eventData.type === 'undefined') { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
+		if (typeof handler === 'undefined') { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
 		this.handlers.push({ event: eventData, handler: handler });
 	},
-	
+
 	off: function (eventData, handler) {
 		if (!$.isPlainObject(eventData)) eventData = { type: eventData };
 		eventData = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, eventData);
 	
-		if (typeof eventData.type == 'undefined') { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
-		if (typeof handler == 'undefined') { handler = null;  }
+		if (typeof eventData.type === 'undefined') { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
+		if (typeof handler === 'undefined') { handler = null;  }
 		// remove handlers
 		var newHandlers = [];
-		for (var h in this.handlers) {
+		for (var h = 0; h < this.handlers.length; h++) {
 			var t = this.handlers[h];
-			if ( (t.event.type == eventData.type || eventData.type == '*')
-				&& (t.event.target == eventData.target || eventData.target == null) 
-				&& (t.handler == handler || handler == null)) {
+			if ((t.event.type === eventData.type || eventData.type === '*') &&
+				(t.event.target === eventData.target || eventData.target === null) &&
+				(t.handler === handler || handler === null))
+			{
 				// match
 			} else {
 				newHandlers.push(t);
 			}
-		}		
+		}
 		this.handlers = newHandlers;
 	},
-		
+
 	trigger: function (eventData) {
 		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
-				preventDefault 	: function () { this.isCancelled = true; },
+				preventDefault	: function () { this.isCancelled = true; },
 				stopPropagation : function () { this.isStopped   = true; }
 			});
-		if (typeof eventData.target == 'undefined') eventData.target = null;		
+		var args, fun, tmp;
+		if (typeof eventData.target === 'undefined') eventData.target = null;
 		// process events in REVERSE order 
 		for (var h = this.handlers.length-1; h >= 0; h--) {
 			var item = this.handlers[h];
-			if ( (item.event.type == eventData.type || item.event.type == '*') 
-					&& (item.event.target == eventData.target || item.event.target == null)
-					&& (item.event.execute == eventData.phase || item.event.execute == '*' || item.event.phase == '*') ) {
+			if ((item.event.type === eventData.type || item.event.type === '*') &&
+				(item.event.target === eventData.target || item.event.target === null) &&
+				(item.event.execute === eventData.phase || item.event.execute === '*' || item.event.phase === '*'))
+			{
 				eventData = $.extend({}, item.event, eventData);
 				// check handler arguments
-				var args = [];
-				var tmp  = RegExp(/\((.*?)\)/).exec(item.handler);
+				args = [];
+				tmp  = RegExp(/\((.*?)\)/).exec(item.handler);
 				if (tmp) args = tmp[1].split(/\s*,\s*/);
-				if (args.length == 2) {
+				if (args.length === 2) {
 					item.handler.call(this, eventData.target, eventData); // old way for back compatibility
 				} else {
 					item.handler.call(this, eventData); // new way
 				}
 				if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 			}
-		}		
+		}
 		// main object events
 		var funName = 'on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1);
-		if (eventData.phase == 'before' && typeof this[funName] == 'function') {
-			var fun = this[funName];
+		if (eventData.phase === 'before' && typeof this[funName] === 'function') {
+			fun = this[funName];
 			// check handler arguments
-			var args = [];
-			var tmp  = RegExp(/\((.*?)\)/).exec(fun);
+			args = [];
+			tmp  = RegExp(/\((.*?)\)/).exec(fun);
 			if (tmp) args = tmp[1].split(/\s*,\s*/);
-			if (args.length == 2) {
+			if (args.length === 2) {
 				fun.call(this, eventData.target, eventData); // old way for back compatibility
 			} else {
 				fun.call(this, eventData); // new way
@@ -866,22 +939,23 @@ w2utils.event = {
 			if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
 		}
 		// item object events
-		if (typeof eventData.object != 'undefined' && eventData.object != null && eventData.phase == 'before'
-				&& typeof eventData.object[funName] == 'function') {
-			var fun = eventData.object[funName];
+		if (typeof eventData.object !== 'undefined' && eventData.object !== null && eventData.phase === 'before' &&
+			typeof eventData.object[funName] === 'function')
+		{
+			fun = eventData.object[funName];
 			// check handler arguments
-			var args = [];
-			var tmp  = RegExp(/\((.*?)\)/).exec(fun);
+			args = [];
+			tmp  = RegExp(/\((.*?)\)/).exec(fun);
 			if (tmp) args = tmp[1].split(/\s*,\s*/);
-			if (args.length == 2) {
+			if (args.length === 2) {
 				fun.call(this, eventData.target, eventData); // old way for back compatibility
 			} else {
 				fun.call(this, eventData); // new way
 			}
-			if (eventData.isStopped === true || eventData.stop === true) return eventData; 
+			if (eventData.isStopped === true || eventData.stop === true) return eventData;
 		}
 		// execute onComplete
-		if (eventData.phase == 'after' && eventData.onComplete != null)	eventData.onComplete.call(this, eventData);
+		if (eventData.phase === 'after' && typeof eventData.onComplete === 'function')	eventData.onComplete.call(this, eventData);
 	
 		return eventData;
 	}
@@ -899,8 +973,8 @@ w2utils.keyboard = (function (obj) {
 	// private scope
 	var w2ui_name = null;
 
-	obj.active	 	= active;
-	obj.clear 		= clear;
+	obj.active		= active;
+	obj.clear		= clear;
 	obj.register	= register;
 
 	init();
@@ -913,11 +987,11 @@ w2utils.keyboard = (function (obj) {
 
 	function keydown (event) {
 		var tag = event.target.tagName;
-		if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) != -1) return;
-		if ($(event.target).prop('contenteditable') == 'true') return;
+		if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) !== -1) return;
+		if ($(event.target).prop('contenteditable') === 'true') return;
 		if (!w2ui_name) return;
 		// pass to appropriate widget
-		if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].keydown == 'function') {
+		if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].keydown === 'function') {
 			w2ui[w2ui_name].keydown.call(w2ui[w2ui_name], event);
 		}
 	}
@@ -932,8 +1006,8 @@ w2utils.keyboard = (function (obj) {
 	}
 
 	function active (new_w2ui_name) {
-		if (typeof new_w2ui_name == 'undefined') return w2ui_name;
-		w2ui_name = new_w2ui_name;
+		if (typeof new_w2ui_name !== 'undefined') w2ui_name = new_w2ui_name;
+		return w2ui_name;
 	}
 
 	function clear () {
@@ -955,51 +1029,36 @@ w2utils.keyboard = (function (obj) {
 
 	$.fn.w2render = function (name) {
 		if ($(this).length > 0) {
-			if (typeof name == 'string' && w2ui[name]) w2ui[name].render($(this)[0]);
-			if (typeof name == 'object') name.render($(this)[0]);
+			if (typeof name === 'string' && w2ui[name]) w2ui[name].render($(this)[0]);
+			if (typeof name === 'object') name.render($(this)[0]);
 		}
 	};
 
 	$.fn.w2destroy = function (name) {
 		if (!name && this.length > 0) name = this.attr('name');
-		if (typeof name == 'string' && w2ui[name]) w2ui[name].destroy();
-		if (typeof name == 'object') name.destroy();
-	};
-
-    $.fn.w2checkNameParam = function (params, component) {
-		if (!params || typeof params.name == 'undefined') {
-			console.log('ERROR: The parameter "name" is required but not supplied in $().'+ component +'().');
-			return false;
-		}
-		if (typeof w2ui[params.name] != 'undefined') {
-			console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ params.name +').');
-			return false;
-		}
-		if (!w2utils.isAlphaNumeric(params.name)) {
-			console.log('ERROR: The parameter "name" has to be alpha-numeric (a-z, 0-9, dash and underscore). ');
-			return false;
-		}
-		return true;
+		if (typeof name === 'string' && w2ui[name]) w2ui[name].destroy();
+		if (typeof name === 'object') name.destroy();
 	};
 
 	$.fn.w2marker = function (str) {
-		if (str == '' || typeof str == 'undefined') { // remove marker
+		if (str === '' || typeof str === 'undefined') { // remove marker
 			return $(this).each(function (index, el) {			
 				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark		
 			});
 		} else { // add marker
 			return $(this).each(function (index, el) {
-				if (typeof str == 'string') str = [str];
-				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark		
+				if (typeof str === 'string') str = [str];
+				el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
 				for (var s in str) {
 					var tmp = str[s];
-					if (typeof tmp != 'string') tmp = String(tmp);
+					if (typeof tmp !== 'string') tmp = String(tmp);
 					// escape regex special chars
 					tmp = tmp.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&").replace(/&/g, '&amp;').replace(/</g, '&gt;').replace(/>/g, '&lt;');
 					var regex = new RegExp(tmp + '(?!([^<]+)?>)', "gi"); // only outside tags
-					el.innerHTML = el.innerHTML.replace(regex, function (matched) { // mark new
+					el.innerHTML = el.innerHTML.replace(regex, replaceValue);
+				}
+				function replaceValue(matched) { // mark new
 						return '<span class="w2ui-marker">' + matched + '</span>';
-					});
 				}
 			});
 		}
@@ -1010,12 +1069,12 @@ w2utils.keyboard = (function (obj) {
 	$.fn.w2tag = function (text, options) {
 		if (!$.isPlainObject(options)) options = {};
 		if (!$.isPlainObject(options.css)) options.css = {};
-		if (typeof options['class'] == 'undefined') options['class'] = '';
+		if (typeof options['class'] === 'undefined') options['class'] = '';
 		// remove all tags
-		if ($(this).length == 0) {
+		if ($(this).length === 0) {
 			$('.w2ui-tag').each(function (index, elem) {
 				var opt = $(elem).data('options');
-				if (typeof opt == 'undefined') opt = {};
+				if (typeof opt === 'undefined') opt = {};
 				$($(elem).data('taged-el')).removeClass( opt['class'] );
 				clearInterval($(elem).data('timer'));
 				$(elem).remove();
@@ -1026,7 +1085,7 @@ w2utils.keyboard = (function (obj) {
 			// show or hide tag
 			var tagOrigID = el.id;
 			var tagID = w2utils.escapeId(el.id);
-			if (text == '' || text == null || typeof text == 'undefined') {
+			if (text === '' || text === null || typeof text === 'undefined') {
 				$('#w2ui-tag-'+tagID).css('opacity', 0);
 				setTimeout(function () {
 					// remmove element
@@ -1038,18 +1097,19 @@ w2utils.keyboard = (function (obj) {
 				clearInterval($('#w2ui-tag-'+tagID).data('timer'));
 				$('#w2ui-tag-'+tagID).remove();
 				// insert
-				$('body').append('<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') +'" '+
-								 '	style=""></div>');	
+				$('body').append(
+					'<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') +
+					'" style=""></div>');
 
-				var timer = setInterval(function () { 
+				var timer = setInterval(function () {
 					// monitor if destroyed
-					if ($(el).length == 0 || ($(el).offset().left == 0 && $(el).offset().top == 0)) {
+					if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0)) {
 						clearInterval($('#w2ui-tag-'+tagID).data('timer'));
-						tmp_hide(); 
+						tmp_hide();
 						return;
 					}
 					// monitor if moved
-					if ($('#w2ui-tag-'+tagID).data('position') != ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
+					if ($('#w2ui-tag-'+tagID).data('position') !== ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
 						$('#w2ui-tag-'+tagID).css({
 							'-webkit-transition': '.2s',
 							'-moz-transition'	: '.2s',
@@ -1074,23 +1134,24 @@ w2utils.keyboard = (function (obj) {
 					.data('timer', timer);
 					$(el).off('keypress', tmp_hide).on('keypress', tmp_hide).off('change', tmp_hide).on('change', tmp_hide)
 						.css(options.css).addClass(options['class']);
-					if (typeof options.onShow == 'function') options.onShow();
+					if (typeof options.onShow === 'function') options.onShow();
 				}, 1);
 				var originalCSS = '';
 				if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
 				// bind event to hide it
-				function tmp_hide() { 
-					if ($('#w2ui-tag-'+tagID).length <= 0) return;
-					clearInterval($('#w2ui-tag-'+tagID).data('timer'));
-					$('#w2ui-tag-'+tagID).remove(); 
-					$(el).off('keypress', tmp_hide).removeClass(options['class']); 
+				function tmp_hide() {
+					$tag = $('#w2ui-tag-'+tagID);
+					if ($tag.length <= 0) return;
+					clearInterval($tag.data('timer'));
+					$tag.remove();
+					$(el).off('keypress', tmp_hide).removeClass(options['class']);
 					if ($(el).length > 0) $(el)[0].style.cssText = originalCSS;
-					if (typeof options.onHide == 'function') options.onHide();
+					if (typeof options.onHide === 'function') options.onHide();
 				}
 			}
 		});
 	};
-	
+
 	// w2overlay - appears under the element, there can be only one at a time
 
 	$.fn.w2overlay = function (html, options) {
@@ -1099,8 +1160,8 @@ w2utils.keyboard = (function (obj) {
 		var defaults = {
 			name		: null,		// it not null, then allows multiple concurent overlays
 			align		: 'none',	// can be none, left, right, both
-			left 		: 0,		// offset left
-			top 		: 0,		// offset top
+			left		: 0,		// offset left
+			top			: 0,		// offset top
 			tipLeft		: 30,		// tip offset left
 			width		: 0,		// fixed width
 			height		: 0,		// fixed height
@@ -1108,22 +1169,29 @@ w2utils.keyboard = (function (obj) {
 			maxHeight	: null,		// max height if any
 			style		: '',		// additional style for main div
 			'class'		: '',		// additional class name for main dvi
-			onShow		: null, 	// event on show
+			onShow		: null,		// event on show
 			onHide		: null,		// event on hide
+			openAbove	: false,	// show abover control
 			tmp			: {}
-		}
+		};
 		if (!$.isPlainObject(options)) options = {};
 		options = $.extend({}, defaults, options);
 		if (options.name) name = '-' + options.name;
 		// if empty then hide
-		if (this.length == 0 || html == '' || typeof html == 'undefined') { 
-			$(document).off('click', $('#w2ui-overlay'+ name).data('hide'));
+		var tmp_hide;
+		if (this.length === 0 || html === '' || typeof html === 'undefined') {
+			if ($('#w2ui-overlay'+ name).length > 0) {
+				tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
+				if (typeof tmp_hide === 'function') tmp_hide();
+			} else {
 			$('#w2ui-overlay'+ name).remove();
-			return $(this); 
+			}
+			return $(this);
 		}
 		if ($('#w2ui-overlay'+ name).length > 0) {
-			$(document).off('click', $('#w2ui-overlay'+ name).data('hide'));
-			$('#w2ui-overlay'+ name).remove();
+			tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
+			$(document).off('click', tmp_hide);
+			if (typeof tmp_hide === 'function') tmp_hide();
 		}
 		$('body').append(
 			'<div id="w2ui-overlay'+ name +'" style="display: none"'+
@@ -1138,23 +1206,24 @@ w2utils.keyboard = (function (obj) {
 		div2.html(html);
 		// pick bg color of first div
 		var bc  = div2.css('background-color'); 
-		if (typeof bc != 'undefined' &&	bc != 'rgba(0, 0, 0, 0)' && bc != 'transparent') div1.css('background-color', bc);
+		if (typeof bc !== 'undefined' && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
 
 		div1.data('element', obj.length > 0 ? obj[0] : null)
-			.data('hide', hide)
-			.data('fixSize', fixSize)
+			.data('options', options)
 			.data('position', $(obj).offset().left + 'x' + $(obj).offset().top)
-			.fadeIn('fast').on('mousedown', function (event) { 
-				$('#w2ui-overlay'+ name).data('keepOpen', true); 
-				if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault(); 
+			.fadeIn('fast').on('mousedown', function (event) {
+				$('#w2ui-overlay'+ name).data('keepOpen', true);
+				if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault();
 			});
+		div1[0].hide	= hide;
+		div1[0].resize	= resize;
 
 		// need time to display
-		fixSize();
+		resize();
 		setTimeout(function () {
-			fixSize();
+			resize();
 			$(document).off('click', hide).on('click', hide);
-			if (typeof options.onShow == 'function') options.onShow();
+			if (typeof options.onShow === 'function') options.onShow();
 		}, 10);
 
 		monitor();
@@ -1163,10 +1232,10 @@ w2utils.keyboard = (function (obj) {
 		// monitor position
 		function monitor() {
 			var tmp = $('#w2ui-overlay'+ name);
-			if (tmp.data('element') != obj[0]) return; // it if it different overlay
-			if (tmp.length == 0) return;
+			if (tmp.data('element') !== obj[0]) return; // it if it different overlay
+			if (tmp.length === 0) return;
 			var pos = $(obj).offset().left + 'x' + $(obj).offset().top;
-			if (tmp.data('position') != pos) {
+			if (tmp.data('position') !== pos) {
 				hide();
 			} else {
 				setTimeout(monitor, 250);
@@ -1181,14 +1250,14 @@ w2utils.keyboard = (function (obj) {
 				return;
 			}
 			var result;
-			if (typeof options.onHide == 'function') result = options.onHide();
+			if (typeof options.onHide === 'function') result = options.onHide();
 			if (result === false) return;
 			div1.remove();
 			$(document).off('click', hide);
 			clearInterval(div1.data('timer'));
 		}
 
-		function fixSize () {
+		function resize () {
 			var div1 = $('#w2ui-overlay'+ name);
 			var div2 = div1.find(' > div');
 			// if goes over the screen, limit height and width
@@ -1210,6 +1279,7 @@ w2utils.keyboard = (function (obj) {
 							div2.find('div.menu').css('overflow-y', 'hidden');
 						}
 					}, 1);
+					setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
 				}
 				if (options.tmp.contentWidth) {
 					w = options.tmp.contentWidth;
@@ -1219,12 +1289,13 @@ w2utils.keyboard = (function (obj) {
 							div2.find('div.menu').css('overflow-x', 'hidden');
 						}
 					}, 1);
+					setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
 				}
 				// alignment
 				switch(options.align) {
 					case 'both':
 						options.left = 17;
-						if (options.width == 0)	options.width = w2utils.getSize($(obj), 'width');
+						if (options.width === 0)	options.width = w2utils.getSize($(obj), 'width');
 						break;
 					case 'left':
 						options.left = 17;
@@ -1239,7 +1310,7 @@ w2utils.keyboard = (function (obj) {
 				var boxLeft  = options.left;
 				var boxWidth = options.width;
 				var tipLeft  = options.tipLeft;
-				if (w == 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
+				if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
 				if (tmp < 25) {
 					boxLeft = 25 - tmp;
 					tipLeft = Math.floor(tmp);
@@ -1254,11 +1325,11 @@ w2utils.keyboard = (function (obj) {
 				// $(window).height() - has a problem in FF20
 				var maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
 				var maxWidth  = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
-				if (maxHeight > -50 && maxHeight < 210) {
+				if ((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) {
 					// show on top
 					maxHeight = div2.offset().top - $(document).scrollTop() - 7;
 					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
-					if (h > maxHeight) { 
+					if (h > maxHeight) {
 						overflowY = true;
 						div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
 						h = maxHeight;
@@ -1271,7 +1342,7 @@ w2utils.keyboard = (function (obj) {
 				} else {
 					// show under
 					if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
-					if (h > maxHeight) { 
+					if (h > maxHeight) {
 						overflowY = true;
 						div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
 					}
@@ -1284,9 +1355,9 @@ w2utils.keyboard = (function (obj) {
 				w = div2.width();
 				maxWidth = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
 				if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth;
-				if (w > maxWidth && options.align != 'both') {
+				if (w > maxWidth && options.align !== 'both') {
 					options.align = 'right';
-					setTimeout(function () { fixSize(); }, 1);
+					setTimeout(function () { resize(); }, 1);
 				}
 				// check scroll bar
 				if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
@@ -1295,60 +1366,60 @@ w2utils.keyboard = (function (obj) {
 	};
 
 	$.fn.w2menu = function (menu, options) {
-		/* 
+		/*
 		ITEM STRUCTURE
 			item : {
 				id		: null,
-				text 	: '',
+				text	: '',
 				style	: '',
 				hidden	: true
 				...
 			}
-		*/		
+		*/
 		var defaults = {
-			index		: null, 	// current selected
-			items 		: [],
+			index		: null,		// current selected
+			items		: [],
 			render		: null,
-			onSelect 	: null,
+			onSelect	: null,
 			tmp			: {}
-		}
+		};
 		var obj  = this;
 		var name = '';
-		if (menu == 'refresh') {
+		if (menu === 'refresh') {
 			// if not show - call blur
 			if ($('#w2ui-overlay'+ name).length > 0) {
 				options = $.extend($.fn.w2menuOptions, options);
 				var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
 				$('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
 				$('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
-				fixSize();
+				mresize();
 			} else {
 				$(this).w2menu(options);
 			}
 		} else {
-			if (arguments.length == 1) options = menu; else options.items = menu;
-			if (typeof options != 'object') options = {};
+			if (arguments.length === 1) options = menu; else options.items = menu;
+			if (typeof options !== 'object') options = {};
 			options = $.extend({}, defaults, options);
 			$.fn.w2menuOptions = options;
 			if (options.name) name = '-' + options.name;
-			if (typeof options.select == 'function' && typeof options.onSelect != 'function') options.onSelect = options.select;
-			if (typeof options.onRender == 'function' && typeof options.render != 'function') options.render = options.onRender;
+			if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select;
+			if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender;
 			// since only one overlay can exist at a time
 			$.fn.w2menuHandler = function (event, index) {
-				if (typeof options.onSelect == 'function') {
+				if (typeof options.onSelect === 'function') {
 					// need time so that menu first hides
 					setTimeout(function () {
 						options.onSelect({
 							index	: index,
 							item	: options.items[index],
 							originalEvent: event
-						}); 
+						});
 					}, 10);
 				}
 			};
 			var html = '';
 			if (options.search) {
-				html += 
+				html +=
 					'<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
 					'	<div class="w2ui-icon icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
 					'	<input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();">'+
@@ -1357,53 +1428,55 @@ w2utils.keyboard = (function (obj) {
 				options.index = 0;
 				for (var i in options.items) options.items[i].hidden = false;
 			}
-			html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%; overflow: auto;">' + 
-						getMenuHTML() + 
+			html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%; overflow: auto;">' +
+						getMenuHTML() +
 					'</div>';
 			var ret = $(this).w2overlay(html, options);
-			$('#w2ui-overlay'+ name +' #menu-search')
-				.on('keyup', change)
-				.on('keydown', function (event) {
-					// cancel tab key
-					if (event.keyCode == 9) { event.stopPropagation(); event.preventDefault(); }
-				});				
-			fixSize();
+			setTimeout(function () {
+				$('#w2ui-overlay'+ name +' #menu-search')
+					.on('keyup', change)
+					.on('keydown', function (event) {
+						// cancel tab key
+						if (event.keyCode === 9) { event.stopPropagation(); event.preventDefault(); }
+					});
+			}, 200);
+			mresize();
 			return ret;
 		}
 
-		function fixSize() {
-			setTimeout(function () { 
+		function mresize() {
+			setTimeout(function () {
 				// show selected
 				$('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected');
-				var cur 	= $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
-				var scrTop 	= $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+				var cur		= $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
+				var scrTop	= $('#w2ui-overlay'+ name +' div.menu').scrollTop();
 				cur.addClass('w2ui-selected');
 				if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
 				if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
-				var tmp = $('#w2ui-overlay'+ name).data('fixSize');
-				if (typeof tmp == 'function') tmp();
+				$('#w2ui-overlay'+ name)[0].resize();
 				// scroll into view
 				if (cur.length > 0) {
-					var top  	= cur[0].offsetTop - 5; // 5 is margin top
-					var el 		= $('#w2ui-overlay'+ name +' div.menu');
-					var height 	= el.height();
+					var top		= cur[0].offsetTop - 5; // 5 is margin top
+					var el		= $('#w2ui-overlay'+ name +' div.menu');
+					var height	= el.height();
 					$('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
 					if (top < scrTop || top + cur.height() > scrTop + height) {
 						$('#w2ui-overlay'+ name +' div.menu').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
 					}
-				}				
-			}, 1);			
+				}
+			}, 1);
 		}
 
 		function change(event) {
 			var search	= this.value;
-			var key 	= event.keyCode;
-			var cancel  = false;
+			var key		= event.keyCode;
+			var cancel	= false;
 			switch(key) {
 				case 13: // enter
 					$('#w2ui-overlay'+ name).remove();
 					$.fn.w2menuHandler(event, options.index);
 					break;
+				case 9:  // tab
 				case 27: // escape
 					$('#w2ui-overlay'+ name).remove();
 					$.fn.w2menuHandler(event, -1);
@@ -1412,7 +1485,7 @@ w2utils.keyboard = (function (obj) {
 					options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
 					options.index--;
 					while (options.index > 0 && options.items[options.index].hidden) options.index--;
-					if (options.index == 0 && options.items[options.index].hidden) {
+					if (options.index === 0 && options.items[options.index].hidden) {
 						while (options.items[options.index] && options.items[options.index].hidden) options.index++;
 					}
 					if (options.index < 0) options.index = 0;
@@ -1422,13 +1495,13 @@ w2utils.keyboard = (function (obj) {
 					options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
 					options.index++;
 					while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
-					if (options.index == options.items.length-1 && options.items[options.index].hidden) {
+					if (options.index === options.items.length-1 && options.items[options.index].hidden) {
 						while (options.items[options.index] && options.items[options.index].hidden) options.index--;
 					}
 					if (options.index >= options.items.length) options.index = options.items.length - 1;
 					cancel = true;
 					break;
-			}		
+			}
 			// filter
 			if (!cancel) {
 				var shown  = 0;
@@ -1436,15 +1509,15 @@ w2utils.keyboard = (function (obj) {
 					var item = options.items[i];
 					var prefix = '';
 					var suffix = '';
-					if (['is', 'begins with'].indexOf(options.match) != -1) prefix = '^';
-					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
-					try { 
+					if (['is', 'begins with'].indexOf(options.match) !== -1) prefix = '^';
+					if (['is', 'ends with'].indexOf(options.match) !== -1) suffix = '$';
+					try {
 						var re = new RegExp(prefix + search + suffix, 'i');
-						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
-						if (options.applyFilter !== true) item.hidden = false; 
+						if (re.test(item.text) || item.text === '...') item.hidden = false; else item.hidden = true;
+						if (options.applyFilter !== true) item.hidden = false;
 					} catch (e) {}
 					// do not show selected items
-					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
+					if (obj.type === 'enum' && $.inArray(item.id, ids) !== -1) item.hidden = true;
 					if (item.hidden !== true) shown++;
 				}
 				options.index = 0;
@@ -1452,10 +1525,10 @@ w2utils.keyboard = (function (obj) {
 				if (shown <= 0) options.index = -1;
 			}
 			$(obj).w2menu('refresh', options);
-			fixSize();
+			mresize();
 		}
 
-		function getMenuHTML () { 
+		function getMenuHTML () {
 			if (options.spinner) {
 				return  '<table class="w2ui-drop-menu"><tr><td style="padding: 10px; text-align: center;">'+
 						'	<div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px; left: 2px;"></div> '+
@@ -1464,57 +1537,58 @@ w2utils.keyboard = (function (obj) {
 			}
 			var count		= 0;
 			var menu_html	= '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
-			for (var f = 0; f < options.items.length; f++) { 
+			var img = null, icon = null;
+			for (var f = 0; f < options.items.length; f++) {
 				var mitem = options.items[f];
-				if (typeof mitem == 'string') {
+				if (typeof mitem === 'string') {
 					mitem = { id: mitem, text: mitem };
 				} else {
-					if (typeof mitem.text != 'undefined' && typeof mitem.id == 'undefined') mitem.id = mitem.text;
-					if (typeof mitem.text == 'undefined' && typeof mitem.id != 'undefined') mitem.text = mitem.id;
-					if (typeof mitem.caption != 'undefined') mitem.text = mitem.caption;
-					var img  = mitem.img;
-					var icon = mitem.icon;
-					if (typeof img  == 'undefined') img  = null;
-					if (typeof icon == 'undefined') icon = null;
+					if (typeof mitem.text !== 'undefined' && typeof mitem.id === 'undefined') mitem.id = mitem.text;
+					if (typeof mitem.text === 'undefined' && typeof mitem.id !== 'undefined') mitem.text = mitem.id;
+					if (typeof mitem.caption !== 'undefined') mitem.text = mitem.caption;
+					img  = mitem.img;
+					icon = mitem.icon;
+					if (typeof img  === 'undefined') img  = null;
+					if (typeof icon === 'undefined') icon = null;
 				}
 				if (mitem.hidden !== true) {
 					var imgd = '';
 					var txt = mitem.text;
-					if (typeof options.render == 'function') txt = options.render(mitem, options);
+					if (typeof options.render === 'function') txt = options.render(mitem, options);
 					if (img)  imgd = '<td><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
 					if (icon) imgd = '<td align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
 					// render only if non-empty
-					if (typeof txt != 'undefined' && txt != '' && !(/^-+$/.test(txt))) {
-						var bg = (count % 2 == 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
+					if (typeof txt !== 'undefined' && txt !== '' && !(/^-+$/.test(txt))) {
+						var bg = (count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
 						if (options.altRows !== true) bg = '';
-						menu_html += 
+						menu_html +=
 							'<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
-							'		class="'+ bg +' '+ (options.index == f ? 'w2ui-selected' : '') +'"'+
-							'		onclick="var obj = this; $(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); '+
-							'			$(this).addClass(\'w2ui-selected\'); event.stopPropagation();'+
-							'			setTimeout(function () {'+
+							'		class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') +'"'+
+							'		onmousedown="$(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); $(this).addClass(\'w2ui-selected\');"'+
+							'		onclick="event.stopPropagation();'+
 							'				$(\'#w2ui-overlay'+ name +'\').remove(); '+
-							'				$.fn.w2menuHandler(event, \''+ f +'\'); '+
-							'			}, 100);">'+
+							'			$.fn.w2menuHandler(event, \''+ f +'\');">'+
 								imgd +
 							'	<td>'+ txt +'</td>'+
 							'</tr>';
 						count++;
 					} else {
 						// horizontal line
-						menu_html += '<tr><td colspan="2" style="padding: 6px"><div style="border-top: 1px solid silver;"></div></td></tr>';						
+						menu_html += '<tr><td colspan="2" style="padding: 6px"><div style="border-top: 1px solid silver;"></div></td></tr>';
 					}
 				}
 				options.items[f] = mitem;
 			}
-			if (count == 0) {
+			if (count === 0) {
 				menu_html += '<tr><td style="text-align: center; color: #999">No items</td></tr>';
 			}
 			menu_html += "</table>";
 			return menu_html;
-		}	
-	}
+		}
+	};
 })();
+
+
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
@@ -1540,6 +1614,7 @@ w2utils.keyboard = (function (obj) {
 *	- add showExtra, KickIn Infinite scroll when so many records
 *	- get rid of this.buffered
 *	- allow this.total to be unknown (-1)
+*	- after edit stay on the same record 
 *
 * == 1.4 changes
 *	- for search fields one should be able to pass w2field options
@@ -1555,7 +1630,7 @@ w2utils.keyboard = (function (obj) {
 *	- refactored inline editing
 *	- new: getCellValue(ind, col_ind, [summary])
 * 	- refactored selection
-*	- removed: record.selected 
+*	- removed: record.selected
 *	- new: nextCell, prevCell, nextRow, prevRow
 *	- new: editChange(el, index, column, event)
 *	- new: method - overwrite default ajax method (see also w2utils.settings.RESTfull)
@@ -1700,7 +1775,7 @@ w2utils.keyboard = (function (obj) {
 	$.fn.w2grid = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2grid')) return;
+			if (!w2utils.checkName(method, 'w2grid')) return;
 			// remember items
 			var columns		= method.columns;
 			var columnGroups= method.columnGroups;
@@ -1769,6 +1844,7 @@ w2utils.keyboard = (function (obj) {
 
 		msgDelete	: 'Are you sure you want to delete selected records?',
 		msgNotJSON 	: 'Returned data is not in valid JSON format.',
+		msgAJAXerror: 'AJAX error. See console for more details.',
 		msgRefresh	: 'Refreshing...',
 
 		// for easy button overwrite
@@ -2490,7 +2566,7 @@ w2utils.keyboard = (function (obj) {
 			var sel  = this.last.selection;
 			var cols = [];
 			for (var c in this.columns) cols.push(parseInt(c));
-			// if local data source and searched	
+			// if local data source and searched
 			sel.indexes = [];
 			if (!url && this.searchData.length !== 0) {
 				// local search applied
@@ -2803,7 +2879,9 @@ w2utils.keyboard = (function (obj) {
 			if (this.searches.length == 0) return;
 			if (this.toolbar) this.toolbar.uncheck('search-advanced')
 			// hide search
-			if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) $().w2overlay('', { name: 'searches-'+ this.name });
+			if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) {
+				$().w2overlay('', { name: 'searches-'+ this.name });
+			}
 		},
 
 		searchShowFields: function () {
@@ -2849,10 +2927,10 @@ w2utils.keyboard = (function (obj) {
 				setTimeout(function () { el.change().focus(); }, 1);
 			}
 			// update field
-			if (this.last.search != '') { 
-				this.search(search.field, this.last.search); 
-			} else { 
-				this.last.field = search.field; 
+			if (this.last.search != '') {
+				this.search(search.field, this.last.search);
+			} else {
+				this.last.field = search.field;
 				this.last.caption = search.caption;
 			}
 			el.attr('placeholder', search.caption);
@@ -3052,27 +3130,29 @@ w2utils.keyboard = (function (obj) {
 			if (this.last.xhr_cmd == 'delete-records') event_name = 'deleted';
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
 			if (eventData.isCancelled === true) {
-				if (typeof callBack == 'function') callBack();
+				if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 				return false;
 			}
 			// parse server response
+			var data;
 			var responseText = this.last.xhr.responseText;
 			if (status != 'error') {
 				// default action
 				if (typeof responseText != 'undefined' && responseText != '') {
-					var data;
 					// check if the onLoad handler has not already parsed the data
 					if (typeof responseText == "object") {
 						data = responseText;
-					} else {						
+					} else {
 						if (typeof obj.parser == 'function') {
 							data = obj.parser(responseText);
 							if (typeof data != 'object') {
 								console.log('ERROR: Your parser did not return proper object');
 							}
 						} else {
-							// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
-							try { eval('data = '+ responseText); } catch (e) { }	
+							// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
+							//
+							// TODO: avoid (potentially malicious) code injection from the response.
+							try { eval('data = '+ responseText); } catch (e) { }
 						}
 					}
 					// convert recids
@@ -3086,7 +3166,7 @@ w2utils.keyboard = (function (obj) {
 							status		 : 'error',
 							message		 : this.msgNotJSON,
 							responseText : responseText
-						}
+						};
 					}
 					if (data['status'] == 'error') {
 						obj.error(data['message']);
@@ -3119,7 +3199,12 @@ w2utils.keyboard = (function (obj) {
 					}
 				}
 			} else {
-				obj.error('AJAX Error. See console for more details.');
+				obj.error(this.msgAJAXerror);
+				data = {
+					status		 : 'error',
+					message		 : this.msgAJAXerror,
+					responseText : responseText
+				};
 			}
 			// event after
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -3132,7 +3217,7 @@ w2utils.keyboard = (function (obj) {
 			// do not refresh if loading on infinite scroll
 			if (this.last.xhr_offset == 0) this.refresh(); else this.scroll();
 			// call back
-			if (typeof callBack == 'function') callBack();
+			if (typeof callBack == 'function') callBack(data);
 		},
 
 		error: function (msg) {
@@ -3243,11 +3328,11 @@ w2utils.keyboard = (function (obj) {
 						'	'+ edit.inTag +
 						'>'+ html +'</select>' + edit.outTag);
 				el.find('select').focus()
-					.on('change', function (event) { 
+					.on('change', function (event) {
 						delete obj.last.move;
 					})
-					.on('blur', function (event) { 
-						obj.editChange.call(obj, this, index, column, event); 
+					.on('blur', function (event) {
+						obj.editChange.call(obj, this, index, column, event);
 					});
 			} else {
 				el.addClass('w2ui-editable')
@@ -3260,14 +3345,14 @@ w2utils.keyboard = (function (obj) {
 					.w2field(edit.type, $.extend(edit, { selected: val }))
 					.on('blur', function (event) {
 						if ($(this).data('focused')) return;
-						obj.editChange.call(obj, this, index, column, event); 
+						obj.editChange.call(obj, this, index, column, event);
 					});
 				if (value != null) el.find('input').val(val != 'object' ? val : '');
 			}
 			setTimeout(function () {
 				el.find('input, select')
-					.on('click', function (event) { 
-						event.stopPropagation(); 
+					.on('click', function (event) {
+						event.stopPropagation();
 					})
 					.on('keydown', function (event) {
 						var cancel = false;
@@ -3367,12 +3452,12 @@ w2utils.keyboard = (function (obj) {
 						if (cancel) if (event.preventDefault) event.preventDefault();
 					});
 				// focus and select
-				var tmp = el.find('input').focus();				
-				if (value != null) { 
+				var tmp = el.find('input').focus();
+				if (value != null) {
 					// set cursor to the end
-					tmp[0].setSelectionRange(tmp.val().length, tmp.val().length); 
+					tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
 				} else {
-					tmp.select();	
+					tmp.select();
 				}
 
 			}, 50);
@@ -3398,7 +3483,7 @@ w2utils.keyboard = (function (obj) {
 			if (el.type == 'checkbox') new_val = el.checked;
 			if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
 				// change event
-				var eventData = this.trigger({ 
+				var eventData = this.trigger({
 					phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
 					value_new: new_val, value_previous: (rec.changes ? rec.changes[col.field]: old_val), value_original: old_val
 				});
@@ -4261,7 +4346,7 @@ w2utils.keyboard = (function (obj) {
 			// set cell html and changed flag
 			cell.html(this.getCellHTML(index, col_ind));
 			if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
-				cell.addClass('w2ui-changed'); 
+				cell.addClass('w2ui-changed');
 			} else {
 				cell.removeClass('w2ui-changed');
 			}
@@ -4589,7 +4674,7 @@ w2utils.keyboard = (function (obj) {
 					var ind1 = obj.get(mv.from, true);
 					var tmp  = obj.records[ind1];
 					obj.records.splice(ind1, 1);
-					var ind2 = obj.get(mv.to, true);					
+					var ind2 = obj.get(mv.to, true);
 					if (ind1 > ind2) obj.records.splice(ind2, 0, tmp); else obj.records.splice(ind2+1, 0, tmp);
 					$('#grid_'+ obj.name + '_ghost').remove();
 					obj.refresh();
@@ -4649,14 +4734,14 @@ w2utils.keyboard = (function (obj) {
 						'<tr><td colspan="2" style="padding: 0px">'+
 						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
 						'		'+ w2utils.lang('Skip') +' <input type="text" style="width: 45px" value="'+ this.offset +'" '+
-						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); $(\'#w2ui-overlay\').remove();"> '+ w2utils.lang('Records')+
+						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); $(\'#w2ui-overlay\')[0].hide();"> '+ w2utils.lang('Records')+
 						'	</div>'+
 						'</td></tr>';
 			}
-			col_html +=	'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\').remove();">'+
+			col_html +=	'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\')[0].hide();">'+
 						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Toggle Line Numbers') +'</div>'+
 						'</td></tr>'+
-						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\').remove();">'+
+						'<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\')[0].hide();">'+
 						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
 						'</td></tr>';
 			col_html += "</table></div>";
@@ -5065,10 +5150,10 @@ w2utils.keyboard = (function (obj) {
 							} else {
 								obj.searchOpen();
 								event.originalEvent.stopPropagation();
-								function tmp_close() { 
-									if ($('#w2ui-overlay-searches-'+ obj.name).data('keepOpen') === true) return; 
-									tb.uncheck(id); 
-									$(document).off('click', 'body', tmp_close); 
+								function tmp_close() {
+									if ($('#w2ui-overlay-searches-'+ obj.name).data('keepOpen') === true) return;
+									tb.uncheck(id);
+									$(document).off('click', 'body', tmp_close);
 								}
 								$(document).on('click', 'body', tmp_close);
 							}
@@ -5529,9 +5614,9 @@ w2utils.keyboard = (function (obj) {
 		initOperator: function (el, search_ind) {
 			var obj		= this;
 			var search	= obj.searches[search_ind];
- 			var range	= $('#grid_'+ obj.name + '_range_'+ search_ind); 
-			var fld1	= $('#grid_'+ obj.name +'_field_'+ search_ind); 
-			var fld2	= fld1.parent().find('span input'); 
+ 			var range	= $('#grid_'+ obj.name + '_range_'+ search_ind);
+			var fld1	= $('#grid_'+ obj.name +'_field_'+ search_ind);
+			var fld2	= fld1.parent().find('span input');
 			if ($(el).val() == 'in') { fld1.w2field('clear'); } else { fld1.w2field(search.type); }
 			if ($(el).val() == 'between') { range.show(); fld2.w2field(search.type); } else { range.hide(); }
 		},
@@ -5563,7 +5648,7 @@ w2utils.keyboard = (function (obj) {
 					case 'time':
 					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
-						$('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);						
+						$('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
 						break;
 
 					case 'hex':
@@ -5578,7 +5663,7 @@ w2utils.keyboard = (function (obj) {
 						if (sdata) options.selected = sdata.value;
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, options);
 						if (search.type == 'combo') {
-							$('#grid_'+ this.name +'_operator_'+s).val('begins');							
+							$('#grid_'+ this.name +'_operator_'+s).val('begins');
 						}
 						break;
 
@@ -5620,8 +5705,8 @@ w2utils.keyboard = (function (obj) {
 			}
 			// add on change event
 			$('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
-				if (evnt.keyCode == 13 && (evnt.ctrlKey || evnt.metaKey)) { 
-					obj.search(); 
+				if (evnt.keyCode == 13 && (evnt.ctrlKey || evnt.metaKey)) {
+					obj.search();
 					$().w2overlay();
 				}
 			});
@@ -6053,7 +6138,7 @@ w2utils.keyboard = (function (obj) {
 			var record 	= (summary !== true ? this.records[ind] : this.summary[ind]);
 			var data 	= this.getCellValue(ind, col_ind, summary);
 			var edit 	= col.editable;
-			// various renderers			
+			// various renderers
 			if (typeof col.render != 'undefined') {
 				if (typeof col.render == 'function') {
 					data = $.trim(col.render.call(this, record, ind, col_ind));
@@ -6175,13 +6260,13 @@ w2utils.keyboard = (function (obj) {
 			}
 			return val;
 		},
-		
+
 		nextCell: function (col_ind, editable) {
 			var check = col_ind + 1;
 			if (this.columns.length == check) return false;
 			if (editable === true) {
 				var edit = this.columns[check].editable;
-				if (this.columns[check].hidden || typeof edit == 'undefined' 
+				if (this.columns[check].hidden || typeof edit == 'undefined'
 					|| (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.nextCell(check, editable);
 			}
 			return check;
@@ -6192,11 +6277,11 @@ w2utils.keyboard = (function (obj) {
 			if (check < 0) return false;
 			if (editable === true) {
 				var edit = this.columns[check].editable;
-				if (this.columns[check].hidden || typeof edit == 'undefined' 
+				if (this.columns[check].hidden || typeof edit == 'undefined'
 					|| (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.prevCell(check, editable);
 			}
 			return check;
-		}, 
+		},
 
 		nextRow: function (ind) {
 			if ((ind + 1 < this.records.length && this.last.searchIds.length == 0) // if there are more records
@@ -6234,6 +6319,7 @@ w2utils.keyboard = (function (obj) {
 	$.extend(w2grid.prototype, w2utils.event);
 	w2obj.grid = w2grid;
 })();
+
 /************************************************************************
 *	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *	- Following objects defined
@@ -6279,24 +6365,27 @@ w2utils.keyboard = (function (obj) {
 		$.extend(true, this, w2obj.layout, options);
 	};
 
+	/* @const */ var w2layout_panels = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
+
 	// ====================================================
 	// -- Registers as a jQuery plugin
 
 	$.fn.w2layout = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2layout')) return;
+			if (!w2utils.checkName(method, 'w2layout')) return;
 			var panels = method.panels;
 			var object = new w2layout(method);
 			$.extend(object, { handlers: [], panels: [] });
-			// add defined panels panels
+			// add defined panels
 			for (var p in panels) {
 				object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]);
 				if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);
 				if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
 			}
 			// add all other panels
-			for (var p1 in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) {
+			for (var p1 in w2layout_panels) {
+				p1 = w2layout_panels[p1];
 				if (object.get(p1) !== null) continue;
 				object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 == 'main' ? false : true), size: 50 }));
 			}
@@ -6494,11 +6583,11 @@ w2utils.keyboard = (function (obj) {
 			p.hidden = false;
 			if (immediate === true) {
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });
-				if (p.resizabled) $('#layout_'+ obj.name +'_resizer_'+panel).show();
+				if (p.resizable) $('#layout_'+ obj.name +'_resizer_'+panel).show();
 				obj.trigger($.extend(eventData, { phase: 'after' }));
 				obj.resize();
 			} else {
-				if (p.resizabled) $('#layout_'+ obj.name +'_resizer_'+panel).show();
+				if (p.resizable) $('#layout_'+ obj.name +'_resizer_'+panel).show();
 				// resize
 				$('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });
 				$(obj.box).find(' > div > .w2ui-panel').css({
@@ -6583,7 +6672,6 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		get: function (panel, returnIndex) {
-			var obj = null;
 			for (var p in this.panels) {
 				if (this.panels[p].type == panel) {
 					if (returnIndex === true) return p; else return this.panels[p];
@@ -6666,16 +6754,16 @@ w2utils.keyboard = (function (obj) {
 				.html('<div></div>');
 			if ($(obj.box).length > 0) $(obj.box)[0].style.cssText += obj.style;
 			// create all panels
-			var tmp = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
-			for (var t in tmp) {
-				var pan  = obj.get(tmp[t]);
-				var html =  '<div id="layout_'+ obj.name + '_panel_'+ tmp[t] +'" class="w2ui-panel">'+
+			for (var p1 in w2layout_panels) {
+				p1 = w2layout_panels[p1];
+				var pan  = obj.get(p1);
+				var html =  '<div id="layout_'+ obj.name + '_panel_'+ p1 +'" class="w2ui-panel">'+
 							'	<div class="w2ui-panel-title"></div>'+
 							'	<div class="w2ui-panel-tabs"></div>'+
 							'	<div class="w2ui-panel-toolbar"></div>'+
 							'	<div class="w2ui-panel-content"></div>'+
 							'</div>'+
-							'<div id="layout_'+ obj.name + '_resizer_'+ tmp[t] +'" class="w2ui-resizer"></div>';
+							'<div id="layout_'+ obj.name + '_resizer_'+ p1 +'" class="w2ui-resizer"></div>';
 				$(obj.box).find(' > div').append(html);
 				// tabs are rendered in refresh()
 			}
@@ -6716,10 +6804,12 @@ w2utils.keyboard = (function (obj) {
 					diff_x	: 0,
 					diff_y	: 0,
 					value	: 0
-				};				
+				};
 				// lock all panels
-				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
-				for (var p in panels) obj.lock(panels[p], { opacity: 0 }); 
+				for (var p1 in w2layout_panels) {
+					p1 = w2layout_panels[p1];
+					obj.lock(p1, { opacity: 0 });
+				}
 				if (type == 'left' || type == 'right') {
 					obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left);
 				}
@@ -6736,8 +6826,9 @@ w2utils.keyboard = (function (obj) {
 				$(document).off('mouseup', obj.tmp.events.mouseUp);
 				if (typeof obj.tmp.resize == 'undefined') return;
 				// unlock all panels
-				var panels = ['left', 'right', 'top', 'bottom', 'preview', 'main'];
-				for (var p in panels) obj.unlock(panels[p]);
+				for (var p1 in w2layout_panels) {
+					obj.unlock(w2layout_panels[p1]);
+				}
 				// set new size
 				if (obj.tmp.diff_x !== 0 || obj.tmp.resize.diff_y !== 0) { // only recalculate if changed
 					var ptop	= obj.get('top');
@@ -6805,22 +6896,22 @@ w2utils.keyboard = (function (obj) {
 					case 'left':
 						if (panel.minSize - resize_x > panel.width) {
 							resize_x = panel.minSize - panel.width;
-						}					
+						}
 						if (panel.maxSize && (panel.width + resize_x > panel.maxSize)) {
 							resize_x = panel.maxSize - panel.width;
-						}						
+						}
 						if (mainPanel.minSize + resize_x > mainPanel.width) {
 							resize_x = mainPanel.width - mainPanel.minSize;
 						}
 						break;
 
-					case 'right': 
+					case 'right':
 						if (panel.minSize + resize_x > panel.width) {
 							resize_x = panel.width - panel.minSize;
-						}					
+						}
 						if (panel.maxSize && (panel.width - resize_x > panel.maxSize)) {
 							resize_x = panel.width - panel.maxSize;
-						}					
+						}
 						if (mainPanel.minSize - resize_x > mainPanel.width) {
 							resize_x = mainPanel.minSize - mainPanel.width;
 						}
@@ -6829,10 +6920,10 @@ w2utils.keyboard = (function (obj) {
 					case 'top':
 						if (panel.minSize - resize_y > panel.height) {
 							resize_y = panel.minSize - panel.height;
-						}						
+						}
 						if (panel.maxSize && (panel.height + resize_y > panel.maxSize)) {
 							resize_y = panel.maxSize - panel.height;
-						}						
+						}
 						if (mainPanel.minSize + resize_y > mainPanel.height) {
 							resize_y = mainPanel.height - mainPanel.minSize;
 						}
@@ -6842,15 +6933,15 @@ w2utils.keyboard = (function (obj) {
 					case 'bottom':
 						if (panel.minSize + resize_y > panel.height) {
 							resize_y = panel.height - panel.minSize;
-						}					
+						}
 						if (panel.maxSize && (panel.height - resize_y > panel.maxSize)) {
 							resize_y = panel.height - panel.maxSize;
-						}					
+						}
 						if (mainPanel.minSize - resize_y > mainPanel.height) {
 							resize_y = mainPanel.minSize - mainPanel.height;
 						}
 						break;
-				}				
+				}
 				tmp.diff_x = resize_x;
 				tmp.diff_y = resize_y;
 
@@ -6868,7 +6959,7 @@ w2utils.keyboard = (function (obj) {
 						if (p.length > 0) p[0].style.left = (tmp.value + tmp.diff_x) + 'px';
 						break;
 				}
-				// event after				
+				// event after
 				obj.trigger($.extend(eventData, { phase: 'after' }));
 			}
 		},
@@ -6888,22 +6979,26 @@ w2utils.keyboard = (function (obj) {
 				var pname = '#layout_'+ obj.name + '_panel_'+ p.type;
 				var rname = '#layout_'+ obj.name +'_resizer_'+ p.type;
 				// apply properties to the panel
-				var el = $(panel).css({ display: p.hidden ? 'none' : 'block' });
-				if (el.find('> .w2ui-panel-content').length > 0) {
-					el.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
-				}
-				if (p.resizable === true) $(rname).show(); else $(rname).hide();
+				$(pname).css({ display: p.hidden ? 'none' : 'block' });
+				if (p.resizable) $(rname).show(); else $(rname).hide();
 				// insert content
-				if (typeof p.content == 'object' && p.content.render) {
+				if (typeof p.content == 'object' && typeof p.content.render === 'function') {
 					p.content.box = $(pname +'> .w2ui-panel-content')[0];
-					setTimeout(function () { 
+					setTimeout(function () {
 						// need to remove unnecessary classes
-						$(pname +'> .w2ui-panel-content').removeClass().addClass('w2ui-panel-content')
+						$(pname +'> .w2ui-panel-content')
+							.removeClass()
+							.addClass('w2ui-panel-content')
+							.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 						p.content.render(); // do not do .render(box);
-					}, 1); 
+					}, 1);
 				} else {
 					// need to remove unnecessary classes
-					$(pname +'> .w2ui-panel-content').removeClass().addClass('w2ui-panel-content').html(p.content);
+					$(pname +'> .w2ui-panel-content')
+						.removeClass()
+						.addClass('w2ui-panel-content')
+						.html(p.content)
+						.css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
 				}
 				// if there are tabs and/or toolbar - render it
 				var tmp = $(obj.box).find(pname +'> .w2ui-panel-tabs');
@@ -6944,7 +7039,7 @@ w2utils.keyboard = (function (obj) {
 			var time = (new Date()).getTime();
 			// event before
 			var tmp = this.tmp.resize;
-			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name, 
+			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name,
 				panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0  });
 			if (eventData.isCancelled === true) return false;
 			if (this.padding < 0) this.padding = 0;
@@ -6972,10 +7067,13 @@ w2utils.keyboard = (function (obj) {
 			var sbottom = (pbottom !== null && pbottom.hidden !== true ? true : false);
 			var l, t, w, h, e;
 			// calculate %
-			for (var p in { 'top':'', 'left':'', 'right':'', 'bottom':'', 'preview':'' }) {
+			for (var p in w2layout_panels) {
+				p = w2layout_panels[p];
+				if (p === 'main') continue;
 				var tmp = this.get(p);
-				var str = String(tmp.size);
-				if (tmp && str.substr(str.length-1) == '%') {
+				if (!tmp) continue;
+				var str = String(tmp.size || 0);
+				if (str.substr(str.length-1) == '%') {
 					var tmph = height;
 					if (tmp.type == 'preview') {
 						tmph = tmph -
@@ -6986,7 +7084,7 @@ w2utils.keyboard = (function (obj) {
 				} else {
 					tmp.sizeCalculated = parseInt(tmp.size);
 				}
-				if (tmp.sizeCalculated < parseInt(tmp.minSize)) tmp.sizeCalculated = parseInt(tmp.minSize);
+				tmp.sizeCalculated = Math.max(tmp.sizeCalculated, parseInt(tmp.minSize));
 			}
 			// top if any
 			if (ptop !== null && ptop.hidden !== true) {
@@ -7218,20 +7316,23 @@ w2utils.keyboard = (function (obj) {
 			}
 
 			// display tabs and toolbar if needed
-			for (var p1 in { 'top':'', 'left':'', 'main':'', 'preview':'', 'right':'', 'bottom':'' }) {
+			for (var p1 in w2layout_panels) {
+				p1 = w2layout_panels[p1];
 				var pan = this.get(p1);
 				var tmp2 = '#layout_'+ this.name +'_panel_'+ p1 +' > .w2ui-panel-';
 				var tabHeight = 0;
-				if (pan.title) {
-					tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height');
-				}
-				if (pan.show.tabs) {
-					if (pan.tabs !== null && w2ui[this.name +'_'+ p1 +'_tabs']) w2ui[this.name +'_'+ p1 +'_tabs'].resize();
-					tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height');
-				}
-				if (pan.show.toolbar) {
-					if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
-					tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+				if (pan) {
+					if (pan.title) {
+						tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
+					if (pan.show.tabs) {
+						if (pan.tabs !== null && w2ui[this.name +'_'+ p1 +'_tabs']) w2ui[this.name +'_'+ p1 +'_tabs'].resize();
+						tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
+					if (pan.show.toolbar) {
+						if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
+						tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+					}
 				}
 				$(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' });
 			}
@@ -7272,7 +7373,7 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		lock: function (panel, msg, showSpinner) {
-			if ($.inArray(String(panel), ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
+			if (w2layout_panels.indexOf(panel) == -1) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
@@ -7282,7 +7383,7 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		unlock: function (panel) {
-			if ($.inArray(String(panel), ['left', 'right', 'top', 'bottom', 'preview', 'main']) == -1) {
+			if (w2layout_panels.indexOf(panel) == -1) {
 				console.log('ERROR: First parameter needs to be the a valid panel name.');
 				return;
 			}
@@ -7294,13 +7395,14 @@ w2utils.keyboard = (function (obj) {
 	$.extend(w2layout.prototype, w2utils.event);
 	w2obj.layout = w2layout;
 })();
+
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
 * 		- w2popup	 	- popup widget
 *		- $().w2popup	- jQuery wrapper
 *   - Dependencies: jQuery, w2utils
-* 
+*
 * == NICE TO HAVE ==
 *	- when maximized, align the slide down message
 *	- bug: after transfer to another content, message does not work
@@ -7319,22 +7421,22 @@ var w2popup = {};
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
-	$.fn.w2popup = function(method, options) {	
+
+	$.fn.w2popup = function(method, options) {
 		if (typeof method  == 'undefined') {
 			options = {};
 			method  = 'open';
 		}
 		if ($.isPlainObject(method)) {
-			options = method;		
+			options = method;
 			method  = 'open';
 		}
 		method = method.toLowerCase();
 		if (method == 'load' && typeof options == 'string') {
 			options = $.extend({ url: options }, arguments.length > 2 ? arguments[2] : {});
 		}
-		if (method == 'open' && typeof options.url != 'undefined') method = 'load';
-		if (typeof options == 'undefined') options = {};
+		if (method === 'open' && typeof options.url != 'undefined') method = 'load';
+		options = options || {};
 		// load options from markup
 		var dlgOptions = {};
 		if ($(this).length > 0 ) {
@@ -7359,11 +7461,11 @@ var w2popup = {};
 		// show popup
 		return w2popup[method]($.extend({}, dlgOptions, options));
 	};
-	
+
 	// ====================================================
 	// -- Implementation of core functionality (SINGELTON)
-	
-	w2popup = {	
+
+	w2popup = {
 		defaults: {
 			title			: '',
 			body			: '',
@@ -7387,6 +7489,7 @@ var w2popup = {};
 		onClose		: null,
 		onMax		: null,
 		onMin		: null,
+		onToggle	: null,
 		onKeydown   : null,
 
 		open: function (options) {
@@ -7405,6 +7508,7 @@ var w2popup = {};
 				w2popup.handlers	 = [];
 				w2popup.onMax 	 	= null;
 				w2popup.onMin 	 	= null;
+				w2popup.onToggle 	= null;
 				w2popup.onOpen	 	= null;
 				w2popup.onClose	 	= null;
 				w2popup.onKeydown	= null;
@@ -7413,6 +7517,7 @@ var w2popup = {};
 			if (options.onClose)	w2popup.onClose		= options.onClose;
 			if (options.onMax)		w2popup.onMax		= options.onMax;
 			if (options.onMin)		w2popup.onMin		= options.onMin;
+			if (options.onToggle)	w2popup.onToggle	= options.onToggle;
 			if (options.onKeydown)	w2popup.onKeydown	= options.onKeydown;
 
 			if (window.innerHeight == undefined) {
@@ -7434,18 +7539,18 @@ var w2popup = {};
 				if (eventData.isCancelled === true) return;
 				w2popup.status = 'opening';
 				// output message
-				w2popup.lockScreen(options);			
+				w2popup.lockScreen(options);
 				var msg = '<div id="w2ui-popup" class="w2ui-popup" style="'+
 								'width: '+ parseInt(options.width) +'px; height: '+ parseInt(options.height) +'px; opacity: 0; '+
 								'-webkit-transform: scale(0.8); -moz-transform: scale(0.8); -ms-transform: scale(0.8); -o-transform: scale(0.8); '+
 								'left: '+ left +'px; top: '+ top +'px;">';
-				if (options.title != '') { 
+				if (options.title != '') {
 					msg +='<div class="w2ui-msg-title">'+
 						  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close(); '+
-						  					   'if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">Close</div>' : '')+ 
-						  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') + 
+						  					   'if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">Close</div>' : '')+
+						  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') +
 							  options.title +
-						  '</div>'; 
+						  '</div>';
 				}
 				msg += '<div class="w2ui-box1" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
 				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'">'+ options.body +'</div>';
@@ -7453,22 +7558,22 @@ var w2popup = {};
 				msg += '<div class="w2ui-box2" style="'+(options.title == '' ? 'top: 0px !important;' : '')+(options.buttons == '' ? 'bottom: 0px !important;' : '')+'">';
 				msg += '<div class="w2ui-msg-body'+ (!options.title != '' ? ' w2ui-msg-no-title' : '') + (!options.buttons != '' ? ' w2ui-msg-no-buttons' : '') +'" style="'+ options.style +'"></div>';
 				msg += '</div>';
-				if (options.buttons != '') { 
-					msg += '<div class="w2ui-msg-buttons">'+ options.buttons +'</div>'; 
+				if (options.buttons != '') {
+					msg += '<div class="w2ui-msg-buttons">'+ options.buttons +'</div>';
 				}
 				msg += '</div>';
 				$('body').append(msg);
 				// allow element to render
 				setTimeout(function () {
 					$('#w2ui-popup .w2ui-box2').hide();
-					$('#w2ui-popup').css({ 
-						'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform', 
+					$('#w2ui-popup').css({
+						'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform',
 						'-webkit-transform': 'scale(1)',
-						'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform', 
+						'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform',
 						'-moz-transform': 'scale(1)',
-						'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform', 
+						'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform',
 						'-ms-transform': 'scale(1)',
-						'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform', 
+						'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform',
 						'-o-transform': 'scale(1)',
 						'opacity': '1'
 					});
@@ -7483,18 +7588,17 @@ var w2popup = {};
 					});
 					// event after
 					w2popup.status = 'open';
-					setTimeout(function () { 
+					setTimeout(function () {
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}, 50);
 				}, options.speed * 1000);
 			} else {
 				// trigger event
 				var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
-				if (eventData.isCancelled === true) return;			
+				if (eventData.isCancelled === true) return;
 				// check if size changed
 				w2popup.status = 'opening';
 				if (typeof old_options == 'undefined' || old_options['width'] != options['width'] || old_options['height'] != options['height']) {
-					$('#w2ui-panel').remove();
 					w2popup.resize(options.width, options.height);
 				}
 				// show new items
@@ -7502,16 +7606,16 @@ var w2popup = {};
 				if (body.length > 0) body[0].style.cssText = options.style;
 				$('#w2ui-popup .w2ui-msg-buttons').html(options.buttons);
 				$('#w2ui-popup .w2ui-msg-title').html(
-					  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>' : '')+ 
-					  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') + 
+					  (options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>' : '')+
+					  (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : '') +
 					  options.title);
 				// transition
 				var div_old = $('#w2ui-popup .w2ui-box1')[0];
 				var div_new = $('#w2ui-popup .w2ui-box2')[0];
 				w2utils.transition(div_old, div_new, options.transition);
 				div_new.className = 'w2ui-box1';
-				div_old.className = 'w2ui-box2';	
-				$(div_new).addClass('w2ui-current-box');		
+				div_old.className = 'w2ui-box2';
+				$(div_new).addClass('w2ui-current-box');
 				// remove max state
 				$('#w2ui-popup').data('prev-size', null);
 				// call event onChange
@@ -7519,15 +7623,15 @@ var w2popup = {};
 					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
 				}, 50);
-			}		
+			}
 			// save new options
 			options._last_w2ui_name = w2utils.keyboard.active();
-			w2utils.keyboard.active(null);			
-			// keyboard events 
+			w2utils.keyboard.active(null);
+			// keyboard events
 			if (options.keyboard) $(document).on('keydown', this.keydown);
 
 			// initialize move
-			var tmp = { 
+			var tmp = {
 				resizing: false,
 				mvMove	: mvMove,
 				mvStop	: mvStop
@@ -7535,54 +7639,48 @@ var w2popup = {};
 			$('#w2ui-popup .w2ui-msg-title').on('mousedown', function (event) { mvStart(event); })
 
 			// handlers
-			function mvStart(event) {
-				if (!event) event = window.event;
+			function mvStart(evnt) {
+				if (!evnt) evnt = window.event;
 				if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
 				w2popup.status = 'moving';
 				tmp.resizing = true;
-				tmp.tmp_x = event.screenX;
-				tmp.tmp_y = event.screenY;
+				tmp.x = evnt.screenX;
+				tmp.y = evnt.screenY;
+				tmp.pos_x = $('#w2ui-popup').position().left;
+				tmp.pos_y = $('#w2ui-popup').position().top;
 				w2popup.lock({ opacity: 0 });
 				$(document).on('mousemove', tmp.mvMove);
 				$(document).on('mouseup', tmp.mvStop);
-				if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-				if (event.preventDefault) event.preventDefault(); else return false;
+				if (evnt.stopPropagation) evnt.stopPropagation(); else evnt.cancelBubble = true;
+				if (evnt.preventDefault) evnt.preventDefault(); else return false;
 			}
-			
+
 			function mvMove(evnt) {
 				if (tmp.resizing != true) return;
 				if (!evnt) evnt = window.event;
-				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x); 
-				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y); 
+				tmp.div_x = evnt.screenX - tmp.x;
+				tmp.div_y = evnt.screenY - tmp.y;
 				$('#w2ui-popup').css({
 					'-webkit-transition': 'none',
-					'-webkit-transform': 'translate3d('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px, 0px)',
+					'-webkit-transform': 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)',
 					'-moz-transition': 'none',
-					'-moz-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)',
+					'-moz-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)',
 					'-ms-transition': 'none',
-					'-ms-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)',
+					'-ms-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)',
 					'-o-transition': 'none',
-					'-o-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)'
-				});
-				$('#w2ui-panel').css({
-					'-webkit-transition': 'none',
-					'-webkit-transform': 'translate3d('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px, 0px)',
-					'-moz-transition': 'none',
-					'-moz-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)',
-					'-ms-transition': 'none',
-					'-ms-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px',
-					'-o-transition': 'none',
-					'-o-transform': 'translate('+ tmp.tmp_div_x +'px, '+ tmp.tmp_div_y +'px)'
+					'-o-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)'
 				});
 			}
-		
+
 			function mvStop(evnt) {
 				if (tmp.resizing != true) return;
 				if (!evnt) evnt = window.event;
 				w2popup.status = 'open';
-				tmp.tmp_div_x = (evnt.screenX - tmp.tmp_x); 
-				tmp.tmp_div_y = (evnt.screenY - tmp.tmp_y); 			
+				tmp.div_x = (evnt.screenX - tmp.x);
+				tmp.div_y = (evnt.screenY - tmp.y);
 				$('#w2ui-popup').css({
+					'left': (tmp.pos_x + tmp.div_x) + 'px',
+					'top':	(tmp.pos_y  + tmp.div_y) + 'px',
 					'-webkit-transition': 'none',
 					'-webkit-transform': 'translate3d(0px, 0px, 0px)',
 					'-moz-transition': 'none',
@@ -7591,27 +7689,13 @@ var w2popup = {};
 					'-ms-transform': 'translate(0px, 0px)',
 					'-o-transition': 'none',
 					'-o-transform': 'translate(0px, 0px)',
-					'left': (parseInt($('#w2ui-popup').css('left')) + parseInt(tmp.tmp_div_x)) + 'px',
-					'top':	(parseInt($('#w2ui-popup').css('top'))  + parseInt(tmp.tmp_div_y)) + 'px'
-				});
-				$('#w2ui-panel').css({
-					'-webkit-transition': 'none',
-					'-webkit-transform': 'translate3d(0px, 0px, 0px)',
-					'-moz-transition': 'none',
-					'-moz-transform': 'translate(0px, 0px)',
-					'-ms-transition': 'none',
-					'-ms-transform': 'translate(0px, 0px)',
-					'-o-transition': 'none',
-					'-o-transform': 'translate(0px, 0px)',
-					'left': (parseInt($('#w2ui-panel').css('left')) + parseInt(tmp.tmp_div_x)) + 'px',
-					'top':	(parseInt($('#w2ui-panel').css('top'))  + parseInt(tmp.tmp_div_y)) + 'px'
 				});
 				tmp.resizing = false;
 				$(document).off('mousemove', tmp.mvMove);
 				$(document).off('mouseup', tmp.mvStop);
 				w2popup.unlock();
-			}		
-			return this;		
+			}
+			return this;
 		},
 
 		keydown: function (event) {
@@ -7622,7 +7706,7 @@ var w2popup = {};
 			if (eventData.isCancelled === true) return;
 			// default behavior
 			switch (event.keyCode) {
-				case 27: 
+				case 27:
 					event.preventDefault();
 					if ($('#w2ui-popup .w2ui-popup-message').length > 0) w2popup.message(); else w2popup.close();
 					break;
@@ -7630,7 +7714,7 @@ var w2popup = {};
 			// event after
 			w2popup.trigger($.extend(eventData, { phase: 'after'}));
 		},
-		
+
 		close: function (options) {
 			var obj = this;
 			var options = $.extend({}, $('#w2ui-popup').data('options'), options);
@@ -7640,36 +7724,44 @@ var w2popup = {};
 			if (eventData.isCancelled === true) return;
 			// default behavior
 			w2popup.status = 'closing';
-			$('#w2ui-popup, #w2ui-panel').css({ 
+			$('#w2ui-popup').css({ 
 				'-webkit-transition': options.speed +'s opacity, '+ options.speed +'s -webkit-transform', 
 				'-webkit-transform': 'scale(0.9)',
-				'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform', 
+				'-moz-transition': options.speed +'s opacity, '+ options.speed +'s -moz-transform',
 				'-moz-transform': 'scale(0.9)',
-				'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform', 
+				'-ms-transition': options.speed +'s opacity, '+ options.speed +'s -ms-transform',
 				'-ms-transform': 'scale(0.9)',
-				'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform', 
+				'-o-transition': options.speed +'s opacity, '+ options.speed +'s -o-transform',
 				'-o-transform': 'scale(0.9)',
 				'opacity': '0'
-			});		
-			w2popup.unlockScreen();
+			});
+			w2popup.unlockScreen(options);
 			setTimeout(function () {
 				$('#w2ui-popup').remove();
-				$('#w2ui-panel').remove();
 				w2popup.status = 'closed';
 				// event after
 				obj.trigger($.extend(eventData, { phase: 'after'}));
-			}, options.speed * 1000);				
+			}, options.speed * 1000);
 			// restore active
 			w2utils.keyboard.active(options._last_w2ui_name);
 			// remove keyboard events
-			if (options.keyboard) $(document).off('keydown', this.keydown);			
+			if (options.keyboard) $(document).off('keydown', this.keydown);
 		},
-		
+
 		toggle: function () {
+			var obj		= this;
 			var options = $('#w2ui-popup').data('options');
+			// trigger event
+			var eventData = this.trigger({ phase: 'before', type: 'toggle', target: 'popup', options: options });
+			if (eventData.isCancelled === true) return;
+			// defatul action
 			if (options.maximized === true) w2popup.min(); else w2popup.max();
+			// event after
+			setTimeout(function () {
+				obj.trigger($.extend(eventData, { phase: 'after'}));
+			}, 250);
 		},
-		
+
 		max: function () {
 			var obj = this;
 			var options = $('#w2ui-popup').data('options');
@@ -7677,14 +7769,13 @@ var w2popup = {};
 			// trigger event
 			var eventData = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options });
 			if (eventData.isCancelled === true) return;
-			w2popup.status = 'resizing';
 			// default behavior
-			options.maximized = true;
+			w2popup.status 	  = 'resizing';
 			options.prevSize  = $('#w2ui-popup').css('width')+':'+$('#w2ui-popup').css('height');
-			$('#w2ui-popup').data('options', options);
 			// do resize
 			w2popup.resize(10000, 10000, function () {
 				w2popup.status = 'open';
+				options.maximized = true;
 				obj.trigger($.extend(eventData, { phase: 'after'}));
 			});
 		},
@@ -7697,14 +7788,13 @@ var w2popup = {};
 			// trigger event
 			var eventData = this.trigger({ phase: 'before', type: 'min', target: 'popup', options: options });
 			if (eventData.isCancelled === true) return;
-			w2popup.status = 'resizing';
 			// default behavior
-			options.maximized = false;
-			options.prevSize  = null;
-			$('#w2ui-popup').data('options', options);
+			w2popup.status = 'resizing';
 			// do resize
 			w2popup.resize(size[0], size[1], function () {
 				w2popup.status = 'open';
+				options.maximized = false;
+				options.prevSize  = null;
 				obj.trigger($.extend(eventData, { phase: 'after'}));
 			});
 		},
@@ -7716,7 +7806,7 @@ var w2popup = {};
 		set: function (options) {
 			w2popup.open(options);
 		},
-		
+
 		clear: function() {
 			$('#w2ui-popup .w2ui-msg-title').html('');
 			$('#w2ui-popup .w2ui-msg-body').html('');
@@ -7726,7 +7816,7 @@ var w2popup = {};
 		reset: function () {
 			w2popup.open(w2popup.defaults);
 		},
-		
+
 		load: function (options) {
 			w2popup.status = 'loading';
 			if (String(options.url) == 'undefined') {
@@ -7766,7 +7856,7 @@ var w2popup = {};
 				$('#w2ui-tmp').remove();
 			}
 		},
-		
+
 		message: function (options) {
 			$().w2tag(); // hide all tags
 			if (!options) options = { width: 200, height: 100 };
@@ -7783,12 +7873,12 @@ var w2popup = {};
 				var options = $('#w2ui-popup #w2ui-message'+ (msgCount-1)).data('options');
 				$('#w2ui-popup #w2ui-message'+ (msgCount-1)).remove();
 				if (typeof options.onClose == 'function') options.onClose();
-				if (msgCount == 1) { 
-					w2popup.unlock(); 
+				if (msgCount == 1) {
+					w2popup.unlock();
 				} else {
 					$('#w2ui-popup #w2ui-message'+ (msgCount-2)).show();
 				}
-			} else { 
+			} else {
 				// hide previous messages
 				$('#w2ui-popup .w2ui-popup-message').hide();
 				// add message
@@ -7824,7 +7914,7 @@ var w2popup = {};
 						$('#w2ui-popup #w2ui-message'+ msgCount).css({
 							'-webkit-transition': '0s',	'-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s',
 							'z-Index': 1500
-						}); // has to be on top of lock 
+						}); // has to be on top of lock
 						if (msgCount == 0) w2popup.lock();
 						if (typeof options.onOpen == 'function') options.onOpen();
 					}, 300);
@@ -7838,12 +7928,12 @@ var w2popup = {};
 			w2utils.lock.apply(window, args);
 		},
 
-		unlock: function () { 
+		unlock: function () {
 			w2utils.unlock($('#w2ui-popup'));
 		},
-		
+
 		// --- INTERNAL FUNCTIONS
-		
+
 		lockScreen: function (options) {
 			if ($('#w2ui-lock').length > 0) return false;
 			if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
@@ -7853,36 +7943,36 @@ var w2popup = {};
 			$('body').append('<div id="w2ui-lock" '+
 				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; if (event.preventDefault) event.preventDefault(); else return false;"'+
 				'	style="position: '+(w2utils.engine == 'IE5' ? 'absolute' : 'fixed')+'; z-Index: 1199; left: 0px; top: 0px; '+
-				'		   padding: 0px; margin: 0px; background-color: '+ options.color +'; width: 100%; height: 100%; opacity: 0;"></div>');	
+				'		   padding: 0px; margin: 0px; background-color: '+ options.color +'; width: 100%; height: 100%; opacity: 0;"></div>');
 			// lock screen
 			setTimeout(function () {
-				$('#w2ui-lock').css({ 
-					'-webkit-transition': options.speed +'s opacity', 
-					'-moz-transition': options.speed +'s opacity', 
-					'-ms-transition': options.speed +'s opacity', 
-					'-o-transition': options.speed +'s opacity', 
-					'opacity': options.opacity 
+				$('#w2ui-lock').css({
+					'-webkit-transition': options.speed +'s opacity',
+					'-moz-transition': options.speed +'s opacity',
+					'-ms-transition': options.speed +'s opacity',
+					'-o-transition': options.speed +'s opacity',
+					'opacity': options.opacity
 				});
 			}, 1);
 			// add events
-			if (options.modal == true) { 
+			if (options.modal == true) {
 				$('#w2ui-lock').on('mousedown', function () {
-					$('#w2ui-lock').css({ 
-						'-webkit-transition': '.1s', 
-						'-moz-transition': '.1s', 
-						'-ms-transition': '.1s', 
-						'-o-transition': '.1s', 
+					$('#w2ui-lock').css({
+						'-webkit-transition': '.1s',
+						'-moz-transition': '.1s',
+						'-ms-transition': '.1s',
+						'-o-transition': '.1s',
 						'opacity': '0.6'
-					});			
+					});
 					// if (window.getSelection) window.getSelection().removeAllRanges();
-				}); 
+				});
 				$('#w2ui-lock').on('mouseup', function () {
 					setTimeout(function () {
-						$('#w2ui-lock').css({ 
-							'-webkit-transition': '.1s', 
-							'-moz-transition': '.1s', 
-							'-ms-transition': '.1s', 
-							'-o-transition': '.1s', 
+						$('#w2ui-lock').css({
+							'-webkit-transition': '.1s',
+							'-moz-transition': '.1s',
+							'-ms-transition': '.1s',
+							'-o-transition': '.1s',
 							'opacity': options.opacity
 						});
 					}, 100);
@@ -7893,30 +7983,32 @@ var w2popup = {};
 			}
 			return true;
 		},
-		
-		unlockScreen: function () {
-			if ($('#w2ui-lock').length == 0) return false;	
-			var options = $.extend({}, $('#w2ui-popup').data('options'), options);		
-			$('#w2ui-lock').css({ 
-				'-webkit-transition': options.speed +'s opacity', 
-				'-moz-transition': options.speed +'s opacity', 
-				'-ms-transition': options.speed +'s opacity', 
-				'-o-transition': options.speed +'s opacity', 
+
+		unlockScreen: function (options) {
+			if ($('#w2ui-lock').length == 0) return false;
+			if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
+			if (typeof options == 'undefined') options = {};
+			options = $.extend({}, w2popup.defaults, options);
+			$('#w2ui-lock').css({
+				'-webkit-transition': options.speed +'s opacity',
+				'-moz-transition': options.speed +'s opacity',
+				'-ms-transition': options.speed +'s opacity',
+				'-o-transition': options.speed +'s opacity',
 				'opacity': 0
 			});
-			setTimeout(function () { 
-				$('#w2ui-lock').remove(); 
-			}, options.speed * 1000); 
+			setTimeout(function () {
+				$('#w2ui-lock').remove();
+			}, options.speed * 1000);
 			return true;
 		},
-		
+
 		resize: function (width, height, callBack) {
 			var options = $('#w2ui-popup').data('options');
 			// calculate new position
 			if (parseInt($(window).width())  - 10 < parseInt(width))  width  = parseInt($(window).width())  - 10;
 			if (parseInt($(window).height()) - 10 < parseInt(height)) height = parseInt($(window).height()) - 10;
 			var top  = ((parseInt($(window).height()) - parseInt(height)) / 2) * 0.8;
-			var left = (parseInt($(window).width()) - parseInt(width)) / 2;		
+			var left = (parseInt($(window).width()) - parseInt(width)) / 2;
 			// resize there
 			$('#w2ui-popup').css({
 				'-webkit-transition': options.speed + 's width, '+ options.speed + 's height, '+ options.speed + 's left, '+ options.speed + 's top',
@@ -7956,9 +8048,9 @@ var w2alert = function (msg, title, callBack) {
 					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">'+
 					  '		<button onclick="w2popup.message();" class="w2ui-popup-btn btn">'+ w2utils.lang('Ok') +'</button>'+
 					  '</div>',
-			onClose : function () { 
-				if (typeof callBack == 'function') callBack(); 
-			} 
+			onClose : function () {
+				if (typeof callBack == 'function') callBack();
+			}
 		});
 	} else {
 		w2popup.open({
@@ -7968,16 +8060,16 @@ var w2alert = function (msg, title, callBack) {
 			title 	: title,
 			body    : '<div class="w2ui-centered" style="font-size: 13px;">' + msg +'</div>',
 			buttons : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">'+ w2utils.lang('Ok') +'</button>',
-			onClose : function () { 
-				if (typeof callBack == 'function') callBack(); 
-			} 
+			onClose : function () {
+				if (typeof callBack == 'function') callBack();
+			}
 		});
 	}
 };
 
 var w2confirm = function (msg, title, callBack) {
 	if (typeof callBack == 'undefined' || typeof title == 'function') {
-		callBack = title; 
+		callBack = title;
 		title = w2utils.lang('Confirmation');
 	}
 	if (typeof title == 'undefined') {
@@ -8011,7 +8103,7 @@ var w2confirm = function (msg, title, callBack) {
 						w2popup.message();
 						break
 				}
-			} 
+			}
 		});
 	} else {
 		w2popup.open({
@@ -8042,10 +8134,11 @@ var w2confirm = function (msg, title, callBack) {
 						w2popup.close();
 						break
 				}
-			} 
+			}
 		});
 	}
-};/************************************************************************
+};
+/************************************************************************
 *	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *	- Following objects defined
 *		- w2tabs		- tabs widget
@@ -8077,6 +8170,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.onResize	= null;
 		this.onDestroy	= null;
 
+		$.extend(this, { handlers: [] });
 		$.extend(true, this, w2obj.tabs, options);
 	};
 
@@ -8086,25 +8180,26 @@ var w2confirm = function (msg, title, callBack) {
 	$.fn.w2tabs = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2tabs')) return;
+			if (!w2utils.checkName(method, 'w2tabs')) return;
 			// extend tabs
-			var tabs   = method.tabs;
+			var tabs   = method.tabs || [];
 			var object = new w2tabs(method);
-			$.extend(object, { tabs: [], handlers: [] });
-			for (var i in tabs) { object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]); }
+			for (var i = 0; i < tabs.length; i++) {
+				object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]);
+			}
 			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
 			// register new object
 			w2ui[object.name] = object;
 			return object;
-
 		} else if (w2ui[$(this).attr('name')]) {
 			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2tabs' );
+			return undefined;
 		}
 	};
 
@@ -8113,7 +8208,7 @@ var w2confirm = function (msg, title, callBack) {
 
 	w2tabs.prototype = {
 		tab : {
-			id			: null,		// commnad to be sent to all event handlers
+			id			: null,		// command to be sent to all event handlers
 			text		: '',
 			hidden		: false,
 			disabled	: false,
@@ -8131,31 +8226,22 @@ var w2confirm = function (msg, title, callBack) {
 		insert: function (id, tab) {
 			if (!$.isArray(tab)) tab = [tab];
 			// assume it is array
-			for (var r in tab) {
+			for (var i = 0; i < tab.length; i++) {
 				// checks
-				if (String(tab[r].id) == 'undefined') {
+				if (typeof tab[i].id === 'undefined') {
 					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
 					return;
 				}
-				var unique = true;
-				for (var i in this.tabs) { if (this.tabs[i].id == tab[r].id) { unique = false; break; } }
-				if (!unique) {
-					console.log('ERROR: The parameter "id='+ tab[r].id +'" is not unique within the current tabs. (obj: '+ this.name +')');
-					return;
-				}
-				if (!w2utils.isAlphaNumeric(tab[r].id)) {
-					console.log('ERROR: The parameter "id='+ tab[r].id +'" must be alpha-numeric + "-_". (obj: '+ this.name +')');
-					return;
-				}
+				if (!w2utils.checkUniqueId(tab[i].id, this.tabs, 'tabs', this.name)) return;
 				// add tab
-				tab = $.extend({}, tab, tab[r]);
-				if (id === null || typeof id == 'undefined') {
-					this.tabs.push(tab);
+				var newTab = $.extend({}, w2tabs.prototype.tab, tab[i]);
+				if (id === null || typeof id === 'undefined') {
+					this.tabs.push(newTab);
 				} else {
 					var middle = this.get(id, true);
-					this.tabs = this.tabs.slice(0, middle).concat([tab], this.tabs.slice(middle));
+					this.tabs = this.tabs.slice(0, middle).concat([newTab], this.tabs.slice(middle));
 				}
-				this.refresh(tab[r].id);
+				this.refresh(tab[i].id);
 			}
 		},
 
@@ -8174,7 +8260,7 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		select: function (id) {
-			if (this.get(id) === null || this.active == id) return false;
+			if (this.active === id || this.get(id) === null) return false;
 			this.active = id;
 			this.refresh();
 			return true;
@@ -8189,14 +8275,20 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		get: function (id, returnIndex) {
+			var i;
 			if (arguments.length === 0) {
 				var all = [];
-				for (var i = 0; i < this.tabs.length; i++) if (this.tabs[i].id !== null) all.push(this.tabs[i].id);
+				for (i = 0; i < this.tabs.length; i++) {
+					if (this.tabs[i].id !== null) {
+						all.push(this.tabs[i].id);
+					}
+				}
 				return all;
-			}
-			for (var i1 in this.tabs) {
-				if (this.tabs[i1].id == id) {
-					if (returnIndex === true) return i1; else return this.tabs[i1];
+			} else {
+				for (i = 0; i < this.tabs.length; i++) {
+					if (this.tabs[i].id === id) {
+						return (returnIndex === true ? i : this.tabs[i]);
+					}
 				}
 			}
 			return null;
@@ -8253,41 +8345,42 @@ var w2confirm = function (msg, title, callBack) {
 		refresh: function (id) {
 			var time = (new Date()).getTime();
 			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			if (String(id) == 'undefined') {
-				// refresh all
-				for (var i in this.tabs) this.refresh(this.tabs[i].id);
-			}
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), object: this.get(id) });
+			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), object: this.get(id) });
 			if (eventData.isCancelled === true) return false;
-			// create or refresh only one item
-			var tab = this.get(id);
-			if (tab === null) return;
-			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
-
-			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
-			var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);"></div>' : '') +
-						'	<div class="w2ui-tab'+ (this.active == tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
-						'		title="'+ (typeof tab.hint != 'undefined' ? tab.hint : '') +'"'+
-						'		onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
-			if (jq_el.length === 0) {
-				// does not exist - create it
-				var addStyle = '';
-				if (tab.hidden) { addStyle += 'display: none;'; }
-				if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
-				html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
-				if (this.get(id, true) != this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).length > 0) {
-					$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).before(html);
-				} else {
-					$(this.box).find('#tabs_'+ this.name +'_right').before(html);
-				}
+			if (typeof id === 'undefined') {
+				// refresh all
+				for (var i = 0; i < this.tabs.length; i++) this.refresh(this.tabs[i].id);
 			} else {
-				// refresh
-				jq_el.html(tabHTML);
-				if (tab.hidden) { jq_el.css('display', 'none'); }
-							else { jq_el.css('display', ''); }
-				if (tab.disabled) { jq_el.css({ 'opacity': '0.2', '-moz-opacity': '0.2', '-webkit-opacity': '0.2', '-o-opacity': '0.2', 'filter': 'alpha(opacity=20)' }); }
-							else { jq_el.css({ 'opacity': '1', '-moz-opacity': '1', '-webkit-opacity': '1', '-o-opacity': '1', 'filter': 'alpha(opacity=100)' }); }
+				// create or refresh only one item
+				var tab = this.get(id);
+				if (tab === null) return false;
+				if (typeof tab.caption !== 'undefined') tab.text = tab.caption;
+
+				var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
+				var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);"></div>' : '') +
+					'	<div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
+					'		title="'+ (typeof tab.hint !== 'undefined' ? tab.hint : '') +'"'+
+					'		onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
+				if (jq_el.length === 0) {
+					// does not exist - create it
+					var addStyle = '';
+					if (tab.hidden) { addStyle += 'display: none;'; }
+					if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
+					var html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
+					if (this.get(id, true) !== this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).length > 0) {
+						$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).before(html);
+					} else {
+						$(this.box).find('#tabs_'+ this.name +'_right').before(html);
+					}
+				} else {
+					// refresh
+					jq_el.html(tabHTML);
+					if (tab.hidden) { jq_el.css('display', 'none'); }
+					else { jq_el.css('display', ''); }
+					if (tab.disabled) { jq_el.css({ 'opacity': '0.2', '-moz-opacity': '0.2', '-webkit-opacity': '0.2', '-o-opacity': '0.2', 'filter': 'alpha(opacity=20)' }); }
+					else { jq_el.css({ 'opacity': '1', '-moz-opacity': '1', '-webkit-opacity': '1', '-o-opacity': '1', 'filter': 'alpha(opacity=100)' }); }
+				}
 			}
 			// right html
 			$('#tabs_'+ this.name +'_right').html(this.right);
@@ -8303,7 +8396,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (eventData.isCancelled === true) return false;
 			// default action
 			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			if (String(box) != 'undefined' && box !== null) {
+			if (typeof box !== 'undefined' && box !== null) {
 				if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -8312,7 +8405,7 @@ var w2confirm = function (msg, title, callBack) {
 				}
 				this.box = box;
 			}
-			if (!this.box) return;
+			if (!this.box) return false;
 			// render all buttons
 			var html =	'<table cellspacing="0" cellpadding="1" width="100%">'+
 						'	<tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
@@ -8329,13 +8422,16 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		resize: function () {
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.isCancelled === true) return false;
-			// empty function
+
+			// intentionaly blank
+
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 
 		destroy: function () {
@@ -8405,32 +8501,27 @@ var w2confirm = function (msg, title, callBack) {
 			if (this.get(id) === null) return;
 			if (!$.isPlainObject(tab)) return;
 			// check for unique
-			var unique = true;
-			for (var i in this.tabs) { if (this.tabs[i].id == tab.id) { unique = false; break; } }
-			if (!unique) {
-				console.log('ERROR: The parameter "id='+ tab.id +'" is not unique within the current tabs. (obj: '+ this.name +')');
-				return;
-			}
+			if (!w2utils.checkUniqueId(tab.id, this.tabs, 'tabs', this.name)) return;
 			// insert simple div
 			var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
 			if (jq_el.length !== 0) return; // already exists
 			// measure width
-			if (typeof tab.caption != 'undefined') tab.text = tab.caption;
+			if (typeof tab.caption !== 'undefined') tab.text = tab.caption;
 			var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
 				'<table cellspacing="0" cellpadding="1" width="100%"><tr>'+
 				'<td id="_tmp_simple_tab" style="" valign="middle">'+
 					(tab.closable ? '<div class="w2ui-tab-close"></div>' : '') +
-				'	<div class="w2ui-tab '+ (this.active == tab.id ? 'active' : '') +'">'+ tab.text +'</div>'+
+				'	<div class="w2ui-tab '+ (this.active === tab.id ? 'active' : '') +'">'+ tab.text +'</div>'+
 				'</td></tr></table>'+
 				'</div>';
 			$('body').append(tmp);
 			// create dummy element
-			tabHTML = '<div style="width: 1px; -webkit-transition: 0.2s; -moz-transition: 0.2s; -ms-transition: 0.2s; -o-transition: 0.2s;">&nbsp;</div>';
+			var tabHTML = '<div style="width: 1px; -webkit-transition: 0.2s; -moz-transition: 0.2s; -ms-transition: 0.2s; -o-transition: 0.2s;">&nbsp;</div>';
 			var addStyle = '';
 			if (tab.hidden) { addStyle += 'display: none;'; }
 			if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
-			html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
-			if (this.get(id, true) != this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).length > 0) {
+			var html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
+			if (this.get(id, true) !== this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).length > 0) {
 				$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).before(html);
 			} else {
 				$(this.box).find('#tabs_'+ this.name +'_right').before(html);
@@ -8452,6 +8543,8 @@ var w2confirm = function (msg, title, callBack) {
 	$.extend(w2tabs.prototype, w2utils.event);
 	w2obj.tabs = w2tabs;
 })();
+
+
 /************************************************************************
 *	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *	- Following objects defined
@@ -8489,13 +8582,14 @@ var w2confirm = function (msg, title, callBack) {
 	$.fn.w2toolbar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2toolbar')) return;
+			if (!w2utils.checkName(method, 'w2toolbar')) return;
 			// extend items
-			var items = method.items;
+			var items = method.items || [];
 			var object = new w2toolbar(method);
 			$.extend(object, { items: [], handlers: [] });
-
-			for (var i in items) { object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]); }
+			for (var i = 0; i < items.length; i++) {
+				object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]);
+			}
 			if ($(this).length !== 0) {
 				object.render($(this)[0]);
 			}
@@ -8517,7 +8611,7 @@ var w2confirm = function (msg, title, callBack) {
 
 	w2toolbar.prototype = {
 		item: {
-			id		: null,		// commnad to be sent to all event handlers
+			id		: null,		// command to be sent to all event handlers
 			type	: 'button',	// button, check, radio, drop, menu, break, html, spacer
 			text	: '',
 			html	: '',
@@ -8539,34 +8633,25 @@ var w2confirm = function (msg, title, callBack) {
 
 		insert: function (id, items) {
 			if (!$.isArray(items)) items = [items];
-			for (var o in items) {
+			for (var o = 0; o < items.length; o++) {
 				// checks
-				if (typeof items[o].type == 'undefined') {
+				if (typeof items[o].type === 'undefined') {
 					console.log('ERROR: The parameter "type" is required but not supplied in w2toolbar.add() method.');
 					return;
 				}
-				if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'break', 'html', 'spacer']) == -1) {
+				if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'break', 'html', 'spacer']) === -1) {
 					console.log('ERROR: The parameter "type" should be one of the following [button, check, radio, drop, menu, break, html, spacer] '+
 							'in w2toolbar.add() method.');
 					return;
 				}
-				if (typeof items[o].id == 'undefined') {
+				if (typeof items[o].id === 'undefined') {
 					console.log('ERROR: The parameter "id" is required but not supplied in w2toolbar.add() method.');
 					return;
 				}
-				var unique = true;
-				for (var i = 0; i < this.items.length; i++) { if (this.items[i].id == items[o].id) { unique = false; return; } }
-				if (!unique) {
-					console.log('ERROR: The parameter "id" is not unique within the current toolbar.');
-					return;
-				}
-				if (!w2utils.isAlphaNumeric(items[o].id)) {
-					console.log('ERROR: The parameter "id" must be alpha-numeric + "-_".');
-					return;
-				}
+				if (!w2utils.checkUniqueId(items[o].id, this.items, 'toolbar items', this.name)) return;
 				// add item
 				var it = $.extend({}, w2toolbar.prototype.item, items[o]);
-				if (id === null || typeof id == 'undefined') {
+				if (id === null || typeof id === 'undefined') {
 					this.items.push(it);
 				} else {
 					var middle = this.get(id, true);
@@ -8606,7 +8691,7 @@ var w2confirm = function (msg, title, callBack) {
 				return all;
 			}
 			for (var i1 = 0; i1 < this.items.length; i1++) {
-				if (this.items[i1].id == id) {
+				if (this.items[i1].id === id) {
 					if (returnIndex === true) return i1; else return this.items[i1];
 				}
 			}
@@ -8686,11 +8771,12 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		render: function (box) {
+			var time = (new Date()).getTime();
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 
-			if (typeof box != 'undefined' && box !== null) {
+			if (typeof box !== 'undefined' && box !== null) {
 				if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -8705,9 +8791,9 @@ var w2confirm = function (msg, title, callBack) {
 						'<tr>';
 			for (var i = 0; i < this.items.length; i++) {
 				var it = this.items[i];
-				if (typeof it.id == 'undefined' || it.id === null) it.id = "item_" + i;
+				if (typeof it.id === 'undefined' || it.id === null) it.id = "item_" + i;
 				if (it === null)  continue;
-				if (it.type == 'spacer') {
+				if (it.type === 'spacer') {
 					html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
 				} else {
 					html += '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
@@ -8725,38 +8811,39 @@ var w2confirm = function (msg, title, callBack) {
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
+			return (new Date()).getTime() - time;
 		},
 
 		refresh: function (id) {
 			var time = (new Date()).getTime();
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), item: this.get(id) });
+			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), item: this.get(id) });
 			if (eventData.isCancelled === true) return false;
 
-			if (typeof id == 'undefined') {
+			if (typeof id === 'undefined') {
 				// refresh all
 				for (var i = 0; i < this.items.length; i++) {
 					var it1 = this.items[i];
-					if (typeof it1.id == 'undefined' || it1.id === null) it1.id = "item_" + i;
+					if (typeof it1.id === 'undefined' || it1.id === null) it1.id = "item_" + i;
 					this.refresh(it1.id);
 				}
 			}
 			// create or refresh only one item
 			var it = this.get(id);
-			if (it === null) return;
+			if (it === null) return false;
 
 			var el = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id));
 			var html  = this.getItemHTML(it);
 			if (el.length === 0) {
 				// does not exist - create it
-				if (it.type == 'spacer') {
+				if (it.type === 'spacer') {
 					html = '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
 				} else {
 					html =  '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
 						'	class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html +
 						'</td>';
 				}
-				if (this.get(id, true) == this.items.length-1) {
+				if (this.get(id, true) === this.items.length-1) {
 					$(this.box).find('#tb_'+ this.name +'_right').before(html);
 				} else {
 					$(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
@@ -8778,7 +8865,7 @@ var w2confirm = function (msg, title, callBack) {
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.isCancelled === true) return false;
 
-			// empty function
+			// intentionaly blank
 
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -8808,9 +8895,9 @@ var w2confirm = function (msg, title, callBack) {
 		getItemHTML: function (item) {
 			var html = '';
 
-			if (typeof item.caption != 'undefined') item.text = item.caption;
-			if (typeof item.hint == 'undefined') item.hint = '';
-			if (typeof item.text == 'undefined') item.text = '';
+			if (typeof item.caption !== 'undefined') item.text = item.caption;
+			if (typeof item.hint === 'undefined') item.hint = '';
+			if (typeof item.text === 'undefined') item.text = '';
 
 			switch (item.type) {
 				case 'menu':
@@ -8833,7 +8920,7 @@ var w2confirm = function (msg, title, callBack) {
 							'  <tr>' +
 									img +
 									(item.text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.text +'</td>' : '') +
-									(((item.type == 'drop' || item.type == 'menu') && item.arrow !== false) ?
+									(((item.type === 'drop' || item.type === 'menu') && item.arrow !== false) ?
 										'<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
 							'  </tr></table>'+
 							'</td></tr></table>';
@@ -8853,9 +8940,9 @@ var w2confirm = function (msg, title, callBack) {
 			}
 
 			var newHTML = '';
-			if (typeof item.onRender == 'function') newHTML = item.onRender.call(this, item.id, html);
-			if (typeof this.onRender == 'function') newHTML = this.onRender(item.id, html);
-			if (newHTML !== '' && typeof newHTML != 'undefined') html = newHTML;
+			if (typeof item.onRender === 'function') newHTML = item.onRender.call(this, item.id, html);
+			if (typeof this.onRender === 'function') newHTML = this.onRender(item.id, html);
+			if (newHTML !== '' && typeof newHTML !== 'undefined') html = newHTML;
 			return html;
 		},
 
@@ -8879,18 +8966,18 @@ var w2confirm = function (msg, title, callBack) {
 			var it  = this.get(id);
 			if (it && !it.disabled) {
 				// event before
-				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id != 'undefined' ? id : this.name),
+				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id !== 'undefined' ? id : this.name),
 					item: this.get(id), originalEvent: event });
 				if (eventData.isCancelled === true) return false;
 
 				var btn = $('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button');
 				btn.removeClass('down');
 
-				if (it.type == 'radio') {
+				if (it.type === 'radio') {
 					for (var i = 0; i < this.items.length; i++) {
 						var itt = this.items[i];
-						if (itt === null || itt.id == it.id || itt.type != 'radio') continue;
-						if (itt.group == it.group && itt.checked) {
+						if (itt === null || itt.id === it.id || itt.type !== 'radio') continue;
+						if (itt.group === it.group && itt.checked) {
 							itt.checked = false;
 							this.refresh(itt.id);
 						}
@@ -8899,7 +8986,7 @@ var w2confirm = function (msg, title, callBack) {
 					btn.addClass('checked');
 				}
 
-				if (it.type == 'drop' || it.type == 'menu') {
+				if (it.type === 'drop' || it.type === 'menu') {
 					if (it.checked) {
 						// if it was already checked, second click will hide it
 						it.checked = false;
@@ -8910,13 +8997,13 @@ var w2confirm = function (msg, title, callBack) {
 							if (!$.isPlainObject(it.overlay)) it.overlay = {};
 							var left = (el.width() - 50) / 2;
 							if (left > 19) left = 19;
-							if (it.type == 'drop') {
+							if (it.type === 'drop') {
 								el.w2overlay(it.html, $.extend({ left: left, top: 3 }, it.overlay));
 							}
-							if (it.type == 'menu') {
+							if (it.type === 'menu') {
 								el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
-									select: function (event) { 										
-										obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent }); 
+									select: function (event) {
+										obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent });
 										hideDrop();
 									}
 								}));
@@ -8924,20 +9011,15 @@ var w2confirm = function (msg, title, callBack) {
 							// window.click to hide it
 							$(document).on('click', hideDrop);
 							function hideDrop() {
-								it.checked = false;
-								if (it.checked) {
-									btn.addClass('checked');
-								} else {
-									btn.removeClass('checked');
-								}
-								obj.refresh(it.id);
 								$(document).off('click', hideDrop);
+								it.checked = false;
+								btn.removeClass('checked');
 							}
 						}, 1);
 					}
 				}
 
-				if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
+				if (it.type === 'check' || it.type === 'drop' || it.type === 'menu') {
 					it.checked = !it.checked;
 					if (it.checked) {
 						btn.addClass('checked');
@@ -8954,6 +9036,8 @@ var w2confirm = function (msg, title, callBack) {
 	$.extend(w2toolbar.prototype, w2utils.event);
 	w2obj.toolbar = w2toolbar;
 })();
+
+
 /************************************************************************
 *	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *	- Following objects defined
@@ -9010,13 +9094,13 @@ var w2confirm = function (msg, title, callBack) {
 	$.fn.w2sidebar = function(method) {
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2sidebar')) return;
+			if (!w2utils.checkName(method, 'w2sidebar')) return;
 			// extend items
 			var nodes  = method.nodes;
-			var object = new w2sidebar(method); 
+			var object = new w2sidebar(method);
 			$.extend(object, { handlers: [], nodes: [] });
 			if (typeof nodes != 'undefined') {
-				object.add(object, nodes); 
+				object.add(object, nodes);
 			}
 			if ($(this).length !== 0) {
 				object.render($(this)[0]);
@@ -9025,19 +9109,19 @@ var w2confirm = function (msg, title, callBack) {
 			// register new object
 			w2ui[object.name] = object;
 			return object;
-			
+
 		} else if (w2ui[$(this).attr('name')]) {
 			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2sidebar' );
-		}    
+		}
 	};
-	
+
 	// ====================================================
 	// -- Implementation of core functionality
-	
+
 	w2sidebar.prototype = {
 
 		node: {
@@ -9047,7 +9131,7 @@ var w2confirm = function (msg, title, callBack) {
 			img				: null,
 			icon			: null,
 			nodes			: [],
-			style			: '',			// additiona style for subitems
+			style			: '',			// additional style for subitems
 			selected		: false,
 			expanded		: false,
 			hidden			: false,
@@ -9065,7 +9149,7 @@ var w2confirm = function (msg, title, callBack) {
 			parent			: null,	// node object
 			sidebar			: null
 		},
-		
+
 		add: function (parent, nodes) {
 			if (arguments.length == 1) {
 				// need to be in reverse order
@@ -9075,58 +9159,60 @@ var w2confirm = function (msg, title, callBack) {
 			if (typeof parent == 'string') parent = this.get(parent);
 			return this.insert(parent, null, nodes);
 		},
-		
+
 		insert: function (parent, before, nodes) {
-			var txt;
-			var ind;
-			var tmp;
+			var txt, ind, tmp, node, nd;
 			if (arguments.length == 2) {
 				// need to be in reverse order
 				nodes	= arguments[1];
 				before	= arguments[0];
 				ind		= this.get(before);
 				if (ind === null) {
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
-					console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
-					return null; 
+					if (!$.isArray(nodes)) nodes = [nodes];
+					txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
+					console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+					return null;
 				}
 				parent	= this.get(before).parent;
 			}
 			if (typeof parent == 'string') parent = this.get(parent);
 			if (!$.isArray(nodes)) nodes = [nodes];
 			for (var o in nodes) {
-				if (typeof nodes[o].id == 'undefined') { 
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);					
-					console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.'); 
+				node = nodes[o];
+				if (typeof node.id == null) {
+					txt = (node.caption != null ? node.caption : node.text);
+					console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.');
 					continue;
 				}
-				if (this.get(this, nodes[o].id) !== null) { 
-					txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
-					console.log('ERROR: Cannot insert node with id='+ nodes[o].id +' (text: '+ txt + ') because another node with the same id already exists.'); 
+				if (this.get(this, node.id) !== null) {
+					txt = (node.caption != null ? node.caption : node.text);
+					console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ txt + ') because another node with the same id already exists.');
 					continue;
 				}
-				tmp = $.extend({}, w2sidebar.prototype.node, nodes[o]);
+				tmp = $.extend({}, w2sidebar.prototype.node, node);
 				tmp.sidebar	= this;
-				tmp.parent	= parent;
-				var nd		= tmp.nodes;
-				tmp.nodes	= []; // very important to re-init empty nodes array
+				tmp.parent = parent;
+				nd = tmp.nodes || [];
+				tmp.nodes = []; // very important to re-init empty nodes array
 				if (before === null) { // append to the end
-					parent.nodes.push(tmp);	
+					parent.nodes.push(tmp);
 				} else {
 					ind = this.get(parent, before, true);
 					if (ind === null) {
-						txt = (nodes[o].caption != 'undefined' ? nodes[o].caption : nodes[o].text);
-						console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.'); 
-						return null; 
-					}
+						txt = (node.caption != null ? node.caption : node.text);
+						console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+						return null;
+				}
 					parent.nodes.splice(ind, 0, tmp);
 				}
-				if (typeof nd != 'undefined' && nd.length > 0) { this.insert(tmp, null, nd); }
+				if (nd.length > 0) {
+					this.insert(tmp, null, nd);
+				}
 			}
 			this.refresh(parent.id);
 			return tmp;
 		},
-		
+
 		remove: function () { // multiple arguments
 			var deleted = 0;
 			var tmp;
@@ -9145,8 +9231,8 @@ var w2confirm = function (msg, title, callBack) {
 			if (deleted > 0 && arguments.length == 1) this.refresh(tmp.parent.id); else this.refresh();
 			return deleted;
 		},
-		
-		set: function (parent, id, node) { 
+
+		set: function (parent, id, node) {
 			if (arguments.length == 2) {
 				// need to be in reverse order
 				node	= id;
@@ -9154,7 +9240,6 @@ var w2confirm = function (msg, title, callBack) {
 				parent	= this;
 			}
 			// searches all nested nodes
-			this._tmp = null;
 			if (typeof parent == 'string') parent = this.get(parent);
 			if (parent.nodes === null) return null;
 			for (var i=0; i < parent.nodes.length; i++) {
@@ -9168,8 +9253,8 @@ var w2confirm = function (msg, title, callBack) {
 					this.refresh(id);
 					return true;
 				} else {
-					this._tmp = this.set(parent.nodes[i], id, node);
-					if (this._tmp) return true;
+					var rv = this.set(parent.nodes[i], id, node);
+					if (rv) return true;
 				}
 			}
 			return false;
@@ -9183,18 +9268,17 @@ var w2confirm = function (msg, title, callBack) {
 				parent		= this;
 			}
 			// searches all nested nodes
-			this._tmp = null;
-			if (typeof parent == 'string') parent = this.get(parent); 
-			if (parent.nodes === null) return null;
-			for (var i=0; i < parent.nodes.length; i++) {
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return null;
+			for (var i = 0; i < parent.nodes.length; i++) {
 				if (parent.nodes[i].id == id) {
 					if (returnIndex === true) return i; else return parent.nodes[i];
 				} else {
-					this._tmp = this.get(parent.nodes[i], id, returnIndex);
-					if (this._tmp || this._tmp === 0) return this._tmp;
+					var rv = this.get(parent.nodes[i], id, returnIndex);
+					if (rv || rv === 0) return rv;
 				}
 			}
-			return this._tmp;
+			return null;
 		},
 
 		hide: function () { // multiple arguments
@@ -9208,8 +9292,8 @@ var w2confirm = function (msg, title, callBack) {
 			if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
 			return hidden;
 		},
-		
-		show: function () {
+
+		show: function () { // multiple arguments
 			var shown = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tmp = this.get(arguments[a]);
@@ -9220,7 +9304,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
 			return shown;
 		},
-	
+
 		disable: function () { // multiple arguments
 			var disabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -9233,7 +9317,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
 			return disabled;
 		},
-		
+
 		enable: function () { // multiple arguments
 			var enabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
@@ -9258,7 +9342,7 @@ var w2confirm = function (msg, title, callBack) {
 			this.selected = id;
 			return true;
 		},
-		
+
 		unselect: function (id) {
 			var current = this.get(id);
 			if (!current) return false;
@@ -9269,7 +9353,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (this.selected == id) this.selected = null;
 			return true;
 		},
-		
+
 		toggle: function(id) {
 			var nd = this.get(id);
 			if (nd === null) return false;
@@ -9309,13 +9393,13 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			this.refresh(parent.id);
 			return true;
-		},		
-	
+		},
+
 		expand: function (id) {
 			var obj = this;
 			var nd  = this.get(id);
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });	
+			var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });
 			if (eventData.isCancelled === true) return false;
 			// default action
 			$(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200);
@@ -9326,7 +9410,7 @@ var w2confirm = function (msg, title, callBack) {
 			setTimeout(function () { obj.refresh(id); }, 200);
 			return true;
 		},
-		
+
 		expandAll: function (parent) {
 			if (typeof parent == 'undefined') parent = this;
 			if (typeof parent == 'string') parent = this.get(parent); 
@@ -9336,7 +9420,7 @@ var w2confirm = function (msg, title, callBack) {
 				if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
 			}
 			this.refresh(parent.id);
-		},		
+		},
 
 		expandParents: function (id) {
 			var node = this.get(id);
@@ -9347,7 +9431,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			this.refresh(id);
 			return true;
-		}, 
+		},
 
 		click: function (id, event) {
 			var obj = this;
@@ -9361,7 +9445,7 @@ var w2confirm = function (msg, title, callBack) {
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: nd });	
+				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: nd });
 				if (eventData.isCancelled === true) {
 					// restore selection
 					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
@@ -9382,7 +9466,7 @@ var w2confirm = function (msg, title, callBack) {
 			var nd  = obj.get(obj.selected);
 			if (!nd || obj.keyboard !== true) return;
 			// trigger event
-			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });	
+			var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default behaviour
 			if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
@@ -9408,7 +9492,7 @@ var w2confirm = function (msg, title, callBack) {
 			// cancel event if needed
 			if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
 				if (event.preventDefault) event.preventDefault();
-				if (event.stopPropagation) event.stopPropagation();				
+				if (event.stopPropagation) event.stopPropagation();
 			}
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -9482,7 +9566,7 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		dblClick: function (id, event) {
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			var nd = this.get(id);
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
@@ -9492,7 +9576,7 @@ var w2confirm = function (msg, title, callBack) {
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
-	
+
 		contextMenu: function (id, event) {
 			var obj = this;
 			var nd  = obj.get(id);
@@ -9500,13 +9584,13 @@ var w2confirm = function (msg, title, callBack) {
 			// need timeout to allow click to finish first
 			setTimeout(function () {
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });	
-				if (eventData.isCancelled === true) return false;		
+				var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
+				if (eventData.isCancelled === true) return false;
 				// default action
 				if (nd.group || nd.disabled) return;
 				if (obj.menu.length > 0) {
 					$(obj.box).find('#node_'+ w2utils.escapeId(id))
-						.w2menu(obj.menu, { 
+						.w2menu(obj.menu, {
 							left: (event ? event.offsetX || event.pageX : 50) - 25,
 							select: function (item, event, index) { obj.menuClick(id, index, event); }
 						}
@@ -9520,20 +9604,21 @@ var w2confirm = function (msg, title, callBack) {
 		menuClick: function (itemId, index, event) {
 			var obj = this;
 			// event before
-			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });	
-			if (eventData.isCancelled === true) return false;		
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
+			if (eventData.isCancelled === true) return false;
 			// default action
 			// -- empty
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
-				
+
 		render: function (box) {
+			var time = (new Date()).getTime();
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });	
+			var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
 			if (eventData.isCancelled === true) return false;
 			// default action
-			if (typeof box != 'undefined' && box !== null) { 
+			if (typeof box != 'undefined' && box !== null) {
 				if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
 					$(this.box)
 						.removeAttr('name')
@@ -9572,18 +9657,19 @@ var w2confirm = function (msg, title, callBack) {
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			// ---
 			this.refresh();
+			return (new Date()).getTime() - time;
 		},
-		
+
 		refresh: function (id) {
 			var time = (new Date()).getTime();
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });	
+			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });
 			if (eventData.isCancelled === true) return false;
 			// adjust top and bottom
 			if (this.topHTML !== '') {
 				$(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
-				$(this.box).find('.w2ui-sidebar-div')					
+				$(this.box).find('.w2ui-sidebar-div')
 					.css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
 			}
 			if (this.bottomHTML !== '') {
@@ -9627,7 +9713,7 @@ var w2confirm = function (msg, title, callBack) {
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
-			
+
 			function getNodeHTML(nd) {
 				var html = '';
 				var img  = nd.img;
@@ -9641,10 +9727,10 @@ var w2confirm = function (msg, title, callBack) {
 					if (tmp.group) level--;
 					tmp = tmp.parent;
 					level++;
-				}	
+				}
 				if (typeof nd.caption != 'undefined') nd.text = nd.caption;
 				if (nd.group) {
-					html = 
+					html =
 						'<div class="w2ui-node-group"  id="node_'+ nd.id +'"'+
 						'		onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
 						'		onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
@@ -9658,7 +9744,7 @@ var w2confirm = function (msg, title, callBack) {
 					tmp = '';
 					if (img) tmp = '<div class="w2ui-node-image w2ui-icon '+ img +	(nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
 					if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
-					html = 
+					html =
 					'<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
 						'	ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
 						'	oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
@@ -9666,10 +9752,10 @@ var w2confirm = function (msg, title, callBack) {
 						'	onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
 						'<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
 						'<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
-						'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+ 
+						'		if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
 						'	<div class="w2ui-expand">'	+ (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
 						'</td>'+
-						'<td class="w2ui-node-data" nowrap>'+ 
+						'<td class="w2ui-node-data" nowrap>'+
 							tmp +
 							(nd.count !== '' ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
@@ -9681,10 +9767,10 @@ var w2confirm = function (msg, title, callBack) {
 				return html;
 			}
 		},
-	
+
 		resize: function () {
 			var time = (new Date()).getTime();
-			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection 
+			// if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
 			if (eventData.isCancelled === true) return false;
@@ -9700,10 +9786,10 @@ var w2confirm = function (msg, title, callBack) {
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			return (new Date()).getTime() - time;
 		},
-		
-		destroy: function () { 
+
+		destroy: function () {
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });	
+			var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
 			if (eventData.isCancelled === true) return false;
 			// clean up
 			if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
@@ -9714,7 +9800,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			delete w2ui[this.name];
 			// event after
-			this.trigger($.extend(eventData, { phase: 'after' }));	
+			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
 		lock: function (msg, showSpinner) {
@@ -9724,14 +9810,15 @@ var w2confirm = function (msg, title, callBack) {
 			w2utils.lock.apply(window, args);
 		},
 
-		unlock: function () { 
+		unlock: function () {
 			w2utils.unlock(this.box);
 		}
 	};
-	
+
 	$.extend(w2sidebar.prototype, w2utils.event);
 	w2obj.sidebar = w2sidebar;
 })();
+
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
@@ -9746,6 +9833,8 @@ var w2confirm = function (msg, title, callBack) {
 *	- multiple date selection
 *	- month selection, year selections
 *	- arrows no longer work (for int)
+*	- add postData for autocomplete
+*	- form to support cutstom types
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -9799,14 +9888,14 @@ var w2confirm = function (msg, title, callBack) {
 
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
+
 	$.fn.w2field = function (method, options) {
 		// call direct
 		if (this.length == 0) {
 			var pr = w2field.prototype;
 			if (pr[method]) {
 				return pr[method].apply(pr, Array.prototype.slice.call(arguments, 1));
-			}   
+			}
 		} else {
 			if (typeof method == 'string' && typeof options == 'object') {
 				method = $.extend(true, {}, options, { type: method });
@@ -9838,15 +9927,15 @@ var w2confirm = function (msg, title, callBack) {
 				return null;
 			});
 		}
-	}	
+	}
 
 	// ====================================================
 	// -- Implementation of core functionality
 
 	/* 	To add custom types
 		$().w2field('addType', 'myType', function (options) {
-			$(this.el).on('keypress', function (event) { 
-				if (event.metaKey || event.ctrlKey || event.altKey 
+			$(this.el).on('keypress', function (event) {
+				if (event.metaKey || event.ctrlKey || event.altKey
 					|| (event.charCode != event.keyCode && event.keyCode > 0)) return;
 				var ch = String.fromCharCode(event.charCode);
 				if (ch != 'a' && ch != 'b' && ch != 'c') {
@@ -9856,11 +9945,11 @@ var w2confirm = function (msg, title, callBack) {
 			});
 			$(this.el).on('blur', function (event)  { // keyCode & charCode differ in FireFox
 				var ch = this.value;
-				if (ch != 'a' && ch != 'b' && ch != 'c') { 
+				if (ch != 'a' && ch != 'b' && ch != 'c') {
 					$(this).w2tag(w2utils.lang("Not a single charecter from the set of 'abc'"));
 				}
 			});
-		});	
+		});
 	*/
 
 	w2field.prototype = {
@@ -9890,7 +9979,7 @@ var w2confirm = function (msg, title, callBack) {
 			delete this.custom[type];
 			return true
 		},
-		
+
 		init: function () {
 			var obj 	= this;
 			var options = this.options;
@@ -9900,7 +9989,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (typeof this.custom[this.type] == 'function') {
 				this.custom[this.type].call(this, options);
 				return;
-			} 
+			}
 			// only for INPUT or TEXTAREA
 			if (['INPUT', 'TEXTAREA'].indexOf(this.el.tagName) == -1) {
 				console.log('ERROR: w2field could only be applied to INPUT or TEXTAREA.', this.el);
@@ -9919,7 +10008,7 @@ var w2confirm = function (msg, title, callBack) {
 					defaults = {
 						min				: null,
 						max				: null,
-						placeholder		: '', 
+						placeholder		: '',
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
@@ -9950,7 +10039,7 @@ var w2confirm = function (msg, title, callBack) {
 					defaults = {
 						prefix		: '#',
 						suffix		: '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&nbsp;</div>',
-						placeholder	: '', 
+						placeholder	: '',
 						arrows		: false,
 						keyboard	: false
 					};
@@ -9966,7 +10055,7 @@ var w2confirm = function (msg, title, callBack) {
 				case 'date':
 					defaults = {
 						format		: w2utils.settings.date_format, // date format
-						placeholder	: '', 
+						placeholder	: '',
 						keyboard	: true,
 						silent		: true,
 						start		: '',		// string or jquery object
@@ -9982,7 +10071,7 @@ var w2confirm = function (msg, title, callBack) {
 				case 'time':
 					defaults = {
 						format		: w2utils.settings.time_format,
-						placeholder	: '', 
+						placeholder	: '',
 						keyboard	: true,
 						silent		: true,
 						start		: '',
@@ -10119,7 +10208,7 @@ var w2confirm = function (msg, title, callBack) {
 			// attach events
 			this.tmp = {
 				onChange	: function (event) { obj.change.call(obj, event) },
-				onClick		: function (event) { obj.updateOverlay(); event.stopPropagation(); },
+				onClick		: function (event) { obj.click.call(obj, event) },
 				onFocus		: function (event) { obj.focus.call(obj, event) },
 				onBlur 		: function (event) { obj.blur.call(obj, event) },
 				onKeydown	: function (event) { obj.keyDown.call(obj, event) },
@@ -10201,13 +10290,13 @@ var w2confirm = function (msg, title, callBack) {
 					if (typeof options.renderItem == 'function') {
 						ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
 					} else {
-						ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+	
+						ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+
 							  (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.size(it.size) +'</span>');
 					}
-					html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+ 
+					html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
 							ren +'</li>';
 				}
-				var div = obj.helpers['multi'];
+				var div = obj.helpers.multi;
 				var ul  = div.find('ul');
 				div.attr('style', div.attr('style') + ';' + options.style);
 				if ($(obj.el).attr('readonly')) div.addClass('w2ui-readonly'); else div.removeClass('w2ui-readonly');
@@ -10218,7 +10307,7 @@ var w2confirm = function (msg, title, callBack) {
 				if (html != '') {
 					ul.prepend(html);
 				} else if (typeof options.placeholder != 'undefined') {
-					var style = 
+					var style =
 						'padding-top: ' + $(this.el).css('padding-top') + ';'+
 						'padding-left: ' + $(this.el).css('padding-left') + '; ' +
 						'box-sizing: ' + $(this.el).css('box-sizing') + '; ' +
@@ -10248,8 +10337,8 @@ var w2confirm = function (msg, title, callBack) {
 							selected.splice($(event.target).attr('index'), 1);
 							$(obj.el).trigger('change');
 							$(event.target).parent().fadeOut('fast');
-							setTimeout(function () { 
-								obj.refresh(); 
+							setTimeout(function () {
+								obj.refresh();
 								// event after
 								obj.trigger($.extend(eventData, { phase: 'after' }));
 							}, 300);
@@ -10379,7 +10468,7 @@ var w2confirm = function (msg, title, callBack) {
 		change: function (event) {
 			var obj 	= this;
 			var options = obj.options;
-			// numeric 
+			// numeric
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
 				// check max/min
 				var val 	=  $(this.el).val();
@@ -10398,7 +10487,19 @@ var w2confirm = function (msg, title, callBack) {
 				var color = '#' + $(this.el).val();
 				if ($(this.el).val().length != 6 && $(this.el).val().length != 3) color = '';
 				$(this.el).next().find('div').css('background-color', color);
-				if ($(obj.el).is(':focus')) this.updateOverlay();			
+				if ($(obj.el).is(':focus')) this.updateOverlay();
+			}
+		},
+
+		click: function (event) {
+			event.stopPropagation();
+			// lists
+			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+				if (!$(this.el).is(':focus')) this.focus(event);
+			}
+			// other fields with drops
+			if (['date', 'time', 'color'].indexOf(this.type) != -1) {
+				this.updateOverlay();
 			}
 		},
 
@@ -10408,20 +10509,22 @@ var w2confirm = function (msg, title, callBack) {
 			// color, date, time
 			if (['color', 'date', 'time'].indexOf(obj.type) !== -1) {
 				if ($(obj.el).attr('readonly')) return;
-				$("#w2ui-overlay").remove();
+				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 				setTimeout(function () { obj.updateOverlay(); }, 150);
 			}
 			// list
 			if (obj.type == 'list') {
 				if (!$(obj.el).data('focused')) {
-					obj.helpers['focus'].find('input').focus();
+					obj.helpers.focus.find('input').focus();
 				} else {
 					$(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
-					setTimeout(function () { 
+					setTimeout(function () {
 						if (!options.search) {
 							$(obj.el).data('keep_focus', true);
 							setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
-							obj.helpers['focus'].find('input').focus(); 
+							obj.helpers.focus.find('input').focus();
+						} else {
+							setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
 						}
 					}, 10);
 					obj.updateOverlay();
@@ -10430,7 +10533,7 @@ var w2confirm = function (msg, title, callBack) {
 			// menu
 			if (['combo', 'enum'].indexOf(obj.type) != -1) {
 				if ($(obj.el).attr('readonly')) return;
-				$("#w2ui-overlay").remove();				
+				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 				setTimeout(function () {
 					obj.search();
 					setTimeout(function () { obj.updateOverlay(); }, 1);
@@ -10438,20 +10541,20 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// file
 			if (obj.type == 'file') {
-				$(obj.helpers['multi']).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+				$(obj.helpers.multi).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 			}
 		},
 
-		blur: function (event) {			
+		blur: function (event) {
 			var obj 	= this;
 			var options = obj.options;
 			var val 	= $(obj.el).val().trim();
 			// hide overlay
 			if (['color', 'date', 'time', 'combo', 'enum'].indexOf(obj.type) != -1) {
-				$('#w2ui-overlay').remove();
+				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 			}
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
-				if (val !== '' && !obj.checkType(val)) { 
+				if (val !== '' && !obj.checkType(val)) {
 					$(obj.el).val('').change();
 					if (options.silent === false) {
 						$(obj.el).w2tag('Not a valid number');
@@ -10487,18 +10590,18 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			if (obj.type == 'list') {
 				if ($(obj.el).data('focused')) {
-					obj.helpers['focus'].find('input').blur();
-				} else {					
+					obj.helpers.focus.find('input').blur();
+				} else {
 					$(obj.el).css({ 'outline': 'none' });
 				}
 			}
 			// clear search input
 			if (obj.type == 'enum') {
-				$(obj.helpers['multi']).find('input').val('').width(20);
+				$(obj.helpers.multi).find('input').val('').width(20);
 			}
 			// file
 			if (obj.type == 'file') {
-				$(obj.helpers['multi']).css({ 'outline': 'none' });
+				$(obj.helpers.multi).css({ 'outline': 'none' });
 			}
 		},
 
@@ -10526,7 +10629,7 @@ var w2confirm = function (msg, title, callBack) {
 			var obj 	= this;
 			var options = obj.options;
 			var key 	= event.keyCode || (extra && extra.keyCode);
-			// numeric 
+			// numeric
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
 				if (!options.keyboard) return;
 				var cancel = false;
@@ -10547,9 +10650,9 @@ var w2confirm = function (msg, title, callBack) {
 				}
 				if (cancel) {
 					event.preventDefault();
-					setTimeout(function () { 
+					setTimeout(function () {
 						// set cursor to the end
-						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length); 
+						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
 					}, 0);
 				}
 			}
@@ -10559,7 +10662,7 @@ var w2confirm = function (msg, title, callBack) {
 				var cancel  = false;
 				var daymil  = 24*60*60*1000;
 				var inc		= 1;
-				if (event.ctrlKey || event.metaKey) inc = 10; 
+				if (event.ctrlKey || event.metaKey) inc = 10;
 				var dt = w2utils.isDate($(obj.el).val(), options.format, true);
 				if (!dt) { dt = new Date(); daymil = 0; }
 				switch (key) {
@@ -10580,9 +10683,9 @@ var w2confirm = function (msg, title, callBack) {
 				}
 				if (cancel) {
 					event.preventDefault();
-					setTimeout(function () { 
+					setTimeout(function () {
 						// set cursor to the end
-						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length); 
+						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
 						obj.updateOverlay();
 					}, 0);
 				}
@@ -10592,7 +10695,7 @@ var w2confirm = function (msg, title, callBack) {
 				if (!options.keyboard) return;
 				var cancel  = false;
 				var inc		= 1;
-				if (event.ctrlKey || event.metaKey) inc = 60; 
+				if (event.ctrlKey || event.metaKey) inc = 60;
 				var val = $(obj.el).val();
 				var time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
 				switch (key) {
@@ -10610,9 +10713,9 @@ var w2confirm = function (msg, title, callBack) {
 				if (cancel) {
 					$(obj.el).val(obj.fromMin(time)).change();
 					event.preventDefault();
-					setTimeout(function () { 
+					setTimeout(function () {
 						// set cursor to the end
-						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length); 
+						obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
 					}, 0);
 				}
 			}
@@ -10669,7 +10772,7 @@ var w2confirm = function (msg, title, callBack) {
 						if ($(obj.el).val() != '') break;
 					case 13: // enter
 						var item  = options.items[options.index];
-						var multi = $(obj.helpers['multi']).find('input');
+						var multi = $(obj.helpers.multi).find('input');
 						if (['enum'].indexOf(obj.type) != -1) {
 							if (item) {
 								// trigger event
@@ -10709,7 +10812,7 @@ var w2confirm = function (msg, title, callBack) {
 							if ($(obj.el).val() == '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').change();
 							// hide overlay
 							if (obj.type == 'list') {
-								$('#w2ui-overlay').remove();
+								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 							} else {
 								obj.tmp.force_hide = true;
 							}
@@ -10717,7 +10820,7 @@ var w2confirm = function (msg, title, callBack) {
 						break;
 					case 8: // delete
 						if (['enum'].indexOf(obj.type) != -1) {
-							if ($(obj.helpers['multi']).find('input').val() == '' && selected.length > 0) {
+							if ($(obj.helpers.multi).find('input').val() == '' && selected.length > 0) {
 								var item = selected[selected.length - 1];
 								// trigger event
 								var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -10749,7 +10852,7 @@ var w2confirm = function (msg, title, callBack) {
 						}
 						// show overlay if not shown
 						var input = obj.el;
-						if (['enum'].indexOf(obj.type) != -1) input = obj.helpers['multi'].find('input');
+						if (['enum'].indexOf(obj.type) != -1) input = obj.helpers.multi.find('input');
 						if ($(input).val() == '' && $('#w2ui-overlay').length == 0) {
 							obj.tmp.force_open = true;
 						} else {
@@ -10763,20 +10866,20 @@ var w2confirm = function (msg, title, callBack) {
 					obj.updateOverlay();
 					// cancel event
 					event.preventDefault();
-					setTimeout(function () { 
+					setTimeout(function () {
 						// set cursor to the end
 						if (['enum'].indexOf(obj.type) != -1) {
-							var tmp = obj.helpers['multi'].find('input').get(0);
-							tmp.setSelectionRange(tmp.value.length, tmp.value.length); 
+							var tmp = obj.helpers.multi.find('input').get(0);
+							tmp.setSelectionRange(tmp.value.length, tmp.value.length);
 						} else {
-							obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length); 
+							obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
 						}
 					}, 0);
 					return;
 				}
 				// expand input
 				if (['enum'].indexOf(obj.type) != -1) {
-					var input  = obj.helpers['multi'].find('input');
+					var input  = obj.helpers.multi.find('input');
 					var search = input.val();
 					input.width(((search.length + 2) * 8) + 'px');
 				}
@@ -10797,10 +10900,10 @@ var w2confirm = function (msg, title, callBack) {
 
 		request: function (interval) {
 			var obj 	 = this;
-			var options  = this.options;			
+			var options  = this.options;
 			var search 	 = $(obj.el).val() || '';
 			if (obj.type == 'enum') {
-				var tmp = $(obj.helpers['multi']).find('input');
+				var tmp = $(obj.helpers.multi).find('input');
 				if (tmp.length == 0) return;
 				search = tmp.val();
 			}
@@ -10823,8 +10926,8 @@ var w2confirm = function (msg, title, callBack) {
 				obj.tmp.timeout = setTimeout(function () {
 					// trigger event
 					var url  	 = options.url;
-					var postData = { 
-						search	: search, 
+					var postData = {
+						search	: search,
 						max 	: options.cacheMax
 					};
 					var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
@@ -10890,7 +10993,7 @@ var w2confirm = function (msg, title, callBack) {
 			var ids = [];
 			if (obj.type == 'list') return; // list has its own search field
 			if (['enum'].indexOf(obj.type) != -1) {
-				target = $(obj.helpers['multi']).find('input');
+				target = $(obj.helpers.multi).find('input');
 				search = target.val();
 				for (var s in options.selected) { ids.push(options.selected[s].id); }
 			}
@@ -10905,10 +11008,10 @@ var w2confirm = function (msg, title, callBack) {
 					var suffix = '';
 					if (['is', 'begins with'].indexOf(options.match) != -1) prefix = '^';
 					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
-					try { 
+					try {
 						var re = new RegExp(prefix + search + suffix, 'i');
-						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true; 
-						if (options.applyFilter !== true) item.hidden = false; 
+						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
+						if (options.applyFilter !== true) item.hidden = false;
 					} catch (e) {}
 					// do not show selected items
 					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
@@ -10951,26 +11054,37 @@ var w2confirm = function (msg, title, callBack) {
 						obj.tmp.cind1 = index[0];
 						obj.tmp.cind2 = index[1];
 						$(obj.el).val(color).change();
-						setTimeout(function () { $('#w2ui-overlay').remove(); }, 150);
+						$(this).html('&#149;');
+					})
+					.on('mouseup', function () {
+						setTimeout(function () {
+							if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
+						}, 10);
 					});
 			}
 			// date
 			if (this.type == 'date') {
 				if ($('#w2ui-overlay').length == 0) {
-					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', { 
+					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
 						css: { "background-color": "#f5f5f5" }
 					});
-				} 
+				}
 				var month, year;
 				var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
 				if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
 				(function refreshCalendar(month, year) {
 					$('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year));
-					$('#w2ui-overlay .w2ui-date').on('mousedown', function () {
-						var day = $(this).attr('date');
-						$(obj.el).val(day).change();
-						setTimeout(function () { $('#w2ui-overlay').remove(); }, 150);
-					});
+					$('#w2ui-overlay .w2ui-date')
+						.on('mousedown', function () {
+							var day = $(this).attr('date');
+							$(obj.el).val(day).change();
+							$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+						})
+						.on('mouseup', function () {
+							setTimeout(function () {
+								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
+							}, 10);
+						});
 					$('#w2ui-overlay .previous').on('mousedown', function () {
 						var tmp = obj.options.current.split('/');
 						tmp[0]  = parseInt(tmp[0]) - 1;
@@ -10986,34 +11100,41 @@ var w2confirm = function (msg, title, callBack) {
 			// date
 			if (this.type == 'time') {
 				if ($('#w2ui-overlay').length == 0) {
-					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time" onclick="event.stopPropagation();"></div>', { 
-						css: { "background-color": "#fff" } 
+					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time" onclick="event.stopPropagation();"></div>', {
+						css: { "background-color": "#fff" }
 					});
 				}
 				var h24 = (this.options.format == 'h24' ? true : false);
 				$('#w2ui-overlay > div').html(obj.getHourHTML());
-				$('#w2ui-overlay .w2ui-time').on('mousedown', function () {
-					var hour = $(this).attr('hour');
-					$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
-					setTimeout(function () {
-						$('#w2ui-overlay').remove();
+				$('#w2ui-overlay .w2ui-time')
+					.on('mousedown', function (event) {
+						$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+						var hour = $(this).attr('hour');
+						$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+					})
+					.on('mouseup', function () {
+						var hour = $(this).attr('hour');
+						if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 						$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
 						$('#w2ui-overlay > div').html(obj.getMinHTML(hour));
-						$('#w2ui-overlay .w2ui-time').on('mousedown', function () {
-							var min = $(this).attr('min');
-							$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
-							setTimeout(function () { $('#w2ui-overlay').remove(); }, 150);
-						});
-					}, 150);
-				});
+						$('#w2ui-overlay .w2ui-time')
+							.on('mousedown', function () {
+								$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+								var min = $(this).attr('min');
+								$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+							})
+							.on('mouseup', function () {
+								setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
+							});
+					});
 			}
 			// list
 			if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
 				var el		= this.el;
 				var input	= this.el;
 				if (this.type == 'enum') {
-					el		= $(this.helpers['multi']);
-					input	= $(el).find('input'); 
+					el		= $(this.helpers.multi);
+					input	= $(el).find('input');
 				}
 				if ($(input).is(':focus') || this.type == 'list') {
 					if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
@@ -11024,7 +11145,7 @@ var w2confirm = function (msg, title, callBack) {
 						$().w2overlay();
 						delete obj.tmp.force_hide;
 						return;
-					} 
+					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
 						render		: options.renderDrop,
@@ -11042,9 +11163,9 @@ var w2confirm = function (msg, title, callBack) {
 									delete event.item.hidden;
 									selected.push(event.item);
 									$(obj.el).data('selected', selected).change();
-									$(obj.helpers['multi']).find('input').val('').width(20);
+									$(obj.helpers.multi).find('input').val('').width(20);
 									obj.refresh();
-									$('#w2ui-overlay').remove();
+									if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 									// event after
 									obj.trigger($.extend(eventData, { phase: 'after' }));
 								}
@@ -11055,7 +11176,7 @@ var w2confirm = function (msg, title, callBack) {
 								// hide overlay, focus helper
 								setTimeout(function () {
 									$('#w2ui-overlay').remove();
-									if (options.search) obj.helpers['focus'].find('input').focus(); 
+									if (options.search) obj.helpers.focus.find('input').focus();
 								}, 1);
 							} else {
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
@@ -11065,7 +11186,7 @@ var w2confirm = function (msg, title, callBack) {
 							// need time out for poup to finaly get hidden
 							setTimeout(function () {
 								if (obj.type == 'list') obj.blur();
-							}, 1);	
+							}, 1);
 						}
 					}));
 				}
@@ -11077,7 +11198,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (this.type == 'date') {
 				var dt = w2utils.isDate(str, this.options.format, true);
 				if (dt) {
-					// enable range 
+					// enable range
 					if (this.options.start || this.options.end) {
 						var st = (typeof this.options.start == 'string' ? this.options.start : $(this.options.start).val());
 						var en = (typeof this.options.end == 'string' ? this.options.end : $(this.options.end).val());
@@ -11092,7 +11213,7 @@ var w2confirm = function (msg, title, callBack) {
 					}
 					// block predefined dates
 					if (this.options.blocked && $.inArray(str, this.options.blocked) != -1) inRange = false;
-				} 
+				}
 			}
 			if (this.type == 'time') {
 				if (this.options.start || this.options.end) {
@@ -11131,7 +11252,7 @@ var w2confirm = function (msg, title, callBack) {
 				case 'hex':
 				case 'color':
 					return w2utils.isHex(ch);
-				case 'alphanumeric': 
+				case 'alphanumeric':
 					return w2utils.isAlphaNumeric(ch);
 			}
 			return true;
@@ -11146,7 +11267,7 @@ var w2confirm = function (msg, title, callBack) {
 				$(obj.el).data('tmp', tmp);
 				if (obj.options.prefix !== '') {
 					$(obj.el).before(
-						'<div class="w2ui-field-helper">'+ 
+						'<div class="w2ui-field-helper">'+
 							obj.options.prefix +
 						'</div>'
 					);
@@ -11166,7 +11287,7 @@ var w2confirm = function (msg, title, callBack) {
 						});
 					$(obj.el).css('padding-left', (helper.width() + parseInt($(obj.el).css('padding-left'), 10)) + 'px');
 					// remember helper
-					obj.helpers['prefix'] = helper;
+					obj.helpers.prefix = helper;
 				}
 			}, 1);
 		},
@@ -11181,7 +11302,7 @@ var w2confirm = function (msg, title, callBack) {
 				pr = parseInt($(obj.el).css('padding-right'), 10);
 				if (obj.options.arrows) {
 					$(obj.el).after(
-						'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+ 
+						'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+
 						'	<div class="w2ui-field-up" type="up">'+
 						'		<div class="arrow-up" type="up"></div>'+
 						'	</div>'+
@@ -11215,8 +11336,8 @@ var w2confirm = function (msg, title, callBack) {
 							// update function
 							function update(notimer) {
 								$(obj.el).focus();
-								obj.keyDown($.Event("keydown"), { 
-									keyCode : ($(event.target).attr('type') == 'up' ? 38 : 40) 
+								obj.keyDown($.Event("keydown"), {
+									keyCode : ($(event.target).attr('type') == 'up' ? 38 : 40)
 								});
 								if (notimer !== false) $('body').data('_field_update_timer', setTimeout(update, 60));
 							}
@@ -11224,12 +11345,12 @@ var w2confirm = function (msg, title, callBack) {
 					pr += helper.width() + 12;
 					$(obj.el).css('padding-right', pr + 'px');
 					// remember helper
-					obj.helpers['arrows'] = helper;
+					obj.helpers.arrows = helper;
 				}
 				if (obj.options.suffix !== '') {
 					$(obj.el).after(
-						'<div class="w2ui-field-helper">'+ 
-							obj.options.suffix + 
+						'<div class="w2ui-field-helper">'+
+							obj.options.suffix +
 						'</div>');
 					helper = $(obj.el).next();
 					helper
@@ -11248,26 +11369,26 @@ var w2confirm = function (msg, title, callBack) {
 					pr += helper.width() + 3;
 					$(obj.el).css('padding-right', pr + 'px');
 					// remember helper
-					obj.helpers['suffix'] = helper;
+					obj.helpers.suffix = helper;
 				}
-			}, 1);	
+			}, 1);
 		},
 
 		addMulti: function () {
 			var obj		 = this;
 			var options	 = this.options;
 			// clean up & init
-			$(obj.helpers['multi']).remove();
+			$(obj.helpers.multi).remove();
 			// build helper
 			var html   = '';
-			var margin = 
+			var margin =
 				'margin-top		: 0px; ' +
 				'margin-bottom	: 0px; ' +
 				'margin-left	: ' + $(obj.el).css('margin-left') + '; ' +
-				'margin-right	: ' + $(obj.el).css('margin-right') + '; '+				
-				'width			: ' + (w2utils.getSize(obj.el, 'width') 
-									- parseInt($(obj.el).css('margin-left'), 10) 
-									- parseInt($(obj.el).css('margin-right'), 10)) 
+				'margin-right	: ' + $(obj.el).css('margin-right') + '; '+
+				'width			: ' + (w2utils.getSize(obj.el, 'width')
+									- parseInt($(obj.el).css('margin-left'), 10)
+									- parseInt($(obj.el).css('margin-right'), 10))
 									+ 'px;';
 			if (obj.type == 'enum') {
 				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box; pointer-events: auto">'+
@@ -11279,14 +11400,14 @@ var w2confirm = function (msg, title, callBack) {
 						'	</ul>'+
 						'	</div>'+
 						'</div>';
-			} 
+			}
 			if (obj.type == 'file') {
 				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box; pointer-events: auto">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
-						'	<input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">' 
+						'	<input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">'
 						'	</div>'+
-						'</div>';				
+						'</div>';
 			}
 			$(obj.el)
 				.before(html)
@@ -11296,7 +11417,7 @@ var w2confirm = function (msg, title, callBack) {
 				});
 
 			var div	= $(obj.el).prev();
-			obj.helpers['multi'] = div;	
+			obj.helpers.multi = div;
 			if (obj.type == 'enum') {
 				$(obj.el).attr('tabindex', -1);
 				// INPUT events
@@ -11314,8 +11435,8 @@ var w2confirm = function (msg, title, callBack) {
 						obj.blur(event);
 						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					})
-					.on('keyup', 	function (event) { obj.keyUp(event) })				
-					.on('keydown', 	function (event) { obj.keyDown(event) })				
+					.on('keyup', 	function (event) { obj.keyUp(event) })
+					.on('keydown', 	function (event) { obj.keyDown(event) })
 					.on('keypress', function (event) { div.find('.w2ui-enum-placeholder').remove(); obj.keyPress(event); });
 				// MAIN div
 				div.on('click', function (event) { $(this).find('input').focus(); });
@@ -11346,14 +11467,14 @@ var w2confirm = function (msg, title, callBack) {
 						event.preventDefault();
 						event.stopPropagation();
 					})
-					.on('dragover', function (event) { 
+					.on('dragover', function (event) {
 						// cancel to stop browser behaviour
 						event.preventDefault();
 						event.stopPropagation();
 					});
 				div.find('input')
-					.on('click', function (event) { 
-						event.stopPropagation(); 
+					.on('click', function (event) {
+						event.stopPropagation();
 					})
 					.on('change', function () {
 						if (typeof this.files !== "undefined") {
@@ -11372,7 +11493,7 @@ var w2confirm = function (msg, title, callBack) {
 				var helper;
 				$(obj.el).before('<div class="w2ui-field-helper" style="margin-left: 30px; opacity: 0"><input type="text" size="1"></div>');
 				helper = $(obj.el).prev();
-				obj.helpers['focus'] = helper;
+				obj.helpers.focus = helper;
 				var index = $(obj.el).attr('tabindex');
 				var input = helper.find('input');
 				if (index > 0) input.attr('tabindex', index);
@@ -11397,23 +11518,23 @@ var w2confirm = function (msg, title, callBack) {
 							if ($(obj.el).data('focused')) {
 								$(obj.el).removeData('focused');
 								$(obj.el).triggerHandler('blur');
-								$('#w2ui-overlay').remove();
+								if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 							}
 						}, 30);
 					})
-					.on('keyup', function (event) { obj.keyUp(event) })				
+					.on('keyup', function (event) { obj.keyUp(event) })
 					.on('keydown', function (event) {
 						if (event.keyCode == 40) {
 							if ($('#w2ui-overlay').length == 0) {
-								setTimeout(function () { 
-									obj.updateOverlay(); 
+								setTimeout(function () {
+									obj.updateOverlay();
 									setTimeout(function () { $('#w2ui-overlay #menu-search').focus(); }, 10);
 									// -- keep focus
 									$(obj.el).data('keep_focus', true);
 									setTimeout(function () { $(obj.el).removeData('keep_focus'); }, 100);
 								}, 10);
 								return;
-							} 
+							}
 						}
 						if (event.keyCode == 27 && $('#w2ui-overlay').length == 0) {
 							$(obj.el).val('').removeData('selected').change();
@@ -11423,7 +11544,7 @@ var w2confirm = function (msg, title, callBack) {
 					})
 					.on('keypress', function (event) { obj.keyPress(event); });
 			}, 1);
-		},		
+		},
 
 		addFile: function (file) {
 			var obj		 = this;
@@ -11486,7 +11607,7 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		normMenu: function (menu) {
-			for (var m = 0; m < menu.length; m++) { 
+			for (var m = 0; m < menu.length; m++) {
 				if (typeof menu[m] == 'string') {
 					menu[m] = { id: menu[m], text: menu[m] };
 				} else {
@@ -11499,7 +11620,7 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		getColorHTML: function () {
-			var html =  '<div class="w2ui-color">'+ 
+			var html =  '<div class="w2ui-color">'+
 						'<table cellspacing="5">';
 			for (var i=0; i<8; i++) {
 				html += '<tr>';
@@ -11530,7 +11651,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (month < 1 || month === 0)  { month += 12; year--; }
 			if (year/4 == Math.floor(year/4)) { daysCount[1] = '29'; } else { daysCount[1] = '28'; }
 			this.options.current = month + '/' + year;
-			
+
 			// start with the required date
 			td = new Date(year, month-1, 1);
 			var weekDay = td.getDay();
@@ -11539,16 +11660,16 @@ var w2confirm = function (msg, title, callBack) {
 			for ( var i = 0, len = tabDays.length; i < len; i++) {
 				dayTitle += '<td>' + tabDays[i] + '</td>';
 			}
-			var html  = 
+			var html  =
 				'<div class="w2ui-calendar-title title">'+
 				'	<div class="w2ui-calendar-previous previous"> <div></div> </div>'+
-				'	<div class="w2ui-calendar-next next"> <div></div> </div> '+ 
-						months[month-1] +', '+ year + 
+				'	<div class="w2ui-calendar-next next"> <div></div> </div> '+
+						months[month-1] +', '+ year +
 				'</div>'+
 				'<table class="w2ui-calendar-days" cellspacing="0">'+
 				'	<tr class="w2ui-day-title">' + dayTitle + '</tr>'+
 				'	<tr>';
-					
+
 			var day = 1;
 			for (var ci=1; ci<43; ci++) {
 				if (weekDay === 0 && ci == 1) {
@@ -11562,12 +11683,12 @@ var w2confirm = function (msg, title, callBack) {
 					}
 				}
 				var dt  = year + '/' + month + '/' + day;
-				
-				var className = ''; 
-				if (ci % 7 == 6)  className = ' w2ui-saturday';
-				if (ci % 7 === 0) className = ' w2ui-sunday';
-				if (dt == today)  className+= ' w2ui-today';
-				
+
+				var className = '';
+				if (ci % 7 == 6)  className  = ' w2ui-saturday';
+				if (ci % 7 === 0) className  = ' w2ui-sunday';
+				if (dt == today)  className += ' w2ui-today';
+
 				var dspDay	 = day;
 				var col		 = '';
 				var bgcol	 = '';
@@ -11578,7 +11699,7 @@ var w2confirm = function (msg, title, callBack) {
 					col		= 'color: ' + tmp[1] + ';';
 				}
 				html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' : 'w2ui-blocked') + className + '" style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
-							dspDay + 
+							dspDay +
 						'</td>';
 				if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';
 				day++;
@@ -11590,7 +11711,7 @@ var w2confirm = function (msg, title, callBack) {
 		getHourHTML: function () {
 			var tmp = [];
 			var h24 = (this.options.format == 'h24' ? true : false);
-			for (var a=0; a<24; a++) {				
+			for (var a=0; a<24; a++) {
 				var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
 				if (a == 12 && !h24) time = '12:00 pm';
 				if (!tmp[Math.floor(a/8)]) tmp[Math.floor(a/8)] = '';
@@ -11598,7 +11719,7 @@ var w2confirm = function (msg, title, callBack) {
 				var tm2 = this.fromMin(this.toMin(time) + 59);
 				tmp[Math.floor(a/8)] += '<div class="'+ (this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
 			}
-			var html = 
+			var html =
 				'<div class="w2ui-calendar-time"><table><tr>'+
 				'	<td>'+ tmp[0] +'</td>' +
 				'	<td>'+ tmp[1] +'</td>' +
@@ -11611,13 +11732,13 @@ var w2confirm = function (msg, title, callBack) {
 			if (typeof hour == 'undefined') hour = 0;
 			var h24 = (this.options.format == 'h24' ? true : false);
 			var tmp = [];
-			for (var a=0; a<60; a+=5) {				
+			for (var a=0; a<60; a+=5) {
 				var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
 				var ind = a < 20 ? 0 : (a < 40 ? 1 : 2);
 				if (!tmp[ind]) tmp[ind] = '';
 				tmp[ind] += '<div class="'+ (this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
 			}
-			var html = 
+			var html =
 				'<div class="w2ui-calendar-time"><table><tr>'+
 				'	<td>'+ tmp[0] +'</td>' +
 				'	<td>'+ tmp[1] +'</td>' +
@@ -11633,7 +11754,7 @@ var w2confirm = function (msg, title, callBack) {
 				tmp[0] = parseInt(tmp[0]);
 				tmp[1] = parseInt(tmp[1]);
 				if (str.indexOf('pm') != -1 && tmp[0] != 12) tmp[0] += 12;
-			} else {				
+			} else {
 				return null;
 			}
 			return tmp[0] * 60 + tmp[1];
@@ -11658,6 +11779,7 @@ var w2confirm = function (msg, title, callBack) {
 	w2obj.field = w2field;
 
 }) (jQuery);
+
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
@@ -11702,6 +11824,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.style 			= '';
 		this.focus			= 0;		// focus first or other element
 		this.msgNotJSON 	= w2utils.lang('Return data is not in JSON format.');
+		this.msgAJAXerror   = w2utils.lang('AJAX error. See console for more details.');
 		this.msgRefresh		= w2utils.lang('Refreshing...');
 		this.msgSaving		= w2utils.lang('Saving...');
 
@@ -11716,7 +11839,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.onRefresh		= null;
 		this.onResize 		= null;
 		this.onDestroy		= null;
-		this.onAction		= null; 
+		this.onAction		= null;
 		this.onToolbar 		= null;
 		this.onError		= null;
 
@@ -11728,15 +11851,15 @@ var w2confirm = function (msg, title, callBack) {
 
 		$.extend(true, this, w2obj.form, options);
 	};
-	
+
 	// ====================================================
 	// -- Registers as a jQuery plugin
-	
+
 	$.fn.w2form = function(method) {
 		if (typeof method === 'object' || !method ) {
 			var obj = this;
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2form')) return;
+			if (!w2utils.checkName(method, 'w2form')) return;
 			// remember items
 			var record 		= method.record;
 			var original	= method.original;
@@ -11757,7 +11880,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			$.extend(true, object.toolbar, toolbar);
 			// reassign variables
-			for (var p in fields)  	object.fields[p]   	= $.extend(true, {}, fields[p]); 
+			for (var p in fields)  	object.fields[p]   	= $.extend(true, {}, fields[p]);
 			for (var p in record) {
 				if ($.isPlainObject(record[p])) {
 					object.record[p] = $.extend(true, {}, record[p]);
@@ -11772,7 +11895,7 @@ var w2confirm = function (msg, title, callBack) {
 					object.original[p] = original[p];
 				}
 			}
-			if (obj.length > 0) object.box = obj[0];			
+			if (obj.length > 0) object.box = obj[0];
 			// render if necessary
 			if (object.formURL != '') {
 				$.get(object.formURL, function (data) {
@@ -11802,19 +11925,19 @@ var w2confirm = function (msg, title, callBack) {
 				object.render(object.box);
 			}
 			return object;
-		
+
 		} else if (w2ui[$(this).attr('name')]) {
 			var obj = w2ui[$(this).attr('name')];
 			obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
 			return this;
 		} else {
 			console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2form');
-		}	
-	}		
+		}
+	};
 
 	// ====================================================
 	// -- Implementation of core functionality
-	
+
 	w2form.prototype = {
 
 		get: function (field, returnIndex) {
@@ -11836,7 +11959,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			return false;
 		},
-	
+
 		reload: function (callBack) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (url && this.recid != 0) {
@@ -11851,14 +11974,10 @@ var w2confirm = function (msg, title, callBack) {
 		clear: function () {
 			this.recid  = 0;
 			this.record = {};
-			// clear all enum fields
-			for (var f in this.fields) {
-				var field = this.fields[f];
-			}
 			$().w2tag();
 			this.refresh();
 		},
-		
+
 		error: function (msg) {
 			var obj = this;
 			// let the management of the error outside of the grid
@@ -11885,32 +12004,32 @@ var w2confirm = function (msg, title, callBack) {
 					case 'int':
 						if (this.record[field.name] && !w2utils.isInt(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not an integer') });
-						} 
+						}
 						break;
 					case 'float':
 						if (this.record[field.name] && !w2utils.isFloat(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not a float') });
-						} 
+						}
 						break;
 					case 'money':
 						if (this.record[field.name] && !w2utils.isMoney(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not in money format') });
-						} 
+						}
 						break;
 					case 'color':
 					case 'hex':
 						if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not a hex number') });
-						} 
+						}
 						break;
 					case 'email':
 						if (this.record[field.name] && !w2utils.isEmail(this.record[field.name])) {
 							errors.push({ field: field, error: w2utils.lang('Not a valid email') });
-						} 
+						}
 						break;
 					case 'checkbox':
 						// convert true/false
-						if (this.record[field.name] == true) this.record[field.name] = 1; else this.record[field.name] = 0; 
+						if (this.record[field.name] == true) this.record[field.name] = 1; else this.record[field.name] = 0;
 						break;
 					case 'date':
 						// format date before submit
@@ -11945,7 +12064,7 @@ var w2confirm = function (msg, title, callBack) {
 				} else if (['enum', 'file'].indexOf(err.field.type) != -1) {
 					(function (err) {
 						setTimeout(function () {
-							var fld = $(err.field.el).data('w2field').helpers['multi'];
+							var fld = $(err.field.el).data('w2field').helpers.multi;
 							$(err.field.el).w2tag(err.error);
 							$(fld).addClass('w2ui-error');
 						}, 1);
@@ -12012,22 +12131,24 @@ var w2confirm = function (msg, title, callBack) {
 				complete	: function (xhr, status) {
 					obj.unlock();
 					// event before
-					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr, status: status });	
+					var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr, status: status });
 					if (eventData.isCancelled === true) {
 						if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 						return false;
 					}
 					// parse server response
+					var data;
 					var responseText = obj.last.xhr.responseText;
 					if (status != 'error') {
 						// default action
 						if (typeof responseText != 'undefined' && responseText != '') {
-							var data;
 							// check if the onLoad handler has not already parsed the data
 							if (typeof responseText == "object") {
 								data = responseText;
 							} else {
-								// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+								// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
+								//
+								// TODO: avoid (potentially malicious) code injection from the response.
 								try { eval('data = '+ responseText); } catch (e) { }
 							}
 							if (typeof data == 'undefined') {
@@ -12046,6 +12167,11 @@ var w2confirm = function (msg, title, callBack) {
 						}
 					} else {
 						obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
+						data = {
+							status		 : 'error',
+							message		 : obj.msgAJAXerror,
+							responseText : responseText
+						};
 					}
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -12097,9 +12223,9 @@ var w2confirm = function (msg, title, callBack) {
 				params.record = $.extend(true, {}, obj.record);
 				// event before
 				var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
-				if (eventData.isCancelled === true) { 
-					if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' }); 
-					return false; 
+				if (eventData.isCancelled === true) {
+					if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
+					return false;
 				}
 				// default action
 				var url = eventData.url;
@@ -12125,22 +12251,24 @@ var w2confirm = function (msg, title, callBack) {
 						obj.unlock();
 
 						// event before
-						var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });	
+						var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });
 						if (eventData.isCancelled === true) {
 							if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
 							return false;
 						}
 						// parse server response
+						var data;
 						var responseText = xhr.responseText;
 						if (status != 'error') {
 							// default action
 							if (typeof responseText != 'undefined' && responseText != '') {
-								var data;
 								// check if the onLoad handler has not already parsed the data
 								if (typeof responseText == "object") {
 									data = responseText;
 								} else {
-									// $.parseJSON or $.getJSON did not work because it expect perfect JSON data - where everything is in double quotes
+									// $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
+									//
+									// TODO: avoid (potentially malicious) code injection from the response.
 									try { eval('data = '+ responseText); } catch (e) { }
 								}
 								if (typeof data == 'undefined') {
@@ -12158,6 +12286,11 @@ var w2confirm = function (msg, title, callBack) {
 							}
 						} else {
 							obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
+							data = {
+								status		 : 'error',
+								message		 : obj.msgAJAXerror,
+								responseText : responseText
+							};
 						}
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -12178,7 +12311,7 @@ var w2confirm = function (msg, title, callBack) {
 			w2utils.lock.apply(window, args);
 		},
 
-		unlock: function () { 
+		unlock: function () {
 			var obj = this;
 			setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
 		},
@@ -12227,7 +12360,7 @@ var w2confirm = function (msg, title, callBack) {
 
 		action: function (action, event) {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });	
+			var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });
 			if (eventData.isCancelled === true) return false;
 			// default actions
 			if (typeof (this.actions[action]) == 'function') {
@@ -12250,14 +12383,14 @@ var w2confirm = function (msg, title, callBack) {
 			var page	= $(this.box).find('> div .w2ui-page');
 			var cpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page);
 			var dpage	= $(this.box).find('> div .w2ui-page.page-'+ this.page + ' > div');
-			var buttons	= $(this.box).find('> div .w2ui-buttons');		
+			var buttons	= $(this.box).find('> div .w2ui-buttons');
 			// if no height, calculate it
 			resizeElements();
 			if (parseInt($(this.box).height()) == 0 || $(this.box).data('auto-size') === true) {
 				$(this.box).height(
-					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) + 
-					(this.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') : 0) + 
-					(this.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0) + 
+					(header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
+					((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
+					((typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
 					(page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
 					(buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
 				);
@@ -12272,15 +12405,16 @@ var w2confirm = function (msg, title, callBack) {
 				main.width($(obj.box).width()).height($(obj.box).height());
 				toolbar.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
 				tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
-							  + (obj.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') : 0));
-				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0) 
-							  + (obj.toolbar.items.length > 0 ? w2utils.getSize(toolbar, 'height') + 5 : 0)
-							  + (obj.tabs.tabs.length > 0 ? w2utils.getSize(tabs, 'height') + 5 : 0));
+							  + ((typeof obj.toolbar == 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0));
+				page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
+							  + ((typeof obj.toolbar == 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') + 5 : 0)
+							  + ((typeof obj.tabs === 'object' && $.isArray(obj.tabs.tabs) && obj.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') + 5 : 0));
 				page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
 			}
 		},
 
 		refresh: function () {
+			var time = (new Date()).getTime();
 			var obj = this;
 			if (!this.box) return;
 			if (!this.isGenerated || typeof $(this.box).html() == 'undefined') return;
@@ -12297,7 +12431,7 @@ var w2confirm = function (msg, title, callBack) {
 						}
 					}
 				}
-			});			
+			});
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
 			if (eventData.isCancelled === true) return false;
@@ -12306,7 +12440,7 @@ var w2confirm = function (msg, title, callBack) {
 			$(this.box).find('.w2ui-page.page-' + this.page).show();
 			$(this.box).find('.w2ui-form-header').html(this.header);
 			// refresh tabs if needed
-			if (typeof this.tabs == 'object' && this.tabs.tabs.length > 0) {
+			if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
 				$('#form_'+ this.name +'_tabs').show();
 				this.tabs.active = this.tabs.tabs[this.page].id;
 				this.tabs.refresh();
@@ -12314,7 +12448,7 @@ var w2confirm = function (msg, title, callBack) {
 				$('#form_'+ this.name +'_tabs').hide();
 			}
 			// refresh tabs if needed
-			if (typeof this.toolbar == 'object' && this.toolbar.items.length > 0) {
+			if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
 				$('#form_'+ this.name +'_toolbar').show();
 				this.toolbar.refresh();
 			} else {
@@ -12361,11 +12495,11 @@ var w2confirm = function (msg, title, callBack) {
 					if (value_new === value_previous) return;
 					// event before
 					var eventData = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-					if (eventData.isCancelled === true) { 
+					if (eventData.isCancelled === true) {
 						$(this).val(obj.record[this.name]); // return previous value
 						return false;
 					}
-					// default action 
+					// default action
 					var val = this.value;
 					if (this.type == 'select')   val = this.value;
 					if (this.type == 'checkbox') val = this.checked ? true : false;
@@ -12379,7 +12513,7 @@ var w2confirm = function (msg, title, callBack) {
 					}
 					if (['enum', 'file'].indexOf(field.type) != -1) {
 						if (val.length > 0) {
-							var fld = $(field.el).data('w2field').helpers['multi'];
+							var fld = $(field.el).data('w2field').helpers.multi;
 							$(fld).removeClass('w2ui-error');
 						}
 					}
@@ -12436,7 +12570,7 @@ var w2confirm = function (msg, title, callBack) {
 						if (field.type == 'combo' && !$.isPlainObject(value)) {
 							field.el.value = value;
 						} else if ($.isPlainObject(value) && typeof value.text != 'undefined') {
-							field.el.value = value.text; 
+							field.el.value = value.text;
 						} else {
 							field.el.value = '';
 						}
@@ -12472,7 +12606,7 @@ var w2confirm = function (msg, title, callBack) {
 						break;
 					default:
 						$(field.el).w2field($.extend({}, field.options, { type: field.type }));
-						break;						
+						break;
 				}
 			}
 			// wrap pages in div
@@ -12483,9 +12617,11 @@ var w2confirm = function (msg, title, callBack) {
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.resize();
+			return (new Date()).getTime() - time;
 		},
 
 		render: function (box) {
+			var time = (new Date()).getTime();
 			var obj = this;
 			if (typeof box == 'object') {
 				// remove from previous box
@@ -12498,7 +12634,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			if (!this.isGenerated) return;
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });	
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });
 			if (eventData.isCancelled === true) return false;
 			// default actions
 			if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
@@ -12516,7 +12652,7 @@ var w2confirm = function (msg, title, callBack) {
 			if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
 
 			// init toolbar regardless it is defined or not
-			if (typeof this.toolbar['render'] == 'undefined') {
+			if (typeof this.toolbar.render !== 'function') {
 				this.toolbar = $().w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
 				this.toolbar.on('click', function (event) {
 					var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
@@ -12529,7 +12665,7 @@ var w2confirm = function (msg, title, callBack) {
 				this.toolbar.render($('#form_'+ this.name +'_toolbar')[0]);
 			}
 			// init tabs regardless it is defined or not
-			if (typeof this.tabs['render'] == 'undefined') {
+			if (typeof this.tabs.render !== 'function') {
 				this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
 				this.tabs.on('click', function (event) {
 					obj.goto(this.get(event.target, true));
@@ -12544,7 +12680,7 @@ var w2confirm = function (msg, title, callBack) {
 			this.resize();
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			if (url && this.recid != 0) {
-				this.request(); 
+				this.request();
 			} else {
 				this.refresh();
 			}
@@ -12560,11 +12696,12 @@ var w2confirm = function (msg, title, callBack) {
 				if (inputs.length > obj.focus) inputs[obj.focus].focus();
 			}
 			if (this.focus >= 0) setTimeout(focusEl, 500); // need timeout to allow form to render
+			return (new Date()).getTime() - time;
 		},
 
-		destroy: function () { 
+		destroy: function () {
 			// event before
-			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });	
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
 			if (eventData.isCancelled === true) return false;
 			// clean up
 			if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
@@ -12581,10 +12718,11 @@ var w2confirm = function (msg, title, callBack) {
 			$(window).off('resize', 'body')
 		}
 	};
-	
+
 	$.extend(w2form.prototype, w2utils.event);
 	w2obj.form = w2form;
 })();
+
 /************************************************************************
 *	Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *	- Following objects defined
@@ -12619,6 +12757,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.onRefresh		= null;
 		this.onDestroy		= null;
 
+		$.extend(this, { handlers: [] });
 		$.extend(true, this, w2obj.listview, options);
 		for (var i = 0; i < this.extraCols.length; i++) {
 			this.itemExtra[this.extraCols[i].name] = '';
@@ -12632,14 +12771,13 @@ var w2confirm = function (msg, title, callBack) {
 		var obj;
 		if (typeof method === 'object' || !method ) {
 			// check name parameter
-			if (!$.fn.w2checkNameParam(method, 'w2listview')) return undefined;
+			if (!w2utils.checkName(method, 'w2listview')) return undefined;
 			if (typeof method.viewType !== 'undefined') {
 				method.vType = method.viewType;
 				delete method.viewType;
 			}
 			var itms = method.items;
 			obj = new w2listview(method);
-			$.extend(obj, { items: [], handlers: [] });
 			if ($.isArray(itms)) {
 				for (var i = 0; i < itms.length; i++) {
 					obj.items[i] = $.extend({}, w2listview.prototype.item, obj.itemExtra, itms[i]);
@@ -12710,32 +12848,22 @@ var w2confirm = function (msg, title, callBack) {
 		insert: function (id, item) {
 			if (!$.isArray(item)) item = [item];
 			// assume it is array
-			for (var r = 0; r < item.length; r++) {
+			for (var i = 0; i < item.length; i++) {
 				// checks
-				if (typeof item[r].id === 'undefined') {
+				if (typeof item[i].id === 'undefined') {
 					console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
 					return;
 				}
-				var unique = true;
-				for (var i = 0; i < this.items.length; i++) {
-					if (this.items[i].id == item[r].id) {
-						unique = false;
-						break;
-					}
-				}
-				if (!unique) {
-					console.log('ERROR: The parameter "id='+ item[r].id +'" is not unique within the current items. (obj: '+ this.name +')');
-					return;
-				}
+				if (!w2utils.checkUniqueId(item[i].id, this.items, 'items', this.name)) return;
 				// add item
-				var newItm = $.extend({}, w2listview.prototype.item, this.itemExtra, item[r]);
+				var newItm = $.extend({}, w2listview.prototype.item, this.itemExtra, item[i]);
 				if (id === null || typeof id === 'undefined') {
 					this.items.push(newItm);
 				} else {
 					var middle = this.get(id, true);
 					this.items = this.items.slice(0, middle).concat([newItm], this.items.slice(middle));
 				}
-				this.refresh(item[r].id);
+				this.refresh(item[i].id);
 			}
 		},
 
@@ -12957,7 +13085,7 @@ var w2confirm = function (msg, title, callBack) {
 
 			function processNeighbor(neighbor) {
 				var newIdx = getNeighborIdx(neighbor);
-				if (newIdx >= 0 && newIdx < obj.items.length && newIdx != idx) {
+				if (newIdx >= 0 && newIdx < obj.items.length && newIdx !== idx) {
 					obj.userSelect(obj.items[newIdx].id, event, false);
 				}
 			}
@@ -13082,7 +13210,7 @@ var w2confirm = function (msg, title, callBack) {
 			return {
 				top: node.offsetTop - this.itemSpacing[vt],
 				bottom: node.offsetTop + node.offsetHeight + this.itemSpacing[vt]
-			}
+			};
 		},
 
 		refresh: function (id) {
@@ -13097,13 +13225,13 @@ var w2confirm = function (msg, title, callBack) {
 
 			// event before
 			var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), object: this.items[idx] });
-			if (eventData.isCancelled === true) return false;	
+			if (eventData.isCancelled === true) return false;
 
 			// default action
 			if (typeof id === 'undefined') {
 				// refresh all items
 				var itms = document.createDocumentFragment();
-				for (var i = 0; i < this.items.length; i++) 
+				for (var i = 0; i < this.items.length; i++)
 					itms.appendChild(getItemElement(this.items[i]));
 				var lst = this.lastItm.parentNode;
 				while (lst.firstChild !== this.lastItm)
@@ -13118,7 +13246,7 @@ var w2confirm = function (msg, title, callBack) {
 				} else {
 					// create new
 					var nextItm;
-					if (idx != this.items.length-1) nextItm = this.itemNode(this.items[idx+1].id);
+					if (idx !== this.items.length-1) nextItm = this.itemNode(this.items[idx+1].id);
 					if (!nextItm) nextItm = this.lastItm;
 					nextItm.parentNode.insertBefore(getItemElement(this.items[idx]), nextItm);
 				}
@@ -13173,7 +13301,6 @@ var w2confirm = function (msg, title, callBack) {
 						appendDiv(itmDiv, 'caption');
 						obj.captionOnlyTemplate = template;
 					}
-
 				} else if (withDescription && !withExtra) {
 					if ('captionWithDescription' in obj) {
 						template = obj.captionWithDescriptionTemplate;

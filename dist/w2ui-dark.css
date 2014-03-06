@@ -2264,18 +2264,12 @@ select {
   padding: 0px 4px 0px 2px;
 }
 .w2ui-toolbar table.w2ui-button .w2ui-tb-down {
-  width: 14px;
-  height: 24px;
-  padding: 2px;
+  padding: 3px;
 }
 .w2ui-toolbar table.w2ui-button .w2ui-tb-down > div {
-  position: absolute;
-  width: 0px;
-  height: 28px;
-  line-height: 100%;
   border: 4px solid transparent;
   border-top: 5px solid #8D99A7;
-  margin-top: -2px;
+  margin-top: 5px;
 }
 .w2ui-toolbar table.w2ui-button.over {
   border: 1px solid #4c5056;
@@ -2304,11 +2298,11 @@ select {
   cursor: default;
 }
 .w2ui-toolbar .w2ui-break {
-  background-image: -webkit-linear-gradient(top, rgba(119, 119, 119, 0.09999999999999998) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.09999999999999998) 100%);
-  background-image: -moz-linear-gradient(top, rgba(119, 119, 119, 0.09999999999999998) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.09999999999999998) 100%);
-  background-image: -ms-linear-gradient(top, rgba(119, 119, 119, 0.09999999999999998) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.09999999999999998) 100%);
-  background-image: -o-linear-gradient(top, rgba(119, 119, 119, 0.09999999999999998) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.09999999999999998) 100%);
-  background-image: linear-gradient(top, rgba(119, 119, 119, 0.09999999999999998) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.09999999999999998) 100%);
+  background-image: -webkit-linear-gradient(top, rgba(119, 119, 119, 0.1) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.1) 100%);
+  background-image: -moz-linear-gradient(top, rgba(119, 119, 119, 0.1) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.1) 100%);
+  background-image: -ms-linear-gradient(top, rgba(119, 119, 119, 0.1) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.1) 100%);
+  background-image: -o-linear-gradient(top, rgba(119, 119, 119, 0.1) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.1) 100%);
+  background-image: linear-gradient(top, rgba(119, 119, 119, 0.1) 0%, #777777 40%, #777777 60%, rgba(119, 119, 119, 0.1) 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff777777', endColorstr='#ff777777', GradientType=0);
   width: 1px !important;
   height: 22px;
