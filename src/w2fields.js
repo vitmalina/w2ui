@@ -791,7 +791,7 @@
 			var key 	= event.keyCode || (extra && extra.keyCode);
 			// numeric
 			if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
-				if (!options.keyboard) return;
+				if (!options.keyboard || $(obj.el).attr('readonly')) return;
 				var cancel = false;
 				var val = parseFloat($(obj.el).val().replace(options.moneyRE, '')) || 0;
 				var inc = 1;
@@ -818,7 +818,7 @@
 			}
 			// date
 			if (obj.type == 'date') {
-				if (!options.keyboard) return;
+				if (!options.keyboard || $(obj.el).attr('readonly')) return;
 				var cancel  = false;
 				var daymil  = 24*60*60*1000;
 				var inc		= 1;
@@ -852,7 +852,7 @@
 			}
 			// time
 			if (obj.type == 'time') {
-				if (!options.keyboard) return;
+				if (!options.keyboard || $(obj.el).attr('readonly')) return;
 				var cancel  = false;
 				var inc		= 1;
 				if (event.ctrlKey || event.metaKey) inc = 60;
@@ -881,6 +881,7 @@
 			}
 			// color
 			if (obj.type == 'color') {
+				if ($(obj.el).attr('readonly')) return;
 				// paste
 				if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
 					$(obj.el).prop('maxlength', 7);
@@ -951,7 +952,7 @@
 						break;
 					case 37: // left
 					case 39: // right
-						cancel = true;
+						// cancel = true;
 						break;
 					case 13: // enter
 						if ($('#w2ui-overlay').length == 0) break; // no action if overlay not open
@@ -1058,7 +1059,7 @@
 						if (obj.type == 'enum') {
 							var tmp = obj.helpers.multi.find('input').get(0);
 							tmp.setSelectionRange(tmp.value.length, tmp.value.length);
-						} if (obj.type == 'list') {
+						} else if (obj.type == 'list') {
 							var tmp = obj.helpers.focus.find('input').get(0);
 							tmp.setSelectionRange(tmp.value.length, tmp.value.length);
 						} else {
@@ -1074,10 +1075,12 @@
 					input.width(((search.length + 2) * 8) + 'px');
 				}
 				// run search
-				setTimeout(function () {
-					obj.request();
-					obj.search();
-				}, 1);
+				if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+					setTimeout(function () {
+						obj.request();
+						obj.search();
+					}, 1);
+				}
 			}
 		},
 
@@ -1234,6 +1237,7 @@
 			var options = this.options;
 			// color
 			if (this.type == 'color') {
+				if ($(obj.el).attr('readonly')) return;
 				if ($('#w2ui-overlay').length == 0) {
 					$(obj.el).w2overlay(obj.getColorHTML());
 				} else {
@@ -1257,6 +1261,7 @@
 			}
 			// date
 			if (this.type == 'date') {
+				if ($(obj.el).attr('readonly')) return;
 				if ($('#w2ui-overlay').length == 0) {
 					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
 						css: { "background-color": "#f5f5f5" }
@@ -1292,6 +1297,7 @@
 			}
 			// date
 			if (this.type == 'time') {
+				if ($(obj.el).attr('readonly')) return;
 				if ($('#w2ui-overlay').length == 0) {
 					$(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time" onclick="event.stopPropagation();"></div>', {
 						css: { "background-color": "#fff" }
