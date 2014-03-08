@@ -221,14 +221,12 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-shell');
 
-	grunt.registerTask('default', ['clean', 'less', 'concat', 'uglify', 'shell:docs']);
-
+	grunt.registerTask('default', ['clean', 'less', 'concat', 'uglify']);
+	grunt.registerTask('docs', ['shell:docs']);
 	grunt.registerTask('w2ui', ['clean:w2ui', 'less:w2ui', 'less:w2ui-min', 'concat:w2ui', 'uglify:w2ui', 
 		'concat:banner-w2ui-1', 'concat:banner-w2ui-2', 'concat:banner-w2ui-3', 'concat:banner-w2ui-4']);
-
 	grunt.registerTask('fields', ['clean:fields', 'less:fields', 'less:fields-min', 'concat:fields', 'uglify:fields', 
 		'concat:banner-fields-1', 'concat:banner-fields-2']);
-
 	grunt.registerTask('ks', ['clean:ks', 'less:ks', 'less:ks-min', 'concat:ks', 'uglify:ks', 
 		'concat:banner-ks-1', 'concat:banner-ks-2']);
 };
