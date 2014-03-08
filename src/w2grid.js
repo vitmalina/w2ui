@@ -4329,6 +4329,22 @@
 			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.round(records.height() / this.recordHeight);
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
+			
+			//We are going to consider visible the record (between the first and the last) that has more then it's content in the viewport
+			//Execute only when the number of visible records is diffrent from the recordHeight divided by 2
+			if((t2-t1) != this.recordHeight/2)
+			{
+				//Get the top position of the first record
+				t1_pos_top = Math.abs($('#'+this.name+' tr[line='+t1+']').position().top);
+				
+				//If more then half of the first record is in the viewport
+				if(t1_pos_top < this.recordHeight/2)
+					t2--;
+				//If more then half of the last record is in the viewport
+				else
+					t1++;
+			}
+			
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
 			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +	w2utils.formatNumber(this.total) +
 					(url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
