@@ -3267,8 +3267,10 @@
 					}).addClass( '.w2ui-grid-ghost' ).animate({
 							width: selectedCol.width(),
 							height: $(obj.box).find('.w2ui-grid-body:first').height(),
+							left : event.pageX,
+							top : event.pageY,
 							opacity: .8
-						}, 300 );
+						}, 0 );
 
 					//establish current offsets
 					_dragData.offsets = [];
