@@ -4330,7 +4330,7 @@
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
 			
-			//We are going to consider visible the record (between the first and the last) that has more then it's content in the viewport
+			//We are going to consider visible, the record (between the first and the last) that has more then half of  it's content in the viewport
 			//Execute only when the number of visible records is diffrent from the recordHeight divided by 2
 			if((t2-t1) != this.recordHeight/2)
 			{
