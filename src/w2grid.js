@@ -850,6 +850,7 @@
 		select: function () {
 			var selected = 0;
 			var sel	= this.last.selection;
+			if (!this.multiSelect) this.selectNone();
 			for (var a = 0; a < arguments.length; a++) {
 				var recid	= typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
 				var record	= this.get(recid);
@@ -872,6 +873,7 @@
 					if (!w2utils.isInt(col)) { // select all columns
 						var cols = [];
 						for (var c in this.columns) { if (this.columns[c].hidden) continue; cols.push({ recid: recid, column: parseInt(c) }); }
+						if (!this.multiSelect) cols = cols.splice(0, 1);
 						return this.select.apply(this, cols);
 					}
 					var s = sel.columns[index] || [];
@@ -2018,7 +2020,7 @@
 			obj.last.sel_recid = recid;
 			obj.last.sel_type  = 'click';
 			// multi select with shif key
-			if (event.shiftKey && sel.length > 0) {
+			if (event.shiftKey && sel.length > 0 && obj.multiSelect) {
 				if (sel[0].recid) {
 					var start = this.get(sel[0].recid, true);
 					var end   = this.get(recid, true);
@@ -2194,7 +2196,7 @@
 					} else {
 						var prev = obj.prevCell(columns[0]);
 						if (prev !== false) {
-							if (shiftKey) {
+							if (shiftKey && obj.multiSelect) {
 								if (tmpUnselect()) return;
 								var tmp    = [];
 								var newSel = [];
@@ -2234,7 +2236,7 @@
 					} else {
 						var next = obj.nextCell(columns[columns.length-1]);
 						if (next !== false) {
-							if (shiftKey && key == 39) {
+							if (shiftKey && key == 39 && obj.multiSelect) {
 								if (tmpUnselect()) return;
 								var tmp    = [];
 								var newSel = [];
@@ -2284,7 +2286,7 @@
 								break;
 							}
 						}
-						if (shiftKey) { // expand selection
+						if (shiftKey && obj.multiSelect) { // expand selection
 							if (tmpUnselect()) return;
 							if (obj.selectType == 'row') {
 								if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
@@ -2348,7 +2350,7 @@
 					// move to the next record
 					var next = obj.nextRow(ind2);
 					if (next != null) {
-						if (shiftKey) { // expand selection
+						if (shiftKey && obj.multiSelect) { // expand selection
 							if (tmpUnselect()) return;
 							if (obj.selectType == 'row') {
 								if (this.last.sel_ind < next && this.last.sel_ind != ind) {
@@ -2980,6 +2982,7 @@
 			function mouseStart (event) {
 				if ($(event.target).parents().hasClass('w2ui-head') || $(event.target).hasClass('w2ui-head')) return;
 				if (obj.last.move && obj.last.move.type == 'expand') return;
+				if (!obj.multiSelect) return;
 				obj.last.move = {
 					x		: event.screenX,
 					y		: event.screenY,
