@@ -14,6 +14,7 @@
 *	- arrows no longer work (for int)
 *	- add postData for autocomplete
 *	- form to support cutstom types
+*	- easy way to add icons
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -27,7 +28,7 @@
 *	- added enum.style and file.style attributes
 *	- test all fields as Read Only
 *	- added openOnFocus
-*	- change: showAll -> applyFilter
+*	- deprecated -- change: showAll -> applyFilter
 *	- color: select with keyboard
 *	- enum: addNew event
 *
@@ -281,9 +282,9 @@
 						onLoad			: null,			// when data is received
 						onError			: null,			// when data fails to load due to server error or other failure modes
 						renderDrop		: null, 		// render function for drop down item
+						prefix			: '',
 						suffix			: '',
 						openOnFocus 	: false,		// if to show overlay onclick or when typing
-						applyFilter		: true,
 						markSearch 		: false
 					};
 					if (this.type == 'list') {
@@ -291,6 +292,7 @@
 						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
 						$(this.el).addClass('w2ui-select');
+						this.addFocus();
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -302,6 +304,7 @@
 					if (!$.isPlainObject(options.selected)) options.selected = {};
 					$(this.el).data('selected', options.selected);
 					if (options.url) this.request(0);
+					this.addPrefix();
 					this.addSuffix();
 					$(this.el).attr('placeholder', options.placeholder).attr('autocomplete', 'off');
 					if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
@@ -322,7 +325,6 @@
 						match			: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
 						silent			: true,
 						openOnFocus 	: false,		// if to show overlay onclick or when typing
-						applyFilter		: true,
 						markSearch 		: true,
 						renderDrop		: null, 		// render function for drop down item
 						renderItem		: null,			// render selected item
@@ -696,6 +698,10 @@
 				if ($(obj.el).attr('readonly')) return;
 				if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
 				setTimeout(function () {
+					if (obj.type == 'list' && $(obj.el).is(':focus')) {
+						$(obj.helpers.focus).find('input').focus();
+						return;
+					}
 					obj.search();
 					setTimeout(function () { obj.updateOverlay(); }, 1);
 				}, 1);
@@ -920,14 +926,39 @@
 				if ($(obj.el).attr('readonly')) return;
 				var cancel		= false;
 				var selected	= $(obj.el).data('selected');
+				if (obj.type == 'list') {
+					var focus = $(obj.helpers.focus).find('input');
+					if ([37, 38, 39, 40].indexOf(key) == -1) {
+						$(focus).css('opacity', 1).prev().css('opacity', 1);
+						$(obj.el).val('').attr('_placeholder', $(obj.el).attr('placeholder')).removeAttr('placeholder');
+						// hide prefix
+						if (obj.helpers.prefix) obj.helpers.prefix.hide();
+					}
+				}
 				// apply arrows
 				switch (key) {
+					case 27: // escape
+						if (obj.type == 'list') {
+							$(focus).val('').css('opacity', 0).prev().css('opacity', 0);
+							var txt = $(obj.el).data('selected') ? $(obj.el).data('selected').text : '';
+							$(obj.el).val(txt);
+							$(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
+							if (obj.helpers.prefix) $(obj.helpers.prefix).show();
+							// show prefix
+							if (obj.helpers.prefix) obj.helpers.prefix.show();
+							event.stopPropagation(); // escape in field should not close popup
+						}
+						break;
+					case 37: // left
 					case 39: // right
-						if ($(obj.el).val() != '') break;
+						cancel = true;
+						break;
 					case 13: // enter
+						if ($('#w2ui-overlay').length == 0) break; // no action if overlay not open
 						var item  = options.items[options.index];
 						var multi = $(obj.helpers.multi).find('input');
-						if (['enum'].indexOf(obj.type) != -1) {
+						var focus = $(obj.helpers.focus).find('input');
+						if (obj.type == 'enum') {
 							if (item) {
 								// trigger event
 								var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -964,6 +995,12 @@
 						} else {
 							if (item) $(obj.el).data('selected', item).val(item.text).change();
 							if ($(obj.el).val() == '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').change();
+							if (obj.type == 'list') {
+								$(focus).val('').css('opacity', 0).prev().css('opacity', 0);
+								$(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
+								// hide prefix
+								if (obj.helpers.prefix) obj.helpers.prefix.show();
+							}
 							// hide overlay
 							obj.tmp.force_hide = true;
 						}
@@ -1018,8 +1055,11 @@
 					event.preventDefault();
 					setTimeout(function () {
 						// set cursor to the end
-						if (['enum'].indexOf(obj.type) != -1) {
+						if (obj.type == 'enum') {
 							var tmp = obj.helpers.multi.find('input').get(0);
+							tmp.setSelectionRange(tmp.value.length, tmp.value.length);
+						} if (obj.type == 'list') {
+							var tmp = obj.helpers.focus.find('input').get(0);
 							tmp.setSelectionRange(tmp.value.length, tmp.value.length);
 						} else {
 							obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
@@ -1028,7 +1068,7 @@
 					return;
 				}
 				// expand input
-				if (['enum'].indexOf(obj.type) != -1) {
+				if (obj.type == 'enum') {
 					var input  = obj.helpers.multi.find('input');
 					var search = input.val();
 					input.width(((search.length + 2) * 8) + 'px');
@@ -1036,7 +1076,6 @@
 				// run search
 				setTimeout(function () {
 					obj.request();
-					// default behaviour
 					obj.search();
 				}, 1);
 			}
@@ -1142,8 +1181,13 @@
 			var search 	= $(obj.el).val();
 			var target	= obj.el;
 			var ids = [];
-			if (['enum'].indexOf(obj.type) != -1) {
+			if (obj.type == 'enum') {
 				target = $(obj.helpers.multi).find('input');
+				search = target.val();
+				for (var s in options.selected) { ids.push(options.selected[s].id); }
+			}
+			if (obj.type == 'list') {
+				target = $(obj.helpers.focus).find('input');
 				search = target.val();
 				for (var s in options.selected) { ids.push(options.selected[s].id); }
 			}
@@ -1161,7 +1205,6 @@
 					try {
 						var re = new RegExp(prefix + search + suffix, 'i');
 						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
-						if (options.applyFilter !== true) item.hidden = false;
 					} catch (e) {}
 					// do not show selected items
 					if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
@@ -1286,6 +1329,9 @@
 					el		= $(this.helpers.multi);
 					input	= $(el).find('input');
 				}
+				if (this.type == 'list') {
+					input	= $(this.helpers.focus).find('input');
+				}
 				if ($(input).is(':focus')) {
 					if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
 						$().w2overlay();
@@ -1297,6 +1343,7 @@
 						return;
 					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
+					if ($('#w2ui-overlay').length == 0) options.index = 0;
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
 						search		: false,
 						render		: options.renderDrop,
@@ -1322,6 +1369,7 @@
 								}
 							} else {
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
+								if (obj.helpers.focus) $(obj.helpers.focus).find('input').val('').css('opacity', 0).prev().css('opacity', 0);
 							}
 						}
 					}));
@@ -1408,7 +1456,8 @@
 						'</div>'
 					);
 					helper = $(obj.el).prev();
-					helper.css({
+					helper
+						.css({
 							'color'				: $(obj.el).css('color'),
 							'font-family'		: $(obj.el).css('font-family'),
 							'font-size'			: $(obj.el).css('font-size'),
@@ -1420,6 +1469,13 @@
 							'margin-bottom'		: (parseInt($(obj.el).css('margin-bottom'), 10) + 1) + 'px',
 							'margin-left'		: $(obj.el).css('margin-left'),
 							'margin-right'		: 0
+						})
+						.on('click', function (event) {
+							if (obj.type == 'list') {
+								$(obj.helpers.focus).find('input').focus();
+							} else {
+								$(obj.el).focus();
+							}
 						});
 					$(obj.el).css('padding-left', (helper.width() + parseInt($(obj.el).css('padding-left'), 10)) + 'px');
 					// remember helper
@@ -1456,7 +1512,6 @@
 							'padding'		: 0,
 							'margin-top'	: (parseInt($(obj.el).css('margin-top'), 10) + 1) + 'px',
 							'margin-bottom'	: 0,
-							'pointer-events': 'auto',
 							'border-left'	: '1px solid silver'
 						})
 						.css('margin-left', '-'+ (helper.width() + parseInt($(obj.el).css('margin-right'), 10) + 12) + 'px')
@@ -1501,6 +1556,14 @@
 							'margin-top'		: (parseInt($(obj.el).css('margin-top'), 10) + 1) + 'px',
 							'margin-bottom'		: (parseInt($(obj.el).css('margin-bottom'), 10) + 1) + 'px'
 						})
+						.on('click', function (event) {
+							if (obj.type == 'list') {
+								$(obj.helpers.focus).find('input').focus();
+							} else {
+								$(obj.el).focus();
+							}
+						});
+
 					helper.css('margin-left', '-'+ (w2utils.getSize(helper, 'width') + parseInt($(obj.el).css('margin-right'), 10) + 2) + 'px');
 					pr += helper.width() + 3;
 					$(obj.el).css('padding-right', pr + 'px');
@@ -1509,6 +1572,72 @@
 				}
 			}, 1);
 		},
+
+		addFocus: function () {
+			var obj		 = this;
+			var options	 = this.options;
+			var width	 = 0; // 11 - show search icon, 0 do not show
+			// clean up & init
+			$(obj.helpers.focus).remove();
+			// build helper
+			var html =
+				'<div class="w2ui-field-helper">'+ 
+				'	<div class="w2ui-icon icon-search" style="position: absolute; opacity: 0; margin-top: 4px; margin-left: 6px; width: '+ width +'px !important; background-position: left !important;"></div>'+
+				'	<input type="text" autocomplete="off">'+
+				'<div>';
+			$(obj.el).attr('tabindex', -1).before(html);
+			var helper = $(obj.el).prev();
+			obj.helpers.focus = helper;
+			helper.css({
+					width			: $(obj.el).width(),
+					"margin-top"	: $(obj.el).css('margin-top'),
+					"margin-left"	: $(obj.el).css('margin-left'),
+					"margin-bottom"	: $(obj.el).css('margin-bottom'),
+					"margin-right"	: $(obj.el).css('margin-right'),
+				})
+				.find('input')
+				.css({
+					cursor	: 'default',
+					width	: '100%',
+					outline	: 'none',
+					opacity	: 0,
+					margin	: 0,
+					border	: '1px solid transparent',
+					padding : $(obj.el).css('padding-top'),
+					"margin-left"		: width + (width > 0 ? 6 : 0),
+					"background-color"	: 'transparent'
+				});
+			// INPUT events
+			helper.find('input')
+				.on('click', function (event) {
+					if ($('#w2ui-overlay').length == 0) obj.focus(event);
+					event.stopPropagation();
+				})
+				.on('focus', function (event) {
+					$(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+					$(this).val('');
+					obj.focus(event);
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+				})
+				.on('blur', function (event) {
+					$(this).css('opacity', 0).prev().css('opacity', 0);
+					var txt = $(obj.el).data('selected') ? $(obj.el).data('selected').text : '';
+					$(obj.el)
+						.css('outline', 'none')
+						.val(txt)
+						.attr('placeholder', $(obj.el).attr('_placeholder'));
+					// hide prefix
+					if (obj.helpers.prefix) obj.helpers.prefix.show();
+					obj.blur(event);
+					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+				})
+				.on('keyup', 	function (event) { obj.keyUp(event) })
+				.on('keydown', 	function (event) { obj.keyDown(event) })
+				.on('keypress', function (event) { obj.keyPress(event); });
+			// MAIN div
+			helper.on('click', function (event) { $(this).find('input').focus(); });
+			obj.refresh();
+		},	
 
 		addMulti: function () {
 			var obj		 = this;
@@ -1527,7 +1656,7 @@
 									- parseInt($(obj.el).css('margin-right'), 10))
 									+ 'px;';
 			if (obj.type == 'enum') {
-				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box; pointer-events: auto">'+
+				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul>'+
 						'		<li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
@@ -1538,7 +1667,7 @@
 						'</div>';
 			}
 			if (obj.type == 'file') {
-				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box; pointer-events: auto">'+
+				html = 	'<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
 					   	'	<div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
 					   	'	<ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
 						'	<input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">'

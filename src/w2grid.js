@@ -1750,13 +1750,21 @@
 						'	column="'+ column +'" '+ edit.inTag +
 						'>' + edit.outTag);
 				if (value == null) el.find('input').val(val != 'object' ? val : '');
-				el.find('input')
-					.w2field(edit.type, $.extend(edit, { selected: val }))
-					.on('blur', function (event) {
-						if ($(this).data('focused')) return;
-						obj.editChange.call(obj, this, index, column, event);
+				// init w2field
+				var input = el.find('input').get(0);
+				$(input).w2field(edit.type, $.extend(edit, { selected: val }))
+				// add blur listener
+				setTimeout(function () {
+					var tmp = input;
+					if (edit.type == 'list') {
+						tmp = $($(input).data('w2field').helpers.focus).find('input');
+						if (val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
+					}
+					$(tmp).on('blur', function (event) {
+						obj.editChange.call(obj, input, index, column, event);
 					});
-				if (value != null) el.find('input').val(val != 'object' ? val : '');
+				}, 10);
+				if (value != null) $(input).val(val != 'object' ? val : '');
 			}
 			setTimeout(function () {
 				el.find('input, select')
@@ -1801,7 +1809,6 @@
 								break;
 
 							case 13: // enter
-								if ($(this).data('focused')) return;
 								this.blur();
 								var next = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
 								if (next != null && next != index) {
@@ -1869,7 +1876,7 @@
 					tmp.select();
 				}
 
-			}, 50);
+			}, 1);
 			// event after
 			obj.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -2108,7 +2115,14 @@
 			var rec 	= obj.get(recid);
 			var recEL	= $('#grid_'+ obj.name +'_rec_'+ (ind !== null ? w2utils.escapeId(obj.records[ind].recid) : 'none'));
 			var cancel  = false;
-			switch (event.keyCode) {
+			var key 	= event.keyCode;
+			var shiftKey= event.shiftKey;
+			if (key == 9) { // tab key
+				if (event.shiftKey) key = 37; else key = 39; // replace with arrows
+				shiftKey = false;
+				cancel   = true;
+			}
+			switch (key) {
 				case 8:  // backspace
 				case 46: // delete
 					obj.delete();
@@ -2180,7 +2194,7 @@
 					} else {
 						var prev = obj.prevCell(columns[0]);
 						if (prev !== false) {
-							if (event.shiftKey) {
+							if (shiftKey) {
 								if (tmpUnselect()) return;
 								var tmp    = [];
 								var newSel = [];
@@ -2199,11 +2213,12 @@
 								obj.unselect.apply(obj, unSel);
 								obj.select.apply(obj, newSel);
 							} else {
+								event.shiftKey = false;
 								obj.click({ recid: recid, column: prev }, event);
 							}
 						} else {
 							// if selected more then one, then select first
-							if (!event.shiftKey) {
+							if (!shiftKey) {
 								for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
 							}
 						}
@@ -2211,7 +2226,6 @@
 					cancel = true;
 					break;
 
-				case 9:  // tab
 				case 39: // right
 					if (empty) break;
 					if (this.selectType == 'row') {
@@ -2220,7 +2234,7 @@
 					} else {
 						var next = obj.nextCell(columns[columns.length-1]);
 						if (next !== false) {
-							if (event.shiftKey && event.keyCode == 39) {
+							if (shiftKey && key == 39) {
 								if (tmpUnselect()) return;
 								var tmp    = [];
 								var newSel = [];
@@ -2243,7 +2257,7 @@
 							}
 						} else {
 							// if selected more then one, then select first
-							if (!event.shiftKey) {
+							if (!shiftKey) {
 								for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
 							}
 						}
@@ -2270,7 +2284,7 @@
 								break;
 							}
 						}
-						if (event.shiftKey) { // expand selection
+						if (shiftKey) { // expand selection
 							if (tmpUnselect()) return;
 							if (obj.selectType == 'row') {
 								if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
@@ -2298,7 +2312,7 @@
 						if (event.preventDefault) event.preventDefault();
 					} else {
 						// if selected more then one, then select first
-						if (!event.shiftKey) {
+						if (!shiftKey) {
 							for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
 						}
 						// jump out of subgird (if first record)
@@ -2334,7 +2348,7 @@
 					// move to the next record
 					var next = obj.nextRow(ind2);
 					if (next != null) {
-						if (event.shiftKey) { // expand selection
+						if (shiftKey) { // expand selection
 							if (tmpUnselect()) return;
 							if (obj.selectType == 'row') {
 								if (this.last.sel_ind < next && this.last.sel_ind != ind) {
@@ -2362,7 +2376,7 @@
 						cancel = true;
 					} else {
 						// if selected more then one, then select first
-						if (!event.shiftKey) {
+						if (!shiftKey) {
 							for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
 						}
 						// jump out of subgrid (if last record in subgrid)
@@ -2408,12 +2422,12 @@
 			}
 			var tmp = [187, 189, 32]; // =-spacebar
 			for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
-			if (tmp.indexOf(event.keyCode) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
+			if (tmp.indexOf(key) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
 				if (columns.length == 0) columns.push(0);
-				var tmp = String.fromCharCode(event.keyCode);
-				if (event.keyCode == 187) tmp = '=';
-				if (event.keyCode == 189) tmp = '-';
-				if (!event.shiftKey) tmp = tmp.toLowerCase();
+				var tmp = String.fromCharCode(key);
+				if (key == 187) tmp = '=';
+				if (key == 189) tmp = '-';
+				if (!shiftKey) tmp = tmp.toLowerCase();
 				obj.editField(recid, columns[0], tmp, event);
 				cancel = true;
 			}

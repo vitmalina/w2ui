@@ -11,7 +11,7 @@
 .w2ui-field-helper {
 	position: absolute; 
 	display: inline-block; 
-	pointer-events: none;
+	/* pointer-events: none; - do not use as IE does not support it */
 	.user-select(none);
 
 	.w2ui-field-up {
@@ -41,6 +41,7 @@
 */
 
 .arrow-up {
+	background: none;
 	width: 0; 
 	height: 0; 
 	border-left: 4px solid transparent;  /* left arrow slant */
@@ -51,6 +52,7 @@
 }
 
 .arrow-down {
+	background: none;
 	width: 0; 
 	height: 0; 
 	border-left: 4px solid transparent;
@@ -61,6 +63,7 @@
 }
 
 .arrow-left {
+	background: none;
 	width: 0; 
 	height: 0; 
 	border-bottom: 4px solid transparent;  /* left arrow slant */
@@ -71,6 +74,7 @@
 }
 
 .arrow-right {
+	background: none;
 	width: 0; 
 	height: 0; 
 	border-bottom: 4px solid transparent;  /* left arrow slant */
