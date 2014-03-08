@@ -1248,7 +1248,7 @@
 			this.last.selection.columns	= {};
 			// -- clear all search field
 			this.searchClose();
-			this.set({ expanded: false });
+			this.set({ expanded: false }, true);
 			// apply search
 			if (url) {
 				this.last.xhr_offset = 0;
