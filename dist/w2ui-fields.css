@@ -287,7 +287,7 @@ select {
 .w2ui-field-helper {
   position: absolute;
   display: inline-block;
-  pointer-events: none;
+  /* pointer-events: none; - do not use as IE does not support it */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -314,6 +314,7 @@ select {
 *	ARROWS 
 */
 .arrow-up {
+  background: none;
   width: 0;
   height: 0;
   border-left: 4px solid transparent;
@@ -326,6 +327,7 @@ select {
   line-height: 0;
 }
 .arrow-down {
+  background: none;
   width: 0;
   height: 0;
   border-left: 4px solid transparent;
@@ -335,6 +337,7 @@ select {
   line-height: 0;
 }
 .arrow-left {
+  background: none;
   width: 0;
   height: 0;
   border-bottom: 4px solid transparent;
@@ -347,6 +350,7 @@ select {
   line-height: 0;
 }
 .arrow-right {
+  background: none;
   width: 0;
   height: 0;
   border-bottom: 4px solid transparent;
