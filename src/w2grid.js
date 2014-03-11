@@ -1456,7 +1456,7 @@
 				this.last.range_end		= null;
 				this.localSearch();
 				this.refresh();
-				if (typeof callBack == 'function') callBack();
+				if (typeof callBack == 'function') callBack({ status: 'success' });
 			}
 		},
 
@@ -1482,7 +1482,7 @@
 			// event before
 			if (cmd == 'get-records') {
 				var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
-				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack(); return; }
+				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
 			} else {
 				var eventData = { url: url, postData: params };
 			}
@@ -1610,12 +1610,12 @@
 					}
 				}
 			} else {
-				obj.error(this.msgAJAXerror);
 				data = {
 					status		 : 'error',
 					message		 : this.msgAJAXerror,
 					responseText : responseText
 				};
+				obj.error(this.msgAJAXerror);
 			}
 			// event after
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -1636,7 +1636,7 @@
 			// let the management of the error outside of the grid
 			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
 			if (eventData.isCancelled === true) {
-				if (typeof callBack == 'function') callBack();
+				if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 				return;
 			}
 			w2alert(msg, 'Error');
@@ -1680,8 +1680,11 @@
 			var url = (typeof this.url != 'object' ? this.url : this.url.save);
 			if (url) {
 				this.request('save-records', { 'changes' : eventData.changes }, null,
-					function () {
-						obj.mergeChanges();
+					function (data) {
+						if (data.status !== 'error') {
+							// only merge changes, if save was successful
+							obj.mergeChanges();
+						}
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
