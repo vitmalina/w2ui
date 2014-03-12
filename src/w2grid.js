@@ -2572,6 +2572,13 @@
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 			this.resizeRecords();
+			//Each time we expand a record we need to update the rows range in the footer
+			//The scroll() method need to be invoked with a delay of 400 ms after the scroll animation has been finished
+			//in order to get the correct height of the expanded row data
+			//Do not put the obj.scroll() as a callback in the div2.show() because the show animation will be flawed
+			setTimeout(function() {
+				obj.scroll();
+			}, 400);
 			return true;
 		},
 
@@ -2596,6 +2603,9 @@
 					// event after
 					obj.trigger($.extend(eventData, { phase: 'after' }));
 					obj.resizeRecords();
+					//Each time we collapse a record we need to update the rows range in the footer
+					//The scroll() method need to be invoked after the removal of the expanded data
+					obj.scroll();
 				}, 300);
 			}, 200);
 			return true;
@@ -4320,6 +4330,7 @@
 			var time = (new Date()).getTime();
 			var obj  = this;
 			var records	= $('#grid_'+ this.name +'_records');
+			var expanded_rows = records.find('tr.w2ui-expanded-row');
 			if (this.records.length == 0 || records.length == 0 || records.height() == 0) return;
 			if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300;
 			// need this to enable scrolling when this.limit < then a screen can fit
@@ -4327,15 +4338,71 @@
 				if (this.total > 0) this.refresh();
 				return;
 			}
-			// update footer
-			var t1 = Math.floor(records[0].scrollTop / this.recordHeight + 1);
-			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.round(records.height() / this.recordHeight);
-			if (t1 > this.buffered) t1 = this.buffered;
-			if (t2 > this.buffered) t2 = this.buffered;
+
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
-			$('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +	w2utils.formatNumber(this.total) +
-					(url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
-			);
+			
+			// update footer
+			setTimeout(function(){
+				var t1, t2;
+				var rows_extra_height = [];
+
+				//No expanded rows
+				if(expanded_rows.length == 0) {
+					t1 = Math.floor(records[0].scrollTop / obj.recordHeight + 1);
+					t2 = Math.floor(records[0].scrollTop / obj.recordHeight + 1) + Math.round(records.height() / obj.recordHeight);
+				} else {
+				//There is expanded rows
+					var scrollTop = records[0].scrollTop - records.find('tr[line=top]').height();
+
+					t1 = parseInt(records.find('tr[line=top]').next('tr').attr('line'));
+
+					//Get the expanded rows height
+					for(var i = 0; i < expanded_rows.length; i++) {
+						var expanded_row = $(expanded_rows[i]);
+						rows_extra_height[expanded_row.prev('tr.w2ui-expanded').attr('line')] = expanded_row.height();
+					}
+
+					//Find the first line
+					var total_height = obj.recordHeight + (t1 in rows_extra_height ? rows_extra_height[t1] : 0);
+					while(scrollTop > total_height) {
+						t1++;
+						total_height += obj.recordHeight;
+						if(t1 in rows_extra_height)
+							total_height += rows_extra_height[t1];
+					}
+
+					//Find the last line
+					t2 = t1;
+					var viewport_used_height = total_height-scrollTop;
+					while(records.height() > viewport_used_height) {
+						t2++;
+						viewport_used_height += obj.recordHeight;
+						if(t2 in rows_extra_height)
+							viewport_used_height += rows_extra_height[t2];
+					}
+				}
+
+				if (t1 > obj.buffered) t1 = obj.buffered;
+				if (t2 > obj.buffered) t2 = obj.buffered;
+
+				//If there is a scrollbar, and we have less then half of obj.recordHeight/2 is visible from first or last row then consider it invisble
+				if(t2 < obj.buffered) {
+					//First row
+					var t1_tr = $('#'+obj.name+' tr[line='+t1+']');
+					var t1_height  = obj.recordHeight + (t1 in rows_extra_height ? rows_extra_height[t1] : 0);
+					if( t1_tr.length > 0 && Math.abs(Math.abs(t1_tr.position().top)-t1_height) < obj.recordHeight/2)
+						t1++;
+				}
+					//Last row 
+					var t2_tr = $('#'+obj.name+' tr[line='+t2+']');
+					if( t2_tr.length > 0 && Math.abs(records.height()-t2_tr.position().top) < obj.recordHeight/2)
+						t2--;
+
+				$('#grid_'+ obj.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(obj.offset + t1) + '-' + w2utils.formatNumber(obj.offset + t2) + ' ' + w2utils.lang('of') + ' ' +	w2utils.formatNumber(obj.total) +
+						(url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(obj.buffered) + (obj.offset > 0 ? ', skip ' + w2utils.formatNumber(obj.offset) : '') + ')' : '')
+				);
+			}, 10);
+			
 			// only for local data source, else no extra records loaded
 			if (!url && (!this.fixedBody || this.total <= 300)) return;
 			// regular processing
