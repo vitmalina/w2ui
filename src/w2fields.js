@@ -731,6 +731,9 @@
 			}
 			// date or time
 			if (['date', 'time'].indexOf(obj.type) != -1) {
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				// check if in range
 				if (val !== '' && !obj.inRange(obj.el.value)) {
 					$(obj.el).val('').removeData('selected').change();
@@ -823,6 +826,9 @@
 				var daymil  = 24*60*60*1000;
 				var inc		= 1;
 				if (event.ctrlKey || event.metaKey) inc = 10;
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				var dt = w2utils.isDate($(obj.el).val(), options.format, true);
 				if (!dt) { dt = new Date(); daymil = 0; }
 				switch (key) {
@@ -856,6 +862,9 @@
 				var cancel  = false;
 				var inc		= 1;
 				if (event.ctrlKey || event.metaKey) inc = 60;
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatTime(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				var val = $(obj.el).val();
 				var time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
 				switch (key) {

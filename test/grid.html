@@ -14,7 +14,7 @@ $(function () {
 	$('#grid').w2grid({ 
 		name	: 'grid', 
 		header	: 'List of Names',
-		reorderColumns: true,
+		reorderColumns: false,
 		// url		: {
 		// 	get		: 'data.php',
 		// 	remove	: 'remove',
@@ -60,7 +60,7 @@ $(function () {
 			]
 		},
 
-		// possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select --, date, time
+		// possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
 		searches: [				
 			{ field: 'personid', caption: 'ID', type: 'int' },
 			{ field: 'fname', caption: 'First Name', type: 'list', 
@@ -94,7 +94,7 @@ $(function () {
 			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
 			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
 			{ field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date', sortable: true },
-			{ field: 'sdate', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
+			{ field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
 			{ field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true }
 		],
 		ranges1: [
@@ -175,29 +175,29 @@ $(function () {
 	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
 	var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
 	// add 10k records
-	for (var i = 0; i < 15; i++) {
+	for (var i = 0; i < 150; i++) {
+		var dt = ((new Date()).getTime() - Math.floor(Math.random() * 1000000000));
 		w2ui['grid'].records.push({ 
 			recid : (i + 1),
 			personid: i+1,
 			fname: fname[Math.floor(Math.random() * fname.length)], 
 			lname: lname[Math.floor(Math.random() * lname.length)],
 			email: 'vm@gmail.com', manager: '--',
-			snumber: Math.floor(Math.random() * 100000),
-			sdate: ((new Date()).getTime() - Math.floor(Math.random() * 1000000000))
+			snumber: Math.floor(Math.random() * 100000) + '',
+			sdate: dt,
+			stime: dt
 		});
 	}
-	w2ui.grid.records[0].sdate = (new Date());
-	w2ui.grid.records[3].sdate = (new Date());
-	w2ui.grid.records[7].sdate = (new Date());
+	w2ui.grid.records[0].sdate = null;
+	w2ui.grid.records[3].sdate = null;
+	w2ui.grid.records[7].sdate = null;
+	w2ui.grid.records[3].stime = '0:01 am';
+	w2ui.grid.records[5].stime = '1:05 am';
+	w2ui.grid.records[50].stime = '0:15 am';
 
 	w2ui.grid.total = w2ui.grid.records.length;
 	w2ui.grid.buffered = w2ui.grid.records.length;
-	// w2ui.grid.records[90].summary = true;
-	// w2ui.grid.records[91].summary = true;
-	// w2ui.grid.records[96].summary = true;
-	// w2ui.grid.records[80].summary = true;
 	w2ui.grid.refresh();
-	//w2ui['grid'].load('grid.json');
 });
 </script>
 </head>
