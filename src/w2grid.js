@@ -2816,6 +2816,7 @@
 			return (new Date()).getTime() - time;
 
 			function mouseStart (event) {
+				if ($(event.target).parents().hasClass('w2ui-head') || $(event.target).parents().hasClass('w2ui-empty-record')) return;
 				if (obj.last.move && obj.last.move.type == 'expand') return;
 				obj.last.move = {
 					x		: event.screenX,
