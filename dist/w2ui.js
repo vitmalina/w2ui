@@ -29,6 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *	- hidden and disabled in menus
 *	- new regex for emails /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+*	- isTime should support seconds
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
@@ -335,7 +336,13 @@ var w2utils = (function () {
 		if (dateStr === '' || dateStr == null) return '';
 
 		var dt = new Date(dateStr);
-		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
+		if (w2utils.isInt(dateStr)) dt  = new Date(Number(dateStr)); // for unix timestamps
+		if (w2utils.isTime(dateStr)) {
+			var tmp = w2utils.isTime(dateStr, true);
+			dt = new Date();
+			dt.setHours(tmp.hours);
+			dt.setMinutes(tmp.minutes);
+		}
 		if (dt === 'Invalid Date') return '';
 
 		var type = 'am';
@@ -1640,6 +1647,7 @@ w2utils.keyboard = (function (obj) {
 *	- change: rec.changes = {} and removed rec.changed
 *	- record.style can be a string or an object (for cell formatting)
 *	- col.resizable = true by default
+*	- new: prepareData();
 *
 ************************************************************************/
 
@@ -2132,14 +2140,29 @@ w2utils.keyboard = (function (obj) {
 			if ($.isEmptyObject(this.sortData)) return;
 			var time = (new Date()).getTime();
 			var obj = this;
+			// process date fields
+			obj.prepareData();
+			// process sortData
+			for (var s in this.sortData) {
+				var column = this.getColumn(this.sortData[s].field); 
+				if (column.render && ['date', 'age'].indexOf(column.render) != -1) {
+					this.sortData[s]['field_'] = column.field + '_';
+				}
+				if (column.render && ['time'].indexOf(column.render) != -1) {
+					this.sortData[s]['field_'] = column.field + '_';
+				}
+			}
+			// process sort
 			this.records.sort(function (a, b) {
 				var ret = 0;
 				for (var s in obj.sortData) {
-					var aa = a[obj.sortData[s].field];
-					var bb = b[obj.sortData[s].field];
-					if (String(obj.sortData[s].field).indexOf('.') != -1) {
-						aa = obj.parseField(a, obj.sortData[s].field);
-						bb = obj.parseField(b, obj.sortData[s].field);
+					var fld = obj.sortData[s].field;
+					if (obj.sortData[s].field_) fld = obj.sortData[s].field_;
+					var aa  = a[fld];
+					var bb  = b[fld];
+					if (String(fld).indexOf('.') != -1) {
+						aa = obj.parseField(a, fld);
+						bb = obj.parseField(b, fld);
 					}
 					if (typeof aa == 'string') aa = $.trim(aa.toLowerCase());
 					if (typeof bb == 'string') bb = $.trim(bb.toLowerCase());
@@ -2147,6 +2170,8 @@ w2utils.keyboard = (function (obj) {
 					if (aa < bb) ret = (obj.sortData[s].direction == 'asc' ? -1 : 1);
 					if (typeof aa != 'object' && typeof bb == 'object') ret = -1;
 					if (typeof bb != 'object' && typeof aa == 'object') ret = 1;
+					if (aa == null && bb != null) ret = 1;	// all nuls and undefined on bottom
+					if (aa != null && bb == null) ret = -1;
 					if (ret != 0) break;
 				}
 				return ret;
@@ -2167,6 +2192,8 @@ w2utils.keyboard = (function (obj) {
 			this.total = this.records.length;
 			// mark all records as shown
 			this.last.searchIds = [];
+			// prepare date/time fields
+			this.prepareData();
 			// hide records that did not match
 			if (this.searchData.length > 0 && !url) {
 				this.total = 0;
@@ -2191,11 +2218,14 @@ w2utils.keyboard = (function (obj) {
 							case 'is':
  								if (rec[search.field] == sdata.value) fl++; // do not hide record
 								if (search.type == 'date') {
-									var tmp = new Date(Number(val1)); // create date
-									val1 = (new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate())).getTime(); // drop time
-									val2 = Number(val2);
-									var val3 = Number(val1) + 86400000; // 1 day
-									if (val2 >= val1 && val2 <= val3) fl++;
+									var val1 = w2utils.formatDate(rec[search.field + '_'], 'yyyy-mm-dd');
+									var val2 = w2utils.formatDate(val2, 'yyyy-mm-dd');
+									if (val1 == val2) fl++;
+								}
+								if (search.type == 'time') {
+									var val1 = w2utils.formatTime(rec[search.field + '_'], 'h24:mi');
+									var val2 = w2utils.formatTime(val2, 'h24:mi');
+									if (val1 == val2) fl++;
 								}
 								break;
 							case 'between':
@@ -2203,9 +2233,18 @@ w2utils.keyboard = (function (obj) {
 									if (parseFloat(rec[search.field]) >= parseFloat(val2) && parseFloat(rec[search.field]) <= parseFloat(val3)) fl++;
 								}
 								if (search.type == 'date') {
-									var tmp = new Date(Number(val3)); // create date
-									val3 = (new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate())).getTime(); // drop time
-									var val3 = Number(val3) + 86400000; // 1 day
+									var val1 = rec[search.field + '_'];
+									var val2 = w2utils.isDate(val2, w2utils.settings.date_format, true);
+									var val3 = w2utils.isDate(val3, w2utils.settings.date_format, true);
+									if (val3 != null) val3 = new Date(val3.getTime() + 86400000); // 1 day
+									if (val1 >= val2 && val1 < val3) fl++;
+								}
+								if (search.type == 'time') {
+									var val1 = rec[search.field + '_'];
+									var val2 = w2utils.isTime(val2, true);
+									var val3 = w2utils.isTime(val3, true);
+									val2 = (new Date()).setHours(val2.hours, val2.minutes, val2.seconds ? val2.seconds : 0, 0);
+									val3 = (new Date()).setHours(val3.hours, val3.minutes, val3.seconds ? val3.seconds : 0, 0);
 									if (val1 >= val2 && val1 < val3) fl++;
 								}
 								break;
@@ -2695,11 +2734,11 @@ w2utils.keyboard = (function (obj) {
 						// conver date to unix time
 						try {
 							if (search.type == 'date' && operator == 'between') {
-								tmp.value[0] = w2utils.isDate(value1, w2utils.settings.date_format, true).getTime();
-								tmp.value[1] = w2utils.isDate(value2, w2utils.settings.date_format, true).getTime();
+								tmp.value[0] = value1; // w2utils.isDate(value1, w2utils.settings.date_format, true).getTime();
+								tmp.value[1] = value2; // w2utils.isDate(value2, w2utils.settings.date_format, true).getTime();
 							}
 							if (search.type == 'date' && operator == 'is') {
-								tmp.value = w2utils.isDate(value1, w2utils.settings.date_format, true).getTime();
+								tmp.value = value1; // w2utils.isDate(value1, w2utils.settings.date_format, true).getTime();
 							}
 						} catch (e) {
 
@@ -2777,10 +2816,8 @@ w2utils.keyboard = (function (obj) {
 						if (value != '') {
 							var op  = 'contains';
 							var val = value;
-							if (w2utils.isInt(value)) {
-								op  = 'is';
-								val = value;
-							}
+							if (w2utils.isInt(value)) op = 'is';
+							if (['date', 'time'].indexOf(search.type) != -1) op = 'is';
 							if (search.type == 'int' && value != '') {
 								if (String(value).indexOf('-') != -1) {
 									var tmp = value.split('-');
@@ -3047,7 +3084,7 @@ w2utils.keyboard = (function (obj) {
 				this.last.range_end		= null;
 				this.localSearch();
 				this.refresh();
-				if (typeof callBack == 'function') callBack();
+				if (typeof callBack == 'function') callBack({ status: 'success' });
 			}
 		},
 
@@ -3073,7 +3110,7 @@ w2utils.keyboard = (function (obj) {
 			// event before
 			if (cmd == 'get-records') {
 				var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
-				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack(); return; }
+				if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
 			} else {
 				var eventData = { url: url, postData: params };
 			}
@@ -3201,12 +3238,12 @@ w2utils.keyboard = (function (obj) {
 					}
 				}
 			} else {
-				obj.error(this.msgAJAXerror);
 				data = {
 					status		 : 'error',
 					message		 : this.msgAJAXerror,
 					responseText : responseText
 				};
+				obj.error(this.msgAJAXerror);
 			}
 			// event after
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -3227,7 +3264,7 @@ w2utils.keyboard = (function (obj) {
 			// let the management of the error outside of the grid
 			var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
 			if (eventData.isCancelled === true) {
-				if (typeof callBack == 'function') callBack();
+				if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
 				return;
 			}
 			w2alert(msg, 'Error');
@@ -3271,8 +3308,11 @@ w2utils.keyboard = (function (obj) {
 			var url = (typeof this.url != 'object' ? this.url : this.url.save);
 			if (url) {
 				this.request('save-records', { 'changes' : eventData.changes }, null,
-					function () {
-						obj.mergeChanges();
+					function (data) {
+						if (data.status !== 'error') {
+							// only merge changes, if save was successful
+							obj.mergeChanges();
+						}
 						// event after
 						obj.trigger($.extend(eventData, { phase: 'after' }));
 					}
@@ -4858,8 +4898,10 @@ w2utils.keyboard = (function (obj) {
 					}).addClass( '.w2ui-grid-ghost' ).animate({
 							width: selectedCol.width(),
 							height: $(obj.box).find('.w2ui-grid-body:first').height(),
+							left : event.pageX,
+							top : event.pageY,
 							opacity: .8
-						}, 300 );
+						}, 0 );
 
 					//establish current offsets
 					_dragData.offsets = [];
@@ -5663,9 +5705,13 @@ w2utils.keyboard = (function (obj) {
 					case 'percent':
 					case 'date':
 					case 'time':
-					if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
+						if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
 						$('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
 						$('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
+						setTimeout(function () { // convert to date if it is number
+							$('#grid_'+ obj.name +'_field_'+s).keydown(); 
+							$('#grid_'+ obj.name +'_field2_'+s).keydown(); 
+						}, 1);
 						break;
 
 					case 'hex':
@@ -6177,8 +6223,8 @@ w2utils.keyboard = (function (obj) {
 						data = '<div>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
 					}
 					if (tmp[0] == 'time') {
-						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_display;
-						data = '<div>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
+						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
+						data = '<div>' + prefix + w2utils.formatTime(data, tmp[1] == 'h12' ? 'hh:mi pm': 'h24:min') + suffix + '</div>';
 					}
 					if (tmp[0] == 'date') {
 						if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
@@ -6276,6 +6322,45 @@ w2utils.keyboard = (function (obj) {
 				val = '';
 			}
 			return val;
+		},
+
+		prepareData: function () {
+			// loops thru records and prepares date and time objects
+			for (var r in this.records) {
+				var rec = this.records[r];
+				for (var c in this.columns) {
+					var column = this.columns[c];
+					if (rec[column.field] == null || typeof column.render != 'string') continue;
+					// number
+					if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(column.render.split(':')[0])  != -1) {
+						if (typeof rec[column.field] != 'number') rec[column.field] = parseFloat(rec[column.field]);
+					}
+					// date
+					if (['date', 'age'].indexOf(column.render) != -1) {
+						if (!rec[column.field + '_']) {
+							var dt = rec[column.field];
+							if (w2utils.isInt(dt)) dt = parseInt(dt);
+							rec[column.field + '_'] = new Date(dt);
+						}
+					}
+					// time
+					if (['time'].indexOf(column.render) != -1) {
+						if (w2utils.isTime(rec[column.field])) { // if string
+							var tmp = w2utils.isTime(rec[column.field], true);
+							var dt = new Date();
+							dt.setHours(tmp.hours, tmp.minutes, (tmp.seconds ? tmp.seconds : 0), 0); // sets hours, min, sec, mills
+							if (!rec[column.field + '_']) rec[column.field + '_'] = dt;
+						} else { // if date object
+							var tmp = rec[column.field];
+							if (w2utils.isInt(tmp)) tmp = parseInt(tmp);
+							var tmp = (tmp != null ? new Date(tmp) : new Date());
+							var dt  = new Date();
+							dt.setHours(tmp.getHours(), tmp.getMinutes(), tmp.getSeconds(), 0); // sets hours, min, sec, mills
+							if (!rec[column.field + '_']) rec[column.field + '_'] = dt;
+						}
+					}
+				}
+			}
 		},
 
 		nextCell: function (col_ind, editable) {
@@ -10570,6 +10655,9 @@ var w2confirm = function (msg, title, callBack) {
 			}
 			// date or time
 			if (['date', 'time'].indexOf(obj.type) != -1) {
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				// check if in range
 				if (val !== '' && !obj.inRange(obj.el.value)) {
 					$(obj.el).val('').removeData('selected').change();
@@ -10662,6 +10750,9 @@ var w2confirm = function (msg, title, callBack) {
 				var daymil  = 24*60*60*1000;
 				var inc		= 1;
 				if (event.ctrlKey || event.metaKey) inc = 10;
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				var dt = w2utils.isDate($(obj.el).val(), options.format, true);
 				if (!dt) { dt = new Date(); daymil = 0; }
 				switch (key) {
@@ -10695,6 +10786,9 @@ var w2confirm = function (msg, title, callBack) {
 				var cancel  = false;
 				var inc		= 1;
 				if (event.ctrlKey || event.metaKey) inc = 60;
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatTime(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				var val = $(obj.el).val();
 				var time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
 				switch (key) {

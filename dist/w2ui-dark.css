@@ -1131,8 +1131,14 @@ select {
 }
 .w2ui-layout > div .w2ui-panel .w2ui-panel-title {
   padding: 5px;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #c0c0c0;
+  background-image: -webkit-linear-gradient(#515d78, #323948);
+  background-image: -moz-linear-gradient(#515d78, #323948);
+  background-image: -ms-linear-gradient(#515d78, #323948);
+  background-image: -o-linear-gradient(#515d78, #323948);
+  background-image: linear-gradient(#515d78, #323948);
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff515d78', endColorstr='#ff323948', GradientType=0);
+  border: #252c39;
+  border-bottom: 1px solid #252c39;
 }
 .w2ui-layout > div .w2ui-panel .w2ui-panel-tabs {
   position: absolute;

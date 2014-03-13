@@ -29,6 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *	- hidden and disabled in menus
 *	- new regex for emails /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+*	- isTime should support seconds
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
@@ -335,7 +336,13 @@ var w2utils = (function () {
 		if (dateStr === '' || dateStr == null) return '';
 
 		var dt = new Date(dateStr);
-		if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
+		if (w2utils.isInt(dateStr)) dt  = new Date(Number(dateStr)); // for unix timestamps
+		if (w2utils.isTime(dateStr)) {
+			var tmp = w2utils.isTime(dateStr, true);
+			dt = new Date();
+			dt.setHours(tmp.hours);
+			dt.setMinutes(tmp.minutes);
+		}
 		if (dt === 'Invalid Date') return '';
 
 		var type = 'am';
@@ -2322,6 +2329,9 @@ w2utils.keyboard = (function (obj) {
 			}
 			// date or time
 			if (['date', 'time'].indexOf(obj.type) != -1) {
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				// check if in range
 				if (val !== '' && !obj.inRange(obj.el.value)) {
 					$(obj.el).val('').removeData('selected').change();
@@ -2414,6 +2424,9 @@ w2utils.keyboard = (function (obj) {
 				var daymil  = 24*60*60*1000;
 				var inc		= 1;
 				if (event.ctrlKey || event.metaKey) inc = 10;
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				var dt = w2utils.isDate($(obj.el).val(), options.format, true);
 				if (!dt) { dt = new Date(); daymil = 0; }
 				switch (key) {
@@ -2447,6 +2460,9 @@ w2utils.keyboard = (function (obj) {
 				var cancel  = false;
 				var inc		= 1;
 				if (event.ctrlKey || event.metaKey) inc = 60;
+				if (w2utils.isInt(obj.el.value)) {
+					$(obj.el).val(w2utils.formatTime(new Date(parseInt(obj.el.value)), options.format)).change();
+				}
 				var val = $(obj.el).val();
 				var time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
 				switch (key) {
