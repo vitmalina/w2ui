@@ -1,2 +1,3 @@
-tmp/*
 *.txt
+tmp/*
+node_modules/*
