@@ -551,8 +551,10 @@
 				if (obj.menu.length > 0) {
 					$(obj.box).find('#node_'+ w2utils.escapeId(id))
 						.w2menu(obj.menu, {
-							left: (event ? event.offsetX || event.pageX : 50) - 25,
-							select: function (item, event, index) { obj.menuClick(id, index, event); }
+							left	: (event ? event.offsetX || event.pageX : 50) - 25,
+							onSelect: function (event) { 
+								obj.menuClick(id, parseInt(event.index), event.originalEvent); 
+							}
 						}
 					);
 				}
