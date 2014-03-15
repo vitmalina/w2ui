@@ -2145,6 +2145,7 @@ w2utils.keyboard = (function (obj) {
 			// process sortData
 			for (var s in this.sortData) {
 				var column = this.getColumn(this.sortData[s].field); 
+				if (!column) return;
 				if (column.render && ['date', 'age'].indexOf(column.render) != -1) {
 					this.sortData[s]['field_'] = column.field + '_';
 				}
@@ -9693,8 +9694,10 @@ var w2confirm = function (msg, title, callBack) {
 				if (obj.menu.length > 0) {
 					$(obj.box).find('#node_'+ w2utils.escapeId(id))
 						.w2menu(obj.menu, {
-							left: (event ? event.offsetX || event.pageX : 50) - 25,
-							select: function (item, event, index) { obj.menuClick(id, index, event); }
+							left	: (event ? event.offsetX || event.pageX : 50) - 25,
+							onSelect: function (event) { 
+								obj.menuClick(id, parseInt(event.index), event.originalEvent); 
+							}
 						}
 					);
 				}
@@ -9955,6 +9958,8 @@ var w2confirm = function (msg, title, callBack) {
 *	- deprecated -- change: showAll -> applyFilter
 *	- color: select with keyboard
 *	- enum: addNew event
+*	- added icon and onIconClick
+*	- new: clearCache
 *
 ************************************************************************/
 
@@ -9976,6 +9981,7 @@ var w2confirm = function (msg, title, callBack) {
 		this.onRemove	= options.onRemove		|| null;
 		this.onMouseOver= options.onMouseOver	|| null;
 		this.onMouseOut	= options.onMouseOut	|| null;
+		this.onIconClick= options.onIconClick	|| null;
 		this.tmp		= {}; // temp object
 		// clean up some options
 		delete this.options.type;
@@ -9986,6 +9992,7 @@ var w2confirm = function (msg, title, callBack) {
 		delete this.options.onClick;
 		delete this.options.onMouseOver;
 		delete this.options.onMouseOut;
+		delete this.options.onIconClick;
 		// extend with defaults
 		$.extend(true, this, w2obj.field);
 	};
@@ -10197,14 +10204,17 @@ var w2confirm = function (msg, title, callBack) {
 						placeholder		: '',
 						url 			: null, 		// url to pull data from
 						prepopulate		: true,
-						cacheMax		: 500,
+						cacheMax		: 250,
 						maxDropHeight 	: 350,			// max height for drop down menu
 						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
 						silent			: true,
+						icon			: null,
+						iconStyle		: '',
 						onSearch		: null,			// when search needs to be performed
 						onRequest		: null,			// when request is submitted
 						onLoad			: null,			// when data is received
 						onError			: null,			// when data fails to load due to server error or other failure modes
+						onIconClick		: null,
 						renderDrop		: null, 		// render function for drop down item
 						prefix			: '',
 						suffix			: '',
@@ -10216,7 +10226,6 @@ var w2confirm = function (msg, title, callBack) {
 						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
 						$(this.el).addClass('w2ui-select');
-						this.addFocus();
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
@@ -10228,8 +10237,15 @@ var w2confirm = function (msg, title, callBack) {
 					if (!$.isPlainObject(options.selected)) options.selected = {};
 					$(this.el).data('selected', options.selected);
 					if (options.url) this.request(0);
+					if (options.icon) {
+						options.prefix = '<span class="w2ui-icon '+ options.icon +'" '+
+							'	style="cursor: pointer; margin: -2px 5px 0px 0px; font-size: 14px; color: #7F98AD;' + options.iconStyle +'">'+
+							'</span>';
+					}
+					if (this.type == 'list') this.addFocus();
 					this.addPrefix();
 					this.addSuffix();
+					setTimeout(function () { obj.refresh();	}, 10); // need this for icon refresh
 					$(this.el).attr('placeholder', options.placeholder).attr('autocomplete', 'off');
 					if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
 					break;
@@ -10242,7 +10258,7 @@ var w2confirm = function (msg, title, callBack) {
 						max 			: 0,			// max number of selected items, 0 - unlim
 						url 			: null, 		// not implemented
 						prepopulate		: true,			// if true pull records from url during init
-						cacheMax		: 500,
+						cacheMax		: 250,
 						maxWidth		: 250,			// max width for a single item
 						maxHeight		: 350,			// max height for input control to grow
 						maxDropHeight 	: 350,			// max height for drop down menu
@@ -10386,6 +10402,30 @@ var w2confirm = function (msg, title, callBack) {
 			var selected = $(this.el).data('selected');
 			var time 	 = (new Date()).getTime();
 			// enum
+			if (['list'].indexOf(this.type) != -1) {
+				$(obj.el).parent().css('white-space', 'nowrap'); // needs this for arrow alway to appear on the right side
+				// hide focus and show text
+				if (obj.helpers.prefix) obj.helpers.prefix.hide();
+				setTimeout(function () {
+					var focus = obj.helpers.focus.find('input');
+					if ($(focus).val() == '') {
+						$(focus).css('opacity', 0).prev().css('opacity', 0);
+						$(obj.el).val(selected && selected.text != null ? selected.text : '');
+						$(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
+						// if empty show no icon
+						if ($.isEmptyObject(selected)) {
+							if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.hide();
+						} else {
+							if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.show();
+						}
+					} else {
+						$(focus).css('opacity', 1).prev().css('opacity', 1);
+						if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.hide();
+						$(obj.el).val('');
+						$(obj.el).attr('_placeholder', $(obj.el).attr('placeholder')).removeAttr('placeholder');
+					}
+				}, 1);
+			}
 			if (['enum', 'file'].indexOf(this.type) != -1) {
 				var html = '';
 				for (var s in selected) {
@@ -10524,7 +10564,10 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		reset: function () {
+			var obj  = this;
+			var type = this.type;
 			this.clear();
+			this.type = type;
 			this.init();
 		},
 
@@ -10860,26 +10903,20 @@ var w2confirm = function (msg, title, callBack) {
 				if ($(obj.el).attr('readonly')) return;
 				var cancel		= false;
 				var selected	= $(obj.el).data('selected');
+				var focus 		= $(obj.helpers.focus).find('input');
 				if (obj.type == 'list') {
-					var focus = $(obj.helpers.focus).find('input');
-					if ([37, 38, 39, 40].indexOf(key) == -1) {
-						$(focus).css('opacity', 1).prev().css('opacity', 1);
-						$(obj.el).val('').attr('_placeholder', $(obj.el).attr('placeholder')).removeAttr('placeholder');
-						// hide prefix
-						if (obj.helpers.prefix) obj.helpers.prefix.hide();
-					}
+					if ([37, 38, 39, 40].indexOf(key) == -1) obj.refresh(); // arrows
 				}
 				// apply arrows
 				switch (key) {
 					case 27: // escape
 						if (obj.type == 'list') {
-							$(focus).val('').css('opacity', 0).prev().css('opacity', 0);
-							var txt = $(obj.el).data('selected') ? $(obj.el).data('selected').text : '';
-							$(obj.el).val(txt);
-							$(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
-							if (obj.helpers.prefix) $(obj.helpers.prefix).show();
-							// show prefix
-							if (obj.helpers.prefix) obj.helpers.prefix.show();
+							if ($(focus).val() == '') {
+								$(obj.el).data('selected', {});
+							} else {
+								$(focus).val('');
+							}
+							obj.refresh();
 							event.stopPropagation(); // escape in field should not close popup
 						}
 						break;
@@ -10891,7 +10928,6 @@ var w2confirm = function (msg, title, callBack) {
 						if ($('#w2ui-overlay').length == 0) break; // no action if overlay not open
 						var item  = options.items[options.index];
 						var multi = $(obj.helpers.multi).find('input');
-						var focus = $(obj.helpers.focus).find('input');
 						if (obj.type == 'enum') {
 							if (item) {
 								// trigger event
@@ -10930,10 +10966,8 @@ var w2confirm = function (msg, title, callBack) {
 							if (item) $(obj.el).data('selected', item).val(item.text).change();
 							if ($(obj.el).val() == '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').change();
 							if (obj.type == 'list') {
-								$(focus).val('').css('opacity', 0).prev().css('opacity', 0);
-								$(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
-								// hide prefix
-								if (obj.helpers.prefix) obj.helpers.prefix.show();
+								focus.val('');
+								obj.refresh();
 							}
 							// hide overlay
 							obj.tmp.force_hide = true;
@@ -11023,14 +11057,26 @@ var w2confirm = function (msg, title, callBack) {
 			}
 		},
 
+		clearCache: function () {
+			var options 		= this.options;
+			options.items 		= [];
+			this.tmp.xhr_loading = false;
+			this.tmp.xhr_search  = '';
+			this.tmp.xhr_total	= -1;
+			this.search();
+		},
+
 		request: function (interval) {
 			var obj 	 = this;
 			var options  = this.options;
 			var search 	 = $(obj.el).val() || '';
 			if (obj.type == 'enum') {
 				var tmp = $(obj.helpers.multi).find('input');
-				if (tmp.length == 0) return;
-				search = tmp.val();
+				if (tmp.length == 0) search = ''; else search = tmp.val();
+			}
+			if (obj.type == 'list') {
+				var tmp = $(obj.helpers.focus).find('input');
+				if (tmp.length == 0) search = ''; else search = tmp.val();
 			}
 			if (search == '' && !options.prepopulate) return;
 			if (typeof interval == 'undefined') interval = 350;
@@ -11097,11 +11143,7 @@ var w2confirm = function (msg, title, callBack) {
 							// default behavior
 							console.log('ERROR: server communication failed. The server should return', { status: 'success', items: [{ id: 1, text: 'item' }] }, ', instead the AJAX request produced this: ', errorObj);
 							// reset stats
-							options.items 		= [];
-							obj.tmp.xhr_loading = false;
-							obj.tmp.xhr_search  = '';
-							obj.tmp.xhr_total	= -1;
-							obj.search();
+							obj.clearCache();
 							// event after
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 						});
@@ -11308,7 +11350,10 @@ var w2confirm = function (msg, title, callBack) {
 								}
 							} else {
 								$(obj.el).data('selected', event.item).val(event.item.text).change();
-								if (obj.helpers.focus) $(obj.helpers.focus).find('input').val('').css('opacity', 0).prev().css('opacity', 0);
+								if (obj.helpers.focus) {
+									obj.helpers.focus.find('input').val('');
+									obj.refresh(); 
+								}
 							}
 						}
 					}));
@@ -11386,9 +11431,13 @@ var w2confirm = function (msg, title, callBack) {
 			setTimeout(function () {
 				var helper;
 				var tmp = $(obj.el).data('tmp') || {};
+				if (tmp['old-padding-left']) $(obj.el).css('padding-left', tmp['old-padding-left']);
 				tmp['old-padding-left'] = $(obj.el).css('padding-left');
 				$(obj.el).data('tmp', tmp);
 				if (obj.options.prefix !== '') {
+					// remove if already displaed
+					if (obj.helpers.prefix) $(obj.helpers.prefix).remove();
+					// add fresh
 					$(obj.el).before(
 						'<div class="w2ui-field-helper">'+
 							obj.options.prefix +
@@ -11410,10 +11459,21 @@ var w2confirm = function (msg, title, callBack) {
 							'margin-right'		: 0
 						})
 						.on('click', function (event) {
-							if (obj.type == 'list') {
-								$(obj.helpers.focus).find('input').focus();
+							if (obj.options.icon && typeof obj.onIconClick == 'function') {
+								// event before
+								var eventData = obj.trigger({ phase: 'before', type: 'iconClick', target: obj.el, el: $(this).find('span.w2ui-icon')[0] });
+								if (eventData.isCancelled === true) return;
+								
+								// intentionally empty
+
+								// event after
+								obj.trigger($.extend(eventData, { phase: 'after' }));								
 							} else {
-								$(obj.el).focus();
+								if (obj.type == 'list') {
+									$(obj.helpers.focus).find('input').focus();
+								} else {
+									$(obj.el).focus();
+								}
 							}
 						});
 					$(obj.el).css('padding-left', (helper.width() + parseInt($(obj.el).css('padding-left'), 10)) + 'px');
@@ -11428,10 +11488,14 @@ var w2confirm = function (msg, title, callBack) {
 			var helper, pr;
 			setTimeout(function () {
 				var tmp = $(obj.el).data('tmp') || {};
+				if (tmp['old-padding-right']) $(obj.el).css('padding-right', tmp['old-padding-right']);
 				tmp['old-padding-right'] = $(obj.el).css('padding-right');
 				$(obj.el).data('tmp', tmp);
 				pr = parseInt($(obj.el).css('padding-right'), 10);
 				if (obj.options.arrows) {
+					// remove if already displaed
+					if (obj.helpers.arrows) $(obj.helpers.arrows).remove();
+					// add fresh
 					$(obj.el).after(
 						'<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+
 						'	<div class="w2ui-field-up" type="up">'+
@@ -11478,6 +11542,9 @@ var w2confirm = function (msg, title, callBack) {
 					obj.helpers.arrows = helper;
 				}
 				if (obj.options.suffix !== '') {
+					// remove if already displaed
+					if (obj.helpers.suffix) $(obj.helpers.suffix).remove();
+					// add fresh
 					$(obj.el).after(
 						'<div class="w2ui-field-helper">'+
 							obj.options.suffix +
@@ -11516,12 +11583,13 @@ var w2confirm = function (msg, title, callBack) {
 			var obj		 = this;
 			var options	 = this.options;
 			var width	 = 0; // 11 - show search icon, 0 do not show
+			if (options.icon) width = 11;
 			// clean up & init
 			$(obj.helpers.focus).remove();
 			// build helper
 			var html =
 				'<div class="w2ui-field-helper">'+ 
-				'	<div class="w2ui-icon icon-search" style="position: absolute; opacity: 0; margin-top: 4px; margin-left: 6px; width: '+ width +'px !important; background-position: left !important;"></div>'+
+				'	<div class="w2ui-icon icon-search" style="position: absolute; opacity: 0; margin-top: 4px; margin-left: 2px; width: '+ width +'px !important; background-position: left !important;"></div>'+
 				'	<input type="text" autocomplete="off">'+
 				'<div>';
 			$(obj.el).attr('tabindex', -1).before(html);
@@ -11530,7 +11598,7 @@ var w2confirm = function (msg, title, callBack) {
 			helper.css({
 					width			: $(obj.el).width(),
 					"margin-top"	: $(obj.el).css('margin-top'),
-					"margin-left"	: $(obj.el).css('margin-left'),
+					"margin-left"	: (parseInt($(obj.el).css('margin-left')) + parseInt($(obj.el).css('padding-left'))) + 'px',
 					"margin-bottom"	: $(obj.el).css('margin-bottom'),
 					"margin-right"	: $(obj.el).css('margin-right'),
 				})
@@ -11539,10 +11607,11 @@ var w2confirm = function (msg, title, callBack) {
 					cursor	: 'default',
 					width	: '100%',
 					outline	: 'none',
-					opacity	: 0,
+					opacity	: 1,
 					margin	: 0,
 					border	: '1px solid transparent',
 					padding : $(obj.el).css('padding-top'),
+					"padding-left"		: 0,
 					"margin-left"		: width + (width > 0 ? 6 : 0),
 					"background-color"	: 'transparent'
 				});
@@ -11555,19 +11624,14 @@ var w2confirm = function (msg, title, callBack) {
 				.on('focus', function (event) {
 					$(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
 					$(this).val('');
-					obj.focus(event);
+					$(obj.el).triggerHandler('focus');
 					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 				})
 				.on('blur', function (event) {
-					$(this).css('opacity', 0).prev().css('opacity', 0);
-					var txt = $(obj.el).data('selected') ? $(obj.el).data('selected').text : '';
-					$(obj.el)
-						.css('outline', 'none')
-						.val(txt)
-						.attr('placeholder', $(obj.el).attr('_placeholder'));
-					// hide prefix
-					if (obj.helpers.prefix) obj.helpers.prefix.show();
-					obj.blur(event);
+					$(obj.el).css('outline', 'none');
+					$(this).val('');
+					obj.refresh(); 
+					$(obj.el).triggerHandler('blur');
 					if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 				})
 				.on('keyup', 	function (event) { obj.keyUp(event) })
@@ -11628,15 +11692,16 @@ var w2confirm = function (msg, title, callBack) {
 				div.find('input')
 					.on('click', function (event) {
 						if ($('#w2ui-overlay').length == 0) obj.focus(event);
+						$(obj.el).triggerHandler('click');
 					})
 					.on('focus', function (event) {
 						$(div).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
-						obj.focus(event);
+						$(obj.el).triggerHandler('focus');
 						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					})
 					.on('blur', function (event) {
 						$(div).css('outline', 'none');
-						obj.blur(event);
+						$(obj.el).triggerHandler('blur');
 						if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
 					})
 					.on('keyup', 	function (event) { obj.keyUp(event) })
