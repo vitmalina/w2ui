@@ -1074,6 +1074,7 @@
 			} else {
 				for (var s in sel.indexes) {
 					var cols = sel.columns[sel.indexes[s]];
+					if (!this.records[sel.indexes[s]]) continue;
 					for (var c in cols) {
 						ret.push({ recid: this.records[sel.indexes[s]].recid, index: parseInt(sel.indexes[s]), column: cols[c] });
 					}
