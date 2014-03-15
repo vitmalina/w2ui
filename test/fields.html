@@ -43,6 +43,11 @@
 			}
 		});
 		$('.list').w2field('list', {
+			icon: 'fa-star',
+			onIconClick: function (event) {
+				$(event.el).w2overlay('eeeee');
+				console.log(event.el);
+			},
 			// search: false,
 			applyFilter: true,
 			markSearch: true,

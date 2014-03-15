@@ -547,6 +547,7 @@
 			// process sortData
 			for (var s in this.sortData) {
 				var column = this.getColumn(this.sortData[s].field); 
+				if (!column) return;
 				if (column.render && ['date', 'age'].indexOf(column.render) != -1) {
 					this.sortData[s]['field_'] = column.field + '_';
 				}
