@@ -2005,6 +2005,7 @@
 		click: function (recid, event) {
 			var time = (new Date()).getTime();
 			var column = null;
+			if (this.last.cancelClick == true) return;
 			if (typeof recid == 'object') {
 				column = recid.column;
 				recid  = recid.recid;
@@ -3037,6 +3038,7 @@
 				mv.divX = (event.screenX - mv.x);
 				mv.divY = (event.screenY - mv.y);
 				if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return; // only if moved more then 1px
+				obj.last.cancelClick = true;
 				if (obj.reorderRows == true) {
 					if (!mv.ghost) {
 						var row	 = $('#grid_'+ obj.name + '_rec_'+ mv.recid);
@@ -3127,6 +3129,7 @@
 
 			function mouseStop (event) {
 				var mv = obj.last.move;
+				setTimeout(function () { delete obj.last.cancelClick; }, 1);
 				if ($(event.target).parents().hasClass('.w2ui-head') || $(event.target).hasClass('.w2ui-head')) return;
 				if (!mv || mv.type != 'select') return;
 				if (obj.reorderRows == true) {
