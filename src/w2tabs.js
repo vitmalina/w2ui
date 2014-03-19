@@ -120,7 +120,7 @@
 		},
 
 		select: function (id) {
-			if (this.active === id || this.get(id) === null) return false;
+			if (this.active == id || this.get(id) === null) return false;
 			this.active = id;
 			this.refresh();
 			return true;
@@ -139,14 +139,14 @@
 			if (arguments.length === 0) {
 				var all = [];
 				for (i = 0; i < this.tabs.length; i++) {
-					if (this.tabs[i].id !== null) {
+					if (this.tabs[i].id != null) {
 						all.push(this.tabs[i].id);
 					}
 				}
 				return all;
 			} else {
 				for (i = 0; i < this.tabs.length; i++) {
-					if (this.tabs[i].id === id) {
+					if (this.tabs[i].id == id) { // need to be == since id can be numeric
 						return (returnIndex === true ? i : this.tabs[i]);
 					}
 				}

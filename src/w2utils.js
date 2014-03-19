@@ -1575,7 +1575,7 @@ w2utils.keyboard = (function (obj) {
 							'				$(\'#w2ui-overlay'+ name +'\').remove(); '+
 							'			$.fn.w2menuHandler(event, \''+ f +'\');">'+
 								imgd +
-							'	<td>'+ txt +'</td>'+
+							'	<td '+ (imgd == '' ? 'colspan="2"' : '') +'>'+ txt +'</td>'+
 							'</tr>';
 						count++;
 					} else {

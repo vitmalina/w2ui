@@ -472,7 +472,7 @@ var w2popup = {};
 			// remove message
 			if ($.trim(options.html) == '') {
 				$('#w2ui-popup #w2ui-message'+ (msgCount-1)).css('z-Index', 250);
-				var options = $('#w2ui-popup #w2ui-message'+ (msgCount-1)).data('options');
+				var options = $('#w2ui-popup #w2ui-message'+ (msgCount-1)).data('options') || {};
 				$('#w2ui-popup #w2ui-message'+ (msgCount-1)).remove();
 				if (typeof options.onClose == 'function') options.onClose();
 				if (msgCount == 1) {
