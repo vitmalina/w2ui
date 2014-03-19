@@ -1938,11 +1938,9 @@
 				// change event
 				var eventData = this.trigger({
 					phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
-					value_new: new_val, value_previous: (rec.changes ? rec.changes[col.field]: old_val), value_original: old_val
+					value_new: new_val, value_previous: (rec.changes && rec.changes[col.field] != null ? rec.changes[col.field]: old_val), value_original: old_val
 				});
-				if (eventData.isCancelled === true || (new_val === '' && typeof eventData.value_previous == 'undefined')) {
-					// don't save new value
-				} else {
+				if (eventData.isCancelled !== true) {
 					// default action
 					rec.changes = rec.changes || {};
 					rec.changes[col.field] = eventData.value_new;
