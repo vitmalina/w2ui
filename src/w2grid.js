@@ -131,6 +131,7 @@
 		this.onSort 			= null;
 		this.onSearch 			= null;
 		this.onChange 			= null;		// called when editable record is changed
+		this.onRestore			= null;		// called when editable record is restored
 		this.onExpand 			= null;
 		this.onCollapse			= null;
 		this.onError 			= null;
@@ -1934,22 +1935,44 @@
 				if (tmp.type == 'list' && new_val != '') new_val = $(el).data('selected');
 			}
 			if (el.type == 'checkbox') new_val = el.checked;
-			if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
-				// change event
-				var eventData = this.trigger({
-					phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
-					value_new: new_val, value_previous: (rec.changes && rec.changes[col.field] != null ? rec.changes[col.field]: old_val), value_original: old_val
-				});
-				if (eventData.isCancelled !== true) {
-					// default action
-					rec.changes = rec.changes || {};
-					rec.changes[col.field] = eventData.value_new;
-					// event after
-					this.trigger($.extend(eventData, { phase: 'after' }));
+			// change/restore event
+			var eventData = {
+				phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
+				value_new: new_val, value_previous: (rec.changes && rec.changes[col.field] != null ? rec.changes[col.field]: old_val), value_original: old_val
+			};
+			var eventDataClear = {phase: 'before', isCancelled: false, isStopped: false, onComplete: null};
+			while (true) {
+				new_val = eventData.value_new;
+				if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
+					// change event
+					eventData = this.trigger($.extend(eventData, eventDataClear, {type: 'change', phase: 'before'}));
+					if (eventData.isCancelled !== true) {
+						if (new_val !== eventData.value_new) {
+							// re-evaluate the type of change to be made
+							continue;
+						}
+						// default action
+						rec.changes = rec.changes || {};
+						rec.changes[col.field] = eventData.value_new;
+						// event after
+						this.trigger($.extend(eventData, { phase: 'after' }));
+					}
+				} else {
+					// restore event
+					eventData = this.trigger($.extend(eventData, eventDataClear, {type: 'restore', phase: 'before'}));
+					if (eventData.isCancelled !== true) {
+						if (new_val !== eventData.value_new) {
+							// re-evaluate the type of change to be made
+							continue;
+						}
+						// default action
+						if (rec.changes) delete rec.changes[col.field];
+						if ($.isEmptyObject(rec.changes)) delete rec.changes;
+						// event after
+						this.trigger($.extend(eventData, { phase: 'after' }));
+					}
 				}
-			} else {
-				if (rec.changes) delete rec.changes[col.field];
-				if ($.isEmptyObject(rec.changes)) delete rec.changes;
+				break;
 			}
 			// refresh cell
 			var cell = this.getCellHTML(index, column, summary);
