@@ -794,6 +794,64 @@ select {
   color: #555555;
   text-align: center;
   text-shadow: 1px 1px 1px #eeeeee;
+  cursor: pointer;
+}
+.w2ui-calendar .w2ui-calendar-jump {
+  position: absolute;
+  top: 27px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-color: #FaFaFa;
+}
+.w2ui-calendar .w2ui-calendar-jump > :first-child {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  width: 110px;
+  overflow: hidden;
+  padding-top: 5px;
+  border-right: 1px solid #c0c0c0;
+}
+.w2ui-calendar .w2ui-calendar-jump > :last-child {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: 88px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-top: 5px;
+  text-align: center;
+}
+.w2ui-calendar .w2ui-calendar-jump .w2ui-jump-month,
+.w2ui-calendar .w2ui-calendar-jump .w2ui-jump-year {
+  display: inline-block;
+  padding: 5px 0px;
+  text-align: center;
+  float: left;
+  margin: 2px;
+  width: 50px;
+  cursor: default;
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+.w2ui-calendar .w2ui-calendar-jump .w2ui-jump-year {
+  float: none;
+  width: 95%;
+}
+.w2ui-calendar .w2ui-calendar-jump .w2ui-jump-month:hover,
+.w2ui-calendar .w2ui-calendar-jump .w2ui-jump-year:hover {
+  border: 1px solid #cccccc;
+  color: #000000;
+  background-color: #efefef;
+}
+.w2ui-calendar .w2ui-calendar-jump .w2ui-jump-month.selected,
+.w2ui-calendar .w2ui-calendar-jump .w2ui-jump-year.selected {
+  border: 1px solid #cccccc;
+  color: #000000;
+  background-color: #dadada;
 }
 .w2ui-calendar .w2ui-calendar-previous,
 .w2ui-calendar .w2ui-calendar-next {
