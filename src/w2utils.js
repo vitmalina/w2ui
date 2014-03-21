@@ -27,7 +27,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- add maxHeight for the w2menu
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *	- hidden and disabled in menus
-*	- new regex for emails /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 *	- isTime should support seconds
 * 	- TEST On IOS
 *

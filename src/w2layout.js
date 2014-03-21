@@ -7,7 +7,6 @@
 *
 * == NICE TO HAVE ==
 *	- onResize for the panel
-*	- problem with layout.html (see in 1.3)
 *	- add more panel title positions (left=rotated, right=rotated, bottom)
 *
 * == 1.4 changes

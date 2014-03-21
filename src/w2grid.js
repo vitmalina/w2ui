@@ -6,14 +6,11 @@
 *	- Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
-*	- global search apply types and drop downs
 *	- frozen columns
 *	- column autosize based on largest content
 *	- save grid state into localStorage and restore
 *	- easy bubbles in the grid
-*	- possibly add context menu similar to sidebar's
 *	- More than 2 layers of header groups
-*	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
 *	- problem with .set() and arrays, array get extended too, but should be replaced
@@ -23,7 +20,7 @@
 *	- add showExtra, KickIn Infinite scroll when so many records
 *	- get rid of this.buffered
 *	- allow this.total to be unknown (-1)
-*	- after edit stay on the same record 
+*	- after edit stay on the same record option
 *
 * == 1.4 changes
 *	- for search fields one should be able to pass w2field options
@@ -50,6 +47,7 @@
 *	- record.style can be a string or an object (for cell formatting)
 *	- col.resizable = true by default
 *	- new: prepareData();
+*	- context menu similar to sidebar's
 *
 ************************************************************************/
 
@@ -109,6 +107,7 @@
 		this.offset			= 0;		// how many records to skip (for infinite scroll) when pulling from server
 		this.style			= '';
 		this.ranges 		= [];
+		this.menu			= [];
 		this.method;					// if defined, then overwrited ajax method
 		this.recid;
 		this.parser;
@@ -126,6 +125,8 @@
 		this.onUnselect 		= null;
 		this.onClick 			= null;
 		this.onDblClick 		= null;
+		this.onContextMenu		= null;
+		this.onMenuClick		= null;		// when context menu item selected
 		this.onColumnClick		= null;
 		this.onColumnResize		= null;
 		this.onSort 			= null;
@@ -2578,6 +2579,43 @@
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
+		contextMenu: function (recid, event) {
+			var obj = this;
+			if (w2utils.isFloat(recid)) recid = parseFloat(recid);
+			if (this.getSelection().indexOf(recid) == -1) obj.click(recid);
+			// need timeout to allow click to finish first
+			setTimeout(function () {
+				// event before
+				var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid });
+				if (eventData.isCancelled === true) return;
+				// default action
+				if (obj.menu.length > 0) {
+					$(obj.box).find(event.target)
+						.w2menu(obj.menu, {
+							left	: (event ? event.offsetX || event.pageX : 50) - 23,
+							onSelect: function (event) { 
+								obj.menuClick(recid, parseInt(event.index), event.originalEvent); 
+							}
+						}
+					);
+				}
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}, 150); // need timer 150 for FF
+		},
+
+		menuClick: function (recid, index, event) {
+			var obj = this;
+			// event before
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: obj.name, originalEvent: event, 
+				recid: recid, menuIndex: index, menuItem: obj.menu[index] });
+			if (eventData.isCancelled === true) return;
+			// default action
+			// -- empty
+			// event after
+			obj.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
 		toggle: function (recid) {
 			var rec = this.get(recid);
 			if (rec.expanded === true) return this.collapse(recid); else return this.expand(recid);
@@ -4549,7 +4587,9 @@
 					(this.isIOS ?
 						'	onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
 						:
-						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'
+						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
+						'	oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', event); '+
+						'		if (event.preventDefault) event.preventDefault();"'
 					 )
 					: ''
 				) +

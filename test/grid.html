@@ -1,6 +1,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" /> 
 <script type="text/javascript" src="../libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
@@ -35,6 +36,14 @@ $(function () {
 			toolbarDelete: true,
 			toolbarSave: true,
 			toolbarAdd: true
+		},
+		menu: [
+			{ id: 1, text: 'Select Item', icon: 'fa-star' },
+			{ id: 2, text: 'View Item', icon: 'fa-camera' }, 
+			{ id: 4, text: 'Delete Item', icon: 'fa-minus' }
+		],
+		onMenuClick: function (event) {
+			console.log(event);
 		},
 		postData: {
 			"admin": 'somename'
