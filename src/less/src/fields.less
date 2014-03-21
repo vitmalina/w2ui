@@ -137,7 +137,63 @@
 		border-bottom: @calendar-title-border-bottom;
 		color: @calendar-title-color;
 		text-align: center;
-		text-shadow: @calendar-title-text-shadow;
+		text-shadow: @calendar-title-text-shadow; 
+		cursor: pointer;
+	}
+
+	.w2ui-calendar-jump {
+		position: absolute; 
+		top: 27px; 
+		left: 0px; 
+		right: 0px; 
+		bottom: 0px;
+		background-color: #FaFaFa;
+		>:first-child {
+			position: absolute;
+			top: 0px; 
+			left: 0px;
+			bottom: 0px;
+			width: 110px;
+			overflow: hidden;
+			padding-top: 5px;
+			border-right: 1px solid silver
+		}
+		>:last-child {
+			position: absolute;
+			top: 0px; 
+			right: 0px;
+			bottom: 0px;
+			width: 88px;
+			overflow-x: hidden;
+			overflow-y: auto;
+			padding-top: 5px;
+			text-align: center;
+		}
+		.w2ui-jump-month, .w2ui-jump-year {
+			display: inline-block;
+			padding: 5px 0px;
+			text-align: center;
+			float: left;
+			margin: 2px;
+			width: 50px;
+			cursor: default;
+			border: 1px solid transparent;
+			border-radius: 2px;
+		}
+		.w2ui-jump-year {
+			float: none;
+			width: 95%;
+		}
+		.w2ui-jump-month:hover, .w2ui-jump-year:hover {
+			border: @calendar-day-hover-border;
+			color: @calendar-day-hover-color;
+			background-color: #efefef;
+		}
+		.w2ui-jump-month.selected, .w2ui-jump-year.selected {
+			border: @calendar-day-hover-border;
+			color: @calendar-day-hover-color;
+			background-color: #dadada;
+		}	
 	}
 	
 	.w2ui-calendar-previous, .w2ui-calendar-next {

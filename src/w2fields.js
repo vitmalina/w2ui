@@ -15,6 +15,7 @@
 *	- add postData for autocomplete
 *	- form to support cutstom types
 *	- easy way to add icons
+*	- easy way to navigate month/year in dates
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -1320,6 +1321,37 @@
 				if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
 				(function refreshCalendar(month, year) {
 					$('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year));
+					$('#w2ui-overlay .w2ui-calendar-title')
+						.on('mousedown', function () {
+							if ($(this).next().hasClass('w2ui-calendar-jump')) {
+								$(this).next().remove();
+							} else {
+								var selYear, selMonth;
+								$(this).after('<div class="w2ui-calendar-jump" style=""></div>');
+								$(this).next().hide().html(obj.getYearHTML()).fadeIn(200);
+								setTimeout(function () {
+									$('#w2ui-overlay .w2ui-calendar-jump')
+										.find('.w2ui-jump-month, .w2ui-jump-year')
+										.on('click', function () {
+											if ($(this).hasClass('w2ui-jump-month')) {
+												$(this).parent().find('.w2ui-jump-month').removeClass('selected');
+												$(this).addClass('selected');
+												selMonth = $(this).attr('name');
+											}
+											if ($(this).hasClass('w2ui-jump-year')) {
+												$(this).parent().find('.w2ui-jump-year').removeClass('selected');
+												$(this).addClass('selected');
+												selYear = $(this).attr('name');
+											}
+											if (selYear != null && selMonth != null) {
+												$('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100);
+												setTimeout(function () { refreshCalendar(parseInt(selMonth)+1, selYear); }, 100);
+											}
+										});
+									$('#w2ui-overlay .w2ui-calendar-jump >:last-child').prop('scrollTop', 2000);
+								}, 1);
+							}
+						});
 					$('#w2ui-overlay .w2ui-date')
 						.on('mousedown', function () {
 							var day = $(this).attr('date');
@@ -1991,6 +2023,19 @@
 			}
 			html += '</tr></table>';
 			return html;
+		},
+
+		getYearHTML: function () {
+			var months	= w2utils.settings.shortmonths;
+			var mhtml 	= '';
+			var yhtml 	= '';
+			for (var m in months) {
+				mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>';
+			}
+			for (var y = 1950; y <= 2020; y++) {
+				yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>'
+			}
+			return '<div>'+ mhtml +'</div><div>'+ yhtml +'</div>';
 		},
 
 		getHourHTML: function () {
