@@ -28,8 +28,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- add maxHeight for the w2menu
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *	- hidden and disabled in menus
-*	- new regex for emails /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 *	- isTime should support seconds
+* 	- TEST On IOS
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
@@ -904,11 +904,12 @@ w2utils.event = {
 	},
 
 	trigger: function (eventData) {
-		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
-				preventDefault	: function () { this.isCancelled = true; },
-				stopPropagation : function () { this.isStopped   = true; }
-			});
-		var args, fun, tmp;
+		var eventData = $.extend({ type: null, phase: 'before', target: null }, eventData, {
+			isStopped: false, isCancelled: false,
+			preventDefault  : function () { this.isCancelled = true; },
+			stopPropagation : function () { this.isStopped   = true; }
+		});
+    	var args, fun, tmp;
 		if (eventData.target == null) eventData.target = null;
 		// process events in REVERSE order
 		for (var h = this.handlers.length-1; h >= 0; h--) {
@@ -1576,7 +1577,7 @@ w2utils.keyboard = (function (obj) {
 							'				$(\'#w2ui-overlay'+ name +'\').remove(); '+
 							'			$.fn.w2menuHandler(event, \''+ f +'\');">'+
 								imgd +
-							'	<td>'+ txt +'</td>'+
+							'	<td '+ (imgd == '' ? 'colspan="2"' : '') +'>'+ txt +'</td>'+
 							'</tr>';
 						count++;
 					} else {
@@ -1611,8 +1612,7 @@ w2utils.keyboard = (function (obj) {
 *	- month selection, year selections
 *	- arrows no longer work (for int)
 *	- add postData for autocomplete
-*	- form to support cutstom types
-*	- easy way to add icons
+*	- form to support custom types
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -1631,6 +1631,9 @@ w2utils.keyboard = (function (obj) {
 *	- enum: addNew event
 *	- added icon and onIconClick
 *	- new: clearCache
+*	- easy way to add icons
+*	- easy way to navigate month/year in dates
+*	- added step for numeric inputs
 *
 ************************************************************************/
 
@@ -1790,12 +1793,13 @@ w2utils.keyboard = (function (obj) {
 					defaults = {
 						min				: null,
 						max				: null,
+						step 			: 1,
 						placeholder		: '',
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
 						groupSymbol		: w2utils.settings.groupSymbol,
-						arrows			: false,
+						arrows			: true,
 						keyboard		: true,
 						precision		: null,
 						silent			: true,
@@ -2030,6 +2034,7 @@ w2utils.keyboard = (function (obj) {
 			var obj		= this;
 			var options	= this.options;
 			var tmp 	= $(this.el).data('tmp');
+			this.type 	 = 'clear';
 			if (!this.tmp) return;
 			// restore paddings
 			if (typeof tmp != 'undefined') {
@@ -2064,7 +2069,6 @@ w2utils.keyboard = (function (obj) {
 			// remove helpers
 			for (var h in this.helpers) $(this.helpers[h]).remove();
 			this.helpers = {};
-			this.type 	 = 'clear';
 		},
 
 		refresh: function () {
@@ -2235,6 +2239,7 @@ w2utils.keyboard = (function (obj) {
 		},
 
 		reset: function () {
+			var obj  = this;
 			var type = this.type;
 			this.clear();
 			this.type = type;
@@ -2434,17 +2439,17 @@ w2utils.keyboard = (function (obj) {
 				if (!options.keyboard || $(obj.el).attr('readonly')) return;
 				var cancel = false;
 				var val = parseFloat($(obj.el).val().replace(options.moneyRE, '')) || 0;
-				var inc = 1;
+				var inc = options.step;
 				if (event.ctrlKey || event.metaKey) inc = 10;
 				switch (key) {
 					case 38: // up
 						if (event.shiftKey) break; // no action if shift key is pressed
-						$(obj.el).val((val + inc <= options.max || options.max === null ? val + inc : options.max)).change();
+						$(obj.el).val((val + inc <= options.max || options.max === null ? Number((val + inc).toFixed(12)) : options.max)).change();
 						cancel = true;
 						break;
 					case 40: // down
 						if (event.shiftKey) break; // no action if shift key is pressed
-						$(obj.el).val((val - inc >= options.min || options.min === null ? val - inc : options.min)).change();
+						$(obj.el).val((val - inc >= options.min || options.min === null ? Number((val - inc).toFixed(12)) : options.min)).change();
 						cancel = true;
 						break;
 				}
@@ -2917,6 +2922,37 @@ w2utils.keyboard = (function (obj) {
 				if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
 				(function refreshCalendar(month, year) {
 					$('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year));
+					$('#w2ui-overlay .w2ui-calendar-title')
+						.on('mousedown', function () {
+							if ($(this).next().hasClass('w2ui-calendar-jump')) {
+								$(this).next().remove();
+							} else {
+								var selYear, selMonth;
+								$(this).after('<div class="w2ui-calendar-jump" style=""></div>');
+								$(this).next().hide().html(obj.getYearHTML()).fadeIn(200);
+								setTimeout(function () {
+									$('#w2ui-overlay .w2ui-calendar-jump')
+										.find('.w2ui-jump-month, .w2ui-jump-year')
+										.on('click', function () {
+											if ($(this).hasClass('w2ui-jump-month')) {
+												$(this).parent().find('.w2ui-jump-month').removeClass('selected');
+												$(this).addClass('selected');
+												selMonth = $(this).attr('name');
+											}
+											if ($(this).hasClass('w2ui-jump-year')) {
+												$(this).parent().find('.w2ui-jump-year').removeClass('selected');
+												$(this).addClass('selected');
+												selYear = $(this).attr('name');
+											}
+											if (selYear != null && selMonth != null) {
+												$('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100);
+												setTimeout(function () { refreshCalendar(parseInt(selMonth)+1, selYear); }, 100);
+											}
+										});
+									$('#w2ui-overlay .w2ui-calendar-jump >:last-child').prop('scrollTop', 2000);
+								}, 1);
+							}
+						});
 					$('#w2ui-overlay .w2ui-date')
 						.on('mousedown', function () {
 							var day = $(this).attr('date');
@@ -3099,8 +3135,10 @@ w2utils.keyboard = (function (obj) {
 		addPrefix: function () {
 			var obj = this;
 			setTimeout(function () {
+				if (obj.type === 'clear') return;
 				var helper;
 				var tmp = $(obj.el).data('tmp') || {};
+				if (tmp['old-padding-left']) $(obj.el).css('padding-left', tmp['old-padding-left']);
 				tmp['old-padding-left'] = $(obj.el).css('padding-left');
 				$(obj.el).data('tmp', tmp);
 				if (obj.options.prefix !== '') {
@@ -3156,7 +3194,9 @@ w2utils.keyboard = (function (obj) {
 			var obj = this;
 			var helper, pr;
 			setTimeout(function () {
+				if (obj.type === 'clear') return;
 				var tmp = $(obj.el).data('tmp') || {};
+				if (tmp['old-padding-right']) $(obj.el).css('padding-right', tmp['old-padding-right']);
 				tmp['old-padding-right'] = $(obj.el).css('padding-right');
 				$(obj.el).data('tmp', tmp);
 				pr = parseInt($(obj.el).css('padding-right'), 10);
@@ -3584,6 +3624,19 @@ w2utils.keyboard = (function (obj) {
 			}
 			html += '</tr></table>';
 			return html;
+		},
+
+		getYearHTML: function () {
+			var months	= w2utils.settings.shortmonths;
+			var mhtml 	= '';
+			var yhtml 	= '';
+			for (var m in months) {
+				mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>';
+			}
+			for (var y = 1950; y <= 2020; y++) {
+				yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>'
+			}
+			return '<div>'+ mhtml +'</div><div>'+ yhtml +'</div>';
 		},
 
 		getHourHTML: function () {

@@ -28,7 +28,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- add maxHeight for the w2menu
 *	- user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *	- hidden and disabled in menus
-*	- new regex for emails /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 *	- isTime should support seconds
 * 	- TEST On IOS
 *
@@ -1606,14 +1605,11 @@ w2utils.keyboard = (function (obj) {
 *	- Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
-*	- global search apply types and drop downs
 *	- frozen columns
 *	- column autosize based on largest content
 *	- save grid state into localStorage and restore
 *	- easy bubbles in the grid
-*	- possibly add context menu similar to sidebar's
 *	- More than 2 layers of header groups
-*	- be able to attach events in advanced search dialog
 * 	- reorder columns/records
 *	- hidden searches could not be clearned by the user
 *	- problem with .set() and arrays, array get extended too, but should be replaced
@@ -1623,7 +1619,7 @@ w2utils.keyboard = (function (obj) {
 *	- add showExtra, KickIn Infinite scroll when so many records
 *	- get rid of this.buffered
 *	- allow this.total to be unknown (-1)
-*	- after edit stay on the same record 
+*	- after edit stay on the same record option
 *
 * == 1.4 changes
 *	- for search fields one should be able to pass w2field options
@@ -1650,6 +1646,7 @@ w2utils.keyboard = (function (obj) {
 *	- record.style can be a string or an object (for cell formatting)
 *	- col.resizable = true by default
 *	- new: prepareData();
+*	- context menu similar to sidebar's
 *
 ************************************************************************/
 
@@ -1709,6 +1706,7 @@ w2utils.keyboard = (function (obj) {
 		this.offset			= 0;		// how many records to skip (for infinite scroll) when pulling from server
 		this.style			= '';
 		this.ranges 		= [];
+		this.menu			= [];
 		this.method;					// if defined, then overwrited ajax method
 		this.recid;
 		this.parser;
@@ -1726,6 +1724,8 @@ w2utils.keyboard = (function (obj) {
 		this.onUnselect 		= null;
 		this.onClick 			= null;
 		this.onDblClick 		= null;
+		this.onContextMenu		= null;
+		this.onMenuClick		= null;		// when context menu item selected
 		this.onColumnClick		= null;
 		this.onColumnResize		= null;
 		this.onSort 			= null;
@@ -4178,6 +4178,43 @@ w2utils.keyboard = (function (obj) {
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
 
+		contextMenu: function (recid, event) {
+			var obj = this;
+			if (w2utils.isFloat(recid)) recid = parseFloat(recid);
+			if (this.getSelection().indexOf(recid) == -1) obj.click(recid);
+			// need timeout to allow click to finish first
+			setTimeout(function () {
+				// event before
+				var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid });
+				if (eventData.isCancelled === true) return;
+				// default action
+				if (obj.menu.length > 0) {
+					$(obj.box).find(event.target)
+						.w2menu(obj.menu, {
+							left	: (event ? event.offsetX || event.pageX : 50) - 23,
+							onSelect: function (event) { 
+								obj.menuClick(recid, parseInt(event.index), event.originalEvent); 
+							}
+						}
+					);
+				}
+				// event after
+				obj.trigger($.extend(eventData, { phase: 'after' }));
+			}, 150); // need timer 150 for FF
+		},
+
+		menuClick: function (recid, index, event) {
+			var obj = this;
+			// event before
+			var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: obj.name, originalEvent: event, 
+				recid: recid, menuIndex: index, menuItem: obj.menu[index] });
+			if (eventData.isCancelled === true) return;
+			// default action
+			// -- empty
+			// event after
+			obj.trigger($.extend(eventData, { phase: 'after' }));
+		},
+
 		toggle: function (recid) {
 			var rec = this.get(recid);
 			if (rec.expanded === true) return this.collapse(recid); else return this.expand(recid);
@@ -6149,7 +6186,9 @@ w2utils.keyboard = (function (obj) {
 					(this.isIOS ?
 						'	onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
 						:
-						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'
+						'	onclick	 = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
+						'	oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', event); '+
+						'		if (event.preventDefault) event.preventDefault();"'
 					 )
 					: ''
 				) +
@@ -6458,7 +6497,6 @@ w2utils.keyboard = (function (obj) {
 *
 * == NICE TO HAVE ==
 *	- onResize for the panel
-*	- problem with layout.html (see in 1.3)
 *	- add more panel title positions (left=rotated, right=rotated, bottom)
 *
 * == 1.4 changes
@@ -7540,11 +7578,11 @@ w2utils.keyboard = (function (obj) {
 *	- when maximized, align the slide down message
 *	- bug: after transfer to another content, message does not work
 * 	- transition should include title, body and buttons, not just body
-*	- add lock method() to lock popup content
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
+*	- add lock method() to lock popup content
 *
 ************************************************************************/
 
@@ -8279,7 +8317,6 @@ var w2confirm = function (msg, title, callBack) {
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*	- tabs might not work in chromium apps, need bind()
 *   - on overflow display << >>
 *	- individual tab onClick (possibly other events) are not working
 *
@@ -9970,9 +10007,7 @@ var w2confirm = function (msg, title, callBack) {
 *	- month selection, year selections
 *	- arrows no longer work (for int)
 *	- add postData for autocomplete
-*	- form to support cutstom types
-*	- easy way to add icons
-*	- easy way to navigate month/year in dates
+*	- form to support custom types
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -9991,6 +10026,9 @@ var w2confirm = function (msg, title, callBack) {
 *	- enum: addNew event
 *	- added icon and onIconClick
 *	- new: clearCache
+*	- easy way to add icons
+*	- easy way to navigate month/year in dates
+*	- added step for numeric inputs
 *
 ************************************************************************/
 
@@ -10150,12 +10188,13 @@ var w2confirm = function (msg, title, callBack) {
 					defaults = {
 						min				: null,
 						max				: null,
+						step 			: 1,
 						placeholder		: '',
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
 						groupSymbol		: w2utils.settings.groupSymbol,
-						arrows			: false,
+						arrows			: true,
 						keyboard		: true,
 						precision		: null,
 						silent			: true,
@@ -10795,17 +10834,17 @@ var w2confirm = function (msg, title, callBack) {
 				if (!options.keyboard || $(obj.el).attr('readonly')) return;
 				var cancel = false;
 				var val = parseFloat($(obj.el).val().replace(options.moneyRE, '')) || 0;
-				var inc = 1;
+				var inc = options.step;
 				if (event.ctrlKey || event.metaKey) inc = 10;
 				switch (key) {
 					case 38: // up
 						if (event.shiftKey) break; // no action if shift key is pressed
-						$(obj.el).val((val + inc <= options.max || options.max === null ? val + inc : options.max)).change();
+						$(obj.el).val((val + inc <= options.max || options.max === null ? Number((val + inc).toFixed(12)) : options.max)).change();
 						cancel = true;
 						break;
 					case 40: // down
 						if (event.shiftKey) break; // no action if shift key is pressed
-						$(obj.el).val((val - inc >= options.min || options.min === null ? val - inc : options.min)).change();
+						$(obj.el).val((val - inc >= options.min || options.min === null ? Number((val - inc).toFixed(12)) : options.min)).change();
 						cancel = true;
 						break;
 				}
