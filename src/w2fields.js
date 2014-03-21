@@ -432,6 +432,7 @@
 			var obj		= this;
 			var options	= this.options;
 			var tmp 	= $(this.el).data('tmp');
+			this.type 	 = 'clear';
 			if (!this.tmp) return;
 			// restore paddings
 			if (typeof tmp != 'undefined') {
@@ -466,7 +467,6 @@
 			// remove helpers
 			for (var h in this.helpers) $(this.helpers[h]).remove();
 			this.helpers = {};
-			this.type 	 = 'clear';
 		},
 
 		refresh: function () {
@@ -1502,6 +1502,7 @@
 		addPrefix: function () {
 			var obj = this;
 			setTimeout(function () {
+				if (obj.type === 'clear') return;
 				var helper;
 				var tmp = $(obj.el).data('tmp') || {};
 				if (tmp['old-padding-left']) $(obj.el).css('padding-left', tmp['old-padding-left']);
@@ -1560,6 +1561,7 @@
 			var obj = this;
 			var helper, pr;
 			setTimeout(function () {
+				if (obj.type === 'clear') return;
 				var tmp = $(obj.el).data('tmp') || {};
 				if (tmp['old-padding-right']) $(obj.el).css('padding-right', tmp['old-padding-right']);
 				tmp['old-padding-right'] = $(obj.el).css('padding-right');
