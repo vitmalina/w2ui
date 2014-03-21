@@ -13,9 +13,7 @@
 *	- month selection, year selections
 *	- arrows no longer work (for int)
 *	- add postData for autocomplete
-*	- form to support cutstom types
-*	- easy way to add icons
-*	- easy way to navigate month/year in dates
+*	- form to support custom types
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -34,6 +32,9 @@
 *	- enum: addNew event
 *	- added icon and onIconClick
 *	- new: clearCache
+*	- easy way to add icons
+*	- easy way to navigate month/year in dates
+*	- added step for numeric inputs
 *
 ************************************************************************/
 
@@ -193,12 +194,13 @@
 					defaults = {
 						min				: null,
 						max				: null,
+						step 			: 1,
 						placeholder		: '',
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
 						groupSymbol		: w2utils.settings.groupSymbol,
-						arrows			: false,
+						arrows			: true,
 						keyboard		: true,
 						precision		: null,
 						silent			: true,
@@ -838,17 +840,17 @@
 				if (!options.keyboard || $(obj.el).attr('readonly')) return;
 				var cancel = false;
 				var val = parseFloat($(obj.el).val().replace(options.moneyRE, '')) || 0;
-				var inc = 1;
+				var inc = options.step;
 				if (event.ctrlKey || event.metaKey) inc = 10;
 				switch (key) {
 					case 38: // up
 						if (event.shiftKey) break; // no action if shift key is pressed
-						$(obj.el).val((val + inc <= options.max || options.max === null ? val + inc : options.max)).change();
+						$(obj.el).val((val + inc <= options.max || options.max === null ? Number((val + inc).toFixed(12)) : options.max)).change();
 						cancel = true;
 						break;
 					case 40: // down
 						if (event.shiftKey) break; // no action if shift key is pressed
-						$(obj.el).val((val - inc >= options.min || options.min === null ? val - inc : options.min)).change();
+						$(obj.el).val((val - inc >= options.min || options.min === null ? Number((val - inc).toFixed(12)) : options.min)).change();
 						cancel = true;
 						break;
 				}
