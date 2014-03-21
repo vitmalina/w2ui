@@ -29,6 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- hidden and disabled in menus
 *	- new regex for emails /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 *	- isTime should support seconds
+* 	- TEST On IOS
 *
 * == 1.4 changes
 *	- lock(box, options) || lock(box, msg, spinner)
@@ -903,11 +904,12 @@ w2utils.event = {
 	},
 
 	trigger: function (eventData) {
-		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
-				preventDefault	: function () { this.isCancelled = true; },
-				stopPropagation : function () { this.isStopped   = true; }
-			});
-		var args, fun, tmp;
+		var eventData = $.extend({ type: null, phase: 'before', target: null }, eventData, {
+			isStopped: false, isCancelled: false,
+			preventDefault  : function () { this.isCancelled = true; },
+			stopPropagation : function () { this.isStopped   = true; }
+		});
+    	var args, fun, tmp;
 		if (eventData.target == null) eventData.target = null;
 		// process events in REVERSE order
 		for (var h = this.handlers.length-1; h >= 0; h--) {
