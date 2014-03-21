@@ -905,11 +905,12 @@ w2utils.event = {
 	},
 
 	trigger: function (eventData) {
-		var eventData = $.extend({ type: null, phase: 'before', target: null, isStopped: false, isCancelled: false }, eventData, {
-				preventDefault	: function () { this.isCancelled = true; },
-				stopPropagation : function () { this.isStopped   = true; }
-			});
-		var args, fun, tmp;
+		var eventData = $.extend({ type: null, phase: 'before', target: null }, eventData, {
+			isStopped: false, isCancelled: false,
+			preventDefault  : function () { this.isCancelled = true; },
+			stopPropagation : function () { this.isStopped   = true; }
+		});
+    	var args, fun, tmp;
 		if (eventData.target == null) eventData.target = null;
 		// process events in REVERSE order
 		for (var h = this.handlers.length-1; h >= 0; h--) {
@@ -3539,12 +3540,11 @@ w2utils.keyboard = (function (obj) {
 				phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
 				value_new: new_val, value_previous: (rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
 			};
-			var eventDataClear = {phase: 'before', isCancelled: false, isStopped: false, onComplete: null};
 			while (true) {
 				new_val = eventData.value_new;
 				if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
 					// change event
-					eventData = this.trigger($.extend(eventData, eventDataClear, {type: 'change', phase: 'before'}));
+					eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
 					if (eventData.isCancelled !== true) {
 						if (new_val !== eventData.value_new) {
 							// re-evaluate the type of change to be made
@@ -3558,7 +3558,7 @@ w2utils.keyboard = (function (obj) {
 					}
 				} else {
 					// restore event
-					eventData = this.trigger($.extend(eventData, eventDataClear, {type: 'restore', phase: 'before'}));
+					eventData = this.trigger($.extend(eventData, { type: 'restore', phase: 'before' }));
 					if (eventData.isCancelled !== true) {
 						if (new_val !== eventData.value_new) {
 							// re-evaluate the type of change to be made
@@ -10390,6 +10390,7 @@ var w2confirm = function (msg, title, callBack) {
 			var obj		= this;
 			var options	= this.options;
 			var tmp 	= $(this.el).data('tmp');
+			this.type 	 = 'clear';
 			if (!this.tmp) return;
 			// restore paddings
 			if (typeof tmp != 'undefined') {
@@ -10424,7 +10425,6 @@ var w2confirm = function (msg, title, callBack) {
 			// remove helpers
 			for (var h in this.helpers) $(this.helpers[h]).remove();
 			this.helpers = {};
-			this.type 	 = 'clear';
 		},
 
 		refresh: function () {
@@ -11491,6 +11491,7 @@ var w2confirm = function (msg, title, callBack) {
 		addPrefix: function () {
 			var obj = this;
 			setTimeout(function () {
+				if (obj.type === 'clear') return;
 				var helper;
 				var tmp = $(obj.el).data('tmp') || {};
 				if (tmp['old-padding-left']) $(obj.el).css('padding-left', tmp['old-padding-left']);
@@ -11549,6 +11550,7 @@ var w2confirm = function (msg, title, callBack) {
 			var obj = this;
 			var helper, pr;
 			setTimeout(function () {
+				if (obj.type === 'clear') return;
 				var tmp = $(obj.el).data('tmp') || {};
 				if (tmp['old-padding-right']) $(obj.el).css('padding-right', tmp['old-padding-right']);
 				tmp['old-padding-right'] = $(obj.el).css('padding-right');
