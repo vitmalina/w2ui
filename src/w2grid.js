@@ -1939,7 +1939,7 @@
 			// change/restore event
 			var eventData = {
 				phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
-				value_new: new_val, value_previous: (rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
+				value_new: new_val, value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
 			};
 			while (true) {
 				new_val = eventData.value_new;
