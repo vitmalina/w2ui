@@ -3137,9 +3137,11 @@
 				var recid = (event.target.tagName == 'TR' ? $(event.target).attr('recid') : $(event.target).parents('tr').attr('recid'));
 				if (typeof recid == 'undefined') return;
 				var ind1  = obj.get(mv.recid, true);
-				// |:wolfmanx:| this happens on summary row and should probably be detected earlier
+				// |:wolfmanx:| this happens when selection is started on summary row
 				if (ind1 === null) return;
 				var ind2  = obj.get(recid, true);
+				// this happens when selection is extended into summary row (a good place to implement scrolling)
+				if (ind2 === null) return;
 				var col1  = parseInt(mv.column);
 				var col2  = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
 				if (ind1 > ind2) { var tmp = ind1; ind1 = ind2; ind2 = tmp; }
