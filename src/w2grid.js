@@ -2581,6 +2581,10 @@
 
 		contextMenu: function (recid, event) {
 			var obj = this;
+			if (typeof event.offsetX === 'undefined') {
+				event.offsetX = event.layerX - event.target.offsetLeft;
+				event.offsetY = event.layerY - event.target.offsetTop;
+			}
 			if (w2utils.isFloat(recid)) recid = parseFloat(recid);
 			if (this.getSelection().indexOf(recid) == -1) obj.click(recid);
 			// need timeout to allow click to finish first
@@ -2592,7 +2596,7 @@
 				if (obj.menu.length > 0) {
 					$(obj.box).find(event.target)
 						.w2menu(obj.menu, {
-							left	: (event ? event.offsetX || event.pageX : 50) - 23,
+							left	: event.offsetX,
 							onSelect: function (event) { 
 								obj.menuClick(recid, parseInt(event.index), event.originalEvent); 
 							}
