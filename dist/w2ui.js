@@ -858,9 +858,6 @@ var w2utils = (function () {
 		}
 		return true;
 	}
-
-
-
 })();
 
 /***********************************************************
@@ -909,7 +906,8 @@ w2utils.event = {
 			preventDefault  : function () { this.isCancelled = true; },
 			stopPropagation : function () { this.isStopped   = true; }
 		});
-    	var args, fun, tmp;
+		if (eventData.phase === 'before') eventData.onComplete = null;
+		var args, fun, tmp;
 		if (eventData.target == null) eventData.target = null;
 		// process events in REVERSE order
 		for (var h = this.handlers.length-1; h >= 0; h--) {
