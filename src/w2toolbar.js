@@ -176,25 +176,27 @@
 		},
 
 		enable: function (id) {
+			var obj   = this;
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.disabled = false;
-				this.refresh(it.id);
+				setTimeout(function () { obj.refresh(it.id); }, 15); // needs timeout 
 			}
 			return items;
 		},
 
 		disable: function (id) {
+			var obj   = this;
 			var items = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.disabled = true;
-				this.refresh(it.id);
+				setTimeout(function () { obj.refresh(it.id); }, 15); // needs timeout 
 			}
 			return items;
 		},

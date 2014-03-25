@@ -200,7 +200,7 @@
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
 						groupSymbol		: w2utils.settings.groupSymbol,
-						arrows			: true,
+						arrows			: false,
 						keyboard		: true,
 						precision		: null,
 						silent			: true,

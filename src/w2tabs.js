@@ -178,25 +178,27 @@
 		},
 
 		enable: function (id) {
+			var obj   = this;
 			var enabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.disabled === false) continue;
-				tab.disabled = false;
-				this.refresh(tab.id);
 				enabled++;
+				tab.disabled = false;
+				setTimeout(function () { obj.refresh(tab.id); }, 15); // needs timeout 
 			}
 			return enabled;
 		},
 
 		disable: function (id) {
+			var obj   = this;
 			var disabled = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.disabled === true) continue;
-				tab.disabled = true;
-				this.refresh(tab.id);
 				disabled++;
+				tab.disabled = true;
+				setTimeout(function () { obj.refresh(tab.id); }, 15); // needs timeout 
 			}
 			return disabled;
 		},
