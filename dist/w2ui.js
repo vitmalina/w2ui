@@ -732,7 +732,7 @@ var w2utils = (function () {
 		}
 		if (!options.msg && options.msg !== 0) options.msg = '';
 		w2utils.unlock(box);
-		$(box).find('>:first-child').before(
+		$(box).prepend(
 			'<div class="w2ui-lock"></div>'+
 			'<div class="w2ui-lock-msg"></div>'
 		);
@@ -741,8 +741,13 @@ var w2utils = (function () {
 		if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' });
 		if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
 		if (options.opacity != null) $lock.css('opacity', options.opacity);
-		$lock.fadeIn(200);
-		mess.html(options.msg).fadeIn(200);
+		if (typeof $lock.fadeIn == 'function') {
+			$lock.fadeIn(200);
+			mess.html(options.msg).fadeIn(200);
+		} else {
+			$lock.show();
+			mess.html(options.msg).show(0);			
+		}
 		// hide all tags (do not hide overlays as the form can be in overlay)
 		$().w2tag();
 	}
@@ -1645,6 +1650,7 @@ w2utils.keyboard = (function (obj) {
 *	- col.resizable = true by default
 *	- new: prepareData();
 *	- context menu similar to sidebar's
+*	- find will return array or recids not objects
 *
 ************************************************************************/
 
@@ -1858,17 +1864,17 @@ w2utils.keyboard = (function (obj) {
 
 		// for easy button overwrite
 		buttons: {
-			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: 'Reload data in the list' },
-			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: '' },
-			'search'	: { type: 'html',   id: 'search',
+			'reload'	: { type: 'button', id: 'w2ui-reload', img: 'icon-reload', hint: 'Reload data in the list' },
+			'columns'	: { type: 'drop', id: 'w2ui-column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: '' },
+			'search'	: { type: 'html',   id: 'w2ui-search',
 							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+
 								  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
 						  },
-			'search-go'	: { type: 'check',  id: 'search-advanced', caption: 'Search...', hint: 'Open Search Fields' },
-			'add'		: { type: 'button', id: 'add', caption: 'Add New', hint: 'Add new record', img: 'icon-add' },
-			'edit'		: { type: 'button', id: 'edit', caption: 'Edit', hint: 'Edit selected record', img: 'icon-edit', disabled: true },
-			'delete'	: { type: 'button', id: 'delete', caption: 'Delete', hint: 'Delete selected records', img: 'icon-delete', disabled: true },
-			'save'		: { type: 'button', id: 'save', caption: 'Save', hint: 'Save changed records', img: 'icon-save' }
+			'search-go'	: { type: 'check',  id: 'w2ui-search-advanced', caption: 'Search...', hint: 'Open Search Fields' },
+			'add'		: { type: 'button', id: 'w2ui-add', caption: 'Add New', hint: 'Add new record', img: 'icon-add' },
+			'edit'		: { type: 'button', id: 'w2ui-edit', caption: 'Edit', hint: 'Edit selected record', img: 'icon-edit', disabled: true },
+			'delete'	: { type: 'button', id: 'w2ui-delete', caption: 'Delete', hint: 'Delete selected records', img: 'icon-delete', disabled: true },
+			'save'		: { type: 'button', id: 'w2ui-save', caption: 'Save', hint: 'Save changed records', img: 'icon-save' }
 		},
 
 		add: function (record) {
@@ -1908,7 +1914,7 @@ w2utils.keyboard = (function (obj) {
 					if (hasDots && String(o).indexOf('.') != -1) val = this.parseField(this.records[i], o);
 					if (obj[o] != val) match = false;
 				}
-				if (match && returnIndex !== true) recs.push(this.records[i]);
+				if (match && returnIndex !== true) recs.push(this.records[i].recid);
 				if (match && returnIndex === true) recs.push(i);
 			}
 			return recs;
@@ -2626,8 +2632,8 @@ w2utils.keyboard = (function (obj) {
 			this.refresh();
 			// enable/disable toolbar buttons
 			var sel = this.getSelection();
-			if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
-			if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
+			if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
+			if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
 			this.addRange('selection');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2654,7 +2660,7 @@ w2utils.keyboard = (function (obj) {
 			}
 			sel.indexes = [];
 			sel.columns = {};
-			this.toolbar.disable('edit', 'delete');
+			this.toolbar.disable('w2ui-edit', 'w2ui-delete');
 			this.removeRange('selection');
 			$('#grid_'+ this.name +'_check_all').prop('checked', false);
 			// event after
@@ -2900,7 +2906,7 @@ w2utils.keyboard = (function (obj) {
 			if (this.searches.length == 0) return;
 			var obj = this;
 			// show search
-			$('#tb_'+ this.name +'_toolbar_item_search-advanced').w2overlay(
+			$('#tb_'+ this.name +'_toolbar_item_w2ui-search-advanced').w2overlay(
 				this.getSearchesHTML(),	{
 					name	: 'searches-'+ this.name,
 					left	: -10,
@@ -2919,7 +2925,7 @@ w2utils.keyboard = (function (obj) {
 		searchClose: function () {
 			if (!this.box) return;
 			if (this.searches.length == 0) return;
-			if (this.toolbar) this.toolbar.uncheck('search-advanced')
+			if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced')
 			// hide search
 			if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) {
 				$().w2overlay('', { name: 'searches-'+ this.name });
@@ -3536,7 +3542,7 @@ w2utils.keyboard = (function (obj) {
 			// change/restore event
 			var eventData = {
 				phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
-				value_new: new_val, value_previous: (rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
+				value_new: new_val, value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
 			};
 			while (true) {
 				new_val = eventData.value_new;
@@ -4178,6 +4184,10 @@ w2utils.keyboard = (function (obj) {
 
 		contextMenu: function (recid, event) {
 			var obj = this;
+			if (typeof event.offsetX === 'undefined') {
+				event.offsetX = event.layerX - event.target.offsetLeft;
+				event.offsetY = event.layerY - event.target.offsetTop;
+			}
 			if (w2utils.isFloat(recid)) recid = parseFloat(recid);
 			if (this.getSelection().indexOf(recid) == -1) obj.click(recid);
 			// need timeout to allow click to finish first
@@ -4189,7 +4199,7 @@ w2utils.keyboard = (function (obj) {
 				if (obj.menu.length > 0) {
 					$(obj.box).find(event.target)
 						.w2menu(obj.menu, {
-							left	: (event ? event.offsetX || event.pageX : 50) - 23,
+							left	: event.offsetX,
 							onSelect: function (event) { 
 								obj.menuClick(recid, parseInt(event.index), event.originalEvent); 
 							}
@@ -4490,7 +4500,7 @@ w2utils.keyboard = (function (obj) {
 				this.buffered = this.total;
 			}
 			//if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			this.toolbar.disable('edit', 'delete');
+			this.toolbar.disable('w2ui-edit', 'w2ui-delete');
 			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
@@ -4504,7 +4514,7 @@ w2utils.keyboard = (function (obj) {
 			// -- toolbar
 			if (this.show.toolbar) {
 				// if select-collumn is checked - no toolbar refresh
-				if (this.toolbar && this.toolbar.get('column-on-off') && this.toolbar.get('column-on-off').checked) {
+				if (this.toolbar && this.toolbar.get('w2ui-column-on-off') && this.toolbar.get('w2ui-column-on-off').checked) {
 					// no action
 				} else {
 					$('#grid_'+ this.name +'_toolbar').show();
@@ -4512,7 +4522,7 @@ w2utils.keyboard = (function (obj) {
 					if (typeof this.toolbar == 'object') {
 						var tmp = this.toolbar.items;
 						for (var t in tmp) {
-							if (tmp[t].id == 'search' || tmp[t].type == 'break') continue;
+							if (tmp[t].id == 'w2ui-search' || tmp[t].type == 'break') continue;
 							this.toolbar.refresh(tmp[t].id);
 						}
 					}
@@ -4734,9 +4744,11 @@ w2utils.keyboard = (function (obj) {
 				var recid = (event.target.tagName == 'TR' ? $(event.target).attr('recid') : $(event.target).parents('tr').attr('recid'));
 				if (typeof recid == 'undefined') return;
 				var ind1  = obj.get(mv.recid, true);
-				// |:wolfmanx:| this happens on summary row and should probably be detected earlier
+				// |:wolfmanx:| this happens when selection is started on summary row
 				if (ind1 === null) return;
 				var ind2  = obj.get(recid, true);
+				// this happens when selection is extended into summary row (a good place to implement scrolling)
+				if (ind2 === null) return;
 				var col1  = parseInt(mv.column);
 				var col2  = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
 				if (ind1 > ind2) { var tmp = ind1; ind1 = ind2; ind2 = tmp; }
@@ -4864,7 +4876,7 @@ w2utils.keyboard = (function (obj) {
 						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
 						'</td></tr>';
 			col_html += "</table></div>";
-			this.toolbar.get('column-on-off').html = col_html;
+			this.toolbar.get('w2ui-column-on-off').html = col_html;
 		},
 
 		/**
@@ -5186,7 +5198,7 @@ w2utils.keyboard = (function (obj) {
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
-					this.toolbar.items.push({ type: 'break', id: 'break0' });
+					this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
 				}
 				if (this.show.toolbarSearch) {
 					var html =
@@ -5210,13 +5222,13 @@ w2utils.keyboard = (function (obj) {
 						'	</td>'+
 						'</tr></table>'+
 						'</div>';
-					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
+					this.toolbar.items.push({ type: 'html', id: 'w2ui-search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
 						this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
 					}
 				}
 				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
-					this.toolbar.items.push({ type: 'break', id: 'break1' });
+					this.toolbar.items.push({ type: 'break', id: 'w2ui-break1' });
 				}
 				if (this.show.toolbarAdd) {
 					this.toolbar.items.push($.extend(true, {}, this.buttons['add']));
@@ -5229,7 +5241,7 @@ w2utils.keyboard = (function (obj) {
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
-						this.toolbar.items.push({ type: 'break', id: 'break2' });
+						this.toolbar.items.push({ type: 'break', id: 'w2ui-break2' });
 					}
 					this.toolbar.items.push($.extend(true, {}, this.buttons['save']));
 				}
@@ -5245,13 +5257,13 @@ w2utils.keyboard = (function (obj) {
 					if (eventData.isCancelled === true) return;
 					var id = event.target;
 					switch (id) {
-						case 'reload':
+						case 'w2ui-reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
 							if (eventData2.isCancelled === true) return false;
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;
-						case 'column-on-off':
+						case 'w2ui-column-on-off':
 							for (var c in obj.columns) {
 								if (obj.columns[c].hidden) {
 									$("#grid_"+ obj.name +"_column_"+ c + "_check").prop("checked", false);
@@ -5262,7 +5274,7 @@ w2utils.keyboard = (function (obj) {
 							obj.initResize();
 							obj.resize();
 							break;
-						case 'search-advanced':
+						case 'w2ui-search-advanced':
 							var tb = this;
 							var it = this.get(id);
 							if (it.checked) {
@@ -5279,12 +5291,12 @@ w2utils.keyboard = (function (obj) {
 								$(document).on('click', 'body', tmp_close);
 							}
 							break;
-						case 'add':
+						case 'w2ui-add':
 							// events
 							var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
 							obj.trigger($.extend(eventData, { phase: 'after' }));
 							break;
-						case 'edit':
+						case 'w2ui-edit':
 							var sel 	= obj.getSelection();
 							var recid 	= null;
 							if (sel.length == 1) recid = sel[0];
@@ -5292,10 +5304,10 @@ w2utils.keyboard = (function (obj) {
 							var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
 							obj.trigger($.extend(eventData, { phase: 'after' }));
 							break;
-						case 'delete':
+						case 'w2ui-delete':
 							obj.delete();
 							break;
-						case 'save':
+						case 'w2ui-save':
 							obj.save();
 							break;
 					}
@@ -6357,8 +6369,8 @@ w2utils.keyboard = (function (obj) {
 				}
 				$('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);
 				// toolbar
-				if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
-				if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
+				if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
+				if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
 			}
 		},
 
@@ -8413,7 +8425,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 		},
 
-		remove: function (id) {
+		remove: function () {
 			var removed = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
@@ -8463,50 +8475,62 @@ var w2confirm = function (msg, title, callBack) {
 		},
 
 		show: function () {
+			var obj   = this;
 			var shown = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.hidden === false) continue;
-				tab.hidden = false;
-				this.refresh(tab.id);
 				shown++;
+				tab.hidden = false;
+				tmp.push(tab.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return shown;
 		},
 
 		hide: function () {
-			var hidden = 0;
+			var obj   = this;
+			var hidden= 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.hidden === true) continue;
-				tab.hidden = true;
-				this.refresh(tab.id);
 				hidden++;
+				tab.hidden = true;
+				tmp.push(tab.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return hidden;
 		},
 
-		enable: function (id) {
+		enable: function () {
+			var obj   = this;
 			var enabled = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.disabled === false) continue;
-				tab.disabled = false;
-				this.refresh(tab.id);
 				enabled++;
+				tab.disabled = false;
+				tmp.push(tab.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return enabled;
 		},
 
-		disable: function (id) {
+		disable: function () {
+			var obj   = this;
 			var disabled = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.disabled === true) continue;
-				tab.disabled = true;
-				this.refresh(tab.id);
 				disabled++;
+				tab.disabled = true;
+				tmp.push(tab.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return disabled;
 		},
 
@@ -8829,7 +8853,7 @@ var w2confirm = function (msg, title, callBack) {
 			}
 		},
 
-		remove: function (id) {
+		remove: function () {
 			var removed = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
@@ -8866,75 +8890,93 @@ var w2confirm = function (msg, title, callBack) {
 			return null;
 		},
 
-		show: function (id) {
+		show: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.hidden = false;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		hide: function (id) {
+		hide: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.hidden = true;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		enable: function (id) {
+		enable: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.disabled = false;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		disable: function (id) {
+		disable: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.disabled = true;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		check: function (id) {
+		check: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.checked = true;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		uncheck: function (id) {
+		uncheck: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.checked = false;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
@@ -10192,7 +10234,7 @@ var w2confirm = function (msg, title, callBack) {
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
 						groupSymbol		: w2utils.settings.groupSymbol,
-						arrows			: true,
+						arrows			: false,
 						keyboard		: true,
 						precision		: null,
 						silent			: true,
