@@ -48,6 +48,7 @@
 *	- col.resizable = true by default
 *	- new: prepareData();
 *	- context menu similar to sidebar's
+*	- find will return array or recids not objects
 *
 ************************************************************************/
 
@@ -311,7 +312,7 @@
 					if (hasDots && String(o).indexOf('.') != -1) val = this.parseField(this.records[i], o);
 					if (obj[o] != val) match = false;
 				}
-				if (match && returnIndex !== true) recs.push(this.records[i]);
+				if (match && returnIndex !== true) recs.push(this.records[i].recid);
 				if (match && returnIndex === true) recs.push(i);
 			}
 			return recs;
