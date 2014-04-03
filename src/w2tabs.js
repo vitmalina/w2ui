@@ -104,7 +104,7 @@
 			}
 		},
 
-		remove: function (id) {
+		remove: function () {
 			var removed = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
@@ -154,52 +154,62 @@
 		},
 
 		show: function () {
+			var obj   = this;
 			var shown = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.hidden === false) continue;
-				tab.hidden = false;
-				this.refresh(tab.id);
 				shown++;
+				tab.hidden = false;
+				tmp.push(tab.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return shown;
 		},
 
 		hide: function () {
-			var hidden = 0;
+			var obj   = this;
+			var hidden= 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.hidden === true) continue;
-				tab.hidden = true;
-				this.refresh(tab.id);
 				hidden++;
+				tab.hidden = true;
+				tmp.push(tab.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return hidden;
 		},
 
-		enable: function (id) {
+		enable: function () {
 			var obj   = this;
 			var enabled = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.disabled === false) continue;
 				enabled++;
 				tab.disabled = false;
-				setTimeout(function () { obj.refresh(tab.id); }, 15); // needs timeout 
+				tmp.push(tab.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return enabled;
 		},
 
-		disable: function (id) {
+		disable: function () {
 			var obj   = this;
 			var disabled = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var tab = this.get(arguments[a]);
 				if (!tab || tab.disabled === true) continue;
 				disabled++;
 				tab.disabled = true;
-				setTimeout(function () { obj.refresh(tab.id); }, 15); // needs timeout 
+				tmp.push(tab.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return disabled;
 		},
 

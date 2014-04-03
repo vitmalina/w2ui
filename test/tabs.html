@@ -21,14 +21,14 @@
 				{ id: 'tab8', caption: 'Tab 8', closable: true }
 			]
 		});
+		w2ui.tabs.right = 'new right';
+		w2ui.tabs.refresh();
 	});
 
 	function changeTab() {
 		w2ui['tabs'].get('tab2.2').caption = '<div style="width: 300px">new and long</div>'; 
 		w2ui['tabs'].refresh();		
 	}
-	w2ui.tabs.right = 'new right';
-	w2ui.tabs.refresh();
 </script>
 <body>
 	<div id="tabs" style="padding: 5px;"></div>

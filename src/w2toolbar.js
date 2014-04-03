@@ -114,7 +114,7 @@
 			}
 		},
 
-		remove: function (id) {
+		remove: function () {
 			var removed = 0;
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
@@ -151,77 +151,93 @@
 			return null;
 		},
 
-		show: function (id) {
+		show: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.hidden = false;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		hide: function (id) {
+		hide: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.hidden = true;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		enable: function (id) {
+		enable: function () {
 			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.disabled = false;
-				setTimeout(function () { obj.refresh(it.id); }, 15); // needs timeout 
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		disable: function (id) {
+		disable: function () {
 			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.disabled = true;
-				setTimeout(function () { obj.refresh(it.id); }, 15); // needs timeout 
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		check: function (id) {
+		check: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.checked = true;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
-		uncheck: function (id) {
+		uncheck: function () {
+			var obj   = this;
 			var items = 0;
+			var tmp   = [];
 			for (var a = 0; a < arguments.length; a++) {
 				var it = this.get(arguments[a]);
 				if (!it) continue;
 				items++;
 				it.checked = false;
-				this.refresh(it.id);
+				tmp.push(it.id);
 			}
+			setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
 			return items;
 		},
 
