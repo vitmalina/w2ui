@@ -261,17 +261,17 @@
 
 		// for easy button overwrite
 		buttons: {
-			'reload'	: { type: 'button', id: 'reload', img: 'icon-reload', hint: 'Reload data in the list' },
-			'columns'	: { type: 'drop', id: 'column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: '' },
-			'search'	: { type: 'html',   id: 'search',
+			'reload'	: { type: 'button', id: 'w2ui-reload', img: 'icon-reload', hint: 'Reload data in the list' },
+			'columns'	: { type: 'drop', id: 'w2ui-column-on-off', img: 'icon-columns', hint: 'Show/hide columns', arrow: false, html: '' },
+			'search'	: { type: 'html',   id: 'w2ui-search',
 							html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+
 								  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
 						  },
-			'search-go'	: { type: 'check',  id: 'search-advanced', caption: 'Search...', hint: 'Open Search Fields' },
-			'add'		: { type: 'button', id: 'add', caption: 'Add New', hint: 'Add new record', img: 'icon-add' },
-			'edit'		: { type: 'button', id: 'edit', caption: 'Edit', hint: 'Edit selected record', img: 'icon-edit', disabled: true },
-			'delete'	: { type: 'button', id: 'delete', caption: 'Delete', hint: 'Delete selected records', img: 'icon-delete', disabled: true },
-			'save'		: { type: 'button', id: 'save', caption: 'Save', hint: 'Save changed records', img: 'icon-save' }
+			'search-go'	: { type: 'check',  id: 'w2ui-search-advanced', caption: 'Search...', hint: 'Open Search Fields' },
+			'add'		: { type: 'button', id: 'w2ui-add', caption: 'Add New', hint: 'Add new record', img: 'icon-add' },
+			'edit'		: { type: 'button', id: 'w2ui-edit', caption: 'Edit', hint: 'Edit selected record', img: 'icon-edit', disabled: true },
+			'delete'	: { type: 'button', id: 'w2ui-delete', caption: 'Delete', hint: 'Delete selected records', img: 'icon-delete', disabled: true },
+			'save'		: { type: 'button', id: 'w2ui-save', caption: 'Save', hint: 'Save changed records', img: 'icon-save' }
 		},
 
 		add: function (record) {
@@ -1029,8 +1029,8 @@
 			this.refresh();
 			// enable/disable toolbar buttons
 			var sel = this.getSelection();
-			if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
-			if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
+			if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
+			if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
 			this.addRange('selection');
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -1057,7 +1057,7 @@
 			}
 			sel.indexes = [];
 			sel.columns = {};
-			this.toolbar.disable('edit', 'delete');
+			this.toolbar.disable('w2ui-edit', 'w2ui-delete');
 			this.removeRange('selection');
 			$('#grid_'+ this.name +'_check_all').prop('checked', false);
 			// event after
@@ -2897,7 +2897,7 @@
 				this.buffered = this.total;
 			}
 			//if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-			this.toolbar.disable('edit', 'delete');
+			this.toolbar.disable('w2ui-edit', 'w2ui-delete');
 			if (!this.box) return;
 			// event before
 			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
@@ -4766,8 +4766,8 @@
 				}
 				$('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);
 				// toolbar
-				if (sel.length == 1) this.toolbar.enable('edit'); else this.toolbar.disable('edit');
-				if (sel.length >= 1) this.toolbar.enable('delete'); else this.toolbar.disable('delete');
+				if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
+				if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
 			}
 		},
 
