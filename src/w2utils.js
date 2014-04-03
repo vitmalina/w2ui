@@ -731,7 +731,7 @@ var w2utils = (function () {
 		}
 		if (!options.msg && options.msg !== 0) options.msg = '';
 		w2utils.unlock(box);
-		$(box).find('>:first-child').before(
+		$(box).prepend(
 			'<div class="w2ui-lock"></div>'+
 			'<div class="w2ui-lock-msg"></div>'
 		);
@@ -740,8 +740,13 @@ var w2utils = (function () {
 		if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' });
 		if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
 		if (options.opacity != null) $lock.css('opacity', options.opacity);
-		$lock.fadeIn(200);
-		mess.html(options.msg).fadeIn(200);
+		if (typeof $lock.fadeIn == 'function') {
+			$lock.fadeIn(200);
+			mess.html(options.msg).fadeIn(200);
+		} else {
+			$lock.show();
+			mess.html(options.msg).show(0);			
+		}
 		// hide all tags (do not hide overlays as the form can be in overlay)
 		$().w2tag();
 	}
