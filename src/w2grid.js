@@ -1303,7 +1303,7 @@
 			if (this.searches.length == 0) return;
 			var obj = this;
 			// show search
-			$('#tb_'+ this.name +'_toolbar_item_search-advanced').w2overlay(
+			$('#tb_'+ this.name +'_toolbar_item_w2ui-search-advanced').w2overlay(
 				this.getSearchesHTML(),	{
 					name	: 'searches-'+ this.name,
 					left	: -10,
@@ -1322,7 +1322,7 @@
 		searchClose: function () {
 			if (!this.box) return;
 			if (this.searches.length == 0) return;
-			if (this.toolbar) this.toolbar.uncheck('search-advanced')
+			if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced')
 			// hide search
 			if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) {
 				$().w2overlay('', { name: 'searches-'+ this.name });
@@ -2911,7 +2911,7 @@
 			// -- toolbar
 			if (this.show.toolbar) {
 				// if select-collumn is checked - no toolbar refresh
-				if (this.toolbar && this.toolbar.get('column-on-off') && this.toolbar.get('column-on-off').checked) {
+				if (this.toolbar && this.toolbar.get('w2ui-column-on-off') && this.toolbar.get('w2ui-column-on-off').checked) {
 					// no action
 				} else {
 					$('#grid_'+ this.name +'_toolbar').show();
@@ -2919,7 +2919,7 @@
 					if (typeof this.toolbar == 'object') {
 						var tmp = this.toolbar.items;
 						for (var t in tmp) {
-							if (tmp[t].id == 'search' || tmp[t].type == 'break') continue;
+							if (tmp[t].id == 'w2ui-search' || tmp[t].type == 'break') continue;
 							this.toolbar.refresh(tmp[t].id);
 						}
 					}
@@ -3273,7 +3273,7 @@
 						'	<div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
 						'</td></tr>';
 			col_html += "</table></div>";
-			this.toolbar.get('column-on-off').html = col_html;
+			this.toolbar.get('w2ui-column-on-off').html = col_html;
 		},
 
 		/**
@@ -3595,7 +3595,7 @@
 					this.initColumnOnOff();
 				}
 				if (this.show.toolbarReload || this.show.toolbarColumn) {
-					this.toolbar.items.push({ type: 'break', id: 'break0' });
+					this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
 				}
 				if (this.show.toolbarSearch) {
 					var html =
@@ -3619,13 +3619,13 @@
 						'	</td>'+
 						'</tr></table>'+
 						'</div>';
-					this.toolbar.items.push({ type: 'html', id: 'search', html: html });
+					this.toolbar.items.push({ type: 'html', id: 'w2ui-search', html: html });
 					if (this.multiSearch && this.searches.length > 0) {
 						this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
 					}
 				}
 				if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
-					this.toolbar.items.push({ type: 'break', id: 'break1' });
+					this.toolbar.items.push({ type: 'break', id: 'w2ui-break1' });
 				}
 				if (this.show.toolbarAdd) {
 					this.toolbar.items.push($.extend(true, {}, this.buttons['add']));
@@ -3638,7 +3638,7 @@
 				}
 				if (this.show.toolbarSave) {
 					if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
-						this.toolbar.items.push({ type: 'break', id: 'break2' });
+						this.toolbar.items.push({ type: 'break', id: 'w2ui-break2' });
 					}
 					this.toolbar.items.push($.extend(true, {}, this.buttons['save']));
 				}
@@ -3654,13 +3654,13 @@
 					if (eventData.isCancelled === true) return;
 					var id = event.target;
 					switch (id) {
-						case 'reload':
+						case 'w2ui-reload':
 							var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
 							if (eventData2.isCancelled === true) return false;
 							obj.reload();
 							obj.trigger($.extend(eventData2, { phase: 'after' }));
 							break;
-						case 'column-on-off':
+						case 'w2ui-column-on-off':
 							for (var c in obj.columns) {
 								if (obj.columns[c].hidden) {
 									$("#grid_"+ obj.name +"_column_"+ c + "_check").prop("checked", false);
@@ -3671,7 +3671,7 @@
 							obj.initResize();
 							obj.resize();
 							break;
-						case 'search-advanced':
+						case 'w2ui-search-advanced':
 							var tb = this;
 							var it = this.get(id);
 							if (it.checked) {
@@ -3688,12 +3688,12 @@
 								$(document).on('click', 'body', tmp_close);
 							}
 							break;
-						case 'add':
+						case 'w2ui-add':
 							// events
 							var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
 							obj.trigger($.extend(eventData, { phase: 'after' }));
 							break;
-						case 'edit':
+						case 'w2ui-edit':
 							var sel 	= obj.getSelection();
 							var recid 	= null;
 							if (sel.length == 1) recid = sel[0];
@@ -3701,10 +3701,10 @@
 							var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
 							obj.trigger($.extend(eventData, { phase: 'after' }));
 							break;
-						case 'delete':
+						case 'w2ui-delete':
 							obj.delete();
 							break;
-						case 'save':
+						case 'w2ui-save':
 							obj.save();
 							break;
 					}
