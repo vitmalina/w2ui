@@ -1944,7 +1944,7 @@
 			};
 			while (true) {
 				new_val = eventData.value_new;
-				if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
+				if (( typeof old_val == 'undefined' || old_val === null ? '' : String(old_val)) !== String(new_val)) {
 					// change event
 					eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
 					if (eventData.isCancelled !== true) {
