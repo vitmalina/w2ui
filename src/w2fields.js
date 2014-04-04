@@ -199,6 +199,7 @@
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
+						currencyPrecision: w2utils.settings.currencyPrecision,
 						groupSymbol		: w2utils.settings.groupSymbol,
 						arrows			: false,
 						keyboard		: true,
@@ -671,7 +672,7 @@
 				switch (this.type) {
 					case 'money':
 					case 'currency':
-						val = w2utils.formatNumber(Number(val).toFixed(2), options.groupSymbol);
+						val = w2utils.formatNumber(Number(val).toFixed(options.currencyPrecision), options.groupSymbol);
 						if (val != '') val = options.currencyPrefix + val + options.currencySuffix;
 						break;
 					case 'percent':
