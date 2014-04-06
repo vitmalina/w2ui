@@ -52,6 +52,7 @@ var w2utils = (function () {
 			"time_format"	: "h12",
 			"currencyPrefix": "$",
 			"currencySuffix": "",
+			"currencyPrecision": 2,
 			"groupSymbol"	: ",",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
