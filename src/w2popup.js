@@ -14,7 +14,7 @@
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
 *	- add lock method() to lock popup content
-*
+* 
 ************************************************************************/
 
 var w2popup = {};
