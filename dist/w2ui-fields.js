@@ -40,6 +40,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- multiple overlay at the same time (if it has name)
 *	- overlay options.css removed, I have added options.style
 *	- ability to open searchable w2menu
+* 	- w2confirm({})
 *
 ************************************************/
 
@@ -53,6 +54,7 @@ var w2utils = (function () {
 			"time_format"	: "h12",
 			"currencyPrefix": "$",
 			"currencySuffix": "",
+			"currencyPrecision": 2,
 			"groupSymbol"	: ",",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -1391,6 +1393,7 @@ w2utils.keyboard = (function (obj) {
 			index		: null,		// current selected
 			items		: [],
 			render		: null,
+			msgNoItems 	: 'No items',
 			onSelect	: null,
 			tmp			: {}
 		};
@@ -1541,9 +1544,9 @@ w2utils.keyboard = (function (obj) {
 
 		function getMenuHTML () {
 			if (options.spinner) {
-				return  '<table class="w2ui-drop-menu"><tr><td style="padding: 10px; text-align: center;">'+
-						'	<div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px; left: 2px;"></div> '+
-						'	<div style="display: inline-block; padding: 5px;"> Loading...</div>'+
+				return  '<table class="w2ui-drop-menu"><tr><td style="padding: 5px 0px 10px 0px; text-align: center">'+
+						'	<div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
+						'	<div style="display: inline-block; padding: 3px; color: #999;"> Loading...</div>'+
 						'</td></tr></table>';
 			}
 			var count		= 0;
@@ -1591,7 +1594,7 @@ w2utils.keyboard = (function (obj) {
 				options.items[f] = mitem;
 			}
 			if (count === 0) {
-				menu_html += '<tr><td style="text-align: center; color: #999">No items</td></tr>';
+				menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
 			}
 			menu_html += "</table>";
 			return menu_html;
@@ -1637,6 +1640,8 @@ w2utils.keyboard = (function (obj) {
 *	- easy way to add icons
 *	- easy way to navigate month/year in dates
 *	- added step for numeric inputs
+*	- changed prepopulate -> minLength
+*	- added options.postData
 *
 ************************************************************************/
 
@@ -1801,6 +1806,7 @@ w2utils.keyboard = (function (obj) {
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
+						currencyPrecision: w2utils.settings.currencyPrecision,
 						groupSymbol		: w2utils.settings.groupSymbol,
 						arrows			: false,
 						keyboard		: true,
@@ -1881,7 +1887,8 @@ w2utils.keyboard = (function (obj) {
 						selected		: {},
 						placeholder		: '',
 						url 			: null, 		// url to pull data from
-						prepopulate		: true,
+						postData		: {},
+						minLength		: 1,
 						cacheMax		: 250,
 						maxDropHeight 	: 350,			// max height for drop down menu
 						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
@@ -1935,7 +1942,8 @@ w2utils.keyboard = (function (obj) {
 						placeholder		: '',
 						max 			: 0,			// max number of selected items, 0 - unlim
 						url 			: null, 		// not implemented
-						prepopulate		: true,			// if true pull records from url during init
+						postData		: {},
+						minLength		: 1, 
 						cacheMax		: 250,
 						maxWidth		: 250,			// max width for a single item
 						maxHeight		: 350,			// max height for input control to grow
@@ -2273,7 +2281,7 @@ w2utils.keyboard = (function (obj) {
 				switch (this.type) {
 					case 'money':
 					case 'currency':
-						val = w2utils.formatNumber(Number(val).toFixed(2), options.groupSymbol);
+						val = w2utils.formatNumber(Number(val).toFixed(options.currencyPrecision), options.groupSymbol);
 						if (val != '') val = options.currencyPrefix + val + options.currencySuffix;
 						break;
 					case 'percent':
@@ -2756,7 +2764,11 @@ w2utils.keyboard = (function (obj) {
 				var tmp = $(obj.helpers.focus).find('input');
 				if (tmp.length == 0) search = ''; else search = tmp.val();
 			}
-			if (search == '' && !options.prepopulate) return;
+			if (options.minLength != 0 && search.length < options.minLength) {
+				options.items = []; // need to empty the list
+				this.updateOverlay();
+				return;
+			}
 			if (typeof interval == 'undefined') interval = 350;
 			if (typeof obj.tmp.xhr_search == 'undefined') obj.tmp.xhr_search = '';
 			if (typeof obj.tmp.xhr_total == 'undefined') obj.tmp.xhr_total = -1;
@@ -2779,6 +2791,7 @@ w2utils.keyboard = (function (obj) {
 						search	: search,
 						max 	: options.cacheMax
 					};
+					$.extend(postData, options.postData);
 					var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
 					if (eventData.isCancelled === true) return;
 					url		 = eventData.url;
@@ -3029,15 +3042,21 @@ w2utils.keyboard = (function (obj) {
 					}
 					if (obj.tmp.force_hide) {
 						$().w2overlay();
-						delete obj.tmp.force_hide;
+						setTimeout(function () {
+							delete obj.tmp.force_hide;
+						}, 1);						
 						return;
 					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					if ($('#w2ui-overlay').length == 0) options.index = 0;
+					var msgNoItems = w2utils.lang('Empty list');
+					if (options.url != null && $(input).val().length < options.minLength) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
+					if (options.url != null && $(input).val() == '') msgNoItems = w2utils.lang('Type to search....');
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
 						search		: false,
 						render		: options.renderDrop,
 						maxHeight	: options.maxDropHeight,
+						msgNoItems	: msgNoItems,
 						// selected with mouse
 						onSelect: function (event) {
 							if (obj.type == 'enum') {

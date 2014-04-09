@@ -40,6 +40,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- multiple overlay at the same time (if it has name)
 *	- overlay options.css removed, I have added options.style
 *	- ability to open searchable w2menu
+* 	- w2confirm({})
 *
 ************************************************/
 
@@ -53,6 +54,7 @@ var w2utils = (function () {
 			"time_format"	: "h12",
 			"currencyPrefix": "$",
 			"currencySuffix": "",
+			"currencyPrecision": 2,
 			"groupSymbol"	: ",",
 			"shortmonths"	: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 			"fullmonths"	: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -1391,6 +1393,7 @@ w2utils.keyboard = (function (obj) {
 			index		: null,		// current selected
 			items		: [],
 			render		: null,
+			msgNoItems 	: 'No items',
 			onSelect	: null,
 			tmp			: {}
 		};
@@ -1541,9 +1544,9 @@ w2utils.keyboard = (function (obj) {
 
 		function getMenuHTML () {
 			if (options.spinner) {
-				return  '<table class="w2ui-drop-menu"><tr><td style="padding: 10px; text-align: center;">'+
-						'	<div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px; left: 2px;"></div> '+
-						'	<div style="display: inline-block; padding: 5px;"> Loading...</div>'+
+				return  '<table class="w2ui-drop-menu"><tr><td style="padding: 5px 0px 10px 0px; text-align: center">'+
+						'	<div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
+						'	<div style="display: inline-block; padding: 3px; color: #999;"> Loading...</div>'+
 						'</td></tr></table>';
 			}
 			var count		= 0;
@@ -1591,7 +1594,7 @@ w2utils.keyboard = (function (obj) {
 				options.items[f] = mitem;
 			}
 			if (count === 0) {
-				menu_html += '<tr><td style="text-align: center; color: #999">No items</td></tr>';
+				menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
 			}
 			menu_html += "</table>";
 			return menu_html;
@@ -1609,6 +1612,9 @@ w2utils.keyboard = (function (obj) {
 *
 * == NICE TO HAVE ==
 *	- frozen columns
+*	- add colspans
+*	- get rid of this.buffered
+*	- allow this.total to be unknown (-1)
 *	- column autosize based on largest content
 *	- save grid state into localStorage and restore
 *	- easy bubbles in the grid
@@ -1617,11 +1623,8 @@ w2utils.keyboard = (function (obj) {
 *	- hidden searches could not be clearned by the user
 *	- problem with .set() and arrays, array get extended too, but should be replaced
 *	- move events into prototype
-*	- add colspans
 *	- add grid.focus()
 *	- add showExtra, KickIn Infinite scroll when so many records
-*	- get rid of this.buffered
-*	- allow this.total to be unknown (-1)
 *	- after edit stay on the same record option
 *
 * == 1.4 changes
@@ -3546,7 +3549,7 @@ w2utils.keyboard = (function (obj) {
 			};
 			while (true) {
 				new_val = eventData.value_new;
-				if (old_val != new_val && !(typeof old_val == 'undefined' && new_val == '')) {
+				if (( typeof old_val == 'undefined' || old_val === null ? '' : String(old_val)) !== String(new_val)) {
 					// change event
 					eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
 					if (eventData.isCancelled !== true) {
@@ -3741,7 +3744,8 @@ w2utils.keyboard = (function (obj) {
 			var eventData = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
 			if (eventData.isCancelled === true) return;
 			// default behaviour
-			this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+			var column = this.getColumn(field);
+			if (column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
 		},
@@ -5900,7 +5904,7 @@ w2utils.keyboard = (function (obj) {
 							resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
 						}
 						html += '<td class="w2ui-head '+ sortStyle +'" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
-										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);"' : '') +'>'+
+								'	onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
 									resizer +
 								'	<div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
 								'		<div class="'+ sortStyle +'"></div>'+
@@ -5970,7 +5974,7 @@ w2utils.keyboard = (function (obj) {
 							resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
 						}
 						html += '<td col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
-										(col.sortable ? 'onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);"' : '') + '>'+
+								'	onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
 									resizer +
 								'	<div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
 								'		<div class="'+ sortStyle +'"></div>'+
@@ -6292,7 +6296,7 @@ w2utils.keyboard = (function (obj) {
 						if (typeof tmp[1] == 'undefined' || !w2utils.isInt(tmp[1])) tmp[1] = 0;
 						if (tmp[1] > 20) tmp[1] = 20;
 						if (tmp[1] < 0)  tmp[1] = 0;
-						if (['money', 'currency'].indexOf(tmp[0]) != -1) { tmp[1] = 2; prefix = w2utils.settings.currencyPrefix; suffix = w2utils.settings.currencySuffix }
+						if (['money', 'currency'].indexOf(tmp[0]) != -1) { tmp[1] = w2utils.settings.currencyPrecision; prefix = w2utils.settings.currencyPrefix; suffix = w2utils.settings.currencySuffix }
 						if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
 						if (tmp[0] == 'int')	 { tmp[1] = 0; }
 						// format
@@ -6508,6 +6512,7 @@ w2utils.keyboard = (function (obj) {
 * == NICE TO HAVE ==
 *	- onResize for the panel
 *	- add more panel title positions (left=rotated, right=rotated, bottom)
+*	- bug: resizer is visible (and onHover) when panel is hidden.
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
@@ -8248,24 +8253,57 @@ var w2alert = function (msg, title, callBack) {
 	}
 };
 
-var w2confirm = function (msg, title, callBack) {
-	if (typeof callBack == 'undefined' || typeof title == 'function') {
-		callBack = title;
-		title = w2utils.lang('Confirmation');
-	}
-	if (typeof title == 'undefined') {
-		title = w2utils.lang('Confirmation');
-	}
-	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
+var w2confirm = function (obj, callBack) {
+
+    var w2confirm_width     = 400,
+        w2confirm_height    = 200,
+        w2confirm_yes_title = 'Yes',
+        w2confirm_yes_class = '',
+        w2confirm_yes_style = '',
+        w2confirm_no_title  = 'No',
+        w2confirm_no_class  = '',
+        w2confirm_no_style  = '',
+        title               =  w2utils.lang('Confirmation');
+
+    if (arguments.length == 1 && typeof obj == 'object') {
+        var msg 		= w2utils.lang(obj['msg']),
+            callBack 	= obj['callBack'],
+            btn_yes 	= obj['btn_yes'],
+            btn_no 	    = obj['btn_no'];
+            title       = w2utils.lang(obj['title']);
+
+        if (w2utils.isInt(obj.width))   w2confirm_width  = obj.width;
+        if (w2utils.isInt(obj.height))  w2confirm_height = obj.height;
+
+
+        if (btn_yes) {
+            if (btn_yes.text)  w2confirm_yes_title = w2utils.lang(btn_yes.text);
+            if (btn_yes.class) w2confirm_yes_class = btn_yes.class;
+            if (btn_yes.style) w2confirm_yes_style = btn_yes.style;
+        }
+        if (btn_no) {
+            if (btn_no.text)  w2confirm_no_title = w2utils.lang(btn_no.text);
+            if (btn_no.class) w2confirm_no_class = btn_no.class;
+            if (btn_no.style) w2confirm_no_style = btn_no.style;
+        }
+
+    } else {
+        var msg = obj;
+    }
+
+   	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
+
+        w2confirm_width = w2popup.defaults.width;
+        w2confirm_height = w2popup.defaults.height-50;
 		w2popup.message({
-			width 	: 400,
-			height 	: 150,
+			width 	: w2confirm_width,
+			height 	: w2confirm_height,
 			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">' +
 					  '		<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
 					  '</div>' +
 					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-					  '		<button id="Yes" class="w2ui-popup-btn btn">' + w2utils.lang('Yes') + '</button>' +
-					  '		<button id="No" class="w2ui-popup-btn btn">' + w2utils.lang('No') + '</button>' +
+                      '		<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_title) + '</button>' +
+                      '		<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_title) + '</button>' +
 					  '</div>',
 			onOpen: function () {
 				$('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
@@ -8287,15 +8325,15 @@ var w2confirm = function (msg, title, callBack) {
 			}
 		});
 	} else {
-		w2popup.open({
-			width 		: 450,
-			height 		: 200,
+        w2popup.open({
+			width 		: w2confirm_width,
+			height 		: w2confirm_height,
 			title   	: title,
 			modal		: true,
 			showClose	: false,
 			body		: '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
-			buttons		: '<button id="No" class="w2ui-popup-btn btn">' + w2utils.lang('No') + '</button>'+
-						  '<button id="Yes" class="w2ui-popup-btn btn">' + w2utils.lang('Yes') + '</button>',
+			buttons		: '<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_title) + '</button>'+
+                          '<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_title) + '</button>',
 			onOpen: function (event) {
 				event.onComplete = function () {
 					$('#w2ui-popup .w2ui-popup-btn').on('click', function (event) {
@@ -8649,7 +8687,7 @@ var w2confirm = function (msg, title, callBack) {
 			var tab = this.get(id);
 			if (tab === null || tab.disabled) return false;
 			// event before
-			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, object: this.get(id), originalEvent: event });
+			var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
 			if (eventData.isCancelled === true) return;
 			// default action
 			$(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
@@ -9177,7 +9215,7 @@ var w2confirm = function (msg, title, callBack) {
 			if (it && !it.disabled) {
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id !== 'undefined' ? id : this.name),
-					item: this.get(id), originalEvent: event });
+					item: it, object: it, originalEvent: event });
 				if (eventData.isCancelled === true) return;
 
 				var btn = $('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button');
@@ -9655,7 +9693,7 @@ var w2confirm = function (msg, title, callBack) {
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
-				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, object: nd });
+				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, node: nd, object: nd });
 				if (eventData.isCancelled === true) {
 					// restore selection
 					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
@@ -10069,6 +10107,8 @@ var w2confirm = function (msg, title, callBack) {
 *	- easy way to add icons
 *	- easy way to navigate month/year in dates
 *	- added step for numeric inputs
+*	- changed prepopulate -> minLength
+*	- added options.postData
 *
 ************************************************************************/
 
@@ -10233,6 +10273,7 @@ var w2confirm = function (msg, title, callBack) {
 						autoFormat	 	: true,
 						currencyPrefix	: w2utils.settings.currencyPrefix,
 						currencySuffix	: w2utils.settings.currencySuffix,
+						currencyPrecision: w2utils.settings.currencyPrecision,
 						groupSymbol		: w2utils.settings.groupSymbol,
 						arrows			: false,
 						keyboard		: true,
@@ -10313,7 +10354,8 @@ var w2confirm = function (msg, title, callBack) {
 						selected		: {},
 						placeholder		: '',
 						url 			: null, 		// url to pull data from
-						prepopulate		: true,
+						postData		: {},
+						minLength		: 1,
 						cacheMax		: 250,
 						maxDropHeight 	: 350,			// max height for drop down menu
 						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
@@ -10367,7 +10409,8 @@ var w2confirm = function (msg, title, callBack) {
 						placeholder		: '',
 						max 			: 0,			// max number of selected items, 0 - unlim
 						url 			: null, 		// not implemented
-						prepopulate		: true,			// if true pull records from url during init
+						postData		: {},
+						minLength		: 1, 
 						cacheMax		: 250,
 						maxWidth		: 250,			// max width for a single item
 						maxHeight		: 350,			// max height for input control to grow
@@ -10705,7 +10748,7 @@ var w2confirm = function (msg, title, callBack) {
 				switch (this.type) {
 					case 'money':
 					case 'currency':
-						val = w2utils.formatNumber(Number(val).toFixed(2), options.groupSymbol);
+						val = w2utils.formatNumber(Number(val).toFixed(options.currencyPrecision), options.groupSymbol);
 						if (val != '') val = options.currencyPrefix + val + options.currencySuffix;
 						break;
 					case 'percent':
@@ -11188,7 +11231,11 @@ var w2confirm = function (msg, title, callBack) {
 				var tmp = $(obj.helpers.focus).find('input');
 				if (tmp.length == 0) search = ''; else search = tmp.val();
 			}
-			if (search == '' && !options.prepopulate) return;
+			if (options.minLength != 0 && search.length < options.minLength) {
+				options.items = []; // need to empty the list
+				this.updateOverlay();
+				return;
+			}
 			if (typeof interval == 'undefined') interval = 350;
 			if (typeof obj.tmp.xhr_search == 'undefined') obj.tmp.xhr_search = '';
 			if (typeof obj.tmp.xhr_total == 'undefined') obj.tmp.xhr_total = -1;
@@ -11211,6 +11258,7 @@ var w2confirm = function (msg, title, callBack) {
 						search	: search,
 						max 	: options.cacheMax
 					};
+					$.extend(postData, options.postData);
 					var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
 					if (eventData.isCancelled === true) return;
 					url		 = eventData.url;
@@ -11461,15 +11509,21 @@ var w2confirm = function (msg, title, callBack) {
 					}
 					if (obj.tmp.force_hide) {
 						$().w2overlay();
-						delete obj.tmp.force_hide;
+						setTimeout(function () {
+							delete obj.tmp.force_hide;
+						}, 1);						
 						return;
 					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					if ($('#w2ui-overlay').length == 0) options.index = 0;
+					var msgNoItems = w2utils.lang('Empty list');
+					if (options.url != null && $(input).val().length < options.minLength) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
+					if (options.url != null && $(input).val() == '') msgNoItems = w2utils.lang('Type to search....');
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
 						search		: false,
 						render		: options.renderDrop,
 						maxHeight	: options.maxDropHeight,
+						msgNoItems	: msgNoItems,
 						// selected with mouse
 						onSelect: function (event) {
 							if (obj.type == 'enum') {
