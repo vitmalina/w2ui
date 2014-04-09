@@ -39,6 +39,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *	- multiple overlay at the same time (if it has name)
 *	- overlay options.css removed, I have added options.style
 *	- ability to open searchable w2menu
+* 	- w2confirm({})
 *
 ************************************************/
 
@@ -1391,6 +1392,7 @@ w2utils.keyboard = (function (obj) {
 			index		: null,		// current selected
 			items		: [],
 			render		: null,
+			msgNoItems 	: 'No items',
 			onSelect	: null,
 			tmp			: {}
 		};
@@ -1541,9 +1543,9 @@ w2utils.keyboard = (function (obj) {
 
 		function getMenuHTML () {
 			if (options.spinner) {
-				return  '<table class="w2ui-drop-menu"><tr><td style="padding: 10px; text-align: center;">'+
-						'	<div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px; left: 2px;"></div> '+
-						'	<div style="display: inline-block; padding: 5px;"> Loading...</div>'+
+				return  '<table class="w2ui-drop-menu"><tr><td style="padding: 5px 0px 10px 0px; text-align: center">'+
+						'	<div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
+						'	<div style="display: inline-block; padding: 3px; color: #999;"> Loading...</div>'+
 						'</td></tr></table>';
 			}
 			var count		= 0;
@@ -1591,7 +1593,7 @@ w2utils.keyboard = (function (obj) {
 				options.items[f] = mitem;
 			}
 			if (count === 0) {
-				menu_html += '<tr><td style="text-align: center; color: #999">No items</td></tr>';
+				menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
 			}
 			menu_html += "</table>";
 			return menu_html;
