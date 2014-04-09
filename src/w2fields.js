@@ -286,7 +286,7 @@
 						minLength		: 1,
 						cacheMax		: 250,
 						maxDropHeight 	: 350,			// max height for drop down menu
-						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
+						match			: 'begins',		// ['contains', 'is', 'begins', 'ends']
 						silent			: true,
 						icon			: null,
 						iconStyle		: '',
@@ -343,7 +343,7 @@
 						maxWidth		: 250,			// max width for a single item
 						maxHeight		: 350,			// max height for input control to grow
 						maxDropHeight 	: 350,			// max height for drop down menu
-						match			: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
+						match			: 'contains',	// ['contains', 'is', 'begins', 'ends']
 						silent			: true,
 						openOnFocus 	: false,		// if to show overlay onclick or when typing
 						markSearch 		: true,
@@ -1264,8 +1264,8 @@
 					var item = options.items[i];
 					var prefix = '';
 					var suffix = '';
-					if (['is', 'begins with'].indexOf(options.match) != -1) prefix = '^';
-					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
+					if (['is', 'begins'].indexOf(options.match) != -1) prefix = '^';
+					if (['is', 'ends'].indexOf(options.match) != -1) suffix = '$';
 					try {
 						var re = new RegExp(prefix + search + suffix, 'i');
 						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
@@ -1444,7 +1444,7 @@
 					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					if ($('#w2ui-overlay').length == 0) options.index = 0;
-					var msgNoItems = w2utils.lang('Empty list');
+					var msgNoItems = w2utils.lang('No matches');
 					if (options.url != null && $(input).val().length < options.minLength) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
 					if (options.url != null && $(input).val() == '') msgNoItems = w2utils.lang('Type to search....');
 					$(el).w2menu('refresh', $.extend(true, {}, options, {

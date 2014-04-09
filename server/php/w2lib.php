@@ -27,12 +27,12 @@ class w2grid_class {
 				$value    = "'".$search['value']."'";
 				switch (strtolower($search['operator'])) {
 
-					case 'begins with':
+					case 'begins':
 						$operator = ($dbType == "postgres" ? "ILIKE" : "LIKE");
 						$value 	  = "'".$search['value']."%'";
 						break;
 
-					case 'ends with':
+					case 'ends':
 						$operator = ($dbType == "postgres" ? "ILIKE" : "LIKE");
 						$value 	  = "'%".$search['value']."'";
 						break;

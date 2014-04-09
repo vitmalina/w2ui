@@ -33,7 +33,8 @@
 		$('.alphanumeric').w2field('alphanumeric');
 		$('.combo').w2field('combo', {
 			openOnFocus: true,
-			// url: 'http://w2ui.com:3000/api/enum/users',
+			minLength: 2,
+			url: 'http://w2ui.com:3000/api/enum/users',
 			items: items,
 			onRequest: function (event) {
 				// console.log('request', event);
@@ -51,7 +52,7 @@
 			// search: false,
 			applyFilter: true,
 			markSearch: true,
-			// url: '/api/enum/users',
+			url: 'http://w2ui.com:3000/api/enum/users',
 			items: items,
 			onRequest: function (event) {
 				console.log('list request', event);
@@ -70,7 +71,7 @@
 
 		});
 		$('.enum').w2field('enum', {
-			// url: '/api/enum/users',
+			url: 'http://w2ui.com:3000/api/enum/users',
 			openOnFocus: true,
 			items: items,
 			selected: [],
