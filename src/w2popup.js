@@ -14,7 +14,7 @@
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
 *	- add lock method() to lock popup content
-* 
+*
 ************************************************************************/
 
 var w2popup = {};
@@ -671,34 +671,34 @@ var w2alert = function (msg, title, callBack) {
 
 var w2confirm = function (obj, callBack) {
 
-    var w2confirm_width = 400,
-        w2confirm_height = 200,
+    var w2confirm_width     = 400,
+        w2confirm_height    = 200,
         w2confirm_yes_title = 'Yes',
         w2confirm_yes_class = '',
         w2confirm_yes_style = '',
-        w2confirm_no_title = 'No',
-        w2confirm_no_class = '',
-        w2confirm_no_style = '',
-        title =  w2utils.lang('Confirmation');
+        w2confirm_no_title  = 'No',
+        w2confirm_no_class  = '',
+        w2confirm_no_style  = '',
+        title               =  w2utils.lang('Confirmation');
 
     if (arguments.length == 1 && typeof obj == 'object') {
         var msg 		= w2utils.lang(obj['msg']),
             callBack 	= obj['callBack'],
             btn_yes 	= obj['btn_yes'],
             btn_no 	    = obj['btn_no'];
-        title = w2utils.lang(obj['title']);
+            title       = w2utils.lang(obj['title']);
 
-        if (w2utils.isInt(obj.width)) w2confirm_width = obj.width;
-        if (w2utils.isInt(obj.height)) w2confirm_height = obj.height;
+        if (w2utils.isInt(obj.width))   w2confirm_width  = obj.width;
+        if (w2utils.isInt(obj.height))  w2confirm_height = obj.height;
 
 
-        if(btn_yes){
-            if (btn_yes.title) w2confirm_yes_title = w2utils.lang(btn_yes.title);
+        if (btn_yes) {
+            if (btn_yes.text)  w2confirm_yes_title = w2utils.lang(btn_yes.text);
             if (btn_yes.class) w2confirm_yes_class = btn_yes.class;
             if (btn_yes.style) w2confirm_yes_style = btn_yes.style;
         }
-        if(btn_no){
-            if (btn_no.title) w2confirm_no_title = w2utils.lang(btn_no.title);
+        if (btn_no) {
+            if (btn_no.text)  w2confirm_no_title = w2utils.lang(btn_no.text);
             if (btn_no.class) w2confirm_no_class = btn_no.class;
             if (btn_no.style) w2confirm_no_style = btn_no.style;
         }
