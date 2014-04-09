@@ -709,8 +709,8 @@ var w2confirm = function (obj, callBack) {
 
    	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
 
-        w2confirm_width = w2popup.defaults.width;
-        w2confirm_height = w2popup.defaults.height-50;
+        w2confirm_width = w2popup.get().width;
+        w2confirm_height = w2popup.get().height-50;
 		w2popup.message({
 			width 	: w2confirm_width,
 			height 	: w2confirm_height,
