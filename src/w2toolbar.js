@@ -438,7 +438,7 @@
 			if (it && !it.disabled) {
 				// event before
 				var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id !== 'undefined' ? id : this.name),
-					item: this.get(id), originalEvent: event });
+					item: it, object: it, originalEvent: event });
 				if (eventData.isCancelled === true) return;
 
 				var btn = $('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button');

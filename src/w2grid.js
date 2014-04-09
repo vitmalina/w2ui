@@ -7,6 +7,9 @@
 *
 * == NICE TO HAVE ==
 *	- frozen columns
+*	- add colspans
+*	- get rid of this.buffered
+*	- allow this.total to be unknown (-1)
 *	- column autosize based on largest content
 *	- save grid state into localStorage and restore
 *	- easy bubbles in the grid
@@ -15,11 +18,8 @@
 *	- hidden searches could not be clearned by the user
 *	- problem with .set() and arrays, array get extended too, but should be replaced
 *	- move events into prototype
-*	- add colspans
 *	- add grid.focus()
 *	- add showExtra, KickIn Infinite scroll when so many records
-*	- get rid of this.buffered
-*	- allow this.total to be unknown (-1)
 *	- after edit stay on the same record option
 *
 * == 1.4 changes

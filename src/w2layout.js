@@ -8,6 +8,7 @@
 * == NICE TO HAVE ==
 *	- onResize for the panel
 *	- add more panel title positions (left=rotated, right=rotated, bottom)
+*	- bug: resizer is visible (and onHover) when panel is hidden.
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
