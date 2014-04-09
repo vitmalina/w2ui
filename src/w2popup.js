@@ -672,11 +672,11 @@ var w2alert = function (msg, title, callBack) {
 var w2confirm = function (obj, callBack) {
 
     var w2confirm_width     = 400,
-        w2confirm_height    = 200,
-        w2confirm_yes_title = 'Yes',
+        w2confirm_height    = 150,
+        w2confirm_yes_text = 'Yes',
         w2confirm_yes_class = '',
         w2confirm_yes_style = '',
-        w2confirm_no_title  = 'No',
+        w2confirm_no_text  = 'No',
         w2confirm_no_class  = '',
         w2confirm_no_style  = '',
         title               =  w2utils.lang('Confirmation');
@@ -686,19 +686,19 @@ var w2confirm = function (obj, callBack) {
             callBack 	= obj['callBack'],
             btn_yes 	= obj['btn_yes'],
             btn_no 	    = obj['btn_no'];
-            title       = w2utils.lang(obj['title']);
 
-        if (w2utils.isInt(obj.width))   w2confirm_width  = obj.width;
-        if (w2utils.isInt(obj.height))  w2confirm_height = obj.height;
+        if (obj.title) title = w2utils.lang(obj['title']);
+        if (w2utils.isInt(obj.width))  w2confirm_width  = obj.width;
+        if (w2utils.isInt(obj.height)) w2confirm_height = obj.height;
 
 
         if (btn_yes) {
-            if (btn_yes.text)  w2confirm_yes_title = w2utils.lang(btn_yes.text);
+            if (btn_yes.text)  w2confirm_yes_text = w2utils.lang(btn_yes.text);
             if (btn_yes.class) w2confirm_yes_class = btn_yes.class;
             if (btn_yes.style) w2confirm_yes_style = btn_yes.style;
         }
         if (btn_no) {
-            if (btn_no.text)  w2confirm_no_title = w2utils.lang(btn_no.text);
+            if (btn_no.text)  w2confirm_no_text = w2utils.lang(btn_no.text);
             if (btn_no.class) w2confirm_no_class = btn_no.class;
             if (btn_no.style) w2confirm_no_style = btn_no.style;
         }
@@ -710,7 +710,7 @@ var w2confirm = function (obj, callBack) {
    	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
 
         if (w2confirm_width > w2popup.get().width) w2confirm_width = w2popup.get().width;
-        if (w2confirm_height > w2popup.get().height) w2confirm_height = w2popup.get().height - 50;
+        if (w2confirm_height > (w2popup.get().height - 50)) w2confirm_height = w2popup.get().height - 50;
       	w2popup.message({
 			width 	: w2confirm_width,
 			height 	: w2confirm_height,
@@ -718,8 +718,8 @@ var w2confirm = function (obj, callBack) {
 					  '		<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
 					  '</div>' +
 					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '		<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_title) + '</button>' +
-                      '		<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_title) + '</button>' +
+                      '		<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_text) + '</button>' +
+                      '		<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_text) + '</button>' +
 					  '</div>',
 			onOpen: function () {
 				$('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
@@ -741,6 +741,7 @@ var w2confirm = function (obj, callBack) {
 			}
 		});
 	} else {
+        if (!w2utils.isInt(obj.height)) w2confirm_height = w2confirm_height + 50;
         w2popup.open({
 			width 		: w2confirm_width,
 			height 		: w2confirm_height,
@@ -748,8 +749,8 @@ var w2confirm = function (obj, callBack) {
 			modal		: true,
 			showClose	: false,
 			body		: '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
-			buttons		: '<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_title) + '</button>'+
-                          '<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_title) + '</button>',
+			buttons		: '<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_text) + '</button>'+
+                          '<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_text) + '</button>',
 			onOpen: function (event) {
 				event.onComplete = function () {
 					$('#w2ui-popup .w2ui-popup-btn').on('click', function (event) {
