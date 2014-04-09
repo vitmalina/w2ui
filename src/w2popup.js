@@ -669,24 +669,57 @@ var w2alert = function (msg, title, callBack) {
 	}
 };
 
-var w2confirm = function (msg, title, callBack) {
-	if (typeof callBack == 'undefined' || typeof title == 'function') {
-		callBack = title;
-		title = w2utils.lang('Confirmation');
-	}
-	if (typeof title == 'undefined') {
-		title = w2utils.lang('Confirmation');
-	}
-	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
+var w2confirm = function (obj, callBack) {
+
+    var w2confirm_width = 400,
+        w2confirm_height = 200,
+        w2confirm_yes_title = 'Yes',
+        w2confirm_yes_class = '',
+        w2confirm_yes_style = '',
+        w2confirm_no_title = 'No',
+        w2confirm_no_class = '',
+        w2confirm_no_style = '',
+        title =  w2utils.lang('Confirmation');
+
+    if (arguments.length == 1 && typeof obj == 'object') {
+        var msg 		= w2utils.lang(obj['msg']),
+            callBack 	= obj['callBack'],
+            btn_yes 	= obj['btn_yes'],
+            btn_no 	    = obj['btn_no'];
+        title = w2utils.lang(obj['title']);
+
+        if (w2utils.isInt(obj.width)) w2confirm_width = obj.width;
+        if (w2utils.isInt(obj.height)) w2confirm_height = obj.height;
+
+
+        if(btn_yes){
+            if (btn_yes.title) w2confirm_yes_title = w2utils.lang(btn_yes.title);
+            if (btn_yes.class) w2confirm_yes_class = btn_yes.class;
+            if (btn_yes.style) w2confirm_yes_style = btn_yes.style;
+        }
+        if(btn_no){
+            if (btn_no.title) w2confirm_no_title = w2utils.lang(btn_no.title);
+            if (btn_no.class) w2confirm_no_class = btn_no.class;
+            if (btn_no.style) w2confirm_no_style = btn_no.style;
+        }
+
+    } else {
+        var msg = obj;
+    }
+
+   	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
+
+        w2confirm_width = w2popup.defaults.width;
+        w2confirm_height = w2popup.defaults.height-50;
 		w2popup.message({
-			width 	: 400,
-			height 	: 150,
+			width 	: w2confirm_width,
+			height 	: w2confirm_height,
 			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">' +
 					  '		<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
 					  '</div>' +
 					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-					  '		<button id="Yes" class="w2ui-popup-btn btn">' + w2utils.lang('Yes') + '</button>' +
-					  '		<button id="No" class="w2ui-popup-btn btn">' + w2utils.lang('No') + '</button>' +
+                      '		<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_title) + '</button>' +
+                      '		<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_title) + '</button>' +
 					  '</div>',
 			onOpen: function () {
 				$('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
@@ -708,15 +741,15 @@ var w2confirm = function (msg, title, callBack) {
 			}
 		});
 	} else {
-		w2popup.open({
-			width 		: 450,
-			height 		: 200,
+        w2popup.open({
+			width 		: w2confirm_width,
+			height 		: w2confirm_height,
 			title   	: title,
 			modal		: true,
 			showClose	: false,
 			body		: '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
-			buttons		: '<button id="No" class="w2ui-popup-btn btn">' + w2utils.lang('No') + '</button>'+
-						  '<button id="Yes" class="w2ui-popup-btn btn">' + w2utils.lang('Yes') + '</button>',
+			buttons		: '<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_title) + '</button>'+
+                          '<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_title) + '</button>',
 			onOpen: function (event) {
 				event.onComplete = function () {
 					$('#w2ui-popup .w2ui-popup-btn').on('click', function (event) {
