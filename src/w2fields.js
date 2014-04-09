@@ -35,6 +35,8 @@
 *	- easy way to add icons
 *	- easy way to navigate month/year in dates
 *	- added step for numeric inputs
+*	- changed prepopulate -> minLength
+*	- added options.postData
 *
 ************************************************************************/
 
@@ -280,7 +282,8 @@
 						selected		: {},
 						placeholder		: '',
 						url 			: null, 		// url to pull data from
-						prepopulate		: true,
+						postData		: {},
+						minLength		: 1,
 						cacheMax		: 250,
 						maxDropHeight 	: 350,			// max height for drop down menu
 						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
@@ -334,7 +337,8 @@
 						placeholder		: '',
 						max 			: 0,			// max number of selected items, 0 - unlim
 						url 			: null, 		// not implemented
-						prepopulate		: true,			// if true pull records from url during init
+						postData		: {},
+						minLength		: 1, 
 						cacheMax		: 250,
 						maxWidth		: 250,			// max width for a single item
 						maxHeight		: 350,			// max height for input control to grow
@@ -1155,7 +1159,11 @@
 				var tmp = $(obj.helpers.focus).find('input');
 				if (tmp.length == 0) search = ''; else search = tmp.val();
 			}
-			if (search == '' && !options.prepopulate) return;
+			if (options.minLength != 0 && search.length < options.minLength) {
+				options.items = []; // need to empty the list
+				this.updateOverlay();
+				return;
+			}
 			if (typeof interval == 'undefined') interval = 350;
 			if (typeof obj.tmp.xhr_search == 'undefined') obj.tmp.xhr_search = '';
 			if (typeof obj.tmp.xhr_total == 'undefined') obj.tmp.xhr_total = -1;
@@ -1178,6 +1186,7 @@
 						search	: search,
 						max 	: options.cacheMax
 					};
+					$.extend(postData, options.postData);
 					var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
 					if (eventData.isCancelled === true) return;
 					url		 = eventData.url;
@@ -1428,15 +1437,21 @@
 					}
 					if (obj.tmp.force_hide) {
 						$().w2overlay();
-						delete obj.tmp.force_hide;
+						setTimeout(function () {
+							delete obj.tmp.force_hide;
+						}, 1);						
 						return;
 					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					if ($('#w2ui-overlay').length == 0) options.index = 0;
+					var msgNoItems = w2utils.lang('Empty list');
+					if (options.url != null && $(input).val().length < options.minLength) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
+					if (options.url != null && $(input).val() == '') msgNoItems = w2utils.lang('Type to search....');
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
 						search		: false,
 						render		: options.renderDrop,
 						maxHeight	: options.maxDropHeight,
+						msgNoItems	: msgNoItems,
 						// selected with mouse
 						onSelect: function (event) {
 							if (obj.type == 'enum') {
