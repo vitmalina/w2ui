@@ -1010,7 +1010,7 @@
 						var item  = options.items[options.index];
 						var multi = $(obj.helpers.multi).find('input');
 						if (obj.type == 'enum') {
-							if (item) {
+							if (item != null) {
 								// trigger event
 								var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
 								if (eventData.isCancelled === true) return;
@@ -1125,7 +1125,7 @@
 				// run search
 				if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
 					setTimeout(function () {
-						obj.request();
+						if (!obj.tmp.force_hide) obj.request();
 						obj.search();
 					}, 1);
 				}
@@ -1151,6 +1151,9 @@
 			var obj 	 = this;
 			var options  = this.options;
 			var search 	 = $(obj.el).val() || '';
+			// if no url - do nothing
+			if (!options.url) return;
+			// --
 			if (obj.type == 'enum') {
 				var tmp = $(obj.helpers.multi).find('input');
 				if (tmp.length == 0) search = ''; else search = tmp.val();
@@ -1216,6 +1219,7 @@
 							obj.tmp.xhr_search 	= search;
 							obj.tmp.xhr_total 	= data.items.length;
 							options.items 		= data.items;
+							if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
 							obj.search();
 							// console.log('-->', 'retrieved:', obj.tmp.xhr_total);
 							// event after
@@ -1244,16 +1248,17 @@
 			var options = this.options;
 			var search 	= $(obj.el).val();
 			var target	= obj.el;
-			var ids = [];
+			var ids 	= [];
+			var selected= $(obj.el).data('selected');
 			if (obj.type == 'enum') {
 				target = $(obj.helpers.multi).find('input');
 				search = target.val();
-				for (var s in options.selected) { ids.push(options.selected[s].id); }
+				for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
 			}
 			if (obj.type == 'list') {
 				target = $(obj.helpers.focus).find('input');
 				search = target.val();
-				for (var s in options.selected) { ids.push(options.selected[s].id); }
+				for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
 			}
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'search', target: target, search: search });
@@ -1283,7 +1288,12 @@
 				if (shown <= 0) options.index = -1;
 				options.spinner = false;
 				obj.updateOverlay();
-				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
+				setTimeout(function () { 
+					var html = $('#w2ui-overlay').html() || '';
+					if (options.markSearch && html.indexOf('$.fn.w2menuHandler') != -1) { // do not highlight when no items
+						$('#w2ui-overlay').w2marker(search); 
+					}
+				}, 1);
 			} else {
 				options.items.splice(0, options.cacheMax);
 				options.spinner = true;
@@ -1445,8 +1455,8 @@
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					if ($('#w2ui-overlay').length == 0) options.index = 0;
 					var msgNoItems = w2utils.lang('No matches');
-					if (options.url != null && $(input).val().length < options.minLength) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
-					if (options.url != null && $(input).val() == '') msgNoItems = w2utils.lang('Type to search....');
+					if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
+					if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search....');
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
 						search		: false,
 						render		: options.renderDrop,
@@ -1942,16 +1952,22 @@
 		},
 
 		normMenu: function (menu) {
-			for (var m = 0; m < menu.length; m++) {
-				if (typeof menu[m] == 'string') {
-					menu[m] = { id: menu[m], text: menu[m] };
-				} else {
-					if (typeof menu[m].text != 'undefined' && typeof menu[m].id == 'undefined') menu[m].id = menu[m].text;
-					if (typeof menu[m].text == 'undefined' && typeof menu[m].id != 'undefined') menu[m].text = menu[m].id;
-					if (typeof menu[m].caption != 'undefined') menu[m].text = menu[m].caption;
+			if ($.isArray(menu)) {
+				for (var m = 0; m < menu.length; m++) {
+					if (typeof menu[m] == 'string') {
+						menu[m] = { id: menu[m], text: menu[m] };
+					} else {
+						if (typeof menu[m].text != 'undefined' && typeof menu[m].id == 'undefined') menu[m].id = menu[m].text;
+						if (typeof menu[m].text == 'undefined' && typeof menu[m].id != 'undefined') menu[m].text = menu[m].id;
+						if (typeof menu[m].caption != 'undefined') menu[m].text = menu[m].caption;
+					}
 				}
+				return menu;
+			} else if (typeof menu == 'object') {
+				var tmp = []
+				for (var m in menu) tmp.push({ id: m, text: menu[m] });
+				return tmp;
 			}
-			return menu
 		},
 
 		getColorHTML: function () {
