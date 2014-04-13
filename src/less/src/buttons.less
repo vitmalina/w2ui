@@ -1,12 +1,14 @@
-/* buttons */
+// Buttons
+
+@btn-text-shadow: 1px 1px 1px #777;
 
 .btn {
 	display: inline-block;
 	border-radius: 4px;
-	font-size: 12px !important;
-	margin: 0px 5px !important;
-	padding: 7px !important;
+	margin: 0px 5px;
+	padding: 7px 12px 6px 12px !important;
 	color: #666;
+	font-size: 12px !important;
 	border: 1px solid #B6B6B6;
 	.linear-gradient(top, #FFF 0%, #E7E7E7 100%);
 	outline: none;
@@ -14,6 +16,8 @@
 	cursor: default;
 	min-width: 75px;
 	line-height: 100% !important;
+	-webkit-user-select: none;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
 
 	&:hover {
 		text-decoration: none;
@@ -22,8 +26,8 @@
 		color: #333;
 	}
 
-	&:active {
-		border: 1px solid #999 !important;
+	&:active, &.clicked {
+		border: 1px solid #999;
 		.linear-gradient(top, #ccc 0%, #ccc 100%);
 		text-shadow: 1px 1px 1px #eee;
 	}
@@ -32,88 +36,98 @@
 		border: 1px solid #bbb !important;
 		background: rgb(247, 247, 247) !important;
 		color: rgb(189, 188, 188) !important;
+		text-shadow: none !important;
 	}
 }
 
-/* BLUE */
+// Blue
 
 .btn-blue {
-	color: black;
-	.linear-gradient(top, #D9E5F3 0%, #C4D6EE 100%);
-	border: 1px solid #8CA7D0;
-	text-shadow: 1px 1px 1px #eee;
+	color: white;
+	.linear-gradient(top, #80C0F7 0%, #269DF0 100%);
+	border: 1px solid #538AB7;
+	text-shadow: @btn-text-shadow;
 
 	&:hover {
-		color: black;
-		.linear-gradient(top, #D1E0F3 0%, #B3C9E6 100%);
-		border: 1px solid #8CA7D0;
+		color: white;
+		.linear-gradient(top, #73B6F0 0%, #2391DD 100%);
+		border: 1px solid #497BA3;
+		text-shadow: @btn-text-shadow;
 	}
 
-	&:active {
-		border: 1px solid #6981AB;
-		.linear-gradient(top, #ABBDD8 0%, #ABBDD8 100%);
+	&:active, &.clicked {
+		color: white;
+		.linear-gradient(top, #1E83C9 0%, #1E83C9 100%);
+		border: 1px solid #1268A6;
+		text-shadow: @btn-text-shadow;
 	}
 }
 
-/* GREEN */
+// Green
 
 .btn-green {
 	color: white;
 	.linear-gradient(top, #81CF81 0%, #52A452 100%);
 	border: 1px solid #479247;
-	text-shadow: 1px 1px 1px #555;
+	text-shadow: @btn-text-shadow;
 
 	&:hover {
 		color: white;
 		.linear-gradient(top, #6ABE68 0%, #3F8F3D 100%);
 		border: 1px solid #479247;
+		text-shadow: @btn-text-shadow;
 	}
 
-	&:active {
-		border: 1px solid #555 !important;
+	&:active, &.clicked {
+		color: white;
 		.linear-gradient(top, #377D36 0%, #377D36 100%);
-		text-shadow: 1px 1px 1px #479247;
+		border: 1px solid #555 !important;
+		text-shadow: @btn-text-shadow;
 	}
 }
 
-/* ORANGE */
+// Orange
 
 .btn-orange {
 	color: white;
 	.linear-gradient(top, #FCC272 0%, #FB8822 100%);
 	border: 1px solid #B68B4C;
-	text-shadow: 1px 1px 1px #444;
+	text-shadow: @btn-text-shadow;
 
 	&:hover {
 		color: white;
 		.linear-gradient(top, #F4AD59 0%, #F1731F 100%);
 		border: 1px solid #B68B4C;
+		text-shadow: @btn-text-shadow;
 	}
 
-	&:active {
+	&:active, &.clicked {
+		color: white;
 		border: 1px solid #666;
 		.linear-gradient(top, #B98747 0%, #B98747 100%);
-		text-shadow: 1px 1px 1px #444;
+		text-shadow: @btn-text-shadow;
 	}
 }
 
-/* RED */
+// Red
 
 .btn-red {
 	color: white;
-	.linear-gradient(top, #F07E7B 0%, #BF3830 100%);
+	.linear-gradient(top, #FF6E70 0%, #C72D2D 100%);
 	border: 1px solid #BB3C3E;
-	text-shadow: 1px 1px 1px #444;
+	text-shadow: @btn-text-shadow;
 
 	&:hover {
 		color: white;
 		.linear-gradient(top, #EE696C 0%, #AE2527 100%);
 		border: 1px solid #BB3C3E;
+		text-shadow: @btn-text-shadow;
 	}
 
-	&:active {
+	&:active, &.clicked {
+		color: white;
 		border: 1px solid #861C1E;
 		.linear-gradient(top, #9C2123 0%, #9C2123 100%);
-		text-shadow: 1px 1px 1px #444;
+		text-shadow: @btn-text-shadow;
 	}
 }
