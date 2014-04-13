@@ -5908,14 +5908,14 @@ w2utils.keyboard = (function (obj) {
 									resizer +
 								'	<div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
 								'		<div class="'+ sortStyle +'"></div>'+
-										(col.caption == '' ? '&nbsp;' : col.caption) +
+										(!col.caption ? '&nbsp;' : col.caption) +
 								'	</div>'+
 								'</td>';
 					} else {
 						html += '<td class="w2ui-head" col="'+ ii + '" '+
 								'		colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'">'+
 								'	<div class="w2ui-col-group">'+
-									(colg.caption == '' ? '&nbsp;' : colg.caption) +
+									(!colg.caption ? '&nbsp;' : colg.caption) +
 								'	</div>'+
 								'</td>';
 					}
@@ -5978,7 +5978,7 @@ w2utils.keyboard = (function (obj) {
 									resizer +
 								'	<div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
 								'		<div class="'+ sortStyle +'"></div>'+
-										(col.caption == '' ? '&nbsp;' : col.caption) +
+										(!col.caption ? '&nbsp;' : col.caption) +
 								'	</div>'+
 								'</td>';
 					}
@@ -8293,9 +8293,9 @@ var w2confirm = function (obj, callBack) {
 
    	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
 
-        w2confirm_width = w2popup.defaults.width;
-        w2confirm_height = w2popup.defaults.height-50;
-		w2popup.message({
+        if (w2confirm_width > w2popup.get().width) w2confirm_width = w2popup.get().width;
+        if (w2confirm_height > w2popup.get().height) w2confirm_height = w2popup.get().height - 50;
+      	w2popup.message({
 			width 	: w2confirm_width,
 			height 	: w2confirm_height,
 			html 	: '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">' +
@@ -9303,6 +9303,8 @@ var w2confirm = function (obj, callBack) {
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- bug: bixed bug with selection
+*	- new: find({ params }) - returns all matched nodes
 *
 ************************************************************************/
 
@@ -9375,7 +9377,7 @@ var w2confirm = function (obj, callBack) {
 		node: {
 			id				: null,
 			text			: '',
-			count			: '',
+			count			: null,
 			img				: null,
 			icon			: null,
 			nodes			: [],
@@ -9527,6 +9529,27 @@ var w2confirm = function (obj, callBack) {
 				}
 			}
 			return null;
+		},
+
+		find: function (parent, params, results) { // can be just called find({ selected: true })
+			if (arguments.length == 1) {
+				// need to be in reverse order
+				params = parent;
+				parent = this;
+			}
+			if (!results) results = [];
+			// searches all nested nodes
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return results;
+			for (var i = 0; i < parent.nodes.length; i++) {
+				var match = true;
+				for (var prop in params) {
+					if (parent.nodes[i][prop] != params[prop]) match = false;
+				}
+				if (match) results.push(parent.nodes[i]);
+				if (parent.nodes[i].nodes.length > 0) results = this.find(parent.nodes[i], params, results);
+			}
+			return results;
 		},
 
 		hide: function () { // multiple arguments
@@ -9685,23 +9708,30 @@ var w2confirm = function (obj, callBack) {
 			var obj = this;
 			var nd  = this.get(id);
 			if (nd === null) return;
-			var old = this.selected;
 			if (nd.disabled || nd.group) return; // should click event if already selected
-			// move selected first
-			$(obj.box).find('#node_'+ w2utils.escapeId(old)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
-			$(obj.box).find('#node_'+ w2utils.escapeId(id)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
+			// unselect all previsously
+			$(obj.box).find('.w2ui-node.w2ui-selected').each(function (index, el) {
+				var oldID 	= $(el).attr('id').replace('node_', '');
+				var oldNode = obj.get(oldID);
+				if (oldNode != null) oldNode.selected = false;
+				$(el).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+			});
+			// select new one
+			var newNode = $(obj.box).find('#node_'+ w2utils.escapeId(id));
+			var oldNode = $(obj.box).find('#node_'+ w2utils.escapeId(obj.selected));
+			newNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
 				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, node: nd, object: nd });
 				if (eventData.isCancelled === true) {
 					// restore selection
-					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
-					$(obj.box).find('#node_'+ w2utils.escapeId(old)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
+					newNode.removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+					oldNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
 					return;
 				}
 				// default action
-				if (old !== null) obj.get(old).selected = false;
+				if (oldNode !== null) oldNode.selected = false;
 				obj.get(id).selected = true;
 				obj.selected = id;
 				// event after
@@ -10008,7 +10038,7 @@ var w2confirm = function (obj, callBack) {
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+
 							tmp +
-							(nd.count !== '' ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
+							(nd.count || nd.count == 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
 						'</td>'+
 						'</tr></table>'+
@@ -10358,7 +10388,7 @@ var w2confirm = function (obj, callBack) {
 						minLength		: 1,
 						cacheMax		: 250,
 						maxDropHeight 	: 350,			// max height for drop down menu
-						match			: 'begins with',// ['contains', 'is', 'begins with', 'ends with']
+						match			: 'begins',		// ['contains', 'is', 'begins', 'ends']
 						silent			: true,
 						icon			: null,
 						iconStyle		: '',
@@ -10415,7 +10445,7 @@ var w2confirm = function (obj, callBack) {
 						maxWidth		: 250,			// max width for a single item
 						maxHeight		: 350,			// max height for input control to grow
 						maxDropHeight 	: 350,			// max height for drop down menu
-						match			: 'contains',	// ['contains', 'is', 'begins with', 'ends with']
+						match			: 'contains',	// ['contains', 'is', 'begins', 'ends']
 						silent			: true,
 						openOnFocus 	: false,		// if to show overlay onclick or when typing
 						markSearch 		: true,
@@ -11082,7 +11112,7 @@ var w2confirm = function (obj, callBack) {
 						var item  = options.items[options.index];
 						var multi = $(obj.helpers.multi).find('input');
 						if (obj.type == 'enum') {
-							if (item) {
+							if (item != null) {
 								// trigger event
 								var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
 								if (eventData.isCancelled === true) return;
@@ -11197,7 +11227,7 @@ var w2confirm = function (obj, callBack) {
 				// run search
 				if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
 					setTimeout(function () {
-						obj.request();
+						if (!obj.tmp.force_hide) obj.request();
 						obj.search();
 					}, 1);
 				}
@@ -11223,6 +11253,9 @@ var w2confirm = function (obj, callBack) {
 			var obj 	 = this;
 			var options  = this.options;
 			var search 	 = $(obj.el).val() || '';
+			// if no url - do nothing
+			if (!options.url) return;
+			// --
 			if (obj.type == 'enum') {
 				var tmp = $(obj.helpers.multi).find('input');
 				if (tmp.length == 0) search = ''; else search = tmp.val();
@@ -11288,6 +11321,7 @@ var w2confirm = function (obj, callBack) {
 							obj.tmp.xhr_search 	= search;
 							obj.tmp.xhr_total 	= data.items.length;
 							options.items 		= data.items;
+							if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
 							obj.search();
 							// console.log('-->', 'retrieved:', obj.tmp.xhr_total);
 							// event after
@@ -11316,16 +11350,17 @@ var w2confirm = function (obj, callBack) {
 			var options = this.options;
 			var search 	= $(obj.el).val();
 			var target	= obj.el;
-			var ids = [];
+			var ids 	= [];
+			var selected= $(obj.el).data('selected');
 			if (obj.type == 'enum') {
 				target = $(obj.helpers.multi).find('input');
 				search = target.val();
-				for (var s in options.selected) { ids.push(options.selected[s].id); }
+				for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
 			}
 			if (obj.type == 'list') {
 				target = $(obj.helpers.focus).find('input');
 				search = target.val();
-				for (var s in options.selected) { ids.push(options.selected[s].id); }
+				for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
 			}
 			// trigger event
 			var eventData = obj.trigger({ phase: 'before', type: 'search', target: target, search: search });
@@ -11336,8 +11371,8 @@ var w2confirm = function (obj, callBack) {
 					var item = options.items[i];
 					var prefix = '';
 					var suffix = '';
-					if (['is', 'begins with'].indexOf(options.match) != -1) prefix = '^';
-					if (['is', 'ends with'].indexOf(options.match) != -1) suffix = '$';
+					if (['is', 'begins'].indexOf(options.match) != -1) prefix = '^';
+					if (['is', 'ends'].indexOf(options.match) != -1) suffix = '$';
 					try {
 						var re = new RegExp(prefix + search + suffix, 'i');
 						if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
@@ -11355,7 +11390,12 @@ var w2confirm = function (obj, callBack) {
 				if (shown <= 0) options.index = -1;
 				options.spinner = false;
 				obj.updateOverlay();
-				setTimeout(function () { if (options.markSearch) $('#w2ui-overlay').w2marker(search); }, 1);
+				setTimeout(function () { 
+					var html = $('#w2ui-overlay').html() || '';
+					if (options.markSearch && html.indexOf('$.fn.w2menuHandler') != -1) { // do not highlight when no items
+						$('#w2ui-overlay').w2marker(search); 
+					}
+				}, 1);
 			} else {
 				options.items.splice(0, options.cacheMax);
 				options.spinner = true;
@@ -11516,9 +11556,9 @@ var w2confirm = function (obj, callBack) {
 					}
 					if ($(input).val() != '') delete obj.tmp.force_open;
 					if ($('#w2ui-overlay').length == 0) options.index = 0;
-					var msgNoItems = w2utils.lang('Empty list');
-					if (options.url != null && $(input).val().length < options.minLength) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
-					if (options.url != null && $(input).val() == '') msgNoItems = w2utils.lang('Type to search....');
+					var msgNoItems = w2utils.lang('No matches');
+					if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
+					if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search....');
 					$(el).w2menu('refresh', $.extend(true, {}, options, {
 						search		: false,
 						render		: options.renderDrop,
@@ -12014,16 +12054,22 @@ var w2confirm = function (obj, callBack) {
 		},
 
 		normMenu: function (menu) {
-			for (var m = 0; m < menu.length; m++) {
-				if (typeof menu[m] == 'string') {
-					menu[m] = { id: menu[m], text: menu[m] };
-				} else {
-					if (typeof menu[m].text != 'undefined' && typeof menu[m].id == 'undefined') menu[m].id = menu[m].text;
-					if (typeof menu[m].text == 'undefined' && typeof menu[m].id != 'undefined') menu[m].text = menu[m].id;
-					if (typeof menu[m].caption != 'undefined') menu[m].text = menu[m].caption;
+			if ($.isArray(menu)) {
+				for (var m = 0; m < menu.length; m++) {
+					if (typeof menu[m] == 'string') {
+						menu[m] = { id: menu[m], text: menu[m] };
+					} else {
+						if (typeof menu[m].text != 'undefined' && typeof menu[m].id == 'undefined') menu[m].id = menu[m].text;
+						if (typeof menu[m].text == 'undefined' && typeof menu[m].id != 'undefined') menu[m].text = menu[m].id;
+						if (typeof menu[m].caption != 'undefined') menu[m].text = menu[m].caption;
+					}
 				}
+				return menu;
+			} else if (typeof menu == 'object') {
+				var tmp = []
+				for (var m in menu) tmp.push({ id: m, text: menu[m] });
+				return tmp;
 			}
-			return menu
 		},
 
 		getColorHTML: function () {
@@ -12214,6 +12260,7 @@ var w2confirm = function (obj, callBack) {
 *	- form should read <select> <options> into items
 * 	- two way data bindings
 * 	- verify validation of fields
+*	- when field is blank, set record.field = null
 *
 * == 1.4 Changes ==
 *	- refactored for the new fields
