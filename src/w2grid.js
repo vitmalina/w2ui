@@ -4303,14 +4303,14 @@
 									resizer +
 								'	<div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
 								'		<div class="'+ sortStyle +'"></div>'+
-										(col.caption == '' ? '&nbsp;' : col.caption) +
+										(!col.caption ? '&nbsp;' : col.caption) +
 								'	</div>'+
 								'</td>';
 					} else {
 						html += '<td class="w2ui-head" col="'+ ii + '" '+
 								'		colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'">'+
 								'	<div class="w2ui-col-group">'+
-									(colg.caption == '' ? '&nbsp;' : colg.caption) +
+									(!colg.caption ? '&nbsp;' : colg.caption) +
 								'	</div>'+
 								'</td>';
 					}
@@ -4373,7 +4373,7 @@
 									resizer +
 								'	<div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
 								'		<div class="'+ sortStyle +'"></div>'+
-										(col.caption == '' ? '&nbsp;' : col.caption) +
+										(!col.caption ? '&nbsp;' : col.caption) +
 								'	</div>'+
 								'</td>';
 					}

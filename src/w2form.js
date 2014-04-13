@@ -12,6 +12,7 @@
 *	- form should read <select> <options> into items
 * 	- two way data bindings
 * 	- verify validation of fields
+*	- when field is blank, set record.field = null
 *
 * == 1.4 Changes ==
 *	- refactored for the new fields
