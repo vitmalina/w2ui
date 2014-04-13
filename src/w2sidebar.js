@@ -15,6 +15,8 @@
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*	- bug: bixed bug with selection
+*	- new: find({ params }) - returns all matched nodes
 *
 ************************************************************************/
 
@@ -87,7 +89,7 @@
 		node: {
 			id				: null,
 			text			: '',
-			count			: '',
+			count			: null,
 			img				: null,
 			icon			: null,
 			nodes			: [],
@@ -239,6 +241,27 @@
 				}
 			}
 			return null;
+		},
+
+		find: function (parent, params, results) { // can be just called find({ selected: true })
+			if (arguments.length == 1) {
+				// need to be in reverse order
+				params = parent;
+				parent = this;
+			}
+			if (!results) results = [];
+			// searches all nested nodes
+			if (typeof parent == 'string') parent = this.get(parent);
+			if (parent.nodes == null) return results;
+			for (var i = 0; i < parent.nodes.length; i++) {
+				var match = true;
+				for (var prop in params) {
+					if (parent.nodes[i][prop] != params[prop]) match = false;
+				}
+				if (match) results.push(parent.nodes[i]);
+				if (parent.nodes[i].nodes.length > 0) results = this.find(parent.nodes[i], params, results);
+			}
+			return results;
 		},
 
 		hide: function () { // multiple arguments
@@ -397,23 +420,30 @@
 			var obj = this;
 			var nd  = this.get(id);
 			if (nd === null) return;
-			var old = this.selected;
 			if (nd.disabled || nd.group) return; // should click event if already selected
-			// move selected first
-			$(obj.box).find('#node_'+ w2utils.escapeId(old)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
-			$(obj.box).find('#node_'+ w2utils.escapeId(id)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
+			// unselect all previsously
+			$(obj.box).find('.w2ui-node.w2ui-selected').each(function (index, el) {
+				var oldID 	= $(el).attr('id').replace('node_', '');
+				var oldNode = obj.get(oldID);
+				if (oldNode != null) oldNode.selected = false;
+				$(el).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+			});
+			// select new one
+			var newNode = $(obj.box).find('#node_'+ w2utils.escapeId(id));
+			var oldNode = $(obj.box).find('#node_'+ w2utils.escapeId(obj.selected));
+			newNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
 			// need timeout to allow rendering
 			setTimeout(function () {
 				// event before
 				var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, node: nd, object: nd });
 				if (eventData.isCancelled === true) {
 					// restore selection
-					$(obj.box).find('#node_'+ w2utils.escapeId(id)).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
-					$(obj.box).find('#node_'+ w2utils.escapeId(old)).addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
+					newNode.removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
+					oldNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
 					return;
 				}
 				// default action
-				if (old !== null) obj.get(old).selected = false;
+				if (oldNode !== null) oldNode.selected = false;
 				obj.get(id).selected = true;
 				obj.selected = id;
 				// event after
@@ -720,7 +750,7 @@
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+
 							tmp +
-							(nd.count !== '' ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
+							(nd.count || nd.count == 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
 						'</td>'+
 						'</tr></table>'+
