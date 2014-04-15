@@ -786,7 +786,17 @@
 					// enums
 					case 'list':
 					case 'combo':
-						if (field.type == 'combo' && !$.isPlainObject(value)) {
+						if (field.type == 'list' && !$.isPlainObject(value)) {
+							// find value from items
+							for (var i in field.options.items) {
+								var item = field.options.items[i];
+								if (item && item.id == value) {
+									value = $.extend(true, {}, item);
+									obj.record[field.name] = value;
+									break;
+								}
+							}
+						} else if (field.type == 'combo' && !$.isPlainObject(value)) {
 							field.el.value = value;
 						} else if ($.isPlainObject(value) && typeof value.text != 'undefined') {
 							field.el.value = value.text;

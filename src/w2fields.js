@@ -312,7 +312,6 @@
 						altRows		: true			// alternate row color
 					});
 					options.items 	 = this.normMenu(options.items);
-					options.selected = this.normMenu(options.selected);
 					this.options = options;
 					if (!$.isPlainObject(options.selected)) options.selected = {};
 					$(this.el).data('selected', options.selected);
