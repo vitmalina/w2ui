@@ -1113,7 +1113,7 @@
 						if (fld2) value2 = fld2.clean(value2);
 					}
 					if (['list', 'enum'].indexOf(search.type) != -1) {
-						value1 = field1.data('selected');
+						value1 = field1.data('selected') || {};
 						if ($.isArray(value1)) {
 							svalue = [];
 							for (var v in value1) {
@@ -1121,7 +1121,7 @@
 								delete value1[v].hidden;
 							}
 						} else {
-							value1 = value1.id;
+							value1 = value1.id || '';
 						}
 					}
 					if ((value1 != '' && value1 != null) || (typeof value2 != 'undefined' && value2 != '')) {

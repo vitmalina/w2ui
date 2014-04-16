@@ -17,6 +17,7 @@
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- bug: bixed bug with selection
 *	- new: find({ params }) - returns all matched nodes
+*	- change: get() w/o params returns all node ids
 *
 ************************************************************************/
 
@@ -223,24 +224,33 @@
 		},
 
 		get: function (parent, id, returnIndex) { // can be just called get(id) or get(id, true)
-			if (arguments.length == 1 || (arguments.length == 2 && id === true) ) {
-				// need to be in reverse order
-				returnIndex	= id;
-				id			= parent;
-				parent		= this;
-			}
-			// searches all nested nodes
-			if (typeof parent == 'string') parent = this.get(parent);
-			if (parent.nodes == null) return null;
-			for (var i = 0; i < parent.nodes.length; i++) {
-				if (parent.nodes[i].id == id) {
-					if (returnIndex === true) return i; else return parent.nodes[i];
-				} else {
-					var rv = this.get(parent.nodes[i], id, returnIndex);
-					if (rv || rv === 0) return rv;
+			if (arguments.length === 0) {
+				var all = [];
+				var tmp = this.find({});
+				for (var t = 0; t < tmp.length; t++) {
+					if (tmp[t].id != null) all.push(tmp[t].id);
 				}
+				return all;
+			} else {
+				if (arguments.length == 1 || (arguments.length == 2 && id === true) ) {
+					// need to be in reverse order
+					returnIndex	= id;
+					id			= parent;
+					parent		= this;
+				}
+				// searches all nested nodes
+				if (typeof parent == 'string') parent = this.get(parent);
+				if (parent.nodes == null) return null;
+				for (var i = 0; i < parent.nodes.length; i++) {
+					if (parent.nodes[i].id == id) {
+						if (returnIndex === true) return i; else return parent.nodes[i];
+					} else {
+						var rv = this.get(parent.nodes[i], id, returnIndex);
+						if (rv || rv === 0) return rv;
+					}
+				}
+				return null;
 			}
-			return null;
 		},
 
 		find: function (parent, params, results) { // can be just called find({ selected: true })
@@ -750,7 +760,7 @@
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+
 							tmp +
-							(nd.count || nd.count == 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
+							(nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
 						'</td>'+
 						'</tr></table>'+

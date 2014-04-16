@@ -140,12 +140,12 @@
 		get: function (id, returnIndex) {
 			if (arguments.length === 0) {
 				var all = [];
-				for (var i = 0; i < this.items.length; i++) if (this.items[i].id !== null) all.push(this.items[i].id);
+				for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id !== null) all.push(this.items[i1].id);
 				return all;
 			}
-			for (var i1 = 0; i1 < this.items.length; i1++) {
-				if (this.items[i1].id === id) {
-					if (returnIndex === true) return i1; else return this.items[i1];
+			for (var i2 = 0; i2 < this.items.length; i2++) {
+				if (this.items[i2].id === id) {
+					if (returnIndex === true) return i2; else return this.items[i2];
 				}
 			}
 			return null;

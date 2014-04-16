@@ -438,14 +438,6 @@
 		clear: function () {
 			var obj		= this;
 			var options	= this.options;
-			var tmp 	= $(this.el).data('tmp');
-			this.type 	 = 'clear';
-			if (!this.tmp) return;
-			// restore paddings
-			if (typeof tmp != 'undefined') {
-				if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
-				if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
-			}
 			// if money then clear value
 			if (['money', 'currency'].indexOf(this.type) != -1) {
 				$(this.el).val($(this.el).val().replace(options.moneyRE, ''));
@@ -458,6 +450,14 @@
 			}
 			if (this.type == 'list') {
 				$(this.el).removeClass('w2ui-select');
+			}
+			this.type = 'clear';
+			var tmp	  = $(this.el).data('tmp');
+			if (!this.tmp) return;
+			// restore paddings
+			if (typeof tmp != 'undefined') {
+				if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
+				if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
 			}
 			// remove events and data
 			$(this.el)

@@ -134,19 +134,18 @@
 		},
 
 		get: function (id, returnIndex) {
-			var i;
 			if (arguments.length === 0) {
 				var all = [];
-				for (i = 0; i < this.tabs.length; i++) {
-					if (this.tabs[i].id != null) {
-						all.push(this.tabs[i].id);
+				for (var i1 = 0; i1 < this.tabs.length; i1++) {
+					if (this.tabs[i1].id != null) {
+						all.push(this.tabs[i1].id);
 					}
 				}
 				return all;
 			} else {
-				for (i = 0; i < this.tabs.length; i++) {
-					if (this.tabs[i].id == id) { // need to be == since id can be numeric
-						return (returnIndex === true ? i : this.tabs[i]);
+				for (var i2 = 0; i2 < this.tabs.length; i2++) {
+					if (this.tabs[i2].id == id) { // need to be == since id can be numeric
+						return (returnIndex === true ? i2 : this.tabs[i2]);
 					}
 				}
 			}

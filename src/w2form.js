@@ -17,6 +17,7 @@
 * == 1.4 Changes ==
 *	- refactored for the new fields
 *	- added getChanges() - not complete
+*	- change: get() w/o params returns all field names
 *
 ************************************************************************/
 
@@ -160,12 +161,20 @@
 	w2form.prototype = {
 
 		get: function (field, returnIndex) {
-			for (var f in this.fields) {
-				if (this.fields[f].name == field) {
-					if (returnIndex === true) return f; else return this.fields[f];
+			if (arguments.length === 0) {
+				var all = [];
+				for (var f1 in this.fields) {
+					if (this.fields[f1].name != null) all.push(this.fields[f1].name);
 				}
+				return all;
+			} else {
+				for (var f2 in this.fields) {
+					if (this.fields[f2].name == field) {
+						if (returnIndex === true) return f2; else return this.fields[f2];
+					}
+				}
+				return null;
 			}
-			return null;
 		},
 
 		set: function (field, obj) {
