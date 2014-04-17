@@ -2718,7 +2718,7 @@ w2utils.keyboard = (function (obj) {
 						if (fld2) value2 = fld2.clean(value2);
 					}
 					if (['list', 'enum'].indexOf(search.type) != -1) {
-						value1 = field1.data('selected');
+						value1 = field1.data('selected') || {};
 						if ($.isArray(value1)) {
 							svalue = [];
 							for (var v in value1) {
@@ -2726,7 +2726,7 @@ w2utils.keyboard = (function (obj) {
 								delete value1[v].hidden;
 							}
 						} else {
-							value1 = value1.id;
+							value1 = value1.id || '';
 						}
 					}
 					if ((value1 != '' && value1 != null) || (typeof value2 != 'undefined' && value2 != '')) {
@@ -2958,7 +2958,7 @@ w2utils.keyboard = (function (obj) {
 			}, 1);
 		},
 
-		initAllField: function (field) {
+		initAllField: function (field, value) {
 			var el 		= $('#grid_'+ this.name +'_search_all');
 			var search	= this.getSearch(field);
 			if (field == 'all') {
@@ -2968,14 +2968,16 @@ w2utils.keyboard = (function (obj) {
 			} else {
 				var st = search.type;
 				if (['enum', 'select'].indexOf(st) != -1) st = 'list';
-				el.w2field(st, $.extend({}, search.options, { suffix: '' })); // always hide suffix
+				el.w2field(st, $.extend({}, search.options, { suffix: '', autoFormat: false, selected: value }));
 				if (['list', 'enum'].indexOf(search.type) != -1) {
 					this.last.search = '';
 					this.last.item	 = '';
 					el.val('');
 				}
 				// set focus
-				setTimeout(function () { el.change().focus(); }, 1);
+				setTimeout(function () { 
+					el.focus(); /* do not do el.change() as it will refresh grid and pull from server */ 
+				}, 1);
 			}
 			// update field
 			if (this.last.search != '') {
@@ -4665,15 +4667,20 @@ w2utils.keyboard = (function (obj) {
 			// init toolbar
 			this.initToolbar();
 			if (this.toolbar != null) this.toolbar.render($('#grid_'+ this.name +'_toolbar')[0]);
+			// reinit search_all
+			if (this.last.field && this.last.field != 'all') {
+				var sd = this.searchData;
+				this.initAllField(this.last.field, (sd.length == 1 ? sd[0].value : null));
+			}
 			// init footer
-			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
+			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());			
 			// refresh
 			if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
 			this.reload();
 
 			// init mouse events for mouse selection
 			$(this.box).on('mousedown', mouseStart);
-			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursror bug
+			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursor bug
 
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));
@@ -8256,11 +8263,11 @@ var w2alert = function (msg, title, callBack) {
 var w2confirm = function (obj, callBack) {
 
     var w2confirm_width     = 400,
-        w2confirm_height    = 200,
-        w2confirm_yes_title = 'Yes',
+        w2confirm_height    = 150,
+        w2confirm_yes_text = 'Yes',
         w2confirm_yes_class = '',
         w2confirm_yes_style = '',
-        w2confirm_no_title  = 'No',
+        w2confirm_no_text  = 'No',
         w2confirm_no_class  = '',
         w2confirm_no_style  = '',
         title               =  w2utils.lang('Confirmation');
@@ -8270,19 +8277,19 @@ var w2confirm = function (obj, callBack) {
             callBack 	= obj['callBack'],
             btn_yes 	= obj['btn_yes'],
             btn_no 	    = obj['btn_no'];
-            title       = w2utils.lang(obj['title']);
 
-        if (w2utils.isInt(obj.width))   w2confirm_width  = obj.width;
-        if (w2utils.isInt(obj.height))  w2confirm_height = obj.height;
+        if (obj.title) title = w2utils.lang(obj['title']);
+        if (w2utils.isInt(obj.width))  w2confirm_width  = obj.width;
+        if (w2utils.isInt(obj.height)) w2confirm_height = obj.height;
 
 
         if (btn_yes) {
-            if (btn_yes.text)  w2confirm_yes_title = w2utils.lang(btn_yes.text);
+            if (btn_yes.text)  w2confirm_yes_text = w2utils.lang(btn_yes.text);
             if (btn_yes.class) w2confirm_yes_class = btn_yes.class;
             if (btn_yes.style) w2confirm_yes_style = btn_yes.style;
         }
         if (btn_no) {
-            if (btn_no.text)  w2confirm_no_title = w2utils.lang(btn_no.text);
+            if (btn_no.text)  w2confirm_no_text = w2utils.lang(btn_no.text);
             if (btn_no.class) w2confirm_no_class = btn_no.class;
             if (btn_no.style) w2confirm_no_style = btn_no.style;
         }
@@ -8294,7 +8301,7 @@ var w2confirm = function (obj, callBack) {
    	if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
 
         if (w2confirm_width > w2popup.get().width) w2confirm_width = w2popup.get().width;
-        if (w2confirm_height > w2popup.get().height) w2confirm_height = w2popup.get().height - 50;
+        if (w2confirm_height > (w2popup.get().height - 50)) w2confirm_height = w2popup.get().height - 50;
       	w2popup.message({
 			width 	: w2confirm_width,
 			height 	: w2confirm_height,
@@ -8302,8 +8309,8 @@ var w2confirm = function (obj, callBack) {
 					  '		<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
 					  '</div>' +
 					  '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '		<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_title) + '</button>' +
-                      '		<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_title) + '</button>' +
+                      '		<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_text) + '</button>' +
+                      '		<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_text) + '</button>' +
 					  '</div>',
 			onOpen: function () {
 				$('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
@@ -8325,6 +8332,7 @@ var w2confirm = function (obj, callBack) {
 			}
 		});
 	} else {
+        if (!w2utils.isInt(obj.height)) w2confirm_height = w2confirm_height + 50;
         w2popup.open({
 			width 		: w2confirm_width,
 			height 		: w2confirm_height,
@@ -8332,8 +8340,8 @@ var w2confirm = function (obj, callBack) {
 			modal		: true,
 			showClose	: false,
 			body		: '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
-			buttons		: '<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_title) + '</button>'+
-                          '<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_title) + '</button>',
+			buttons		: '<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_text) + '</button>'+
+                          '<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_text) + '</button>',
 			onOpen: function (event) {
 				event.onComplete = function () {
 					$('#w2ui-popup .w2ui-popup-btn').on('click', function (event) {
@@ -8493,19 +8501,18 @@ var w2confirm = function (obj, callBack) {
 		},
 
 		get: function (id, returnIndex) {
-			var i;
 			if (arguments.length === 0) {
 				var all = [];
-				for (i = 0; i < this.tabs.length; i++) {
-					if (this.tabs[i].id != null) {
-						all.push(this.tabs[i].id);
+				for (var i1 = 0; i1 < this.tabs.length; i1++) {
+					if (this.tabs[i1].id != null) {
+						all.push(this.tabs[i1].id);
 					}
 				}
 				return all;
 			} else {
-				for (i = 0; i < this.tabs.length; i++) {
-					if (this.tabs[i].id == id) { // need to be == since id can be numeric
-						return (returnIndex === true ? i : this.tabs[i]);
+				for (var i2 = 0; i2 < this.tabs.length; i2++) {
+					if (this.tabs[i2].id == id) { // need to be == since id can be numeric
+						return (returnIndex === true ? i2 : this.tabs[i2]);
 					}
 				}
 			}
@@ -8917,12 +8924,12 @@ var w2confirm = function (obj, callBack) {
 		get: function (id, returnIndex) {
 			if (arguments.length === 0) {
 				var all = [];
-				for (var i = 0; i < this.items.length; i++) if (this.items[i].id !== null) all.push(this.items[i].id);
+				for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id !== null) all.push(this.items[i1].id);
 				return all;
 			}
-			for (var i1 = 0; i1 < this.items.length; i1++) {
-				if (this.items[i1].id === id) {
-					if (returnIndex === true) return i1; else return this.items[i1];
+			for (var i2 = 0; i2 < this.items.length; i2++) {
+				if (this.items[i2].id === id) {
+					if (returnIndex === true) return i2; else return this.items[i2];
 				}
 			}
 			return null;
@@ -9305,6 +9312,7 @@ var w2confirm = function (obj, callBack) {
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- bug: bixed bug with selection
 *	- new: find({ params }) - returns all matched nodes
+*	- change: get() w/o params returns all node ids
 *
 ************************************************************************/
 
@@ -9511,24 +9519,33 @@ var w2confirm = function (obj, callBack) {
 		},
 
 		get: function (parent, id, returnIndex) { // can be just called get(id) or get(id, true)
-			if (arguments.length == 1 || (arguments.length == 2 && id === true) ) {
-				// need to be in reverse order
-				returnIndex	= id;
-				id			= parent;
-				parent		= this;
-			}
-			// searches all nested nodes
-			if (typeof parent == 'string') parent = this.get(parent);
-			if (parent.nodes == null) return null;
-			for (var i = 0; i < parent.nodes.length; i++) {
-				if (parent.nodes[i].id == id) {
-					if (returnIndex === true) return i; else return parent.nodes[i];
-				} else {
-					var rv = this.get(parent.nodes[i], id, returnIndex);
-					if (rv || rv === 0) return rv;
+			if (arguments.length === 0) {
+				var all = [];
+				var tmp = this.find({});
+				for (var t = 0; t < tmp.length; t++) {
+					if (tmp[t].id != null) all.push(tmp[t].id);
 				}
+				return all;
+			} else {
+				if (arguments.length == 1 || (arguments.length == 2 && id === true) ) {
+					// need to be in reverse order
+					returnIndex	= id;
+					id			= parent;
+					parent		= this;
+				}
+				// searches all nested nodes
+				if (typeof parent == 'string') parent = this.get(parent);
+				if (parent.nodes == null) return null;
+				for (var i = 0; i < parent.nodes.length; i++) {
+					if (parent.nodes[i].id == id) {
+						if (returnIndex === true) return i; else return parent.nodes[i];
+					} else {
+						var rv = this.get(parent.nodes[i], id, returnIndex);
+						if (rv || rv === 0) return rv;
+					}
+				}
+				return null;
 			}
-			return null;
 		},
 
 		find: function (parent, params, results) { // can be just called find({ selected: true })
@@ -10038,7 +10055,7 @@ var w2confirm = function (obj, callBack) {
 						'</td>'+
 						'<td class="w2ui-node-data" nowrap>'+
 							tmp +
-							(nd.count || nd.count == 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
+							(nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
 							'<div class="w2ui-node-caption">'+ nd.text +'</div>'+
 						'</td>'+
 						'</tr></table>'+
@@ -10408,13 +10425,22 @@ var w2confirm = function (obj, callBack) {
 						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
 						$(this.el).addClass('w2ui-select');
+						// if simple value - look it up
+						if (!$.isPlainObject(options.selected)) {
+							for (var i in options.items) {
+								var item = options.items[i];
+								if (item && item.id == options.selected) {
+									options.selected = $.extend(true, {}, item);
+									break;
+								}
+							}
+						}
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
 						altRows		: true			// alternate row color
 					});
 					options.items 	 = this.normMenu(options.items);
-					options.selected = this.normMenu(options.selected);
 					this.options = options;
 					if (!$.isPlainObject(options.selected)) options.selected = {};
 					$(this.el).data('selected', options.selected);
@@ -10541,14 +10567,6 @@ var w2confirm = function (obj, callBack) {
 		clear: function () {
 			var obj		= this;
 			var options	= this.options;
-			var tmp 	= $(this.el).data('tmp');
-			this.type 	 = 'clear';
-			if (!this.tmp) return;
-			// restore paddings
-			if (typeof tmp != 'undefined') {
-				if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
-				if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
-			}
 			// if money then clear value
 			if (['money', 'currency'].indexOf(this.type) != -1) {
 				$(this.el).val($(this.el).val().replace(options.moneyRE, ''));
@@ -10561,6 +10579,14 @@ var w2confirm = function (obj, callBack) {
 			}
 			if (this.type == 'list') {
 				$(this.el).removeClass('w2ui-select');
+			}
+			this.type = 'clear';
+			var tmp	  = $(this.el).data('tmp');
+			if (!this.tmp) return;
+			// restore paddings
+			if (typeof tmp != 'undefined') {
+				if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
+				if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
 			}
 			// remove events and data
 			$(this.el)
@@ -12265,6 +12291,7 @@ var w2confirm = function (obj, callBack) {
 * == 1.4 Changes ==
 *	- refactored for the new fields
 *	- added getChanges() - not complete
+*	- change: get() w/o params returns all field names
 *
 ************************************************************************/
 
@@ -12408,12 +12435,20 @@ var w2confirm = function (obj, callBack) {
 	w2form.prototype = {
 
 		get: function (field, returnIndex) {
-			for (var f in this.fields) {
-				if (this.fields[f].name == field) {
-					if (returnIndex === true) return f; else return this.fields[f];
+			if (arguments.length === 0) {
+				var all = [];
+				for (var f1 in this.fields) {
+					if (this.fields[f1].name != null) all.push(this.fields[f1].name);
 				}
+				return all;
+			} else {
+				for (var f2 in this.fields) {
+					if (this.fields[f2].name == field) {
+						if (returnIndex === true) return f2; else return this.fields[f2];
+					}
+				}
+				return null;
 			}
-			return null;
 		},
 
 		set: function (field, obj) {
@@ -13034,7 +13069,17 @@ var w2confirm = function (obj, callBack) {
 					// enums
 					case 'list':
 					case 'combo':
-						if (field.type == 'combo' && !$.isPlainObject(value)) {
+						if (field.type == 'list' && !$.isPlainObject(value)) {
+							// find value from items
+							for (var i in field.options.items) {
+								var item = field.options.items[i];
+								if (item && item.id == value) {
+									value = $.extend(true, {}, item);
+									obj.record[field.name] = value;
+									break;
+								}
+							}
+						} else if (field.type == 'combo' && !$.isPlainObject(value)) {
 							field.el.value = value;
 						} else if ($.isPlainObject(value) && typeof value.text != 'undefined') {
 							field.el.value = value.text;

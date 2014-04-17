@@ -1911,13 +1911,22 @@ w2utils.keyboard = (function (obj) {
 						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
 						$(this.el).addClass('w2ui-select');
+						// if simple value - look it up
+						if (!$.isPlainObject(options.selected)) {
+							for (var i in options.items) {
+								var item = options.items[i];
+								if (item && item.id == options.selected) {
+									options.selected = $.extend(true, {}, item);
+									break;
+								}
+							}
+						}
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
 						altRows		: true			// alternate row color
 					});
 					options.items 	 = this.normMenu(options.items);
-					options.selected = this.normMenu(options.selected);
 					this.options = options;
 					if (!$.isPlainObject(options.selected)) options.selected = {};
 					$(this.el).data('selected', options.selected);
@@ -2044,14 +2053,6 @@ w2utils.keyboard = (function (obj) {
 		clear: function () {
 			var obj		= this;
 			var options	= this.options;
-			var tmp 	= $(this.el).data('tmp');
-			this.type 	 = 'clear';
-			if (!this.tmp) return;
-			// restore paddings
-			if (typeof tmp != 'undefined') {
-				if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
-				if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
-			}
 			// if money then clear value
 			if (['money', 'currency'].indexOf(this.type) != -1) {
 				$(this.el).val($(this.el).val().replace(options.moneyRE, ''));
@@ -2064,6 +2065,14 @@ w2utils.keyboard = (function (obj) {
 			}
 			if (this.type == 'list') {
 				$(this.el).removeClass('w2ui-select');
+			}
+			this.type = 'clear';
+			var tmp	  = $(this.el).data('tmp');
+			if (!this.tmp) return;
+			// restore paddings
+			if (typeof tmp != 'undefined') {
+				if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
+				if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
 			}
 			// remove events and data
 			$(this.el)
