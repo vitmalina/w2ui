@@ -1353,7 +1353,7 @@
 			}, 1);
 		},
 
-		initAllField: function (field) {
+		initAllField: function (field, value) {
 			var el 		= $('#grid_'+ this.name +'_search_all');
 			var search	= this.getSearch(field);
 			if (field == 'all') {
@@ -1363,14 +1363,16 @@
 			} else {
 				var st = search.type;
 				if (['enum', 'select'].indexOf(st) != -1) st = 'list';
-				el.w2field(st, $.extend({}, search.options, { suffix: '' })); // always hide suffix
+				el.w2field(st, $.extend({}, search.options, { suffix: '', autoFormat: false, selected: value }));
 				if (['list', 'enum'].indexOf(search.type) != -1) {
 					this.last.search = '';
 					this.last.item	 = '';
 					el.val('');
 				}
 				// set focus
-				setTimeout(function () { el.change().focus(); }, 1);
+				setTimeout(function () { 
+					el.focus(); /* do not do el.change() as it will refresh grid and pull from server */ 
+				}, 1);
 			}
 			// update field
 			if (this.last.search != '') {
@@ -3060,15 +3062,20 @@
 			// init toolbar
 			this.initToolbar();
 			if (this.toolbar != null) this.toolbar.render($('#grid_'+ this.name +'_toolbar')[0]);
+			// reinit search_all
+			if (this.last.field && this.last.field != 'all') {
+				var sd = this.searchData;
+				this.initAllField(this.last.field, (sd.length == 1 ? sd[0].value : null));
+			}
 			// init footer
-			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
+			$('#grid_'+ this.name +'_footer').html(this.getFooterHTML());			
 			// refresh
 			if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
 			this.reload();
 
 			// init mouse events for mouse selection
 			$(this.box).on('mousedown', mouseStart);
-			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursror bug
+			$(this.box).on('selectstart', function () { return false; }); // fixes chrome cursor bug
 
 			// event after
 			this.trigger($.extend(eventData, { phase: 'after' }));

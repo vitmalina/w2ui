@@ -306,6 +306,16 @@
 						defaults.openOnFocus = true;
 						defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
 						$(this.el).addClass('w2ui-select');
+						// if simple value - look it up
+						if (!$.isPlainObject(options.selected)) {
+							for (var i in options.items) {
+								var item = options.items[i];
+								if (item && item.id == options.selected) {
+									options.selected = $.extend(true, {}, item);
+									break;
+								}
+							}
+						}
 					}
 					options = $.extend({}, defaults, options, {
 						align 		: 'both',		// same width as control
