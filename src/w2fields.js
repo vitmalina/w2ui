@@ -14,6 +14,7 @@
 *	- arrows no longer work (for int)
 *	- add postData for autocomplete
 *	- form to support custom types
+*	- bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
