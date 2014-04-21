@@ -545,15 +545,14 @@ var w2popup = {};
 			$('body').append('<div id="w2ui-lock" ' +
 				'	onmousewheel="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; if (event.preventDefault) event.preventDefault(); else return false;"'+
 				'	style="position: ' + (w2utils.engine == 'IE5' ? 'absolute' : 'fixed') + '; z-Index: 1199; left: 0px; top: 0px; ' +
-				'		   padding: 0px; margin: 0px; background-color: ' + options.color + '; width: 100%; height: 100%; opacity: 0;"></div>');
+				'		   padding: 0px; margin: 0px; background-color: ' + options.color + '; width: 100%; height: 100%; opacity: ' + options.opacity + ';"></div>');
 			// lock screen
 			setTimeout(function () {
 				$('#w2ui-lock').css({
 					'-webkit-transition': options.speed + 's opacity',
 					'-moz-transition': options.speed + 's opacity',
 					'-ms-transition': options.speed + 's opacity',
-					'-o-transition': options.speed + 's opacity',
-					'opacity': options.opacity
+					'-o-transition': options.speed + 's opacity'
 				});
 			}, 1);
 			// add events
