@@ -4440,8 +4440,8 @@
 				return;
 			}
 			// update footer
-			var t1 = Math.floor(records[0].scrollTop / this.recordHeight + 1);
-			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.round(records.height() / this.recordHeight);
+			var t1 = Math.round(records[0].scrollTop / this.recordHeight + 1);
+			var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
