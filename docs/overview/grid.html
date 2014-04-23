@@ -84,7 +84,6 @@ all user defined parameters from the <span class="property">.postData</span> map
 <textarea class="javascript">
 {
 	"cmd": "get-records",
-	"name": "myGrid",
 	"limit": 50,
 	"offset": 0,
 	"selected": [1, 2],
@@ -104,7 +103,6 @@ Which will be encoded into HTTP POST that looks like this:
 
 <textarea class="javascript">
 &cmd: get-records
-&name: myGrid
 &limit: 50
 &offset: 0
 &selected[]: 1
@@ -161,7 +159,6 @@ If user selects several records in the grid and clicks the delete button on the 
 <textarea class="javascript">
 {
 	"cmd": "delete-records",
-	"name": "grid",
 	"selected": [1, 2],
 }
 </textarea>
@@ -188,7 +185,6 @@ to the server:
 <textarea class="javascript">
 {
 	"cmd": "save-records",
-	"name": "grid",
 	"changed": [],
 }
 </textarea>
