@@ -192,7 +192,7 @@ var w2popup = {};
 					w2popup.status = 'open';
 					setTimeout(function () {
 						obj.trigger($.extend(eventData, { phase: 'after' }));
-					}, 50);
+					}, 100);
 				}, options.speed * 1000);
 			} else {
 				// trigger event
@@ -202,6 +202,10 @@ var w2popup = {};
 				w2popup.status = 'opening';
 				if (typeof old_options == 'undefined' || old_options['width'] != options['width'] || old_options['height'] != options['height']) {
 					w2popup.resize(options.width, options.height);
+				}
+				if (typeof old_options != 'undefined') {
+					options.prevSize  = options.width + ':' + options.height;
+					options.maximized = old_options.maximized;
 				}
 				// show new items
 				var body = $('#w2ui-popup .w2ui-box2 > .w2ui-msg-body').html(options.body);
@@ -224,7 +228,7 @@ var w2popup = {};
 				setTimeout(function () {
 					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
-				}, 50);
+				}, 100);
 			}
 			// save new options
 			options._last_w2ui_name = w2utils.keyboard.active();

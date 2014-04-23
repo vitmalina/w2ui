@@ -13,6 +13,7 @@
 * 	- two way data bindings
 * 	- verify validation of fields
 *	- when field is blank, set record.field = null
+*	- show/hide a field
 *
 * == 1.4 Changes ==
 *	- refactored for the new fields

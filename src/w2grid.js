@@ -3269,9 +3269,10 @@
 			if (url) {
 				col_html +=
 						'<tr><td colspan="2" style="padding: 0px">'+
-						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
-						'		'+ w2utils.lang('Skip') +' <input type="text" style="width: 45px" value="'+ this.offset +'" '+
-						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); $(\'#w2ui-overlay\')[0].hide();"> '+ w2utils.lang('Records')+
+						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+ w2utils.lang('Skip') +
+						'		<input type="text" style="width: 45px" value="'+ this.offset +'" '+
+						'			onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); '+
+						'			$(\'#w2ui-overlay\')[0].hide();"> '+ w2utils.lang('Records')+
 						'	</div>'+
 						'</td></tr>';
 			}
