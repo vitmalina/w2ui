@@ -1,8 +1,8 @@
 module.exports = function (grunt) {
 
 	var w2ui	= '/* w2ui 1.4.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n';
-	var fields	= '/* w2ui-fields.js 1.4.x (part of w2ui) (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n';
-	var ks		= '/* kicstart 0.x (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n';
+	var fields	= '/* w2ui-fields.js 1.4.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */\n';
+	var ks		= '/* kicstart 0.1.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n';
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -110,7 +110,7 @@ module.exports = function (grunt) {
 				options: {
 					banner: ks
 				},
-				src: ['src/kickstart/app.js', 'src/kickstart/route.js'],
+				src: ['src/kickstart/ks-core.js', 'src/kickstart/ks-route.js'],
 				dest: 'dist/kickstart.js'
 			},
 			'banner-w2ui-1': {

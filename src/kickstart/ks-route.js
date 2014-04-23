@@ -1,4 +1,11 @@
-app.route = (function () {
+/************************************************
+*  Library: KickStart - Minimalistic Framework
+*   - Dependencies: ks-core, jQuery
+**/
+
+kickStart.define({ name: 'route' });
+kickStart.register('route', function () {
+	var app = kickStart;
 	// private scope
 	var routes  = {};
 	var routeRE = {};
@@ -69,8 +76,8 @@ app.route = (function () {
 		// check if modules is loaed
 		if (tmp[1] && typeof app[tmp[1]] == 'undefined') {
 			if (options.debug) console.log('ROUTE: load module ' + tmp[1]);
-			app.load('app/'+ tmp[1]).done(function () {
-				process();
+			app.require(tmp[1]).done(function () {
+				if (app.modules[tmp[1]]) process();
 			});
 		} else {
 			// process route
@@ -132,5 +139,4 @@ app.route = (function () {
 			window.detachEvent('onhashchange', process);
 		}
 	}
-
-}) ();
+});
