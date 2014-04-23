@@ -1,4 +1,4 @@
-/* w2ui-fields.js 1.4.x (part of w2ui) (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui-fields.js 1.4.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -1619,6 +1619,7 @@ w2utils.keyboard = (function (obj) {
 *	- arrows no longer work (for int)
 *	- add postData for autocomplete
 *	- form to support custom types
+*	- bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)

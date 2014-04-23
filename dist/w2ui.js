@@ -4874,9 +4874,10 @@ w2utils.keyboard = (function (obj) {
 			if (url) {
 				col_html +=
 						'<tr><td colspan="2" style="padding: 0px">'+
-						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+
-						'		'+ w2utils.lang('Skip') +' <input type="text" style="width: 45px" value="'+ this.offset +'" '+
-						'				onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); $(\'#w2ui-overlay\')[0].hide();"> '+ w2utils.lang('Records')+
+						'	<div style="cursor: pointer; padding: 2px 8px; cursor: default">'+ w2utils.lang('Skip') +
+						'		<input type="text" style="width: 45px" value="'+ this.offset +'" '+
+						'			onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); '+
+						'			$(\'#w2ui-overlay\')[0].hide();"> '+ w2utils.lang('Records')+
 						'	</div>'+
 						'</td></tr>';
 			}
@@ -6045,8 +6046,8 @@ w2utils.keyboard = (function (obj) {
 				return;
 			}
 			// update footer
-			var t1 = Math.floor(records[0].scrollTop / this.recordHeight + 1);
-			var t2 = Math.floor(records[0].scrollTop / this.recordHeight + 1) + Math.round(records.height() / this.recordHeight);
+			var t1 = Math.round(records[0].scrollTop / this.recordHeight + 1);
+			var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
 			if (t1 > this.buffered) t1 = this.buffered;
 			if (t2 > this.buffered) t2 = this.buffered;
 			var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -7783,7 +7784,7 @@ var w2popup = {};
 					w2popup.status = 'open';
 					setTimeout(function () {
 						obj.trigger($.extend(eventData, { phase: 'after' }));
-					}, 50);
+					}, 100);
 				}, options.speed * 1000);
 			} else {
 				// trigger event
@@ -7793,6 +7794,10 @@ var w2popup = {};
 				w2popup.status = 'opening';
 				if (typeof old_options == 'undefined' || old_options['width'] != options['width'] || old_options['height'] != options['height']) {
 					w2popup.resize(options.width, options.height);
+				}
+				if (typeof old_options != 'undefined') {
+					options.prevSize  = options.width + ':' + options.height;
+					options.maximized = old_options.maximized;
 				}
 				// show new items
 				var body = $('#w2ui-popup .w2ui-box2 > .w2ui-msg-body').html(options.body);
@@ -7815,7 +7820,7 @@ var w2popup = {};
 				setTimeout(function () {
 					w2popup.status = 'open';
 					obj.trigger($.extend(eventData, { phase: 'after' }));
-				}, 50);
+				}, 100);
 			}
 			// save new options
 			options._last_w2ui_name = w2utils.keyboard.active();
@@ -8791,6 +8796,7 @@ var w2confirm = function (obj, callBack) {
 *
 * == NICE TO HAVE ==
 *	- on overflow display << >>
+* 	- verticle toolbar
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
@@ -9306,7 +9312,7 @@ var w2confirm = function (obj, callBack) {
 *	- dbl click should be like it is in grid (with timer not HTML dbl click event)
 *	- reorder with grag and drop
 *	- add route property that would navigate to a #route
-*	- node.style is missleading
+*	- node.style is missleading - should be there to apply color for example
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
@@ -10133,6 +10139,7 @@ var w2confirm = function (obj, callBack) {
 *	- arrows no longer work (for int)
 *	- add postData for autocomplete
 *	- form to support custom types
+*	- bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *
 * == 1.4 Changes ==
 *	- select - for select, list - for drop down (needs this in grid)
@@ -12287,6 +12294,7 @@ var w2confirm = function (obj, callBack) {
 * 	- two way data bindings
 * 	- verify validation of fields
 *	- when field is blank, set record.field = null
+*	- show/hide a field
 *
 * == 1.4 Changes ==
 *	- refactored for the new fields

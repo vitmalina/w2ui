@@ -1290,7 +1290,7 @@ select {
   outline: none !important;
   width: 160px;
   border-radius: 10px;
-  line-height: 100%;
+  line-height: normal;
   height: 22px;
   border: 1px solid #999999;
   color: #000000;
