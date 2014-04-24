@@ -3,95 +3,95 @@
 */
 
 .w2ui-toolbar {
-	margin: 0px;
-	padding: 2px;
-	outline: 0px;
-	background-color: @toolbar-background-color;
-	overflow: hidden !important;
-	.user-select;
+    margin: 0px;
+    padding: 2px;
+    outline: 0px;
+    background-color: @toolbar-background-color;
+    overflow: hidden !important;
+    .user-select;
 
-	.disabled {
-		.opacity(0.3)
-	}
+    .disabled {
+        .opacity(0.3)
+    }
 
-	table {
-		table-layout: auto !important;
-		td {
-			border: 0px !important;
-		}
-		&.w2ui-button {
-			margin: 0px 1px;
-			border-radius: @toolbar-button-border-radius;
-			height: 24px;
-			border: @toolbar-button-border;
-			background-color: @toolbar-button-background-color;
+    table {
+        table-layout: auto !important;
+        td {
+            border: 0px !important;
+        }
+        &.w2ui-button {
+            margin: 0px 1px;
+            border-radius: @toolbar-button-border-radius;
+            height: 24px;
+            border: @toolbar-button-border;
+            background-color: @toolbar-button-background-color;
 
-			.w2ui-tb-image {
-				width: 16px;
-				height: 16px;
-				padding: 0px;
-				margin: 2px 4px 3px 3px !important;
-				border: 0px !important;
-				text-align: center;
-				// for font icon
-				& > span {
-					font-size: 16px;
-					color: @toolbar-button-image-color;
-				}
-			}
+            .w2ui-tb-image {
+                width: 16px;
+                height: 16px;
+                padding: 0px;
+                margin: 2px 4px 3px 3px !important;
+                border: 0px !important;
+                text-align: center;
+                // for font icon
+                & > span {
+                    font-size: 16px;
+                    color: @toolbar-button-image-color;
+                }
+            }
 
-			.w2ui-tb-caption {
-				color: @toolbar-button-color;
-				padding: 0px 4px 0px 2px;
-			}
+            .w2ui-tb-caption {
+                color: @toolbar-button-color;
+                padding: 0px 4px 0px 2px;
+            }
 
-			.w2ui-tb-down {
-				padding: 3px;
-			}
+            .w2ui-tb-down {
+                padding: 3px;
+            }
 
-			.w2ui-tb-down > div {
-				border: 4px solid transparent;
-				border-top: 5px solid #8D99A7;
-				margin-top: 5px;
-			}
+            .w2ui-tb-down > div {
+                border: 4px solid transparent;
+                border-top: 5px solid #8D99A7;
+                margin-top: 5px;
+            }
 
-			&.over {
-				border: @toolbar-button-over-border;
-				background-color: @toolbar-button-over-background-color;
-				& .w2ui-tb-caption {
-					color: @toolbar-button-over-color;
-				}
-			}
+            &.over {
+                border: @toolbar-button-over-border;
+                background-color: @toolbar-button-over-background-color;
+                & .w2ui-tb-caption {
+                    color: @toolbar-button-over-color;
+                }
+            }
 
-			&.down {
-				border: @toolbar-button-down-border;
-				background-color: @toolbar-button-down-background-color;
-				& .w2ui-tb-caption {
-					color: @toolbar-button-down-color;
-				}
-			}
+            &.down {
+                border: @toolbar-button-down-border;
+                background-color: @toolbar-button-down-background-color;
+                & .w2ui-tb-caption {
+                    color: @toolbar-button-down-color;
+                }
+            }
 
-			&.checked {
-				border: @toolbar-button-checked-border;
-				background-color: @toolbar-button-checked-background-color;
-				& .w2ui-tb-caption {
-					color: @toolbar-button-checked-color;
-				}
-			}
-		}
+            &.checked {
+                border: @toolbar-button-checked-border;
+                background-color: @toolbar-button-checked-background-color;
+                & .w2ui-tb-caption {
+                    color: @toolbar-button-checked-color;
+                }
+            }
+        }
 
-		&.w2ui-button table {
-			height: 17px;
-			border-radius: @toolbar-button-border-radius;
-			cursor: default;
-		}
-	} 
+        &.w2ui-button table {
+            height: 17px;
+            border-radius: @toolbar-button-border-radius;
+            cursor: default;
+        }
+    } 
 
-	.w2ui-break {
-		.linear-gradient-dark-center(@toolbar-break-color); 
-		width: 1px !important;
-		height: 22px;
-		padding: 0px;
-		margin: 0px 6px;
+    .w2ui-break {
+        .linear-gradient-dark-center(@toolbar-break-color); 
+        width: 1px !important;
+        height: 22px;
+        padding: 0px;
+        margin: 0px 6px;
    }
 }

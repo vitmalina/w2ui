@@ -1,20 +1,20 @@
 Finds and returns the field object or its index.
 
 <div class="definition">
-	get(field, [returnIndex])
+    get(field, [returnIndex])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>field</td>
-		<td><b>string</b>, name of the field</td>
-	</tr>
-	<tr>
-		<td>returnIndex</td>
-		<td><b>boolean</b>, if true returns index in the fields array (optional)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>field</td>
+        <td><b>string</b>, name of the field</td>
+    </tr>
+    <tr>
+        <td>returnIndex</td>
+        <td><b>boolean</b>, if true returns index in the fields array (optional)</td>
+    </tr>
+    </table>
 </div>
 
 Returns object, integer, or null.
@@ -29,16 +29,16 @@ this object will modify the original field. If the second optional argument <spa
 If you have form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({ 
-	name     : 'form',
-	url      : 'server/post',
-	record: {
-		field_1 : 1,
-		field_2 : 2
-	},
-	fields: [
-		{ name: 'field_1', type: 'text', required: true },
-		{ name: 'field_2', type: 'alphanumeric', required: true }
-	]
+    name     : 'form',
+    url      : 'server/post',
+    record: {
+        field_1 : 1,
+        field_2 : 2
+    },
+    fields: [
+        { name: 'field_1', type: 'text', required: true },
+        { name: 'field_2', type: 'alphanumeric', required: true }
+    ]
 });
 </textarea>
 

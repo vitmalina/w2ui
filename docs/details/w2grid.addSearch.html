@@ -1,20 +1,20 @@
 Adds a search or searches to the grid.
 
 <div class="definition">
-	addSearch([before], search)
+    addSearch([before], search)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>before</td>
-		<td><b>string</b> or <b>integer</b>, <i>optional</i>, search to add before</td>
-	</tr>
-	<tr>
-		<td>search</td>
-		<td><b>object</b> or <b>array</b>, search(s) to add</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>before</td>
+        <td><b>string</b> or <b>integer</b>, <i>optional</i>, search to add before</td>
+    </tr>
+    <tr>
+        <td>search</td>
+        <td><b>object</b> or <b>array</b>, search(s) to add</td>
+    </tr>
+    </table>
 </div>
 Returns integer.
 
@@ -33,18 +33,18 @@ Returns the number of searches it adds.
 If you define grid as:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%', searchable: true },
-		{ field: 'fname', caption: 'First Name', size: '30%', searchable: true },
-		{ field: 'email', caption: 'Email', size: '40%', searchable: true },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' }
-	]
+    name    : 'grid',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%', searchable: true },
+        { field: 'fname', caption: 'First Name', size: '30%', searchable: true },
+        { field: 'email', caption: 'Email', size: '40%', searchable: true },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' }
+    ]
 });
 </textarea>
 
@@ -57,8 +57,8 @@ or several at a time:
 
 <textarea class="javascript">
 w2ui['grid'].addSearch([
-	{ field: 'fname', caption: 'First Name', type: 'text' },
-	{ field: 'lname', caption: 'Last Name', type: 'text' }
+    { field: 'fname', caption: 'First Name', type: 'text' },
+    { field: 'lname', caption: 'Last Name', type: 'text' }
 ]);
 </textarea>
 

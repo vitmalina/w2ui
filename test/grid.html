@@ -12,214 +12,214 @@
 <script>
 $(function () {
 
-	$('#grid').w2grid({ 
-		name	: 'grid', 
-		header	: 'List of Names',
-		reorderColumns: false,
-		// url		: {
-		// 	get		: 'data.php',
-		// 	remove	: 'remove',
-		// 	save	: 'save'
-		// },
-		url: {
-			remove: 'grid3.json'
-		},
-		show: { 
-			toolbar: true,
-			footer: true,
-			header: true,
-			emptyRecords: true,
-			columnHeaders: true,
-			selectColumn: true,
-			//expandColumn: true,
-			lineNumbers: true,
-			toolbarDelete: true,
-			toolbarSave: true,
-			toolbarAdd: true
-		},
-		menu: [
-			{ id: 1, text: 'Select Item', icon: 'fa-star' },
-			{ id: 2, text: 'View Item', icon: 'fa-camera' }, 
-			{ id: 4, text: 'Delete Item', icon: 'fa-minus' }
-		],
-		onMenuClick: function (event) {
-			console.log(event);
-		},
-		postData: {
-			"admin": 'somename'
-		},
-		selectType1: 'cell',
-		//autoLoad: false,
-		//offset: 99700,
-		//multiSelect: false,
-		//multiSearch: false,
-		//fixedBody: false,
-		toolbar1: {
-			items: [
-				{ type: 'break', id: 'br1' },
-				{ type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
-					{ text: 'Item 1', icon: 'icon-page' }, 
-					{ text: 'Item 2', icon: 'icon-page' }, 
-					{ text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
-				]},
-				{ type: 'break', id: 'br2' },
-				{ type: 'html', id: 'html1', html: '<b>HTML Button</b>' },
-				{ type: 'break', id: 'br3' },				
-				{ type: 'drop', id: 'drop1', caption: 'Drop Button', html: '123' }
-			]
-		},
+    $('#grid').w2grid({ 
+        name    : 'grid', 
+        header    : 'List of Names',
+        reorderColumns: false,
+        // url        : {
+        //     get        : 'data.php',
+        //     remove    : 'remove',
+        //     save    : 'save'
+        // },
+        url: {
+            remove: 'grid3.json'
+        },
+        show: { 
+            toolbar: true,
+            footer: true,
+            header: true,
+            emptyRecords: true,
+            columnHeaders: true,
+            selectColumn: true,
+            //expandColumn: true,
+            lineNumbers: true,
+            toolbarDelete: true,
+            toolbarSave: true,
+            toolbarAdd: true
+        },
+        menu: [
+            { id: 1, text: 'Select Item', icon: 'fa-star' },
+            { id: 2, text: 'View Item', icon: 'fa-camera' }, 
+            { id: 4, text: 'Delete Item', icon: 'fa-minus' }
+        ],
+        onMenuClick: function (event) {
+            console.log(event);
+        },
+        postData: {
+            "admin": 'somename'
+        },
+        selectType1: 'cell',
+        //autoLoad: false,
+        //offset: 99700,
+        //multiSelect: false,
+        //multiSearch: false,
+        //fixedBody: false,
+        toolbar1: {
+            items: [
+                { type: 'break', id: 'br1' },
+                { type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
+                    { text: 'Item 1', icon: 'icon-page' }, 
+                    { text: 'Item 2', icon: 'icon-page' }, 
+                    { text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
+                ]},
+                { type: 'break', id: 'br2' },
+                { type: 'html', id: 'html1', html: '<b>HTML Button</b>' },
+                { type: 'break', id: 'br3' },                
+                { type: 'drop', id: 'drop1', caption: 'Drop Button', html: '123' }
+            ]
+        },
 
-		// possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
-		searches: [				
-			{ field: 'personid', caption: 'ID', type: 'int' },
-			{ field: 'fname', caption: 'First Name', type: 'list', 
-				options: { 
-					search: true,
-					applyFilter: true,
-					items: [
-						{ id: 'Avinash', text: 'Avinash' }, 
-						{ id: 'Vitali', text: 'Vitali' },
-						{ id: 'Sue', text: 'Sue' },
-						{ id: 'Peter', text: 'Peter' },
-						{ id: 'Frank', text: 'Frank' }, 
-						{ id: 'Kate', text: 'Kate' }, 
-					]
-				}
-			},
-			{ field: 'lname', caption: 'Last Name', type: 'text' }
-		],
-		// sortData: [ { field: 'personid', direction: 'asc' } ],
-		columnGroups1: [
-			{ caption: '', span: 1 },
-			{ caption: 'General Information', span: 2},
-			{ caption: 'Email', span: 1, master: true },
-			{ caption: 'Text', span: 1, master: true },
-			{ caption: 'Important Dates', span: 3 }
-		],
-		columns: [				
-			{ field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true },
-			{ field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
-			{ field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true },
-			{ field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
-			{ field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
-			{ field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date', sortable: true },
-			{ field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
-			{ field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true }
-		],
-		ranges1: [
-			{
-				name  : 'first',
-				range : [{"recid":'recid-5',"column":1},{"recid":'recid-9',"column":2}],
-			 	style : "border: 2px dotted green; background-color: rgba(100,400,100,0.2)"
-			},
-			{
-				name  : 'second',
-			 	range : [{"recid":'recid-6',"column":4},{"recid":'recid-8',"column":4}],
-			 	style : "border: 2px dotted orange; background-color: rgba(200,200,200,0.2)"
-			 }
-		],
-		onSelectionExtend: function (event) {
-			//console.log(event.newRange[0].column, event.newRange[1].column);
-			// restrict one column
-			//if (event.newRange[0].column != event.newRange[1].column) event.isCancelled = true; else event.isCancelled = false;
-			// restrict one column
-			//if (event.newRange[0].recid != event.newRange[1].recid) event.isCancelled = true; else event.isCancelled = false;
-			event.onComplete = function () {
-				var range = this.getRange(event.newRange, true);
-				//console.log('done', range);
-			}
-		},
-		onDelete: function (event) {
-			//event.force = true;
-		},
-		onPaste: function (event) {
-			var grid = this;
-			event.onComplete = function () { grid.save(); }
-		},
-		onColumnResize: function (event) {
-			event.onComplete = function () {
-				console.log('complete', event);
-			}
-		},
-		onExpand1: function (event) {
-			if (w2ui['grid-'+ event.recid]) $().w2destroy('grid-'+ event.recid);
-			$('#'+ event.box_id).w2grid({ 
-				name: 'grid-' + event.recid,
-				fixedBody: false,
-				style: 'width: 100%; height: 150px;',
-				show: { 
-					toolbar: false,
-					footer: false,
-					header: false,
-					columnHeaders: false,
-				},
-				columnGroups1: [
-					{ caption: '1', span: 1 },
-					{ caption: '2', span: 1, master: true }
-				],
-				columns: [				
-					{ field: 'recid', caption: 'ID', size: '49px', sortable: true, resizable: true, searchable: 'int' },
-					{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true },
-					{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
-				],
-				records: [
-					{ recid: 1, lname: 'Vitali Malinsouski' },
-					{ recid: 2, lname: 'John Cook' }
-				]
-			});
-		},
-		onAdd: function (event) {
-			this.add({ recid: 100 });
-			this.editField(100, 1)
-		},
-		summary: [
-			//{ recid: 1, lname: 'Vitali Malinsouski', fname: '<span style="float: right">Total:</span>', sdate: '444' }
-		]		
-		//getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
-	});
-	w2ui.grid.on('change', function(event) {
-		console.log('change', event.value_new, event.value_previous, event.value_original);
-		//event.preventDefault();
-	});
-	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
-	var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
-	// add 10k records
-	for (var i = 0; i < 150; i++) {
-		var dt = ((new Date()).getTime() - Math.floor(Math.random() * 1000000000));
-		w2ui['grid'].records.push({ 
-			recid : (i + 1),
-			personid: i+1,
-			fname: fname[Math.floor(Math.random() * fname.length)], 
-			lname: lname[Math.floor(Math.random() * lname.length)],
-			email: 'vm@gmail.com', manager: '--',
-			snumber: Math.floor(Math.random() * 100000) + '',
-			sdate: dt,
-			stime: dt
-		});
-	}
-	w2ui.grid.records[0].sdate = null;
-	w2ui.grid.records[3].sdate = null;
-	w2ui.grid.records[7].sdate = null;
-	w2ui.grid.records[3].stime = '0:01 am';
-	w2ui.grid.records[5].stime = '1:05 am';
-	w2ui.grid.records[50].stime = '0:15 am';
+        // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
+        searches: [                
+            { field: 'personid', caption: 'ID', type: 'int' },
+            { field: 'fname', caption: 'First Name', type: 'list', 
+                options: { 
+                    search: true,
+                    applyFilter: true,
+                    items: [
+                        { id: 'Avinash', text: 'Avinash' }, 
+                        { id: 'Vitali', text: 'Vitali' },
+                        { id: 'Sue', text: 'Sue' },
+                        { id: 'Peter', text: 'Peter' },
+                        { id: 'Frank', text: 'Frank' }, 
+                        { id: 'Kate', text: 'Kate' }, 
+                    ]
+                }
+            },
+            { field: 'lname', caption: 'Last Name', type: 'text' }
+        ],
+        // sortData: [ { field: 'personid', direction: 'asc' } ],
+        columnGroups1: [
+            { caption: '', span: 1 },
+            { caption: 'General Information', span: 2},
+            { caption: 'Email', span: 1, master: true },
+            { caption: 'Text', span: 1, master: true },
+            { caption: 'Important Dates', span: 3 }
+        ],
+        columns: [                
+            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true },
+            { field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
+            { field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true },
+            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
+            { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
+            { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date', sortable: true },
+            { field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
+            { field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true }
+        ],
+        ranges1: [
+            {
+                name  : 'first',
+                range : [{"recid":'recid-5',"column":1},{"recid":'recid-9',"column":2}],
+                 style : "border: 2px dotted green; background-color: rgba(100,400,100,0.2)"
+            },
+            {
+                name  : 'second',
+                 range : [{"recid":'recid-6',"column":4},{"recid":'recid-8',"column":4}],
+                 style : "border: 2px dotted orange; background-color: rgba(200,200,200,0.2)"
+             }
+        ],
+        onSelectionExtend: function (event) {
+            //console.log(event.newRange[0].column, event.newRange[1].column);
+            // restrict one column
+            //if (event.newRange[0].column != event.newRange[1].column) event.isCancelled = true; else event.isCancelled = false;
+            // restrict one column
+            //if (event.newRange[0].recid != event.newRange[1].recid) event.isCancelled = true; else event.isCancelled = false;
+            event.onComplete = function () {
+                var range = this.getRange(event.newRange, true);
+                //console.log('done', range);
+            }
+        },
+        onDelete: function (event) {
+            //event.force = true;
+        },
+        onPaste: function (event) {
+            var grid = this;
+            event.onComplete = function () { grid.save(); }
+        },
+        onColumnResize: function (event) {
+            event.onComplete = function () {
+                console.log('complete', event);
+            }
+        },
+        onExpand1: function (event) {
+            if (w2ui['grid-'+ event.recid]) $().w2destroy('grid-'+ event.recid);
+            $('#'+ event.box_id).w2grid({ 
+                name: 'grid-' + event.recid,
+                fixedBody: false,
+                style: 'width: 100%; height: 150px;',
+                show: { 
+                    toolbar: false,
+                    footer: false,
+                    header: false,
+                    columnHeaders: false,
+                },
+                columnGroups1: [
+                    { caption: '1', span: 1 },
+                    { caption: '2', span: 1, master: true }
+                ],
+                columns: [                
+                    { field: 'recid', caption: 'ID', size: '49px', sortable: true, resizable: true, searchable: 'int' },
+                    { field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true },
+                    { field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
+                ],
+                records: [
+                    { recid: 1, lname: 'Vitali Malinsouski' },
+                    { recid: 2, lname: 'John Cook' }
+                ]
+            });
+        },
+        onAdd: function (event) {
+            this.add({ recid: 100 });
+            this.editField(100, 1)
+        },
+        summary: [
+            //{ recid: 1, lname: 'Vitali Malinsouski', fname: '<span style="float: right">Total:</span>', sdate: '444' }
+        ]        
+        //getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
+    });
+    w2ui.grid.on('change', function(event) {
+        console.log('change', event.value_new, event.value_previous, event.value_original);
+        //event.preventDefault();
+    });
+    var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
+    var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
+    // add 10k records
+    for (var i = 0; i < 150; i++) {
+        var dt = ((new Date()).getTime() - Math.floor(Math.random() * 1000000000));
+        w2ui['grid'].records.push({ 
+            recid : (i + 1),
+            personid: i+1,
+            fname: fname[Math.floor(Math.random() * fname.length)], 
+            lname: lname[Math.floor(Math.random() * lname.length)],
+            email: 'vm@gmail.com', manager: '--',
+            snumber: Math.floor(Math.random() * 100000) + '',
+            sdate: dt,
+            stime: dt
+        });
+    }
+    w2ui.grid.records[0].sdate = null;
+    w2ui.grid.records[3].sdate = null;
+    w2ui.grid.records[7].sdate = null;
+    w2ui.grid.records[3].stime = '0:01 am';
+    w2ui.grid.records[5].stime = '1:05 am';
+    w2ui.grid.records[50].stime = '0:15 am';
 
-	w2ui.grid.total = w2ui.grid.records.length;
-	w2ui.grid.buffered = w2ui.grid.records.length;
-	w2ui.grid.refresh();
+    w2ui.grid.total = w2ui.grid.records.length;
+    w2ui.grid.buffered = w2ui.grid.records.length;
+    w2ui.grid.refresh();
 });
 </script>
 </head>
 <body>
-	<div id="grid" style="width: 1024px; height: 568px;"></div>
-	<br>
-	<input type="button" value="destroy"  onclick="$().w2destroy('grid');">
-	<input type="button" value="Jump 0"   onclick="w2ui.grid.skip(0);">
-	<input type="button" value="Jump 10"  onclick="w2ui.grid.skip(10);">
-	<input type="button" value="Jump 110" onclick="w2ui.grid.skip(110);">
-	<input type="button" value="Jump 300" onclick="w2ui.grid.skip(300);">
-	<input type="button" value="Jump 375" onclick="w2ui.grid.skip(375);">
-	<br>
-	<div id="log" style="padding-top: 10px"></div>
+    <div id="grid" style="width: 1024px; height: 568px;"></div>
+    <br>
+    <input type="button" value="destroy"  onclick="$().w2destroy('grid');">
+    <input type="button" value="Jump 0"   onclick="w2ui.grid.skip(0);">
+    <input type="button" value="Jump 10"  onclick="w2ui.grid.skip(10);">
+    <input type="button" value="Jump 110" onclick="w2ui.grid.skip(110);">
+    <input type="button" value="Jump 300" onclick="w2ui.grid.skip(300);">
+    <input type="button" value="Jump 375" onclick="w2ui.grid.skip(375);">
+    <br>
+    <div id="log" style="padding-top: 10px"></div>
 </body>
 </html>

@@ -1,20 +1,20 @@
 Returns range data defined to the given range object.
 
 <div class="definition">
-	getRangeData(range, [extra])
+    getRangeData(range, [extra])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>range</td>
-		<td><b>object</b>, range object</td>
-	</tr>
-	<tr>
-		<td>extra</td>
-		<td><b>boolean</b>, <i>optional</i>, indicates if to return extra information</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>range</td>
+        <td><b>object</b>, range object</td>
+    </tr>
+    <tr>
+        <td>extra</td>
+        <td><b>boolean</b>, <i>optional</i>, indicates if to return extra information</td>
+    </tr>
+    </table>
 </div>
 Returns two-dimentional array.
 
@@ -24,11 +24,11 @@ The first argument <span class="argument">range</span> is a two dimentional arra
 of such array: 
 <textarea class="javascript">
 var range = [{
-	recid	: 1,
-	column	: 0
+    recid    : 1,
+    column    : 0
 },{
-	recid	: 5,
-	column	: 2	
+    recid    : 5,
+    column    : 2    
 }]
 </textarea>
 The second argument <span class="argument">extra</span> indicates if you want to return plain grid data for the range or data with
@@ -39,23 +39,23 @@ some extra information (recid, index, column_index and record).
 If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '120px' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
-		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
-	]
+    name    : 'grid',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'Start Date', size: '120px' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ]
 });
 </textarea>
 

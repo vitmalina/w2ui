@@ -1,16 +1,16 @@
 Shows tab or tabs with <span class="argument">id</span>.
 
 <div class="definition">
-	show(id1, [id2], ...)
+    show(id1, [id2], ...)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the tab</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the tab</td>
+    </tr>
+    </table>
 </div>
 Returns integer.
 
@@ -24,14 +24,14 @@ number of shown tabs that were hidden before.
 If you have tabs defined in the following way:
 <textarea class="javascript">
 $('#tabs').w2tabs({
-	name: 'tabs',
-	active: 'tab1',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2' },
-		{ id: 'tab3', caption: 'Tab 3', hidden: true },
-		{ id: 'tab4', caption: 'Tab 4' }
-	]
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', caption: 'Tab 1' },
+        { id: 'tab2', caption: 'Tab 2' },
+        { id: 'tab3', caption: 'Tab 3', hidden: true },
+        { id: 'tab4', caption: 'Tab 4' }
+    ]
 });
 </textarea>
 

@@ -1,20 +1,20 @@
 Finds and returns matched records.
 
 <div class="definition">
-	find(match, [returnIndex])
+    find(match, [returnIndex])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>match</td>
-		<td><b>object</b>, set of properties to match</td>
-	</tr>
-	<tr>
-		<td>returnIndex</td>
-		<td><b>boolean</b>, if true returns records not their recids</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>match</td>
+        <td><b>object</b>, set of properties to match</td>
+    </tr>
+    <tr>
+        <td>returnIndex</td>
+        <td><b>boolean</b>, if true returns records not their recids</td>
+    </tr>
+    </table>
 </div>
 Returns an array of objects or an array of integers or an empty array.
 
@@ -24,26 +24,26 @@ This method returns an array of record objects or an array of recids for all mat
 <span class="argument">match</span> argument is a JavaScript object with key-value pairs. It will match 
 this pairs with the items in the <a class="argument" href="w2grid.records">records</a> array. For example, if 
 match = { type: 1, status: 'Open' } then it will return all records where type is 1 and status is 'Open.'
-				
+                
 If you have following grid:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
-		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
-	]
+    name    : 'grid',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ]
 });
 </textarea>
 

@@ -9,272 +9,272 @@
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script>
-	$(function () {
-		$('#form').w2form({ 
-			name     : 'form',
-			// page	 : 2,
-			//url      : 'form.php',
-			//formURL  : 'form-template.html',
-			recid    : 4,
-			header   : 'Edit header',
-			style1	 : 'border: 1px solid red;',
-			tabs: [
-				{ id: 'tab1', caption: 'General' }, 
-				{ id: 'tab2', caption: 'Inputs' },
-				{ id: 'tab3', caption: 'HTML' }
-			],
-			toolbar: {
-				items: [
-					{ type: 'button', id: 'button1', caption: 'Button1', img: 'icon-add' },
-					{ type: 'break' },
-					{ type: 'check', id: 'button2', caption: 'Button2', img: 'icon-add' },
-					{ type: 'check', id: 'button3', caption: 'Button3', img: 'icon-add' },
-					{ type: 'spacer' },
-					{ type: 'button', id: 'save', caption: 'Save', img: 'icon-folder' },
-				],
+    $(function () {
+        $('#form').w2form({ 
+            name     : 'form',
+            // page     : 2,
+            //url      : 'form.php',
+            //formURL  : 'form-template.html',
+            recid    : 4,
+            header   : 'Edit header',
+            style1     : 'border: 1px solid red;',
+            tabs: [
+                { id: 'tab1', caption: 'General' }, 
+                { id: 'tab2', caption: 'Inputs' },
+                { id: 'tab3', caption: 'HTML' }
+            ],
+            toolbar: {
+                items: [
+                    { type: 'button', id: 'button1', caption: 'Button1', img: 'icon-add' },
+                    { type: 'break' },
+                    { type: 'check', id: 'button2', caption: 'Button2', img: 'icon-add' },
+                    { type: 'check', id: 'button3', caption: 'Button3', img: 'icon-add' },
+                    { type: 'spacer' },
+                    { type: 'button', id: 'save', caption: 'Save', img: 'icon-folder' },
+                ],
 
-			},
-			record: {
-				"field.text"	: 'some text',
-				"field.textarea": 'more text',
-				"field.date"	: '1/15/2014',
-				"field.time"	: '10:11 am',
-				"field.color"	: '999999',
-				"field.list"	: 5,
-				"field.combo"	: { id: 1, text: 'Item 1' },
-				"field.enum"	: [{ id: '1', text: 'item 1'}, { id: 2, text: 'item 2'}],
-				"field.file"	: [{ name: 'file.txt', size: 3033, type: 'text', modified: '1/1/2014' }],
-				"field.email"	: 'see@mail.com',
-				"field.password": 'pass',
-				"field.int"		: '10',
-				"field.float"	: '20',
-				"field.money"	: '30',
-				"field.currency": '40',
-				"field.percent" : '50',
-				"field.alpha" 	: '60',
-				"field.select"	: 'second',
-				"field.check"	: 33,
-				// "field.radio"	: '1'
-			},
-			fields: [
-				// first page
-				{ name: 'field.text', type: 'text', required: true },
-				{ name: 'field.textarea', type: 'textarea', required: true },
-				{ name: 'field.date', type: 'date', required: true },
-				{ name: 'field.time', type: 'time', required: true },
-				{ name: 'field.color', type: 'color', required: true },
-				{ name: 'field.list', type: 'list', required: true, 
-					options: { 
-						match: 'contains',
-						items: [
-							{ id: 0, text: 'Pickle, Susan' }, 
-							{ id: 1, text: 'Adams, John' },
-							{ id: 2, text: 'Openhimer, Peter' },
-							{ id: 3, text: 'Woznyak, Steve' },
-							{ id: 4, text: 'Rusevelt, Franklin' },
-							{ id: 5, text: 'Stalone, Silvester' },
-							{ id: 6, text: 'Mann, Fred' },
-							{ id: 6, text: 'Ford, Mary' },
-							{ id: 8, text: 'Purky, Mon' },
-							{ id: 9, text: 'Min, Hla' }
-						]
-					}
-				},
-				{ name: 'field.combo', type: 'combo', required: true, 
-					options: { 
-						applyFilter: true,
-						url : 'listdat.json'
-					}
-				},
-				{ name: 'field.enum', type: 'enum', required: true, 
-					options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-				{ name: 'field.file', type: 'file', required: true },
-				// second page
-				{ name: 'field.email', type: 'email', required: true },
-				{ name: 'field.password', type: 'password', required: true },
-				{ name: 'field.int', type: 'int', options: { arrows: true }, required: true },
-				{ name: 'field.float', type: 'float', required: true },
-				{ name: 'field.money', type: 'money', required: true },
-				{ name: 'field.currency', type: 'currency', required: true },
-				{ name: 'field.percent', type: 'percent', required: true },
-				{ name: 'field.alpha', type: 'alphanumeric', required: true },
-				// third page
-				{ name: 'field.select', type: 'select', required: true, options: { items: ['fist', 'second'] } },
-				{ name: 'field.check', type: 'checkbox', required: true },
-				{ name: 'field.radio', type: 'radio', required: true },
-			],
-			postData: {
-				a1: 1, 
-				a2: 2
-			},
-			actions: {
-				reset: function () {
-					this.clear();
-				},
-				save: function () {
-					console.log('save', this.record);
-					var obj = this;
-					this.save({}, function (data) { 
-						console.log(data);
-						if (data.status == 'error') {
-							console.log('ERROR: '+ data.message);
-							return;
-						}
-						//obj.clear();
-					});
-				}
-			}
-		});
-		// all event listener
-		w2ui.form.on('change', function (event) {
-			event.onComplete = function () {
-				console.log('--------');
-				console.log('change:', event);
-				console.log('record:', w2ui.form.record);
-			}
-		});	
+            },
+            record: {
+                "field.text"    : 'some text',
+                "field.textarea": 'more text',
+                "field.date"    : '1/15/2014',
+                "field.time"    : '10:11 am',
+                "field.color"    : '999999',
+                "field.list"    : 5,
+                "field.combo"    : { id: 1, text: 'Item 1' },
+                "field.enum"    : [{ id: '1', text: 'item 1'}, { id: 2, text: 'item 2'}],
+                "field.file"    : [{ name: 'file.txt', size: 3033, type: 'text', modified: '1/1/2014' }],
+                "field.email"    : 'see@mail.com',
+                "field.password": 'pass',
+                "field.int"        : '10',
+                "field.float"    : '20',
+                "field.money"    : '30',
+                "field.currency": '40',
+                "field.percent" : '50',
+                "field.alpha"     : '60',
+                "field.select"    : 'second',
+                "field.check"    : 33,
+                // "field.radio"    : '1'
+            },
+            fields: [
+                // first page
+                { name: 'field.text', type: 'text', required: true },
+                { name: 'field.textarea', type: 'textarea', required: true },
+                { name: 'field.date', type: 'date', required: true },
+                { name: 'field.time', type: 'time', required: true },
+                { name: 'field.color', type: 'color', required: true },
+                { name: 'field.list', type: 'list', required: true, 
+                    options: { 
+                        match: 'contains',
+                        items: [
+                            { id: 0, text: 'Pickle, Susan' }, 
+                            { id: 1, text: 'Adams, John' },
+                            { id: 2, text: 'Openhimer, Peter' },
+                            { id: 3, text: 'Woznyak, Steve' },
+                            { id: 4, text: 'Rusevelt, Franklin' },
+                            { id: 5, text: 'Stalone, Silvester' },
+                            { id: 6, text: 'Mann, Fred' },
+                            { id: 6, text: 'Ford, Mary' },
+                            { id: 8, text: 'Purky, Mon' },
+                            { id: 9, text: 'Min, Hla' }
+                        ]
+                    }
+                },
+                { name: 'field.combo', type: 'combo', required: true, 
+                    options: { 
+                        applyFilter: true,
+                        url : 'listdat.json'
+                    }
+                },
+                { name: 'field.enum', type: 'enum', required: true, 
+                    options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
+                { name: 'field.file', type: 'file', required: true },
+                // second page
+                { name: 'field.email', type: 'email', required: true },
+                { name: 'field.password', type: 'password', required: true },
+                { name: 'field.int', type: 'int', options: { arrows: true }, required: true },
+                { name: 'field.float', type: 'float', required: true },
+                { name: 'field.money', type: 'money', required: true },
+                { name: 'field.currency', type: 'currency', required: true },
+                { name: 'field.percent', type: 'percent', required: true },
+                { name: 'field.alpha', type: 'alphanumeric', required: true },
+                // third page
+                { name: 'field.select', type: 'select', required: true, options: { items: ['fist', 'second'] } },
+                { name: 'field.check', type: 'checkbox', required: true },
+                { name: 'field.radio', type: 'radio', required: true },
+            ],
+            postData: {
+                a1: 1, 
+                a2: 2
+            },
+            actions: {
+                reset: function () {
+                    this.clear();
+                },
+                save: function () {
+                    console.log('save', this.record);
+                    var obj = this;
+                    this.save({}, function (data) { 
+                        console.log(data);
+                        if (data.status == 'error') {
+                            console.log('ERROR: '+ data.message);
+                            return;
+                        }
+                        //obj.clear();
+                    });
+                }
+            }
+        });
+        // all event listener
+        w2ui.form.on('change', function (event) {
+            event.onComplete = function () {
+                console.log('--------');
+                console.log('change:', event);
+                console.log('record:', w2ui.form.record);
+            }
+        });    
 });
 </script>
 <body>
-	<!-- <div id="form" style="width: 700px; height: 600px;"></div> -->
-	<div id="form" style="width: 700px; height: 700px;">
-		<div class="w2ui-page page-0">
-			<div class="w2ui-group-title">
-				Fields with overlays
-			</div>
-			<div class="w2ui-group">
-				<div class="w2ui-label">Text:</div>
-				<div class="w2ui-field">
-					<input name="field.text" type="text" size="40"/>
-				</div>
-				<div class="w2ui-label">Text Area:</div>
-				<div class="w2ui-field">
-					<textarea name="field.textarea" type="text" style="width: 90%; height: 50px; resize: none"></textarea>
-				</div>
-				<div class="w2ui-label">Date:</div>
-				<div class="w2ui-field">
-					<input name="field.date" type="text" size="16"/>
-				</div>
-				<div class="w2ui-label">Time:</div>
-				<div class="w2ui-field">
-					<input name="field.time" type="text" size="16"/>
-				</div>
-				<div class="w2ui-label">Color:</div>
-				<div class="w2ui-field">
-					<input name="field.color" type="text" style="width: 122px"/>
-				</div>
-				<div class="w2ui-label">List:</div>
-				<div class="w2ui-field">
-					<input name="field.list" style="width: 200px">
-				</div>
-				<div class="w2ui-label">Combo:</div>
-				<div class="w2ui-field">
-					<input name="field.combo" style="width: 200px"> (from url)
-				</div>
-			</div>
-			<div class="w2ui-group-title">
-				Enum and file 
-			</div>
-			<div class="w2ui-group">
-				<div class="w2ui-label">Enum:</div>
-				<div class="w2ui-field">
-					<input name="field.enum" type="text" style="width: 100%"/>
-				</div>
-				<div class="w2ui-label">Files:</div>
-				<div class="w2ui-field">
-					<input name="field.file" type="text" style="width: 100%; min-height: 50px"/>
-				</div>
-			</div>
-		</div>
+    <!-- <div id="form" style="width: 700px; height: 600px;"></div> -->
+    <div id="form" style="width: 700px; height: 700px;">
+        <div class="w2ui-page page-0">
+            <div class="w2ui-group-title">
+                Fields with overlays
+            </div>
+            <div class="w2ui-group">
+                <div class="w2ui-label">Text:</div>
+                <div class="w2ui-field">
+                    <input name="field.text" type="text" size="40"/>
+                </div>
+                <div class="w2ui-label">Text Area:</div>
+                <div class="w2ui-field">
+                    <textarea name="field.textarea" type="text" style="width: 90%; height: 50px; resize: none"></textarea>
+                </div>
+                <div class="w2ui-label">Date:</div>
+                <div class="w2ui-field">
+                    <input name="field.date" type="text" size="16"/>
+                </div>
+                <div class="w2ui-label">Time:</div>
+                <div class="w2ui-field">
+                    <input name="field.time" type="text" size="16"/>
+                </div>
+                <div class="w2ui-label">Color:</div>
+                <div class="w2ui-field">
+                    <input name="field.color" type="text" style="width: 122px"/>
+                </div>
+                <div class="w2ui-label">List:</div>
+                <div class="w2ui-field">
+                    <input name="field.list" style="width: 200px">
+                </div>
+                <div class="w2ui-label">Combo:</div>
+                <div class="w2ui-field">
+                    <input name="field.combo" style="width: 200px"> (from url)
+                </div>
+            </div>
+            <div class="w2ui-group-title">
+                Enum and file 
+            </div>
+            <div class="w2ui-group">
+                <div class="w2ui-label">Enum:</div>
+                <div class="w2ui-field">
+                    <input name="field.enum" type="text" style="width: 100%"/>
+                </div>
+                <div class="w2ui-label">Files:</div>
+                <div class="w2ui-field">
+                    <input name="field.file" type="text" style="width: 100%; min-height: 50px"/>
+                </div>
+            </div>
+        </div>
 
-		<div class="w2ui-page page-1">
-			<div class="w2ui-group-title">
-				Date/Time fields
-			</div>
-			<div class="w2ui-group">
-				<div class="w2ui-label">Email:</div>
-				<div class="w2ui-field">
-					<input name="field.email" type="text" maxlength="100" size="40"/>
-				</div>
-				<div class="w2ui-label">Password:</div>
-				<div class="w2ui-field">
-					<input name="field.password" type="password" maxlength="100" size="40"/>
-				</div>
-				<div class="w2ui-label">Number (int):</div>
-				<div class="w2ui-field">
-					<input name="field.int" type="text" maxlength="100" size="16"/>
-				</div>
-				<div class="w2ui-label">Number (float):</div>
-				<div class="w2ui-field">
-					<input name="field.float" type="text" maxlength="100" size="16"/>
-				</div>
-				<div class="w2ui-label">Money:</div>
-				<div class="w2ui-field">
-					<input name="field.money" type="text" maxlength="100" size="16"/>
-				</div>
-				<div class="w2ui-label">Currency:</div>
-				<div class="w2ui-field">
-					<input name="field.currency" type="text" maxlength="100" size="16"/>
-				</div>
-				<div class="w2ui-label">Percent:</div>
-				<div class="w2ui-field">
-					<input name="field.percent" type="text" maxlength="100" size="16"/>
-				</div>
-				<div class="w2ui-label">Alpha-Numeric:</div>
-				<div class="w2ui-field">
-					<input name="field.alpha" type="text" maxlength="100" size="40"/>
-				</div>
-			</div>
-		</div>
+        <div class="w2ui-page page-1">
+            <div class="w2ui-group-title">
+                Date/Time fields
+            </div>
+            <div class="w2ui-group">
+                <div class="w2ui-label">Email:</div>
+                <div class="w2ui-field">
+                    <input name="field.email" type="text" maxlength="100" size="40"/>
+                </div>
+                <div class="w2ui-label">Password:</div>
+                <div class="w2ui-field">
+                    <input name="field.password" type="password" maxlength="100" size="40"/>
+                </div>
+                <div class="w2ui-label">Number (int):</div>
+                <div class="w2ui-field">
+                    <input name="field.int" type="text" maxlength="100" size="16"/>
+                </div>
+                <div class="w2ui-label">Number (float):</div>
+                <div class="w2ui-field">
+                    <input name="field.float" type="text" maxlength="100" size="16"/>
+                </div>
+                <div class="w2ui-label">Money:</div>
+                <div class="w2ui-field">
+                    <input name="field.money" type="text" maxlength="100" size="16"/>
+                </div>
+                <div class="w2ui-label">Currency:</div>
+                <div class="w2ui-field">
+                    <input name="field.currency" type="text" maxlength="100" size="16"/>
+                </div>
+                <div class="w2ui-label">Percent:</div>
+                <div class="w2ui-field">
+                    <input name="field.percent" type="text" maxlength="100" size="16"/>
+                </div>
+                <div class="w2ui-label">Alpha-Numeric:</div>
+                <div class="w2ui-field">
+                    <input name="field.alpha" type="text" maxlength="100" size="40"/>
+                </div>
+            </div>
+        </div>
 
-		<div class="w2ui-page page-2">
-			<div class="w2ui-group-title">
-				Standard HTML fields
-			</div>
-			<div class="w2ui-group">
-				<div class="w2ui-label">Select:</div>
-				<div class="w2ui-field">
-					<select name="field.select">
-						<option></option>
-						<option value="1">Item 1</option>
-						<option value="2">Item 2</option>
-						<option value="3">Item 3</option>
-						<option value="4">Item 4</option>
-						<option value="5">Item 5</option>
-						<option value="6">Item 6</option>
-					</select>
-				</div>
-				<div class="w2ui-label">Check:</div>
-				<div class="w2ui-field">
-					<label>
-						<input name="field.check" type="checkbox"/>
-						Some field
-					</label>
-				</div>
-				<div class="w2ui-label">Radio:</div>
-				<div class="w2ui-field">
-					<label>
-						<input name="field.radio" type="radio" value="1"/>
-						Item 1
-					</label>
-					<br>
-					<label>
-						<input name="field.radio" type="radio" value="2"/>
-						Item 2
-					</label>
-					<br>
-					<label>
-						<input name="field.radio" type="radio" value="3"/>
-						Item 3
-					</label>
-				</div>
-			</div>
-		</div>		
+        <div class="w2ui-page page-2">
+            <div class="w2ui-group-title">
+                Standard HTML fields
+            </div>
+            <div class="w2ui-group">
+                <div class="w2ui-label">Select:</div>
+                <div class="w2ui-field">
+                    <select name="field.select">
+                        <option></option>
+                        <option value="1">Item 1</option>
+                        <option value="2">Item 2</option>
+                        <option value="3">Item 3</option>
+                        <option value="4">Item 4</option>
+                        <option value="5">Item 5</option>
+                        <option value="6">Item 6</option>
+                    </select>
+                </div>
+                <div class="w2ui-label">Check:</div>
+                <div class="w2ui-field">
+                    <label>
+                        <input name="field.check" type="checkbox"/>
+                        Some field
+                    </label>
+                </div>
+                <div class="w2ui-label">Radio:</div>
+                <div class="w2ui-field">
+                    <label>
+                        <input name="field.radio" type="radio" value="1"/>
+                        Item 1
+                    </label>
+                    <br>
+                    <label>
+                        <input name="field.radio" type="radio" value="2"/>
+                        Item 2
+                    </label>
+                    <br>
+                    <label>
+                        <input name="field.radio" type="radio" value="3"/>
+                        Item 3
+                    </label>
+                </div>
+            </div>
+        </div>        
 
-		<div class="w2ui-buttons">
-			<button class="btn" name="reset">Reset</button>
-			<button class="btn btn-green" name="save">Save</button>
-		</div>
-	</div>
+        <div class="w2ui-buttons">
+            <button class="btn" name="reset">Reset</button>
+            <button class="btn btn-green" name="save">Save</button>
+        </div>
+    </div>
 </body>
 </html>

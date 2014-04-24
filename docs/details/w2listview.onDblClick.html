@@ -1,28 +1,28 @@
 Called when user double clicks the item.
 
 <div class="definition">
-	onDblClick = function(event)
+    onDblClick = function(event)
 </div>
 
 You can add event listener during thelistview creation:
 <textarea class="javascript">
 $('#listview').w2listview({
-	name : 'listview',
-	items: [
-		{ id: 'id-1', caption: 'Item 1' },
-		{ id: 'id-2', caption: 'Item 2' },
-		{ id: 'id-3', caption: 'Item 3' }
-	],
-	onDblClick: function(event) {
-		console.log(event);
-	}
+    name : 'listview',
+    items: [
+        { id: 'id-1', caption: 'Item 1' },
+        { id: 'id-2', caption: 'Item 2' },
+        { id: 'id-3', caption: 'Item 3' }
+    ],
+    onDblClick: function(event) {
+        console.log(event);
+    }
 });
 </textarea>
 
 or after the listview has been created:
 <textarea class="javascript">
 w2ui.listview.on('dblClick', function(event) {
-	console.log(event);
+    console.log(event);
 });
 </textarea>
 

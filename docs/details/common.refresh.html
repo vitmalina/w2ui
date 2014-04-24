@@ -1,16 +1,16 @@
 Refreshes the object without completely re-inserting it.
 
 <div class="definition">
-	refresh([id])
+    refresh([id])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the element</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the element</td>
+    </tr>
+    </table>
 </div>
 Returns number of milliseconds it took to refresh.
 
@@ -24,12 +24,12 @@ if you have changed object's properties.
 
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'main', content: 'This is main panel' },
-		{ type: 'preview', size: 200, hidden: true }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200, hidden: true }
+    ]
 });
 
 // ...
@@ -62,4 +62,4 @@ For w2toolbar it is id of the toolbar item:
 <textarea class="javascript">
 w2ui['toolbar'].refresh('toolbar-id');
 </textarea>
-	
+    

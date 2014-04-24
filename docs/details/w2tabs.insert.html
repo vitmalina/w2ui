@@ -1,20 +1,20 @@
 Inserts a tab or tabs before tab with id=<span class="argument">before</span>
 
 <div class="definition">
-	insert(before, tabs)
+    insert(before, tabs)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>before</td>
-		<td><b>string</b>, id of tab to insert before</td>
-	</tr>
-	<tr>
-		<td>tabs</td>
-		<td><b>object</b> or <b>array</b>, tab or array of tabs</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>before</td>
+        <td><b>string</b>, id of tab to insert before</td>
+    </tr>
+    <tr>
+        <td>tabs</td>
+        <td><b>object</b> or <b>array</b>, tab or array of tabs</td>
+    </tr>
+    </table>
 </div>
 Returns <i>undefined</i>.
 
@@ -24,18 +24,18 @@ New tabs will be inserted before tab with id = <span class="argument">before</sp
 will be appended at the end. The tabs argument can be either an object or array of objects. If it is an object it represents a tab that will be added 
 to <a class="property" href="w2tabs.tabs">.tabs</a> array. If it is an array then each element of the array will be treated as a separate tab object.
 <div style="height: 10px"></div>
-				
+                
 If you have tabs defined in the following way:
 <textarea class="javascript">
 $('#tabs').w2tabs({
-	name: 'tabs',
-	active: 'tab1',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2' },
-		{ id: 'tab3', caption: 'Tab 3' },
-		{ id: 'tab4', caption: 'Tab 4' }
-	]
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', caption: 'Tab 1' },
+        { id: 'tab2', caption: 'Tab 2' },
+        { id: 'tab3', caption: 'Tab 3' },
+        { id: 'tab4', caption: 'Tab 4' }
+    ]
 });
 </textarea>
 
@@ -44,8 +44,8 @@ You can add tabs:
 w2ui['tabs'].insert('tab3', { id: 'tab5', caption: 'Tab 5' });
 // or
 w2ui['tabs'].insert('tab3', [
-	{ id: 'tab6', caption: 'Tab 6' },
-	{ id: 'tab7', caption: 'Tab 7' },
-	{ id: 'tab8', caption: 'Tab 8' }
+    { id: 'tab6', caption: 'Tab 6' },
+    { id: 'tab7', caption: 'Tab 7' },
+    { id: 'tab8', caption: 'Tab 8' }
 ]);
 </textarea>

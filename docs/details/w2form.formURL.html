@@ -1,38 +1,38 @@
 URL of the form HTML template.
 
 <div class="definition">
-	String, default = ''
+    String, default = ''
 </div>
 
 There are four ways you can define form HTML template (in order of preference):
 <ul style="margin: 5px 40px">
-	<li><a class="argument" href="w2form.formURL">.formURL</a> - load from server</li>
-	<li><a class="argument" href="w2form.formHTML">.formHTML</a> - define in JavaScript</li>
-	<li>innerHTML of<a class="argument" href="w2form.box">.box</a></li>
-	<li>auto generated (see <a class="argument" href="w2form.generateHTML">.generateHTML</a>)</li>
+    <li><a class="argument" href="w2form.formURL">.formURL</a> - load from server</li>
+    <li><a class="argument" href="w2form.formHTML">.formHTML</a> - define in JavaScript</li>
+    <li>innerHTML of<a class="argument" href="w2form.box">.box</a></li>
+    <li>auto generated (see <a class="argument" href="w2form.generateHTML">.generateHTML</a>)</li>
 </ul>
 
 The following example shows how to load HTML template from a URL
 
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	style    : 'border: 0px; background-color: transparent;',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com'
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	}
+    name     : 'form',
+    style    : 'border: 0px; background-color: transparent;',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
 });
 </textarea>
 

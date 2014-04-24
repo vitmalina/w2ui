@@ -1,24 +1,24 @@
 Called when user select item from context menu.
 
 <div class="definition">
-	menuClick(id, index, [event])
+    menuClick(id, index, [event])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the item</td>
-	</tr>
-	<tr>
-		<td>index</td>
-		<td><b>integer</b>, index of the item in the menu</td>
-	</tr>
-	<tr>
-		<td>event</td>
-		<td><b>object</b>, <i>optional</i>, DOM Event object</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the item</td>
+    </tr>
+    <tr>
+        <td>index</td>
+        <td><b>integer</b>, index of the item in the menu</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, <i>optional</i>, DOM Event object</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -32,17 +32,17 @@ context menu selection. This method emits <a class="method" href="w2listview.onM
 If you have listview defined in the following way:
 <textarea class="javascript">
 $('#listview').w2listview({
-	name : 'listview',
-	menu : [
-		{ id: 1, text: 'Item 1' },
-		{ id: 2, text: 'Item 2' },
-		{ id: 3, text: 'Item 3' },
-	],
-	items: [
-		{ id: 'id-1', caption: 'Item 1' },
-		{ id: 'id-2', caption: 'Item 2' },
-		{ id: 'id-3', caption: 'Item 3' }
-	]
+    name : 'listview',
+    menu : [
+        { id: 1, text: 'Item 1' },
+        { id: 2, text: 'Item 2' },
+        { id: 3, text: 'Item 3' },
+    ],
+    items: [
+        { id: 'id-1', caption: 'Item 1' },
+        { id: 'id-2', caption: 'Item 2' },
+        { id: 'id-3', caption: 'Item 3' }
+    ]
 });
 </textarea>
 

@@ -1,10 +1,10 @@
 <div class="content">
-	<div id="example_title">
-		<h1>Add/Remove Buttons</h1>
-		It is easy to add and remove buttons during the run time. The example below demonstrates how to do this.
-	</div>
-	<div id="example_view"></div>
-	<div id="example_code"></div>
+    <div id="example_title">
+        <h1>Add/Remove Buttons</h1>
+        It is easy to add and remove buttons during the run time. The example below demonstrates how to do this.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
 </div>
 
 <!--CODE-->
@@ -13,33 +13,33 @@
 <!--CODE-->
 <script>
 $(function () {
-	var btnCount = 0;
-	$('#toolbar').w2toolbar({
-		name: 'toolbar',
-		items: [
-			{ type: 'button', id: 'append', caption: 'Append', img: 'icon-add' },
-			{ type: 'button', id: 'insert', caption: 'Insert', img: 'icon-add' },
-			{ type: 'button', id: 'delete', caption: 'Delete', img: 'icon-delete' },
-			{ type: 'break',  id: 'break0' },
-			{ type: 'break',  id: 'break1' }
-		],
-		onClick: function (event) {
-			switch (event.target) {
-				case 'append':
-					this.add({ type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
-					btnCount++;
-					break;
-				case 'insert':
-					this.insert('break1', { type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
-					btnCount++;
-					break;
-				case 'delete':
-					if (btnCount <= 0) return;
-					btnCount--;
-					this.remove('button'+ btnCount);
-					break;
-			}
-		}
-	});
+    var btnCount = 0;
+    $('#toolbar').w2toolbar({
+        name: 'toolbar',
+        items: [
+            { type: 'button', id: 'append', caption: 'Append', img: 'icon-add' },
+            { type: 'button', id: 'insert', caption: 'Insert', img: 'icon-add' },
+            { type: 'button', id: 'delete', caption: 'Delete', img: 'icon-delete' },
+            { type: 'break',  id: 'break0' },
+            { type: 'break',  id: 'break1' }
+        ],
+        onClick: function (event) {
+            switch (event.target) {
+                case 'append':
+                    this.add({ type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
+                    btnCount++;
+                    break;
+                case 'insert':
+                    this.insert('break1', { type: 'button', id: 'button' + btnCount, caption: 'button '+ btnCount, img: 'icon-page' });
+                    btnCount++;
+                    break;
+                case 'delete':
+                    if (btnCount <= 0) return;
+                    btnCount--;
+                    this.remove('button'+ btnCount);
+                    break;
+            }
+        }
+    });
 });
 </script>

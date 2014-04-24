@@ -1,11 +1,11 @@
 <div class="content">
-	<div id="example_title">
-		<h1>Form in a Popup</h1>
-		It is a frequent task to open a form inside a popup. I have seen many examples from the community when it was not done
-		correctly. The demo below demonstrates how to do this right. The form take entire available space of the popup.
-	</div>
-	<div id="example_view"></div>
-	<div id="example_code"></div>
+    <div id="example_title">
+        <h1>Form in a Popup</h1>
+        It is a frequent task to open a form inside a popup. I have seen many examples from the community when it was not done
+        correctly. The demo below demonstrates how to do this right. The form take entire available space of the popup.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
 </div>
 
 <!--CODE-->
@@ -16,70 +16,70 @@
 <!--CODE-->
 <script>
 function openPopup () {
-	$().w2form({
-		name: 'foo',
-		style: 'border: 0px; background-color: transparent;',
-		formHTML: 
-			'<div class="w2ui-page page-0">'+
-			'	<div class="w2ui-label">First Name:</div>'+
-			'	<div class="w2ui-field">'+
-			'		<input name="first_name" type="text" size="35"/>'+
-			'	</div>'+
-			'	<div class="w2ui-label">Last Name:</div>'+
-			'	<div class="w2ui-field">'+
-			'		<input name="last_name" type="text" size="35"/>'+
-			'	</div>'+
-			'	<div class="w2ui-label">Email:</div>'+
-			'	<div class="w2ui-field">'+
-			'		<input name="email" type="text" size="35"/>'+
-			'	</div>'+
-			'</div>'+
-			'<div class="w2ui-buttons">'+
-			'	<input type="button" value="Reset" name="reset">'+
-			'	<input type="button" value="Save" name="save">'+
-			'</div>',
-		fields: [
-			{ name: 'first_name', type: 'text', required: true },
-			{ name: 'last_name', type: 'text', required: true },
-			{ name: 'email', type: 'email' },
-		],
-		record: { 
-			first_name	: 'John',
-			last_name 	: 'Doe',
-			email 		: 'jdoe@email.com'
-		},
-		actions: {
-			"save": function () { this.validate(); },
-			"reset": function () { this.clear(); },
-		}
-	});
-	$().w2popup('open', {
-		title	: 'Form in a Popup',
-		body	: '<div id="form" style="width: 100%; height: 100%;"></div>',
-		style	: 'padding: 15px 0px 0px 0px',
-		width	: 500,
-		height	: 300, 
-		showMax : true,
-		onMin	: function (event) {
-			$(w2ui.foo.box).hide();
-			event.onComplete = function () {
-				$(w2ui.foo.box).show();
-				w2ui.foo.resize();
-			}
-		},
-		onMax	: function (event) {
-			$(w2ui.foo.box).hide();
-			event.onComplete = function () {
-				$(w2ui.foo.box).show();
-				w2ui.foo.resize();
-			}
-		},
-		onOpen	: function (event) {
-			event.onComplete = function () {
-				// specifying an onOpen handler instead is equivalent to specifying an onBeforeOpen handler, which would make this code execute too early and hence not deliver.
-				$('#w2ui-popup #form').w2render('foo');
-			}
-		}
-	});
+    $().w2form({
+        name: 'foo',
+        style: 'border: 0px; background-color: transparent;',
+        formHTML: 
+            '<div class="w2ui-page page-0">'+
+            '    <div class="w2ui-label">First Name:</div>'+
+            '    <div class="w2ui-field">'+
+            '        <input name="first_name" type="text" size="35"/>'+
+            '    </div>'+
+            '    <div class="w2ui-label">Last Name:</div>'+
+            '    <div class="w2ui-field">'+
+            '        <input name="last_name" type="text" size="35"/>'+
+            '    </div>'+
+            '    <div class="w2ui-label">Email:</div>'+
+            '    <div class="w2ui-field">'+
+            '        <input name="email" type="text" size="35"/>'+
+            '    </div>'+
+            '</div>'+
+            '<div class="w2ui-buttons">'+
+            '    <input type="button" value="Reset" name="reset">'+
+            '    <input type="button" value="Save" name="save">'+
+            '</div>',
+        fields: [
+            { name: 'first_name', type: 'text', required: true },
+            { name: 'last_name', type: 'text', required: true },
+            { name: 'email', type: 'email' },
+        ],
+        record: { 
+            first_name    : 'John',
+            last_name     : 'Doe',
+            email         : 'jdoe@email.com'
+        },
+        actions: {
+            "save": function () { this.validate(); },
+            "reset": function () { this.clear(); },
+        }
+    });
+    $().w2popup('open', {
+        title    : 'Form in a Popup',
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style    : 'padding: 15px 0px 0px 0px',
+        width    : 500,
+        height    : 300, 
+        showMax : true,
+        onMin    : function (event) {
+            $(w2ui.foo.box).hide();
+            event.onComplete = function () {
+                $(w2ui.foo.box).show();
+                w2ui.foo.resize();
+            }
+        },
+        onMax    : function (event) {
+            $(w2ui.foo.box).hide();
+            event.onComplete = function () {
+                $(w2ui.foo.box).show();
+                w2ui.foo.resize();
+            }
+        },
+        onOpen    : function (event) {
+            event.onComplete = function () {
+                // specifying an onOpen handler instead is equivalent to specifying an onBeforeOpen handler, which would make this code execute too early and hence not deliver.
+                $('#w2ui-popup #form').w2render('foo');
+            }
+        }
+    });
 }
 </script>

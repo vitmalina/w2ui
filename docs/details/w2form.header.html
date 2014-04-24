@@ -1,7 +1,7 @@
 The header of the form. 
 
 <div class="definition">
-	String, default = ''
+    String, default = ''
 </div>
 
 The header can be simple text or HTML. If you change <span class="argument">.header</span> property, you will need to call 
@@ -13,23 +13,23 @@ Header can be defined during object creation:
 
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	header   : 'Form Header',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com'
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	}
+    name     : 'form',
+    header   : 'Form Header',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
 });
 </textarea>
 

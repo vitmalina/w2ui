@@ -1,16 +1,16 @@
 Reloads record data and refreshes the form.
 
 <div class="definition">
-	reload([callBack])
+    reload([callBack])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>callBack</td>
-		<td><b>function</b>, call back function when form is reloaded (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>callBack</td>
+        <td><b>function</b>, call back function when form is reloaded (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -21,23 +21,23 @@ If the data source is remote (the form has <a class="argument" href="w2form.reci
 properties defined), this method will reload record data from the remote data source. If the data source is local, the form will be 
 refreshed.
 <div style="height: 10px"></div>
-				
+                
 If you have following form:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	recid 	 : 10,
-	url 	 : '/server/form/path',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	actions: {
-		"save": function (target, data) { this.validate(); },
-		"reset": function (target, data) { this.clear(); },
-	}
+    name     : 'form',
+    recid      : 10,
+    url      : '/server/form/path',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    actions: {
+        "save": function (target, data) { this.validate(); },
+        "reset": function (target, data) { this.clear(); },
+    }
 });
 </textarea>
 

@@ -1,20 +1,20 @@
 Reloads record data and refreshes the form.
 
 <div class="definition">
-	request([postData], [callBack])
+    request([postData], [callBack])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>postData</td>
-		<td><b>object</b>, Map of additional parameter to submit to remote data source (<i>optional</i>)</td>
-	</tr>
-	<tr>
-		<td>callBack</td>
-		<td><b>function</b>, call back function when form is reloaded (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>postData</td>
+        <td><b>object</b>, Map of additional parameter to submit to remote data source (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>callBack</td>
+        <td><b>function</b>, call back function when form is reloaded (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -33,19 +33,19 @@ and <a class="method" href="w2form.onLoad">.onLoad</a>.
 If you have following form:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	recid 	 : 10,
-	url 	 : '/server/form/path',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	actions: {
-		"save": function (target, data) { this.validate(); },
-		"reset": function (target, data) { this.clear(); },
-	}
+    name     : 'form',
+    recid      : 10,
+    url      : '/server/form/path',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    actions: {
+        "save": function (target, data) { this.validate(); },
+        "reset": function (target, data) { this.clear(); },
+    }
 });
 </textarea>
 

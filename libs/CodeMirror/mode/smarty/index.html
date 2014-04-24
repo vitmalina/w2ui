@@ -12,7 +12,7 @@
   <body>
     <h1>CodeMirror: Smarty mode</h1>
 
-	<h3>Default settings (Smarty 2, <b>{</b> and <b>}</b> delimiters)</h3>
+    <h3>Default settings (Smarty 2, <b>{</b> and <b>}</b> delimiters)</h3>
     <form><textarea id="code" name="code">
 {extends file="parent.tpl"}
 {include file="template.tpl"}
@@ -44,7 +44,7 @@
 
     <br />
 
-	<h3>Smarty 2, custom delimiters</h3>
+    <h3>Smarty 2, custom delimiters</h3>
     <form><textarea id="code2" name="code2">
 {--extends file="parent.tpl"--}
 {--include file="template.tpl"--}
@@ -78,16 +78,16 @@
       });
     </script>
 
-	<br />
+    <br />
 
-	<h3>Smarty 3</h3>
+    <h3>Smarty 3</h3>
 
-	<textarea id="code3" name="code3">
+    <textarea id="code3" name="code3">
 Nested tags {$foo={counter one=1 two={inception}}+3} are now valid in Smarty 3.
 
 <script>
 function test() {
-	console.log("Smarty 3 permits single curly braces followed by whitespace to NOT slip into Smarty mode.");
+    console.log("Smarty 3 permits single curly braces followed by whitespace to NOT slip into Smarty mode.");
 }
 </script>
 
@@ -110,13 +110,13 @@ Smarty "dot" syntax (note: embedded {} are used to address ambiguities):
 
 {$object->method1($x)->method2($y)}</textarea>
 
-	<script>
-		var editor = CodeMirror.fromTextArea(document.getElementById("code3"), {
-			lineNumbers: true,
-			mode: "smarty",
-			smartyVersion: 3
-		});
-	</script>
+    <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById("code3"), {
+            lineNumbers: true,
+            mode: "smarty",
+            smartyVersion: 3
+        });
+    </script>
 
 
     <p>A plain text/Smarty version 2 or 3 mode, which allows for custom delimiter tags.</p>

@@ -1,28 +1,28 @@
 Prepares and submits request to the server.
 
 <div class="definition">
-	request(cmd, [params, [url, [callBack]]])
+    request(cmd, [params, [url, [callBack]]])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>cmd</td>
-		<td><b>string</b>, name of the command</td>
-	</tr>
-	<tr>
-		<td>params</td>
-		<td><b>object</b>, map of additional parameters to submit to the server (<i>optional</i>)</td>
-	</tr>
-	<tr>
-		<td>url</td>
-		<td><b>string</b>, server url of the request (<i>optional</i>)</td>
-	</tr>
-	<tr>
-		<td>callBack</td>
-		<td><b>function</b>, call back function (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>cmd</td>
+        <td><b>string</b>, name of the command</td>
+    </tr>
+    <tr>
+        <td>params</td>
+        <td><b>object</b>, map of additional parameters to submit to the server (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>url</td>
+        <td><b>string</b>, server url of the request (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>callBack</td>
+        <td><b>function</b>, call back function (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -35,9 +35,9 @@ command. This method is used internally, but can also be used any time during ru
 
 The first parameter <span class="argument">cmd</span> can be one of the following:
 <ul>
-	<li>get-records</li>
-	<li>delete-records</li>
-	<li>save-records</li>
+    <li>get-records</li>
+    <li>delete-records</li>
+    <li>save-records</li>
 </ul>
 
 The second optional argument <span class="argument">params</span> is the map of additional properties to submit to the server. 
@@ -52,23 +52,23 @@ This method emits <a href="w2grid.onRequest" class="method">onRequest</a> event.
 If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '120px' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
-		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
-	]
+    name    : 'grid',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'Start Date', size: '120px' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ]
 });
 </textarea>
 

@@ -1,7 +1,7 @@
 Array of event handlers. 
 
 <div class="definition">
-	Array, default = []
+    Array, default = []
 </div>
 
 There is no need to change this array directly. You should use <a href="common.on" class="method">.on()</a>
@@ -10,21 +10,21 @@ However, it might be useful to iterate the array to see what event handlers have
 
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'preview', size: 200 }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'preview', size: 200 }
+    ]
 });
 
 // add event listener for all events
 w2ui['layout'].on('*', function (target, eventData) {
-	console.log(target);
-	console.log(eventData);
+    console.log(target);
+    console.log(eventData);
 });
 
 // iterating through event handlers
 for (var i in w2ui['layout'].handlers) {
-	console.log(w2ui['layout'].handlers[i]);
+    console.log(w2ui['layout'].handlers[i]);
 }
 </textarea>

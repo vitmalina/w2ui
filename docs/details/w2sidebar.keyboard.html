@@ -1,32 +1,32 @@
 Indicates if sidebar should listen to keyboard.
 
 <div class="definition">
-	Boolean, default = true
+    Boolean, default = true
 </div>
 
 If <span class="argument">.keyboard</span> property is set to true, the sidebar will add event listener to listen for 
 keyboard events. There are several keyboard keys linked to the sidebar actions:
 <div style="height: 10px"></div>
 <ul>
-	<li>Arrow up - previous node</li>
-	<li>Arrow down - next node</li>
-	<li>Arrow right - expand node</li>
-	<li>Arrow left - collapse node</li>
+    <li>Arrow up - previous node</li>
+    <li>Arrow down - next node</li>
+    <li>Arrow right - expand node</li>
+    <li>Arrow left - collapse node</li>
 </ul>
 
 This property can be defined during object creation: 
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar',
-	keyboard : false,
-	nodes : [ 
-		{ id: 'id-1', text: 'Level 1', hidden: true },
-		{ id: 'id-2', text: 'Level 2', expanded: true, nodes: [
-			{ id: 'id-2-1', text: 'Level 2.1' },
-			{ id: 'id-2-2', text: 'Level 2.2' }
-		]},
-		{ id: 'id-3', text: 'Level 3' }
-	]
+    name : 'sidebar',
+    keyboard : false,
+    nodes : [ 
+        { id: 'id-1', text: 'Level 1', hidden: true },
+        { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
+            { id: 'id-2-1', text: 'Level 2.1' },
+            { id: 'id-2-2', text: 'Level 2.2' }
+        ]},
+        { id: 'id-3', text: 'Level 3' }
+    ]
 });
 </textarea>
 

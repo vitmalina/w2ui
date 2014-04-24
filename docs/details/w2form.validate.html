@@ -1,16 +1,16 @@
 Performs form validation.
 
 <div class="definition">
-	validate([showErrors])
+    validate([showErrors])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>showErrors</td>
-		<td><b>boolean</b>, if true then it will display error bubbles on the screen (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>showErrors</td>
+        <td><b>boolean</b>, if true then it will display error bubbles on the screen (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 Returns array.
@@ -25,19 +25,19 @@ types. It will return an array of error objects. If this array is empty, then th
 If you have form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	recid 	 : 10,
-	url 	 : '/server/form/path',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	actions: {
-		"save": function (target, data) { this.save(); },
-		"reset": function (target, data) { this.clear(); },
-	}
+    name     : 'form',
+    recid      : 10,
+    url      : '/server/form/path',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    actions: {
+        "save": function (target, data) { this.save(); },
+        "reset": function (target, data) { this.clear(); },
+    }
 });
 </textarea>
 

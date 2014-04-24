@@ -1,50 +1,50 @@
 Finds the panel and extends it with provided object. 
 
 <div class="definition">
-	set(type, panel)
+    set(type, panel)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>type</td>
-		<td><b>string</b>, name of the panel</td>
-	</tr>
-	<tr>
-		<td>panel</td>
-		<td><b>object</b>, additional panel properties</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>type</td>
+        <td><b>string</b>, name of the panel</td>
+    </tr>
+    <tr>
+        <td>panel</td>
+        <td><b>object</b>, additional panel properties</td>
+    </tr>
+    </table>
 </div>
 
 <h4>Description</h4>
 
 The first argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
 <ul style="margin-left: 50px">
-	<li>top
-	<li>left
-	<li>main
-	<li>right
-	<li>preview
-	<li>bottom
+    <li>top
+    <li>left
+    <li>main
+    <li>right
+    <li>preview
+    <li>bottom
 </ul>
 
 Below is a structure of the panel object:
 <textarea class="javascript">
 panel: {
-	type:       null,    // type of the panel can be: left, right, top, bottom, preview
-	size:       100,     // width or height of the panel depending on panel type
-	minSize:    20,      // minimum size of the panel in px when it is resized
-	hidden:     false,   // indicates if panel is hidden
-	resizable:  false,   // indicates if panel is resizable
-	overflow:   'auto',  // overflow property of the panel, can have same values as similar CSS property
-	style:      '',      // additional css styles for the panel
-	content:    '',      // content of the pane, can be a string or an object with .render(box) method
-	width:      null,    // width of the panel, read only
-	height:     null,    // height of the panel, read only
-	onRefresh:  null,    // refresh event for the panel
-	onShow:     null,    // show event for the panel
-	onHide:     null     // hide event for the panel
+    type:       null,    // type of the panel can be: left, right, top, bottom, preview
+    size:       100,     // width or height of the panel depending on panel type
+    minSize:    20,      // minimum size of the panel in px when it is resized
+    hidden:     false,   // indicates if panel is hidden
+    resizable:  false,   // indicates if panel is resizable
+    overflow:   'auto',  // overflow property of the panel, can have same values as similar CSS property
+    style:      '',      // additional css styles for the panel
+    content:    '',      // content of the pane, can be a string or an object with .render(box) method
+    width:      null,    // width of the panel, read only
+    height:     null,    // height of the panel, read only
+    onRefresh:  null,    // refresh event for the panel
+    onShow:     null,    // show event for the panel
+    onHide:     null     // hide event for the panel
 }
 </textarea>
 
@@ -52,12 +52,12 @@ Please note that the panel is not replaced with <span class="argument">object</s
 <span class="argument">$.extend()</span> method. Below is an example how to extend panel object:
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'main', content: 'This is main panel' },
-		{ type: 'preview', size: 200, hidden: true }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200, hidden: true }
+    ]
 });
 
 w2ui['layout'].set('preview', { resizable: true, minSize: 100 });

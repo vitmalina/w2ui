@@ -1,6 +1,2 @@
 tmp/*
-*.txt
-
-# npm install cruft
 node_modules/
-

@@ -1,16 +1,16 @@
 Renders the object into <span class="argument">box</span>.
 
 <div class="definition">
-	render([box])
+    render([box])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>box</td>
-		<td><b>DOM element</b>, container for the widget</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>box</td>
+        <td><b>DOM element</b>, container for the widget</td>
+    </tr>
+    </table>
 </div>
 Returns number of milliseconds it took to render.
 
@@ -25,24 +25,24 @@ which is a w2toolbar object. When grid is rendered, the toolbar object will be r
 If you pass a selector during object creation it will be automatically rendered into that element:
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'main', content: 'This is main panel' },
-		{ type: 'preview', size: 200, hidden: true }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200, hidden: true }
+    ]
 });
 </textarea>
 
 You could have created layout in the following way:
 <textarea class="javascript">
 $().w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'main', content: 'This is main panel' },
-		{ type: 'preview', size: 200, hidden: true }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200, hidden: true }
+    ]
 });
 </textarea>
 

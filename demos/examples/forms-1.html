@@ -1,55 +1,55 @@
 <div class="content">
-	<div id="example_title">
-		<h1>Simple Form</h1>
-		Working with forms is common for a web developer. However, there is no way to create a unique template for all use cases. The w2ui library
-		streamlines most common tasks for you. The example below shows a simple form with two required fields, save and reset buttons.
-	</div>
-	<div id="example_view"></div>
-	<div id="example_code"></div>
+    <div id="example_title">
+        <h1>Simple Form</h1>
+        Working with forms is common for a web developer. However, there is no way to create a unique template for all use cases. The w2ui library
+        streamlines most common tasks for you. The example below shows a simple form with two required fields, save and reset buttons.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
 </div>
 
 <!--CODE-->
 <div id="form" style="width: 750px;">
-	<div class="w2ui-page page-0">
-		<div class="w2ui-label">First Name:</div>
-		<div class="w2ui-field">
-			<input name="first_name" type="text" maxlength="100" size="60"/>
-		</div>
-		<div class="w2ui-label">Last Name:</div>
-		<div class="w2ui-field">
-			<input name="last_name" type="text" maxlength="100" size="60"/>
-		</div>
-		<div class="w2ui-label">Text Area:</div>
-		<div class="w2ui-field">
-			<textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
-		</div>
-	</div>
+    <div class="w2ui-page page-0">
+        <div class="w2ui-label">First Name:</div>
+        <div class="w2ui-field">
+            <input name="first_name" type="text" maxlength="100" size="60"/>
+        </div>
+        <div class="w2ui-label">Last Name:</div>
+        <div class="w2ui-field">
+            <input name="last_name" type="text" maxlength="100" size="60"/>
+        </div>
+        <div class="w2ui-label">Text Area:</div>
+        <div class="w2ui-field">
+            <textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
+        </div>
+    </div>
 
-	<div class="w2ui-buttons">
-		<input type="button" value="Reset" name="reset">
-		<input type="button" value="Save" name="save">
-	</div>
+    <div class="w2ui-buttons">
+        <input type="button" value="Reset" name="reset">
+        <input type="button" value="Save" name="save">
+    </div>
 </div>
 
 <!--CODE-->
 <script>
 $(function () {
-	$('#form').w2form({ 
-		name  : 'form',
-		url   : 'server/post',
-		fields: [
-			{ name: 'first_name', type: 'text', required: true },
-			{ name: 'last_name',  type: 'text', required: true },
-			{ name: 'comments',   type: 'text'}
-		],
-		actions: {
-			reset: function () {
-				this.clear();
-			},
-			save: function () {
-				this.save();
-			}
-		}
-	});
+    $('#form').w2form({ 
+        name  : 'form',
+        url   : 'server/post',
+        fields: [
+            { name: 'first_name', type: 'text', required: true },
+            { name: 'last_name',  type: 'text', required: true },
+            { name: 'comments',   type: 'text'}
+        ],
+        actions: {
+            reset: function () {
+                this.clear();
+            },
+            save: function () {
+                this.save();
+            }
+        }
+    });
 });
 </script>

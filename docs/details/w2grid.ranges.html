@@ -1,7 +1,7 @@
 Array of all ranges defined for the grid.
 
 <div class="definition">
-	Array, default = []
+    Array, default = []
 </div>
 
 This property only works if you grid is excel-like grid, <span class="property">.selectType</span> is set to 'cell'. 
@@ -17,9 +17,9 @@ a set of methods to work with ranges. To add  and remove ranges you should use <
 The range object has following structure:
 <textarea class="javascript">
 range = {
-	name  : '',		// name of the range
-	range : [],		// two dimentional array that defines range
-	style : ''		// style property for the range
+    name  : '',        // name of the range
+    range : [],        // two dimentional array that defines range
+    style : ''        // style property for the range
 }
 </textarea>
 
@@ -28,6 +28,6 @@ If you need to see what ranges are defined, you may iterate through
 
 <textarea class="javascript">
 for (var r in w2ui.grid.ranges) {
-	console.log('Range '+ r, w2ui.grid.ranges[r]);
+    console.log('Range '+ r, w2ui.grid.ranges[r]);
 }
 </textarea>

@@ -1,7 +1,7 @@
 Array of search objects. 
 
 <div class="definition">
-	Array, default = []
+    Array, default = []
 </div>
 
 The <span class="argument">.searches</span> property can be initialized during the object creation or any time 
@@ -11,25 +11,25 @@ during the run-time. There is no need to refresh the grid because this array wil
 Searches can be defined during object creation: 
 <textarea class="javascript">
 $('#grid').w2grid({
-	name : 'grid',
-	show : { toolbar : true },
-	columns : [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '120px' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	],
-	searches : [
-		{ field: 'recid', caption: 'ID (int)', type: 'int' },
-		{ field: 'id', caption: 'ID (float)', type: 'float' },
-		{ field: 'fname', caption: 'First Name', type: 'text' },
-		{ field: 'lname', caption: 'Last Name', type: 'text' },
-		{ field: 'email', caption: 'Email', type: 'list', 
-			items: ['vitali@gmail.com', 'jim@gmail.com'] },
-		{ field: 'sdate', caption: 'Date', type: 'date' }
-	]
+    name : 'grid',
+    show : { toolbar : true },
+    columns : [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'Start Date', size: '120px' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    searches : [
+        { field: 'recid', caption: 'ID (int)', type: 'int' },
+        { field: 'id', caption: 'ID (float)', type: 'float' },
+        { field: 'fname', caption: 'First Name', type: 'text' },
+        { field: 'lname', caption: 'Last Name', type: 'text' },
+        { field: 'email', caption: 'Email', type: 'list', 
+            items: ['vitali@gmail.com', 'jim@gmail.com'] },
+        { field: 'sdate', caption: 'Date', type: 'date' }
+    ]
 });
 </textarea>
 
@@ -46,13 +46,13 @@ Because the only way for the user to trigger the search is from the toolbar, the
 Below it the structure of the search object:
 <textarea class="javascript">
 search = {
-	type     : 'text', // type of the search, [text, int, float, hex, money, alphaNumeric, date, list]
-	caption  : '',     // caption of the search
-	field    : '',     // field name to submit to server
-	inTag    : '',     // text that will be inside &lt;input ...&gt; tag
-	outTag   : '',     // text that will be outside &lt;input ...&gt; tag
-	items    : {},     // array of item objects { id: '', text: '' }
-	hidden   : false   // indicates if search is show or hidden
+    type     : 'text', // type of the search, [text, int, float, hex, money, alphaNumeric, date, list]
+    caption  : '',     // caption of the search
+    field    : '',     // field name to submit to server
+    inTag    : '',     // text that will be inside &lt;input ...&gt; tag
+    outTag   : '',     // text that will be outside &lt;input ...&gt; tag
+    items    : {},     // array of item objects { id: '', text: '' }
+    hidden   : false   // indicates if search is show or hidden
 }
 </textarea>
 
@@ -60,9 +60,9 @@ You can control search from JavaScript, see following methods for more informati
 <div style="height: 10px"></div>
 
 <ul>
-	<li><a href="w2grid.search" class="method">.search()</a> - submit a search</li>
-	<li><a href="w2grid.searchOpen" class="method">.searchOpen()</a> - open search dialog</li>
-	<li><a href="w2grid.searchClose" class="method">.searchClose()</a> - close search dialog</li>
-	<li><a href="w2grid.searchReset" class="method">.searchReset()</a> - reset all search fields to default values</li>
+    <li><a href="w2grid.search" class="method">.search()</a> - submit a search</li>
+    <li><a href="w2grid.searchOpen" class="method">.searchOpen()</a> - open search dialog</li>
+    <li><a href="w2grid.searchClose" class="method">.searchClose()</a> - close search dialog</li>
+    <li><a href="w2grid.searchReset" class="method">.searchReset()</a> - reset all search fields to default values</li>
 </ul>
 

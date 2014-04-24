@@ -6,43 +6,43 @@
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
 <script>
-	$(function () {
-		$('#toolbar').w2toolbar({
-			name: 'toolbar',
-			items: [
-				{ type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', checked: true },
-				{ type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa-star', html: 'so' },
-				{ type: 'break', id: 'break0' },
-				{ type: 'menu',  id: 'item2', caption: 'Drop Down', img: 'icon-folder', icon: 'fa-camera', items: [
-					{ text: 'Item 1', img: 'icon-page' }, 
-					{ text: 'Item 2', img: 'icon-page' }, 
-					{ text: 'Item 3', value: 'Item Three', img: 'icon-page' }
-				]},
-				{ type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa-heart', items: [
-					{ id: 'item1', text: 'Item 1', icon: 'fa-heart' }, 
-					{ id: 'item2', text: 'Item 2', icon: 'fa-user' }, 
-					{ id: 'item3', text: 'Item 3', icon: 'fa-star-empty' }, 
-					{ id: 'item4', text: 'Item 4', icon: 'fa-link' }
-				], overlay: { top: 10 }},
-				{ type: 'break', id: 'break1' },
-				{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa-user', img: 'icon-add', checked: true },
-				{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa-group', img: 'icon-add', disabled: false },
-				{ type: 'break' },
-				{ type: 'drop', id: 'item7', caption: 'drop button', img: 'icon-search', 
-					html: '<div style="padding: 10px; font-size: 11px">some html</div>' },
-				{ type: 'spacer' },
-				{ type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save', disabled: true },
-				{ type: 'button',  id: 'item6',  caption: 'Item 6', img: 'icon-save' }
-			],
-			onClick: function (event) { console.log(event); }
-		});
-	});
+    $(function () {
+        $('#toolbar').w2toolbar({
+            name: 'toolbar',
+            items: [
+                { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', checked: true },
+                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa-star', html: 'so' },
+                { type: 'break', id: 'break0' },
+                { type: 'menu',  id: 'item2', caption: 'Drop Down', img: 'icon-folder', icon: 'fa-camera', items: [
+                    { text: 'Item 1', img: 'icon-page' }, 
+                    { text: 'Item 2', img: 'icon-page' }, 
+                    { text: 'Item 3', value: 'Item Three', img: 'icon-page' }
+                ]},
+                { type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa-heart', items: [
+                    { id: 'item1', text: 'Item 1', icon: 'fa-heart' }, 
+                    { id: 'item2', text: 'Item 2', icon: 'fa-user' }, 
+                    { id: 'item3', text: 'Item 3', icon: 'fa-star-empty' }, 
+                    { id: 'item4', text: 'Item 4', icon: 'fa-link' }
+                ], overlay: { top: 10 }},
+                { type: 'break', id: 'break1' },
+                { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa-user', img: 'icon-add', checked: true },
+                { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa-group', img: 'icon-add', disabled: false },
+                { type: 'break' },
+                { type: 'drop', id: 'item7', caption: 'drop button', img: 'icon-search', 
+                    html: '<div style="padding: 10px; font-size: 11px">some html</div>' },
+                { type: 'spacer' },
+                { type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save', disabled: true },
+                { type: 'button',  id: 'item6',  caption: 'Item 6', img: 'icon-save' }
+            ],
+            onClick: function (event) { console.log(event); }
+        });
+    });
 
-	function changeTab() {
-		w2ui['tabs'].get('tab2').caption = '<div style="width: 300px">new and long</div>'; 
-		w2ui['tabs'].refresh();		
-	}
+    function changeTab() {
+        w2ui['tabs'].get('tab2').caption = '<div style="width: 300px">new and long</div>'; 
+        w2ui['tabs'].refresh();        
+    }
 </script>
 <body>
-	<div id="toolbar" style="padding: 4px; background-color: #efefef;"></div>
+    <div id="toolbar" style="padding: 4px; background-color: #efefef;"></div>
 </body>

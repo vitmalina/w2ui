@@ -1,20 +1,20 @@
 Submits record data to remote data source for saving.
 
 <div class="definition">
-	save([postData], [callBack])
+    save([postData], [callBack])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>postData</td>
-		<td><b>object</b>, Map of additional parameter to submit to remote data source (<i>optional</i>)</td>
-	</tr>
-	<tr>
-		<td>callBack</td>
-		<td><b>function</b>, call back function when form is reloaded (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>postData</td>
+        <td><b>object</b>, Map of additional parameter to submit to remote data source (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>callBack</td>
+        <td><b>function</b>, call back function when form is reloaded (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -26,19 +26,19 @@ the save button, it will call the <span class="argument">.save()</span> method.
 
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	recid 	 : 10,
-	url 	 : '/server/form/path',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	actions: {
-		"save": function (target, data) { this.save(); },
-		"reset": function (target, data) { this.clear(); },
-	}
+    name     : 'form',
+    recid      : 10,
+    url      : '/server/form/path',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    actions: {
+        "save": function (target, data) { this.save(); },
+        "reset": function (target, data) { this.clear(); },
+    }
 });
 </textarea>
 
@@ -49,10 +49,10 @@ This request submits following structure (will be converted to a regular HTTP PO
     name    : 'form',
     recid   : 10,
     record  : {
-    	field1 : value1,
-    	...
-    	fieldN : valueN
-	}
+        field1 : value1,
+        ...
+        fieldN : valueN
+    }
 }
 </textarea>
 
@@ -64,13 +64,13 @@ submittion. If it return any error the submission will not proceed.
 If there is no error, the server should return the following JSON:
 <textarea class="javascript">
 {
-	"status": "success"
-}	
+    "status": "success"
+}    
 </textarea>
 If there are errors, you can send:
 <textarea class="javascript">
 {
-	"status": "success",
-	"message": "Error message"
-}	
+    "status": "success",
+    "message": "Error message"
+}    
 </textarea>

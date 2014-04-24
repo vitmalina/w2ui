@@ -1,21 +1,21 @@
 Called when a panel is hidden. 
 
 <div class="definition">
-	onHide = function(event)
+    onHide = function(event)
 </div>
 
 You can add event listener during the object creation:
 
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'preview', size: 200 }
-	],
-	onHide: function(event) {
-		console.log('object '+ event.panel + ' is hidden');
-	}		
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'preview', size: 200 }
+    ],
+    onHide: function(event) {
+        console.log('object '+ event.panel + ' is hidden');
+    }        
 });
 </textarea>
 
@@ -23,7 +23,7 @@ or after the object has been created:
 
 <textarea class="javascript">
 w2ui.layout.on('hide', function(event) {
-	console.log('object '+ event.panel + ' is hidden');
+    console.log('object '+ event.panel + ' is hidden');
 });
 </textarea>
 

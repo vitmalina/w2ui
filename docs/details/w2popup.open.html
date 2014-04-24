@@ -1,31 +1,31 @@
 Opens new popup or transitions to new content.
 
 <div class="definition">
-	open(options);
+    open(options);
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>options</td>
-		<td><b>object</b>, options for the popup</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>options</td>
+        <td><b>object</b>, options for the popup</td>
+    </tr>
+    </table>
 </div>
 
 OR 
 
 <div class="definition">
-	$('#id-content').w2popup('open', options);
+    $('#id-content').w2popup('open', options);
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>options</td>
-		<td><b>object</b>, options for the popup</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>options</td>
+        <td><b>object</b>, options for the popup</td>
+    </tr>
+    </table>
 </div>
 
 <h4>Description</h4>
@@ -49,12 +49,12 @@ You can open popup defining everything in JavaScript
 
 <textarea class="javascript">
 w2popup.open({
-	title   : 'Popup Title HTML',
-	body    : 'Body HTML',
-	buttons : 'Buttons HTML',
-	onOpen  : function () {
-		console.log('opened');
-	}
+    title   : 'Popup Title HTML',
+    body    : 'Body HTML',
+    buttons : 'Buttons HTML',
+    onOpen  : function () {
+        console.log('opened');
+    }
 });
 </textarea>
 
@@ -62,25 +62,25 @@ Or from markup
 
 <textarea class="html">
 <div id="popup" style="display: none; width: 600px; height: 400px; overflow: hidden">
-	<div rel="title">
-		Popup #1 Title
-	</div>
-	<div rel="body">
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-		This is body of popup #1. You can put any text or HTML inside the body.
-	</div>
-	<div rel="buttons">
-		<input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()">
-	</div>
+    <div rel="title">
+        Popup #1 Title
+    </div>
+    <div rel="body">
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+        This is body of popup #1. You can put any text or HTML inside the body.
+    </div>
+    <div rel="buttons">
+        <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()">
+    </div>
 </div>
 </textarea>
 

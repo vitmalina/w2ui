@@ -1,20 +1,20 @@
 Called when user clicks form's button.
 
 <div class="definition">
-	action(action, [event])
+    action(action, [event])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>action</td>
-		<td><b>string</b>, name of the action (name of the button)</td>
-	</tr>
-	<tr>
-		<td>event</td>
-		<td><b>object</b>, DOM Event Object (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>action</td>
+        <td><b>string</b>, name of the action (name of the button)</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, DOM Event Object (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -31,17 +31,17 @@ on click event to all buttons in the form.
 If you have form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	actions: {
-		"save": function (target, data) { this.validate(); },
-		"reset": function (target, data) { this.clear(); },
-	}
+    name     : 'form',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    actions: {
+        "save": function (target, data) { this.validate(); },
+        "reset": function (target, data) { this.clear(); },
+    }
 });
 </textarea>
 

@@ -3,130 +3,130 @@
 */
 
 .w2ui-popup {
-	position: fixed;
-	z-index: 1600;
-	overflow: hidden;
-	font-family: @main-font-family;
-	border-radius: 6px;
-	padding: 0px;
-	margin: 0px;
-	border: @popup-border;
-	background-color: @popup-body-background-color;
-	box-shadow: @popup-shadow;
-	
-	&, & * {
-		.box-sizing;
-	}
+    position: fixed;
+    z-index: 1600;
+    overflow: hidden;
+    font-family: @main-font-family;
+    border-radius: 6px;
+    padding: 0px;
+    margin: 0px;
+    border: @popup-border;
+    background-color: @popup-body-background-color;
+    box-shadow: @popup-shadow;
+    
+    &, & * {
+        .box-sizing;
+    }
 
-	.w2ui-msg-title {
-		padding: 6px;
-		border-radius: 6px 6px 0px 0px;
-		.linear-gradient-vertical(@popup-title-linear-gradient-start, @popup-title-linear-gradient-end);				
-		border-bottom: @popup-title-border-bottom;
-		position: absolute;
-		overflow: hidden;
-		height: 32px;
-		left: 0px;
-		right: 0px;
-		top: 0px;
-		text-overflow: ellipsis;
-		text-align: center;
-		.user-select;
-		cursor: move;
-		font-size: 15px;
-		color: @popup-title-color;
-		z-index: 300;		
-	}
+    .w2ui-msg-title {
+        padding: 6px;
+        border-radius: 6px 6px 0px 0px;
+        .linear-gradient-vertical(@popup-title-linear-gradient-start, @popup-title-linear-gradient-end);                
+        border-bottom: @popup-title-border-bottom;
+        position: absolute;
+        overflow: hidden;
+        height: 32px;
+        left: 0px;
+        right: 0px;
+        top: 0px;
+        text-overflow: ellipsis;
+        text-align: center;
+        .user-select;
+        cursor: move;
+        font-size: 15px;
+        color: @popup-title-color;
+        z-index: 300;        
+    }
 
-	.w2ui-msg-button {
-		float: right;
-		width: 18px;
-		height: 18px;
-		cursor: pointer;
-		overflow: hidden;
-		padding: 0px;
-		margin: 0px 3px 0px 0px;
-		.background-image(@image-popup-button, no-repeat, center, left);
-		background-position: 0px 0px;
-		color: @popup-title-button-color !important;
-		border-radius: 3px;
-		border: @popup-title-button-border;
-	}
+    .w2ui-msg-button {
+        float: right;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        overflow: hidden;
+        padding: 0px;
+        margin: 0px 3px 0px 0px;
+        .background-image(@image-popup-button, no-repeat, center, left);
+        background-position: 0px 0px;
+        color: @popup-title-button-color !important;
+        border-radius: 3px;
+        border: @popup-title-button-border;
+    }
 
-	.w2ui-msg-close {
-		margin-top: 0px;
-		background-position: -32px 0px;
-		&:hover {
-			background-color: @popup-title-close-background-color;
-			border: @popup-title-close-border;
-		}
-	}
+    .w2ui-msg-close {
+        margin-top: 0px;
+        background-position: -32px 0px;
+        &:hover {
+            background-color: @popup-title-close-background-color;
+            border: @popup-title-close-border;
+        }
+    }
 
-	.w2ui-msg-max {
-		background-position: -16px 0px;
-		&:hover {
-			background-color: @popup-title-max-background-color;
-			border: @popup-title-max-border;
-		}
-	}
+    .w2ui-msg-max {
+        background-position: -16px 0px;
+        &:hover {
+            background-color: @popup-title-max-background-color;
+            border: @popup-title-max-border;
+        }
+    }
 
-	.w2ui-box1, .w2ui-box2 { // w2ui-box1 & w2ui-box2 needd for transitions
-		position: absolute;
-		left: 0px;
-		right: 0px;
-		top: 32px;
-		bottom: 55px;
-		z-index: 100;
-	}
+    .w2ui-box1, .w2ui-box2 { // w2ui-box1 & w2ui-box2 needd for transitions
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        top: 32px;
+        bottom: 55px;
+        z-index: 100;
+    }
 
-	.w2ui-msg-body {
-		font-size: 13px;
-		line-height: 130%;
-		padding: 0px 7px 7px 7px;
-		color: @popup-body-color;
-		background-color: @popup-body-background-color;
-		position: absolute;
-		overflow: auto;
-		width: 100%;
-		height: 100%;
-	}
+    .w2ui-msg-body {
+        font-size: 13px;
+        line-height: 130%;
+        padding: 0px 7px 7px 7px;
+        color: @popup-body-color;
+        background-color: @popup-body-background-color;
+        position: absolute;
+        overflow: auto;
+        width: 100%;
+        height: 100%;
+    }
 
-	.w2ui-popup-message { // slide down message
-		position: absolute;
-		z-index: 250;
-		background-color: @popup-message-background-color; 
-		border: @popup-message-border; 
-		box-shadow: @popup-message-shadow;
-		.box-sizing; 
-		border-top: 0px; 
-		border-radius: 0px 0px 6px 6px; 
-		overflow: auto;
-	}
-	
-	.w2ui-msg-buttons {
-		padding: 12px;
-		border-radius: 0px 0px 6px 6px;
-		border-top: @popup-buttons-border-top;
-		background-color: @popup-buttons-background-color;
-		text-align: center;
-		position: absolute;
-		overflow: hidden;
-		height: 52px;
-		left: 0px;
-		right: 0px;
-		bottom: 0px;
-		z-index: 200;
-	}
+    .w2ui-popup-message { // slide down message
+        position: absolute;
+        z-index: 250;
+        background-color: @popup-message-background-color; 
+        border: @popup-message-border; 
+        box-shadow: @popup-message-shadow;
+        .box-sizing; 
+        border-top: 0px; 
+        border-radius: 0px 0px 6px 6px; 
+        overflow: auto;
+    }
+    
+    .w2ui-msg-buttons {
+        padding: 12px;
+        border-radius: 0px 0px 6px 6px;
+        border-top: @popup-buttons-border-top;
+        background-color: @popup-buttons-background-color;
+        text-align: center;
+        position: absolute;
+        overflow: hidden;
+        height: 52px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        z-index: 200;
+    }
 
-	.w2ui-msg-no-title {
-		border-top-left-radius: 6px;
-		border-top-right-radius: 6px;
-		top: 0px !important;
-	}
+    .w2ui-msg-no-title {
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+        top: 0px !important;
+    }
 
-	.w2ui-msg-no-buttons {
-		border-bottom-left-radius: 6px;
-		border-bottom-right-radius: 6px;
-		bottom: 0px !important;
-	}
+    .w2ui-msg-no-buttons {
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+        bottom: 0px !important;
+    }
 }

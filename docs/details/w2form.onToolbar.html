@@ -1,7 +1,7 @@
 Called when user clicks on any toolbar button.
 
 <div class="definition">
-	onToolbar = function(event)
+    onToolbar = function(event)
 </div>
 
 This event is triggered when user clicks on any toolbar button. You can add event listener to the toolbar directly.
@@ -10,26 +10,26 @@ This event is triggered when user clicks on any toolbar button. You can add even
 You can add event listener during the object creation:
 <textarea class="javascript">
 $('#form').w2form({ 
-	name     : 'form',
-	url      : 'server/post',
-	record: {
-		field_1 : 1,
-		field_2 : 2
-	},
-	fields: [
-		{ name: 'field_1', type: 'text', required: true },
-		{ name: 'field_2', type: 'alphanumeric', required: true }
-	],
-	onToolbar: function(event) {
-		console.log(event);
-	}		
+    name     : 'form',
+    url      : 'server/post',
+    record: {
+        field_1 : 1,
+        field_2 : 2
+    },
+    fields: [
+        { name: 'field_1', type: 'text', required: true },
+        { name: 'field_2', type: 'alphanumeric', required: true }
+    ],
+    onToolbar: function(event) {
+        console.log(event);
+    }        
 });
 </textarea>
 
 or after the object has been created:
 <textarea class="javascript">
 w2ui.form.on('toolbar', function(event) {
-	console.log(event);
+    console.log(event);
 });
 </textarea>
 

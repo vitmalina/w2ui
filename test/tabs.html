@@ -5,33 +5,33 @@
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script>
-	$(function () {
-		$('#tabs').w2tabs({
-			name: 'tabs',
-			active: 'tab1',
-			right: '12232',
-			tabs: [
-				{ id: 'tab1.1', text: 'Tab 1' },
-				{ id: 'tab2.2', caption: 'Tab 2', closable: true },
-				{ id: 'tab3', caption: 'Tab 3', closable: true },
-				{ id: 'tab4', caption: 'Tab 4', closable: true },
-				{ id: 'tab5', caption: 'Tab 5', closable: true },
-				{ id: 'tab6', caption: 'Tab 6', closable: true },
-				{ id: 'tab7', caption: 'Tab 7', closable: true },
-				{ id: 'tab8', caption: 'Tab 8', closable: true }
-			]
-		});
-		w2ui.tabs.right = 'new right';
-		w2ui.tabs.refresh();
-	});
+    $(function () {
+        $('#tabs').w2tabs({
+            name: 'tabs',
+            active: 'tab1',
+            right: '12232',
+            tabs: [
+                { id: 'tab1.1', text: 'Tab 1' },
+                { id: 'tab2.2', caption: 'Tab 2', closable: true },
+                { id: 'tab3', caption: 'Tab 3', closable: true },
+                { id: 'tab4', caption: 'Tab 4', closable: true },
+                { id: 'tab5', caption: 'Tab 5', closable: true },
+                { id: 'tab6', caption: 'Tab 6', closable: true },
+                { id: 'tab7', caption: 'Tab 7', closable: true },
+                { id: 'tab8', caption: 'Tab 8', closable: true }
+            ]
+        });
+        w2ui.tabs.right = 'new right';
+        w2ui.tabs.refresh();
+    });
 
-	function changeTab() {
-		w2ui['tabs'].get('tab2.2').caption = '<div style="width: 300px">new and long</div>'; 
-		w2ui['tabs'].refresh();		
-	}
+    function changeTab() {
+        w2ui['tabs'].get('tab2.2').caption = '<div style="width: 300px">new and long</div>'; 
+        w2ui['tabs'].refresh();        
+    }
 </script>
 <body>
-	<div id="tabs" style="padding: 5px;"></div>
-	<br>
-	<button onclick="changeTab()">Change Tab</button>
+    <div id="tabs" style="padding: 5px;"></div>
+    <br>
+    <button onclick="changeTab()">Change Tab</button>
 </body>

@@ -1,24 +1,24 @@
 Inserts a node or nodes before node <span class="argument">before</span>.
 
 <div class="definition">
-	insert([parent], before, nodes)
+    insert([parent], before, nodes)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>parent</td>
-		<td><b>string</b>, id of the node (<i>optional</i>)</td>
-	</tr>
-	<tr>
-		<td>before</td>
-		<td><b>string</b> or <b>object</b>, id of the node or node object</td>
-	</tr>
-	<tr>
-		<td>nodes</td>
-		<td><b>object</b> or <b>array</b>, sidebar nodes to add</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>parent</td>
+        <td><b>string</b>, id of the node (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>before</td>
+        <td><b>string</b> or <b>object</b>, id of the node or node object</td>
+    </tr>
+    <tr>
+        <td>nodes</td>
+        <td><b>object</b> or <b>array</b>, sidebar nodes to add</td>
+    </tr>
+    </table>
 </div>
 
 Returns object.
@@ -34,7 +34,7 @@ separate sidebar node object.
 The first optional argument <span class="argument">parent</span> is an id of the parent node or parent node itself. If
 parent node is not specified, new nodes will be inserted to the parent of the <span class="argument">before</span> node.
 <div style="height: 10px"></div>
-				
+                
 New nodes will be inserted before node <span class="argument">before</span>, which is an id of the node or node object. If you 
 want to append nodes, the <span class="argument">before</span> argument should be null. You can also use 
 <a href="w2sidebar.add" class="method">.add()</a> method.
@@ -46,13 +46,13 @@ This method returns last inserted node object.
 If you defined the object in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar',
-	img  : 'icon-page',
-	nodes: [ 
-		{ id: 'id-1', text: 'Level 1' },
-		{ id: 'id-2', text: 'Level 2' },
-		{ id: 'id-3', text: 'Level 3' }
-	]
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
 });
 </textarea>
 
@@ -61,8 +61,8 @@ You can:
 w2ui['sidebar'].insert('id-2', { id: 'id-1-1', text: 'Level 1-1' });
 // or
 w2ui['sidebar'].insert('id-3', [
-	{ id: 'id-2-1', text: 'Level 2-1' },
-	{ id: 'id-2-2', text: 'Level 2-2' },
-	{ id: 'id-2-3', text: 'Level 2-3' }
+    { id: 'id-2-1', text: 'Level 2-1' },
+    { id: 'id-2-2', text: 'Level 2-2' },
+    { id: 'id-2-3', text: 'Level 2-3' }
 ]);
 </textarea>

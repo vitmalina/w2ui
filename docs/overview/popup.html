@@ -7,9 +7,9 @@ A popup can be created in any of the following ways:
 
 <textarea class="javascript">
 w2popup.open({
-	title   : 'Popup Title HTML',
-	body    : 'Body HTML',
-	buttons : 'Buttons HTML'
+    title   : 'Popup Title HTML',
+    body    : 'Body HTML',
+    buttons : 'Buttons HTML'
 });
 </textarea>
 
@@ -30,27 +30,27 @@ w2popup.load({ url: 'some/server/url' }); // content loaded from the server
 You can pass a map of following properties to the constructor of the popup (none of them are required):
 <textarea class="javascript">
 options: {
-	title           : '',      // title html of the popup
-	body            : '',      // body html of the popup
-	buttons         : '',      // buttons html of the popup
-	modal           : false,   // modal state
-	width           : 500,     // width in px
-	height          : 300,     // height in px
-	url             : null,    // url to load content from (see load method)
-	overflow        : 'auto',  // overflow css property for the body section
-	color           : '#000',  // background-color for the screen lock div
-	opacity         : 0.4,     // opacity for the screen lock div
-	speed           : 0.3,     // popup speed (in seconds)
-	transition      : null,    // transition for changing content
-	showClose       : true,    // close button indicator
-	showMax         : false,   // max button indicator
-	// events
-	onOpen          : null,    // event when dialog finished appearing
-	onBeforeClose   : null,    // event, can be cancelled
-	onClose         : null,    // event when closed
-	onChange        : null,    // event when new content is loading into existing dialog
-	onUnlock        : null,    // event for non modal dialog when use clicked outside the dialog
-	onMax           : null,    // event when maximizing
-	onMin           : null     // event when minimized
+    title           : '',      // title html of the popup
+    body            : '',      // body html of the popup
+    buttons         : '',      // buttons html of the popup
+    modal           : false,   // modal state
+    width           : 500,     // width in px
+    height          : 300,     // height in px
+    url             : null,    // url to load content from (see load method)
+    overflow        : 'auto',  // overflow css property for the body section
+    color           : '#000',  // background-color for the screen lock div
+    opacity         : 0.4,     // opacity for the screen lock div
+    speed           : 0.3,     // popup speed (in seconds)
+    transition      : null,    // transition for changing content
+    showClose       : true,    // close button indicator
+    showMax         : false,   // max button indicator
+    // events
+    onOpen          : null,    // event when dialog finished appearing
+    onBeforeClose   : null,    // event, can be cancelled
+    onClose         : null,    // event when closed
+    onChange        : null,    // event when new content is loading into existing dialog
+    onUnlock        : null,    // event for non modal dialog when use clicked outside the dialog
+    onMax           : null,    // event when maximizing
+    onMin           : null     // event when minimized
 }
 </textarea>

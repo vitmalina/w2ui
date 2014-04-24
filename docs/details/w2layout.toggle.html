@@ -1,20 +1,20 @@
 Toggles the panel.
 
 <div class="definition">
-	toggle(type, [immediate])
+    toggle(type, [immediate])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>type</td>
-		<td><b>string</b>, name of the panel</td>
-	</tr>
-	<tr>
-		<td>immediate</td>
-		<td><b>boolean</b>, without animation (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>type</td>
+        <td><b>string</b>, name of the panel</td>
+    </tr>
+    <tr>
+        <td>immediate</td>
+        <td><b>boolean</b>, without animation (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 <h4>Description</h4>
@@ -23,12 +23,12 @@ If the panel is hidden the <span class="argument">toggle()</span> method will ca
 method, if hidden - <a href="w2layout.show">w2layout.hide()</a>. Below is an example how to toggle a panel:
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'main', content: 'This is main panel' },
-		{ type: 'preview', size: 200 }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200 }
+    ]
 });
 
 // with animation

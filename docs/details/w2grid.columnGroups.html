@@ -1,7 +1,7 @@
 Array of column group objects. 
 
 <div class="definition">
-	Array, default = []
+    Array, default = []
 </div>
 
 You can use this property to organize columns in groups. If you change <span class="argument">.columnGroups</span> property
@@ -12,21 +12,21 @@ Column groups can be defined during object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
-	name : 'grid',
-	columnGroups : [
-		{ span: 1, caption: '', master: true },
-		{ span: 2, caption: 'Name' },
-		{ span: 1, caption: '', master: true },
-		{ span: 2, caption: 'Dates' }
-	],
-	columns : [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '120px' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	]
+    name : 'grid',
+    columnGroups : [
+        { span: 1, caption: '', master: true },
+        { span: 2, caption: 'Name' },
+        { span: 1, caption: '', master: true },
+        { span: 2, caption: 'Dates' }
+    ],
+    columns : [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'Start Date', size: '120px' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ]
 });
 </textarea>
 
@@ -34,10 +34,10 @@ Or any time after the grid has been created:
 
 <textarea class="javascript">
 w2ui['layout'].columnGroups = [
-	{ span: 1, caption: '', master: true },
-	{ span: 2, caption: 'Name' },
-	{ span: 1, caption: '', master: true },
-	{ span: 2, caption: 'Dates' }
+    { span: 1, caption: '', master: true },
+    { span: 2, caption: 'Name' },
+    { span: 1, caption: '', master: true },
+    { span: 2, caption: 'Dates' }
 ];
 w2ui['layout'].refresh();
 </textarea>

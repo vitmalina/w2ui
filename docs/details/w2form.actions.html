@@ -1,7 +1,7 @@
 Object of event handlers for form actions.
 
 <div class="definition">
-	Object, default = {}
+    Object, default = {}
 </div>
 
 When you define HTML template for the form, you can add buttons. If you add name attribute to the button it will be associated with 
@@ -9,37 +9,37 @@ the same action in the form. The HTML code below shows how to define buttons pro
 
 <textarea class="html">
 <div class="w2ui-page page-0">
-	...form fields ...
+    ...form fields ...
 </div>
 
 <div class="w2ui-buttons">
-	<input type="button" value="Reset" name="reset"/>
-	<input type="button" value="Save" name="save"/>
-</div>	
+    <input type="button" value="Reset" name="reset"/>
+    <input type="button" value="Save" name="save"/>
+</div>    
 </textarea>
 
 Now for each button you can define an action in the form
 
 <textarea class="javascript">
 $('#form').w2form({ 
-	name     : 'form',
-	url      : 'server/post',
-	record: {
-		field_1 : 1,
-		field_2 : 2
-	},
-	fields: [
-		{ name: 'field_1', type: 'text', required: true },
-		{ name: 'field_2', type: 'alphanumeric', required: true }
-	],
-	actions: {
-		"reset": function () {
-			this.clear();
-		},
-		"save": function () {
-			this.save();
-		}
-	}
+    name     : 'form',
+    url      : 'server/post',
+    record: {
+        field_1 : 1,
+        field_2 : 2
+    },
+    fields: [
+        { name: 'field_1', type: 'text', required: true },
+        { name: 'field_2', type: 'alphanumeric', required: true }
+    ],
+    actions: {
+        "reset": function () {
+            this.clear();
+        },
+        "save": function () {
+            this.save();
+        }
+    }
 });
 </textarea>
 

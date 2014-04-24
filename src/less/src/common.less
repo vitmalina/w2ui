@@ -5,50 +5,50 @@
 */
 
 .w2ui-reset {
-	.box-sizing;
-	 * {
-		color: default;
-		font-family: @main-font-family;
-		font-size: 11px;
-		/* font-weight: normal; - if enabled, then tr cannot have font-weight: bold; */
-		line-height: 100%;
-		.box-sizing;
-		margin: 0px;
-		padding: 0px;
-	}
-	table {
-		max-width: none;
-		background-color: transparent;
-		border-collapse: separate;
-		border-spacing: 0;
-	}
-	& input, & textarea {
-		width: auto;
-		height: auto;
-		vertical-align: baseline;
-		padding: 4px;
-	}
-	select {
-		padding: 1px;
-		height: 23px;
-	}
+    .box-sizing;
+     * {
+        color: default;
+        font-family: @main-font-family;
+        font-size: 11px;
+        /* font-weight: normal; - if enabled, then tr cannot have font-weight: bold; */
+        line-height: 100%;
+        .box-sizing;
+        margin: 0px;
+        padding: 0px;
+    }
+    table {
+        max-width: none;
+        background-color: transparent;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    & input, & textarea {
+        width: auto;
+        height: auto;
+        vertical-align: baseline;
+        padding: 4px;
+    }
+    select {
+        padding: 1px;
+        height: 23px;
+    }
 }
 
 .w2ui-centered {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	.transform(translateX(-50%) translateY(-50%));
-	width: 95%;
-	max-height: 100%;
-	margin: 0px; 
-	padding: 0px 5px;
-	text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    .transform(translateX(-50%) translateY(-50%));
+    width: 95%;
+    max-height: 100%;
+    margin: 0px; 
+    padding: 0px 5px;
+    text-align: center;
 }
 
 .w2ui-disabled, .w2ui-readonly {
-	background-color: #f1f1f1 !important;
-	color: #777 !important;
+    background-color: #f1f1f1 !important;
+    color: #777 !important;
 }
 
 /*************************************************
@@ -56,28 +56,28 @@
 */
 
 input[type=button] {
-	.sys-button;
-	&:hover { .sys-button-hover; }
-	&:active { .sys-button-active; }
+    .sys-button;
+    &:hover { .sys-button-hover; }
+    &:active { .sys-button-active; }
 }
 
 input:not([type=button]), select, textarea {
-	padding: 4px;
-	border: @input-border;
-	border-radius: 3px;
-	color: @input-color;
-	background-color: @input-background-color;
-	&:focus {
-		outline-color: @input-focus-outline-color;	
-	}
-	&:disabled, &[readonly] {
-		background-color: #f1f1f1;
-		color: #777;
-	}	
+    padding: 4px;
+    border: @input-border;
+    border-radius: 3px;
+    color: @input-color;
+    background-color: @input-background-color;
+    &:focus {
+        outline-color: @input-focus-outline-color;    
+    }
+    &:disabled, &[readonly] {
+        background-color: #f1f1f1;
+        color: #777;
+    }    
 }
 
 select {
-	padding: 2px;
+    padding: 2px;
 }
 
 /*************************************************
@@ -85,129 +85,129 @@ select {
 */
 
 .w2ui-overlay {
-	position: absolute;
-	margin-top: 6px;
-	margin-left: -17px;
-	display: none;
-	z-index: 1300;
-	color: @overlay-color;
-	background-color: @overlay-background-color;
-	border: @overlay-border;
-	box-shadow: @overlay-shadow;
-	border-radius: 4px;
-	text-align: left;
+    position: absolute;
+    margin-top: 6px;
+    margin-left: -17px;
+    display: none;
+    z-index: 1300;
+    color: @overlay-color;
+    background-color: @overlay-background-color;
+    border: @overlay-border;
+    box-shadow: @overlay-shadow;
+    border-radius: 4px;
+    text-align: left;
 
-	table td {
-		color: @overlay-color;
-	}
-	
-	&:before {
-		content: "";
-		position: absolute;
-		.transform-rotate(-45deg);
-		width: 12px;
-		height: 12px;
-		border: @overlay-border;
-		border-color: inherit;
-		background-color: inherit;
-		border-left: 1px solid transparent;
-		border-bottom: 1px solid transparent;
-		border-bottom-left-radius: 50px;
-		margin: -9px 0 0 30px;
-	}
+    table td {
+        color: @overlay-color;
+    }
+    
+    &:before {
+        content: "";
+        position: absolute;
+        .transform-rotate(-45deg);
+        width: 12px;
+        height: 12px;
+        border: @overlay-border;
+        border-color: inherit;
+        background-color: inherit;
+        border-left: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        border-bottom-left-radius: 50px;
+        margin: -9px 0 0 30px;
+    }
 
-	&:after {
-		display: none;
-		content: "";
-		position: absolute;
-		.transform-rotate(135deg);
-		width: 12px;
-		height: 12px;
-		border: @overlay-border;
-		border-color: inherit;
-		background-color: inherit;
-		border-left: 1px solid transparent;
-		border-bottom: 1px solid transparent;
-		border-bottom-left-radius: 50px;
-		margin: -7px 0 0 30px;
-	}
+    &:after {
+        display: none;
+        content: "";
+        position: absolute;
+        .transform-rotate(135deg);
+        width: 12px;
+        height: 12px;
+        border: @overlay-border;
+        border-color: inherit;
+        background-color: inherit;
+        border-left: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        border-bottom-left-radius: 50px;
+        margin: -7px 0 0 30px;
+    }
 
-	&.w2ui-overlay-popup {	// if it is inside popup 
-		z-index: 1700;
-	}
+    &.w2ui-overlay-popup {    // if it is inside popup 
+        z-index: 1700;
+    }
 }
 
 .w2ui-tag {
-	position: absolute; 
-	z-index: 1300; 
-	opacity: 0; 
-	.transition(opacity, 0.3s);
+    position: absolute; 
+    z-index: 1300; 
+    opacity: 0; 
+    .transition(opacity, 0.3s);
 
-	.w2ui-tag-body {
-		background-color: @bubble-tag-background-color;
-		display: inline-block;
-		position: absolute;
-		border-radius: 4px;
-		padding: 4px 10px;
-		margin-left: 10px;
-		margin-top: 0px;
-		color: @bubble-tag-color !important;
-		box-shadow: @bubble-tag-shadow;
-		line-height: 100%;
-		font-size: 11px;
-		font-family: @main-font-family;
-		&:before {
-			content: "";
-			position: absolute;
-			width: 0;
-			height: 0;
-			border-top: 5px solid transparent;
-			border-right: 5px solid @bubble-tag-background-color;
-			border-bottom: 5px solid transparent;
-			margin: 2px 0 0 -15px;
-		}
-	}
-	&.w2ui-tag-popup {	// if it is inside popup 
-		z-index: 1700;
-	}
+    .w2ui-tag-body {
+        background-color: @bubble-tag-background-color;
+        display: inline-block;
+        position: absolute;
+        border-radius: 4px;
+        padding: 4px 10px;
+        margin-left: 10px;
+        margin-top: 0px;
+        color: @bubble-tag-color !important;
+        box-shadow: @bubble-tag-shadow;
+        line-height: 100%;
+        font-size: 11px;
+        font-family: @main-font-family;
+        &:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-right: 5px solid @bubble-tag-background-color;
+            border-bottom: 5px solid transparent;
+            margin: 2px 0 0 -15px;
+        }
+    }
+    &.w2ui-tag-popup {    // if it is inside popup 
+        z-index: 1700;
+    }
 }
 
 .w2ui-overlay table.w2ui-drop-menu {
-	width: 100%;
-	color: @drop-menu-color;
-	background-color: @drop-menu-background-color;
-	padding: 5px 0px;
-	cursor: default;
-	// image
-	td:first-child {
-		padding: 3px 0px 4px 6px;
-		width: 20px;
-	}
-	// caption
-	td:last-child {
-		padding: 8px 10px 8px 5px;
-		width: auto;
-	}
+    width: 100%;
+    color: @drop-menu-color;
+    background-color: @drop-menu-background-color;
+    padding: 5px 0px;
+    cursor: default;
+    // image
+    td:first-child {
+        padding: 3px 0px 4px 6px;
+        width: 20px;
+    }
+    // caption
+    td:last-child {
+        padding: 8px 10px 8px 5px;
+        width: auto;
+    }
 
-	tr:hover {
-		color: @drop-menu-row-hover-color;
-		background-color: @drop-menu-row-hover-background-color;
-	}
+    tr:hover {
+        color: @drop-menu-row-hover-color;
+        background-color: @drop-menu-row-hover-background-color;
+    }
 
-	tr.w2ui-selected {
-		background-color: @drop-menu-selected-background-color;
-	}
+    tr.w2ui-selected {
+        background-color: @drop-menu-selected-background-color;
+    }
 
-	tr.w2ui-selected td {
-		color: @drop-menu-selected-color;
-	}
+    tr.w2ui-selected td {
+        color: @drop-menu-selected-color;
+    }
 
-	.w2ui-icon {
-		font-size: 14px;
-		color: @drop-menu-image-color;
-		display: inline-block;
-		padding-top: 4px;		
-	}
+    .w2ui-icon {
+        font-size: 14px;
+        color: @drop-menu-image-color;
+        display: inline-block;
+        padding-top: 4px;        
+    }
 }
 
 /*************************************************
@@ -215,15 +215,15 @@ select {
 */
 
 .w2ui-marker {
-	color: #444;
-	background-color: rgba(252, 244, 161, 0.48);
+    color: #444;
+    background-color: rgba(252, 244, 161, 0.48);
 }
 
 .w2ui-spinner {
-	display: inline-block;
-	background-size: 100%;
-	background-repeat: no-repeat;
-	background-image: @image-spinner;
+    display: inline-block;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-image: @image-spinner;
 }
 
 /*************************************************
@@ -231,42 +231,42 @@ select {
 */
 
 .w2ui-lock {
-	display: none;
-	position: absolute; 
-	z-index: 1400;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	.opacity(0.15);
-	background-color: @lock-background-color;
+    display: none;
+    position: absolute; 
+    z-index: 1400;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    .opacity(0.15);
+    background-color: @lock-background-color;
 }
 
 .w2ui-lock-msg {
-	display: none;
-	position: absolute;
-	z-index: 1400;
-	top: 45%;
-	left: 50%;
-	.transform(translateX(-50%) translateY(-50%));
-	width: 200px;
-	height: 80px;
-	padding: 30px 8px;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	font-size: 13px;
-	font-family: @main-font-family;
-	.opacity(0.8);
-	background-color: @lock-msg-background-color;
-	color: @lock-msg-color;
-	text-align: center;
-	border-radius: 5px;
-	border: @lock-msg-border;
-	.w2ui-spinner {
-		display: inline-block; 
-		width: 24px; 
-		height: 24px; 
-		margin: -3px 8px -7px -10px;
-	}
+    display: none;
+    position: absolute;
+    z-index: 1400;
+    top: 45%;
+    left: 50%;
+    .transform(translateX(-50%) translateY(-50%));
+    width: 200px;
+    height: 80px;
+    padding: 30px 8px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 13px;
+    font-family: @main-font-family;
+    .opacity(0.8);
+    background-color: @lock-msg-background-color;
+    color: @lock-msg-color;
+    text-align: center;
+    border-radius: 5px;
+    border: @lock-msg-border;
+    .w2ui-spinner {
+        display: inline-block; 
+        width: 24px; 
+        height: 24px; 
+        margin: -3px 8px -7px -10px;
+    }
 }

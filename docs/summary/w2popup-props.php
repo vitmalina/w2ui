@@ -1,9 +1,9 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container"><div class="obj-property">
-	<a href="w2popup.defaults">defaults</a> <span>- Array, default - see below</span>
+    <a href="w2popup.defaults">defaults</a> <span>- Array, default - see below</span>
 </div>
 <div class="obj-property-desc">
-	Array of default settings for the popup. 
+    Array of default settings for the popup. 
 </div>
 
 </div>

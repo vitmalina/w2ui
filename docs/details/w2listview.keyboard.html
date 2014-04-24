@@ -1,29 +1,29 @@
 Indicates if listview should listen to keyboard.
 
 <div class="definition">
-	Boolean, default = true
+    Boolean, default = true
 </div>
 
 If <span class="argument">.keyboard</span> property is set to true, the listview will add event listener to listen for
 keyboard events. There are several keyboard keys linked to the listview actions:
 <div style="height: 10px"></div>
 <ul>
-	<li>Arrow up - upper item</li>
-	<li>Arrow down - down item</li>
-	<li>Arrow right - next item</li>
-	<li>Arrow left - previous item</li>
+    <li>Arrow up - upper item</li>
+    <li>Arrow down - down item</li>
+    <li>Arrow right - next item</li>
+    <li>Arrow left - previous item</li>
 </ul>
 
 This property can be defined during the listview creation:
 <textarea class="javascript">
 $('#listview').w2listview({
-	name : 'listview',
-	keyboard : false,
-	items: [
-		{ id: 'id-1', caption: 'Item 1' },
-		{ id: 'id-2', caption: 'Item 2' },
-		{ id: 'id-3', caption: 'Item 3' }
-	]
+    name : 'listview',
+    keyboard : false,
+    items: [
+        { id: 'id-1', caption: 'Item 1' },
+        { id: 'id-2', caption: 'Item 2' },
+        { id: 'id-3', caption: 'Item 3' }
+    ]
 });
 </textarea>
 

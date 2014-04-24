@@ -28,8 +28,8 @@ CREATE TABLE users(
 
 Contributions are welcome. 
 
-- JAVA	: java/index.html 
-- NET	: net/index.asp
-- NODE	: net/index.html
-- PHP	: php/index.php 	- **ready**
-- RUBY	: php/index.html
+- JAVA    : java/index.html 
+- NET    : net/index.asp
+- NODE    : net/index.html
+- PHP    : php/index.php     - **ready**
+- RUBY    : php/index.html

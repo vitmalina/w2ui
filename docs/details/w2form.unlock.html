@@ -1,7 +1,7 @@
 Unlocks the form.
 
 <div class="definition">
-	unlock()
+    unlock()
 </div>
 
 Returns <i>undefined</i>.
@@ -11,21 +11,21 @@ Returns <i>undefined</i>.
 This method will unlock the form previously locked with <a href="w2form.lock" class="method">.lock()</a> method. This method will call
 <a href="w2utils.unlock" class="method">w2utils.unlock()</a> to perform the action.
 <div style="height: 10px"></div>
-				
+                
 If you have following form:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	formURL : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	actions: {
-		"save": function (target, data) { this.validate(); },
-		"reset": function (target, data) { this.clear(); },
-	}
+    name     : 'form',
+    formURL : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    actions: {
+        "save": function (target, data) { this.validate(); },
+        "reset": function (target, data) { this.clear(); },
+    }
 });
 </textarea>
 

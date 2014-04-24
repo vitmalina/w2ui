@@ -1,20 +1,20 @@
 Tabs for the form.
 
 <div class="definition">
-	Object, default = {}
+    Object, default = {}
 </div>
 
 If you define tabs then you have to define multiple pages with the form and the number of pages should be equal 
 to the number of tabs. Multiple pages are defined by providing multiple div tags, for example:
 <textarea class="html">
 <div class="w2ui-page page-0">
-	<!-- fields -->
+    <!-- fields -->
 </div>
 <div class="w2ui-page page-1">
-	<!-- fields -->
+    <!-- fields -->
 </div>
 <div class="w2ui-buttons">
-	<!-- actions -->
+    <!-- actions -->
 </div>
 </textarea>
 If it is an object then it is a <span class="method">w2tabs</span> object definition. If it is an array then it is tabs definition that 
@@ -27,51 +27,51 @@ should correspond to <span class="method">w2tabs.tabs</span> array.
 You should define tabs during object creation:
 <textarea class="javascript">
 $('#form').w2form({
-	name: 'form',
-	formHTML: 
-		'<div class="w2ui-page page-0">'+
-		'	<div class="w2ui-label">First Name:</div>'+
-		'	<div class="w2ui-field">'+
-		'		<input name="first_name" type="text" size="35"/>'+
-		'	</div>'+
-		'	<div class="w2ui-label">Last Name:</div>'+
-		'	<div class="w2ui-field">'+
-		'		<input name="last_name" type="text" size="35"/>'+
-		'	</div>'+
-		'	<div class="w2ui-label">Email:</div>'+
-		'	<div class="w2ui-field">'+
-		'		<input name="email" type="text" size="35"/>'+
-		'	</div>'+
-		'</div>'+
-		'<div class="w2ui-page page-1">'+
-		'	<div class="w2ui-label">More Fields:</div>'+
-		'	<div class="w2ui-field">'+
-		'		<input name="extra_field" type="text" size="35"/>'+
-		'	</div>'+
-		'</div>'+
-		'<div class="w2ui-buttons">'+
-		'	<input type="button" value="Reset" name="reset">'+
-		'	<input type="button" value="Save" name="save">'+
-		'</div>',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2' }
-	],
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-		{ name: 'extra_field', type: 'date' }
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com',
-		extra_field : ''
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	}
+    name: 'form',
+    formHTML: 
+        '<div class="w2ui-page page-0">'+
+        '    <div class="w2ui-label">First Name:</div>'+
+        '    <div class="w2ui-field">'+
+        '        <input name="first_name" type="text" size="35"/>'+
+        '    </div>'+
+        '    <div class="w2ui-label">Last Name:</div>'+
+        '    <div class="w2ui-field">'+
+        '        <input name="last_name" type="text" size="35"/>'+
+        '    </div>'+
+        '    <div class="w2ui-label">Email:</div>'+
+        '    <div class="w2ui-field">'+
+        '        <input name="email" type="text" size="35"/>'+
+        '    </div>'+
+        '</div>'+
+        '<div class="w2ui-page page-1">'+
+        '    <div class="w2ui-label">More Fields:</div>'+
+        '    <div class="w2ui-field">'+
+        '        <input name="extra_field" type="text" size="35"/>'+
+        '    </div>'+
+        '</div>'+
+        '<div class="w2ui-buttons">'+
+        '    <input type="button" value="Reset" name="reset">'+
+        '    <input type="button" value="Save" name="save">'+
+        '</div>',
+    tabs: [
+        { id: 'tab1', caption: 'Tab 1' },
+        { id: 'tab2', caption: 'Tab 2' }
+    ],
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+        { name: 'extra_field', type: 'date' }
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com',
+        extra_field : ''
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
 });
 </textarea>

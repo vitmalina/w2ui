@@ -1,24 +1,24 @@
 Called when user select item from context menu.
 
 <div class="definition">
-	menuClick(id, index, [event])
+    menuClick(id, index, [event])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the tab</td>
-	</tr>
-	<tr>
-		<td>index</td>
-		<td><b>integer</b>, index of the item in the menu</td>
-	</tr>
-	<tr>
-		<td>event</td>
-		<td><b>object</b>, <i>optional</i>, DOM Event object</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the tab</td>
+    </tr>
+    <tr>
+        <td>index</td>
+        <td><b>integer</b>, index of the item in the menu</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, <i>optional</i>, DOM Event object</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -32,21 +32,21 @@ context menu selection. This method emits <a class="method" href="w2sidebar.onMe
 If you have sidebar defined in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar2',
-	img  : 'icon-page',
-	menu : [
-		{ id: 1, text: 'Item 1' },
-		{ id: 2, text: 'Item 2' },
-		{ id: 3, text: 'Item 3' },
-	],
-	nodes: [ 
-		{ id: 'id-1', text: 'Level 1', hidden: true },
-		{ id: 'id-2', text: 'Level 2', expanded: true, nodes: [
-			{ id: 'id-2-1', text: 'Level 2.1' },
-			{ id: 'id-2-2', text: 'Level 2.2' }
-		]},
-		{ id: 'id-3', text: 'Level 3' }
-	]
+    name : 'sidebar2',
+    img  : 'icon-page',
+    menu : [
+        { id: 1, text: 'Item 1' },
+        { id: 2, text: 'Item 2' },
+        { id: 3, text: 'Item 3' },
+    ],
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1', hidden: true },
+        { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
+            { id: 'id-2-1', text: 'Level 2.1' },
+            { id: 'id-2-2', text: 'Level 2.2' }
+        ]},
+        { id: 'id-3', text: 'Level 3' }
+    ]
 });
 </textarea>
 

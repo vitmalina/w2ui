@@ -1,39 +1,39 @@
 Adds event listener to a object.
 
 <div class="definition">
-	on(type, handler)
+    on(type, handler)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>type</td>
-		<td><b>string</b>, name of the event</td>
-	</tr>
-	<tr>
-		<td>handler</td>
-		<td><b>function</b>, JavaScript function </td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>type</td>
+        <td><b>string</b>, name of the event</td>
+    </tr>
+    <tr>
+        <td>handler</td>
+        <td><b>function</b>, JavaScript function </td>
+    </tr>
+    </table>
 </div>
 
 OR
 
 <div class="definition">
-	on(eventData, handler)
+    on(eventData, handler)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>eventData</td>
-		<td><b>object</b>, parameters of the event</td>
-	</tr>
-	<tr>
-		<td>handler</td>
-		<td><b>function</b>, JavaScript function </td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>eventData</td>
+        <td><b>object</b>, parameters of the event</td>
+    </tr>
+    <tr>
+        <td>handler</td>
+        <td><b>function</b>, JavaScript function </td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -45,12 +45,12 @@ layout (for grid, toolbar, etc. it is exactly the same) defined as follows:
 
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'main', content: 'This is main panel' },
-		{ type: 'preview', size: 200 }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200 }
+    ]
 });
 </textarea>
 
@@ -58,8 +58,8 @@ You can add an event listener in the following way:
 
 <textarea class="javascript">
 w2ui['layout'].on('refresh', function (target, eventData) {
-	console.log(target);
-	console.log(eventData);
+    console.log(target);
+    console.log(eventData);
 });
 </textarea>
 
@@ -67,8 +67,8 @@ You could also add event listener in the following way:
 
 <textarea class="javascript">
 w2ui['layout'].on({ type : 'refresh' }, function (target, eventData) {
-	console.log(target);
-	console.log(eventData);
+    console.log(target);
+    console.log(eventData);
 });
 </textarea>
 
@@ -82,10 +82,10 @@ may also contain additional parameters, for example when to trigger event before
 Below is the list of properties of eventData object: 
 <textarea class="javascript">
 data = {
-	type        : '',         // event name or * for all events
-	execute     : 'before',   // when to execute the handler, can be before or after
-	target      : null,       // target of the event (target will be set when event is triggered)
-	onComplete  : null        // function(target, eventData) to execute after event is processed.
+    type        : '',         // event name or * for all events
+    execute     : 'before',   // when to execute the handler, can be before or after
+    target      : null,       // target of the event (target will be set when event is triggered)
+    onComplete  : null        // function(target, eventData) to execute after event is processed.
 }
 </textarea>
 
@@ -99,17 +99,17 @@ lower case first letter. For example, if the object has "onResize" event, you ca
 You can attach event listener to all events if you do the following: 
 <textarea class="javascript">
 w2ui['layout'].on('*', function (target, eventData) {
-	console.log(target);
-	console.log(eventData);
+    console.log(target);
+    console.log(eventData);
 });
 </textarea>
 
 There are several events that are common for all w2ui objects (except w2popup, w2field, w2utility). They are:
 <ul>
-	<li>onRender</li>
-	<li>onRefresh</li>
-	<li>onResize</li>
-	<li>onDestroy</li>
+    <li>onRender</li>
+    <li>onRefresh</li>
+    <li>onResize</li>
+    <li>onDestroy</li>
 </ul>
 
 <h4>Event Handlers</h4>
@@ -117,7 +117,7 @@ When any of the event is triggered and it has an event handler, the event handle
 argument - <span class="argument">event</span>, which is an object with useful data related to the event.
 <textarea class="javascript">
 function handler(event) {
-	// body
+    // body
 }
 </textarea>
 Events can be cancelled, see <a href="utils/events">w2utils.events</a> page for more information.

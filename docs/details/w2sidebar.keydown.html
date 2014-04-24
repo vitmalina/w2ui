@@ -1,16 +1,16 @@
 Processes keydown events.
 
 <div class="definition">
-	keydown(event)
+    keydown(event)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>event</td>
-		<td><b>DOM Event</b>, event object corresponding to keydown event</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>event</td>
+        <td><b>DOM Event</b>, event object corresponding to keydown event</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -24,15 +24,15 @@ This method emits <a class="method" href="w2sidebar.onKeydown">.onKeydown</a> ev
 This method can be overwritten:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar',
-	img  : 'icon-page',
-	nodes: [ 
-		{ id: 'id-1', text: 'Level 1' },
-		{ id: 'id-2', text: 'Level 2' },
-		{ id: 'id-3', text: 'Level 3' }
-	],
-	keydown: function (event) {
-		console.log('Custom keydown event.');
-	}
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ],
+    keydown: function (event) {
+        console.log('Custom keydown event.');
+    }
 });
 </textarea>

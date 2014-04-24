@@ -1,11 +1,11 @@
 <div class="content">
-	<div id="example_title">
-		<h1>Validation</h1>
-		A number of validation tools are provided by w2utils. Type anything in the field below to see validation at work. Try integers, floats,
-		money, dates, emails.
-	</div>
-	<div id="example_view"></div>
-	<div id="example_code"></div>
+    <div id="example_title">
+        <h1>Validation</h1>
+        A number of validation tools are provided by w2utils. Type anything in the field below to see validation at work. Try integers, floats,
+        money, dates, emails.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
 </div>
 
 <!--CODE-->
@@ -25,20 +25,20 @@
 <!--CODE-->
 <script>
 function update() {
-	$('#isInt').html(w2utils.isInt($('#str')[0].value) ? 'Yes' : '-');
-	$('#isFloat').html(w2utils.isFloat($('#str')[0].value) ? 'Yes' : '-');
-	$('#isHex').html(w2utils.isHex($('#str')[0].value) ? 'Yes' : '-');
-	$('#isMoney').html(w2utils.isMoney($('#str')[0].value) ? 'Yes' : '-');
-	$('#isAlphaNumeric').html(w2utils.isAlphaNumeric($('#str')[0].value) ? 'Yes' : '-');
-	$('#isEmail').html(w2utils.isEmail($('#str')[0].value) ? 'Yes' : '-');
-	$('#isDate').html(w2utils.isDate($('#str')[0].value) ? 'Yes' : '-');
-	$('#isTime').html(w2utils.isTime($('#str')[0].value) ? 'Yes' : '-');
-	if (w2utils.isDate($('#str')[0].value)) {
-		$('#goAge').html(w2utils.age($('#str')[0].value));
-		$('#goDate').html(w2utils.date($('#str')[0].value));
-	} else {
-		$('#goAge').html('-');
-		$('#goDate').html('-');
-	}
+    $('#isInt').html(w2utils.isInt($('#str')[0].value) ? 'Yes' : '-');
+    $('#isFloat').html(w2utils.isFloat($('#str')[0].value) ? 'Yes' : '-');
+    $('#isHex').html(w2utils.isHex($('#str')[0].value) ? 'Yes' : '-');
+    $('#isMoney').html(w2utils.isMoney($('#str')[0].value) ? 'Yes' : '-');
+    $('#isAlphaNumeric').html(w2utils.isAlphaNumeric($('#str')[0].value) ? 'Yes' : '-');
+    $('#isEmail').html(w2utils.isEmail($('#str')[0].value) ? 'Yes' : '-');
+    $('#isDate').html(w2utils.isDate($('#str')[0].value) ? 'Yes' : '-');
+    $('#isTime').html(w2utils.isTime($('#str')[0].value) ? 'Yes' : '-');
+    if (w2utils.isDate($('#str')[0].value)) {
+        $('#goAge').html(w2utils.age($('#str')[0].value));
+        $('#goDate').html(w2utils.date($('#str')[0].value));
+    } else {
+        $('#goAge').html('-');
+        $('#goDate').html('-');
+    }
 }
 </script>

@@ -702,7 +702,7 @@ select {
   border-top-color: #81C6FF;
 }
 /*
-*	ARROWS 
+*    ARROWS 
 */
 .arrow-up {
   background: none;
@@ -754,7 +754,7 @@ select {
   line-height: 0;
 }
 /*
-*	COLOR overlay
+*    COLOR overlay
 */
 .w2ui-color {
   padding: 5px;
@@ -786,7 +786,7 @@ select {
   border: 1px solid #fff;
 }
 /* 
-*	DATE overlay
+*    DATE overlay
 */
 .w2ui-calendar {
   margin: 0px;
@@ -974,7 +974,7 @@ select {
   padding: 6px;
 }
 /*
-*	Time
+*    Time
 */
 .w2ui-calendar-time {
   padding: 5px;
@@ -1010,7 +1010,7 @@ select {
   background-image: linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
 }
 /*
-*	Drop down menu
+*    Drop down menu
 */
 .w2ui-drop-menu td {
   white-space: nowrap;
@@ -1030,7 +1030,7 @@ select {
   border-bottom: 1px solid #D3D2D4;
 }
 /*
-*	ENUM items
+*    ENUM items
 */
 .w2ui-list {
   color: inherit;

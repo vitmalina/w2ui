@@ -18,24 +18,24 @@ in the example that you link jquery.js, w2ui.js and w2ui.css files.
 <body>
     <div id="myTabs"></div>
     <div id="myTabsContent" style="height: 400px; padding: 10px; border: 1px solid #ccc; border-top: 0px">
-    	tab1
+        tab1
     </div>
 </body>
 <script>
 $(function () {
-	$('#myTabs').w2tabs({
-		name 	: 'myTabs',
-		active 	: 'tab1',
-		tabs	: [
-			{ id: 'tab1', caption: 'Tab 1' },
-			{ id: 'tab2', caption: 'Tab 2' },
-			{ id: 'tab3', caption: 'Tab 3' },
-			{ id: 'tab4', caption: 'Tab 4' }
-		],
-		onClick: function (event) {
-			$('#myTabsContent').html(event.target);
-		}
-	});
+    $('#myTabs').w2tabs({
+        name     : 'myTabs',
+        active     : 'tab1',
+        tabs    : [
+            { id: 'tab1', caption: 'Tab 1' },
+            { id: 'tab2', caption: 'Tab 2' },
+            { id: 'tab3', caption: 'Tab 3' },
+            { id: 'tab4', caption: 'Tab 4' }
+        ],
+        onClick: function (event) {
+            $('#myTabsContent').html(event.target);
+        }
+    });
 });
 </script>
 </html>

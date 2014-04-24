@@ -2,8 +2,8 @@
 
 All w2ui controls have the same event flow. There are two ways you can add/remove events:
 <ol>
-	<li>using on"Event" properties </li>
-	<li>using <span class="method">.on()</span> and <span class="method">.off()</span> methods</li>
+    <li>using on"Event" properties </li>
+    <li>using <span class="method">.on()</span> and <span class="method">.off()</span> methods</li>
 </ol>
 The first way is simple, can be done during object creation, but limits you to a single event listener per event. The second way 
 lets you add multiple event listeners, but can only be used at run-time. It gives you a better control of the event flow.
@@ -12,30 +12,30 @@ Every widget property that start with "on" is an event.
 <h3>Properties and Methods</h3>
 
 <div class="obj-property">
-	<a href="../common.handlers">handlers</a> <span>- array of objects </span>
+    <a href="../common.handlers">handlers</a> <span>- array of objects </span>
 </div>
 <div class="obj-property-desc">
-	Array of event handlers.
+    Array of event handlers.
 </div>
 
 <div class="obj-property">
-	<a href="../common.on">on</a> <span>- function (type, handler)</span>
+    <a href="../common.on">on</a> <span>- function (type, handler)</span>
 </div>
 <div class="obj-property-desc">
-	Adds event listener to the w2ui object.
+    Adds event listener to the w2ui object.
 </div>
 <div class="obj-property">
-	<a href="../common.off">off</a> <span>- function (type, [handler])</span>
+    <a href="../common.off">off</a> <span>- function (type, [handler])</span>
 </div>
 <div class="obj-property-desc">
-	Removes event listener to the w2ui object.
+    Removes event listener to the w2ui object.
 </div>
 
 <div class="obj-property">
-	<a href="../common.trigger">trigger</a> <span>- function (eventData)</span>
+    <a href="../common.trigger">trigger</a> <span>- function (eventData)</span>
 </div>
 <div class="obj-property-desc">
-	Executes all event listeners added with <span class="method">.on()</span> method.
+    Executes all event listeners added with <span class="method">.on()</span> method.
 </div>
 
 <h3>Event Handler Function</h3>
@@ -47,22 +47,22 @@ This parameter <span class="property">event</span> is an object that contains us
 Event handler looks like:
 <textarea class="javascript">
 function (event) {
-	// event actions
+    // event actions
 }
 </textarea>
 
 By default all event handlers are triggered before the default behavior. You can cancel event default behavior by:
 <textarea class="javascript">
-function (event) {	
-	event.preventDefault(); // cancel event
+function (event) {    
+    event.preventDefault(); // cancel event
 }
 </textarea>
 
 You can also define a function that will be executed after the default behavior is processed. For example:
 <textarea class="javascript">
 function (event) {
-	event.onComplete = function () {
-		// event actions
-	}
+    event.onComplete = function () {
+        // event actions
+    }
 }
 </textarea>

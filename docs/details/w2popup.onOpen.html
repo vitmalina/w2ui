@@ -1,7 +1,7 @@
 Called when popup is opened or transitions to the new content. 
 
 <div class="definition">
-	onOpen = function(event)
+    onOpen = function(event)
 </div>
 
 This event is triggered when popup is first opened and any time <a href="w2popup.open" class="method">.open</a> or 
@@ -14,11 +14,11 @@ You can add event listener during the object creation:
 
 <textarea class="javascript">
 w2popup.open({
-	title	: 'Title',
-	body 	: 'Body',
-	onOpen	: function (event) {
-		console.log('event: ' + event.type, event);
-	}		
+    title    : 'Title',
+    body     : 'Body',
+    onOpen    : function (event) {
+        console.log('event: ' + event.type, event);
+    }        
 });
 </textarea>
 
@@ -26,7 +26,7 @@ or after popup is opened:
 
 <textarea class="javascript">
 w2popup.on('open', function(event) {
-	console.log('event: ' + event.type, event);
+    console.log('event: ' + event.type, event);
 });
 </textarea>
 

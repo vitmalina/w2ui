@@ -1,22 +1,22 @@
 Extends field object with <span class="argument">obj</span>.
 
 <div class="definition">
-	set(field, obj)
+    set(field, obj)
 </div>
 
 <h4>Arguments</h4>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>field</td>
-		<td><b>string</b>, name of the field</td>
-	</tr>
-	<tr>
-		<td>obj</td>
-		<td><b>object</b>, field object { name, type, required }</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>field</td>
+        <td><b>string</b>, name of the field</td>
+    </tr>
+    <tr>
+        <td>obj</td>
+        <td><b>object</b>, field object { name, type, required }</td>
+    </tr>
+    </table>
 </div>
 
 Returns boolean.
@@ -33,16 +33,16 @@ field value you need to update <a class="argument" href="w2form.records">.record
 If you have form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({ 
-	name     : 'form',
-	url      : 'server/post',
-	record: {
-		field_1 : 1,
-		field_2 : 2
-	},
-	fields: [
-		{ name: 'field_1', type: 'text', required: true },
-		{ name: 'field_2', type: 'alphanumeric', required: true }
-	]
+    name     : 'form',
+    url      : 'server/post',
+    record: {
+        field_1 : 1,
+        field_2 : 2
+    },
+    fields: [
+        { name: 'field_1', type: 'text', required: true },
+        { name: 'field_2', type: 'alphanumeric', required: true }
+    ]
 });
 
 // update field object

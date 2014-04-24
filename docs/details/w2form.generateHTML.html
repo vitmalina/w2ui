@@ -1,7 +1,7 @@
 Generate HTML template for simple forms (Internal method).
 
 <div class="definition">
-	generateHTML()
+    generateHTML()
 </div>
 
 Returns HTML text.
@@ -19,32 +19,32 @@ The method will loop through all the <a class="argument" href="w2form.fields">.f
 to generate HTML template. It will use <span class="argument">html</span> property of the field if it is defined. It can have following structure:
 <textarea class="javascript">
 html = {
-	caption : '',  // caption for the field
-	attr    : '',  // additional attributes inside &lt;input&gt; control
-	span    : 6,   // number 1-9 that defined with of the caption span
-	text    : '',  // any html that will be placed after the input control
-	page    : 0    // page number control belongs to
+    caption : '',  // caption for the field
+    attr    : '',  // additional attributes inside &lt;input&gt; control
+    span    : 6,   // number 1-9 that defined with of the caption span
+    text    : '',  // any html that will be placed after the input control
+    page    : 0    // page number control belongs to
 }
 </textarea>
 
 You should not call this method directly. The following is the example how to use it
 <textarea class="javascript">
 $('#form').w2form({ 
-	name     : 'form',
-	fields: [
-		{ name: 'field.text', type: 'text', required: true,
-			html: { caption: 'Field 1', attr: 'size="40"', span: 5 }
-		},
-		{ name: 'field.alpha', type: 'alphanumeric', required: true,
-			html: { caption: 'Field 2', attr: 'size="40"', span: 5 }
-		},
-		{ name: 'field.int', type: 'int', required: true
-			html: { caption: 'Field 3', attr: 'size="40"', span: 5 }
-		}
-	],
-	actions: {
-		reset: function () {},
-		save: function () {}
-	}
+    name     : 'form',
+    fields: [
+        { name: 'field.text', type: 'text', required: true,
+            html: { caption: 'Field 1', attr: 'size="40"', span: 5 }
+        },
+        { name: 'field.alpha', type: 'alphanumeric', required: true,
+            html: { caption: 'Field 2', attr: 'size="40"', span: 5 }
+        },
+        { name: 'field.int', type: 'int', required: true
+            html: { caption: 'Field 3', attr: 'size="40"', span: 5 }
+        }
+    ],
+    actions: {
+        reset: function () {},
+        save: function () {}
+    }
 });
 </textarea>

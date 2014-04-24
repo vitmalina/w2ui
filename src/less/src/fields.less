@@ -3,478 +3,478 @@
 //
 
 .w2field {
-	padding: 3px;
-	border-radius: 3px;
-	border: 1px solid silver;
+    padding: 3px;
+    border-radius: 3px;
+    border: 1px solid silver;
 }
 
 .w2ui-field-helper {
-	position: absolute; 
-	display: inline-block; 
-	/* pointer-events: none; - do not use as IE does not support it */
-	.user-select(none);
+    position: absolute; 
+    display: inline-block; 
+    /* pointer-events: none; - do not use as IE does not support it */
+    .user-select(none);
 
-	.w2ui-field-up {
-		position: absolute; 
-		top: 0px; 
-		padding: 2px 3px;
-	}
-	
-	.w2ui-field-down {
-		position: absolute; 
-		bottom: 0px; 
-		padding: 2px 3px;
-	}
+    .w2ui-field-up {
+        position: absolute; 
+        top: 0px; 
+        padding: 2px 3px;
+    }
+    
+    .w2ui-field-down {
+        position: absolute; 
+        bottom: 0px; 
+        padding: 2px 3px;
+    }
 
-	.arrow-up:hover {
-		border-bottom-color: #81C6FF;
-	}
+    .arrow-up:hover {
+        border-bottom-color: #81C6FF;
+    }
 
-	.arrow-down:hover {
-		border-top-color: #81C6FF;
-	}
+    .arrow-down:hover {
+        border-top-color: #81C6FF;
+    }
 
 }
 
 /*
-*	ARROWS 
+*    ARROWS 
 */
 
 .arrow-up {
-	background: none;
-	width: 0; 
-	height: 0; 
-	border-left: 4px solid transparent;  /* left arrow slant */
-	border-right: 4px solid transparent; /* right arrow slant */
-	border-bottom: 5px solid #777; /* bottom, add background color here */
-	font-size: 0;
-	line-height: 0;
+    background: none;
+    width: 0; 
+    height: 0; 
+    border-left: 4px solid transparent;  /* left arrow slant */
+    border-right: 4px solid transparent; /* right arrow slant */
+    border-bottom: 5px solid #777; /* bottom, add background color here */
+    font-size: 0;
+    line-height: 0;
 }
 
 .arrow-down {
-	background: none;
-	width: 0; 
-	height: 0; 
-	border-left: 4px solid transparent;
-	border-right: 4px solid transparent;
-	border-top: 5px solid #777;
-	font-size: 0;
-	line-height: 0;
+    background: none;
+    width: 0; 
+    height: 0; 
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #777;
+    font-size: 0;
+    line-height: 0;
 }
 
 .arrow-left {
-	background: none;
-	width: 0; 
-	height: 0; 
-	border-bottom: 4px solid transparent;  /* left arrow slant */
-	border-top: 4px solid transparent; /* right arrow slant */
-	border-right: 5px solid #777; /* bottom, add background color here */
-	font-size: 0;
-	line-height: 0;
+    background: none;
+    width: 0; 
+    height: 0; 
+    border-bottom: 4px solid transparent;  /* left arrow slant */
+    border-top: 4px solid transparent; /* right arrow slant */
+    border-right: 5px solid #777; /* bottom, add background color here */
+    font-size: 0;
+    line-height: 0;
 }
 
 .arrow-right {
-	background: none;
-	width: 0; 
-	height: 0; 
-	border-bottom: 4px solid transparent;  /* left arrow slant */
-	border-top: 4px solid transparent; /* right arrow slant */
-	border-left: 5px solid #777; /* bottom, add background color here */
-	font-size: 0;
-	line-height: 0;
+    background: none;
+    width: 0; 
+    height: 0; 
+    border-bottom: 4px solid transparent;  /* left arrow slant */
+    border-top: 4px solid transparent; /* right arrow slant */
+    border-left: 5px solid #777; /* bottom, add background color here */
+    font-size: 0;
+    line-height: 0;
 }
 
 /*
-*	COLOR overlay
+*    COLOR overlay
 */
 
 .w2ui-color {
-	padding: 5px; 
-	padding-top: 8px;
-	background-color: white; 
-	border-radius: 3px;
+    padding: 5px; 
+    padding-top: 8px;
+    background-color: white; 
+    border-radius: 3px;
 
-	> table {
-		table-layout: fixed;
-		width: 160px;
+    > table {
+        table-layout: fixed;
+        width: 160px;
 
-		td {
-			width: 20px; 
-			height: 20px;
-			text-align: center;
+        td {
+            width: 20px; 
+            height: 20px;
+            text-align: center;
 
-			div {
-				cursor: pointer;
-				display: inline-block; 
-				width: 16px; 
-				height: 17px; 
-				padding: 1px 4px;
-				border: 1px solid transparent;
-				color: white;
-				text-shadow: 0px 0px 2px #000;
-				&:hover {
-					outline: 1px solid #666;
-					border: 1px solid #fff;
-				}
-			}
-		}
-	}
+            div {
+                cursor: pointer;
+                display: inline-block; 
+                width: 16px; 
+                height: 17px; 
+                padding: 1px 4px;
+                border: 1px solid transparent;
+                color: white;
+                text-shadow: 0px 0px 2px #000;
+                &:hover {
+                    outline: 1px solid #666;
+                    border: 1px solid #fff;
+                }
+            }
+        }
+    }
 }
 
 /* 
-*	DATE overlay
+*    DATE overlay
 */
 
 .w2ui-calendar {
-	margin: 0px;
-	padding: 1px;
-	line-height: 108%;
+    margin: 0px;
+    padding: 1px;
+    line-height: 108%;
 
-	.w2ui-calendar-title {
-		margin: 0px -1px;
-		padding: 7px 2px;
-		.linear-gradient-vertical(@calendar-title-gradient-start, @calendar-title-gradient-end);
-		border-bottom: @calendar-title-border-bottom;
-		color: @calendar-title-color;
-		text-align: center;
-		text-shadow: @calendar-title-text-shadow; 
-		cursor: pointer;
-	}
+    .w2ui-calendar-title {
+        margin: 0px -1px;
+        padding: 7px 2px;
+        .linear-gradient-vertical(@calendar-title-gradient-start, @calendar-title-gradient-end);
+        border-bottom: @calendar-title-border-bottom;
+        color: @calendar-title-color;
+        text-align: center;
+        text-shadow: @calendar-title-text-shadow; 
+        cursor: pointer;
+    }
 
-	.w2ui-calendar-jump {
-		position: absolute; 
-		top: 27px; 
-		left: 0px; 
-		right: 0px; 
-		bottom: 0px;
-		background-color: #FaFaFa;
-		>:first-child {
-			position: absolute;
-			top: 0px; 
-			left: 0px;
-			bottom: 0px;
-			width: 110px;
-			overflow: hidden;
-			padding-top: 5px;
-			border-right: 1px solid silver
-		}
-		>:last-child {
-			position: absolute;
-			top: 0px; 
-			right: 0px;
-			bottom: 0px;
-			width: 88px;
-			overflow-x: hidden;
-			overflow-y: auto;
-			padding-top: 5px;
-			text-align: center;
-		}
-		.w2ui-jump-month, .w2ui-jump-year {
-			display: inline-block;
-			padding: 5px 0px;
-			text-align: center;
-			float: left;
-			margin: 2px;
-			width: 50px;
-			cursor: default;
-			border: 1px solid transparent;
-			border-radius: 2px;
-		}
-		.w2ui-jump-year {
-			float: none;
-			width: 95%;
-		}
-		.w2ui-jump-month:hover, .w2ui-jump-year:hover {
-			border: @calendar-day-hover-border;
-			color: @calendar-day-hover-color;
-			background-color: #efefef;
-		}
-		.w2ui-jump-month.selected, .w2ui-jump-year.selected {
-			border: @calendar-day-hover-border;
-			color: @calendar-day-hover-color;
-			background-color: #dadada;
-		}	
-	}
-	
-	.w2ui-calendar-previous, .w2ui-calendar-next {
-		width: 24px;
-		height: 20px;
-		color: @calendar-button-color;
-		border: @calendar-button-border;
-		border-radius: 3px;
-		padding: 2px 3px 1px 2px;
-		margin: -4px 0px 0px 0px;
-		cursor: default;
-		&:hover {
-			border: @calendar-button-hover-border;
-			background-color: @calendar-button-hover-background-color;
-		}
-		& > div {
-			position: absolute; 
-			border-left: 4px solid #888; 
-			border-top: 4px solid #888;
-			border-right: 4px solid transparent; 
-			border-bottom: 4px solid transparent; 
-			width: 0px; 
-			height: 0px; 
-			padding: 0px;
-			margin: 3px 0px 0px 0px;
-		}
-	}
+    .w2ui-calendar-jump {
+        position: absolute; 
+        top: 27px; 
+        left: 0px; 
+        right: 0px; 
+        bottom: 0px;
+        background-color: #FaFaFa;
+        >:first-child {
+            position: absolute;
+            top: 0px; 
+            left: 0px;
+            bottom: 0px;
+            width: 110px;
+            overflow: hidden;
+            padding-top: 5px;
+            border-right: 1px solid silver
+        }
+        >:last-child {
+            position: absolute;
+            top: 0px; 
+            right: 0px;
+            bottom: 0px;
+            width: 88px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding-top: 5px;
+            text-align: center;
+        }
+        .w2ui-jump-month, .w2ui-jump-year {
+            display: inline-block;
+            padding: 5px 0px;
+            text-align: center;
+            float: left;
+            margin: 2px;
+            width: 50px;
+            cursor: default;
+            border: 1px solid transparent;
+            border-radius: 2px;
+        }
+        .w2ui-jump-year {
+            float: none;
+            width: 95%;
+        }
+        .w2ui-jump-month:hover, .w2ui-jump-year:hover {
+            border: @calendar-day-hover-border;
+            color: @calendar-day-hover-color;
+            background-color: #efefef;
+        }
+        .w2ui-jump-month.selected, .w2ui-jump-year.selected {
+            border: @calendar-day-hover-border;
+            color: @calendar-day-hover-color;
+            background-color: #dadada;
+        }    
+    }
+    
+    .w2ui-calendar-previous, .w2ui-calendar-next {
+        width: 24px;
+        height: 20px;
+        color: @calendar-button-color;
+        border: @calendar-button-border;
+        border-radius: 3px;
+        padding: 2px 3px 1px 2px;
+        margin: -4px 0px 0px 0px;
+        cursor: default;
+        &:hover {
+            border: @calendar-button-hover-border;
+            background-color: @calendar-button-hover-background-color;
+        }
+        & > div {
+            position: absolute; 
+            border-left: 4px solid #888; 
+            border-top: 4px solid #888;
+            border-right: 4px solid transparent; 
+            border-bottom: 4px solid transparent; 
+            width: 0px; 
+            height: 0px; 
+            padding: 0px;
+            margin: 3px 0px 0px 0px;
+        }
+    }
 
-	.w2ui-calendar-previous {
-		float: left;
-		& > div {
-			.transform-rotate(-45deg);
-			margin-left: 6px;
-		}
-	}
+    .w2ui-calendar-previous {
+        float: left;
+        & > div {
+            .transform-rotate(-45deg);
+            margin-left: 6px;
+        }
+    }
 
-	.w2ui-calendar-next {
-		float: right;
-		& > div {
-			.transform-rotate(135deg);
-			margin-left: 2px;
-			margin-right: 2px;
-		}
-	}
-	
-	table {
-		&.w2ui-calendar-days {
-			padding: 0px;
-			td {
-				border: 1px solid @calendar-background-color;
-				color: @calendar-day-color;
-				background-color: @calendar-day-background-color;
-				padding: 6px;
-				cursor: default;
-				text-align: right;
-				&.w2ui-saturday, 
-				&.w2ui-sunday {
-					border: 1px solid @calendar-background-color;
-					color: @calendar-day-weekend-color;
-					background-color: @calendar-day-background-color;
-					&:hover {
-						border: @calendar-day-hover-border;
-						color: @calendar-day-hover-color;
-						background-color: @calendar-day-hover-background-color;
-					}
-					&.w2ui-blocked {
-						text-decoration: line-through;
-						border: 1px solid @calendar-background-color;
-						color: @calendar-day-blocked-color;
-						background-color: @calendar-background-color;
-					}
-				}
-				&.w2ui-today {
-					border: @calendar-day-today-border;
-					color: @calendar-day-today-color;
-					background-color: @calendar-day-today-background-color;
-				}
-				&:hover {
-					border: @calendar-day-hover-border;
-					color: @calendar-day-hover-color;
-					background-color: @calendar-day-hover-background-color;
-				}
-				&.w2ui-blocked {
-					text-decoration: line-through;
-					border: 1px solid @calendar-background-color;
-					color: @calendar-day-blocked-color;
-					background-color: @calendar-background-color;
-				}
-				&.w2ui-day-empty {
-					border: 1px solid @calendar-background-color;
-					background-color: @calendar-empty-background-color;
-				}
-			}
-			tr.w2ui-day-title td {
-				border: 1px solid @calendar-background-color;
-				color: @calendar-week-title-color;
-				background-color: @calendar-background-color;
-				text-align: center;
-				padding: 6px;
-			}
-			
-		}
-	}
+    .w2ui-calendar-next {
+        float: right;
+        & > div {
+            .transform-rotate(135deg);
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+    }
+    
+    table {
+        &.w2ui-calendar-days {
+            padding: 0px;
+            td {
+                border: 1px solid @calendar-background-color;
+                color: @calendar-day-color;
+                background-color: @calendar-day-background-color;
+                padding: 6px;
+                cursor: default;
+                text-align: right;
+                &.w2ui-saturday, 
+                &.w2ui-sunday {
+                    border: 1px solid @calendar-background-color;
+                    color: @calendar-day-weekend-color;
+                    background-color: @calendar-day-background-color;
+                    &:hover {
+                        border: @calendar-day-hover-border;
+                        color: @calendar-day-hover-color;
+                        background-color: @calendar-day-hover-background-color;
+                    }
+                    &.w2ui-blocked {
+                        text-decoration: line-through;
+                        border: 1px solid @calendar-background-color;
+                        color: @calendar-day-blocked-color;
+                        background-color: @calendar-background-color;
+                    }
+                }
+                &.w2ui-today {
+                    border: @calendar-day-today-border;
+                    color: @calendar-day-today-color;
+                    background-color: @calendar-day-today-background-color;
+                }
+                &:hover {
+                    border: @calendar-day-hover-border;
+                    color: @calendar-day-hover-color;
+                    background-color: @calendar-day-hover-background-color;
+                }
+                &.w2ui-blocked {
+                    text-decoration: line-through;
+                    border: 1px solid @calendar-background-color;
+                    color: @calendar-day-blocked-color;
+                    background-color: @calendar-background-color;
+                }
+                &.w2ui-day-empty {
+                    border: 1px solid @calendar-background-color;
+                    background-color: @calendar-empty-background-color;
+                }
+            }
+            tr.w2ui-day-title td {
+                border: 1px solid @calendar-background-color;
+                color: @calendar-week-title-color;
+                background-color: @calendar-background-color;
+                text-align: center;
+                padding: 6px;
+            }
+            
+        }
+    }
 }
 /*
-*	Time
+*    Time
 */
 
 .w2ui-calendar-time {
-	padding: 5px;
-	cursor: default;
-	td div {
-		padding: 7px 10px;
-		text-align: center;
-		border: 1px solid transparent;
-		white-space: nowrap;
-	}
+    padding: 5px;
+    cursor: default;
+    td div {
+        padding: 7px 10px;
+        text-align: center;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
 
-	td:nth-child(even) {
-		background-color: @calendar-title-gradient-start;
-	}
+    td:nth-child(even) {
+        background-color: @calendar-title-gradient-start;
+    }
 
-	td div:hover {
-		border: @calendar-day-hover-border;
-		color: @calendar-day-hover-color;
-		background-color: @calendar-day-hover-background-color;
-	}
+    td div:hover {
+        border: @calendar-day-hover-border;
+        color: @calendar-day-hover-color;
+        background-color: @calendar-day-hover-background-color;
+    }
 
-	td div.w2ui-blocked {
-		text-decoration: line-through;
-		border: 1px solid @calendar-background-color;
-		color: @calendar-day-blocked-color;
-		background-color: @calendar-background-color;
-	}
+    td div.w2ui-blocked {
+        text-decoration: line-through;
+        border: 1px solid @calendar-background-color;
+        color: @calendar-day-blocked-color;
+        background-color: @calendar-background-color;
+    }
 }
 
 .w2ui-select {
-	cursor: default;
-	color: black !important;
-	.linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    cursor: default;
+    color: black !important;
+    .linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
 }
 
 /*
-*	Drop down menu
+*    Drop down menu
 */
 
 .w2ui-drop-menu {
-	td {
-		white-space: nowrap;
-	}
+    td {
+        white-space: nowrap;
+    }
 
-	& .w2ui-item-even {
-		color: @dropdown-item-even-color;
-		background-color: @dropdown-item-even-background-color;
-	}
+    & .w2ui-item-even {
+        color: @dropdown-item-even-color;
+        background-color: @dropdown-item-even-background-color;
+    }
 
-	& .w2ui-item-odd {
-		color: @dropdown-item-odd-color;
-		background-color: @dropdown-item-odd-background-color;
-	}
+    & .w2ui-item-odd {
+        color: @dropdown-item-odd-color;
+        background-color: @dropdown-item-odd-background-color;
+    }
 
-	& .w2ui-item-group {
-		color: #444;
-		font-weight: bold;
-		background-color: #ECEDF0;
-		border-bottom: 1px solid #D3D2D4;
-	}
+    & .w2ui-item-group {
+        color: #444;
+        font-weight: bold;
+        background-color: #ECEDF0;
+        border-bottom: 1px solid #D3D2D4;
+    }
 }
 
 /*
-*	ENUM items
+*    ENUM items
 */
 
 .w2ui-list {
-	color: @list-color;
-	position: absolute; 
-	padding: 0px;
-	margin: 0px; 
-	min-height: 25px; 
-	overflow: auto; 
-	border: @list-border; 
-	border-radius: 3px;
-	font-size: 6px;	// need to be small for list
-	line-height: 100%;
-	.box-sizing;
-	background-color: @list-background-color; // Needed for IE9+ 
+    color: @list-color;
+    position: absolute; 
+    padding: 0px;
+    margin: 0px; 
+    min-height: 25px; 
+    overflow: auto; 
+    border: @list-border; 
+    border-radius: 3px;
+    font-size: 6px;    // need to be small for list
+    line-height: 100%;
+    .box-sizing;
+    background-color: @list-background-color; // Needed for IE9+ 
 
-	input[type=text] {
-		.box-shadow;
-	}
+    input[type=text] {
+        .box-shadow;
+    }
 
-	ul {
-		list-style-type: none;
-		background-color: black;
-		margin: 0px;
-		padding: 0px;
+    ul {
+        list-style-type: none;
+        background-color: black;
+        margin: 0px;
+        padding: 0px;
 
-		li {
-			float: left;
-			margin: 2px 1px 0px 2px;
-			border-radius: 3px;
-			width: auto;
-			padding: 3px 10px 1px 7px;
-			border: @list-item-border;
-			background-color: @list-item-background-color;
-			white-space: nowrap;
-			cursor: default;
-			font-family: @list-item-font;
-			font-size: @list-item-font-size;
-			line-height: 100%;
-			height: 20px;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			.box-sizing;
+        li {
+            float: left;
+            margin: 2px 1px 0px 2px;
+            border-radius: 3px;
+            width: auto;
+            padding: 3px 10px 1px 7px;
+            border: @list-item-border;
+            background-color: @list-item-background-color;
+            white-space: nowrap;
+            cursor: default;
+            font-family: @list-item-font;
+            font-size: @list-item-font-size;
+            line-height: 100%;
+            height: 20px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            .box-sizing;
 
-			&:hover {
-				background-color: darken(@list-item-background-color, 10%);
-			}
+            &:hover {
+                background-color: darken(@list-item-background-color, 10%);
+            }
 
-			&:last-child {
-				border-radius: 0px;
-				border: 1px solid transparent;
-				background-color: transparent;
-				input {
-					padding: 1px;
-					padding-top: 0px;
-					margin: 0px;
-					border: 0px;
-					outline: none;
-					height: auto;
-					line-height: 100%;
-					font-size: inherit;
-					font-family: inherit;
-					background-color: transparent;
-				}
-			}
+            &:last-child {
+                border-radius: 0px;
+                border: 1px solid transparent;
+                background-color: transparent;
+                input {
+                    padding: 1px;
+                    padding-top: 0px;
+                    margin: 0px;
+                    border: 0px;
+                    outline: none;
+                    height: auto;
+                    line-height: 100%;
+                    font-size: inherit;
+                    font-family: inherit;
+                    background-color: transparent;
+                }
+            }
 
-			.w2ui-list-remove {
-				float: right;
-				width: 15px;
-				height: 14px;
-				margin: -1px -9px 0px 3px;
-				border-radius: 15px;
-				&:hover {
-					background-color: #D77F7F;
-					color: white;
-				}
-				&:before {
-					position: relative;
-					top: 0px;
-					padding: 0px;
-					margin: 0px;
-					left: 5px;
-					color: inherit;
-					opacity: 0.7;
-					text-shadow: inherit;
-					font-size: inherit;
-					font-variant: small-caps;
-					content: 'x';
-					line-height: 100%;
-				}
-			}
-			> span.file-size {
-				pointer-events: none;
-				color: #777;
-			}
-		}
-	}
-	
-	// file
+            .w2ui-list-remove {
+                float: right;
+                width: 15px;
+                height: 14px;
+                margin: -1px -9px 0px 3px;
+                border-radius: 15px;
+                &:hover {
+                    background-color: #D77F7F;
+                    color: white;
+                }
+                &:before {
+                    position: relative;
+                    top: 0px;
+                    padding: 0px;
+                    margin: 0px;
+                    left: 5px;
+                    color: inherit;
+                    opacity: 0.7;
+                    text-shadow: inherit;
+                    font-size: inherit;
+                    font-variant: small-caps;
+                    content: 'x';
+                    line-height: 100%;
+                }
+            }
+            > span.file-size {
+                pointer-events: none;
+                color: #777;
+            }
+        }
+    }
+    
+    // file
 
-	.w2ui-enum-placeholder { // this a DROP ZONE message, will be remove when first file dropped
-		display: inline;
-		position: absolute;
-		pointer-events: none;
-		color: #999;
-		.box-sizing;
-	}
+    .w2ui-enum-placeholder { // this a DROP ZONE message, will be remove when first file dropped
+        display: inline;
+        position: absolute;
+        pointer-events: none;
+        color: #999;
+        .box-sizing;
+    }
 
-	&.w2ui-file-dragover {
-		background-color: #E4FFDA;
-		border: 1px solid #93E07D;
-	}
+    &.w2ui-file-dragover {
+        background-color: #E4FFDA;
+        border: 1px solid #93E07D;
+    }
 }

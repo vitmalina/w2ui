@@ -1,16 +1,16 @@
 Adds a tab or tabs.
 
 <div class="definition">
-	add(tabs)
+    add(tabs)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>tabs</td>
-		<td><b>object</b> or <b>array</b>, tab or array of tabs</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>tabs</td>
+        <td><b>object</b> or <b>array</b>, tab or array of tabs</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -21,18 +21,18 @@ The <span class="argument">tabs</span> argument can be either an object or array
 represents a tab object that will be added to <a class="property" href="w2tabs.tabs">.tabs</a> array. 
 If it is an array then each element of the array will be treated as a separate tab object.
 <div style="height: 10px"></div>
-				
+                
 If you have tabs defined in the following way:
 <textarea class="javascript">
 $('#tabs').w2tabs({
-	name: 'tabs',
-	active: 'tab1',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2' },
-		{ id: 'tab3', caption: 'Tab 3' },
-		{ id: 'tab4', caption: 'Tab 4' }
-	]
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', caption: 'Tab 1' },
+        { id: 'tab2', caption: 'Tab 2' },
+        { id: 'tab3', caption: 'Tab 3' },
+        { id: 'tab4', caption: 'Tab 4' }
+    ]
 });
 </textarea>
 
@@ -41,8 +41,8 @@ You can add tabs:
 w2ui['tabs'].add({ id: 'tab5', caption: 'Tab 5' });
 // or
 w2ui['tabs'].add([
-	{ id: 'tab6', caption: 'Tab 6' },
-	{ id: 'tab7', caption: 'Tab 7' },
-	{ id: 'tab8', caption: 'Tab 8' }
+    { id: 'tab6', caption: 'Tab 6' },
+    { id: 'tab7', caption: 'Tab 7' },
+    { id: 'tab8', caption: 'Tab 8' }
 ]);
 </textarea>

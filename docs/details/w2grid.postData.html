@@ -1,7 +1,7 @@
 Map of additional parameter to submit to remove data source.
 
 <div class="definition">
-	Object, default = {}
+    Object, default = {}
 </div>
 
 Adding properties to <span class="property">.postData</span> object will instruct the grid to submit these parameters to the remote data source
@@ -11,19 +11,19 @@ with each remote request (pull, sort, search, save, delete).
 You can defined it during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	url		: 'url/to/server',
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	],
-	postData: {
-		param1 : 'value1', 
-		param2 : 'value2'
-	}
+    name    : 'grid',
+    url        : 'url/to/server',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    postData: {
+        param1 : 'value1', 
+        param2 : 'value2'
+    }
 });
 </textarea>
 

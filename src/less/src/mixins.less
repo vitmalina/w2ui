@@ -3,107 +3,107 @@
 //
 
 .box-shadow (@value : none) {
-	-webkit-box-shadow 	: @value;
-	   -moz-box-shadow 	: @value;
-		-ms-box-shadow 	: @value;
-		 -o-box-shadow 	: @value;
-			box-shadow 	: @value;
+    -webkit-box-shadow     : @value;
+       -moz-box-shadow     : @value;
+        -ms-box-shadow     : @value;
+         -o-box-shadow     : @value;
+            box-shadow     : @value;
 }
 
 .box-sizing (@value : border-box) {
-	-webkit-box-sizing : @value;
-	   -moz-box-sizing : @value;
-		-ms-box-sizing : @value;
-		 -o-box-sizing : @value;
-			box-sizing : @value;
+    -webkit-box-sizing : @value;
+       -moz-box-sizing : @value;
+        -ms-box-sizing : @value;
+         -o-box-sizing : @value;
+            box-sizing : @value;
 }
 
 .user-select (@value : none) {
-	-webkit-user-select	: @value;
-	   -moz-user-select	: @value;
-		-ms-user-select	: @value;
-		 -o-user-select	: @value;
-			user-select	: @value;
+    -webkit-user-select    : @value;
+       -moz-user-select    : @value;
+        -ms-user-select    : @value;
+         -o-user-select    : @value;
+            user-select    : @value;
 }
 
 .transform-rotate (@value : 0deg) {
-	-webkit-transform : rotate(@value);
-	   -moz-transform : rotate(@value);
-		-ms-transform : rotate(@value);
-		 -o-transform : rotate(@value);
-			transform : rotate(@value);
+    -webkit-transform : rotate(@value);
+       -moz-transform : rotate(@value);
+        -ms-transform : rotate(@value);
+         -o-transform : rotate(@value);
+            transform : rotate(@value);
 }
 
 .transform (@value : none) {
-	-webkit-transform : @value;
-	   -moz-transform : @value;
-		-ms-transform : @value;
-		 -o-transform : @value;
-			transform : @value;
+    -webkit-transform : @value;
+       -moz-transform : @value;
+        -ms-transform : @value;
+         -o-transform : @value;
+            transform : @value;
 }
 
 .transition (@property : all, @time : 0s) {
-	-webkit-transition : @property @time;
-	   -moz-transition : @property @time;
-		-ms-transition : @property @time;
-		 -o-transition : @property @time;
-			transition : @property @time;
+    -webkit-transition : @property @time;
+       -moz-transition : @property @time;
+        -ms-transition : @property @time;
+         -o-transition : @property @time;
+            transition : @property @time;
 }
 
 .opacity (@value : 1.0) {
-	opacity : @value;
-	@valueNew : (@value * 100);
-	filter: alpha(opacity=@valueNew);
+    opacity : @value;
+    @valueNew : (@value * 100);
+    filter: alpha(opacity=@valueNew);
 }
 
 .linear-gradient (@params...) {
-	@gradient: ~`'@{arguments}'.replace(/^\[|\]$/g, '').replace(/, /g, ',')`;
-	background-image : -webkit-linear-gradient(@gradient);
-	background-image : 	  -moz-linear-gradient(@gradient);
-	background-image : 	   -ms-linear-gradient(@gradient);
-	background-image : 	    -o-linear-gradient(@gradient);
-	background-image : 		   linear-gradient(@gradient);
+    @gradient: ~`'@{arguments}'.replace(/^\[|\]$/g, '').replace(/, /g, ',')`;
+    background-image : -webkit-linear-gradient(@gradient);
+    background-image :       -moz-linear-gradient(@gradient);
+    background-image :        -ms-linear-gradient(@gradient);
+    background-image :         -o-linear-gradient(@gradient);
+    background-image :            linear-gradient(@gradient);
 }
 
 .linear-gradient-vertical (@color1, @color2) when (@color1 = @color2) {
-	background-color: @color1;
+    background-color: @color1;
 }
 
 .linear-gradient-vertical (@color1, @color2) when not(@color1 = @color2) {
-	// by default to bottom
-	background-image : -webkit-linear-gradient(@color1, @color2);
-	background-image : 	  -moz-linear-gradient(@color1, @color2);
-	background-image : 	   -ms-linear-gradient(@color1, @color2);
-	background-image : 	    -o-linear-gradient(@color1, @color2);
-	background-image : 		   linear-gradient(@color1, @color2);
-	@colorStart: argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
-	@colorEnd: argb(rgba(red(@color2), green(@color2), blue(@color2), 255));
-	filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0); 
+    // by default to bottom
+    background-image : -webkit-linear-gradient(@color1, @color2);
+    background-image :       -moz-linear-gradient(@color1, @color2);
+    background-image :        -ms-linear-gradient(@color1, @color2);
+    background-image :         -o-linear-gradient(@color1, @color2);
+    background-image :            linear-gradient(@color1, @color2);
+    @colorStart: argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
+    @colorEnd: argb(rgba(red(@color2), green(@color2), blue(@color2), 255));
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0); 
 }
 
 .linear-gradient-vertical4 (@color1, @percent1, @color2, @percent2) {
-	// by default to bottom
-	background-image : -webkit-linear-gradient(@color1 @percent1, @color2 @percent2);
-	background-image : 	  -moz-linear-gradient(@color1 @percent1, @color2 @percent2);
-	background-image : 	   -ms-linear-gradient(@color1 @percent1, @color2 @percent2);
-	background-image : 	    -o-linear-gradient(@color1 @percent1, @color2 @percent2);
-	background-image : 		   linear-gradient(@color1 @percent1, @color2 @percent2);
-	@colorStart: argb(rgba(red(@color2), green(@color2), blue(@color2), 255));
-	@colorEnd: argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
-	filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0); 
+    // by default to bottom
+    background-image : -webkit-linear-gradient(@color1 @percent1, @color2 @percent2);
+    background-image :       -moz-linear-gradient(@color1 @percent1, @color2 @percent2);
+    background-image :        -ms-linear-gradient(@color1 @percent1, @color2 @percent2);
+    background-image :         -o-linear-gradient(@color1 @percent1, @color2 @percent2);
+    background-image :            linear-gradient(@color1 @percent1, @color2 @percent2);
+    @colorStart: argb(rgba(red(@color2), green(@color2), blue(@color2), 255));
+    @colorEnd: argb(rgba(red(@color1), green(@color1), blue(@color1), 255));
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0); 
 }
 
 .linear-gradient-dark-center (@color) {
-	background-image : -webkit-linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
-	background-image : 	  -moz-linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
-	background-image : 	   -ms-linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
-	background-image : 	    -o-linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
-	background-image : 		   linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
-	@colorStart: argb(rgba(red(@color), green(@color), blue(@color), 255));
-	@colorEnd: argb(rgba(red(@color), green(@color), blue(@color), 255));
-	filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0);
+    background-image : -webkit-linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
+    background-image :       -moz-linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
+    background-image :        -ms-linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
+    background-image :         -o-linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
+    background-image :            linear-gradient(top, fadeout(@color, 90%) 0%, @color 40%, @color 60%, fadeout(@color, 90%) 100%);
+    @colorStart: argb(rgba(red(@color), green(@color), blue(@color), 255));
+    @colorEnd: argb(rgba(red(@color), green(@color), blue(@color), 255));
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='@{colorStart}', endColorstr='@{colorEnd}', GradientType=0);
 }
 
 .background-image (@image, @rest...) {
-	background : @image @rest;
+    background : @image @rest;
 }

@@ -1,32 +1,32 @@
 Array of item objects.
 
 <div class="definition">
-	Array, default = []
+    Array, default = []
 </div>
 
 This array contains all the item objects. A item object has the following structure:
 <textarea class="javascript">
 item : {
-	id            : null,    // identifier to be sent to all event handlers
-	caption       : '',      // item caption
-	description	  : '',      // item caption
-	selected	  : false,
-	onClick       : null,    // click event handler (only this item)
-	onDblClick	  : null,    // double-click event handler (only this item)
-	onKeydown	  : null,    // key-down event handler (only this item)
-	onContextMenu : null,    //
-	onRefresh     : null     // refresh event handler (only this item)
+    id            : null,    // identifier to be sent to all event handlers
+    caption       : '',      // item caption
+    description      : '',      // item caption
+    selected      : false,
+    onClick       : null,    // click event handler (only this item)
+    onDblClick      : null,    // double-click event handler (only this item)
+    onKeydown      : null,    // key-down event handler (only this item)
+    onContextMenu : null,    //
+    onRefresh     : null     // refresh event handler (only this item)
 }
 </textarea>
 You can define them during the listview creation:
 <textarea class="javascript">
 $('#listview').w2listview({
-	name : 'listview',
-	items: [
-		{ id: 'id-1', caption: 'Item 1' },
-		{ id: 'id-2', caption: 'Item 2' },
-		{ id: 'id-3', caption: 'Item 3' }
-	]
+    name : 'listview',
+    items: [
+        { id: 'id-1', caption: 'Item 1' },
+        { id: 'id-2', caption: 'Item 2' },
+        { id: 'id-3', caption: 'Item 3' }
+    ]
 });
 </textarea>
 

@@ -1,20 +1,20 @@
 Finds toolbar item with <span class="argument">id</span> and extends it with <span class="argument">item</span> object. 
 
 <div class="definition">
-	set(id, item)
+    set(id, item)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the toolbar item</td>
-	</tr>
-	<tr>
-		<td>item</td>
-		<td><b>object</b>, new toolbar item object</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the toolbar item</td>
+    </tr>
+    <tr>
+        <td>item</td>
+        <td><b>object</b>, new toolbar item object</td>
+    </tr>
+    </table>
 </div>
 
 Returns boolean.
@@ -31,12 +31,12 @@ return true, otherwise false.
 If you have toolbar defined in the following way:
 <textarea class="javascript">
 $('#toolbar').w2toolbar({
-	name  : 'toolbar',
-	items : [
-		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
-		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
-		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' },
-	]
+    name  : 'toolbar',
+    items : [
+        { type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+        { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
+        { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' },
+    ]
 });
 </textarea>
 

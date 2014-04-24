@@ -1,19 +1,19 @@
 Paste tab-delimmited text into the grid.
 
 <div class="definition">
-	parseField(obj, field)
+    parseField(obj, field)
 </div>
 <div class="arguments">
-	<table>
-	<tr>
-		<td>obj</td>
-		<td><b>object</b>, Java Script object</td>
-	</tr>
-	<tr>
-		<td>field</td>
-		<td><b>string</b>, field to parse</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>obj</td>
+        <td><b>object</b>, Java Script object</td>
+    </tr>
+    <tr>
+        <td>field</td>
+        <td><b>string</b>, field to parse</td>
+    </tr>
+    </table>
 </div>
 
 Returns value (can be any JS type).
@@ -23,17 +23,17 @@ Returns value (can be any JS type).
 It is quite often that the records array contains objects with complex structure. For example a record object can be:
 <textarea class="javascript">
 record = {
-	"recid" : 1,
-	"person": {
-		"fname"	: "John",
-		"lname"	: "Doe",
-		"dob"	: "1/1/1990"
-	},
-	"car": {
-		"make"	: "Tesla",
-		"model"	: "Couster",
-		"year"	: "2013"
-	}
+    "recid" : 1,
+    "person": {
+        "fname"    : "John",
+        "lname"    : "Doe",
+        "dob"    : "1/1/1990"
+    },
+    "car": {
+        "make"    : "Tesla",
+        "model"    : "Couster",
+        "year"    : "2013"
+    }
 }
 </textarea>
 However, when you define <a class="property" href="w2grid.columns">.columns</a> or 

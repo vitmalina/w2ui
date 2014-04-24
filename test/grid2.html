@@ -10,89 +10,89 @@
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
 $(function () {
-	var people = [
-		{ id: 1, text: 'John Cook' },
-		{ id: 2, text: 'Steve Jobs' },
-		{ id: 3, text: 'Peter Sanders' },
-		{ id: 4, text: 'Mark Newman' },
-		{ id: 5, text: 'Addy Osmani' },
-		{ id: 6, text: 'Paul Irish' },
-		{ id: 7, text: 'Doug Crocford' },
-		{ id: 8, text: 'Nicolas Cage' },
-	];
+    var people = [
+        { id: 1, text: 'John Cook' },
+        { id: 2, text: 'Steve Jobs' },
+        { id: 3, text: 'Peter Sanders' },
+        { id: 4, text: 'Mark Newman' },
+        { id: 5, text: 'Addy Osmani' },
+        { id: 6, text: 'Paul Irish' },
+        { id: 7, text: 'Doug Crocford' },
+        { id: 8, text: 'Nicolas Cage' },
+    ];
 
-	$('#grid').w2grid({ 
-		name	: 'grid', 
-		header	: 'List of Names',
-		show: { 
-			toolbar: true,
-			footer: true,
-			header: true,
-			emptyRecords: true,
-			selectColumn: true,
-			expandColumn: false,
-			columnHeaders: true,
-			lineNumbers: true,
-			toolbarDelete: true,
-			toolbarSave: true,
-			toolbarAdd: true
-		},
-		selectType: 'cell',
-		columns: [				
-			{ field: 'recid', caption: 'ID', size: '80px', sortable: true, searchable: 'int' },
-			{ field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true, editable: { type: 'int', min: 0, max: 100 } },
-			{ field: 'money', caption: 'money', size: '80px', sortable: true, resizable: true, editable: { type: 'money' }, render: 'money' },
-			{ field: 'percent', caption: 'percent', size: '80px', sortable: true, resizable: true, editable: { type: 'percent' }, render: 'percent' },
-			{ field: 'hex', caption: 'hex', size: '80px', sortable: true, resizable: true, editable: { type: 'hex' } },
-			{ field: 'color', caption: 'color', size: '80px', sortable: true, resizable: true, editable: { type: 'color' } },
-			{ field: 'date', caption: 'date', size: '80px', sortable: true, resizable: true, editable: { type: 'date' } },
-			{ field: 'time', caption: 'time', size: '80px', sortable: true, resizable: true, editable: { type: 'time' } },
-			{ field: 'list', caption: 'list', size: '50%', sortable: true, resizable: true, 
-				editable: { type: 'list', items: people },
-				render: function (record, index, col_index) {
-					var html = this.getCellValue(index, col_index);
-					return html.text || '';
-				}
-			},
-			{ field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
-			{ field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true, 
-				editable: { type: 'select', items: people }, 
-				render: function (record, index, col_index) {
-					var html = '';
-					for (var p in people) {
-						if (people[p].id == this.getCellValue(index, col_index)) html = people[p].text;
-					}
-					return html;
-				}
-			},
-			{ field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } },
-			// { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
-			// { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
-			// { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
-		],
-	});
-	var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
-	var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
-	// add 10k records
-	for (var i = 0; i < 15; i++) {
-		w2ui['grid'].records.push({ 
-			recid : (i + 10),
-			list1 : { id: 1, text: 'some' },
-			int: 4,
-			float: 5,
-			money: 6,
-			check: Math.random() > 0.9 ? true : false,
-			select: 2,
-			// editable: false
-		});
-	}
-	w2ui.grid.total = w2ui.grid.records.length;
-	w2ui.grid.buffered = w2ui.grid.records.length;
-	w2ui.grid.refresh();
+    $('#grid').w2grid({ 
+        name    : 'grid', 
+        header    : 'List of Names',
+        show: { 
+            toolbar: true,
+            footer: true,
+            header: true,
+            emptyRecords: true,
+            selectColumn: true,
+            expandColumn: false,
+            columnHeaders: true,
+            lineNumbers: true,
+            toolbarDelete: true,
+            toolbarSave: true,
+            toolbarAdd: true
+        },
+        selectType: 'cell',
+        columns: [                
+            { field: 'recid', caption: 'ID', size: '80px', sortable: true, searchable: 'int' },
+            { field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true, editable: { type: 'int', min: 0, max: 100 } },
+            { field: 'money', caption: 'money', size: '80px', sortable: true, resizable: true, editable: { type: 'money' }, render: 'money' },
+            { field: 'percent', caption: 'percent', size: '80px', sortable: true, resizable: true, editable: { type: 'percent' }, render: 'percent' },
+            { field: 'hex', caption: 'hex', size: '80px', sortable: true, resizable: true, editable: { type: 'hex' } },
+            { field: 'color', caption: 'color', size: '80px', sortable: true, resizable: true, editable: { type: 'color' } },
+            { field: 'date', caption: 'date', size: '80px', sortable: true, resizable: true, editable: { type: 'date' } },
+            { field: 'time', caption: 'time', size: '80px', sortable: true, resizable: true, editable: { type: 'time' } },
+            { field: 'list', caption: 'list', size: '50%', sortable: true, resizable: true, 
+                editable: { type: 'list', items: people },
+                render: function (record, index, col_index) {
+                    var html = this.getCellValue(index, col_index);
+                    return html.text || '';
+                }
+            },
+            { field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
+            { field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true, 
+                editable: { type: 'select', items: people }, 
+                render: function (record, index, col_index) {
+                    var html = '';
+                    for (var p in people) {
+                        if (people[p].id == this.getCellValue(index, col_index)) html = people[p].text;
+                    }
+                    return html;
+                }
+            },
+            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } },
+            // { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
+            // { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
+            // { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
+        ],
+    });
+    var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
+    var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
+    // add 10k records
+    for (var i = 0; i < 15; i++) {
+        w2ui['grid'].records.push({ 
+            recid : (i + 10),
+            list1 : { id: 1, text: 'some' },
+            int: 4,
+            float: 5,
+            money: 6,
+            check: Math.random() > 0.9 ? true : false,
+            select: 2,
+            // editable: false
+        });
+    }
+    w2ui.grid.total = w2ui.grid.records.length;
+    w2ui.grid.buffered = w2ui.grid.records.length;
+    w2ui.grid.refresh();
 });
 </script>
 </head>
 <body>
-	<div id="grid" style="width: 1024px; height: 568px;"></div>
+    <div id="grid" style="width: 1024px; height: 568px;"></div>
 </body>
 </html>

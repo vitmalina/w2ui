@@ -1,7 +1,7 @@
 Resets the form.
 
 <div class="definition">
-	clear()
+    clear()
 </div>
 
 Returns <i>undefined</i>.
@@ -12,28 +12,28 @@ Clears <a class="method" href="w2form.record">.record</a> object, sets <a class=
 all tags and resets fields on the screen to a blank state. If you have the form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	recid    : 10,
-	url      : '/server/url',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com'
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	},
-	postData: [
-		param1 : 'value1', 
-		param2 : 'value2'
-	]
+    name     : 'form',
+    recid    : 10,
+    url      : '/server/url',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    },
+    postData: [
+        param1 : 'value1', 
+        param2 : 'value2'
+    ]
 });
 </textarea>
 

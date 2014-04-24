@@ -1,7 +1,7 @@
 URL to the remote data source.
 
 <div class="definition">
-	String or Object, default = ''
+    String or Object, default = ''
 </div>
 
 If the <span class="method">.url</span> property is defined and <a class="argument" href="w2form.recid">.recid</a> property is not 0, 
@@ -12,59 +12,59 @@ the form will attempt to load record data from the remote data source. The data 
 You can defined URL as a string:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	recid    : 10,
-	url      : '/server/url',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com'
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	},
-	postData: [
-		param1 : 'value1', 
-		param2 : 'value2'
-	]
+    name     : 'form',
+    recid    : 10,
+    url      : '/server/url',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    },
+    postData: [
+        param1 : 'value1', 
+        param2 : 'value2'
+    ]
 });
 </textarea>
 
 Or you can defined different URL for retrividng and saving the record:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	recid    : 10,
-	url      : {
-		get  : '/server/url/to/get',
-		save : '/server/url/to/save' 
-	},
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com'
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	},
-	postData: [
-		param1 : 'value1', 
-		param2 : 'value2'
-	]
+    name     : 'form',
+    recid    : 10,
+    url      : {
+        get  : '/server/url/to/get',
+        save : '/server/url/to/save' 
+    },
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    },
+    postData: [
+        param1 : 'value1', 
+        param2 : 'value2'
+    ]
 });
 </textarea>
 
@@ -81,16 +81,16 @@ following JSON structure;
 
 <textarea class="javascript">
 {
-    cmd     : 'get-record',	// command
-    name    : 'form',		// name of the form
-    recid   : xx,			// recid of the form
+    cmd     : 'get-record',    // command
+    name    : 'form',        // name of the form
+    recid   : xx,            // recid of the form
 }
 </textarea>
 Plus any additional parameters you specified in <a href="w2form.postData" class="property">.postData</a> object. The form will expect back a 
 JSON structure in the following format:
 <textarea class="javascript">
 {
-	status: 'success',
+    status: 'success',
     record: {
         field1 : value1, 
         ...
@@ -104,7 +104,7 @@ where field1 should match the names in <a href="w2form.fields" class="property">
 If you want to return an eror, you can return it in the following format:
 <textarea class="javascript">
 {
-	status: 'error',
+    status: 'error',
     message: 'Error message'
 }
 </textarea>
@@ -113,13 +113,13 @@ If you call the <a href="w2form.save" class="method">.save()</a> method the form
 
 <textarea class="javascript">
 {
-    cmd     : 'save-record',	// command
-    name    : 'form',			// name of the form
-    recid   : x,				// recid of the form
-    record  : {					// record of the form
-    	field1 : value1,
-    	...
-    	fieldN : valueN
-	}
+    cmd     : 'save-record',    // command
+    name    : 'form',            // name of the form
+    recid   : x,                // recid of the form
+    record  : {                    // record of the form
+        field1 : value1,
+        ...
+        fieldN : valueN
+    }
 }
 </textarea>

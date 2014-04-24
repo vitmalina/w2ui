@@ -5,105 +5,105 @@
 <script type="text/javascript" src="../dist/w2ui.js"></script>
 <script>
 $(function () {
-	// -- Tabs
-	$('#tabs').w2tabs({
-		name: 'tabs',
-		active: 'tab1',
-		tabs: [
-			{ id: 'tab1', caption: 'Edit' },
-			{ id: 'tab2', caption: 'List 1' },
-			{ id: 'tab3', caption: 'List 2' }
-		],
-		onClick: function (event) {
-			switch (event.target) {
-				case 'tab1':
-					$('#contents').w2render('form');
-					break;
-				case 'tab2':
-					$('#contents').w2render('grid1');
-					break;
-				case 'tab3':
-					$('#contents').w2render('grid2');
-					break;
-			}
-		}
-	});
-	
-	// -- Form
-	$('#contents').w2form({ 
-		name    : 'form',
-		url     : 'server/post',
-		style 	: 'border: 0px',
-		fields: [
-			{ name: 'fname', type: 'text', required: true },
-			{ name: 'lname', type: 'text', required: true },
-		],
-		actions: {
-			reset: function () {
-				this.clear();
-			},
-			save: function () {
-				this.save();
-			}
-		}
-	});
+    // -- Tabs
+    $('#tabs').w2tabs({
+        name: 'tabs',
+        active: 'tab1',
+        tabs: [
+            { id: 'tab1', caption: 'Edit' },
+            { id: 'tab2', caption: 'List 1' },
+            { id: 'tab3', caption: 'List 2' }
+        ],
+        onClick: function (event) {
+            switch (event.target) {
+                case 'tab1':
+                    $('#contents').w2render('form');
+                    break;
+                case 'tab2':
+                    $('#contents').w2render('grid1');
+                    break;
+                case 'tab3':
+                    $('#contents').w2render('grid2');
+                    break;
+            }
+        }
+    });
+    
+    // -- Form
+    $('#contents').w2form({ 
+        name    : 'form',
+        url     : 'server/post',
+        style     : 'border: 0px',
+        fields: [
+            { name: 'fname', type: 'text', required: true },
+            { name: 'lname', type: 'text', required: true },
+        ],
+        actions: {
+            reset: function () {
+                this.clear();
+            },
+            save: function () {
+                this.save();
+            }
+        }
+    });
 
-	// -- Grid 1
-	$().w2grid({ 
-		name: 'grid1', 
-		header: 'Grid 1',
-		style: 'border-top: 0px',
-		columns: [
-			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
-			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
-			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true }
-		],
-		records: [
-			{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
-			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012', summary1: true }
-		]
-	});	
+    // -- Grid 1
+    $().w2grid({ 
+        name: 'grid1', 
+        header: 'Grid 1',
+        style: 'border-top: 0px',
+        columns: [
+            { field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
+            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
+            { field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true }
+        ],
+        records: [
+            { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012', summary1: true }
+        ]
+    });    
 
-	// -- Grid 2
-	$().w2grid({ 
-		name: 'grid2', 
-		style: 'border-top: 0px',
-		columns: [
-			{ field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
-			{ field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
-			{ field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true },
-			{ field: 'ldate', caption: 'Last Update', size: '90px', sortable: true, resizable: true },
-			{ field: 'ldate', caption: 'Last User', size: '90px', sortable: true, resizable: true },
-			{ field: 'ldate', caption: 'Created On', size: '90px', sortable: true, resizable: true }
-		],
-		records: [
-			{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
-			{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-			{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012', summary1: true }
-		]
-	});	
+    // -- Grid 2
+    $().w2grid({ 
+        name: 'grid2', 
+        style: 'border-top: 0px',
+        columns: [
+            { field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
+            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
+            { field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true },
+            { field: 'ldate', caption: 'Last Update', size: '90px', sortable: true, resizable: true },
+            { field: 'ldate', caption: 'Last User', size: '90px', sortable: true, resizable: true },
+            { field: 'ldate', caption: 'Created On', size: '90px', sortable: true, resizable: true }
+        ],
+        records: [
+            { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012', summary1: true }
+        ]
+    });    
 });
 </script>
 <body>
-	<div id="tabs" style="background-color: red !important;"></div>
-	<div id="contents" style="border: 1px solid silver; height: 400px;">
-		<!-- HTML below is needed only to init the form -->
-		<div class="w2ui-form">
-			<div class="w2ui-page page-0">
-				<div class="w2ui-label">First Name:</div>
-				<div class="w2ui-field">
-					<input name="fname" type="text" maxlength="100" size="60"/>
-				</div>
-				<div class="w2ui-label">Last Name:</div>
-				<div class="w2ui-field">
-					<input name="lname" type="text" maxlength="100" size="60"/>
-				</div>
-			</div>
-			<div class="w2ui-buttons">
-				<input type="button" value="Reset" name="reset">
-				<input type="button" value="Save" name="save">
-			</div>
-		</div>
-	</div>
+    <div id="tabs" style="background-color: red !important;"></div>
+    <div id="contents" style="border: 1px solid silver; height: 400px;">
+        <!-- HTML below is needed only to init the form -->
+        <div class="w2ui-form">
+            <div class="w2ui-page page-0">
+                <div class="w2ui-label">First Name:</div>
+                <div class="w2ui-field">
+                    <input name="fname" type="text" maxlength="100" size="60"/>
+                </div>
+                <div class="w2ui-label">Last Name:</div>
+                <div class="w2ui-field">
+                    <input name="lname" type="text" maxlength="100" size="60"/>
+                </div>
+            </div>
+            <div class="w2ui-buttons">
+                <input type="button" value="Reset" name="reset">
+                <input type="button" value="Save" name="save">
+            </div>
+        </div>
+    </div>
 </body>

@@ -1,24 +1,24 @@
 Finds sidebar node with <span class="argument">id</span> and extends it with <span class="argument">node</span> object.
 
 <div class="definition">
-	set([parent], id, node)
+    set([parent], id, node)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>parent</td>
-		<td><b>string</b>, id of the parent node (<i>optional</i>)</td>
-	</tr>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the sidebar node</td>
-	</tr>
-	<tr>
-		<td>node</td>
-		<td><b>object</b>, new sidebar node object</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>parent</td>
+        <td><b>string</b>, id of the parent node (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the sidebar node</td>
+    </tr>
+    <tr>
+        <td>node</td>
+        <td><b>object</b>, new sidebar node object</td>
+    </tr>
+    </table>
 </div>
 
 Returns boolean.
@@ -39,13 +39,13 @@ then it will limit the search scope to that parent and its subnodes.
 If you defined the object in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar',
-	img  : 'icon-page',
-	nodes: [ 
-		{ id: 'id-1', text: 'Level 1' },
-		{ id: 'id-2', text: 'Level 2' },
-		{ id: 'id-3', text: 'Level 3' }
-	]
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
 });
 </textarea>
 

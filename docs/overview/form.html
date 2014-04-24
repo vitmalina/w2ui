@@ -21,23 +21,23 @@ in the example that you link jquery.js, w2ui.js and w2ui.css files.
 </body>
 <script>
 $(function () {
-	$('#myForm').w2form({ 
-		name   : 'myForm',
-		url    : 'server/post',
-		fields : [
-			{ name: 'first_name', type: 'text', required: true },
-			{ name: 'last_name',  type: 'text', required: true },
-			{ name: 'comments',   type: 'text'}
-		],
-		actions: {
-			reset: function () {
-				this.clear();
-			},
-			save: function () {
-				this.save();
-			}
-		}
-	});
+    $('#myForm').w2form({ 
+        name   : 'myForm',
+        url    : 'server/post',
+        fields : [
+            { name: 'first_name', type: 'text', required: true },
+            { name: 'last_name',  type: 'text', required: true },
+            { name: 'comments',   type: 'text'}
+        ],
+        actions: {
+            reset: function () {
+                this.clear();
+            },
+            save: function () {
+                this.save();
+            }
+        }
+    });
 });
 </script>
 </html>
@@ -60,46 +60,46 @@ This example shows how to provide HTML for the form.
 </head>
 <body>
     <div id="myForm" style="width: 600px">
-		<div class="w2ui-page page-0">
-			<div class="w2ui-label">First Name:</div>
-			<div class="w2ui-field">
-				<input name="first_name" maxlength="100" size="60"/>
-			</div>
-			<div class="w2ui-label">Last Name:</div>
-			<div class="w2ui-field">
-				<input name="last_name" maxlength="100" size="60"/>
-			</div>
-			<div class="w2ui-label">Text Area:</div>
-			<div class="w2ui-field">
-				&lt;textarea name="field_textarea" style="width: 385px; height: 80px;"&gt;&lt;/textarea&gt;
-			</div>
-		</div>
+        <div class="w2ui-page page-0">
+            <div class="w2ui-label">First Name:</div>
+            <div class="w2ui-field">
+                <input name="first_name" maxlength="100" size="60"/>
+            </div>
+            <div class="w2ui-label">Last Name:</div>
+            <div class="w2ui-field">
+                <input name="last_name" maxlength="100" size="60"/>
+            </div>
+            <div class="w2ui-label">Text Area:</div>
+            <div class="w2ui-field">
+                &lt;textarea name="field_textarea" style="width: 385px; height: 80px;"&gt;&lt;/textarea&gt;
+            </div>
+        </div>
 
-		<div class="w2ui-buttons">
-			<input type="button" value="Reset" name="reset"/>
-			<input type="button" value="Save" name="save"/>
-		</div>
-	</div>
+        <div class="w2ui-buttons">
+            <input type="button" value="Reset" name="reset"/>
+            <input type="button" value="Save" name="save"/>
+        </div>
+    </div>
 </body>
 <script>
 $(function () {
-	$('#myForm').w2form({ 
-		name   : 'myForm',
-		url    : 'server/post',
-		fields : [
-			{ name: 'first_name', type: 'text', required: true },
-			{ name: 'last_name',  type: 'text', required: true },
-			{ name: 'comments',   type: 'text'}
-		],
-		actions: {
-			reset: function () {
-				this.clear();
-			},
-			save: function () {
-				this.save();
-			}
-		}
-	});
+    $('#myForm').w2form({ 
+        name   : 'myForm',
+        url    : 'server/post',
+        fields : [
+            { name: 'first_name', type: 'text', required: true },
+            { name: 'last_name',  type: 'text', required: true },
+            { name: 'comments',   type: 'text'}
+        ],
+        actions: {
+            reset: function () {
+                this.clear();
+            },
+            save: function () {
+                this.save();
+            }
+        }
+    });
 });
 </script>
 </html>

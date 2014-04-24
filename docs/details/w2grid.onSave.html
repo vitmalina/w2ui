@@ -1,25 +1,25 @@
 Called when user clicks the Save button on the toolbar.
 
 <div class="definition">
-	onSave = function(event)
+    onSave = function(event)
 </div>
 
 You can add event listener during the object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	url		: 'some/url/to/data',
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	],
-	onSave: function(event) {
-		console.log(event);
-	}		
+    name    : 'grid',
+    url        : 'some/url/to/data',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    onSave: function(event) {
+        console.log(event);
+    }        
 });
 </textarea>
 
@@ -27,7 +27,7 @@ or after the object has been created:
 
 <textarea class="javascript">
 w2ui.grid.on('save', function(event) {
-	console.log(event);
+    console.log(event);
 });
 </textarea>
 

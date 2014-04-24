@@ -1,20 +1,20 @@
 Inserts a toolbar item or items before item with id=<span class="argument">before</span>.
 
 <div class="definition">
-	insert(before, items)
+    insert(before, items)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>before</td>
-		<td><b>string</b>, id of the item to insert before</td>
-	</tr>
-	<tr>
-		<td>items</td>
-		<td><b>object</b> or <b>array</b>, toolbar items to add</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>before</td>
+        <td><b>string</b>, id of the item to insert before</td>
+    </tr>
+    <tr>
+        <td>items</td>
+        <td><b>object</b> or <b>array</b>, toolbar items to add</td>
+    </tr>
+    </table>
 </div>
 Returns <i>undefined</i>.
 
@@ -26,16 +26,16 @@ The <span class="argument">items</span> argument can be either an object or arra
 represents a toolbar item that will be added to <a class="property" href="w2toolbar.items">.items</a> array. 
 If it is an array then each element of the array will be treated as a separate toolbar item object.
 <div style="height: 10px"></div>
-				
+                
 If you have toolbar defined in the following way:
 <textarea class="javascript">
 $('#toolbar').w2toolbar({
-	name  : 'toolbar',
-	items : [
-		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
-		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
-		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' }
-	]
+    name  : 'toolbar',
+    items : [
+        { type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+        { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
+        { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' }
+    ]
 });
 </textarea>
 
@@ -44,8 +44,8 @@ You can insert toolbar items:
 w2ui['toolbar'].insert('item3', { type: 'check',  id: 'item31',  caption: 'Check 2', img: 'icon-page' });
 // or
 w2ui['toolbar'].insert('item3', [
-	{ type: 'radio',  id: 'item5',  group: '1', caption: 'Radio 5', img: 'icon-add' },
-	{ type: 'radio',  id: 'item6',  group: '1', caption: 'Radio 6', img: 'icon-add' },
-	{ type: 'radio',  id: 'item7',  group: '1', caption: 'Radio 7', img: 'icon-add' },
+    { type: 'radio',  id: 'item5',  group: '1', caption: 'Radio 5', img: 'icon-add' },
+    { type: 'radio',  id: 'item6',  group: '1', caption: 'Radio 6', img: 'icon-add' },
+    { type: 'radio',  id: 'item7',  group: '1', caption: 'Radio 7', img: 'icon-add' },
 ]);
 </textarea>

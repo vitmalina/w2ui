@@ -88,15 +88,15 @@ sudo npm install
 ## File Structure
 
 ```
-- dist 			- compiled JS and CSS files 
-- src 			- source JS files
-  - kickstart 	- copy of another project used with the demos (not part of w2ui itself)
-  - less 		- LESS files (source for css)
-- demos 		- all demos, same as on the website
-- libs			- auxilary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
-- server		- example implementations for a server implementation communicating with w2ui instances
-- test 			- feature testing files
-  - qunit		- some qunit test
+- dist             - compiled JS and CSS files 
+- src             - source JS files
+  - kickstart     - copy of another project used with the demos (not part of w2ui itself)
+  - less         - LESS files (source for css)
+- demos         - all demos, same as on the website
+- libs            - auxilary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
+- server        - example implementations for a server implementation communicating with w2ui instances
+- test             - feature testing files
+  - qunit        - some qunit test
 ```
 
 

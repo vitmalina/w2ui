@@ -1,16 +1,16 @@
 Expands sidebar node with <span class="argument">id</span>.
 
 <div class="definition">
-	expand(id)
+    expand(id)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the sidebar node</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the sidebar node</td>
+    </tr>
+    </table>
 </div>
 Returns <i>undefined</i>.
 
@@ -24,16 +24,16 @@ node to true. The method emits <a class="method" href="w2sidebar.onExpand">.onEx
 If you have defined object in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar',
-	img  : 'icon-page',
-	nodes: [ 
-		{ id: 'id-1', text: 'Level 1', hidden: true },
-		{ id: 'id-2', text: 'Level 2', nodes: [
-			{ id: 'id-2-1', text: 'Level 2.1' },
-			{ id: 'id-2-2', text: 'Level 2.2' }
-		]},
-		{ id: 'id-3', text: 'Level 3' }
-	]
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1', hidden: true },
+        { id: 'id-2', text: 'Level 2', nodes: [
+            { id: 'id-2-1', text: 'Level 2.1' },
+            { id: 'id-2-2', text: 'Level 2.2' }
+        ]},
+        { id: 'id-3', text: 'Level 3' }
+    ]
 });
 </textarea>
 

@@ -1,7 +1,7 @@
 Called when object is destroyed. 
 
 <div class="definition">
-	onDestroy = function(event)
+    onDestroy = function(event)
 </div>
 
 This event is common for multiple w2ui widgets (layout, grid, toolbar, sidebar, tabs, form). 
@@ -10,14 +10,14 @@ You can add event listener during the object creation:
 
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'preview', size: 200 }
-	],
-	onDestroy: function(event) {
-		console.log('object '+ event.target + ' is destroyed');
-	}		
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'preview', size: 200 }
+    ],
+    onDestroy: function(event) {
+        console.log('object '+ event.target + ' is destroyed');
+    }        
 });
 </textarea>
 
@@ -25,7 +25,7 @@ or after the object has been created:
 
 <textarea class="javascript">
 w2ui.layout.on('destroy', function(event) {
-	console.log('object '+ this.target + ' is destroyed');
+    console.log('object '+ this.target + ' is destroyed');
 });
 </textarea>
 

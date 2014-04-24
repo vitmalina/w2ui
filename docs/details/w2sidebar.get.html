@@ -1,24 +1,24 @@
 Finds sidebar node with <span class="argument">id</span> and returns it or its index.
 
 <div class="definition">
-	get([parent], id, [returnIndex])
+    get([parent], id, [returnIndex])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>parent</td>
-		<td><b>string</b>, id of the parent node (<i>optional</i>)</td>
-	</tr>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the sidebar node</td>
-	</tr>
-	<tr>
-		<td>returnIndex</td>
-		<td><b>boolean</b>, if true returns index in the items array (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>parent</td>
+        <td><b>string</b>, id of the parent node (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the sidebar node</td>
+    </tr>
+    <tr>
+        <td>returnIndex</td>
+        <td><b>boolean</b>, if true returns index in the items array (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 Returns object or integer or null.
@@ -41,13 +41,13 @@ The third optional argument <span class="argument">returnIndex</span> indicates 
 If you defined the object in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar',
-	img  : 'icon-page',
-	nodes: [ 
-		{ id: 'id-1', text: 'Level 1' },
-		{ id: 'id-2', text: 'Level 2' },
-		{ id: 'id-3', text: 'Level 3' }
-	]
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
 });
 </textarea>
 

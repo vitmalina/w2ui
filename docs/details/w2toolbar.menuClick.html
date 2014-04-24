@@ -1,24 +1,24 @@
 Called when user selects an item from a drop down menu.
 
 <div class="definition">
-	menuClick(id, menu_index, [event])
+    menuClick(id, menu_index, [event])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the toolbar item</td>
-	</tr>
-	<tr>
-		<td>menu_index</td>
-		<td><b>integer</b>, index of the clicked item in the menu array</td>
-	</tr>
-	<tr>
-		<td>event</td>
-		<td><b>object</b>, DOM Event object</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the toolbar item</td>
+    </tr>
+    <tr>
+        <td>menu_index</td>
+        <td><b>integer</b>, index of the clicked item in the menu array</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, DOM Event object</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -32,13 +32,13 @@ to emulate clicks. This method emits <a class="method" href="w2toolbar.onMenuCli
 If you have toolbar defined in the following way:
 <textarea class="javascript">
 $('#toolbar').w2toolbar({
-	name  : 'toolbar',
-	items : [
-		{ type: 'check', id: 'item1', caption: 'Check', img: 'icon-page', checked: false },
-		{ type: 'menu',  id: 'item2',  group: '1', caption: 'Menu', img: 'icon-add', 
-			items: ['item1', 'item2', 'item3', 'item4'] 
-		}
-	]
+    name  : 'toolbar',
+    items : [
+        { type: 'check', id: 'item1', caption: 'Check', img: 'icon-page', checked: false },
+        { type: 'menu',  id: 'item2',  group: '1', caption: 'Menu', img: 'icon-add', 
+            items: ['item1', 'item2', 'item3', 'item4'] 
+        }
+    ]
 });
 </textarea>
 

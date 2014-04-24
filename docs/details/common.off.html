@@ -1,39 +1,39 @@
 Removes event listener from the object.
 
 <div class="definition">
-	off(type, [handler])
+    off(type, [handler])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>type</td>
-		<td><b>string</b>, name of the event</td>
-	</tr>
-	<tr>
-		<td>handler</td>
-		<td><b>function</b>, JavaScript function (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>type</td>
+        <td><b>string</b>, name of the event</td>
+    </tr>
+    <tr>
+        <td>handler</td>
+        <td><b>function</b>, JavaScript function (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 OR
 
 <div class="definition">
-	off(eventData, handler)
+    off(eventData, handler)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>eventData</td>
-		<td><b>object</b>, parameters of the event</td>
-	</tr>
-	<tr>
-		<td>handler</td>
-		<td><b>function</b>, JavaScript function </td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>eventData</td>
+        <td><b>object</b>, parameters of the event</td>
+    </tr>
+    <tr>
+        <td>handler</td>
+        <td><b>function</b>, JavaScript function </td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -44,12 +44,12 @@ You can remove a specific listener for a specific event, all listener for a spec
 have a layout (same for grid, toolbar, etc.) defined as follows:
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'main', content: 'This is main panel' },
-		{ type: 'preview', size: 200 }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200 }
+    ]
 });
 </textarea>
 

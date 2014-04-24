@@ -1,20 +1,20 @@
 Called when user clicks on a toolbar item.
 
 <div class="definition">
-	click(id, [event])
+    click(id, [event])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the toolbar item</td>
-	</tr>
-	<tr>
-		<td>event</td>
-		<td><b>object</b>, DOM Event object</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the toolbar item</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, DOM Event object</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -28,12 +28,12 @@ emits <a class="method" href="w2toolbar.onClick">.onClick</a> event.
 If you have toolbar defined in the following way:
 <textarea class="javascript">
 $('#toolbar').w2toolbar({
-	name  : 'toolbar',
-	items : [
-		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: false },
-		{ type: 'radio',  id: 'item3',  group: '1', caption: 'R-1', img: 'icon-add' },
-		{ type: 'radio',  id: 'item4',  group: '1', caption: 'R-2', img: 'icon-add' }
-	]
+    name  : 'toolbar',
+    items : [
+        { type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: false },
+        { type: 'radio',  id: 'item3',  group: '1', caption: 'R-1', img: 'icon-add' },
+        { type: 'radio',  id: 'item4',  group: '1', caption: 'R-2', img: 'icon-add' }
+    ]
 });
 </textarea>
 

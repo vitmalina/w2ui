@@ -4,19 +4,19 @@
 <script type="text/javascript" src="../libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="../dist/w2ui-1.1.min.js"></script>
 <script>
-	$(function () {
-		$('#date').w2field({ type: 'date', format: 'mm/dd/yyyy' });
-		$('#list').w2field({ type: 'list', items: ['item1', 'item2', 'item3', 'item4', 'item5'] });
-		$('#enum').w2field({ type: 'enum', items: ['item1', 'item2', 'item3', 'item4', 'item5'] });
-	});
+    $(function () {
+        $('#date').w2field({ type: 'date', format: 'mm/dd/yyyy' });
+        $('#list').w2field({ type: 'list', items: ['item1', 'item2', 'item3', 'item4', 'item5'] });
+        $('#enum').w2field({ type: 'enum', items: ['item1', 'item2', 'item3', 'item4', 'item5'] });
+    });
 </script>
 <body>
-	<div style="padding: 10px">
-		<input type="text" id="date" value="5/11/1977" size="12" />
-		<div style="height: 10px"></div>
-		<select type="text" id="list" onchange="console.log('change: '+this.value);"></select>
-		<div style="height: 10px"></div>
-		<input type="text" id="enum" style="width: 200px"/>
-	</div>
+    <div style="padding: 10px">
+        <input type="text" id="date" value="5/11/1977" size="12" />
+        <div style="height: 10px"></div>
+        <select type="text" id="list" onchange="console.log('change: '+this.value);"></select>
+        <div style="height: 10px"></div>
+        <input type="text" id="enum" style="width: 200px"/>
+    </div>
 </body>
 </html>

@@ -1,29 +1,29 @@
 Message that appears when form is being saved.
 
 <div class="definition">
-	String, default = 'Saving...'
+    String, default = 'Saving...'
 </div>
 
 If you do not like default message, you are welcome to define your own.
 
 <textarea class="javascript">
 $('#form').w2form({
-	name       : 'form',
-	header     : 'Form Header',
-	msgSaving  : 'Please Wait...',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com'
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	}
+    name       : 'form',
+    header     : 'Form Header',
+    msgSaving  : 'Please Wait...',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
 });
 </textarea>

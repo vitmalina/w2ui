@@ -1,56 +1,56 @@
 <html>
 <head>
-	<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui-1.1.min.css" /> 
-	<script type="text/javascript" src="../libs/jquery/jquery.min.js"></script>
-	<script type="text/javascript" src="../dist/w2ui-1.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui-1.1.min.css" /> 
+    <script type="text/javascript" src="../libs/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../dist/w2ui-1.1.min.js"></script>
 </head>
 <body>
-	<input type="button" value="Popup" onclick="$('#popup1').w2popup({ showMax: true, showClose: true })">
-	<input type="button" value="Overlay"
-			onclick="$(this).w2overlay($('#popup1 [rel=body]').html(), { css: { width: '600px', padding: '10px' } });">
+    <input type="button" value="Popup" onclick="$('#popup1').w2popup({ showMax: true, showClose: true })">
+    <input type="button" value="Overlay"
+            onclick="$(this).w2overlay($('#popup1 [rel=body]').html(), { css: { width: '600px', padding: '10px' } });">
 
-	<div id="popup1" style="display: none; width: 650px; height: 400px; overflow: auto">
-	    <div rel="title">
-	        Popup #1 Title
-	    </div>
-	    <div rel="body">
-	        <div style="padding: 10; font-size: 11px; line-height: 150%;">
-				<div style="float:left; background-color: white; width:150px; height:80px; border: 1px solid silver; margin:5px;">
-	            </div>
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
-	        </div>
-	    </div>
-	    <div rel="buttons">
-	        <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()">
-	        <input type="button" value="Message" onclick="$('#popup2').w2popup('message', { html: 'some text' })">
-	    </div>
-	</div>
+    <div id="popup1" style="display: none; width: 650px; height: 400px; overflow: auto">
+        <div rel="title">
+            Popup #1 Title
+        </div>
+        <div rel="body">
+            <div style="padding: 10; font-size: 11px; line-height: 150%;">
+                <div style="float:left; background-color: white; width:150px; height:80px; border: 1px solid silver; margin:5px;">
+                </div>
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+                This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            </div>
+        </div>
+        <div rel="buttons">
+            <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()">
+            <input type="button" value="Message" onclick="$('#popup2').w2popup('message', { html: 'some text' })">
+        </div>
+    </div>
 
-	<!-- Second Popup Window -->
+    <!-- Second Popup Window -->
 
-	<div id="popup2" style="display: none; width: 400px; height: 200px; overflow: auto">
-	    <div rel="title">
-	        Popup #2
-	    </div>
-	    <div rel="body">
-	        <div style="padding: 10; font-size: 11px; line-height: 150%;">
-	            Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
-	            Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
-	        </div>
-	    </div>
-	    <div rel="buttons">
-	        <input type="button" value="Switch to Popup 1" onclick="$('#popup1').w2popup()">
-	    </div>
-	</div>
+    <div id="popup2" style="display: none; width: 400px; height: 200px; overflow: auto">
+        <div rel="title">
+            Popup #2
+        </div>
+        <div rel="body">
+            <div style="padding: 10; font-size: 11px; line-height: 150%;">
+                Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
+                Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
+            </div>
+        </div>
+        <div rel="buttons">
+            <input type="button" value="Switch to Popup 1" onclick="$('#popup1').w2popup()">
+        </div>
+    </div>
 </body>
 </html>

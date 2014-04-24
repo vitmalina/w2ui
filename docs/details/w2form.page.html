@@ -1,7 +1,7 @@
 Current page.
 
 <div class="definition">
-	Integer, default = 0
+    Integer, default = 0
 </div>
 
 A form can have mulitple pages, but only one page will be displayed at a time. The page numbers start with 0. 
@@ -13,48 +13,48 @@ first parameter.
 If you have multi-page form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({
-	name: 'form',
-	formHTML: 
-		'<div class="w2ui-page page-0">'+
-		'	<div class="w2ui-label">First Name:</div>'+
-		'	<div class="w2ui-field">'+
-		'		<input name="first_name" type="text" size="35"/>'+
-		'	</div>'+
-		'	<div class="w2ui-label">Last Name:</div>'+
-		'	<div class="w2ui-field">'+
-		'		<input name="last_name" type="text" size="35"/>'+
-		'	</div>'+
-		'	<div class="w2ui-label">Email:</div>'+
-		'	<div class="w2ui-field">'+
-		'		<input name="email" type="text" size="35"/>'+
-		'	</div>'+
-		'</div>'+
-		'<div class="w2ui-page page-1">'+
-		'	<div class="w2ui-label">More Fields:</div>'+
-		'	<div class="w2ui-field">'+
-		'		<input name="extra_field" type="text" size="35"/>'+
-		'	</div>'+
-		'</div>'+
-		'<div class="w2ui-buttons">'+
-		'	<input type="button" value="Reset" name="reset">'+
-		'	<input type="button" value="Save" name="save">'+
-		'</div>',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-		{ name: 'extra_field', type: 'date' }
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com',
-		extra_field : ''
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	}
+    name: 'form',
+    formHTML: 
+        '<div class="w2ui-page page-0">'+
+        '    <div class="w2ui-label">First Name:</div>'+
+        '    <div class="w2ui-field">'+
+        '        <input name="first_name" type="text" size="35"/>'+
+        '    </div>'+
+        '    <div class="w2ui-label">Last Name:</div>'+
+        '    <div class="w2ui-field">'+
+        '        <input name="last_name" type="text" size="35"/>'+
+        '    </div>'+
+        '    <div class="w2ui-label">Email:</div>'+
+        '    <div class="w2ui-field">'+
+        '        <input name="email" type="text" size="35"/>'+
+        '    </div>'+
+        '</div>'+
+        '<div class="w2ui-page page-1">'+
+        '    <div class="w2ui-label">More Fields:</div>'+
+        '    <div class="w2ui-field">'+
+        '        <input name="extra_field" type="text" size="35"/>'+
+        '    </div>'+
+        '</div>'+
+        '<div class="w2ui-buttons">'+
+        '    <input type="button" value="Reset" name="reset">'+
+        '    <input type="button" value="Save" name="save">'+
+        '</div>',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+        { name: 'extra_field', type: 'date' }
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com',
+        extra_field : ''
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
 });
 </textarea>
 

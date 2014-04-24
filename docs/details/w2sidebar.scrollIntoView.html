@@ -1,16 +1,16 @@
 Scroll nodes into view
 
 <div class="definition">
-	scrollIntoView([id])
+    scrollIntoView([id])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, <i>optional</i>, id of the sidebar node</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, <i>optional</i>, id of the sidebar node</td>
+    </tr>
+    </table>
 </div>
 
 Returns <i>undefined</i>.
@@ -25,12 +25,12 @@ it will search the entire sidebar including all its nested nodes. The method ret
 If you have sidebar defined in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar',
-	nodes: [ 
-		{ id: 'id-1', text: 'Level 1' },
-		{ id: 'id-2', text: 'Level 2' },
-		{ id: 'id-3', text: 'Level 3' }
-	]
+    name : 'sidebar',
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
 });
 </textarea>
 

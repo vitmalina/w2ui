@@ -6,277 +6,277 @@
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script>
-	$(function () {
-		var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
-		var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
-		var items = [];
-		// add 10k records
-		for (var i = 0; i < 50; i++) {
-			var item = {
-				id 		: (i + 1),
-				fname	: fname[Math.floor(Math.random() * fname.length)],
-				lname	: lname[Math.floor(Math.random() * lname.length)],
-				email	: 'vm@gmail.com', manager: '--',
-				snumber	: Math.floor(Math.random() * 10000000),
-				sdate	: (new Date(Math.floor(Math.random() * 20000) * 100000000)).getTime()
-			};
-			item.text = item.fname + ' ' + item.lname;
-			items.push(item);
-		}
-		$('.date').w2field('date', { silent: false, format: 'dd Mon, yyyy' });
-		$('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
-		$('.color').w2field('color');
-		$('.int').w2field({ type: 'int', min: -36000, max: 36000 });
-		$('.float').w2field('float');
-		$('.percent').w2field('percent', { precision: 0 });
-		$('.money').w2field('currency');
-		$('.hex').w2field('hex');
-		$('.alphanumeric').w2field('alphanumeric');
-		$('.combo').w2field('combo', {
-			openOnFocus: true,
-			minLength: 2,
-			url: 'http://w2ui.com:3000/api/enum/users',
-			items: items,
-			onRequest: function (event) {
-				// console.log('request', event);
-			},
-			onLoad: function (event) {
-				// console.log('load', event);
-			}
-		});
-		$('.list').w2field('list', {
-			icon: 'fa-star',
-			onIconClick: function (event) {
-				$(event.el).w2overlay('eeeee');
-				console.log(event.el);
-			},
-			// search: false,
-			applyFilter: true,
-			markSearch: true,
-			url: 'http://w2ui.com:3000/api/enum/users',
-			items: items,
-			onRequest: function (event) {
-				console.log('list request', event);
-			},
-			onLoad: function (event) {
-				console.log('list load', event);
-			},
-			onError: function (event) {
-				console.log('list error', event);
-			}
-		}).on('blur', function (event) {
-			console.log('BLUR: user', $(this).data());
+    $(function () {
+        var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
+        var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
+        var items = [];
+        // add 10k records
+        for (var i = 0; i < 50; i++) {
+            var item = {
+                id         : (i + 1),
+                fname    : fname[Math.floor(Math.random() * fname.length)],
+                lname    : lname[Math.floor(Math.random() * lname.length)],
+                email    : 'vm@gmail.com', manager: '--',
+                snumber    : Math.floor(Math.random() * 10000000),
+                sdate    : (new Date(Math.floor(Math.random() * 20000) * 100000000)).getTime()
+            };
+            item.text = item.fname + ' ' + item.lname;
+            items.push(item);
+        }
+        $('.date').w2field('date', { silent: false, format: 'dd Mon, yyyy' });
+        $('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
+        $('.color').w2field('color');
+        $('.int').w2field({ type: 'int', min: -36000, max: 36000 });
+        $('.float').w2field('float');
+        $('.percent').w2field('percent', { precision: 0 });
+        $('.money').w2field('currency');
+        $('.hex').w2field('hex');
+        $('.alphanumeric').w2field('alphanumeric');
+        $('.combo').w2field('combo', {
+            openOnFocus: true,
+            minLength: 2,
+            url: 'http://w2ui.com:3000/api/enum/users',
+            items: items,
+            onRequest: function (event) {
+                // console.log('request', event);
+            },
+            onLoad: function (event) {
+                // console.log('load', event);
+            }
+        });
+        $('.list').w2field('list', {
+            icon: 'fa-star',
+            onIconClick: function (event) {
+                $(event.el).w2overlay('eeeee');
+                console.log(event.el);
+            },
+            // search: false,
+            applyFilter: true,
+            markSearch: true,
+            url: 'http://w2ui.com:3000/api/enum/users',
+            items: items,
+            onRequest: function (event) {
+                console.log('list request', event);
+            },
+            onLoad: function (event) {
+                console.log('list load', event);
+            },
+            onError: function (event) {
+                console.log('list error', event);
+            }
+        }).on('blur', function (event) {
+            console.log('BLUR: user', $(this).data());
 
-		}).on('focus', function (event) {
-			console.log('FOCUS: user', $(this).data());
+        }).on('focus', function (event) {
+            console.log('FOCUS: user', $(this).data());
 
-		});
-		$('.enum').w2field('enum', {
-			url: 'http://w2ui.com:3000/api/enum/users',
-			openOnFocus: true,
-			items: items,
-			selected: [],
-			renderItem1: function (item, options, del) {
-				console.log('render', arguments);
-				return 'some' + del;
-			},
-			// items: items
-			onRequest: function (event) {
-				console.log('enum request', event);
-			},
-			onLoad: function (event) {
-				console.log('enum load', event);
-			},
-			onError: function (event) {
-				console.log('enum error', event);
-			},
-			onClick: function (event) {
-				console.log('enum click', event);
-			},
-			onMouseOver: function (event) {
-				console.log('enum over', event);
-			},
-			onMouseOut: function (event) {
-				console.log('enum out', event);
-			},
-			onRemove: function (event) {
-				console.log('enum remove', event.item);
-			},
-			onAdd: function (event) {
-				console.log('enum add', event);
-			},
-			onNew: function (event) {
-				console.log('enum new', event);
-			}
-		});
-		$('.file').w2field('file', {
-			onAdd: function (event) {
-				// console.log('add', event);
-			},
-			onRemove: function (event) {
-				// console.log('remove', event);
-			}
-		});
+        });
+        $('.enum').w2field('enum', {
+            url: 'http://w2ui.com:3000/api/enum/users',
+            openOnFocus: true,
+            items: items,
+            selected: [],
+            renderItem1: function (item, options, del) {
+                console.log('render', arguments);
+                return 'some' + del;
+            },
+            // items: items
+            onRequest: function (event) {
+                console.log('enum request', event);
+            },
+            onLoad: function (event) {
+                console.log('enum load', event);
+            },
+            onError: function (event) {
+                console.log('enum error', event);
+            },
+            onClick: function (event) {
+                console.log('enum click', event);
+            },
+            onMouseOver: function (event) {
+                console.log('enum over', event);
+            },
+            onMouseOut: function (event) {
+                console.log('enum out', event);
+            },
+            onRemove: function (event) {
+                console.log('enum remove', event.item);
+            },
+            onAdd: function (event) {
+                console.log('enum add', event);
+            },
+            onNew: function (event) {
+                console.log('enum new', event);
+            }
+        });
+        $('.file').w2field('file', {
+            onAdd: function (event) {
+                // console.log('add', event);
+            },
+            onRemove: function (event) {
+                // console.log('remove', event);
+            }
+        });
 
-		// date range
-		$('#date1').w2field('date', { end: $('#date2'), blocked: ['12/12/2013'] });
-		$('#date2').w2field('date', { start: $('#date1'), blocked: ['12/12/2013'] });
-	});
+        // date range
+        $('#date1').w2field('date', { end: $('#date2'), blocked: ['12/12/2013'] });
+        $('#date2').w2field('date', { start: $('#date1'), blocked: ['12/12/2013'] });
+    });
 </script>
 <style>
 .w2ui-time {
-	padding: 5px;
-	cursor: pointer;
+    padding: 5px;
+    cursor: pointer;
 }
 .w2ui-time td div {
-	padding: 7px 10px;
-	text-align: center;
-	border: 1px solid transparent;
+    padding: 7px 10px;
+    text-align: center;
+    border: 1px solid transparent;
 }
 
 .w2ui-time td:nth-child(even) {
-	background-color: #f5f5f5
+    background-color: #f5f5f5
 }
 
 .w2ui-time td div:hover {
-	border: 1px solid #ccc;
-	background-color: #e9e9e9;
+    border: 1px solid #ccc;
+    background-color: #e9e9e9;
 }
 </style>
 <body>
-	<!--
-	HTML5 color: <input type="color"><br>
-	HTML5 date: <input type="date"><br>
-	HTML5 time: <input type="time"><br>
-	HTML5 datetime: <input type="datetime"><br>
-	HTML5 email: <input type="email"><br>
-	HTML5 number: <input type="number"><br>
-	HTML5 range: <input type="range"><br>
-	HTML5 search: <input type="search"><br>
-	HTML5 tel: <input type="tel"><br>
-	HTML5 url: <input type="url"><br>
-	HTML5 week: <input type="week"><br>
-	HTML5 month: <input type="month"><br>
-	-->
-	Date Range: <input id="date1"> - <input id="date2"> -
-		<input type="button" value="make readonly" onclick="$('input, textarea, select').prop('readonly', true)">
-		<input type="text">
-	<br>
-	<br>
-	<div class="w2ui-form" style="height: 600px"><div style="width: 100%; padding: 5px;">
-		<div class="w2ui-label">text:</div>
-			<div class="w2ui-field">
-				<input type="text" style="width: 100px;"/>
-			</div>
-		<div class="w2ui-label">color:</div>
-			<div class="w2ui-field">
-				<input class="color" type="text" style="width: 100px;"
-					onchange1="console.log('field change: ', this.value)" value="d84"/>
-			</div>
-		<div class="w2ui-label">textarea:</div>
-			<div class="w2ui-field">
-				<textarea class="textarea" type="text" style="width: 400px; height: 40px;"></textarea>
-			</div>
-		<div class="w2ui-label">int:</div>
-			<div class="w2ui-field">
-				<input id="int" class="int" type="text" style="width: 100px;"/>
-			</div>
-		<div class="w2ui-label">float:</div>
-			<div class="w2ui-field">
-				<input id="float" class="float" type="text" style="width: 100px"/>
-			</div>
-		<div class="w2ui-label">percent:</div>
-			<div class="w2ui-field">
-				<input id="percent" class="percent" type="text" style="width: 100px"/>
-			</div>
-		<div class="w2ui-label">money:</div>
-			<div class="w2ui-field">
-				<input id="money" class="money" type="text" style="width: 100px"/>
-			</div>
-		<div class="w2ui-label">hex:</div>
-			<div class="w2ui-field">
-				<input id="hex" class="hex" type="text" style="width: 100px"/>
-			</div>
-		<div class="w2ui-label">alpha-numeric:</div>
-			<div class="w2ui-field">
-				<input id="alphanumeric" class="alphanumeric" type="text" style="width: 100px"/>
-			</div>
-		<div class="w2ui-label">date:</div>
-			<div class="w2ui-field">
-				<input id="date1" class="date" type="text" size="20"/>
-			</div>
-		<div class="w2ui-label">time:</div>
-			<div class="w2ui-field">
-				<input id="time" class="time" type="text" size="20"/>
-			</div>
-		<div class="w2ui-label">combo:</div>
-			<div class="w2ui-field">
-				<input class="combo" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
-			</div>
-		<div class="w2ui-label">list:</div>
-			<div class="w2ui-field">
-				<input class="list" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
-			</div>
-		<div class="w2ui-label">enum:</div>
-			<div class="w2ui-field">
-				<input class="enum" type="text" style="width: 450px; min-height: 10px;"/>
-			</div>
-		<div class="w2ui-label">file:</div>
-			<div class="w2ui-field">
-				<input class="file" type="text" style="width: 550px; min-height: 50px;"/>
-			</div>
-	</div></div>
+    <!--
+    HTML5 color: <input type="color"><br>
+    HTML5 date: <input type="date"><br>
+    HTML5 time: <input type="time"><br>
+    HTML5 datetime: <input type="datetime"><br>
+    HTML5 email: <input type="email"><br>
+    HTML5 number: <input type="number"><br>
+    HTML5 range: <input type="range"><br>
+    HTML5 search: <input type="search"><br>
+    HTML5 tel: <input type="tel"><br>
+    HTML5 url: <input type="url"><br>
+    HTML5 week: <input type="week"><br>
+    HTML5 month: <input type="month"><br>
+    -->
+    Date Range: <input id="date1"> - <input id="date2"> -
+        <input type="button" value="make readonly" onclick="$('input, textarea, select').prop('readonly', true)">
+        <input type="text">
+    <br>
+    <br>
+    <div class="w2ui-form" style="height: 600px"><div style="width: 100%; padding: 5px;">
+        <div class="w2ui-label">text:</div>
+            <div class="w2ui-field">
+                <input type="text" style="width: 100px;"/>
+            </div>
+        <div class="w2ui-label">color:</div>
+            <div class="w2ui-field">
+                <input class="color" type="text" style="width: 100px;"
+                    onchange1="console.log('field change: ', this.value)" value="d84"/>
+            </div>
+        <div class="w2ui-label">textarea:</div>
+            <div class="w2ui-field">
+                <textarea class="textarea" type="text" style="width: 400px; height: 40px;"></textarea>
+            </div>
+        <div class="w2ui-label">int:</div>
+            <div class="w2ui-field">
+                <input id="int" class="int" type="text" style="width: 100px;"/>
+            </div>
+        <div class="w2ui-label">float:</div>
+            <div class="w2ui-field">
+                <input id="float" class="float" type="text" style="width: 100px"/>
+            </div>
+        <div class="w2ui-label">percent:</div>
+            <div class="w2ui-field">
+                <input id="percent" class="percent" type="text" style="width: 100px"/>
+            </div>
+        <div class="w2ui-label">money:</div>
+            <div class="w2ui-field">
+                <input id="money" class="money" type="text" style="width: 100px"/>
+            </div>
+        <div class="w2ui-label">hex:</div>
+            <div class="w2ui-field">
+                <input id="hex" class="hex" type="text" style="width: 100px"/>
+            </div>
+        <div class="w2ui-label">alpha-numeric:</div>
+            <div class="w2ui-field">
+                <input id="alphanumeric" class="alphanumeric" type="text" style="width: 100px"/>
+            </div>
+        <div class="w2ui-label">date:</div>
+            <div class="w2ui-field">
+                <input id="date1" class="date" type="text" size="20"/>
+            </div>
+        <div class="w2ui-label">time:</div>
+            <div class="w2ui-field">
+                <input id="time" class="time" type="text" size="20"/>
+            </div>
+        <div class="w2ui-label">combo:</div>
+            <div class="w2ui-field">
+                <input class="combo" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
+            </div>
+        <div class="w2ui-label">list:</div>
+            <div class="w2ui-field">
+                <input class="list" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
+            </div>
+        <div class="w2ui-label">enum:</div>
+            <div class="w2ui-field">
+                <input class="enum" type="text" style="width: 450px; min-height: 10px;"/>
+            </div>
+        <div class="w2ui-label">file:</div>
+            <div class="w2ui-field">
+                <input class="file" type="text" style="width: 550px; min-height: 50px;"/>
+            </div>
+    </div></div>
 
-	<table style="display: none; background-color: #efefef; padding: 15px;" cellpadding="3">
-		<tr>
-			<td>text:</td>
-			<td><input class="text" type="text" style="width: 400px;"/></td>
-		</tr>
-		<tr>
-			<td>textarea:</td>
-			<td><textarea class="textarea" style="width: 400px; height: 40px"></textarea></td>
-		</tr>
-		<tr>
-			<td>int:</td>
-			<td><input class="int" type="text" size="20"/></td>
-		</tr>
-		<tr>
-			<td>float:</td>
-			<td><input class="float" type="text" size="20"/></td>
-		</tr>
-		<tr>
-			<td>money:</td>
-			<td><input class="money" type="text" size="20"/></td>
-		</tr>
-		<tr>
-			<td>hex:</td>
-			<td><input class="hex" type="text" size="20"/></td>
-		</tr>
-		<tr>
-			<td>alphanumeric:</td>
-			<td><input class="alphanumeric" type="text" size="20"/></td>
-		</tr>
-		<tr>
-			<td>date:</td>
-			<td><input id="date2" class="date" type="text" size="20"/></td>
-		</tr>
-		<tr>
-			<td>date2:</td>
-			<td><input id="date2" class="date" type="text" size="20"/></td>
-		</tr>
-		<tr>
-			<td>list:</td>
-			<td><input type="text" class="list"></td>
-		</tr>
-		<tr>
-			<td>enum:</td>
-			<td><input class="enum" type="text" style="width: 400px"/></td>
-		</tr>
-		<tr>
-			<td>file:</td>
-			<td><input class="file" type="text" style="width: 400px"/></td>
-		</tr>
-	</table>
+    <table style="display: none; background-color: #efefef; padding: 15px;" cellpadding="3">
+        <tr>
+            <td>text:</td>
+            <td><input class="text" type="text" style="width: 400px;"/></td>
+        </tr>
+        <tr>
+            <td>textarea:</td>
+            <td><textarea class="textarea" style="width: 400px; height: 40px"></textarea></td>
+        </tr>
+        <tr>
+            <td>int:</td>
+            <td><input class="int" type="text" size="20"/></td>
+        </tr>
+        <tr>
+            <td>float:</td>
+            <td><input class="float" type="text" size="20"/></td>
+        </tr>
+        <tr>
+            <td>money:</td>
+            <td><input class="money" type="text" size="20"/></td>
+        </tr>
+        <tr>
+            <td>hex:</td>
+            <td><input class="hex" type="text" size="20"/></td>
+        </tr>
+        <tr>
+            <td>alphanumeric:</td>
+            <td><input class="alphanumeric" type="text" size="20"/></td>
+        </tr>
+        <tr>
+            <td>date:</td>
+            <td><input id="date2" class="date" type="text" size="20"/></td>
+        </tr>
+        <tr>
+            <td>date2:</td>
+            <td><input id="date2" class="date" type="text" size="20"/></td>
+        </tr>
+        <tr>
+            <td>list:</td>
+            <td><input type="text" class="list"></td>
+        </tr>
+        <tr>
+            <td>enum:</td>
+            <td><input class="enum" type="text" style="width: 400px"/></td>
+        </tr>
+        <tr>
+            <td>file:</td>
+            <td><input class="file" type="text" style="width: 400px"/></td>
+        </tr>
+    </table>
 
 </body>
 </html>

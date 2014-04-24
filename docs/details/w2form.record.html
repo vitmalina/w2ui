@@ -1,7 +1,7 @@
 Map of field values.
 
 <div class="definition">
-	Object, default = {}
+    Object, default = {}
 </div>
 
 If you defined a form that has <a class="argument" href="w2form.recid">.recid</a> and <a class="argument" href="w2form.url">.url</a> 
@@ -11,32 +11,32 @@ properties defined, the form data will be loaded from the remote data source int
 You can also define record during object creation:
 <textarea class="javascript">
 $('#form').w2form({
-	name     : 'form',
-	style    : 'border: 0px; background-color: transparent;',
-	formURL  : '/server/path',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com'
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	}
+    name     : 'form',
+    style    : 'border: 0px; background-color: transparent;',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
 });
 </textarea>
 
 Or any time during run-time
 <textarea class="javascript">
 w2ui['form'].record = { 
-	first_name	: 'John',
-	last_name 	: 'Doe',
-	email 		: 'jdoe@email.com'
+    first_name    : 'John',
+    last_name     : 'Doe',
+    email         : 'jdoe@email.com'
 }
 w2ui['form'].refresh();
 </textarea>

@@ -3,84 +3,84 @@
 */
 
 .w2ui-layout {
-	overflow: hidden !important;
-	.box-sizing;	
+    overflow: hidden !important;
+    .box-sizing;    
 
-	& * {
-		.box-sizing;
-	}
-	
-	> div {
-		position: absolute; 
-		overflow: hidden;
-		border: 0px;
-		margin: 0px;
-		padding: 0px;
-		outline: 0px;
-		.box-sizing;
+    & * {
+        .box-sizing;
+    }
+    
+    > div {
+        position: absolute; 
+        overflow: hidden;
+        border: 0px;
+        margin: 0px;
+        padding: 0px;
+        outline: 0px;
+        .box-sizing;
 
-		.w2ui-panel {
-			display: none;
-			position: absolute; 
-			z-index: 120; 
+        .w2ui-panel {
+            display: none;
+            position: absolute; 
+            z-index: 120; 
 
-			.w2ui-panel-title {
-				padding: 5px;
-				.linear-gradient-vertical(@layout-title-linear-gradient-start, @layout-title-linear-gradient-end);
-				border: @layout-title-border;
-				border-bottom: @layout-title-border-bottom;
-			}
+            .w2ui-panel-title {
+                padding: 5px;
+                .linear-gradient-vertical(@layout-title-linear-gradient-start, @layout-title-linear-gradient-end);
+                border: @layout-title-border;
+                border-bottom: @layout-title-border-bottom;
+            }
 
-			.w2ui-panel-tabs {
-				position: absolute;
-				left: 0px;
-				top: 0px;
-				right: 0px;
-				z-index: 2;
-				display: none;
-				overflow: hidden;
-				background-color: @layout-toolbar-background-color;
-				padding: 4px 0px;
+            .w2ui-panel-tabs {
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                right: 0px;
+                z-index: 2;
+                display: none;
+                overflow: hidden;
+                background-color: @layout-toolbar-background-color;
+                padding: 4px 0px;
 
-				> .w2ui-tab.active {
-					background-color : @layout-background-color;
-				}
-			}
+                > .w2ui-tab.active {
+                    background-color : @layout-background-color;
+                }
+            }
 
-			.w2ui-panel-toolbar {
-				position: absolute;
-				left: 0px;
-				top: 0px;
-				right: 0px;
-				z-index: 2;
-				display: none;
-				overflow: hidden;
-				background-color: @layout-toolbar-background-color;
-				border-bottom: 1px solid silver;
-				padding: 4px;
-			}
+            .w2ui-panel-toolbar {
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                right: 0px;
+                z-index: 2;
+                display: none;
+                overflow: hidden;
+                background-color: @layout-toolbar-background-color;
+                border-bottom: 1px solid silver;
+                padding: 4px;
+            }
 
-			.w2ui-panel-content {
-				position: absolute;
-				left: 0px;
-				top: 0px;
-				right: 0px;
-				bottom: 0px;
-				z-index: 1;
-				color: @layout-color;
-				background-color : @layout-background-color;
-			}
-		}
-		
-		.w2ui-resizer {
-			display: none;
-			position: absolute; 
-			z-index: 121;
-			background-color: @layout-resizer-background-color;
-			
-			&:hover, &.active {
-				background-color: @layout-resizer-hover-background-color;
-			}
-		}
-	}
+            .w2ui-panel-content {
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                right: 0px;
+                bottom: 0px;
+                z-index: 1;
+                color: @layout-color;
+                background-color : @layout-background-color;
+            }
+        }
+        
+        .w2ui-resizer {
+            display: none;
+            position: absolute; 
+            z-index: 121;
+            background-color: @layout-resizer-background-color;
+            
+            &:hover, &.active {
+                background-color: @layout-resizer-hover-background-color;
+            }
+        }
+    }
 }

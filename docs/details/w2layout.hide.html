@@ -1,46 +1,46 @@
 Hides the panel.
 
 <div class="definition">
-	hide(type, [immediate])
+    hide(type, [immediate])
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>type</td>
-		<td><b>string</b>, name of the panel</td>
-	</tr>
-	<tr>
-		<td>immediate</td>
-		<td><b>boolean</b>, without animation (<i>optional</i>)</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>type</td>
+        <td><b>string</b>, name of the panel</td>
+    </tr>
+    <tr>
+        <td>immediate</td>
+        <td><b>boolean</b>, without animation (<i>optional</i>)</td>
+    </tr>
+    </table>
 </div>
 
 <h4>Description</h4>
 
 The first argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
 <ul style="margin-left: 50px">
-	<li>top
-	<li>left
-	<li>main
-	<li>right
-	<li>preview
-	<li>bottom
+    <li>top
+    <li>left
+    <li>main
+    <li>right
+    <li>preview
+    <li>bottom
 </ul>
 The panel is hidden with animation that takes approximately 2 seconds. If you want to hide the panel without animation set the second
 argument <span class="argument">immediate</span> to true.
 <div style="height: 10px"></div>
-			
+            
 If you have a layout defined as:
 <textarea class="javascript">
 $('#layout').w2layout({
-	name    : 'layout',
-	panels  : [
-		{ type: 'top', size: 40 },
-		{ type: 'main', content: 'This is main panel' },
-		{ type: 'preview', size: 200 }
-	]
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200 }
+    ]
 });
 </textarea>
 

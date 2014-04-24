@@ -1,11 +1,11 @@
 <div class="content">
-	<div id="example_title">
-		<h1>Event Listeners</h1>
-		As with any w2ui widget, the panel follows common event flow. In example below you can see how to listen to all events dispatched to 
-		the layout.
-	</div>
-	<div id="example_view"></div>
-	<div id="example_code"></div>
+    <div id="example_title">
+        <h1>Event Listeners</h1>
+        As with any w2ui widget, the panel follows common event flow. In example below you can see how to listen to all events dispatched to 
+        the layout.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
 </div>
 
 <!--CODE-->
@@ -26,24 +26,24 @@
 <!--CODE-->
 <script>
 var instant = false;
-$(function () {	
-	var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-	$('#layout').w2layout({
-		name: 'layout',
-		panels: [
-			{ type: 'top', size: 50, resizable: true, hidden: true, style: pstyle, content: 'top' },
-			{ type: 'left', size: 200, resizable: true, hidden: true, style: pstyle, content: 'left' },
-			{ type: 'main', style: pstyle, content: '<div id="eventList"></div>' },
-			{ type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-			{ type: 'right', size: 200, resizable: true, hidden: true, style: pstyle, content: 'right' },
-			{ type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
-		]
-	});
-	w2ui['layout'].on('*', function (event) {
-		console.log('Event: '+ event.type + ' Target: '+ event.target);
-		console.log(event);
-		var log = $('#eventList').html();
-		$('#eventList').html( log + (log != '' ? '<br>' : '') + event.type + ': '+ event.target);
-	});
+$(function () {    
+    var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
+    $('#layout').w2layout({
+        name: 'layout',
+        panels: [
+            { type: 'top', size: 50, resizable: true, hidden: true, style: pstyle, content: 'top' },
+            { type: 'left', size: 200, resizable: true, hidden: true, style: pstyle, content: 'left' },
+            { type: 'main', style: pstyle, content: '<div id="eventList"></div>' },
+            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
+            { type: 'right', size: 200, resizable: true, hidden: true, style: pstyle, content: 'right' },
+            { type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
+        ]
+    });
+    w2ui['layout'].on('*', function (event) {
+        console.log('Event: '+ event.type + ' Target: '+ event.target);
+        console.log(event);
+        var log = $('#eventList').html();
+        $('#eventList').html( log + (log != '' ? '<br>' : '') + event.type + ': '+ event.target);
+    });
 });
 </script>

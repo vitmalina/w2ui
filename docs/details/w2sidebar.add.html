@@ -1,20 +1,20 @@
 Adds a sidebar node or nodes. 
 
 <div class="definition">
-	add([parent], nodes)
+    add([parent], nodes)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>parent</td>
-		<td><b>string</b>, id of the parent node (<i>optional</i>)</td>
-	</tr>
-	<tr>
-		<td>nodes</td>
-		<td><b>object</b> or <b>array</b>, sidebar nodes to add</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>parent</td>
+        <td><b>string</b>, id of the parent node (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>nodes</td>
+        <td><b>object</b> or <b>array</b>, sidebar nodes to add</td>
+    </tr>
+    </table>
 </div>
 
 Returns object.
@@ -30,19 +30,19 @@ The first optional argument <span class="argument">parent</span> is an id of the
 parent node is not specified, new nodes will be inserted at the root level.
 <div style="height: 10px"></div>
 
-The method will return last inserted node.				
+The method will return last inserted node.                
 <div style="height: 10px"></div>
 
 If you defined the object in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
-	name : 'sidebar',
-	img  : 'icon-page',
-	nodes: [ 
-		{ id: 'id-1', text: 'Level 1' },
-		{ id: 'id-2', text: 'Level 2' },
-		{ id: 'id-3', text: 'Level 3' }
-	]
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
 });
 </textarea>
 
@@ -51,8 +51,8 @@ You can:
 w2ui['sidebar'].add('id-1', { id: 'id-1-1', text: 'Level 1-1' });
 // or
 w2ui['sidebar'].add('id-2', [
-	{ id: 'id-2-1', text: 'Level 2-1' },
-	{ id: 'id-2-2', text: 'Level 2-2' },
-	{ id: 'id-2-3', text: 'Level 2-3' }
+    { id: 'id-2-1', text: 'Level 2-1' },
+    { id: 'id-2-2', text: 'Level 2-2' },
+    { id: 'id-2-3', text: 'Level 2-3' }
 ]);
 </textarea>

@@ -24,15 +24,15 @@
         "overlay"
     ],
     "author": {
-        "name"	: "Vitali Malinouski",
-        "url"	: "http://w2ui.com",
-        "email"	: "vitmalina@gmail.com"
+        "name"   : "Vitali Malinouski",
+        "url"    : "http://w2ui.com",
+        "email"  : "vitmalina@gmail.com"
     },
     "maintainers": [
         {
-	        "name"	: "Vitali Malinouski",
-	        "url"	: "http://w2ui.com",
-	        "email"	: "vitmalina@gmail.com"
+            "name"  : "Vitali Malinouski",
+            "url"   : "http://w2ui.com",
+            "email" : "vitmalina@gmail.com"
         }
     ],
     "licenses": [
@@ -41,11 +41,11 @@
             "url": "https://github.com/vitmalina/w2ui/blob/master/license.txt"
         }
     ],
-    "bugs"		: "https://github.com/vitmalina/w2ui/issues",
-    "homepage"	: "http://w2ui.com/web",
-    "docs"		: "http://w2ui.com/web/docs",
-    "download"	: "http://w2ui.com/web/downloads/w2ui-1.4.zip",
-    "dependencies": {
+    "bugs"         : "https://github.com/vitmalina/w2ui/issues",
+    "homepage"     : "http://w2ui.com/web",
+    "docs"         : "http://w2ui.com/web/docs",
+    "download"     : "http://w2ui.com/web/downloads/w2ui-1.4.zip",
+    "dependencies" : {
         "jquery": ">=1.9"
     }
 }

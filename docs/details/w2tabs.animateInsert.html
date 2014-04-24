@@ -1,20 +1,20 @@
 Add and animates insertion a tab or tabs.
 
 <div class="definition">
-	animateInsert(before, tabs)
+    animateInsert(before, tabs)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>before</td>
-		<td><b>string</b>, id of tab to insert before</td>
-	</tr>
-	<tr>
-		<td>tabs</td>
-		<td><b>object</b> or <b>array</b>, tab or array of tabs</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>before</td>
+        <td><b>string</b>, id of tab to insert before</td>
+    </tr>
+    <tr>
+        <td>tabs</td>
+        <td><b>object</b> or <b>array</b>, tab or array of tabs</td>
+    </tr>
+    </table>
 </div>
 Returns <i>undefined</i>.
 
@@ -22,18 +22,18 @@ Returns <i>undefined</i>.
 
 This method will first animate inserting of the space before tab with id = <span class="argument">before</span> and then will call
 <a class="property" href="w2tabs.insert">.insert()</a> to insert the tab and display it.
-				
+                
 If you have tabs defined in the following way:
 <textarea class="javascript">
 $('#tabs').w2tabs({
-	name: 'tabs',
-	active: 'tab1',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2' },
-		{ id: 'tab3', caption: 'Tab 3' },
-		{ id: 'tab4', caption: 'Tab 4' }
-	]
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', caption: 'Tab 1' },
+        { id: 'tab2', caption: 'Tab 2' },
+        { id: 'tab3', caption: 'Tab 3' },
+        { id: 'tab4', caption: 'Tab 4' }
+    ]
 });
 </textarea>
 

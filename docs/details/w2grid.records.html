@@ -1,7 +1,7 @@
 Array of record objects. 
 
 <div class="definition">
-	Array, default = []
+    Array, default = []
 </div>
 
 You can define records during object creation or during run-time. Generally, there are two data source types: local 
@@ -9,23 +9,23 @@ and remote. If you do not defined the <a class="property" href="w2grid.url">.url
 records to the grid in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	url 	: 'server/side/path/to/records',
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	],
-	records: [
-		{ recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
-		{ recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
-		{ recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
-		{ recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
-		{ recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-		{ recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
-	]	
+    name    : 'grid',
+    url     : 'server/side/path/to/records',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ]    
 });
 </textarea>
 
@@ -38,15 +38,15 @@ If you defined the <a class="property" href="w2grid.url">.url</a>, the records w
 locally defined records. 
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	url 	: 'server/side/path/to/records',
-	columns: [				
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	]
+    name    : 'grid',
+    url     : 'server/side/path/to/records',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ]
 });
 </textarea>
 
@@ -69,7 +69,7 @@ record = {
     summary    : false,  // indicates if it is a summary record (summary records appear on the bottom)
     editable   : true,   // indicate is record is editable (must have column.ediable property set)
     expanded   : 'none', // can be true | false | 'none' | 'spinner'
-    changed    : undefined	// readonly, boolean that indicates if user changed record by inline editing
+    changed    : undefined    // readonly, boolean that indicates if user changed record by inline editing
     changes    : undefined  // readonly, object with user changes by inline editing
 }
 </textarea>

@@ -1,7 +1,7 @@
 Number of records to return from remote data source per attempt.
 
 <div class="definition">
-	Integer, default = 100
+    Integer, default = 100
 </div>
 
 This property only applies if your data source for the grid is remote. As of 1.3, the default behavior of the grid is infinite 
@@ -12,16 +12,16 @@ retrieve records, it will submit <span class="argument">.limit</span> as the num
 This property can be set during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
-	name    : 'grid',
-	limit 	: 500,
-	columns : [
-		{ field: 'recid', caption: 'ID', size: '50px' },
-		{ field: 'lname', caption: 'Last Name', size: '30%' },
-		{ field: 'fname', caption: 'First Name', size: '30%' },
-		{ field: 'email', caption: 'Email', size: '40%' },
-		{ field: 'sdate', caption: 'Start Date', size: '120px' },
-		{ field: 'sdate', caption: 'End Date', size: '120px' }
-	]
+    name    : 'grid',
+    limit     : 500,
+    columns : [
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'Start Date', size: '120px' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ]
 });
 </textarea>
 

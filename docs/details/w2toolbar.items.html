@@ -1,7 +1,7 @@
 Array of the item objects.
 
 <div class="definition">
-	Array, default = []
+    Array, default = []
 </div>
 
 The <span class="method">.items</span> property defines all toolbar items (buttons, drop down menues, etc.) You
@@ -9,13 +9,13 @@ can define them during object creation or any time during run-time.
 
 <textarea class="javascript">
 $('#toolbar').w2toolbar({
-	name  : 'toolbar',
-	right : 'text on the right',
-	items : [
-		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
-		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
-		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' },
-	]
+    name  : 'toolbar',
+    right : 'text on the right',
+    items : [
+        { type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+        { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', img: 'icon-add' },
+        { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', img: 'icon-add' },
+    ]
 });
 </textarea>
 
@@ -28,66 +28,66 @@ method to refresh it on the screen. If you need to add/remove items during run-t
 An item object has the following structure:
 <textarea class="javascript">
 item: {
-	id       : null,      // id of the item
-	type     : 'button',  // type of the item (button, check, radio, drop, menu, break, spacer, html)
-	text     : '',        // caption of the item
-	html     : '',        // html text for the item (only if type = html)
-	img      : '',        // css class of the image for the item
-	icon     : '',        // css class of the icon font for the item
-	hidden   : false,     // indicates if item is hidden
-	disabled : false,     // indicates if item is disabled
-	checked  : false,     // indicates if item is checked
-	arrow    : true,      // down arrow for drop/menu types
-	hint     : '',        // hint text for the item
-	group    : null,      // group name for the item, used for radio buttons, can be integer or string
-	items    : null,      // for type=menu it is an array of items in the menu
-	overlay  : {},        // for drop down menus additional params for overlay, see overlay
-	onClick  : null       // mouse click event handler
+    id       : null,      // id of the item
+    type     : 'button',  // type of the item (button, check, radio, drop, menu, break, spacer, html)
+    text     : '',        // caption of the item
+    html     : '',        // html text for the item (only if type = html)
+    img      : '',        // css class of the image for the item
+    icon     : '',        // css class of the icon font for the item
+    hidden   : false,     // indicates if item is hidden
+    disabled : false,     // indicates if item is disabled
+    checked  : false,     // indicates if item is checked
+    arrow    : true,      // down arrow for drop/menu types
+    hint     : '',        // hint text for the item
+    group    : null,      // group name for the item, used for radio buttons, can be integer or string
+    items    : null,      // for type=menu it is an array of items in the menu
+    overlay  : {},        // for drop down menus additional params for overlay, see overlay
+    onClick  : null       // mouse click event handler
 }
 </textarea>
 
 There are 7 types of toolbar items
 <style>
 table.list {
-	margin: 20px 0px;
-	border-collapse: collapse;
-}	
+    margin: 20px 0px;
+    border-collapse: collapse;
+}    
 table.list td {
-	padding: 4px 10px;
-	border: 1px solid #efefef !important;
+    padding: 4px 10px;
+    border: 1px solid #efefef !important;
 }
 </style>
 <table class="list">
-	<tr><td> button </td>	<td> regular button </td></tr>
-	<tr><td> check </td>	<td> check button (2 states: checked and unchecked. See <span class="property">.checked</span> property. </td></tr>
-	<tr><td> radio </td>	<td> radio button, similar to check button but other buttons in the group will be unchecked. See <span class="property">.checked</span> and <span class="property">.group</span> property </td></tr>
-	<tr><td> drop </td>		<td> simple drop down, whatever in <span class="property">.html</span> property will be display in the drop down </td></tr>
-	<tr><td valign="top"> menu </td>		
-		<td> drop down menu. The <span class="property">.items</span> property will be treated as menu items. This property 
-		either an array of strings or array of objects. If it is array of string, then each element of the array is a menu item. If it is array of
-		object, then each element of the array is an object of the following type:
-		<textarea class="javascript">
+    <tr><td> button </td>    <td> regular button </td></tr>
+    <tr><td> check </td>    <td> check button (2 states: checked and unchecked. See <span class="property">.checked</span> property. </td></tr>
+    <tr><td> radio </td>    <td> radio button, similar to check button but other buttons in the group will be unchecked. See <span class="property">.checked</span> and <span class="property">.group</span> property </td></tr>
+    <tr><td> drop </td>        <td> simple drop down, whatever in <span class="property">.html</span> property will be display in the drop down </td></tr>
+    <tr><td valign="top"> menu </td>        
+        <td> drop down menu. The <span class="property">.items</span> property will be treated as menu items. This property 
+        either an array of strings or array of objects. If it is array of string, then each element of the array is a menu item. If it is array of
+        object, then each element of the array is an object of the following type:
+        <textarea class="javascript">
 item: {
-	id   : '',   // id of the menu item
-	text : '',   // text of the menu item
-	icon : '',   // css class for icon font
-	img  : ''    // css class for an image
+    id   : '',   // id of the menu item
+    text : '',   // text of the menu item
+    icon : '',   // css class for icon font
+    img  : ''    // css class for an image
 }
-		</textarea>
-		There are several default icons in w2ui.css file you can use or you can create your own css file with icons. Majority of
-		default icons are used in w2grid. Default icons	are: 
-		<span class="argument">icon-folder</span>,
-		<span class="argument">icon-page</span>,
-		<span class="argument">icon-reload</span>,
-		<span class="argument">icon-columns</span>,
-		<span class="argument">icon-search</span>,
-		<span class="argument">icon-add</span>,
-		<span class="argument">icon-delete</span>,
-		<span class="argument">icon-save</span>,
-		<span class="argument">icon-edit</span>,
-		<span class="argument">icon-bullet-black</span>
-	</td></tr>
-	<tr><td> html </td>		<td> html item, this html will be displayed instead of the toolbar item </td></tr>
-	<tr><td> break </td>	<td> vertical separator </td></tr>
-	<tr><td> spacer </td>	<td> horizontal spacer, will push all following buttons to the right hand side </td></tr>
+        </textarea>
+        There are several default icons in w2ui.css file you can use or you can create your own css file with icons. Majority of
+        default icons are used in w2grid. Default icons    are: 
+        <span class="argument">icon-folder</span>,
+        <span class="argument">icon-page</span>,
+        <span class="argument">icon-reload</span>,
+        <span class="argument">icon-columns</span>,
+        <span class="argument">icon-search</span>,
+        <span class="argument">icon-add</span>,
+        <span class="argument">icon-delete</span>,
+        <span class="argument">icon-save</span>,
+        <span class="argument">icon-edit</span>,
+        <span class="argument">icon-bullet-black</span>
+    </td></tr>
+    <tr><td> html </td>        <td> html item, this html will be displayed instead of the toolbar item </td></tr>
+    <tr><td> break </td>    <td> vertical separator </td></tr>
+    <tr><td> spacer </td>    <td> horizontal spacer, will push all following buttons to the right hand side </td></tr>
 </table>

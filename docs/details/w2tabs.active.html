@@ -1,7 +1,7 @@
 Id of the active tab.
 
 <div class="definition">
-	String, default = ''
+    String, default = ''
 </div>
 
 There can only be one active tab. If you change this property, you will need to call <a class="argument" href="w2tabs.refresh">.refresh()</a> 
@@ -11,14 +11,14 @@ method to update the tab. If you need to simulate a click on a tab see <a class=
 Active tab can be defined during object creation: 
 <textarea class="javascript">
 $('#tabs').w2tabs({
-	name: 'tabs',
-	active: 'tab1',
-	tabs: [
-		{ id: 'tab1', caption: 'Tab 1' },
-		{ id: 'tab2', caption: 'Tab 2' },
-		{ id: 'tab3', caption: 'Tab 3' },
-		{ id: 'tab4', caption: 'Tab 4' }
-	]
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', caption: 'Tab 1' },
+        { id: 'tab2', caption: 'Tab 2' },
+        { id: 'tab3', caption: 'Tab 3' },
+        { id: 'tab4', caption: 'Tab 4' }
+    ]
 });
 </textarea>
 

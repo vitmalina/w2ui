@@ -5,29 +5,29 @@
 <script type="text/javascript" src="../dist/w2ui-1.1.min.js"></script>
 <script>
 $(function () {
-	var pstyle = 'background-color: #efefef';
-	$('#layout').w2layout({
-		name: 'layout',
-		panels: [
-			{ type: 'top', size: 60, style: pstyle, resizable: true },
-			{ type: 'left', size: 150, style: pstyle, resizable: true },
-			{ type: 'main', style: pstyle },
-			{ type: 'right', size: 150, style: pstyle, resizable: true }
-		]
-	});
+    var pstyle = 'background-color: #efefef';
+    $('#layout').w2layout({
+        name: 'layout',
+        panels: [
+            { type: 'top', size: 60, style: pstyle, resizable: true },
+            { type: 'left', size: 150, style: pstyle, resizable: true },
+            { type: 'main', style: pstyle },
+            { type: 'right', size: 150, style: pstyle, resizable: true }
+        ]
+    });
 
-	w2ui['layout'].on('resize', function(event) {
-		console.log(event);
-		event.onComplete = function () {
-			var width = w2ui['layout'].get('main').width;
-			var height = w2ui['layout'].get('main').height;
-			console.log(width + 'x' + height);
-		}
-	});
+    w2ui['layout'].on('resize', function(event) {
+        console.log(event);
+        event.onComplete = function () {
+            var width = w2ui['layout'].get('main').width;
+            var height = w2ui['layout'].get('main').height;
+            console.log(width + 'x' + height);
+        }
+    });
 });
 </script>
 </head>
 <body>
-	<div id="layout" style="width: 100%; height: 500px;"></div>
+    <div id="layout" style="width: 100%; height: 500px;"></div>
 </body>
 </html>

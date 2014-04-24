@@ -7,8 +7,8 @@ This global variable that holds all created w2ui objects such as layouts, grids,
 Initially this variable is an empty object, but as soon as you start creating controls, they will become part of 
 this object. This object serves two important purposes:
 <ul>
-	<li>It provides a common and uniform way for accessing created objects</li>
-	<li>It makes sure that you will not overwrite already created object (object name must be unique)</li>
+    <li>It provides a common and uniform way for accessing created objects</li>
+    <li>It makes sure that you will not overwrite already created object (object name must be unique)</li>
 </ul>
 
 For example, if you created a grid with name myGrid then it can be accessed in the following manner:
@@ -24,7 +24,7 @@ available in all objects of that type. For example:
 
 <textarea class="javascript">
 w2obj.grid.prototype.myFunction = function () {
-	console.log('This function exists in all grids. ', this);
+    console.log('This function exists in all grids. ', this);
 }
 </textarea>
 

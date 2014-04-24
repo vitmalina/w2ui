@@ -1,16 +1,16 @@
 Disables toolbar item or items with <span class="argument">id</span>.
 
 <div class="definition">
-	disable(id1, [id2], ...)
+    disable(id1, [id2], ...)
 </div>
 
 <div class="arguments">
-	<table>
-	<tr>
-		<td>id</td>
-		<td><b>string</b>, id of the toolbar item</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the toolbar item</td>
+    </tr>
+    </table>
 </div>
 
 Returns integer.
@@ -25,12 +25,12 @@ number of disabled items that were enabled before.
 If you have toolbar defined in the following way:
 <textarea class="javascript">
 $('#toolbar').w2toolbar({
-	name  : 'toolbar',
-	items : [
-		{ type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
-		{ type: 'radio',  id: 'item3',  group: '1', caption: 'R-1', img: 'icon-add', disabled: true },
-		{ type: 'radio',  id: 'item4',  group: '1', caption: 'R-2', img: 'icon-add' }
-	]
+    name  : 'toolbar',
+    items : [
+        { type: 'check',  id: 'item1', caption: 'Check', img: 'icon-page', checked: true },
+        { type: 'radio',  id: 'item3',  group: '1', caption: 'R-1', img: 'icon-add', disabled: true },
+        { type: 'radio',  id: 'item4',  group: '1', caption: 'R-2', img: 'icon-add' }
+    ]
 });
 </textarea>
 

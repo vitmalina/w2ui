@@ -1,29 +1,29 @@
 Error message when server does not return JSON structure.
 
 <div class="definition">
-	String, default = 'Returned data is not in valid JSON format.'
+    String, default = 'Returned data is not in valid JSON format.'
 </div>
 
 If you do not like default message, you are welcome to define your own.
 
 <textarea class="javascript">
 $('#form').w2form({
-	name       : 'form',
-	header     : 'Form Header',
-	msgNotJSON : 'Give me JSON!',
-	fields: [
-		{ name: 'first_name', type: 'text', required: true },
-		{ name: 'last_name', type: 'text', required: true },
-		{ name: 'email', type: 'email' },
-	],
-	record: { 
-		first_name	: 'John',
-		last_name 	: 'Doe',
-		email 		: 'jdoe@email.com'
-	},
-	actions: {
-		"save": function () { this.validate(); },
-		"reset": function () { this.clear(); },
-	}
+    name       : 'form',
+    header     : 'Form Header',
+    msgNotJSON : 'Give me JSON!',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
 });
 </textarea>
