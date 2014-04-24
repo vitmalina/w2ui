@@ -2136,7 +2136,7 @@ select {
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover {
-  background-color: #edf1f6;
+  background: transparent !important;
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
 }
