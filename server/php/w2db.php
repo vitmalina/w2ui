@@ -71,10 +71,10 @@ class dbConnection {
             }
             mysql_select_db($dbName);
             $this->dbVersion = Array();
-            $this->dbVersion['client']      = mysql_get_client_info();
+            $this->dbVersion['client']   = mysql_get_client_info();
             $this->dbVersion['protocol'] = mysql_get_proto_info($this->dbConn);
-            $this->dbVersion['server']      = mysql_get_server_info($this->dbConn);
-            $this->dbVersion['host']      = mysql_get_host_info($this->dbConn);
+            $this->dbVersion['server']   = mysql_get_server_info($this->dbConn);
+            $this->dbVersion['host']     = mysql_get_host_info($this->dbConn);
         }
     }    
 
@@ -91,12 +91,12 @@ class dbConnection {
         if ($this->dbType == 'postgres') {
             $this->res_data = pg_query($this->dbConn, $sql);
             if (!$this->res_data) {
-                $this->res_errMsg         = pg_last_error($this->dbConn);
+                $this->res_errMsg       = pg_last_error($this->dbConn);
             } else {
-                $this->res_errMsg         = pg_result_error($this->res_data);
+                $this->res_errMsg       = pg_result_error($this->res_data);
                 $this->res_affectedRows = pg_affected_rows($this->res_data);
-                $this->res_rowCount        = pg_num_rows($this->res_data);
-                $this->res_fieldCount    = pg_num_fields($this->res_data);
+                $this->res_rowCount     = pg_num_rows($this->res_data);
+                $this->res_fieldCount   = pg_num_fields($this->res_data);
                 $res = new dbRecordSet($this->dbType, $this->res_data, $this->res_rowCount, $this->res_fieldCount);
                 // -- parse field names
                 for ($i=0; $i<$this->res_fieldCount; $i++) {

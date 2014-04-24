@@ -29,17 +29,17 @@ class w2grid_class {
 
                     case 'begins':
                         $operator = ($dbType == "postgres" ? "ILIKE" : "LIKE");
-                        $value       = "'".$search['value']."%'";
+                        $value    = "'".$search['value']."%'";
                         break;
 
                     case 'ends':
                         $operator = ($dbType == "postgres" ? "ILIKE" : "LIKE");
-                        $value       = "'%".$search['value']."'";
+                        $value    = "'%".$search['value']."'";
                         break;
 
                     case 'contains':
                         $operator = ($dbType == "postgres" ? "ILIKE" : "LIKE");
-                        $value       = "'%".$search['value']."%'";
+                        $value    = "'%".$search['value']."%'";
                         break;
 
                     case 'is':
@@ -54,12 +54,12 @@ class w2grid_class {
 
                     case 'between':
                         $operator = "BETWEEN";
-                        $value       = "'".$search['value'][0]."' AND '".$search['value'][1]."'";
+                        $value    = "'".$search['value'][0]."' AND '".$search['value'][1]."'";
                         break;
 
                     case 'in':
                         $operator = "IN";
-                        $value       = "[".$search['value']."]";
+                        $value    = "[".$search['value']."]";
                         break;
                 }
                 $str .= $field." ".$operator." ".$value;
@@ -258,15 +258,15 @@ class w2grid_class {
         // check for error
         if ($db->res_errMsg != '') {
             $data = Array();
-            $data['status'] = 'error';
+            $data['status']  = 'error';
             $data['message'] = $db->res_errMsg;
             return $data;
         }
 
         $len = 0;
-        $data['status']  = 'success';
-        $data['total']      = $db->res_rowCount;
-        $data['items'] = Array();
+        $data['status'] = 'success';
+        $data['total']  = $db->res_rowCount;
+        $data['items']  = Array();
         while ($rs && !$rs->EOF) {
             $data['items'][$len] = Array();
             $data['items'][$len]['id']   = $rs->fields[0];

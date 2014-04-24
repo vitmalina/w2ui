@@ -12,15 +12,15 @@
 $(function () {
     // define and render grid
     $('#users').w2grid({
-        name     : 'users',
+        name    : 'users',
         url     : 'users.php',
-        header     : 'List of Users',
+        header  : 'List of Users',
         show: {
-            header             : true,
-            toolbar         : true,
-            footer             : true,
-            toolbarAdd        : true,
-            toolbarDelete    : true
+            header        : true,
+            toolbar       : true,
+            footer        : true,
+            toolbarAdd    : true,
+            toolbarDelete : true
         },
         columns: [
             { field: 'fname', caption: 'First Name', size: '150px', searchable: true },
