@@ -1,7 +1,7 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
@@ -12,9 +12,9 @@
 		var items = [];
 		// add 10k records
 		for (var i = 0; i < 50; i++) {
-			var item = { 
+			var item = {
 				id 		: (i + 1),
-				fname	: fname[Math.floor(Math.random() * fname.length)], 
+				fname	: fname[Math.floor(Math.random() * fname.length)],
 				lname	: lname[Math.floor(Math.random() * lname.length)],
 				email	: 'vm@gmail.com', manager: '--',
 				snumber	: Math.floor(Math.random() * 10000000),
@@ -27,7 +27,8 @@
 		$('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
 		$('.color').w2field('color');
 		$('.int').w2field({ type: 'int', min: -36000, max: 36000 });
-		$('.float').w2field('percent', { precision: 0 });
+		$('.float').w2field('float');
+		$('.percent').w2field('percent', { precision: 0 });
 		$('.money').w2field('currency');
 		$('.hex').w2field('hex');
 		$('.alphanumeric').w2field('alphanumeric');
@@ -157,7 +158,7 @@
 	HTML5 week: <input type="week"><br>
 	HTML5 month: <input type="month"><br>
 	-->
-	Date Range: <input id="date1"> - <input id="date2"> - 
+	Date Range: <input id="date1"> - <input id="date2"> -
 		<input type="button" value="make readonly" onclick="$('input, textarea, select').prop('readonly', true)">
 		<input type="text">
 	<br>
@@ -175,7 +176,7 @@
 		<div class="w2ui-label">textarea:</div>
 			<div class="w2ui-field">
 				<textarea class="textarea" type="text" style="width: 400px; height: 40px;"></textarea>
-			</div>		
+			</div>
 		<div class="w2ui-label">int:</div>
 			<div class="w2ui-field">
 				<input id="int" class="int" type="text" style="width: 100px;"/>
@@ -183,6 +184,10 @@
 		<div class="w2ui-label">float:</div>
 			<div class="w2ui-field">
 				<input id="float" class="float" type="text" style="width: 100px"/>
+			</div>
+		<div class="w2ui-label">percent:</div>
+			<div class="w2ui-field">
+				<input id="percent" class="percent" type="text" style="width: 100px"/>
 			</div>
 		<div class="w2ui-label">money:</div>
 			<div class="w2ui-field">
@@ -219,7 +224,7 @@
 		<div class="w2ui-label">file:</div>
 			<div class="w2ui-field">
 				<input class="file" type="text" style="width: 550px; min-height: 50px;"/>
-			</div>		
+			</div>
 	</div></div>
 
 	<table style="display: none; background-color: #efefef; padding: 15px;" cellpadding="3">
