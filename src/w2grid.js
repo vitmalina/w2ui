@@ -1998,8 +1998,13 @@
 			var recs = this.getSelection();
 			if (recs.length == 0) return;
 			if (this.msgDelete != '' && !force) {
-				w2confirm(obj.msgDelete, w2utils.lang('Delete Confirmation'), function (result) {
-					if (result == 'Yes') w2ui[obj.name].delete(true);
+				w2confirm({
+					title	: w2utils.lang('Delete Confirmation'), 
+					msg		: obj.msgDelete, 
+					callBack: function (result) {
+						console.log('result', result);
+						if (result == 'Yes') w2ui[obj.name].delete(true);
+					}
 				});
 				return;
 			}

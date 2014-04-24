@@ -6,14 +6,13 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*	- when maximized, align the slide down message
-*	- bug: after transfer to another content, message does not work
 * 	- transition should include title, body and buttons, not just body
 *
 * == 1.4 changes
 *	- deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *	- new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
 *	- add lock method() to lock popup content
+*	- fixed bug with max width/height of message
 *
 ************************************************************************/
 
@@ -469,6 +468,9 @@ var w2popup = {};
 			if (parseInt(options.width) < 10)  options.width  = 10;
 			if (parseInt(options.height) < 10) options.height = 10;
 			if (typeof options.hideOnClick == 'undefined') options.hideOnClick = false;
+			var poptions = $('#w2ui-popup').data('options')
+			if (typeof options.width == 'undefined' || options.width > poptions.width - 10) options.width = poptions.width - 10;
+			if (typeof options.height == 'undefined' || options.height > poptions.height - 40) options.height = poptions.height - 40; // title is 30px or so
 
 			var head 	 = $('#w2ui-popup .w2ui-msg-title');
 			var pwidth 	 = parseInt($('#w2ui-popup').width());
