@@ -49,17 +49,17 @@
         this.helpers     = {}; // object or helper elements
         this.type        = options.type || 'text';
         this.options     = $.extend(true, {}, options);
-        this.onSearch    = options.onSearch        || null;
-        this.onRequest   = options.onRequest        || null;
-        this.onLoad      = options.onLoad        || null;
-        this.onError     = options.onError        || null;
-        this.onClick     = options.onClick        || null;
-        this.onAdd       = options.onAdd            || null;
-        this.onNew       = options.onNew            || null;
-        this.onRemove    = options.onRemove        || null;
-        this.onMouseOver = options.onMouseOver    || null;
-        this.onMouseOut  = options.onMouseOut    || null;
-        this.onIconClick = options.onIconClick    || null;
+        this.onSearch    = options.onSearch    || null;
+        this.onRequest   = options.onRequest   || null;
+        this.onLoad      = options.onLoad      || null;
+        this.onError     = options.onError     || null;
+        this.onClick     = options.onClick     || null;
+        this.onAdd       = options.onAdd       || null;
+        this.onNew       = options.onNew       || null;
+        this.onRemove    = options.onRemove    || null;
+        this.onMouseOver = options.onMouseOver || null;
+        this.onMouseOut  = options.onMouseOut  || null;
+        this.onIconClick = options.onIconClick || null;
         this.tmp         = {}; // temp object
         // clean up some options
         delete this.options.type;

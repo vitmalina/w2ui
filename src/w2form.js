@@ -192,7 +192,7 @@
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url && this.recid != 0) {
-                //this.clear();
+                // this.clear();
                 this.request(callBack);
             } else {
                 this.refresh();
@@ -345,7 +345,7 @@
             var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
             if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
-            this.record      = {};
+            this.record   = {};
             this.original = {};
             // call server to get data
             this.lock(this.msgRefresh);
@@ -872,6 +872,7 @@
                 this.box = box;
             }
             if (!this.isGenerated) return;
+            if (!this.box) return;
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });
             if (eventData.isCancelled === true) return;
