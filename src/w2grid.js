@@ -1845,7 +1845,7 @@
 			obj.last.sel_recid = recid;
 			obj.last.sel_type  = 'click';
 			// multi select with shif key 
-			if (event.shiftKey && sel.length > 0) {
+			if (event.shiftKey && obj.multiSelect && sel.length > 0) {
 				if (sel[0].recid) {
 					var start = this.get(sel[0].recid, true);
 					var end   = this.get(recid, true);
@@ -2108,7 +2108,7 @@
 								break;
 							}
 						}						
-						if (event.shiftKey) { // expand selection
+						if (event.shiftKey && obj.multiSelect) { // expand selection
 							if (tmpUnselect()) return;
 							if (obj.selectType == 'row') {
 								if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
@@ -2171,7 +2171,7 @@
 					// move to the next record
 					var next = nextRow(ind2);
 					if (next != null) {
-						if (event.shiftKey) { // expand selection
+						if (event.shiftKey && obj.multiSelect) { // expand selection
 							if (tmpUnselect()) return;
 							if (obj.selectType == 'row') {
 								if (this.last.sel_ind < next && this.last.sel_ind != ind) {
