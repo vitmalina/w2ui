@@ -403,7 +403,7 @@
                         onAdd         : null,     // when an item is added
                         onRemove      : null,     // when an item is removed
                         onMouseOver   : null,     // when an item is mouse over
-                        onMouseOut    : null,     // when an item is mouse out
+                        onMouseOut    : null      // when an item is mouse out
                     };
                     options = $.extend({}, defaults, options, {
                         align         : 'both',    // same width as control
@@ -1745,7 +1745,7 @@
                     "margin-top"    : $(obj.el).css('margin-top'),
                     "margin-left"   : (parseInt($(obj.el).css('margin-left')) + parseInt($(obj.el).css('padding-left'))) + 'px',
                     "margin-bottom" : $(obj.el).css('margin-bottom'),
-                    "margin-right"  : $(obj.el).css('margin-right'),
+                    "margin-right"  : $(obj.el).css('margin-right')
                 })
                 .find('input')
                 .css({

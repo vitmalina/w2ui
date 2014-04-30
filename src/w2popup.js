@@ -293,7 +293,7 @@ var w2popup = {};
                     '-ms-transition': 'none',
                     '-ms-transform': 'translate(0px, 0px)',
                     '-o-transition': 'none',
-                    '-o-transform': 'translate(0px, 0px)',
+                    '-o-transform': 'translate(0px, 0px)'
                 });
                 tmp.resizing = false;
                 $(document).off('mousemove', tmp.mvMove);
@@ -700,12 +700,12 @@ var w2confirm = function (obj, callBack) {
 
         if (btn_yes) {
             if (btn_yes.text)  w2confirm_yes_text = w2utils.lang(btn_yes.text);
-            if (btn_yes.class) w2confirm_yes_class = btn_yes.class;
+            if (btn_yes.class) w2confirm_yes_class = btn_yes["class"];
             if (btn_yes.style) w2confirm_yes_style = btn_yes.style;
         }
         if (btn_no) {
             if (btn_no.text)  w2confirm_no_text = w2utils.lang(btn_no.text);
-            if (btn_no.class) w2confirm_no_class = btn_no.class;
+            if (btn_no.class) w2confirm_no_class = btn_no["class"];
             if (btn_no.style) w2confirm_no_style = btn_no.style;
         }
 

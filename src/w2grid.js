@@ -159,7 +159,7 @@
             searchIds : [],
             selection : {
                 indexes : [],
-                columns : {},
+                columns : {}
             },
             multi       : false,
             scrollTop   : 0,
@@ -1988,7 +1988,7 @@
             }
         },
 
-        delete: function (force) {
+        "delete": function (force) {
             var obj = this;
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
@@ -2193,7 +2193,7 @@
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    obj.delete();
+                    obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
@@ -2476,7 +2476,7 @@
                 case 88: // x - cut
                     if (empty) break;
                     if (event.ctrlKey || event.metaKey) {
-                        setTimeout(function () { obj.delete(true); }, 100);
+                        setTimeout(function () { obj["delete"](true); }, 100);
                     }
                 case 67: // c - copy
                     if (empty) break;
@@ -3717,7 +3717,7 @@
                             obj.trigger($.extend(eventData, { phase: 'after' }));
                             break;
                         case 'w2ui-delete':
-                            obj.delete();
+                            obj["delete"]();
                             break;
                         case 'w2ui-save':
                             obj.save();
