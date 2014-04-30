@@ -468,7 +468,7 @@ var w2popup = {};
             if (parseInt(options.width) < 10)  options.width  = 10;
             if (parseInt(options.height) < 10) options.height = 10;
             if (typeof options.hideOnClick == 'undefined') options.hideOnClick = false;
-            var poptions = $('#w2ui-popup').data('options')
+            var poptions = $('#w2ui-popup').data('options') || {};
             if (typeof options.width == 'undefined' || options.width > poptions.width - 10) options.width = poptions.width - 10;
             if (typeof options.height == 'undefined' || options.height > poptions.height - 40) options.height = poptions.height - 40; // title is 30px or so
 
