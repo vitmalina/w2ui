@@ -383,7 +383,7 @@
                     html += '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
                             '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over');" : "") + '"'+
-                            '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over');" : "") + '"'+
+                            '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over').removeClass('down');" : "") + '"'+
                             '       onmousedown = "' + (!item.disabled ? "$(this).addClass('down');" : "") + '"'+
                             '       onmouseup   = "' + (!item.disabled ? "$(this).removeClass('down');" : "") + '"'+
                             '>'+
