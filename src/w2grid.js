@@ -1223,9 +1223,9 @@
                         if (value != '') {
                             var op  = 'contains';
                             var val = value;
-                            if (w2utils.isInt(value)) op = 'is';
-                            if (['date', 'time'].indexOf(search.type) != -1) op = 'is';
+                            if (['date', 'time', 'list'].indexOf(search.type) != -1) op = 'is';
                             if (search.type == 'int' && value != '') {
+                                op = 'is';
                                 if (String(value).indexOf('-') != -1) {
                                     var tmp = value.split('-');
                                     if (tmp.length == 2) {
@@ -3623,7 +3623,7 @@
                         '            onchange="'+
                         '                var val = this.value; '+
                         '                var fld = $(this).data(\'w2field\'); '+
-                        '                if (fld) val = fld.clean(val); '+
+                        '                if (fld) val = fld.clean(val);'+
                         '                w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, val); '+
                         '            ">'+
                         '    </td>'+
