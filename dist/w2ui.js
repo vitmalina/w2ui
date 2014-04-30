@@ -1764,7 +1764,7 @@ w2utils.keyboard = (function (obj) {
             searchIds : [],
             selection : {
                 indexes : [],
-                columns : {},
+                columns : {}
             },
             multi       : false,
             scrollTop   : 0,
@@ -2828,9 +2828,9 @@ w2utils.keyboard = (function (obj) {
                         if (value != '') {
                             var op  = 'contains';
                             var val = value;
-                            if (w2utils.isInt(value)) op = 'is';
-                            if (['date', 'time'].indexOf(search.type) != -1) op = 'is';
+                            if (['date', 'time', 'list'].indexOf(search.type) != -1) op = 'is';
                             if (search.type == 'int' && value != '') {
+                                op = 'is';
                                 if (String(value).indexOf('-') != -1) {
                                     var tmp = value.split('-');
                                     if (tmp.length == 2) {
@@ -3593,7 +3593,7 @@ w2utils.keyboard = (function (obj) {
             }
         },
 
-        delete: function (force) {
+        "delete": function (force) {
             var obj = this;
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
@@ -3798,7 +3798,7 @@ w2utils.keyboard = (function (obj) {
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    obj.delete();
+                    obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
@@ -4081,7 +4081,7 @@ w2utils.keyboard = (function (obj) {
                 case 88: // x - cut
                     if (empty) break;
                     if (event.ctrlKey || event.metaKey) {
-                        setTimeout(function () { obj.delete(true); }, 100);
+                        setTimeout(function () { obj["delete"](true); }, 100);
                     }
                 case 67: // c - copy
                     if (empty) break;
@@ -5228,7 +5228,7 @@ w2utils.keyboard = (function (obj) {
                         '            onchange="'+
                         '                var val = this.value; '+
                         '                var fld = $(this).data(\'w2field\'); '+
-                        '                if (fld) val = fld.clean(val); '+
+                        '                if (fld) val = fld.clean(val);'+
                         '                w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, val); '+
                         '            ">'+
                         '    </td>'+
@@ -5322,7 +5322,7 @@ w2utils.keyboard = (function (obj) {
                             obj.trigger($.extend(eventData, { phase: 'after' }));
                             break;
                         case 'w2ui-delete':
-                            obj.delete();
+                            obj["delete"]();
                             break;
                         case 'w2ui-save':
                             obj.save();
@@ -7890,7 +7890,7 @@ var w2popup = {};
                     '-ms-transition': 'none',
                     '-ms-transform': 'translate(0px, 0px)',
                     '-o-transition': 'none',
-                    '-o-transform': 'translate(0px, 0px)',
+                    '-o-transform': 'translate(0px, 0px)'
                 });
                 tmp.resizing = false;
                 $(document).off('mousemove', tmp.mvMove);
@@ -8065,7 +8065,7 @@ var w2popup = {};
             if (parseInt(options.width) < 10)  options.width  = 10;
             if (parseInt(options.height) < 10) options.height = 10;
             if (typeof options.hideOnClick == 'undefined') options.hideOnClick = false;
-            var poptions = $('#w2ui-popup').data('options')
+            var poptions = $('#w2ui-popup').data('options') || {};
             if (typeof options.width == 'undefined' || options.width > poptions.width - 10) options.width = poptions.width - 10;
             if (typeof options.height == 'undefined' || options.height > poptions.height - 40) options.height = poptions.height - 40; // title is 30px or so
 
@@ -8297,12 +8297,12 @@ var w2confirm = function (obj, callBack) {
 
         if (btn_yes) {
             if (btn_yes.text)  w2confirm_yes_text = w2utils.lang(btn_yes.text);
-            if (btn_yes.class) w2confirm_yes_class = btn_yes.class;
+            if (btn_yes.class) w2confirm_yes_class = btn_yes["class"];
             if (btn_yes.style) w2confirm_yes_style = btn_yes.style;
         }
         if (btn_no) {
             if (btn_no.text)  w2confirm_no_text = w2utils.lang(btn_no.text);
-            if (btn_no.class) w2confirm_no_class = btn_no.class;
+            if (btn_no.class) w2confirm_no_class = btn_no["class"];
             if (btn_no.style) w2confirm_no_style = btn_no.style;
         }
 
@@ -9179,7 +9179,7 @@ var w2confirm = function (obj, callBack) {
                     html += '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
                             '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over');" : "") + '"'+
-                            '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over');" : "") + '"'+
+                            '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over').removeClass('down');" : "") + '"'+
                             '       onmousedown = "' + (!item.disabled ? "$(this).addClass('down');" : "") + '"'+
                             '       onmouseup   = "' + (!item.disabled ? "$(this).removeClass('down');" : "") + '"'+
                             '>'+
@@ -10181,17 +10181,17 @@ var w2confirm = function (obj, callBack) {
         this.helpers     = {}; // object or helper elements
         this.type        = options.type || 'text';
         this.options     = $.extend(true, {}, options);
-        this.onSearch    = options.onSearch        || null;
-        this.onRequest   = options.onRequest        || null;
-        this.onLoad      = options.onLoad        || null;
-        this.onError     = options.onError        || null;
-        this.onClick     = options.onClick        || null;
-        this.onAdd       = options.onAdd            || null;
-        this.onNew       = options.onNew            || null;
-        this.onRemove    = options.onRemove        || null;
-        this.onMouseOver = options.onMouseOver    || null;
-        this.onMouseOut  = options.onMouseOut    || null;
-        this.onIconClick = options.onIconClick    || null;
+        this.onSearch    = options.onSearch    || null;
+        this.onRequest   = options.onRequest   || null;
+        this.onLoad      = options.onLoad      || null;
+        this.onError     = options.onError     || null;
+        this.onClick     = options.onClick     || null;
+        this.onAdd       = options.onAdd       || null;
+        this.onNew       = options.onNew       || null;
+        this.onRemove    = options.onRemove    || null;
+        this.onMouseOver = options.onMouseOver || null;
+        this.onMouseOut  = options.onMouseOut  || null;
+        this.onIconClick = options.onIconClick || null;
         this.tmp         = {}; // temp object
         // clean up some options
         delete this.options.type;
@@ -10535,7 +10535,7 @@ var w2confirm = function (obj, callBack) {
                         onAdd         : null,     // when an item is added
                         onRemove      : null,     // when an item is removed
                         onMouseOver   : null,     // when an item is mouse over
-                        onMouseOut    : null,     // when an item is mouse out
+                        onMouseOut    : null      // when an item is mouse out
                     };
                     options = $.extend({}, defaults, options, {
                         align         : 'both',    // same width as control
@@ -11877,7 +11877,7 @@ var w2confirm = function (obj, callBack) {
                     "margin-top"    : $(obj.el).css('margin-top'),
                     "margin-left"   : (parseInt($(obj.el).css('margin-left')) + parseInt($(obj.el).css('padding-left'))) + 'px',
                     "margin-bottom" : $(obj.el).css('margin-bottom'),
-                    "margin-right"  : $(obj.el).css('margin-right'),
+                    "margin-right"  : $(obj.el).css('margin-right')
                 })
                 .find('input')
                 .css({
@@ -12480,7 +12480,7 @@ var w2confirm = function (obj, callBack) {
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url && this.recid != 0) {
-                //this.clear();
+                // this.clear();
                 this.request(callBack);
             } else {
                 this.refresh();
@@ -12633,7 +12633,7 @@ var w2confirm = function (obj, callBack) {
             var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
             if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
-            this.record      = {};
+            this.record   = {};
             this.original = {};
             // call server to get data
             this.lock(this.msgRefresh);
@@ -13160,6 +13160,7 @@ var w2confirm = function (obj, callBack) {
                 this.box = box;
             }
             if (!this.isGenerated) return;
+            if (!this.box) return;
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });
             if (eventData.isCancelled === true) return;

@@ -1654,17 +1654,17 @@ w2utils.keyboard = (function (obj) {
         this.helpers     = {}; // object or helper elements
         this.type        = options.type || 'text';
         this.options     = $.extend(true, {}, options);
-        this.onSearch    = options.onSearch        || null;
-        this.onRequest   = options.onRequest        || null;
-        this.onLoad      = options.onLoad        || null;
-        this.onError     = options.onError        || null;
-        this.onClick     = options.onClick        || null;
-        this.onAdd       = options.onAdd            || null;
-        this.onNew       = options.onNew            || null;
-        this.onRemove    = options.onRemove        || null;
-        this.onMouseOver = options.onMouseOver    || null;
-        this.onMouseOut  = options.onMouseOut    || null;
-        this.onIconClick = options.onIconClick    || null;
+        this.onSearch    = options.onSearch    || null;
+        this.onRequest   = options.onRequest   || null;
+        this.onLoad      = options.onLoad      || null;
+        this.onError     = options.onError     || null;
+        this.onClick     = options.onClick     || null;
+        this.onAdd       = options.onAdd       || null;
+        this.onNew       = options.onNew       || null;
+        this.onRemove    = options.onRemove    || null;
+        this.onMouseOver = options.onMouseOver || null;
+        this.onMouseOut  = options.onMouseOut  || null;
+        this.onIconClick = options.onIconClick || null;
         this.tmp         = {}; // temp object
         // clean up some options
         delete this.options.type;
@@ -2008,7 +2008,7 @@ w2utils.keyboard = (function (obj) {
                         onAdd         : null,     // when an item is added
                         onRemove      : null,     // when an item is removed
                         onMouseOver   : null,     // when an item is mouse over
-                        onMouseOut    : null,     // when an item is mouse out
+                        onMouseOut    : null      // when an item is mouse out
                     };
                     options = $.extend({}, defaults, options, {
                         align         : 'both',    // same width as control
@@ -3350,7 +3350,7 @@ w2utils.keyboard = (function (obj) {
                     "margin-top"    : $(obj.el).css('margin-top'),
                     "margin-left"   : (parseInt($(obj.el).css('margin-left')) + parseInt($(obj.el).css('padding-left'))) + 'px',
                     "margin-bottom" : $(obj.el).css('margin-bottom'),
-                    "margin-right"  : $(obj.el).css('margin-right'),
+                    "margin-right"  : $(obj.el).css('margin-right')
                 })
                 .find('input')
                 .css({
