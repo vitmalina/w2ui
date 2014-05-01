@@ -437,7 +437,7 @@ var w2popup = {};
             if (typeof html != 'undefined' && html != null) {
                 popup(html, selector);
             } else {
-                $.get(url, function (data, status, obj) {
+                $.get(url, function (data, status, obj) { // should always be $.get as it is template
                     popup(obj.responseText, selector);
                     $('#w2ui-popup').data(url, obj.responseText); // remember for possible future purposes
                 });

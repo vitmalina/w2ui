@@ -13,8 +13,8 @@
         $('#form').w2form({ 
             name     : 'form',
             // page     : 2,
-            //url      : 'form.php',
-            //formURL  : 'form-template.html',
+            url      : 'form.php',
+            // formURL  : 'form-template.html',
             recid    : 4,
             header   : 'Edit header',
             style1     : 'border: 1px solid red;',
@@ -58,12 +58,12 @@
             },
             fields: [
                 // first page
-                { name: 'field.text', type: 'text', required: true },
-                { name: 'field.textarea', type: 'textarea', required: true },
-                { name: 'field.date', type: 'date', required: true },
-                { name: 'field.time', type: 'time', required: true },
-                { name: 'field.color', type: 'color', required: true },
-                { name: 'field.list', type: 'list', required: true, 
+                { name: 'field.text', type: 'text', required: false },
+                { name: 'field.textarea', type: 'textarea', required:false },
+                { name: 'field.date', type: 'date', required: false },
+                { name: 'field.time', type: 'time', required: false },
+                { name: 'field.color', type: 'color', required: false },
+                { name: 'field.list', type: 'list', required: false, 
                     options: { 
                         match: 'contains',
                         items: [
@@ -80,30 +80,30 @@
                         ]
                     }
                 },
-                { name: 'field.combo', type: 'combo', required: true, 
+                { name: 'field.combo', type: 'combo', required: false, 
                     options: { 
                         applyFilter: true,
                         url : 'listdat.json'
                     }
                 },
-                { name: 'field.enum', type: 'enum', required: true, 
+                { name: 'field.enum', type: 'enum', required: false, 
                     options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-                { name: 'field.file', type: 'file', required: true },
+                { name: 'field.file', type: 'file', required: false },
                 // second page
-                { name: 'field.email', type: 'email', required: true },
-                { name: 'field.password', type: 'password', required: true },
-                { name: 'field.int', type: 'int', options: { arrows: true }, required: true },
-                { name: 'field.float', type: 'float', required: true },
-                { name: 'field.money', type: 'money', required: true },
-                { name: 'field.currency', type: 'currency', required: true },
-                { name: 'field.percent', type: 'percent', required: true },
-                { name: 'field.alpha', type: 'alphanumeric', required: true },
+                { name: 'field.email', type: 'email', required: false },
+                { name: 'field.password', type: 'password', required: false },
+                { name: 'field.int', type: 'int', options: { arrows: false }, required: false },
+                { name: 'field.float', type: 'float', required: false },
+                { name: 'field.money', type: 'money', required: false },
+                { name: 'field.currency', type: 'currency', required: false },
+                { name: 'field.percent', type: 'percent', required: false },
+                { name: 'field.alpha', type: 'alphanumeric', required: false },
                 // third page
-                { name: 'field.select', type: 'select', required: true, options: { items: ['fist', 'second'] } },
-                { name: 'field.check', type: 'checkbox', required: true },
-                { name: 'field.radio', type: 'radio', required: true },
+                { name: 'field.select', type: 'select', required: false, options: { items: ['fist', 'second'] } },
+                { name: 'field.check', type: 'checkbox', required: false },
+                { name: 'field.radio', type: 'radio', required: false },
             ],
-            postData: {
+            postData1: {
                 a1: 1, 
                 a2: 2
             },

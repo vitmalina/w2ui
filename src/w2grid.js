@@ -39,7 +39,7 @@
 *    - removed: record.selected
 *    - new: nextCell, prevCell, nextRow, prevRow
 *    - new: editChange(el, index, column, event)
-*    - new: method - overwrite default ajax method (see also w2utils.settings.RESTfull)
+*    - new: method - overwrite default ajax method (see also w2utils.settings.dataType)
 *    - rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
 *    - new: recid - if id of the data is different from recid
 *    - new: parser - to converd data received from the server
@@ -1536,29 +1536,51 @@
                 }
             }
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
-            var xhr_type = 'GET';
+            // URL
             var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
-            if (params.cmd == 'save-records') {
-                if (typeof eventData.url == 'object') url = eventData.url.save;
-                xhr_type = 'PUT';  // so far it is always update
+            if (params.cmd == 'save-records' && typeof eventData.url == 'object')   url = eventData.url.save;
+            if (params.cmd == 'delete-records' && typeof eventData.url == 'object') url = eventData.url.remove;
+            // ajax ptions
+            var ajaxOptions = {
+                type     : 'POST',
+                url      : url,
+                data     : eventData.postData, 
+                dataType : 'text'  // expected data type from server
+            };
+            if (w2utils.settings.dataType == 'HTTP') {
+                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
-            if (params.cmd == 'delete-records') {
-                if (typeof eventData.url == 'object') url = eventData.url.remove;
-                xhr_type = 'DELETE';
+            if (w2utils.settings.dataType == 'RESTFULL') {
+                ajaxOptions.type = 'GET';
+                if (params.cmd == 'save-records')   ajaxOptions.type = 'PUT';  // so far it is always update
+                if (params.cmd == 'delete-records') ajaxOptions.type = 'DELETE';
+                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
-            if (!w2utils.settings.RESTfull) xhr_type = 'POST';
-            if (this.method) xhr_type = this.method;
+            if (w2utils.settings.dataType == 'JSON') {
+                ajaxOptions.type        = 'POST';
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                ajaxOptions.contentType = 'application/json';
+            }
+            if (this.method) ajaxOptions.type = this.method;
+
             this.last.xhr_cmd   = params.cmd;
             this.last.xhr_start = (new Date()).getTime();
-            this.last.xhr = $.ajax({
-                type     : xhr_type,
-                url      : url,
-                data     : (typeof eventData.postData == 'object' ? String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : eventData.postData),
-                dataType : 'text',
-                complete : function (xhr, status) {
+            this.last.xhr = $.ajax(ajaxOptions)
+                .done(function (data, status, xhr) {
                     obj.requestComplete(status, cmd, callBack);
-                }
-            });
+                })
+                .fail(function (xhr, status, error) {
+                    // trigger event
+                    var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
+                    var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
+                    if (eventData2.isCancelled === true) return;
+                    // default behavior
+                    console.log('ERROR: server communication failed. The server should return', 
+                        { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 'OR', { status: 'error', message: 'error message' },
+                        ', instead the AJAX request produced this: ', errorObj);
+                    // event after
+                    obj.trigger($.extend(eventData2, { phase: 'after' }));
+                });
             if (cmd == 'get-records') {
                 // event after
                 this.trigger($.extend(eventData, { phase: 'after' }));
@@ -2002,7 +2024,6 @@
                     title : w2utils.lang('Delete Confirmation'), 
                     msg   : obj.msgDelete, 
                     callBack: function (result) {
-                        console.log('result', result);
                         if (result == 'Yes') w2ui[obj.name].delete(true);
                     }
                 });

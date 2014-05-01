@@ -28,7 +28,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *    - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *    - hidden and disabled in menus
 *    - isTime should support seconds
-*     - TEST On IOS
+*    - TEST On IOS
 *
 * == 1.4 changes
 *    - lock(box, options) || lock(box, msg, spinner)
@@ -39,7 +39,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *    - multiple overlay at the same time (if it has name)
 *    - overlay options.css removed, I have added options.style
 *    - ability to open searchable w2menu
-*     - w2confirm({})
+*    - w2confirm({})
+*    - dep. RESTfull
+*    - added: dataType (allows JSON payload)
 *
 ************************************************/
 
@@ -59,8 +61,8 @@ var w2utils = (function () {
             "fullmonths"        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-            "RESTfull"          : false,
-            "phrases"           : {} // empty object for english phrases
+            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
+            "phrases"           : {}        // empty object for english phrases
         },
         isInt          : isInt,
         isFloat        : isFloat,

@@ -14,16 +14,14 @@ $(function () {
 
     $('#grid').w2grid({ 
         name    : 'grid', 
-        header    : 'List of Names',
-        reorderColumns: false,
-        // url        : {
-        //     get        : 'data.php',
-        //     remove    : 'remove',
-        //     save    : 'save'
+        header  : 'List of Names',
+        // url     : 'grid2.json',
+        // url     : {
+        //     get    : 'data.php',
+        //     remove : 'grid3.json',
+        //     save   : 'save'
         // },
-        url: {
-            remove: 'grid3.json'
-        },
+        reorderColumns: false,
         show: { 
             toolbar: true,
             footer: true,
@@ -36,6 +34,10 @@ $(function () {
             toolbarDelete: true,
             toolbarSave: true,
             toolbarAdd: true
+        },
+        onSearch: function (event) {
+            console.log('sort', event);
+            event.preventDefault();
         },
         menu: [
             { id: 1, text: 'Select Item', icon: 'fa-star' },
@@ -104,7 +106,7 @@ $(function () {
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
             { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date', sortable: true },
             { field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
-            { field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true }
+            { field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true, gridMinWidth: 1000 }
         ],
         ranges1: [
             {
