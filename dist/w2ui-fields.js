@@ -29,7 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *    - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *    - hidden and disabled in menus
 *    - isTime should support seconds
-*     - TEST On IOS
+*    - TEST On IOS
 *
 * == 1.4 changes
 *    - lock(box, options) || lock(box, msg, spinner)
@@ -40,7 +40,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *    - multiple overlay at the same time (if it has name)
 *    - overlay options.css removed, I have added options.style
 *    - ability to open searchable w2menu
-*     - w2confirm({})
+*    - w2confirm({})
+*    - dep. RESTfull
+*    - added: dataType (allows JSON payload)
 *
 ************************************************/
 
@@ -60,8 +62,8 @@ var w2utils = (function () {
             "fullmonths"        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-            "RESTfull"          : false,
-            "phrases"           : {} // empty object for english phrases
+            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
+            "phrases"           : {}        // empty object for english phrases
         },
         isInt          : isInt,
         isFloat        : isFloat,
@@ -2807,15 +2809,22 @@ w2utils.keyboard = (function (obj) {
                     $.extend(postData, options.postData);
                     var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
                     if (eventData.isCancelled === true) return;
-                    url         = eventData.url;
+                    url      = eventData.url;
                     postData = eventData.postData;
                     // console.log('REMOTE SEARCH:', search);
                     if (obj.tmp.xhr) obj.tmp.xhr.abort();
-                    obj.tmp.xhr = $.ajax({
-                            type : 'POST',
-                            url  : url,
-                            data : postData
-                        })
+                    var ajaxOptions = {
+                        type     : 'GET',
+                        url      : url,
+                        data     : postData,
+                        dataType : 'text' // expected from server
+                    };
+                    if (w2utils.settings.dataType == 'JSON') {
+                        ajaxOptions.type        = 'POST';
+                        ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                        ajaxOptions.contentType = 'application/json';
+                    }
+                    obj.tmp.xhr = $.ajax(ajaxOptions)
                         .done(function (data, status, xhr) {
                             // trigger event
                             var eventData2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr });
@@ -2840,13 +2849,15 @@ w2utils.keyboard = (function (obj) {
                             // event after
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                         })
-                        .error(function (xhr, status, exceptionThrown) {
+                        .fail(function (xhr, status, error) {
                             // trigger event
-                            var errorObj = { status: status, exceptionThrown: exceptionThrown, rawResponseText: xhr.responseText };
+                            var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
                             var eventData2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
                             if (eventData2.isCancelled === true) return;
                             // default behavior
-                            console.log('ERROR: server communication failed. The server should return', { status: 'success', items: [{ id: 1, text: 'item' }] }, ', instead the AJAX request produced this: ', errorObj);
+                            console.log('ERROR: server communication failed. The server should return', 
+                                { status: 'success', items: [{ id: 1, text: 'item' }] }, 'OR', { status: 'error', message: 'error message' },
+                                ', instead the AJAX request produced this: ', errorObj);
                             // reset stats
                             obj.clearCache();
                             // event after

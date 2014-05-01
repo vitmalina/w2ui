@@ -29,7 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *    - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *    - hidden and disabled in menus
 *    - isTime should support seconds
-*     - TEST On IOS
+*    - TEST On IOS
 *
 * == 1.4 changes
 *    - lock(box, options) || lock(box, msg, spinner)
@@ -40,7 +40,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *    - multiple overlay at the same time (if it has name)
 *    - overlay options.css removed, I have added options.style
 *    - ability to open searchable w2menu
-*     - w2confirm({})
+*    - w2confirm({})
+*    - dep. RESTfull
+*    - added: dataType (allows JSON payload)
 *
 ************************************************/
 
@@ -60,8 +62,8 @@ var w2utils = (function () {
             "fullmonths"        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-            "RESTfull"          : false,
-            "phrases"           : {} // empty object for english phrases
+            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
+            "phrases"           : {}        // empty object for english phrases
         },
         isInt          : isInt,
         isFloat        : isFloat,
@@ -1644,7 +1646,7 @@ w2utils.keyboard = (function (obj) {
 *    - removed: record.selected
 *    - new: nextCell, prevCell, nextRow, prevRow
 *    - new: editChange(el, index, column, event)
-*    - new: method - overwrite default ajax method (see also w2utils.settings.RESTfull)
+*    - new: method - overwrite default ajax method (see also w2utils.settings.dataType)
 *    - rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
 *    - new: recid - if id of the data is different from recid
 *    - new: parser - to converd data received from the server
@@ -1985,7 +1987,6 @@ w2utils.keyboard = (function (obj) {
                 before++;
                 added++;
             }
-            this.initColumnOnOff();
             this.refresh();
             return added;
         },
@@ -1997,7 +1998,6 @@ w2utils.keyboard = (function (obj) {
                     if (this.columns[r].field == arguments[a]) { this.columns.splice(r, 1); removed++; }
                 }
             }
-            this.initColumnOnOff();
             this.refresh();
             return removed;
         },
@@ -2015,8 +2015,9 @@ w2utils.keyboard = (function (obj) {
             var effected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.columns.length-1; r >= 0; r--) {
-                    if (this.columns[r].field == arguments[a]) {
-                        this.columns[r].hidden = !this.columns[r].hidden;
+                    var col = this.columns[r];
+                    if (col.field == arguments[a]) {
+                        col.hidden = !col.hidden;
                         effected++;
                     }
                 }
@@ -2029,8 +2030,10 @@ w2utils.keyboard = (function (obj) {
             var shown = 0;
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.columns.length-1; r >= 0; r--) {
-                    if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== false) {
-                        this.columns[r].hidden = false;
+                    var col = this.columns[r];
+                    if (col.gridMinWidth) delete col.gridMinWidth;
+                    if (col.field == arguments[a] && col.hidden !== false) {
+                        col.hidden = false;
                         shown++;
                     }
                 }
@@ -2043,8 +2046,9 @@ w2utils.keyboard = (function (obj) {
             var hidden = 0;
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.columns.length-1; r >= 0; r--) {
-                    if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== true) {
-                        this.columns[r].hidden = true;
+                    var col = this.columns[r];
+                    if (col.field == arguments[a] && col.hidden !== true) {
+                        col.hidden = true;
                         hidden++;
                     }
                 }
@@ -3070,7 +3074,6 @@ w2utils.keyboard = (function (obj) {
                 this.last.scrollTop  = 0;
                 this.last.scrollLeft = 0;
                 $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
-                this.initColumnOnOff();
                 this.reload();
             } else {
                 console.log('ERROR: grid.skip() can only be called when you have remote data source.');
@@ -3141,29 +3144,51 @@ w2utils.keyboard = (function (obj) {
                 }
             }
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
-            var xhr_type = 'GET';
+            // URL
             var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
-            if (params.cmd == 'save-records') {
-                if (typeof eventData.url == 'object') url = eventData.url.save;
-                xhr_type = 'PUT';  // so far it is always update
+            if (params.cmd == 'save-records' && typeof eventData.url == 'object')   url = eventData.url.save;
+            if (params.cmd == 'delete-records' && typeof eventData.url == 'object') url = eventData.url.remove;
+            // ajax ptions
+            var ajaxOptions = {
+                type     : 'POST',
+                url      : url,
+                data     : eventData.postData, 
+                dataType : 'text'  // expected data type from server
+            };
+            if (w2utils.settings.dataType == 'HTTP') {
+                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
-            if (params.cmd == 'delete-records') {
-                if (typeof eventData.url == 'object') url = eventData.url.remove;
-                xhr_type = 'DELETE';
+            if (w2utils.settings.dataType == 'RESTFULL') {
+                ajaxOptions.type = 'GET';
+                if (params.cmd == 'save-records')   ajaxOptions.type = 'PUT';  // so far it is always update
+                if (params.cmd == 'delete-records') ajaxOptions.type = 'DELETE';
+                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
-            if (!w2utils.settings.RESTfull) xhr_type = 'POST';
-            if (this.method) xhr_type = this.method;
+            if (w2utils.settings.dataType == 'JSON') {
+                ajaxOptions.type        = 'POST';
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                ajaxOptions.contentType = 'application/json';
+            }
+            if (this.method) ajaxOptions.type = this.method;
+
             this.last.xhr_cmd   = params.cmd;
             this.last.xhr_start = (new Date()).getTime();
-            this.last.xhr = $.ajax({
-                type     : xhr_type,
-                url      : url,
-                data     : (typeof eventData.postData == 'object' ? String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : eventData.postData),
-                dataType : 'text',
-                complete : function (xhr, status) {
+            this.last.xhr = $.ajax(ajaxOptions)
+                .done(function (data, status, xhr) {
                     obj.requestComplete(status, cmd, callBack);
-                }
-            });
+                })
+                .fail(function (xhr, status, error) {
+                    // trigger event
+                    var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
+                    var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
+                    if (eventData2.isCancelled === true) return;
+                    // default behavior
+                    console.log('ERROR: server communication failed. The server should return', 
+                        { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 'OR', { status: 'error', message: 'error message' },
+                        ', instead the AJAX request produced this: ', errorObj);
+                    // event after
+                    obj.trigger($.extend(eventData2, { phase: 'after' }));
+                });
             if (cmd == 'get-records') {
                 // event after
                 this.trigger($.extend(eventData, { phase: 'after' }));
@@ -3607,7 +3632,6 @@ w2utils.keyboard = (function (obj) {
                     title : w2utils.lang('Delete Confirmation'), 
                     msg   : obj.msgDelete, 
                     callBack: function (result) {
-                        console.log('result', result);
                         if (result == 'Yes') w2ui[obj.name].delete(true);
                     }
                 });
@@ -4858,7 +4882,14 @@ w2utils.keyboard = (function (obj) {
             if (!this.show.toolbarColumns) return;
             var obj = this;
             var col_html =  '<div class="w2ui-col-on-off">'+
-                            '<table>';
+                            '<table><tr>'+
+                            '<td style="width: 30px">'+
+                            '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabIndex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
+                            '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
+                            '</td>'+
+                            '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\')[0].hide();">'+
+                            '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
+                            '</td></tr>';
             for (var c in this.columns) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
@@ -4886,10 +4917,7 @@ w2utils.keyboard = (function (obj) {
                         '    </div>'+
                         '</td></tr>';
             }
-            col_html +=    '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\')[0].hide();">'+
-                        '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Toggle Line Numbers') +'</div>'+
-                        '</td></tr>'+
-                        '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\')[0].hide();">'+
+            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\')[0].hide();">'+
                         '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
                         '</td></tr>';
             col_html += "</table></div>";
@@ -4901,7 +4929,7 @@ w2utils.keyboard = (function (obj) {
          * @param box, grid object
          * @returns {{remove: Function}} contains a closure around all events to ensure they are removed from the dom
          */
-        initColumnDrag: function( box ){
+        initColumnDrag: function ( box ) {
             //throw error if using column groups
             if ( this.columnGroups && this.columnGroups.length ) throw 'Draggable columns are not currently supported with column groups.';
 
@@ -5186,7 +5214,6 @@ w2utils.keyboard = (function (obj) {
                 }
                 hide = false;
             }
-            this.initColumnOnOff();
             if (hide) {
                 setTimeout(function () {
                     $().w2overlay('', { name: 'searches-'+ this.name });
@@ -5212,7 +5239,6 @@ w2utils.keyboard = (function (obj) {
                 }
                 if (this.show.toolbarColumns) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
-                    this.initColumnOnOff();
                 }
                 if (this.show.toolbarReload || this.show.toolbarColumn) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
@@ -5281,13 +5307,7 @@ w2utils.keyboard = (function (obj) {
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                             break;
                         case 'w2ui-column-on-off':
-                            for (var c in obj.columns) {
-                                if (obj.columns[c].hidden) {
-                                    $("#grid_"+ obj.name +"_column_"+ c + "_check").prop("checked", false);
-                                } else {
-                                    $("#grid_"+ obj.name +"_column_"+ c + "_check").prop('checked', true);
-                                }
-                            }
+                            obj.initColumnOnOff();
                             obj.initResize();
                             obj.resize();
                             break;
@@ -5544,7 +5564,7 @@ w2utils.keyboard = (function (obj) {
                 var restart = false;
                 for (var i = 0; i < this.columns.length; i++) {
                     var col = this.columns[i];
-                    if (typeof col.gridMinWidth != 'undefined') {
+                    if (col.gridMinWidth > 0) {
                         if (col.gridMinWidth > width_box && col.hidden !== true) {
                             col.hidden = true;
                             restart = true;
@@ -6721,14 +6741,14 @@ w2utils.keyboard = (function (obj) {
         load: function (panel, url, transition, onLoad) {
             var obj = this;
             if (panel == 'css') {
-                $.get(url, function (data, status, xhr) {
+                $.get(url, function (data, status, xhr) { // should always be $.get as it is template
                     obj.content(panel, xhr.responseText);
                     if (onLoad) onLoad();
                 });
                 return true;
             }
             if (this.get(panel) !== null) {
-                $.get(url, function (data, status, xhr) {
+                $.get(url, function (data, status, xhr) { // should always be $.get as it is template
                     obj.content(panel, xhr.responseText, transition);
                     if (onLoad) onLoad();
                     // IE Hack
@@ -8034,7 +8054,7 @@ var w2popup = {};
             if (typeof html != 'undefined' && html != null) {
                 popup(html, selector);
             } else {
-                $.get(url, function (data, status, obj) {
+                $.get(url, function (data, status, obj) { // should always be $.get as it is template
                     popup(obj.responseText, selector);
                     $('#w2ui-popup').data(url, obj.responseText); // remember for possible future purposes
                 });
@@ -11334,15 +11354,22 @@ var w2confirm = function (obj, callBack) {
                     $.extend(postData, options.postData);
                     var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
                     if (eventData.isCancelled === true) return;
-                    url         = eventData.url;
+                    url      = eventData.url;
                     postData = eventData.postData;
                     // console.log('REMOTE SEARCH:', search);
                     if (obj.tmp.xhr) obj.tmp.xhr.abort();
-                    obj.tmp.xhr = $.ajax({
-                            type : 'POST',
-                            url  : url,
-                            data : postData
-                        })
+                    var ajaxOptions = {
+                        type     : 'GET',
+                        url      : url,
+                        data     : postData,
+                        dataType : 'text' // expected from server
+                    };
+                    if (w2utils.settings.dataType == 'JSON') {
+                        ajaxOptions.type        = 'POST';
+                        ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                        ajaxOptions.contentType = 'application/json';
+                    }
+                    obj.tmp.xhr = $.ajax(ajaxOptions)
                         .done(function (data, status, xhr) {
                             // trigger event
                             var eventData2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr });
@@ -11367,13 +11394,15 @@ var w2confirm = function (obj, callBack) {
                             // event after
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                         })
-                        .error(function (xhr, status, exceptionThrown) {
+                        .fail(function (xhr, status, error) {
                             // trigger event
-                            var errorObj = { status: status, exceptionThrown: exceptionThrown, rawResponseText: xhr.responseText };
+                            var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
                             var eventData2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
                             if (eventData2.isCancelled === true) return;
                             // default behavior
-                            console.log('ERROR: server communication failed. The server should return', { status: 'success', items: [{ id: 1, text: 'item' }] }, ', instead the AJAX request produced this: ', errorObj);
+                            console.log('ERROR: server communication failed. The server should return', 
+                                { status: 'success', items: [{ id: 1, text: 'item' }] }, 'OR', { status: 'error', message: 'error message' },
+                                ', instead the AJAX request produced this: ', errorObj);
                             // reset stats
                             obj.clearCache();
                             // event after
@@ -12407,7 +12436,7 @@ var w2confirm = function (obj, callBack) {
             if (obj.length > 0) object.box = obj[0];
             // render if necessary
             if (object.formURL != '') {
-                $.get(object.formURL, function (data) {
+                $.get(object.formURL, function (data) { // should always be $.get as it is template
                     object.formHTML = data;
                     object.isGenerated = true;
                     if ($(object.box).length != 0 || data.length != 0) {
@@ -12550,6 +12579,7 @@ var w2confirm = function (obj, callBack) {
                         break;
                     case 'date':
                         // format date before submit
+                        if (!field.options.format) field.options.format = w2utils.settings.date_format;
                         if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
                             errors.push({ field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format });
                         } else {
@@ -12624,7 +12654,6 @@ var w2confirm = function (obj, callBack) {
             var params = {};
             // add list params
             params['cmd']   = 'get-record';
-            params['name']  = this.name;
             params['recid'] = this.recid;
             // append other params
             $.extend(params, this.postData);
@@ -12640,12 +12669,26 @@ var w2confirm = function (obj, callBack) {
             var url = eventData.url;
             if (typeof eventData.url == 'object' && eventData.url.get) url = eventData.url.get;
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
-            this.last.xhr = $.ajax({
-                type     : 'GET',
+            var ajaxOptions = {
+                type     : 'POST',
                 url      : url,
-                data     : String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
-                dataType : 'text',
-                complete : function (xhr, status) {
+                data     : eventData.postData, 
+                dataType : 'text'   // expected from server
+            };
+            if (w2utils.settings.dataType == 'HTTP') {
+                ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+            }
+            if (w2utils.settings.dataType == 'RESTFULL') {
+                ajaxOptions.type = 'GET';
+                ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+            }
+            if (w2utils.settings.dataType == 'JSON') {
+                ajaxOptions.type        = 'POST';
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                ajaxOptions.contentType = 'application/json';
+            }
+            this.last.xhr = $.ajax(ajaxOptions)
+                .done(function (data, status, xhr) {
                     obj.unlock();
                     // event before
                     var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr, status: status });
@@ -12695,8 +12738,19 @@ var w2confirm = function (obj, callBack) {
                     obj.refresh();
                     // call back
                     if (typeof callBack == 'function') callBack(data);
-                }
-            });
+                })
+                .fail(function (xhr, status, error) {
+                    // trigger event
+                    var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
+                    var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
+                    if (eventData2.isCancelled === true) return;
+                    // default behavior
+                    console.log('ERROR: server communication failed. The server should return', 
+                        { status: 'success', items: [{ id: 1, text: 'item' }] }, 'OR', { status: 'error', message: 'error message' },
+                        ', instead the AJAX request produced this: ', errorObj);
+                    // event after
+                    obj.trigger($.extend(eventData2, { phase: 'after' }));
+                });
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -12732,7 +12786,6 @@ var w2confirm = function (obj, callBack) {
                 var params = {};
                 // add list params
                 params['cmd']   = 'save-record';
-                params['name']  = obj.name;
                 params['recid'] = obj.recid;
                 // append other params
                 $.extend(params, obj.postData);
@@ -12748,11 +12801,12 @@ var w2confirm = function (obj, callBack) {
                 var url = eventData.url;
                 if (typeof eventData.url == 'object' && eventData.url.save) url = eventData.url.save;
                 if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {};
-                obj.last.xhr = $.ajax({
-                    type     : (w2utils.settings.RESTfull ? (obj.recid == 0 ? 'POST' : 'PUT') : 'POST'),
+
+                var ajaxOptions = {
+                    type     : 'POST',
                     url      : url,
-                    data     : String($.param(eventData.postData, false)).replace(/%5B/g, '[').replace(/%5D/g, ']'),
-                    dataType : 'text',
+                    data     : eventData.postData, 
+                    dataType : 'text',   // expected from server
                     xhr : function() {
                         var xhr = new window.XMLHttpRequest();
                         // upload
@@ -12764,9 +12818,23 @@ var w2confirm = function (obj, callBack) {
                         }, false);
                         return xhr;
                     },
-                    complete : function (xhr, status) {
-                        obj.unlock();
+                };
+                if (w2utils.settings.dataType == 'HTTP') {
+                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                }
+                if (w2utils.settings.dataType == 'RESTFULL') {
+                    if (obj.recid != 0) ajaxOptions.type = 'PUT';
+                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                }
+                if (w2utils.settings.dataType == 'JSON') {
+                    ajaxOptions.type        = 'POST';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                }
 
+                obj.last.xhr = $.ajax(ajaxOptions)
+                    .done(function (data, status, xhr) {
+                        obj.unlock();
                         // event before
                         var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });
                         if (eventData.isCancelled === true) {
@@ -12814,8 +12882,19 @@ var w2confirm = function (obj, callBack) {
                         obj.refresh();
                         // call back
                         if (typeof callBack == 'function') callBack(data);
-                    }
-                });
+                    })
+                    .fail(function (xhr, status, error) {
+                        // trigger event
+                        var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
+                        var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
+                        if (eventData2.isCancelled === true) return;
+                        // default behavior
+                        console.log('ERROR: server communication failed. The server should return', 
+                            { status: 'success' }, 'OR', { status: 'error', message: 'error message' }, 
+                            ', instead the AJAX request produced this: ', errorObj);
+                        // event after
+                        obj.trigger($.extend(eventData2, { phase: 'after' }));
+                    });
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after' }));
             }, 50);
