@@ -380,7 +380,6 @@
                 before++;
                 added++;
             }
-            this.initColumnOnOff();
             this.refresh();
             return added;
         },
@@ -392,7 +391,6 @@
                     if (this.columns[r].field == arguments[a]) { this.columns.splice(r, 1); removed++; }
                 }
             }
-            this.initColumnOnOff();
             this.refresh();
             return removed;
         },
@@ -410,8 +408,9 @@
             var effected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.columns.length-1; r >= 0; r--) {
-                    if (this.columns[r].field == arguments[a]) {
-                        this.columns[r].hidden = !this.columns[r].hidden;
+                    var col = this.columns[r];
+                    if (col.field == arguments[a]) {
+                        col.hidden = !col.hidden;
                         effected++;
                     }
                 }
@@ -424,8 +423,10 @@
             var shown = 0;
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.columns.length-1; r >= 0; r--) {
-                    if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== false) {
-                        this.columns[r].hidden = false;
+                    var col = this.columns[r];
+                    if (col.gridMinWidth) delete col.gridMinWidth;
+                    if (col.field == arguments[a] && col.hidden !== false) {
+                        col.hidden = false;
                         shown++;
                     }
                 }
@@ -438,8 +439,9 @@
             var hidden = 0;
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.columns.length-1; r >= 0; r--) {
-                    if (this.columns[r].field == arguments[a] && this.columns[r].hidden !== true) {
-                        this.columns[r].hidden = true;
+                    var col = this.columns[r];
+                    if (col.field == arguments[a] && col.hidden !== true) {
+                        col.hidden = true;
                         hidden++;
                     }
                 }
@@ -1465,7 +1467,6 @@
                 this.last.scrollTop  = 0;
                 this.last.scrollLeft = 0;
                 $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
-                this.initColumnOnOff();
                 this.reload();
             } else {
                 console.log('ERROR: grid.skip() can only be called when you have remote data source.');
@@ -3274,7 +3275,14 @@
             if (!this.show.toolbarColumns) return;
             var obj = this;
             var col_html =  '<div class="w2ui-col-on-off">'+
-                            '<table>';
+                            '<table><tr>'+
+                            '<td style="width: 30px">'+
+                            '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabIndex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
+                            '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
+                            '</td>'+
+                            '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\')[0].hide();">'+
+                            '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
+                            '</td></tr>';
             for (var c in this.columns) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
@@ -3302,10 +3310,7 @@
                         '    </div>'+
                         '</td></tr>';
             }
-            col_html +=    '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\')[0].hide();">'+
-                        '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Toggle Line Numbers') +'</div>'+
-                        '</td></tr>'+
-                        '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\')[0].hide();">'+
+            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\')[0].hide();">'+
                         '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
                         '</td></tr>';
             col_html += "</table></div>";
@@ -3317,7 +3322,7 @@
          * @param box, grid object
          * @returns {{remove: Function}} contains a closure around all events to ensure they are removed from the dom
          */
-        initColumnDrag: function( box ){
+        initColumnDrag: function ( box ) {
             //throw error if using column groups
             if ( this.columnGroups && this.columnGroups.length ) throw 'Draggable columns are not currently supported with column groups.';
 
@@ -3602,7 +3607,6 @@
                 }
                 hide = false;
             }
-            this.initColumnOnOff();
             if (hide) {
                 setTimeout(function () {
                     $().w2overlay('', { name: 'searches-'+ this.name });
@@ -3628,7 +3632,6 @@
                 }
                 if (this.show.toolbarColumns) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
-                    this.initColumnOnOff();
                 }
                 if (this.show.toolbarReload || this.show.toolbarColumn) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
@@ -3697,13 +3700,7 @@
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                             break;
                         case 'w2ui-column-on-off':
-                            for (var c in obj.columns) {
-                                if (obj.columns[c].hidden) {
-                                    $("#grid_"+ obj.name +"_column_"+ c + "_check").prop("checked", false);
-                                } else {
-                                    $("#grid_"+ obj.name +"_column_"+ c + "_check").prop('checked', true);
-                                }
-                            }
+                            obj.initColumnOnOff();
                             obj.initResize();
                             obj.resize();
                             break;
@@ -3960,7 +3957,7 @@
                 var restart = false;
                 for (var i = 0; i < this.columns.length; i++) {
                     var col = this.columns[i];
-                    if (typeof col.gridMinWidth != 'undefined') {
+                    if (col.gridMinWidth > 0) {
                         if (col.gridMinWidth > width_box && col.hidden !== true) {
                             col.hidden = true;
                             restart = true;
