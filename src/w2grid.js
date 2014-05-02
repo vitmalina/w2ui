@@ -3,52 +3,52 @@
 *   - Following objects defined
 *        - w2grid        - grid widget
 *        - $().w2grid    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
+*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
-*    - frozen columns
-*    - add colspans
-*    - get rid of this.buffered
-*    - allow this.total to be unknown (-1)
-*    - column autosize based on largest content
-*    - save grid state into localStorage and restore
-*    - easy bubbles in the grid
-*    - More than 2 layers of header groups
-*    - reorder columns/records
-*    - hidden searches could not be clearned by the user
-*    - problem with .set() and arrays, array get extended too, but should be replaced
-*    - move events into prototype
-*    - add grid.focus()
-*    - add showExtra, KickIn Infinite scroll when so many records
-*    - after edit stay on the same record option
+*   - frozen columns
+*   - add colspans
+*   - get rid of this.buffered
+*   - allow this.total to be unknown (-1)
+*   - column autosize based on largest content
+*   - save grid state into localStorage and restore
+*   - easy bubbles in the grid
+*   - More than 2 layers of header groups
+*   - reorder columns/records
+*   - hidden searches could not be clearned by the user
+*   - problem with .set() and arrays, array get extended too, but should be replaced
+*   - move events into prototype
+*   - add grid.focus()
+*   - add showExtra, KickIn Infinite scroll when so many records
+*   - after edit stay on the same record option
 *
 * == 1.4 changes
-*    - for search fields one should be able to pass w2field options
-*    - add enum to advanced search fields
-*    - editable fields -> LIST type is not working
-*    - search-logic -> searchLogic
-*    - new: refreshRow(recid) - should it be part of refresh?
-*    - new: refreshCell(recid, field) - should it be part of refresh?
-*    - removed: getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - new: reorderColumns
-*    - removed name from the POST
-*    - rename: markSearchResults -> markSearch
-*    - refactored inline editing
-*    - new: getCellValue(ind, col_ind, [summary])
-*    - refactored selection
-*    - removed: record.selected
-*    - new: nextCell, prevCell, nextRow, prevRow
-*    - new: editChange(el, index, column, event)
-*    - new: method - overwrite default ajax method (see also w2utils.settings.dataType)
-*    - rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
-*    - new: recid - if id of the data is different from recid
-*    - new: parser - to converd data received from the server
-*    - change: rec.changes = {} and removed rec.changed
-*    - record.style can be a string or an object (for cell formatting)
-*    - col.resizable = true by default
-*    - new: prepareData();
-*    - context menu similar to sidebar's
-*    - find will return array or recids not objects
+*   - for search fields one should be able to pass w2field options
+*   - add enum to advanced search fields
+*   - editable fields -> LIST type is not working
+*   - search-logic -> searchLogic
+*   - new: refreshRow(recid) - should it be part of refresh?
+*   - new: refreshCell(recid, field) - should it be part of refresh?
+*   - removed: getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - new: reorderColumns
+*   - removed name from the POST
+*   - rename: markSearchResults -> markSearch
+*   - refactored inline editing
+*   - new: getCellValue(ind, col_ind, [summary])
+*   - refactored selection
+*   - removed: record.selected
+*   - new: nextCell, prevCell, nextRow, prevRow
+*   - new: editChange(el, index, column, event)
+*   - new: method - overwrite default ajax method (see also w2utils.settings.dataType)
+*   - rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
+*   - new: recid - if id of the data is different from recid
+*   - new: parser - to converd data received from the server
+*   - change: rec.changes = {} and removed rec.changed
+*   - record.style can be a string or an object (for cell formatting)
+*   - col.resizable = true by default
+*   - new: prepareData();
+*   - context menu similar to sidebar's
+*   - find will return array or recids not objects
 *
 ************************************************************************/
 

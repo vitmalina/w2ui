@@ -1,24 +1,26 @@
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2toolbar        - toolbar widget
 *        - $().w2toolbar    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*    - on overflow display << >>
-*    - verticle toolbar
+*   - on overflow display << >>
+*   - verticle toolbar
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - fixed submenu event bugs
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - fixed submenu event bugs
+*   - added route support
 *
 ************************************************************************/
 
 (function () {
     var w2toolbar = function (options) {
-        this.box       = null;        // DOM Element that holds the element
-        this.name      = null;        // unique name for w2ui
+        this.box       = null;      // DOM Element that holds the element
+        this.name      = null;      // unique name for w2ui
+        this.routeData = {};        // data for dynamic routes
         this.items     = [];
         this.right     = '';        // HTML text on the right of toolbar
         this.onClick   = null;
@@ -68,12 +70,13 @@
             id       : null,        // command to be sent to all event handlers
             type     : 'button',    // button, check, radio, drop, menu, break, html, spacer
             text     : '',
+            route    : null,        // if not null, it is route to go
             html     : '',
             img      : null,
             icon     : null,
             hidden   : false,
             disabled : false,
-            checked  : false,    // used for radio buttons
+            checked  : false,       // used for radio buttons
             arrow    : true,        // arrow down for drop/menu types
             hint     : '',
             group    : null,        // used for radio buttons
@@ -426,7 +429,18 @@
                     subItem: event.subItem, originalEvent: event.originalEvent });
                 if (eventData.isCancelled === true) return;
 
-                // intentionaly blank
+                // route processing
+                var it = event.subItem;
+                if (it.route) {
+                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
+                    var info  = w2utils.parseRoute(route);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
+                        }
+                    }
+                    setTimeout(function () { window.location.hash = route; }, 1);
+                }
 
                 // event after
                 this.trigger($.extend(eventData, { phase: 'after' }));
@@ -498,6 +512,17 @@
                     } else {
                         btn.removeClass('checked');
                     }
+                }
+                // route processing
+                if (it.route) {
+                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
+                    var info  = w2utils.parseRoute(route);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
+                        }
+                    }
+                    setTimeout(function () { window.location.hash = route; }, 1);
                 }
                 // event after
                 this.trigger($.extend(eventData, { phase: 'after' }));

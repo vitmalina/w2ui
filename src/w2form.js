@@ -6,19 +6,19 @@
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
 *
 * == NICE TO HAVE ==
-*    - refresh(field) - would refresh only one field
-*    - include delta on save
-*    - create an example how to do cascadic dropdown
-*    - form should read <select> <options> into items
-*    - two way data bindings
-*    - verify validation of fields
-*    - when field is blank, set record.field = null
-*    - show/hide a field
+*   - refresh(field) - would refresh only one field
+*   - include delta on save
+*   - create an example how to do cascadic dropdown
+*   - form should read <select> <options> into items
+*   - two way data bindings
+*   - verify validation of fields
+*   - when field is blank, set record.field = null
+*   - show/hide a field
 *
 * == 1.4 Changes ==
-*    - refactored for the new fields
-*    - added getChanges() - not complete
-*    - change: get() w/o params returns all field names
+*   - refactored for the new fields
+*   - added getChanges() - not complete
+*   - change: get() w/o params returns all field names
 *
 ************************************************************************/
 

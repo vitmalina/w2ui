@@ -1,12 +1,12 @@
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2listview        - listview widget
 *        - $().w2listview    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*    - images support via 'src' attribute
+*   - images support via 'src' attribute
 *
 ************************************************************************/
 

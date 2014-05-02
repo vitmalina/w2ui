@@ -6,13 +6,13 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*     - transition should include title, body and buttons, not just body
+*   - transition should include title, body and buttons, not just body
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
-*    - add lock method() to lock popup content
-*    - fixed bug with max width/height of message
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
+*   - add lock method() to lock popup content
+*   - fixed bug with max width/height of message
 *
 ************************************************************************/
 

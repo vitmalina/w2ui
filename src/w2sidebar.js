@@ -1,23 +1,24 @@
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2sidebar        - sidebar widget
 *        - $().w2sidebar    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*    - return ids of all subitems
-*    - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
-*    - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*    - reorder with grag and drop
-*    - add route property that would navigate to a #route
-*    - node.style is missleading - should be there to apply color for example
+*   - return ids of all subitems
+*   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
+*   - dbl click should be like it is in grid (with timer not HTML dbl click event)
+*   - reorder with grag and drop
+*   - add route property that would navigate to a #route
+*   - node.style is missleading - should be there to apply color for example
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - bug: bixed bug with selection
-*    - new: find({ params }) - returns all matched nodes
-*    - change: get() w/o params returns all node ids
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - bug: bixed bug with selection
+*   - new: find({ params }) - returns all matched nodes
+*   - change: get() w/o params returns all node ids
+*   - added route support
 *
 ************************************************************************/
 
@@ -27,21 +28,22 @@
         this.box           = null;
         this.sidebar       = null;
         this.parent        = null;
-        this.nodes         = [];    // Sidebar child nodes
+        this.nodes         = [];        // Sidebar child nodes
         this.menu          = [];
-        this.selected      = null;    // current selected node (readonly)
+        this.routeData     = {};        // data for dynamic routes
+        this.selected      = null;      // current selected node (readonly)
         this.img           = null;
         this.icon          = null;
         this.style         = '';
         this.topHTML       = '';
         this.bottomHTML    = '';
         this.keyboard      = true;
-        this.onClick       = null;    // Fire when user click on Node Text
-        this.onDblClick    = null;    // Fire when user dbl clicks
+        this.onClick       = null;      // Fire when user click on Node Text
+        this.onDblClick    = null;      // Fire when user dbl clicks
         this.onContextMenu = null;
-        this.onMenuClick   = null;    // when context menu item selected
-        this.onExpand      = null;    // Fire when node Expands
-        this.onCollapse    = null;    // Fire when node Colapses
+        this.onMenuClick   = null;      // when context menu item selected
+        this.onExpand      = null;      // Fire when node Expands
+        this.onCollapse    = null;      // Fire when node Colapses
         this.onKeydown     = null;
         this.onRender      = null;
         this.onRefresh     = null;
@@ -88,29 +90,30 @@
     w2sidebar.prototype = {
 
         node: {
-            id            : null,
-            text          : '',
-            count         : null,
-            img           : null,
-            icon          : null,
-            nodes         : [],
-            style         : '',            // additional style for subitems
-            selected      : false,
-            expanded      : false,
-            hidden        : false,
-            disabled      : false,
-            group         : false,        // if true, it will build as a group
-            groupShowHide : true,
-            plus          : false,        // if true, plus will be shown even if there is no sub nodes
+            id              : null,
+            text            : '',
+            count           : null,
+            img             : null,
+            icon            : null,
+            nodes           : [],
+            style           : '',            // additional style for subitems
+            route           : null,
+            selected        : false,
+            expanded        : false,
+            hidden          : false,
+            disabled        : false,
+            group           : false,        // if true, it will build as a group
+            groupShowHide   : true,
+            plus            : false,        // if true, plus will be shown even if there is no sub nodes
             // events
-            onClick       : null,
-            onDblClick    : null,
-            onContextMenu : null,
-            onExpand      : null,
-            onCollapse    : null,
+            onClick         : null,
+            onDblClick      : null,
+            onContextMenu   : null,
+            onExpand        : null,
+            onCollapse      : null,
             // internal
-            parent        : null,    // node object
-            sidebar       : null
+            parent          : null,    // node object
+            sidebar         : null
         },
 
         add: function (parent, nodes) {
@@ -456,6 +459,17 @@
                 if (oldNode !== null) oldNode.selected = false;
                 obj.get(id).selected = true;
                 obj.selected = id;
+                // route processing
+                if (nd.route) {
+                    var route = String('/'+ nd.route).replace(/\/{2,}/g, '/');
+                    var info  = w2utils.parseRoute(route);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
+                        }
+                    }
+                    setTimeout(function () { window.location.hash = route; }, 1);
+                }
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after' }));
             }, 1);

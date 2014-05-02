@@ -1,6 +1,6 @@
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2tabs        - tabs widget
 *        - $().w2tabs    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
@@ -9,17 +9,19 @@
 *   - on overflow display << >>
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - individual tab onClick (possibly other events) are not working
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - individual tab onClick (possibly other events) are not working
+*   - added route support
 *
 ************************************************************************/
 
 (function () {
     var w2tabs = function (options) {
-        this.box       = null;        // DOM Element that holds the element
-        this.name      = null;        // unique name for w2ui
+        this.box       = null;      // DOM Element that holds the element
+        this.name      = null;      // unique name for w2ui
         this.active    = null;
         this.tabs      = [];
+        this.routeData = {};        // data for dynamic routes
         this.right     = '';
         this.style     = '';
         this.onClick   = null;
@@ -69,6 +71,7 @@
         tab : {
             id        : null,        // command to be sent to all event handlers
             text      : '',
+            route     : null,
             hidden    : false,
             disabled  : false,
             closable  : false,
@@ -332,6 +335,17 @@
             // default action
             $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
             this.active = tab.id;
+            // route processing
+            if (tab.route) {
+                var route = String('/'+ tab.route).replace(/\/{2,}/g, '/');
+                var info  = w2utils.parseRoute(route);
+                if (info.keys.length > 0) {
+                    for (var k = 0; k < info.keys.length; k++) {
+                        route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
+                    }
+                }
+                setTimeout(function () { window.location.hash = route; }, 1);
+            }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             this.refresh(id);

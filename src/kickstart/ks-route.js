@@ -95,6 +95,7 @@ kickStart.register('route', function () {
                 }
             }
         }
+        return app.route;
     }
 
     /*
@@ -118,8 +119,8 @@ kickStart.register('route', function () {
                 .replace(/__plus__/g, '(.+)')
                 .replace(/\*/g, '(.*)');
             routeRE[r] = {
-                path     : new RegExp('^' + path + '$', 'i'),
-                keys    : keys
+                path  : new RegExp('^' + path + '$', 'i'),
+                keys  : keys
             }
         }        
     }
