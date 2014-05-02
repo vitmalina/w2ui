@@ -3,8 +3,8 @@ var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
 /************************************************
-*   Library: Web 2.0 UI for jQuery
-*   - Following objects are defines
+*  Library: Web 2.0 UI for jQuery
+*  - Following objects are defines
 *        - w2ui             - object that will contain all widgets
 *        - w2obj            - object with widget prototypes
 *        - w2utils          - basic utilities
@@ -16,39 +16,41 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - $().w2menu       - menu plugin
 *        - w2utils.event    - generic event object
 *        - w2utils.keyboard - object for keyboard navigation
-*   - Dependencies: jQuery
+*  - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
-*    - date has problems in FF new Date('yyyy-mm-dd') breaks
-*    - bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
-*    - overlay should be displayed where more space (on top or on bottom)
-*    - write and article how to replace certain framework functions
-*    - format date and time is buggy
-*    - onComplete should pass widget as context (this)
-*    - add maxHeight for the w2menu
-*    - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
-*    - hidden and disabled in menus
-*    - isTime should support seconds
-*    - TEST On IOS
+*   - date has problems in FF new Date('yyyy-mm-dd') breaks
+*   - bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
+*   - overlay should be displayed where more space (on top or on bottom)
+*   - write and article how to replace certain framework functions
+*   - format date and time is buggy
+*   - onComplete should pass widget as context (this)
+*   - add maxHeight for the w2menu
+*   - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
+*   - hidden and disabled in menus
+*   - isTime should support seconds
+*   - TEST On IOS
 *
 * == 1.4 changes
-*    - lock(box, options) || lock(box, msg, spinner)
-*    - updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
-*    - formatNumer(num, groupSymbol) - added new param
-*    - improved localization support (currency prefix, suffix, numbger group symbol)
-*    - improoved overlays (better positioning, refresh, etc.)
-*    - multiple overlay at the same time (if it has name)
-*    - overlay options.css removed, I have added options.style
-*    - ability to open searchable w2menu
-*    - w2confirm({})
-*    - dep. RESTfull
-*    - added: dataType (allows JSON payload)
+*   - lock(box, options) || lock(box, msg, spinner)
+*   - updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
+*   - formatNumer(num, groupSymbol) - added new param
+*   - improved localization support (currency prefix, suffix, numbger group symbol)
+*   - improoved overlays (better positioning, refresh, etc.)
+*   - multiple overlay at the same time (if it has name)
+*   - overlay options.css removed, I have added options.style
+*   - ability to open searchable w2menu
+*   - w2confirm({})
+*   - dep. RESTfull
+*   - added: dataType (allows JSON payload)
+*   - added: parse route
 *
 ************************************************/
 
 var w2utils = (function () {
     var tmp = {}; // for some temp variables
     var obj = {
+        version  : '1.4.x',
         settings : {
             "locale"            : "en-us",
             "date_format"       : "m/d/yyyy",
@@ -65,35 +67,36 @@ var w2utils = (function () {
             "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
             "phrases"           : {}        // empty object for english phrases
         },
-        isInt          : isInt,
-        isFloat        : isFloat,
-        isMoney        : isMoney,
-        isHex          : isHex,
-        isAlphaNumeric : isAlphaNumeric,
-        isEmail        : isEmail,
-        isDate         : isDate,
-        isTime         : isTime,
-        age            : age,
-        date           : date,
-        size           : size,
-        formatNumber   : formatNumber,
-        formatDate     : formatDate,
-        formatTime     : formatTime,
-        formatDateTime : formatDateTime,
-        stripTags      : stripTags,
-        encodeTags     : encodeTags,
-        escapeId       : escapeId,
-        base64encode   : base64encode,
-        base64decode   : base64decode,
-        transition     : transition,
-        lock           : lock,
-        unlock         : unlock,
-        lang           : lang,
-        locale         : locale,
-        getSize        : getSize,
-        scrollBarSize  : scrollBarSize,
-        checkName      : checkName,
-        checkUniqueId  : checkUniqueId
+        isInt           : isInt,
+        isFloat         : isFloat,
+        isMoney         : isMoney,
+        isHex           : isHex,
+        isAlphaNumeric  : isAlphaNumeric,
+        isEmail         : isEmail,
+        isDate          : isDate,
+        isTime          : isTime,
+        age             : age,
+        date            : date,
+        size            : size,
+        formatNumber    : formatNumber,
+        formatDate      : formatDate,
+        formatTime      : formatTime,
+        formatDateTime  : formatDateTime,
+        stripTags       : stripTags,
+        encodeTags      : encodeTags,
+        escapeId        : escapeId,
+        base64encode    : base64encode,
+        base64decode    : base64decode,
+        transition      : transition,
+        lock            : lock,
+        unlock          : unlock,
+        lang            : lang,
+        locale          : locale,
+        getSize         : getSize,
+        scrollBarSize   : scrollBarSize,
+        checkName       : checkName,
+        checkUniqueId   : checkUniqueId,
+        parseRoute      : parseRoute
     };
     return obj;
 
@@ -867,6 +870,25 @@ var w2utils = (function () {
         }
         return true;
     }
+
+    function parseRoute(route) {
+        var keys = [];
+        var path = route
+            .replace(/\/\(/g, '(?:/')
+            .replace(/\+/g, '__plus__')
+            .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?/g, function(_, slash, format, key, capture, optional) {
+                keys.push({ name: key, optional: !! optional });
+                slash = slash || '';
+                return '' + (optional ? '' : slash) + '(?:' + (optional ? slash : '') + (format || '') + (capture || (format && '([^/.]+?)' || '([^/]+?)')) + ')' + (optional || '');
+            })
+            .replace(/([\/.])/g, '\\$1')
+            .replace(/__plus__/g, '(.+)')
+            .replace(/\*/g, '(.*)');
+        return {
+            path  : new RegExp('^' + path + '$', 'i'),
+            keys  : keys
+        };
+    }
 })();
 
 /***********************************************************
@@ -1610,52 +1632,52 @@ w2utils.keyboard = (function (obj) {
 *   - Following objects defined
 *        - w2grid        - grid widget
 *        - $().w2grid    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
+*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
-*    - frozen columns
-*    - add colspans
-*    - get rid of this.buffered
-*    - allow this.total to be unknown (-1)
-*    - column autosize based on largest content
-*    - save grid state into localStorage and restore
-*    - easy bubbles in the grid
-*    - More than 2 layers of header groups
-*    - reorder columns/records
-*    - hidden searches could not be clearned by the user
-*    - problem with .set() and arrays, array get extended too, but should be replaced
-*    - move events into prototype
-*    - add grid.focus()
-*    - add showExtra, KickIn Infinite scroll when so many records
-*    - after edit stay on the same record option
+*   - frozen columns
+*   - add colspans
+*   - get rid of this.buffered
+*   - allow this.total to be unknown (-1)
+*   - column autosize based on largest content
+*   - save grid state into localStorage and restore
+*   - easy bubbles in the grid
+*   - More than 2 layers of header groups
+*   - reorder columns/records
+*   - hidden searches could not be clearned by the user
+*   - problem with .set() and arrays, array get extended too, but should be replaced
+*   - move events into prototype
+*   - add grid.focus()
+*   - add showExtra, KickIn Infinite scroll when so many records
+*   - after edit stay on the same record option
 *
 * == 1.4 changes
-*    - for search fields one should be able to pass w2field options
-*    - add enum to advanced search fields
-*    - editable fields -> LIST type is not working
-*    - search-logic -> searchLogic
-*    - new: refreshRow(recid) - should it be part of refresh?
-*    - new: refreshCell(recid, field) - should it be part of refresh?
-*    - removed: getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - new: reorderColumns
-*    - removed name from the POST
-*    - rename: markSearchResults -> markSearch
-*    - refactored inline editing
-*    - new: getCellValue(ind, col_ind, [summary])
-*    - refactored selection
-*    - removed: record.selected
-*    - new: nextCell, prevCell, nextRow, prevRow
-*    - new: editChange(el, index, column, event)
-*    - new: method - overwrite default ajax method (see also w2utils.settings.dataType)
-*    - rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
-*    - new: recid - if id of the data is different from recid
-*    - new: parser - to converd data received from the server
-*    - change: rec.changes = {} and removed rec.changed
-*    - record.style can be a string or an object (for cell formatting)
-*    - col.resizable = true by default
-*    - new: prepareData();
-*    - context menu similar to sidebar's
-*    - find will return array or recids not objects
+*   - for search fields one should be able to pass w2field options
+*   - add enum to advanced search fields
+*   - editable fields -> LIST type is not working
+*   - search-logic -> searchLogic
+*   - new: refreshRow(recid) - should it be part of refresh?
+*   - new: refreshCell(recid, field) - should it be part of refresh?
+*   - removed: getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - new: reorderColumns
+*   - removed name from the POST
+*   - rename: markSearchResults -> markSearch
+*   - refactored inline editing
+*   - new: getCellValue(ind, col_ind, [summary])
+*   - refactored selection
+*   - removed: record.selected
+*   - new: nextCell, prevCell, nextRow, prevRow
+*   - new: editChange(el, index, column, event)
+*   - new: method - overwrite default ajax method (see also w2utils.settings.dataType)
+*   - rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
+*   - new: recid - if id of the data is different from recid
+*   - new: parser - to converd data received from the server
+*   - change: rec.changes = {} and removed rec.changed
+*   - record.style can be a string or an object (for cell formatting)
+*   - col.resizable = true by default
+*   - new: prepareData();
+*   - context menu similar to sidebar's
+*   - find will return array or recids not objects
 *
 ************************************************************************/
 
@@ -6536,24 +6558,24 @@ w2utils.keyboard = (function (obj) {
 })();
 
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2layout        - layout widget
 *        - $().w2layout    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
+*   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
 * == NICE TO HAVE ==
-*    - onResize for the panel
-*    - add more panel title positions (left=rotated, right=rotated, bottom)
-*    - bug: resizer is visible (and onHover) when panel is hidden.
+*   - onResize for the panel
+*   - add more panel title positions (left=rotated, right=rotated, bottom)
+*   - bug: resizer is visible (and onHover) when panel is hidden.
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - added panel title
-*    - added panel.maxSize property
-*    - fixed resize bugs
-*    - BUG resize problems (resizer flashes, not very snappy, % should stay in percent)
-*    - added onResizerClick event
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - added panel title
+*   - added panel.maxSize property
+*   - fixed resize bugs
+*   - BUG resize problems (resizer flashes, not very snappy, % should stay in percent)
+*   - added onResizerClick event
 *
 ************************************************************************/
 
@@ -7623,13 +7645,13 @@ w2utils.keyboard = (function (obj) {
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*     - transition should include title, body and buttons, not just body
+*   - transition should include title, body and buttons, not just body
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
-*    - add lock method() to lock popup content
-*    - fixed bug with max width/height of message
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
+*   - add lock method() to lock popup content
+*   - fixed bug with max width/height of message
 *
 ************************************************************************/
 
@@ -8398,8 +8420,8 @@ var w2confirm = function (obj, callBack) {
     }
 };
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2tabs        - tabs widget
 *        - $().w2tabs    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
@@ -8408,17 +8430,19 @@ var w2confirm = function (obj, callBack) {
 *   - on overflow display << >>
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - individual tab onClick (possibly other events) are not working
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - individual tab onClick (possibly other events) are not working
+*   - added route support
 *
 ************************************************************************/
 
 (function () {
     var w2tabs = function (options) {
-        this.box       = null;        // DOM Element that holds the element
-        this.name      = null;        // unique name for w2ui
+        this.box       = null;      // DOM Element that holds the element
+        this.name      = null;      // unique name for w2ui
         this.active    = null;
         this.tabs      = [];
+        this.routeData = {};        // data for dynamic routes
         this.right     = '';
         this.style     = '';
         this.onClick   = null;
@@ -8468,6 +8492,7 @@ var w2confirm = function (obj, callBack) {
         tab : {
             id        : null,        // command to be sent to all event handlers
             text      : '',
+            route     : null,
             hidden    : false,
             disabled  : false,
             closable  : false,
@@ -8731,6 +8756,17 @@ var w2confirm = function (obj, callBack) {
             // default action
             $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
             this.active = tab.id;
+            // route processing
+            if (tab.route) {
+                var route = String('/'+ tab.route).replace(/\/{2,}/g, '/');
+                var info  = w2utils.parseRoute(route);
+                if (info.keys.length > 0) {
+                    for (var k = 0; k < info.keys.length; k++) {
+                        route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
+                    }
+                }
+                setTimeout(function () { window.location.hash = route; }, 1);
+            }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             this.refresh(id);
@@ -8815,26 +8851,28 @@ var w2confirm = function (obj, callBack) {
 
 
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2toolbar        - toolbar widget
 *        - $().w2toolbar    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*    - on overflow display << >>
-*    - verticle toolbar
+*   - on overflow display << >>
+*   - verticle toolbar
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - fixed submenu event bugs
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - fixed submenu event bugs
+*   - added route support
 *
 ************************************************************************/
 
 (function () {
     var w2toolbar = function (options) {
-        this.box       = null;        // DOM Element that holds the element
-        this.name      = null;        // unique name for w2ui
+        this.box       = null;      // DOM Element that holds the element
+        this.name      = null;      // unique name for w2ui
+        this.routeData = {};        // data for dynamic routes
         this.items     = [];
         this.right     = '';        // HTML text on the right of toolbar
         this.onClick   = null;
@@ -8884,12 +8922,13 @@ var w2confirm = function (obj, callBack) {
             id       : null,        // command to be sent to all event handlers
             type     : 'button',    // button, check, radio, drop, menu, break, html, spacer
             text     : '',
+            route    : null,        // if not null, it is route to go
             html     : '',
             img      : null,
             icon     : null,
             hidden   : false,
             disabled : false,
-            checked  : false,    // used for radio buttons
+            checked  : false,       // used for radio buttons
             arrow    : true,        // arrow down for drop/menu types
             hint     : '',
             group    : null,        // used for radio buttons
@@ -9242,7 +9281,18 @@ var w2confirm = function (obj, callBack) {
                     subItem: event.subItem, originalEvent: event.originalEvent });
                 if (eventData.isCancelled === true) return;
 
-                // intentionaly blank
+                // route processing
+                var it = event.subItem;
+                if (it.route) {
+                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
+                    var info  = w2utils.parseRoute(route);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
+                        }
+                    }
+                    setTimeout(function () { window.location.hash = route; }, 1);
+                }
 
                 // event after
                 this.trigger($.extend(eventData, { phase: 'after' }));
@@ -9315,6 +9365,17 @@ var w2confirm = function (obj, callBack) {
                         btn.removeClass('checked');
                     }
                 }
+                // route processing
+                if (it.route) {
+                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
+                    var info  = w2utils.parseRoute(route);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
+                        }
+                    }
+                    setTimeout(function () { window.location.hash = route; }, 1);
+                }
                 // event after
                 this.trigger($.extend(eventData, { phase: 'after' }));
             }
@@ -9327,25 +9388,26 @@ var w2confirm = function (obj, callBack) {
 
 
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2sidebar        - sidebar widget
 *        - $().w2sidebar    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*    - return ids of all subitems
-*    - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
-*    - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*    - reorder with grag and drop
-*    - add route property that would navigate to a #route
-*    - node.style is missleading - should be there to apply color for example
+*   - return ids of all subitems
+*   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
+*   - dbl click should be like it is in grid (with timer not HTML dbl click event)
+*   - reorder with grag and drop
+*   - add route property that would navigate to a #route
+*   - node.style is missleading - should be there to apply color for example
 *
 * == 1.4 changes
-*    - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*    - bug: bixed bug with selection
-*    - new: find({ params }) - returns all matched nodes
-*    - change: get() w/o params returns all node ids
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - bug: bixed bug with selection
+*   - new: find({ params }) - returns all matched nodes
+*   - change: get() w/o params returns all node ids
+*   - added route support
 *
 ************************************************************************/
 
@@ -9355,21 +9417,22 @@ var w2confirm = function (obj, callBack) {
         this.box           = null;
         this.sidebar       = null;
         this.parent        = null;
-        this.nodes         = [];    // Sidebar child nodes
+        this.nodes         = [];        // Sidebar child nodes
         this.menu          = [];
-        this.selected      = null;    // current selected node (readonly)
+        this.routeData     = {};        // data for dynamic routes
+        this.selected      = null;      // current selected node (readonly)
         this.img           = null;
         this.icon          = null;
         this.style         = '';
         this.topHTML       = '';
         this.bottomHTML    = '';
         this.keyboard      = true;
-        this.onClick       = null;    // Fire when user click on Node Text
-        this.onDblClick    = null;    // Fire when user dbl clicks
+        this.onClick       = null;      // Fire when user click on Node Text
+        this.onDblClick    = null;      // Fire when user dbl clicks
         this.onContextMenu = null;
-        this.onMenuClick   = null;    // when context menu item selected
-        this.onExpand      = null;    // Fire when node Expands
-        this.onCollapse    = null;    // Fire when node Colapses
+        this.onMenuClick   = null;      // when context menu item selected
+        this.onExpand      = null;      // Fire when node Expands
+        this.onCollapse    = null;      // Fire when node Colapses
         this.onKeydown     = null;
         this.onRender      = null;
         this.onRefresh     = null;
@@ -9416,29 +9479,30 @@ var w2confirm = function (obj, callBack) {
     w2sidebar.prototype = {
 
         node: {
-            id            : null,
-            text          : '',
-            count         : null,
-            img           : null,
-            icon          : null,
-            nodes         : [],
-            style         : '',            // additional style for subitems
-            selected      : false,
-            expanded      : false,
-            hidden        : false,
-            disabled      : false,
-            group         : false,        // if true, it will build as a group
-            groupShowHide : true,
-            plus          : false,        // if true, plus will be shown even if there is no sub nodes
+            id              : null,
+            text            : '',
+            count           : null,
+            img             : null,
+            icon            : null,
+            nodes           : [],
+            style           : '',            // additional style for subitems
+            route           : null,
+            selected        : false,
+            expanded        : false,
+            hidden          : false,
+            disabled        : false,
+            group           : false,        // if true, it will build as a group
+            groupShowHide   : true,
+            plus            : false,        // if true, plus will be shown even if there is no sub nodes
             // events
-            onClick       : null,
-            onDblClick    : null,
-            onContextMenu : null,
-            onExpand      : null,
-            onCollapse    : null,
+            onClick         : null,
+            onDblClick      : null,
+            onContextMenu   : null,
+            onExpand        : null,
+            onCollapse      : null,
             // internal
-            parent        : null,    // node object
-            sidebar       : null
+            parent          : null,    // node object
+            sidebar         : null
         },
 
         add: function (parent, nodes) {
@@ -9784,6 +9848,17 @@ var w2confirm = function (obj, callBack) {
                 if (oldNode !== null) oldNode.selected = false;
                 obj.get(id).selected = true;
                 obj.selected = id;
+                // route processing
+                if (nd.route) {
+                    var route = String('/'+ nd.route).replace(/\/{2,}/g, '/');
+                    var info  = w2utils.parseRoute(route);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
+                        }
+                    }
+                    setTimeout(function () { window.location.hash = route; }, 1);
+                }
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after' }));
             }, 1);
@@ -10158,38 +10233,38 @@ var w2confirm = function (obj, callBack) {
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*    - upload (regular files)
-*    - BUG with prefix/postfix and arrows (test in different contexts)
-*    - prefix and suffix are slow (100ms or so)
-*    - multiple date selection
-*    - month selection, year selections
-*    - arrows no longer work (for int)
-*    - add postData for autocomplete
-*    - form to support custom types
-*    - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
+*   - upload (regular files)
+*   - BUG with prefix/postfix and arrows (test in different contexts)
+*   - prefix and suffix are slow (100ms or so)
+*   - multiple date selection
+*   - month selection, year selections
+*   - arrows no longer work (for int)
+*   - add postData for autocomplete
+*   - form to support custom types
+*   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *
 * == 1.4 Changes ==
-*    - select - for select, list - for drop down (needs this in grid)
-*    - $().addType() - changes sligtly (this.el)
-*    - $().removeType() - new method
-*    - enum add events: onLoad, onRequest, onDelete,  for already selected elements
-*    - enum - refresh happens on each key press even if not needed (for speed)
-*    - rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
-*    - render calendar to the div
-*    - added .btn with colors
-*    - added enum.style and file.style attributes
-*    - test all fields as Read Only
-*    - added openOnFocus
-*    - deprecated -- change: showAll -> applyFilter
-*    - color: select with keyboard
-*    - enum: addNew event
-*    - added icon and onIconClick
-*    - new: clearCache
-*    - easy way to add icons
-*    - easy way to navigate month/year in dates
-*    - added step for numeric inputs
-*    - changed prepopulate -> minLength
-*    - added options.postData
+*   - select - for select, list - for drop down (needs this in grid)
+*   - $().addType() - changes sligtly (this.el)
+*   - $().removeType() - new method
+*   - enum add events: onLoad, onRequest, onDelete,  for already selected elements
+*   - enum - refresh happens on each key press even if not needed (for speed)
+*   - rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
+*   - render calendar to the div
+*   - added .btn with colors
+*   - added enum.style and file.style attributes
+*   - test all fields as Read Only
+*   - added openOnFocus
+*   - deprecated -- change: showAll -> applyFilter
+*   - color: select with keyboard
+*   - enum: addNew event
+*   - added icon and onIconClick
+*   - new: clearCache
+*   - easy way to add icons
+*   - easy way to navigate month/year in dates
+*   - added step for numeric inputs
+*   - changed prepopulate -> minLength
+*   - added options.postData
 *
 ************************************************************************/
 
@@ -11362,7 +11437,7 @@ var w2confirm = function (obj, callBack) {
                         type     : 'GET',
                         url      : url,
                         data     : postData,
-                        dataType : 'text' // expected from server
+                        dataType : 'JSON' // expected from server
                     };
                     if (w2utils.settings.dataType == 'JSON') {
                         ajaxOptions.type        = 'POST';
@@ -12323,19 +12398,19 @@ var w2confirm = function (obj, callBack) {
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
 *
 * == NICE TO HAVE ==
-*    - refresh(field) - would refresh only one field
-*    - include delta on save
-*    - create an example how to do cascadic dropdown
-*    - form should read <select> <options> into items
-*    - two way data bindings
-*    - verify validation of fields
-*    - when field is blank, set record.field = null
-*    - show/hide a field
+*   - refresh(field) - would refresh only one field
+*   - include delta on save
+*   - create an example how to do cascadic dropdown
+*   - form should read <select> <options> into items
+*   - two way data bindings
+*   - verify validation of fields
+*   - when field is blank, set record.field = null
+*   - show/hide a field
 *
 * == 1.4 Changes ==
-*    - refactored for the new fields
-*    - added getChanges() - not complete
-*    - change: get() w/o params returns all field names
+*   - refactored for the new fields
+*   - added getChanges() - not complete
+*   - change: get() w/o params returns all field names
 *
 ************************************************************************/
 
@@ -13331,14 +13406,14 @@ var w2confirm = function (obj, callBack) {
 })();
 
 /************************************************************************
-*    Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*    - Following objects defined
+*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
+*   - Following objects defined
 *        - w2listview        - listview widget
 *        - $().w2listview    - jQuery wrapper
-*    - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*    - images support via 'src' attribute
+*   - images support via 'src' attribute
 *
 ************************************************************************/
 
