@@ -6,38 +6,38 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*    - upload (regular files)
-*    - BUG with prefix/postfix and arrows (test in different contexts)
-*    - prefix and suffix are slow (100ms or so)
-*    - multiple date selection
-*    - month selection, year selections
-*    - arrows no longer work (for int)
-*    - add postData for autocomplete
-*    - form to support custom types
-*    - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
+*   - upload (regular files)
+*   - BUG with prefix/postfix and arrows (test in different contexts)
+*   - prefix and suffix are slow (100ms or so)
+*   - multiple date selection
+*   - month selection, year selections
+*   - arrows no longer work (for int)
+*   - add postData for autocomplete
+*   - form to support custom types
+*   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *
 * == 1.4 Changes ==
-*    - select - for select, list - for drop down (needs this in grid)
-*    - $().addType() - changes sligtly (this.el)
-*    - $().removeType() - new method
-*    - enum add events: onLoad, onRequest, onDelete,  for already selected elements
-*    - enum - refresh happens on each key press even if not needed (for speed)
-*    - rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
-*    - render calendar to the div
-*    - added .btn with colors
-*    - added enum.style and file.style attributes
-*    - test all fields as Read Only
-*    - added openOnFocus
-*    - deprecated -- change: showAll -> applyFilter
-*    - color: select with keyboard
-*    - enum: addNew event
-*    - added icon and onIconClick
-*    - new: clearCache
-*    - easy way to add icons
-*    - easy way to navigate month/year in dates
-*    - added step for numeric inputs
-*    - changed prepopulate -> minLength
-*    - added options.postData
+*   - select - for select, list - for drop down (needs this in grid)
+*   - $().addType() - changes sligtly (this.el)
+*   - $().removeType() - new method
+*   - enum add events: onLoad, onRequest, onDelete,  for already selected elements
+*   - enum - refresh happens on each key press even if not needed (for speed)
+*   - rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
+*   - render calendar to the div
+*   - added .btn with colors
+*   - added enum.style and file.style attributes
+*   - test all fields as Read Only
+*   - added openOnFocus
+*   - deprecated -- change: showAll -> applyFilter
+*   - color: select with keyboard
+*   - enum: addNew event
+*   - added icon and onIconClick
+*   - new: clearCache
+*   - easy way to add icons
+*   - easy way to navigate month/year in dates
+*   - added step for numeric inputs
+*   - changed prepopulate -> minLength
+*   - added options.postData
 *
 ************************************************************************/
 
@@ -1210,7 +1210,7 @@
                         type     : 'GET',
                         url      : url,
                         data     : postData,
-                        dataType : 'text' // expected from server
+                        dataType : 'JSON' // expected from server
                     };
                     if (w2utils.settings.dataType == 'JSON') {
                         ajaxOptions.type        = 'POST';
