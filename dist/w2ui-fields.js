@@ -2091,8 +2091,11 @@ w2utils.keyboard = (function (obj) {
             if (this.type == 'list') {
                 $(this.el).removeClass('w2ui-select');
             }
+            if (['date', 'time'].indexOf(this.type) != -1) {
+                if ($(this.el).attr('placeholder') == options.format) $(this.el).attr('placeholder', '');
+            }
             this.type = 'clear';
-            var tmp      = $(this.el).data('tmp');
+            var tmp = $(this.el).data('tmp');
             if (!this.tmp) return;
             // restore paddings
             if (typeof tmp != 'undefined') {
