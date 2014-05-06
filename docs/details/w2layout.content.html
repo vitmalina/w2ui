@@ -44,9 +44,12 @@ or
 w2ui['layout'].loadt('css', 'file.css');
 </textarea>
 
-The <span class="argument">content</span> argument can be either an HTML string or an object with 
-<span class="method">.render(box)</span> method. If    the argument <span class="argument">content</span> is not specified the method will 
-return <i><b>current</b></i> content of the panel. 
+The <span class="argument">content</span> argument can be either an HTML or an object. If it is an object, then it will assign
+layout panel's div to the <span class="argument">.box</span> property of the object and call <span class="method">.render()</span> method. 
+This allows you to make a grid, sidebar, or any other object with <span class="argument">.box</span> property and 
+<span class="method">.render()</span> method as content for the panel.
+
+If the argument <span class="argument">content</span> is not specified the method will return <i><b>current</b></i> content of the panel. 
 
 <textarea class="javascript">
 // return current content
