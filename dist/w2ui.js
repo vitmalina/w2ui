@@ -5727,50 +5727,28 @@ w2utils.keyboard = (function (obj) {
                 if (typeof s.outTag  == 'undefined') s.outTag     = '';
                 if (typeof s.type    == 'undefined') s.type     = 'text';
                 if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
+                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '    <option value="begins">'+ w2utils.lang('begins') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
-                        '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
                         '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
                         '    <option value="ends">'+ w2utils.lang('ends') +'</option>'+
                         '</select>';
                 }
                 if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
                     var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" '+
-                        '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');">'+
+                        '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');" onclick="event.stopPropagation();">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         (['int'].indexOf(s.type) != -1 ? '<option value="in">'+ w2utils.lang('in') +'</option>' : '') +
                         '<option value="between">'+ w2utils.lang('between') +'</option>'+
                         '</select>';
                 }
                 if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
+                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '</select>';
                 }
                 if (['enum'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'">'+
+                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
                         '    <option value="in">'+ w2utils.lang('in') +'</option>'+
                         '</select>';
                 }
@@ -5806,7 +5784,7 @@ w2utils.keyboard = (function (obj) {
                         break;
 
                     case 'select':
-                        html += '<select rel="search" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'></select>';
+                        html += '<select rel="search" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'  onclick="event.stopPropagation();"></select>';
                         break;
 
                 }
