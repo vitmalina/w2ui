@@ -118,118 +118,80 @@
     border-bottom: @form-group-border;
 }
 
-.w2ui-label {
-    float: left;
-    clear: left;
-    margin-top: 7px;
-    margin-bottom: 3px;
-    width: 120px;
-    padding: 0px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: right;
-    min-height: 20px;
-    &.w2ui-span1 { 
-        width: (@form-step-label * 1); 
-        float: left; 
-    }
-    &.w2ui-span2 { 
-        width: (@form-step-label * 2); 
-        float: left; 
-    } 
-    &.w2ui-span3 { 
-        width: (@form-step-label * 3); 
-        float: left; 
-    } 
-    &.w2ui-span4 { 
-        width: (@form-step-label * 4); 
-        float: left; 
-    } 
-    &.w2ui-span5 { 
-        width: (@form-step-label * 5); 
-        float: left; 
-    } 
-    &.w2ui-span6 { 
-        width: (@form-step-label * 6); 
-        float: left; 
-    } 
-    &.w2ui-span7 { 
-        width: (@form-step-label * 7); 
-        float: left; 
-    } 
-    &.w2ui-span8 { 
-        width: (@form-step-label * 8); 
-        float: left; 
-    } 
-    &.w2ui-span9 { 
-        width: (@form-step-label * 9); 
-        float: left; 
-    } 
-    &.w2ui-span10 { 
-        width: (@form-step-label * 10); 
-        float: left; 
-    } 
-}
-
 .w2ui-field {
-    /* do not include width */
-    margin-bottom: 3px;
-    margin-left: 128px;
-    padding: 3px;
-    min-height: 20px;
+    > label {
+        display: block;
+        float: left;
+        clear: left;
+        margin-top: 7px;
+        margin-bottom: 3px;
+        width: 120px;
+        padding: 0px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: right;
+        min-height: 20px;
+    }
+    > div {
+        /* do not include width */
+        margin-bottom: 3px;
+        margin-left: 128px;
+        padding: 3px;
+        min-height: 20px;
+        float: none;
+    }
+    &.w2ui-required > div {
+        position: relative;
+    }
+
+    &.w2ui-required > div::before {
+        content: '*';
+        position: absolute;
+        margin-top: 5px;
+        margin-left: -9px;
+        color: @form-required-color;
+    }             
     &.w2ui-span1 { 
-        margin-left: (@form-step-label + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 1); }
+        > div { margin-left: ((@form-step-label * 1) + @form-step-field); }
     }
     &.w2ui-span2 { 
-        margin-left: ((@form-step-label * 2) + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 2); }
+        > div { margin-left: ((@form-step-label * 2) + @form-step-field); }
     }
-    &.w2ui-span3  { 
-        margin-left: ((@form-step-label * 3) + @form-step-field); 
-        float: none; 
+    &.w2ui-span3 { 
+        > label { width: (@form-step-label * 3); }
+        > div { margin-left: ((@form-step-label * 3) + @form-step-field); }
     }
     &.w2ui-span4 { 
-        margin-left: ((@form-step-label * 4) + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 4); }
+        > div { margin-left: ((@form-step-label * 4) + @form-step-field); }
     }
     &.w2ui-span5 { 
-        margin-left: ((@form-step-label * 5) + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 5); }
+        > div { margin-left: ((@form-step-label * 5) + @form-step-field); }
     }
     &.w2ui-span6 { 
-        margin-left: ((@form-step-label * 6) + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 6); }
+        > div { margin-left: ((@form-step-label * 6) + @form-step-field); }
     }
     &.w2ui-span7 { 
-        margin-left: ((@form-step-label * 7) + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 7); }
+        > div { margin-left: ((@form-step-label * 7) + @form-step-field); }
     }
     &.w2ui-span8 { 
-        margin-left: ((@form-step-label * 8) + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 8); }
+        > div { margin-left: ((@form-step-label * 8) + @form-step-field); }
     }
     &.w2ui-span9 { 
-        margin-left: ((@form-step-label * 9) + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 9); }
+        > div { margin-left: ((@form-step-label * 9) + @form-step-field); }
     }
     &.w2ui-span10 { 
-        margin-left: ((@form-step-label * 10) + @form-step-field); 
-        float: none; 
+        > label { width: (@form-step-label * 10); }
+        > div { margin-left: ((@form-step-label * 10) + @form-step-field); }
     }
-}
-
-.w2ui-required {
-    position: relative;
-}
-
-.w2ui-required::before {
-    content: '*';
-    position: absolute;
-    margin-top: 5px;
-    margin-left: -9px;
-    color: @form-required-color;
 }
 
 .w2ui-error {

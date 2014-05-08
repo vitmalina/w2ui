@@ -19,6 +19,7 @@
 *   - refactored for the new fields
 *   - added getChanges() - not complete
 *   - change: get() w/o params returns all field names
+*   - changed template structure for formHTML
 *
 ************************************************************************/
 
@@ -612,7 +613,6 @@
                 field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
                 if (field.html.caption == '') field.html.caption = field.name;
                 var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
-                // if (field.type == 'list') input = '<select name="'+ field.name +'" '+ field.html.attr +'></select>';
                 if ((field.type === 'pass') || (field.type === 'password')){
                     input = '<input name="' + field.name + '" type = "password" ' + field.html.attr + '/>';
                 }
@@ -623,10 +623,10 @@
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
                     group = field.html.group;
                 }
-                html += '\n      <div class="w2ui-label '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ field.html.caption +':</div>'+
-                        '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+
-                                input + field.html.text +
-                        '</div>';
+                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ 
+                        '\n         <label>' + field.html.caption +':</label>'+
+                        '\n         <div>'+ input + field.html.text + '</div>'+
+                        '\n      </div>';
                 if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '<div class="w2ui-page page-'+ field.html.page +'">';
                 pages[field.html.page] += html;
             }
@@ -810,9 +810,9 @@
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                 });
                 if (field.required) {
-                    $(field.el).parent().addClass('w2ui-required');
+                    $(field.el).parent().parent().addClass('w2ui-required');
                 } else {
-                    $(field.el).parent().removeClass('w2ui-required');
+                    $(field.el).parent().parent().removeClass('w2ui-required');
                 }
             }
             // attach actions on buttons
