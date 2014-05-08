@@ -3208,6 +3208,7 @@ w2utils.keyboard = (function (obj) {
                     console.log('ERROR: server communication failed. The server should return', 
                         { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 'OR', { status: 'error', message: 'error message' },
                         ', instead the AJAX request produced this: ', errorObj);
+                    obj.requestComplete('error', cmd, callBack);
                     // event after
                     obj.trigger($.extend(eventData2, { phase: 'after' }));
                 });
@@ -8003,7 +8004,7 @@ var w2popup = {};
             // event after
             setTimeout(function () {
                 obj.trigger($.extend(eventData, { phase: 'after'}));
-            }, 250);
+            }, (options.speed * 1000) + 50);
         },
 
         max: function () {
@@ -8270,7 +8271,7 @@ var w2popup = {};
             if (typeof callBack == 'function') {
                 setTimeout(function () {
                     callBack();
-                }, options.speed * 1000);
+                }, (options.speed * 1000) + 50); // give extra 50 ms
             }
         }
     }
@@ -12999,6 +13000,7 @@ var w2confirm = function (obj, callBack) {
 
         generateHTML: function () {
             var pages = []; // array for each page
+            var group = '';
             for (var f in this.fields) {
                 var html = '';
                 var field = this.fields[f];
@@ -13012,20 +13014,28 @@ var w2confirm = function (obj, callBack) {
                 }
                 if (field.type == 'checkbox') input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
                 if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
-                html += '\n   <div class="w2ui-label '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ field.html.caption +':</div>'+
-                        '\n   <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+
+                if (field.html.group) {
+                    if (group != '') html += '\n   </div>';
+                    html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
+                    group = field.html.group;
+                }
+                html += '\n      <div class="w2ui-label '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ field.html.caption +':</div>'+
+                        '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+
                                 input + field.html.text +
                         '</div>';
                 if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '<div class="w2ui-page page-'+ field.html.page +'">';
                 pages[field.html.page] += html;
             }
+            if (group != '') pages[pages.length-1] += '\n   </div>';
             for (var p in pages) pages[p] += '\n</div>';
             // buttons if any
             var buttons = '';
             if (!$.isEmptyObject(this.actions)) {
+                var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) {
-                    buttons += '\n    <button name="'+ a +'" class="btn">'+ a + '</button>';
+                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-blue'; else addClass = '';
+                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ a + '</button>';
                 }
                 buttons += '\n</div>';
             }
