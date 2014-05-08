@@ -570,7 +570,8 @@ select {
   border-top: 1px solid #3a4254;
   border-bottom: 1px solid #3a4254;
 }
-.w2ui-label {
+.w2ui-field > label {
+  display: block;
   float: left;
   clear: left;
   margin-top: 7px;
@@ -583,102 +584,83 @@ select {
   text-align: right;
   min-height: 20px;
 }
-.w2ui-label.w2ui-span1 {
-  width: 20px;
-  float: left;
-}
-.w2ui-label.w2ui-span2 {
-  width: 40px;
-  float: left;
-}
-.w2ui-label.w2ui-span3 {
-  width: 60px;
-  float: left;
-}
-.w2ui-label.w2ui-span4 {
-  width: 80px;
-  float: left;
-}
-.w2ui-label.w2ui-span5 {
-  width: 100px;
-  float: left;
-}
-.w2ui-label.w2ui-span6 {
-  width: 120px;
-  float: left;
-}
-.w2ui-label.w2ui-span7 {
-  width: 140px;
-  float: left;
-}
-.w2ui-label.w2ui-span8 {
-  width: 160px;
-  float: left;
-}
-.w2ui-label.w2ui-span9 {
-  width: 180px;
-  float: left;
-}
-.w2ui-label.w2ui-span10 {
-  width: 200px;
-  float: left;
-}
-.w2ui-field {
+.w2ui-field > div {
   /* do not include width */
   margin-bottom: 3px;
   margin-left: 128px;
   padding: 3px;
   min-height: 20px;
-}
-.w2ui-field.w2ui-span1 {
-  margin-left: 28px;
   float: none;
 }
-.w2ui-field.w2ui-span2 {
-  margin-left: 48px;
-  float: none;
-}
-.w2ui-field.w2ui-span3 {
-  margin-left: 68px;
-  float: none;
-}
-.w2ui-field.w2ui-span4 {
-  margin-left: 88px;
-  float: none;
-}
-.w2ui-field.w2ui-span5 {
-  margin-left: 108px;
-  float: none;
-}
-.w2ui-field.w2ui-span6 {
-  margin-left: 128px;
-  float: none;
-}
-.w2ui-field.w2ui-span7 {
-  margin-left: 148px;
-  float: none;
-}
-.w2ui-field.w2ui-span8 {
-  margin-left: 168px;
-  float: none;
-}
-.w2ui-field.w2ui-span9 {
-  margin-left: 188px;
-  float: none;
-}
-.w2ui-field.w2ui-span10 {
-  margin-left: 208px;
-  float: none;
-}
-.w2ui-required {
+.w2ui-field.w2ui-required > div {
   position: relative;
 }
-.w2ui-required::before {
+.w2ui-field.w2ui-required > div::before {
   content: '*';
   position: absolute;
   margin-top: 5px;
   margin-left: -9px;
   color: #ff525a;
+}
+.w2ui-field.w2ui-span1 > label {
+  width: 20px;
+}
+.w2ui-field.w2ui-span1 > div {
+  margin-left: 28px;
+}
+.w2ui-field.w2ui-span2 > label {
+  width: 40px;
+}
+.w2ui-field.w2ui-span2 > div {
+  margin-left: 48px;
+}
+.w2ui-field.w2ui-span3 > label {
+  width: 60px;
+}
+.w2ui-field.w2ui-span3 > div {
+  margin-left: 68px;
+}
+.w2ui-field.w2ui-span4 > label {
+  width: 80px;
+}
+.w2ui-field.w2ui-span4 > div {
+  margin-left: 88px;
+}
+.w2ui-field.w2ui-span5 > label {
+  width: 100px;
+}
+.w2ui-field.w2ui-span5 > div {
+  margin-left: 108px;
+}
+.w2ui-field.w2ui-span6 > label {
+  width: 120px;
+}
+.w2ui-field.w2ui-span6 > div {
+  margin-left: 128px;
+}
+.w2ui-field.w2ui-span7 > label {
+  width: 140px;
+}
+.w2ui-field.w2ui-span7 > div {
+  margin-left: 148px;
+}
+.w2ui-field.w2ui-span8 > label {
+  width: 160px;
+}
+.w2ui-field.w2ui-span8 > div {
+  margin-left: 168px;
+}
+.w2ui-field.w2ui-span9 > label {
+  width: 180px;
+}
+.w2ui-field.w2ui-span9 > div {
+  margin-left: 188px;
+}
+.w2ui-field.w2ui-span10 > label {
+  width: 200px;
+}
+.w2ui-field.w2ui-span10 > div {
+  margin-left: 208px;
 }
 .w2ui-error {
   border: 1px solid #ffa8a8 !important;
