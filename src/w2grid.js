@@ -1579,6 +1579,7 @@
                     console.log('ERROR: server communication failed. The server should return', 
                         { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 'OR', { status: 'error', message: 'error message' },
                         ', instead the AJAX request produced this: ', errorObj);
+                    obj.requestComplete('error', cmd, callBack);
                     // event after
                     obj.trigger($.extend(eventData2, { phase: 'after' }));
                 });

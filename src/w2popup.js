@@ -364,7 +364,7 @@ var w2popup = {};
             // event after
             setTimeout(function () {
                 obj.trigger($.extend(eventData, { phase: 'after'}));
-            }, 250);
+            }, (options.speed * 1000) + 50);
         },
 
         max: function () {
@@ -631,7 +631,7 @@ var w2popup = {};
             if (typeof callBack == 'function') {
                 setTimeout(function () {
                     callBack();
-                }, options.speed * 1000);
+                }, (options.speed * 1000) + 50); // give extra 50 ms
             }
         }
     }
