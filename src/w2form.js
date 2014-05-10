@@ -746,6 +746,8 @@
             // refresh values of all fields
             for (var f in this.fields) {
                 var field = this.fields[f];
+                if (typeof field.name == 'undefined' && typeof field.field != 'undefined') field.name = field.field;
+                if (typeof field.field == 'undefined' && typeof field.name != 'undefined') field.field = field.name;
                 field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
                 field.el  = field.$el[0];
                 if (typeof field.el == 'undefined') {

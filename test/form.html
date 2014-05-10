@@ -35,7 +35,7 @@
 
             },
             record: {
-                "toggle"        : '0',
+                "field.toggle"        : '0',
                 "field.text"    : 'some text',
                 "field.textarea": 'more text',
                 "field.date"    : '1/15/2014',
@@ -59,13 +59,13 @@
             },
             fields: [
                 // first page
-                { name: 'toggle', type: 'toggle', required: true },
-                { name: 'field.text', type: 'text', required: true, html: { group: 'General' } },
-                { name: 'field.textarea', type: 'textarea', required: true },
-                { name: 'field.date', type: 'date', required: false },
-                { name: 'field.time', type: 'time', required: false, html: { group: 'General2' } },
-                { name: 'field.color', type: 'color', required: false },
-                { name: 'field.list', type: 'list', required: false, 
+                { field: 'field.toggle', type: 'toggle', required: true },
+                { field: 'field.text', type: 'text', required: true, html: { group: 'General' } },
+                { field: 'field.textarea', type: 'textarea', required: true },
+                { field: 'field.date', type: 'date', required: false },
+                { field: 'field.time', type: 'time', required: false, html: { group: 'General2' } },
+                { field: 'field.color', type: 'color', required: false },
+                { field: 'field.list', type: 'list', required: false, 
                     options: { 
                         match: 'contains',
                         items: [
@@ -82,31 +82,31 @@
                         ]
                     }
                 },
-                { name: 'field.combo', type: 'combo', required: false, 
+                { field: 'field.combo', type: 'combo', required: false, 
                     options: { 
                         applyFilter: true,
                         url : 'listdat.json'
                     }
                 },
-                { name: 'field.enum', type: 'enum', required: false, 
+                { field: 'field.enum', type: 'enum', required: false, 
                     options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-                { name: 'field.file', type: 'file', required: false },
+                { field: 'field.file', type: 'file', required: false },
                 // second page
-                { name: 'field.email', type: 'email', required: false },
-                { name: 'field.password', type: 'password', required: false },
-                { name: 'field.int', type: 'int', options: { arrows: false }, required: false },
-                { name: 'field.float', type: 'float', required: false },
-                { name: 'field.money', type: 'money', required: false },
-                { name: 'field.currency', type: 'currency', required: false },
-                { name: 'field.percent', type: 'percent', required: false },
-                { name: 'field.alpha', type: 'alphanumeric', required: false },
+                { field: 'field.email', type: 'email', required: false },
+                { field: 'field.password', type: 'password', required: false },
+                { field: 'field.int', type: 'int', options: { arrows: false }, required: false },
+                { field: 'field.float', type: 'float', required: false },
+                { field: 'field.money', type: 'money', required: false },
+                { field: 'field.currency', type: 'currency', required: false },
+                { field: 'field.percent', type: 'percent', required: false },
+                { field: 'field.alpha', type: 'alphanumeric', required: false },
                 // third page
-                { name: 'field.select', type: 'select', required: false, options: { items: ['fist', 'second'] } },
-                { name: 'field.check', type: 'checkbox', required: false },
-                { name: 'field.radio', type: 'radio', required: false },
+                { field: 'field.select', type: 'select', required: false, options: { items: ['fist', 'second'] } },
+                { field: 'field.check', type: 'checkbox', required: false },
+                { field: 'field.radio', type: 'radio', required: false },
             ],
             onChange: function (event) {
-                console.log('change', event);
+                // console.log('change', event);
             },
             postData1: {
                 a1: 1, 
@@ -130,8 +130,8 @@
                 }
             }
         });
-        w2ui.form.formHTML = w2ui.form.generateHTML()
-        w2ui.form.render();
+        // w2ui.form.formHTML = w2ui.form.generateHTML()
+        // w2ui.form.render();
         // all event listener
         w2ui.form.on('change', function (event) {
             event.onComplete = function () {
@@ -150,6 +150,10 @@
                 Fields with overlays
             </div>
             <div class="w2ui-group">
+                <div class="w2ui-field">
+                    <label>Toggle:</label>
+                    <div><input name="field.toggle" type="checkbox" class="w2ui-toggle"/></div>
+                </div>
                 <div class="w2ui-field">
                     <label>Text:</label>
                     <div><input name="field.text" type="text" size="40"/></div>

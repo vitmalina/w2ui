@@ -501,6 +501,7 @@
                 // hide focus and show text
                 if (obj.helpers.prefix) obj.helpers.prefix.hide();
                 setTimeout(function () {
+                    if (!obj.helpers.focus) return;
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
@@ -1006,7 +1007,7 @@
                     case 27: // escape
                         if (obj.type == 'list') {
                             if ($(focus).val() == '') {
-                                $(obj.el).data('selected', {});
+                                $(obj.el).data('selected', {}).change();
                             } else {
                                 $(focus).val('');
                             }
