@@ -1,7 +1,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2form.js"></script>
@@ -105,6 +105,9 @@
                 { name: 'field.check', type: 'checkbox', required: false },
                 { name: 'field.radio', type: 'radio', required: false },
             ],
+            onChange: function (event) {
+                console.log('change', event);
+            },
             postData1: {
                 a1: 1, 
                 a2: 2
