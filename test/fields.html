@@ -123,160 +123,108 @@
         $('#date2').w2field('date', { start: $('#date1'), blocked: ['12/12/2013'] });
     });
 </script>
-<style>
-.w2ui-time {
-    padding: 5px;
-    cursor: pointer;
-}
-.w2ui-time td div {
-    padding: 7px 10px;
-    text-align: center;
-    border: 1px solid transparent;
-}
-
-.w2ui-time td:nth-child(even) {
-    background-color: #f5f5f5
-}
-
-.w2ui-time td div:hover {
-    border: 1px solid #ccc;
-    background-color: #e9e9e9;
-}
-</style>
 <body>
-    <!--
-    HTML5 color: <input type="color"><br>
-    HTML5 date: <input type="date"><br>
-    HTML5 time: <input type="time"><br>
-    HTML5 datetime: <input type="datetime"><br>
-    HTML5 email: <input type="email"><br>
-    HTML5 number: <input type="number"><br>
-    HTML5 range: <input type="range"><br>
-    HTML5 search: <input type="search"><br>
-    HTML5 tel: <input type="tel"><br>
-    HTML5 url: <input type="url"><br>
-    HTML5 week: <input type="week"><br>
-    HTML5 month: <input type="month"><br>
-    -->
-    Date Range: <input id="date1"> - <input id="date2"> -
-        <input type="button" value="make readonly" onclick="$('input, textarea, select').prop('readonly', true)">
-        <input type="text">
+    <input type="button" value="Make Readonly" onclick="$('input, textarea, select').prop('readonly', true)">
     <br>
     <br>
-    <div class="w2ui-form" style="height: 600px"><div style="width: 100%; padding: 5px;">
-        <div class="w2ui-label">text:</div>
-            <div class="w2ui-field">
-                <input type="text" style="width: 100px;"/>
+    <div style="padding: 5px; border: 1px solid silver; background-color: #efefef; border-radius: 2px;">
+        <div class="w2ui-field">
+            <label>text:</label>
+            <div>
+                <input type="text" style="width: 300px;"/>
             </div>
-        <div class="w2ui-label">color:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>color:</label>
+            <div>
                 <input class="color" type="text" style="width: 100px;"
                     onchange1="console.log('field change: ', this.value)" value="d84"/>
             </div>
-        <div class="w2ui-label">textarea:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>textarea:</label>
+            <div>
                 <textarea class="textarea" type="text" style="width: 400px; height: 40px;"></textarea>
             </div>
-        <div class="w2ui-label">int:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>int:</label>
+            <div>
                 <input id="int" class="int" type="text" style="width: 100px;"/>
             </div>
-        <div class="w2ui-label">float:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>float:</label>
+            <div>
                 <input id="float" class="float" type="text" style="width: 100px"/>
             </div>
-        <div class="w2ui-label">percent:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>percent:</label>
+            <div>
                 <input id="percent" class="percent" type="text" style="width: 100px"/>
             </div>
-        <div class="w2ui-label">money:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>money:</label>
+            <div>
                 <input id="money" class="money" type="text" style="width: 100px"/>
             </div>
-        <div class="w2ui-label">hex:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>hex:</label>
+            <div>
                 <input id="hex" class="hex" type="text" style="width: 100px"/>
             </div>
-        <div class="w2ui-label">alpha-numeric:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>alpha-numeric:</label>
+            <div>
                 <input id="alphanumeric" class="alphanumeric" type="text" style="width: 100px"/>
             </div>
-        <div class="w2ui-label">date:</div>
-            <div class="w2ui-field">
-                <input id="date1" class="date" type="text" size="20"/>
+        </div>    
+        <div class="w2ui-field">
+            <label>date:</label>
+            <div>
+                <input class="date" type="text" size="20"/>
             </div>
-        <div class="w2ui-label">time:</div>
-            <div class="w2ui-field">
-                <input id="time" class="time" type="text" size="20"/>
+        </div>    
+        <div class="w2ui-field">
+            <label>date range:</label>
+            <div>
+                <input id="date1"> - <input id="date2">
             </div>
-        <div class="w2ui-label">combo:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>time:</label>
+            <div>
+                <input id="time" class="time" type="text" size="10"/>
+            </div>
+        </div>    
+        <div class="w2ui-field">
+            <label>combo:</label>
+            <div>
                 <input class="combo" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
             </div>
-        <div class="w2ui-label">list:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>list:</label>
+            <div>
                 <input class="list" type="text" style="width: 450px" onchange="console.log('field change', $(this).data('selected'));"/>
             </div>
-        <div class="w2ui-label">enum:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>enum:</label>
+            <div>
                 <input class="enum" type="text" style="width: 450px; min-height: 10px;"/>
             </div>
-        <div class="w2ui-label">file:</div>
-            <div class="w2ui-field">
+        </div>    
+        <div class="w2ui-field">
+            <label>file:</label>
+            <div>
                 <input class="file" type="text" style="width: 550px; min-height: 50px;"/>
             </div>
-    </div></div>
-
-    <table style="display: none; background-color: #efefef; padding: 15px;" cellpadding="3">
-        <tr>
-            <td>text:</td>
-            <td><input class="text" type="text" style="width: 400px;"/></td>
-        </tr>
-        <tr>
-            <td>textarea:</td>
-            <td><textarea class="textarea" style="width: 400px; height: 40px"></textarea></td>
-        </tr>
-        <tr>
-            <td>int:</td>
-            <td><input class="int" type="text" size="20"/></td>
-        </tr>
-        <tr>
-            <td>float:</td>
-            <td><input class="float" type="text" size="20"/></td>
-        </tr>
-        <tr>
-            <td>money:</td>
-            <td><input class="money" type="text" size="20"/></td>
-        </tr>
-        <tr>
-            <td>hex:</td>
-            <td><input class="hex" type="text" size="20"/></td>
-        </tr>
-        <tr>
-            <td>alphanumeric:</td>
-            <td><input class="alphanumeric" type="text" size="20"/></td>
-        </tr>
-        <tr>
-            <td>date:</td>
-            <td><input id="date2" class="date" type="text" size="20"/></td>
-        </tr>
-        <tr>
-            <td>date2:</td>
-            <td><input id="date2" class="date" type="text" size="20"/></td>
-        </tr>
-        <tr>
-            <td>list:</td>
-            <td><input type="text" class="list"></td>
-        </tr>
-        <tr>
-            <td>enum:</td>
-            <td><input class="enum" type="text" style="width: 400px"/></td>
-        </tr>
-        <tr>
-            <td>file:</td>
-            <td><input class="file" type="text" style="width: 400px"/></td>
-        </tr>
-    </table>
-
+        </div>
+    </div>
 </body>
 </html>

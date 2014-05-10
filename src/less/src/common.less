@@ -80,6 +80,33 @@ select {
     padding: 2px;
 }
 
+/* On/Off switch */
+
+input[type=checkbox].w2ui-toggle {
+    display: inline-block;
+    height: 21px;
+    margin: 0;
+    width: 57px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: @image-toggle no-repeat;
+    background-position: -37px -1px;
+    background-size: 92px 21px;
+    -webkit-appearance: textarea;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-transition: background-position .15s;
+    border: 1px solid rgb(170, 170, 170);
+}
+
+input[type=checkbox].w2ui-toggle:checked {
+    background-position: 0px -1px;
+    border: 1px solid rgb(150, 150, 150);
+}
+
+input[type=checkbox].w2ui-toggle:focus {
+    outline: none;
+}
+
 /*************************************************
 * ---- Overlay and Bubble ----
 */

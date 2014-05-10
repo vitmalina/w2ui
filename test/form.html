@@ -13,7 +13,7 @@
         $('#form').w2form({ 
             name     : 'form',
             // page     : 2,
-            url      : 'form.php',
+            // url      : 'form.php',
             // formURL  : 'form-template.html',
             recid    : 4,
             header   : 'Edit header',
@@ -35,29 +35,31 @@
 
             },
             record: {
+                "toggle"        : '0',
                 "field.text"    : 'some text',
                 "field.textarea": 'more text',
                 "field.date"    : '1/15/2014',
                 "field.time"    : '10:11 am',
-                "field.color"    : '999999',
+                "field.color"   : '999999',
                 "field.list"    : 5,
-                "field.combo"    : { id: 1, text: 'Item 1' },
+                "field.combo"   : { id: 1, text: 'Item 1' },
                 "field.enum"    : [{ id: '1', text: 'item 1'}, { id: 2, text: 'item 2'}],
                 "field.file"    : [{ name: 'file.txt', size: 3033, type: 'text', modified: '1/1/2014' }],
-                "field.email"    : 'see@mail.com',
+                "field.email"   : 'see@mail.com',
                 "field.password": 'pass',
-                "field.int"        : '10',
-                "field.float"    : '20',
-                "field.money"    : '30',
+                "field.int"     : '10',
+                "field.float"   : '20',
+                "field.money"   : '30',
                 "field.currency": '40',
                 "field.percent" : '50',
-                "field.alpha"     : '60',
-                "field.select"    : 'second',
-                "field.check"    : 33,
-                // "field.radio"    : '1'
+                "field.alpha"   : '60',
+                "field.select"  : 'second',
+                "field.check"   : 33,
+                // "field.radio"   : '1'
             },
             fields: [
                 // first page
+                { name: 'toggle', type: 'toggle', required: true },
                 { name: 'field.text', type: 'text', required: true, html: { group: 'General' } },
                 { name: 'field.textarea', type: 'textarea', required: true },
                 { name: 'field.date', type: 'date', required: false },
@@ -125,6 +127,8 @@
                 }
             }
         });
+        w2ui.form.formHTML = w2ui.form.generateHTML()
+        w2ui.form.render();
         // all event listener
         w2ui.form.on('change', function (event) {
             event.onComplete = function () {

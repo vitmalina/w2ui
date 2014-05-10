@@ -49,6 +49,7 @@
 *   - new: prepareData();
 *   - context menu similar to sidebar's
 *   - find will return array or recids not objects
+*   - added render = 'toggle'
 *
 ************************************************************************/
 
@@ -1513,7 +1514,14 @@
             params['offset']      = parseInt(this.offset) + this.last.xhr_offset;
             params['search']      = this.searchData;
             params['searchLogic'] = this.last.logic;
-            params['sort']        = (this.sortData.length != 0 ? this.sortData : '');
+            params['sort']        = this.sortData;
+            if (this.searchData.length == 0) {
+                delete params['search'];
+                delete params['searchLogic'];
+            }
+            if (this.sortData.length == 0) {
+                delete params['sort'];
+            }
             // append other params
             $.extend(params, this.postData);
             $.extend(params, add_params);
@@ -1576,9 +1584,14 @@
                     var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
                     if (eventData2.isCancelled === true) return;
                     // default behavior
-                    console.log('ERROR: server communication failed. The server should return', 
-                        { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 'OR', { status: 'error', message: 'error message' },
-                        ', instead the AJAX request produced this: ', errorObj);
+                    if (status != 'abort') {
+                        var data;
+                        try { data = $.parseJSON(xhr.responseText) } catch (e) {}
+                        console.log('ERROR: Server communication failed.', 
+                            '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 
+                            '\n         OR:', { status: 'error', message: 'error message' },
+                            '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
+                    }
                     obj.requestComplete('error', cmd, callBack);
                     // event after
                     obj.trigger($.extend(eventData2, { phase: 'after' }));
@@ -4739,6 +4752,9 @@
                     }
                     if (tmp[0] == 'age') {
                         data = '<div>' + prefix + w2utils.age(data) + suffix + '</div>';
+                    }
+                    if (tmp[0] == 'toggle') {
+                        data = '<div>' + prefix + (data ? 'Yes' : 'No') + suffix + '</div>';
                     }
                 }
             } else {

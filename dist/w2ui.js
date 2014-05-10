@@ -1678,6 +1678,7 @@ w2utils.keyboard = (function (obj) {
 *   - new: prepareData();
 *   - context menu similar to sidebar's
 *   - find will return array or recids not objects
+*   - added render = 'toggle'
 *
 ************************************************************************/
 
@@ -3142,7 +3143,14 @@ w2utils.keyboard = (function (obj) {
             params['offset']      = parseInt(this.offset) + this.last.xhr_offset;
             params['search']      = this.searchData;
             params['searchLogic'] = this.last.logic;
-            params['sort']        = (this.sortData.length != 0 ? this.sortData : '');
+            params['sort']        = this.sortData;
+            if (this.searchData.length == 0) {
+                delete params['search'];
+                delete params['searchLogic'];
+            }
+            if (this.sortData.length == 0) {
+                delete params['sort'];
+            }
             // append other params
             $.extend(params, this.postData);
             $.extend(params, add_params);
@@ -3205,9 +3213,14 @@ w2utils.keyboard = (function (obj) {
                     var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
                     if (eventData2.isCancelled === true) return;
                     // default behavior
-                    console.log('ERROR: server communication failed. The server should return', 
-                        { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 'OR', { status: 'error', message: 'error message' },
-                        ', instead the AJAX request produced this: ', errorObj);
+                    if (status != 'abort') {
+                        var data;
+                        try { data = $.parseJSON(xhr.responseText) } catch (e) {}
+                        console.log('ERROR: Server communication failed.', 
+                            '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 
+                            '\n         OR:', { status: 'error', message: 'error message' },
+                            '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
+                    }
                     obj.requestComplete('error', cmd, callBack);
                     // event after
                     obj.trigger($.extend(eventData2, { phase: 'after' }));
@@ -6368,6 +6381,9 @@ w2utils.keyboard = (function (obj) {
                     }
                     if (tmp[0] == 'age') {
                         data = '<div>' + prefix + w2utils.age(data) + suffix + '</div>';
+                    }
+                    if (tmp[0] == 'toggle') {
+                        data = '<div>' + prefix + (data ? 'Yes' : 'No') + suffix + '</div>';
                     }
                 }
             } else {
@@ -11412,7 +11428,7 @@ var w2confirm = function (obj, callBack) {
             if (typeof obj.tmp.xhr_search == 'undefined') obj.tmp.xhr_search = '';
             if (typeof obj.tmp.xhr_total == 'undefined') obj.tmp.xhr_total = -1;
             // check if need to search
-            if (options.url && (
+            if (options.url && $(obj.el).prop('readonly') != true && (
                     (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
                     (obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
                     (search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) != obj.tmp.xhr_search) ||
@@ -11479,9 +11495,14 @@ var w2confirm = function (obj, callBack) {
                             var eventData2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
                             if (eventData2.isCancelled === true) return;
                             // default behavior
-                            console.log('ERROR: server communication failed. The server should return', 
-                                { status: 'success', items: [{ id: 1, text: 'item' }] }, 'OR', { status: 'error', message: 'error message' },
-                                ', instead the AJAX request produced this: ', errorObj);
+                            if (status != 'abort') {
+                                var data;
+                                try { data = $.parseJSON(xhr.responseText) } catch (e) {}
+                                console.log('ERROR: Server communication failed.', 
+                                    '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] }, 
+                                    '\n         OR:', { status: 'error', message: 'error message' },
+                                    '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
+                            }
                             // reset stats
                             obj.clearCache();
                             // event after
@@ -12416,6 +12437,7 @@ var w2confirm = function (obj, callBack) {
 *   - added getChanges() - not complete
 *   - change: get() w/o params returns all field names
 *   - changed template structure for formHTML
+*   - added toggle type - On/Off
 *
 ************************************************************************/
 
@@ -12825,9 +12847,14 @@ var w2confirm = function (obj, callBack) {
                     var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
                     if (eventData2.isCancelled === true) return;
                     // default behavior
-                    console.log('ERROR: server communication failed. The server should return', 
-                        { status: 'success', items: [{ id: 1, text: 'item' }] }, 'OR', { status: 'error', message: 'error message' },
-                        ', instead the AJAX request produced this: ', errorObj);
+                    if (status != 'abort') {
+                        var data;
+                        try { data = $.parseJSON(xhr.responseText) } catch (e) {}
+                        console.log('ERROR: Server communication failed.', 
+                            '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] }, 
+                            '\n         OR:', { status: 'error', message: 'error message' },
+                            '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
+                    }
                     // event after
                     obj.trigger($.extend(eventData2, { phase: 'after' }));
                 });
@@ -12873,10 +12900,7 @@ var w2confirm = function (obj, callBack) {
                 params.record = $.extend(true, {}, obj.record);
                 // event before
                 var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
-                if (eventData.isCancelled === true) {
-                    if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
-                    return;
-                }
+                if (eventData.isCancelled === true) return;
                 // default action
                 var url = eventData.url;
                 if (typeof eventData.url == 'object' && eventData.url.save) url = eventData.url.save;
@@ -12917,10 +12941,7 @@ var w2confirm = function (obj, callBack) {
                         obj.unlock();
                         // event before
                         var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });
-                        if (eventData.isCancelled === true) {
-                            if (typeof callBack == 'function') callBack({ status: 'error', message: 'Saving aborted.' });
-                            return;
-                        }
+                        if (eventData.isCancelled === true) return;
                         // parse server response
                         var data;
                         var responseText = xhr.responseText;
@@ -12961,7 +12982,7 @@ var w2confirm = function (obj, callBack) {
                         obj.trigger($.extend(eventData, { phase: 'after' }));
                         obj.refresh();
                         // call back
-                        if (typeof callBack == 'function') callBack(data);
+                        if (data.status == 'success' && typeof callBack == 'function') callBack(data);
                     })
                     .fail(function (xhr, status, error) {
                         // trigger event
@@ -13014,6 +13035,7 @@ var w2confirm = function (obj, callBack) {
                 }
                 if (field.type == 'checkbox') input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
                 if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
+                if (field.type == 'toggle')   input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-toggle"/>';
                 if (field.html.group) {
                     if (group != '') html += '\n   </div>';
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
@@ -13172,6 +13194,7 @@ var w2confirm = function (obj, callBack) {
                             value_previous = $.extend(true, {}, cv); // clone object
                         }
                     }
+                    if (field.type == 'toggle') value_new = ($(this).prop('checked') ? 1 : 0);
                     // clean extra chars
                     if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {
                         value_new = $(this).data('w2field').clean(value_new);
@@ -13192,7 +13215,7 @@ var w2confirm = function (obj, callBack) {
                             if (el.checked) val = el.value;
                         });
                     }
-                    if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file'].indexOf(field.type) != -1) {
+                    if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) != -1) {
                         val = value_new;
                     }
                     if (['enum', 'file'].indexOf(field.type) != -1) {
@@ -13247,7 +13270,11 @@ var w2confirm = function (obj, callBack) {
                         field.el.value = value;
                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
                         break;
-
+                    case 'toggle':
+                        if (w2utils.isFloat(value)) value = parseFloat(value);
+                        $(field.el).prop('checked', (value ? true : false));
+                        this.record[field.name] = (value ? 1 : 0);
+                        break;
                     // enums
                     case 'list':
                     case 'combo':

@@ -2813,7 +2813,7 @@ w2utils.keyboard = (function (obj) {
             if (typeof obj.tmp.xhr_search == 'undefined') obj.tmp.xhr_search = '';
             if (typeof obj.tmp.xhr_total == 'undefined') obj.tmp.xhr_total = -1;
             // check if need to search
-            if (options.url && (
+            if (options.url && $(obj.el).prop('readonly') != true && (
                     (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
                     (obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
                     (search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) != obj.tmp.xhr_search) ||
@@ -2880,9 +2880,14 @@ w2utils.keyboard = (function (obj) {
                             var eventData2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
                             if (eventData2.isCancelled === true) return;
                             // default behavior
-                            console.log('ERROR: server communication failed. The server should return', 
-                                { status: 'success', items: [{ id: 1, text: 'item' }] }, 'OR', { status: 'error', message: 'error message' },
-                                ', instead the AJAX request produced this: ', errorObj);
+                            if (status != 'abort') {
+                                var data;
+                                try { data = $.parseJSON(xhr.responseText) } catch (e) {}
+                                console.log('ERROR: Server communication failed.', 
+                                    '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] }, 
+                                    '\n         OR:', { status: 'error', message: 'error message' },
+                                    '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
+                            }
                             // reset stats
                             obj.clearCache();
                             // event after
