@@ -21,6 +21,7 @@
 *   - change: get() w/o params returns all field names
 *   - changed template structure for formHTML
 *   - added toggle type - On/Off
+*   - added routeData
 *
 ************************************************************************/
 
@@ -32,8 +33,9 @@
         this.header    = '';
         this.box       = null;     // HTML element that hold this element
         this.url       = '';
-        this.formURL   = '';        // url where to get form HTML
-        this.formHTML  = '';        // form HTML (might be loaded from the url)
+        this.routeData = {};       // data for dynamic routes
+        this.formURL   = '';       // url where to get form HTML
+        this.formHTML  = '';       // form HTML (might be loaded from the url)
         this.page      = 0;        // current page
         this.recid     = 0;        // can be null or 0
         this.fields    = [];
@@ -41,11 +43,11 @@
         this.record    = {};
         this.original  = {};
         this.postData  = {};
-        this.toolbar   = {};        // if not empty, then it is toolbar
-        this.tabs      = {};         // if not empty, then it is tabs object
+        this.toolbar   = {};       // if not empty, then it is toolbar
+        this.tabs      = {};       // if not empty, then it is tabs object
 
         this.style         = '';
-        this.focus         = 0;        // focus first or other element
+        this.focus         = 0;    // focus first or other element
         this.msgNotJSON    = w2utils.lang('Return data is not in JSON format.');
         this.msgAJAXerror  = w2utils.lang('AJAX error. See console for more details.');
         this.msgRefresh    = w2utils.lang('Refreshing...');
@@ -359,6 +361,15 @@
             var url = eventData.url;
             if (typeof eventData.url == 'object' && eventData.url.get) url = eventData.url.get;
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
+            // process url with routeData
+            if (!$.isEmptyObject(obj.routeData)) {
+                var info  = w2utils.parseRoute(url);
+                if (info.keys.length > 0) {
+                    for (var k = 0; k < info.keys.length; k++) {
+                        url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
+                    }
+                }
+            }
             var ajaxOptions = {
                 type     : 'POST',
                 url      : url,
@@ -493,7 +504,15 @@
                 var url = eventData.url;
                 if (typeof eventData.url == 'object' && eventData.url.save) url = eventData.url.save;
                 if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {};
-
+                // process url with routeData
+                if (!$.isEmptyObject(obj.routeData)) {
+                    var info  = w2utils.parseRoute(url);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
+                        }
+                    }
+                }
                 var ajaxOptions = {
                     type     : 'POST',
                     url      : url,
@@ -654,7 +673,7 @@
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) {
-                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-blue'; else addClass = '';
+                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
                     buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ a + '</button>';
                 }
                 buttons += '\n</div>';

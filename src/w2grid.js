@@ -50,6 +50,7 @@
 *   - find will return array or recids not objects
 *   - added render = 'toggle'
 *   - get rid of this.buffered
+*   - added routeData
 *
 ************************************************************************/
 
@@ -61,6 +62,7 @@
         this.box          = null;     // HTML element that hold this element
         this.header       = '';
         this.url          = '';
+        this.routeData    = {};       // data for dynamic routes
         this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, [editable: {type, inTag, outTag, style, items}] }
         this.columnGroups = [];       // { span: int, caption: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changes: object }
@@ -1543,6 +1545,15 @@
             var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
             if (params.cmd == 'save-records' && typeof eventData.url == 'object')   url = eventData.url.save;
             if (params.cmd == 'delete-records' && typeof eventData.url == 'object') url = eventData.url.remove;
+            // process url with routeData
+            if (!$.isEmptyObject(obj.routeData)) {
+                var info  = w2utils.parseRoute(url);
+                if (info.keys.length > 0) {
+                    for (var k = 0; k < info.keys.length; k++) {
+                        url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
+                    }
+                }
+            }
             // ajax ptions
             var ajaxOptions = {
                 type     : 'POST',
