@@ -118,6 +118,9 @@ textarea[disabled] {
   width: 22px;
   text-align: center;
 }
+.w2ui-overlay table.w2ui-drop-menu .w2ui-icon {
+  padding-top: 1px;
+}
 .w2ui-icon.icon-reload,
 .w2ui-icon.icon-columns,
 .w2ui-icon.icon-add,

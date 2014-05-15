@@ -1232,7 +1232,7 @@ w2utils.keyboard = (function (obj) {
         }
         $('body').append(
             '<div id="w2ui-overlay'+ name +'" style="display: none"'+
-            '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
+            '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
             '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
             '</div>'
@@ -1641,7 +1641,6 @@ w2utils.keyboard = (function (obj) {
 *   - multiple date selection
 *   - month selection, year selections
 *   - arrows no longer work (for int)
-*   - add postData for autocomplete
 *   - form to support custom types
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *
@@ -2635,12 +2634,7 @@ w2utils.keyboard = (function (obj) {
                 switch (key) {
                     case 27: // escape
                         if (obj.type == 'list') {
-                            if ($(focus).val() == '') {
-                                $(obj.el).data('selected', {}).change();
-                            } else {
-                                $(focus).val('');
-                            }
-                            obj.refresh();
+                            if ($(focus).val() != '') $(focus).val('');
                             event.stopPropagation(); // escape in field should not close popup
                         }
                         break;
@@ -2697,8 +2691,9 @@ w2utils.keyboard = (function (obj) {
                             obj.tmp.force_hide = true;
                         }
                         break;
-                    case 8: // delete
-                        if (['enum'].indexOf(obj.type) != -1) {
+                    case 8:  // backspace
+                    case 46: // delete
+                        if (obj.type == 'enum' && key == 8) {
                             if ($(obj.helpers.multi).find('input').val() == '' && selected.length > 0) {
                                 var item = selected[selected.length - 1];
                                 // trigger event
@@ -2711,6 +2706,10 @@ w2utils.keyboard = (function (obj) {
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             }
+                        }
+                        if (obj.type == 'list' && $(focus).val() == '') {
+                            $(obj.el).data('selected', {}).change();
+                            obj.refresh();
                         }
                         break;
                     case 38: // up
