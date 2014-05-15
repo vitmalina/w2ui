@@ -103,7 +103,12 @@
             }
             $.extend(true, object.toolbar, toolbar);
             // reassign variables
-            for (var p in fields) object.fields[p] = $.extend(true, {}, fields[p]);
+            for (var p in fields) {
+                var field = $.extend(true, {}, fields[p]);
+                if (typeof field.name == 'undefined' && typeof field.field != 'undefined') field.name = field.field;
+                if (typeof field.field == 'undefined' && typeof field.name != 'undefined') field.field = field.name;
+                object.fields[p] = field;
+            }
             for (var p in record) {
                 if ($.isPlainObject(record[p])) {
                     object.record[p] = $.extend(true, {}, record[p]);
@@ -197,7 +202,7 @@
                 // this.clear();
                 this.request(callBack);
             } else {
-                this.refresh();
+                // this.refresh(); // no need to refresh
                 if (typeof callBack == 'function') callBack();
             }
         },
@@ -278,11 +283,11 @@
                 }
                 // === check required - if field is '0' it should be considered not empty
                 var val = this.record[field.name];
-                if ( field.required && (val === '' || ($.isArray(val) && val.length == 0)) ) {
+                if (field.required && (val === '' || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
-                if ( field.equalto && this.record[field.name]!=this.record[field.equalto] ) {
-                    errors.push({ field: field, error: w2utils.lang('Field should be equal to ')+field.equalto });
+                if (field.equalto && this.record[field.name] != this.record[field.equalto]) {
+                    errors.push({ field: field, error: w2utils.lang('Field should be equal to ') + field.equalto });
                 }
             }
             // event before
@@ -606,11 +611,13 @@
         generateHTML: function () {
             var pages = []; // array for each page
             var group = '';
+            var page;
             for (var f in this.fields) {
                 var html = '';
                 var field = this.fields[f];
                 if (typeof field.html == 'undefined') field.html = {};
                 field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
+                if (typeof page == 'undefined') page = field.html.page;
                 if (field.html.caption == '') field.html.caption = field.name;
                 var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
                 if ((field.type === 'pass') || (field.type === 'password')){
@@ -624,15 +631,23 @@
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
                     group = field.html.group;
                 }
+                if (field.html.page != page && group != '') {
+                    pages[pages.length-1] += '\n   </div>';
+                    group = '';
+                }
                 html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ 
                         '\n         <label>' + field.html.caption +':</label>'+
                         '\n         <div>'+ input + field.html.text + '</div>'+
                         '\n      </div>';
-                if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '<div class="w2ui-page page-'+ field.html.page +'">';
+                if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '';
                 pages[field.html.page] += html;
+                page = field.html.page;
             }
             if (group != '') pages[pages.length-1] += '\n   </div>';
-            for (var p in pages) pages[p] += '\n</div>';
+            if (this.tabs.tabs) {
+                for (var i = 0; i < this.tabs.tabs.length; i++) if (typeof pages[i] == 'undefined') pages[i] = '';
+            }
+            for (var p in pages) pages[p] = '<div class="w2ui-page page-'+ p +'">' + pages[p] + '\n</div>';
             // buttons if any
             var buttons = '';
             if (!$.isEmptyObject(this.actions)) {
