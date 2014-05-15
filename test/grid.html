@@ -15,7 +15,7 @@ $(function () {
     $('#grid').w2grid({ 
         name    : 'grid', 
         header  : 'List of Names',
-        // url     : 'grid2.json',
+        // url     : 'grid.json',
         // url     : {
         //     get    : 'data.php',
         //     remove : 'grid3.json',
@@ -34,10 +34,6 @@ $(function () {
             toolbarDelete: true,
             toolbarSave: true,
             toolbarAdd: true
-        },
-        onSearch: function (event) {
-            console.log('sort', event);
-            event.preventDefault();
         },
         menu: [
             { id: 1, text: 'Select Item', icon: 'fa-star' },

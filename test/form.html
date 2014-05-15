@@ -35,7 +35,7 @@
 
             },
             record: {
-                "field.toggle"        : '0',
+                "field.toggle"  : '0',
                 "field.text"    : 'some text',
                 "field.textarea": 'more text',
                 "field.date"    : '1/15/2014',
@@ -64,8 +64,8 @@
                 { field: 'field.textarea', type: 'textarea', required: true },
                 { field: 'field.date', type: 'date', required: false },
                 { field: 'field.time', type: 'time', required: false, html: { group: 'General2' } },
-                { field: 'field.color', type: 'color', required: false },
-                { field: 'field.list', type: 'list', required: false, 
+                { field: 'field.color', type: 'color', required: true },
+                { field: 'field.list', type: 'list', required: true, 
                     options: { 
                         match: 'contains',
                         items: [
