@@ -1231,7 +1231,7 @@ w2utils.keyboard = (function (obj) {
         }
         $('body').append(
             '<div id="w2ui-overlay'+ name +'" style="display: none"'+
-            '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
+            '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
             '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
             '</div>'

@@ -5,7 +5,7 @@
 *        - $().w2grid    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
-* == NICE TO HAVE ==
+* == NICE TO HAVE == 
 *   - frozen columns
 *   - add colspans
 *   - get rid of this.buffered
@@ -1677,8 +1677,8 @@
                             }
                         }
                         if (cmd == 'delete-records') {
+                            // reset() also triggers reload
                             this.reset(); // unselect old selections
-                            this.reload();
                             return;
                         }
                     }
@@ -2036,8 +2036,9 @@
             if (recs.length == 0) return;
             if (this.msgDelete != '' && !force) {
                 w2confirm({
-                    title : w2utils.lang('Delete Confirmation'), 
-                    msg   : obj.msgDelete, 
+                    title   : w2utils.lang('Delete Confirmation'), 
+                    msg     : obj.msgDelete, 
+                    btn_yes : { "class": 'btn-red' },
                     callBack: function (result) {
                         if (result == 'Yes') w2ui[obj.name].delete(true);
                     }
@@ -4754,7 +4755,7 @@
                         data = '<div>' + prefix + w2utils.age(data) + suffix + '</div>';
                     }
                     if (tmp[0] == 'toggle') {
-                        data = '<div>' + prefix + (data ? 'Yes' : 'No') + suffix + '</div>';
+                        data = '<div>' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
                     }
                 }
             } else {
