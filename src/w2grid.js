@@ -8,7 +8,6 @@
 * == NICE TO HAVE == 
 *   - frozen columns
 *   - add colspans
-*   - get rid of this.buffered
 *   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
 *   - save grid state into localStorage and restore
@@ -50,6 +49,7 @@
 *   - context menu similar to sidebar's
 *   - find will return array or recids not objects
 *   - added render = 'toggle'
+*   - get rid of this.buffered
 *
 ************************************************************************/
 
@@ -104,7 +104,6 @@
         this.markSearch     = true;
 
         this.total     = 0;     // server total
-        this.buffered  = 0;     // number of records in the records array
         this.limit     = 100;
         this.offset    = 0;     // how many records to skip (for infinite scroll) when pulling from server
         this.style     = '';
@@ -220,7 +219,6 @@
                 }
                 object.records[r] = $.extend(true, {}, records[r]);
             }
-            if (object.records.length > 0) object.buffered = object.records.length;
             // add searches
             for (var c in object.columns) {
                 var col = object.columns[c];
@@ -288,7 +286,6 @@
                 this.records.push(record[o]);
                 added++;
             }
-            this.buffered = this.records.length;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
                 this.total = this.records.length;
@@ -358,7 +355,6 @@
             }
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
-                this.buffered = this.records.length;
                 this.localSort();
                 this.localSearch();
             }
@@ -679,7 +675,6 @@
                 }
                 this.total = this.last.searchIds.length;
             }
-            this.buffered = this.total;
             time = (new Date()).getTime() - time;
             if (silent !== true) setTimeout(function () { obj.status('Search took ' + time/1000 + ' sec'); }, 10);
             return time;
@@ -1425,7 +1420,6 @@
         clear: function (noRefresh) {
             // this.offset          = 0;   // clear should not reset offset
             // this.total           = 0;   // clear should not reset total
-            this.buffered           = 0;
             this.records            = [];
             this.summary            = [];
             this.last.scrollTop     = 0;
@@ -1463,7 +1457,6 @@
                 if (this.offset > this.total) this.offset = this.total - this.limit;
                 if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
                 this.records  = [];
-                this.buffered = 0;
                 this.last.xhr_offset = 0;
                 this.last.pull_more  = true;
                 this.last.scrollTop  = 0;
@@ -1664,7 +1657,6 @@
                                 //data.xhr_status=data.status;
                                 delete data.status;
                                 $.extend(true, this, data);
-                                this.buffered = this.records.length;
                             } else {
                                 var records = data.records;
                                 delete data.records;
@@ -1674,7 +1666,6 @@
                                 for (var r in records) {
                                     this.records.push(records[r]);
                                 }
-                                this.buffered = this.records.length;
                             }
                         }
                         if (cmd == 'delete-records') {
@@ -2941,7 +2932,6 @@
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (this.total <= 0 && !url && this.searchData.length == 0) {
                 this.total = this.records.length;
-                this.buffered = this.total;
             }
             //if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             this.toolbar.disable('w2ui-edit', 'w2ui-delete');
@@ -3002,8 +2992,7 @@
             if (tmp.length > 0) {
                 for (var t in tmp) this.summary.push(this.records[tmp[t]]);
                 for (var t=tmp.length-1; t>=0; t--) this.records.splice(tmp[t], 1);
-                this.total       = this.total - tmp.length;
-                this.buffered = this.buffered - tmp.length;
+                this.total = this.total - tmp.length;
             }
 
             // -- body
@@ -3940,7 +3929,7 @@
             if (this.show.emptyRecords && !bodyOverflowY) {
                 var max = Math.floor(records.height() / this.recordHeight) + 1;
                 if (this.fixedBody) {
-                    for (var di = this.buffered; di <= max; di++) {
+                    for (var di = this.records.length; di <= max; di++) {
                         var html  = '';
                         html += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'px">';
                         if (this.show.lineNumbers)  html += '<td class="w2ui-col-number"></td>';
@@ -4432,10 +4421,10 @@
 
         getRecordsHTML: function () {
             // larget number works better with chrome, smaller with FF.
-            if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300;
+            if (this.records.length > 300) this.show_extra = 30; else this.show_extra = 300;
             var records    = $('#grid_'+ this.name +'_records');
             var limit    = Math.floor(records.height() / this.recordHeight) + this.show_extra + 1;
-            if (!this.fixedBody) limit = this.buffered;
+            if (!this.fixedBody) limit = this.records.length;
             // always need first record for resizing purposes
             var html = '<table>' + this.getRecordHTML(-1, 0);
             // first empty row with height
@@ -4445,7 +4434,7 @@
             for (var i = 0; i < limit; i++) {
                 html += this.getRecordHTML(i, i+1);
             }
-            html += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((this.buffered - limit) * this.recordHeight) +'px">'+
+            html += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((this.records.length - limit) * this.recordHeight) +'px">'+
                     '    <td colspan="200"></td>'+
                     '</tr>'+
                     '<tr id="grid_'+ this.name +'_rec_more" style="display: none">'+
@@ -4472,20 +4461,20 @@
             var obj     = this;
             var records = $('#grid_'+ this.name +'_records');
             if (this.records.length == 0 || records.length == 0 || records.height() == 0) return;
-            if (this.buffered > 300) this.show_extra = 30; else this.show_extra = 300;
+            if (this.records.length > 300) this.show_extra = 30; else this.show_extra = 300;
             // need this to enable scrolling when this.limit < then a screen can fit
-            if (records.height() < this.buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
+            if (records.height() < this.records.length * this.recordHeight && records.css('overflow-y') == 'hidden') {
                 if (this.total > 0) this.refresh();
                 return;
             }
             // update footer
             var t1 = Math.round(records[0].scrollTop / this.recordHeight + 1);
             var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
-            if (t1 > this.buffered) t1 = this.buffered;
-            if (t2 > this.buffered) t2 = this.buffered;
+            if (t1 > this.records.length) t1 = this.records.length;
+            if (t2 > this.records.length) t2 = this.records.length;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) +
-                    (url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
+                    (url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.records.length) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
             );
             // only for local data source, else no extra records loaded
             if (!url && (!this.fixedBody || this.total <= 300)) return;
@@ -4546,7 +4535,7 @@
             }
             // first/last row size
             var h1 = (start - 1) * obj.recordHeight;
-            var h2 = (this.buffered - end) * obj.recordHeight;
+            var h2 = (this.records.length - end) * obj.recordHeight;
             if (h2 < 0) h2 = 0;
             tr1.css('height', h1 + 'px');
             tr2.css('height', h2 + 'px');
@@ -4555,7 +4544,7 @@
             // load more if needed
             var s = Math.floor(records[0].scrollTop / this.recordHeight);
             var e = s + Math.floor(records.height() / this.recordHeight);
-            if (e + 10 > this.buffered && this.last.pull_more !== true && this.buffered < this.total - this.offset) {
+            if (e + 10 > this.records.length && this.last.pull_more !== true && this.records.length < this.total - this.offset) {
                 if (this.autoLoad === true) {
                     this.last.pull_more = true;
                     this.last.xhr_offset += this.limit;
@@ -4578,7 +4567,7 @@
                 }
             }
             // check for grid end
-            if (this.buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
+            if (this.records.length >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
             return;
 
             function markSearch() {
@@ -4797,7 +4786,7 @@
         getFooterHTML: function () {
             return '<div>'+
                 '    <div class="w2ui-footer-left"></div>'+
-                '    <div class="w2ui-footer-right">'+ this.buffered +'</div>'+
+                '    <div class="w2ui-footer-right">'+ this.records.length +'</div>'+
                 '    <div class="w2ui-footer-center"></div>'+
                 '</div>';
         },
