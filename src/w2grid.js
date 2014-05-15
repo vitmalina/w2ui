@@ -1423,22 +1423,23 @@
         },
 
         clear: function (noRefresh) {
-            this.offset           = 0;
-            this.total            = 0;
-            this.buffered         = 0;
-            this.records          = [];
-            this.summary          = [];
-            this.last.scrollTop   = 0;
-            this.last.scrollLeft  = 0;
-            this.last.range_start = null;
-            this.last.range_end   = null;
-            this.last.xhr_offset  = 0;
+            // this.offset          = 0;   // clear should not reset offset
+            // this.total           = 0;   // clear should not reset total
+            this.buffered           = 0;
+            this.records            = [];
+            this.summary            = [];
+            this.last.scrollTop     = 0;
+            this.last.scrollLeft    = 0;
+            this.last.range_start   = null;
+            this.last.range_end     = null;
+            // this.last.xhr_offset = 0;    // clear should not reset offset
             if (!noRefresh) this.refresh();
         },
 
         reset: function (noRefresh) {
             // reset last remembered state
             this.offset                 = 0;
+            this.total                  = 0;
             this.last.scrollTop         = 0;
             this.last.scrollLeft        = 0;
             this.last.selection.indexes = [];
@@ -1459,8 +1460,8 @@
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url) {
                 this.offset = parseInt(offset);
-                if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
                 if (this.offset > this.total) this.offset = this.total - this.limit;
+                if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
                 this.records  = [];
                 this.buffered = 0;
                 this.last.xhr_offset = 0;
@@ -3320,8 +3321,10 @@
                         '<tr><td colspan="2" style="padding: 0px">'+
                         '    <div style="cursor: pointer; padding: 2px 8px; cursor: default">'+ w2utils.lang('Skip') +
                         '        <input type="text" style="width: 45px" value="'+ this.offset +'" '+
-                        '            onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'skip\', this.value); '+
-                        '            $(\'#w2ui-overlay\')[0].hide();"> '+ w2utils.lang('Records')+
+                        '            onkeypress="if (event.keyCode == 13) { '+
+                        '               w2ui[\''+ obj.name +'\'].skip(this.value); '+
+                        '               $(\'#w2ui-overlay\')[0].hide(); '+
+                        '            }"> '+ w2utils.lang('Records')+
                         '    </div>'+
                         '</td></tr>';
             }
@@ -3584,7 +3587,7 @@
             }
         },
 
-        columnOnOff: function (el, event, field, value) {
+        columnOnOff: function (el, event, field) {
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, originalEvent: event });
             if (eventData.isCancelled === true) return;
@@ -3599,9 +3602,6 @@
             if (field == 'line-numbers') {
                 this.show.lineNumbers = !this.show.lineNumbers;
                 this.refresh();
-            } else if (field == 'skip') {
-                if (!w2utils.isInt(value)) value = 0;
-                obj.skip(value);
             } else if (field == 'resize') {
                 // restore sizes
                 for (var c in this.columns) {
