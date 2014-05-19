@@ -392,7 +392,7 @@
                 .done(function (data, status, xhr) {
                     obj.unlock();
                     // event before
-                    var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr, status: status });
+                    var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr });
                     if (eventData.isCancelled === true) {
                         if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                         return;
@@ -422,7 +422,7 @@
                             if (data['status'] == 'error') {
                                 obj.error(data['message']);
                             } else {
-                                obj.record      = $.extend({}, data.record);
+                                obj.record   = $.extend({}, data.record);
                                 obj.original = $.extend({}, data.record);
                             }
                         }
