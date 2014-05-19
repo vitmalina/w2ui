@@ -656,11 +656,14 @@
                                 }
                                 break;
                             case 'in':
-                                if (sdata.svalue) {
-                                    if (sdata.svalue.indexOf(val1) !== -1) fl++;
-                                } else {
-                                    if (sdata.value.indexOf(val1) !== -1) fl++;
-                                }
+                                var tmp = sdata.value;
+                                if (sdata.svalue) tmp = sdata.svalue;
+                                if (tmp.indexOf(val1) !== -1) fl++;
+                                break;
+                            case 'not in':
+                                var tmp = sdata.value;
+                                if (sdata.svalue) tmp = sdata.svalue;
+                                if (tmp.indexOf(val1) == -1) fl++;
                                 break;
                             case 'begins':
                                 if (val1.indexOf(val2) == 0) fl++; // do not hide record
@@ -1022,7 +1025,9 @@
                     if (this.selectType != 'row') sel.columns[this.last.searchIds[i]] = cols.slice(); // .slice makes copy of the array
                 }
             } else {
-                for (var i = 0; i < this.records.length; i++) {
+                var buffered = this.records.length;
+                if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+                for (var i = 0; i < buffered; i++) {
                     sel.indexes.push(i);
                     if (this.selectType != 'row') sel.columns[i] = cols.slice(); // .slice makes copy of the array
                 }
@@ -1133,6 +1138,8 @@
                         if (operator == 'between') {
                             $.extend(tmp, { value: [value1, value2] });
                         } else if (operator == 'in' && typeof value1 == 'string') {
+                            $.extend(tmp, { value: value1.split(',') });
+                        } else if (operator == 'not in' && typeof value1 == 'string') {
                             $.extend(tmp, { value: value1.split(',') });
                         } else {
                             $.extend(tmp, { value: value1 });
@@ -2579,16 +2586,18 @@
         },
 
         scrollIntoView: function (ind) {
+            var buffered = this.records.length;
+            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
             if (typeof ind == 'undefined') {
                 var sel = this.getSelection();
                 if (sel.length == 0) return;
-                ind    = this.get(sel[0], true);
+                ind = this.get(sel[0], true);
             }
-            var records    = $('#grid_'+ this.name +'_records');
-            if (records.length == 0) return;
+            var records = $('#grid_'+ this.name +'_records');
+            if (buffered == 0) return;
             // if all records in view
             var len = this.last.searchIds.length;
-            if (records.height() > this.recordHeight * (len > 0 ? len : this.records.length)) return;
+            if (records.height() > this.recordHeight * (len > 0 ? len : buffered)) return;
             if (len > 0) ind = this.last.searchIds.indexOf(ind); // if seach is applied
             // scroll to correct one
             var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
@@ -3916,6 +3925,8 @@
                 body.css('height', calculatedHeight);
             }
 
+            var buffered = this.records.length;
+            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
             // check overflow
             var bodyOverflowX = false;
             var bodyOverflowY = false;
@@ -3940,7 +3951,7 @@
             if (this.show.emptyRecords && !bodyOverflowY) {
                 var max = Math.floor(records.height() / this.recordHeight) + 1;
                 if (this.fixedBody) {
-                    for (var di = this.records.length; di <= max; di++) {
+                    for (var di = buffered; di <= max; di++) {
                         var html  = '';
                         html += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'px">';
                         if (this.show.lineNumbers)  html += '<td class="w2ui-col-number"></td>';
@@ -4125,6 +4136,7 @@
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');" onclick="event.stopPropagation();">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         (['int'].indexOf(s.type) != -1 ? '<option value="in">'+ w2utils.lang('in') +'</option>' : '') +
+                        (['int'].indexOf(s.type) != -1 ? '<option value="not in">'+ w2utils.lang('not in') +'</option>' : '') +
                         '<option value="between">'+ w2utils.lang('between') +'</option>'+
                         '</select>';
                 }
@@ -4136,14 +4148,13 @@
                 if (['enum'].indexOf(s.type) != -1) {
                     var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
                         '    <option value="in">'+ w2utils.lang('in') +'</option>'+
+                        '    <option value="in">'+ w2utils.lang('not in') +'</option>'+
                         '</select>';
                 }
                 html += '<tr>'+
                         '    <td class="close-btn">'+ btn +'</td>' +
                         '    <td class="caption">'+ s.caption +'</td>' +
-                        '    <td class="operator">'+ operator +
-                                '<div class="arrow-down" style="position: absolute; display: inline-block; margin: 9px 0px 0px -13px; pointer-events: none;"></div>'+
-                        '    </td>'+
+                        '    <td class="operator">'+ operator +'</td>'+
                         '    <td class="value">';
 
                 switch (s.type) {
@@ -4195,7 +4206,7 @@
              var range  = $('#grid_'+ obj.name + '_range_'+ search_ind);
             var fld1    = $('#grid_'+ obj.name +'_field_'+ search_ind);
             var fld2    = fld1.parent().find('span input');
-            if ($(el).val() == 'in') { fld1.w2field('clear'); } else { fld1.w2field(search.type); }
+            if ($(el).val() == 'in' || $(el).val() == 'not in') { fld1.w2field('clear'); } else { fld1.w2field(search.type); }
             if ($(el).val() == 'between') { range.show(); fld2.w2field(search.type); } else { range.hide(); }
         },
 
@@ -4224,7 +4235,7 @@
                     case 'percent':
                     case 'date':
                     case 'time':
-                        if (sdata && sdata.type == 'int' && sdata.operator == 'in') break;
+                        if (sdata && sdata.type == 'int' && ['in', 'not in'].indexOf(sdata.operator) != -1) break;
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
                         $('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
                         setTimeout(function () { // convert to date if it is number
@@ -4269,14 +4280,14 @@
                         break;
                 }
                 if (sdata != null) {
-                    if (sdata.type == 'int' && sdata.operator == 'in') {
+                    if (sdata.type == 'int' && ['in', 'not in'].indexOf(sdata.operator) != -1) {
                         $('#grid_'+ this.name +'_field_'+ s).w2field('clear').val(sdata.value);
                     }
                     $('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
                     if (!$.isArray(sdata.value)) {
                         if (typeof sdata.value != 'udefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
                     } else {
-                        if (sdata.operator == 'in') {
+                        if (['in', 'not in'].indexOf(sdata.operator) != -1) {
                             $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
                         } else {
                             $('#grid_'+ this.name +'_field_'+ s).val(sdata.value[0]).trigger('change');
@@ -4287,7 +4298,7 @@
             }
             // add on change event
             $('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
-                if (evnt.keyCode == 13 && (evnt.ctrlKey || evnt.metaKey)) {
+                if (evnt.keyCode == 13) {
                     obj.search();
                     $().w2overlay();
                 }
@@ -4431,11 +4442,13 @@
         },
 
         getRecordsHTML: function () {
+            var buffered = this.records.length;
+            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
             // larget number works better with chrome, smaller with FF.
-            if (this.records.length > 300) this.show_extra = 30; else this.show_extra = 300;
-            var records    = $('#grid_'+ this.name +'_records');
+            if (buffered > 300) this.show_extra = 30; else this.show_extra = 300;
+            var records  = $('#grid_'+ this.name +'_records');
             var limit    = Math.floor(records.height() / this.recordHeight) + this.show_extra + 1;
-            if (!this.fixedBody) limit = this.records.length;
+            if (!this.fixedBody || limit > buffered) limit = buffered;
             // always need first record for resizing purposes
             var html = '<table>' + this.getRecordHTML(-1, 0);
             // first empty row with height
@@ -4445,7 +4458,7 @@
             for (var i = 0; i < limit; i++) {
                 html += this.getRecordHTML(i, i+1);
             }
-            html += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((this.records.length - limit) * this.recordHeight) +'px">'+
+            html += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((buffered - limit) * this.recordHeight) +'px">'+
                     '    <td colspan="200"></td>'+
                     '</tr>'+
                     '<tr id="grid_'+ this.name +'_rec_more" style="display: none">'+
@@ -4471,21 +4484,23 @@
             var time    = (new Date()).getTime();
             var obj     = this;
             var records = $('#grid_'+ this.name +'_records');
-            if (this.records.length == 0 || records.length == 0 || records.height() == 0) return;
-            if (this.records.length > 300) this.show_extra = 30; else this.show_extra = 300;
+            var buffered = this.records.length;
+            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            if (buffered == 0 || records.length == 0 || records.height() == 0) return;
+            if (buffered > 300) this.show_extra = 30; else this.show_extra = 300;
             // need this to enable scrolling when this.limit < then a screen can fit
-            if (records.height() < this.records.length * this.recordHeight && records.css('overflow-y') == 'hidden') {
+            if (records.height() < buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
                 if (this.total > 0) this.refresh();
                 return;
             }
             // update footer
             var t1 = Math.round(records[0].scrollTop / this.recordHeight + 1);
             var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
-            if (t1 > this.records.length) t1 = this.records.length;
-            if (t2 > this.records.length) t2 = this.records.length;
+            if (t1 > buffered) t1 = buffered;
+            if (t2 > buffered) t2 = buffered;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) +
-                    (url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(this.records.length) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
+                    (url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
             );
             // only for local data source, else no extra records loaded
             if (!url && (!this.fixedBody || this.total <= 300)) return;
@@ -4546,7 +4561,7 @@
             }
             // first/last row size
             var h1 = (start - 1) * obj.recordHeight;
-            var h2 = (this.records.length - end) * obj.recordHeight;
+            var h2 = (buffered - end) * obj.recordHeight;
             if (h2 < 0) h2 = 0;
             tr1.css('height', h1 + 'px');
             tr2.css('height', h2 + 'px');
@@ -4555,7 +4570,7 @@
             // load more if needed
             var s = Math.floor(records[0].scrollTop / this.recordHeight);
             var e = s + Math.floor(records.height() / this.recordHeight);
-            if (e + 10 > this.records.length && this.last.pull_more !== true && this.records.length < this.total - this.offset) {
+            if (e + 10 > buffered && this.last.pull_more !== true && buffered < this.total - this.offset) {
                 if (this.autoLoad === true) {
                     this.last.pull_more = true;
                     this.last.xhr_offset += this.limit;
@@ -4578,7 +4593,7 @@
                 }
             }
             // check for grid end
-            if (this.records.length >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
+            if (buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
             return;
 
             function markSearch() {
@@ -4797,7 +4812,7 @@
         getFooterHTML: function () {
             return '<div>'+
                 '    <div class="w2ui-footer-left"></div>'+
-                '    <div class="w2ui-footer-right">'+ this.records.length +'</div>'+
+                '    <div class="w2ui-footer-right"></div>'+
                 '    <div class="w2ui-footer-center"></div>'+
                 '</div>';
         },
