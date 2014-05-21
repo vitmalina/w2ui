@@ -2240,7 +2240,7 @@
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    obj["delete"]();
+                    if (this.show.toolbarDelete) obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
