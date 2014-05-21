@@ -628,13 +628,11 @@ var w2popup = {};
                 'width': width,
                 'height': height
             });
-            if (typeof callBack == 'function') {
-                setTimeout(function () {
-                    options.width  = width;
-                    options.height = height;
-                    callBack();
-                }, (options.speed * 1000) + 50); // give extra 50 ms
-            }
+            setTimeout(function () {
+                options.width  = width;
+                options.height = height;
+                if (typeof callBack == 'function') callBack();
+            }, (options.speed * 1000) + 50); // give extra 50 ms
         }
     }
 
