@@ -13,9 +13,6 @@
 }
 .w2ui-reset * {
   color: default;
-  font-family: Verdana, Arial;
-  font-size: 11px;
-  /* font-weight: normal; - if enabled, then tr cannot have font-weight: bold; */
   line-height: 100%;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -25,7 +22,13 @@
   margin: 0px;
   padding: 0px;
 }
+.w2ui-reset div {
+  font-family: Verdana, Arial;
+  font-size: 11px;
+}
 .w2ui-reset table {
+  font-family: Verdana, Arial;
+  font-size: 11px;
   max-width: none;
   background-color: transparent;
   border-collapse: separate;
@@ -65,6 +68,10 @@
 /*************************************************
 * ---- Input Controls ----
 */
+body {
+  font-family: Verdana, Arial;
+  font-size: 11px;
+}
 input:not([type=button]),
 select,
 textarea {

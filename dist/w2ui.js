@@ -3869,7 +3869,7 @@ w2utils.keyboard = (function (obj) {
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    obj["delete"]();
+                    if (this.show.toolbarDelete) obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
@@ -7749,7 +7749,7 @@ var w2popup = {};
             speed     : 0.3,
             modal     : false,
             maximized : false,
-            keyboard  : true,        // will close popup on esc if not modal
+            keyboard  : true,     // will close popup on esc if not modal
             width     : 500,
             height    : 300,
             showClose : true,
@@ -8026,7 +8026,7 @@ var w2popup = {};
         },
 
         toggle: function () {
-            var obj        = this;
+            var obj     = this;
             var options = $('#w2ui-popup').data('options');
             // trigger event
             var eventData = this.trigger({ phase: 'before', type: 'toggle', target: 'popup', options: options });
@@ -8047,11 +8047,11 @@ var w2popup = {};
             var eventData = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options });
             if (eventData.isCancelled === true) return;
             // default behavior
-            w2popup.status       = 'resizing';
-            options.prevSize  = $('#w2ui-popup').css('width')+':'+$('#w2ui-popup').css('height');
+            w2popup.status   = 'resizing';
+            options.prevSize = $('#w2ui-popup').css('width') + ':' + $('#w2ui-popup').css('height');
             // do resize
             w2popup.resize(10000, 10000, function () {
-                w2popup.status = 'open';
+                w2popup.status    = 'open';
                 options.maximized = true;
                 obj.trigger($.extend(eventData, { phase: 'after'}));
             });
@@ -8144,8 +8144,8 @@ var w2popup = {};
             if (typeof options.width == 'undefined' || options.width > poptions.width - 10) options.width = poptions.width - 10;
             if (typeof options.height == 'undefined' || options.height > poptions.height - 40) options.height = poptions.height - 40; // title is 30px or so
 
-            var head      = $('#w2ui-popup .w2ui-msg-title');
-            var pwidth      = parseInt($('#w2ui-popup').width());
+            var head     = $('#w2ui-popup .w2ui-msg-title');
+            var pwidth   = parseInt($('#w2ui-popup').width());
             var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
             // remove message
             if ($.trim(options.html) == '') {
@@ -8300,11 +8300,11 @@ var w2popup = {};
                 'width': width,
                 'height': height
             });
-            if (typeof callBack == 'function') {
-                setTimeout(function () {
-                    callBack();
-                }, (options.speed * 1000) + 50); // give extra 50 ms
-            }
+            setTimeout(function () {
+                options.width  = width;
+                options.height = height;
+                if (typeof callBack == 'function') callBack();
+            }, (options.speed * 1000) + 50); // give extra 50 ms
         }
     }
 
