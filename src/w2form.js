@@ -873,6 +873,7 @@
                     case 'text':
                     case 'textarea':
                     case 'email':
+                    case 'pass':
                     case 'password':
                         field.el.value = value;
                         break;
