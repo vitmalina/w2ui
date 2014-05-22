@@ -2090,7 +2090,7 @@
             }
             if (typeof event == 'undefined') event = {};
             // check for double click
-            if (time - parseInt(this.last.click_time) < 250 && event.type == 'click') {
+            if (time - parseInt(this.last.click_time) < 350 && event.type == 'click') {
                 this.dblClick(recid, event);
                 return;
             }
