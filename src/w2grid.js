@@ -10,7 +10,6 @@
 *   - add colspans
 *   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
-*   - save grid state into localStorage and restore
 *   - easy bubbles in the grid
 *   - More than 2 layers of header groups
 *   - reorder columns/records
@@ -20,6 +19,7 @@
 *   - add grid.focus()
 *   - add showExtra, KickIn Infinite scroll when so many records
 *   - after edit stay on the same record option
+*   - allow render: function to be filters
 *
 * == 1.4 changes
 *   - for search fields one should be able to pass w2field options
@@ -51,6 +51,7 @@
 *   - added render = 'toggle'
 *   - get rid of this.buffered
 *   - added routeData
+*   - save grid state into localStorage and restore
 *
 ************************************************************************/
 
@@ -151,6 +152,8 @@
         this.onReload           = null;
         this.onResize           = null;
         this.onDestroy          = null;
+        this.onStateSave        = null;
+        this.onStateRestore     = null;
 
         // internal
         this.last = {
@@ -3122,6 +3125,8 @@
             // init footer
             $('#grid_'+ this.name +'_footer').html(this.getFooterHTML());            
             // refresh
+            if (!this.last.state) this.last.state = this.stateSave(true); // initial default state
+            this.stateRestore();
             if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
             this.reload();
 
@@ -3337,8 +3342,11 @@
                         '    </div>'+
                         '</td></tr>';
             }
-            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'resize\'); $(\'#w2ui-overlay\')[0].hide();">'+
-                        '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Reset Column Size') + '</div>'+
+            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateSave(); $(\'#w2ui-overlay\')[0].hide();">'+
+                        '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Save Grid State') + '</div>'+
+                        '</td></tr>'+
+                        '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateReset(); $(\'#w2ui-overlay\')[0].hide();">'+
+                        '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Restore Default State') + '</div>'+
                         '</td></tr>';
             col_html += "</table></div>";
             this.toolbar.get('w2ui-column-on-off').html = col_html;
@@ -3611,15 +3619,6 @@
             if (field == 'line-numbers') {
                 this.show.lineNumbers = !this.show.lineNumbers;
                 this.refresh();
-            } else if (field == 'resize') {
-                // restore sizes
-                for (var c in this.columns) {
-                    if (typeof this.columns[c].sizeOriginal != 'undefined') {
-                        this.columns[c].size = this.columns[c].sizeOriginal;
-                    }
-                }
-                this.initResize();
-                this.resize();
             } else {
                 var col = this.getColumn(field);
                 if (col.hidden) {
@@ -4743,7 +4742,7 @@
                     data = $.trim(col.render.call(this, record, ind, col_ind));
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div>' + data + '</div>';
                 }
-                if (typeof col.render == 'object')   data = '<div>' + col.render[data] + '</div>';
+                if (typeof col.render == 'object')   data = '<div>' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
                     var tmp = col.render.toLowerCase().split(':');
                     var prefix = '';
@@ -4847,6 +4846,122 @@
         unlock: function () {
             var box = this.box;
             setTimeout(function () { w2utils.unlock(box); }, 25); // needed timer so if server fast, it will not flash
+        },
+
+        stateSave: function (returnOnly) {
+            if (!localStorage) return null;
+            var state = {
+                columns     : [],
+                show        : $.extend({}, this.show),
+                last        : {
+                    search      : this.last.search,
+                    multi       : this.last.multi,
+                    logic       : this.last.logic,
+                    caption     : this.last.caption,
+                    field       : this.last.field,
+                    scrollTop   : this.last.scrollTop,
+                    scrollLeft  : this.last.scrollLeft
+                },
+                sortData    : [],
+                searchData  : [],
+            };
+            for (var i in this.columns) {
+                var col = this.columns[i];
+                state.columns.push({
+                    field           : col.field,
+                    hidden          : col.hidden,
+                    size            : col.size,
+                    sizeCalculated  : col.sizeCalculated,
+                    sizeOriginal    : col.sizeOriginal,
+                    sizeType        : col.sizeType
+                });
+            }
+            for (var i in this.sortData) state.sortData.push($.extend({}, this.sortData[i]));
+            for (var i in this.searchData) state.searchData.push($.extend({}, this.searchData[i]));
+            // save into local storage
+            if (returnOnly !== true) {
+                // event before
+                var eventData = this.trigger({ phase: 'before', type: 'stateSave', target: this.name, state: state });
+                if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
+                try {
+                    var savedState = $.parseJSON(localStorage.w2ui || '{}');
+                    if (!savedState) savedState = {};
+                    if (!savedState.states) savedState.states = {};
+                    savedState.states[this.name] = state;
+                    localStorage.w2ui = JSON.stringify(savedState);
+                } catch (e) {
+                    delete localStorage.w2ui;
+                    return null;
+                }
+                // event after
+                this.trigger($.extend(eventData, { phase: 'after' }));
+            }
+            return state;
+        },
+
+        stateRestore: function (newState) {
+            var obj = this;
+            if (!newState) {
+                // read it from local storage
+                try {
+                    if (!localStorage) return false;
+                    var tmp = $.parseJSON(localStorage.w2ui || '{}');
+                    if (!tmp) tmp = {};
+                    if (!tmp.states) tmp.states = {};
+                    newState = tmp.states[this.name];
+                } catch (e) {
+                    delete localStorage.w2ui;
+                    return null;
+                }
+            }
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'stateRestore', target: this.name, state: newState });
+            if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
+            // default behavior
+            if ($.isPlainObject(newState)) {
+                $.extend(this.show, newState.show);
+                $.extend(this.last, newState.last);
+                var sTop  = this.last.scrollTop;
+                var sLeft = this.last.scrollLeft;
+                for (var c in newState.columns) {
+                    var tmp = newState.columns[c];
+                    var col = this.getColumn(tmp.field);
+                    if (col) $.extend(col, tmp);
+                }
+                this.sortData.splice(0, this.sortData.length);
+                for (var c in newState.sortData) this.sortData.push(newState.sortData[c]);
+                this.searchData.splice(0, this.searchData.length);
+                for (var c in newState.searchData) this.searchData.push(newState.searchData[c]);
+                // apply sort and search
+                setTimeout(function () {
+                    // needs timeout as records need to be populated
+                    if (obj.sortData.length > 0) obj.localSort();
+                    if (obj.searchData.length > 0) obj.localSearch();
+                    obj.last.scrollTop  = sTop;
+                    obj.last.scrollLeft = sLeft;
+                    obj.refresh();
+                }, 1);
+            }
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
+            return true;
+        },
+
+        stateReset: function () {
+            this.stateRestore(this.last.state);
+            // remove from local storage
+            if (localStorage) {
+                try {
+                    var tmp = $.parseJSON(localStorage.w2ui || '{}');
+                    if (tmp.states && tmp.states[this.name]) {
+                        delete tmp.states[this.name];
+                    }
+                    localStorage.w2ui = JSON.stringify(tmp);
+                } catch (e) {
+                    delete localStorage.w2ui;
+                    return null;
+                }                
+            }
         },
 
         parseField: function (obj, field) {
