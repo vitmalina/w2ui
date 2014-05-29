@@ -23,11 +23,11 @@
   padding: 0px;
 }
 .w2ui-reset div {
-  font-family: Verdana, Arial;
+  font-family: Verdana, Arial, sans-serif;
   font-size: 11px;
 }
 .w2ui-reset table {
-  font-family: Verdana, Arial;
+  font-family: Verdana, Arial, sans-serif;
   font-size: 11px;
   max-width: none;
   background-color: transparent;
@@ -69,7 +69,7 @@
 * ---- Input Controls ----
 */
 body {
-  font-family: Verdana, Arial;
+  font-family: Verdana, Arial, sans-serif;
   font-size: 11px;
 }
 input:not([type=button]),
@@ -202,7 +202,7 @@ input[type=checkbox].w2ui-toggle:focus {
   box-shadow: 1px 1px 3px #000000;
   line-height: 100%;
   font-size: 11px;
-  font-family: Verdana, Arial;
+  font-family: Verdana, Arial, sans-serif;
 }
 .w2ui-tag .w2ui-tag-body:before {
   content: "";
@@ -294,7 +294,7 @@ input[type=checkbox].w2ui-toggle:focus {
   text-overflow: ellipsis;
   overflow: hidden;
   font-size: 13px;
-  font-family: Verdana, Arial;
+  font-family: Verdana, Arial, sans-serif;
   opacity: 0.8;
   filter: alpha(opacity=80);
   background-color: #555555;
@@ -592,7 +592,6 @@ input[type=checkbox].w2ui-toggle:focus {
 .w2ui-field > label {
   display: block;
   float: left;
-  clear: left;
   margin-top: 7px;
   margin-bottom: 3px;
   width: 120px;
@@ -602,6 +601,7 @@ input[type=checkbox].w2ui-toggle:focus {
   text-overflow: ellipsis;
   text-align: right;
   min-height: 20px;
+  color: #666;
 }
 .w2ui-field > div {
   /* do not include width */
@@ -1739,7 +1739,7 @@ input[type=checkbox].w2ui-toggle:focus {
 }
 .w2ui-overlay .w2ui-select-field table {
   font-size: 11px;
-  font-family: Verdana, Arial;
+  font-family: Verdana, Arial, sans-serif;
   border-spacing: 0px;
   border-collapse: border-collapse;
 }
@@ -1902,7 +1902,7 @@ input[type=checkbox].w2ui-toggle:focus {
   position: fixed;
   z-index: 1600;
   overflow: hidden;
-  font-family: Verdana, Arial;
+  font-family: Verdana, Arial, sans-serif;
   border-radius: 6px;
   padding: 0px;
   margin: 0px;
