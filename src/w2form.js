@@ -655,7 +655,7 @@
                     group = '';
                 }
                 html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ 
-                        '\n         <label>' + field.html.caption +':</label>'+
+                        '\n         <label>' + field.html.caption +'</label>'+
                         '\n         <div>'+ input + field.html.text + '</div>'+
                         '\n      </div>';
                 if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '';
