@@ -58,6 +58,7 @@
         "Confirmation" : "Bestätigung",
         "Notification" : "Nachricht",
         "Show" : "Zeigen",
-        "Hide" : "Verbergen"
+        "Hide" : "Verbergen",
+        "buffered" : "gepuffert"
     }
 }
