@@ -52,6 +52,8 @@
 *   - get rid of this.buffered
 *   - added routeData
 *   - save grid state into localStorage and restore
+*   - added user-select with alt key
+*   - added grid.show.skipRecords
 *
 ************************************************************************/
 
@@ -91,7 +93,8 @@
             toolbarDelete   : false,
             toolbarSave     : false,
             selectionBorder : true,
-            recordTitles    : true
+            recordTitles    : true,
+            skipRecords     : true
         };
 
         this.autoLoad       = true;     // for infinite scroll
@@ -1352,7 +1355,7 @@
                     if (this.searches[s].hidden === true) continue;
                 }
                 html += '<tr '+ (this.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\')">'+
-                        '    <td><input type="checkbox" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : 'disabled') +'></td>'+
+                        '    <td><input type="radio" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : '') +'></td>'+
                         '    <td>'+ search.caption +'</td>'+
                         '</tr>';
             }
@@ -2086,7 +2089,7 @@
         click: function (recid, event) {
             var time = (new Date()).getTime();
             var column = null;
-            if (this.last.cancelClick == true) return;
+            if (this.last.cancelClick == true || (event && event.altKey)) return;
             if (typeof recid == 'object') {
                 column = recid.column;
                 recid  = recid.recid;
@@ -2642,6 +2645,7 @@
 
         contextMenu: function (recid, event) {
             var obj = this;
+            if (obj.last.userSelect == 'text') return;
             if (typeof event.offsetX === 'undefined') {
                 event.offsetX = event.layerX - event.target.offsetLeft;
                 event.offsetY = event.layerY - event.target.offsetTop;
@@ -2667,6 +2671,8 @@
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after' }));
             }, 150); // need timer 150 for FF
+            // cancel event
+            if (event.preventDefault) event.preventDefault();
         },
 
         menuClick: function (recid, index, event) {
@@ -3144,20 +3150,45 @@
             return (new Date()).getTime() - time;
 
             function mouseStart (event) {
+                if (event.which != 1) return; // if not left mouse button
+                // restore css user-select
+                if (obj.last.userSelect == 'text') {
+                    delete obj.last.userSelect;
+                    $(obj.box).find('.w2ui-grid-body')
+                        .css('user-select', 'none')
+                        .css('-webkit-user-select', 'none')
+                        .css('-moz-user-select', 'none')
+                        .css('-ms-user-select', 'none');
+                    $(this.box).on('selectstart', function () { return false; });
+                }
+                // regular record select
                 if ($(event.target).parents().hasClass('w2ui-head') || $(event.target).hasClass('w2ui-head')) return;
                 if (obj.last.move && obj.last.move.type == 'expand') return;
-                if (!obj.multiSelect) return;
-                obj.last.move = {
-                    x      : event.screenX,
-                    y      : event.screenY,
-                    divX   : 0,
-                    divY   : 0,
-                    recid  : $(event.target).parents('tr').attr('recid'),
-                    column : (event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col')),
-                    type   : 'select',
-                    ghost  : false,
-                    start  : true
-                };
+                // if altKey - alow text selection
+                if (event.altKey) {
+                    $(obj.box).off('selectstart');
+                    $(obj.box).find('.w2ui-grid-body')
+                        .css('user-select', 'text')
+                        .css('-webkit-user-select', 'text')
+                        .css('-moz-user-select', 'text')
+                        .css('-ms-user-select', 'text');
+                    obj.selectNone();
+                    obj.last.move       = { type: 'text-select' };
+                    obj.last.userSelect = 'text';
+                } else {
+                    if (!obj.multiSelect) return;
+                    obj.last.move = {
+                        x      : event.screenX,
+                        y      : event.screenY,
+                        divX   : 0,
+                        divY   : 0,
+                        recid  : $(event.target).parents('tr').attr('recid'),
+                        column : (event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col')),
+                        type   : 'select',
+                        ghost  : false,
+                        start  : true
+                    };
+                }
                 $(document).on('mousemove', mouseMove);
                 $(document).on('mouseup', mouseStop);
             }
@@ -3263,15 +3294,16 @@
                 var mv = obj.last.move;
                 setTimeout(function () { delete obj.last.cancelClick; }, 1);
                 if ($(event.target).parents().hasClass('.w2ui-head') || $(event.target).hasClass('.w2ui-head')) return;
-                if (!mv || mv.type != 'select') return;
-                if (obj.reorderRows == true) {
-                    var ind1 = obj.get(mv.from, true);
-                    var tmp  = obj.records[ind1];
-                    obj.records.splice(ind1, 1);
-                    var ind2 = obj.get(mv.to, true);
-                    if (ind1 > ind2) obj.records.splice(ind2, 0, tmp); else obj.records.splice(ind2+1, 0, tmp);
-                    $('#grid_'+ obj.name + '_ghost').remove();
-                    obj.refresh();
+                if (mv && mv.type == 'select') {
+                    if (obj.reorderRows == true) {
+                        var ind1 = obj.get(mv.from, true);
+                        var tmp  = obj.records[ind1];
+                        obj.records.splice(ind1, 1);
+                        var ind2 = obj.get(mv.to, true);
+                        if (ind1 > ind2) obj.records.splice(ind2, 0, tmp); else obj.records.splice(ind2+1, 0, tmp);
+                        $('#grid_'+ obj.name + '_ghost').remove();
+                        obj.refresh();
+                    }
                 }
                 delete obj.last.move;
                 $(document).off('mousemove', mouseMove);
@@ -3330,7 +3362,7 @@
             }
             col_html += '<tr><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url) {
+            if (url && obj.show.skipRecords) {
                 col_html +=
                         '<tr><td colspan="2" style="padding: 0px">'+
                         '    <div style="cursor: pointer; padding: 2px 8px; cursor: default">'+ w2utils.lang('Skip') +
@@ -3368,8 +3400,8 @@
                 _dragData.timeout = null;_dragData.columnHead = null;
 
             //attach orginal event listener
-            $( obj.box).on( 'mousedown', dragColStart );
-            $( obj.box ).on( 'mouseup', catchMouseup );
+            $(obj.box).on('mousedown', dragColStart);
+            $(obj.box).on('mouseup', catchMouseup);
 
             function catchMouseup(){
                 _dragData.pressed = false;
@@ -4655,9 +4687,8 @@
                     (this.isIOS ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
                         :
-                        '    onclick     = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
-                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', event); '+
-                        '        if (event.preventDefault) event.preventDefault();"'
+                        '    onclick  = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
+                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', event);"'
                      )
                     : ''
                 ) +
