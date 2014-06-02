@@ -59,6 +59,8 @@
         "Notification" : "Nachricht",
         "Show" : "Zeigen",
         "Hide" : "Verbergen",
-        "buffered" : "gepuffert"
+        "buffered" : "gepuffert",
+        "Server Response": "Server-Antwort",
+        "sec": "sek"
     }
 }
