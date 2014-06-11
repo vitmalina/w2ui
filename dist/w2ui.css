@@ -123,6 +123,9 @@ input[type="checkbox"].w2ui-toggle + div {
   box-shadow: inset 0 0 0 0px rgba(0, 0, 0, 0.4);
   margin-left: 2px;
 }
+input[type="checkbox"].w2ui-toggle:disabled + div {
+  opacity: 0.3;
+}
 /* Knob */
 input[type="checkbox"].w2ui-toggle + div > div {
   float: left;

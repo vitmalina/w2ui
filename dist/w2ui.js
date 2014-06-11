@@ -3192,6 +3192,7 @@ w2utils.keyboard = (function (obj) {
                 var info  = w2utils.parseRoute(url);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {
+                        if (!obj.routeData[info.keys[k].name]) continue;
                         url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                     }
                 }
@@ -8941,6 +8942,7 @@ var w2confirm = function (obj, callBack) {
                 var info  = w2utils.parseRoute(route);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {
+                        if (!this.routeData[info.keys[k].name]) continue;
                         route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
                     }
                 }
@@ -9467,6 +9469,7 @@ var w2confirm = function (obj, callBack) {
                     var info  = w2utils.parseRoute(route);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
+                            if (!this.routeData[info.keys[k].name]) continue;
                             route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
                         }
                     }
@@ -10033,6 +10036,7 @@ var w2confirm = function (obj, callBack) {
                     var info  = w2utils.parseRoute(route);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
+                            if (!obj.routeData[info.keys[k].name]) continue;
                             route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                         }
                     }
@@ -12945,6 +12949,7 @@ var w2confirm = function (obj, callBack) {
                 var info  = w2utils.parseRoute(url);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {
+                        if (!obj.routeData[info.keys[k].name]) continue;
                         url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                     }
                 }
@@ -13088,6 +13093,7 @@ var w2confirm = function (obj, callBack) {
                     var info  = w2utils.parseRoute(url);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
+                            if (!obj.routeData[info.keys[k].name]) continue;
                             url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                         }
                     }
