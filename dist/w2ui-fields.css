@@ -10,6 +10,8 @@
   -ms-box-sizing: border-box;
   -o-box-sizing: border-box;
   box-sizing: border-box;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 11px;
 }
 .w2ui-reset * {
   color: default;
@@ -21,10 +23,6 @@
   box-sizing: border-box;
   margin: 0px;
   padding: 0px;
-}
-.w2ui-reset div {
-  font-family: Verdana, Arial, sans-serif;
-  font-size: 11px;
 }
 .w2ui-reset table {
   font-family: Verdana, Arial, sans-serif;

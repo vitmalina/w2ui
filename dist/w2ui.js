@@ -2301,12 +2301,14 @@ w2utils.keyboard = (function (obj) {
                                 if (tmp.indexOf(val1) == -1) fl++;
                                 break;
                             case 'begins':
+                            case 'begins with': // need for back compatib.
                                 if (val1.indexOf(val2) == 0) fl++; // do not hide record
                                 break;
                             case 'contains':
                                 if (val1.indexOf(val2) >= 0) fl++; // do not hide record
                                 break;
                             case 'ends':
+                            case 'ends with': // need for back compatib.
                                 if (val1.indexOf(val2) == val1.length - val2.length) fl++; // do not hide record
                                 break;
                         }
@@ -11297,9 +11299,6 @@ var w2confirm = function (obj, callBack) {
                 var daymil  = 24*60*60*1000;
                 var inc        = 1;
                 if (event.ctrlKey || event.metaKey) inc = 10;
-                if (w2utils.isInt(obj.el.value)) {
-                    $(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
-                }
                 var dt = w2utils.isDate($(obj.el).val(), options.format, true);
                 if (!dt) { dt = new Date(); daymil = 0; }
                 switch (key) {
