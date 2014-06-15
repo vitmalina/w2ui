@@ -672,12 +672,14 @@
                                 if (tmp.indexOf(val1) == -1) fl++;
                                 break;
                             case 'begins':
+                            case 'begins with': // need for back compatib.
                                 if (val1.indexOf(val2) == 0) fl++; // do not hide record
                                 break;
                             case 'contains':
                                 if (val1.indexOf(val2) >= 0) fl++; // do not hide record
                                 break;
                             case 'ends':
+                            case 'ends with': // need for back compatib.
                                 if (val1.indexOf(val2) == val1.length - val2.length) fl++; // do not hide record
                                 break;
                         }
