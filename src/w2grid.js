@@ -66,7 +66,7 @@
         this.header       = '';
         this.url          = '';
         this.routeData    = {};       // data for dynamic routes
-        this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, [editable: {type, inTag, outTag, style, items}] }
+        this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, resizable, sortable, searchable, removable, [editable: {type, inTag, outTag, style, items}] }
         this.columnGroups = [];       // { span: int, caption: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
@@ -3351,6 +3351,7 @@
             for (var c in this.columns) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
+                if(false === col.removable) continue;
                 if (!tmp && this.columns[c].hint) tmp = this.columns[c].hint;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
                 col_html += '<tr>'+
