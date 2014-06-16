@@ -1698,7 +1698,7 @@ w2utils.keyboard = (function (obj) {
         this.header       = '';
         this.url          = '';
         this.routeData    = {};       // data for dynamic routes
-        this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, [editable: {type, inTag, outTag, style, items}] }
+        this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, resizable, sortable, searchable, removable, [editable: {type, inTag, outTag, style, items}] }
         this.columnGroups = [];       // { span: int, caption: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
@@ -4820,7 +4820,7 @@ w2utils.keyboard = (function (obj) {
                         recid  : $(event.target).parents('tr').attr('recid'),
                         column : (event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col')),
                         type   : 'select',
-                        ghost  : false,
+                        dragProxy  : false,
                         start  : true
                     };
                 }
@@ -4836,18 +4836,18 @@ w2utils.keyboard = (function (obj) {
                 if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return; // only if moved more then 1px
                 obj.last.cancelClick = true;
                 if (obj.reorderRows == true) {
-                    if (!mv.ghost) {
+                    if (!mv.dragProxy) {
                         var row    = $('#grid_'+ obj.name + '_rec_'+ mv.recid);
                         var tmp    = row.parents('table').find('tr:first-child').clone();
                         mv.offsetY = event.offsetY;
                         mv.from    = mv.recid;
                         mv.pos     = row.position();
-                        mv.ghost   = $(row).clone(true);
-                        mv.ghost.removeAttr('id');
+                        mv.dragProxy   = $(row).clone(true);
+                        mv.dragProxy.removeAttr('id');
                         row.find('td:first-child').replaceWith('<td colspan="1000" style="height: '+ obj.recordHeight +'px; background-color: #ddd"></td>');
                         var recs = $(obj.box).find('.w2ui-grid-records');
                         recs.append('<table id="grid_'+ obj.name + '_ghost" style="position: absolute; z-index: 999999; opacity: 0.8; border-bottom: 2px dashed #aaa; border-top: 2px dashed #aaa; pointer-events: none;"></table>');
-                        $('#grid_'+ obj.name + '_ghost').append(tmp).append(mv.ghost);
+                        $('#grid_'+ obj.name + '_ghost').append(tmp).append(mv.dragProxy);
                     }
                     var recid = $(event.target).parents('tr').attr('recid');
                     if (recid != mv.from) {
@@ -4857,9 +4857,9 @@ w2utils.keyboard = (function (obj) {
                         mv.lastY = event.screenY;
                         mv.to      = recid;
                     }
-                    var ghost = $('#grid_'+ obj.name + '_ghost');
+                    var dragProxy = $('#grid_'+ obj.name + '_ghost');
                     var recs  = $(obj.box).find('.w2ui-grid-records');
-                    ghost.css({
+                    dragProxy.css({
                         top     : mv.pos.top + mv.divY + recs.scrollTop(), // + mv.offsetY - obj.recordHeight / 2,
                         left : mv.pos.left
                     });
@@ -4983,6 +4983,7 @@ w2utils.keyboard = (function (obj) {
             for (var c in this.columns) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
+                if(false === col.removable) continue;
                 if (!tmp && this.columns[c].hint) tmp = this.columns[c].hint;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
                 col_html += '<tr>'+
@@ -5030,7 +5031,7 @@ w2utils.keyboard = (function (obj) {
 
             var obj = this,
                 _dragData = {};
-                _dragData.lastInt = null;
+                _dragData.lastDropIndex = null;
                 _dragData.pressed = false;
                 _dragData.timeout = null;_dragData.columnHead = null;
 
@@ -5082,27 +5083,27 @@ w2utils.keyboard = (function (obj) {
                     eventData = obj.trigger({ type: 'columnDragStart', phase: 'before', originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] });
                     if ( eventData.isCancelled === true ) return false;
 
-                    columns = _dragData.columns = $( obj.box ).find( '.w2ui-head:not(.w2ui-head-last)' );
+                    columns = _dragData.visibleColumns = $( obj.box ).find( '.w2ui-head:not(.w2ui-head-last)' );
 
                     //add events
                     $( document ).on( 'mouseup', dragColEnd );
                     $( document ).on( 'mousemove', dragColOver );
 
                     _dragData.originalPos = parseInt( $( event.originalEvent.target ).parent( '.w2ui-head' ).attr( 'col' ), 10 );
-                    //_dragData.columns.css({ overflow: 'visible' }).children( 'div' ).css({ overflow: 'visible' });
+                    //_dragData.visibleColumns.css({ overflow: 'visible' }).children( 'div' ).css({ overflow: 'visible' });
 
-                    //configure and style ghost image
-                    _dragData.ghost = $( self ).clone( true );
+                    //configure and style dragProxy image
+                    _dragData.dragProxy = $( self ).clone( true );
 
-                    //hide other elements on ghost except the grid body
-                    $( _dragData.ghost ).find( '[col]:not([col="' + _dragData.originalPos + '"]), .w2ui-toolbar, .w2ui-grid-header' ).remove();
-                    $( _dragData.ghost ).find( preColumnsSelector ).remove();
-                    $( _dragData.ghost ).find( '.w2ui-grid-body' ).css({ top: 0 });
+                    //hide other elements on dragProxy except the grid body
+                    $( _dragData.dragProxy ).find( '[col]:not([col="' + _dragData.originalPos + '"]), .w2ui-toolbar, .w2ui-grid-header' ).remove();
+                    $( _dragData.dragProxy ).find( preColumnsSelector ).remove();
+                    $( _dragData.dragProxy ).find( '.w2ui-grid-body' ).css({ top: 0 });
 
-                    selectedCol = $( _dragData.ghost ).find( '[col="' + _dragData.originalPos + '"]' );
-                    $( document.body ).append( _dragData.ghost );
+                    selectedCol = $( _dragData.dragProxy ).find( '[col="' + _dragData.originalPos + '"]' );
+                    $( document.body ).append( _dragData.dragProxy );
 
-                    $( _dragData.ghost ).css({
+                    $( _dragData.dragProxy ).css({
                         width: 0,
                         height: 0,
                         margin: 0,
@@ -5136,68 +5137,70 @@ w2utils.keyboard = (function (obj) {
                     offsets = _dragData.offsets,
                     lastWidth = $( '.w2ui-head:not(.w2ui-head-last)' ).width();
 
-                _dragData.targetInt = targetIntersection( cursorX, offsets, lastWidth );
-                markIntersection( _dragData.targetInt );
-                trackGhost( cursorX, cursorY );
+                _dragData.dropIndex = Math.max(_dragData.numberPreColumnsPresent, calcDropIndex( cursorX, offsets, lastWidth ));
+                markDropIndex( _dragData.dropIndex );
+                trackDragProxy( cursorX, cursorY );
             }
 
             function dragColEnd ( event ) {
                 _dragData.pressed = false;
 
                 var eventData,
-                    target,
-                    selected,
-                    columnConfig,
-                    columnNum,
-                    targetColumn,
-                    ghosts = $( '.w2ui-grid-ghost' );
+                    allColumns,
+                    draggedColumn,
+                    dropIndex,
+                    dropTargetColumn,
+                    finalIndex,
+                    visibleColumns,
+                    dragProxies = $( '.w2ui-grid-ghost' );
 
                 //start event for drag start
                 eventData = obj.trigger({ type: 'columnDragEnd', phase: 'before', originalEvent: event, target: _dragData.columnHead[0] });
                 if ( eventData.isCancelled === true ) return false;
+                
+                allColumns = obj.columns;
+                visibleColumns = _dragData.visibleColumns;
 
-                selected = obj.columns[ _dragData.originalPos ];
-                columnConfig = obj.columns;
-                columnNum = ( _dragData.targetInt >= obj.columns.length ) ? obj.columns.length - 1 :
-                        ( _dragData.targetInt < _dragData.originalPos ) ? _dragData.targetInt : _dragData.targetInt - 1;
-                target = ( _dragData.numberPreColumnsPresent ) ?
-                    ( _dragData.targetInt - _dragData.numberPreColumnsPresent < 0 ) ? 0 : _dragData.targetInt - _dragData.numberPreColumnsPresent :
-                    _dragData.targetInt;
-                targetColumn =  $( '.w2ui-head[col="' + columnNum + '"]' );
+                draggedColumn = obj.columns[ _dragData.originalPos ];
+                dropTargetColumn = $( visibleColumns[ Math.min(_dragData.dropIndex, visibleColumns.length - 1) ] ); 
+                dropIndex = (_dragData.dropIndex < visibleColumns.length) ? parseInt(dropTargetColumn.attr('col')) : allColumns.length;
+                finalIndex = (dropIndex > _dragData.originalPos) ? dropIndex - 1 : dropIndex;
 
-                if ( target !== _dragData.originalPos + 1 && target !== _dragData.originalPos && targetColumn && targetColumn.length ) {
-                    $( _dragData.ghost ).animate({
+                if ( dropIndex !== _dragData.originalPos && dropIndex !== _dragData.originalPos + 1 ) {
+                    $( _dragData.dragProxy ).animate({
                         top: $( obj.box ).offset().top,
-                        left: targetColumn.offset().left,
+                        left: dropTargetColumn.offset().left,
                         width: 0,
                         height: 0,
                         opacity:.2
-                    }, 300, function(){
+                    }, 200, function(){
                         $( this ).remove();
-                        ghosts.remove();
+                        dragProxies.remove();
+                        obj.refresh();
                     });
 
-                    columnConfig.splice( target, 0, $.extend( {}, selected ) );
-                    columnConfig.splice( columnConfig.indexOf( selected ), 1);
+                    (dropIndex < allColumns.length) ? allColumns.splice( dropIndex, 0, $.extend( {}, draggedColumn ) ) : allColumns.push( $.extend( {}, draggedColumn ) );
+                    allColumns.splice( allColumns.indexOf( draggedColumn ), 1);
+                    
+                    // adjust dropIndex for event conclusion
+                    
                 } else {
-                    $( _dragData.ghost ).remove();
-                    ghosts.remove();
+                    $( _dragData.dragProxy ).remove();
+                    dragProxies.remove();
                 }
-
-                //_dragData.columns.css({ overflow: '' }).children( 'div' ).css({ overflow: '' });
+                
+                //visibleColumns.css({ overflow: '' }).children( 'div' ).css({ overflow: '' });
 
                 $( document ).off( 'mouseup', dragColEnd );
                 $( document ).off( 'mousemove', dragColOver );
                 if ( _dragData.marker ) _dragData.marker.remove();
                 _dragData = {};
 
-                obj.refresh();
-
                 //conclude event
-                obj.trigger( $.extend( eventData, { phase: 'after', targetColumnNumber: target - 1 } ) );
+                obj.trigger( $.extend( eventData, { phase: 'after', targetColumnNumber: finalIndex } ) );
             }
 
-            function markIntersection( intersection ){
+            function markDropIndex( dropIndex ){
                 if ( !_dragData.marker && !_dragData.markerLeft ) {
                     _dragData.marker = $('<div class="col-intersection-marker">' +
                         '<div class="top-marker"></div>' +
@@ -5209,30 +5212,30 @@ w2utils.keyboard = (function (obj) {
                         '</div>');
                 }
 
-                if ( !_dragData.lastInt || _dragData.lastInt !== intersection ){
-                    _dragData.lastInt = intersection;
+                if ( !_dragData.lastDropIndex || _dragData.lastDropIndex !== dropIndex ){
+                    _dragData.lastDropIndex = dropIndex;
                     _dragData.marker.remove();
                     _dragData.markerLeft.remove();
                     $('.w2ui-head').removeClass('w2ui-col-intersection');
 
                     //if the current intersection is greater than the number of columns add the marker to the end of the last column only
-                    if ( intersection >= _dragData.columns.length ) {
-                        $( _dragData.columns[ _dragData.columns.length - 1 ] ).children( 'div:last' ).append( _dragData.marker.addClass( 'right' ).removeClass( 'left' ) );
-                        $( _dragData.columns[ _dragData.columns.length - 1 ] ).addClass('w2ui-col-intersection');
-                    } else if ( intersection <= _dragData.numberPreColumnsPresent ) {
-                        //if the current intersection is on the column numbers place marker on first available column only
-                        $( '.w2ui-head[col="0"]' ).prepend( _dragData.marker.addClass( 'left' ).removeClass( 'right' ) ).css({ position: 'relative' });
-                        $( '.w2ui-head[col="0"]').prev().addClass('w2ui-col-intersection');
+                    if ( dropIndex >= _dragData.visibleColumns.length ) {
+                        $( _dragData.visibleColumns[ _dragData.visibleColumns.length - 1 ] ).children( 'div:last' ).append( _dragData.marker.addClass( 'right' ).removeClass( 'left' ) );
+                        $( _dragData.visibleColumns[ _dragData.visibleColumns.length - 1 ] ).addClass('w2ui-col-intersection');
+                    } else if ( dropIndex <= _dragData.numberPreColumnsPresent ) {
+                        //if the current dropIndex is on the column numbers place marker on first available column only
+                        $( _dragData.visibleColumns[ _dragData.numberPreColumnsPresent ] ).prepend( _dragData.marker.addClass( 'left' ).removeClass( 'right' ) ).css({ position: 'relative' });
+                        $( _dragData.visibleColumns[ _dragData.numberPreColumnsPresent ] ).prev().addClass('w2ui-col-intersection');
                     } else {
                         //otherwise prepend the marker to the targeted column and append it to the previous column
-                        $( _dragData.columns[intersection] ).children( 'div:last' ).prepend( _dragData.marker.addClass( 'left' ).removeClass( 'right' ) );
-                        $( _dragData.columns[intersection] ).prev().children( 'div:last' ).append( _dragData.markerLeft.addClass( 'right' ).removeClass( 'left' ) ).css({ position: 'relative' });
-                        $( _dragData.columns[intersection - 1] ).addClass('w2ui-col-intersection');
+                        $( _dragData.visibleColumns[dropIndex] ).children( 'div:last' ).prepend( _dragData.marker.addClass( 'left' ).removeClass( 'right' ) );
+                        $( _dragData.visibleColumns[dropIndex] ).prev().children( 'div:last' ).append( _dragData.markerLeft.addClass( 'right' ).removeClass( 'left' ) ).css({ position: 'relative' });
+                        $( _dragData.visibleColumns[dropIndex - 1] ).addClass('w2ui-col-intersection');
                     }
                 }
             }
 
-            function targetIntersection( cursorX, offsets, lastWidth ){
+            function calcDropIndex( cursorX, offsets, lastWidth ){
                 if ( cursorX <= offsets[0] ) {
                     return 0;
                 } else if ( cursorX >= offsets[offsets.length - 1] + lastWidth ) {
@@ -5249,12 +5252,12 @@ w2utils.keyboard = (function (obj) {
                             return i + 1;
                         }
                     }
-                    return intersection;
+                    return null;
                 }
             }
 
-            function trackGhost( cursorX, cursorY ){
-                $( _dragData.ghost ).css({
+            function trackDragProxy( cursorX, cursorY ){
+                $( _dragData.dragProxy ).css({
                     left: cursorX - 10,
                     top: cursorY - 10
                 });
