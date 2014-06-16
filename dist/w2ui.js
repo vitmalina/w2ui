@@ -44,6 +44,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - dep. RESTfull
 *   - added: dataType (allows JSON payload)
 *   - added: parse route
+*   - menu items can be disabled now
 *
 ************************************************/
 
@@ -1406,10 +1407,11 @@ w2utils.keyboard = (function (obj) {
         /*
         ITEM STRUCTURE
             item : {
-                id     : null,
-                text   : '',
-                style  : '',
-                hidden : true
+                id       : null,
+                text     : '',
+                style    : '',
+                hidden   : true,
+                disabled : false
                 ...
             }
         */
@@ -1601,11 +1603,12 @@ w2utils.keyboard = (function (obj) {
                         if (options.altRows !== true) bg = '';
                         menu_html +=
                             '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
-                            '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') +'"'+
+                            '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
                             '        onmousedown="$(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); $(this).addClass(\'w2ui-selected\');"'+
-                            '        onclick="event.stopPropagation();'+
-                            '                $(\'#w2ui-overlay'+ name +'\').remove(); '+
-                            '            $.fn.w2menuHandler(event, \''+ f +'\');">'+
+                            '        onclick="event.stopPropagation(); '+
+                            '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
+                            '               $(\'#w2ui-overlay'+ name +'\').remove(); '+
+                            '               $.fn.w2menuHandler(event, \''+ f +'\');">'+
                                 imgd +
                             '    <td '+ (imgd == '' ? 'colspan="2"' : '') +'>'+ txt +'</td>'+
                             '</tr>';
@@ -2301,12 +2304,14 @@ w2utils.keyboard = (function (obj) {
                                 if (tmp.indexOf(val1) == -1) fl++;
                                 break;
                             case 'begins':
+                            case 'begins with': // need for back compatib.
                                 if (val1.indexOf(val2) == 0) fl++; // do not hide record
                                 break;
                             case 'contains':
                                 if (val1.indexOf(val2) >= 0) fl++; // do not hide record
                                 break;
                             case 'ends':
+                            case 'ends with': // need for back compatib.
                                 if (val1.indexOf(val2) == val1.length - val2.length) fl++; // do not hide record
                                 break;
                         }
@@ -11298,9 +11303,6 @@ var w2confirm = function (obj, callBack) {
                 var daymil  = 24*60*60*1000;
                 var inc        = 1;
                 if (event.ctrlKey || event.metaKey) inc = 10;
-                if (w2utils.isInt(obj.el.value)) {
-                    $(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
-                }
                 var dt = w2utils.isDate($(obj.el).val(), options.format, true);
                 if (!dt) { dt = new Date(); daymil = 0; }
                 switch (key) {

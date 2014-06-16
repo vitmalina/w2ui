@@ -887,9 +887,6 @@
                 var daymil  = 24*60*60*1000;
                 var inc        = 1;
                 if (event.ctrlKey || event.metaKey) inc = 10;
-                if (w2utils.isInt(obj.el.value)) {
-                    $(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
-                }
                 var dt = w2utils.isDate($(obj.el).val(), options.format, true);
                 if (!dt) { dt = new Date(); daymil = 0; }
                 switch (key) {

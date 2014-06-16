@@ -6,6 +6,8 @@
 
 .w2ui-reset {
     .box-sizing;
+    font-family: @main-font-family;
+    font-size: 11px;        
      * {
         color: default;
         line-height: 100%;
@@ -13,10 +15,6 @@
         margin: 0px;
         padding: 0px;
         // do not include any font-* properties
-    }
-    div {
-        font-family: @main-font-family;
-        font-size: 11px;        
     }
     table {
         font-family: @main-font-family;
@@ -257,12 +255,36 @@ input[type=checkbox].w2ui-toggle:focus {
     }
 }
 
+/*
+*    Drop down menu
+*/
+
 .w2ui-overlay table.w2ui-drop-menu {
     width: 100%;
     color: @drop-menu-color;
     background-color: @drop-menu-background-color;
     padding: 5px 0px;
     cursor: default;
+    td {
+        white-space: nowrap;
+    }
+
+    & .w2ui-item-even {
+        color: @dropdown-item-even-color;
+        background-color: @dropdown-item-even-background-color;
+    }
+
+    & .w2ui-item-odd {
+        color: @dropdown-item-odd-color;
+        background-color: @dropdown-item-odd-background-color;
+    }
+
+    & .w2ui-item-group {
+        color: #444;
+        font-weight: bold;
+        background-color: #ECEDF0;
+        border-bottom: 1px solid #D3D2D4;
+    }
     // image
     td:first-child {
         padding: 3px 0px 4px 6px;
@@ -285,6 +307,11 @@ input[type=checkbox].w2ui-toggle:focus {
 
     tr.w2ui-selected td {
         color: @drop-menu-selected-color;
+    }
+
+    tr.w2ui-disabled {
+        opacity: 0.4;
+        background-color: white !important;
     }
 
     .w2ui-icon {

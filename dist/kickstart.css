@@ -157,6 +157,7 @@ textarea[disabled] {
 #app-toolbar table.w2ui-button .w2ui-tb-caption {
   color: #bbb;
   text-shadow: 1px 1px 1px #333;
+  padding-top: 2px;
 }
 #app-toolbar table.w2ui-button .w2ui-tb-image > span {
   color: #ddd;
