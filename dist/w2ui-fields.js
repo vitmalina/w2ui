@@ -44,6 +44,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - dep. RESTfull
 *   - added: dataType (allows JSON payload)
 *   - added: parse route
+*   - menu items can be disabled now
 *
 ************************************************/
 
@@ -1406,10 +1407,11 @@ w2utils.keyboard = (function (obj) {
         /*
         ITEM STRUCTURE
             item : {
-                id     : null,
-                text   : '',
-                style  : '',
-                hidden : true
+                id       : null,
+                text     : '',
+                style    : '',
+                hidden   : true,
+                disabled : false
                 ...
             }
         */
@@ -1601,11 +1603,12 @@ w2utils.keyboard = (function (obj) {
                         if (options.altRows !== true) bg = '';
                         menu_html +=
                             '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
-                            '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') +'"'+
+                            '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
                             '        onmousedown="$(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); $(this).addClass(\'w2ui-selected\');"'+
-                            '        onclick="event.stopPropagation();'+
-                            '                $(\'#w2ui-overlay'+ name +'\').remove(); '+
-                            '            $.fn.w2menuHandler(event, \''+ f +'\');">'+
+                            '        onclick="event.stopPropagation(); '+
+                            '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
+                            '               $(\'#w2ui-overlay'+ name +'\').remove(); '+
+                            '               $.fn.w2menuHandler(event, \''+ f +'\');">'+
                                 imgd +
                             '    <td '+ (imgd == '' ? 'colspan="2"' : '') +'>'+ txt +'</td>'+
                             '</tr>';

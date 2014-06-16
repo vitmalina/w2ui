@@ -6743,6 +6743,7 @@ w2utils.keyboard = (function (obj) {
     $.extend(w2grid.prototype, w2utils.event);
     w2obj.grid = w2grid;
 })();
+
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
