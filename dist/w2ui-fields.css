@@ -258,12 +258,32 @@ input[type=checkbox].w2ui-toggle:focus {
 .w2ui-tag.w2ui-tag-popup {
   z-index: 1700;
 }
+/*
+*    Drop down menu
+*/
 .w2ui-overlay table.w2ui-drop-menu {
   width: 100%;
   color: #000000;
   background-color: #ffffff;
   padding: 5px 0px;
   cursor: default;
+}
+.w2ui-overlay table.w2ui-drop-menu td {
+  white-space: nowrap;
+}
+.w2ui-overlay table.w2ui-drop-menu .w2ui-item-even {
+  color: inherit;
+  background-color: #ffffff;
+}
+.w2ui-overlay table.w2ui-drop-menu .w2ui-item-odd {
+  color: inherit;
+  background-color: #f3f6fa;
+}
+.w2ui-overlay table.w2ui-drop-menu .w2ui-item-group {
+  color: #444;
+  font-weight: bold;
+  background-color: #ECEDF0;
+  border-bottom: 1px solid #D3D2D4;
 }
 .w2ui-overlay table.w2ui-drop-menu td:first-child {
   padding: 3px 0px 4px 6px;
@@ -282,6 +302,10 @@ input[type=checkbox].w2ui-toggle:focus {
 }
 .w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected td {
   color: inherit;
+}
+.w2ui-overlay table.w2ui-drop-menu tr.w2ui-disabled {
+  opacity: 0.4;
+  background-color: white !important;
 }
 .w2ui-overlay table.w2ui-drop-menu .w2ui-icon {
   font-size: 14px;
@@ -859,26 +883,6 @@ input[type=checkbox].w2ui-toggle:focus {
   background-image: -ms-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: -o-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
-}
-/*
-*    Drop down menu
-*/
-.w2ui-drop-menu td {
-  white-space: nowrap;
-}
-.w2ui-drop-menu .w2ui-item-even {
-  color: inherit;
-  background-color: #ffffff;
-}
-.w2ui-drop-menu .w2ui-item-odd {
-  color: inherit;
-  background-color: #f3f6fa;
-}
-.w2ui-drop-menu .w2ui-item-group {
-  color: #444;
-  font-weight: bold;
-  background-color: #ECEDF0;
-  border-bottom: 1px solid #D3D2D4;
 }
 /*
 *    ENUM items
