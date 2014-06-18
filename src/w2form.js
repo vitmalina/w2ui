@@ -311,6 +311,7 @@
                 } else {
                     $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
                 }
+                this.goto(errors[0].field.page);                
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -476,10 +477,7 @@
             }
             // validation
             var errors = obj.validate(true);
-            if (errors.length !== 0) {
-                obj.goto(errors[0].field.page);
-                return;
-            }
+            if (errors.length !== 0) return;
             // submit save
             if (typeof postData == 'undefined' || postData == null) postData = {};
             if (!obj.url || (typeof obj.url == 'object' && !obj.url.save)) {

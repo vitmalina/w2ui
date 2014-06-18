@@ -20,6 +20,7 @@
 *   - add showExtra, KickIn Infinite scroll when so many records
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
+*   - column.hidable - prevents column from being hidden in columnOnOff
 *
 * == 1.4 changes
 *   - for search fields one should be able to pass w2field options
