@@ -859,8 +859,8 @@
             $(this.box).find('button, input[type=button]').each(function (index, el) {
                 $(el).off('click').on('click', function (event) {
                     var action = this.value;
-                    if (this.name) action = this.name;
                     if (this.id)   action = this.id;
+                    if (this.name) action = this.name;
                     obj.action(action, event);
                 });
             });
@@ -901,11 +901,15 @@
                     case 'list':
                     case 'combo':
                         if (field.type == 'list' && !$.isPlainObject(value)) {
-                            // find value from items
+                            // find value from items 
                             for (var i in field.options.items) {
                                 var item = field.options.items[i];
-                                if (item && item.id == value) {
+                                if ($.isPlainObject(item) && item.id == value) {
                                     value = $.extend(true, {}, item);
+                                    obj.record[field.name] = value;
+                                    break;
+                                } else if (i == value) {
+                                    value = { id: i, text: item };
                                     obj.record[field.name] = value;
                                     break;
                                 }
