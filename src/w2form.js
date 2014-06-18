@@ -698,8 +698,8 @@
 			$(this.box).find('button, input[type=button]').each(function (index, el) {
 				$(el).off('click').on('click', function (event) {
 					var action = this.value;
+                    if (this.id)    action = this.id;
 					if (this.name) 	action = this.name;
-					if (this.id) 	action = this.id;
 					obj.action(action, event);
 				});
 			});
