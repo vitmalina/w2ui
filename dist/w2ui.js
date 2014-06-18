@@ -3038,7 +3038,7 @@ w2utils.keyboard = (function (obj) {
 			obj.last.sel_recid = recid;
 			obj.last.sel_type  = 'click';
 			// multi select with shif key 
-			if (event.shiftKey && this.multiSelect && sel.length > 0) {
+			if (event.shiftKey && obj.multiSelect && sel.length > 0) {
 				if (sel[0].recid) {
 					var start = this.get(sel[0].recid, true);
 					var end   = this.get(recid, true);
@@ -10986,8 +10986,8 @@ var w2confirm = function (msg, title, callBack) {
 			$(this.box).find('button, input[type=button]').each(function (index, el) {
 				$(el).off('click').on('click', function (event) {
 					var action = this.value;
+                    if (this.id)    action = this.id;
 					if (this.name) 	action = this.name;
-					if (this.id) 	action = this.id;
 					obj.action(action, event);
 				});
 			});
