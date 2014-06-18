@@ -1652,6 +1652,7 @@ w2utils.keyboard = (function (obj) {
 *   - add showExtra, KickIn Infinite scroll when so many records
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
+*   - column.hidable - prevents column from being hidden in columnOnOff
 *
 * == 1.4 changes
 *   - for search fields one should be able to pass w2field options
@@ -12896,6 +12897,7 @@ var w2confirm = function (obj, callBack) {
                 } else {
                     $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
                 }
+                this.goto(errors[0].field.page);                
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -13061,10 +13063,7 @@ var w2confirm = function (obj, callBack) {
             }
             // validation
             var errors = obj.validate(true);
-            if (errors.length !== 0) {
-                obj.goto(errors[0].field.page);
-                return;
-            }
+            if (errors.length !== 0) return;
             // submit save
             if (typeof postData == 'undefined' || postData == null) postData = {};
             if (!obj.url || (typeof obj.url == 'object' && !obj.url.save)) {

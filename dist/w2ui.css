@@ -1548,7 +1548,7 @@ input[type=checkbox].w2ui-toggle:focus {
   margin-right: -5px;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker .top-marker {
-  position: aboslute;
+  position: absolute;
   top: 0;
   height: 0;
   width: 0;
