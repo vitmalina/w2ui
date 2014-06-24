@@ -2518,15 +2518,21 @@
                     }
                     break;
 
-                case 86: // v - paste
+                // copy & paste
+
+                case 17: // ctrl key
+                case 91: // cmd key
                     if (empty) break;
-                    if (event.ctrlKey || event.metaKey) {
-                        $('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;"></textarea>');
-                        $('#_tmp_copy_data').focus();
-                        setTimeout(function () {
-                            obj.paste($('#_tmp_copy_data').val());
-                            $('#_tmp_copy_data').remove();
-                        }, 50); // need timer to allow paste
+                    var text = obj.copy();
+                    $('body').append('<textarea id="_tmp_copy_data" '+
+                        '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
+                        '   style="position: absolute; top: -100px; height: 1px; width: 1px">'+ text +'</textarea>');
+                    $('#_tmp_copy_data').focus().select();
+                    // remove _tmp_copy_data textarea
+                    $(document).on('keyup', tmp_key_down);
+                    function tmp_key_down() { 
+                        $('#_tmp_copy_data').remove(); 
+                        $(document).off('keyup', tmp_key_down); 
                     }
                     break;
 
@@ -2534,14 +2540,6 @@
                     if (empty) break;
                     if (event.ctrlKey || event.metaKey) {
                         setTimeout(function () { obj["delete"](true); }, 100);
-                    }
-                case 67: // c - copy
-                    if (empty) break;
-                    if (event.ctrlKey || event.metaKey) {
-                        var text = obj.copy();
-                        $('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;">'+ text +'</textarea>');
-                        $('#_tmp_copy_data').focus().select();
-                        setTimeout(function () { $('#_tmp_copy_data').remove(); }, 50);
                     }
                     break;
             }
