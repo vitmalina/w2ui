@@ -243,7 +243,9 @@
 			'save'		: { type: 'button', id: 'save', caption: 'Save', hint: 'Save changed records', img: 'icon-save' }
 		},
 
-		add: function (record) {
+		add: function (record, reload) {
+            reload = typeof reload !== 'undefined' ? reload : true;
+
 			if (!$.isArray(record)) record = [record];
 			var added = 0;
 			for (var o in record) {
@@ -260,7 +262,7 @@
 				this.localSort();
 				this.localSearch();
 			}
-			this.refresh(); // ??  should it be reload?
+			if (reload) this.refresh(); // ??  should it be reload?
 			return added;
 		},
 
