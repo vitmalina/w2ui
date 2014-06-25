@@ -131,8 +131,8 @@ var w2popup = {};
             }
             if (parseInt(width)  - 10 < parseInt(options.width))  options.width  = parseInt(width)  - 10;
             if (parseInt(height) - 10 < parseInt(options.height)) options.height = parseInt(height) - 10;
-            var top  = ((parseInt(height) - parseInt(options.height)) / 2) * 0.6;
-            var left = (parseInt(width) - parseInt(options.width)) / 2;
+            var top  = parseInt(((parseInt(height) - parseInt(options.height)) / 2) * 0.6);
+            var left = parseInt((parseInt(width) - parseInt(options.width)) / 2);
             // check if message is already displayed
             if ($('#w2ui-popup').length == 0) {
                 // trigger event
