@@ -367,7 +367,7 @@
                 var info  = w2utils.parseRoute(url);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {
-                        if (!obj.routeData[info.keys[k].name]) continue;
+                        if (obj.routeData[info.keys[k].name] == null) continue;
                         url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                     }
                 }
@@ -508,7 +508,7 @@
                     var info  = w2utils.parseRoute(url);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
-                            if (!obj.routeData[info.keys[k].name]) continue;
+                            if (obj.routeData[info.keys[k].name] == null) continue;
                             url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                         }
                     }

@@ -341,7 +341,7 @@
                 var info  = w2utils.parseRoute(route);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {
-                        if (!this.routeData[info.keys[k].name]) continue;
+                        if (this.routeData[info.keys[k].name] == null) continue;
                         route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
                     }
                 }
