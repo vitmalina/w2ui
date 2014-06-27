@@ -3198,7 +3198,7 @@ w2utils.keyboard = (function (obj) {
                 var info  = w2utils.parseRoute(url);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {
-                        if (!obj.routeData[info.keys[k].name]) continue;
+                        if (obj.routeData[info.keys[k].name] == null) continue;
                         url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                     }
                 }
@@ -4150,15 +4150,21 @@ w2utils.keyboard = (function (obj) {
                     }
                     break;
 
-                case 86: // v - paste
+                // copy & paste
+
+                case 17: // ctrl key
+                case 91: // cmd key
                     if (empty) break;
-                    if (event.ctrlKey || event.metaKey) {
-                        $('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;"></textarea>');
-                        $('#_tmp_copy_data').focus();
-                        setTimeout(function () {
-                            obj.paste($('#_tmp_copy_data').val());
-                            $('#_tmp_copy_data').remove();
-                        }, 50); // need timer to allow paste
+                    var text = obj.copy();
+                    $('body').append('<textarea id="_tmp_copy_data" '+
+                        '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
+                        '   style="position: absolute; top: -100px; height: 1px; width: 1px">'+ text +'</textarea>');
+                    $('#_tmp_copy_data').focus().select();
+                    // remove _tmp_copy_data textarea
+                    $(document).on('keyup', tmp_key_down);
+                    function tmp_key_down() { 
+                        $('#_tmp_copy_data').remove(); 
+                        $(document).off('keyup', tmp_key_down); 
                     }
                     break;
 
@@ -4166,14 +4172,6 @@ w2utils.keyboard = (function (obj) {
                     if (empty) break;
                     if (event.ctrlKey || event.metaKey) {
                         setTimeout(function () { obj["delete"](true); }, 100);
-                    }
-                case 67: // c - copy
-                    if (empty) break;
-                    if (event.ctrlKey || event.metaKey) {
-                        var text = obj.copy();
-                        $('body').append('<textarea id="_tmp_copy_data" style="position: absolute; top: -100px; height: 1px;">'+ text +'</textarea>');
-                        $('#_tmp_copy_data').focus().select();
-                        setTimeout(function () { $('#_tmp_copy_data').remove(); }, 50);
                     }
                     break;
             }
@@ -7956,8 +7954,8 @@ var w2popup = {};
             }
             if (parseInt(width)  - 10 < parseInt(options.width))  options.width  = parseInt(width)  - 10;
             if (parseInt(height) - 10 < parseInt(options.height)) options.height = parseInt(height) - 10;
-            var top  = ((parseInt(height) - parseInt(options.height)) / 2) * 0.6;
-            var left = (parseInt(width) - parseInt(options.width)) / 2;
+            var top  = parseInt(((parseInt(height) - parseInt(options.height)) / 2) * 0.6);
+            var left = parseInt((parseInt(width) - parseInt(options.width)) / 2);
             // check if message is already displayed
             if ($('#w2ui-popup').length == 0) {
                 // trigger event
@@ -8948,7 +8946,7 @@ var w2confirm = function (obj, callBack) {
                 var info  = w2utils.parseRoute(route);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {
-                        if (!this.routeData[info.keys[k].name]) continue;
+                        if (this.routeData[info.keys[k].name] == null) continue;
                         route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
                     }
                 }
@@ -9475,7 +9473,7 @@ var w2confirm = function (obj, callBack) {
                     var info  = w2utils.parseRoute(route);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
-                            if (!this.routeData[info.keys[k].name]) continue;
+                            if (obj.routeData[info.keys[k].name] == null) continue;
                             route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
                         }
                     }
@@ -10042,7 +10040,7 @@ var w2confirm = function (obj, callBack) {
                     var info  = w2utils.parseRoute(route);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
-                            if (!obj.routeData[info.keys[k].name]) continue;
+                            if (obj.routeData[info.keys[k].name] == null) continue;
                             route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                         }
                     }
@@ -12953,7 +12951,7 @@ var w2confirm = function (obj, callBack) {
                 var info  = w2utils.parseRoute(url);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {
-                        if (!obj.routeData[info.keys[k].name]) continue;
+                        if (obj.routeData[info.keys[k].name] == null) continue;
                         url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                     }
                 }
@@ -13094,7 +13092,7 @@ var w2confirm = function (obj, callBack) {
                     var info  = w2utils.parseRoute(url);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
-                            if (!obj.routeData[info.keys[k].name]) continue;
+                            if (obj.routeData[info.keys[k].name] == null) continue;
                             url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name]);
                         }
                     }
