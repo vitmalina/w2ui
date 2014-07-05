@@ -2526,6 +2526,7 @@
                     var text = obj.copy();
                     $('body').append('<textarea id="_tmp_copy_data" '+
                         '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
+                        '   onkeydown="w2ui[\''+ obj.name +'\'].keydown(event)"'+
                         '   style="position: absolute; top: -100px; height: 1px; width: 1px">'+ text +'</textarea>');
                     $('#_tmp_copy_data').focus().select();
                     // remove _tmp_copy_data textarea
@@ -2839,12 +2840,21 @@
                     text += '\n';
                 }
             } else { // row copy
+                // copy headers
+                for (var c in this.columns) {
+                    var col = this.columns[c];
+                    if (col.hidden === true) continue;
+                    text += '"' + w2utils.stripTags(col.caption ? col.caption : col.field) + '"\t';
+                }
+                text = text.substr(0, text.length-1); // remove last \t
+                text += '\n';
+                // copy selected text                
                 for (var s in sel) {
                     var ind = this.get(sel[s], true);
                     for (var c in this.columns) {
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
-                        text += w2utils.stripTags(this.getCellHTML(ind, c)) + '\t';
+                        text += '"' + w2utils.stripTags(this.getCellHTML(ind, c)) + '"\t';
                     }
                     text = text.substr(0, text.length-1); // remove last \t
                     text += '\n';
@@ -4825,7 +4835,7 @@
                         if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
                         if (typeof col.title == 'string')   title = col.title;
                     }
-                    var data = '<div title="'+ title +'" style="'+ addStyle +'">'+ data +'</div>';
+                    var data = '<div title="'+ w2utils.stripTags(title) +'" style="'+ addStyle +'">'+ data +'</div>';
                 }
             }
             if (data == null || typeof data == 'undefined') data = '';
