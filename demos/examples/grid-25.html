@@ -16,16 +16,20 @@ $(function () {
     $('#grid').w2grid({ 
         name: 'grid',
         show: {
-            footer: true
+            footer: true,
+            lineNumbers : true,
+            selectColumn: true
         },
         reorderColumns: true,
-        columns: [                
+        columns: [    
+            { field: 'recid', caption: 'Rec. Id', size: '100%', resizable: true, hidden: true },            
             { field: 'fname', caption: 'Full Name', size: '200px', resizable: true,
                 render: function (record, index, column_index) {
                     var html = '<div>'+ record.fname + ' ' + record.lname + '</div>';
                     return html;
                 } 
             },
+            { field: 'lname', caption: 'Last Name', size: '100%', resizable: true, hidden: true },  
             { field: 'email', caption: 'Email', size: '100%', resizable: true },
             { field: 'profit',caption: 'Profit', size: '120px', render: 'money', resizable: true },
             { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date', resizable: true }

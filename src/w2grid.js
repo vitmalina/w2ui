@@ -3513,7 +3513,8 @@
                     offsets = _dragData.offsets,
                     lastWidth = $( '.w2ui-head:not(.w2ui-head-last)' ).width();
 
-                _dragData.targetInt = targetIntersection( cursorX, offsets, lastWidth );
+                _dragData.targetInt = Math.max(_dragData.numberPreColumnsPresent,targetIntersection( cursorX, offsets, lastWidth ));
+
                 markIntersection( _dragData.targetInt );
                 trackGhost( cursorX, cursorY );
             }
@@ -3525,7 +3526,6 @@
                     target,
                     selected,
                     columnConfig,
-                    columnNum,
                     targetColumn,
                     ghosts = $( '.w2ui-grid-ghost' );
 
@@ -3535,12 +3535,8 @@
 
                 selected = obj.columns[ _dragData.originalPos ];
                 columnConfig = obj.columns;
-                columnNum = ( _dragData.targetInt >= obj.columns.length ) ? obj.columns.length - 1 :
-                        ( _dragData.targetInt < _dragData.originalPos ) ? _dragData.targetInt : _dragData.targetInt - 1;
-                target = ( _dragData.numberPreColumnsPresent ) ?
-                    ( _dragData.targetInt - _dragData.numberPreColumnsPresent < 0 ) ? 0 : _dragData.targetInt - _dragData.numberPreColumnsPresent :
-                    _dragData.targetInt;
-                targetColumn =  $( '.w2ui-head[col="' + columnNum + '"]' );
+                targetColumn =  $( _dragData.columns[ Math.min(_dragData.lastInt, _dragData.columns.length - 1) ] );
+                target = (_dragData.lastInt < _dragData.columns.length) ? parseInt(targetColumn.attr('col')) : columnConfig.length;
 
                 if ( target !== _dragData.originalPos + 1 && target !== _dragData.originalPos && targetColumn && targetColumn.length ) {
                     $( _dragData.ghost ).animate({
@@ -3556,6 +3552,7 @@
 
                     columnConfig.splice( target, 0, $.extend( {}, selected ) );
                     columnConfig.splice( columnConfig.indexOf( selected ), 1);
+
                 } else {
                     $( _dragData.ghost ).remove();
                     ghosts.remove();
@@ -3598,8 +3595,8 @@
                         $( _dragData.columns[ _dragData.columns.length - 1 ] ).addClass('w2ui-col-intersection');
                     } else if ( intersection <= _dragData.numberPreColumnsPresent ) {
                         //if the current intersection is on the column numbers place marker on first available column only
-                        $( '.w2ui-head[col="0"]' ).prepend( _dragData.marker.addClass( 'left' ).removeClass( 'right' ) ).css({ position: 'relative' });
-                        $( '.w2ui-head[col="0"]').prev().addClass('w2ui-col-intersection');
+                        $( _dragData.columns[ _dragData.numberPreColumnsPresent ] ).prepend( _dragData.marker.addClass( 'left' ).removeClass( 'right' ) ).css({ position: 'relative' });
+                        $( _dragData.columns[ _dragData.numberPreColumnsPresent ] ).prev().addClass('w2ui-col-intersection');
                     } else {
                         //otherwise prepend the marker to the targeted column and append it to the previous column
                         $( _dragData.columns[intersection] ).children( 'div:last' ).prepend( _dragData.marker.addClass( 'left' ).removeClass( 'right' ) );
