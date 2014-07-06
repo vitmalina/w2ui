@@ -3360,6 +3360,7 @@
             for (var c in this.columns) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
+                if(false === col.hideable) continue;
                 if (!tmp && this.columns[c].hint) tmp = this.columns[c].hint;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
                 col_html += '<tr>'+
