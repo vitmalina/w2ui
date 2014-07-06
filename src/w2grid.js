@@ -20,7 +20,6 @@
 *   - add showExtra, KickIn Infinite scroll when so many records
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
-*   - column.hidable - prevents column from being hidden in columnOnOff
 *
 * == 1.4 changes
 *   - for search fields one should be able to pass w2field options
@@ -55,6 +54,7 @@
 *   - save grid state into localStorage and restore
 *   - added user-select with alt key
 *   - added grid.show.skipRecords
+*   - column.hidable - prevents column from being hidden in columnOnOff
 *
 ************************************************************************/
 
@@ -3360,7 +3360,7 @@
             for (var c in this.columns) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
-                if(false === col.hideable) continue;
+                if (col.hideable === false) continue;
                 if (!tmp && this.columns[c].hint) tmp = this.columns[c].hint;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
                 col_html += '<tr>'+
