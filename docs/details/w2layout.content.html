@@ -33,15 +33,14 @@ The first argument <span class="argument">type</span> is the name of the panel. 
     <li>bottom
     <li>css
 </ul>
-As of 1.3 there is a hidden panel named css. If you set content to this panel, it will be set withing style tag:
-It can be used when setting content for the css panel with <span class="argument">content</span>
-method or you can also load content with <a class="argument" href="w2layout.load">w2layout.load</a> method.
+As of 1.3 there is a hidden panel named css. If you define content for this panel, it will be set within style tag.
+You can also load content for the css panel <a class="argument" href="w2layout.load">w2layout.load</a> method.
 <textarea class="javascript">
 w2ui['layout'].content('css', '.class1 { color: red }');
 </textarea>
 or
 <textarea class="javascript">
-w2ui['layout'].loadt('css', 'file.css');
+w2ui['layout'].load('css', 'file.css');
 </textarea>
 
 The <span class="argument">content</span> argument can be either an HTML or an object. If it is an object, then it will assign

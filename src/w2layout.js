@@ -11,12 +11,12 @@
 *   - bug: resizer is visible (and onHover) when panel is hidden.
 *
 * == 1.4 changes
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - added panel title
+*   - added panel.title
 *   - added panel.maxSize property
+*   - added onResizerClick event
 *   - fixed resize bugs
 *   - BUG resize problems (resizer flashes, not very snappy, % should stay in percent)
-*   - added onResizerClick event
+*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *
 ************************************************************************/
 
@@ -112,8 +112,8 @@
     w2layout.prototype = {
         // default setting for a panel
         panel: {
-            title     : '',
             type      : null,        // left, right, top, bottom
+            title     : '',
             size      : 100,        // width or height depending on panel name
             minSize   : 20,
             maxSize   : false,

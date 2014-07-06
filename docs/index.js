@@ -8,7 +8,7 @@ $(function () {
             { type: 'main', style: 'background-color: white;' }
         ]
     });
-    w2ui['layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.3 Documentation</div>');
+    w2ui['layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.4 Documentation</div>');
     // init sidebar
     w2ui['layout'].content('left', $().w2sidebar({
         name: 'docs',

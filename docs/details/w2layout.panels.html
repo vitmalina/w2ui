@@ -9,8 +9,10 @@ The code below shows the structure of the panel object:
 <textarea class="javascript">
 panel: {
     type        : null,    // type of the panel can be: left, right, top, bottom, preview
+    title       : '',      // title for the panel
     size        : 100,     // width or height of the panel depending on panel type
     minSize     : 20,      // minimum size of the panel in px when it is resized
+    maxSize     : false,   // if a number, then it defined maximum size of the panel
     hidden      : false,   // indicates if panel is hidden
     resizable   : false,   // indicates if panel is resizable
     overflow    : 'auto',  // overflow property of the panel, can have same values as similar CSS property
@@ -21,11 +23,12 @@ panel: {
     tabs        : null,    // w2tabs object for the panel
     toolbar     : null,    // w2toolbar object for the panel
     show : {               // indicates what sections are shown
-        tabs     : false,    
-        toolbar    : false
+        tabs    : false,    
+        toolbar : false
     },
     // events
     onRefresh   : null,    // refresh event for the panel
+    onResizing  : null,    // resizing evnet for the panel
     onShow      : null,    // show event for the panel
     onHide      : null     // hide event for the panel
 }
@@ -47,7 +50,7 @@ $('#layout').w2layout({
 w2ui['layout'].set('top', { size: 50 });
 </textarea>
 
-As of version 1.2 you can easily add w2tabs or/and w2toolbar object at the top of the panel.
+As of version 1.2+ you can add w2tabs or/and w2toolbar object at the top of the panel.
 <textarea class="javascript">
 $('#layout').w2layout({
     name    : 'layout',
