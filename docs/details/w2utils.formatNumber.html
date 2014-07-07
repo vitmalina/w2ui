@@ -1,7 +1,7 @@
 Formats a number adding commas.
 
 <div class="definition">
-    w2utils.formatNumber(val)
+    w2utils.formatNumber(val, [groupSymbol])
 </div>
 
 <div class="arguments">
@@ -10,11 +10,15 @@ Formats a number adding commas.
         <td>val</td>
         <td><b>string</b> or <b>number</b>, a number to format</td>
     </tr>
+    <tr>
+        <td>groupSymbol</td>
+        <td><b>string</b>, a group delimeter (default is comma)</td>
+    </tr>
     </table>
 </div>
 
-The <span class="argument">val</span> argument can be an integer, float on in money format. The method will add commas after each there
-digits
+The <span class="argument">val</span> argument can be an integer, float on in money format. The method will add commas (or
+whatever <span class="argument">groupSymbol</span> you defined) after each there digits.
 
 <textarea class="javascript">
 var a = w2utils.formatNumber('$1234095.04');

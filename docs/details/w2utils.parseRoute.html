@@ -1,0 +1,62 @@
+Returns time in requested format.
+
+<div class="definition">
+    w2utils.parseRoute(route)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>route</td>
+        <td><b>string</b> dynamic route</td>
+    </tr>
+    </table>
+</div>
+
+Returns object.
+
+<h4>Description</h4>
+The <span class="argument">route</span> argument is a string, for example:
+
+<textarea class="javascript">
+w2utils.parseRoute('/view/(:id)/details/:sub');
+</textarea>
+
+Returns
+<textarea class="javascript">
+route = {
+    path: /^\/view(?:\/(?:([^\/]+?)))\/details\/(?:([^\/]+?))$/i,
+    keys:[{ 
+        "name": "id",
+        "optional": false
+    }, {
+        "name": "sub",
+        "optional":false
+    }]
+}
+</textarea>
+
+You can also define some routes as optional:
+<textarea class="javascript">
+var route = w2utils.parseRoute('/view/:id/details/:sub?')
+console.log(route);
+</textarea>
+
+Returns
+<textarea class="javascript">
+route = {
+    path: /^\/view(?:\/(?:([^\/]+?)))\/details(?:\/([^\/]+?))?$/i,
+    keys:[{ 
+        "name": "id",
+        "optional": false
+    }, {
+        "name": "sub",
+        "optional":true
+    }]
+}
+</textarea>
+
+The "path" returned can be used as a reqular expression to compare if path matches.
+<div style="height: 10px"></div>
+
+This method is used internally to process routes for w2toolbar, w2sidebar, w2tabs, etc.

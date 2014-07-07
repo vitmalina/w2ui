@@ -16,6 +16,11 @@ Returns date in human readable format.
 The <span class="argument">str</span> argument can be any standard date or unix epoch, which is used to
 create JavaScript Date object. If the date is today, the method will return time. If the date is yesterday, the method will
 return 'Yesterday', otherwise, it will return date in the format 'Mon dd, YYYY'.
+<div style="height: 10px"></div>
+
+For best cross browser compatibility you should define <span class="argument">dateStr</span> either as UNIX time or as full date 
+and time with time zone in the following format: "2013/12/21 19:03:59 PST".
+<div style="height: 10px"></div>
 
 <textarea class="javascript">
 var a = w2utils.date((new Date()));

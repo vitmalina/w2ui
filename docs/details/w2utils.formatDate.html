@@ -20,6 +20,11 @@ Returns date in requested format.
 The <span class="argument">str</span> argument can be any standard date or unix epoch, which is used to
 create JavaScript Date object. The format can contain following elements: mm, dd, yyyy, mon in any order with
 any formatting characters. For example 'mm.dd.yyyy', 'dd-mm-yyyy', 'mon dd, yyyy'
+<div style="height: 10px"></div>
+
+For best cross browser compatibility you should define <span class="argument">dateStr</span> either as UNIX time or as full date 
+and time with time zone in the following format: "2013/12/21 19:03:59 PST".
+<div style="height: 10px"></div>
 
 <textarea class="javascript">
 var a = w2utils.formatDate((new Date()), 'mm-dd-yyyy');

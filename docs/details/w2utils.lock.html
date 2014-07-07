@@ -21,15 +21,54 @@ Locks HTML element.
     </table>
 </div>
 
-The first argument <span class="method">box</span> is usually a div element (needs to be with absolute position) which will be locked. The second
-argument <span class="method">message</span> is the message to display. If second argument is null or blank, no message will be displayed
-at all. The third argument <span class="method">showSpinner</span> is a boolean variable indicating whether to show the spinner.
+Or
+
+<div class="definition">
+    w2utils.lock(box, options)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>box</td>
+        <td><b>HTML Element</b> or <b>jQuery object</b>, box to lock</td>
+    </tr>
+    <tr>
+        <td>options</td>
+        <td><b>object</b>, object with options</td>
+    </tr>
+    </table>
+</div>
+
+The first argument <span class="method">box</span> is usually a div (needs to be with absolute position) which will be locked. 
 <div style="height: 10px"></div>
+
+The second argument <span class="method">message</span> is the message to display. If second argument is null or blank, no message 
+will be displayed at all. The third argument <span class="method">showSpinner</span> is a boolean variable indicating whether to 
+show the spinner.
+<div style="height: 10px"></div>
+
+You can optionally define an object as the second argument with the following structrue:
+<div style="height: 10px"></div>
+
+<textarea class="javascript">
+options = {
+    msg     : '',       // message to display
+    spinner : false,    // indicates if to display a spinner
+    opacity :           // opacity for the lock div
+}
+</textarea>
+
+To lock a div without dimming it do:
+<textarea class="javascript">
+w2utils.lock(div, { spinner: true, opacity : 1 });
+</textarea>
+
+To lock a div with a spinner do:
+<textarea class="javascript">
+w2utils.lock(div, '', true);
+</textarea>
 
 This method is called from grid, sidebar, layout and popup to lock its content.
 <div style="height: 10px"></div>
 
-You can lock a div with:
-<textarea class="javascript">
-w2utils.lock(div, '', true);
-</textarea>
