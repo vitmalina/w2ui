@@ -31,6 +31,7 @@ item: {
     id       : null,      // id of the item
     type     : 'button',  // type of the item (button, check, radio, drop, menu, break, spacer, html)
     text     : '',        // caption of the item
+    route    : null,      // route to follow, can have dynamic parts as /item/:id/details (see routeData)
     html     : '',        // html text for the item (only if type = html)
     img      : '',        // css class of the image for the item
     icon     : '',        // css class of the icon font for the item
@@ -68,10 +69,11 @@ table.list td {
         object, then each element of the array is an object of the following type:
         <textarea class="javascript">
 item: {
-    id   : '',   // id of the menu item
-    text : '',   // text of the menu item
-    icon : '',   // css class for icon font
-    img  : ''    // css class for an image
+    id       : '',     // id of the menu item
+    text     : '',     // text of the menu item
+    icon     : '',     // css class for icon font
+    img      : '',     // css class for an image
+    disabled : false   // indicates if menu item is disabled
 }
         </textarea>
         There are several default icons in w2ui.css file you can use or you can create your own css file with icons. Majority of

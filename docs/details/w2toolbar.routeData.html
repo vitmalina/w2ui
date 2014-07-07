@@ -1,0 +1,20 @@
+Object with data for the route.
+
+<div class="definition">
+    String, default = ''
+</div>
+
+As of 1.4+ you can specify a route for the toolbar item. When the button is clicked, it will still emmit 
+<a href="w2toolbar.onClick" class="argument">.onClick</a> event, but in addition it will follow a route defined for the button.
+The route can have dynamic data, for example:
+
+<textarea class="javascript">
+$('#toolbar').w2toolbar({
+    name: 'toolbar',
+    routeData: { id: 14 },
+    items: [
+        { type: 'radio',  id: 'item1',  group: '1', caption: 'Details', route: '/view/:id/details' },
+        { type: 'radio',  id: 'item2',  group: '1', caption: 'Summary', route: '/view/:id/summary' }
+    ]
+});
+</textarea>

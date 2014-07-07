@@ -81,6 +81,7 @@
             hint     : '',
             group    : null,        // used for radio buttons
             items    : null,        // for type menu it is an array of items in the menu
+            overlay  : {},
             onClick  : null
         },
 
