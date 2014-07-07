@@ -1,23 +1,24 @@
-Called when popup is opened or transitions to the new content. 
+Called when popup is maximized or minimized.
 
 <div class="definition">
-    onOpen = function(event)
+    onToggle = function(event)
 </div>
 
-This event is triggered when popup is first opened and any time <a href="w2popup.open" class="method">.open</a> or 
-<a href="w2popup.load" class="method">.load</a> methods are called. There can be only one popup window on the screen at
-any given time. If you call <a href="w2popup.open" class="method">.open</a> method again, the popup will transition into 
-new content.
-
+This event is emmitted in addition to <span class="argument">onMax</span> or <span class="argument">onMin</span> and can be used
+for resizing of the content inside the popup, for example resizing a grid or a layout. Please note that you will need to user
+<span class="argument">event.onComplete</span> to trigger the resize when transition is complete.
 <div style="height: 10px;"></div>
+
 You can add event listener during the object creation:
 
 <textarea class="javascript">
 w2popup.open({
-    title  : 'Title',
-    body   : 'Body',
-    onOpen : function (event) {
-        console.log('event: ' + event.type, event);
+    title    : 'Title',
+    body     : 'Body',
+    onToggle : function (event) {
+        event.onComplete = function () {
+            w2ui.grid.resize();
+        }
     }        
 });
 </textarea>
@@ -25,7 +26,7 @@ w2popup.open({
 or after popup is opened:
 
 <textarea class="javascript">
-w2popup.on('open', function(event) {
+w2popup.on('toggle', function(event) {
     console.log('event: ' + event.type, event);
 });
 </textarea>

@@ -8,10 +8,12 @@ You can add event listener during the object creation:
 
 <textarea class="javascript">
 w2popup.open({
-    title    : 'Title',
-    body     : 'Body',
-    onMax    : function (event) {
-        console.log('event: ' + event.type, event);
+    title : 'Title',
+    body  : 'Body',
+    onMax : function (event) {
+        event.onComplete = function () {
+            console.log('event: ' + event.type, event);
+        }
     }        
 });
 </textarea>

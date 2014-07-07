@@ -1,28 +1,28 @@
-Array of default settings for the popup. 
+Default settings for the popup. 
 
 <div class="definition">
-    Array, default - see below
+    Object, default - see below
 </div>
 
 The code below shows the initial object:
 
 <textarea class="javascript">
 defaults: {
-    title            : '',        // title, body, buttons - empty by default
-    body            : '',
-    buttons            : '',
-    style            : '',        // additional styles
-    color            : '#000',    // color of the screen lock
-    opacity            : 0.4,        // opacity of the screen lock
-    speed            : 0.3,        // speed popup appears
-    modal            : false,    // if modal, it cannot be closed by clicking on the screen lock
-    maximized        : false,    // by default it is not maximized
-    keyboard        : true,        // will close popup on esc if not modal
-    width            : 500,
-    height            : 300,
-    showClose        : true,        // show closed button by default
-    showMax            : false,    // do not show max button by default
-    transition        : null        // no content transition by default
+    title      : '',        // html for title - empty by default
+    body       : '',        // html for body - empty by default
+    buttons    : '',        // html for buttons - empty by default
+    width      : 500,       // width of the popup
+    height     : 300,       // height of the popup
+    style      : '',        // additional styles
+    color      : '#000',    // color of the screen lock
+    opacity    : 0.4,       // opacity of the screen lock
+    speed      : 0.3,       // speed popup appears
+    modal      : false,     // if modal, it cannot be closed by clicking on the screen lock
+    maximized  : false,     // by default it is not maximized
+    keyboard   : true,      // will close popup on esc if not modal
+    showClose  : true,      // show closed button by default
+    showMax    : false,     // do not show max button by default
+    transition : null       // no content transition by default
 },
 </textarea>
 
