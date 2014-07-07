@@ -110,15 +110,15 @@
         this.reorderRows    = false;
         this.markSearch     = true;
 
-        this.total     = 0;     // server total
-        this.limit     = 100;
-        this.offset    = 0;     // how many records to skip (for infinite scroll) when pulling from server
-        this.style     = '';
-        this.ranges    = [];
-        this.menu      = [];
-        this.method;            // if defined, then overwrited ajax method
-        this.recid;
-        this.parser;
+        this.total   = 0;     // server total
+        this.limit   = 100;
+        this.offset  = 0;     // how many records to skip (for infinite scroll) when pulling from server
+        this.style   = '';
+        this.ranges  = [];
+        this.menu    = [];
+        this.method  = null;         // if defined, then overwrited ajax method
+        this.recid   = null;
+        this.parser  = null;
 
         // events
         this.onAdd              = null;
@@ -1878,7 +1878,7 @@
                                 var next_rec = recid;
                                 var next_col = event.shiftKey ? obj.prevCell(column, true) : obj.nextCell(column, true);
                                 // next or prev row
-                                if (next_col === false) {
+                                if (next_col == null) {
                                     var tmp = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
                                     if (tmp != null && tmp != index) {
                                         next_rec = obj.records[tmp].recid;
@@ -1894,7 +1894,7 @@
 
                                 }
                                 if (next_rec === false) next_rec = recid;
-                                if (next_col === false) next_col = column;
+                                if (next_col == null) next_col = column;
                                 // init new or same record
                                 this.blur();
                                 setTimeout(function () {
@@ -2318,7 +2318,7 @@
                         obj.collapse(recid, event);
                     } else {
                         var prev = obj.prevCell(columns[0]);
-                        if (prev !== false) {
+                        if (prev != null) {
                             if (shiftKey && obj.multiSelect) {
                                 if (tmpUnselect()) return;
                                 var tmp    = [];
@@ -2358,7 +2358,7 @@
                         obj.expand(recid, event);
                     } else {
                         var next = obj.nextCell(columns[columns.length-1]);
-                        if (next !== false) {
+                        if (next !== null) {
                             if (shiftKey && key == 39 && obj.multiSelect) {
                                 if (tmpUnselect()) return;
                                 var tmp    = [];
@@ -2649,6 +2649,7 @@
         contextMenu: function (recid, event) {
             var obj = this;
             if (obj.last.userSelect == 'text') return;
+            if (typeof event == 'undefined') event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ obj.name +'_rec_'+ recid)[0] };
             if (typeof event.offsetX === 'undefined') {
                 event.offsetX = event.layerX - event.target.offsetLeft;
                 event.offsetY = event.layerY - event.target.offsetTop;
@@ -4244,7 +4245,7 @@
         initOperator: function (el, search_ind) {
             var obj     = this;
             var search  = obj.searches[search_ind];
-             var range  = $('#grid_'+ obj.name + '_range_'+ search_ind);
+            var range   = $('#grid_'+ obj.name + '_range_'+ search_ind);
             var fld1    = $('#grid_'+ obj.name +'_field_'+ search_ind);
             var fld2    = fld1.parent().find('span input');
             if ($(el).val() == 'in' || $(el).val() == 'not in') { fld1.w2field('clear'); } else { fld1.w2field(search.type); }
@@ -4841,9 +4842,9 @@
         },
 
         getCellValue: function (ind, col_ind, summary) {
-            var col      = this.columns[col_ind];
-            var record     = (summary !== true ? this.records[ind] : this.summary[ind]);
-            var data     = this.parseField(record, col.field);
+            var col    = this.columns[col_ind];
+            var record = (summary !== true ? this.records[ind] : this.summary[ind]);
+            var data   = this.parseField(record, col.field);
             if (record.changes && typeof record.changes[col.field] != 'undefined') data = record.changes[col.field];
             if (data == null || typeof data == 'undefined') data = '';
             return data;
@@ -5060,7 +5061,7 @@
 
         nextCell: function (col_ind, editable) {
             var check = col_ind + 1;
-            if (this.columns.length == check) return false;
+            if (this.columns.length == check) return null;
             if (editable === true) {
                 var edit = this.columns[check].editable;
                 if (this.columns[check].hidden || typeof edit == 'undefined'
@@ -5071,7 +5072,7 @@
 
         prevCell: function (col_ind, editable) {
             var check = col_ind - 1;
-            if (check < 0) return false;
+            if (check < 0) return null;
             if (editable === true) {
                 var edit = this.columns[check].editable;
                 if (this.columns[check].hidden || typeof edit == 'undefined'

@@ -1,0 +1,48 @@
+Initializes global search field.
+
+<div class="definition">
+    initAllField(field, [value])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>field</td>
+        <td><b>string</b>, field name (as defined in searches array)</td>
+    </tr>
+    <tr>
+        <td>value</td>
+        <td><b>stringr</b>, value for the field (optional) will only be used for drop down field</td>
+    </tr>
+    </table>
+</div>
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method is called internally when user selects search field from global searches drop down field.
+<div style="height: 10px"></div>
+
+If you have grid defined in the following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name: 'grid',
+    show: { 
+    	header  : true,
+    	toolbar : true 
+    },
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%', searchable: true },
+        { field: 'fname', caption: 'First Name', size: '30%', searchable: true },
+        { field: 'email', caption: 'Email', size: '40%', searchable: true },
+        { field: 'sdate', caption: 'Start Date', size: '120px', searchable: true },
+        { field: 'sdate', caption: 'End Date', size: '120px', searchable: true }
+    ]
+});
+</textarea>
+
+And if you change columns directly, you will need to:
+<textarea class="javascript">
+w2ui['grid'].initAllField('fname');
+</textarea>

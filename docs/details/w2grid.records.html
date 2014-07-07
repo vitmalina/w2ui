@@ -53,7 +53,7 @@ $('#grid').w2grid({
 <h4>The record object</h4>
 
 Each record object must have a <span class="property">recid</span> property that uniquely identifies the record. Also it might have some
-other system properties: style, selected, summary, and editable.
+other system properties: style, summary, and editable.
 <div style="height: 10px"></div>
 
 The following is the structure of the record object:
@@ -64,12 +64,10 @@ record = {
     [field-2]  : '',     // field 2
     ...
     [field-N]  : '',     // field N
-    style      : '',     // additional CSS style for &lt;tr ...&gt; tag       
-    selected   : false,  // indicates if record is selected
+    style      : '',     // additional CSS style for &lt;tr ...&gt; tag  or for &lt;td ...&gt; tag if it is an object
     summary    : false,  // indicates if it is a summary record (summary records appear on the bottom)
     editable   : true,   // indicate is record is editable (must have column.ediable property set)
     expanded   : 'none', // can be true | false | 'none' | 'spinner'
-    changed    : undefined    // readonly, boolean that indicates if user changed record by inline editing
     changes    : undefined  // readonly, object with user changes by inline editing
 }
 </textarea>

@@ -1,0 +1,58 @@
+Called on user changed data is saved.
+
+<div class="definition">
+    onSubmit = function(event)
+</div>
+
+You can add event listener during the object creation:
+
+<textarea class="javascript">
+$('#grid').w2grid({
+    name : 'grid',
+    show : {
+        toolbar     : true,
+        toolbarAdd  : true,
+        toolbarSave : true
+    },
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%', editable: { type: 'text' } },
+        { field: 'fname', caption: 'First Name', size: '30%', editable: { type: 'text' } },
+        { field: 'email', caption: 'Email', size: '40%', editable: { type: 'email' } },
+        { field: 'sdate', caption: 'End Date', size: '120px', editable: { type: 'date' } }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ],
+    onSubmit: function(event) {
+        console.log(event);
+    }        
+});
+</textarea>
+
+or after the object has been created:
+
+<textarea class="javascript">
+w2ui.grid.on('request', function(event) {
+    console.log('-- server call --');
+    console.log(event);
+});
+</textarea>
+
+One of the important features of this event is that you can change the data that will be sent to the server. When the event is 
+emitted, the <span class="argument">changes</span> property inside <span class="argument">event</span> object
+will have all the variables to be sent to the server. If you modify <span class="argument">changes</span>, the grid will send 
+modified version to the server. You can also change <span class="argument">url</span> property of 
+<span class="argument">event</span> and the request will be sent to the new url.
+<div style="height: 10px;"></div>
+
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action 
+after the event is fully processed, define <span class="method">event.onComplete</span> function. 
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.

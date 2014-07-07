@@ -1,0 +1,24 @@
+Object with data for the route.
+
+<div class="definition">
+    String, default = ''
+</div>
+
+As of 1.4+ you can specify a dynamic url property and the url will be parsed and replaced with actual data.
+
+<textarea class="javascript">
+$('#grid').w2grid({
+    name : 'grid',
+    url  : '/api/project/:id/details',
+    routeData: { id: 14 },
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ]
+});
+</textarea>
+
+In the example above, the ":id" from the route will be replaced with "14" from routeData object.

@@ -1,0 +1,48 @@
+Saves grid state into local storage.
+
+<div class="definition">
+       stateSave([returnOnly])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>returnOnly</td>
+        <td><b>boolean</b>, if true, will return object that defines state of the grid</td>
+    </tr>
+    </table>
+</div>
+Returns object or <i>null</i>.
+
+<h4>Description</h4>
+
+This method generates object that defines current state of the grid and saves it into localStorage.
+<div style="height: 10px"></div>
+
+If you have grid defined in the following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name: 'grid',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%', editable: { type: 'text' } },
+        { field: 'fname', caption: 'First Name', size: '30%', editable: { type: 'text' } },
+        { field: 'email', caption: 'Email', size: '40%', editable: { type: 'text' } },
+        { field: 'sdate', caption: 'Start Date', size: '120px', editable: { type: 'date' } },
+        { field: 'edate', caption: 'End Date', size: '120px', editable: { type: 'date' } }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ]
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+w2ui['grid'].saveState();
+</textarea>

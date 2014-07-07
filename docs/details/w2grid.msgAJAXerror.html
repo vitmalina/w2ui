@@ -1,0 +1,29 @@
+Error message when server returns undefined error.
+
+<div class="definition">
+    String, default = 'AJAX error. See console for more details.'
+</div>
+
+If you do not like default message, you are welcome to define your own.
+
+<textarea class="javascript">
+$('#grid').w2grid({
+    name : 'grid',
+    msgAJAXerrror : 'Uncaught AJAX error',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ]
+});
+</textarea>

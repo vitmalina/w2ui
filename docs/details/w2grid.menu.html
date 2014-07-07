@@ -1,0 +1,52 @@
+Array of object for context menu.
+
+<div class="definition">
+    Array, default = []
+</div>
+
+User this property if you want to define context menu for the grid. In your <a href="w2grid.onMenuClick" class="argument">.onMenuClick</a>
+event you will selected menu item in the event object.
+<div style="height: 10px"></div>
+
+This property can be set during object creation:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name : 'grid',
+    show : {
+        toolbar    : true,
+        toolbarAdd : true
+    },
+    menu: [
+        { id: 1, text: 'Select Item', icon: 'fa-star' },
+        { id: 2, text: 'View Item', icon: 'fa-camera' }, 
+        { id: 4, text: 'Delete Item', icon: 'fa-minus' }
+    ],
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ],
+    onMenuClick: function(event) {
+        console.log(event);
+    }
+});
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui['grid'].menu = [
+    { id: 1, text: 'Select Item', icon: 'fa-star' },
+    { id: 2, text: 'View Item', icon: 'fa-camera' }, 
+    { id: 4, text: 'Delete Item', icon: 'fa-minus' }
+];
+</textarea>

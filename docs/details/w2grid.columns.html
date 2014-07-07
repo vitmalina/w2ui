@@ -37,12 +37,13 @@ column = {
     sizeCalculated : null,   // read only, size in px (see explanation below)
     hidden         : false,  // indicates if column is hidden
     sortable       : false,  // indicates if column is sortable
-    searchable     : false,     // indicates if column is searchable, bool/string: int,float,date,...
-    resizable      : false,  // indicates if column is resiable
+    searchable     : false,  // indicates if column is searchable, bool/string: int,float,date,...
+    resizable      : true,   // indicates if column is resiable
+    hidable        : false,  // indicates if column can be hidden
     attr           : '',     // string that will be inside the &lt;td ... attr&gt; tag
     style          : '',     // additional style for the td tag
     render         : null,   // render function
-    title           : null,     // string of function for the title property for the column cells
+    title          : null,   // string of function for the title property for the column cells
     editable       : {}      // editable object if column fields are editable
 }
 </textarea>
@@ -87,6 +88,7 @@ There are several predefined formatters. They are (for number and float, XX - de
     <li>percent</li>
     <li>age</li>
     <li>date</li>
+    <li>toggle</li>
 </ul>
 You can use them int he following way:
 <textarea class="javascript">

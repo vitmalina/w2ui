@@ -12,8 +12,8 @@ this <span class="method">.url</span> as well.
 URL can be defined during object creation: 
 <textarea class="javascript">
 $('#grid').w2grid({
-    name    : 'grid',
-    url     : 'server/side/path/to/records',
+    name : 'grid',
+    url  : 'server/side/path/to/records',
     columns: [                
         { field: 'recid', caption: 'ID', size: '50px' },
         { field: 'lname', caption: 'Last Name', size: '30%' },
@@ -28,11 +28,11 @@ $('#grid').w2grid({
 You may define different urls for different operations (get records, delete records, save records)
 <textarea class="javascript">
 $('#grid').w2grid({
-    name    : 'grid',
-    url : {
-        get        : 'server/side/path/to/records',
-        remove    : 'server/side/path/to/remove',
-        save    : 'server/side/path/to/save'
+    name : 'grid',
+    url  : {
+        get    : 'server/side/path/to/records',
+        remove : 'server/side/path/to/remove',
+        save   : 'server/side/path/to/save'
     },
     columns: [                
         { field: 'recid', caption: 'ID', size: '50px' },
