@@ -1,0 +1,22 @@
+Object with data for the route.
+
+<div class="definition">
+    String, default = ''
+</div>
+
+As of 1.4+ you can specify a route for the tabs. When the tab is clicked, it will still emmit 
+<a href="w2tabs.onClick" class="argument">.onClick</a> event, but in addition it will follow a route defined for the tab.
+The route can have dynamic data, for example:
+
+<textarea class="javascript">
+$('#tabs').w2tabs({
+    name: 'tabs',
+    routeData: { id: 14 },
+    tabs: [
+        { id: 'tab1', caption: 'Tab 1' route: '/view/:id/details' },
+        { id: 'tab2', caption: 'Tab 2' route: '/view/:id/details' }
+    ]    
+});
+</textarea>
+
+In the example above, the ":id" from the route will be replaced with "14" from routeData object.
