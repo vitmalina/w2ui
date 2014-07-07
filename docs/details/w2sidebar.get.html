@@ -1,7 +1,7 @@
 Finds sidebar node with <span class="argument">id</span> and returns it or its index.
 
 <div class="definition">
-    get([parent], id, [returnIndex])
+    get([parent], [id], [returnIndex])
 </div>
 
 <div class="arguments">
@@ -12,11 +12,11 @@ Finds sidebar node with <span class="argument">id</span> and returns it or its i
     </tr>
     <tr>
         <td>id</td>
-        <td><b>string</b>, id of the sidebar node</td>
+        <td><b>string</b>, id of the sidebar node (<i>optional</i>)</td>
     </tr>
     <tr>
         <td>returnIndex</td>
-        <td><b>boolean</b>, if true returns index in the items array (<i>optional</i>)</td>
+        <td><b>boolean</b>, if true returns index in the nodes array (<i>optional</i>)</td>
     </tr>
     </table>
 </div>
@@ -38,6 +38,9 @@ The third optional argument <span class="argument">returnIndex</span> indicates 
 <a class="argument" href="w2sidebar.nodes">.nodes</a> array.
 <div style="height: 10px"></div>
 
+You can call this method without any arguments and it will return to you ids of all nodes in the entier sidebar.
+<div style="height: 10px"></div>
+
 If you defined the object in the following way:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
@@ -51,7 +54,14 @@ $('#sidebar').w2sidebar({
 });
 </textarea>
 
-You can get sidebar node:
+To get ids of all nodes:
 <textarea class="javascript">
-console.log( w2ui['toolbar'].get('id-2') );
+var all = w2ui['sidebar'].get();
+console.log(all);
+</textarea>
+
+To get a specific node:
+<textarea class="javascript">
+var node = w2ui['sidebar'].get('id-2');
+console.log(node);
 </textarea>

@@ -8,28 +8,29 @@ This array contains all the node objects of the sidebar. Each node object may in
 nestedness. A node object has following structure:
 <textarea class="javascript">
 node: {
-    id              : null,     // id of the node, must be unique for the whole sidebar
-    text            : '',       // text of the node
-    count           : '',       // text of the badge that will appear on the right
-    img             : null,     // css class of the image that will appear on the left
-    icon             : null,        // css class of the font icon that will appear on the left
-    nodes           : [],       // array of sub node objects
-    style           : '',       // additional style for the node
-    selected        : false,    // indicates if node is selected
-    expanded        : false,    // indicates if node is expanded
-    hidden          : false,    // indicates if node is hidden
-    disabled        : false,    // indicates is node is disabled
-    group           : false,     // indicates if node is a group
-    plus            : false,    // if true, then + will be shown even if there is no sub nodes
+    id            : null,     // id of the node, must be unique for the whole sidebar
+    text          : '',       // text of the node
+    count         : '',       // text of the badge that will appear on the right
+    img           : null,     // css class of the image that will appear on the left
+    icon          : null,     // css class of the font icon that will appear on the left
+    nodes         : [],       // array of sub node objects
+    style         : '',       // additional style for the node
+    route         : '',       // route for the node item
+    selected      : false,    // indicates if node is selected
+    expanded      : false,    // indicates if node is expanded
+    hidden        : false,    // indicates if node is hidden
+    disabled      : false,    // indicates is node is disabled
+    group         : false,    // indicates if node is a group
+    plus          : false,    // if true, then + will be shown even if there is no sub nodes
     // events
-    onClick         : null,     // mouse click event handler
-    onDblClick      : null,     // mouse double click event handler
-    onContextMenu   : null,     // mouse right click event handler
-    onOpen          : null,     // mouse open node event handler
-    onClose         : null,     // mouse close node event handler
-    // internal: if you change nodes array, you will need to set these
-    parent          : null,     // reference to a parent node object
-    sidebar         : null      // reference to the sidebar the node belongs to
+    onClick       : null,     // mouse click event handler
+    onDblClick    : null,     // mouse double click event handler
+    onContextMenu : null,     // mouse right click event handler
+    onOpen        : null,     // mouse open node event handler
+    onClose       : null,     // mouse close node event handler
+    // internal
+    parent        : null,     // reference to a parent node object
+    sidebar       : null      // reference to the sidebar the node belongs to
 }
 </textarea>
 

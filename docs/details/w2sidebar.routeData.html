@@ -1,0 +1,23 @@
+Object with data for the route.
+
+<div class="definition">
+    String, default = ''
+</div>
+
+As of 1.4+ you can specify a route for the sidebar item. When the item is clicked, it will still emmit 
+<a href="w2sidebar.onClick" class="argument">.onClick</a> event, but in addition it will follow a route defined for the item.
+The route can have dynamic data, for example:
+
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    routeData: { id: 14 },
+    nodes: [ 
+        { id: 'id-1', text: 'Level 1', route: '/view/:id/details' },
+        { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
+            { id: 'id-2-1', text: 'Level 2.1', route: '/view/:id/sub1' },
+            { id: 'id-2-2', text: 'Level 2.2', route: '/view/:id/sub2' }
+        ]},
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});</textarea>
