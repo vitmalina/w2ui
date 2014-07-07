@@ -256,11 +256,11 @@ var w2utils = (function () {
         } else if (sec < 30*24*60*60) {
             amount = Math.floor(sec/24/60/60);
             type   = 'day';
-        } else if (sec < 12*30*24*60*60) {
-            amount = Math.floor(sec/30/24/60/60*10)/10;
+        } else if (sec < 365.25*24*60*60) {
+            amount = Math.floor(sec/365.25/24/60/60*10)/10;
             type   = 'month';
-        } else if (sec >= 12*30*24*60*60) {
-            amount = Math.floor(sec/12/30/24/60/60*10)/10;
+        } else if (sec >= 365.25*24*60*60) {
+            amount = Math.floor(sec/365.25/24/60/60*10)/10;
             type   = 'year';
         }
         return amount + ' ' + type + (amount > 1 ? 's' : '');
