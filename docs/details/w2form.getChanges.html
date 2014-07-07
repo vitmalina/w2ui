@@ -1,0 +1,38 @@
+Compares current record object to original and returnes diff.
+
+<div class="definition">
+    getChanges()
+</div>
+
+Returns <i>object</i>.
+
+<h4>Description</h4>
+
+This method compares <a href="w2form.record" class="method">.record</a> with <a href="w2form.original" class="method">.original</a> and
+returns the diff object.
+<div style="height: 10px"></div>
+                
+If you have following form:
+<textarea class="javascript">
+$('#form').w2form({
+    name     : 'form',
+    recid      : 10,
+    url      : '/server/form/path',
+    formURL  : '/server/path',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    actions: {
+        "save": function (target, data) { this.validate(); },
+        "reset": function (target, data) { this.clear(); },
+    }
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+var changes = w2ui['form'].getChanges();
+console.log(changes);
+</textarea>

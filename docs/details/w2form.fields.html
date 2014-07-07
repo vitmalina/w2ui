@@ -9,41 +9,67 @@ For each input or select control in the HTML template of the form, you need to d
 
 <textarea class="javascript">
 field : {
-    name     : '',      // name of field, must match name of input or select 
-    type     : null,    // type of field (same types as for w2field object)
-    options  : {},      // additional options for the field
-    required : false,   // required or not
-    html     : {        // info for auto generation (see generateHTML)
-        caption    : '',            // caption for the field
-        attr    : '',            // attributes inside input/select control
-        text     : '',            // text to display on the right from the control
-        span    : undefined,    // number of span, will be added to class="w2ui-span{span}"
-        page     : undefined        // page number if there are tabs in the form
+    name     : '',            // name of field, must match name of input or select 
+    type     : null,          // type of field (same types as for w2field object)
+    options  : {},            // additional options for the field
+    required : false,         // required or not
+    html     : {              // info for auto generation (see generateHTML)
+        caption : '',         // caption for the field
+        attr    : '',         // attributes inside input/select control
+        text    : '',         // text to display on the right from the control
+        span    : undefined,  // number of span, will be added to class="w2ui-span{span}"
+        page    : undefined   // page number if there are tabs in the form
     }
 }
 </textarea>
+
+The form supports all types that $().w2field({}) supports and few more types in addition. The complete list of all types are:
+<ul>
+    <li>text</li>
+    <li>textarea</li>
+    <li>email</li>
+    <li>pass</li>
+    <li>password</li>
+    <li>int</li>
+    <li>float</li>
+    <li>money</li>
+    <li>currency</li>
+    <li>percent</li>
+    <li>hex</li>
+    <li>alphanumeric</li>
+    <li>color</li>
+    <li>date</li>
+    <li>time</li>
+    <li>list</li>
+    <li>combo</li>
+    <li>enum</li>
+    <li>file</li>
+    <li>select</li>
+    <li>radio</li>
+    <li>checkbox</li>
+    <li>toggle</li>
+</ul>
 
 If your HTML template is defined as follows:
 
 <textarea class="html">
 <div class="w2ui-page page-0">
-    <div class="w2ui-label">First Name:</div>
-    <div class="w2ui-field">
-        <input name="first_name" type="text" maxlength="100" size="60"/>
-    </div>
-    <div class="w2ui-label">Last Name:</div>
-    <div class="w2ui-field">
-        <input name="last_name" type="text" maxlength="100" size="60"/>
-    </div>
-    <div class="w2ui-label">Text Area:</div>
-    <div class="w2ui-field">
-        &lt;textarea name="field_textarea" type="text" style="width: 385px; height: 80px;">&lt;/textarea>
-    </div>
+      <div class="w2ui-field w2ui-required">
+         <label>First Name</label>
+         <div><input name="first_name" type="text" /></div>
+      </div>
+      <div class="w2ui-field w2ui-required">
+         <label>Last Name</label>
+         <div><input name="last_name" type="text" /></div>
+      </div>
+      <div class="w2ui-field">
+         <label>Comments</label>
+         <div><input name="field_textarea" type="text" /></div>
+      </div>
 </div>
-
 <div class="w2ui-buttons">
-    <input type="button" value="Reset" name="reset"/>
-    <input type="button" value="Save" name="save"/>
+    <button name="reset" class="btn ">reset</button>
+    <button name="save" class="btn btn-green">save</button>
 </div>
 </textarea>
 

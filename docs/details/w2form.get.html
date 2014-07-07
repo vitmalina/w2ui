@@ -1,18 +1,18 @@
 Finds and returns the field object or its index.
 
 <div class="definition">
-    get(field, [returnIndex])
+    get([field], [returnIndex])
 </div>
 
 <div class="arguments">
     <table>
     <tr>
         <td>field</td>
-        <td><b>string</b>, name of the field</td>
+        <td><b>string</b>, name of the field (<i>optional</i>)</td>
     </tr>
     <tr>
         <td>returnIndex</td>
-        <td><b>boolean</b>, if true returns index in the fields array (optional)</td>
+        <td><b>boolean</b>, if true returns index in the fields array (<i>optional</i>)</td>
     </tr>
     </table>
 </div>
@@ -22,8 +22,14 @@ Returns object, integer, or null.
 <h4>Description</h4>
 
 This method will find the <span class="argument">field</span> object in the <a class="argument" href="w2form.fields">.fields</a> 
-array and return it or its index. If the field does not exists it will return null. Because JavaScript passes objects by reference, modifying 
-this object will modify the original field. If the second optional argument <span class="argument">returnIndex</span> is set to true, the method will return index of the field in the <a class="argument" href="w2form.fields">.fields</a> array.
+array and return it or its index. If the field does not exists it will return null. Because JavaScript passes objects by 
+reference, modifying this object will modify the original field. If the second optional argument 
+<span class="argument">returnIndex</span> is set to true, the method will return index of the field in 
+the <a class="argument" href="w2form.fields">.fields</a> array.
+<div style="height: 10px"></div>
+
+If you call <a class="argument" href="w2form.fields">.get</a> without any arguments, it will return you an array of all field 
+names.
 <div style="height: 10px"></div>
 
 If you have form defined in the following way:

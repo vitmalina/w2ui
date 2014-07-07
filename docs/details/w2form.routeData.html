@@ -1,0 +1,31 @@
+Object with data for the route.
+
+<div class="definition">
+    String, default = ''
+</div>
+
+As of 1.4+ you can specify a dynamic url property and the url will be parsed and replaced with actual data.
+
+<textarea class="javascript">
+$('#form').w2form({
+    name : 'form',
+    url  : '/api/project/:id/details',
+    routeData: { id: 14 },
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
+});
+</textarea>
+
+In the example above, the ":id" from the route will be replaced with "14" from routeData object.

@@ -1,0 +1,29 @@
+Error message when server returns undefined error.
+
+<div class="definition">
+    String, default = 'AJAX error. See console for more details.'
+</div>
+
+If you do not like default message, you are welcome to define your own.
+
+<textarea class="javascript">
+$('#form').w2form({
+    name          : 'form',
+    header        : 'Form Header',
+    msgAJAXerrror : 'Uncaught AJAX error',
+    fields: [
+        { name: 'first_name', type: 'text', required: true },
+        { name: 'last_name', type: 'text', required: true },
+        { name: 'email', type: 'email' },
+    ],
+    record: { 
+        first_name    : 'John',
+        last_name     : 'Doe',
+        email         : 'jdoe@email.com'
+    },
+    actions: {
+        "save": function () { this.validate(); },
+        "reset": function () { this.clear(); },
+    }
+});
+</textarea>
