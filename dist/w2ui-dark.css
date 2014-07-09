@@ -66,10 +66,6 @@
 /*************************************************
 * ---- Input Controls ----
 */
-body {
-  font-family: Verdana, Arial, sans-serif;
-  font-size: 11px;
-}
 input[type=button] {
   border-radius: 3px;
   border: 1px solid #242A37;
