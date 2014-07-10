@@ -1,7 +1,21 @@
 An object to work with custom events.
 
 <div class="definition">
-    w2utils.event - object
+    Object
 </div>
 
-This method is used internally to provide funcitonality for all other widgets and have on, off, trigger functions for the events.
+This object is used internally to provide event funcitonality for all widgets. You can apply it to your custom widgets in the
+following way.
+
+<textarea class="javascript">
+	$.extend(yourObject, w2utils.event);
+</textarea>
+
+This will add to your object following functions:
+<ul>
+	<li>on(event, handler)</li>
+	<li>off(event, [handler])</li>
+	<li>trigger(eventData)</li>
+</ul>
+
+That you can use it to add event listeners and trigger events. See <a href="utils/events" class="method">Events</a> for additional information.
