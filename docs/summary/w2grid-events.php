@@ -49,6 +49,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.onContextMenu">onContextMenu</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user clicks right mouse button.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.onCopy">onCopy</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -119,6 +126,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.onMenuClick">onMenuClick</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user selects an item from the context menu.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.onPaste">onPaste</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -140,10 +154,10 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.onSave">onSave</a> <span>- function (event)</span>
+    <a href="w2grid.onRestore">onRestore</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when user clicks the Save button on the toolbar.
+    Called when user changes an editable records but it restores to its original value.
 </div>
 
 <div class="obj-property">
@@ -179,6 +193,27 @@
 </div>
 <div class="obj-property-desc">
     Called when user applies a sort.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onStateRestore">onStateRestore</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user selects "Restore Default State".
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onStateSave">onStateSave</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user selects "Save Grid State".
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onSubmit">onSubmit</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called on user changed data is saved.
 </div>
 
 <div class="obj-property">

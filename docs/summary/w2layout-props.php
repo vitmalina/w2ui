@@ -20,4 +20,11 @@
     The size of draggable resizer between panels.
 </div>
 
+<div class="obj-property">
+    <a href="w2layout.tmp">tmp</a> <span>- Object, default = {}</span>
+</div>
+<div class="obj-property-desc">
+    Object with temporary variables for internal use
+</div>
+
 </div>

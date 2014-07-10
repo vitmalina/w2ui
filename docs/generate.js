@@ -9,12 +9,19 @@ var files = fs.readdirSync('details');
 var rPath = ''; // for website should be '<?=$site_root?>/docs/'
 // var rPath = '<?=$site_root?>/docs/';
 
-console.log('--------- Generating Help Files ------------');
-
 // clear folder
-var tmp = fs.readdirSync('summary');
-for (var t in tmp) fs.unlink('summary/' + tmp[t]);
+console.log('==> Removing Current Files');
 
+var tmp = fs.readdirSync('summary');
+var cnt = 0;
+for (var t in tmp) {
+    fs.unlink('summary/' + tmp[t]);
+    cnt++;
+}
+console.log('    DONE. Removed '+ cnt + ' files');
+
+console.log('==> Generating New Summary Files');
+ process.stdout.write('    ');
 // generate files
 var text1 = '<link rel="stylesheet" type="text/css" href="../summary.css"/> \n'+
     '<div class="container">';
@@ -78,7 +85,7 @@ for (var f in files) {
     cnt++;
     if (cnt % 10 == 0) process.stdout.write('*');
 }
-console.log("\nDONE. Total: "+ cnt + '\n');
+console.log("\n    DONE. Processed: "+ cnt + ' files\n');
 
 // save to disk
 var index = '';
@@ -87,4 +94,4 @@ for (var h in html) {
     index += '<a href="' + h + '.html">'+ h + '</a><br>';
 }
 
-//fs.writeFileSync('summary/index.html', text1 + index + text2, 'utf8');
+// fs.writeFileSync('summary/index.html', text1 + index + text2, 'utf8');

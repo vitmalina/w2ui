@@ -7,6 +7,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2layout.onResizerClick">onResizerClick</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when resizer is clicked. 
+</div>
+
+<div class="obj-property">
     <a href="w2layout.onResizing">onResizing</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">

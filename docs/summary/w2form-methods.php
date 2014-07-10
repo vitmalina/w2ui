@@ -28,10 +28,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2form.get">get</a> <span>- get(field, [returnIndex])</span>
+    <a href="w2form.get">get</a> <span>- get([field], [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
     Finds and returns the field object or its index.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.getChanges">getChanges</a> <span>- getChanges()</span>
+</div>
+<div class="obj-property-desc">
+    Compares current record object to original and returnes diff.
 </div>
 
 <div class="obj-property">

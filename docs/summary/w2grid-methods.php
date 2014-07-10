@@ -224,10 +224,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.initAllField">initAllField</a> <span>- initAllField(field, [value])</span>
+</div>
+<div class="obj-property-desc">
+    Initializes global search field.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.initColumnOnOff">initColumnOnOff</a> <span>- initColumnOnOff()</span>
 </div>
 <div class="obj-property-desc">
     Refreshes toolbar button that allows to show/hide columns.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.initOperator">initOperator</a> <span>- initOperator(el, search_ind)</span>
+</div>
+<div class="obj-property-desc">
+    Initializes operator for the search field.
 </div>
 
 <div class="obj-property">
@@ -287,10 +301,31 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.menuClick">menuClick</a> <span>- menuClick(recid, index, event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user clicks on a context menu item.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.mergeChanges">mergeChanges</a> <span>- mergeChanges()</span>
 </div>
 <div class="obj-property-desc">
     Merges user changes into the records array.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.nextCell">nextCell</a> <span>- nextCell(col_ind, editable)</span>
+</div>
+<div class="obj-property-desc">
+    Returns next cell or null if it is last cell in the row.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.nextRow">nextRow</a> <span>- nextRow(index)</span>
+</div>
+<div class="obj-property-desc">
+    Returns next row or null if it is the last row.
 </div>
 
 <div class="obj-property">
@@ -308,10 +343,38 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.prevCell">prevCell</a> <span>- prevCell(col_ind, editable)</span>
+</div>
+<div class="obj-property-desc">
+    Returns previous cell or null if it is first cell in the row.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.prevRow">prevRow</a> <span>- prevRow(index)</span>
+</div>
+<div class="obj-property-desc">
+    Returns previous row or null if it is the very first row.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.refreshCell">refreshCell</a> <span>- refreshCell(recid, field)</span>
+</div>
+<div class="obj-property-desc">
+    Refreshes one cell on the screen.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.refreshRanges">refreshRanges</a> <span>- refreshRanges()</span>
 </div>
 <div class="obj-property-desc">
     Refreshes ranges defined for the grid.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.refreshRow">refreshRow</a> <span>- refreshRow(recid)</span>
+</div>
+<div class="obj-property-desc">
+    Refreshes one row on the screen.
 </div>
 
 <div class="obj-property">
@@ -480,6 +543,27 @@
 </div>
 <div class="obj-property-desc">
     Sorts records in the grid.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.stateReset">stateReset</a> <span>- stateReset()</span>
+</div>
+<div class="obj-property-desc">
+    Resets grid state to the default one.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.stateRestore">stateRestore</a> <span>- stateRestore([stateObj])</span>
+</div>
+<div class="obj-property-desc">
+    Restores grid state from local storage.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.stateSave">stateSave</a> <span>- stateSave([returnOnly])</span>
+</div>
+<div class="obj-property-desc">
+    Saves grid state into local storage.
 </div>
 
 <div class="obj-property">

@@ -77,7 +77,14 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2sidebar.get">get</a> <span>- get([parent], id, [returnIndex])</span>
+    <a href="w2sidebar.find">find</a> <span>- find([parent], attrs)</span>
+</div>
+<div class="obj-property-desc">
+    Finds sidebar nodes that have attributes defined in<span class="argument">attr</span> and returns them or an empty array.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.get">get</a> <span>- get([parent], [id], [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
     Finds sidebar node with <span class="argument">id</span> and returns it or its index.

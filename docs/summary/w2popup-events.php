@@ -34,4 +34,11 @@
     Called when popup is opened or transitions to the new content. 
 </div>
 
+<div class="obj-property">
+    <a href="w2popup.onToggle">onToggle</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when popup is maximized or minimized.
+</div>
+
 </div>

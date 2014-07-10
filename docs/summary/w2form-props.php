@@ -56,6 +56,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.msgAJAXerror">msgAJAXerror</a> <span>- String, default = 'AJAX error. See console for more details.'</span>
+</div>
+<div class="obj-property-desc">
+    Error message when server returns undefined error.
+</div>
+
+<div class="obj-property">
     <a href="w2form.msgNotJSON">msgNotJSON</a> <span>- String, default = 'Returned data is not in valid JSON format.'</span>
 </div>
 <div class="obj-property-desc">
@@ -109,6 +116,13 @@
 </div>
 <div class="obj-property-desc">
     Map of field values.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.routeData">routeData</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+    Object with data for the route.
 </div>
 
 <div class="obj-property">

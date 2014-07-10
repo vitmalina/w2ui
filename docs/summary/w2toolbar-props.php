@@ -13,4 +13,11 @@
     Defines HTML in the right corner of the toolbar. 
 </div>
 
+<div class="obj-property">
+    <a href="w2toolbar.routeData">routeData</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+    Object with data for the route.
+</div>
+
 </div>

@@ -7,13 +7,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.buffered">buffered</a> <span>- Integer, default = 0</span>
-</div>
-<div class="obj-property-desc">
-    Number of buffered records.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.buttons">buttons</a> <span>- Object, default see below</span>
 </div>
 <div class="obj-property-desc">
@@ -35,10 +28,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.contextMenu">contextMenu</a> <span>- remove(recid, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Displays context menu under specified record.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.fixedBody">fixedBody</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">
     Indicates if the body of the grid is of fixed height.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.getCellValue">getCellValue</a> <span>- getCellValueL(index, column_index, [summary])</span>
+</div>
+<div class="obj-property-desc">
+    Returns parse value for the cell.
 </div>
 
 <div class="obj-property">
@@ -70,10 +77,31 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.markSearchResults">markSearchResults</a> <span>- Boolean, default = true</span>
+    <a href="w2grid.markSearch">markSearch</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">
     Indicates if result of the search should be highlighted.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.menu">menu</a> <span>- Array, default = []</span>
+</div>
+<div class="obj-property-desc">
+    Array of object for context menu.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.method">method</a> <span>- String, default = null</span>
+</div>
+<div class="obj-property-desc">
+    Overwrites method for ajax requests.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.msgAJAXerror">msgAJAXerror</a> <span>- String, default = 'AJAX error. See console for more details.'</span>
+</div>
+<div class="obj-property-desc">
+    Error message when server returns undefined error.
 </div>
 
 <div class="obj-property">
@@ -126,6 +154,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.parser">parser</a> <span>- Function, default = null</span>
+</div>
+<div class="obj-property-desc">
+    Name for the recid field in the records array.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.postData">postData</a> <span>- Object, default = {}</span>
 </div>
 <div class="obj-property-desc">
@@ -137,6 +172,13 @@
 </div>
 <div class="obj-property-desc">
     Array of all ranges defined for the grid.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.recid">recid</a> <span>- String, default = null</span>
+</div>
+<div class="obj-property-desc">
+    Name for the recid field in the records array.
 </div>
 
 <div class="obj-property">
@@ -154,6 +196,20 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.reorderColumns">reorderColumns</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if reordering of columns is allowed.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.reorderRows">reorderRows</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if reordering of rows is allowed.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.resizeBoxes">resizeBoxes</a> <span>- requestBoxes()</span>
 </div>
 <div class="obj-property-desc">
@@ -165,6 +221,13 @@
 </div>
 <div class="obj-property-desc">
     Called to resize grid's records.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.routeData">routeData</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+    Object with data for the route.
 </div>
 
 <div class="obj-property">
