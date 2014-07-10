@@ -8,7 +8,7 @@ $(function () {
             { type: 'main', style: 'background-color: white;' }
         ]
     });
-    w2ui['main_layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.3 Demos</div>');
+    w2ui['main_layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.4 Demos</div>');
     // w2ui['main_layout'].content('top', '<div style="padding: 9px;">'+
     //     'Theme: '+
     //     '<select onchange="$(\'#mainCSS\').attr(\'href\', this.value);">'+
