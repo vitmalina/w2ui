@@ -46,15 +46,32 @@ Because the only way for the user to trigger the search is from the toolbar, the
 Below it the structure of the search object:
 <textarea class="javascript">
 search = {
-    type     : 'text', // type of the search, [text, int, float, hex, money, alphaNumeric, date, list]
-    caption  : '',     // caption of the search
-    field    : '',     // field name to submit to server
-    inTag    : '',     // text that will be inside &lt;input ...&gt; tag
-    outTag   : '',     // text that will be outside &lt;input ...&gt; tag
-    items    : {},     // array of item objects { id: '', text: '' }
-    hidden   : false   // indicates if search is show or hidden
+    type     : 'text',    // type of the search (see below)
+    field    : '',        // field name to submit to server
+    caption  : '',        // caption of the search
+    inTag    : '',        // text that will be inside &lt;input ...&gt; tag
+    outTag   : '',        // text that will be outside &lt;input ...&gt; tag
+    hidden   : false,     // indicates if search is show or hidden
+    options  : {}         // options for w2field object
 }
 </textarea>
+
+The type of the search filed can be one of the following:
+<ul>
+    <li>text</li>
+    <li>int</li>
+    <li>float</li>
+    <li>hex</li>
+    <li>money</li>
+    <li>currency</li>
+    <li>percent</li>
+    <li>alphanumeric</li>
+    <li>date</li>
+    <li>time</li>
+    <li>list</li>
+    <li>combo</li>
+    <li>enum</li>
+</ul>
 
 You can control search from JavaScript, see following methods for more information:
 <div style="height: 10px"></div>
