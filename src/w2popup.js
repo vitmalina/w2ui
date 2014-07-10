@@ -663,11 +663,11 @@ var w2popup = {};
 // --- Common dialogs
 
 var w2alert = function (msg, title, callBack) {
-    if (typeof title == 'undefined') title = w2utils.lang('Notification');
+    if (title == null) title = w2utils.lang('Notification');
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         w2popup.message({
             width   : 400,
-            height  : 150,
+            height  : 170,
             html    : '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 45px; overflow: auto">' +
                       '        <div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
                       '</div>' +
@@ -681,120 +681,136 @@ var w2alert = function (msg, title, callBack) {
     } else {
         w2popup.open({
             width     : 450,
-            height     : 200,
-            showMax : false,
+            height    : 220,
+            showMax   : false,
+            showClose : false,
             title     : title,
-            body    : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
-            buttons : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>',
-            onClose : function () {
+            body      : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
+            buttons   : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>',
+            onClose   : function () {
                 if (typeof callBack == 'function') callBack();
             }
         });
     }
 };
 
-var w2confirm = function (obj, callBack) {
-
-    var w2confirm_width     = 400,
-        w2confirm_height    = 150,
-        w2confirm_yes_text  = 'Yes',
-        w2confirm_yes_class = '',
-        w2confirm_yes_style = '',
-        w2confirm_no_text   = 'No',
-        w2confirm_no_class  = '',
-        w2confirm_no_style  = '',
-        title               =  w2utils.lang('Confirmation');
-
-    if (arguments.length == 1 && typeof obj == 'object') {
-        var msg       = w2utils.lang(obj['msg']),
-            callBack  = obj['callBack'],
-            btn_yes   = obj['btn_yes'],
-            btn_no    = obj['btn_no'];
-
-        if (obj.title) title = w2utils.lang(obj['title']);
-        if (w2utils.isInt(obj.width))  w2confirm_width  = obj.width;
-        if (w2utils.isInt(obj.height)) w2confirm_height = obj.height;
-
-
-        if (btn_yes) {
-            if (btn_yes.text)  w2confirm_yes_text = w2utils.lang(btn_yes.text);
-            if (btn_yes.class) w2confirm_yes_class = btn_yes["class"];
-            if (btn_yes.style) w2confirm_yes_style = btn_yes.style;
-        }
-        if (btn_no) {
-            if (btn_no.text)  w2confirm_no_text = w2utils.lang(btn_no.text);
-            if (btn_no.class) w2confirm_no_class = btn_no["class"];
-            if (btn_no.style) w2confirm_no_style = btn_no.style;
-        }
-
+var w2confirm = function (msg, title, callBack) {
+    var options  = {};
+    var defaults = {
+        msg         : '',
+        title       : w2utils.lang('Confirmation'),
+        width       : 450,
+        height      : 220,
+        yes_text    : 'Yes',
+        yes_class   : '',
+        yes_style   : '',
+        yes_callBack: null,
+        no_text     : 'No',
+        no_class    : '',
+        no_style    : '',
+        no_callBack : null,
+        callBack    : null
+    };
+    if (arguments.length == 1 && typeof msg == 'object') {
+        $.extend(options, defaults, msg);
     } else {
-        var msg = obj;
+        if (typeof title == 'function') {
+            $.extend(options, defaults, {
+                msg     : msg,
+                callBack: title
+            })            
+        } else {
+            $.extend(options, defaults, {
+                msg     : msg,
+                title   : title, 
+                callBack: callBack
+            })            
+        }
     }
-
-       if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
-
-        if (w2confirm_width > w2popup.get().width) w2confirm_width = w2popup.get().width;
-        if (w2confirm_height > (w2popup.get().height - 50)) w2confirm_height = w2popup.get().height - 50;
+    if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
+        if (options.width > w2popup.get().width) options.width = w2popup.get().width;
+        if (options.height > (w2popup.get().height - 50)) options.height = w2popup.get().height - 50;
           w2popup.message({
-            width   : w2confirm_width,
-            height  : w2confirm_height,
+            width   : options.width,
+            height  : options.height,
             html    : '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">' +
-                      '        <div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
+                      '        <div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>' +
                       '</div>' +
                       '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '        <button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_text) + '</button>' +
-                      '        <button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_text) + '</button>' +
+                      '        <button id="Yes" class="w2ui-popup-btn btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
+                      '        <button id="No" class="w2ui-popup-btn btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
                       '</div>',
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
                     w2popup.message();
-                    if (typeof callBack == 'function') callBack(event.target.id);
+                    if (typeof options.callBack == 'function') options.callBack(event.target.id);
+                    if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
+                    if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                 });
             },
             onKeydown: function (event) {
                 switch (event.originalEvent.keyCode) {
                     case 13: // enter
-                        if (typeof callBack == 'function') callBack('Yes');
+                        if (typeof options.callBack == 'function') options.callBack('Yes');
+                        if (typeof options.yes_callBack == 'function') options.yes_callBack();
                         w2popup.message();
                         break
                     case 27: // esc
-                        if (typeof callBack == 'function') callBack('No');
+                        if (typeof options.callBack == 'function') options.callBack('No');
+                        if (typeof options.no_callBack == 'function') options.no_callBack();
                         w2popup.message();
                         break
                 }
             }
         });
+
     } else {
-        if (!w2utils.isInt(obj.height)) w2confirm_height = w2confirm_height + 50;
+
+        if (!w2utils.isInt(options.height)) options.height = options.height + 50;
         w2popup.open({
-            width      : w2confirm_width,
-            height     : w2confirm_height,
-            title      : title,
+            width      : options.width,
+            height     : options.height,
+            title      : options.title,
             modal      : true,
             showClose  : false,
-            body       : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
-            buttons    : '<button id="Yes" class="w2ui-popup-btn btn '+w2confirm_yes_class+'" style="'+w2confirm_yes_style+'">' + w2utils.lang(w2confirm_yes_text) + '</button>'+
-                         '<button id="No" class="w2ui-popup-btn btn '+w2confirm_no_class+'" style="'+w2confirm_no_style+'">' + w2utils.lang(w2confirm_no_text) + '</button>',
+            body       : '<div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>',
+            buttons    : '<button id="Yes" class="w2ui-popup-btn btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'+
+                         '<button id="No" class="w2ui-popup-btn btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>',
             onOpen: function (event) {
                 event.onComplete = function () {
                     $('#w2ui-popup .w2ui-popup-btn').on('click', function (event) {
                         w2popup.close();
-                        if (typeof callBack == 'function') callBack(event.target.id);
+                        if (typeof options.callBack == 'function') options.callBack(event.target.id);
+                        if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
+                        if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                     });
                 }
             },
             onKeydown: function (event) {
                 switch (event.originalEvent.keyCode) {
                     case 13: // enter
-                        if (typeof callBack == 'function') callBack('Yes');
+                        if (typeof options.callBack == 'function') options.callBack('Yes');
+                        if (typeof options.yes_callBack == 'function') options.yes_callBack();
                         w2popup.close();
                         break
                     case 27: // esc
-                        if (typeof callBack == 'function') callBack('No');
+                        if (typeof options.callBack == 'function') options.callBack('No');
+                        if (typeof options.no_callBack == 'function') options.no_callBack();
                         w2popup.close();
                         break
                 }
             }
         });
     }
+
+    return {
+        yes: function (fun) {
+            options.yes_callBack = fun;
+            return this;
+        },
+        no: function (fun) {
+            options.no_callBack = fun;
+            return this;
+        }
+    };
 };
