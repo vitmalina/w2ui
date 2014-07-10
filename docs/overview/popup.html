@@ -33,24 +33,24 @@ options: {
     title           : '',      // title html of the popup
     body            : '',      // body html of the popup
     buttons         : '',      // buttons html of the popup
-    modal           : false,   // modal state
+    modal           : false,   // indicates if modal
     width           : 500,     // width in px
     height          : 300,     // height in px
     url             : null,    // url to load content from (see load method)
-    overflow        : 'auto',  // overflow css property for the body section
+    style           : '',      // additional styles
     color           : '#000',  // background-color for the screen lock div
     opacity         : 0.4,     // opacity for the screen lock div
     speed           : 0.3,     // popup speed (in seconds)
     transition      : null,    // transition for changing content
     showClose       : true,    // close button indicator
     showMax         : false,   // max button indicator
+    keyboard        : true,    // will close on esc if not modal
     // events
     onOpen          : null,    // event when dialog finished appearing
-    onBeforeClose   : null,    // event, can be cancelled
     onClose         : null,    // event when closed
-    onChange        : null,    // event when new content is loading into existing dialog
-    onUnlock        : null,    // event for non modal dialog when use clicked outside the dialog
-    onMax           : null,    // event when maximizing
-    onMin           : null     // event when minimized
+    onMax           : null,    // event when maximized
+    onMin           : null,    // event when minimized
+    onToggle        : null,    // event when maximized/minimized
+    onKeyboard      : null     // event when keyboard button is clicked
 }
 </textarea>

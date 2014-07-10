@@ -1,11 +1,11 @@
 <h3>Overlays</h3>
 
-An overlay is a popup within the page. Technically, it is not part of the w2popup object. It is part of w2utils. However, it is descibed here
+An overlay is a popup within the page. Technically, it is not part of the w2popup object. It is part of w2utils. However, it is described here
 due to its functional similarity to popups. Tags and overlays are common purpose jQuery plugins and should be called in jQuery plugin syntax.
-<div style="height: 10px"></div>
+<div style="height: 20px"></div>
 
 <h4>$().w2tag(html, [options])</h4>
-The method will display a tag on the right from specified element. For example:
+The plugin will display a tag on the right from specified element. 
 
 <textarea class="javascript">
 <input id="input" onclick="$(this).w2tag('This is not valid');">
@@ -32,37 +32,121 @@ options: {
     onHide : null   // function to execute when overlay is hidden 
 }
 </textarea>                
-<div style="height: 10px"></div>
+<div style="height: 20px"></div>
 
-<h4>$().w2overlay(html, [options])</h4>
-The method will display an overlay under the element. For example:
+<h4>$().w2overlay(options)</h4>
+The plugin will display an overlay under (or above) the element. If element is by the edge of the screen, the overlay will be
+displayed in the visible portion of the page.
 
 <textarea class="javascript">
-<input id="input" onclick="$(this).w2overlay('This is an overlay.<br>Can be multi line HTML.')"> 
+<input id="input" onclick="
+    var html = '<div style=\'padding: 10px\'>This is an overlay.<br>Can be multi line HTML.</div>';
+    $(this).w2overlay(html)"> 
 </textarea>
 
 <h5>Preview</h5>
 
-<input id="input" onclick="$(this).w2overlay('This is an overlay.<br>Can be multi line HTML.')"> 
+<input id="input" onclick="$(this).w2overlay('<div style=\'padding: 10px\'>This is an overlay.<br>Can be multi line HTML.</div>')"> 
 <div style="height: 10px"></div>
 
 <i>Click on this field</i>
 <div style="height: 10px"></div>
 
-First parameter is the html to display inside the overlay, second is a map of options and third one is a callBack function. 
-If user clicks anywhere else on the screen the overlay will be hidden, which is not the same with tags. This meanes that you 
-can have only one overlay at a time on the screen.
-<div style="height: 10px"></div>
-
-Options can be one of the following:
+If first argument is a string, it will be treated as HTML to display. However, the first argument can be an object with options. 
+If user clicks anywhere else on the screen the overlay will be hidden, which is not the same with tags. Normally, you can have 
+only one overlay on the screen, however, you can provide a unique name if you want to display multiple overlays at the same time.
+Overlay supports following options:
 <textarea class="javascript">
 options: {
-    css    : {},    // additional css rules for content
-    class  : '',    // additional class name for content
-    left   : 0,     // addition to the left postion for the overlay
-    top    : 0,     // addition to the top postion for the overlay
-    onShow : null,  // function to execute when overlay is shown
-    onHide : null   // function to execute when overlay is hidden 
-        // - can be cancelled by setting $('#w2ui-overlay').data('ignoreClick', true)
+    name      : null,      // it not null, then allows multiple concurent overlays
+    html      : '',        // html text to display
+    align     : 'none',    // can be none, left, right, both
+    left      : 0,         // offset left
+    top       : 0,         // offset top
+    tipLeft   : 30,        // tip offset left
+    width     : 0,         // fixed width
+    height    : 0,         // fixed height
+    maxWidth  : null,      // max width if any
+    maxHeight : null,      // max height if any
+    style     : '',        // additional style for main div
+    class     : '',        // additional class name for main dvi
+    onShow    : null,      // event on show
+    onHide    : null,      // event on hide
+    openAbove : false,     // show abover control
+    tmp       : {}
 }
 </textarea>
+<div style="height: 20px"></div>
+
+<h4>$().w2menu(options)</h4>
+Displays context for the element. It is used in w2toolbar for dropdown menus and in w2grid and w2sidebar for context menus.
+For example:
+
+<textarea class="javascript">
+<input id="input" onclick="
+    $(this).w2menu({
+        items: [
+            { id: 1, text: 'Edit', icon: 'fa-star' },
+            { id: 2, text: '--'},
+            { id: 3, text: 'Copy', icon: 'fa-star' },
+            { id: 4, text: 'Paste', img: 'icon-page', disabled: true },
+            { id: 5, text: 'Hidden', img: 'icon-page', hidden: true },
+            { id: 6, text: '--'},
+            { id: 7, text: 'Delete Item', img: 'icon-page' },
+        ],
+        onSelect: function (event) { 
+            console.log(event); 
+        }
+    });">
+</textarea>
+
+<h5>Preview</h5>
+<input id="input" onclick="
+    $(this).w2menu({
+        align: 'left',
+        items: [
+            { id: 1, text: 'Edit', icon: 'fa-star' },
+            { id: 3, text: 'Copy', icon: 'fa-star' },
+            { id: 4, text: 'Paste', img: 'icon-page', disabled: true },
+            { id: 5, text: 'Hidden', img: 'icon-page', hidden: true },
+            { id: 7, text: 'Delete Item', img: 'icon-page' },
+        ],
+        onSelect: function (event) { 
+            console.log(event); 
+        }
+    });">
+<div style="height: 10px"></div>
+
+<i>Click on this field</i>
+<div style="height: 10px"></div>
+
+You can use any valid overlay option for the menu as well. In addition it has following options:
+<textarea class="javascript">
+options: {
+    items       : [],           // array of items
+    render      : null,         // function (menu_item, options) - when menu item is rendered
+    spinner     : false,        // indicates if to show spiner
+    onSelect    : null          // function (event) - when menu item is selected
+    search      : false,        // indicates if to display search control
+    // --- only when search is true ---
+    match       : 'begins',     // can be is, begins, ends
+    altRows     : false,        // display alternate background color
+    index       : 0,            // index of the selected item (when selected by keybaord)
+    msgNoItems  : 'No Items',   // default message where no items found 
+}
+</textarea>
+
+The items property is an array of objects of following structure: 
+<textarea class="javascript">
+item : {
+    id       : null,    // unique id
+    text     : '',      // text for the item
+    icon     : '',      // icon class
+    img      : '',      // image class
+    style    : '',      // additional styles
+    hidden   : false,   // indicates if hidden
+    disabled : false,   // indicates if disabled
+    ...                 // other custom properties
+}
+</textarea>
+<div style="height: 20px"></div>

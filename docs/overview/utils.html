@@ -3,10 +3,10 @@ In w2ui library there are several global variables.
 
 <h4>w2ui</h4>
 
-This global variable that holds all created w2ui objects such as layouts, grids, toolbars, sidebars, tabs, and forms. 
-Initially this variable is an empty object, but as soon as you start creating controls, they will become part of 
+All objects you create - layouts, grids, toolbars, sidebars, tabs, forms - will be attached to global w2ui object. 
+Initially it is an empty object, but as soon as you start creating widgets, they will become part of 
 this object. This object serves two important purposes:
-<ul>
+<ul class="general">
     <li>It provides a common and uniform way for accessing created objects</li>
     <li>It makes sure that you will not overwrite already created object (object name must be unique)</li>
 </ul>
@@ -15,12 +15,15 @@ For example, if you created a grid with name myGrid then it can be accessed in t
 
 <textarea class="javascript">
 w2ui['myGrid'].get(3); // returns record with id=3
+// or
+w2ui.myGrid.get(3);
 </textarea>
 
 <h4>w2obj</h4>
 
-This global variable gives you access to widget prototypes, so that you can attach a method to prototype and it will be instantly
-available in all objects of that type. For example:
+If you need to add custom methods to the prototype of layout, grid, etc, you can use w2obj global variable,
+so that a method will be instantly available for all objects of that type. You can also overwrite default methods for 
+all widgets. For example:
 
 <textarea class="javascript">
 w2obj.grid.prototype.myFunction = function () {

@@ -17,12 +17,12 @@ $('#id').w2render('myGrid'); // no error occurs if element #id does not exist
 </textarea>
 
 Both ways do same action, but second one is much more human readable.
-<div style="height: 10px"></div>
+<div style="height: 20px"></div>
 
 <h4>$().w2destroy(name)</h4>
 jQuery plugin to destroy previously created element. It will destroy w2ui control and remove it from w2ui object. If the control does not exist no 
 action will be take.
-<div style="height: 10px"></div>
+<div style="height: 20px"></div>
 
 <h4>$().w2marker(str)</h4>
 jQuery plugin that highlights text. It is internally used in the grid.
@@ -31,31 +31,11 @@ jQuery plugin that highlights text. It is internally used in the grid.
 $('#id').w2marker('text');  // will highlight all occurences of work text withing the element.
 </textarea>
 
-<h4>$().w2menu(menu, [options])</h4>
-Displays context menu attached to the first element. It is used in w2toolbar for dropdown menus and in w2sidebar for context menus.
+<h3>Other Plugins</h3>
+<ul>
+    <li>$().w2menu(menu, [options])</li>
+    <li>$().w2tag(html, [options])</li>
+    <li>$().w2overlay(html, [options])</li>
+</ul>
 
-<textarea class="javascript">
-$(document).find(':first-child').w2menu([
-        { id: 1, text: 'Item 1', img: 'icon-page' },
-        { id: 2, text: 'Item 2', img: 'icon-page' },
-        { id: 3, text: 'Item 3', img: 'icon-page' },
-        { id: 4, text: 'Item 4', img: 'icon-page' },
-        { id: 5, text: 'Item 5', img: 'icon-page' },
-    ],
-    { 
-        left    : 30,
-        top        : 30,
-        select    : function (item, event, index) { 
-            console.log(item, index, event); 
-        }
-    }
-);
-</textarea>
-
-<h4>$().w2tag(html, [options])</h4>
-See <a href="http://w2ui.com/web/docs/popup/overlays">overlays</a>
-<div style="height: 10px"></div>
-
-<h4>$().w2overlay(html, [options])</h4>
-See <a href="http://w2ui.com/web/docs/popup/overlays">overlays</a>
-<div style="height: 10px"></div>
+See <a href="http://w2ui.com/web/docs/popup/overlays">overlays</a> for details.

@@ -1,9 +1,10 @@
 <h3>Dialogs</h3>
-Two most frequntly used dialogs are alert and cofirm. In the case of a alert you just need to display a message to the user and require no feedback
-besides user acknowledgement. Confirm dialog has similar purpose, but expects from the user a response by accepting or declining to the request.
+Two most frequnt dialogs are alert and cofirm. In the case of a alert you just need to display a message to the user and require no feedback
+besides user acknowledgement. Confirm dialog has similar purpose, but expects from the user a response by accepting or declining the message.
 The w2ui library includes these dialogs for your convenience.
+<div style="height: 20px"></div>
 
-<h4>Alert</h4>
+<h4>w2alert (msg, [title], [callBack])</h4>
 
 The alert dialog can be called in the following way:
 
@@ -11,16 +12,53 @@ The alert dialog can be called in the following way:
 w2alert('This is an alert');
 </textarea>
 
-The method takes one or two arguments <span class="method">w2alert(msg, [title], [callBack])</span>, where msg is the message to display. You
-can optionally supply title for the message. If you need to define more options, you can use <span class="method">$().w2popup()</span>.
+First argument, msg, is a message to display. Second optional argument, title, is the title for the dialog. The third optional argument, 
+calBack, is a call back function when dialog is closed.
+<div style="height: 20px"></div>
 
-<h4>Confirm</h4>
+<h4>w2confirm (msg, [title], [callBack])</h4>
 
 The confirm dialog can be called in the following way: 
 
 <textarea class="javascript">
-w2confirm('Are you sure?', function btn(answer) { alert(answer); })
+w2confirm('Are you sure?', function btn(answer) { 
+    console.log(answer); // Yes or No -- case-sensative
+});
 </textarea>
 
 The method takes up to three arguments <span class="method">w2confirm(msg, [title], [callBack])</span>, where msg is the message to display.
 You can optionally supply title for the message and a call back function.
+<div style="height: 20px"></div>
+
+<h4>w2confirm (options)</h4>
+
+You can optionally call w2confirm passing an object with options. This options object has following structure:
+
+<textarea class="javascript">
+options = {
+    msg          : '',
+    title        : w2utils.lang('Confirmation'),
+    width        : 450,       // width of the dialog
+    height       : 220,       // height of the dialog
+    yes_text     : 'Yes',     // text for yes button
+    yes_class    : '',        // class for yes button
+    yes_style    : '',        // style for yes button
+    yes_callBack : null,      // callBack for yes button
+    no_text      : 'No',      // text for no button
+    no_class     : '',        // class for no button
+    no_style     : '',        // style for no button
+    no_callBack  : null,      // callBack for no button
+    callBack     : null       // common callBack
+};
+</textarea>
+
+For convenience, w2confirm will return to you an object with yes() and no() methods that you can use in the following way:
+<textarea class="javascript">
+w2confirm('Are you sure?')
+    .yes(function () { 
+        console.log('user clicked YES'); 
+    })
+    .no(function () { 
+        console.log("user clicked NO")
+    });
+</textarea>
