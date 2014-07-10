@@ -67,11 +67,11 @@
         this.header       = '';
         this.url          = '';
         this.routeData    = {};       // data for dynamic routes
-        this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, [editable: {type, inTag, outTag, style, items}] }
+        this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, editable }
         this.columnGroups = [];       // { span: int, caption: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
-        this.searches     = [];       // { type, caption, field, inTag, outTag, default, items, hidden }
+        this.searches     = [];       // { type, caption, field, inTag, outTag, hidden }
         this.searchData   = [];
         this.sortData     = [];
         this.postData     = {};
@@ -2930,11 +2930,6 @@
             // resize
             obj.resizeBoxes();
             obj.resizeRecords();
-            // init editable
-            // $('#grid_'+ obj.name + '_records .w2ui-editable input').each(function (index, el) {
-            //     var column = obj.columns[$(el).attr('column')];
-            //     if (column && column.editable) $(el).w2field(column.editable);
-            // });
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             return (new Date()).getTime() - time;
