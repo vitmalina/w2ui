@@ -906,6 +906,7 @@ w2utils.event = {
 
         if (!eventData.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
+        if (!$.isArray(this.handlers)) this.handlers = [];
         this.handlers.push({ event: eventData, handler: handler });
     },
 
@@ -940,6 +941,7 @@ w2utils.event = {
         if (eventData.phase === 'before') eventData.onComplete = null;
         var args, fun, tmp;
         if (eventData.target == null) eventData.target = null;
+        if (!$.isArray(this.handlers)) this.handlers = [];
         // process events in REVERSE order
         for (var h = this.handlers.length-1; h >= 0; h--) {
             var item = this.handlers[h];
@@ -1012,7 +1014,6 @@ w2utils.keyboard = (function (obj) {
 
     obj.active    = active;
     obj.clear     = clear;
-    obj.register  = register;
 
     init();
     return obj;
@@ -1049,9 +1050,6 @@ w2utils.keyboard = (function (obj) {
 
     function clear () {
         w2ui_name = null;
-    }
-
-    function register () {
     }
 
 })({});
@@ -1196,6 +1194,7 @@ w2utils.keyboard = (function (obj) {
         var name = '';
         var defaults = {
             name      : null,      // it not null, then allows multiple concurent overlays
+            html      : '',        // html text to display
             align     : 'none',    // can be none, left, right, both
             left      : 0,         // offset left
             top       : 0,         // offset top
@@ -1205,18 +1204,20 @@ w2utils.keyboard = (function (obj) {
             maxWidth  : null,      // max width if any
             maxHeight : null,      // max height if any
             style     : '',        // additional style for main div
-            'class'   : '',        // additional class name for main dvi
+            'class'   : '',        // additional class name for main div
             onShow    : null,      // event on show
             onHide    : null,      // event on hide
             openAbove : false,     // show abover control
             tmp       : {}
         };
+        if (arguments.length == 1) options = html;
+        if (arguments.length == 2) options.html = html;
         if (!$.isPlainObject(options)) options = {};
         options = $.extend({}, defaults, options);
         if (options.name) name = '-' + options.name;
         // if empty then hide
         var tmp_hide;
-        if (this.length === 0 || html === '' || html == null) {
+        if (this.length === 0 || options.html === '' || options.html == null) {
             if ($('#w2ui-overlay'+ name).length > 0) {
                 tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
                 if (typeof tmp_hide === 'function') tmp_hide();
@@ -1240,7 +1241,7 @@ w2utils.keyboard = (function (obj) {
         // init
         var div1 = $('#w2ui-overlay'+ name);
         var div2 = div1.find(' > div');
-        div2.html(html);
+        div2.html(options.html);
         // pick bg color of first div
         var bc  = div2.css('background-color');
         if (bc != null && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
@@ -1409,7 +1410,9 @@ w2utils.keyboard = (function (obj) {
                 id       : null,
                 text     : '',
                 style    : '',
-                hidden   : true,
+                img      : '',
+                icon     : '',
+                hidden   : false,
                 disabled : false
                 ...
             }
@@ -1449,12 +1452,13 @@ w2utils.keyboard = (function (obj) {
                     // need time so that menu first hides
                     setTimeout(function () {
                         options.onSelect({
-                            index    : index,
-                            item    : options.items[index],
+                            index : index,
+                            item  : options.items[index],
                             originalEvent: event
                         });
                     }, 10);
                 }
+                setTimeout(function () { $(document).click(); }, 50);
             };
             var html = '';
             if (options.search) {
@@ -1478,6 +1482,10 @@ w2utils.keyboard = (function (obj) {
                         // cancel tab key
                         if (event.keyCode === 9) { event.stopPropagation(); event.preventDefault(); }
                     });
+                if (options.search) {
+                    if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName == 'texarea') return;
+                    $('#w2ui-overlay'+ name +' #menu-search').focus();                    
+                }
             }, 200);
             mresize();
             return ret;
@@ -1492,7 +1500,7 @@ w2utils.keyboard = (function (obj) {
                 cur.addClass('w2ui-selected');
                 if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
                 if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
-                $('#w2ui-overlay'+ name)[0].resize();
+                if ($('#w2ui-overlay'+ name).length > 0) $('#w2ui-overlay'+ name)[0].resize();
                 // scroll into view
                 if (cur.length > 0) {
                     var top    = cur[0].offsetTop - 5; // 5 is margin top
@@ -1553,7 +1561,6 @@ w2utils.keyboard = (function (obj) {
                     try {
                         var re = new RegExp(prefix + search + suffix, 'i');
                         if (re.test(item.text) || item.text === '...') item.hidden = false; else item.hidden = true;
-                        if (options.applyFilter !== true) item.hidden = false;
                     } catch (e) {}
                     // do not show selected items
                     if (obj.type === 'enum' && $.inArray(item.id, ids) !== -1) item.hidden = true;
@@ -1569,7 +1576,7 @@ w2utils.keyboard = (function (obj) {
 
         function getMenuHTML () {
             if (options.spinner) {
-                return  '<table class="w2ui-drop-menu"><tr><td style="padding: 5px 0px 10px 0px; text-align: center">'+
+                return  '<table class="w2ui-drop-menu"><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
                         '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
                         '    <div style="display: inline-block; padding: 3px; color: #999;"> Loading...</div>'+
                         '</td></tr></table>';
@@ -1614,7 +1621,7 @@ w2utils.keyboard = (function (obj) {
                         count++;
                     } else {
                         // horizontal line
-                        menu_html += '<tr><td colspan="2" style="padding: 6px"><div style="border-top: 1px solid silver;"></div></td></tr>';
+                        menu_html += '<tr><td colspan="2" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
                     }
                 }
                 options.items[f] = mitem;
