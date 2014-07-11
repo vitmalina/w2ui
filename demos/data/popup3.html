@@ -18,7 +18,7 @@
         transition from w2utils library. 
     </div>
     <div rel="buttons">
-        <select id="trans">
+        <select id="trans" style="height: 28px">
             <option value="">- random -</option>
             <option value="flip-left">flip-left</option>
             <option value="flip-right">flip-right</option>
@@ -31,7 +31,7 @@
             <option value="pop-in">pop-in</option>
             <option value="pop-out">pop-out</option>
         </select>
-        <input type="button" value="Load Another Page" onclick="load()" style="width: 120px">
+        <button class="btn" onclick="load()">Load Another Page</button>
     </div>
     <script> 
         var last_index, last_trans;

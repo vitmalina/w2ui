@@ -11,9 +11,9 @@
 <!--CODE-->
 <div id="sidebar" style="height: 300px; width: 180px; float: left"></div>
 <div style="margin-left: 200px;">
-    <input type="button" value="Add Items" onclick="addItems()"/> 
-    <input type="button" value="Insert Items" onclick="insertItems()"/> 
-    <input type="button" value="Remove Inserted Items" onclick="removeItem()"/>
+    <button class="btn" onclick="addItems()">Add Items</button>
+    <button class="btn" onclick="insertItems()">Insert Items</button>
+    <button class="btn" onclick="removeItem()">Remove Inserted Items</button>
 </div>
 <div style="clear: both"/>
 
@@ -35,17 +35,17 @@ $(function () {
 
 function addItems() {
     w2ui.sidebar.add([
-        { id: 'new-1', text: 'New Item 1', img: 'icon-add' },
-        { id: 'new-2', text: 'New Item 2', img: 'icon-add' },
-        { id: 'new-3', text: 'New Item 3', img: 'icon-add' }
+        { id: 'new-1', text: 'New Item 1', icon: 'w2ui-icon-check' },
+        { id: 'new-2', text: 'New Item 2', icon: 'w2ui-icon-check' },
+        { id: 'new-3', text: 'New Item 3', icon: 'w2ui-icon-check' }
     ]);
 }
 
 function insertItems() {
     w2ui.sidebar.insert('level-1-2', null, [
-        { id: 'new-4', text: 'New Item 4', img: 'icon-add' },
-        { id: 'new-5', text: 'New Item 5', img: 'icon-add' },
-        { id: 'new-6', text: 'New Item 6', img: 'icon-add' }
+        { id: 'new-4', text: 'New Item 4', icon: 'w2ui-icon-check' },
+        { id: 'new-5', text: 'New Item 5', icon: 'w2ui-icon-check' },
+        { id: 'new-6', text: 'New Item 6', icon: 'w2ui-icon-check' }
     ]);
     w2ui.sidebar.expand('level-1-2');
 }

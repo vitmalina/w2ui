@@ -10,7 +10,7 @@
 
 <!--CODE-->
 <br>
-<input type="button" value="Open Form in a Popup" onclick="openPopup()">
+<button class="btn" onclick="openPopup()">Open Form in a Popup</button>
 <br><br><br>
 
 <!--CODE-->
@@ -21,22 +21,28 @@ function openPopup () {
         style: 'border: 0px; background-color: transparent;',
         formHTML: 
             '<div class="w2ui-page page-0">'+
-            '    <div class="w2ui-label">First Name:</div>'+
             '    <div class="w2ui-field">'+
-            '        <input name="first_name" type="text" size="35"/>'+
+            '        <label>First Name:</label>'+
+            '        <div>'+
+            '           <input name="first_name" type="text" maxlength="100" size="60"/>'+
+            '        </div>'+
             '    </div>'+
-            '    <div class="w2ui-label">Last Name:</div>'+
             '    <div class="w2ui-field">'+
-            '        <input name="last_name" type="text" size="35"/>'+
+            '        <label>Last Name:</label>'+
+            '        <div>'+
+            '            <input name="last_name" type="text" maxlength="100" size="60"/>'+
+            '        </div>'+
             '    </div>'+
-            '    <div class="w2ui-label">Email:</div>'+
             '    <div class="w2ui-field">'+
-            '        <input name="email" type="text" size="35"/>'+
+            '        <label>Email:</label>'+
+            '        <div>'+
+            '            <input name="email" type="text" size="35"/>'+
+            '        </div>'+
             '    </div>'+
             '</div>'+
             '<div class="w2ui-buttons">'+
-            '    <input type="button" value="Reset" name="reset">'+
-            '    <input type="button" value="Save" name="save">'+
+            '    <button class="btn" name="reset">Reset</button>'+
+            '    <button class="btn" name="save">Save</button>'+
             '</div>',
         fields: [
             { name: 'first_name', type: 'text', required: true },

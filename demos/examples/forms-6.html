@@ -11,31 +11,41 @@
 <!--CODE-->
 <div id="form" style="width: 750px;">
     <div class="w2ui-page page-0">
-        <div class="w2ui-label">First Name:</div>
         <div class="w2ui-field">
-            <input name="first_name" type="text" maxlength="100" size="60"/>
+            <label>First Name:</label>
+            <div>
+                <input name="first_name" type="text" maxlength="100" size="60"/>
+            </div>
         </div>
-        <div class="w2ui-label">Last Name:</div>
         <div class="w2ui-field">
-            <input name="last_name" type="text" maxlength="100" size="60"/>
+            <label>Last Name:</label>
+            <div>
+                <input name="last_name" type="text" maxlength="100" size="60"/>
+            </div>
         </div>
-        <div class="w2ui-label">DOB:</div>
         <div class="w2ui-field">
-            <input name="dob" type="text" maxlength="10" size="12"/>
+            <label>DOB:</label>
+            <div>
+                <input name="dob" type="text" maxlength="10" size="12"/>
+            </div>
         </div>
-        <div class="w2ui-label">Category:</div>
         <div class="w2ui-field">
-            <input name="category" type="text" size="60"/>
+            <label>Category:</label>
+            <div>
+                <input name="category" type="text" size="60"/>
+            </div>
         </div>
-        <div class="w2ui-label">Text Area:</div>
         <div class="w2ui-field">
-            <textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
+            <label>Text Area:</label>
+            <div>
+                <textarea name="comments" type="text" style="width: 385px; height: 80px; resize: none"></textarea>
+            </div>
         </div>
     </div>
 
     <div class="w2ui-buttons">
-        <input type="button" value="Reset" name="reset">
-        <input type="button" value="Save" name="save">
+        <button class="btn" name="reset">Reset</button>
+        <button class="btn" name="save">Save</button>
     </div>
 </div>
 

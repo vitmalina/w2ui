@@ -30,10 +30,10 @@ $(function () {
         items: [
             { type: 'check',  id: 'item1', caption: 'Check', icon: 'fa-check', checked: true },
             { type: 'break',  id: 'break0' },
-            { type: 'menu',   id: 'item2', caption: 'Menu', icon: 'fa-table', items: [
-                { text: 'Item 1', icon: 'fa-camera' }, 
-                { text: 'Item 2', icon: 'fa-picture' }, 
-                { text: 'Item 3', icon: 'fa-glass' }
+            { type: 'menu',   id: 'item2', caption: 'Menu', icon: 'fa-table', count: 17, items: [
+                { text: 'Item 1', icon: 'fa-camera', count: 5 }, 
+                { text: 'Item 2', icon: 'fa-picture', disabled: true }, 
+                { text: 'Item 3', icon: 'fa-glass', count: 12 }
             ]},
             { type: 'break', id: 'break1' },
             { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa-star', checked: true },

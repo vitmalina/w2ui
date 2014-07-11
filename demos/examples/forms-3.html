@@ -17,67 +17,89 @@
         <div style="width: 340px; float: left; margin-right: 0px;">
             <div style="padding: 3px; font-weight: bold; color: #777;">General</div>
             <div class="w2ui-group" style="height: 185px;">
-                <div class="w2ui-label w2ui-span4">First Name:</div>
                 <div class="w2ui-field w2ui-span4">
-                    <input name="first_name" type="text" maxlength="100" style="width: 100%"/>
+                    <label>First Name:</label>
+                    <div>
+                        <input name="first_name" type="text" maxlength="100" style="width: 100%">
+                    </div>
                 </div>
-                <div class="w2ui-label w2ui-span4">Last Name:</div>
                 <div class="w2ui-field w2ui-span4">
-                    <input name="last_name" type="text" maxlength="100" style="width: 100%"/>
+                    <label>Last Name:</label>
+                    <div>
+                        <input name="last_name" type="text" maxlength="100" style="width: 100%">
+                    </div>
                 </div>
-                <div class="w2ui-label w2ui-span4">Comments:</div>
                 <div class="w2ui-field w2ui-span4">
-                    <textarea name="comments" type="text" style="width: 100%; height: 80px; resize: none"></textarea>
+                    <label>Comments:</label>
+                    <div>
+                        <textarea name="comments" type="text" style="width: 100%; height: 80px; resize: none"></textarea>
+                    </div>
                 </div>
             </div>
         </div>
         <div style="width: 380px; float: right; margin-left: 0px;">
             <div style="padding: 3px; font-weight: bold; color: #777;">Address</div>
             <div class="w2ui-group" style="height: 185px;">
-                <div class="w2ui-label w2ui-span5">Address Line 1:</div>
-                <div class="w2ui-field w2ui-span5">
-                    <input name="address1" type="text" maxlength="100" style="width: 100%"/>
+                <div class="w2ui-field w2ui-span4">
+                    <label>Address:</label>
+                    <div>
+                        <input name="address1" type="text" maxlength="100" style="width: 100%"/>
+                    </div>
                 </div>
-                <div class="w2ui-label w2ui-span5">Address Line 2:</div>
-                <div class="w2ui-field w2ui-span5">
-                    <input name="address2" type="text" maxlength="100" style="width: 100%"/>
+                <div class="w2ui-field w2ui-span4">
+                    <label>Line 2:</label>
+                    <div>
+                        <input name="address2" type="text" maxlength="100" style="width: 100%"/>
+                    </div>
                 </div>
-                <div class="w2ui-label w2ui-span5">City:</div>
-                <div class="w2ui-field w2ui-span5">
-                    <input name="city" type="text" maxlength="50" size="25"/>
+                <div class="w2ui-field w2ui-span4">
+                    <label>City:</label>
+                    <div>
+                        <input name="city" type="text" maxlength="50" size="25"/>
+                    </div>
                 </div>
-                <div class="w2ui-label w2ui-span5">State:</div>
-                <div class="w2ui-field w2ui-span5">
-                    <input name="state" type="text" maxlength="2" size="2"/>
+                <div class="w2ui-field w2ui-span4">
+                    <label>State:</label>
+                    <div>
+                        <input name="state" type="text" maxlength="2" size="2"/>
+                    </div>
                 </div>
-                <div class="w2ui-label w2ui-span5">Zip:</div>
-                <div class="w2ui-field w2ui-span5">
-                    <input name="zip" type="text" maxlength="10" size="10"/>
+                <div class="w2ui-field w2ui-span4">
+                    <label>Zip:</label>
+                    <div>
+                        <input name="zip" type="text" maxlength="10" size="10"/>
+                    </div>
                 </div>
             </div>
         </div>
         <div style="clear: both; padding-top: 15px;">
             <div style="padding: 3px; font-weight: bold; color: #777;">Additional Fields</div>
             <div class="w2ui-group">
-                <div class="w2ui-label">Short Bio:</div>
                 <div class="w2ui-field">
-                    <textarea name="short_bio" type="text" style="width: 100%; height: 80px; resize: none"></textarea>
+                    <label>Short Bio:</label>
+                    <div>
+                        <textarea name="short_bio" type="text" style="width: 100%; height: 80px; resize: none"></textarea>
+                    </div>
                 </div>
-                <div class="w2ui-label">Talk Name:</div>
                 <div class="w2ui-field">
-                    <input name="talk_name" type="text" maxlength="100" style="width: 100%;"/>
+                    <label>Talk Name:</label>
+                    <div>
+                        <input name="talk_name" type="text" maxlength="100" style="width: 100%"/>
+                    </div>
                 </div>
-                <div class="w2ui-label">Talk Description:</div>
                 <div class="w2ui-field">
-                    <textarea name="description" type="text" style="width: 100%; height: 80px; resize: none"></textarea>
+                    <label>Talk Description:</label>
+                    <div>
+                        <textarea name="description" type="text" style="width: 100%; height: 80px; resize: none"></textarea>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="w2ui-buttons">
-        <input type="button" value="Reset" name="reset">
-        <input type="button" value="Save" name="save">
+        <button class="btn" name="reset">Reset</button>
+        <button class="btn" name="save">Save</button>
     </div>
 </div>
 

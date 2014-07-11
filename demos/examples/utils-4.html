@@ -9,19 +9,19 @@
 </div>
 
 <!--CODE-->
-<input type="text" id="some-input" size="20" style="padding: 4px; border: 1px solid silver;">
+<input type="text" id="some-input" size="20" style="padding: 4px; border: 1px solid silver; height: 30px; width: 200px;">
 <div style="height: 90px;"/>
 
-<input type="button" value="Show Tag" onclick="$('#some-input').w2tag('Short Message')"/>
-<input type="button" value="Hide Tag" onclick="$('#some-input').w2tag()"/>
+<button class="btn" onclick="$('#some-input').w2tag('Short Message')">Show Tag</button>
+<button class="btn" onclick="$('#some-input').w2tag()">Hide Tag</button>
 &nbsp;&nbsp;
-<input type="button" value="Show Overlay" onclick="showOverlay()"/>
+<button class="btn" onclick="showOverlay()">Show Overlay</button>
 
 <!--CODE-->
 <script>
 function showOverlay() {
-    $('#some-input').w2overlay('<div style="padding: 10px; line-height: 150%">'+
+    $('#some-input').w2overlay({ html: '<div style="padding: 10px; line-height: 150%">'+
         '    Multi line HTML message<br>Multi line HTML message<br>Multi line HTML message<br>'+
-        '</div>');
+        '</div>'});
 }
 </script>

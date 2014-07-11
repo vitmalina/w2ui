@@ -11,12 +11,12 @@
 <!--CODE-->
 <div id="grid" style="width: 100%; height: 250px;"></div>
 <br>
-<input type="button" value="Select All"         onclick="w2ui.grid.selectAll();">
-<input type="button" value="Select None"         onclick="w2ui.grid.selectNone();">
-<input type="button" value="Select a Record"     onclick="w2ui.grid.select(5);">
-<input type="button" value="Deselect a Record"     onclick="w2ui.grid.unselect(5);">
-<input type="button" value="Select Several"     onclick="w2ui.grid.select(5,3,7);">
-<input type="button" value="Get Selection"         onclick="alert(w2ui.grid.getSelection());">
+<button class="btn" onclick="w2ui.grid.selectAll();">Select All</button>
+<button class="btn" onclick="w2ui.grid.selectNone();">Select None</button>
+<button class="btn" onclick="w2ui.grid.select(5);">Select a Record</button>
+<button class="btn" onclick="w2ui.grid.unselect(5);">Deselect a Record</button>
+<button class="btn" onclick="w2ui.grid.select(5,3,7);">Select Several</button>
+<button class="btn" onclick="w2alert(w2ui.grid.getSelection());">Get Selection</button>
 
 <!--CODE-->
 <script>

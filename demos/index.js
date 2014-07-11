@@ -81,7 +81,7 @@ $(function () {
                     { id: 'grid-22', text: 'Resizable Columns', icon: 'fa-table' },
                     { id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa-table' },
                     { id: 'grid-25', text: 'Re-Order Columns', icon: 'fa-table' },
-                    //{ id: 'grid-26', text: 'Re-Order records', icon: 'fa-table' },
+                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' },
                     //{ id: 'grid-27', text: 'Locked Columns', icon: 'fa-table' }
                 ]
             },
@@ -106,15 +106,15 @@ $(function () {
                     { id: 'sidebar-7', text: 'Events', icon: 'fa-hand-left' }
                 ]
             },
-            { id: 'listview', text: 'ListView', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'listview-1', text: 'Simple ListView', icon: 'fa-folder-close-alt' },
-                    { id: 'listview-2', text: 'Different view types', icon: 'fa-folder-close-alt' },
-                    { id: 'listview-5', text: 'Table view type', icon: 'fa-folder-close-alt' },
-                    { id: 'listview-3', text: 'Selecting items', icon: 'fa-folder-close-alt' },
-                    { id: 'listview-4', text: 'Add/Remove items', icon: 'fa-folder-close-alt' }
-                ]
-            },
+            // { id: 'listview', text: 'ListView', img: 'icon-folder', group1: true,
+            //     nodes: [
+            //         { id: 'listview-1', text: 'Simple ListView', icon: 'fa-folder-close-alt' },
+            //         { id: 'listview-2', text: 'Different view types', icon: 'fa-folder-close-alt' },
+            //         { id: 'listview-5', text: 'Table view type', icon: 'fa-folder-close-alt' },
+            //         { id: 'listview-3', text: 'Selecting items', icon: 'fa-folder-close-alt' },
+            //         { id: 'listview-4', text: 'Add/Remove items', icon: 'fa-folder-close-alt' }
+            //     ]
+            // },
             { id: 'tabs', text: 'Tabs', img: 'icon-folder', group1: true,
                 nodes: [
                     { id: 'tabs-1', text: 'Simple Tabs', icon: 'fa-folder-close-alt' },
@@ -134,8 +134,16 @@ $(function () {
                     { id: 'forms-5', text: 'Form Tabs', icon: 'fa-edit' },
                     { id: 'forms-9', text: 'Form Toolbar', icon: 'fa-edit' },
                     { id: 'forms-8', text: 'Form in a Popup', icon: 'fa-edit' },
-                    { id: 'forms-6', text: 'Events', icon: 'fa-edit' },
-                    { id: 'forms-7', text: 'Input Controls', icon: 'fa-edit' }
+                    { id: 'forms-6', text: 'Events', icon: 'fa-edit' }
+                ]
+            },
+            { id: 'fields', text: 'Fields', img: 'icon-folder', group1: true,
+                nodes: [
+                    { id: 'fields-1', text: 'Numeric', icon: 'fa-edit' },
+                    { id: 'fields-2', text: 'Date & Time', icon: 'fa-edit' },
+                    { id: 'fields-3', text: 'Drop Down Lists', icon: 'fa-edit' },
+                    { id: 'fields-4', text: 'Multi Selects', icon: 'fa-edit' },
+                    { id: 'fields-5', text: 'File Upload', icon: 'fa-edit' }
                 ]
             },
             { id: 'popup', text: 'Popup', img: 'icon-folder', group1: true,
@@ -285,6 +293,11 @@ $(function () {
             case '#!forms':
                 w2ui['demo-sidebar'].expand('forms');
                 w2ui['demo-sidebar'].click(tmp[1] || 'forms-1');
+                break;
+
+            case '#!fields':
+                w2ui['demo-sidebar'].expand('fields');
+                w2ui['demo-sidebar'].click(tmp[1] || 'fields-1');
                 break;
 
             case '#!utils':

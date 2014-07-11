@@ -13,10 +13,10 @@
     This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.
 </textarea>
 <br><br>
-<input type="button" value="Encode base64" onclick="$('#encode').val(w2utils.base64encode($('#encode')[0].value))">
-<input type="button" value="Decode base64" onclick="$('#encode').val(w2utils.base64decode($('#encode')[0].value))">
+<button class="btn" onclick="$('#encode').val(w2utils.base64encode($('#encode')[0].value))">Encode base64</button>
+<button class="btn" onclick="$('#encode').val(w2utils.base64decode($('#encode')[0].value))">Decode base64</button>
 &nbsp;&nbsp;&nbsp;
-<input type="button" value="Encode HTML Tags" onclick="w2alert(w2utils.encodeTags($('#encode')[0].value))">
-<input type="button" value="Strip HTML Tags" onclick="w2alert(w2utils.stripTags($('#encode')[0].value))">
+<button class="btn" onclick="w2alert(w2utils.encodeTags($('#encode')[0].value))">Encode HTML Tags</button>
+<button class="btn" onclick="w2alert(w2utils.stripTags($('#encode')[0].value))">Strip HTML Tags</button>
 
 <!--CODE-->

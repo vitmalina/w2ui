@@ -13,12 +13,11 @@
 <br>
 <input type="checkbox" id="instant" onclick="window.instant = this.checked;"> <label for="instant">Instant</label>
 <div style="height: 10px;"></div>
-<input type="button" value="Top" onclick="w2ui['layout'].toggle('top', window.instant)" style="width: 60px">
-<input type="button" value="Left" onclick="w2ui['layout'].toggle('left', window.instant)" style="width: 60px">
-<input type="button" value="Right" onclick="w2ui['layout'].toggle('right', window.instant)" style="width: 60px">
-<input type="button" value="Preview" onclick="w2ui['layout'].toggle('preview', window.instant)" style="width: 60px">
-<input type="button" value="Bottom" onclick="w2ui['layout'].toggle('bottom', window.instant)" style="width: 60px">
-
+<button class="btn" onclick="w2ui['layout'].toggle('top', window.instant)">Top</button>
+<button class="btn" onclick="w2ui['layout'].toggle('left', window.instant)">Left</button>
+<button class="btn" onclick="w2ui['layout'].toggle('right', window.instant)">Right</button>
+<button class="btn" onclick="w2ui['layout'].toggle('preview', window.instant)">Preview</button>
+<button class="btn" onclick="w2ui['layout'].toggle('bottom', window.instant)">Bottom</button>
 <!--CODE-->
 <script>
 $(function () {    

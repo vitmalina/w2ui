@@ -14,8 +14,8 @@
 </div>
 
 <!--CODE-->
-<input type="button" value="Popup 1" onclick="$('#popup1').w2popup()">
-<input type="button" value="Popup 2" onclick="$('#popup2').w2popup()">
+<button class="btn" onclick="$('#popup1').w2popup()">Popup 1</button>
+<button class="btn" onclick="$('#popup2').w2popup()">Popup 2</button>
 
 <div id="popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
     <div rel="title">
@@ -36,7 +36,7 @@
         This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
     </div>
     <div rel="buttons">
-        <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()" style="width: 130px;">
+        <button class="btn" onclick="$('#popup2').w2popup()">Switch to Popup 2</button>
     </div>
 </div>
 
@@ -49,7 +49,7 @@
         Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
     </div>
     <div rel="buttons">
-        <input type="button" value="Switch to Popup 1" onclick="$('#popup1').w2popup()" style="width: 130px;">
+        <button class="btn" onclick="$('#popup1').w2popup()">Switch to Popup 1</button>
     </div>
 </div>
 

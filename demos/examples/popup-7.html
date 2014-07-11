@@ -9,7 +9,7 @@
 </div>
 
 <!--CODE-->
-<input type="button" value="Open Popup" onclick="popup()">
+<button class="btn" onclick="popup()">Open Popup</button>
 
 <!--CODE-->
 <script>
@@ -19,7 +19,7 @@ function popup() {
         height: 500,
         title: 'Popup Title',
         body: '<div class="w2ui-centered"><div>This is text inside the popup</div></div>',
-        buttons: '<input type="button" value="Show Message" onclick="showMessage()" style="width: 100px"> ',
+        buttons: '<button class="btn" onclick="showMessage()">Show Message</button> ',
         showMax: true
     });
 }

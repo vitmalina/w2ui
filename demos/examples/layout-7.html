@@ -13,20 +13,20 @@
 <div style="height: 20px;"></div>
 
 <span style="display: inline-block; width: 60px;"> Main: </span>
-<input type="button" value="Toggle Top" onclick="w2ui['layout'].toggle('top')">
-<input type="button" value="Toggle Left" onclick="w2ui['layout'].toggle('left')">
-<input type="button" value="Toggle Right" onclick="w2ui['layout'].toggle('right')">
-<input type="button" value="Toggle Preview" onclick="w2ui['layout'].toggle('preview')">
-<input type="button" value="Toggle Bottom" onclick="w2ui['layout'].toggle('bottom')">
+<button class="btn" onclick="w2ui['layout'].toggle('top', window.instant)">Top</button>
+<button class="btn" onclick="w2ui['layout'].toggle('left', window.instant)">Left</button>
+<button class="btn" onclick="w2ui['layout'].toggle('right', window.instant)">Right</button>
+<button class="btn" onclick="w2ui['layout'].toggle('preview', window.instant)">Preview</button>
+<button class="btn" onclick="w2ui['layout'].toggle('bottom', window.instant)">Bottom</button>
 
 <div style="height: 10px;"></div>
 
 <span style="display: inline-block; width: 60px;"> Nested: </span>
-<input type="button" value="Toggle Top" onclick="w2ui['layout2'].toggle('top')">
-<input type="button" value="Toggle Left" onclick="w2ui['layout2'].toggle('left')">
-<input type="button" value="Toggle Right" onclick="w2ui['layout2'].toggle('right')">
-<input type="button" value="Toggle Preview" onclick="w2ui['layout2'].toggle('preview')">
-<input type="button" value="Toggle Bottom" onclick="w2ui['layout2'].toggle('bottom')">
+<button class="btn" onclick="w2ui['layout2'].toggle('top', window.instant)">Top</button>
+<button class="btn" onclick="w2ui['layout2'].toggle('left', window.instant)">Left</button>
+<button class="btn" onclick="w2ui['layout2'].toggle('right', window.instant)">Right</button>
+<button class="btn" onclick="w2ui['layout2'].toggle('preview', window.instant)">Preview</button>
+<button class="btn" onclick="w2ui['layout2'].toggle('bottom', window.instant)">Bottom</button>
 
 <!--CODE-->
 <script>

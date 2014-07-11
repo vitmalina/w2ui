@@ -9,7 +9,7 @@
 </div>
 
 <!--CODE-->
-<input type="button" value="Clear Events" onclick="$('#eventList').html('');" style="width: 90px">
+<button class="btn" onclick="$('#eventList').html('');">Clear Events</button>
 <div style="height: 10px"></div>
 
 <div id="layout" style="width: 100%; height: 400px;"></div>
@@ -17,11 +17,11 @@
 <input type="checkbox" id="instant" onclick="window.instant = this.checked;"> <label for="instant">Instant</label>
 <div style="height: 10px;"></div>
 
-<input type="button" value="Toggle Top" onclick="w2ui['layout'].toggle('top', window.instant)">
-<input type="button" value="Toggle Left" onclick="w2ui['layout'].toggle('left', window.instant)">
-<input type="button" value="Toggle Right" onclick="w2ui['layout'].toggle('right', window.instant)">
-<input type="button" value="Toggle Preview" onclick="w2ui['layout'].toggle('preview', window.instant)">
-<input type="button" value="Toggle Bottom" onclick="w2ui['layout'].toggle('bottom', window.instant)">
+<button class="btn" onclick="w2ui['layout'].toggle('top', window.instant)">Top</button>
+<button class="btn" onclick="w2ui['layout'].toggle('left', window.instant)">Left</button>
+<button class="btn" onclick="w2ui['layout'].toggle('right', window.instant)">Right</button>
+<button class="btn" onclick="w2ui['layout'].toggle('preview', window.instant)">Preview</button>
+<button class="btn" onclick="w2ui['layout'].toggle('bottom', window.instant)">Bottom</button>
 
 <!--CODE-->
 <script>

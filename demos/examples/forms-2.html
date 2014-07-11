@@ -10,17 +10,17 @@
         element. Similar functionality is done with list (single item selection) or enum (multi items selection).
         <table class="list">
             <tr><td> text </td>         <td> input[type=text] or textarea </td></tr>
-            <tr><td> int </td>            <td> input[type=text] </td></tr>
+            <tr><td> int </td>          <td> input[type=text] </td></tr>
             <tr><td> float </td>        <td> input[type=text] </td></tr>
-            <tr><td> hex </td>            <td> input[type=text] </td></tr>
+            <tr><td> hex </td>          <td> input[type=text] </td></tr>
             <tr><td> money </td>        <td> input[type=text] </td></tr>
-            <tr><td> alphanumeric </td>    <td> input[type=text] </td></tr>
+            <tr><td> alphanumeric </td> <td> input[type=text] </td></tr>
             <tr><td> email </td>        <td> input[type=text] </td></tr>
-            <tr><td> checkbox </td>        <td> input[type=checkbox] </td></tr>
-            <tr><td> password </td>        <td> input[type=password] </td></tr>
-            <tr><td> date </td>            <td> input[type=text] </td></tr>
-            <tr><td> list </td>            <td> input[type=text] </td></tr>
-            <tr><td> enum </td>            <td> input[type=text] </td></tr>
+            <tr><td> checkbox </td>     <td> input[type=checkbox] </td></tr>
+            <tr><td> password </td>     <td> input[type=password] </td></tr>
+            <tr><td> date </td>         <td> input[type=text] </td></tr>
+            <tr><td> list </td>         <td> input[type=text] </td></tr>
+            <tr><td> enum </td>         <td> input[type=text] </td></tr>
         </table>
     <div id="example_code"></div>
 </div>
@@ -42,7 +42,7 @@ $(function () {
             { name: 'field_int', type: 'int', required: true },
             { name: 'field_float', type: 'float', required: true },
             { name: 'field_date', type: 'date' },
-            { name: 'field_list', type: 'select', required: true, 
+            { name: 'field_list', type: 'list', required: true, 
                 options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
             { name: 'field_enum', type: 'enum', required: true, 
                 options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
