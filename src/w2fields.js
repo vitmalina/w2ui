@@ -301,6 +301,7 @@
                         openOnFocus     : false,        // if to show overlay onclick or when typing
                         markSearch      : false
                     };
+                    options.items = this.normMenu(options.items); // need to be first
                     if (this.type == 'list') {
                         // defaults.search = (options.items && options.items.length >= 10 ? true : false);
                         defaults.openOnFocus = true;
@@ -321,7 +322,6 @@
                         align   : 'both',      // same width as control
                         altRows : true         // alternate row color
                     });
-                    options.items      = this.normMenu(options.items);
                     this.options = options;
                     if (!$.isPlainObject(options.selected)) options.selected = {};
                     $(this.el).data('selected', options.selected);
@@ -1611,7 +1611,7 @@
                             'padding-bottom' : $(obj.el).css('padding-bottom'),
                             'padding-left'   : $(obj.el).css('padding-left'),
                             'padding-right'  : 0,
-                            'margin-top'     : (parseInt($(obj.el).css('margin-top'), 10) + 1) + 'px',
+                            'margin-top'     : (parseInt($(obj.el).css('margin-top'), 10) + 2) + 'px',
                             'margin-bottom'  : (parseInt($(obj.el).css('margin-bottom'), 10) + 1) + 'px',
                             'margin-left'    : $(obj.el).css('margin-left'),
                             'margin-right'   : 0
@@ -1718,7 +1718,7 @@
                             'padding-bottom' : $(obj.el).css('padding-bottom'),
                             'padding-left'   : '3px',
                             'padding-right'  : $(obj.el).css('padding-right'),
-                            'margin-top'     : (parseInt($(obj.el).css('margin-top'), 10) + 1) + 'px',
+                            'margin-top'     : (parseInt($(obj.el).css('margin-top'), 10) + 2) + 'px',
                             'margin-bottom'  : (parseInt($(obj.el).css('margin-bottom'), 10) + 1) + 'px'
                         })
                         .on('click', function (event) {

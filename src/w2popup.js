@@ -699,8 +699,8 @@ var w2confirm = function (msg, title, callBack) {
     var defaults = {
         msg         : '',
         title       : w2utils.lang('Confirmation'),
-        width       : 450,
-        height      : 220,
+        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
+        height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
         yes_text    : 'Yes',
         yes_class   : '',
         yes_style   : '',

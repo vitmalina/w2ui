@@ -44,6 +44,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added: dataType (allows JSON payload)
 *   - added: parse route
 *   - menu items can be disabled now
+*   - added menu item.count
 *
 ************************************************/
 
@@ -1210,7 +1211,13 @@ w2utils.keyboard = (function (obj) {
             openAbove : false,     // show abover control
             tmp       : {}
         };
-        if (arguments.length == 1) options = html;
+        if (arguments.length == 1) {
+            if (typeof html == 'object') {
+                options = html; 
+            } else {
+                options = { html: html };
+            }
+        }
         if (arguments.length == 2) options.html = html;
         if (!$.isPlainObject(options)) options = {};
         options = $.extend({}, defaults, options);
@@ -1412,6 +1419,7 @@ w2utils.keyboard = (function (obj) {
                 style    : '',
                 img      : '',
                 icon     : '',
+                count    : '',
                 hidden   : false,
                 disabled : false
                 ...
@@ -1601,12 +1609,15 @@ w2utils.keyboard = (function (obj) {
                     var imgd = '';
                     var txt = mitem.text;
                     if (typeof options.render === 'function') txt = options.render(mitem, options);
-                    if (img)  imgd = '<td><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
-                    if (icon) imgd = '<td align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
+                    if (img)  imgd = '<td class="menu-icon"><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
+                    if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
                     // render only if non-empty
                     if (typeof txt !== 'undefined' && txt !== '' && !(/^-+$/.test(txt))) {
                         var bg = (count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
                         if (options.altRows !== true) bg = '';
+                        var colspan = 1;
+                        if (imgd == '') colspan++;
+                        if (mitem.count == null) colspan++;
                         menu_html +=
                             '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
                             '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
@@ -1616,7 +1627,8 @@ w2utils.keyboard = (function (obj) {
                             '               $(\'#w2ui-overlay'+ name +'\').remove(); '+
                             '               $.fn.w2menuHandler(event, \''+ f +'\');">'+
                                 imgd +
-                            '    <td '+ (imgd == '' ? 'colspan="2"' : '') +'>'+ txt +'</td>'+
+                            '   <td class="menu-text" colspan="'+ colspan +'">'+ txt +'</td>'+
+                            '   <td class="menu-count">'+ (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') + '</td>' +
                             '</tr>';
                         count++;
                     } else {

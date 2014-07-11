@@ -559,10 +559,10 @@
             for (var s in this.sortData) {
                 var column = this.getColumn(this.sortData[s].field); 
                 if (!column) return;
-                if (column.render && ['date', 'age'].indexOf(column.render) != -1) {
+                if (column.render && ['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
                     this.sortData[s]['field_'] = column.field + '_';
                 }
-                if (column.render && ['time'].indexOf(column.render) != -1) {
+                if (column.render && ['time'].indexOf(column.render.split(':')[0]) != -1) {
                     this.sortData[s]['field_'] = column.field + '_';
                 }
             }
@@ -5027,7 +5027,7 @@
                         if (typeof rec[column.field] != 'number') rec[column.field] = parseFloat(rec[column.field]);
                     }
                     // date
-                    if (['date', 'age'].indexOf(column.render) != -1) {
+                    if (['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
                         if (!rec[column.field + '_']) {
                             var dt = rec[column.field];
                             if (w2utils.isInt(dt)) dt = parseInt(dt);

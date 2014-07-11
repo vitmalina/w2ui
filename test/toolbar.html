@@ -12,7 +12,7 @@
             routeData: { id: 5, vid: '40-43' },
             items: [
                 { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', checked: true, route: '/project' },
-                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa-star', html: 'so', route: '/project/:id/go' },
+                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa-star', html: 'so', route: '/project/:id/go', count: 4 },
                 { type: 'break', id: 'break0' },
                 { type: 'menu',  id: 'item2', caption: 'Drop Down', img: 'icon-folder', icon: 'fa-camera',                     
                     items: [
@@ -22,26 +22,28 @@
                     ]
                 },
                 { type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa-heart', items: [
-                    { id: 'item1', text: 'Item 1', icon: 'fa-heart' }, 
-                    { id: 'item2', text: 'Item 2', icon: 'fa-user' }, 
+                    { id: 'item1', text: 'First Item', count: 3, icon: 'fa-heart' }, 
+                    { id: 'item2', text: 'Item 2', icon: 'fa-user', count: 12 }, 
                     { id: 'item3', text: 'Item 3', icon: 'fa-star-empty' }, 
-                    { id: 'item4', text: 'Item 4', icon: 'fa-link' }
+                    { id: 'item4', text: 'Item 4', icon: 'fa-link' },
+                    { id: 'item5', text: 'Without Image, Just Text' }
                 ], overlay: { top: 10 }},
                 { type: 'break', id: 'break1' },
                 { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa-user', img: 'icon-add', checked: true,
                     route: '/project/:id/view/:vid' 
                 },
-                { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa-group', img: 'icon-add', disabled: false,
+                { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa-group', img: 'icon-add', disabled: false, count: 55,
                     route: '/project/:id/drop down/:vid/:id'
                 },
                 { type: 'break' },
-                { type: 'drop', id: 'item7', caption: 'drop button', img: 'icon-search', 
+                { type: 'drop', id: 'item7', caption: 'drop button', img: 'icon-folder', 
                     html : '<div style="padding: 10px; font-size: 11px">some html</div>',
                     route: 'another/project'
                 },
+                { type: 'button',  id: 'itemT',  caption: 'Just Text', count: '1' },
                 { type: 'spacer' },
-                { type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-save', disabled: true },
-                { type: 'button',  id: 'item6',  caption: 'Item 6', img: 'icon-save' }
+                { type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-page', disabled: true },
+                { type: 'button',  id: 'item6',  caption: 'Item 6', img: 'icon-page' }
             ],
             onClick: function (event) { console.log(event); }
         });

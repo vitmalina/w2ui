@@ -13,6 +13,7 @@
 *   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
 *   - fixed submenu event bugs
 *   - added route support
+*   - added item.count
 *
 ************************************************************************/
 
@@ -74,6 +75,7 @@
             html     : '',
             img      : null,
             icon     : null,
+            count    : null,
             hidden   : false,
             disabled : false,
             checked  : false,       // used for radio buttons
@@ -396,6 +398,7 @@
                             '  <tr>' +
                                     img +
                                     (item.text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.text +'</td>' : '') +
+                                    (item.count != null ? '<td class="w2ui-tb-count" nowrap><span>'+ item.count +'</span></td>' : '') +
                                     (((item.type === 'drop' || item.type === 'menu') && item.arrow !== false) ?
                                         '<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
                             '  </tr></table>'+

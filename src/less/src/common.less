@@ -281,14 +281,29 @@ input[type=checkbox].w2ui-toggle:focus {
         border-bottom: 1px solid #D3D2D4;
     }
     // image
-    td:first-child {
+    td.menu-icon {
         padding: 3px 0px 4px 6px;
         width: 20px;
     }
     // caption
-    td:last-child {
+    td.menu-text {
         padding: 8px 10px 8px 5px;
         width: auto;
+    }
+    td.menu-count {
+        text-align: right;
+        & > span {
+            border: @menu-node-count-border;
+            border-radius: 20px;
+            width: auto; 
+            height: 18px;
+            padding: 2px 7px;
+            margin: 3px 5px 0px 5px;
+            background-color: @menu-node-count-background-color;
+            color: @menu-node-count-color;
+            box-shadow: @menu-node-count-shadow;
+            text-shadow: @menu-node-count-text-shadow;
+        }
     }
 
     tr:hover {
