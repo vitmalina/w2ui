@@ -86,21 +86,21 @@
 
 <!--CODE-->
 <script>
-    // General
-    $('#w2int').w2field('int', { autoFormat: false });
-    $('#w2float').w2field('float', { autoFormat: false });
-    $('#w2hex').w2field('hex');
-    $('#w2color').w2field('color');
+// General
+$('#w2int').w2field('int', { autoFormat: false });
+$('#w2float').w2field('float', { autoFormat: false });
+$('#w2hex').w2field('hex');
+$('#w2color').w2field('color');
 
-    // US Format
-    $('#us-int').w2field('int');
-    $('#us-float').w2field('float', { precision: 3 });
-    $('#us-money').w2field('money');
-    $('#us-percent').w2field('percent', { precision: 1, min: 0, max: 100 });
+// US Format
+$('#us-int').w2field('int');
+$('#us-float').w2field('float', { precision: 3 });
+$('#us-money').w2field('money');
+$('#us-percent').w2field('percent', { precision: 1, min: 0, max: 100 });
 
-    // EU Common Format
-    $('#eu-int').w2field('int', { autoFormat: true, groupSymbol: ' ' });
-    $('#eu-float').w2field('float', { groupSymbol: ' ', precision: 3 });
-    $('#eu-money').w2field('money', { groupSymbol: ' ', currencyPrefix: '', currencySuffix: '€' });
-    $('#eu-percent').w2field('percent', { precision: 1, min: 0, max: 100 });
+// EU Common Format
+$('#eu-int').w2field('int', { autoFormat: true, groupSymbol: ' ' });
+$('#eu-float').w2field('float', { groupSymbol: ' ', precision: 3 });
+$('#eu-money').w2field('money', { groupSymbol: ' ', currencyPrefix: '', currencySuffix: '€' });
+$('#eu-percent').w2field('percent', { precision: 1, min: 0, max: 100 });
 </script>
