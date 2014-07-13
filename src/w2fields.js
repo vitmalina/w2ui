@@ -405,8 +405,8 @@
                         onMouseOut    : null      // when an item is mouse out
                     };
                     options = $.extend({}, defaults, options, {
-                        align         : 'both',    // same width as control
-                        altRows        : true        // alternate row color
+                        align         : 'both',   // same width as control
+                        altRows        : true     // alternate row color
                     });
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
