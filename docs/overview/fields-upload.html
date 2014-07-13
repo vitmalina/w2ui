@@ -1,0 +1,69 @@
+<h3>Upload Field</h3>
+<p>
+    This controls provides an easy way to upload files as part of the form you submit. It encodes file with base64 encoding, same as email attachments. This method simplifies file uploads, but become inefficient if file size grows over 50mb or so.
+</p>
+<div style="height: 20px"></div>
+
+<h5>Preview</h5>
+<style>
+    .w2ui-field {
+        margin: 10px 0px;
+    }
+    .w2ui-field input {
+        width: 450px;
+    }
+</style>
+<div style="height: 20px"></div>
+<div class="w2ui-reset">
+    <div class="w2ui-field w2ui-span3">
+        <label>Files:</label>
+        <div><input id="file" style="width: 600px;"></div>
+    </div>
+    <div style="clear: both; height: 20px"></div>
+</div>
+<script>
+$(function () {
+    $('#file').w2field('file', {});
+});
+</script>
+<div style="height: 20px; clear: both"></div>
+
+<h5>Code</h5>
+<textarea class="html">
+<div class="w2ui-field w2ui-span3">
+    <label>Files:</label>
+    <div><input id="file" style="width: 600px"></div>
+</div>
+
+&lt;script>
+$(function () {
+    $('#file').w2field('file', {});
+    // if you need to get to the selected items, use:
+    // $('#id').data('selected');
+});
+&lt;/script>
+</textarea>
+
+<h3>Options</h3>
+You can provide various options for numeric fields as second argument. The structure of the options object is below:
+
+<textarea class="javascript">
+options = {
+    selected        : [],       // selected array
+    placeholder     : '',       // placeholde if empty
+    max             : 0,        // max number of selected items, 0 - unlim
+    maxSize         : 0,        // max size of all files, 0 - unlim
+    maxFileSize     : 0,        // max size of a single file, 0 -unlim
+    maxWidth        : 250,      // max width for a single item
+    maxHeight       : 350,      // max height for input control to grow
+    maxDropHeight   : 350,      // max height for drop down menu
+    silent          : true,     // indicates if to display error tag
+    renderItem      : null,     // render selected item
+    style           : '',       // style for container div
+    onClick         : null,     // when an item is clicked
+    onAdd           : null,     // when an item is added
+    onRemove        : null,     // when an item is removed
+    onMouseOver     : null,     // when an item is mouse over
+    onMouseOut      : null      // when an item is mouse out
+}
+</textarea>

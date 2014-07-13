@@ -19,11 +19,12 @@ The method will loop through all the <a class="argument" href="w2form.fields">.f
 to generate HTML template. It will use <span class="argument">html</span> property of the field if it is defined. It can have following structure:
 <textarea class="javascript">
 html = {
-    caption : '',  // caption for the field
-    attr    : '',  // additional attributes inside &lt;input&gt; control
-    span    : 6,   // number 1-9 that defined with of the caption span
-    text    : '',  // any html that will be placed after the input control
-    page    : 0    // page number control belongs to
+    caption : '',   // caption for the field
+    group   : '',   // if not empty then starts a grop before field
+    attr    : '',   // additional attributes inside &lt;input&gt; control
+    span    : 6,    // number 1-9 that defined with of the caption span
+    text    : '',   // any html that will be placed after the input control
+    page    : 0     // page number control belongs to
 }
 </textarea>
 

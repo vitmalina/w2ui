@@ -26,7 +26,7 @@ If you have form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({
     name     : 'form',
-    recid      : 10,
+    recid    : 10,
     url      : '/server/form/path',
     formURL  : '/server/path',
     fields: [
@@ -35,8 +35,8 @@ $('#form').w2form({
         { name: 'email', type: 'email' },
     ],
     actions: {
-        "save": function (target, data) { this.save(); },
-        "reset": function (target, data) { this.clear(); },
+        "save"  : function (target, data) { this.save(); },
+        "reset" : function (target, data) { this.clear(); },
     }
 });
 </textarea>

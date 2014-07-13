@@ -1,0 +1,109 @@
+<h3>Numeric Fields</h3>
+<p>
+    Numeric inputs will only allow you to type numbers. They will completely ignore all other characters. Full keyboard support is implemented. Try using up/down arrow keys, ctr + up/down (command + up/down on mac) to increase numbers. When the number is changed it will be validated and formatted (if needed).
+</p>
+<div style="height: 20px"></div>
+
+<h5>Preview</h5>
+<style>
+    .w2ui-field input {
+        width: 140px;
+        font-size: 12px;
+        text-align: right;
+    }
+</style>
+<div style="height: 20px"></div>
+<div class="w2ui-reset">
+    <div class="w2ui-field w2ui-span3">
+        <label>Integer:</label>
+        <div><input id="w2int"></div>
+    </div>
+    <div style="clear: both"></div>
+    <div class="w2ui-field w2ui-span3">
+        <label>Float:</label>
+        <div><input id="w2float"></div>
+    </div>
+    <div style="clear: both"></div>
+    <div class="w2ui-field w2ui-span3">
+        <label>Money:</label>
+        <div><input id="w2money"></div>
+    </div>
+    <div style="clear: both"></div>
+    <div class="w2ui-field w2ui-span3">
+        <label>Hex:</label>
+        <div><input id="w2hex"></div>
+    </div>
+    <div style="clear: both"></div>
+    <div class="w2ui-field w2ui-span3">
+        <label>Color:</label>
+        <div><input id="w2color" style="text-align: left"></div>
+    </div>
+    <div style="clear: both"></div>
+</div>
+<script>
+$(function () {
+    $('#w2int').w2field('int');
+    $('#w2float').w2field('float');
+    $('#w2money').w2field('money');
+    $('#w2hex').w2field('hex');
+    $('#w2color').w2field('color');
+});
+</script>
+<div style="height: 20px"></div>
+
+<h5>Code</h5>
+<textarea class="html">
+<div class="w2ui-field">
+    <label>Integer:</label>
+    <div><input id="w2int"></div>
+</div>
+<div class="w2ui-field">
+    <label>Float:</label>
+    <div><input id="w2float"></div>
+</div>
+<div class="w2ui-field">
+    <label>Money:</label>
+    <div><input id="w2money"></div>
+</div>
+<div class="w2ui-field">
+    <label>Hex:</label>
+    <div><input id="w2hex"></div>
+</div>
+<div class="w2ui-field">
+    <label>Color:</label>
+    <div><input id="w2color" style="text-align: left"></div>
+</div>
+
+&lt;script>
+$(function () {
+    $('#w2int').w2field('int');
+    $('#w2float').w2field('float');
+    $('#w2money').w2field('money');
+    $('#w2hex').w2field('hex');
+    $('#w2color').w2field('color');
+});
+&lt;/script>
+</textarea>
+
+<h3>Options</h3>
+You can provide various options for numeric fields as second argument. The structure of the options object is below:
+
+<textarea class="javascript">
+options = {
+    min                : null,      // min value
+    max                : null,      // max value
+    step               : 1,         // step to icrement with keyboard
+    placeholder        : '',        // placeholder if empty
+    autoFormat         : true,      // indicates if to auto format the number
+    currencyPrefix     : w2utils.settings.currencyPrefix,       // symbol for currency prefix
+    currencySuffix     : w2utils.settings.currencySuffix,       // symbol for currency suffix
+    currencyPrecision  : w2utils.settings.currencyPrecision,    // defines precision, default = 2  
+    groupSymbol        : w2utils.settings.groupSymbol,          // symbol for number grouping
+    arrows             : false,     // indicates if to display arrows on the right side
+    keyboard           : true,      // indicates if keyboard should be supported
+    precision          : null,      // defines precision for auto format
+    silent             : true,      // indicate if to correct silently or display error tag
+    prefix             : '',        // control prefix
+    suffix             : ''         // control suffix
+};
+</textarea>

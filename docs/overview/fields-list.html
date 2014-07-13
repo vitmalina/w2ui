@@ -1,0 +1,102 @@
+<h3>Drop List</h3>
+<p>
+    Regular &lt;select&gt; input is nice, but quite limited. For example, it is hard to use this control on a large set of options. To provide a solution, I have implemented drop down list based on a text input filed but with a dynamic list of options that gets filtered as you type.
+</p>
+<div style="height: 20px"></div>
+
+<h5>Preview</h5>
+<style>
+    .w2ui-field {
+        margin: 10px 0px;
+    }
+    .w2ui-field input {
+        width: 250px;
+    }
+</style>
+<div style="height: 20px"></div>
+<div class="w2ui-reset">
+    <div class="w2ui-field w2ui-span3">
+        <label>List:</label>
+        <div> <input type="list"> <span class="legend"> &nbsp;&nbsp;&nbsp;Cannot type any text, but only items from the list</span> </div>
+    </div>
+    <div style="clear: both"></div>
+    <div class="w2ui-field w2ui-span3">
+        <label>Combo:</label>
+        <div> <input type="combo"> <span class="legend"> &nbsp;&nbsp;&nbsp;You can type any text</span> </div>
+    </div>
+    <div style="height: 20px"></div>
+</div>
+<script>
+$(function () {
+    var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison', 'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson', 'Rutherford Hayes', 'Martin VanBuren', 'James Garfield', 'William Harrison', 'Chester Arthur', 'John Tyler', 'Grover Cleveland', 'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland', 'Millard Fillmore', 'William McKinley', 'Franklin Pierce', 'Theodore Roosevelt', 'John Kennedy', 'William Howard', 'Lyndon Johnson', 'Woodrow Wilson', 'Richard Nixon', 'Warren Harding', 'Gerald Ford', 'Calvin Coolidge', 'James Carter', 'Herbert Hoover', 'Ronald Reagan', 'Franklin Roosevelt', 'George Bush', 'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'];
+    $('input[type=list]').w2field('list', { items: people });
+    $('input[type=combo]').w2field('combo', { items: people });
+});
+</script>
+<div style="height: 20px; clear: both"></div>
+
+<h5>Code</h5>
+<textarea class="html">
+<div class="w2ui-field">
+    <label>List:</label>
+    <div> <input type="list"> <span class="legend">Cannot type any text, but only items from the list</span> </div>
+</div>
+<div style="height: 10px"></div>
+<div class="w2ui-field">
+    <label>Combo:</label>
+    <div> <input type="combo"> <span class="legend">You can type any text</span> </div>
+</div>
+<div style="height: 20px"></div>
+
+&lt;script>
+$(function () {
+    var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison', 'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson', 'Rutherford Hayes', 'Martin VanBuren', 'James Garfield', 'William Harrison', 'Chester Arthur', 'John Tyler', 'Grover Cleveland', 'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland', 'Millard Fillmore', 'William McKinley', 'Franklin Pierce', 'Theodore Roosevelt', 'John Kennedy', 'William Howard', 'Lyndon Johnson', 'Woodrow Wilson', 'Richard Nixon', 'Warren Harding', 'Gerald Ford', 'Calvin Coolidge', 'James Carter', 'Herbert Hoover', 'Ronald Reagan', 'Franklin Roosevelt', 'George Bush', 'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'];
+    $('input[type=list]').w2field('list', { items: people });
+    $('input[type=combo]').w2field('combo', { items: people });
+});
+&lt;/script>
+</textarea>
+
+<h3>Options</h3>
+You can provide various options for numeric fields as second argument. The structure of the options object is below:
+
+<textarea class="javascript">
+options = {
+    items           : [],           // array of item objects
+    selected        : {},           // selected object
+    placeholder     : '',           // placeholde if empty
+    url             : null,         // url to pull data from
+    postData        : {},           // additional data to submit to URL
+    minLength       : 1,            // min search length to trigger relod from URL
+    cacheMax        : 250,          // number of items to cache if retrieved from URL
+    maxDropHeight   : 350,          // max height for drop down menu
+    match           : 'begins',     // ['contains', 'is', 'begins', 'ends']
+    silent          : true,         // indicates if to display error tag
+    icon            : null,         // icon class for selected item
+    iconStyle       : '',           // icon style for selected iton
+    onSearch        : null,         // when search needs to be performed
+    onRequest       : null,         // when request is submitted
+    onLoad          : null,         // when data is received
+    onError         : null,         // when data fails to load due to server error or other failure modes
+    onIconClick     : null,         // when icon is clicked
+    renderDrop      : null,         // render function for drop down item
+    prefix          : '',           // prefix for control
+    suffix          : '',           // suffix for control
+    openOnFocus     : false,        // if to show overlay onclick or when typing
+    markSearch      : false         // indicated if to mark search string in the drop down
+};
+</textarea>
+
+<h5>Item Object</h5>
+
+<textarea class="javascript">
+options = {
+    id       : '',      // unique id 
+    text     : '',      // item text
+    icon     : '',      // icon class if any
+    img      : '',      // image class if any
+    disabled : false,   // indicates if disabled
+    hidden   : false,   // indicates if hidden
+    count    : null     // count to disaply on the right
+};
+</textarea>

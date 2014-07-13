@@ -1,0 +1,25 @@
+<h3>Custom Types</h3>
+If built-in types are not enough for you, there is a way you can create custom types. 
+<textarea class="javascript">
+$().w2field('addType', 'myType', function (options) {
+    $(this.el).on('keypress', function (event) {
+        if (event.metaKey || event.ctrlKey || event.altKey
+            || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+        var ch = String.fromCharCode(event.charCode);
+        if (ch != 'a' && ch != 'b' && ch != 'c') {
+            if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+            return false;
+        }
+    });
+    $(this.el).on('blur', function (event)  { // keyCode & charCode differ in FireFox
+        var ch = this.value;
+        if (ch != 'a' && ch != 'b' && ch != 'c') {
+            $(this).w2tag(w2utils.lang("Not a single charecter from the set of 'abc'"));
+        }
+    });
+});
+</textarea>
+After you defined this type, you can apply it in the following way:
+<textarea class="javascript">
+$('#id').w2field('myType');
+</textarea>

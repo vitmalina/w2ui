@@ -1,0 +1,201 @@
+<h3>Date Fields</h3>
+<p>
+    For DATE and TIME controls you can use keyboard to increment by a day (or a minute) if you click up/down arrow keys. You can also use ctr + up/down (command + up/down on mac) to increment by a month (or an hour).
+</p>
+<div style="height: 20px"></div>
+
+<h5>Preview</h5>
+<style>
+    .block {
+        padding-top: 20px; 
+        padding-bottom: 10px; 
+        color: #999;
+        font-size: 14px;
+    }
+    .w2ui-field input {
+        width: 90px;
+    }
+    .w2ui-field > div > span {
+        margin-left: 20px;
+    }
+</style>
+<div class="w2ui-reset">
+    <div class="block">
+        <b>US Format</b>
+    </div>
+    <div class="w2ui-field">
+        <label>Date:</label>
+        <div> <input type="us-date"> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>From-To:</label>
+        <div> <input type="us-dateA"> <span class="legend">(from 10th to 20th of current month)</span> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Blocked Days:</label>
+        <div> <input type="us-dateB"> <span class="legend">(12,13,14 of current month are blocked)</span> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Date Range:</label>
+        <div> <input type="us-date1"> - <input type="us-date2"> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Time:</label>
+        <div> <input type="us-time"> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>From-To:</label>
+        <div> <input type="us-timeA"> <span class="legend">(from 8:00 am to 4:30 pm)</span> </div>
+    </div>
+
+    <div class="block">
+        <b>EU Common Format</b>
+    </div>
+    <div class="w2ui-field">
+        <label>Date:</label>
+        <div> <input type="eu-date"> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>From-To:</label>
+        <div> <input type="eu-dateA"> <span class="legend">(from 10th to 20th of current month)</span> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Blocked Days:</label>
+        <div> <input type="eu-dateB"> <span class="legend">(12,13,14 of current month are blocked)</span> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Date Range:</label>
+        <div> <input type="eu-date1"> - <input type="eu-date2"> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>Time:</label>
+        <div> <input type="eu-time"> </div>
+    </div>
+    <div class="w2ui-field">
+        <label>From-To:</label>
+        <div> <input type="eu-timeA"> <span class="legend">(from 8:00 am to 4:30 pm)</span> </div>
+    </div>
+</div>
+<script>
+$(function () {
+    var month = (new Date()).getMonth() + 1;
+    var year  = (new Date()).getFullYear();
+
+    // US Format
+    $('input[type=us-date]').w2field('date');
+    $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
+    $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});
+    $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]') });
+    $('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]') });
+    $('input[type=us-time]').w2field('time',  { format: 'h12' });
+    $('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
+
+    // EU Common Format
+    $('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
+    $('input[type=eu-dateA]').w2field('date', { format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year });
+    $('input[type=eu-dateB]').w2field('date', { format: 'd.m.yyyy', blocked: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]});
+    $('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[type=eu-date2]') });
+    $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
+    $('input[type=eu-time]').w2field('time',  { format: 'h24' });
+    $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });});
+</script>
+<div style="height: 20px"></div>
+
+<h5>Code</h5>
+<textarea class="html">
+<div class="block">
+    <b>US Format</b>
+</div>
+<div class="w2ui-field">
+    <label>Date:</label>
+    <div> <input type="us-date"> </div>
+</div>
+<div class="w2ui-field">
+    <label>From-To:</label>
+    <div> <input type="us-dateA"> <span class="legend">(from 10th to 20th of current month)</span> </div>
+</div>
+<div class="w2ui-field">
+    <label>Blocked Days:</label>
+    <div> <input type="us-dateB"> <span class="legend">(12,13,14 of current month are blocked)</span> </div>
+</div>
+<div class="w2ui-field">
+    <label>Date Range:</label>
+    <div> <input type="us-date1"> - <input type="us-date2"> </div>
+</div>
+<div class="w2ui-field">
+    <label>Time:</label>
+    <div> <input type="us-time"> </div>
+</div>
+<div class="w2ui-field">
+    <label>From-To:</label>
+    <div> <input type="us-timeA"> <span class="legend">(from 8:00 am to 4:30 pm)</span> </div>
+</div>
+
+<div class="block">
+    <b>EU Common Format</b>
+</div>
+<div class="w2ui-field">
+    <label>Date:</label>
+    <div> <input type="eu-date"> </div>
+</div>
+<div class="w2ui-field">
+    <label>From-To:</label>
+    <div> <input type="eu-dateA"> <span class="legend">(from 10th to 20th of current month)</span> </div>
+</div>
+<div class="w2ui-field">
+    <label>Blocked Days:</label>
+    <div> <input type="eu-dateB"> <span class="legend">(12,13,14 of current month are blocked)</span> </div>
+</div>
+<div class="w2ui-field">
+    <label>Date Range:</label>
+    <div> <input type="eu-date1"> - <input type="eu-date2"> </div>
+</div>
+<div class="w2ui-field">
+    <label>Time:</label>
+    <div> <input type="eu-time"> </div>
+</div>
+<div class="w2ui-field">
+    <label>From-To:</label>
+    <div> <input type="eu-timeA"> <span class="legend">(from 8:00 am to 4:30 pm)</span> </div>
+</div>
+
+&lt;script>
+$(function () {
+    var month = (new Date()).getMonth() + 1;
+    var year  = (new Date()).getFullYear();
+
+    // US Format
+    $('input[type=us-date]').w2field('date');
+    $('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
+    $('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blocked: [ month+'/12/2014',month+'/13/2014',month+'/14/' + year,]});
+    $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]') });
+    $('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]') });
+    $('input[type=us-time]').w2field('time',  { format: 'h12' });
+    $('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
+
+    // EU Common Format
+    $('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
+    $('input[type=eu-dateA]').w2field('date', { format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year });
+    $('input[type=eu-dateB]').w2field('date', { format: 'd.m.yyyy', blocked: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]});
+    $('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[type=eu-date2]') });
+    $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
+    $('input[type=eu-time]').w2field('time',  { format: 'h24' });
+    $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });});
+&lt;/script>
+</textarea>
+
+<h3>Options</h3>
+You can provide various options for numeric fields as second argument. The structure of the options object is below:
+
+<textarea class="javascript">
+options = {
+    format      : w2utils.settings.date_format, // date format
+    placeholder : '',        // placeholder if not eempy
+    keyboard    : true,      // indicates if keyboard should be supported
+    silent      : true,      // indicate if to correct silently or display error tag
+    start       : '',        // string or jquery object
+    end         : '',        // string or jquery object
+    blocked     : {},        // { '4/11/2011': 'yes' }
+    colored     : {}         // { '4/11/2011': 'red:white' }
+};
+</textarea>
