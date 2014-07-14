@@ -674,7 +674,7 @@
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) {
                     if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
-                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ a + '</button>';
+                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) + '</button>';
                 }
                 buttons += '\n</div>';
             }
