@@ -10,25 +10,28 @@
     color: #666;
     font-size: 12px !important;
     border: 1px solid #B6B6B6;
-    .linear-gradient(top, #FFF 0%, #E7E7E7 100%);
+    // .linear-gradient(top, #FFF 0%, #E7E7E7 100%);
+    .linear-gradient-vertical4(#FFF, 0%, #E7E7E7, 100%); 
     outline: none;
     box-shadow: 0px 1px 0px white;
     cursor: default;
     min-width: 75px;
     line-height: 100% !important;
-    -webkit-user-select: none;
+    .user-select(none);
     -webkit-tap-highlight-color: rgba(0,0,0,0);
 
     &:hover {
         text-decoration: none;
         border: 1px solid #bbb;
-        .linear-gradient(top, #F7F7F7 0%, #DDDDDD 100%);
+        //.linear-gradient(top, #F7F7F7 0%, #DDDDDD 100%);
+        .linear-gradient-vertical4(#F7F7F7, 0%, #DDDDDD, 100%);
         color: #333;
     }
 
     &:active, &.clicked {
         border: 1px solid #999;
-        .linear-gradient(top, #ccc 0%, #ccc 100%);
+        // .linear-gradient(top, #ccc 0%, #ccc 100%);
+        .linear-gradient-vertical4(#ccc, 0%, #ccc, 100%);
         text-shadow: 1px 1px 1px #eee;
     }
 
@@ -44,20 +47,23 @@
 
 .btn-blue {
     color: white;
-    .linear-gradient(top, #80C0F7 0%, #269DF0 100%);
+    // .linear-gradient(top, #80C0F7 0%, #269DF0 100%);
+    .linear-gradient-vertical4(#80C0F7, 0%, #269DF0, 100%);
     border: 1px solid #538AB7;
     text-shadow: @btn-text-shadow;
 
     &:hover {
         color: white;
-        .linear-gradient(top, #73B6F0 0%, #2391DD 100%);
+        // .linear-gradient(top, #73B6F0 0%, #2391DD 100%);
+        .linear-gradient-vertical4(#73B6F0, 0%, #2391DD, 100%);
         border: 1px solid #497BA3;
         text-shadow: @btn-text-shadow;
     }
 
     &:active, &.clicked {
         color: white;
-        .linear-gradient(top, #1E83C9 0%, #1E83C9 100%);
+        // .linear-gradient(top, #1E83C9 0%, #1E83C9 100%);
+        .linear-gradient-vertical4(#1E83C9, 0%, #1E83C9, 100%);
         border: 1px solid #1268A6;
         text-shadow: @btn-text-shadow;
     }
@@ -67,20 +73,23 @@
 
 .btn-green {
     color: white;
-    .linear-gradient(top, #81CF81 0%, #52A452 100%);
+    // .linear-gradient(top, #81CF81 0%, #52A452 100%);
+    .linear-gradient-vertical4(#81CF81, 0%, #52A452, 100%);
     border: 1px solid #479247;
     text-shadow: @btn-text-shadow;
 
     &:hover {
         color: white;
-        .linear-gradient(top, #6ABE68 0%, #3F8F3D 100%);
+        // .linear-gradient(top, #6ABE68 0%, #3F8F3D 100%);
+        .linear-gradient-vertical4(#6ABE68, 0%, #3F8F3D, 100%);
         border: 1px solid #479247;
         text-shadow: @btn-text-shadow;
     }
 
     &:active, &.clicked {
         color: white;
-        .linear-gradient(top, #377D36 0%, #377D36 100%);
+        // .linear-gradient(top, #377D36 0%, #377D36 100%);
+        .linear-gradient-vertical4(#377D36, 0%, #377D36, 100%);
         border: 1px solid #555 !important;
         text-shadow: @btn-text-shadow;
     }
@@ -90,13 +99,15 @@
 
 .btn-orange {
     color: white;
-    .linear-gradient(top, #FCC272 0%, #FB8822 100%);
+    // .linear-gradient(top, #FCC272 0%, #FB8822 100%);
+    .linear-gradient-vertical4(#FCC272, 0%, #FB8822, 100%);
     border: 1px solid #B68B4C;
     text-shadow: @btn-text-shadow;
 
     &:hover {
         color: white;
-        .linear-gradient(top, #F4AD59 0%, #F1731F 100%);
+        // .linear-gradient(top, #F4AD59 0%, #F1731F 100%);
+        .linear-gradient-vertical4(#F4AD59, 0%, #F1731F, 100%);
         border: 1px solid #B68B4C;
         text-shadow: @btn-text-shadow;
     }
@@ -104,7 +115,8 @@
     &:active, &.clicked {
         color: white;
         border: 1px solid #666;
-        .linear-gradient(top, #B98747 0%, #B98747 100%);
+        // .linear-gradient(t÷op, #B98747 0%, #B98747 100%);
+        .linear-gradient-vertical4(#B98747, 0%, #B98747, 100%);
         text-shadow: @btn-text-shadow;
     }
 }
@@ -113,13 +125,15 @@
 
 .btn-red {
     color: white;
-    .linear-gradient(top, #FF6E70 0%, #C72D2D 100%);
+    // .linear-gradient(top, #FF6E70 0%, #C72D2D 100%);
+    .linear-gradient-vertical4(#FF6E70, 0%, #C72D2D, 100%);
     border: 1px solid #BB3C3E;
     text-shadow: @btn-text-shadow;
 
     &:hover {
         color: white;
-        .linear-gradient(top, #EE696C 0%, #AE2527 100%);
+        // .linear-gradient(top, #EE696C 0%, #AE2527 100%);
+        .linear-gradient-vertical4(#EE696C, 0%, #AE2527, 100%);
         border: 1px solid #BB3C3E;
         text-shadow: @btn-text-shadow;
     }
@@ -127,7 +141,8 @@
     &:active, &.clicked {
         color: white;
         border: 1px solid #861C1E;
-        .linear-gradient(top, #9C2123 0%, #9C2123 100%);
+        // .linear-gradient(top, #9C2123 0%, #9C2123 100%);
+        .linear-gradient-vertical4(#9C2123, 0%, #9C2123, 100%);
         text-shadow: @btn-text-shadow;
     }
 }
