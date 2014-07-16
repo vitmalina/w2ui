@@ -529,7 +529,7 @@
                             }
                         }, false);
                         return xhr;
-                    },
+                    }
                 };
                 if (w2utils.settings.dataType == 'HTTP') {
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');

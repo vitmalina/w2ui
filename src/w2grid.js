@@ -4897,7 +4897,7 @@
                     scrollLeft  : this.last.scrollLeft
                 },
                 sortData    : [],
-                searchData  : [],
+                searchData  : []
             };
             for (var i in this.columns) {
                 var col = this.columns[i];
