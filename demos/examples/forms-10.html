@@ -1,0 +1,41 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Auto-Generated Templates</h1>
+        Though, you can provide your own form template, which makes it flexible, you can also auto-generate template for the form. It is
+        quite useful when the form is simple. So, if you do not profide formHTML, formURL and there is no HTML inside containter, the
+        form will generate template.
+    </div>
+    <div id="example_view">
+        See <a href="http://w2ui.com/web/docs/w2form.fields" target="_blank">options</a> for more information
+    </div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px;"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({ 
+        name   : 'form',
+        header : 'Auto-Generated Form',
+        url    : 'server/post',
+        fields : [
+            { name: 'first_name', type: 'text', required: true, html: { caption: 'First Name', attr: 'style="width: 300px"' } },
+            { name: 'last_name',  type: 'text', required: true, html: { caption: 'Last Name', attr: 'style="width: 300px"' } },
+            { name: 'comments',   type: 'textarea', html: { caption: 'Comments', attr: 'style="width: 300px; height: 90px"' } }
+        ],
+        actions: {
+            'Save': function (event) {
+                console.log('save', event);
+                this.save();
+            },
+            'Clear': function (event) {
+                console.log('clear', event);
+                this.clear();
+            },
+        }
+    });
+});
+</script>

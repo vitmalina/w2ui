@@ -128,6 +128,7 @@ $(function () {
             { id: 'forms', text: 'Forms', img: 'icon-folder', group1: true,
                 nodes: [
                     { id: 'forms-1', text: 'Simple Form', icon: 'fa-edit' },
+                    { id: 'forms-10',text: 'Auto Templates', icon: 'fa-edit' },
                     { id: 'forms-2', text: 'Field Types', icon: 'fa-edit' },
                     { id: 'forms-3', text: 'Large Form', icon: 'fa-edit' },
                     { id: 'forms-4', text: 'Multi Page Form', icon: 'fa-edit' },
@@ -155,6 +156,7 @@ $(function () {
                     { id: 'popup-5', text: 'Load Content', icon: 'fa-list-alt' },
                     { id: 'popup-6', text: 'Transitions', icon: 'fa-list-alt' },
                     { id: 'popup-7', text: 'Slide a Message', icon: 'fa-list-alt' },
+                    { id: 'popup-9', text: 'Lock Content', icon: 'fa-list-alt' },
                     { id: 'popup-8', text: 'Dialogs', icon: 'fa-list-alt' }
                 ]
             },
