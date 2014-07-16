@@ -45,17 +45,17 @@
 }
 .w2ui-centered {
   position: absolute;
+  left: 0px;
+  right: 0px;
   top: 50%;
-  left: 50%;
-  -webkit-transform: translateX(-50%) translateY(-50%);
-  -moz-transform: translateX(-50%) translateY(-50%);
-  -ms-transform: translateX(-50%) translateY(-50%);
-  -o-transform: translateX(-50%) translateY(-50%);
-  transform: translateX(-50%) translateY(-50%);
-  width: 95%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
   max-height: 100%;
   margin: 0px;
-  padding: 0px 5px;
+  padding: 0px 10px;
   text-align: center;
 }
 .w2ui-disabled,
@@ -88,6 +88,14 @@ select[readonly],
 textarea[readonly] {
   background-color: #f1f1f1;
   color: #777;
+}
+/* IE9-11 specific classes */
+/* needs doblue :: */
+input::-ms-clear {
+  display: none;
+}
+input:-ms-input-placeholder {
+  color: #aaa !important;
 }
 select {
   padding: 2px;

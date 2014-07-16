@@ -88,17 +88,17 @@
 }
 .w2ui-centered {
   position: absolute;
+  left: 0px;
+  right: 0px;
   top: 50%;
-  left: 50%;
-  -webkit-transform: translateX(-50%) translateY(-50%);
-  -moz-transform: translateX(-50%) translateY(-50%);
-  -ms-transform: translateX(-50%) translateY(-50%);
-  -o-transform: translateX(-50%) translateY(-50%);
-  transform: translateX(-50%) translateY(-50%);
-  width: 95%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
   max-height: 100%;
   margin: 0px;
-  padding: 0px 5px;
+  padding: 0px 10px;
   text-align: center;
 }
 .w2ui-disabled,
@@ -145,6 +145,14 @@ select[readonly],
 textarea[readonly] {
   background-color: #f1f1f1;
   color: #777;
+}
+/* IE9-11 specific classes */
+/* needs doblue :: */
+input::-ms-clear {
+  display: none;
+}
+input:-ms-input-placeholder {
+  color: #aaa !important;
 }
 select {
   padding: 2px;
@@ -1479,6 +1487,7 @@ input[type=checkbox].w2ui-toggle:focus {
   margin-top: -8px;
   margin-left: -20px;
   border-radius: 15px;
+  cursor: default;
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-clear:hover {
   background-color: #D77F7F;
@@ -1492,6 +1501,7 @@ input[type=checkbox].w2ui-toggle:focus {
   color: inherit;
   text-shadow: inherit;
   content: 'x';
+  cursor: default;
 }
 .w2ui-grid .w2ui-grid-body {
   position: absolute;
@@ -1946,6 +1956,7 @@ input[type=checkbox].w2ui-toggle:focus {
 }
 .w2ui-overlay .w2ui-grid-searches table td {
   padding: 4px;
+  /* for IE */
 }
 .w2ui-overlay .w2ui-grid-searches table td.close-btn {
   width: 20px;
@@ -1980,6 +1991,9 @@ input[type=checkbox].w2ui-toggle:focus {
   background-image: -ms-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: -o-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
+}
+.w2ui-overlay .w2ui-grid-searches table td.operator select::-ms-expand {
+  display: none;
 }
 .w2ui-overlay .w2ui-grid-searches table td.value {
   padding-right: 5px;
