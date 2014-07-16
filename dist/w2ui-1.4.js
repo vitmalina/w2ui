@@ -1,4 +1,4 @@
-/* w2ui 1.4.0 (RC2) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 1.4.0 (RC3) (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -46,6 +46,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added: parse route
 *   - menu items can be disabled now
 *   - added menu item.count
+*   - added isIOS, isIE
 *
 ************************************************/
 
@@ -98,7 +99,15 @@ var w2utils = (function () {
         scrollBarSize   : scrollBarSize,
         checkName       : checkName,
         checkUniqueId   : checkUniqueId,
-        parseRoute      : parseRoute
+        parseRoute      : parseRoute,
+        // some internal variables
+        isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1) 
+                 ? true : false),
+        isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
+                 ? true : false)
     };
     return obj;
 
@@ -1835,10 +1844,6 @@ w2utils.keyboard = (function (obj) {
             edit_col    : null
         };
 
-        this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
-            navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
-            navigator.userAgent.toLowerCase().indexOf('ipad') != -1) ? true : false;
-
         $.extend(true, this, w2obj.grid, options);
     };
 
@@ -3008,7 +3013,7 @@ w2utils.keyboard = (function (obj) {
                 } else {
                     if (this.searches[s].hidden === true) continue;
                 }
-                html += '<tr '+ (this.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\')">'+
+                html += '<tr '+ (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\')">'+
                         '    <td><input type="radio" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : '') +'></td>'+
                         '    <td>'+ search.caption +'</td>'+
                         '</tr>';
@@ -5356,6 +5361,7 @@ w2utils.keyboard = (function (obj) {
                         '    <td>'+
                         '        <input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
+                        '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
                         '                var val = this.value; '+
                         '                var fld = $(this).data(\'w2field\'); '+
@@ -6341,7 +6347,7 @@ w2utils.keyboard = (function (obj) {
             rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" '+
                 ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
-                    (this.isIOS ?
+                    (w2utils.isIOS ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
                         :
                         '    onclick  = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
@@ -6551,7 +6557,7 @@ w2utils.keyboard = (function (obj) {
                     scrollLeft  : this.last.scrollLeft
                 },
                 sortData    : [],
-                searchData  : [],
+                searchData  : []
             };
             for (var i in this.columns) {
                 var col = this.columns[i];
@@ -10880,8 +10886,8 @@ var w2confirm = function (msg, title, callBack) {
                         onMouseOut    : null      // when an item is mouse out
                     };
                     options = $.extend({}, defaults, options, {
-                        align         : 'both',    // same width as control
-                        altRows        : true        // alternate row color
+                        align         : 'both',   // same width as control
+                        altRows        : true     // alternate row color
                     });
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
@@ -12667,6 +12673,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - changed template structure for formHTML
 *   - added toggle type - On/Off
 *   - added routeData
+*   - generated HTML changed
 *
 ************************************************************************/
 
@@ -13173,7 +13180,7 @@ var w2confirm = function (msg, title, callBack) {
                             }
                         }, false);
                         return xhr;
-                    },
+                    }
                 };
                 if (w2utils.settings.dataType == 'HTTP') {
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -13300,8 +13307,8 @@ var w2confirm = function (msg, title, callBack) {
                     group = '';
                 }
                 html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ 
-                        '\n         <label>' + field.html.caption +'</label>'+
-                        '\n         <div>'+ input + field.html.text + '</div>'+
+                        '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
+                        '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
                 if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '';
                 pages[field.html.page] += html;
@@ -13319,7 +13326,7 @@ var w2confirm = function (msg, title, callBack) {
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) {
                     if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
-                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ a + '</button>';
+                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) +'</button>';
                 }
                 buttons += '\n</div>';
             }

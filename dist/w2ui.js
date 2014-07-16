@@ -6557,7 +6557,7 @@ w2utils.keyboard = (function (obj) {
                     scrollLeft  : this.last.scrollLeft
                 },
                 sortData    : [],
-                searchData  : [],
+                searchData  : []
             };
             for (var i in this.columns) {
                 var col = this.columns[i];
@@ -13180,7 +13180,7 @@ var w2confirm = function (msg, title, callBack) {
                             }
                         }, false);
                         return xhr;
-                    },
+                    }
                 };
                 if (w2utils.settings.dataType == 'HTTP') {
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
