@@ -471,7 +471,7 @@ input[type=checkbox].w2ui-toggle:focus {
   height: 24px;
   margin: -3px 8px -7px -10px;
 }
-.btn {
+button.btn {
   display: inline-block;
   border-radius: 4px;
   margin: 0px 5px;
@@ -497,7 +497,7 @@ input[type=checkbox].w2ui-toggle:focus {
   -o-user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
-.btn:hover {
+button.btn:hover {
   text-decoration: none;
   border: 1px solid #bbb;
   background-image: -webkit-linear-gradient(#f7f7f7 0%, #dddddd 100%);
@@ -508,8 +508,8 @@ input[type=checkbox].w2ui-toggle:focus {
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffdddddd', endColorstr='#fff7f7f7', GradientType=0);
   color: #333;
 }
-.btn:active,
-.btn.clicked {
+button.btn:active,
+button.btn.clicked {
   border: 1px solid #999;
   background-image: -webkit-linear-gradient(#cccccc 0%, #cccccc 100%);
   background-image: -moz-linear-gradient(#cccccc 0%, #cccccc 100%);
@@ -519,13 +519,13 @@ input[type=checkbox].w2ui-toggle:focus {
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffcccccc', endColorstr='#ffcccccc', GradientType=0);
   text-shadow: 1px 1px 1px #eee;
 }
-.btn:disabled {
+button.btn:disabled {
   border: 1px solid #bbb !important;
   background: #f7f7f7 !important;
   color: #bdbcbc !important;
   text-shadow: none !important;
 }
-.btn-blue {
+button.btn-blue {
   color: white;
   background-image: -webkit-linear-gradient(#80c0f7 0%, #269df0 100%);
   background-image: -moz-linear-gradient(#80c0f7 0%, #269df0 100%);
@@ -536,7 +536,7 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #538AB7;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-blue:hover {
+button.btn-blue:hover {
   color: white;
   background-image: -webkit-linear-gradient(#73b6f0 0%, #2391dd 100%);
   background-image: -moz-linear-gradient(#73b6f0 0%, #2391dd 100%);
@@ -547,8 +547,8 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #497BA3;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-blue:active,
-.btn-blue.clicked {
+button.btn-blue:active,
+button.btn-blue.clicked {
   color: white;
   background-image: -webkit-linear-gradient(#1e83c9 0%, #1e83c9 100%);
   background-image: -moz-linear-gradient(#1e83c9 0%, #1e83c9 100%);
@@ -559,7 +559,7 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #1268A6;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-green {
+button.btn-green {
   color: white;
   background-image: -webkit-linear-gradient(#81cf81 0%, #52a452 100%);
   background-image: -moz-linear-gradient(#81cf81 0%, #52a452 100%);
@@ -570,7 +570,7 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #479247;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-green:hover {
+button.btn-green:hover {
   color: white;
   background-image: -webkit-linear-gradient(#6abe68 0%, #3f8f3d 100%);
   background-image: -moz-linear-gradient(#6abe68 0%, #3f8f3d 100%);
@@ -581,8 +581,8 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #479247;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-green:active,
-.btn-green.clicked {
+button.btn-green:active,
+button.btn-green.clicked {
   color: white;
   background-image: -webkit-linear-gradient(#377d36 0%, #377d36 100%);
   background-image: -moz-linear-gradient(#377d36 0%, #377d36 100%);
@@ -593,7 +593,7 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #555 !important;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-orange {
+button.btn-orange {
   color: white;
   background-image: -webkit-linear-gradient(#fcc272 0%, #fb8822 100%);
   background-image: -moz-linear-gradient(#fcc272 0%, #fb8822 100%);
@@ -604,7 +604,7 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #B68B4C;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-orange:hover {
+button.btn-orange:hover {
   color: white;
   background-image: -webkit-linear-gradient(#f4ad59 0%, #f1731f 100%);
   background-image: -moz-linear-gradient(#f4ad59 0%, #f1731f 100%);
@@ -615,8 +615,8 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #B68B4C;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-orange:active,
-.btn-orange.clicked {
+button.btn-orange:active,
+button.btn-orange.clicked {
   color: white;
   border: 1px solid #666;
   background-image: -webkit-linear-gradient(#b98747 0%, #b98747 100%);
@@ -627,7 +627,7 @@ input[type=checkbox].w2ui-toggle:focus {
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffb98747', endColorstr='#ffb98747', GradientType=0);
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-red {
+button.btn-red {
   color: white;
   background-image: -webkit-linear-gradient(#ff6e70 0%, #c72d2d 100%);
   background-image: -moz-linear-gradient(#ff6e70 0%, #c72d2d 100%);
@@ -638,7 +638,7 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #BB3C3E;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-red:hover {
+button.btn-red:hover {
   color: white;
   background-image: -webkit-linear-gradient(#ee696c 0%, #ae2527 100%);
   background-image: -moz-linear-gradient(#ee696c 0%, #ae2527 100%);
@@ -649,8 +649,8 @@ input[type=checkbox].w2ui-toggle:focus {
   border: 1px solid #BB3C3E;
   text-shadow: 1px 1px 1px #777777;
 }
-.btn-red:active,
-.btn-red.clicked {
+button.btn-red:active,
+button.btn-red.clicked {
   color: white;
   border: 1px solid #861C1E;
   background-image: -webkit-linear-gradient(#9c2123 0%, #9c2123 100%);
