@@ -22,6 +22,7 @@
 *   - changed template structure for formHTML
 *   - added toggle type - On/Off
 *   - added routeData
+*   - generated HTML changed
 *
 ************************************************************************/
 
@@ -655,8 +656,8 @@
                     group = '';
                 }
                 html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ 
-                        '\n         <label>' + field.html.caption +'</label>'+
-                        '\n         <div>'+ input + field.html.text + '</div>'+
+                        '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
+                        '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
                 if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '';
                 pages[field.html.page] += html;
@@ -674,7 +675,7 @@
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) {
                     if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
-                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) + '</button>';
+                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) +'</button>';
                 }
                 buttons += '\n</div>';
             }

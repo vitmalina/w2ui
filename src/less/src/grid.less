@@ -73,6 +73,7 @@
             margin-top: -8px;
             margin-left: -20px;
             border-radius: 15px;
+            cursor: default;
             &:hover {
                 background-color: #D77F7F;
                 color: white;
@@ -85,6 +86,7 @@
                 color: inherit;
                 text-shadow: inherit;
                 content: 'x';
+                cursor: default;
             }
         }
     }
@@ -619,6 +621,10 @@
                 -ms-appearance: none;
                 -o-appearance: none;
                 .linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+            }
+            /* for IE */
+            &.operator select::-ms-expand {
+                display: none;
             }
             &.value {                    
                 padding-right: 5px;

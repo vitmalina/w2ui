@@ -45,6 +45,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added: parse route
 *   - menu items can be disabled now
 *   - added menu item.count
+*   - added isIOS, isIE
 *
 ************************************************/
 
@@ -97,7 +98,15 @@ var w2utils = (function () {
         scrollBarSize   : scrollBarSize,
         checkName       : checkName,
         checkUniqueId   : checkUniqueId,
-        parseRoute      : parseRoute
+        parseRoute      : parseRoute,
+        // some internal variables
+        isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1) 
+                 ? true : false),
+        isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
+                 ? true : false)
     };
     return obj;
 

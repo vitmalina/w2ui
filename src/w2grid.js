@@ -184,10 +184,6 @@
             edit_col    : null
         };
 
-        this.isIOS = (navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
-            navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
-            navigator.userAgent.toLowerCase().indexOf('ipad') != -1) ? true : false;
-
         $.extend(true, this, w2obj.grid, options);
     };
 
@@ -1357,7 +1353,7 @@
                 } else {
                     if (this.searches[s].hidden === true) continue;
                 }
-                html += '<tr '+ (this.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\')">'+
+                html += '<tr '+ (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\')">'+
                         '    <td><input type="radio" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : '') +'></td>'+
                         '    <td>'+ search.caption +'</td>'+
                         '</tr>';
@@ -3705,6 +3701,7 @@
                         '    <td>'+
                         '        <input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
+                        '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
                         '                var val = this.value; '+
                         '                var fld = $(this).data(\'w2field\'); '+
@@ -4690,7 +4687,7 @@
             rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" '+
                 ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
-                    (this.isIOS ?
+                    (w2utils.isIOS ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
                         :
                         '    onclick  = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
