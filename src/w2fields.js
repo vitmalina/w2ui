@@ -326,11 +326,6 @@
                     if (!$.isPlainObject(options.selected)) options.selected = {};
                     $(this.el).data('selected', options.selected);
                     if (options.url) this.request(0);
-                    if (options.icon) {
-                        options.prefix = '<span class="w2ui-icon '+ options.icon +'" '+
-                            '    style="cursor: pointer; margin: -2px 5px 0px 0px; font-size: 14px; color: #7F98AD;' + options.iconStyle +'">'+
-                            '</span>';
-                    }
                     if (this.type == 'list') this.addFocus();
                     this.addPrefix();
                     this.addSuffix();
@@ -501,22 +496,37 @@
                 if (obj.helpers.prefix) obj.helpers.prefix.hide();
                 setTimeout(function () {
                     if (!obj.helpers.focus) return;
+                    // if empty show no icon
+                    if (!$.isEmptyObject(selected) && options.icon) {
+                        options.prefix = '<span class="w2ui-icon '+ options.icon +'"style="cursor: pointer; font-size: 14px;' + 
+                                         ' display: inline-block; margin-top: -1px; color: #7F98AD;'+ options.iconStyle +'">'+
+                            '</span>';
+                        obj.addPrefix();                        
+                    } else {
+                        options.prefix = '';
+                        obj.addPrefix();
+                    }
+                    // focus helpder
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
                         $(obj.el).val(selected && selected.text != null ? selected.text : '');
                         $(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
-                        // if empty show no icon
-                        if ($.isEmptyObject(selected)) {
-                            if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.hide();
-                        } else {
-                            if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.show();
-                        }
                     } else {
                         $(focus).css('opacity', 1).prev().css('opacity', 1);
-                        if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.hide();
                         $(obj.el).val('');
                         $(obj.el).attr('_placeholder', $(obj.el).attr('placeholder')).removeAttr('placeholder');
+                        setTimeout(function () {
+                            if (obj.helpers.prefix) obj.helpers.prefix.hide(); 
+                            var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';
+                            if (options.icon) {
+                                $(focus).css('margin-left', '17px');
+                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 11px !important; opacity: 1');
+                            } else {
+                                $(focus).css('margin-left', '0px');
+                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 0px !important; opacity: 0');
+                            }
+                        }, 1);
                     }
                 }, 1);
             }
@@ -1592,9 +1602,9 @@
                 if (tmp['old-padding-left']) $(obj.el).css('padding-left', tmp['old-padding-left']);
                 tmp['old-padding-left'] = $(obj.el).css('padding-left');
                 $(obj.el).data('tmp', tmp);
+                // remove if already displaed
+                if (obj.helpers.prefix) $(obj.helpers.prefix).remove();
                 if (obj.options.prefix !== '') {
-                    // remove if already displaed
-                    if (obj.helpers.prefix) $(obj.helpers.prefix).remove();
                     // add fresh
                     $(obj.el).before(
                         '<div class="w2ui-field-helper">'+
@@ -1742,13 +1752,12 @@
             var obj      = this;
             var options  = this.options;
             var width    = 0; // 11 - show search icon, 0 do not show
-            if (options.icon) width = 11;
             // clean up & init
             $(obj.helpers.focus).remove();
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+ 
-                '    <div class="w2ui-icon icon-search" style="position: absolute; opacity: 0; margin-top: 4px; margin-left: 2px; width: '+ width +'px !important; background-position: left !important;"></div>'+
+                '    <div class="w2ui-icon icon-search"></div>'+
                 '    <input type="text" autocomplete="off">'+
                 '<div>';
             $(obj.el).attr('tabindex', -1).before(html);
@@ -1771,7 +1780,7 @@
                     border   : '1px solid transparent',
                     padding  : $(obj.el).css('padding-top'),
                     "padding-left"     : 0,
-                    "margin-left"      : width + (width > 0 ? 6 : 0),
+                    "margin-left"      : (width > 0 ? width + 6 : 0),
                     "background-color" : 'transparent'
                 });
             // INPUT events
@@ -1793,8 +1802,8 @@
                     $(obj.el).triggerHandler('blur');
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                 })
-                .on('keyup',     function (event) { obj.keyUp(event) })
-                .on('keydown',     function (event) { obj.keyDown(event) })
+                .on('keyup',    function (event) { obj.keyUp(event) })
+                .on('keydown',  function (event) { obj.keyDown(event) })
                 .on('keypress', function (event) { obj.keyPress(event); });
             // MAIN div
             helper.on('click', function (event) { $(this).find('input').focus(); });
