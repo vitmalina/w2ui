@@ -30,28 +30,36 @@ $('#form').w2form({
     name: 'form',
     formHTML: 
         '<div class="w2ui-page page-0">'+
-        '    <div class="w2ui-label">First Name:</div>'+
         '    <div class="w2ui-field">'+
-        '        <input name="first_name" type="text" size="35"/>'+
+        '        <label>First Name</label>'+
+        '        <div>'+
+        '            <input name="first_name" type="text" maxlength="100" size="60"/>'+
+        '        </div>'+
         '    </div>'+
-        '    <div class="w2ui-label">Last Name:</div>'+
         '    <div class="w2ui-field">'+
-        '        <input name="last_name" type="text" size="35"/>'+
+        '        <label>Last Name</label>'+
+        '        <div>'+
+        '            <input name="last_name" type="text" maxlength="100" size="60"/>'+
+        '        </div>'+
         '    </div>'+
-        '    <div class="w2ui-label">Email:</div>'+
         '    <div class="w2ui-field">'+
-        '        <input name="email" type="text" size="35"/>'+
+        '        <label>Email</label>'+
+        '        <div>'+
+        '            <input name="email" type="text" maxlength="100" size="60"/>'+
+        '        </div>'+
         '    </div>'+
         '</div>'+
         '<div class="w2ui-page page-1">'+
-        '    <div class="w2ui-label">More Fields:</div>'+
         '    <div class="w2ui-field">'+
-        '        <input name="extra_field" type="text" size="35"/>'+
+        '        <label>Other Fields</label>'+
+        '        <div>'+
+        '            <input name="other" type="text" maxlength="100" size="60"/>'+
+        '        </div>'+
         '    </div>'+
         '</div>'+
         '<div class="w2ui-buttons">'+
-        '    <input type="button" value="Reset" name="reset">'+
-        '    <input type="button" value="Save" name="save">'+
+        '   <button class="btn" name="reset">Reset</button>'+
+        '    <button class="btn btn-green" name="save">Save</button>'+
         '</div>',
     tabs: [
         { id: 'tab1', caption: 'Tab 1' },

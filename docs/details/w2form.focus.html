@@ -12,23 +12,28 @@ If your HTML template is defined as follows:
 
 <textarea class="html">
 <div class="w2ui-page page-0">
-    <div class="w2ui-label">First Name:</div>
     <div class="w2ui-field">
-        <input name="first_name" type="text" maxlength="100" size="60"/>
+        <label>First Name</label>
+        <div>
+            <input name="first_name" type="text" maxlength="100" size="60"/>
+        </div>
     </div>
-    <div class="w2ui-label">Last Name:</div>
     <div class="w2ui-field">
-        <input name="last_name" type="text" maxlength="100" size="60"/>
+        <label>Last Name</label>
+        <div>
+            <input name="last_name" type="text" maxlength="100" size="60"/>
+        </div>
     </div>
-    <div class="w2ui-label">Text Area:</div>
     <div class="w2ui-field">
-        &lt;textarea name="field_textarea" type="text" style="width: 385px; height: 80px;">&lt;/textarea>
+        <label>Text Area</label>
+        <div>
+             &lt;textarea name="field_textarea" type="text" style="width: 385px; height: 80px;">&lt;/textarea>
+        </div>
     </div>
 </div>
-
 <div class="w2ui-buttons">
-    <input type="button" value="Reset" name="reset"/>
-    <input type="button" value="Save" name="save"/>
+    <button class="btn" name="reset">Reset</button>
+    <button class="btn" name="reset">Reset</button>
 </div>
 </textarea>
 
