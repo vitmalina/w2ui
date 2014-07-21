@@ -1,4 +1,4 @@
-## W2UI 1.3 - MIT License
+## W2UI 1.4 - MIT License
 
 W2UI is modern, intuitive JavaScript UI library for building rich data-driven web application. The library has
 a small footprint and no dependencies except jQuery. The library has the following widgets:
@@ -9,10 +9,11 @@ a small footprint and no dependencies except jQuery. The library has the followi
 * w2sidebar
 * w2tabs
 * w2form
+* w2fields
 * w2popup
 * w2utils
 
-The complete library is only **56Kb** (minified & gzipped)
+The complete library is only **69Kb** (minified & gzipped)
 
 
 ## Who Uses It
@@ -22,7 +23,7 @@ if you can included name of you company (or project) and a link (if it is on a p
 
 ## Quick Start
 
-Current stable version is 1.3. 
+Current stable version is 1.4. 
 
 You can:
 - Download from here: [http://w2ui.com](http://w2ui.com) 
@@ -34,8 +35,8 @@ bower install w2ui
 
 To start using the library you need to include into your page: 
 
-- w2ui-1.3.js (or w2ui-1.3.min.js) 
-- w2ui-1.3.css (or w2ui-1.3.min.css) 
+- w2ui-1.4.js (or w2ui-1.4.min.js) 
+- w2ui-1.4.css (or w2ui-1.4.min.css) 
 
 All the widgets and their css classes are defined inside of these two files. There is no image dependencies, some images
 are embedded into CSS file.
@@ -88,14 +89,14 @@ sudo npm install
 ## File Structure
 
 ```
-- dist             - compiled JS and CSS files 
-- src             - source JS files
-  - kickstart     - copy of another project used with the demos (not part of w2ui itself)
+- dist           - compiled JS and CSS files 
+- src            - source JS files
+  - kickstart    - copy of another project used with the demos (not part of w2ui itself)
   - less         - LESS files (source for css)
-- demos         - all demos, same as on the website
-- libs            - auxilary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
-- server        - example implementations for a server implementation communicating with w2ui instances
-- test             - feature testing files
+- demos          - all demos, same as on the website
+- libs           - auxilary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
+- server         - example implementations for a server implementation communicating with w2ui instances
+- test           - feature testing files
   - qunit        - some qunit test
 ```
 

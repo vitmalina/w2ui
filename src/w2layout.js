@@ -11,14 +11,6 @@
 *   - bug: resizer is visible (and onHover) when panel is hidden.
 *   - bug: when you assign content before previous transition completed.
 *
-* == 1.4 changes
-*   - added panel.title
-*   - added panel.maxSize property
-*   - added onResizerClick event
-*   - fixed resize bugs
-*   - BUG resize problems (resizer flashes, not very snappy, % should stay in percent)
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*
 ************************************************************************/
 
 (function () {

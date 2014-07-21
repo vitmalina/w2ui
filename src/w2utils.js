@@ -30,23 +30,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - isTime should support seconds
 *   - TEST On IOS
 *
-* == 1.4 changes
-*   - lock(box, options) || lock(box, msg, spinner)
-*   - updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
-*   - formatNumer(num, groupSymbol) - added new param
-*   - improved localization support (currency prefix, suffix, numbger group symbol)
-*   - improoved overlays (better positioning, refresh, etc.)
-*   - multiple overlay at the same time (if it has name)
-*   - overlay options.css removed, I have added options.style
-*   - ability to open searchable w2menu
-*   - w2confirm({})
-*   - dep. RESTfull
-*   - added: dataType (allows JSON payload)
-*   - added: parse route
-*   - menu items can be disabled now
-*   - added menu item.count
-*   - added isIOS, isIE
-*
 ************************************************/
 
 var w2utils = (function () {

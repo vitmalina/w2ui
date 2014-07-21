@@ -1,4 +1,4 @@
-/* w2ui 1.4.0 (RC3) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 1.4 (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -30,23 +30,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - hidden and disabled in menus
 *   - isTime should support seconds
 *   - TEST On IOS
-*
-* == 1.4 changes
-*   - lock(box, options) || lock(box, msg, spinner)
-*   - updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
-*   - formatNumer(num, groupSymbol) - added new param
-*   - improved localization support (currency prefix, suffix, numbger group symbol)
-*   - improoved overlays (better positioning, refresh, etc.)
-*   - multiple overlay at the same time (if it has name)
-*   - overlay options.css removed, I have added options.style
-*   - ability to open searchable w2menu
-*   - w2confirm({})
-*   - dep. RESTfull
-*   - added: dataType (allows JSON payload)
-*   - added: parse route
-*   - menu items can be disabled now
-*   - added menu item.count
-*   - added isIOS, isIE
 *
 ************************************************/
 
@@ -1680,41 +1663,6 @@ w2utils.keyboard = (function (obj) {
 *   - add showExtra, KickIn Infinite scroll when so many records
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
-*
-* == 1.4 changes
-*   - for search fields one should be able to pass w2field options
-*   - add enum to advanced search fields
-*   - editable fields -> LIST type is not working
-*   - search-logic -> searchLogic
-*   - new: refreshRow(recid) - should it be part of refresh?
-*   - new: refreshCell(recid, field) - should it be part of refresh?
-*   - removed: getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - new: reorderColumns
-*   - removed name from the POST
-*   - rename: markSearchResults -> markSearch
-*   - refactored inline editing
-*   - new: getCellValue(ind, col_ind, [summary])
-*   - refactored selection
-*   - removed: record.selected
-*   - new: nextCell, prevCell, nextRow, prevRow
-*   - new: editChange(el, index, column, event)
-*   - new: method - overwrite default ajax method (see also w2utils.settings.dataType)
-*   - rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
-*   - new: recid - if id of the data is different from recid
-*   - new: parser - to converd data received from the server
-*   - change: rec.changes = {} and removed rec.changed
-*   - record.style can be a string or an object (for cell formatting)
-*   - col.resizable = true by default
-*   - new: prepareData();
-*   - context menu similar to sidebar's
-*   - find will return array or recids not objects
-*   - added render = 'toggle'
-*   - get rid of this.buffered
-*   - added routeData
-*   - save grid state into localStorage and restore
-*   - added user-select with alt key
-*   - added grid.show.skipRecords
-*   - column.hidable - prevents column from being hidden in columnOnOff
 *
 ************************************************************************/
 
@@ -6781,14 +6729,7 @@ w2utils.keyboard = (function (obj) {
 *   - onResize for the panel
 *   - add more panel title positions (left=rotated, right=rotated, bottom)
 *   - bug: resizer is visible (and onHover) when panel is hidden.
-*
-* == 1.4 changes
-*   - added panel.title
-*   - added panel.maxSize property
-*   - added onResizerClick event
-*   - fixed resize bugs
-*   - BUG resize problems (resizer flashes, not very snappy, % should stay in percent)
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
+*   - bug: when you assign content before previous transition completed.
 *
 ************************************************************************/
 
@@ -7860,12 +7801,6 @@ w2utils.keyboard = (function (obj) {
 * == NICE TO HAVE ==
 *   - transition should include title, body and buttons, not just body
 *
-* == 1.4 changes
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - new: w2popup.status can be ['closed', 'opening', 'open', 'closing', resizing', 'moving']
-*   - add lock method() to lock popup content
-*   - fixed bug with max width/height of message
-*
 ************************************************************************/
 
 var w2popup = {};
@@ -8676,11 +8611,6 @@ var w2confirm = function (msg, title, callBack) {
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 *
-* == 1.4 changes
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - individual tab onClick (possibly other events) are not working
-*   - added route support
-*
 ************************************************************************/
 
 (function () {
@@ -9108,12 +9038,6 @@ var w2confirm = function (msg, title, callBack) {
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 *   - verticle toolbar
-*
-* == 1.4 changes
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - fixed submenu event bugs
-*   - added route support
-*   - added item.count
 *
 ************************************************************************/
 
@@ -9654,13 +9578,6 @@ var w2confirm = function (msg, title, callBack) {
 *   - reorder with grag and drop
 *   - add route property that would navigate to a #route
 *   - node.style is missleading - should be there to apply color for example
-*
-* == 1.4 changes
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - bug: bixed bug with selection
-*   - new: find({ params }) - returns all matched nodes
-*   - change: get() w/o params returns all node ids
-*   - added route support
 *
 ************************************************************************/
 
@@ -10496,29 +10413,6 @@ var w2confirm = function (msg, title, callBack) {
 *   - form to support custom types
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *
-* == 1.4 Changes ==
-*   - select - for select, list - for drop down (needs this in grid)
-*   - $().addType() - changes sligtly (this.el)
-*   - $().removeType() - new method
-*   - enum add events: onLoad, onRequest, onDelete,  for already selected elements
-*   - enum - refresh happens on each key press even if not needed (for speed)
-*   - rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
-*   - render calendar to the div
-*   - added .btn with colors
-*   - added enum.style and file.style attributes
-*   - test all fields as Read Only
-*   - added openOnFocus
-*   - deprecated -- change: showAll -> applyFilter
-*   - color: select with keyboard
-*   - enum: addNew event
-*   - added icon and onIconClick
-*   - new: clearCache
-*   - easy way to add icons
-*   - easy way to navigate month/year in dates
-*   - added step for numeric inputs
-*   - changed prepopulate -> minLength
-*   - added options.postData
-*
 ************************************************************************/
 
 (function ($) {
@@ -10807,11 +10701,6 @@ var w2confirm = function (msg, title, callBack) {
                     if (!$.isPlainObject(options.selected)) options.selected = {};
                     $(this.el).data('selected', options.selected);
                     if (options.url) this.request(0);
-                    if (options.icon) {
-                        options.prefix = '<span class="w2ui-icon '+ options.icon +'" '+
-                            '    style="cursor: pointer; margin: -2px 5px 0px 0px; font-size: 14px; color: #7F98AD;' + options.iconStyle +'">'+
-                            '</span>';
-                    }
                     if (this.type == 'list') this.addFocus();
                     this.addPrefix();
                     this.addSuffix();
@@ -10982,22 +10871,37 @@ var w2confirm = function (msg, title, callBack) {
                 if (obj.helpers.prefix) obj.helpers.prefix.hide();
                 setTimeout(function () {
                     if (!obj.helpers.focus) return;
+                    // if empty show no icon
+                    if (!$.isEmptyObject(selected) && options.icon) {
+                        options.prefix = '<span class="w2ui-icon '+ options.icon +'"style="cursor: pointer; font-size: 14px;' + 
+                                         ' display: inline-block; margin-top: -1px; color: #7F98AD;'+ options.iconStyle +'">'+
+                            '</span>';
+                        obj.addPrefix();                        
+                    } else {
+                        options.prefix = '';
+                        obj.addPrefix();
+                    }
+                    // focus helpder
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
                         $(obj.el).val(selected && selected.text != null ? selected.text : '');
                         $(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
-                        // if empty show no icon
-                        if ($.isEmptyObject(selected)) {
-                            if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.hide();
-                        } else {
-                            if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.show();
-                        }
                     } else {
                         $(focus).css('opacity', 1).prev().css('opacity', 1);
-                        if (obj.helpers && obj.helpers.prefix) obj.helpers.prefix.hide();
                         $(obj.el).val('');
                         $(obj.el).attr('_placeholder', $(obj.el).attr('placeholder')).removeAttr('placeholder');
+                        setTimeout(function () {
+                            if (obj.helpers.prefix) obj.helpers.prefix.hide(); 
+                            var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';
+                            if (options.icon) {
+                                $(focus).css('margin-left', '17px');
+                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 11px !important; opacity: 1');
+                            } else {
+                                $(focus).css('margin-left', '0px');
+                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 0px !important; opacity: 0');
+                            }
+                        }, 1);
                     }
                 }, 1);
             }
@@ -12073,9 +11977,9 @@ var w2confirm = function (msg, title, callBack) {
                 if (tmp['old-padding-left']) $(obj.el).css('padding-left', tmp['old-padding-left']);
                 tmp['old-padding-left'] = $(obj.el).css('padding-left');
                 $(obj.el).data('tmp', tmp);
+                // remove if already displaed
+                if (obj.helpers.prefix) $(obj.helpers.prefix).remove();
                 if (obj.options.prefix !== '') {
-                    // remove if already displaed
-                    if (obj.helpers.prefix) $(obj.helpers.prefix).remove();
                     // add fresh
                     $(obj.el).before(
                         '<div class="w2ui-field-helper">'+
@@ -12223,13 +12127,12 @@ var w2confirm = function (msg, title, callBack) {
             var obj      = this;
             var options  = this.options;
             var width    = 0; // 11 - show search icon, 0 do not show
-            if (options.icon) width = 11;
             // clean up & init
             $(obj.helpers.focus).remove();
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+ 
-                '    <div class="w2ui-icon icon-search" style="position: absolute; opacity: 0; margin-top: 4px; margin-left: 2px; width: '+ width +'px !important; background-position: left !important;"></div>'+
+                '    <div class="w2ui-icon icon-search"></div>'+
                 '    <input type="text" autocomplete="off">'+
                 '<div>';
             $(obj.el).attr('tabindex', -1).before(html);
@@ -12252,7 +12155,7 @@ var w2confirm = function (msg, title, callBack) {
                     border   : '1px solid transparent',
                     padding  : $(obj.el).css('padding-top'),
                     "padding-left"     : 0,
-                    "margin-left"      : width + (width > 0 ? 6 : 0),
+                    "margin-left"      : (width > 0 ? width + 6 : 0),
                     "background-color" : 'transparent'
                 });
             // INPUT events
@@ -12274,8 +12177,8 @@ var w2confirm = function (msg, title, callBack) {
                     $(obj.el).triggerHandler('blur');
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                 })
-                .on('keyup',     function (event) { obj.keyUp(event) })
-                .on('keydown',     function (event) { obj.keyDown(event) })
+                .on('keyup',    function (event) { obj.keyUp(event) })
+                .on('keydown',  function (event) { obj.keyDown(event) })
                 .on('keypress', function (event) { obj.keyPress(event); });
             // MAIN div
             helper.on('click', function (event) { $(this).find('input').focus(); });
@@ -12665,15 +12568,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - verify validation of fields
 *   - when field is blank, set record.field = null
 *   - show/hide a field
-*
-* == 1.4 Changes ==
-*   - refactored for the new fields
 *   - added getChanges() - not complete
-*   - change: get() w/o params returns all field names
-*   - changed template structure for formHTML
-*   - added toggle type - On/Off
-*   - added routeData
-*   - generated HTML changed
 *
 ************************************************************************/
 

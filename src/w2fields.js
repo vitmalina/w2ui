@@ -15,29 +15,6 @@
 *   - form to support custom types
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *
-* == 1.4 Changes ==
-*   - select - for select, list - for drop down (needs this in grid)
-*   - $().addType() - changes sligtly (this.el)
-*   - $().removeType() - new method
-*   - enum add events: onLoad, onRequest, onDelete,  for already selected elements
-*   - enum - refresh happens on each key press even if not needed (for speed)
-*   - rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
-*   - render calendar to the div
-*   - added .btn with colors
-*   - added enum.style and file.style attributes
-*   - test all fields as Read Only
-*   - added openOnFocus
-*   - deprecated -- change: showAll -> applyFilter
-*   - color: select with keyboard
-*   - enum: addNew event
-*   - added icon and onIconClick
-*   - new: clearCache
-*   - easy way to add icons
-*   - easy way to navigate month/year in dates
-*   - added step for numeric inputs
-*   - changed prepopulate -> minLength
-*   - added options.postData
-*
 ************************************************************************/
 
 (function ($) {

@@ -8,11 +8,6 @@
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 *
-* == 1.4 changes
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - individual tab onClick (possibly other events) are not working
-*   - added route support
-*
 ************************************************************************/
 
 (function () {

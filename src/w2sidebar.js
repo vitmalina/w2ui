@@ -13,13 +13,6 @@
 *   - add route property that would navigate to a #route
 *   - node.style is missleading - should be there to apply color for example
 *
-* == 1.4 changes
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - bug: bixed bug with selection
-*   - new: find({ params }) - returns all matched nodes
-*   - change: get() w/o params returns all node ids
-*   - added route support
-*
 ************************************************************************/
 
 (function () {

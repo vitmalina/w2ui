@@ -31,23 +31,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - isTime should support seconds
 *   - TEST On IOS
 *
-* == 1.4 changes
-*   - lock(box, options) || lock(box, msg, spinner)
-*   - updated age() date(), formatDate(), formatTime() - input format either '2013/12/21 19:03:59 PST' or unix timestamp
-*   - formatNumer(num, groupSymbol) - added new param
-*   - improved localization support (currency prefix, suffix, numbger group symbol)
-*   - improoved overlays (better positioning, refresh, etc.)
-*   - multiple overlay at the same time (if it has name)
-*   - overlay options.css removed, I have added options.style
-*   - ability to open searchable w2menu
-*   - w2confirm({})
-*   - dep. RESTfull
-*   - added: dataType (allows JSON payload)
-*   - added: parse route
-*   - menu items can be disabled now
-*   - added menu item.count
-*   - added isIOS, isIE
-*
 ************************************************/
 
 var w2utils = (function () {
@@ -1674,29 +1657,6 @@ w2utils.keyboard = (function (obj) {
 *   - arrows no longer work (for int)
 *   - form to support custom types
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
-*
-* == 1.4 Changes ==
-*   - select - for select, list - for drop down (needs this in grid)
-*   - $().addType() - changes sligtly (this.el)
-*   - $().removeType() - new method
-*   - enum add events: onLoad, onRequest, onDelete,  for already selected elements
-*   - enum - refresh happens on each key press even if not needed (for speed)
-*   - rewrire everythin in objects (w2ftext, w2fenum, w2fdate)
-*   - render calendar to the div
-*   - added .btn with colors
-*   - added enum.style and file.style attributes
-*   - test all fields as Read Only
-*   - added openOnFocus
-*   - deprecated -- change: showAll -> applyFilter
-*   - color: select with keyboard
-*   - enum: addNew event
-*   - added icon and onIconClick
-*   - new: clearCache
-*   - easy way to add icons
-*   - easy way to navigate month/year in dates
-*   - added step for numeric inputs
-*   - changed prepopulate -> minLength
-*   - added options.postData
 *
 ************************************************************************/
 

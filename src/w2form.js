@@ -14,15 +14,7 @@
 *   - verify validation of fields
 *   - when field is blank, set record.field = null
 *   - show/hide a field
-*
-* == 1.4 Changes ==
-*   - refactored for the new fields
 *   - added getChanges() - not complete
-*   - change: get() w/o params returns all field names
-*   - changed template structure for formHTML
-*   - added toggle type - On/Off
-*   - added routeData
-*   - generated HTML changed
 *
 ************************************************************************/
 

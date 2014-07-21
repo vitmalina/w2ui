@@ -9,12 +9,6 @@
 *   - on overflow display << >>
 *   - verticle toolbar
 *
-* == 1.4 changes
-*   - deleted getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - fixed submenu event bugs
-*   - added route support
-*   - added item.count
-*
 ************************************************************************/
 
 (function () {

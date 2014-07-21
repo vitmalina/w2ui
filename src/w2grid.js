@@ -21,41 +21,6 @@
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
 *
-* == 1.4 changes
-*   - for search fields one should be able to pass w2field options
-*   - add enum to advanced search fields
-*   - editable fields -> LIST type is not working
-*   - search-logic -> searchLogic
-*   - new: refreshRow(recid) - should it be part of refresh?
-*   - new: refreshCell(recid, field) - should it be part of refresh?
-*   - removed: getSelection().removeAllRanges() - see https://github.com/vitmalina/w2ui/issues/323
-*   - new: reorderColumns
-*   - removed name from the POST
-*   - rename: markSearchResults -> markSearch
-*   - refactored inline editing
-*   - new: getCellValue(ind, col_ind, [summary])
-*   - refactored selection
-*   - removed: record.selected
-*   - new: nextCell, prevCell, nextRow, prevRow
-*   - new: editChange(el, index, column, event)
-*   - new: method - overwrite default ajax method (see also w2utils.settings.dataType)
-*   - rename: onSave -> onSubmit, onSaved -> onSave, just like in the form
-*   - new: recid - if id of the data is different from recid
-*   - new: parser - to converd data received from the server
-*   - change: rec.changes = {} and removed rec.changed
-*   - record.style can be a string or an object (for cell formatting)
-*   - col.resizable = true by default
-*   - new: prepareData();
-*   - context menu similar to sidebar's
-*   - find will return array or recids not objects
-*   - added render = 'toggle'
-*   - get rid of this.buffered
-*   - added routeData
-*   - save grid state into localStorage and restore
-*   - added user-select with alt key
-*   - added grid.show.skipRecords
-*   - column.hidable - prevents column from being hidden in columnOnOff
-*
 ************************************************************************/
 
 (function () {
