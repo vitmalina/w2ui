@@ -718,6 +718,10 @@
                 $(this.el).next().find('div').css('background-color', color);
                 if ($(obj.el).is(':focus')) this.updateOverlay();
             }
+            // list, enum
+            if (['list', 'enum'].indexOf(this.type) != -1) {
+                this.refresh();
+            }
         },
 
         click: function (event) {
