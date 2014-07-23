@@ -84,6 +84,11 @@
                     color: @sidebar-node-image-color !important;
                 }
             }
+
+            // enable pointer events for all inputs inside node
+            input, button {
+                pointer-events: auto;
+            }
         }
 
         .w2ui-selected, .w2ui-selected:hover {
