@@ -62,27 +62,20 @@ function openPopup () {
         });
     }
     $().w2popup('open', {
-        title    : 'Form in a Popup',
+        title   : 'Form in a Popup',
         body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
-        style    : 'padding: 15px 0px 0px 0px',
-        width    : 500,
-        height    : 300, 
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 500,
+        height  : 300, 
         showMax : true,
-        onMin    : function (event) {
+        onToggle: function (event) {
             $(w2ui.foo.box).hide();
             event.onComplete = function () {
                 $(w2ui.foo.box).show();
                 w2ui.foo.resize();
             }
         },
-        onMax    : function (event) {
-            $(w2ui.foo.box).hide();
-            event.onComplete = function () {
-                $(w2ui.foo.box).show();
-                w2ui.foo.resize();
-            }
-        },
-        onOpen    : function (event) {
+        onOpen: function (event) {
             event.onComplete = function () {
                 // specifying an onOpen handler instead is equivalent to specifying an onBeforeOpen handler, which would make this code execute too early and hence not deliver.
                 $('#w2ui-popup #form').w2render('foo');

@@ -74,11 +74,11 @@ $(function () {
 
 function openPopup() {
     w2popup.open({
-        title     : 'Popup',
-        width    : 800,
-        height    : 600,
+        title   : 'Popup',
+        width   : 800,
+        height  : 600,
         showMax : true,
-        body     : '<div id="main" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;"></div>',
+        body    : '<div id="main" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;"></div>',
         onOpen  : function (event) {
             event.onComplete = function () {
                 $('#w2ui-popup #main').w2render('layout');
@@ -86,12 +86,7 @@ function openPopup() {
                 w2ui.layout.content('main', w2ui.grid);
             }
         },
-        onMax : function (event) { 
-            event.onComplete = function () {
-                w2ui.layout.resize();
-            }
-        },
-        onMin : function (event) {
+        onToggle: function (event) { 
             event.onComplete = function () {
                 w2ui.layout.resize();
             }
