@@ -1,7 +1,7 @@
 Formats a number adding commas.
 
 <div class="definition">
-    formatNumber(val, [groupSymbol])
+    formatNumber(val, [groupSymbol], [decimalSymbol])
 </div>
 
 <div class="arguments">
@@ -14,13 +14,21 @@ Formats a number adding commas.
         <td>groupSymbol</td>
         <td><b>string</b>, a group delimeter (default is comma)</td>
     </tr>
+    <tr>
+        <td>decimalSymbol</td>
+        <td><b>string</b>, a group delimeter (default is dot)</td>
+    </tr>
     </table>
 </div>
 
 The <span class="argument">val</span> argument can be an integer, float on in money format. The method will add commas (or
-whatever <span class="argument">groupSymbol</span> you defined) after each there digits.
+whatever <span class="argument">groupSymbol</span> you defined) after each there digits. This method will also format number
+with a specified <span class="argument">decimalSymbol</span>.
 
 <textarea class="javascript">
 var a = w2utils.formatNumber('$1234095.04');
 console.log(a);
 </textarea>
+
+Both <span class="argument">groupSymbol</span> and <span class="argument">decimalSymbol</span> are defined in 
+<a href="w2utils.settings" class="property">w2utils.settings</a>
