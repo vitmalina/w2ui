@@ -11,6 +11,7 @@
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
 $(function () {
+    // w2utils.locale('../src/locale/ru-ru');
 
     $('#grid').w2grid({ 
         name      : 'grid', 
@@ -83,6 +84,26 @@ $(function () {
                         { id: 'Peter', text: 'Peter' },
                         { id: 'Frank', text: 'Frank' }, 
                         { id: 'Kate', text: 'Kate' }, 
+                        { id: 'Susan', text: 'Susan' }, 
+                        { id: 'Snehal', text: 'Snehal' }, 
+                        { id: 'Dima', text: 'Dima' }, 
+                    ]
+                }
+            },
+            { field: 'fname', caption: 'First Name', type: 'enum', 
+                options: { 
+                    search: true,
+                    applyFilter: true,
+                    items: [
+                        { id: 'Avinash', text: 'Avinash' }, 
+                        { id: 'Vitali', text: 'Vitali' },
+                        { id: 'Sue', text: 'Sue' },
+                        { id: 'Peter', text: 'Peter' },
+                        { id: 'Frank', text: 'Frank' }, 
+                        { id: 'Kate', text: 'Kate' }, 
+                        { id: 'Susan', text: 'Susan' }, 
+                        { id: 'Snehal', text: 'Snehal' }, 
+                        { id: 'Dima', text: 'Dima' }, 
                     ]
                 }
             },

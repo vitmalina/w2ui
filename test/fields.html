@@ -124,7 +124,10 @@
     });
 </script>
 <body>
-    <input type="button" value="Make Readonly" onclick="$('input, textarea, select').prop('readonly', true)">
+    <input type="button" value="Set Readonly" onclick="$('input, textarea, select').prop('readonly', true).change()">
+    <input type="button" value="Clear Readonly" onclick="$('input, textarea, select').prop('readonly', false).change()">
+    <input type="button" value="Disable" onclick="$('input, textarea, select').not('[type=button]').prop('disabled', true).change()">
+    <input type="button" value="Enable" onclick="$('input, textarea, select').not('[type=button]').prop('disabled', false).change()">
     <br>
     <br>
     <div style="padding: 5px; border: 1px solid silver; background-color: #efefef; border-radius: 2px;">
@@ -223,6 +226,15 @@
             <label>file:</label>
             <div>
                 <input class="file" type="text" style="width: 550px; min-height: 50px;"/>
+            </div>
+        </div>
+        <div class="w2ui-field">
+            <label>regular select:</label>
+            <div>
+                <select style="width: 550px; min-height: 50px;">
+                    <option>value 1</option>
+                    <option>value 2</option>
+                </select>
             </div>
         </div>
     </div>
