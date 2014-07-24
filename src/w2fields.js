@@ -288,6 +288,8 @@
                         // if simple value - look it up
                         if (!$.isPlainObject(options.selected)) {
                             for (var i in options.items) {
+                            	if(!options.items.hasOwnProperty(prop))
+                            		continue;
                                 var item = options.items[i];
                                 if (item && item.id == options.selected) {
                                     options.selected = $.extend(true, {}, item);
@@ -458,7 +460,12 @@
                 .off('keyup',    this.tmp.onKeyup)
                 .off('keypress', this.tmp.onKeypress);
             // remove helpers
-            for (var h in this.helpers) $(this.helpers[h]).remove();
+            for (var h in this.helpers)
+            {
+            	if(!this.helpers.hasOwnProperty(h))
+            		continue;
+            	$(this.helpers[h]).remove();
+            }
             this.helpers = {};
         },
 
@@ -523,6 +530,8 @@
             if (['enum', 'file'].indexOf(this.type) != -1) {
                 var html = '';
                 for (var s in selected) {
+                	if(!this.selected.hasOwnProperty(s))
+                		continue;
                     var it  = selected[s];
                     var ren = '';
                     if (typeof options.renderItem == 'function') {
@@ -1302,6 +1311,8 @@
             if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
                 for (var i in options.items) {
+                	if(!this.options.items.hasOwnProperty(i))
+                		continue;
                     var item = options.items[i];
                     var prefix = '';
                     var suffix = '';
@@ -1939,6 +1950,8 @@
             var err;
             for (var s in selected) { 
                 // check for dups
+            	if(!selected.hasOwnProperty(s))
+            		continue;
                 if (selected[s].name == file.name && selected[s].size == file.size) return;
                 size += selected[s].size; cnt++; 
             }
@@ -2001,7 +2014,12 @@
                 return menu;
             } else if (typeof menu == 'object') {
                 var tmp = []
-                for (var m in menu) tmp.push({ id: m, text: menu[m] });
+                for (var m in menu)
+            	{
+                	if(!menu.hasOwnProperty(m))
+                		continue;
+                	tmp.push({ id: m, text: menu[m] });
+            	}
                 return tmp;
             }
         },
@@ -2100,6 +2118,8 @@
             var mhtml  = '';
             var yhtml  = '';
             for (var m in months) {
+            	if(!months.hasOwnProperty(m))
+            		continue;
                 mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>';
             }
             for (var y = 1950; y <= 2020; y++) {

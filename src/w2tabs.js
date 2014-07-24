@@ -161,7 +161,16 @@
                 tab.hidden = false;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () 
+        	{
+        		for (var t in tmp)
+        			{
+            			if(!tmp.hasOwnProperty(t))
+        					continue;
+            			obj.refresh(tmp[t]); 
+        			}, 15); // needs timeout
+        	}
+        
             return shown;
         },
 
@@ -176,7 +185,15 @@
                 tab.hidden = true;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () 
+        	{
+        		for (var t in tmp)
+        			{
+            			if(!tmp.hasOwnProperty(t))
+        					continue;
+            			obj.refresh(tmp[t]); 
+        			}, 15); // needs timeout
+        	}
             return hidden;
         },
 
@@ -191,7 +208,15 @@
                 tab.disabled = false;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () 
+        	{
+        		for (var t in tmp)
+        			{
+            			if(!tmp.hasOwnProperty(t))
+        					continue;
+            			obj.refresh(tmp[t]); 
+        			}, 15); // needs timeout
+        	} 
             return enabled;
         },
 
@@ -206,7 +231,15 @@
                 tab.disabled = true;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () 
+        	{
+        		for (var t in tmp)
+        			{
+            			if(!tmp.hasOwnProperty(t))
+        					continue;
+            			obj.refresh(tmp[t]); 
+        			}, 15); // needs timeout
+        	} 
             return disabled;
         },
 

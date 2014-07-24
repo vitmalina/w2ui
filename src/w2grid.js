@@ -174,15 +174,42 @@
             if (object.onExpand != null) object.show.expandColumn = true;
             $.extend(true, object.toolbar, toolbar);
             // reassign variables
-            for (var p in columns)      object.columns[p]       = $.extend(true, {}, columns[p]);
-            for (var p in columnGroups) object.columnGroups[p]  = $.extend(true, {}, columnGroups[p]);
-            for (var p in searches)     object.searches[p]      = $.extend(true, {}, searches[p]);
-            for (var p in searchData)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
-            for (var p in sortData)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
+            for (var p in columns)
+        	{
+            	if(!columns.hasOwnProperty(p))
+            		continue;
+            	object.columns[p]       = $.extend(true, {}, columns[p]);
+        	}
+            for (var p in columnGroups)
+        	{
+            	if(!columnGroups.hasOwnProperty(p))
+            		continue;
+            	object.columnGroups[p]  = $.extend(true, {}, columnGroups[p]);
+        	}
+            for (var p in searches)
+        	{
+            	if(!searches.hasOwnProperty(p))
+            		continue;
+            	object.searches[p]      = $.extend(true, {}, searches[p]);
+        	}
+            for (var p in searchData)
+        	{
+            	if(!searchData.hasOwnProperty(p))
+            		continue;
+            	object.searchData[p]    = $.extend(true, {}, searchData[p]);
+        	}
+            for (var p in sortData)
+        	{
+            	if(!sortData.hasOwnProperty(p))
+            		continue;
+            	object.sortData[p]      = $.extend(true, {}, sortData[p]);
+        	}
             object.postData = $.extend(true, {}, postData);
 
             // check if there are records without recid
             for (var r in records) {
+            	if(!records.hasOwnProperty(r))
+            		continue;
                 if (records[r].recid == null || typeof records[r].recid == 'undefined') {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
                     return;
@@ -191,6 +218,8 @@
             }
             // add searches
             for (var c in object.columns) {
+            	if(!object.columns.hasOwnProperty(c))
+            		continue;
                 var col = object.columns[c];
                 if (typeof col.searchable == 'undefined' || object.getSearch(col.field) != null) continue;
                 var stype = col.searchable;
@@ -248,6 +277,8 @@
             if (!$.isArray(record)) record = [record];
             var added = 0;
             for (var o in record) {
+            	if(!record.hasOwnProperty(o))
+            		continue;
                 if (!this.recid && typeof record[o].recid == 'undefined') record[o].recid = record[o][this.recid];
                 if (record[o].recid == null || typeof record[o].recid == 'undefined') {
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
@@ -276,6 +307,8 @@
             for (var i = 0; i < this.records.length; i++) {
                 var match = true;
                 for (var o in obj) {
+                	if(!obj.hasOwnProperty(o))
+                		continue;
                     var val = this.records[i][o];
                     if (hasDots && String(o).indexOf('.') != -1) val = this.parseField(this.records[i], o);
                     if (obj[o] != val) match = false;
@@ -295,6 +328,8 @@
             // update all records
             if (recid == null) {
                 for (var r in this.records) {
+                	if(!records.hasOwnProperty(r))
+                		continue;
                     $.extend(true, this.records[r], record); // recid is the whole record
                 }
                 if (noRefresh !== true) this.refresh();
@@ -343,6 +378,8 @@
             }
             if (!$.isArray(columns)) columns = [columns];
             for (var o in columns) {
+            	if(!columns.hasOwnProperty(o))
+            		continue;
                 this.columns.splice(before, 0, columns[o]);
                 before++;
                 added++;
@@ -428,6 +465,8 @@
             }
             if (!$.isArray(search)) search = [search];
             for (var o in search) {
+            	if(!search.hasOwnProperty(o))
+            		continue;
                 this.searches.splice(before, 0, search[o]);
                 before++;
                 added++;
@@ -518,6 +557,8 @@
             obj.prepareData();
             // process sortData
             for (var s in this.sortData) {
+            	if(!sortData.hasOwnProperty(s))
+            		continue;
                 var column = this.getColumn(this.sortData[s].field); 
                 if (!column) return;
                 if (column.render && ['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
@@ -531,6 +572,8 @@
             this.records.sort(function (a, b) {
                 var ret = 0;
                 for (var s in obj.sortData) {
+                	if(!sortData.hasOwnProperty(s))
+                		continue;
                     var fld = obj.sortData[s].field;
                     if (obj.sortData[s].field_) fld = obj.sortData[s].field_;
                     var aa = a[fld];
@@ -573,9 +616,13 @@
             if (this.searchData.length > 0 && !url) {
                 this.total = 0;
                 for (var r in this.records) {
+                	if(!this.records.hasOwnProperty(r))
+                		continue;
                     var rec = this.records[r];
                     var fl  = 0;
                     for (var s in this.searchData) {
+                    	if(!searchData.hasOwnProperty(s))
+                    		continue;
                         var sdata      = this.searchData[s];
                         var search     = this.getSearch(sdata.field);
                         if (sdata  == null) continue;
@@ -705,6 +752,8 @@
             if (!$.isArray(ranges)) ranges = [ranges];
             // if it is selection
             for (var r in ranges) {
+            	if(!ranges.hasOwnProperty(r))
+            		continue;
                 if (typeof ranges[r] != 'object') ranges[r] = { name: 'selection' };
                 if (ranges[r].name == 'selection') {
                     if (this.show.selectionBorder === false) continue;
@@ -732,7 +781,12 @@
                     };
                     // add range
                     var ind = false;
-                    for (var t in this.ranges) if (this.ranges[t].name == ranges[r].name) { ind = r; break; }
+                    for (var t in this.ranges)
+                	{
+                    	if(!this.ranges.hasOwnProperty(t))
+                    		continue;
+                    	if (this.ranges[t].name == ranges[r].name) { ind = r; break; }
+                	}
                     if (ind !== false) {
                         this.ranges[ind] = rg;
                     } else {
@@ -765,6 +819,8 @@
             var time = (new Date()).getTime();
             var rec  = $('#grid_'+ this.name +'_records');
             for (var r in this.ranges) {
+            	if(!this.ranges.hasOwnProperty(r))
+            		continue;
                 var rg    = this.ranges[r];
                 var first = rg.range[0];
                 var last  = rg.range[1];
@@ -881,7 +937,12 @@
                     var col  = arguments[a].column;
                     if (!w2utils.isInt(col)) { // select all columns
                         var cols = [];
-                        for (var c in this.columns) { if (this.columns[c].hidden) continue; cols.push({ recid: recid, column: parseInt(c) }); }
+                        for (var c in this.columns) 
+                        {
+                        	if(!this.columns.hasOwnProperty(c))
+                        		continue;
+                        	if (this.columns[c].hidden) continue; cols.push({ recid: recid, column: parseInt(c) }); 
+                        }
                         if (!this.multiSelect) cols = cols.splice(0, 1);
                         return this.select.apply(this, cols);
                     }
@@ -942,7 +1003,12 @@
                     var col  = arguments[a].column;
                     if (!w2utils.isInt(col)) { // unselect all columns
                         var cols = [];
-                        for (var c in this.columns) { if (this.columns[c].hidden) continue; cols.push({ recid: recid, column: parseInt(c) }); }
+                        for (var c in this.columns) 
+                        {
+                        	if(!this.columns.hasOwnProperty(c))
+                        		continue;
+                        	if (this.columns[c].hidden) continue; cols.push({ recid: recid, column: parseInt(c) }); 
+                        }
                         return this.unselect.apply(this, cols);
                     }
                     var s = sel.columns[index];
@@ -985,7 +1051,12 @@
             var url  = (typeof this.url != 'object' ? this.url : this.url.get);
             var sel  = this.last.selection;
             var cols = [];
-            for (var c in this.columns) cols.push(parseInt(c));
+            for (var c in this.columns)
+        	{
+            	if(!this.columns.hasOwnProperty(c))
+            		continue;
+            	cols.push(parseInt(c));
+        	}
             // if local data source and searched
             sel.indexes = [];
             if (!url && this.searchData.length !== 0) {
@@ -1019,6 +1090,8 @@
             // default action
             var sel = this.last.selection;
             for (var s in sel.indexes) {
+            	if(!sel.indexes.hasOwnProperty(s))
+            		continue;
                 var index = sel.indexes[s];
                 var rec   = this.records[index];
                 var recid = rec ? rec.recid : null;
@@ -1028,7 +1101,12 @@
                 // for not rows
                 if (this.selectType != 'row') {
                     var cols = sel.columns[index];
-                    for (var c in cols) recEl.find(' > td[col='+ cols[c] +']').removeClass('w2ui-selected');
+                    for (var c in cols)
+                	{
+                    	if(!cols.hasOwnProperty(c))
+                    		continue;
+                		recEl.find(' > td[col='+ cols[c] +']').removeClass('w2ui-selected');
+                	}
                 }
             }
             sel.indexes = [];
@@ -1045,15 +1123,21 @@
             var sel = this.last.selection;
             if (this.selectType == 'row') {
                 for (var s in sel.indexes) {
+                	if(!sel.indexes.hasOwnProperty(s))
+                		continue;
                     if (!this.records[sel.indexes[s]]) continue;
                     if (returnIndex === true) ret.push(sel.indexes[s]); else ret.push(this.records[sel.indexes[s]].recid);
                 }
                 return ret;
             } else {
                 for (var s in sel.indexes) {
+                	if(!sel.indexes.hasOwnProperty(s))
+                		continue;
                     var cols = sel.columns[sel.indexes[s]];
                     if (!this.records[sel.indexes[s]]) continue;
                     for (var c in cols) {
+                    	if(!cols.hasOwnProperty(c))
+                    		continue;
                         ret.push({ recid: this.records[sel.indexes[s]].recid, index: parseInt(sel.indexes[s]), column: cols[c] });
                     }
                 }
@@ -1074,6 +1158,8 @@
                 last_search = '';
                 // advanced search
                 for (var s in this.searches) {
+                	if(!this.searches.hasOwnProperty(s))
+                		continue;
                     var search   = this.searches[s];
                     var operator = $('#grid_'+ this.name + '_operator_'+s).val();
                     var field1   = $('#grid_'+ this.name + '_field_'+s);
@@ -1092,6 +1178,8 @@
                         if ($.isArray(value1)) {
                             svalue = [];
                             for (var v in value1) {
+                            	if(!value1.hasOwnProperty(v))
+                            		continue;
                                 svalue.push(w2utils.isFloat(value1[v].id) ? parseFloat(value1[v].id) : String(value1[v].id).toLowerCase());
                                 delete value1[v].hidden;
                             }
@@ -1150,6 +1238,8 @@
                         // if there are search fields loop thru them
                         if (this.searches.length > 0) {
                             for (var s in this.searches) {
+                            	if(!searches.hasOwnProperty(s))
+                            		continue;
                                 var search = this.searches[s];
                                 if (search.type == 'text' || (search.type == 'alphanumeric' && w2utils.isAlphaNumeric(value))
                                         || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
@@ -1179,6 +1269,8 @@
                         } else {
                             // no search fields, loop thru columns
                             for (var c in this.columns) {
+                            	if(!this.columns.hasOwnProperty(c))
+                            		continue;
                                 var tmp = {
                                     field    : this.columns[c].field,
                                     type     : 'text',
@@ -1214,7 +1306,12 @@
                                     var tmp = value.split(',');
                                     op  = 'in';
                                     val = [];
-                                    for (var t in tmp) val.push(tmp[t]);
+                                    for (var t in tmp)
+                                	{
+                                    	if(!tmp.hasOwnProperty(t))
+                                    		continue;
+                                    	val.push(tmp[t]);
+                                	}
                                 }
                             }
                             var tmp = {
@@ -1239,6 +1336,8 @@
                 last_multi  = true;
                 last_logic  = logic;
                 for (var f in field) {
+                	if(!field.hasOwnProperty(f))
+                		continue;
                     var data   = field[f];
                     var search = this.getSearch(data.field);
                     if (search == null) search = { type: 'text', operator: 'contains' };
@@ -1626,6 +1725,8 @@
                     // convert recids
                     if (obj.recid) {
                         for (var r in data.records) {
+                        	if(!data.records.hasOwnProperty(r))
+                        		continue;
                             data.records[r]['recid'] = data.records[r][obj.recid];
                         }
                     }
@@ -1653,6 +1754,8 @@
                                 delete data.status;
                                 $.extend(true, this, data);
                                 for (var r in records) {
+                                	if(!records.hasOwnProperty(r))
+                                		continue;
                                     this.records.push(records[r]);
                                 }
                             }
@@ -1702,6 +1805,8 @@
         getChanges: function () {
             var changes = [];
             for (var r in this.records) {
+            	if(!this.records.hasOwnProperty(r))
+            		continue;
                 var rec = this.records[r];
                 if (typeof rec['changes'] != 'undefined') {
                     changes.push($.extend(true, { recid: rec.recid }, rec.changes));
@@ -1713,8 +1818,12 @@
         mergeChanges: function () {
             var changes = this.getChanges();
             for (var c in changes) {
+            	if(!changes.hasOwnProperty(c))
+            		continue;
                 var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
+                	if(!changes.hasOwnProperty(s))
+                		continue;
                     if (s == 'recid') continue; // do not allow to change recid
                     try { eval('record.' + s + ' = changes[c][s]'); } catch (e) {}
                     delete record.changes;
@@ -1789,6 +1898,8 @@
             if (edit.type == 'select') {
                 var html = '';
                 for (var i in edit.items) {
+                	if(!edit.items.hasOwnProperty(i))
+                		continue;
                     html += '<option value="'+ edit.items[i].id +'" '+ (edit.items[i].id == val ? 'selected' : '') +'>'+ edit.items[i].text +'</option>';
                 }
                 el.addClass('w2ui-editable')
@@ -1845,6 +1956,8 @@
                                         next_rec = obj.records[tmp].recid;
                                         // find first editable row
                                         for (var c in obj.columns) {
+                                        	if(!obj.columns.hasOwnProperty(c))
+                                        		continue;
                                             var tmp = obj.columns[c].editable;
                                             if (typeof tmp != 'undefined' && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
                                                 next_col = parseInt(c);
@@ -2037,6 +2150,8 @@
                 } else {
                     // clear cells
                     for (var r in recs) {
+                    	if(!recs.hasOwnProperty(r))
+                    		continue;
                         var fld = this.columns[recs[r].column].field;
                         var ind = this.get(recs[r].recid, true);
                         if (ind != null && fld != 'recid') {
@@ -2127,7 +2242,12 @@
                     if (this.selectType == 'row') {
                         sel_add.push(this.records[i].recid);
                     } else {
-                        for (var sc in selectColumns) sel_add.push({ recid: this.records[i].recid, column: selectColumns[sc] });
+                        for (var sc in selectColumns)
+                    	{
+                        	if(!selectColumns.hasOwnProperty(sc))
+                        		continue;
+                        	sel_add.push({ recid: this.records[i].recid, column: selectColumns[sc] });
+                    	}
                     }
                     //sel.push(this.records[i].recid);
                 }
@@ -2244,6 +2364,8 @@
                         cancel = true;
                     } else { // or enter edit
                         for (var c in this.columns) {
+                        	if(!this.columns.hasOwnProperty(c))
+                        		continue;
                             if (this.columns[c].editable) {
                                 columns.push(parseInt(c));
                                 break;
@@ -2287,11 +2409,15 @@
                                 var unSel  = [];
                                 if (columns.indexOf(this.last.sel_col) == 0 && columns.length > 1) {
                                     for (var i in sel) {
+                                    	if(!sel.hasOwnProperty(i))
+                                    		continue;
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] });
                                     }
                                 } else {
                                     for (var i in sel) {
+                                    	if(!sel.hasOwnProperty(i))
+                                    		continue;
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: prev });
                                     }
@@ -2327,11 +2453,15 @@
                                 var unSel  = [];
                                 if (columns.indexOf(this.last.sel_col) == columns.length-1 && columns.length > 1) {
                                     for (var i in sel) {
+                                    	if(!sel.hasOwnProperty(i))
+                                    		continue;
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         unSel.push({ recid: sel[i].recid, column: columns[0] });
                                     }
                                 } else {
                                     for (var i in sel) {
+                                    	if(!sel.hasOwnProperty(i))
+                                    		continue;
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: next });
                                     }
@@ -2382,11 +2512,21 @@
                                 if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
                                     prev = ind2;
                                     var tmp = [];
-                                    for (var c in columns) tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
+                                    for (var c in columns)
+                                	{
+                                    	if(!columns.hasOwnProperty(c))
+                                    		continue;
+                                    	tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
+                                	}
                                     obj.unselect.apply(obj, tmp);
                                 } else {
                                     var tmp = [];
-                                    for (var c in columns) tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
+                                    for (var c in columns)
+                                	{
+                                    	if(!columns.hasOwnProperty(c))
+                                    		continue;
+                                    	tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
+                                	}
                                     obj.select.apply(obj, tmp);
                                 }
                             }
@@ -2446,11 +2586,21 @@
                                 if (this.last.sel_ind < next && this.last.sel_ind != ind) {
                                     next = ind;
                                     var tmp = [];
-                                    for (var c in columns) tmp.push({ recid: obj.records[next].recid, column: columns[c] });
+                                    for (var c in columns)
+                                	{
+                                    	if(!columns.hasOwnProperty(c))
+                                    		continue;
+                                    	tmp.push({ recid: obj.records[next].recid, column: columns[c] });
+                                	}
                                     obj.unselect.apply(obj, tmp);
                                 } else {
                                     var tmp = [];
-                                    for (var c in columns) tmp.push({ recid: obj.records[next].recid, column: columns[c] });
+                                    for (var c in columns)
+                                	{
+                                    	if(!columns.hasOwnProperty(c))
+                                    		continue;
+                                		tmp.push({ recid: obj.records[next].recid, column: columns[c] });
+                                	}
                                     obj.select.apply(obj, tmp);
                                 }
                             }
@@ -2534,6 +2684,8 @@
                     obj.last.sel_type = 'key';
                     if (sel.length > 1) {
                         for (var s in sel) {
+                        	if(!sel.hasOwnProperty(s))
+                        		continue;
                             if (sel[s].recid == obj.last.sel_recid && sel[s].column == obj.last.sel_col) {
                                 sel.splice(s, 1);
                                 break;
@@ -2737,6 +2889,8 @@
                 // default action
                 var sortIndex = this.sortData.length;
                 for (var s in this.sortData) {
+                	if(!sortData.hasOwnProperty(s))
+                		continue;
                     if (this.sortData[s].field == field) { sortIndex = s; break; }
                 }
                 if (typeof direction == 'undefined' || direction == null) {
@@ -2786,12 +2940,16 @@
                 var maxCol = sel[0].column;
                 var recs   = [];
                 for (var s in sel) {
+                	if(!sel.hasOwnProperty(s))
+                		continue;
                     if (sel[s].column < minCol) minCol = sel[s].column;
                     if (sel[s].column > maxCol) maxCol = sel[s].column;
                     if (recs.indexOf(sel[s].index) == -1) recs.push(sel[s].index);
                 }
                 recs.sort();
                 for (var r in recs) {
+                	if(!recs.hasOwnProperty(r))
+                		continue;
                     var ind = recs[r];
                     for (var c = minCol; c <= maxCol; c++) {
                         var col = this.columns[c];
@@ -2804,6 +2962,8 @@
             } else { // row copy
                 // copy headers
                 for (var c in this.columns) {
+                	if(!this.columns.hasOwnProperty(c))
+                		continue;
                     var col = this.columns[c];
                     if (col.hidden === true) continue;
                     text += '"' + w2utils.stripTags(col.caption ? col.caption : col.field) + '"\t';
@@ -2812,8 +2972,12 @@
                 text += '\n';
                 // copy selected text                
                 for (var s in sel) {
+                	if(!sel.hasOwnProperty(s))
+                		continue;
                     var ind = this.get(sel[s], true);
                     for (var c in this.columns) {
+                    	if(!this.columns.hasOwnProperty(c))
+                    		continue;
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
                         text += '"' + w2utils.stripTags(this.getCellHTML(ind, c)) + '"\t';
@@ -2850,11 +3014,15 @@
             var newSel = [];
             var text   = text.split('\n');
             for (var t in text) {
+            	if(!text.hasOwnProperty(t))
+					continue;
                 var tmp  = text[t].split('\t');
                 var cnt  = 0;
                 var rec  = this.records[ind];
                 var cols = [];
                 for (var dt in tmp) {
+                	if(!tmp.hasOwnProperty(td))
+    					continue;
                     if (!this.columns[col + cnt]) continue;
                     var field = this.columns[col + cnt].field;
                     rec.changes = rec.changes || {};
@@ -2862,7 +3030,12 @@
                     cols.push(col + cnt);
                     cnt++;
                 }
-                for (var c in cols) newSel.push({ recid: rec.recid, column: cols[c] });
+                for (var c in cols)
+            	{
+                	if(!cols.hasOwnProperty(c))
+    					continue;
+                	newSel.push({ recid: rec.recid, column: cols[c] });
+            	}
                 ind++;
             }
             this.selectNone();
@@ -2918,7 +3091,15 @@
                 var line = tr.attr('line');
                 // if it is searched, find index in search array
                 var url = (typeof this.url != 'object' ? this.url : this.url.get);
-                if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
+                if (this.searchData.length > 0 && !url)
+            	{
+                	for (var s in this.last.searchIds)
+                	{
+                    	if(!text.hasOwnProperty(t))
+        					continue;
+                    	if (this.last.searchIds[s] == ind) ind = s;
+                	}
+            	}
                 $(tr).replaceWith(this.getRecordHTML(ind, line));
             }
 
@@ -2954,6 +3135,8 @@
                     if (typeof this.toolbar == 'object') {
                         var tmp = this.toolbar.items;
                         for (var t in tmp) {
+                        	if(!tmp.hasOwnProperty(t))
+            					continue;
                             if (tmp[t].id == 'w2ui-search' || tmp[t].type == 'break') continue;
                             this.toolbar.refresh(tmp[t].id);
                         }
@@ -2971,6 +3154,8 @@
                 this.last.caption = this.searches[0].caption;
             }
             for (var s in this.searches) {
+            	if(!searches.hasOwnProperty(s))
+					continue;
                 if (this.searches[s].field == this.last.field) this.last.caption = this.searches[s].caption;
             }
             if (this.last.multi) {
@@ -2988,7 +3173,12 @@
             // -- separate summary
             var tmp = this.find({ summary: true }, true);
             if (tmp.length > 0) {
-                for (var t in tmp) this.summary.push(this.records[tmp[t]]);
+                for (var t in tmp)
+            	{
+                	if(!tmp.hasOwnProperty(t))
+    					continue;
+                	this.summary.push(this.records[tmp[t]]);
+            	}
                 for (var t=tmp.length-1; t>=0; t--) this.records.splice(tmp[t], 1);
                 this.total = this.total - tmp.length;
             }
@@ -3037,7 +3227,12 @@
             this.status();
             // collapse all records
             var rows = obj.find({ expanded: true }, true);
-            for (var r in rows) obj.records[rows[r]].expanded = false;
+            for (var r in rows)
+        	{
+            	if(!rows.hasOwnProperty(r))
+					continue;
+            	obj.records[rows[r]].expanded = false;
+        	}
             // mark selection
             setTimeout(function () {
                 var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
@@ -3237,24 +3432,48 @@
                     // add more items
                     var tmp = [];
                     for (var ns in newSel) {
+                    	if(!newSel.hasOwnProperty(ns))
+        					continue;
                         var flag = false;
-                        for (var s in sel) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                        for (var s in sel)
+                    	{
+                        	if(!sel.hasOwnProperty(s))
+            					continue;
+                        	if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                    	}
                         if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column });
                     }
                     obj.select.apply(obj, tmp);
                     // remove items
                     var tmp = [];
                     for (var s in sel) {
+                    	if(!sel.hasOwnProperty(s))
+        					continue;
                         var flag = false;
-                        for (var ns in newSel) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                        for (var ns in newSel)
+                    	{
+                        	if(!newSel.hasOwnProperty(ns))
+            					continue;
+                        	if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                    	}
                         if (!flag) tmp.push({ recid: sel[s].recid, column: sel[s].column });
                     }
                     obj.unselect.apply(obj, tmp);
                 } else {
                     if (obj.multiSelect) {
                         var sel = obj.getSelection();
-                        for (var ns in newSel) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
-                        for (var s in sel) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+                        for (var ns in newSel)
+                    	{
+                        	if(!newSel.hasOwnProperty(ns))
+            					continue;
+                        	if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
+                    	}
+                        for (var s in sel)
+                    	{
+                        	if(!sel.hasOwnProperty(s))
+            					continue;
+                        	if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+                    	}
                     }
                 }
             }
@@ -3315,6 +3534,8 @@
                             '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
                             '</td></tr>';
             for (var c in this.columns) {
+            	if(!this.columns.hasOwnProperty(c))
+					continue;
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
                 if (col.hideable === false) continue;
@@ -3611,6 +3832,8 @@
             var obj = this;
             // collapse expanded rows
             for (var r in this.records) {
+            	if(!this.records.hasOwnProperty(r))
+					continue;
                 if (this.records[r].expanded === true) this.records[r].expanded = false
             }
             // show/hide
@@ -3705,7 +3928,12 @@
                     this.toolbar.items.push($.extend(true, {}, this.buttons['save']));
                 }
                 // add original buttons
-                for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
+                for (var i in tmp_items)
+            	{
+                	if(!tmp_items.hasOwnProperty(i))
+    					continue;
+                	this.toolbar.items.push(tmp_items[i]);
+            	}
 
                 // =============================================
                 // ------ Toolbar onClick processing
@@ -3796,6 +4024,8 @@
                     if (event.preventDefault) event.preventDefault();
                     // fix sizes
                     for (var c in obj.columns) {
+                    	if(!obj.columns.hasOwnProperty(c))
+        					continue;
                         if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
                         obj.columns[c].size = obj.columns[c].sizeCalculated;
                     }
@@ -4213,6 +4443,8 @@
             var obj = this;
             // init searches
             for (var s in this.searches) {
+            	if(!searches.hasOwnProperty(s))
+					continue;
                 var search = this.searches[s];
                 var sdata  = this.getSearchData(search.field);
                 search.type = String(search.type).toLowerCase();
@@ -4345,6 +4577,8 @@
                     if (colg.master === true) {
                         var sortStyle = '';
                         for (var si in obj.sortData) {
+                        	if(!sortData.hasOwnProperty(si))
+            					continue;
                             if (obj.sortData[si].field == col.field) {
                                 if (RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
                                 if (RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
@@ -4414,6 +4648,8 @@
                     if (col.hidden) continue;
                     var sortStyle = '';
                     for (var si in obj.sortData) {
+                    	if(!sortData.hasOwnProperty(si))
+        					continue;
                         if (obj.sortData[si].field == col.field) {
                             if (RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
                             if (RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
@@ -4603,6 +4839,8 @@
                     // mark all search strings
                     var str = [];
                     for (var s in obj.searchData) {
+                    	if(!searchData.hasOwnProperty(s))
+        					continue;
                         var tmp = obj.searchData[s];
                         if ($.inArray(tmp.value, str) == -1) str.push(tmp.value);
                     }
@@ -4622,6 +4860,8 @@
                 if (this.show.selectColumn) rec_html += '<td class="w2ui-col-select" style="height: 0px;"></td>';
                 if (this.show.expandColumn) rec_html += '<td class="w2ui-col-expand" style="height: 0px;"></td>';
                 for (var i in this.columns) {
+                	if(!this.columns.hasOwnProperty(i))
+    					continue;
                     if (this.columns[i].hidden) continue;
                     rec_html += '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px;"></td>';
                 }
@@ -4865,6 +5105,8 @@
                 searchData  : []
             };
             for (var i in this.columns) {
+            	if(!this.columns.hasOwnProperty(i))
+					continue;
                 var col = this.columns[i];
                 state.columns.push({
                     field           : col.field,
@@ -4875,8 +5117,18 @@
                     sizeType        : col.sizeType
                 });
             }
-            for (var i in this.sortData) state.sortData.push($.extend({}, this.sortData[i]));
-            for (var i in this.searchData) state.searchData.push($.extend({}, this.searchData[i]));
+            for (var i in this.sortData)
+        	{
+            	if(!sortData.hasOwnProperty(i))
+					continue;
+            	state.sortData.push($.extend({}, this.sortData[i]));
+        	}
+            for (var i in this.searchData)
+        	{
+            	if(!this.searchData.hasOwnProperty(i))
+					continue;
+            	state.searchData.push($.extend({}, this.searchData[i]));
+        	}
             // save into local storage
             if (returnOnly !== true) {
                 // event before
@@ -4923,14 +5175,26 @@
                 var sTop  = this.last.scrollTop;
                 var sLeft = this.last.scrollLeft;
                 for (var c in newState.columns) {
+                	if(!newState.columns.hasOwnProperty(c))
+    					continue;
                     var tmp = newState.columns[c];
                     var col = this.getColumn(tmp.field);
                     if (col) $.extend(col, tmp);
                 }
                 this.sortData.splice(0, this.sortData.length);
-                for (var c in newState.sortData) this.sortData.push(newState.sortData[c]);
+                for (var c in newState.sortData)
+            	{
+                	if(!newState.sortData.hasOwnProperty(c))
+    					continue;
+                	this.sortData.push(newState.sortData[c]);
+            	}
                 this.searchData.splice(0, this.searchData.length);
-                for (var c in newState.searchData) this.searchData.push(newState.searchData[c]);
+                for (var c in newState.searchData)
+            	{
+                	if(!this.searchData.hasOwnProperty(c))
+    					continue;
+                	this.searchData.push(newState.searchData[c]);
+            	}
                 // apply sort and search
                 setTimeout(function () {
                     // needs timeout as records need to be populated
@@ -4969,6 +5233,8 @@
                 val = obj;
                 var tmp = String(field).split('.');
                 for (var i in tmp) {
+                	if(!tmp.hasOwnProperty(i))
+    					continue;
                     val = val[tmp[i]];
                 }
             } catch (event) {
@@ -4980,8 +5246,12 @@
         prepareData: function () {
             // loops thru records and prepares date and time objects
             for (var r in this.records) {
+            	if(!this.records.hasOwnProperty(r))
+					continue;
                 var rec = this.records[r];
                 for (var c in this.columns) {
+                	if(!this.columns.hasOwnProperty(c))
+    					continue;
                     var column = this.columns[c];
                     if (rec[column.field] == null || typeof column.render != 'string') continue;
                     // number
