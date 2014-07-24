@@ -1,4 +1,4 @@
-/* w2ui-fields.js 1.4.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui-fields.js 1.5.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -1459,7 +1459,8 @@ w2utils.keyboard = (function (obj) {
                         });
                     }, 10);
                 }
-                setTimeout(function () { $(document).click(); }, 50);
+                // do not uncomment (or enum search type is not working in grid)
+                // setTimeout(function () { $(document).click(); }, 50);
             };
             var html = '';
             if (options.search) {
@@ -1657,6 +1658,7 @@ w2utils.keyboard = (function (obj) {
 *   - arrows no longer work (for int)
 *   - form to support custom types
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
+*   - add compare function for list, combo, enum
 *
 ************************************************************************/
 
@@ -1949,7 +1951,7 @@ w2utils.keyboard = (function (obj) {
                     if (this.type == 'list') this.addFocus();
                     this.addPrefix();
                     this.addSuffix();
-                    setTimeout(function () { obj.refresh();    }, 10); // need this for icon refresh
+                    setTimeout(function () { obj.refresh(); }, 10); // need this for icon refresh
                     $(this.el).attr('placeholder', options.placeholder).attr('autocomplete', 'off');
                     if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
                     break;
@@ -2148,6 +2150,18 @@ w2utils.keyboard = (function (obj) {
                             }
                         }, 1);
                     }
+                    // if readonly or disabled
+                    if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
+                        setTimeout(function () { 
+                            $(obj.helpers.prefix).css('opacity', '0.6'); 
+                            $(obj.helpers.suffix).css('opacity', '0.6');
+                        }, 1);
+                    } else {
+                        setTimeout(function () { 
+                            $(obj.helpers.prefix).css('opacity', '1'); 
+                            $(obj.helpers.suffix).css('opacity', '1');
+                        }, 1);
+                    }
                 }, 1);
             }
             if (['enum', 'file'].indexOf(this.type) != -1) {
@@ -2167,7 +2181,13 @@ w2utils.keyboard = (function (obj) {
                 var div = obj.helpers.multi;
                 var ul  = div.find('ul');
                 div.attr('style', div.attr('style') + ';' + options.style);
-                if ($(obj.el).attr('readonly')) div.addClass('w2ui-readonly'); else div.removeClass('w2ui-readonly');
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
+                    div.addClass('w2ui-readonly'); 
+                    div.css('pointer-events', 'none').find('li').css('opacity', '0.6');
+                } else {
+                    div.removeClass('w2ui-readonly');
+                    div.css('pointer-events', 'auto').find('li').css('opacity', '1');
+                }
                 // celan
                 div.find('.w2ui-enum-placeholder').remove();
                 ul.find('li').not('li.nomouse').remove();
@@ -2196,7 +2216,7 @@ w2utils.keyboard = (function (obj) {
                         if (eventData.isCancelled === true) return;
                         // default behavior
                         if ($(event.target).hasClass('w2ui-list-remove')) {
-                            if ($(obj.el).attr('readonly')) return;
+                            if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
@@ -2361,6 +2381,12 @@ w2utils.keyboard = (function (obj) {
                 $(this.el).next().find('div').css('background-color', color);
                 if ($(obj.el).is(':focus')) this.updateOverlay();
             }
+            // list, enum
+            if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
+                obj.refresh();
+                // need time out to show icon indent properly
+                setTimeout(function () { obj.refresh(); }, 5); 
+            }
         },
 
         click: function (event) {
@@ -2380,13 +2406,13 @@ w2utils.keyboard = (function (obj) {
             var options = this.options;
             // color, date, time
             if (['color', 'date', 'time'].indexOf(obj.type) !== -1) {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 setTimeout(function () { obj.updateOverlay(); }, 150);
             }
             // menu
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 setTimeout(function () {
                     if (obj.type == 'list' && $(obj.el).is(':focus')) {
@@ -3137,10 +3163,7 @@ w2utils.keyboard = (function (obj) {
                                 }
                             } else {
                                 $(obj.el).data('selected', event.item).val(event.item.text).change();
-                                if (obj.helpers.focus) {
-                                    obj.helpers.focus.find('input').val('');
-                                    obj.refresh(); 
-                                }
+                                if (obj.helpers.focus) obj.helpers.focus.find('input').val('');
                             }
                         }
                     }));
@@ -3558,7 +3581,11 @@ w2utils.keyboard = (function (obj) {
             var size = 0;
             var cnt  = 0;
             var err;
-            for (var s in selected) { size += selected[s].size; cnt++; }
+            for (var s in selected) { 
+                // check for dups
+                if (selected[s].name == file.name && selected[s].size == file.size) return;
+                size += selected[s].size; cnt++; 
+            }
             // trigger event
             var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
             if (eventData.isCancelled === true) return;

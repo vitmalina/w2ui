@@ -1,4 +1,4 @@
-/* w2ui-fields.js 1.4.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui-fields.js 1.5.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
 /*************************************************
 * --- Reset (used for all w2ui wdigetes)
 * --- The reset is needed to coexist with other CSS
@@ -943,6 +943,12 @@ button.btn-red.clicked {
   background-image: -ms-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: -o-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
   background-image: linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
+}
+.w2ui-select[readonly],
+.w2ui-select[disabled] {
+  background-image: none;
+  background-color: #f1f1f1 !importan;
+  color: #777 !important;
 }
 /*
 *    ENUM items
