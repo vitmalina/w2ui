@@ -4253,7 +4253,7 @@
                         if (search.type == 'list') options.selected = {};
                         if (search.type == 'enum') options.selected = [];
                         if (sdata) options.selected = sdata.value;
-                        $('#grid_'+ this.name +'_field_'+s).w2field(search.type, options);
+                        $('#grid_'+ this.name +'_field_'+s).w2field(search.type, $.extend({ openOnFocus: true }, options));
                         if (search.type == 'combo') {
                             $('#grid_'+ this.name +'_operator_'+s).val('begins');
                         }
