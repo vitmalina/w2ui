@@ -56,6 +56,8 @@
             }
             // add all other panels
             for (var p1 in w2layout_panels) {
+            	if(!w2layout_panels.hasOwnProperty(p1))
+					continue;
                 p1 = w2layout_panels[p1];
                 if (object.get(p1) !== null) continue;
                 object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 !== 'main'), size: 50 }));
@@ -344,6 +346,8 @@
 
         get: function (panel, returnIndex) {
             for (var p in this.panels) {
+            	if(!this.panels.hasOwnProperty(p))
+					continue;
                 if (this.panels[p].type == panel) {
                     if (returnIndex === true) return p; else return this.panels[p];
                 }
@@ -426,6 +430,8 @@
             if ($(obj.box).length > 0) $(obj.box)[0].style.cssText += obj.style;
             // create all panels
             for (var p1 in w2layout_panels) {
+            	if(!w2layout_panels.hasOwnProperty(p1))
+					continue;
                 p1 = w2layout_panels[p1];
                 var pan  = obj.get(p1);
                 var html =  '<div id="layout_'+ obj.name + '_panel_'+ p1 +'" class="w2ui-panel">'+
@@ -478,6 +484,8 @@
                 };
                 // lock all panels
                 for (var p1 in w2layout_panels) {
+                	if(!w2layout_panels.hasOwnProperty(p1))
+    					continue;
                     p1 = w2layout_panels[p1];
                     obj.lock(p1, { opacity: 0 });
                 }
@@ -498,6 +506,8 @@
                 if (typeof obj.tmp.resize == 'undefined') return;
                 // unlock all panels
                 for (var p1 in w2layout_panels) {
+                	if(!w2layout_panels.hasOwnProperty(p1))
+    					continue;
                     obj.unlock(w2layout_panels[p1]);
                 }
                 // set new size
@@ -702,7 +712,12 @@
                 }
                 obj.resize();
                 // refresh all of them
-                for (var p1 in this.panels) { obj.refresh(this.panels[p1].type); }
+                for (var p1 in this.panels) 
+                {
+                	if(!this.panels.hasOwnProperty(p1))
+    					continue;
+                	obj.refresh(this.panels[p1].type); 
+                }
             }
             obj.trigger($.extend(eventData, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -743,6 +758,8 @@
             var l, t, w, h, e;
             // calculate %
             for (var p in w2layout_panels) {
+            	if(!w2layout_panels.hasOwnProperty(p))
+					continue;
                 p = w2layout_panels[p];
                 if (p === 'main') continue;
                 var tmp = this.get(p);
@@ -992,6 +1009,8 @@
 
             // display tabs and toolbar if needed
             for (var p1 in w2layout_panels) {
+            	if(!w2layout_panels.hasOwnProperty(p1))
+					continue;
                 p1 = w2layout_panels[p1];
                 var pan = this.get(p1);
                 var tmp2 = '#layout_'+ this.name +'_panel_'+ p1 +' > .w2ui-panel-';
@@ -1015,6 +1034,8 @@
             clearTimeout(this._resize_timer);
             this._resize_timer = setTimeout(function () {
                 for (var e in w2ui) {
+                	if(!w2ui.hasOwnProperty(e))
+    					continue;
                     if (typeof w2ui[e].resize == 'function') {
                         // sent to all none-layouts
                         if (w2ui[e].panels == 'undefined') w2ui[e].resize();

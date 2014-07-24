@@ -391,7 +391,12 @@ var w2utils = (function () {
                 html = $.trim(String(html).replace(/(<([^>]+)>)/ig, ""));
                 break;
             case 'object':
-                for (var a in html) html[a] = this.stripTags(html[a]);
+                for (var a in html)
+            	{
+        			if(!html.hasOwnProperty(a))
+    					continue;
+                	html[a] = this.stripTags(html[a]);
+            	}
                 break;
         }
         return html;
@@ -406,7 +411,12 @@ var w2utils = (function () {
                 html = String(html).replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
                 break;
             case 'object':
-                for (var a in html) html[a] = this.encodeTags(html[a]);
+                for (var a in html)
+            	{
+                	if(!html.hasOwnProperty(a))
+    					continue;
+                	html[a] = this.encodeTags(html[a]);
+            	}
                 break;
         }
         return html;
@@ -813,6 +823,8 @@ var w2utils = (function () {
                 // apply translation to some prototype functions
                 var p = w2obj.grid.prototype;
                 for (var b in p.buttons) {
+                	if(!p.buttons.hasOwnProperty(b))
+    					continue;
                     p.buttons[b].caption = w2utils.lang(p.buttons[b].caption);
                     p.buttons[b].hint    = w2utils.lang(p.buttons[b].hint);
                 }
@@ -1081,6 +1093,8 @@ w2utils.keyboard = (function (obj) {
                 if (typeof str === 'string') str = [str];
                 el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
                 for (var s in str) {
+                	if(!str.hasOwnProperty(s))
+    					continue;
                     var tmp = str[s];
                     if (typeof tmp !== 'string') tmp = String(tmp);
                     // escape regex special chars
@@ -1473,7 +1487,12 @@ w2utils.keyboard = (function (obj) {
                     '</div>';
                 options.style += ';background-color: #ECECEC';
                 options.index = 0;
-                for (var i in options.items) options.items[i].hidden = false;
+                for (var i in options.items) 
+            	{
+                	if(!options.items.hasOwnProperty(i))
+    					continue;
+                	options.items[i].hidden = false;
+            	}
             }
             html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%; overflow: auto;">' +
                         getMenuHTML() +
@@ -1557,6 +1576,8 @@ w2utils.keyboard = (function (obj) {
             if (!cancel) {
                 var shown  = 0;
                 for (var i in options.items) {
+                	if(!options.items.hasOwnProperty(i))
+    					continue;
                     var item = options.items[i];
                     var prefix = '';
                     var suffix = '';
