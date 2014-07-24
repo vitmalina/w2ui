@@ -2253,6 +2253,9 @@ button.btn-red.clicked {
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image > span {
   color: #c0c8d5 !important;
 }
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node input {
+  pointer-events: auto;
+}
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover {
   background-color: #202530;

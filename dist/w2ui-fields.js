@@ -1459,7 +1459,8 @@ w2utils.keyboard = (function (obj) {
                         });
                     }, 10);
                 }
-                setTimeout(function () { $(document).click(); }, 50);
+                // do not uncomment (enum in grid search will not work)
+                // setTimeout(function () { $(document).click(); }, 50);
             };
             var html = '';
             if (options.search) {
@@ -2360,6 +2361,10 @@ w2utils.keyboard = (function (obj) {
                 if ($(this.el).val().length != 6 && $(this.el).val().length != 3) color = '';
                 $(this.el).next().find('div').css('background-color', color);
                 if ($(obj.el).is(':focus')) this.updateOverlay();
+            }
+            // list, enum
+            if (['list', 'enum'].indexOf(this.type) != -1) {
+                this.refresh();
             }
         },
 

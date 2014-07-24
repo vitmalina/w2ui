@@ -1459,7 +1459,8 @@ w2utils.keyboard = (function (obj) {
                         });
                     }, 10);
                 }
-                setTimeout(function () { $(document).click(); }, 50);
+                // do not uncomment (enum in grid search will not work)
+                // setTimeout(function () { $(document).click(); }, 50);
             };
             var html = '';
             if (options.search) {
@@ -2195,7 +2196,7 @@ w2utils.keyboard = (function (obj) {
                 return ret;
             });
             time = (new Date()).getTime() - time;
-            if (silent !== true) setTimeout(function () { obj.status('Sorting took ' + time/1000 + ' sec'); }, 10);
+            if (silent !== true) setTimeout(function () { obj.status(w2utils.lang('Sorting took') + ' ' + time/1000 + ' ' + w2utils.lang('sec')); }, 10);
             return time;
         },
 
@@ -2294,7 +2295,7 @@ w2utils.keyboard = (function (obj) {
                 this.total = this.last.searchIds.length;
             }
             time = (new Date()).getTime() - time;
-            if (silent !== true) setTimeout(function () { obj.status('Search took ' + time/1000 + ' sec'); }, 10);
+            if (silent !== true) setTimeout(function () { obj.status(w2utils.lang('Search took') + ' ' + time/1000 + ' ' + w2utils.lang('sec')); }, 10);
             return time;
         },
 
@@ -11115,6 +11116,10 @@ var w2confirm = function (msg, title, callBack) {
                 if ($(this.el).val().length != 6 && $(this.el).val().length != 3) color = '';
                 $(this.el).next().find('div').css('background-color', color);
                 if ($(obj.el).is(':focus')) this.updateOverlay();
+            }
+            // list, enum
+            if (['list', 'enum'].indexOf(this.type) != -1) {
+                this.refresh();
             }
         },
 

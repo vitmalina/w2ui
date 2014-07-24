@@ -2239,6 +2239,9 @@ button.btn-red.clicked {
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image > span {
   color: #516173 !important;
 }
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node input {
+  pointer-events: auto;
+}
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover {
   background-image: -webkit-linear-gradient(#69b1e0, #4a96d3);
