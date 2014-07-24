@@ -1,6 +1,6 @@
 {
     "name": "w2ui",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "title": "W2UI: New JavaScript UI Library",
     "description": "Complete set of JavaScript UI widget for development of data-driven web applications. Includes layout, grid, toolbar, sidebar, tabs, forms, fields, popup, overlay",
     "keywords": [
@@ -44,7 +44,7 @@
     "bugs"         : "https://github.com/vitmalina/w2ui/issues",
     "homepage"     : "http://w2ui.com/web",
     "docs"         : "http://w2ui.com/web/docs",
-    "download"     : "http://w2ui.com/web/downloads/w2ui-1.4.zip",
+    "download"     : "http://w2ui.com/web/downloads/w2ui-1.5.zip",
     "dependencies" : {
         "jquery": ">=1.9"
     }
