@@ -1458,7 +1458,8 @@ w2utils.keyboard = (function (obj) {
                         });
                     }, 10);
                 }
-                setTimeout(function () { $(document).click(); }, 50);
+                // do not uncomment (enum in grid search will not work)
+                // setTimeout(function () { $(document).click(); }, 50);
             };
             var html = '';
             if (options.search) {
