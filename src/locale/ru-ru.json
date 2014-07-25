@@ -76,6 +76,7 @@
         "Records": "Записей",
         "Toggle Line Numbers": "Вкл/Выкл. номера строк",
         "Reset Column Size": "Восстановить размер колонок",
-        "Column": "Колонка"
+        "Column": "Колонка",
+        "Loading...": "Загрузка..."
     }
 }
