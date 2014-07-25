@@ -100,3 +100,13 @@ options = {
     count    : null     // count to disaply on the right
 };
 </textarea>
+
+<h3>Set Value From JavaScript</h3>
+To set a different value from JavaScript you need to change $('#id').data('selected') and refresh the field:
+<textarea class="javascript">
+$('input[type=combo]').data('selected', { id: 1, text: 'Some text'}).change();
+</textarea>
+In 1.4.0, you should be able to do it with
+<textarea class="javascript">
+$('input[type=combo]').data('selected', { id: 1, text: 'Some text'}).data('w2field').refresh();
+</textarea>

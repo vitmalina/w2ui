@@ -16,6 +16,10 @@
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - add compare function for list, combo, enum
 *
+* == 1.5 changes
+*   - added support decimalSymbol (added options.decimalSymbol)
+*   - $('#id').w2field() - will return w2field object (same as $('#id').data('w2field'))
+*
 ************************************************************************/
 
 (function ($) {
@@ -63,6 +67,11 @@
                 return pr[method].apply(pr, Array.prototype.slice.call(arguments, 1));
             }
         } else {
+            // if without arguments - return the object
+            if (arguments.length == 0) {
+                var obj = $(this).data('w2field');
+                return obj;
+            }
             if (typeof method == 'string' && typeof options == 'object') {
                 method = $.extend(true, {}, options, { type: method });
             }
@@ -201,6 +210,7 @@
                     }
                     this.addPrefix(); // only will add if needed
                     this.addSuffix();
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder);
                     break;
 
@@ -218,6 +228,7 @@
                     // additional checks
                     $(this.el).attr('maxlength', 6);
                     if ($(this.el).val() != '') setTimeout(function () { $(obj.el).change(); }, 1);
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder);
                     break;
 
@@ -234,6 +245,7 @@
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder ? options.placeholder : options.format);
                     break;
 
@@ -248,6 +260,7 @@
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder ? options.placeholder : (options.format == 'h12' ? 'hh:mi pm' : 'hh:mi'));
                     break;
 
@@ -309,6 +322,7 @@
                     this.addPrefix();
                     this.addSuffix();
                     setTimeout(function () { obj.refresh(); }, 10); // need this for icon refresh
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder).attr('autocomplete', 'off');
                     if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
                     break;
@@ -385,6 +399,7 @@
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
+                    if ($(this.el).attr('placeholder')) options.placeholder = $(this.el).attr('placeholder');
                     this.addMulti();
                     break;
             }
@@ -490,11 +505,11 @@
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
                         $(obj.el).val(selected && selected.text != null ? selected.text : '');
-                        $(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
+                        $(obj.el).attr('placeholder', options.placeholder || '');
                     } else {
                         $(focus).css('opacity', 1).prev().css('opacity', 1);
                         $(obj.el).val('');
-                        $(obj.el).attr('_placeholder', $(obj.el).attr('placeholder')).removeAttr('placeholder');
+                        $(obj.el).removeAttr('placeholder');
                         setTimeout(function () {
                             if (obj.helpers.prefix) obj.helpers.prefix.hide(); 
                             var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';

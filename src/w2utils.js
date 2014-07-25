@@ -30,6 +30,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - isTime should support seconds
 *   - TEST On IOS
 *
+* == 1.5 changes
+*   - added decimalSymbol
+*
 ************************************************/
 
 var w2utils = (function () {
