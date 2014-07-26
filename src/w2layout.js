@@ -11,6 +11,9 @@
 *   - bug: resizer is visible (and onHover) when panel is hidden.
 *   - bug: when you assign content before previous transition completed.
 *
+* == 1.5 changes
+*   - $('#layout').w2layout() - if called w/o argument then it returns layout object
+*
 ************************************************************************/
 
 (function () {
@@ -42,7 +45,7 @@
     // -- Registers as a jQuery plugin
 
     $.fn.w2layout = function(method) {
-        if (typeof method === 'object' || !method ) {
+        if ($.isPlainObject(method)) {
             // check name parameter
             if (!w2utils.checkName(method, 'w2layout')) return;
             var panels = method.panels || [];
@@ -66,12 +69,15 @@
             w2ui[object.name] = object;
             return object;
 
-        } else if (w2ui[$(this).attr('name')]) {
-            var obj = w2ui[$(this).attr('name')];
-            obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
-            return this;
         } else {
-            console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2layout' );
+            var obj = w2ui[$(this).attr('name')];
+            if (!obj) return null;
+            if (arguments.length > 0) {
+                if (obj[method]) obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
+                return this;
+            } else {
+                return obj;
+            }
         }
 
         function initTabs(object, panel, tabs) {

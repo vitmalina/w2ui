@@ -20,6 +20,10 @@
 *   - add showExtra, KickIn Infinite scroll when so many records
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
+*   - if supplied array of ids, get should return array of records
+*
+* == 1.5 changes
+*   - $('#grid').w2grid() - if called w/o argument then it returns grid object
 *
 ************************************************************************/
 
@@ -156,7 +160,7 @@
     // -- Registers as a jQuery plugin
 
     $.fn.w2grid = function(method) {
-        if (typeof method === 'object' || !method ) {
+        if ($.isPlainObject(method)) {
             // check name parameter
             if (!w2utils.checkName(method, 'w2grid')) return;
             // remember items
@@ -208,12 +212,15 @@
             w2ui[object.name] = object;
             return object;
 
-        } else if (w2ui[$(this).attr('name')]) {
-            var obj = w2ui[$(this).attr('name')];
-            obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
-            return this;
         } else {
-            console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2grid');
+            var obj = w2ui[$(this).attr('name')];
+            if (!obj) return null;
+            if (arguments.length > 0) {
+                if (obj[method]) obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
+                return this;
+            } else {
+                return obj;
+            }
         }
     }
 

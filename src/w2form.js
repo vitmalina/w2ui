@@ -16,6 +16,9 @@
 *   - show/hide a field
 *   - added getChanges() - not complete
 *
+* == 1.5 changes
+*   - $('#form').w2form() - if called w/o argument then it returns form object
+*
 ************************************************************************/
 
 
@@ -74,7 +77,7 @@
     // -- Registers as a jQuery plugin
 
     $.fn.w2form = function(method) {
-        if (typeof method === 'object' || !method ) {
+        if ($.isPlainObject(method)) {
             var obj = this;
             // check name parameter
             if (!w2utils.checkName(method, 'w2form')) return;
@@ -149,12 +152,15 @@
             }
             return object;
 
-        } else if (w2ui[$(this).attr('name')]) {
-            var obj = w2ui[$(this).attr('name')];
-            obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
-            return this;
         } else {
-            console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2form');
+            var obj = w2ui[$(this).attr('name')];
+            if (!obj) return null;
+            if (arguments.length > 0) {
+                if (obj[method]) obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
+                return this;
+            } else {
+                return obj;
+            }
         }
     };
 

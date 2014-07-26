@@ -7,6 +7,10 @@
 *
 * == NICE TO HAVE ==
 *   - on overflow display << >>
+*   - declarative tabs
+*
+* == 1.5 changes
+*   - $('#tabs').w2tabs() - if called w/o argument then it returns tabs object
 *
 ************************************************************************/
 
@@ -34,7 +38,7 @@
     // -- Registers as a jQuery plugin
 
     $.fn.w2tabs = function(method) {
-        if (typeof method === 'object' || !method ) {
+        if ($.isPlainObject(method)) {
             // check name parameter
             if (!w2utils.checkName(method, 'w2tabs')) return;
             // extend tabs
@@ -49,13 +53,15 @@
             // register new object
             w2ui[object.name] = object;
             return object;
-        } else if (w2ui[$(this).attr('name')]) {
-            var obj = w2ui[$(this).attr('name')];
-            obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
-            return this;
         } else {
-            console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2tabs' );
-            return undefined;
+            var obj = w2ui[$(this).attr('name')];
+            if (!obj) return null;
+            if (arguments.length > 0) {
+                if (obj[method]) obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
+                return this;
+            } else {
+                return obj;
+            }
         }
     };
 

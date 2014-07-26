@@ -8,6 +8,10 @@
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 *   - verticle toolbar
+*   - declarative toolbar
+*
+* == 1.5 changes
+*   - $('#toolbar').w2toolbar() - if called w/o argument then it returns toolbar object
 *
 ************************************************************************/
 
@@ -31,7 +35,7 @@
     // -- Registers as a jQuery plugin
 
     $.fn.w2toolbar = function(method) {
-        if (typeof method === 'object' || !method ) {
+        if ($.isPlainObject(method)) {
             // check name parameter
             if (!w2utils.checkName(method, 'w2toolbar')) return;
             // extend items
@@ -48,12 +52,15 @@
             w2ui[object.name] = object;
             return object;
 
-        } else if (w2ui[$(this).attr('name')]) {
-            var obj = w2ui[$(this).attr('name')];
-            obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
-            return this;
         } else {
-            console.log('ERROR: Method ' +  method + ' does not exist on jQuery.w2toolbar' );
+            var obj = w2ui[$(this).attr('name')];
+            if (!obj) return null;
+            if (arguments.length > 0) {
+                if (obj[method]) obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
+                return this;
+            } else {
+                return obj;
+            }
         }
     };
 
