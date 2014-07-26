@@ -28,6 +28,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
 *   - hidden and disabled in menus
 *   - isTime should support seconds
+*   - add time zone
 *   - TEST On IOS
 *
 * == 1.5 changes
@@ -43,7 +44,7 @@ var w2utils = (function () {
             "locale"            : "en-us",
             "date_format"       : "m/d/yyyy",
             "date_display"      : "Mon d, yyyy",
-            "time_format"       : "h12",
+            "time_format"       : "hh:mi pm",
             "currencyPrefix"    : "$",
             "currencySuffix"    : "",
             "currencyPrecision" : 2,
@@ -313,7 +314,7 @@ var w2utils = (function () {
         var months = w2utils.settings.shortmonths;
         var fullMonths = w2utils.settings.fullmonths;
         if (!format) format = this.settings.date_format;
-        if (dateStr === '' || dateStr == null) return '';
+        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
@@ -328,18 +329,21 @@ var w2utils = (function () {
             .replace(/yyyy/g, year)
             .replace(/yyy/g, year)
             .replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
-            .replace(/(^|[^a-z$])y/g, '$1' + year)             // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceeded by a letter
             .replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
             .replace(/dd/g, (date < 10 ? '0' : '') + date)
+            .replace(/th/g, (date == 1 ? 'st' : 'th'))
+            .replace(/th/g, (date == 2 ? 'nd' : 'th'))
+            .replace(/th/g, (date == 3 ? 'rd' : 'th'))
             .replace(/(^|[^a-z$])m/g, '$1' + (month + 1))     // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])d/g, '$1' + date);         // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])d/g, '$1' + date);           // only y's that are not preceeded by a letter
     }
 
     function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
         var months = w2utils.settings.shortmonths;
         var fullMonths = w2utils.settings.fullmonths;
-        if (!format) format = (this.settings.time_format === 'h12' ? 'hh:mi pm' : 'h24:mi');
-        if (dateStr === '' || dateStr == null) return '';
+        if (!format) format = this.settings.time_format;
+        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt  = new Date(Number(dateStr)); // for unix timestamps
@@ -377,6 +381,7 @@ var w2utils = (function () {
 
     function formatDateTime(dateStr, format) {
         var fmt;
+        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         if (typeof format !== 'string') {
             fmt = [this.settings.date_format, this.settings.time_format];
         } else {
