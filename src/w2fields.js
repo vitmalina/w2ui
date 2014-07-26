@@ -262,7 +262,7 @@
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
                     if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
-                    $(this.el).attr('placeholder', options.placeholder ? options.placeholder : (options.format == 'h12' ? 'hh:mi pm' : 'hh:mi'));
+                    $(this.el).attr('placeholder', options.placeholder ? options.placeholder : options.format);
                     break;
 
                 case 'datetime':
