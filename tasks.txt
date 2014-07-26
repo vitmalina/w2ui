@@ -1,0 +1,21 @@
+Tasks:
+
+при выделении рэнжа нужно событие когда рэнж выделился
+
+---
+
+Building Data Intensive UI in JavaScript with W2UI
+
+UI is one of the most important aspects of your web application, as often your entire applications will be judged by how
+it looks and feels to the end user. There are a number of options when it comes to building a desktop-like web application, 
+but there is a big dilemma. All of the options are either proprietary solutions like ExtJS and KendoUI or mismatched sets of
+open-source libraries that do not always play nicely together.
+
+W2UI intends to fill this gap by providing a complete, minimal set of UI widgets to build your next data intensive web app
+and enjoy doing it. In this talk I will overview available options, talk about pros and cons of various UI solution for data
+intensive web apps and demo how to use W2UI to build a compelling web application that looks and feels as it was a native 
+desktop application.
+
+http://w2ui.com/web/blog
+http://davidwalsh.name/html5-input-types-alternative
+

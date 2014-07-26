@@ -1,6 +1,46 @@
 // **********************************
 // -- Unit Tests: w2utils
 
+test( "w2utils.date()", function () {
+    var dt  = new Date();
+    var dt2 = (new Date()).getTime() -  86400000 * 5;
+    equal( w2utils.date(), '',          "- no argument -" );
+    equal( w2utils.date(''), '',        "- blank -" );
+    equal( w2utils.date(null), '',      "- null -" );
+    equal( w2utils.date(undefined), '', "- undefined -" );
+    equal( w2utils.date({}), '',        "- object -" );
+    equal( w2utils.date([]), '',        "- array -" );
+    equal( w2utils.stripTags(w2utils.date(new Date())), w2utils.formatTime(dt), "Today" );
+    equal( w2utils.stripTags(w2utils.date((new Date()).getTime() -  86400000 )), w2utils.stripTags('Yesterday'), "Yesterday" );
+    equal( w2utils.stripTags(w2utils.date(dt2)), w2utils.formatDate(dt2, w2utils.settings.date_display), "5 days ago" );
+});
+
+test( "w2utils.age()", function () {
+    var dt  = new Date();
+    equal( w2utils.age(), '',          "- no argument -" );
+    equal( w2utils.age(''), '',        "- blank -" );
+    equal( w2utils.age(null), '',      "- null -" );
+    equal( w2utils.age(undefined), '', "- undefined -" );
+    equal( w2utils.age({}), '',        "- object -" );
+    equal( w2utils.age([]), '',        "- array -" );
+    equal( w2utils.stripTags(w2utils.age(new Date())), '0 sec', "Now" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  4000 )), '4 secs', "4 secs" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() +  4000 )), '0 sec', "future" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 5 )), '5 mins', "5 mins" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 45 )), '45 mins', "45 mins" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 60 * 2 )), '2 hours', "2 hours" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000)), '1 day', "Yesterday" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 1.5)), '1 day', "Yesterday" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 5)), '5 days', "5 days" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 30)), '1 month', "1 month" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 33)), '1.1 months', "over a month" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 50)), '1.6 months', "over a month" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 145)), '4.8 months', "over 4 months" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 365)), '1 year', "one year" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 420)), '1.1 years', "over one year" );
+    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 365 * 20)), '19.9 years', "arround 20 years" );
+});
+
 test( "w2utils.formatNumber()", function () {
     var values = {
         '1,000'       : '1000',
@@ -106,7 +146,7 @@ test( "w2utils.formatDateTime()", function () {
     }
 });
 
-test( "w2utils.size()", function() {
+test( "w2utils.formatSize()", function() {
     var values = {
         ''          : 0,
         '1 Bt'      : 1,
@@ -120,15 +160,15 @@ test( "w2utils.size()", function() {
         '2.5 GB'    : 1024*1024*1024*2.5,
         '2.9 TB'    : 1024*1024*1024*1024*2.99
     }
-    equal( w2utils.size(), '',          "- no argument -" );
-    equal( w2utils.size(''), '',        "- blank -" );
-    equal( w2utils.size(null), '',      "- null -" );
-    equal( w2utils.size(undefined), '', "- undefined -" );
-    equal( w2utils.size({}), '',        "- object -" );
-    equal( w2utils.size([]), '',        "- array -" );
+    equal( w2utils.formatSize(), '',          "- no argument -" );
+    equal( w2utils.formatSize(''), '',        "- blank -" );
+    equal( w2utils.formatSize(null), '',      "- null -" );
+    equal( w2utils.formatSize(undefined), '', "- undefined -" );
+    equal( w2utils.formatSize({}), '',        "- object -" );
+    equal( w2utils.formatSize([]), '',        "- array -" );
 
     for (var v in values) {
-        equal( w2utils.size(values[v]), v, 'Test: ' + values[v] + ' = ' + v);
+        equal( w2utils.formatSize(values[v]), v, 'Test: ' + values[v] + ' = ' + v);
     }
 });
 

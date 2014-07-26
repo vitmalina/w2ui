@@ -33,6 +33,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 * == 1.5 changes
 *   - added decimalSymbol
+*   - renamed size() -> formatSize()
 *
 ************************************************/
 
@@ -67,7 +68,7 @@ var w2utils = (function () {
         isTime          : isTime,
         age             : age,
         date            : date,
-        size            : size,
+        formatSize      : formatSize,
         formatNumber    : formatNumber,
         formatDate      : formatDate,
         formatTime      : formatTime,
@@ -229,7 +230,7 @@ var w2utils = (function () {
     }
 
     function age (dateStr) {
-        if (dateStr === '' || dateStr == null) return '';
+        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
         if (d1 === 'Invalid Date') return '';
@@ -239,7 +240,7 @@ var w2utils = (function () {
         var amount = '';
         var type   = '';
         if (sec < 0) {
-            amount = '<span style="color: #aaa">future</span>';
+            amount = '<span style="color: #aaa">0 sec</span>';
             type   = '';
         } else if (sec < 60) {
             amount = Math.floor(sec);
@@ -254,10 +255,14 @@ var w2utils = (function () {
         } else if (sec < 30*24*60*60) {
             amount = Math.floor(sec/24/60/60);
             type   = 'day';
-        } else if (sec < 365.25*24*60*60) {
-            amount = Math.floor(sec/365.25/24/60/60*10)/10;
+        } else if (sec < 365*24*60*60) {
+            amount = Math.floor(sec/30/24/60/60*10)/10;
             type   = 'month';
-        } else if (sec >= 365.25*24*60*60) {
+        } else if (sec < 365*4*24*60*60) {
+            amount = Math.floor(sec/365/24/60/60*10)/10;
+            type   = 'year';
+        } else if (sec >= 365*4*24*60*60) {
+            // factor in leap year shift (only older then 4 years)
             amount = Math.floor(sec/365.25/24/60/60*10)/10;
             type   = 'year';
         }
@@ -265,7 +270,7 @@ var w2utils = (function () {
     }
 
     function date (dateStr) {
-        if (dateStr === '' || dateStr == null) return '';
+        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
         if (d1 === 'Invalid Date') return '';
@@ -288,7 +293,7 @@ var w2utils = (function () {
         return '<span title="'+ dd1 +' ' + time2 +'">'+ dsp +'</span>';
     }
 
-    function size (sizeStr) {
+    function formatSize (sizeStr) {
         if (!w2utils.isFloat(sizeStr) || sizeStr === '') return '';
         sizeStr = parseFloat(sizeStr);
         if (sizeStr === 0) return 0;
