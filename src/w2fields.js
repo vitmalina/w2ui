@@ -15,6 +15,7 @@
 *   - form to support custom types
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - add compare function for list, combo, enum
+*   - deprecate placeholder, read it from input
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
@@ -556,9 +557,11 @@
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
                     div.addClass('w2ui-readonly'); 
                     div.css('pointer-events', 'none').find('li').css('opacity', '0.6');
+                    $(obj.helpers.multi).find('input').prop('readonly', true);                    
                 } else {
                     div.removeClass('w2ui-readonly');
                     div.css('pointer-events', 'auto').find('li').css('opacity', '1');
+                    $(obj.helpers.multi).find('input').prop('readonly', false);
                 }
                 // celan
                 div.find('.w2ui-enum-placeholder').remove();
