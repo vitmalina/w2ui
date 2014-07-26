@@ -41,7 +41,7 @@ var w2utils = (function () {
             "locale"            : "en-us",
             "date_format"       : "m/d/yyyy",
             "date_display"      : "Mon d, yyyy",
-            "time_format"       : "h12",
+            "time_format"       : "hh:mi pm",
             "currencyPrefix"    : "$",
             "currencySuffix"    : "",
             "currencyPrecision" : 2,
@@ -311,7 +311,7 @@ var w2utils = (function () {
         var months = w2utils.settings.shortmonths;
         var fullMonths = w2utils.settings.fullmonths;
         if (!format) format = this.settings.date_format;
-        if (dateStr === '' || dateStr == null) return '';
+        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
@@ -326,18 +326,21 @@ var w2utils = (function () {
             .replace(/yyyy/g, year)
             .replace(/yyy/g, year)
             .replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
-            .replace(/(^|[^a-z$])y/g, '$1' + year)             // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceeded by a letter
             .replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
             .replace(/dd/g, (date < 10 ? '0' : '') + date)
+            .replace(/th/g, (date == 1 ? 'st' : 'th'))
+            .replace(/th/g, (date == 2 ? 'nd' : 'th'))
+            .replace(/th/g, (date == 3 ? 'rd' : 'th'))
             .replace(/(^|[^a-z$])m/g, '$1' + (month + 1))     // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])d/g, '$1' + date);         // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])d/g, '$1' + date);           // only y's that are not preceeded by a letter
     }
 
     function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
         var months = w2utils.settings.shortmonths;
         var fullMonths = w2utils.settings.fullmonths;
-        if (!format) format = (this.settings.time_format === 'h12' ? 'hh:mi pm' : 'h24:mi');
-        if (dateStr === '' || dateStr == null) return '';
+        if (!format) format = this.settings.time_format;
+        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt  = new Date(Number(dateStr)); // for unix timestamps
@@ -375,6 +378,7 @@ var w2utils = (function () {
 
     function formatDateTime(dateStr, format) {
         var fmt;
+        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         if (typeof format !== 'string') {
             fmt = [this.settings.date_format, this.settings.time_format];
         } else {
@@ -1709,6 +1713,11 @@ w2utils.keyboard = (function (obj) {
                 return pr[method].apply(pr, Array.prototype.slice.call(arguments, 1));
             }
         } else {
+            // if without arguments - return the object
+            if (arguments.length == 0) {
+                var obj = $(this).data('w2field');
+                return obj;
+            }
             if (typeof method == 'string' && typeof options == 'object') {
                 method = $.extend(true, {}, options, { type: method });
             }
@@ -1826,8 +1835,8 @@ w2utils.keyboard = (function (obj) {
                         currencyPrefix     : w2utils.settings.currencyPrefix,
                         currencySuffix     : w2utils.settings.currencySuffix,
                         currencyPrecision  : w2utils.settings.currencyPrecision,
-                        groupSymbol        : w2utils.settings.groupSymbol,
                         decimalSymbol      : w2utils.settings.decimalSymbol,
+                        groupSymbol        : w2utils.settings.groupSymbol,
                         arrows             : false,
                         keyboard           : true,
                         precision          : null,
@@ -1838,7 +1847,7 @@ w2utils.keyboard = (function (obj) {
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
                     options.numberRE  = new RegExp('['+ options.groupSymbol + ']', 'g');
-                    options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol + ']', 'g');
+                    options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol +']', 'g');
                     options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g');
                     // no keyboard support needed
                     if (['text', 'alphanumeric', 'hex'].indexOf(this.type) != -1) {
@@ -1847,6 +1856,7 @@ w2utils.keyboard = (function (obj) {
                     }
                     this.addPrefix(); // only will add if needed
                     this.addSuffix();
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder);
                     break;
 
@@ -1864,6 +1874,7 @@ w2utils.keyboard = (function (obj) {
                     // additional checks
                     $(this.el).attr('maxlength', 6);
                     if ($(this.el).val() != '') setTimeout(function () { $(obj.el).change(); }, 1);
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder);
                     break;
 
@@ -1880,6 +1891,7 @@ w2utils.keyboard = (function (obj) {
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder ? options.placeholder : options.format);
                     break;
 
@@ -1894,6 +1906,7 @@ w2utils.keyboard = (function (obj) {
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder ? options.placeholder : (options.format == 'h12' ? 'hh:mi pm' : 'hh:mi'));
                     break;
 
@@ -1954,7 +1967,8 @@ w2utils.keyboard = (function (obj) {
                     if (this.type == 'list') this.addFocus();
                     this.addPrefix();
                     this.addSuffix();
-                    setTimeout(function () { obj.refresh();    }, 10); // need this for icon refresh
+                    setTimeout(function () { obj.refresh(); }, 10); // need this for icon refresh
+                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
                     $(this.el).attr('placeholder', options.placeholder).attr('autocomplete', 'off');
                     if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
                     break;
@@ -2031,6 +2045,7 @@ w2utils.keyboard = (function (obj) {
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
+                    if ($(this.el).attr('placeholder')) options.placeholder = $(this.el).attr('placeholder');
                     this.addMulti();
                     break;
             }
@@ -2136,11 +2151,11 @@ w2utils.keyboard = (function (obj) {
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
                         $(obj.el).val(selected && selected.text != null ? selected.text : '');
-                        $(obj.el).attr('placeholder', $(obj.el).attr('_placeholder'));
+                        $(obj.el).attr('placeholder', options.placeholder || '');
                     } else {
                         $(focus).css('opacity', 1).prev().css('opacity', 1);
                         $(obj.el).val('');
-                        $(obj.el).attr('_placeholder', $(obj.el).attr('placeholder')).removeAttr('placeholder');
+                        $(obj.el).removeAttr('placeholder');
                         setTimeout(function () {
                             if (obj.helpers.prefix) obj.helpers.prefix.hide(); 
                             var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';
@@ -2151,6 +2166,18 @@ w2utils.keyboard = (function (obj) {
                                 $(focus).css('margin-left', '0px');
                                 $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 0px !important; opacity: 0');
                             }
+                        }, 1);
+                    }
+                    // if readonly or disabled
+                    if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
+                        setTimeout(function () { 
+                            $(obj.helpers.prefix).css('opacity', '0.6'); 
+                            $(obj.helpers.suffix).css('opacity', '0.6');
+                        }, 1);
+                    } else {
+                        setTimeout(function () { 
+                            $(obj.helpers.prefix).css('opacity', '1'); 
+                            $(obj.helpers.suffix).css('opacity', '1');
                         }, 1);
                     }
                 }, 1);
@@ -2172,7 +2199,15 @@ w2utils.keyboard = (function (obj) {
                 var div = obj.helpers.multi;
                 var ul  = div.find('ul');
                 div.attr('style', div.attr('style') + ';' + options.style);
-                if ($(obj.el).attr('readonly')) div.addClass('w2ui-readonly'); else div.removeClass('w2ui-readonly');
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
+                    div.addClass('w2ui-readonly'); 
+                    div.css('pointer-events', 'none').find('li').css('opacity', '0.6');
+                    $(obj.helpers.multi).find('input').prop('readonly', true);                    
+                } else {
+                    div.removeClass('w2ui-readonly');
+                    div.css('pointer-events', 'auto').find('li').css('opacity', '1');
+                    $(obj.helpers.multi).find('input').prop('readonly', false);
+                }
                 // celan
                 div.find('.w2ui-enum-placeholder').remove();
                 ul.find('li').not('li.nomouse').remove();
@@ -2201,7 +2236,7 @@ w2utils.keyboard = (function (obj) {
                         if (eventData.isCancelled === true) return;
                         // default behavior
                         if ($(event.target).hasClass('w2ui-list-remove')) {
-                            if ($(obj.el).attr('readonly')) return;
+                            if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
@@ -2368,8 +2403,10 @@ w2utils.keyboard = (function (obj) {
                 if ($(obj.el).is(':focus')) this.updateOverlay();
             }
             // list, enum
-            if (['list', 'enum'].indexOf(this.type) != -1) {
-                this.refresh();
+            if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
+                obj.refresh();
+                // need time out to show icon indent properly
+                setTimeout(function () { obj.refresh(); }, 5); 
             }
         },
 
@@ -2390,13 +2427,13 @@ w2utils.keyboard = (function (obj) {
             var options = this.options;
             // color, date, time
             if (['color', 'date', 'time'].indexOf(obj.type) !== -1) {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 setTimeout(function () { obj.updateOverlay(); }, 150);
             }
             // menu
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 setTimeout(function () {
                     if (obj.type == 'list' && $(obj.el).is(':focus')) {
@@ -3147,10 +3184,7 @@ w2utils.keyboard = (function (obj) {
                                 }
                             } else {
                                 $(obj.el).data('selected', event.item).val(event.item.text).change();
-                                if (obj.helpers.focus) {
-                                    obj.helpers.focus.find('input').val('');
-                                    obj.refresh(); 
-                                }
+                                if (obj.helpers.focus) obj.helpers.focus.find('input').val('');
                             }
                         }
                     }));
@@ -3568,7 +3602,11 @@ w2utils.keyboard = (function (obj) {
             var size = 0;
             var cnt  = 0;
             var err;
-            for (var s in selected) { size += selected[s].size; cnt++; }
+            for (var s in selected) { 
+                // check for dups
+                if (selected[s].name == file.name && selected[s].size == file.size) return;
+                size += selected[s].size; cnt++; 
+            }
             // trigger event
             var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
             if (eventData.isCancelled === true) return;
