@@ -4,7 +4,11 @@ Called when user clicks the Delete button on the toolbar.
     onDelete = function(event)
 </div>
 
-You can add event listener during the object creation:
+This event it called twice. First time with <span class="method">event.force = false</span>, and if you do not do anything a confirmation 
+message will be displaed, and then second time with <span class="method">event.force = true</span>, which means user confirmed the deletion.
+If you change <span class="method">event.force</span> to true on the first call, then there will be no confirmation message.
+
+ You can add event listener during the object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
