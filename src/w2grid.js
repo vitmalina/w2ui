@@ -1249,6 +1249,11 @@
                     var data   = field[f];
                     var search = this.getSearch(data.field);
                     if (search == null) search = { type: 'text', operator: 'contains' };
+                    if ($.isArray(data.value)) {
+                        for (var v in data.value) {
+                            if (typeof data.value[v] == 'string') data.value[v] = data.value[v].toLowerCase();
+                        }
+                    }
                     // merge current field and search if any
                     searchData.push($.extend(true, {}, search, data));
                 }
