@@ -408,7 +408,7 @@ var w2popup = {};
             // default behavior
             w2popup.status = 'resizing';
             // do resize
-            w2popup.resize(size[0], size[1], function () {
+            w2popup.resize(parseInt(size[0]), parseInt(size[1]), function () {
                 w2popup.status = 'open';
                 options.maximized = false;
                 options.prevSize  = null;
