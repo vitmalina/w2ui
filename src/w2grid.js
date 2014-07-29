@@ -301,16 +301,28 @@
             } else { // find record to update
                 var ind = this.get(recid, true);
                 if (ind == null) return false;
-                $.extend(true, this.records[ind], record);
+                var isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true);
+                if (isSummary) {
+                    $.extend(true, this.summary[ind], record);
+                } else {
+                    $.extend(true, this.records[ind], record);
+                }
                 if (noRefresh !== true) this.refreshRow(recid); // refresh only that record
             }
             return true;
         },
 
         get: function (recid, returnIndex) {
+            // search records
             for (var i = 0; i < this.records.length; i++) {
                 if (this.records[i].recid == recid) {
                     if (returnIndex === true) return i; else return this.records[i];
+                }
+            }
+            // search summary
+            for (var i = 0; i < this.summary.length; i++) {
+                if (this.summary[i].recid == recid) {
+                    if (returnIndex === true) return i; else return this.summary[i];
                 }
             }
             return null;
@@ -2897,13 +2909,14 @@
         },
 
         refreshCell: function (recid, field) {
-            var index    = this.get(recid, true);
-            var col_ind  = this.getColumn(field, true);
-            var rec      = this.records[index];
-            var col      = this.columns[col_ind];
-            var cell     = $('#grid_'+ this.name + '_rec_'+ recid +' [col='+ col_ind +']');
+            var index     = this.get(recid, true);
+            var isSummary = (this.records[index] && this.records[index].recid == recid ? false : true);
+            var col_ind   = this.getColumn(field, true);
+            var rec       = (isSummary ? this.summary[index] : this.records[index]);
+            var col       = this.columns[col_ind];
+            var cell      = $('#grid_'+ this.name + '_rec_'+ recid +' [col='+ col_ind +']');
             // set cell html and changed flag
-            cell.html(this.getCellHTML(index, col_ind));
+            cell.html(this.getCellHTML(index, col_ind, isSummary));
             if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
                 cell.addClass('w2ui-changed');
             } else {
@@ -2916,12 +2929,13 @@
             if (tr.length != 0) {
                 var ind  = this.get(recid, true);
                 var line = tr.attr('line');
+                var isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true);
                 // if it is searched, find index in search array
                 var url = (typeof this.url != 'object' ? this.url : this.url.get);
                 if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
-                $(tr).replaceWith(this.getRecordHTML(ind, line));
+                $(tr).replaceWith(this.getRecordHTML(ind, line, isSummary));
+                if (isSummary) this.resize();
             }
-
         },
 
         refresh: function () {
