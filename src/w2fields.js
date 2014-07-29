@@ -1269,7 +1269,7 @@
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
                             obj.tmp.xhr_total   = data.items.length;
-                            options.items       = data.items;
+                            options.items       = obj.normMenu(data.items);
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // console.log('-->', 'retrieved:', obj.tmp.xhr_total);
