@@ -1869,7 +1869,7 @@ w2utils.keyboard = (function (obj) {
                         keyboard    : false
                     };
                     $.extend(options, defaults);
-                    this.addPrefix();     // only will add if needed
+                    this.addPrefix();    // only will add if needed
                     this.addSuffix();    // only will add if needed
                     // additional checks
                     $(this.el).attr('maxlength', 6);
@@ -1884,9 +1884,9 @@ w2utils.keyboard = (function (obj) {
                         placeholder : '',
                         keyboard    : true,
                         silent      : true,
-                        start       : '',        // string or jquery object
-                        end         : '',        // string or jquery object
-                        blocked     : {},        // { '4/11/2011': 'yes' }
+                        start       : '',       // string or jquery object
+                        end         : '',       // string or jquery object
+                        blocked     : {},       // { '4/11/2011': 'yes' }
                         colored     : {}        // { '4/11/2011': 'red:white' }
                     };
                     this.options = $.extend(true, {}, defaults, options);
@@ -2408,6 +2408,15 @@ w2utils.keyboard = (function (obj) {
                 // need time out to show icon indent properly
                 setTimeout(function () { obj.refresh(); }, 5); 
             }
+            // date, time
+            if (['date', 'time'].indexOf(this.type) != -1) {
+                // convert linux timestamps
+                var tmp = parseInt(obj.el.value);
+                if (w2utils.isInt(tmp) && tmp > 1000) {
+                    if (this.type == 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).change();
+                    if (this.type == 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).change();
+                }
+            }
         },
 
         click: function (event) {
@@ -2469,9 +2478,6 @@ w2utils.keyboard = (function (obj) {
             }
             // date or time
             if (['date', 'time'].indexOf(obj.type) != -1) {
-                if (w2utils.isInt(obj.el.value)) {
-                    $(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
-                }
                 // check if in range
                 if (val !== '' && !obj.inRange(obj.el.value)) {
                     $(obj.el).val('').removeData('selected').change();
@@ -2595,13 +2601,9 @@ w2utils.keyboard = (function (obj) {
             if (obj.type == 'time') {
                 if (!options.keyboard || $(obj.el).attr('readonly')) return;
                 var cancel  = false;
-                var inc        = 1;
-                if (event.ctrlKey || event.metaKey) inc = 60;
-                if (w2utils.isInt(obj.el.value)) {
-                    $(obj.el).val(w2utils.formatTime(new Date(parseInt(obj.el.value)), options.format)).change();
-                }
-                var val = $(obj.el).val();
-                var time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
+                var inc     = (event.ctrlKey || event.metaKey ? 60 : 1);
+                var val     = $(obj.el).val();
+                var time    = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
                 switch (key) {
                     case 38: // up
                         if (event.shiftKey) break; // no action if shift key is pressed
@@ -2912,7 +2914,7 @@ w2utils.keyboard = (function (obj) {
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
                             obj.tmp.xhr_total   = data.items.length;
-                            options.items       = data.items;
+                            options.items       = obj.normMenu(data.items);
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // console.log('-->', 'retrieved:', obj.tmp.xhr_total);

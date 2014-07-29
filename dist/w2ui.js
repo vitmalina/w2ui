@@ -1952,16 +1952,28 @@ w2utils.keyboard = (function (obj) {
             } else { // find record to update
                 var ind = this.get(recid, true);
                 if (ind == null) return false;
-                $.extend(true, this.records[ind], record);
+                var isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true);
+                if (isSummary) {
+                    $.extend(true, this.summary[ind], record);
+                } else {
+                    $.extend(true, this.records[ind], record);
+                }
                 if (noRefresh !== true) this.refreshRow(recid); // refresh only that record
             }
             return true;
         },
 
         get: function (recid, returnIndex) {
+            // search records
             for (var i = 0; i < this.records.length; i++) {
                 if (this.records[i].recid == recid) {
                     if (returnIndex === true) return i; else return this.records[i];
+                }
+            }
+            // search summary
+            for (var i = 0; i < this.summary.length; i++) {
+                if (this.summary[i].recid == recid) {
+                    if (returnIndex === true) return i; else return this.summary[i];
                 }
             }
             return null;
@@ -4548,13 +4560,14 @@ w2utils.keyboard = (function (obj) {
         },
 
         refreshCell: function (recid, field) {
-            var index    = this.get(recid, true);
-            var col_ind  = this.getColumn(field, true);
-            var rec      = this.records[index];
-            var col      = this.columns[col_ind];
-            var cell     = $('#grid_'+ this.name + '_rec_'+ recid +' [col='+ col_ind +']');
+            var index     = this.get(recid, true);
+            var isSummary = (this.records[index] && this.records[index].recid == recid ? false : true);
+            var col_ind   = this.getColumn(field, true);
+            var rec       = (isSummary ? this.summary[index] : this.records[index]);
+            var col       = this.columns[col_ind];
+            var cell      = $('#grid_'+ this.name + '_rec_'+ recid +' [col='+ col_ind +']');
             // set cell html and changed flag
-            cell.html(this.getCellHTML(index, col_ind));
+            cell.html(this.getCellHTML(index, col_ind, isSummary));
             if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
                 cell.addClass('w2ui-changed');
             } else {
@@ -4567,12 +4580,13 @@ w2utils.keyboard = (function (obj) {
             if (tr.length != 0) {
                 var ind  = this.get(recid, true);
                 var line = tr.attr('line');
+                var isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true);
                 // if it is searched, find index in search array
                 var url = (typeof this.url != 'object' ? this.url : this.url.get);
                 if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
-                $(tr).replaceWith(this.getRecordHTML(ind, line));
+                $(tr).replaceWith(this.getRecordHTML(ind, line, isSummary));
+                if (isSummary) this.resize();
             }
-
         },
 
         refresh: function () {
@@ -10624,7 +10638,7 @@ var w2confirm = function (msg, title, callBack) {
                         keyboard    : false
                     };
                     $.extend(options, defaults);
-                    this.addPrefix();     // only will add if needed
+                    this.addPrefix();    // only will add if needed
                     this.addSuffix();    // only will add if needed
                     // additional checks
                     $(this.el).attr('maxlength', 6);
@@ -10639,9 +10653,9 @@ var w2confirm = function (msg, title, callBack) {
                         placeholder : '',
                         keyboard    : true,
                         silent      : true,
-                        start       : '',        // string or jquery object
-                        end         : '',        // string or jquery object
-                        blocked     : {},        // { '4/11/2011': 'yes' }
+                        start       : '',       // string or jquery object
+                        end         : '',       // string or jquery object
+                        blocked     : {},       // { '4/11/2011': 'yes' }
                         colored     : {}        // { '4/11/2011': 'red:white' }
                     };
                     this.options = $.extend(true, {}, defaults, options);
@@ -11163,6 +11177,15 @@ var w2confirm = function (msg, title, callBack) {
                 // need time out to show icon indent properly
                 setTimeout(function () { obj.refresh(); }, 5); 
             }
+            // date, time
+            if (['date', 'time'].indexOf(this.type) != -1) {
+                // convert linux timestamps
+                var tmp = parseInt(obj.el.value);
+                if (w2utils.isInt(tmp) && tmp > 1000) {
+                    if (this.type == 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).change();
+                    if (this.type == 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).change();
+                }
+            }
         },
 
         click: function (event) {
@@ -11224,9 +11247,6 @@ var w2confirm = function (msg, title, callBack) {
             }
             // date or time
             if (['date', 'time'].indexOf(obj.type) != -1) {
-                if (w2utils.isInt(obj.el.value)) {
-                    $(obj.el).val(w2utils.formatDate(new Date(parseInt(obj.el.value)), options.format)).change();
-                }
                 // check if in range
                 if (val !== '' && !obj.inRange(obj.el.value)) {
                     $(obj.el).val('').removeData('selected').change();
@@ -11350,13 +11370,9 @@ var w2confirm = function (msg, title, callBack) {
             if (obj.type == 'time') {
                 if (!options.keyboard || $(obj.el).attr('readonly')) return;
                 var cancel  = false;
-                var inc        = 1;
-                if (event.ctrlKey || event.metaKey) inc = 60;
-                if (w2utils.isInt(obj.el.value)) {
-                    $(obj.el).val(w2utils.formatTime(new Date(parseInt(obj.el.value)), options.format)).change();
-                }
-                var val = $(obj.el).val();
-                var time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
+                var inc     = (event.ctrlKey || event.metaKey ? 60 : 1);
+                var val     = $(obj.el).val();
+                var time    = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1));
                 switch (key) {
                     case 38: // up
                         if (event.shiftKey) break; // no action if shift key is pressed
@@ -11667,7 +11683,7 @@ var w2confirm = function (msg, title, callBack) {
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
                             obj.tmp.xhr_total   = data.items.length;
-                            options.items       = data.items;
+                            options.items       = obj.normMenu(data.items);
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // console.log('-->', 'retrieved:', obj.tmp.xhr_total);
