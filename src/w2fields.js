@@ -546,7 +546,7 @@
                         ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
                     } else {
                         ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+
-                              (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.size(it.size) +'</span>');
+                              (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.formatSize(it.size) +'</span>');
                     }
                     html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
                             ren +'</li>';
@@ -624,7 +624,7 @@
                             preview += '<div style="padding: 8px;">'+
                                 '    <table cellpadding="2">'+
                                 '    <tr><td '+ td1 +'>Name:</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
-                                '    <tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.size(item.size) +'</td></tr>'+
+                                '    <tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.formatSize(item.size) +'</td></tr>'+
                                 '    <tr><td '+ td1 +'>Type:</td><td '+ td2 +'>' +
                                 '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ item.type +'</span>'+
                                 '    </td></tr>'+
@@ -1969,13 +1969,13 @@
             if (eventData.isCancelled === true) return;
             // check params
             if (options.maxFileSize !== 0 && newItem.size > options.maxFileSize) {
-                err = 'Maximum file size is '+ w2utils.size(options.maxFileSize);
+                err = 'Maximum file size is '+ w2utils.formatSize(options.maxFileSize);
                 if (options.silent === false) $(obj.el).w2tag(err);
                 console.log('ERROR: '+ err);
                 return;
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-                err = 'Maximum total size is '+ w2utils.size(options.maxSize);
+                err = 'Maximum total size is '+ w2utils.formatSize(options.maxSize);
                 if (options.silent === false) $(obj.el).w2tag(err);
                 console.log('ERROR: '+ err);
                 return;
