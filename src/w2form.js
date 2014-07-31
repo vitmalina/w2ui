@@ -18,6 +18,7 @@
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
+*   - added onProgress
 *
 ************************************************************************/
 
@@ -54,6 +55,7 @@
         this.onLoad      = null;
         this.onValidate  = null;
         this.onSubmit    = null;
+        this.onProgress  = null;
         this.onSave      = null;
         this.onChange    = null;
         this.onRender    = null;
@@ -522,8 +524,13 @@
                         // upload
                         xhr.upload.addEventListener("progress", function(evt) {
                             if (evt.lengthComputable) {
+                                var eventData3 = obj.trigger({ phase: 'before', type: 'progress', total: evt.total, loaded: evt.loaded, originalEvent: evt });
+                                if (eventData3.isCancelled === true) return;
+                                // default behavior
                                 var percent = Math.round(evt.loaded / evt.total * 100);
                                 $('#'+ obj.name + '_progress').text(''+ percent + '%');
+                                // event after
+                                obj.trigger($.extend(eventData3, { phase: 'after' }));
                             }
                         }, false);
                         return xhr;

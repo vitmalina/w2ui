@@ -13,7 +13,7 @@
         $('#form').w2form({ 
             name      : 'form',
             // routeData : { id: 4 },
-            // url       : '/1/:id/grid.json',
+            url       : { save: 'http://w2ui.com' },
             // page      : 2,
             // url       : 'form.php',
             // formURL   : 'form-template.html',
@@ -25,6 +25,10 @@
                 { id: 'tab2', caption: 'Inputs' },
                 { id: 'tab3', caption: 'HTML' }
             ],
+            onProgress: function (event) {
+                console.log('progress');
+                event.preventDefault();
+            },
             toolbar: {
                 items: [
                     { type: 'button', id: 'button1', caption: 'Button1', img: 'icon-add' },
