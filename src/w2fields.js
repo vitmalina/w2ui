@@ -27,7 +27,7 @@
 
     var w2field = function (options) {
         // public properties
-        this.el          = null
+        this.el          = null;
         this.helpers     = {}; // object or helper elements
         this.type        = options.type || 'text';
         this.options     = $.extend(true, {}, options);
@@ -103,7 +103,7 @@
                 return null;
             });
         }
-    }
+    };
 
     // ====================================================
     // -- Implementation of core functionality
@@ -413,7 +413,7 @@
                 onKeydown   : function (event) { obj.keyDown.call(obj, event) },
                 onKeyup     : function (event) { obj.keyUp.call(obj, event) },
                 onKeypress  : function (event) { obj.keyPress.call(obj, event) }
-            }
+            };
             $(this.el)
                 .addClass('w2field')
                 .data('w2field', this)
@@ -1463,7 +1463,7 @@
                         css: { "background-color": "#fff" }
                     });
                 }
-                var h24 = (this.options.format == 'h24' ? true : false);
+                var h24 = (this.options.format == 'h24');
                 $('#w2ui-overlay > div').html(obj.getHourHTML());
                 $('#w2ui-overlay .w2ui-time')
                     .on('mousedown', function (event) {
@@ -1709,13 +1709,14 @@
                         })
                         .css('margin-left', '-'+ (helper.width() + parseInt($(obj.el).css('margin-right'), 10) + 12) + 'px')
                         .on('mousedown', function (event) {
-                            $('body').on('mouseup', tmp);
-                            $('body').data('_field_update_timer', setTimeout(update, 700));
+                            var body = $('body');
+                            body.on('mouseup', tmp);
+                            body.data('_field_update_timer', setTimeout(update, 700));
                             update(false);
                             // timer function
                             function tmp() {
-                                clearTimeout($('body').data('_field_update_timer'));
-                                $('body').off('mouseup', tmp);
+                                clearTimeout(body.data('_field_update_timer'));
+                                body.off('mouseup', tmp);
                             }
                             // update function
                             function update(notimer) {
@@ -1853,7 +1854,7 @@
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
                         '            <input type="text" style="width: 20px" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
-                        '        </li>'
+                        '        </li>'+
                         '    </ul>'+
                         '    </div>'+
                         '</div>';
@@ -1862,7 +1863,7 @@
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '    <div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
                         '    <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
-                        '    <input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">'
+                        '    <input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">'+
                         '    </div>'+
                         '</div>';
             }
@@ -2022,7 +2023,7 @@
                 }
                 return menu;
             } else if (typeof menu == 'object') {
-                var tmp = []
+                var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });
                 return tmp;
             }
@@ -2103,9 +2104,9 @@
                 var bgcol   = '';
                 var tmp_dt  = w2utils.formatDate(dt, this.options.format);
                 if (this.options.colored && this.options.colored[tmp_dt] !== undefined) { // if there is predefined colors for dates
-                    tmp   = this.options.colored[tmp_dt].split(':');
-                    bgcol = 'background-color: ' + tmp[0] + ';';
-                    col   = 'color: ' + tmp[1] + ';';
+                    var tmp = this.options.colored[tmp_dt].split(':');
+                    bgcol   = 'background-color: ' + tmp[0] + ';';
+                    col     = 'color: ' + tmp[1] + ';';
                 }
                 html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' : 'w2ui-blocked') + className + '" style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
                             dspDay +
@@ -2132,7 +2133,7 @@
 
         getHourHTML: function () {
             var tmp = [];
-            var h24 = (this.options.format == 'h24' ? true : false);
+            var h24 = (this.options.format == 'h24');
             for (var a=0; a<24; a++) {
                 var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
                 if (a == 12 && !h24) time = '12:00 pm';
@@ -2152,7 +2153,7 @@
 
         getMinHTML: function (hour) {
             if (typeof hour == 'undefined') hour = 0;
-            var h24 = (this.options.format == 'h24' ? true : false);
+            var h24 = (this.options.format == 'h24');
             var tmp = [];
             for (var a=0; a<60; a+=5) {
                 var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
@@ -2195,7 +2196,7 @@
             }
             return ret;
         }
-    }
+    };
 
     $.extend(w2field.prototype, w2utils.event);
     w2obj.field = w2field;

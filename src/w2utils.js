@@ -153,12 +153,12 @@ var w2utils = (function () {
         } else {
             val = String(val);
             // convert month formats
-            if (RegExp('mon', 'ig').test(format)) {
+            if (new RegExp('mon', 'ig').test(format)) {
                 format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
                 val    = val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
                 for (var m = 0, len = w2utils.settings.fullmonths.length; m < len; m++) {
                     var t = w2utils.settings.fullmonths[m];
-                    val = val.replace(RegExp(t, 'ig'), (parseInt(m) + 1)).replace(RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
+                    val = val.replace(new RegExp(t, 'ig'), (parseInt(m) + 1)).replace(new RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
                 }
             }
             // format date
@@ -961,7 +961,7 @@ w2utils.event = {
                 eventData = $.extend({}, item.event, eventData);
                 // check handler arguments
                 args = [];
-                tmp  = RegExp(/\((.*?)\)/).exec(item.handler);
+                tmp  = new RegExp(/\((.*?)\)/).exec(item.handler);
                 if (tmp) args = tmp[1].split(/\s*,\s*/);
                 if (args.length === 2) {
                     item.handler.call(this, eventData.target, eventData); // old way for back compatibility
@@ -977,7 +977,7 @@ w2utils.event = {
             fun = this[funName];
             // check handler arguments
             args = [];
-            tmp  = RegExp(/\((.*?)\)/).exec(fun);
+            tmp  = new RegExp(/\((.*?)\)/).exec(fun);
             if (tmp) args = tmp[1].split(/\s*,\s*/);
             if (args.length === 2) {
                 fun.call(this, eventData.target, eventData); // old way for back compatibility
@@ -993,7 +993,7 @@ w2utils.event = {
             fun = eventData.object[funName];
             // check handler arguments
             args = [];
-            tmp  = RegExp(/\((.*?)\)/).exec(fun);
+            tmp  = new RegExp(/\((.*?)\)/).exec(fun);
             if (tmp) args = tmp[1].split(/\s*,\s*/);
             if (args.length === 2) {
                 fun.call(this, eventData.target, eventData); // old way for back compatibility

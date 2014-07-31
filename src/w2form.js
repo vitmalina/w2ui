@@ -70,7 +70,7 @@
         this.isGenerated = false;
         this.last = {
             xhr: null        // jquery xhr requests
-        }
+        };
 
         $.extend(true, this, w2obj.form, options);
     };
@@ -330,7 +330,7 @@
                     }
                 }
                 return result;
-            }
+            };
             return differ(this.record, this.original, {});
         },
 
@@ -362,7 +362,7 @@
             this.lock(this.msgRefresh);
             var url = eventData.url;
             if (typeof eventData.url == 'object' && eventData.url.get) url = eventData.url.get;
-            if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
+            if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // process url with routeData
             if (!$.isEmptyObject(obj.routeData)) {
                 var info  = w2utils.parseRoute(url);
@@ -503,7 +503,7 @@
                 // default action
                 var url = eventData.url;
                 if (typeof eventData.url == 'object' && eventData.url.save) url = eventData.url.save;
-                if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {};
+                if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {}
                 // process url with routeData
                 if (!$.isEmptyObject(obj.routeData)) {
                     var info  = w2utils.parseRoute(url);

@@ -647,7 +647,7 @@ var w2popup = {};
                 if (typeof callBack == 'function') callBack();
             }, (options.speed * 1000) + 50); // give extra 50 ms
         }
-    }
+    };
 
     // merge in event handling
     $.extend(w2popup, w2utils.event);
@@ -749,12 +749,12 @@ var w2confirm = function (msg, title, callBack) {
                         if (typeof options.callBack == 'function') options.callBack('Yes');
                         if (typeof options.yes_callBack == 'function') options.yes_callBack();
                         w2popup.message();
-                        break
+                        break;
                     case 27: // esc
                         if (typeof options.callBack == 'function') options.callBack('No');
                         if (typeof options.no_callBack == 'function') options.no_callBack();
                         w2popup.message();
-                        break
+                        break;
                 }
             }
         });
@@ -787,12 +787,12 @@ var w2confirm = function (msg, title, callBack) {
                         if (typeof options.callBack == 'function') options.callBack('Yes');
                         if (typeof options.yes_callBack == 'function') options.yes_callBack();
                         w2popup.close();
-                        break
+                        break;
                     case 27: // esc
                         if (typeof options.callBack == 'function') options.callBack('No');
                         if (typeof options.no_callBack == 'function') options.no_callBack();
                         w2popup.close();
-                        break
+                        break;
                 }
             }
         });
