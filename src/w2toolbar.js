@@ -7,7 +7,7 @@
 *
 * == NICE TO HAVE ==
 *   - on overflow display << >>
-*   - verticle toolbar
+*   - vertical toolbar
 *   - declarative toolbar
 *
 * == 1.5 changes

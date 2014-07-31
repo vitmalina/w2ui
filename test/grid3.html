@@ -1,0 +1,50 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="../src/w2utils.js"></script>
+<script type="text/javascript" src="../src/w2tabs.js"></script>
+<script type="text/javascript" src="../src/w2toolbar.js"></script>
+<script type="text/javascript" src="../src/w2fields.js"></script>
+<script type="text/javascript" src="../src/w2popup.js"></script>
+<script type="text/javascript" src="../src/w2grid.js"></script>
+<script>
+$(function () {
+    $('#grid').w2grid({ 
+        name : 'grid', 
+        show : { 
+            toolbar     : true,
+            footer      : true,
+            lineNumbers : true,
+            toolbarDelete: true
+        },
+        selectType: 'cell',
+        columns: [                
+            { field: 'a', caption: '<div style="text-align: center">A</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'b', caption: '<div style="text-align: center">B</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'c', caption: '<div style="text-align: center">C</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'd', caption: '<div style="text-align: center">D</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'e', caption: '<div style="text-align: center">E</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'f', caption: '<div style="text-align: center">F</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'g', caption: '<div style="text-align: center">G</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'h', caption: '<div style="text-align: center">H</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'j', caption: '<div style="text-align: center">J</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'k', caption: '<div style="text-align: center">K</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'l', caption: '<div style="text-align: center">L</div>', size: '80px', editable: { type: 'text' }},
+            { field: 'm', caption: '<div style="text-align: center">M</div>', size: '80px', editable: { type: 'text' }}
+        ],
+    });
+    // add 10k records
+    for (var i = 0; i < 300; i++) {
+        w2ui['grid'].records.push({ 
+            recid : (i + 10),
+        });
+    }
+    w2ui.grid.refresh();
+});
+</script>
+</head>
+<body>
+    <div id="grid" style="width: 1024px; height: 568px;"></div>
+</body>
+</html>
