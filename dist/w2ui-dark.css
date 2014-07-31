@@ -2378,7 +2378,12 @@ button.btn-red.clicked {
   overflow: hidden !important;
   background-color: #434d64;
   padding: 3px 0px;
+}
+.w2ui-tabs:not(.w2ui-tabs-up) {
   padding-bottom: 0px !important;
+}
+.w2ui-tabs.w2ui-tabs-up {
+  padding-top: 0px !important;
 }
 .w2ui-tabs table {
   border-bottom: 1px solid silver;
@@ -2431,6 +2436,24 @@ button.btn-red.clicked {
   color: inherit;
   text-shadow: inherit;
   content: 'x';
+}
+.w2ui-tabs.w2ui-tabs-up table {
+  border-top: 1px solid #c0c0c0;
+  border-bottom: 0px;
+}
+.w2ui-tabs.w2ui-tabs-up .w2ui-tab {
+  border-top: 1px solid #C0C0C0;
+  margin: -1px 1px 0px 0px;
+  border-radius: 0px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.w2ui-tabs.w2ui-tabs-up .w2ui-tab.active {
+  border: 1px solid #999999;
+  border-top: 1px solid transparent;
+}
+.w2ui-tabs.w2ui-tabs-up .w2ui-tab-close {
+  margin-top: 4px;
 }
 /*************************************************
 * ---- Toolbar ----
