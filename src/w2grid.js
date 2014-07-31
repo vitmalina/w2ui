@@ -222,7 +222,7 @@
                 return obj;
             }
         }
-    }
+    };
 
     // ====================================================
     // -- Implementation of core functionality
@@ -1243,7 +1243,7 @@
                                 type     : search.type,
                                 operator : op,
                                 value    : val
-                            }
+                            };
                             searchData.push(tmp);
                         }
                     }
@@ -1326,7 +1326,7 @@
         searchClose: function () {
             if (!this.box) return;
             if (this.searches.length == 0) return;
-            if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced')
+            if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced');
             // hide search
             if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) {
                 $().w2overlay('', { name: 'searches-'+ this.name });
@@ -1543,7 +1543,7 @@
                     more.find('td').html('<div>'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
                 }
             }
-            if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
+            if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // URL
             var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
             if (params.cmd == 'save-records' && typeof eventData.url == 'object')   url = eventData.url.save;
@@ -1838,7 +1838,7 @@
                 if (value == null) el.find('input').val(val != 'object' ? val : '');
                 // init w2field
                 var input = el.find('input').get(0);
-                $(input).w2field(edit.type, $.extend(edit, { selected: val }))
+                $(input).w2field(edit.type, $.extend(edit, { selected: val }));
                 // add blur listener
                 setTimeout(function () {
                     var tmp = input;
@@ -3844,7 +3844,7 @@
                         // reset
                         obj.last.tmp.x = event.screenX;
                         obj.last.tmp.y = event.screenY;
-                    }
+                    };
                     var mouseUp = function (event) {
                         delete obj.resizing;
                         $(document).off('mousemove', 'body');
@@ -3852,7 +3852,7 @@
                         obj.resizeRecords();
                         // event before
                         obj.trigger($.extend(eventData, { phase: 'after', originalEvent: event }));
-                    }
+                    };
                     $(document).on('mousemove', 'body', mouseMove);
                     $(document).on('mouseup', 'body', mouseUp);
                 })
@@ -3985,7 +3985,7 @@
                         if (this.show.selectColumn) html += '<td class="w2ui-grid-data w2ui-col-select"></td>';
                         if (this.show.expandColumn) html += '<td class="w2ui-grid-data w2ui-col-expand"></td>';
                         var j = 0;
-                        while (true && this.columns.length > 0) {
+                        while (this.columns.length > 0) {
                             var col = this.columns[j];
                             if (col.hidden) { j++; if (typeof this.columns[j] == 'undefined') break; else continue; }
                             html += '<td class="w2ui-grid-data" '+ (typeof col.attr != 'undefined' ? col.attr : '') +' col="'+ j +'"></td>';
@@ -4374,8 +4374,8 @@
                         var sortStyle = '';
                         for (var si in obj.sortData) {
                             if (obj.sortData[si].field == col.field) {
-                                if (RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
-                                if (RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
+                                if (new RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
+                                if (new RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
                             }
                         }
                         var resizer = "";
@@ -4443,8 +4443,8 @@
                     var sortStyle = '';
                     for (var si in obj.sortData) {
                         if (obj.sortData[si].field == col.field) {
-                            if (RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
-                            if (RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
+                            if (new RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
+                            if (new RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
                         }
                     }
                     if (colg['master'] !== true || master) { // grouping of columns
