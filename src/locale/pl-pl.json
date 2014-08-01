@@ -42,8 +42,10 @@
         "Search..." : "Wyszukiwanie ...",
         "Open Search Fields" : "Otwórz szukane pola",
         "is" : "jest",
+        "begins" : "zaczyna się",
         "begins with" : "zaczynające się na",
         "contains" : "zawierające",
+        "ends" : "kończy się",
         "ends with" : "kończące się na",
         "between" : "pomiędzy",
         "Add new record" : "Dodaj nowy rekord",
@@ -65,6 +67,11 @@
         "Toggle Line Numbers" : "Przełącz numery wierszy",
         "Skip" : "Pomiń",
         "Records" : "Rekordów",
-        "Reset Column Size" : "Domyśne szer. kolumn"
+        "Reset Column Size" : "Domyśne szer. kolumn",
+        "Search took " : "Szukanie zajęło ",
+        " sec" : " sek",
+        "Save Grid State" : "Zachowaj układ Tabeli",
+        "Restore Default State" : "Przywróć domyślny układ",
+        "Line #" : "Numer wiersza"
     }
 }
