@@ -3449,6 +3449,10 @@ w2utils.keyboard = (function (obj) {
             if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
                 addStyle += 'text-align: right;';
             }
+            // mormalize items
+            if (edit.items.length > 0 && !$.isPlainObject(edit.items[0])) {
+                edit.items = w2obj.field.prototype.normMenu(edit.items);
+            }
             if (edit.type == 'select') {
                 var html = '';
                 for (var i in edit.items) {
@@ -13509,17 +13513,20 @@ var w2confirm = function (msg, title, callBack) {
                     // enums
                     case 'list':
                     case 'combo':
-                        if (field.type == 'list' && !$.isPlainObject(value)) {
+                        if (field.type == 'list') {
+                            var tmp_value = ($.isPlainObject(value) ? value.id : value);
+                            // normalized options
+                            var items = field.options.items;
+                            if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
+                                field.options.items = w2obj.field.prototype.normMenu(items);
+                            }
                             // find value from items 
                             for (var i in field.options.items) {
                                 var item = field.options.items[i];
-                                if ($.isPlainObject(item) && item.id == value) {
+                                if (item.id == tmp_value) {
                                     value = $.extend(true, {}, item);
                                     obj.record[field.name] = value;
-                                    break;
-                                } else if (i == value) {
-                                    value = { id: i, text: item };
-                                    obj.record[field.name] = value;
+                                    console.log(1);
                                     break;
                                 }
                             }
