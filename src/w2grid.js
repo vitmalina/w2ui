@@ -21,9 +21,17 @@
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
+*   - row drag and drop has bugs
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
+*   - added statusRange     : true,
+*           statusBuffered  : false,
+*           statusRecordID  : true,
+*           statusSelection : true,
+*           statusResponse  : true,
+*           statusSort      : true,
+*           statusSearch    : true,
 *
 ************************************************************************/
 
@@ -62,8 +70,15 @@
             toolbarEdit     : false,
             toolbarDelete   : false,
             toolbarSave     : false,
-            selectionBorder : true,
+            statusRange     : true,
+            statusBuffered  : false,
+            statusRecordID  : true,
+            statusSelection : true,
+            statusResponse  : true,
+            statusSort      : true,
+            statusSearch    : true,
             recordTitles    : true,
+            selectionBorder : true,
             skipRecords     : true
         };
 
@@ -573,7 +588,11 @@
                 return ret;
             });
             time = (new Date()).getTime() - time;
-            if (silent !== true) setTimeout(function () { obj.status(w2utils.lang('Sorting took') + ' ' + time/1000 + ' ' + w2utils.lang('sec')); }, 10);
+            if (silent !== true && obj.show.statusSort) {
+                setTimeout(function () { 
+                    obj.status(w2utils.lang('Sorting took') + ' ' + time/1000 + ' ' + w2utils.lang('sec')); 
+                }, 10);
+            }
             return time;
         },
 
@@ -672,7 +691,11 @@
                 this.total = this.last.searchIds.length;
             }
             time = (new Date()).getTime() - time;
-            if (silent !== true) setTimeout(function () { obj.status(w2utils.lang('Search took') + ' ' + time/1000 + ' ' + w2utils.lang('sec')); }, 10);
+            if (silent !== true && obj.show.statusSearch) {
+                setTimeout(function () { 
+                    obj.status(w2utils.lang('Search took') + ' ' + time/1000 + ' ' + w2utils.lang('sec')); 
+                }, 10);
+            }
             return time;
         },
 
@@ -1614,7 +1637,9 @@
         requestComplete: function(status, cmd, callBack) {
             var obj = this;
             this.unlock();
-            setTimeout(function () { obj.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - obj.last.xhr_start)/1000 +' ' + w2utils.lang('sec')); }, 10);
+            setTimeout(function () { 
+                if (obj.show.statusResponse) obj.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - obj.last.xhr_start)/1000 +' ' + w2utils.lang('sec')); 
+            }, 10);
             this.last.pull_more    = false;
             this.last.pull_refresh = true;
 
@@ -1811,6 +1836,10 @@
             var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
             if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
                 addStyle += 'text-align: right;';
+            }
+            // mormalize items
+            if (edit.items.length > 0 && !$.isPlainObject(edit.items[0])) {
+                edit.items = w2obj.field.prototype.normMenu(edit.items);
             }
             if (edit.type == 'select') {
                 var html = '';
@@ -4526,8 +4555,9 @@
             if (t1 > buffered) t1 = buffered;
             if (t2 > buffered) t2 = buffered;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) +
-                    (url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
+            $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
+                (obj.show.statusRange ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '') +
+                (url && obj.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
             );
             // only for local data source, else no extra records loaded
             if (!url && (!this.fixedBody || this.total <= 300)) return;
@@ -4853,10 +4883,14 @@
                 var msgLeft = '';
                 var sel = this.getSelection();
                 if (sel.length > 0) {
-                    msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + w2utils.lang('selected');
-                    var tmp = sel[0];
-                    if (typeof tmp == 'object') tmp = tmp.recid + ', '+ w2utils.lang('Column') +': '+ tmp.column;
-                    if (sel.length == 1) msgLeft = w2utils.lang('Record ID') + ': '+ tmp + ' ';
+                    if (this.show.statusSelection && sel.length > 1) {
+                        msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + ' ' + w2utils.lang('selected');
+                    }
+                    if (this.show.statusRecordID && sel.length == 1) {
+                        var tmp = sel[0];
+                        if (typeof tmp == 'object') tmp = tmp.recid + ', '+ w2utils.lang('Column') +': '+ tmp.column;
+                        msgLeft = w2utils.lang('Record ID') + ': '+ tmp + ' ';
+                    }
                 }
                 $('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);
                 // toolbar

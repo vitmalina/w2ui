@@ -45,9 +45,9 @@ function showOverlay(el) {
 function showMenu(el) {
     $(el).w2menu({
         items: [
-            { id: 1, text: 'Edit', icon: 'fa-star' },
+            { id: 1, text: 'Edit', img: 'icon-folder' },
             { id: 2, text: '--'},
-            { id: 3, text: 'Copy', icon: 'fa-star' },
+            { id: 3, text: 'Copy', img: 'icon-folder' },
             { id: 4, text: 'Paste', img: 'icon-page', disabled: true },
             { id: 5, text: 'Hidden', img: 'icon-page', hidden: true },
             { id: 6, text: '--'},
@@ -61,12 +61,12 @@ function showMenu(el) {
 
 function myConfirm () {
     w2confirm({ 
-            title: 'df----',
-            msg: 'message', 
-            width: 500,
-            height: 500,
-            yes_text: 'sddd',
-            no_text: 'sddd',
+            title: 'Заголовок',
+            msg: 'Сообщение', 
+            width: 550,
+            height: 300,
+            yes_text: 'Да',
+            no_text: 'Нет',
             callBack: function (btn) { 
                 console.log('Common call back '+ btn);
             }
@@ -81,12 +81,14 @@ function myConfirm () {
 </script>
 </head>
 <body>
-    <input type="button" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">
-    <input type="button" value="Popup2"  onclick="$('#popup3').w2popup({ title: '123', showMax: true })">
-    <input type="button" value="Overlay" onclick="showOverlay(this)">
-    <input type="button" value="Menu"    onclick="showMenu(this)">
-    <input type="button" value="Alert"   onclick="w2alert('message');">
-    <input type="button" value="Confirm" onclick="myConfirm()">
+    <div style="padding: 10px">
+        <button class="btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup</button>
+        <button class="btn" value="Popup2"  onclick="$('#popup1').w2popup({ title: '123', showMax: true })">Popup2</button>
+        <button class="btn" value="Overlay" onclick="showOverlay(this)">Overlay</button>
+        <button class="btn" value="Menu"    onclick="showMenu(this)">Menu</button>
+        <button class="btn" value="Alert"   onclick="w2alert('message');">Alert</button>
+        <button class="btn" value="Confirm" onclick="myConfirm()">Confirm</button>
+    </div>
 
     <div id="popup1" style="display: none; width: 650px; height: 400px; overflow: auto">
         <div rel="title">
@@ -112,8 +114,8 @@ function myConfirm () {
             </div>
         </div>
         <div rel="buttons">
-            <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()" style="width: 150px">
-            <input type="button" value="Message" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div>' })">
+            <button class="btn" onclick="$('#popup2').w2popup()" style="width: 150px">Switch to Popup 2</button>
+            <button class="btn" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div>' })">Message</button>
         </div>
     </div>
 
@@ -130,7 +132,7 @@ function myConfirm () {
             </div>
         </div>
         <div rel="buttons">
-            <input type="button" value="Switch to Popup 1" onclick="$('#popup1').w2popup({ transition: 'flip-left' })">
+            <button class="btn" onclick="$('#popup1').w2popup({ transition: 'flip-left' })">Switch to Popup 1</button>
         </div>
     </div>
 

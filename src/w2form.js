@@ -15,6 +15,7 @@
 *   - when field is blank, set record.field = null
 *   - show/hide a field
 *   - added getChanges() - not complete
+*   - nested record object
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
@@ -904,17 +905,20 @@
                     // enums
                     case 'list':
                     case 'combo':
-                        if (field.type == 'list' && !$.isPlainObject(value)) {
+                        if (field.type == 'list') {
+                            var tmp_value = ($.isPlainObject(value) ? value.id : value);
+                            // normalized options
+                            var items = field.options.items;
+                            if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
+                                field.options.items = w2obj.field.prototype.normMenu(items);
+                            }
                             // find value from items 
                             for (var i in field.options.items) {
                                 var item = field.options.items[i];
-                                if ($.isPlainObject(item) && item.id == value) {
+                                if (item.id == tmp_value) {
                                     value = $.extend(true, {}, item);
                                     obj.record[field.name] = value;
-                                    break;
-                                } else if (i == value) {
-                                    value = { id: i, text: item };
-                                    obj.record[field.name] = value;
+                                    console.log(1);
                                     break;
                                 }
                             }

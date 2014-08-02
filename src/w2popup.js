@@ -8,6 +8,7 @@
 * == NICE TO HAVE ==
 *   - transition should include title, body and buttons, not just body
 *   - .message() should have same props (body, buttons, title?)
+*   - hide overlay on esc
 *
 ************************************************************************/
 
@@ -318,7 +319,7 @@ var w2popup = {};
 
         keydown: function (event) {
             var options = $('#w2ui-popup').data('options');
-            if (!options.keyboard) return;
+            if (options && !options.keyboard) return;
             // trigger event
             var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, originalEvent: event });
             if (eventData.isCancelled === true) return;
@@ -409,7 +410,7 @@ var w2popup = {};
             // default behavior
             w2popup.status = 'resizing';
             // do resize
-            w2popup.resize(parseInt(size[0]), parseInt(size[1]), function () {
+            w2popup.resize(size[0], size[1], function () {
                 w2popup.status = 'open';
                 options.maximized = false;
                 options.prevSize  = null;
@@ -625,11 +626,13 @@ var w2popup = {};
 
         resize: function (width, height, callBack) {
             var options = $('#w2ui-popup').data('options');
+            width  = parseInt(width);
+            height = parseInt(height);
             // calculate new position
-            if (parseInt($(window).width())  - 10 < parseInt(width))  width  = parseInt($(window).width())  - 10;
-            if (parseInt($(window).height()) - 10 < parseInt(height)) height = parseInt($(window).height()) - 10;
-            var top  = ((parseInt($(window).height()) - parseInt(height)) / 2) * 0.8;
-            var left = (parseInt($(window).width()) - parseInt(width)) / 2;
+            if ($(window).width()  - 10 < width)  width  = $(window).width()  - 10;
+            if ($(window).height() - 10 < height) height = $(window).height() - 10;
+            var top  = ($(window).height() - height) / 2 * 0.8;
+            var left = ($(window).width() - width) / 2;
             // resize there
             $('#w2ui-popup').css({
                 '-webkit-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
@@ -669,7 +672,10 @@ var w2alert = function (msg, title, callBack) {
                       '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
                       '        <button onclick="w2popup.message();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>' +
                       '</div>',
-            onClose : function () {
+            onOpen: function () {
+                $('#w2ui-popup .w2ui-popup-message .w2ui-popup-btn').focus();
+            },
+            onClose: function () {
                 if (typeof callBack == 'function') callBack();
             }
         });
@@ -682,7 +688,14 @@ var w2alert = function (msg, title, callBack) {
             title     : title,
             body      : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
             buttons   : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>',
-            onClose   : function () {
+            onOpen: function (event) {
+                // do not use onComplete as it is slower
+                setTimeout(function () { $('#w2ui-popup .w2ui-popup-btn').focus(); }, 1);
+            },
+            onKeydown: function (event) {
+            $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked'); 
+            },
+            onClose: function () {
                 if (typeof callBack == 'function') callBack();
             }
         });
@@ -742,21 +755,8 @@ var w2confirm = function (msg, title, callBack) {
                     if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
                     if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                 });
-            },
-            onKeydown: function (event) {
-                switch (event.originalEvent.keyCode) {
-                    case 13: // enter
-                        if (typeof options.callBack == 'function') options.callBack('Yes');
-                        if (typeof options.yes_callBack == 'function') options.yes_callBack();
-                        w2popup.message();
-                        break;
-                    case 27: // esc
-                        if (typeof options.callBack == 'function') options.callBack('No');
-                        if (typeof options.no_callBack == 'function') options.no_callBack();
-                        w2popup.message();
-                        break;
-                }
             }
+            // onKeydown will not work here
         });
 
     } else {
@@ -772,27 +772,30 @@ var w2confirm = function (msg, title, callBack) {
             buttons    : '<button id="Yes" class="w2ui-popup-btn btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'+
                          '<button id="No" class="w2ui-popup-btn btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>',
             onOpen: function (event) {
-                event.onComplete = function () {
+                // do not use onComplete as it is slower
+                setTimeout(function () {
                     $('#w2ui-popup .w2ui-popup-btn').on('click', function (event) {
                         w2popup.close();
                         if (typeof options.callBack == 'function') options.callBack(event.target.id);
                         if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
                         if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                     });
-                }
+                    $('#w2ui-popup .w2ui-popup-btn#No').focus();
+                }, 1);
             },
             onKeydown: function (event) {
-                switch (event.originalEvent.keyCode) {
-                    case 13: // enter
-                        if (typeof options.callBack == 'function') options.callBack('Yes');
-                        if (typeof options.yes_callBack == 'function') options.yes_callBack();
-                        w2popup.close();
-                        break;
-                    case 27: // esc
-                        if (typeof options.callBack == 'function') options.callBack('No');
-                        if (typeof options.no_callBack == 'function') options.no_callBack();
-                        w2popup.close();
-                        break;
+                // if there are no messages
+                if ($('#w2ui-popup .w2ui-popup-message').length == 0) {
+                    switch (event.originalEvent.keyCode) {
+                        case 13: // enter
+                            $('#w2ui-popup .w2ui-popup-btn#Yes').focus().addClass('clicked'); // no need fo click as enter will do click
+                            w2popup.close();
+                            break;
+                        case 27: // esc
+                            $('#w2ui-popup .w2ui-popup-btn#No').focus().click();
+                            w2popup.close();
+                            break;
+                    }
                 }
             }
         });
