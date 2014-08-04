@@ -17,14 +17,23 @@ Returns date in requested format.
     </table>
 </div>
 
-The <span class="argument">str</span> argument can be any standard date or unix epoch, which is used to
-create JavaScript Date object. The format can contain following elements: mm, dd, yyyy, mon in any order with
-any formatting characters. For example 'mm.dd.yyyy', 'dd-mm-yyyy', 'mon dd, yyyy'
-<div style="height: 10px"></div>
+The <span class="argument">str</span> argument can be (1) a JavaScript Date, (2) a unix epoch, (3) any standard date, which will be 
+used to create JavaScript Date object. To ensure correct transalation it is best to pass a JavaScript Date. 
+<div style="height: 20px;"></div>
 
-For best cross browser compatibility you should define <span class="argument">dateStr</span> either as UNIX time or as full date 
-and time with time zone in the following format: "2013/12/21 19:03:59 PST".
-<div style="height: 10px"></div>
+The format can contain following elements: 
+<ul>
+    <li><div style="display: inline-block; width: 50px">yyyy</div> - full year</li>
+    <li><div style="display: inline-block; width: 50px">yyy</div> - full year</li>
+    <li><div style="display: inline-block; width: 50px">yy</div> - 2 letter for the year (will be 3 for 2000 and over)</li>
+    <li><div style="display: inline-block; width: 50px">m</div> - month</li>
+    <li><div style="display: inline-block; width: 50px">mm</div> - month with leadign 0</li>
+    <li><div style="display: inline-block; width: 50px">mon</div> - 3 letters of the month</li>
+    <li><div style="display: inline-block; width: 50px">month</div> - full text of the month</li>
+    <li><div style="display: inline-block; width: 50px">th</div> - month suffix (st, nd, rd, th)</li>
+    <li><div style="display: inline-block; width: 50px">d</div> - day</li>
+    <li><div style="display: inline-block; width: 50px">dd</div> - day with leading 0</li>
+</ul>
 
 <textarea class="javascript">
 var a = w2utils.formatDate((new Date()), 'mm-dd-yyyy');

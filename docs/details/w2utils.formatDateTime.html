@@ -17,14 +17,13 @@ Returns date and time in requested format.
     </table>
 </div>
 
-The <span class="argument">str</span> argument can be any standard date or unix epoch, which is used to
-create JavaScript Date object. The format can contain elements from date and time. This method will call 
+The <span class="argument">str</span> argument can be (1) a JavaScript Date, (2) a unix epoch, (3) any standard date, which will be 
+used to create JavaScript Date object. To ensure correct transalation it is best to pass a JavaScript Date or a full format with time
+zone: "2013/12/21 19:03:59 PST".
+<div style="height: 20px;"></div>
+This method will call 
 <a href="w2utils.formatDate" class="method">w2utils.formatDate</a> and then 
 <a href="w2utils.formatTime" class="method">w2utils.formatTime</a> methods.
-<div style="height: 10px"></div>
-
-For best cross browser compatibility you should define <span class="argument">dateStr</span> either as UNIX time or as full date 
-and time with time zone in the following format: "2013/12/21 19:03:59 PST".
 <div style="height: 10px"></div>
 
 <textarea class="javascript">

@@ -99,6 +99,9 @@ test( "w2utils.formatTime()", function () {
         '21:40:05 => hh:mi:ss am'  : '9:40:05 pm',
         '21:40:00 => h24:mi'       : '21:40',
         '21:40:35 => h24:mi:ss'    : '21:40:35',
+        '8:40:35 => hh24:mi:ss'    : '08:40:35',
+        '18:40:35 => hh24:mi:ss'   : '18:40:35',
+        '8:40:35 => hhh:mm:ss'     : '08:40:35'
     }
     equal( w2utils.formatTime(), '',          "- no argument -" );
     equal( w2utils.formatTime(''), '',        "- blank -" );

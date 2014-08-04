@@ -374,13 +374,15 @@ var w2utils = (function () {
         return format.toLowerCase()
             .replace('am', type)
             .replace('pm', type)
-            .replace('hh', hour)
+            .replace('hhh', (hour < 10 ? '0' + hour : hour))
+            .replace('hh24', (h24 < 10 ? '0' + h24 : h24))
             .replace('h24', h24)
+            .replace('hh', hour)
             .replace('mm', min)
             .replace('mi', min)
             .replace('ss', sec)
             .replace(/(^|[^a-z$])h/g, '$1' + hour)    // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])m/g, '$1' + min)    // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])m/g, '$1' + min)     // only y's that are not preceeded by a letter
             .replace(/(^|[^a-z$])s/g, '$1' + sec);    // only y's that are not preceeded by a letter
     }
 
