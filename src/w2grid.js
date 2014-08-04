@@ -814,6 +814,8 @@
                 var last  = rg.range[1];
                 var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
                 var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
+                var sel1  = $('#grid_'+ this.name +'_rec_top').next().find('td.w2ui-selected');
+                var sel2  = $('#grid_'+ this.name +'_rec_bottom').prev().find('td.w2ui-selected');
                 if ($('#grid_'+ this.name +'_'+ rg.name).length == 0) {
                     rec.append('<div id="grid_'+ this.name +'_' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
                                     (rg.name == 'selection' ?  '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
@@ -821,12 +823,20 @@
                 } else {
                     $('#grid_'+ this.name +'_'+ rg.name).attr('style', rg.style);
                 }
+                // if virtual scrolling kicked in
+                if ((td1.length == 0 && td2.length != 0) || sel1.length > 0) {
+                    td1 = $('#grid_'+ this.name +'_rec_top').next().find('td[col='+ first.column +']');
+                }
+                if ((td2.length == 0 && td1.length != 0) || sel2.length > 0) {
+                    td2 = $('#grid_'+ this.name +'_rec_bottom').prev().find('td[col='+ last.column +']');
+                }
+                // display range
                 if (td1.length > 0 && td2.length > 0) {
                     $('#grid_'+ this.name +'_'+ rg.name).css({
-                        left     : (td1.position().left - 1 + rec.scrollLeft()) + 'px',
+                        left    : (td1.position().left - 1 + rec.scrollLeft()) + 'px',
                         top     : (td1.position().top - 1 + rec.scrollTop()) + 'px',
-                        width     : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
-                        height     : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
+                        width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
+                        height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
                     });
                 }
             }
