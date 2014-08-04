@@ -154,12 +154,12 @@ var w2utils = (function () {
         } else {
             val = String(val);
             // convert month formats
-            if (RegExp('mon', 'ig').test(format)) {
+            if (new RegExp('mon', 'ig').test(format)) {
                 format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
                 val    = val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase();
                 for (var m = 0, len = w2utils.settings.fullmonths.length; m < len; m++) {
                     var t = w2utils.settings.fullmonths[m];
-                    val = val.replace(RegExp(t, 'ig'), (parseInt(m) + 1)).replace(RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
+                    val = val.replace(new RegExp(t, 'ig'), (parseInt(m) + 1)).replace(new RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1));
                 }
             }
             // format date
@@ -375,13 +375,15 @@ var w2utils = (function () {
         return format.toLowerCase()
             .replace('am', type)
             .replace('pm', type)
-            .replace('hh', hour)
+            .replace('hhh', (hour < 10 ? '0' + hour : hour))
+            .replace('hh24', (h24 < 10 ? '0' + h24 : h24))
             .replace('h24', h24)
+            .replace('hh', hour)
             .replace('mm', min)
             .replace('mi', min)
             .replace('ss', sec)
             .replace(/(^|[^a-z$])h/g, '$1' + hour)    // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])m/g, '$1' + min)    // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])m/g, '$1' + min)     // only y's that are not preceeded by a letter
             .replace(/(^|[^a-z$])s/g, '$1' + sec);    // only y's that are not preceeded by a letter
     }
 
@@ -962,7 +964,7 @@ w2utils.event = {
                 eventData = $.extend({}, item.event, eventData);
                 // check handler arguments
                 args = [];
-                tmp  = RegExp(/\((.*?)\)/).exec(item.handler);
+                tmp  = new RegExp(/\((.*?)\)/).exec(item.handler);
                 if (tmp) args = tmp[1].split(/\s*,\s*/);
                 if (args.length === 2) {
                     item.handler.call(this, eventData.target, eventData); // old way for back compatibility
@@ -978,7 +980,7 @@ w2utils.event = {
             fun = this[funName];
             // check handler arguments
             args = [];
-            tmp  = RegExp(/\((.*?)\)/).exec(fun);
+            tmp  = new RegExp(/\((.*?)\)/).exec(fun);
             if (tmp) args = tmp[1].split(/\s*,\s*/);
             if (args.length === 2) {
                 fun.call(this, eventData.target, eventData); // old way for back compatibility
@@ -994,7 +996,7 @@ w2utils.event = {
             fun = eventData.object[funName];
             // check handler arguments
             args = [];
-            tmp  = RegExp(/\((.*?)\)/).exec(fun);
+            tmp  = new RegExp(/\((.*?)\)/).exec(fun);
             if (tmp) args = tmp[1].split(/\s*,\s*/);
             if (args.length === 2) {
                 fun.call(this, eventData.target, eventData); // old way for back compatibility
@@ -1687,7 +1689,7 @@ w2utils.keyboard = (function (obj) {
 
     var w2field = function (options) {
         // public properties
-        this.el          = null
+        this.el          = null;
         this.helpers     = {}; // object or helper elements
         this.type        = options.type || 'text';
         this.options     = $.extend(true, {}, options);
@@ -1763,7 +1765,7 @@ w2utils.keyboard = (function (obj) {
                 return null;
             });
         }
-    }
+    };
 
     // ====================================================
     // -- Implementation of core functionality
@@ -2073,7 +2075,7 @@ w2utils.keyboard = (function (obj) {
                 onKeydown   : function (event) { obj.keyDown.call(obj, event) },
                 onKeyup     : function (event) { obj.keyUp.call(obj, event) },
                 onKeypress  : function (event) { obj.keyPress.call(obj, event) }
-            }
+            };
             $(this.el)
                 .addClass('w2field')
                 .data('w2field', this)
@@ -2206,7 +2208,7 @@ w2utils.keyboard = (function (obj) {
                         ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
                     } else {
                         ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+
-                              (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.size(it.size) +'</span>');
+                              (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.formatSize(it.size) +'</span>');
                     }
                     html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
                             ren +'</li>';
@@ -2284,7 +2286,7 @@ w2utils.keyboard = (function (obj) {
                             preview += '<div style="padding: 8px;">'+
                                 '    <table cellpadding="2">'+
                                 '    <tr><td '+ td1 +'>Name:</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
-                                '    <tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.size(item.size) +'</td></tr>'+
+                                '    <tr><td '+ td1 +'>Size:</td><td '+ td2 +'>'+ w2utils.formatSize(item.size) +'</td></tr>'+
                                 '    <tr><td '+ td1 +'>Type:</td><td '+ td2 +'>' +
                                 '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ item.type +'</span>'+
                                 '    </td></tr>'+
@@ -2929,7 +2931,7 @@ w2utils.keyboard = (function (obj) {
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
                             obj.tmp.xhr_total   = data.items.length;
-                            options.items       = data.items;
+                            options.items       = obj.normMenu(data.items);
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // console.log('-->', 'retrieved:', obj.tmp.xhr_total);
@@ -3123,7 +3125,7 @@ w2utils.keyboard = (function (obj) {
                         css: { "background-color": "#fff" }
                     });
                 }
-                var h24 = (this.options.format == 'h24' ? true : false);
+                var h24 = (this.options.format == 'h24');
                 $('#w2ui-overlay > div').html(obj.getHourHTML());
                 $('#w2ui-overlay .w2ui-time')
                     .on('mousedown', function (event) {
@@ -3369,13 +3371,14 @@ w2utils.keyboard = (function (obj) {
                         })
                         .css('margin-left', '-'+ (helper.width() + parseInt($(obj.el).css('margin-right'), 10) + 12) + 'px')
                         .on('mousedown', function (event) {
-                            $('body').on('mouseup', tmp);
-                            $('body').data('_field_update_timer', setTimeout(update, 700));
+                            var body = $('body');
+                            body.on('mouseup', tmp);
+                            body.data('_field_update_timer', setTimeout(update, 700));
                             update(false);
                             // timer function
                             function tmp() {
-                                clearTimeout($('body').data('_field_update_timer'));
-                                $('body').off('mouseup', tmp);
+                                clearTimeout(body.data('_field_update_timer'));
+                                body.off('mouseup', tmp);
                             }
                             // update function
                             function update(notimer) {
@@ -3513,7 +3516,7 @@ w2utils.keyboard = (function (obj) {
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
                         '            <input type="text" style="width: 20px" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
-                        '        </li>'
+                        '        </li>'+
                         '    </ul>'+
                         '    </div>'+
                         '</div>';
@@ -3522,7 +3525,7 @@ w2utils.keyboard = (function (obj) {
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '    <div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
                         '    <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
-                        '    <input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">'
+                        '    <input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">'+
                         '    </div>'+
                         '</div>';
             }
@@ -3629,13 +3632,13 @@ w2utils.keyboard = (function (obj) {
             if (eventData.isCancelled === true) return;
             // check params
             if (options.maxFileSize !== 0 && newItem.size > options.maxFileSize) {
-                err = 'Maximum file size is '+ w2utils.size(options.maxFileSize);
+                err = 'Maximum file size is '+ w2utils.formatSize(options.maxFileSize);
                 if (options.silent === false) $(obj.el).w2tag(err);
                 console.log('ERROR: '+ err);
                 return;
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-                err = 'Maximum total size is '+ w2utils.size(options.maxSize);
+                err = 'Maximum total size is '+ w2utils.formatSize(options.maxSize);
                 if (options.silent === false) $(obj.el).w2tag(err);
                 console.log('ERROR: '+ err);
                 return;
@@ -3682,7 +3685,7 @@ w2utils.keyboard = (function (obj) {
                 }
                 return menu;
             } else if (typeof menu == 'object') {
-                var tmp = []
+                var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });
                 return tmp;
             }
@@ -3763,9 +3766,9 @@ w2utils.keyboard = (function (obj) {
                 var bgcol   = '';
                 var tmp_dt  = w2utils.formatDate(dt, this.options.format);
                 if (this.options.colored && this.options.colored[tmp_dt] !== undefined) { // if there is predefined colors for dates
-                    tmp   = this.options.colored[tmp_dt].split(':');
-                    bgcol = 'background-color: ' + tmp[0] + ';';
-                    col   = 'color: ' + tmp[1] + ';';
+                    var tmp = this.options.colored[tmp_dt].split(':');
+                    bgcol   = 'background-color: ' + tmp[0] + ';';
+                    col     = 'color: ' + tmp[1] + ';';
                 }
                 html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' : 'w2ui-blocked') + className + '" style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
                             dspDay +
@@ -3792,7 +3795,7 @@ w2utils.keyboard = (function (obj) {
 
         getHourHTML: function () {
             var tmp = [];
-            var h24 = (this.options.format == 'h24' ? true : false);
+            var h24 = (this.options.format == 'h24');
             for (var a=0; a<24; a++) {
                 var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
                 if (a == 12 && !h24) time = '12:00 pm';
@@ -3812,7 +3815,7 @@ w2utils.keyboard = (function (obj) {
 
         getMinHTML: function (hour) {
             if (typeof hour == 'undefined') hour = 0;
-            var h24 = (this.options.format == 'h24' ? true : false);
+            var h24 = (this.options.format == 'h24');
             var tmp = [];
             for (var a=0; a<60; a+=5) {
                 var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
@@ -3855,7 +3858,7 @@ w2utils.keyboard = (function (obj) {
             }
             return ret;
         }
-    }
+    };
 
     $.extend(w2field.prototype, w2utils.event);
     w2obj.field = w2field;

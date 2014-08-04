@@ -336,6 +336,9 @@ input[type=checkbox].w2ui-toggle:focus {
   padding: 3px 0px 4px 6px;
   width: 20px;
 }
+.w2ui-overlay table.w2ui-drop-menu td.menu-icon > span {
+  height: 20px;
+}
 .w2ui-overlay table.w2ui-drop-menu td.menu-text {
   padding: 8px 10px 8px 5px;
   width: auto;
@@ -1409,7 +1412,7 @@ button.btn-red.clicked {
 }
 .w2ui-layout > div .w2ui-resizer:hover,
 .w2ui-layout > div .w2ui-resizer.active {
-  background-color: #d7e4f2;
+  background-color: #c8cad1;
 }
 /*************************************************
 * ---- Grid ----
