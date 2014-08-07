@@ -13,14 +13,14 @@
 *   - month selection, year selections
 *   - arrows no longer work (for int)
 *   - form to support custom types
-*   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - add compare function for list, combo, enum
-*   - deprecate placeholder, read it from input
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
 *   - $('#id').w2field() - will return w2field object (same as $('#id').data('w2field'))
 *   - added resize() function and automatic watching for size
+*   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
+*   - deprecate placeholder, read it from input
 *
 ************************************************************************/
 
@@ -186,7 +186,6 @@
                         min                : null,
                         max                : null,
                         step               : 1,
-                        placeholder        : '',
                         autoFormat         : true,
                         currencyPrefix     : w2utils.settings.currencyPrefix,
                         currencySuffix     : w2utils.settings.currencySuffix,
@@ -212,15 +211,12 @@
                     }
                     this.addPrefix(); // only will add if needed
                     this.addSuffix();
-                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
-                    $(this.el).attr('placeholder', options.placeholder);
                     break;
 
                 case 'color':
                     defaults = {
                         prefix      : '#',
                         suffix      : '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&nbsp;</div>',
-                        placeholder : '',
                         arrows      : false,
                         keyboard    : false
                     };
@@ -230,14 +226,11 @@
                     // additional checks
                     $(this.el).attr('maxlength', 6);
                     if ($(this.el).val() != '') setTimeout(function () { $(obj.el).change(); }, 1);
-                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
-                    $(this.el).attr('placeholder', options.placeholder);
                     break;
 
                 case 'date':
                     defaults = {
                         format      : w2utils.settings.date_format, // date format
-                        placeholder : '',
                         keyboard    : true,
                         silent      : true,
                         start       : '',       // string or jquery object
@@ -247,14 +240,12 @@
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
-                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
-                    $(this.el).attr('placeholder', options.placeholder ? options.placeholder : options.format);
+                    if ($(this.el).attr('placeholder') == null) $(this.el).attr('placeholder', options.format);
                     break;
 
                 case 'time':
                     defaults = {
                         format      : w2utils.settings.time_format,
-                        placeholder : '',
                         keyboard    : true,
                         silent      : true,
                         start       : '',
@@ -262,8 +253,7 @@
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
-                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
-                    $(this.el).attr('placeholder', options.placeholder ? options.placeholder : options.format);
+                    if ($(this.el).attr('placeholder') == null) $(this.el).attr('placeholder', options.format);
                     break;
 
                 case 'datetime':
@@ -274,7 +264,6 @@
                     defaults = {
                         items           : [],
                         selected        : {},
-                        placeholder     : '',
                         url             : null,         // url to pull data from
                         postData        : {},
                         minLength       : 1,
@@ -325,8 +314,7 @@
                     this.addPrefix();
                     this.addSuffix();
                     setTimeout(function () { obj.refresh(); }, 10); // need this for icon refresh
-                    if ($(this.el).attr('placeholder') && options.placeholder == '') options.placeholder = $(this.el).attr('placeholder');
-                    $(this.el).attr('placeholder', options.placeholder).attr('autocomplete', 'off');
+                    $(this.el).attr('autocomplete', 'off');
                     if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
                     break;
 
@@ -334,7 +322,6 @@
                     defaults = {
                         items           : [],
                         selected        : [],
-                        placeholder     : '',
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
                         postData        : {},
@@ -380,7 +367,6 @@
                 case 'file':
                     defaults = {
                         selected      : [],
-                        placeholder   : w2utils.lang('Attach files by dragging and dropping or Click to Select'),
                         max           : 0,
                         maxSize       : 0,        // max size of all files, 0 - unlim
                         maxFileSize   : 0,        // max size of a single file, 0 -unlim
@@ -403,7 +389,9 @@
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
-                    if ($(this.el).attr('placeholder')) options.placeholder = $(this.el).attr('placeholder');
+                    if ($(this.el).attr('placeholder') == null) {
+                        $(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'));
+                    }
                     this.addMulti();
                     this.watchSize();
                     break;
@@ -468,9 +456,6 @@
             if (this.type == 'list') {
                 $(this.el).removeClass('w2ui-select');
             }
-            if (['date', 'time'].indexOf(this.type) != -1) {
-                if ($(this.el).attr('placeholder') == options.format) $(this.el).attr('placeholder', '');
-            }
             this.type = 'clear';
             var tmp = $(this.el).data('tmp');
             if (!this.tmp) return;
@@ -528,11 +513,9 @@
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
                         $(obj.el).val(selected && selected.text != null ? selected.text : '');
-                        $(obj.el).attr('placeholder', options.placeholder || '');
                     } else {
                         $(focus).css('opacity', 1).prev().css('opacity', 1);
                         $(obj.el).val('');
-                        $(obj.el).removeAttr('placeholder');
                         setTimeout(function () {
                             if (obj.helpers.prefix) obj.helpers.prefix.hide(); 
                             var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';
@@ -591,7 +574,7 @@
                 // add new list
                 if (html != '') {
                     ul.prepend(html);
-                } else if (typeof options.placeholder != 'undefined') {
+                } else if ($(obj.el).attr('placeholder') != null) {
                     var style =
                         'padding-top: ' + $(this.el).css('padding-top') + ';'+
                         'padding-left: ' + $(this.el).css('padding-left') + '; ' +
@@ -599,7 +582,7 @@
                         'line-height: ' + $(this.el).css('line-height') + '; ' +
                         'font-size: ' + $(this.el).css('font-size') + '; ' +
                         'font-family: ' + $(this.el).css('font-family') + '; ';
-                    div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ options.placeholder + '</div>');
+                    div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ $(obj.el).attr('placeholder') +'</div>');
                 }
                 // ITEMS events
                 div.find('li')
@@ -1830,6 +1813,7 @@
             var obj      = this;
             var options  = this.options;
             var width    = 0; // 11 - show search icon, 0 do not show
+            var pholder;
             // clean up & init
             $(obj.helpers.focus).remove();
             // build helper
@@ -1868,6 +1852,7 @@
                     event.stopPropagation();
                 })
                 .on('focus', function (event) {
+                    pholder = $(obj.el).attr('placeholder');
                     $(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
                     $(this).val('');
                     $(obj.el).triggerHandler('focus');
@@ -1879,9 +1864,16 @@
                     obj.refresh(); 
                     $(obj.el).triggerHandler('blur');
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+                    if (pholder != null) $(obj.el).attr('placeholder', pholder);
                 })
-                .on('keyup',    function (event) { obj.keyUp(event) })
-                .on('keydown',  function (event) { obj.keyDown(event) })
+                .on('keydown', function (event) {
+                    var el = this;
+                    obj.keyDown(event);
+                    setTimeout(function () { 
+                        if (el.value == '') $(obj.el).attr('placeholder', pholder); else $(obj.el).attr('placeholder', '');
+                    }, 10);
+                })
+                .on('keyup', function (event) { obj.keyUp(event) })
                 .on('keypress', function (event) { obj.keyPress(event); });
             // MAIN div
             helper.on('click', function (event) { $(this).find('input').focus(); });
