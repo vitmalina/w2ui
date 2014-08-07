@@ -20,6 +20,7 @@
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
 *   - $('#id').w2field() - will return w2field object (same as $('#id').data('w2field'))
+*   - added resize() function and automatic watching for size
 *
 ************************************************************************/
 
@@ -310,6 +311,7 @@
                                 }
                             }
                         }
+                        this.watchSize();
                     }
                     options = $.extend({}, defaults, options, {
                         align   : 'both',      // same width as control
@@ -372,6 +374,7 @@
                     if (options.url) this.request(0);
                     this.addSuffix();
                     this.addMulti();
+                    this.watchSize();
                     break;
 
                 case 'file':
@@ -402,6 +405,7 @@
                     $(this.el).data('selected', options.selected);
                     if ($(this.el).attr('placeholder')) options.placeholder = $(this.el).attr('placeholder');
                     this.addMulti();
+                    this.watchSize();
                     break;
             }
             // attach events
@@ -435,6 +439,19 @@
             this.change($.Event('change'));
         },
 
+        watchSize: function () {
+            var obj = this;
+            var tmp = $(obj.el).data('tmp') || {};
+            tmp.sizeTimer = setInterval(function () {
+                if ($(obj.el).parents('body').length > 0) {
+                    obj.resize(); 
+                } else {
+                    clearInterval(tmp.sizeTimer);
+                }
+            }, 200);
+            $(obj.el).data('tmp', tmp);
+        },
+
         clear: function () {
             var obj        = this;
             var options    = this.options;
@@ -459,10 +476,15 @@
             if (!this.tmp) return;
             // restore paddings
             if (typeof tmp != 'undefined') {
+                $(this.el).height('auto');
                 if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
                 if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
+                if (tmp && tmp['old-background-color']) $(this.el).css('background-color', tmp['old-background-color']);
+                if (tmp && tmp['old-border-color']) $(this.el).css('border-color', tmp['old-border-color']);
+                // remove resize watcher
+                clearInterval(tmp.sizeTimer);
             }
-            // remove events and data
+            // remove events and (data)
             $(this.el)
                 .val(this.clean($(this.el).val()))
                 .removeClass('w2field')
@@ -690,6 +712,39 @@
             this.init();
         },
 
+        // resizing width of list, enum, file controls
+        resize: function () {
+            var obj = this;
+            var new_width  = $(obj.el).width();
+            var new_height = $(obj.el).height();
+            if (obj.tmp.current_width == new_width && new_height > 0) return;
+
+            var focus  = this.helpers.focus;
+            var multi  = this.helpers.multi;
+            var suffix = this.helpers.suffix;
+            var prefix = this.helpers.prefix;
+
+            // resize helpers
+            if (focus) {
+                focus.width($(obj.el).width());
+            }
+            if (multi) {
+                var width = (w2utils.getSize(obj.el, 'width')
+                    - parseInt($(obj.el).css('margin-left'), 10)
+                    - parseInt($(obj.el).css('margin-right'), 10));
+                $(multi).width(width);
+            }
+            if (suffix) {
+                obj.options.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(obj.el).height()) - 6) / 2) +'px;"></div>';
+                obj.addSuffix();
+            }
+            if (prefix) {
+                obj.addPrefix();
+            }
+            // remember width
+            obj.tmp.current_width = new_width;
+        },
+
         clean: function (val) {
             var options = this.options;
             val = String(val).trim();
@@ -799,6 +854,7 @@
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
                 if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                obj.resize();
                 setTimeout(function () {
                     if (obj.type == 'list' && $(obj.el).is(':focus')) {
                         $(obj.helpers.focus).find('input').focus();
@@ -1867,6 +1923,12 @@
                         '    </div>'+
                         '</div>';
             }
+            // old bg and boder
+            var tmp = $(obj.el).data('tmp') || {};
+            tmp['old-background-color'] = $(obj.el).css('background-color');
+            tmp['old-border-color']     = $(obj.el).css('border-color');
+            $(obj.el).data('tmp', tmp);
+
             $(obj.el)
                 .before(html)
                 .css({
@@ -1906,7 +1968,8 @@
                         $(obj.el).focus();
                         if ($(obj.el).attr('readonly')) return;
                         obj.blur(event);
-                        div.find('input').click();
+                        obj.resize();
+                        setTimeout(function () { div.find('input').click(); }, 30);
                     })
                     .on('dragenter', function (event) {
                         if ($(obj.el).attr('readonly')) return;
