@@ -32,6 +32,7 @@
 *           statusResponse  : true,
 *           statusSort      : true,
 *           statusSearch    : true,
+*   - change selectAll() and selectNone() - return time it took
 *
 ************************************************************************/
 
@@ -1031,6 +1032,7 @@
         },
 
         selectAll: function () {
+            var time = (new Date()).getTime();
             if (this.multiSelect === false) return;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
@@ -1056,7 +1058,13 @@
                     if (this.selectType != 'row') sel.columns[i] = cols.slice(); // .slice makes copy of the array
                 }
             }
-            this.refresh();
+            // add selected class
+            if (this.selectType == 'row') {
+                $(this.box).find('.w2ui-grid-records tr').addClass('w2ui-selected');
+                $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
+            } else {
+                $(this.box).find('.w2ui-grid-data').addClass('w2ui-selected');
+            }
             // enable/disable toolbar buttons
             var sel = this.getSelection();
             if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
@@ -1064,26 +1072,22 @@
             this.addRange('selection');
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
+            return (new Date()).getTime() - time;
         },
 
         selectNone: function () {
+            var time = (new Date()).getTime();
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true });
             if (eventData.isCancelled === true) return;
             // default action
             var sel = this.last.selection;
-            for (var s in sel.indexes) {
-                var index = sel.indexes[s];
-                var rec   = this.records[index];
-                var recid = rec ? rec.recid : null;
-                var recEl = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
-                recEl.removeClass('w2ui-selected').removeData('selected');
-                recEl.find('.w2ui-grid-select-check').prop("checked", false);
-                // for not rows
-                if (this.selectType != 'row') {
-                    var cols = sel.columns[index];
-                    for (var c in cols) recEl.find(' > td[col='+ cols[c] +']').removeClass('w2ui-selected');
-                }
+            // remove selected class
+            if (this.selectType == 'row') {
+                $(this.box).find('.w2ui-grid-records tr.w2ui-selected').removeClass('w2ui-selected');
+                $(this.box).find('input.w2ui-grid-select-check').prop('checked', false);
+            } else {
+                $(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected');
             }
             sel.indexes = [];
             sel.columns = {};
@@ -1092,6 +1096,7 @@
             $('#grid_'+ this.name +'_check_all').prop('checked', false);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
+            return (new Date()).getTime() - time;
         },
 
         getSelection: function (returnIndex) {
