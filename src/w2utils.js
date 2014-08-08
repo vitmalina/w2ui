@@ -1274,8 +1274,8 @@ w2utils.keyboard = (function (obj) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
                 if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault();
             });
-        div1[0].hide    = hide;
-        div1[0].resize    = resize;
+        div1[0].hide   = hide;
+        div1[0].resize = resize;
 
         // need time to display
         resize();
@@ -1331,24 +1331,24 @@ w2utils.keyboard = (function (obj) {
                 if (w < 30) w = 30;
                 // if content of specific height
                 if (options.tmp.contentHeight) {
-                    h = options.tmp.contentHeight;
+                    h = parseInt(options.tmp.contentHeight);
                     div2.height(h);
                     setTimeout(function () {
-                        if (div2.height() > div2.find('div.menu > table').height()) {
+                        if (h > div2.find('div.menu > table').height()) {
                             div2.find('div.menu').css('overflow-y', 'hidden');
                         }
                     }, 1);
                     setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
                 }
                 if (options.tmp.contentWidth) {
-                    w = options.tmp.contentWidth;
+                    w = parseInt(options.tmp.contentWidth);
                     div2.width(w);
                     setTimeout(function () {
-                        if (div2.width() > div2.find('div.menu > table').width()) {
+                        if (w > div2.find('div.menu > table').width()) {
                             div2.find('div.menu').css('overflow-x', 'hidden');
                         }
                     }, 1);
-                    setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
+                    setTimeout(function () { div2.find('div.menu').css('overflow-x', 'auto'); }, 10);
                 }
                 // alignment
                 switch (options.align) {
@@ -1456,10 +1456,26 @@ w2utils.keyboard = (function (obj) {
                 var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
                 $('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
                 $('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
-                mresize();
+                setTimeout(function () { mresize(); }, 1);
             } else {
                 $(this).w2menu(options);
             }
+        } else if (menu === 'refresh-index') {
+            var $menu  = $('#w2ui-overlay'+ name +' div.menu');
+            var cur    = $menu.find('tr[index='+ options.index +']');
+            var scrTop = $menu.scrollTop();
+            $menu.find('tr.w2ui-selected').removeClass('w2ui-selected'); // clear all
+            cur.addClass('w2ui-selected'); // select current
+            // scroll into view
+            if (cur.length > 0) {
+                var top    = cur[0].offsetTop - 5; // 5 is margin top
+                var height = $menu.height();
+                $menu.scrollTop(scrTop);
+                if (top < scrTop || top + cur.height() > scrTop + height) {
+                    $menu.animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
+                }
+            }
+            return;
         } else {
             if (arguments.length === 1) options = menu; else options.items = menu;
             if (typeof options !== 'object') options = {};
@@ -1518,8 +1534,8 @@ w2utils.keyboard = (function (obj) {
             setTimeout(function () {
                 // show selected
                 $('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected');
-                var cur        = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
-                var scrTop    = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+                var cur    = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
+                var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
                 cur.addClass('w2ui-selected');
                 if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
                 if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();

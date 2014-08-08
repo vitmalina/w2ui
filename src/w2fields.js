@@ -14,6 +14,7 @@
 *   - arrows no longer work (for int)
 *   - form to support custom types
 *   - add compare function for list, combo, enum
+*   - rewrite suffix and prefix positioning with translateY()
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
@@ -636,7 +637,8 @@
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Modified') +':</td><td '+ td2 +'>'+ w2utils.date(item.modified) +'</td></tr>'+
                                 '    </table>'+
                                 '</div>';
-                                $(event.target).w2overlay(preview);
+                            $('#w2ui-overlay').remove();
+                            $(event.target).w2overlay(preview);
                         }
                         // event after
                         obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -674,7 +676,7 @@
                     });
                 // adjust height
                 $(this.el).height('auto');
-                var cntHeight = $(div).find('> div').height() + w2utils.getSize(div, '+height') * 2;
+                var cntHeight = $(div).find('> div.w2ui-multi-items').height() + w2utils.getSize(div, '+height') * 2;
                 if (cntHeight < 26) cntHeight = 26;
                 if (cntHeight > options.maxHeight) cntHeight = options.maxHeight;
                 if (div.length > 0) div[0].scrollTop = 1000;
@@ -1065,9 +1067,9 @@
             // list/select/combo
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
                 if ($(obj.el).attr('readonly')) return;
-                var cancel    = false;
                 var selected  = $(obj.el).data('selected');
                 var focus     = $(obj.helpers.focus).find('input');
+                var indexOnly = false;
                 if (obj.type == 'list') {
                     if ([37, 38, 39, 40].indexOf(key) == -1) obj.refresh(); // arrows
                 }
@@ -1081,7 +1083,7 @@
                         break;
                     case 37: // left
                     case 39: // right
-                        // cancel = true;
+                        // indexOnly = true;
                         break;
                     case 13: // enter
                         if ($('#w2ui-overlay').length == 0) break; // no action if overlay not open
@@ -1160,7 +1162,7 @@
                         if (options.index == 0 && options.items[options.index].hidden) {
                             while (options.items[options.index] && options.items[options.index].hidden) options.index++;
                         }
-                        cancel = true;
+                        indexOnly = true;
                         break;
                     case 40: // down
                         options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1;
@@ -1175,14 +1177,14 @@
                         if ($(input).val() == '' && $('#w2ui-overlay').length == 0) {
                             obj.tmp.force_open = true;
                         } else {
-                            cancel = true;
+                            indexOnly = true;
                         }
                         break;
                 }
-                if (cancel) {
+                if (indexOnly) {
                     if (options.index < 0) options.index = 0;
                     if (options.index >= options.items.length) options.index = options.items.length -1;
-                    obj.updateOverlay();
+                    obj.updateOverlay(indexOnly);
                     // cancel event
                     event.preventDefault();
                     setTimeout(function () {
@@ -1400,7 +1402,7 @@
             obj.trigger($.extend(eventData, { phase: 'after' }));
         },
 
-        updateOverlay: function () {
+        updateOverlay: function (indexOnly) {
             var obj     = this;
             var options = this.options;
             // color
@@ -1554,7 +1556,7 @@
                     var msgNoItems = w2utils.lang('No matches');
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
                     if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search....');
-                    $(el).w2menu('refresh', $.extend(true, {}, options, {
+                    $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
                         maxHeight  : options.maxDropHeight,
@@ -1898,7 +1900,7 @@
                                     + 'px;';
             if (obj.type == 'enum') {
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
-                        '    <div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
+                        '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
                         '            <input type="text" style="width: 20px" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
@@ -1909,9 +1911,11 @@
             }
             if (obj.type == 'file') {
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
-                        '    <div style="padding: 0px; margin: 0px; margin-right: 20px; display: inline-block">'+
-                        '    <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
-                        '    <input class="file-input" type="file" name="attachment" multiple style="display: none" tabindex="-1">'+
+                        '   <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">'+
+                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1">'+
+                        '   </div>'+
+                        '    <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
+                        '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+                        
                         '    </div>'+
                         '</div>';
             }
@@ -1961,11 +1965,11 @@
                         if ($(obj.el).attr('readonly')) return;
                         obj.blur(event);
                         obj.resize();
-                        setTimeout(function () { div.find('input').click(); }, 30);
+                        setTimeout(function () { div.find('input').click(); }, 10); // needed this when clicked on items div
                     })
                     .on('dragenter', function (event) {
                         if ($(obj.el).attr('readonly')) return;
-                        $(div).addClass('w2ui-file-dragover');
+                        $(div).addClass('w2ui-file-dragover'); 
                     })
                     .on('dragleave', function (event) {
                         if ($(obj.el).attr('readonly')) return;
