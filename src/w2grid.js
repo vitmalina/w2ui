@@ -929,7 +929,7 @@
                     // default action
                     sel.indexes.push(index);
                     sel.indexes.sort(function(a, b) { return a-b });
-                    recEl.addClass('w2ui-selected').data('selected', 'yes');
+                    recEl.addClass('w2ui-selected').data('selected', 'yes').find('.w2ui-col-number').addClass('w2ui-row-selected');
                     recEl.find('.w2ui-grid-select-check').prop("checked", true);
                     selected++;
                 } else {
@@ -953,6 +953,8 @@
                     s.push(col);
                     s.sort(function(a, b) { return a-b }); // sort function must be for numerical sort
                     recEl.find(' > td[col='+ col +']').addClass('w2ui-selected');
+                    recEl.find('.w2ui-col-number').addClass('w2ui-row-selected');
+                    $(this.box).find('.w2ui-grid-columns td[col='+ col +'] .w2ui-col-header').addClass('w2ui-col-selected');
                     selected++;
                     recEl.data('selected', 'yes');
                     recEl.find('.w2ui-grid-select-check').prop("checked", true);
@@ -989,7 +991,7 @@
                     if (eventData.isCancelled === true) continue;
                     // default action
                     sel.indexes.splice(sel.indexes.indexOf(index), 1);
-                    recEl.removeClass('w2ui-selected').removeData('selected');
+                    recEl.removeClass('w2ui-selected').removeData('selected').find('.w2ui-col-number').removeClass('w2ui-row-selected');
                     if (recEl.length != 0) recEl[0].style.cssText = 'height: '+ this.recordHeight +'px; ' + recEl.attr('custom_style');
                     recEl.find('.w2ui-grid-select-check').prop("checked", false);
                     unselected++;
@@ -1007,7 +1009,21 @@
                     if (eventData.isCancelled === true) continue;
                     // default action
                     s.splice(s.indexOf(col), 1);
-                    $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid) + ' > td[col='+ col +']').removeClass('w2ui-selected');
+                    $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected');
+                    // check if any row/column still selected
+                    var isColSelected = false;
+                    var isRowSelected = false;
+                    var tmp = this.getSelection();
+                    for (var t in tmp) {
+                        if (tmp[t].column == col) isColSelected = true; 
+                        if (tmp[t].recid == recid) isRowSelected = true;
+                    }
+                    if (!isColSelected) {
+                       $(this.box).find('.w2ui-grid-columns td[col='+ col +'] .w2ui-col-header').removeClass('w2ui-col-selected');
+                    }
+                    if (!isRowSelected) {
+                        $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find('.w2ui-col-number').removeClass('w2ui-row-selected');
+                    }
                     unselected++;
                     if (s.length == 0) {
                         delete sel.columns[index];
@@ -1060,10 +1076,12 @@
             }
             // add selected class
             if (this.selectType == 'row') {
-                $(this.box).find('.w2ui-grid-records tr').addClass('w2ui-selected');
+                $(this.box).find('.w2ui-grid-records tr').addClass('w2ui-selected').data('selected', 'yes').find('.w2ui-col-number').addClass('w2ui-row-selected');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
             } else {
-                $(this.box).find('.w2ui-grid-data').addClass('w2ui-selected');
+                $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').addClass('w2ui-col-selected');
+                $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').addClass('w2ui-row-selected')
+                $(this.box).find('.w2ui-grid-data').addClass('w2ui-selected').data('selected', 'yes');
             }
             // enable/disable toolbar buttons
             var sel = this.getSelection();
@@ -1084,10 +1102,13 @@
             var sel = this.last.selection;
             // remove selected class
             if (this.selectType == 'row') {
-                $(this.box).find('.w2ui-grid-records tr.w2ui-selected').removeClass('w2ui-selected');
+                $(this.box).find('.w2ui-grid-records tr.w2ui-selected').removeClass('w2ui-selected').removeData('selected')
+                    .find('.w2ui-col-number').removeClass('w2ui-row-selected');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', false);
             } else {
-                $(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected');
+                $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').removeClass('w2ui-col-selected');
+                $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').removeClass('w2ui-row-selected');
+                $(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected').removeData('selected');
             }
             sel.indexes = [];
             sel.columns = {};
@@ -4739,7 +4760,8 @@
                     ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
                 '>';
             if (this.show.lineNumbers) {
-                rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" class="w2ui-col-number">'+
+                rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" '+
+                            '   class="w2ui-col-number '+ (isRowSelected  ? ' w2ui-row-selected' : '') +'">'+
                                 (summary !== true ? '<div>'+ lineNum +'</div>' : '') +
                             '</td>';
             }

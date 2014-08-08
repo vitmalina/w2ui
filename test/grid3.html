@@ -8,10 +8,18 @@
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
+<style>
+.w2ui-col-selected {
+    background-color: #d1d1d1 !important;
+}
+.w2ui-row-selected {
+    background-color: #d1d1d1 !important;
+}
+</style>
 <script>
 $(function () {
     $('#grid').w2grid({ 
-        name : 'grid', 
+        name : 'grid2', 
         show : { 
             toolbar     : true,
             footer      : true,
@@ -36,11 +44,11 @@ $(function () {
     });
     // add 10k records
     for (var i = 0; i < 9000; i++) {
-        w2ui['grid'].records.push({ 
+        w2ui['grid2'].records.push({ 
             recid : (i + 10),
         });
     }
-    w2ui.grid.refresh();
+    w2ui.grid2.refresh();
 });
 </script>
 </head>
