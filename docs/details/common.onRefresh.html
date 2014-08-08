@@ -34,3 +34,17 @@ The event handler is called before the default action of the event is triggered.
 after the event is fully processed, define <span class="method">event.onComplete</span> function. 
 <div style="height: 10px;"></div>
 See <a href="utils/events">events</a> page in utilities for more details.
+
+<h4>Adding Custom Events for Generated Content</h4>
+Normally, you should not add any events directly to generated content (grid, sidebar, etc), however, it is possible to do this. You can either
+user inline html event &lt;... onclick="..."&gt; or you can add them with jQuery. You will need to add them in event.onComplete loop.
+
+<textarea class="javascript">
+w2ui.layout.on('refresh', function(event) {
+    event.onComplete = function () {
+        $(this.box).find('#..').on('click', function () {
+            // do my staff
+        });
+    }
+});
+</textarea>
