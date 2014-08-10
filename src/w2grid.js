@@ -4120,7 +4120,7 @@
             this.initResize();
             this.refreshRanges();
             // apply last scroll if any
-            if (this.last.scrollTop != '' && records.length > 0) {
+            if ((this.last.scrollTop || this.last.scrollLeft) && records.length > 0) {
                 columns.prop('scrollLeft', this.last.scrollLeft);
                 records.prop('scrollTop',  this.last.scrollTop);
                 records.prop('scrollLeft', this.last.scrollLeft);
