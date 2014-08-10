@@ -30,6 +30,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - isTime should support seconds
 *   - add time zone
 *   - TEST On IOS
+*   - $().w2marker() -- only unmarks first instance
 *
 * == 1.5 changes
 *   - added decimalSymbol
@@ -831,7 +832,7 @@ var w2utils = (function () {
                 w2utils.settings = $.extend(true, w2utils.settings, data);
                 // apply translation to some prototype functions
                 var p = w2obj.grid.prototype;
-                for (var b in p.buttons) {
+                for (var b in p.buttons) { // buttons is an object
                     p.buttons[b].caption = w2utils.lang(p.buttons[b].caption);
                     p.buttons[b].hint    = w2utils.lang(p.buttons[b].hint);
                 }
@@ -1090,16 +1091,16 @@ w2utils.keyboard = (function (obj) {
         if (typeof name === 'object') name.destroy();
     };
 
-    $.fn.w2marker = function (str) {
-        if (str === '' || str == null) { // remove marker
+    $.fn.w2marker = function () {
+        var str = Array.prototype.slice.call(arguments, 0);
+        if (str.length == 0 || !str[0]) { // remove marker
             return $(this).each(function (index, el) {
                 el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
             });
         } else { // add marker
             return $(this).each(function (index, el) {
-                if (typeof str === 'string') str = [str];
                 el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
-                for (var s in str) {
+                for (var s = 0; s < str.length; s++) {
                     var tmp = str[s];
                     if (typeof tmp !== 'string') tmp = String(tmp);
                     // escape regex special chars
@@ -1508,7 +1509,7 @@ w2utils.keyboard = (function (obj) {
                     '</div>';
                 options.style += ';background-color: #ECECEC';
                 options.index = 0;
-                for (var i in options.items) options.items[i].hidden = false;
+                for (var i = 0; i < options.items.length; i++) options.items[i].hidden = false;
             }
             html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%; overflow: auto;">' +
                         getMenuHTML() +
@@ -1591,7 +1592,7 @@ w2utils.keyboard = (function (obj) {
             // filter
             if (!cancel) {
                 var shown  = 0;
-                for (var i in options.items) {
+                for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
                     var prefix = '';
                     var suffix = '';

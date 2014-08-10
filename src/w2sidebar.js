@@ -142,7 +142,7 @@
             }
             if (typeof parent == 'string') parent = this.get(parent);
             if (!$.isArray(nodes)) nodes = [nodes];
-            for (var o in nodes) {
+            for (var o = 0; o < nodes.length; o++) {
                 node = nodes[o];
                 if (typeof node.id == null) {
                     txt = (node.caption != null ? node.caption : node.text);
@@ -267,7 +267,7 @@
             if (parent.nodes == null) return results;
             for (var i = 0; i < parent.nodes.length; i++) {
                 var match = true;
-                for (var prop in params) {
+                for (var prop in params) { // params is an object
                     if (parent.nodes[i][prop] != params[prop]) match = false;
                 }
                 if (match) results.push(parent.nodes[i]);

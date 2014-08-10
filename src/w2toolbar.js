@@ -170,7 +170,7 @@
                 it.hidden = false;
                 tmp.push(it.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
         },
 
@@ -185,7 +185,7 @@
                 it.hidden = true;
                 tmp.push(it.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
         },
 
@@ -200,7 +200,7 @@
                 it.disabled = false;
                 tmp.push(it.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
         },
 
@@ -215,7 +215,7 @@
                 it.disabled = true;
                 tmp.push(it.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
         },
 
@@ -230,7 +230,7 @@
                 it.checked = true;
                 tmp.push(it.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
         },
 
@@ -245,7 +245,7 @@
                 it.checked = false;
                 tmp.push(it.id);
             }
-            setTimeout(function () { for (var t in tmp) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
         },
 

@@ -39,7 +39,7 @@
         $.extend(true, this, w2obj.layout, options);
     };
 
-    /* @const */ var w2layout_panels = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
+    var w2panels = ['top', 'left', 'main', 'preview', 'right', 'bottom'];
 
     // ====================================================
     // -- Registers as a jQuery plugin
@@ -58,10 +58,9 @@
                 if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
             }
             // add all other panels
-            for (var p1 in w2layout_panels) {
-                p1 = w2layout_panels[p1];
-                if (object.get(p1) !== null) continue;
-                object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: p1, hidden: (p1 !== 'main'), size: 50 }));
+            for (var p1 = 0; p1 < w2panels.length; p1++) {
+                if (object.get(w2panels[p1]) !== null) continue;
+                object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: w2panels[p1], hidden: (w2panels[p1] !== 'main'), size: 50 }));
             }
             if ($(this).length > 0) {
                 object.render($(this)[0]);
@@ -349,7 +348,7 @@
         },
 
         get: function (panel, returnIndex) {
-            for (var p in this.panels) {
+            for (var p = 0; p < this.panels.length; p++) {
                 if (this.panels[p].type == panel) {
                     if (returnIndex === true) return p; else return this.panels[p];
                 }
@@ -431,16 +430,15 @@
                 .html('<div></div>');
             if ($(obj.box).length > 0) $(obj.box)[0].style.cssText += obj.style;
             // create all panels
-            for (var p1 in w2layout_panels) {
-                p1 = w2layout_panels[p1];
-                var pan  = obj.get(p1);
-                var html =  '<div id="layout_'+ obj.name + '_panel_'+ p1 +'" class="w2ui-panel">'+
+            for (var p1 = 0; p1 < w2panels.length; p1++) {
+                var pan  = obj.get(w2panels[p1]);
+                var html =  '<div id="layout_'+ obj.name + '_panel_'+ w2panels[p1] +'" class="w2ui-panel">'+
                             '    <div class="w2ui-panel-title"></div>'+
                             '    <div class="w2ui-panel-tabs"></div>'+
                             '    <div class="w2ui-panel-toolbar"></div>'+
                             '    <div class="w2ui-panel-content"></div>'+
                             '</div>'+
-                            '<div id="layout_'+ obj.name + '_resizer_'+ p1 +'" class="w2ui-resizer"></div>';
+                            '<div id="layout_'+ obj.name + '_resizer_'+ w2panels[p1] +'" class="w2ui-resizer"></div>';
                 $(obj.box).find(' > div').append(html);
                 // tabs are rendered in refresh()
             }
@@ -483,9 +481,8 @@
                     value   : 0
                 };
                 // lock all panels
-                for (var p1 in w2layout_panels) {
-                    p1 = w2layout_panels[p1];
-                    obj.lock(p1, { opacity: 0 });
+                for (var p1 = 0; p1 < w2panels.length; p1++) {
+                    obj.lock(w2panels[p1], { opacity: 0 });
                 }
                 if (type == 'left' || type == 'right') {
                     obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left);
@@ -503,8 +500,8 @@
                 $(document).off('mouseup', obj.tmp.events.mouseUp);
                 if (typeof obj.tmp.resize == 'undefined') return;
                 // unlock all panels
-                for (var p1 in w2layout_panels) {
-                    obj.unlock(w2layout_panels[p1]);
+                for (var p1 = 0; p1 < w2panels.length; p1++) {
+                    obj.unlock(w2panels[p1]);
                 }
                 // set new size
                 if (obj.tmp.diff_x !== 0 || obj.tmp.resize.diff_y !== 0) { // only recalculate if changed
@@ -708,7 +705,7 @@
                 }
                 obj.resize();
                 // refresh all of them
-                for (var p1 in this.panels) { obj.refresh(this.panels[p1].type); }
+                for (var p1 = 0; p1 < this.panels.length; p1++) { obj.refresh(this.panels[p1].type); }
             }
             obj.trigger($.extend(eventData, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -748,10 +745,9 @@
             var sbottom = (pbottom !== null && pbottom.hidden !== true ? true : false);
             var l, t, w, h, e;
             // calculate %
-            for (var p in w2layout_panels) {
-                p = w2layout_panels[p];
-                if (p === 'main') continue;
-                var tmp = this.get(p);
+            for (var p = 0; p < w2panels.length; p++) {
+                if (w2panels[p] === 'main') continue;
+                var tmp = this.get(w2panels[p]);
                 if (!tmp) continue;
                 var str = String(tmp.size || 0);
                 if (str.substr(str.length-1) == '%') {
@@ -997,21 +993,20 @@
             }
 
             // display tabs and toolbar if needed
-            for (var p1 in w2layout_panels) {
-                p1 = w2layout_panels[p1];
-                var pan = this.get(p1);
-                var tmp2 = '#layout_'+ this.name +'_panel_'+ p1 +' > .w2ui-panel-';
+            for (var p1 = 0; p1 < w2panels.length; p1++) {
+                var pan = this.get(w2panels[p1]);
+                var tmp2 = '#layout_'+ this.name +'_panel_'+ w2panels[p1] +' > .w2ui-panel-';
                 var tabHeight = 0;
                 if (pan) {
                     if (pan.title) {
                         tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height');
                     }
                     if (pan.show.tabs) {
-                        if (pan.tabs !== null && w2ui[this.name +'_'+ p1 +'_tabs']) w2ui[this.name +'_'+ p1 +'_tabs'].resize();
+                        if (pan.tabs !== null && w2ui[this.name +'_'+ w2panels[p1] +'_tabs']) w2ui[this.name +'_'+ w2panels[p1] +'_tabs'].resize();
                         tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height');
                     }
                     if (pan.show.toolbar) {
-                        if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
+                        if (pan.toolbar !== null && w2ui[this.name +'_'+ w2panels[p1] +'_toolbar']) w2ui[this.name +'_'+ w2panels[p1] +'_toolbar'].resize();
                         tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
                     }
                 }
@@ -1054,7 +1049,7 @@
         },
 
         lock: function (panel, msg, showSpinner) {
-            if (w2layout_panels.indexOf(panel) == -1) {
+            if (w2panels.indexOf(panel) == -1) {
                 console.log('ERROR: First parameter needs to be the a valid panel name.');
                 return;
             }
@@ -1064,7 +1059,7 @@
         },
 
         unlock: function (panel) {
-            if (w2layout_panels.indexOf(panel) == -1) {
+            if (w2panels.indexOf(panel) == -1) {
                 console.log('ERROR: First parameter needs to be the a valid panel name.');
                 return;
             }

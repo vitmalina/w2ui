@@ -96,7 +96,7 @@
             $.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [] });
             if ($.isArray(tabs)) {
                 $.extend(true, object.tabs, { tabs: [] });
-                for (var t in tabs) {
+                for (var t = 0; t < tabs.length; t++) {
                     var tmp = tabs[t];
                     if (typeof tmp === 'object') object.tabs.tabs.push(tmp); else object.tabs.tabs.push({ id: tmp, caption: tmp });
                 }
@@ -105,20 +105,20 @@
             }
             $.extend(true, object.toolbar, toolbar);
             // reassign variables
-            for (var p in fields) {
+            if (fields) for (var p = 0; p < fields.length; p++) {
                 var field = $.extend(true, {}, fields[p]);
                 if (typeof field.name == 'undefined' && typeof field.field != 'undefined') field.name = field.field;
                 if (typeof field.field == 'undefined' && typeof field.name != 'undefined') field.field = field.name;
                 object.fields[p] = field;
             }
-            for (var p in record) {
+            for (var p in record) { // it is an object
                 if ($.isPlainObject(record[p])) {
                     object.record[p] = $.extend(true, {}, record[p]);
                 } else {
                     object.record[p] = record[p];
                 }
             }
-            for (var p in original) {
+            for (var p in original) { // it is an object
                 if ($.isPlainObject(original[p])) {
                     object.original[p] = $.extend(true, {}, original[p]);
                 } else {
@@ -176,12 +176,12 @@
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
                 var all = [];
-                for (var f1 in this.fields) {
+                for (var f1 = 0; f1 < this.fields.length; f1++) {
                     if (this.fields[f1].name != null) all.push(this.fields[f1].name);
                 }
                 return all;
             } else {
-                for (var f2 in this.fields) {
+                for (var f2 = 0; f2 < this.fields.length; f2++) {
                     if (this.fields[f2].name == field) {
                         if (returnIndex === true) return f2; else return this.fields[f2];
                     }
@@ -191,7 +191,7 @@
         },
 
         set: function (field, obj) {
-            for (var f in this.fields) {
+            for (var f = 0; f < this.fields.length; f++) {
                 if (this.fields[f].name == field) {
                     $.extend(this.fields[f] , obj);
                     this.refresh();
@@ -238,7 +238,7 @@
             $().w2tag(); // hide all tags before validating
             // validate before saving
             var errors = [];
-            for (var f in this.fields) {
+            for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
                 if (this.record[field.name] == null) this.record[field.name] = '';
                 switch (field.type) {
@@ -639,7 +639,7 @@
             var pages = []; // array for each page
             var group = '';
             var page;
-            for (var f in this.fields) {
+            for (var f = 0; f < this.fields.length; f++) {
                 var html = '';
                 var field = this.fields[f];
                 if (typeof field.html == 'undefined') field.html = {};
@@ -674,13 +674,13 @@
             if (this.tabs.tabs) {
                 for (var i = 0; i < this.tabs.tabs.length; i++) if (typeof pages[i] == 'undefined') pages[i] = '';
             }
-            for (var p in pages) pages[p] = '<div class="w2ui-page page-'+ p +'">' + pages[p] + '\n</div>';
+            for (var p = 0; p < pages.length; p++) pages[p] = '<div class="w2ui-page page-'+ p +'">' + pages[p] + '\n</div>';
             // buttons if any
             var buttons = '';
             if (!$.isEmptyObject(this.actions)) {
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
-                for (var a in this.actions) {
+                for (var a in this.actions) { // it is an object
                     if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
                     buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) +'</button>';
                 }
@@ -786,7 +786,7 @@
                 $('#form_'+ this.name +'_toolbar').hide();
             }
             // refresh values of all fields
-            for (var f in this.fields) {
+            for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
                 if (typeof field.name == 'undefined' && typeof field.field != 'undefined') field.name = field.field;
                 if (typeof field.field == 'undefined' && typeof field.name != 'undefined') field.field = field.name;
@@ -808,14 +808,14 @@
                         var cv = obj.record[this.name];
                         if ($.isArray(nv)) {
                             value_new = [];
-                            for (var i in nv) value_new[i] = $.extend(true, {}, nv[i]); // clone array
+                            for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
                         }
                         if ($.isPlainObject(nv)) {
                             value_new = $.extend(true, {}, nv); // clone object
                         }
                         if ($.isArray(cv)) {
                             value_previous = [];
-                            for (var i in cv) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+                            for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
                         }
                         if ($.isPlainObject(cv)) {
                             value_previous = $.extend(true, {}, cv); // clone object
@@ -871,7 +871,7 @@
                 });
             });
             // init controls with record
-            for (var f in this.fields) {
+            for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
                 var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
                 if (!field.el) continue;
@@ -914,12 +914,11 @@
                                 field.options.items = w2obj.field.prototype.normMenu(items);
                             }
                             // find value from items 
-                            for (var i in field.options.items) {
+                            for (var i = 0; i < field.options.items.length; i++) {
                                 var item = field.options.items[i];
                                 if (item.id == tmp_value) {
                                     value = $.extend(true, {}, item);
                                     obj.record[field.name] = value;
-                                    console.log(1);
                                     break;
                                 }
                             }
@@ -946,7 +945,7 @@
                         if (typeof items != 'undefined' && items.length > 0) {
                             items = w2obj.field.prototype.normMenu(items);
                             $(field.el).html('');
-                            for (var it in items) {
+                            for (var it = 0; it < items.length; it++) {
                                 $(field.el).append('<option value="'+ items[it].id +'">' + items[it].text + '</option');
                             }
                         }

@@ -195,15 +195,15 @@
             if (object.onExpand != null) object.show.expandColumn = true;
             $.extend(true, object.toolbar, toolbar);
             // reassign variables
-            for (var p in columns)      object.columns[p]       = $.extend(true, {}, columns[p]);
-            for (var p in columnGroups) object.columnGroups[p]  = $.extend(true, {}, columnGroups[p]);
-            for (var p in searches)     object.searches[p]      = $.extend(true, {}, searches[p]);
-            for (var p in searchData)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
-            for (var p in sortData)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
+            if (columns)      for (var p = 0; p < columns.length; p++)      object.columns[p]       = $.extend(true, {}, columns[p]);
+            if (columnGroups) for (var p = 0; p < columnGroups.length; p++) object.columnGroups[p]  = $.extend(true, {}, columnGroups[p]);
+            if (searches)     for (var p = 0; p < searches.length; p++)     object.searches[p]      = $.extend(true, {}, searches[p]);
+            if (searchData)   for (var p = 0; p < searchData.length; p++)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
+            if (sortData)     for (var p = 0; p < sortData.length; p++)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
             object.postData = $.extend(true, {}, postData);
 
             // check if there are records without recid
-            for (var r in records) {
+            if (records) for (var r = 0; r < records.length; r++) {
                 if (records[r].recid == null || typeof records[r].recid == 'undefined') {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
                     return;
@@ -293,7 +293,7 @@
         find: function (obj, returnIndex) {
             if (typeof obj == 'undefined' || obj == null) obj = {};
             var recs    = [];
-            var hasDots    = false;
+            var hasDots = false;
             // check if property is nested - needed for speed
             for (var o in obj) if (String(o).indexOf('.') != -1) hasDots = true;
             // look for an item
@@ -1740,7 +1740,7 @@
                                 //data.xhr_status=data.status;
                                 delete data.status;
                                 $.extend(true, this, data);
-                                for (var r in records) {
+                                for (var r = 0; r < records.length; r++) {
                                     this.records.push(records[r]);
                                 }
                             }
@@ -1789,7 +1789,7 @@
 
         getChanges: function () {
             var changes = [];
-            for (var r in this.records) {
+            for (var r = 0; r < this.records.length; r++) {
                 var rec = this.records[r];
                 if (typeof rec['changes'] != 'undefined') {
                     changes.push($.extend(true, { recid: rec.recid }, rec.changes));
@@ -1800,7 +1800,7 @@
 
         mergeChanges: function () {
             var changes = this.getChanges();
-            for (var c in changes) {
+            for (var c = 0; c < changes.length; c++) {
                 var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
                     if (s == 'recid') continue; // do not allow to change recid
@@ -1880,7 +1880,7 @@
             }
             if (edit.type == 'select') {
                 var html = '';
-                for (var i in edit.items) {
+                for (var i = 0; i < edit.items.length; i++) {
                     html += '<option value="'+ edit.items[i].id +'" '+ (edit.items[i].id == val ? 'selected' : '') +'>'+ edit.items[i].text +'</option>';
                 }
                 el.addClass('w2ui-editable')
@@ -1936,7 +1936,7 @@
                                     if (tmp != null && tmp != index) {
                                         next_rec = obj.records[tmp].recid;
                                         // find first editable row
-                                        for (var c in obj.columns) {
+                                        for (var c = 0; c < obj.columns.length; c++) {
                                             var tmp = obj.columns[c].editable;
                                             if (typeof tmp != 'undefined' && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
                                                 next_col = parseInt(c);
@@ -2128,7 +2128,7 @@
                     this.remove.apply(this, recs);
                 } else {
                     // clear cells
-                    for (var r in recs) {
+                    for (var r = 0; r < recs.length; r++) {
                         var fld = this.columns[recs[r].column].field;
                         var ind = this.get(recs[r].recid, true);
                         if (ind != null && fld != 'recid') {
@@ -2219,7 +2219,9 @@
                     if (this.selectType == 'row') {
                         sel_add.push(this.records[i].recid);
                     } else {
-                        for (var sc in selectColumns) sel_add.push({ recid: this.records[i].recid, column: selectColumns[sc] });
+                        for (var sc = 0; sc < selectColumns.length; sc++) {
+                            sel_add.push({ recid: this.records[i].recid, column: selectColumns[sc] });
+                        }
                     }
                     //sel.push(this.records[i].recid);
                 }
@@ -2335,7 +2337,7 @@
                         obj.toggle(recid, event);
                         cancel = true;
                     } else { // or enter edit
-                        for (var c in this.columns) {
+                        for (var c = 0; c < this.columns.length; c++) {
                             if (this.columns[c].editable) {
                                 columns.push(parseInt(c));
                                 break;
@@ -2378,12 +2380,12 @@
                                 var newSel = [];
                                 var unSel  = [];
                                 if (columns.indexOf(this.last.sel_col) == 0 && columns.length > 1) {
-                                    for (var i in sel) {
+                                    for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] });
                                     }
                                 } else {
-                                    for (var i in sel) {
+                                    for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: prev });
                                     }
@@ -2418,12 +2420,12 @@
                                 var newSel = [];
                                 var unSel  = [];
                                 if (columns.indexOf(this.last.sel_col) == columns.length-1 && columns.length > 1) {
-                                    for (var i in sel) {
+                                    for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         unSel.push({ recid: sel[i].recid, column: columns[0] });
                                     }
                                 } else {
-                                    for (var i in sel) {
+                                    for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: next });
                                     }
@@ -2436,7 +2438,7 @@
                         } else {
                             // if selected more then one, then select first
                             if (!shiftKey) {
-                                for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
+                                for (var s = 0; s < sel.length-1; s++) obj.unselect(sel[s]);
                             }
                         }
                     }
@@ -2474,11 +2476,11 @@
                                 if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
                                     prev = ind2;
                                     var tmp = [];
-                                    for (var c in columns) tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
+                                    for (var c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
                                     obj.unselect.apply(obj, tmp);
                                 } else {
                                     var tmp = [];
-                                    for (var c in columns) tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
+                                    for (var c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
                                     obj.select.apply(obj, tmp);
                                 }
                             }
@@ -2538,11 +2540,11 @@
                                 if (this.last.sel_ind < next && this.last.sel_ind != ind) {
                                     next = ind;
                                     var tmp = [];
-                                    for (var c in columns) tmp.push({ recid: obj.records[next].recid, column: columns[c] });
+                                    for (var c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] });
                                     obj.unselect.apply(obj, tmp);
                                 } else {
                                     var tmp = [];
-                                    for (var c in columns) tmp.push({ recid: obj.records[next].recid, column: columns[c] });
+                                    for (var c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] });
                                     obj.select.apply(obj, tmp);
                                 }
                             }
@@ -2625,7 +2627,7 @@
                 if (obj.selectType != 'row') {
                     obj.last.sel_type = 'key';
                     if (sel.length > 1) {
-                        for (var s in sel) {
+                        for (var s = 0; s < sel.length; s++) {
                             if (sel[s].recid == obj.last.sel_recid && sel[s].column == obj.last.sel_col) {
                                 sel.splice(s, 1);
                                 break;
@@ -2828,7 +2830,7 @@
             if (typeof field != 'undefined') {
                 // default action
                 var sortIndex = this.sortData.length;
-                for (var s in this.sortData) {
+                for (var s = 0; s < this.sortData.length; s++) {
                     if (this.sortData[s].field == field) { sortIndex = s; break; }
                 }
                 if (typeof direction == 'undefined' || direction == null) {
@@ -2877,13 +2879,13 @@
                 var minCol = sel[0].column;
                 var maxCol = sel[0].column;
                 var recs   = [];
-                for (var s in sel) {
+                for (var s = 0; s < sel.length; s++) {
                     if (sel[s].column < minCol) minCol = sel[s].column;
                     if (sel[s].column > maxCol) maxCol = sel[s].column;
                     if (recs.indexOf(sel[s].index) == -1) recs.push(sel[s].index);
                 }
                 recs.sort();
-                for (var r in recs) {
+                for (var r = 0 ; r < recs.length; r++) {
                     var ind = recs[r];
                     for (var c = minCol; c <= maxCol; c++) {
                         var col = this.columns[c];
@@ -2895,7 +2897,7 @@
                 }
             } else { // row copy
                 // copy headers
-                for (var c in this.columns) {
+                for (var c = 0; c < this.columns.length; c++) {
                     var col = this.columns[c];
                     if (col.hidden === true) continue;
                     text += '"' + w2utils.stripTags(col.caption ? col.caption : col.field) + '"\t';
@@ -2903,9 +2905,9 @@
                 text = text.substr(0, text.length-1); // remove last \t
                 text += '\n';
                 // copy selected text                
-                for (var s in sel) {
+                for (var s = 0; s < sel.length; s++) {
                     var ind = this.get(sel[s], true);
-                    for (var c in this.columns) {
+                    for (var c = 0; c < this.columns.length; c++) {
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
                         text += '"' + w2utils.stripTags(this.getCellHTML(ind, c)) + '"\t';
@@ -2941,12 +2943,12 @@
             }
             var newSel = [];
             var text   = text.split('\n');
-            for (var t in text) {
+            for (var t = 0; t < text.length; t++) {
                 var tmp  = text[t].split('\t');
                 var cnt  = 0;
                 var rec  = this.records[ind];
                 var cols = [];
-                for (var dt in tmp) {
+                for (var dt = 0; dt < tmp.length; dt++) {
                     if (!this.columns[col + cnt]) continue;
                     var field = this.columns[col + cnt].field;
                     rec.changes = rec.changes || {};
@@ -2954,7 +2956,7 @@
                     cols.push(col + cnt);
                     cnt++;
                 }
-                for (var c in cols) newSel.push({ recid: rec.recid, column: cols[c] });
+                for (var c = 0; c < cols.length; c++) newSel.push({ recid: rec.recid, column: cols[c] });
                 ind++;
             }
             this.selectNone();
@@ -3012,7 +3014,7 @@
                 var isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true);
                 // if it is searched, find index in search array
                 var url = (typeof this.url != 'object' ? this.url : this.url.get);
-                if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
+                if (this.searchData.length > 0 && !url) for (var s = 0; s < this.last.searchIds.length; s++) if (this.last.searchIds[s] == ind) ind = s;
                 $(tr).replaceWith(this.getRecordHTML(ind, line, isSummary));
                 if (isSummary) this.resize();
             }
@@ -3047,7 +3049,7 @@
                     // refresh toolbar all but search field
                     if (typeof this.toolbar == 'object') {
                         var tmp = this.toolbar.items;
-                        for (var t in tmp) {
+                        for (var t = 0; t < tmp.length; t++) {
                             if (tmp[t].id == 'w2ui-search' || tmp[t].type == 'break') continue;
                             this.toolbar.refresh(tmp[t].id);
                         }
@@ -3064,7 +3066,7 @@
                 this.last.field   = this.searches[0].field;
                 this.last.caption = this.searches[0].caption;
             }
-            for (var s in this.searches) {
+            for (var s = 0; s < this.searches.length; s++) {
                 if (this.searches[s].field == this.last.field) this.last.caption = this.searches[s].caption;
             }
             if (this.last.multi) {
@@ -3082,8 +3084,8 @@
             // -- separate summary
             var tmp = this.find({ summary: true }, true);
             if (tmp.length > 0) {
-                for (var t in tmp) this.summary.push(this.records[tmp[t]]);
-                for (var t=tmp.length-1; t>=0; t--) this.records.splice(tmp[t], 1);
+                for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
+                for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
                 this.total = this.total - tmp.length;
             }
 
@@ -3131,7 +3133,7 @@
             this.status();
             // collapse all records
             var rows = obj.find({ expanded: true }, true);
-            for (var r in rows) obj.records[rows[r]].expanded = false;
+            for (var r = 0; r < rows.length; r++) obj.records[rows[r]].expanded = false;
             // mark selection
             setTimeout(function () {
                 var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
@@ -3330,25 +3332,25 @@
                     var sel = obj.getSelection();
                     // add more items
                     var tmp = [];
-                    for (var ns in newSel) {
+                    for (var ns = 0; ns < newSel.length; ns++) {
                         var flag = false;
-                        for (var s in sel) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                        for (var s = 0; s < sel.length; s++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
                         if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column });
                     }
                     obj.select.apply(obj, tmp);
                     // remove items
                     var tmp = [];
-                    for (var s in sel) {
+                    for (var s = 0; s < sel.length; s++) {
                         var flag = false;
-                        for (var ns in newSel) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                        for (var ns = 0; ns < newSel.length; ns++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
                         if (!flag) tmp.push({ recid: sel[s].recid, column: sel[s].column });
                     }
                     obj.unselect.apply(obj, tmp);
                 } else {
                     if (obj.multiSelect) {
                         var sel = obj.getSelection();
-                        for (var ns in newSel) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
-                        for (var s in sel) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+                        for (var ns = 0; ns < newSel.length; ns++) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
+                        for (var s = 0; s < sel.length; s++) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
                     }
                 }
             }
@@ -3408,7 +3410,7 @@
                             '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\')[0].hide();">'+
                             '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
                             '</td></tr>';
-            for (var c in this.columns) {
+            for (var c = 0; c < this.columns.length; c++) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
                 if (col.hideable === false) continue;
@@ -3704,7 +3706,7 @@
             // regular processing
             var obj = this;
             // collapse expanded rows
-            for (var r in this.records) {
+            for (var r = 0; r < this.records.length; r++) {
                 if (this.records[r].expanded === true) this.records[r].expanded = false
             }
             // show/hide
@@ -3799,7 +3801,7 @@
                     this.toolbar.items.push($.extend(true, {}, this.buttons['save']));
                 }
                 // add original buttons
-                for (var i in tmp_items) this.toolbar.items.push(tmp_items[i]);
+                if (tmp_items) for (var i = 0; i < tmp_items.length; i++) this.toolbar.items.push(tmp_items[i]);
 
                 // =============================================
                 // ------ Toolbar onClick processing
@@ -3889,7 +3891,7 @@
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                     if (event.preventDefault) event.preventDefault();
                     // fix sizes
-                    for (var c in obj.columns) {
+                    for (var c = 0; c < obj.columns.length; c++) {
                         if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
                         obj.columns[c].size = obj.columns[c].sizeCalculated;
                     }
@@ -4306,7 +4308,7 @@
         initSearches: function () {
             var obj = this;
             // init searches
-            for (var s in this.searches) {
+            for (var s = 0; s < this.searches.length; s++) {
                 var search = this.searches[s];
                 var sdata  = this.getSearchData(search.field);
                 search.type = String(search.type).toLowerCase();
@@ -4356,7 +4358,7 @@
                     case 'select':
                         // build options
                         var options = '<option value="">--</option>';
-                        for (var i in search.options.items) {
+                        for (var i = 0; i < search.options.items; i++) {
                             var si = search.options.items[i];
                             if ($.isPlainObject(search.options.items[i])) {
                                 var val = si.id;
@@ -4438,7 +4440,7 @@
                     if (typeof colg.colspan != 'undefined') colg.span = colg.colspan;
                     if (colg.master === true) {
                         var sortStyle = '';
-                        for (var si in obj.sortData) {
+                        for (var si = 0; si < obj.sortData.length; si++) {
                             if (obj.sortData[si].field == col.field) {
                                 if (new RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
                                 if (new RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
@@ -4497,7 +4499,7 @@
                 }
                 var ii = 0;
                 var id = 0;
-                for (var i=0; i<obj.columns.length; i++) {
+                for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
                     var colg = {};
                     if (i == id) {
@@ -4507,7 +4509,7 @@
                     if (typeof obj.columnGroups[ii-1] != 'undefined') var colg = obj.columnGroups[ii-1];
                     if (col.hidden) continue;
                     var sortStyle = '';
-                    for (var si in obj.sortData) {
+                    for (var si = 0; si < obj.sortData.length; si++) {
                         if (obj.sortData[si].field == col.field) {
                             if (new RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
                             if (new RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
@@ -4699,7 +4701,7 @@
                 obj.last.marker_timer = setTimeout(function () {
                     // mark all search strings
                     var str = [];
-                    for (var s in obj.searchData) {
+                    for (var s = 0; s < obj.searchData.length; s++) {
                         var tmp = obj.searchData[s];
                         if ($.inArray(tmp.value, str) == -1) str.push(tmp.value);
                     }
@@ -4718,7 +4720,7 @@
                 if (this.show.lineNumbers)  rec_html += '<td class="w2ui-col-number" style="height: 0px;"></td>';
                 if (this.show.selectColumn) rec_html += '<td class="w2ui-col-select" style="height: 0px;"></td>';
                 if (this.show.expandColumn) rec_html += '<td class="w2ui-col-expand" style="height: 0px;"></td>';
-                for (var i in this.columns) {
+                for (var i = 0; i < this.columns.length; i++) {
                     if (this.columns[i].hidden) continue;
                     rec_html += '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px;"></td>';
                 }
@@ -4966,7 +4968,7 @@
                 sortData    : [],
                 searchData  : []
             };
-            for (var i in this.columns) {
+            for (var i = 0; i < this.columns.length; i++) {
                 var col = this.columns[i];
                 state.columns.push({
                     field           : col.field,
@@ -4977,8 +4979,8 @@
                     sizeType        : col.sizeType
                 });
             }
-            for (var i in this.sortData) state.sortData.push($.extend({}, this.sortData[i]));
-            for (var i in this.searchData) state.searchData.push($.extend({}, this.searchData[i]));
+            for (var i = 0; i < this.sortData.length; i++) state.sortData.push($.extend({}, this.sortData[i]));
+            for (var i = 0; i < this.searchData.length; i++) state.searchData.push($.extend({}, this.searchData[i]));
             // save into local storage
             if (returnOnly !== true) {
                 // event before
@@ -5024,15 +5026,15 @@
                 $.extend(this.last, newState.last);
                 var sTop  = this.last.scrollTop;
                 var sLeft = this.last.scrollLeft;
-                for (var c in newState.columns) {
+                for (var c = 0; c < newState.columns.length; c++) {
                     var tmp = newState.columns[c];
                     var col = this.getColumn(tmp.field);
                     if (col) $.extend(col, tmp);
                 }
                 this.sortData.splice(0, this.sortData.length);
-                for (var c in newState.sortData) this.sortData.push(newState.sortData[c]);
+                for (var c = 0; c < newState.sortData.length; c++) this.sortData.push(newState.sortData[c]);
                 this.searchData.splice(0, this.searchData.length);
-                for (var c in newState.searchData) this.searchData.push(newState.searchData[c]);
+                for (var c = 0; c < newState.searchData.length; c++) this.searchData.push(newState.searchData[c]);
                 // apply sort and search
                 setTimeout(function () {
                     // needs timeout as records need to be populated
@@ -5070,7 +5072,7 @@
             try { // need this to make sure no error in fields
                 val = obj;
                 var tmp = String(field).split('.');
-                for (var i in tmp) {
+                for (var i = 0; i < tmp.length; i++) {
                     val = val[tmp[i]];
                 }
             } catch (event) {
@@ -5081,9 +5083,9 @@
 
         prepareData: function () {
             // loops thru records and prepares date and time objects
-            for (var r in this.records) {
+            for (var r = 0; r < this.records.length; r++) {
                 var rec = this.records[r];
-                for (var c in this.columns) {
+                for (var c = 0; c < this.columns.length; c++) {
                     var column = this.columns[c];
                     if (rec[column.field] == null || typeof column.render != 'string') continue;
                     // number

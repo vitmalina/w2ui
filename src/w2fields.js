@@ -293,7 +293,7 @@
                         $(this.el).addClass('w2ui-select');
                         // if simple value - look it up
                         if (!$.isPlainObject(options.selected)) {
-                            for (var i in options.items) {
+                            for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
                                 if (item && item.id == options.selected) {
                                     options.selected = $.extend(true, {}, item);
@@ -1364,7 +1364,7 @@
             if (eventData.isCancelled === true) return;
             if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
-                for (var i in options.items) {
+                for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
                     var prefix = '';
                     var suffix = '';
@@ -1980,7 +1980,7 @@
                         if ($(obj.el).attr('readonly')) return;
                         $(div).removeClass('w2ui-file-dragover');
                         var files = event.originalEvent.dataTransfer.files;
-                        for (var i=0, l=files.length; i<l; i++) obj.addFile.call(obj, files[i]);
+                        for (var i = 0, l = files.length; i < l; i++) obj.addFile.call(obj, files[i]);
                         // cancel to stop browser behaviour
                         event.preventDefault();
                         event.stopPropagation();
@@ -2126,7 +2126,7 @@
             var weekDay = td.getDay();
             var tabDays = w2utils.settings.shortdays;
             var dayTitle = '';
-            for ( var i = 0, len = tabDays.length; i < len; i++) {
+            for (var i = 0, len = tabDays.length; i < len; i++) {
                 dayTitle += '<td>' + tabDays[i] + '</td>';
             }
             var html  =
@@ -2140,9 +2140,9 @@
                 '    <tr>';
 
             var day = 1;
-            for (var ci=1; ci<43; ci++) {
+            for (var ci = 1; ci < 43; ci++) {
                 if (weekDay === 0 && ci == 1) {
-                    for (var ti=0; ti<6; ti++) html += '<td class="w2ui-day-empty">&nbsp;</td>';
+                    for (var ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&nbsp;</td>';
                     ci += 6;
                 } else {
                     if (ci < weekDay || day > daysCount[month-1]) {
@@ -2181,7 +2181,7 @@
             var months = w2utils.settings.shortmonths;
             var mhtml  = '';
             var yhtml  = '';
-            for (var m in months) {
+            for (var m = 0; m < months.length; m++) {
                 mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>';
             }
             for (var y = 1950; y <= 2020; y++) {
@@ -2193,7 +2193,7 @@
         getHourHTML: function () {
             var tmp = [];
             var h24 = (this.options.format == 'h24');
-            for (var a=0; a<24; a++) {
+            for (var a = 0; a < 24; a++) {
                 var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
                 if (a == 12 && !h24) time = '12:00 pm';
                 if (!tmp[Math.floor(a/8)]) tmp[Math.floor(a/8)] = '';
@@ -2214,7 +2214,7 @@
             if (typeof hour == 'undefined') hour = 0;
             var h24 = (this.options.format == 'h24');
             var tmp = [];
-            for (var a=0; a<60; a+=5) {
+            for (var a = 0; a < 60; a += 5) {
                 var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
                 var ind = a < 20 ? 0 : (a < 40 ? 1 : 2);
                 if (!tmp[ind]) tmp[ind] = '';
