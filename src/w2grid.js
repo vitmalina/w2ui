@@ -3091,7 +3091,7 @@
             var bodyHTML = '';
             bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
                         '    onscroll="var obj = w2ui[\''+ this.name + '\']; '+
-                        '        obj.last.scrollTop = this.scrollTop; '+
+                        '        obj.last.scrollTop  = this.scrollTop; '+
                         '        obj.last.scrollLeft = this.scrollLeft; '+
                         '        $(\'#grid_'+ this.name +'_columns\')[0].scrollLeft = this.scrollLeft;'+
                         '        $(\'#grid_'+ this.name +'_summary\')[0].scrollLeft = this.scrollLeft;'+
@@ -4194,7 +4194,7 @@
             this.initResize();
             this.refreshRanges();
             // apply last scroll if any
-            if (this.last.scrollTop != '' && records.length > 0) {
+            if ((this.last.scrollTop || this.last.scrollLeft) && records.length > 0) {
                 columns.prop('scrollLeft', this.last.scrollLeft);
                 records.prop('scrollTop',  this.last.scrollTop);
                 records.prop('scrollLeft', this.last.scrollLeft);
