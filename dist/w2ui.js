@@ -2185,11 +2185,13 @@ w2utils.keyboard = (function (obj) {
             for (var s in this.sortData) {
                 var column = this.getColumn(this.sortData[s].field); 
                 if (!column) return;
-                if (column.render && ['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
-                    this.sortData[s]['field_'] = column.field + '_';
-                }
-                if (column.render && ['time'].indexOf(column.render.split(':')[0]) != -1) {
-                    this.sortData[s]['field_'] = column.field + '_';
+                if (typeof column.render == 'string') {
+                    if (['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
+                        this.sortData[s]['field_'] = column.field + '_';
+                    }
+                    if (['time'].indexOf(column.render.split(':')[0]) != -1) {
+                        this.sortData[s]['field_'] = column.field + '_';
+                    }
                 }
             }
             // process sort
@@ -4336,16 +4338,16 @@ w2utils.keyboard = (function (obj) {
             var tmp = 1 + (this.show.selectColumn ? 1 : 0);
             var addClass = ''; // ($('#grid_'+this.name +'_rec_'+ w2utils.escapeId(recid)).hasClass('w2ui-odd') ? 'w2ui-odd' : 'w2ui-even');
             $('#grid_'+ this.name +'_rec_'+ id).after(
-                    '<tr id="grid_'+ this.name +'_rec_'+ id +'_expanded_row" class="w2ui-expanded-row '+ addClass +'">'+
+                    '<tr id="grid_'+ this.name +'_rec_'+ recid +'_expanded_row" class="w2ui-expanded-row '+ addClass +'">'+
                         (this.show.lineNumbers ? '<td class="w2ui-col-number"></td>' : '') +
                     '    <td class="w2ui-grid-data w2ui-expanded1" colspan="'+ tmp +'"><div style="display: none"></div></td>'+
                     '    <td colspan="100" class="w2ui-expanded2">'+
-                    '        <div id="grid_'+ this.name +'_rec_'+ id +'_expanded" style="opacity: 0"></div>'+
+                    '        <div id="grid_'+ this.name +'_rec_'+ recid +'_expanded" style="opacity: 0"></div>'+
                     '    </td>'+
                     '</tr>');
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid,
-                box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', ready: ready });
+                box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', ready: ready });
             if (eventData.isCancelled === true) {
                 $('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove();
                 return;
@@ -5771,7 +5773,7 @@ w2utils.keyboard = (function (obj) {
             this.initResize();
             this.refreshRanges();
             // apply last scroll if any
-            if (this.last.scrollTop != '' && records.length > 0) {
+            if ((this.last.scrollTop || this.last.scrollLeft) && records.length > 0) {
                 columns.prop('scrollLeft', this.last.scrollLeft);
                 records.prop('scrollTop',  this.last.scrollTop);
                 records.prop('scrollLeft', this.last.scrollLeft);
