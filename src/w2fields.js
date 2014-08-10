@@ -1378,12 +1378,9 @@
                     if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
                     if (item.hidden !== true) shown++;
                 }
-                if (obj.type != 'combo') { // don't preselect first for combo
-                    options.index = 0;
-                    while (options.items[options.index] && options.items[options.index].hidden) options.index++;
-                } else {
-                    options.index = -1;
-                }
+                // preselect first item
+                options.index = 0;
+                while (options.items[options.index] && options.items[options.index].hidden) options.index++;
                 if (shown <= 0) options.index = -1;
                 options.spinner = false;
                 obj.updateOverlay();
@@ -1552,7 +1549,6 @@
                         return;
                     }
                     if ($(input).val() != '') delete obj.tmp.force_open;
-                    if ($('#w2ui-overlay').length == 0) options.index = 0;
                     var msgNoItems = w2utils.lang('No matches');
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
                     if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search....');
