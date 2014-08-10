@@ -24,9 +24,13 @@ $(function () {
             toolbar     : true,
             footer      : true,
             lineNumbers : true,
-            toolbarDelete: true
+            toolbarDelete: true,
+            selectColumn : true
         },
         selectType: 'cell',
+        onSelect: function (event) {
+            //console.log('select', event);
+        },
         columns: [                
             { field: 'a', caption: '<div style="text-align: center">A</div>', size: '80px', editable: { type: 'text' }},
             { field: 'b', caption: '<div style="text-align: center">B</div>', size: '80px', editable: { type: 'text' }},
@@ -43,7 +47,7 @@ $(function () {
         ],
     });
     // add 10k records
-    for (var i = 0; i < 9000; i++) {
+    for (var i = 0; i < 1000; i++) {
         w2ui['grid2'].records.push({ 
             recid : (i + 10),
         });

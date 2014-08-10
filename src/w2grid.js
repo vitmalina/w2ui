@@ -913,58 +913,99 @@
         },
 
         select: function () {
+            if (arguments.length == 0) return 0;
+            var time = (new Date).getTime();
             var selected = 0;
-            var sel    = this.last.selection;
+            var sel = this.last.selection;
             if (!this.multiSelect) this.selectNone();
-            for (var a = 0; a < arguments.length; a++) {
-                var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
-                var record = this.get(recid);
-                if (record == null) continue;
-                var index  = this.get(recid, true);
-                var recEl  = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
-                if (this.selectType == 'row') {
-                    if (sel.indexes.indexOf(index) >= 0) continue;
-                    // event before
-                    var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, recid: recid, index: index });
-                    if (eventData.isCancelled === true) continue;
-                    // default action
-                    sel.indexes.push(index);
-                    sel.indexes.sort(function(a, b) { return a-b });
-                    recEl.addClass('w2ui-selected').data('selected', 'yes').find('.w2ui-col-number').addClass('w2ui-row-selected');
-                    recEl.find('.w2ui-grid-select-check').prop("checked", true);
-                    selected++;
+
+            // event before
+            var tmp = { phase: 'before', type: 'select', target: this.name };
+            if (arguments.length == 1) {
+                tmp.multiple = false;
+                if ($.isPlainObject(arguments[0])) {
+                    tmp.recid  = arguments[0].recid;
+                    tmp.column = arguments[0].column;
                 } else {
-                    var col  = arguments[a].column;
-                    if (!w2utils.isInt(col)) { // select all columns
-                        var cols = [];
-                        for (var c in this.columns) { if (this.columns[c].hidden) continue; cols.push({ recid: recid, column: parseInt(c) }); }
-                        if (!this.multiSelect) cols = cols.splice(0, 1);
-                        return this.select.apply(this, cols);
+                    tmp.recid = arguments[0];
+                }
+            } else {
+                tmp.multiple = true;
+                tmp.recids   = Array.prototype.slice.call(arguments, 0);
+            }
+            var eventData = this.trigger(tmp);
+            if (eventData.isCancelled === true) return 0;
+
+            // default action
+            if (this.selectType == 'row') {
+                for (var a = 0; a < arguments.length; a++) {
+                    var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
+                    var index = this.get(recid, true);
+                    if (index == null) continue;
+                    var recEl = null;
+                    if (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end) {
+                        recEl = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+                    }
+                    if (this.selectType == 'row') {
+                        if (sel.indexes.indexOf(index) != -1) continue;
+                        sel.indexes.push(index);
+                        if (recEl) {
+                            recEl.addClass('w2ui-selected').data('selected', 'yes').find('.w2ui-col-number').addClass('w2ui-row-selected');
+                            recEl.find('.w2ui-grid-select-check').prop("checked", true);
+                        }
+                        selected++;
+                    }
+                }              
+            } else {
+                // normalize for perforamce    
+                var new_sel = {};
+                for (var a = 0; a < arguments.length; a++) {
+                    var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
+                    var column = typeof arguments[a] == 'object' ? arguments[a].column : null;
+                    new_sel[recid] = new_sel[recid] || [];
+                    if (w2utils.isInt(column)) {
+                        new_sel[recid].push(column);    
+                    } else {
+                        for (var c in this.columns) { if (this.columns[c].hidden) continue; new_sel[recid].push(parseInt(c)); }
+                    }
+                }
+                // add all
+                var col_sel = [];
+                for (var recid in new_sel) {
+                    var index = this.get(recid, true);
+                    if (index == null) continue;
+                    var recEl = null;
+                    if (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end) {
+                        recEl = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
                     }
                     var s = sel.columns[index] || [];
-                    if ($.isArray(s) && s.indexOf(col) != -1) continue;
-                    // event before
-                    var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, recid: recid, index: index, column: col });
-                    if (eventData.isCancelled === true) continue;
                     // default action
                     if (sel.indexes.indexOf(index) == -1) {
                         sel.indexes.push(index);
-                        sel.indexes.sort(function(a, b) { return a-b });
                     }
-                    s.push(col);
+                    s = s.concat(new_sel[recid]);
                     s.sort(function(a, b) { return a-b }); // sort function must be for numerical sort
-                    recEl.find(' > td[col='+ col +']').addClass('w2ui-selected');
-                    recEl.find('.w2ui-col-number').addClass('w2ui-row-selected');
-                    $(this.box).find('.w2ui-grid-columns td[col='+ col +'] .w2ui-col-header').addClass('w2ui-col-selected');
-                    selected++;
-                    recEl.data('selected', 'yes');
-                    recEl.find('.w2ui-grid-select-check').prop("checked", true);
+                    for (var t = 0; t < new_sel[recid].length; t++) {
+                        var col = new_sel[recid][t];
+                        if (col_sel.indexOf(col) == -1) col_sel.push(col);
+                        if (recEl) {
+                            recEl.find('#grid_'+ this.name +'_data_'+ index +'_'+ col).addClass('w2ui-selected');
+                            recEl.find('.w2ui-col-number').addClass('w2ui-row-selected');
+                            recEl.data('selected', 'yes');
+                            recEl.find('.w2ui-grid-select-check').prop("checked", true);
+                        }
+                        selected++;
+                    }
                     // save back to selection object
                     sel.columns[index] = s;
                 }
-                // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                // select columns (need here for speed)
+                for (var c = 0; c < col_sel.length; c++) {
+                    $(this.box).find('#grid_'+ this.name +'_column_'+ col_sel[c] +' .w2ui-col-header').addClass('w2ui-col-selected');
+                }
             }
+            // need to sort new selection for speed
+            sel.indexes.sort(function(a, b) { return a-b });
             // all selected?
             if (sel.indexes.length == this.records.length || (this.searchData.length !== 0 && sel.indexes.length == this.last.searchIds.length)) {
                 $('#grid_'+ this.name +'_check_all').prop('checked', true);
@@ -973,6 +1014,8 @@
             }
             this.status();
             this.addRange('selection');
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
             return selected;
         },
 
@@ -1083,12 +1126,14 @@
                 $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').addClass('w2ui-col-selected');
                 $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').addClass('w2ui-row-selected')
                 $(this.box).find('.w2ui-grid-data').addClass('w2ui-selected').data('selected', 'yes');
+                $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
             }
             // enable/disable toolbar buttons
             var sel = this.getSelection();
             if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
             if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
             this.addRange('selection');
+            $('#grid_'+ this.name +'_check_all').prop('checked', true);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -1110,6 +1155,7 @@
                 $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').removeClass('w2ui-col-selected');
                 $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').removeClass('w2ui-row-selected');
                 $(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected').removeData('selected');
+                $(this.box).find('input.w2ui-grid-select-check').prop('checked', false);
             }
             sel.indexes = [];
             sel.columns = {};
@@ -4450,7 +4496,7 @@
                         if (col.resizable !== false) {
                             resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
                         }
-                        html += '<td class="w2ui-head '+ sortStyle +'" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
+                        html += '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
                                 '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                     resizer +
                                 '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
@@ -4459,7 +4505,7 @@
                                 '    </div>'+
                                 '</td>';
                     } else {
-                        html += '<td class="w2ui-head" col="'+ ii + '" '+
+                        html += '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
                                 '        colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'">'+
                                 '    <div class="w2ui-col-group">'+
                                     (!colg.caption ? '&nbsp;' : colg.caption) +
@@ -4520,7 +4566,7 @@
                         if (col.resizable !== false) {
                             resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
                         }
-                        html += '<td col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
+                        html += '<td id="grid_'+ obj.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
                                 '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                     resizer +
                                 '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
@@ -4817,7 +4863,8 @@
                 }
                 var isCellSelected = false;
                 if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
-                rec_html += '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + (isChanged ? ' w2ui-changed' : '') +'" col="'+ col_ind +'" '+
+                rec_html += '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + (isChanged ? ' w2ui-changed' : '') +'" '+
+                            '    id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
                             '    style="'+ addStyle + (typeof col.style != 'undefined' ? col.style : '') +'" '+
                                           (typeof col.attr != 'undefined' ? col.attr : '') +'>'+
                                 rec_cell +
