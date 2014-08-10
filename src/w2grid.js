@@ -22,6 +22,7 @@
 *   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
 *   - row drag and drop has bugs
+*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object

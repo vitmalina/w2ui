@@ -9,6 +9,7 @@
 *   - transition should include title, body and buttons, not just body
 *   - .message() should have same props (body, buttons, title?)
 *   - hide overlay on esc
+*   - refacore -webkit-* -moz-* to a function
 *
 ************************************************************************/
 
@@ -489,6 +490,7 @@ var w2popup = {};
             var head     = $('#w2ui-popup .w2ui-msg-title');
             var pwidth   = parseInt($('#w2ui-popup').width());
             var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
+            var headZI   = head.css('z-index');
             // remove message
             if ($.trim(options.html) == '') {
                 $('#w2ui-popup #w2ui-message'+ (msgCount-1)).css('z-Index', 250);
@@ -498,14 +500,15 @@ var w2popup = {};
                 if (msgCount == 1) {
                     w2popup.unlock();
                 } else {
-                    $('#w2ui-popup #w2ui-message'+ (msgCount-2)).show();
+                    $('#w2ui-popup #w2ui-message'+ (msgCount-2)).css('z-index', 1500);
                 }
             } else {
                 // hide previous messages
-                $('#w2ui-popup .w2ui-popup-message').hide();
+                $('#w2ui-popup .w2ui-popup-message').css('z-index', 1390);
+                head.css('z-index', 1501);
                 // add message
                 $('#w2ui-popup .w2ui-box1')
-                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-popup-message" style="display: none; ' +
+                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-popup-message" style="display: none; z-index: 1500; ' +
                                 (head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (typeof options.width  != 'undefined' ? 'width: ' + options.width + 'px; left: ' + ((pwidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (typeof options.height != 'undefined' ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
@@ -532,14 +535,14 @@ var w2popup = {};
                         });
                     }, 1);
                     // timer for lock
+                    if (msgCount == 0) w2popup.lock();
                     setTimeout(function() {
-                        $('#w2ui-popup #w2ui-message'+ msgCount).css({
-                            '-webkit-transition': '0s',    '-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s',
-                            'z-Index': 1500
-                        }); // has to be on top of lock
-                        if (msgCount == 0) w2popup.lock();
+                        head.css('z-index', headZI);
+                        // has to be on top of lock
+                        $('#w2ui-popup #w2ui-message'+ msgCount)
+                            .css({'-webkit-transition': '0s', '-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s' });
                         if (typeof options.onOpen == 'function') options.onOpen();
-                    }, 300);
+                    }, 350);
                 }
             }
         },
