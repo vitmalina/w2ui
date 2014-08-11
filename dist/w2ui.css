@@ -1871,6 +1871,7 @@ button.btn-red.clicked {
 }
 .w2ui-ss .w2ui-changed {
   background: inherit;
+  /* do not show changed for spreadsheet */
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection {
   position: absolute;
