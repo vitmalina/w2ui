@@ -28,9 +28,6 @@ $(function () {
             selectColumn : true
         },
         selectType: 'cell',
-        onSelect: function (event) {
-            //console.log('select', event);
-        },
         columns: [                
             { field: 'a', caption: '<div style="text-align: center">A</div>', size: '80px', editable: { type: 'text' }},
             { field: 'b', caption: '<div style="text-align: center">B</div>', size: '80px', editable: { type: 'text' }},
@@ -50,8 +47,16 @@ $(function () {
     for (var i = 0; i < 1000; i++) {
         w2ui['grid2'].records.push({ 
             recid : (i + 10),
+            a: 'ddfdf',
+            b: 'some',
+            k: 'noe'
         });
     }
+    w2ui.grid2.records[1].a = 'A1';
+    w2ui.grid2.records[1].b = 'BBB1';
+    w2ui.grid2.records[1].c = 'CC1';
+    w2ui.grid2.records[1].d = 'DD1';
+    w2ui.grid2.records[1].style = { 1: 'background-color: red !important' };
     w2ui.grid2.refresh();
 });
 </script>

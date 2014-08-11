@@ -35,6 +35,7 @@
 *           statusSearch    : true,
 *   - change selectAll() and selectNone() - return time it took
 *   - added vs_start and vs_extra
+*   - added update() - updates only data in the grid, no
 *
 ************************************************************************/
 
@@ -986,7 +987,10 @@
                     if (sel.indexes.indexOf(index) == -1) {
                         sel.indexes.push(index);
                     }
-                    s = s.concat(new_sel[recid]);
+                    // anly only those that are new
+                    for (var t = 0; t < new_sel[recid].length; t++) {
+                        if (s.indexOf(new_sel[recid][t]) == -1) s.push(new_sel[recid][t]);
+                    }
                     s.sort(function(a, b) { return a-b }); // sort function must be for numerical sort
                     for (var t = 0; t < new_sel[recid].length; t++) {
                         var col = new_sel[recid][t];
@@ -1947,7 +1951,7 @@
             } else {
                 el.addClass('w2ui-editable')
                     .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" '+
-                        '    type="text" style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
+                        '    type="text" style="font-family: inherit; font-size: inherit; outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
                 if (value == null) el.find('input').val(val != 'object' ? val : '');
@@ -2148,6 +2152,7 @@
         },
 
         "delete": function (force) {
+            var time = (new Date()).getTime();
             var obj = this;
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
@@ -2158,9 +2163,9 @@
             if (recs.length == 0) return;
             if (this.msgDelete != '' && !force) {
                 w2confirm({
-                    title   : w2utils.lang('Delete Confirmation'), 
-                    msg     : obj.msgDelete, 
-                    btn_yes : { "class": 'btn-red' },
+                    title : w2utils.lang('Delete Confirmation'), 
+                    msg   : obj.msgDelete, 
+                    yes_class : 'btn-red',
                     callBack: function (result) {
                         if (result == 'Yes') w2ui[obj.name].delete(true);
                     }
@@ -2180,12 +2185,17 @@
                     for (var r = 0; r < recs.length; r++) {
                         var fld = this.columns[recs[r].column].field;
                         var ind = this.get(recs[r].recid, true);
+                        var rec = this.records[ind];
                         if (ind != null && fld != 'recid') {
                             this.records[ind][fld] = '';
-                            if (this.records[ind].changes) delete this.records[ind].changes[fld];
+                            if (rec.changes) delete rec.changes[fld];
+                            // -- style should not be deleted
+                            // if (rec.style != null && $.isPlainObject(rec.style) && rec.style[recs[r].column]) {
+                            //     delete rec.style[recs[r].column];
+                            // }
                         }
                     }
-                    this.refresh();
+                    this.update();
                 }
             }
             // event after
@@ -2448,7 +2458,11 @@
                         } else {
                             // if selected more then one, then select first
                             if (!shiftKey) {
-                                for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
+                                if (sel.length > 1) {
+                                    obj.selectNone();
+                                } else {
+                                    for (var s = 1; s < sel.length; s++) obj.unselect(sel[s]);
+                                }
                             }
                         }
                     }
@@ -2487,7 +2501,11 @@
                         } else {
                             // if selected more then one, then select first
                             if (!shiftKey) {
-                                for (var s = 0; s < sel.length-1; s++) obj.unselect(sel[s]);
+                                if (sel.length > 1) {
+                                    obj.selectNone();
+                                } else {
+                                    for (var s = 0; s < sel.length-1; s++) obj.unselect(sel[s]);
+                                }
                             }
                         }
                     }
@@ -2542,7 +2560,11 @@
                     } else {
                         // if selected more then one, then select first
                         if (!shiftKey) {
-                            for (var s=1; s<sel.length; s++) obj.unselect(sel[s]);
+                            if (sel.length > 1) {
+                                obj.selectNone();
+                            } else {
+                                for (var s = 1; s < sel.length; s++) obj.unselect(sel[s]);
+                            }
                         }
                         // jump out of subgird (if first record)
                         var parent = $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).parents('tr');
@@ -2606,7 +2628,11 @@
                     } else {
                         // if selected more then one, then select first
                         if (!shiftKey) {
-                            for (var s=0; s<sel.length-1; s++) obj.unselect(sel[s]);
+                            if (sel.length > 1) {
+                                obj.selectNone();
+                            } else {
+                                for (var s = 0; s < sel.length-1; s++) obj.unselect(sel[s]);
+                            }
                         }
                         // jump out of subgrid (if last record in subgrid)
                         var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind2].recid)).parents('tr');
@@ -2626,6 +2652,7 @@
 
                 case 17: // ctrl key
                 case 91: // cmd key
+                    // SLOW: 10k records take 7.0
                     if (empty) break;
                     var text = obj.copy();
                     $('body').append('<textarea id="_tmp_copy_data" '+
@@ -3039,13 +3066,36 @@
             return (new Date()).getTime() - time;
         },
 
+        update: function () {
+            var time = (new Date()).getTime();
+            for (var index = this.last.range_start; index <= this.last.range_end; index++) {
+                var rec = this.records[index];
+                for (var col_ind = 0; col_ind < this.columns.length; col_ind++) {
+                    var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
+                    cell.html(this.getCellHTML(index, col_ind, false));
+                    // assign style
+                    if (rec.style != null && !$.isEmptyObject(rec.style)) {
+                        if (typeof rec.style == 'string') {
+                            $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
+                        }
+                        if ($.isPlainObject(rec.style) && typeof rec.style[col_ind] == 'string') {
+                            cell.attr('style', rec.style[col_ind])
+                        }
+                    } else {
+                        cell.attr('style', '');
+                    }
+                }
+            }
+            return (new Date()).getTime() - time;
+        },
+
         refreshCell: function (recid, field) {
             var index     = this.get(recid, true);
             var isSummary = (this.records[index] && this.records[index].recid == recid ? false : true);
             var col_ind   = this.getColumn(field, true);
             var rec       = (isSummary ? this.summary[index] : this.records[index]);
             var col       = this.columns[col_ind];
-            var cell      = $('#grid_'+ this.name + '_rec_'+ recid +' [col='+ col_ind +']');
+            var cell      = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
             // set cell html and changed flag
             cell.html(this.getCellHTML(index, col_ind, isSummary));
             if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
@@ -3053,10 +3103,21 @@
             } else {
                 cell.removeClass('w2ui-changed');
             }
+            // assign style
+            if (rec.style != null && !$.isEmptyObject(rec.style)) {
+                if (typeof rec.style == 'string') {
+                    $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
+                }
+                if ($.isPlainObject(rec.style) && typeof rec.style[col_ind] == 'string') {
+                    cell.attr('style', rec.style[col_ind])
+                }
+            } else {
+                cell.attr('style', '');
+            }
         },
 
         refreshRow: function (recid) {
-            var tr = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+            var tr = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
             if (tr.length != 0) {
                 var ind  = this.get(recid, true);
                 var line = tr.attr('line');
@@ -3199,7 +3260,6 @@
             } else if ( !obj.reorderColumns && obj.last.columnDrag ) {
                 obj.last.columnDrag.remove();
             }
-
             return (new Date()).getTime() - time;
         },
 
@@ -3287,7 +3347,7 @@
                         .css('-moz-user-select', 'text')
                         .css('-ms-user-select', 'text');
                     obj.selectNone();
-                    obj.last.move       = { type: 'text-select' };
+                    obj.last.move = { type: 'text-select' };
                     obj.last.userSelect = 'text';
                 } else {
                     if (!obj.multiSelect) return;
