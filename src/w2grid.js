@@ -34,6 +34,7 @@
 *           statusSort      : true,
 *           statusSearch    : true,
 *   - change selectAll() and selectNone() - return time it took
+*   - added vs_start and vs_extra
 *
 ************************************************************************/
 
@@ -87,6 +88,8 @@
         this.autoLoad       = true;     // for infinite scroll
         this.fixedBody      = true;     // if false; then grid grows with data
         this.recordHeight   = 24;
+        this.vs_start       = 300;
+        this.vs_extra       = 15;
         this.keyboard       = true;
         this.selectType     = 'row';    // can be row|cell
         this.multiSearch    = true;
@@ -1202,9 +1205,9 @@
                 // advanced search
                 for (var s in this.searches) {
                     var search   = this.searches[s];
-                    var operator = $('#grid_'+ this.name + '_operator_'+s).val();
-                    var field1   = $('#grid_'+ this.name + '_field_'+s);
-                    var field2   = $('#grid_'+ this.name + '_field2_'+s);
+                    var operator = $('#grid_'+ this.name + '_operator_'+ s).val();
+                    var field1   = $('#grid_'+ this.name + '_field_'+ s);
+                    var field2   = $('#grid_'+ this.name + '_field2_'+ s);
                     var value1   = field1.val();
                     var value2   = field2.val();
                     var svalue   = null;
@@ -4289,7 +4292,7 @@
                 if (['enum'].indexOf(s.type) != -1) {
                     var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
                         '    <option value="in">'+ w2utils.lang('in') +'</option>'+
-                        '    <option value="in">'+ w2utils.lang('not in') +'</option>'+
+                        '    <option value="not in">'+ w2utils.lang('not in') +'</option>'+
                         '</select>';
                 }
                 html += '<tr>'+
@@ -4586,9 +4589,9 @@
             var buffered = this.records.length;
             if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
             // larget number works better with chrome, smaller with FF.
-            if (buffered > 300) this.show_extra = 30; else this.show_extra = 300;
+            if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
             var records  = $('#grid_'+ this.name +'_records');
-            var limit    = Math.floor(records.height() / this.recordHeight) + this.show_extra + 1;
+            var limit    = Math.floor(records.height() / this.recordHeight) + this.last.show_extra + 1;
             if (!this.fixedBody || limit > buffered) limit = buffered;
             // always need first record for resizing purposes
             var html = '<table>' + this.getRecordHTML(-1, 0);
@@ -4628,7 +4631,7 @@
             var buffered = this.records.length;
             if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
             if (buffered == 0 || records.length == 0 || records.height() == 0) return;
-            if (buffered > 300) this.show_extra = 30; else this.show_extra = 300;
+            if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
             // need this to enable scrolling when this.limit < then a screen can fit
             if (records.height() < buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
                 if (this.total > 0) this.refresh();
@@ -4647,9 +4650,9 @@
             // only for local data source, else no extra records loaded
             if (!url && (!this.fixedBody || this.total <= 300)) return;
             // regular processing
-            var start     = Math.floor(records[0].scrollTop / this.recordHeight) - this.show_extra;
-            var end        = start + Math.floor(records.height() / this.recordHeight) + this.show_extra * 2 + 1;
-            // var div     = start - this.last.range_start;
+            var start   = Math.floor(records[0].scrollTop / this.recordHeight) - this.last.show_extra;
+            var end     = start + Math.floor(records.height() / this.recordHeight) + this.last.show_extra * 2 + 1;
+            // var div  = start - this.last.range_start;
             if (start < 1) start = 1;
             if (end > this.total) end = this.total;
             var tr1 = records.find('#grid_'+ this.name +'_rec_top');
@@ -4661,8 +4664,8 @@
             var last  = parseInt(tr2.prev().attr('line'));
             //$('#log').html('buffer: '+ this.buffered +' start-end: ' + start + '-'+ end + ' ===> first-last: ' + first + '-' + last);
             if (first < start || first == 1 || this.last.pull_refresh) { // scroll down
-                // console.log('end', end, 'last', last, 'show_extre', this.show_extra, this.last.pull_refresh);
-                if (end <= last + this.show_extra - 2 && end != this.total) return;
+                // console.log('end', end, 'last', last, 'show_extre', this.last.show_extra, this.last.pull_refresh);
+                if (end <= last + this.last.show_extra - 2 && end != this.total) return;
                 this.last.pull_refresh = false;
                 // remove from top
                 while (true) {
@@ -4682,7 +4685,7 @@
                 markSearch();
                 setTimeout(function() { obj.refreshRanges(); }, 0);
             } else { // scroll up
-                if (start >= first - this.show_extra + 2 && start > 1) return;
+                if (start >= first - this.last.show_extra + 2 && start > 1) return;
                 // remove from bottom
                 while (true) {
                     var tmp = records.find('#grid_'+ this.name +'_rec_bottom').prev();
