@@ -4167,7 +4167,7 @@
                 if (['enum'].indexOf(s.type) != -1) {
                     var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
                         '    <option value="in">'+ w2utils.lang('in') +'</option>'+
-                        '    <option value="in">'+ w2utils.lang('not in') +'</option>'+
+                        '    <option value="not in">'+ w2utils.lang('not in') +'</option>'+
                         '</select>';
                 }
                 html += '<tr>'+
