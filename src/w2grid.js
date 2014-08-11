@@ -3690,7 +3690,9 @@
                         '            onchange="'+
                         '                var val = this.value; '+
                         '                var fld = $(this).data(\'w2field\'); '+
+                        '                var dat = $(this).data(\'selected\'); '+
                         '                if (fld) val = fld.clean(val);'+
+                        '                if (dat != null && $.isPlainObject(dat)) val = dat.id;'+
                         '                w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, val); '+
                         '            ">'+
                         '    </td>'+
