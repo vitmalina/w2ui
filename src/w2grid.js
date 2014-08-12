@@ -2364,7 +2364,7 @@
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    if (this.show.toolbarDelete) obj["delete"]();
+                    if (this.show.toolbarDelete || this.onDelete) obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
@@ -3068,6 +3068,7 @@
 
         update: function () {
             var time = (new Date()).getTime();
+            if (this.box == null) return 0;
             for (var index = this.last.range_start; index <= this.last.range_end; index++) {
                 var rec = this.records[index];
                 for (var col_ind = 0; col_ind < this.columns.length; col_ind++) {

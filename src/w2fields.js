@@ -226,7 +226,7 @@
                     this.addSuffix();    // only will add if needed
                     // additional checks
                     $(this.el).attr('maxlength', 6);
-                    if ($(this.el).val() != '') setTimeout(function () { $(obj.el).change(); }, 1);
+                    if ($(this.el).val() != '') setTimeout(function () { obj.change(); }, 1);
                     break;
 
                 case 'date':
@@ -1408,7 +1408,7 @@
                 if ($('#w2ui-overlay').length == 0) {
                     $(obj.el).w2overlay(obj.getColorHTML());
                 } else {
-                    $('#w2ui-overlay').html(obj.getColorHTML());
+                    $('#w2ui-overlay > div').html(obj.getColorHTML());
                 }
                 // bind events
                 $('#w2ui-overlay .color')
