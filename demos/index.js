@@ -38,6 +38,7 @@ $(function () {
                     { id: 'combo-6', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
                     { id: 'combo-7', text: 'Popup & Grid', icon: 'fa-star-empty' },
                     { id: 'combo-8', text: 'Popup & Layout', icon: 'fa-star-empty' },
+                    { id: 'combo-10', text: 'Dependent Fields', icon: 'fa-star-empty' },
                 ]
             },
             { id: 'layout', text: 'Layout', img: 'icon-folder', group1: true,
