@@ -212,9 +212,9 @@ $(function () {
                            '<html>\n'+
                            '<head>\n'+
                            '    <title>W2UI Demo: '+ cmd +'</title>\n'+
-                           '    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.min.css" />\n'+
+                           '    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.1.min.css" />\n'+
                            '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>\n'+
-                           '    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.min.js"></script>\n'+
+                           '    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.1.min.js"></script>\n'+
                            '</head>\n'+
                            '<body>\n\n'+
                            html + '\n\n'+
@@ -238,7 +238,7 @@ $(function () {
                     '<div style="display: none">'+
                     '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.x/" method="post">'+
                     '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
-                    '    <textarea name="resources">http://w2ui.com/src/w2ui-1.4.min.js,http://w2ui.com/src/w2ui-1.4.min.css</textarea>'+
+                    '    <textarea name="resources">http://w2ui.com/src/w2ui-1.4.1.min.js,http://w2ui.com/src/w2ui-1.4.1.min.css</textarea>'+
                     '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
                     '    <textarea name="js">'+ js +'</textarea>'+
                     '    <textarea name="css">'+ css +'</textarea>'+
