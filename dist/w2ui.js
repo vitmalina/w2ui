@@ -2521,12 +2521,14 @@ w2utils.keyboard = (function (obj) {
                 }
                 // display range
                 if (td1.length > 0 && td2.length > 0) {
-                    $('#grid_'+ this.name +'_'+ rg.name).css({
+                    $('#grid_'+ this.name +'_'+ rg.name).show().css({
                         left    : (td1.position().left - 1 + rec.scrollLeft()) + 'px',
                         top     : (td1.position().top - 1 + rec.scrollTop()) + 'px',
                         width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
                         height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
                     });
+                } else {
+                    $('#grid_'+ this.name +'_'+ rg.name).hide();                   
                 }
             }
 
@@ -4047,7 +4049,7 @@ w2utils.keyboard = (function (obj) {
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    if (this.show.toolbarDelete) obj["delete"]();
+                    if (this.show.toolbarDelete || this.onDelete) obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
@@ -4643,7 +4645,7 @@ w2utils.keyboard = (function (obj) {
                     if (sel[s].column > maxCol) maxCol = sel[s].column;
                     if (recs.indexOf(sel[s].index) == -1) recs.push(sel[s].index);
                 }
-                recs.sort();
+                recs.sort(function(a, b) { return a-b }); // sort function must be for numerical sort
                 for (var r = 0 ; r < recs.length; r++) {
                     var ind = recs[r];
                     for (var c = minCol; c <= maxCol; c++) {
@@ -4751,7 +4753,9 @@ w2utils.keyboard = (function (obj) {
 
         update: function () {
             var time = (new Date()).getTime();
-            for (var index = this.last.range_start; index <= this.last.range_end; index++) {
+            if (this.box == null) return 0;
+            for (var index = this.last.range_start - 1; index <= this.last.range_end - 1; index++) {
+                if (index < 0) continue;
                 var rec = this.records[index];
                 for (var col_ind = 0; col_ind < this.columns.length; col_ind++) {
                     var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
@@ -10911,7 +10915,7 @@ var w2confirm = function (msg, title, callBack) {
                     this.addSuffix();    // only will add if needed
                     // additional checks
                     $(this.el).attr('maxlength', 6);
-                    if ($(this.el).val() != '') setTimeout(function () { $(obj.el).change(); }, 1);
+                    if ($(this.el).val() != '') setTimeout(function () { obj.change(); }, 1);
                     break;
 
                 case 'date':
@@ -10977,7 +10981,7 @@ var w2confirm = function (msg, title, callBack) {
                         defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
                         $(this.el).addClass('w2ui-select');
                         // if simple value - look it up
-                        if (!$.isPlainObject(options.selected)) {
+                        if (!$.isPlainObject(options.selected) && options.items) {
                             for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
                                 if (item && item.id == options.selected) {
@@ -12093,7 +12097,7 @@ var w2confirm = function (msg, title, callBack) {
                 if ($('#w2ui-overlay').length == 0) {
                     $(obj.el).w2overlay(obj.getColorHTML());
                 } else {
-                    $('#w2ui-overlay').html(obj.getColorHTML());
+                    $('#w2ui-overlay > div').html(obj.getColorHTML());
                 }
                 // bind events
                 $('#w2ui-overlay .color')

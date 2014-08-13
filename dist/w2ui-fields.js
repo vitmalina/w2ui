@@ -1909,7 +1909,7 @@ w2utils.keyboard = (function (obj) {
                     this.addSuffix();    // only will add if needed
                     // additional checks
                     $(this.el).attr('maxlength', 6);
-                    if ($(this.el).val() != '') setTimeout(function () { $(obj.el).change(); }, 1);
+                    if ($(this.el).val() != '') setTimeout(function () { obj.change(); }, 1);
                     break;
 
                 case 'date':
@@ -1975,7 +1975,7 @@ w2utils.keyboard = (function (obj) {
                         defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
                         $(this.el).addClass('w2ui-select');
                         // if simple value - look it up
-                        if (!$.isPlainObject(options.selected)) {
+                        if (!$.isPlainObject(options.selected) && options.items) {
                             for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
                                 if (item && item.id == options.selected) {
@@ -3091,7 +3091,7 @@ w2utils.keyboard = (function (obj) {
                 if ($('#w2ui-overlay').length == 0) {
                     $(obj.el).w2overlay(obj.getColorHTML());
                 } else {
-                    $('#w2ui-overlay').html(obj.getColorHTML());
+                    $('#w2ui-overlay > div').html(obj.getColorHTML());
                 }
                 // bind events
                 $('#w2ui-overlay .color')
