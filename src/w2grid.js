@@ -838,12 +838,14 @@
                 }
                 // display range
                 if (td1.length > 0 && td2.length > 0) {
-                    $('#grid_'+ this.name +'_'+ rg.name).css({
+                    $('#grid_'+ this.name +'_'+ rg.name).show().css({
                         left    : (td1.position().left - 1 + rec.scrollLeft()) + 'px',
                         top     : (td1.position().top - 1 + rec.scrollTop()) + 'px',
                         width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
                         height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
                     });
+                } else {
+                    $('#grid_'+ this.name +'_'+ rg.name).hide();                   
                 }
             }
 
@@ -2960,7 +2962,7 @@
                     if (sel[s].column > maxCol) maxCol = sel[s].column;
                     if (recs.indexOf(sel[s].index) == -1) recs.push(sel[s].index);
                 }
-                recs.sort();
+                recs.sort(function(a, b) { return a-b }); // sort function must be for numerical sort
                 for (var r = 0 ; r < recs.length; r++) {
                     var ind = recs[r];
                     for (var c = minCol; c <= maxCol; c++) {
@@ -3069,7 +3071,8 @@
         update: function () {
             var time = (new Date()).getTime();
             if (this.box == null) return 0;
-            for (var index = this.last.range_start; index <= this.last.range_end; index++) {
+            for (var index = this.last.range_start - 1; index <= this.last.range_end - 1; index++) {
+                if (index < 0) continue;
                 var rec = this.records[index];
                 for (var col_ind = 0; col_ind < this.columns.length; col_ind++) {
                     var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
