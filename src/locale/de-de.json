@@ -61,6 +61,15 @@
         "Hide" : "Verbergen",
         "buffered" : "gepuffert",
         "Server Response": "Server-Antwort",
-        "sec": "sek"
+        "sec": "sek",
+        "Edit selected record" : "Ausgewähltes Element editieren",
+        "Edit" : "Editieren",
+        "Save Grid State" : "Grid-Einstellungen speicher",
+        "Restore Default State" : "Standardeinstellungen wiederherstellen",
+        "in": "enthält",
+        "not in": "enthält nicht",
+        "begins": "beginnt mit",
+        "ends": "endet mit",
+        "Cancel": "Abbrechen"        
     }
 }
