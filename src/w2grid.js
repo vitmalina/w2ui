@@ -1830,14 +1830,13 @@
                 if (value == null) el.find('input').val(val != 'object' ? val : '');
                 // init w2field
                 var input = el.find('input').get(0);
-                console.log('-->', val);
                 $(input).w2field(edit.type, $.extend(edit, { selected: val }))
                 // add blur listener
                 setTimeout(function () {
                     var tmp = input;
                     if (edit.type == 'list') {
                         tmp = $($(input).data('w2field').helpers.focus).find('input');
-                        if (val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
+                        if (typeof val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
                     }
                     $(tmp).on('blur', function (event) {
                         obj.editChange.call(obj, input, index, column, event);
