@@ -1824,12 +1824,13 @@
             } else {
                 el.addClass('w2ui-editable')
                     .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" '+
-                        '    type="text" style="outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
+                        '    type="text" style="font-family: inherit; font-size: inherit; outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
                 if (value == null) el.find('input').val(val != 'object' ? val : '');
                 // init w2field
                 var input = el.find('input').get(0);
+                console.log('-->', val);
                 $(input).w2field(edit.type, $.extend(edit, { selected: val }))
                 // add blur listener
                 setTimeout(function () {
@@ -1982,7 +1983,8 @@
             };
             while (true) {
                 new_val = eventData.value_new;
-                if (( typeof old_val == 'undefined' || old_val === null ? '' : String(old_val)) !== String(new_val)) {
+                if ((typeof new_val != 'object' && String(old_val) != String(new_val)) || 
+                    (typeof new_val == 'object' && (typeof old_val != 'object' || new_val.id != old_val.id))) {
                     // change event
                     eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
                     if (eventData.isCancelled !== true) {
