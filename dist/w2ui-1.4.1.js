@@ -13530,7 +13530,6 @@ var w2confirm = function (msg, title, callBack) {
                                 if (item.id == tmp_value) {
                                     value = $.extend(true, {}, item);
                                     obj.record[field.name] = value;
-                                    console.log(1);
                                     break;
                                 }
                             }

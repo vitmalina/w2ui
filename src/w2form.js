@@ -904,7 +904,6 @@
                                 if (item.id == tmp_value) {
                                     value = $.extend(true, {}, item);
                                     obj.record[field.name] = value;
-                                    console.log(1);
                                     break;
                                 }
                             }
