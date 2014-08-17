@@ -5155,8 +5155,10 @@
                 // apply sort and search
                 setTimeout(function () {
                     // needs timeout as records need to be populated
-                    if (obj.sortData.length > 0) obj.localSort();
-                    if (obj.searchData.length > 0) obj.localSearch();
+                    if (!(typeof this.url != 'object' ? this.url : this.url.get)) {
+                        if (obj.sortData.length > 0) obj.localSort();
+                        if (obj.searchData.length > 0) obj.localSearch();
+                    }
                     obj.last.scrollTop  = sTop;
                     obj.last.scrollLeft = sLeft;
                     obj.refresh();
