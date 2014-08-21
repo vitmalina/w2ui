@@ -490,20 +490,20 @@
                             var left = (el.width() - 50) / 2;
                             if (left > 19) left = 19;
                             if (it.type === 'drop') {
-                                el.w2overlay(it.html, $.extend({ left: left, top: 3 }, it.overlay));
+                                el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
+                                    onHide: function () { hideDrop(); }
+                                }));
                             }
                             if (it.type === 'menu') {
                                 el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
                                     select: function (event) {
-                                        obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent });
+                                        obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent });
                                         hideDrop();
-                                    }
+                                    },
+                                    onHide: function () { hideDrop(); }
                                 }));
                             }
-                            // window.click to hide it
-                            $(document).on('click', hideDrop);
-                            function hideDrop() {
-                                $(document).off('click', hideDrop);
+                            function hideDrop(event) {
                                 it.checked = false;
                                 btn.removeClass('checked');
                             }
