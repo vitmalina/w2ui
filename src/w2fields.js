@@ -15,6 +15,8 @@
 *   - form to support custom types
 *   - add compare function for list, combo, enum
 *   - rewrite suffix and prefix positioning with translateY()
+*   - MultiSelect - Allow Copy/Paste for single and multi values
+*   - add routeData to list/enum
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)

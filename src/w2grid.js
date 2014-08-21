@@ -23,6 +23,8 @@
 *   - if supplied array of ids, get should return array of records
 *   - row drag and drop has bugs
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
+*   - header filtration
+*   - allow functions in routeData (also add routeData to list/enum)
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -36,6 +38,7 @@
 *   - change selectAll() and selectNone() - return time it took
 *   - added vs_start and vs_extra
 *   - added update() - updates only data in the grid, no
+*   - add to docs onColumnDragStart, onColumnDragEnd
 *
 ************************************************************************/
 
@@ -1474,6 +1477,7 @@
         initAllField: function (field, value) {
             var el     = $('#grid_'+ this.name +'_search_all');
             var search = this.getSearch(field);
+            if (search == null) return;
             if (field == 'all') {
                 search = { field: 'all', caption: w2utils.lang('All Fields') };
                 el.w2field('clear');

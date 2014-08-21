@@ -12,6 +12,7 @@
 *   - reorder with grag and drop
 *   - add route property that would navigate to a #route
 *   - node.style is missleading - should be there to apply color for example
+*   - add multiselect
 *
 * == 1.5 changes
 *   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object

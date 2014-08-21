@@ -8,6 +8,7 @@
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 *   - declarative tabs
+*   - align = left, right, center ?? 
 *
 * == 1.5 changes
 *   - $('#tabs').w2tabs() - if called w/o argument then it returns tabs object
@@ -21,7 +22,7 @@
         this.box       = null;      // DOM Element that holds the element
         this.name      = null;      // unique name for w2ui
         this.active    = null;
-        this.flow      = 'down';
+        this.flow      = 'down';    // can be down or up
         this.tabs      = [];
         this.routeData = {};        // data for dynamic routes
         this.right     = '';
