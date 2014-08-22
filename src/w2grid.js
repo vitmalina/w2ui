@@ -387,6 +387,13 @@
             if (!$.isArray(columns)) columns = [columns];
             for (var o in columns) {
                 this.columns.splice(before, 0, columns[o]);
+                // if column is searchable, add search field
+                if (columns[o].searchable) {
+                    var stype = columns[o].searchable;
+                    var attr  = '';
+                    if (columns[o].searchable === true) { stype = 'text'; attr = 'size="20"'; }
+                    this.addSearch({ field: columns[o].field, caption: columns[o].caption, type: stype, attr: attr });
+                }
                 before++;
                 added++;
             }
@@ -398,7 +405,11 @@
             var removed = 0;
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.columns.length-1; r >= 0; r--) {
-                    if (this.columns[r].field == arguments[a]) { this.columns.splice(r, 1); removed++; }
+                    if (this.columns[r].field == arguments[a]) { 
+                        if (this.columns[r].searchable) this.removeSearch(arguments[a]);
+                        this.columns.splice(r, 1);
+                        removed++; 
+                    }
                 }
             }
             this.refresh();
