@@ -25,6 +25,7 @@
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - header filtration
 *   - allow functions in routeData (also add routeData to list/enum)
+*   - implement global routeData and all elements read from there
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -4132,6 +4133,8 @@
             var body    = $('#grid_'+ this.name +'_body');
             var columns = $('#grid_'+ this.name +'_columns');
             var records = $('#grid_'+ this.name +'_records');
+            var lineNumberWidth = String(this.total).length * 8 + 10;
+            if (lineNumberWidth < 26) lineNumberWidth = 26;
 
             // body might be expanded by data
             if (!this.fixedBody) {
@@ -4206,7 +4209,7 @@
             if (body.length > 0) {
                 var width_max = parseInt(body.width())
                     - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
-                    - (this.show.lineNumbers ? 34 : 0)
+                    - (this.show.lineNumbers ? lineNumberWidth : 0)
                     - (this.show.selectColumn ? 26 : 0)
                     - (this.show.expandColumn ? 26 : 0);
                 var width_box = width_max;
@@ -4296,8 +4299,15 @@
             }
             // resize columns
             columns.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
+                // line numbers
+                if ($(el).hasClass('w2ui-col-number')) {
+                    $(el).css('width', lineNumberWidth)
+                }
+                // records
                 var ind = $(el).attr('col');
-                if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
+                if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    $(el).css('width', obj.columns[ind].sizeCalculated);
+                }
                 // last column
                 if ($(el).hasClass('w2ui-head-last')) {
                     $(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
@@ -4314,8 +4324,15 @@
             }
             // resize records
             records.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
+                // line numbers
+                if ($(el).hasClass('w2ui-col-number')) {
+                    $(el).css('width', lineNumberWidth)
+                }
+                // records
                 var ind = $(el).attr('col');
-                if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
+                if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    $(el).css('width', obj.columns[ind].sizeCalculated);
+                }
                 // last column
                 if ($(el).hasClass('w2ui-grid-data-last')) {
                     $(el).css('width', (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
@@ -4323,8 +4340,15 @@
             });
             // resize summary
             summary.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
+                // line numbers
+                if ($(el).hasClass('w2ui-col-number')) {
+                    $(el).css('width', lineNumberWidth)
+                }
+                // records
                 var ind = $(el).attr('col');
-                if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
+                if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    $(el).css('width', obj.columns[ind].sizeCalculated);
+                }
                 // last column
                 if ($(el).hasClass('w2ui-grid-data-last')) {
                     $(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
