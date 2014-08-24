@@ -1706,6 +1706,9 @@ w2utils.keyboard = (function (obj) {
 *   - if supplied array of ids, get should return array of records
 *   - row drag and drop has bugs
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
+*   - header filtration
+*   - allow functions in routeData (also add routeData to list/enum)
+*   - implement global routeData and all elements read from there
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -1719,6 +1722,7 @@ w2utils.keyboard = (function (obj) {
 *   - change selectAll() and selectNone() - return time it took
 *   - added vs_start and vs_extra
 *   - added update() - updates only data in the grid, no
+*   - add to docs onColumnDragStart, onColumnDragEnd
 *
 ************************************************************************/
 
@@ -1935,10 +1939,11 @@ w2utils.keyboard = (function (obj) {
         // ----
         // properties that need to be in prototype
 
-        msgDelete    : 'Are you sure you want to delete selected records?',
-        msgNotJSON   : 'Returned data is not in valid JSON format.',
-        msgAJAXerror : 'AJAX error. See console for more details.',
-        msgRefresh   : 'Refreshing...',
+        msgDelete       : 'Are you sure you want to delete selected records?',
+        msgNotJSON      : 'Returned data is not in valid JSON format.',
+        msgAJAXerror    : 'AJAX error. See console for more details.',
+        msgRefresh      : 'Refreshing...',
+        msgNeedReload   : 'Your remove data source record count has changed, reloading from the first record.',
 
         // for easy button overwrite
         buttons: {
@@ -2067,6 +2072,13 @@ w2utils.keyboard = (function (obj) {
             if (!$.isArray(columns)) columns = [columns];
             for (var o in columns) {
                 this.columns.splice(before, 0, columns[o]);
+                // if column is searchable, add search field
+                if (columns[o].searchable) {
+                    var stype = columns[o].searchable;
+                    var attr  = '';
+                    if (columns[o].searchable === true) { stype = 'text'; attr = 'size="20"'; }
+                    this.addSearch({ field: columns[o].field, caption: columns[o].caption, type: stype, attr: attr });
+                }
                 before++;
                 added++;
             }
@@ -2078,7 +2090,11 @@ w2utils.keyboard = (function (obj) {
             var removed = 0;
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.columns.length-1; r >= 0; r--) {
-                    if (this.columns[r].field == arguments[a]) { this.columns.splice(r, 1); removed++; }
+                    if (this.columns[r].field == arguments[a]) { 
+                        if (this.columns[r].searchable) this.removeSearch(arguments[a]);
+                        this.columns.splice(r, 1);
+                        removed++; 
+                    }
                 }
             }
             this.refresh();
@@ -3157,6 +3173,7 @@ w2utils.keyboard = (function (obj) {
         initAllField: function (field, value) {
             var el     = $('#grid_'+ this.name +'_search_all');
             var search = this.getSearch(field);
+            if (search == null) return;
             if (field == 'all') {
                 search = { field: 'all', caption: w2utils.lang('All Fields') };
                 el.w2field('clear');
@@ -3473,9 +3490,14 @@ w2utils.keyboard = (function (obj) {
                                 delete data.status;
                                 $.extend(true, this, data);
                             } else {
+                                if (parseInt(data.total) != parseInt(this.total)) {
+                                    w2alert(this.msgNeedReload);
+                                    delete this.last.xhr_offset;
+                                    this.reload();
+                                    return;
+                                }
                                 var records = data.records;
                                 delete data.records;
-                                //data.xhr_status=data.status;
                                 delete data.status;
                                 $.extend(true, this, data);
                                 for (var r = 0; r < records.length; r++) {
@@ -3648,7 +3670,7 @@ w2utils.keyboard = (function (obj) {
                     var tmp = input;
                     if (edit.type == 'list') {
                         tmp = $($(input).data('w2field').helpers.focus).find('input');
-                        if (val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
+                        if (typeof val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
                     }
                     $(tmp).on('blur', function (event) {
                         obj.editChange.call(obj, input, index, column, event);
@@ -3794,7 +3816,8 @@ w2utils.keyboard = (function (obj) {
             };
             while (true) {
                 new_val = eventData.value_new;
-                if (( typeof old_val == 'undefined' || old_val === null ? '' : String(old_val)) !== String(new_val)) {
+                if ((typeof new_val != 'object' && String(old_val) != String(new_val)) || 
+                    (typeof new_val == 'object' && (typeof old_val != 'object' || new_val.id != old_val.id))) {
                     // change event
                     eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
                     if (eventData.isCancelled !== true) {
@@ -5793,6 +5816,8 @@ w2utils.keyboard = (function (obj) {
             var body    = $('#grid_'+ this.name +'_body');
             var columns = $('#grid_'+ this.name +'_columns');
             var records = $('#grid_'+ this.name +'_records');
+            var lineNumberWidth = String(this.total).length * 8 + 10;
+            if (lineNumberWidth < 26) lineNumberWidth = 26;
 
             // body might be expanded by data
             if (!this.fixedBody) {
@@ -5867,7 +5892,7 @@ w2utils.keyboard = (function (obj) {
             if (body.length > 0) {
                 var width_max = parseInt(body.width())
                     - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
-                    - (this.show.lineNumbers ? 34 : 0)
+                    - (this.show.lineNumbers ? lineNumberWidth : 0)
                     - (this.show.selectColumn ? 26 : 0)
                     - (this.show.expandColumn ? 26 : 0);
                 var width_box = width_max;
@@ -5957,8 +5982,15 @@ w2utils.keyboard = (function (obj) {
             }
             // resize columns
             columns.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
+                // line numbers
+                if ($(el).hasClass('w2ui-col-number')) {
+                    $(el).css('width', lineNumberWidth)
+                }
+                // records
                 var ind = $(el).attr('col');
-                if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
+                if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    $(el).css('width', obj.columns[ind].sizeCalculated);
+                }
                 // last column
                 if ($(el).hasClass('w2ui-head-last')) {
                     $(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
@@ -5975,8 +6007,15 @@ w2utils.keyboard = (function (obj) {
             }
             // resize records
             records.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
+                // line numbers
+                if ($(el).hasClass('w2ui-col-number')) {
+                    $(el).css('width', lineNumberWidth)
+                }
+                // records
                 var ind = $(el).attr('col');
-                if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
+                if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    $(el).css('width', obj.columns[ind].sizeCalculated);
+                }
                 // last column
                 if ($(el).hasClass('w2ui-grid-data-last')) {
                     $(el).css('width', (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
@@ -5984,8 +6023,15 @@ w2utils.keyboard = (function (obj) {
             });
             // resize summary
             summary.find('> table > tbody > tr:nth-child(1) td').each(function (index, el) {
+                // line numbers
+                if ($(el).hasClass('w2ui-col-number')) {
+                    $(el).css('width', lineNumberWidth)
+                }
+                // records
                 var ind = $(el).attr('col');
-                if (typeof ind != 'undefined' && obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
+                if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    $(el).css('width', obj.columns[ind].sizeCalculated);
+                }
                 // last column
                 if ($(el).hasClass('w2ui-grid-data-last')) {
                     $(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
@@ -6837,8 +6883,10 @@ w2utils.keyboard = (function (obj) {
                 // apply sort and search
                 setTimeout(function () {
                     // needs timeout as records need to be populated
-                    if (obj.sortData.length > 0) obj.localSort();
-                    if (obj.searchData.length > 0) obj.localSearch();
+                    if (!(typeof this.url != 'object' ? this.url : this.url.get)) {
+                        if (obj.sortData.length > 0) obj.localSort();
+                        if (obj.searchData.length > 0) obj.localSearch();
+                    }
                     obj.last.scrollTop  = sTop;
                     obj.last.scrollLeft = sLeft;
                     obj.refresh();
@@ -8879,6 +8927,7 @@ var w2confirm = function (msg, title, callBack) {
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 *   - declarative tabs
+*   - align = left, right, center ?? 
 *
 * == 1.5 changes
 *   - $('#tabs').w2tabs() - if called w/o argument then it returns tabs object
@@ -8892,7 +8941,7 @@ var w2confirm = function (msg, title, callBack) {
         this.box       = null;      // DOM Element that holds the element
         this.name      = null;      // unique name for w2ui
         this.active    = null;
-        this.flow      = 'down';
+        this.flow      = 'down';    // can be down or up
         this.tabs      = [];
         this.routeData = {};        // data for dynamic routes
         this.right     = '';
@@ -9798,20 +9847,20 @@ var w2confirm = function (msg, title, callBack) {
                             var left = (el.width() - 50) / 2;
                             if (left > 19) left = 19;
                             if (it.type === 'drop') {
-                                el.w2overlay(it.html, $.extend({ left: left, top: 3 }, it.overlay));
+                                el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
+                                    onHide: function () { hideDrop(); }
+                                }));
                             }
                             if (it.type === 'menu') {
                                 el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
                                     select: function (event) {
-                                        obj.menuClick({ item: it, subItem: event.item, originalEvent: event.originalEvent });
+                                        obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent });
                                         hideDrop();
-                                    }
+                                    },
+                                    onHide: function () { hideDrop(); }
                                 }));
                             }
-                            // window.click to hide it
-                            $(document).on('click', hideDrop);
-                            function hideDrop() {
-                                $(document).off('click', hideDrop);
+                            function hideDrop(event) {
                                 it.checked = false;
                                 btn.removeClass('checked');
                             }
@@ -9863,6 +9912,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - reorder with grag and drop
 *   - add route property that would navigate to a #route
 *   - node.style is missleading - should be there to apply color for example
+*   - add multiselect
 *
 * == 1.5 changes
 *   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object
@@ -10704,6 +10754,8 @@ var w2confirm = function (msg, title, callBack) {
 *   - form to support custom types
 *   - add compare function for list, combo, enum
 *   - rewrite suffix and prefix positioning with translateY()
+*   - MultiSelect - Allow Copy/Paste for single and multi values
+*   - add routeData to list/enum
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)

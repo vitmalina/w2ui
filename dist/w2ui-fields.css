@@ -74,6 +74,7 @@ textarea {
   border-radius: 3px;
   color: #000000;
   background-color: #ffffff;
+  line-height: normal;
 }
 input:not([type=button]):focus,
 select:focus,
