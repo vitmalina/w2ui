@@ -255,10 +255,11 @@
         // ----
         // properties that need to be in prototype
 
-        msgDelete    : 'Are you sure you want to delete selected records?',
-        msgNotJSON   : 'Returned data is not in valid JSON format.',
-        msgAJAXerror : 'AJAX error. See console for more details.',
-        msgRefresh   : 'Refreshing...',
+        msgDelete       : 'Are you sure you want to delete selected records?',
+        msgNotJSON      : 'Returned data is not in valid JSON format.',
+        msgAJAXerror    : 'AJAX error. See console for more details.',
+        msgRefresh      : 'Refreshing...',
+        msgNeedReload   : 'Your remove data source record count has changed, reloading from the first record.',
 
         // for easy button overwrite
         buttons: {
@@ -1805,9 +1806,14 @@
                                 delete data.status;
                                 $.extend(true, this, data);
                             } else {
+                                if (parseInt(data.total) != parseInt(this.total)) {
+                                    w2alert(this.msgNeedReload);
+                                    delete this.last.xhr_offset;
+                                    this.reload();
+                                    return;
+                                }
                                 var records = data.records;
                                 delete data.records;
-                                //data.xhr_status=data.status;
                                 delete data.status;
                                 $.extend(true, this, data);
                                 for (var r = 0; r < records.length; r++) {
