@@ -11,6 +11,11 @@
 *   - hide overlay on esc
 *   - refacore -webkit-* -moz-* to a function
 *
+* == 1.5 changes
+*   - new: resizeMessages()
+*   - popup can be moved/resized/closed when locked or has messages
+*   - messages negative widht/height means margin
+*
 ************************************************************************/
 
 var w2popup = {};
@@ -264,11 +269,12 @@ var w2popup = {};
                 if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
                 w2popup.status = 'moving';
                 tmp.resizing = true;
+                tmp.isLocked = $('#w2ui-popup > .w2ui-lock').length == 1 ? true : false;
                 tmp.x = evnt.screenX;
                 tmp.y = evnt.screenY;
                 tmp.pos_x = $('#w2ui-popup').position().left;
                 tmp.pos_y = $('#w2ui-popup').position().top;
-                w2popup.lock({ opacity: 0 });
+                if (!tmp.isLocked) w2popup.lock({ opacity: 0 });
                 $(document).on('mousemove', tmp.mvMove);
                 $(document).on('mouseup', tmp.mvStop);
                 if (evnt.stopPropagation) evnt.stopPropagation(); else evnt.cancelBubble = true;
@@ -313,7 +319,7 @@ var w2popup = {};
                 tmp.resizing = false;
                 $(document).off('mousemove', tmp.mvMove);
                 $(document).off('mouseup', tmp.mvStop);
-                w2popup.unlock();
+                if (!tmp.isLocked) w2popup.unlock();
             }
             return this;
         },
@@ -411,7 +417,7 @@ var w2popup = {};
             // default behavior
             w2popup.status = 'resizing';
             // do resize
-            w2popup.resize(size[0], size[1], function () {
+            w2popup.resize(parseInt(size[0]), parseInt(size[1]), function () {
                 w2popup.status = 'open';
                 options.maximized = false;
                 options.prevSize  = null;
@@ -480,17 +486,27 @@ var w2popup = {};
         message: function (options) {
             $().w2tag(); // hide all tags
             if (!options) options = { width: 200, height: 100 };
+            var pWidth   = parseInt($('#w2ui-popup').width());
+            var pHeight  = parseInt($('#w2ui-popup').height());
+            options.originalWidth  = options.width;
+            options.originalHeight = options.height;
             if (parseInt(options.width) < 10)  options.width  = 10;
             if (parseInt(options.height) < 10) options.height = 10;
             if (typeof options.hideOnClick == 'undefined') options.hideOnClick = false;
-            var poptions = $('#w2ui-popup').data('options') || {};
-            if (typeof options.width == 'undefined' || options.width > poptions.width - 10) options.width = poptions.width - 10;
-            if (typeof options.height == 'undefined' || options.height > poptions.height - 40) options.height = poptions.height - 40; // title is 30px or so
+            var poptions    = $('#w2ui-popup').data('options') || {};
+            var titleHeight = parseInt($('#w2ui-popup > .w2ui-msg-title').css('height'));
+            if (typeof options.width == 'undefined' || options.width > poptions.width - 10) {
+                options.width = poptions.width - 10;
+            }
+            if (typeof options.height == 'undefined' || options.height > poptions.height - titleHeight - 5) {
+                options.height = poptions.height - titleHeight - 5; // need margin from bottom only
+            }
+            // negative value means margin
+            if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight;
+            if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2; // x 2 because there is left and right margin
 
             var head     = $('#w2ui-popup .w2ui-msg-title');
-            var pwidth   = parseInt($('#w2ui-popup').width());
             var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
-            var headZI   = head.css('z-index');
             // remove message
             if ($.trim(options.html) == '') {
                 $('#w2ui-popup #w2ui-message'+ (msgCount-1)).css('z-Index', 250);
@@ -510,7 +526,7 @@ var w2popup = {};
                 $('#w2ui-popup .w2ui-box1')
                     .before('<div id="w2ui-message' + msgCount + '" class="w2ui-popup-message" style="display: none; z-index: 1500; ' +
                                 (head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
-                                (typeof options.width  != 'undefined' ? 'width: ' + options.width + 'px; left: ' + ((pwidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
+                                (typeof options.width  != 'undefined' ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (typeof options.height != 'undefined' ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
                                 '-webkit-transition: .3s; -moz-transition: .3s; -ms-transition: .3s; -o-transition: .3s;"' +
                                 (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
@@ -537,7 +553,6 @@ var w2popup = {};
                     // timer for lock
                     if (msgCount == 0) w2popup.lock();
                     setTimeout(function() {
-                        head.css('z-index', headZI);
                         // has to be on top of lock
                         $('#w2ui-popup #w2ui-message'+ msgCount)
                             .css({'-webkit-transition': '0s', '-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s' });
@@ -627,7 +642,40 @@ var w2popup = {};
             return true;
         },
 
+        resizeMessages: function () {
+            var obj = this;
+            var options = $('#w2ui-popup').data('options');
+            // see if there are messages and resize them
+            $('#w2ui-popup .w2ui-popup-message').each(function () {
+                var moptions = $(this).data('options');
+                var $popup   = $('#w2ui-popup');
+                if (parseInt(moptions.width) < 10)  moptions.width  = 10;
+                if (parseInt(moptions.height) < 10) moptions.height = 10;
+                var titleHeight = parseInt($popup.find('> .w2ui-msg-title').css('height'));
+                var pWidth      = parseInt($popup.width());
+                var pHeight     = parseInt($popup.height());
+                // recalc width
+                moptions.width = moptions.originalWidth;
+                if (moptions.width > pWidth - 10) {
+                    moptions.width = pWidth - 10;
+                }
+                // recalc height
+                moptions.height = moptions.originalHeight;
+                if (moptions.height > pHeight - titleHeight - 5) {
+                    moptions.height = pHeight - titleHeight - 5;
+                }
+                if (moptions.originalHeight < 0) moptions.height = pHeight + moptions.originalHeight - titleHeight;
+                if (moptions.originalWidth < 0) moptions.width = pWidth + moptions.originalWidth * 2; // x 2 because there is left and right margin
+                $(this).css({
+                    left    : ((pWidth - moptions.width) / 2) + 'px',
+                    width   : moptions.width + 'px',
+                    height  : moptions.height + 'px'
+                });
+            });            
+        },
+
         resize: function (width, height, callBack) {
+            var obj = this;
             var options = $('#w2ui-popup').data('options');
             width  = parseInt(width);
             height = parseInt(height);
@@ -647,9 +695,12 @@ var w2popup = {};
                 'width': width,
                 'height': height
             });
+            var tmp_int = setInterval(function () { obj.resizeMessages(); }, 10); // then messages resize nicely
             setTimeout(function () {
+                clearInterval(tmp_int);
                 options.width  = width;
                 options.height = height;
+                obj.resizeMessages();
                 if (typeof callBack == 'function') callBack();
             }, (options.speed * 1000) + 50); // give extra 50 ms
         }
