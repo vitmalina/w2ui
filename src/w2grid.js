@@ -1145,12 +1145,15 @@
             }
             // add selected class
             if (this.selectType == 'row') {
-                $(this.box).find('.w2ui-grid-records tr').addClass('w2ui-selected').data('selected', 'yes').find('.w2ui-col-number').addClass('w2ui-row-selected');
+                console.log('fdddd');
+                $(this.box).find('.w2ui-grid-records tr').not('.w2ui-empty-record')
+                    .addClass('w2ui-selected').data('selected', 'yes').find('.w2ui-col-number').addClass('w2ui-row-selected');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
             } else {
                 $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').addClass('w2ui-col-selected');
                 $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').addClass('w2ui-row-selected')
-                $(this.box).find('.w2ui-grid-data').addClass('w2ui-selected').data('selected', 'yes');
+                $(this.box).find('.w2ui-grid-records tr').not('.w2ui-empty-record')
+                    .find('.w2ui-grid-data').not('.w2ui-col-select').addClass('w2ui-selected').data('selected', 'yes');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
             }
             // enable/disable toolbar buttons

@@ -49,7 +49,7 @@ $(function () {
         postData: {
             "admin": 'somename'
         },
-        selectType1: 'cell',
+        selectType: 'cell',
         //autoLoad: false,
         //offset: 99700,
         //multiSelect: false,
@@ -123,7 +123,8 @@ $(function () {
             { field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
-            { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date', sortable: true },
+            { field: 'sdate', caption: 'Date', size: '120px', render: 'date:yyyy-mm-dd', searchable: 'date', sortable: true, 
+                editable: { type: 'date', format: 'yyyy-mm-dd' } },
             { field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
             { field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true, gridMinWidth: 1000 }
         ],
@@ -205,7 +206,7 @@ $(function () {
     var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
     var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
     // add 10k records
-    for (var i = 0; i < 10000; i++) {
+    for (var i = 0; i < 10; i++) {
         var dt = ((new Date()).getTime() - Math.floor(Math.random() * 1000000000));
         w2ui['grid'].records.push({ 
             recid : (i + 1),
