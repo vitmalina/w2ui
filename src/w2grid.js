@@ -26,6 +26,7 @@
 *   - header filtration
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
+*   - send parsed URL to the event if there is parseData
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -38,7 +39,7 @@
 *           statusSearch    : true,
 *   - change selectAll() and selectNone() - return time it took
 *   - added vs_start and vs_extra
-*   - added update() - updates only data in the grid, no
+*   - added update() - updates only data in the grid
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *
 ************************************************************************/
