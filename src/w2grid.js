@@ -3580,10 +3580,10 @@
                         '    </div>'+
                         '</td></tr>';
             }
-            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateSave(); $(\'#w2ui-overlay\')[0].hide();">'+
+            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateSave(); $(document).click();">'+
                         '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Save Grid State') + '</div>'+
                         '</td></tr>'+
-                        '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateReset(); $(\'#w2ui-overlay\')[0].hide();">'+
+                        '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateReset(); $(document).click();">'+
                         '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Restore Default State') + '</div>'+
                         '</td></tr>';
             col_html += "</table></div>";
