@@ -311,14 +311,12 @@ var w2utils = (function () {
         if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
             tmp = String(val).split('.');
             ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + groupSymbol);
-            if (tmp[1] != null) ret += w2utils.settings.decimalSymbol + tmp[1];
+            if (tmp[1] != null) ret += decimalSymbol + tmp[1];
         }
         return ret;
     }
 
     function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
-        var months = w2utils.settings.shortmonths;
-        var fullMonths = w2utils.settings.fullmonths;
         if (!format) format = this.settings.date_format;
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
@@ -457,7 +455,7 @@ var w2utils = (function () {
         }
 
         function utf8_encode (string) {
-            var string = String(string).replace(/\r\n/g,"\n");
+            string = String(string).replace(/\r\n/g,"\n");
             var utftext = "";
 
             for (var n = 0; n < string.length; n++) {
