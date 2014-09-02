@@ -455,7 +455,7 @@ var w2utils = (function () {
         }
 
         function utf8_encode (string) {
-            var string = String(string).replace(/\r\n/g,"\n");
+            string = String(string).replace(/\r\n/g,"\n");
             var utftext = "";
 
             for (var n = 0; n < string.length; n++) {
