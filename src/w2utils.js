@@ -311,7 +311,7 @@ var w2utils = (function () {
         if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
             tmp = String(val).split('.');
             ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + groupSymbol);
-            if (tmp[1] != null) ret += w2utils.settings.decimalSymbol + tmp[1];
+            if (tmp[1] != null) ret += decimalSymbol + tmp[1];
         }
         return ret;
     }
