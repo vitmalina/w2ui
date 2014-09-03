@@ -1265,6 +1265,7 @@
                     (search.length < obj.tmp.xhr_search.length)
                 )) {
                 // empty list
+                if (obj.tmp.xhr) obj.tmp.xhr.abort();
                 obj.tmp.xhr_loading = true;
                 obj.search();
                 // timeout
@@ -1282,7 +1283,6 @@
                     url      = eventData.url;
                     postData = eventData.postData;
                     // console.log('REMOTE SEARCH:', search);
-                    if (obj.tmp.xhr) obj.tmp.xhr.abort();
                     var ajaxOptions = {
                         type     : 'GET',
                         url      : url,
