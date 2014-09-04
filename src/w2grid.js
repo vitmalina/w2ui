@@ -3547,7 +3547,7 @@
                             '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabIndex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
                             '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
                             '</td>'+
-                            '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\')[0].hide();">'+
+                            '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(document).click();">'+
                             '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
                             '</td></tr>';
             for (var c = 0; c < this.columns.length; c++) {
@@ -4138,7 +4138,7 @@
             var columns = $('#grid_'+ this.name +'_columns');
             var records = $('#grid_'+ this.name +'_records');
             var lineNumberWidth = String(this.total).length * 8 + 10;
-            if (lineNumberWidth < 26) lineNumberWidth = 26;
+            if (lineNumberWidth < 34) lineNumberWidth = 34; // 3 digit width
 
             // body might be expanded by data
             if (!this.fixedBody) {
