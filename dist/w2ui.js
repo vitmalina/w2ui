@@ -113,7 +113,7 @@ var w2utils = (function () {
 
     function isMoney (val) {
         var se = w2utils.settings;
-        var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\\'+ w2utils.settings.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
+        var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\\'+ se.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
         if (typeof val === 'string') {
             val = val.replace(new RegExp(se.groupSymbol, 'g'), '');
         }
@@ -312,14 +312,12 @@ var w2utils = (function () {
         if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
             tmp = String(val).split('.');
             ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + groupSymbol);
-            if (tmp[1] != null) ret += w2utils.settings.decimalSymbol + tmp[1];
+            if (tmp[1] != null) ret += decimalSymbol + tmp[1];
         }
         return ret;
     }
 
     function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
-        var months = w2utils.settings.shortmonths;
-        var fullMonths = w2utils.settings.fullmonths;
         if (!format) format = this.settings.date_format;
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
@@ -458,7 +456,7 @@ var w2utils = (function () {
         }
 
         function utf8_encode (string) {
-            var string = String(string).replace(/\r\n/g,"\n");
+            string = String(string).replace(/\r\n/g,"\n");
             var utftext = "";
 
             for (var n = 0; n < string.length; n++) {
@@ -1709,6 +1707,7 @@ w2utils.keyboard = (function (obj) {
 *   - header filtration
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
+*   - send parsed URL to the event if there is parseData
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -1721,7 +1720,7 @@ w2utils.keyboard = (function (obj) {
 *           statusSearch    : true,
 *   - change selectAll() and selectNone() - return time it took
 *   - added vs_start and vs_extra
-*   - added update() - updates only data in the grid, no
+*   - added update() - updates only data in the grid
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *
 ************************************************************************/
@@ -5229,7 +5228,7 @@ w2utils.keyboard = (function (obj) {
                             '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabIndex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
                             '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
                             '</td>'+
-                            '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(\'#w2ui-overlay\')[0].hide();">'+
+                            '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(document).click();">'+
                             '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
                             '</td></tr>';
             for (var c = 0; c < this.columns.length; c++) {
@@ -5262,10 +5261,10 @@ w2utils.keyboard = (function (obj) {
                         '    </div>'+
                         '</td></tr>';
             }
-            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateSave(); $(\'#w2ui-overlay\')[0].hide();">'+
+            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateSave(); $(document).click();">'+
                         '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Save Grid State') + '</div>'+
                         '</td></tr>'+
-                        '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateReset(); $(\'#w2ui-overlay\')[0].hide();">'+
+                        '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateReset(); $(document).click();">'+
                         '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Restore Default State') + '</div>'+
                         '</td></tr>';
             col_html += "</table></div>";
@@ -5820,7 +5819,7 @@ w2utils.keyboard = (function (obj) {
             var columns = $('#grid_'+ this.name +'_columns');
             var records = $('#grid_'+ this.name +'_records');
             var lineNumberWidth = String(this.total).length * 8 + 10;
-            if (lineNumberWidth < 26) lineNumberWidth = 26;
+            if (lineNumberWidth < 34) lineNumberWidth = 34; // 3 digit width
 
             // body might be expanded by data
             if (!this.fixedBody) {
@@ -8120,6 +8119,7 @@ w2utils.keyboard = (function (obj) {
 *   - new: resizeMessages()
 *   - popup can be moved/resized/closed when locked or has messages
 *   - messages negative widht/height means margin
+*   - added btn_yes and btn_no
 *
 ************************************************************************/
 
@@ -8308,11 +8308,11 @@ var w2popup = {};
                 if (eventData.isCancelled === true) return;
                 // check if size changed
                 w2popup.status = 'opening';
-                if (typeof old_options == 'undefined' || old_options['width'] != options['width'] || old_options['height'] != options['height']) {
-                    w2popup.resize(options.width, options.height);
-                }
                 if (typeof old_options != 'undefined') {
-                    options.prevSize  = options.width + ':' + options.height;
+                    if (!old_options.maximized && (old_options['width'] != options['width'] || old_options['height'] != options['height'])) {
+                        w2popup.resize(options.width, options.height);
+                    }
+                    options.prevSize  = options.width + 'px:' + options.height + 'px';
                     options.maximized = old_options.maximized;
                 }
                 // show new items
@@ -8366,7 +8366,9 @@ var w2popup = {};
                 mvMove   : mvMove,
                 mvStop   : mvStop
             };
-            $('#w2ui-popup .w2ui-msg-title').on('mousedown', function (event) { mvStart(event); })
+            $('#w2ui-popup .w2ui-msg-title').on('mousedown', function (event) { 
+                if (!w2popup.get().maximized) mvStart(event); 
+            });
 
             // handlers
             function mvStart(evnt) {
@@ -8893,6 +8895,19 @@ var w2confirm = function (msg, title, callBack) {
                 callBack: callBack
             })            
         }
+    }
+    // if there is a yes/no button object
+    if (typeof options.btn_yes == 'object') {
+        options.yes_text     = options.btn_yes.text || options.yes_text;
+        options.yes_class    = options.btn_yes["class"] || options.yes_class;
+        options.yes_style    = options.btn_yes.style || options.yes_style;
+        options.yes_callBack = options.btn_yes.callBack || options.yes_callBack;
+    }
+    if (typeof options.btn_no == 'object') {
+        options.no_text      = options.btn_no.text || options.no_text;
+        options.no_class     = options.btn_no["class"] || options.no_class;
+        options.no_style     = options.btn_no.style || options.no_style;
+        options.no_callBack  = options.btn_no.callBack || options.no_callBack;
     }
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         if (options.width > w2popup.get().width) options.width = w2popup.get().width;
@@ -12058,6 +12073,7 @@ var w2confirm = function (msg, title, callBack) {
                     (search.length < obj.tmp.xhr_search.length)
                 )) {
                 // empty list
+                if (obj.tmp.xhr) obj.tmp.xhr.abort();
                 obj.tmp.xhr_loading = true;
                 obj.search();
                 // timeout
@@ -12075,7 +12091,6 @@ var w2confirm = function (msg, title, callBack) {
                     url      = eventData.url;
                     postData = eventData.postData;
                     // console.log('REMOTE SEARCH:', search);
-                    if (obj.tmp.xhr) obj.tmp.xhr.abort();
                     var ajaxOptions = {
                         type     : 'GET',
                         url      : url,

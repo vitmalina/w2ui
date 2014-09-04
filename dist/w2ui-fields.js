@@ -113,7 +113,7 @@ var w2utils = (function () {
 
     function isMoney (val) {
         var se = w2utils.settings;
-        var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\\'+ w2utils.settings.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
+        var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\\'+ se.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
         if (typeof val === 'string') {
             val = val.replace(new RegExp(se.groupSymbol, 'g'), '');
         }
@@ -312,14 +312,12 @@ var w2utils = (function () {
         if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
             tmp = String(val).split('.');
             ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + groupSymbol);
-            if (tmp[1] != null) ret += w2utils.settings.decimalSymbol + tmp[1];
+            if (tmp[1] != null) ret += decimalSymbol + tmp[1];
         }
         return ret;
     }
 
     function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
-        var months = w2utils.settings.shortmonths;
-        var fullMonths = w2utils.settings.fullmonths;
         if (!format) format = this.settings.date_format;
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
@@ -458,7 +456,7 @@ var w2utils = (function () {
         }
 
         function utf8_encode (string) {
-            var string = String(string).replace(/\r\n/g,"\n");
+            string = String(string).replace(/\r\n/g,"\n");
             var utftext = "";
 
             for (var n = 0; n < string.length; n++) {
@@ -2948,6 +2946,7 @@ w2utils.keyboard = (function (obj) {
                     (search.length < obj.tmp.xhr_search.length)
                 )) {
                 // empty list
+                if (obj.tmp.xhr) obj.tmp.xhr.abort();
                 obj.tmp.xhr_loading = true;
                 obj.search();
                 // timeout
@@ -2965,7 +2964,6 @@ w2utils.keyboard = (function (obj) {
                     url      = eventData.url;
                     postData = eventData.postData;
                     // console.log('REMOTE SEARCH:', search);
-                    if (obj.tmp.xhr) obj.tmp.xhr.abort();
                     var ajaxOptions = {
                         type     : 'GET',
                         url      : url,
