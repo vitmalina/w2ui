@@ -737,10 +737,12 @@
             val = String(val).trim();
             // clean
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
-                if (typeof val == 'string') val = val.replace(options.decimalSymbol, '.');
-                if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
-                if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
-                if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
+                if (typeof val == 'string') {
+                    if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
+                    if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
+                    if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
+                    val = val.replace(options.decimalSymbol, '.');
+                }
                 if (parseFloat(val) == val) {
                     if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
                     if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
