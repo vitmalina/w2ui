@@ -2418,10 +2418,12 @@ w2utils.keyboard = (function (obj) {
             val = String(val).trim();
             // clean
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
-                if (typeof val == 'string') val = val.replace(options.decimalSymbol, '.');
-                if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
-                if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
-                if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
+                if (typeof val == 'string') {
+                    if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
+                    if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
+                    if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
+                    val = val.replace(options.decimalSymbol, '.');
+                }
                 if (parseFloat(val) == val) {
                     if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
                     if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
@@ -3500,7 +3502,7 @@ w2utils.keyboard = (function (obj) {
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+ 
-                '    <div class="w2ui-icon icon-search"></div>'+
+                '    <div class="w2ui-icon icon-search" style="opacity: 0"></div>'+
                 '    <input type="text" autocomplete="off">'+
                 '<div>';
             $(obj.el).attr('tabindex', -1).before(html);
@@ -3693,7 +3695,8 @@ w2utils.keyboard = (function (obj) {
                 type     : file.type,
                 modified : file.lastModifiedDate,
                 size     : file.size,
-                content  : null
+                content  : null,
+                file     : file
             };
             var size = 0;
             var cnt  = 0;

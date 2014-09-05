@@ -3032,7 +3032,7 @@ w2utils.keyboard = (function (obj) {
                         if (search.field == field) this.last.caption = search.caption;
                         if (search.type == 'list') {
                             var tmp = el.data('selected');
-                            if (tmp && !$.isEmptyObject(tmp)) value = tmp.id;
+                            if (tmp && !$.isEmptyObject(tmp)) value = tmp.id; else value = '';
                         }
                         if (value != '') {
                             var op  = 'contains';
@@ -3184,7 +3184,7 @@ w2utils.keyboard = (function (obj) {
                 var st = search.type;
                 if (['enum', 'select'].indexOf(st) != -1) st = 'list';
                 el.w2field(st, $.extend({}, search.options, { suffix: '', autoFormat: false, selected: value }));
-                if (['list', 'enum'].indexOf(search.type) != -1) {
+                if (['list', 'enum', 'date', 'time'].indexOf(search.type) != -1) {
                     this.last.search = '';
                     this.last.item   = '';
                     el.val('');
@@ -5585,12 +5585,16 @@ w2utils.keyboard = (function (obj) {
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
                         '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
+                        '                var grid = w2ui[\''+ this.name +'\']; '+
                         '                var val = this.value; '+
+                        '                var sel = $(this).data(\'selected\');'+
                         '                var fld = $(this).data(\'w2field\'); '+
-                        '                var dat = $(this).data(\'selected\'); '+
                         '                if (fld) val = fld.clean(val);'+
-                        '                if (dat != null && $.isPlainObject(dat)) val = dat.id;'+
-                        '                w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, val); '+
+                        '                if (fld.type == \'list\' && typeof sel.id == \'undefined\') {'+
+                        '                   grid.searchReset();'+
+                        '                } else {'+
+                        '                   grid.search(grid.last.field, val);'+
+                        '                }'+
                         '            ">'+
                         '    </td>'+
                         '    <td>'+
@@ -6438,7 +6442,7 @@ w2utils.keyboard = (function (obj) {
             var t1 = Math.round(records[0].scrollTop / this.recordHeight + 1);
             var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
             if (t1 > buffered) t1 = buffered;
-            if (t2 > buffered) t2 = buffered;
+            if (t2 >= buffered - 1) t2 = buffered;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
                 (obj.show.statusRange ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '') +
@@ -6512,9 +6516,7 @@ w2utils.keyboard = (function (obj) {
             // load more if needed
             var s = Math.floor(records[0].scrollTop / this.recordHeight);
             var e = s + Math.floor(records.height() / this.recordHeight);
-            // --- see https://github.com/vitmalina/w2ui/issues/596
-            // if (e + 10 > buffered && this.last.pull_more !== true && buffered < this.total - this.offset) {
-            if (e + 10 > buffered && this.last.pull_more !== true && buffered < this.total - this.last.xhr_offset) {
+            if (e + 10 > buffered && this.last.pull_more !== true && buffered < this.total - this.offset) {
                 if (this.autoLoad === true) {
                     this.last.pull_more = true;
                     this.last.xhr_offset += this.limit;
@@ -11545,10 +11547,12 @@ var w2confirm = function (msg, title, callBack) {
             val = String(val).trim();
             // clean
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) != -1) {
-                if (typeof val == 'string') val = val.replace(options.decimalSymbol, '.');
-                if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
-                if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
-                if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
+                if (typeof val == 'string') {
+                    if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
+                    if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
+                    if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
+                    val = val.replace(options.decimalSymbol, '.');
+                }
                 if (parseFloat(val) == val) {
                     if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
                     if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
@@ -12627,7 +12631,7 @@ var w2confirm = function (msg, title, callBack) {
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+ 
-                '    <div class="w2ui-icon icon-search"></div>'+
+                '    <div class="w2ui-icon icon-search" style="opacity: 0"></div>'+
                 '    <input type="text" autocomplete="off">'+
                 '<div>';
             $(obj.el).attr('tabindex', -1).before(html);
@@ -12820,7 +12824,8 @@ var w2confirm = function (msg, title, callBack) {
                 type     : file.type,
                 modified : file.lastModifiedDate,
                 size     : file.size,
-                content  : null
+                content  : null,
+                file     : file
             };
             var size = 0;
             var cnt  = 0;
@@ -13091,6 +13096,7 @@ var w2confirm = function (msg, title, callBack) {
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
 *   - added onProgress
+*   - added field.html.style (for the whole field)
 *
 ************************************************************************/
 
@@ -13713,7 +13719,7 @@ var w2confirm = function (msg, title, callBack) {
                 var html = '';
                 var field = this.fields[f];
                 if (typeof field.html == 'undefined') field.html = {};
-                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
+                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0 }, field.html);
                 if (typeof page == 'undefined') page = field.html.page;
                 if (field.html.caption == '') field.html.caption = field.name;
                 var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
@@ -13732,7 +13738,7 @@ var w2confirm = function (msg, title, callBack) {
                     pages[pages.length-1] += '\n   </div>';
                     group = '';
                 }
-                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ 
+                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+ 
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
