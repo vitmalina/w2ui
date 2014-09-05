@@ -2014,7 +2014,8 @@
                 type     : file.type,
                 modified : file.lastModifiedDate,
                 size     : file.size,
-                content  : null
+                content  : null,
+                file     : file
             };
             var size = 0;
             var cnt  = 0;
