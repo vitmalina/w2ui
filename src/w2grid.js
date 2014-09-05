@@ -1839,7 +1839,6 @@
                     message      : this.msgAJAXerror,
                     responseText : responseText
                 };
-                console.log('ERROR: AJAX error, see network activity for details.');
                 obj.error(this.msgAJAXerror);
             }
             // event after
@@ -4762,7 +4761,7 @@
             var t1 = Math.round(records[0].scrollTop / this.recordHeight + 1);
             var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
             if (t1 > buffered) t1 = buffered;
-            if (t2 > buffered) t2 = buffered;
+            if (t2 >= buffered - 1) t2 = buffered;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
                 (obj.show.statusRange ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '') +
