@@ -1839,6 +1839,7 @@
                     message      : this.msgAJAXerror,
                     responseText : responseText
                 };
+                console.log('ERROR: AJAX error, see network activity for details.');
                 obj.error(this.msgAJAXerror);
             }
             // event after
@@ -4835,9 +4836,7 @@
             // load more if needed
             var s = Math.floor(records[0].scrollTop / this.recordHeight);
             var e = s + Math.floor(records.height() / this.recordHeight);
-            // --- see https://github.com/vitmalina/w2ui/issues/596
-            // if (e + 10 > buffered && this.last.pull_more !== true && buffered < this.total - this.offset) {
-            if (e + 10 > buffered && this.last.pull_more !== true && buffered < this.total - this.last.xhr_offset) {
+            if (e + 10 > buffered && this.last.pull_more !== true && buffered < this.total - this.offset) {
                 if (this.autoLoad === true) {
                     this.last.pull_more = true;
                     this.last.xhr_offset += this.limit;
