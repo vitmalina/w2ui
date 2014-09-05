@@ -1821,7 +1821,7 @@
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+ 
-                '    <div class="w2ui-icon icon-search"></div>'+
+                '    <div class="w2ui-icon icon-search" style="opacity: 0"></div>'+
                 '    <input type="text" autocomplete="off">'+
                 '<div>';
             $(obj.el).attr('tabindex', -1).before(html);

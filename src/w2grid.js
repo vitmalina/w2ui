@@ -1351,7 +1351,7 @@
                         if (search.field == field) this.last.caption = search.caption;
                         if (search.type == 'list') {
                             var tmp = el.data('selected');
-                            if (tmp && !$.isEmptyObject(tmp)) value = tmp.id;
+                            if (tmp && !$.isEmptyObject(tmp)) value = tmp.id; else value = '';
                         }
                         if (value != '') {
                             var op  = 'contains';
@@ -1503,7 +1503,7 @@
                 var st = search.type;
                 if (['enum', 'select'].indexOf(st) != -1) st = 'list';
                 el.w2field(st, $.extend({}, search.options, { suffix: '', autoFormat: false, selected: value }));
-                if (['list', 'enum'].indexOf(search.type) != -1) {
+                if (['list', 'enum', 'date', 'time'].indexOf(search.type) != -1) {
                     this.last.search = '';
                     this.last.item   = '';
                     el.val('');
@@ -3904,12 +3904,16 @@
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
                         '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
+                        '                var grid = w2ui[\''+ this.name +'\']; '+
                         '                var val = this.value; '+
+                        '                var sel = $(this).data(\'selected\');'+
                         '                var fld = $(this).data(\'w2field\'); '+
-                        '                var dat = $(this).data(\'selected\'); '+
                         '                if (fld) val = fld.clean(val);'+
-                        '                if (dat != null && $.isPlainObject(dat)) val = dat.id;'+
-                        '                w2ui[\''+ this.name +'\'].search(w2ui[\''+ this.name +'\'].last.field, val); '+
+                        '                if (fld.type == \'list\' && typeof sel.id == \'undefined\') {'+
+                        '                   grid.searchReset();'+
+                        '                } else {'+
+                        '                   grid.search(grid.last.field, val);'+
+                        '                }'+
                         '            ">'+
                         '    </td>'+
                         '    <td>'+

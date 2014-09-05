@@ -30,15 +30,17 @@
                 width: 16px;
                 height: 16px;
                 padding: 0px;
-                margin: 2px 4px 3px 3px !important;
+                margin: 5px 4px 3px 3px !important;
                 border: 0px !important;
                 text-align: center;
                 // for font icon
                 & > span {
                     font-size: 15px;
-                    margin-top: 3px;
                     display: block;
                     color: @toolbar-button-image-color;
+                    &:before {
+                        vertical-align: top !important; 
+                    }
                 }
             }
 

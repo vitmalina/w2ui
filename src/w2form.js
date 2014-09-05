@@ -21,6 +21,7 @@
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
 *   - added onProgress
+*   - added field.html.style (for the whole field)
 *
 ************************************************************************/
 
@@ -643,7 +644,7 @@
                 var html = '';
                 var field = this.fields[f];
                 if (typeof field.html == 'undefined') field.html = {};
-                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', page: 0 }, field.html);
+                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0 }, field.html);
                 if (typeof page == 'undefined') page = field.html.page;
                 if (field.html.caption == '') field.html.caption = field.name;
                 var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
@@ -662,7 +663,7 @@
                     pages[pages.length-1] += '\n   </div>';
                     group = '';
                 }
-                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ 
+                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+ 
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
