@@ -733,6 +733,10 @@
         },
 
         clean: function (val) {
+            //issue #499
+            if(typeof val == 'number'){
+                 return val;
+            }
             var options = this.options;
             val = String(val).trim();
             // clean

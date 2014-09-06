@@ -891,6 +891,14 @@
                     case 'money':
                     case 'currency':
                     case 'percent':
+                        //issue #499
+                        if(typeof value == 'number'){
+                             field.el.value = w2utils.formatNumber(value,field.options.groupSymbol,field.options.decimalSymbol);
+                         } else {
+                             field.el.value = value;
+                         }
+                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
+                         break;
                     case 'hex':
                     case 'alphanumeric':
                     case 'color':
