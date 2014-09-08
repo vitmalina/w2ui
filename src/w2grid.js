@@ -3913,7 +3913,7 @@
                         '                var sel = $(this).data(\'selected\');'+
                         '                var fld = $(this).data(\'w2field\'); '+
                         '                if (fld) val = fld.clean(val);'+
-                        '                if (fld.type == \'list\' && typeof sel.id == \'undefined\') {'+
+                        '                if (fld && fld.type == \'list\' && sel && typeof sel.id == \'undefined\') {'+
                         '                   grid.searchReset();'+
                         '                } else {'+
                         '                   grid.search(grid.last.field, val);'+
