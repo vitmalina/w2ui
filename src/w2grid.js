@@ -1982,6 +1982,10 @@
                         '    type="text" style="font-family: inherit; font-size: inherit; outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
+                //issue #499
+                 if(typeof val == 'number'){
+                     val = w2utils.formatNumber(val);
+                 }
                 if (value == null) el.find('input').val(val != 'object' ? val : '');
                 // init w2field
                 var input = el.find('input').get(0);
