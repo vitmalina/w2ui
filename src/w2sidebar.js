@@ -828,8 +828,8 @@
             w2utils.lock.apply(window, args);
         },
 
-        unlock: function () {
-            w2utils.unlock(this.box);
+        unlock: function (speed) {
+            w2utils.unlock(this.box, speed);
         }
     };
 

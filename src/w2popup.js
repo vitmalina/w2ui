@@ -16,6 +16,7 @@
 *   - popup can be moved/resized/closed when locked or has messages
 *   - messages negative widht/height means margin
 *   - added btn_yes and btn_no
+*   - dismissed message will slide up - added parameter unlock(speed)
 *
 ************************************************************************/
 
@@ -512,15 +513,24 @@ var w2popup = {};
             var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
             // remove message
             if ($.trim(options.html) == '') {
-                $('#w2ui-popup #w2ui-message'+ (msgCount-1)).css('z-Index', 250);
-                var options = $('#w2ui-popup #w2ui-message'+ (msgCount-1)).data('options') || {};
-                $('#w2ui-popup #w2ui-message'+ (msgCount-1)).remove();
-                if (typeof options.onClose == 'function') options.onClose();
+                var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
+                var options = $msg.data('options') || {};
+                $msg.css({
+                    '-webkit-transition': '0.15s', '-moz-transition': '0.15s', '-ms-transition': '0.15s', '-o-transition': '0.15s',
+                    '-webkit-transform': 'translateY(-' + options.height + 'px)',
+                    '-moz-transform': 'translateY(-' + options.height + 'px)',
+                    '-ms-transform': 'translateY(-' + options.height + 'px)',
+                    '-o-transform': 'translateY(-' + options.height + 'px)'
+                });
                 if (msgCount == 1) {
-                    w2popup.unlock();
+                    w2popup.unlock(150);
                 } else {
                     $('#w2ui-popup #w2ui-message'+ (msgCount-2)).css('z-index', 1500);
                 }
+                setTimeout(function () {
+                    $msg.remove();
+                    if (typeof options.onClose == 'function') options.onClose();
+                }, 150);
             } else {
                 // hide previous messages
                 $('#w2ui-popup .w2ui-popup-message').css('z-index', 1390);
@@ -571,8 +581,8 @@ var w2popup = {};
             w2utils.lock.apply(window, args);
         },
 
-        unlock: function () {
-            w2utils.unlock($('#w2ui-popup'));
+        unlock: function (speed) {
+            w2utils.unlock($('#w2ui-popup'), speed);
         },
 
         // --- INTERNAL FUNCTIONS

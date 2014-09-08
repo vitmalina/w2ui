@@ -624,9 +624,9 @@
             w2utils.lock.apply(window, args);
         },
 
-        unlock: function () {
+        unlock: function (speed) {
             var obj = this;
-            setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
+            setTimeout(function () { w2utils.unlock(obj.box, speed); }, 25); // needed timer so if server fast, it will not flash
         },
 
         goto: function (page) {

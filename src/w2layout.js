@@ -1058,13 +1058,13 @@
             w2utils.lock.apply(window, args);
         },
 
-        unlock: function (panel) {
+        unlock: function (panel, speed) {
             if (w2panels.indexOf(panel) == -1) {
                 console.log('ERROR: First parameter needs to be the a valid panel name.');
                 return;
             }
             var nm = '#layout_'+ this.name + '_panel_' + panel;
-            w2utils.unlock(nm);
+            w2utils.unlock(nm, speed);
         }
     };
 

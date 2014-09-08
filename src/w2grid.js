@@ -5118,9 +5118,9 @@
             setTimeout(function () { w2utils.lock.apply(window, args); }, 10);
         },
 
-        unlock: function () {
+        unlock: function (speed) {
             var box = this.box;
-            setTimeout(function () { w2utils.unlock(box); }, 25); // needed timer so if server fast, it will not flash
+            setTimeout(function () { w2utils.unlock(box, speed); }, 25); // needed timer so if server fast, it will not flash
         },
 
         stateSave: function (returnOnly) {

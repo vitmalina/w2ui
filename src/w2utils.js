@@ -769,9 +769,17 @@ var w2utils = (function () {
         $().w2tag();
     }
 
-    function unlock (box) {
-        $(box).find('.w2ui-lock').remove();
-        $(box).find('.w2ui-lock-msg').remove();
+    function unlock (box, speed) {
+        if (isInt(speed)) {
+            $(box).find('.w2ui-lock').fadeOut(speed);
+            setTimeout(function () {
+                $(box).find('.w2ui-lock').remove();
+                $(box).find('.w2ui-lock-msg').remove();
+            }, speed);
+        } else {
+            $(box).find('.w2ui-lock').remove();
+            $(box).find('.w2ui-lock-msg').remove();            
+        }
     }
 
     function getSize (el, type) {
