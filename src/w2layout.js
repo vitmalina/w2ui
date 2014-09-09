@@ -226,23 +226,13 @@
             var pan = obj.get(panel);
             if (pan === null) return false;
             // resize
-            $(obj.box).find(' > div > .w2ui-panel').css({
-                '-webkit-transition' : '.2s',
-                '-moz-transition'    : '.2s',
-                '-ms-transition'     : '.2s',
-                '-o-transition'      : '.2s'
-            });
+            $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
             setTimeout(function () {
                 obj.set(panel, { size: size });
             }, 1);
             // clean
             setTimeout(function () {
-                $(obj.box).find(' > div > .w2ui-panel').css({
-                    '-webkit-transition' : '0s',
-                    '-moz-transition'    : '0s',
-                    '-ms-transition'     : '0s',
-                    '-o-transition'      : '0s'
-                });
+                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
                 obj.resize();
             }, 500);
             return true;
@@ -266,12 +256,7 @@
                 if (p.resizable) $('#layout_'+ obj.name +'_resizer_'+panel).show();
                 // resize
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });
-                $(obj.box).find(' > div > .w2ui-panel').css({
-                    '-webkit-transition' : '.2s',
-                    '-moz-transition'    : '.2s',
-                    '-ms-transition'     : '.2s',
-                    '-o-transition'      : '.2s'
-                });
+                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
                 setTimeout(function () { obj.resize(); }, 1);
                 // show
                 setTimeout(function() {
@@ -279,12 +264,7 @@
                 }, 250);
                 // clean
                 setTimeout(function () {
-                    $(obj.box).find(' > div > .w2ui-panel').css({
-                        '-webkit-transition' : '0s',
-                        '-moz-transition'    : '0s',
-                        '-ms-transition'     : '0s',
-                        '-o-transition'      : '0s'
-                    });
+                    $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                     obj.resize();
                 }, 500);
@@ -309,22 +289,12 @@
             } else {
                 $('#layout_'+ obj.name +'_resizer_'+panel).hide();
                 // hide
-                $(obj.box).find(' > div > .w2ui-panel').css({
-                    '-webkit-transition' : '.2s',
-                    '-moz-transition'    : '.2s',
-                    '-ms-transition'     : '.2s',
-                    '-o-transition'      : '.2s'
-                });
+                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'    });
                 setTimeout(function () { obj.resize(); }, 1);
                 // clean
                 setTimeout(function () {
-                    $(obj.box).find(' > div > .w2ui-panel').css({
-                        '-webkit-transition' : '0s',
-                        '-moz-transition'    : '0s',
-                        '-ms-transition'     : '0s',
-                        '-o-transition'      : '0s'
-                    });
+                    $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                     obj.resize();
                 }, 500);

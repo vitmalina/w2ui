@@ -35,6 +35,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == 1.5 changes
 *   - added decimalSymbol
 *   - renamed size() -> formatSize()
+*   - added cssPrefix()
 *
 ************************************************/
 
@@ -89,6 +90,7 @@ var w2utils = (function () {
         checkName       : checkName,
         checkUniqueId   : checkUniqueId,
         parseRoute      : parseRoute,
+        cssPrefix       : cssPrefix,
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -689,44 +691,19 @@ var w2utils = (function () {
                 $(div_new).css('z-index', '1020');
             }
             if (div_new) {
-                $(div_new).css({
-                    'opacity': '1',
-                    '-webkit-transition': '',
-                    '-moz-transition': '',
-                    '-ms-transition': '',
-                    '-o-transition': '',
-                    '-webkit-transform': '',
-                    '-moz-transform': '',
-                    '-ms-transform': '',
-                    '-o-transform': '',
-                    '-webkit-backface-visibility': '',
-                    '-moz-backface-visibility': '',
-                    '-ms-backface-visibility': '',
-                    '-o-backface-visibility': ''
-                });
+                $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
+                    'transition': '',
+                    'transform' : '',
+                    'backface-visibility': ''  
+                }));
             }
             if (div_old) {
-                $(div_old).css({
-                    'opacity': '1',
-                    '-webkit-transition': '',
-                    '-moz-transition': '',
-                    '-ms-transition': '',
-                    '-o-transition': '',
-                    '-webkit-transform': '',
-                    '-moz-transform': '',
-                    '-ms-transform': '',
-                    '-o-transform': '',
-                    '-webkit-backface-visibility': '',
-                    '-moz-backface-visibility': '',
-                    '-ms-backface-visibility': '',
-                    '-o-backface-visibility': ''
-                });
-                if (div_old.parentNode) $(div_old.parentNode).css({
-                    '-webkit-perspective': '',
-                    '-moz-perspective': '',
-                    '-ms-perspective': '',
-                    '-o-perspective': ''
-                });
+                $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
+                    'transition': '',
+                    'transform' : '',
+                    'backface-visibility': ''  
+                }));
+                if (div_old.parentNode) $(div_old.parentNode).css(w2utils.cssPrefix('perspective', ''));
             }
             if (typeof callBack === 'function') callBack();
         }, time * 1000);
@@ -911,6 +888,34 @@ var w2utils = (function () {
             keys  : keys
         };
     }
+
+    function cssPrefix(field, value, returnString) {
+        var css    = {};
+        var newCSS = {};
+        var ret    = '';
+        if (!$.isPlainObject(field)) {
+            css[field] = value;
+        } else {
+            css = field;
+            if (value === true) returnString = true;
+        }
+        for (var c in css) {
+            newCSS[c] = css[c];
+            newCSS['-webkit-'+c] = css[c];
+            newCSS['-moz-'+c]    = css[c].replace('-webkit-', '-moz-');
+            newCSS['-ms-'+c]     = css[c].replace('-webkit-', '-ms-');
+            newCSS['-o-'+c]      = css[c].replace('-webkit-', '-o-');
+        }
+        if (returnString === true) {
+            for (var c in newCSS) {
+                ret += c + ': ' + newCSS[c] + '; ';
+            }
+        } else {
+            ret = newCSS;
+        }
+        return ret;
+    } 
+
 })();
 
 /***********************************************************
@@ -1167,11 +1172,7 @@ w2utils.keyboard = (function (obj) {
                     }
                     // monitor if moved
                     if ($('#w2ui-tag-'+tagID).data('position') !== ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
-                        $('#w2ui-tag-'+tagID).css({
-                            '-webkit-transition' : '.2s',
-                            '-moz-transition'    : '.2s',
-                            '-ms-transition'     : '.2s',
-                            '-o-transition'      : '.2s',
+                        $('#w2ui-tag-'+tagID).css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
                             left: ($(el).offset().left + el.offsetWidth) + 'px',
                             top: $(el).offset().top + 'px'
                         }).data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top);

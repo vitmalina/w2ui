@@ -3363,11 +3363,7 @@
                 // restore css user-select
                 if (obj.last.userSelect == 'text') {
                     delete obj.last.userSelect;
-                    $(obj.box).find('.w2ui-grid-body')
-                        .css('user-select', 'none')
-                        .css('-webkit-user-select', 'none')
-                        .css('-moz-user-select', 'none')
-                        .css('-ms-user-select', 'none');
+                    $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'none'));
                     $(this.box).on('selectstart', function () { return false; });
                 }
                 // regular record select
@@ -3376,11 +3372,7 @@
                 // if altKey - alow text selection
                 if (event.altKey) {
                     $(obj.box).off('selectstart');
-                    $(obj.box).find('.w2ui-grid-body')
-                        .css('user-select', 'text')
-                        .css('-webkit-user-select', 'text')
-                        .css('-moz-user-select', 'text')
-                        .css('-ms-user-select', 'text');
+                    $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'text'));
                     obj.selectNone();
                     obj.last.move = { type: 'text-select' };
                     obj.last.userSelect = 'text';

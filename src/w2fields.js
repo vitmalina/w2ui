@@ -419,13 +419,7 @@
                 .on('keydown',  this.tmp.onKeydown)
                 .on('keyup',    this.tmp.onKeyup)
                 .on('keypress', this.tmp.onKeypress)
-                .css({
-                    'box-sizing'         : 'border-box',
-                    '-webkit-box-sizing' : 'border-box',
-                    '-moz-box-sizing'    : 'border-box',
-                    '-ms-box-sizing'     : 'border-box',
-                    '-o-box-sizing'      : 'border-box'
-                });
+                .css(w2utils.cssPrefix('box-sizing', 'border-box'));
             // format initial value
             this.change($.Event('change'));
         },

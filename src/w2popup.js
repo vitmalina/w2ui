@@ -9,7 +9,6 @@
 *   - transition should include title, body and buttons, not just body
 *   - .message() should have same props (body, buttons, title?)
 *   - hide overlay on esc
-*   - refacore -webkit-* -moz-* to a function
 *
 * == 1.5 changes
 *   - new: resizeMessages()
@@ -17,6 +16,7 @@
 *   - messages negative widht/height means margin
 *   - added btn_yes and btn_no
 *   - dismissed message will slide up - added parameter unlock(speed)
+*   - refactore -webkit-* -moz-* to a function
 *
 ************************************************************************/
 
@@ -154,7 +154,7 @@ var w2popup = {};
                 }
                 var msg='<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
                         '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
-                        '    -webkit-transform: scale(0.8); -moz-transform: scale(0.8); -ms-transform: scale(0.8); -o-transform: scale(0.8); "'+
+                              w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"' +
                         '>'+
                         '   <div class="w2ui-msg-title" style="'+ (options.title == '' ? 'display: none' : '') +'">' + btn + options.title + '</div>'+
                         '   <div class="w2ui-box1" style="'+ (options.title == '' ? 'top: 0px !important;' : '') + 
@@ -173,26 +173,16 @@ var w2popup = {};
                 // allow element to render
                 setTimeout(function () {
                     $('#w2ui-popup .w2ui-box2').hide();
-                    $('#w2ui-popup').css({
-                        '-webkit-transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
-                        '-webkit-transform': 'scale(1)',
-                        '-moz-transition': options.speed + 's opacity, ' + options.speed + 's -moz-transform',
-                        '-moz-transform': 'scale(1)',
-                        '-ms-transition': options.speed + 's opacity, ' + options.speed + 's -ms-transform',
-                        '-ms-transform': 'scale(1)',
-                        '-o-transition': options.speed + 's opacity, ' + options.speed + 's -o-transform',
-                        '-o-transform': 'scale(1)',
-                        'opacity': '1'
-                    });
+                    $('#w2ui-popup')
+                        .css('opacity', '1')
+                        .css(w2utils.cssPrefix({
+                            'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
+                            'transform' : 'scale(1)'
+                        }));
                 }, 1);
                 // clean transform
                 setTimeout(function () {
-                    $('#w2ui-popup').css({
-                        '-webkit-transform': '',
-                        '-moz-transform': '',
-                        '-ms-transform': '',
-                        '-o-transform': ''
-                    });
+                    $('#w2ui-popup').css(w2utils.cssPrefix('transform', ''));
                     // event after
                     w2popup.status = 'open';
                     setTimeout(function () {
@@ -290,16 +280,10 @@ var w2popup = {};
                 if (!evnt) evnt = window.event;
                 tmp.div_x = evnt.screenX - tmp.x;
                 tmp.div_y = evnt.screenY - tmp.y;
-                $('#w2ui-popup').css({
-                    '-webkit-transition': 'none',
-                    '-webkit-transform': 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)',
-                    '-moz-transition': 'none',
-                    '-moz-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)',
-                    '-ms-transition': 'none',
-                    '-ms-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)',
-                    '-o-transition': 'none',
-                    '-o-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)'
-                });
+                $('#w2ui-popup').css(w2utils.cssPrefix({
+                    'transition': 'none',
+                    'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
+                }));
             }
 
             function mvStop(evnt) {
@@ -310,16 +294,11 @@ var w2popup = {};
                 tmp.div_y = (evnt.screenY - tmp.y);
                 $('#w2ui-popup').css({
                     'left': (tmp.pos_x + tmp.div_x) + 'px',
-                    'top':    (tmp.pos_y  + tmp.div_y) + 'px',
-                    '-webkit-transition': 'none',
-                    '-webkit-transform': 'translate3d(0px, 0px, 0px)',
-                    '-moz-transition': 'none',
-                    '-moz-transform': 'translate(0px, 0px)',
-                    '-ms-transition': 'none',
-                    '-ms-transform': 'translate(0px, 0px)',
-                    '-o-transition': 'none',
-                    '-o-transform': 'translate(0px, 0px)'
-                });
+                    'top' : (tmp.pos_y  + tmp.div_y) + 'px'
+                }).css(w2utils.cssPrefix({
+                    'transition': 'none',
+                    'transform' : 'translate3d(0px, 0px, 0px)'
+                }));
                 tmp.resizing = false;
                 $(document).off('mousemove', tmp.mvMove);
                 $(document).off('mouseup', tmp.mvStop);
@@ -354,17 +333,12 @@ var w2popup = {};
             if (eventData.isCancelled === true) return;
             // default behavior
             w2popup.status = 'closing';
-            $('#w2ui-popup').css({
-                '-webkit-transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
-                '-webkit-transform': 'scale(0.9)',
-                '-moz-transition': options.speed + 's opacity, ' + options.speed + 's -moz-transform',
-                '-moz-transform': 'scale(0.9)',
-                '-ms-transition': options.speed + 's opacity, ' + options.speed + 's -ms-transform',
-                '-ms-transform': 'scale(0.9)',
-                '-o-transition': options.speed + 's opacity, ' + options.speed + 's -o-transform',
-                '-o-transform': 'scale(0.9)',
-                'opacity': '0'
-            });
+            $('#w2ui-popup')
+                .css('opacity', '0')
+                .css(w2utils.cssPrefix({
+                    'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
+                    'transform' : 'scale(0.9)'
+                }));
             w2popup.unlockScreen(options);
             setTimeout(function () {
                 $('#w2ui-popup').remove();
@@ -515,13 +489,10 @@ var w2popup = {};
             if ($.trim(options.html) == '') {
                 var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
                 var options = $msg.data('options') || {};
-                $msg.css({
-                    '-webkit-transition': '0.15s', '-moz-transition': '0.15s', '-ms-transition': '0.15s', '-o-transition': '0.15s',
-                    '-webkit-transform': 'translateY(-' + options.height + 'px)',
-                    '-moz-transform': 'translateY(-' + options.height + 'px)',
-                    '-ms-transform': 'translateY(-' + options.height + 'px)',
-                    '-o-transform': 'translateY(-' + options.height + 'px)'
-                });
+                $msg.css(w2utils.cssPrefix({ 
+                    'transition': '0.15s', 
+                    'transform': 'translateY(-' + options.height + 'px)'
+                }));
                 if (msgCount == 1) {
                     w2popup.unlock(150);
                 } else {
@@ -541,34 +512,27 @@ var w2popup = {};
                                 (head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (typeof options.width  != 'undefined' ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (typeof options.height != 'undefined' ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
-                                '-webkit-transition: .3s; -moz-transition: .3s; -ms-transition: .3s; -o-transition: .3s;"' +
+                                w2utils.cssPrefix('transition', '.3s', true) + '"' +
                                 (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
                             '</div>');
                 $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options);
                 var display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display');
-                $('#w2ui-popup #w2ui-message'+ msgCount).css({
-                    '-webkit-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
-                    '-moz-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
-                    '-ms-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
-                    '-o-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
-                });
+                $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                    'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
+                }));
                 if (display == 'none') {
                     $('#w2ui-popup #w2ui-message'+ msgCount).show().html(options.html);
                     // timer needs to animation
                     setTimeout(function () {
-                        $('#w2ui-popup #w2ui-message'+ msgCount).css({
-                            '-webkit-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
-                            '-moz-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
-                            '-ms-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
-                            '-o-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
-                        });
+                        $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                            'transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
+                        }));
                     }, 1);
                     // timer for lock
                     if (msgCount == 0) w2popup.lock();
                     setTimeout(function() {
                         // has to be on top of lock
-                        $('#w2ui-popup #w2ui-message'+ msgCount)
-                            .css({'-webkit-transition': '0s', '-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s' });
+                        $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
                         if (typeof options.onOpen == 'function') options.onOpen();
                     }, 350);
                 }
@@ -599,37 +563,23 @@ var w2popup = {};
                 '           padding: 0px; margin: 0px; background-color: ' + options.color + '; width: 100%; height: 100%; opacity: 0;"></div>');
             // lock screen
             setTimeout(function () {
-                $('#w2ui-lock').css({
-                    '-webkit-transition': options.speed + 's opacity',
-                    '-moz-transition': options.speed + 's opacity',
-                    '-ms-transition': options.speed + 's opacity',
-                    '-o-transition': options.speed + 's opacity',
-                    'opacity': options.opacity
-                });
+                $('#w2ui-lock')
+                    .css('opacity', options.opacity)
+                    .css(w2utils.cssPrefix('transition', options.speed + 's opacity'));
             }, 1);
             // add events
             if (options.modal == true) {
                 $('#w2ui-lock').on('mousedown', function () {
-                    $('#w2ui-lock').css({
-                        '-webkit-transition': '.1s',
-                        '-moz-transition': '.1s',
-                        '-ms-transition': '.1s',
-                        '-o-transition': '.1s',
-                        'opacity': '0.6'
-                    });
-                    // if (window.getSelection) window.getSelection().removeAllRanges();
+                    $('#w2ui-lock')
+                        .css('opacity', '0.6')
+                        .css(w2utils.cssPrefix('transition', '.1s'));
                 });
                 $('#w2ui-lock').on('mouseup', function () {
                     setTimeout(function () {
-                        $('#w2ui-lock').css({
-                            '-webkit-transition': '.1s',
-                            '-moz-transition': '.1s',
-                            '-ms-transition': '.1s',
-                            '-o-transition': '.1s',
-                            'opacity': options.opacity
-                        });
+                        $('#w2ui-lock')
+                            .css('opacity', options.opacity)
+                            .css(w2utils.cssPrefix('transition', '.1s'));
                     }, 100);
-                    // if (window.getSelection) window.getSelection().removeAllRanges();
                 });
             } else {
                 $('#w2ui-lock').on('mouseup', function () { w2popup.close(); });
@@ -642,13 +592,9 @@ var w2popup = {};
             if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
             if (typeof options == 'undefined') options = {};
             options = $.extend({}, w2popup.defaults, options);
-            $('#w2ui-lock').css({
-                '-webkit-transition': options.speed + 's opacity',
-                '-moz-transition': options.speed + 's opacity',
-                '-ms-transition': options.speed + 's opacity',
-                '-o-transition': options.speed + 's opacity',
-                'opacity': 0
-            });
+            $('#w2ui-lock')
+                .css('opacity', '0')
+                .css(w2utils.cssPrefix('transition', options.speed + 's opacity'));
             setTimeout(function () {
                 $('#w2ui-lock').remove();
             }, options.speed * 1000);
@@ -698,16 +644,16 @@ var w2popup = {};
             var top  = ($(window).height() - height) / 2 * 0.8;
             var left = ($(window).width() - width) / 2;
             // resize there
-            $('#w2ui-popup').css({
-                '-webkit-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
-                '-moz-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
-                '-ms-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
-                '-o-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
-                'top': top,
-                'left': left,
-                'width': width,
-                'height': height
-            });
+            $('#w2ui-popup')
+                .css(w2utils.cssPrefix({
+                    'transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top'
+                }))
+                .css({
+                    'top': top,
+                    'left': left,
+                    'width': width,
+                    'height': height
+                });
             var tmp_int = setInterval(function () { obj.resizeMessages(); }, 10); // then messages resize nicely
             setTimeout(function () {
                 clearInterval(tmp_int);
