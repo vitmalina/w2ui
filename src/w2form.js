@@ -17,6 +17,8 @@
 *   - added getChanges() - not complete
 *   - nested record object
 *   - reset: { label: 'Limpiar', action: function () {...
+*   - add enable/disable, show/hide
+*   - add set()
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object

@@ -23,12 +23,12 @@
             item.text = item.fname + ' ' + item.lname;
             items.push(item);
         }
-        $('.date').w2field('date', { silent: false, format: 'dd Mon, yyyy' });
+        $('.date').w2field('date', { silent: false, format: 'yyyy/mm/dd' });
         $('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
         $('.color').w2field('color');
         $('.int').w2field({ type: 'int', min: -36000, max: 36000 });
         $('.float').w2field('float');
-        $('.percent').w2field('percent', { precision: 0 });
+        $('.percent').w2field('percent', { precision: 0, min: 0, max: 100 });
         $('.money').w2field('currency');
         $('.hex').w2field('hex');
         $('.alphanumeric').w2field('alphanumeric');

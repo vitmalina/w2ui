@@ -809,7 +809,7 @@
             if (['date', 'time'].indexOf(this.type) != -1) {
                 // convert linux timestamps
                 var tmp = parseInt(obj.el.value);
-                if (w2utils.isInt(tmp) && tmp > 1000) {
+                if (w2utils.isInt(obj.el.value) && tmp > 3000) {
                     if (this.type == 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).change();
                     if (this.type == 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).change();
                 }
@@ -1495,7 +1495,7 @@
                     });
                 }) (month, year);
             }
-            // date
+            // time
             if (this.type == 'time') {
                 if ($(obj.el).attr('readonly')) return;
                 if ($('#w2ui-overlay').length == 0) {
