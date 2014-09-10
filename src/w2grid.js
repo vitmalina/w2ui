@@ -1560,15 +1560,17 @@
         },
 
         clear: function (noRefresh) {
-            // this.offset          = 0;   // clear should not reset offset
-            // this.total           = 0;   // clear should not reset total
-            this.records            = [];
-            this.summary            = [];
-            this.last.scrollTop     = 0;
-            this.last.scrollLeft    = 0;
-            this.last.range_start   = null;
-            this.last.range_end     = null;
-            // this.last.xhr_offset = 0;    // clear should not reset offset
+            // this.offset              = 0;   // clear should not reset offset
+            // this.total               = 0;   // clear should not reset total
+            this.records                = [];
+            this.summary                = [];
+            this.last.scrollTop         = 0;
+            this.last.scrollLeft        = 0;
+            this.last.selection.indexes = [];
+            this.last.selection.columns = {};
+            this.last.range_start       = null;
+            this.last.range_end         = null;
+            this.last.xhr_offset        = 0;   // need this for reload button to work on remote data set
             if (!noRefresh) this.refresh();
         },
 
@@ -3574,7 +3576,7 @@
                         '        <input type="text" style="width: 45px" value="'+ this.offset +'" '+
                         '            onkeypress="if (event.keyCode == 13) { '+
                         '               w2ui[\''+ obj.name +'\'].skip(this.value); '+
-                        '               $(\'#w2ui-overlay\')[0].hide(); '+
+                        '               $(document).click(); '+
                         '            }"> '+ w2utils.lang('Records')+
                         '    </div>'+
                         '</td></tr>';
