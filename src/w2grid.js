@@ -27,6 +27,7 @@
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
 *   - send parsed URL to the event if there is parseData
+*   - if you set searchData or sortData and call refresh() it should work
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -1729,15 +1730,15 @@
                     var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
                     if (eventData2.isCancelled === true) return;
                     // default behavior
-                    if (status != 'abort') {
+                    if (status != 'abort') { // it can be aborted by the grid itself
                         var data;
                         try { data = $.parseJSON(xhr.responseText) } catch (e) {}
                         console.log('ERROR: Server communication failed.', 
                             '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
+                        obj.requestComplete('error', cmd, callBack);
                     }
-                    obj.requestComplete('error', cmd, callBack);
                     // event after
                     obj.trigger($.extend(eventData2, { phase: 'after' }));
                 });
@@ -3302,7 +3303,7 @@
             var obj  = this;
             var time = (new Date()).getTime();
             //if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-            if (typeof box != 'undefined' && box != null) {
+            if (box != null) {
                 if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                     $(this.box)
                         .removeAttr('name')
@@ -3316,7 +3317,9 @@
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
             if (eventData.isCancelled === true) return;
-            // insert Elements
+            // reset needed if grid existed
+            this.reset(true);
+            // insert elements
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-grid')
