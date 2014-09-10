@@ -5207,7 +5207,8 @@
                 // apply sort and search
                 setTimeout(function () {
                     // needs timeout as records need to be populated
-                    if (!(typeof this.url != 'object' ? this.url : this.url.get)) {
+                    // ez 10.09.2014 this -->
+                    if (!(typeof obj.url != 'object' ? obj.url : obj.url.get)) {
                         if (obj.sortData.length > 0) obj.localSort();
                         if (obj.searchData.length > 0) obj.localSearch();
                     }
