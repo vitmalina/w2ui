@@ -1411,15 +1411,17 @@
         },
 
         clear: function (noRefresh) {
-            // this.offset          = 0;   // clear should not reset offset
-            // this.total           = 0;   // clear should not reset total
-            this.records            = [];
-            this.summary            = [];
-            this.last.scrollTop     = 0;
-            this.last.scrollLeft    = 0;
-            this.last.range_start   = null;
-            this.last.range_end     = null;
-            // this.last.xhr_offset = 0;    // clear should not reset offset
+            // this.offset              = 0;   // clear should not reset offset
+            // this.total               = 0;   // clear should not reset total
+            this.records                = [];
+            this.summary                = [];
+            this.last.scrollTop         = 0;
+            this.last.scrollLeft        = 0;
+            this.last.selection.indexes = [];
+            this.last.selection.columns = {};
+            this.last.range_start       = null;
+            this.last.range_end         = null;
+            this.last.xhr_offset        = 0;
             if (!noRefresh) this.refresh();
         },
 
@@ -1588,8 +1590,8 @@
                             '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
+                        obj.requestComplete('error', cmd, callBack);
                     }
-                    obj.requestComplete('error', cmd, callBack);
                     // event after
                     obj.trigger($.extend(eventData2, { phase: 'after' }));
                 });
