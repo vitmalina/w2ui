@@ -23,7 +23,7 @@
             item.text = item.fname + ' ' + item.lname;
             items.push(item);
         }
-        $('.date').w2field('date', { silent: false, format: 'yyyy/mm/dd' });
+        $('.date').w2field('date', { silent: false, format: 'dd/mm/yyyy' });
         $('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
         $('.color').w2field('color');
         $('.int').w2field({ type: 'int', min: -36000, max: 36000 });
