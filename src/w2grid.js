@@ -2203,7 +2203,7 @@
                     msg   : obj.msgDelete, 
                     yes_class : 'btn-red',
                     callBack: function (result) {
-                        if (result == 'Yes') w2ui[obj.name].delete(true);
+                        if (result == 'Yes') w2ui[obj.name]['delete'](true);
                     }
                 });
                 return;
