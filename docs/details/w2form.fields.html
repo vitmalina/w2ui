@@ -33,7 +33,7 @@ The form supports all types that $().w2field({}) supports and few more types in 
     <li>int</li>
     <li>float</li>
     <li>money</li>
-    <li>currency</li>
+    <li>currency <i>(alias for money)</i></li>
     <li>percent</li>
     <li>hex</li>
     <li>alphanumeric</li>
@@ -50,7 +50,7 @@ The form supports all types that $().w2field({}) supports and few more types in 
     <li>toggle</li>
 </ul>
 
-If your HTML template is defined as follows:
+If your HTML template is defined as :
 
 <textarea class="html">
 <div class="w2ui-page page-0">
@@ -71,6 +71,11 @@ If your HTML template is defined as follows:
     <button name="reset" class="btn ">reset</button>
     <button name="save" class="btn btn-green">save</button>
 </div>
+</textarea>
+
+And you have a container:
+<textarea class="html">
+<div id="form" style="width: 500px; height; 300px"></div>
 </textarea>
 
 The form definition will be:

@@ -41,3 +41,13 @@ You can get selected records:
 <textarea class="javascript">
 console.log( w2ui['grid'].getSelection() );
 </textarea>
+
+Please note if you try to get selection in onClick event, you need to:
+<textarea class="javascript">
+onClick: function (event) {
+    event.onComplete = function () {
+        var sel = this.getSelection();
+        console.log('selection:', sel);
+    }
+}
+</textarea>
