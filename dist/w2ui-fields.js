@@ -19,11 +19,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *  - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
-*   - date has problems in FF new Date('yyyy-mm-dd') breaks
-*   - bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
-*   - format date and time is buggy
 *   - onComplete should pass widget as context (this)
 *   - add maxHeight for the w2menu
 *   - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
@@ -34,8 +31,12 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - $().w2marker() -- only unmarks first instance
 *
 * == 1.5 changes
+*   - date has problems in FF new Date('yyyy-mm-dd') breaks
+*   - bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
+*   - format date and time is buggy
 *   - added decimalSymbol
 *   - renamed size() -> formatSize()
+*   - added cssPrefix()
 *
 ************************************************/
 
@@ -90,6 +91,7 @@ var w2utils = (function () {
         checkName       : checkName,
         checkUniqueId   : checkUniqueId,
         parseRoute      : parseRoute,
+        cssPrefix       : cssPrefix,
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -192,7 +194,7 @@ var w2utils = (function () {
         dt = new Date(year, month - 1, day);
         // do checks
         if (month == null) return false;
-        if (dt === 'Invalid Date') return false;
+        if (String(dt) == 'Invalid Date') return false;
         if ((dt.getMonth() + 1 !== month) || (dt.getDate() !== day) || (dt.getFullYear() !== year)) return false;
         if (retDate === true) return dt; else return true;
     }
@@ -235,7 +237,7 @@ var w2utils = (function () {
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-        if (d1 === 'Invalid Date') return '';
+        if (String(d1) == 'Invalid Date') return '';
 
         var d2  = new Date();
         var sec = (d2.getTime() - d1.getTime()) / 1000;
@@ -275,7 +277,7 @@ var w2utils = (function () {
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-        if (d1 === 'Invalid Date') return '';
+        if (String(d1) == 'Invalid Date') return '';
 
         var months = w2utils.settings.shortmonths;
         var d2   = new Date(); // today
@@ -323,7 +325,7 @@ var w2utils = (function () {
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
-        if (dt === 'Invalid Date') return '';
+        if (String(dt) == 'Invalid Date') return '';
 
         var year  = dt.getFullYear();
         var month = dt.getMonth();
@@ -358,7 +360,7 @@ var w2utils = (function () {
             dt.setHours(tmp.hours);
             dt.setMinutes(tmp.minutes);
         }
-        if (dt === 'Invalid Date') return '';
+        if (String(dt) == 'Invalid Date') return '';
 
         var type = 'am';
         var hour = dt.getHours();
@@ -690,44 +692,19 @@ var w2utils = (function () {
                 $(div_new).css('z-index', '1020');
             }
             if (div_new) {
-                $(div_new).css({
-                    'opacity': '1',
-                    '-webkit-transition': '',
-                    '-moz-transition': '',
-                    '-ms-transition': '',
-                    '-o-transition': '',
-                    '-webkit-transform': '',
-                    '-moz-transform': '',
-                    '-ms-transform': '',
-                    '-o-transform': '',
-                    '-webkit-backface-visibility': '',
-                    '-moz-backface-visibility': '',
-                    '-ms-backface-visibility': '',
-                    '-o-backface-visibility': ''
-                });
+                $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
+                    'transition': '',
+                    'transform' : '',
+                    'backface-visibility': ''  
+                }));
             }
             if (div_old) {
-                $(div_old).css({
-                    'opacity': '1',
-                    '-webkit-transition': '',
-                    '-moz-transition': '',
-                    '-ms-transition': '',
-                    '-o-transition': '',
-                    '-webkit-transform': '',
-                    '-moz-transform': '',
-                    '-ms-transform': '',
-                    '-o-transform': '',
-                    '-webkit-backface-visibility': '',
-                    '-moz-backface-visibility': '',
-                    '-ms-backface-visibility': '',
-                    '-o-backface-visibility': ''
-                });
-                if (div_old.parentNode) $(div_old.parentNode).css({
-                    '-webkit-perspective': '',
-                    '-moz-perspective': '',
-                    '-ms-perspective': '',
-                    '-o-perspective': ''
-                });
+                $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
+                    'transition': '',
+                    'transform' : '',
+                    'backface-visibility': ''  
+                }));
+                if (div_old.parentNode) $(div_old.parentNode).css(w2utils.cssPrefix('perspective', ''));
             }
             if (typeof callBack === 'function') callBack();
         }, time * 1000);
@@ -770,9 +747,17 @@ var w2utils = (function () {
         $().w2tag();
     }
 
-    function unlock (box) {
-        $(box).find('.w2ui-lock').remove();
-        $(box).find('.w2ui-lock-msg').remove();
+    function unlock (box, speed) {
+        if (isInt(speed)) {
+            $(box).find('.w2ui-lock').fadeOut(speed);
+            setTimeout(function () {
+                $(box).find('.w2ui-lock').remove();
+                $(box).find('.w2ui-lock-msg').remove();
+            }, speed);
+        } else {
+            $(box).find('.w2ui-lock').remove();
+            $(box).find('.w2ui-lock-msg').remove();            
+        }
     }
 
     function getSize (el, type) {
@@ -904,6 +889,34 @@ var w2utils = (function () {
             keys  : keys
         };
     }
+
+    function cssPrefix(field, value, returnString) {
+        var css    = {};
+        var newCSS = {};
+        var ret    = '';
+        if (!$.isPlainObject(field)) {
+            css[field] = value;
+        } else {
+            css = field;
+            if (value === true) returnString = true;
+        }
+        for (var c in css) {
+            newCSS[c] = css[c];
+            newCSS['-webkit-'+c] = css[c];
+            newCSS['-moz-'+c]    = css[c].replace('-webkit-', '-moz-');
+            newCSS['-ms-'+c]     = css[c].replace('-webkit-', '-ms-');
+            newCSS['-o-'+c]      = css[c].replace('-webkit-', '-o-');
+        }
+        if (returnString === true) {
+            for (var c in newCSS) {
+                ret += c + ': ' + newCSS[c] + '; ';
+            }
+        } else {
+            ret = newCSS;
+        }
+        return ret;
+    } 
+
 })();
 
 /***********************************************************
@@ -1160,11 +1173,7 @@ w2utils.keyboard = (function (obj) {
                     }
                     // monitor if moved
                     if ($('#w2ui-tag-'+tagID).data('position') !== ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
-                        $('#w2ui-tag-'+tagID).css({
-                            '-webkit-transition' : '.2s',
-                            '-moz-transition'    : '.2s',
-                            '-ms-transition'     : '.2s',
-                            '-o-transition'      : '.2s',
+                        $('#w2ui-tag-'+tagID).css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
                             left: ($(el).offset().left + el.offsetWidth) + 'px',
                             top: $(el).offset().top + 'px'
                         }).data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top);
@@ -2100,13 +2109,7 @@ w2utils.keyboard = (function (obj) {
                 .on('keydown',  this.tmp.onKeydown)
                 .on('keyup',    this.tmp.onKeyup)
                 .on('keypress', this.tmp.onKeypress)
-                .css({
-                    'box-sizing'         : 'border-box',
-                    '-webkit-box-sizing' : 'border-box',
-                    '-moz-box-sizing'    : 'border-box',
-                    '-ms-box-sizing'     : 'border-box',
-                    '-o-box-sizing'      : 'border-box'
-                });
+                .css(w2utils.cssPrefix('box-sizing', 'border-box'));
             // format initial value
             this.change($.Event('change'));
         },
@@ -2414,6 +2417,10 @@ w2utils.keyboard = (function (obj) {
         },
 
         clean: function (val) {
+            //issue #499
+            if(typeof val == 'number'){
+                 return val;
+            }
             var options = this.options;
             val = String(val).trim();
             // clean
@@ -2492,7 +2499,7 @@ w2utils.keyboard = (function (obj) {
             if (['date', 'time'].indexOf(this.type) != -1) {
                 // convert linux timestamps
                 var tmp = parseInt(obj.el.value);
-                if (w2utils.isInt(tmp) && tmp > 1000) {
+                if (w2utils.isInt(obj.el.value) && tmp > 3000) {
                     if (this.type == 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).change();
                     if (this.type == 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).change();
                 }
@@ -3178,7 +3185,7 @@ w2utils.keyboard = (function (obj) {
                     });
                 }) (month, year);
             }
-            // date
+            // time
             if (this.type == 'time') {
                 if ($(obj.el).attr('readonly')) return;
                 if ($('#w2ui-overlay').length == 0) {

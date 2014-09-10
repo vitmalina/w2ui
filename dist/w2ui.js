@@ -19,11 +19,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *  - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
-*   - date has problems in FF new Date('yyyy-mm-dd') breaks
-*   - bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
-*   - format date and time is buggy
 *   - onComplete should pass widget as context (this)
 *   - add maxHeight for the w2menu
 *   - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
@@ -34,8 +31,12 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - $().w2marker() -- only unmarks first instance
 *
 * == 1.5 changes
+*   - date has problems in FF new Date('yyyy-mm-dd') breaks
+*   - bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
+*   - format date and time is buggy
 *   - added decimalSymbol
 *   - renamed size() -> formatSize()
+*   - added cssPrefix()
 *
 ************************************************/
 
@@ -90,6 +91,7 @@ var w2utils = (function () {
         checkName       : checkName,
         checkUniqueId   : checkUniqueId,
         parseRoute      : parseRoute,
+        cssPrefix       : cssPrefix,
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -192,7 +194,7 @@ var w2utils = (function () {
         dt = new Date(year, month - 1, day);
         // do checks
         if (month == null) return false;
-        if (dt === 'Invalid Date') return false;
+        if (String(dt) == 'Invalid Date') return false;
         if ((dt.getMonth() + 1 !== month) || (dt.getDate() !== day) || (dt.getFullYear() !== year)) return false;
         if (retDate === true) return dt; else return true;
     }
@@ -235,7 +237,7 @@ var w2utils = (function () {
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-        if (d1 === 'Invalid Date') return '';
+        if (String(d1) == 'Invalid Date') return '';
 
         var d2  = new Date();
         var sec = (d2.getTime() - d1.getTime()) / 1000;
@@ -275,7 +277,7 @@ var w2utils = (function () {
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-        if (d1 === 'Invalid Date') return '';
+        if (String(d1) == 'Invalid Date') return '';
 
         var months = w2utils.settings.shortmonths;
         var d2   = new Date(); // today
@@ -323,7 +325,7 @@ var w2utils = (function () {
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
-        if (dt === 'Invalid Date') return '';
+        if (String(dt) == 'Invalid Date') return '';
 
         var year  = dt.getFullYear();
         var month = dt.getMonth();
@@ -358,7 +360,7 @@ var w2utils = (function () {
             dt.setHours(tmp.hours);
             dt.setMinutes(tmp.minutes);
         }
-        if (dt === 'Invalid Date') return '';
+        if (String(dt) == 'Invalid Date') return '';
 
         var type = 'am';
         var hour = dt.getHours();
@@ -690,44 +692,19 @@ var w2utils = (function () {
                 $(div_new).css('z-index', '1020');
             }
             if (div_new) {
-                $(div_new).css({
-                    'opacity': '1',
-                    '-webkit-transition': '',
-                    '-moz-transition': '',
-                    '-ms-transition': '',
-                    '-o-transition': '',
-                    '-webkit-transform': '',
-                    '-moz-transform': '',
-                    '-ms-transform': '',
-                    '-o-transform': '',
-                    '-webkit-backface-visibility': '',
-                    '-moz-backface-visibility': '',
-                    '-ms-backface-visibility': '',
-                    '-o-backface-visibility': ''
-                });
+                $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
+                    'transition': '',
+                    'transform' : '',
+                    'backface-visibility': ''  
+                }));
             }
             if (div_old) {
-                $(div_old).css({
-                    'opacity': '1',
-                    '-webkit-transition': '',
-                    '-moz-transition': '',
-                    '-ms-transition': '',
-                    '-o-transition': '',
-                    '-webkit-transform': '',
-                    '-moz-transform': '',
-                    '-ms-transform': '',
-                    '-o-transform': '',
-                    '-webkit-backface-visibility': '',
-                    '-moz-backface-visibility': '',
-                    '-ms-backface-visibility': '',
-                    '-o-backface-visibility': ''
-                });
-                if (div_old.parentNode) $(div_old.parentNode).css({
-                    '-webkit-perspective': '',
-                    '-moz-perspective': '',
-                    '-ms-perspective': '',
-                    '-o-perspective': ''
-                });
+                $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
+                    'transition': '',
+                    'transform' : '',
+                    'backface-visibility': ''  
+                }));
+                if (div_old.parentNode) $(div_old.parentNode).css(w2utils.cssPrefix('perspective', ''));
             }
             if (typeof callBack === 'function') callBack();
         }, time * 1000);
@@ -770,9 +747,17 @@ var w2utils = (function () {
         $().w2tag();
     }
 
-    function unlock (box) {
-        $(box).find('.w2ui-lock').remove();
-        $(box).find('.w2ui-lock-msg').remove();
+    function unlock (box, speed) {
+        if (isInt(speed)) {
+            $(box).find('.w2ui-lock').fadeOut(speed);
+            setTimeout(function () {
+                $(box).find('.w2ui-lock').remove();
+                $(box).find('.w2ui-lock-msg').remove();
+            }, speed);
+        } else {
+            $(box).find('.w2ui-lock').remove();
+            $(box).find('.w2ui-lock-msg').remove();            
+        }
     }
 
     function getSize (el, type) {
@@ -904,6 +889,34 @@ var w2utils = (function () {
             keys  : keys
         };
     }
+
+    function cssPrefix(field, value, returnString) {
+        var css    = {};
+        var newCSS = {};
+        var ret    = '';
+        if (!$.isPlainObject(field)) {
+            css[field] = value;
+        } else {
+            css = field;
+            if (value === true) returnString = true;
+        }
+        for (var c in css) {
+            newCSS[c] = css[c];
+            newCSS['-webkit-'+c] = css[c];
+            newCSS['-moz-'+c]    = css[c].replace('-webkit-', '-moz-');
+            newCSS['-ms-'+c]     = css[c].replace('-webkit-', '-ms-');
+            newCSS['-o-'+c]      = css[c].replace('-webkit-', '-o-');
+        }
+        if (returnString === true) {
+            for (var c in newCSS) {
+                ret += c + ': ' + newCSS[c] + '; ';
+            }
+        } else {
+            ret = newCSS;
+        }
+        return ret;
+    } 
+
 })();
 
 /***********************************************************
@@ -1160,11 +1173,7 @@ w2utils.keyboard = (function (obj) {
                     }
                     // monitor if moved
                     if ($('#w2ui-tag-'+tagID).data('position') !== ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
-                        $('#w2ui-tag-'+tagID).css({
-                            '-webkit-transition' : '.2s',
-                            '-moz-transition'    : '.2s',
-                            '-ms-transition'     : '.2s',
-                            '-o-transition'      : '.2s',
+                        $('#w2ui-tag-'+tagID).css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
                             left: ($(el).offset().left + el.offsetWidth) + 'px',
                             top: $(el).offset().top + 'px'
                         }).data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top);
@@ -1708,6 +1717,7 @@ w2utils.keyboard = (function (obj) {
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
 *   - send parsed URL to the event if there is parseData
+*   - if you set searchData or sortData and call refresh() it should work
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -3410,15 +3420,15 @@ w2utils.keyboard = (function (obj) {
                     var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
                     if (eventData2.isCancelled === true) return;
                     // default behavior
-                    if (status != 'abort') {
+                    if (status != 'abort') { // it can be aborted by the grid itself
                         var data;
                         try { data = $.parseJSON(xhr.responseText) } catch (e) {}
                         console.log('ERROR: Server communication failed.', 
                             '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
+                        obj.requestComplete('error', cmd, callBack);
                     }
-                    obj.requestComplete('error', cmd, callBack);
                     // event after
                     obj.trigger($.extend(eventData2, { phase: 'after' }));
                 });
@@ -3663,6 +3673,10 @@ w2utils.keyboard = (function (obj) {
                         '    type="text" style="font-family: inherit; font-size: inherit; outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
+                //issue #499
+                 if(typeof val == 'number'){
+                     val = w2utils.formatNumber(val);
+                 }
                 if (value == null) el.find('input').val(val != 'object' ? val : '');
                 // init w2field
                 var input = el.find('input').get(0);
@@ -4979,7 +4993,7 @@ w2utils.keyboard = (function (obj) {
             var obj  = this;
             var time = (new Date()).getTime();
             //if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-            if (typeof box != 'undefined' && box != null) {
+            if (box != null) {
                 if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                     $(this.box)
                         .removeAttr('name')
@@ -4993,7 +5007,9 @@ w2utils.keyboard = (function (obj) {
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
             if (eventData.isCancelled === true) return;
-            // insert Elements
+            // reset needed if grid existed
+            this.reset(true);
+            // insert elements
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-grid')
@@ -5040,11 +5056,7 @@ w2utils.keyboard = (function (obj) {
                 // restore css user-select
                 if (obj.last.userSelect == 'text') {
                     delete obj.last.userSelect;
-                    $(obj.box).find('.w2ui-grid-body')
-                        .css('user-select', 'none')
-                        .css('-webkit-user-select', 'none')
-                        .css('-moz-user-select', 'none')
-                        .css('-ms-user-select', 'none');
+                    $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'none'));
                     $(this.box).on('selectstart', function () { return false; });
                 }
                 // regular record select
@@ -5053,11 +5065,7 @@ w2utils.keyboard = (function (obj) {
                 // if altKey - alow text selection
                 if (event.altKey) {
                     $(obj.box).off('selectstart');
-                    $(obj.box).find('.w2ui-grid-body')
-                        .css('user-select', 'text')
-                        .css('-webkit-user-select', 'text')
-                        .css('-moz-user-select', 'text')
-                        .css('-ms-user-select', 'text');
+                    $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'text'));
                     obj.selectNone();
                     obj.last.move = { type: 'text-select' };
                     obj.last.userSelect = 'text';
@@ -5202,7 +5210,7 @@ w2utils.keyboard = (function (obj) {
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
             if (eventData.isCancelled === true) return;
             // remove events
-            $(window).off('resize', this.tmp_resize);
+            if (this.tmp_resize) $(window).off('resize', this.tmp_resize);
             // clean up
             if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
             if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
@@ -5590,7 +5598,7 @@ w2utils.keyboard = (function (obj) {
                         '                var sel = $(this).data(\'selected\');'+
                         '                var fld = $(this).data(\'w2field\'); '+
                         '                if (fld) val = fld.clean(val);'+
-                        '                if (fld.type == \'list\' && typeof sel.id == \'undefined\') {'+
+                        '                if (fld && fld.type == \'list\' && sel && typeof sel.id == \'undefined\') {'+
                         '                   grid.searchReset();'+
                         '                } else {'+
                         '                   grid.search(grid.last.field, val);'+
@@ -6795,9 +6803,9 @@ w2utils.keyboard = (function (obj) {
             setTimeout(function () { w2utils.lock.apply(window, args); }, 10);
         },
 
-        unlock: function () {
+        unlock: function (speed) {
             var box = this.box;
-            setTimeout(function () { w2utils.unlock(box); }, 25); // needed timer so if server fast, it will not flash
+            setTimeout(function () { w2utils.unlock(box, speed); }, 25); // needed timer so if server fast, it will not flash
         },
 
         stateSave: function (returnOnly) {
@@ -7258,23 +7266,13 @@ w2utils.keyboard = (function (obj) {
             var pan = obj.get(panel);
             if (pan === null) return false;
             // resize
-            $(obj.box).find(' > div > .w2ui-panel').css({
-                '-webkit-transition' : '.2s',
-                '-moz-transition'    : '.2s',
-                '-ms-transition'     : '.2s',
-                '-o-transition'      : '.2s'
-            });
+            $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
             setTimeout(function () {
                 obj.set(panel, { size: size });
             }, 1);
             // clean
             setTimeout(function () {
-                $(obj.box).find(' > div > .w2ui-panel').css({
-                    '-webkit-transition' : '0s',
-                    '-moz-transition'    : '0s',
-                    '-ms-transition'     : '0s',
-                    '-o-transition'      : '0s'
-                });
+                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
                 obj.resize();
             }, 500);
             return true;
@@ -7298,12 +7296,7 @@ w2utils.keyboard = (function (obj) {
                 if (p.resizable) $('#layout_'+ obj.name +'_resizer_'+panel).show();
                 // resize
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });
-                $(obj.box).find(' > div > .w2ui-panel').css({
-                    '-webkit-transition' : '.2s',
-                    '-moz-transition'    : '.2s',
-                    '-ms-transition'     : '.2s',
-                    '-o-transition'      : '.2s'
-                });
+                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
                 setTimeout(function () { obj.resize(); }, 1);
                 // show
                 setTimeout(function() {
@@ -7311,12 +7304,7 @@ w2utils.keyboard = (function (obj) {
                 }, 250);
                 // clean
                 setTimeout(function () {
-                    $(obj.box).find(' > div > .w2ui-panel').css({
-                        '-webkit-transition' : '0s',
-                        '-moz-transition'    : '0s',
-                        '-ms-transition'     : '0s',
-                        '-o-transition'      : '0s'
-                    });
+                    $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                     obj.resize();
                 }, 500);
@@ -7341,22 +7329,12 @@ w2utils.keyboard = (function (obj) {
             } else {
                 $('#layout_'+ obj.name +'_resizer_'+panel).hide();
                 // hide
-                $(obj.box).find(' > div > .w2ui-panel').css({
-                    '-webkit-transition' : '.2s',
-                    '-moz-transition'    : '.2s',
-                    '-ms-transition'     : '.2s',
-                    '-o-transition'      : '.2s'
-                });
+                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'    });
                 setTimeout(function () { obj.resize(); }, 1);
                 // clean
                 setTimeout(function () {
-                    $(obj.box).find(' > div > .w2ui-panel').css({
-                        '-webkit-transition' : '0s',
-                        '-moz-transition'    : '0s',
-                        '-ms-transition'     : '0s',
-                        '-o-transition'      : '0s'
-                    });
+                    $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                     obj.resize();
                 }, 500);
@@ -8090,13 +8068,13 @@ w2utils.keyboard = (function (obj) {
             w2utils.lock.apply(window, args);
         },
 
-        unlock: function (panel) {
+        unlock: function (panel, speed) {
             if (w2panels.indexOf(panel) == -1) {
                 console.log('ERROR: First parameter needs to be the a valid panel name.');
                 return;
             }
             var nm = '#layout_'+ this.name + '_panel_' + panel;
-            w2utils.unlock(nm);
+            w2utils.unlock(nm, speed);
         }
     };
 
@@ -8115,13 +8093,14 @@ w2utils.keyboard = (function (obj) {
 *   - transition should include title, body and buttons, not just body
 *   - .message() should have same props (body, buttons, title?)
 *   - hide overlay on esc
-*   - refacore -webkit-* -moz-* to a function
 *
 * == 1.5 changes
 *   - new: resizeMessages()
 *   - popup can be moved/resized/closed when locked or has messages
 *   - messages negative widht/height means margin
 *   - added btn_yes and btn_no
+*   - dismissed message will slide up - added parameter unlock(speed)
+*   - refactore -webkit-* -moz-* to a function
 *
 ************************************************************************/
 
@@ -8259,7 +8238,7 @@ var w2popup = {};
                 }
                 var msg='<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
                         '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
-                        '    -webkit-transform: scale(0.8); -moz-transform: scale(0.8); -ms-transform: scale(0.8); -o-transform: scale(0.8); "'+
+                              w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"' +
                         '>'+
                         '   <div class="w2ui-msg-title" style="'+ (options.title == '' ? 'display: none' : '') +'">' + btn + options.title + '</div>'+
                         '   <div class="w2ui-box1" style="'+ (options.title == '' ? 'top: 0px !important;' : '') + 
@@ -8278,26 +8257,16 @@ var w2popup = {};
                 // allow element to render
                 setTimeout(function () {
                     $('#w2ui-popup .w2ui-box2').hide();
-                    $('#w2ui-popup').css({
-                        '-webkit-transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
-                        '-webkit-transform': 'scale(1)',
-                        '-moz-transition': options.speed + 's opacity, ' + options.speed + 's -moz-transform',
-                        '-moz-transform': 'scale(1)',
-                        '-ms-transition': options.speed + 's opacity, ' + options.speed + 's -ms-transform',
-                        '-ms-transform': 'scale(1)',
-                        '-o-transition': options.speed + 's opacity, ' + options.speed + 's -o-transform',
-                        '-o-transform': 'scale(1)',
-                        'opacity': '1'
-                    });
+                    $('#w2ui-popup')
+                        .css('opacity', '1')
+                        .css(w2utils.cssPrefix({
+                            'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
+                            'transform' : 'scale(1)'
+                        }));
                 }, 1);
                 // clean transform
                 setTimeout(function () {
-                    $('#w2ui-popup').css({
-                        '-webkit-transform': '',
-                        '-moz-transform': '',
-                        '-ms-transform': '',
-                        '-o-transform': ''
-                    });
+                    $('#w2ui-popup').css(w2utils.cssPrefix('transform', ''));
                     // event after
                     w2popup.status = 'open';
                     setTimeout(function () {
@@ -8395,16 +8364,10 @@ var w2popup = {};
                 if (!evnt) evnt = window.event;
                 tmp.div_x = evnt.screenX - tmp.x;
                 tmp.div_y = evnt.screenY - tmp.y;
-                $('#w2ui-popup').css({
-                    '-webkit-transition': 'none',
-                    '-webkit-transform': 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)',
-                    '-moz-transition': 'none',
-                    '-moz-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)',
-                    '-ms-transition': 'none',
-                    '-ms-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)',
-                    '-o-transition': 'none',
-                    '-o-transform': 'translate('+ tmp.div_x +'px, '+ tmp.div_y +'px)'
-                });
+                $('#w2ui-popup').css(w2utils.cssPrefix({
+                    'transition': 'none',
+                    'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
+                }));
             }
 
             function mvStop(evnt) {
@@ -8415,16 +8378,11 @@ var w2popup = {};
                 tmp.div_y = (evnt.screenY - tmp.y);
                 $('#w2ui-popup').css({
                     'left': (tmp.pos_x + tmp.div_x) + 'px',
-                    'top':    (tmp.pos_y  + tmp.div_y) + 'px',
-                    '-webkit-transition': 'none',
-                    '-webkit-transform': 'translate3d(0px, 0px, 0px)',
-                    '-moz-transition': 'none',
-                    '-moz-transform': 'translate(0px, 0px)',
-                    '-ms-transition': 'none',
-                    '-ms-transform': 'translate(0px, 0px)',
-                    '-o-transition': 'none',
-                    '-o-transform': 'translate(0px, 0px)'
-                });
+                    'top' : (tmp.pos_y  + tmp.div_y) + 'px'
+                }).css(w2utils.cssPrefix({
+                    'transition': 'none',
+                    'transform' : 'translate3d(0px, 0px, 0px)'
+                }));
                 tmp.resizing = false;
                 $(document).off('mousemove', tmp.mvMove);
                 $(document).off('mouseup', tmp.mvStop);
@@ -8459,17 +8417,12 @@ var w2popup = {};
             if (eventData.isCancelled === true) return;
             // default behavior
             w2popup.status = 'closing';
-            $('#w2ui-popup').css({
-                '-webkit-transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
-                '-webkit-transform': 'scale(0.9)',
-                '-moz-transition': options.speed + 's opacity, ' + options.speed + 's -moz-transform',
-                '-moz-transform': 'scale(0.9)',
-                '-ms-transition': options.speed + 's opacity, ' + options.speed + 's -ms-transform',
-                '-ms-transform': 'scale(0.9)',
-                '-o-transition': options.speed + 's opacity, ' + options.speed + 's -o-transform',
-                '-o-transform': 'scale(0.9)',
-                'opacity': '0'
-            });
+            $('#w2ui-popup')
+                .css('opacity', '0')
+                .css(w2utils.cssPrefix({
+                    'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
+                    'transform' : 'scale(0.9)'
+                }));
             w2popup.unlockScreen(options);
             setTimeout(function () {
                 $('#w2ui-popup').remove();
@@ -8618,15 +8571,21 @@ var w2popup = {};
             var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
             // remove message
             if ($.trim(options.html) == '') {
-                $('#w2ui-popup #w2ui-message'+ (msgCount-1)).css('z-Index', 250);
-                var options = $('#w2ui-popup #w2ui-message'+ (msgCount-1)).data('options') || {};
-                $('#w2ui-popup #w2ui-message'+ (msgCount-1)).remove();
-                if (typeof options.onClose == 'function') options.onClose();
+                var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
+                var options = $msg.data('options') || {};
+                $msg.css(w2utils.cssPrefix({ 
+                    'transition': '0.15s', 
+                    'transform': 'translateY(-' + options.height + 'px)'
+                }));
                 if (msgCount == 1) {
-                    w2popup.unlock();
+                    w2popup.unlock(150);
                 } else {
                     $('#w2ui-popup #w2ui-message'+ (msgCount-2)).css('z-index', 1500);
                 }
+                setTimeout(function () {
+                    $msg.remove();
+                    if (typeof options.onClose == 'function') options.onClose();
+                }, 150);
             } else {
                 // hide previous messages
                 $('#w2ui-popup .w2ui-popup-message').css('z-index', 1390);
@@ -8637,34 +8596,27 @@ var w2popup = {};
                                 (head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (typeof options.width  != 'undefined' ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (typeof options.height != 'undefined' ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
-                                '-webkit-transition: .3s; -moz-transition: .3s; -ms-transition: .3s; -o-transition: .3s;"' +
+                                w2utils.cssPrefix('transition', '.3s', true) + '"' +
                                 (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
                             '</div>');
                 $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options);
                 var display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display');
-                $('#w2ui-popup #w2ui-message'+ msgCount).css({
-                    '-webkit-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
-                    '-moz-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
-                    '-ms-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)'),
-                    '-o-transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
-                });
+                $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                    'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
+                }));
                 if (display == 'none') {
                     $('#w2ui-popup #w2ui-message'+ msgCount).show().html(options.html);
                     // timer needs to animation
                     setTimeout(function () {
-                        $('#w2ui-popup #w2ui-message'+ msgCount).css({
-                            '-webkit-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
-                            '-moz-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
-                            '-ms-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)'),
-                            '-o-transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
-                        });
+                        $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                            'transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
+                        }));
                     }, 1);
                     // timer for lock
                     if (msgCount == 0) w2popup.lock();
                     setTimeout(function() {
                         // has to be on top of lock
-                        $('#w2ui-popup #w2ui-message'+ msgCount)
-                            .css({'-webkit-transition': '0s', '-moz-transition': '0s', '-ms-transition': '0s', '-o-transition': '0s' });
+                        $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
                         if (typeof options.onOpen == 'function') options.onOpen();
                     }, 350);
                 }
@@ -8677,8 +8629,8 @@ var w2popup = {};
             w2utils.lock.apply(window, args);
         },
 
-        unlock: function () {
-            w2utils.unlock($('#w2ui-popup'));
+        unlock: function (speed) {
+            w2utils.unlock($('#w2ui-popup'), speed);
         },
 
         // --- INTERNAL FUNCTIONS
@@ -8695,37 +8647,23 @@ var w2popup = {};
                 '           padding: 0px; margin: 0px; background-color: ' + options.color + '; width: 100%; height: 100%; opacity: 0;"></div>');
             // lock screen
             setTimeout(function () {
-                $('#w2ui-lock').css({
-                    '-webkit-transition': options.speed + 's opacity',
-                    '-moz-transition': options.speed + 's opacity',
-                    '-ms-transition': options.speed + 's opacity',
-                    '-o-transition': options.speed + 's opacity',
-                    'opacity': options.opacity
-                });
+                $('#w2ui-lock')
+                    .css('opacity', options.opacity)
+                    .css(w2utils.cssPrefix('transition', options.speed + 's opacity'));
             }, 1);
             // add events
             if (options.modal == true) {
                 $('#w2ui-lock').on('mousedown', function () {
-                    $('#w2ui-lock').css({
-                        '-webkit-transition': '.1s',
-                        '-moz-transition': '.1s',
-                        '-ms-transition': '.1s',
-                        '-o-transition': '.1s',
-                        'opacity': '0.6'
-                    });
-                    // if (window.getSelection) window.getSelection().removeAllRanges();
+                    $('#w2ui-lock')
+                        .css('opacity', '0.6')
+                        .css(w2utils.cssPrefix('transition', '.1s'));
                 });
                 $('#w2ui-lock').on('mouseup', function () {
                     setTimeout(function () {
-                        $('#w2ui-lock').css({
-                            '-webkit-transition': '.1s',
-                            '-moz-transition': '.1s',
-                            '-ms-transition': '.1s',
-                            '-o-transition': '.1s',
-                            'opacity': options.opacity
-                        });
+                        $('#w2ui-lock')
+                            .css('opacity', options.opacity)
+                            .css(w2utils.cssPrefix('transition', '.1s'));
                     }, 100);
-                    // if (window.getSelection) window.getSelection().removeAllRanges();
                 });
             } else {
                 $('#w2ui-lock').on('mouseup', function () { w2popup.close(); });
@@ -8738,13 +8676,9 @@ var w2popup = {};
             if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
             if (typeof options == 'undefined') options = {};
             options = $.extend({}, w2popup.defaults, options);
-            $('#w2ui-lock').css({
-                '-webkit-transition': options.speed + 's opacity',
-                '-moz-transition': options.speed + 's opacity',
-                '-ms-transition': options.speed + 's opacity',
-                '-o-transition': options.speed + 's opacity',
-                'opacity': 0
-            });
+            $('#w2ui-lock')
+                .css('opacity', '0')
+                .css(w2utils.cssPrefix('transition', options.speed + 's opacity'));
             setTimeout(function () {
                 $('#w2ui-lock').remove();
             }, options.speed * 1000);
@@ -8794,16 +8728,16 @@ var w2popup = {};
             var top  = ($(window).height() - height) / 2 * 0.8;
             var left = ($(window).width() - width) / 2;
             // resize there
-            $('#w2ui-popup').css({
-                '-webkit-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
-                '-moz-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
-                '-ms-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
-                '-o-transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top',
-                'top': top,
-                'left': left,
-                'width': width,
-                'height': height
-            });
+            $('#w2ui-popup')
+                .css(w2utils.cssPrefix({
+                    'transition': options.speed + 's width, ' + options.speed + 's height, ' + options.speed + 's left, ' + options.speed + 's top'
+                }))
+                .css({
+                    'top': top,
+                    'left': left,
+                    'width': width,
+                    'height': height
+                });
             var tmp_int = setInterval(function () { obj.resizeMessages(); }, 10); // then messages resize nicely
             setTimeout(function () {
                 clearInterval(tmp_int);
@@ -9235,7 +9169,7 @@ var w2confirm = function (msg, title, callBack) {
                     // does not exist - create it
                     var addStyle = '';
                     if (tab.hidden) { addStyle += 'display: none;'; }
-                    if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
+                    if (tab.disabled) { addStyle += 'opacity: 0.2;'; }
                     var html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
                     if (this.get(id, true) !== this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).length > 0) {
                         $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).before(html);
@@ -9247,8 +9181,8 @@ var w2confirm = function (msg, title, callBack) {
                     jq_el.html(tabHTML);
                     if (tab.hidden) { jq_el.css('display', 'none'); }
                     else { jq_el.css('display', ''); }
-                    if (tab.disabled) { jq_el.css({ 'opacity': '0.2', '-moz-opacity': '0.2', '-webkit-opacity': '0.2', '-o-opacity': '0.2', 'filter': 'alpha(opacity=20)' }); }
-                    else { jq_el.css({ 'opacity': '1', '-moz-opacity': '1', '-webkit-opacity': '1', '-o-opacity': '1', 'filter': 'alpha(opacity=100)' }); }
+                    if (tab.disabled) { jq_el.css({ 'opacity': '0.2' }); }
+                    else { jq_el.css({ 'opacity': '1' }); }
                 }
             }
             // right html
@@ -9356,16 +9290,11 @@ var w2confirm = function (msg, title, callBack) {
             if (eventData.isCancelled === true) return;
             // default action
             var obj = this;
-            $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css({
-                '-webkit-transition': '.2s',
-                '-moz-transition': '2s',
-                '-ms-transition': '.2s',
-                '-o-transition': '.2s',
-                opacity: '0' });
+            $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css(w2utils.cssPrefix('transition', '.2s')).css('opacity', '0');
             setTimeout(function () {
                 var width = $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id)).width();
                 $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id))
-                    .html('<div style="width: '+ width +'px; -webkit-transition: .2s; -moz-transition: .2s; -ms-transition: .2s; -o-transition: .2s"></div>');
+                    .html('<div style="width: '+ width +'px; '+ w2utils.cssPrefix('transition', '.2s', true) +'"></div>');
                 setTimeout(function () {
                     $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id)).find(':first-child').css({ 'width': '0px' });
                 }, 50);
@@ -9397,10 +9326,10 @@ var w2confirm = function (msg, title, callBack) {
                 '</div>';
             $('body').append(tmp);
             // create dummy element
-            var tabHTML = '<div style="width: 1px; -webkit-transition: 0.2s; -moz-transition: 0.2s; -ms-transition: 0.2s; -o-transition: 0.2s;">&nbsp;</div>';
+            var tabHTML = '<div style="width: 1px; '+ w2utils.cssPrefix('transition', '.2s', true) +'">&nbsp;</div>';
             var addStyle = '';
             if (tab.hidden) { addStyle += 'display: none;'; }
-            if (tab.disabled) { addStyle += 'opacity: 0.2; -moz-opacity: 0.2; -webkit-opacity: 0.2; -o-opacity: 0.2; filter:alpha(opacity=20);'; }
+            if (tab.disabled) { addStyle += 'opacity: 0.2;'; }
             var html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
             if (this.get(id, true) !== this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).length > 0) {
                 $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).before(html);
@@ -10799,8 +10728,8 @@ var w2confirm = function (msg, title, callBack) {
             w2utils.lock.apply(window, args);
         },
 
-        unlock: function () {
-            w2utils.unlock(this.box);
+        unlock: function (speed) {
+            w2utils.unlock(this.box, speed);
         }
     };
 
@@ -11229,13 +11158,7 @@ var w2confirm = function (msg, title, callBack) {
                 .on('keydown',  this.tmp.onKeydown)
                 .on('keyup',    this.tmp.onKeyup)
                 .on('keypress', this.tmp.onKeypress)
-                .css({
-                    'box-sizing'         : 'border-box',
-                    '-webkit-box-sizing' : 'border-box',
-                    '-moz-box-sizing'    : 'border-box',
-                    '-ms-box-sizing'     : 'border-box',
-                    '-o-box-sizing'      : 'border-box'
-                });
+                .css(w2utils.cssPrefix('box-sizing', 'border-box'));
             // format initial value
             this.change($.Event('change'));
         },
@@ -11543,6 +11466,10 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         clean: function (val) {
+            //issue #499
+            if(typeof val == 'number'){
+                 return val;
+            }
             var options = this.options;
             val = String(val).trim();
             // clean
@@ -11621,7 +11548,7 @@ var w2confirm = function (msg, title, callBack) {
             if (['date', 'time'].indexOf(this.type) != -1) {
                 // convert linux timestamps
                 var tmp = parseInt(obj.el.value);
-                if (w2utils.isInt(tmp) && tmp > 1000) {
+                if (w2utils.isInt(obj.el.value) && tmp > 3000) {
                     if (this.type == 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).change();
                     if (this.type == 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).change();
                 }
@@ -12307,7 +12234,7 @@ var w2confirm = function (msg, title, callBack) {
                     });
                 }) (month, year);
             }
-            // date
+            // time
             if (this.type == 'time') {
                 if ($(obj.el).attr('readonly')) return;
                 if ($('#w2ui-overlay').length == 0) {
@@ -13092,6 +13019,8 @@ var w2confirm = function (msg, title, callBack) {
 *   - added getChanges() - not complete
 *   - nested record object
 *   - reset: { label: 'Limpiar', action: function () {...
+*   - add enable/disable, show/hide
+*   - add set()
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
@@ -13699,9 +13628,9 @@ var w2confirm = function (msg, title, callBack) {
             w2utils.lock.apply(window, args);
         },
 
-        unlock: function () {
+        unlock: function (speed) {
             var obj = this;
-            setTimeout(function () { w2utils.unlock(obj.box); }, 25); // needed timer so if server fast, it will not flash
+            setTimeout(function () { w2utils.unlock(obj.box, speed); }, 25); // needed timer so if server fast, it will not flash
         },
 
         goto: function (page) {
@@ -13966,6 +13895,14 @@ var w2confirm = function (msg, title, callBack) {
                     case 'money':
                     case 'currency':
                     case 'percent':
+                        //issue #499
+                        if(typeof value == 'number'){
+                             field.el.value = w2utils.formatNumber(value,field.options.groupSymbol,field.options.decimalSymbol);
+                         } else {
+                             field.el.value = value;
+                         }
+                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
+                         break;
                     case 'hex':
                     case 'alphanumeric':
                     case 'color':
