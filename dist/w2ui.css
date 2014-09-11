@@ -1544,75 +1544,96 @@ button.btn-red.clicked {
   height: 12px;
   cursor: col-resize;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords {
   position: absolute;
   left: 0px;
   right: 0px;
   top: 0px;
   bottom: 0px;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd {
   color: inherit;
   background-color: #ffffff;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd.w2ui-record-hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd.w2ui-record-hover {
   color: inherit;
   background-color: #e6f0ff;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd.w2ui-empty-record:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd.w2ui-empty-record:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd.w2ui-empty-record:hover {
   background-color: #ffffff;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even {
   color: inherit;
   background-color: #f3f6fa;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even.w2ui-record-hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even.w2ui-record-hover {
   color: inherit;
   background-color: #e6f0ff;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even.w2ui-empty-record:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even.w2ui-empty-record:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even.w2ui-empty-record:hover {
   background-color: #f3f6fa;
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-selected,
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-selected {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-selected,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-selected,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr td.w2ui-selected {
   color: #000000 !important;
   background-color: #b6d5ff !important;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded {
   background-color: #CCDCF0 !important;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1 {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded1 {
   height: 0px;
   border-bottom: 1px solid #b2bac0;
   background-color: #CCDCF0;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1 > div {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1 > div,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded1 > div {
   height: 100%;
   margin: 0px;
   padding: 0px;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded2 {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded2,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded2 {
   height: 0px;
   border-radius: 0px;
   border-bottom: 1px solid #b2bac0;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded2 > div {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded2 > div,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded2 > div {
   height: 0px;
   border: 0px;
   transition: height .3s, opacity .3s;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more {
   border-top: 1px solid #d6d5d7;
   cursor: pointer;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more > div {
   text-align: center;
   color: #777777;
   background-color: rgba(233, 237, 243, 0.5);
   padding: 10px 0px 15px 0px;
   border-top: 1px solid #ffffff;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more > div:hover {
   color: inherit;
   background-color: #e6f0ff;
 }
@@ -1755,6 +1776,14 @@ button.btn-red.clicked {
 }
 .w2ui-grid .w2ui-grid-body .w2ui-col-group {
   text-align: center;
+}
+.w2ui-grid .w2ui-grid-body .w2ui-grid-scroll1 {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  border-top: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  background-color: #FAFAFA;
 }
 .w2ui-grid .w2ui-changed {
   background: url(data:image/gif;base64,R0lGODlhCgAKAJEAALAABf///wAAAAAAACH5BAEAAAIALAAAAAAKAAoAAAIPlI8Hy8mbxIsSUnup3rQAADs=) no-repeat top right;

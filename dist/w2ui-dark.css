@@ -1558,75 +1558,96 @@ button.btn-red.clicked {
   height: 12px;
   cursor: col-resize;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords {
   position: absolute;
   left: 0px;
   right: 0px;
   top: 0px;
   bottom: 0px;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd {
   color: #c0c8d5;
   background-color: #526083;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd.w2ui-record-hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd.w2ui-record-hover {
   color: #dae4f8;
   background-color: #363f5d;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd.w2ui-empty-record:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd.w2ui-empty-record:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd.w2ui-empty-record:hover {
   background-color: #526083;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even {
   color: #c0c8d5;
   background-color: #495474;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even.w2ui-record-hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even.w2ui-record-hover {
   color: #dae4f8;
   background-color: #363f5d;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even.w2ui-empty-record:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even.w2ui-empty-record:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even.w2ui-empty-record:hover {
   background-color: #495474;
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-selected,
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-selected {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-selected,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-selected,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr td.w2ui-selected {
   color: #eeeeee !important;
   background-color: #292f3c !important;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded {
   background-color: #CCDCF0 !important;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1 {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded1 {
   height: 0px;
   border-bottom: 1px solid #b2bac0;
   background-color: #CCDCF0;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1 > div {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1 > div,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded1 > div {
   height: 100%;
   margin: 0px;
   padding: 0px;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded2 {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded2,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded2 {
   height: 0px;
   border-radius: 0px;
   border-bottom: 1px solid #b2bac0;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded2 > div {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded2 > div,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded2 > div {
   height: 0px;
   border: 0px;
   transition: height .3s, opacity .3s;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more {
   border-top: 1px solid #3d4563;
   cursor: pointer;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more > div {
   text-align: center;
   color: #bbbbbb;
   background-color: inherit;
   padding: 10px 0px 15px 0px;
   border-top: 1px solid #434d64;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div:hover {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div:hover,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more > div:hover {
   color: #dae4f8;
   background-color: #363f5d;
 }
@@ -1769,6 +1790,14 @@ button.btn-red.clicked {
 }
 .w2ui-grid .w2ui-grid-body .w2ui-col-group {
   text-align: center;
+}
+.w2ui-grid .w2ui-grid-body .w2ui-grid-scroll1 {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  border-top: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  background-color: #FAFAFA;
 }
 .w2ui-grid .w2ui-changed {
   background: url(data:image/gif;base64,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) no-repeat top right;

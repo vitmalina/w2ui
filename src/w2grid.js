@@ -26,6 +26,8 @@
 *   - header filtration
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
+*   - send parsed URL to the event if there is parseData
+*   - if you set searchData or sortData and call refresh() it should work
 *   - send parsed URL to the event if there is routeData
 *
 * == 1.5 changes
@@ -1000,9 +1002,11 @@
                 for (var recid in new_sel) {
                     var index = this.get(recid, true);
                     if (index == null) continue;
-                    var recEl = null;
+                    var recEl1 = null;
+                    var recEl2 = null;
                     if (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end) {
-                        recEl = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+                        recEl1 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+                        recEl2 = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid));
                     }
                     var s = sel.columns[index] || [];
                     // default action
@@ -1017,11 +1021,17 @@
                     for (var t = 0; t < new_sel[recid].length; t++) {
                         var col = new_sel[recid][t];
                         if (col_sel.indexOf(col) == -1) col_sel.push(col);
-                        if (recEl) {
-                            recEl.find('#grid_'+ this.name +'_data_'+ index +'_'+ col).addClass('w2ui-selected');
-                            recEl.find('.w2ui-col-number').addClass('w2ui-row-selected');
-                            recEl.data('selected', 'yes');
-                            recEl.find('.w2ui-grid-select-check').prop("checked", true);
+                        if (recEl1) {
+                            recEl1.find('#grid_'+ this.name +'_data_'+ index +'_'+ col).addClass('w2ui-selected');
+                            recEl1.find('.w2ui-col-number').addClass('w2ui-row-selected');
+                            recEl1.data('selected', 'yes');
+                            recEl1.find('.w2ui-grid-select-check').prop("checked", true);
+                        }
+                        if (recEl2) {
+                            recEl2.find('#grid_'+ this.name +'_data_'+ index +'_'+ col).addClass('w2ui-selected');
+                            recEl2.find('.w2ui-col-number').addClass('w2ui-row-selected');
+                            recEl2.data('selected', 'yes');
+                            recEl2.find('.w2ui-grid-select-check').prop("checked", true);
                         }
                         selected++;
                     }
@@ -1088,6 +1098,7 @@
                     // default action
                     s.splice(s.indexOf(col), 1);
                     $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected');
+                    $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected');
                     // check if any row/column still selected
                     var isColSelected = false;
                     var isRowSelected = false;
@@ -1100,14 +1111,15 @@
                        $(this.box).find('.w2ui-grid-columns td[col='+ col +'] .w2ui-col-header').removeClass('w2ui-col-selected');
                     }
                     if (!isRowSelected) {
-                        $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find('.w2ui-col-number').removeClass('w2ui-row-selected');
+                        $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find('.w2ui-col-number').removeClass('w2ui-row-selected');
                     }
                     unselected++;
                     if (s.length == 0) {
                         delete sel.columns[index];
                         sel.indexes.splice(sel.indexes.indexOf(index), 1);
-                        recEl.removeData('selected');
-                        recEl.find('.w2ui-grid-select-check').prop("checked", false);
+                        recEl1.removeData('selected');
+                        recEl1.find('.w2ui-grid-select-check').prop("checked", false);
+                        recEl2.removeData('selected');
                     }
                 }
                 // event after
@@ -1164,6 +1176,9 @@
                 $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').addClass('w2ui-row-selected')
                 $(this.box).find('.w2ui-grid-records tr').not('.w2ui-empty-record')
                     .find('.w2ui-grid-data').not('.w2ui-col-select').addClass('w2ui-selected').data('selected', 'yes');
+                $(this.box).find('.w2ui-grid-frecords tr .w2ui-col-number').addClass('w2ui-row-selected')
+                $(this.box).find('.w2ui-grid-frecords tr').not('.w2ui-empty-record')
+                    .find('.w2ui-grid-data').not('.w2ui-col-select').addClass('w2ui-selected').data('selected', 'yes');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
             }
             // enable/disable toolbar buttons
@@ -1194,6 +1209,7 @@
             } else {
                 $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').removeClass('w2ui-col-selected');
                 $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').removeClass('w2ui-row-selected');
+                $(this.box).find('.w2ui-grid-frecords tr .w2ui-col-number').removeClass('w2ui-row-selected');
                 $(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected').removeData('selected');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', false);
             }
@@ -4171,6 +4187,11 @@
             if (body.width() < $(records).find('>table').width() + $(frecords).find('>table').width() + 5) bodyOverflowX = true;
             if (body.height() - columns.height() < $(records).find('>table').height() + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) bodyOverflowY = true;
 
+            var bodyOverflowX = false;
+            var bodyOverflowY = false;
+            if (body.width() < $(records).find('>table').width() + $(frecords).find('>table').width() + 5) bodyOverflowX = true;
+            if (body.height() - columns.height() < $(records).find('>table').height() + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) bodyOverflowY = true;
+
             // body might be expanded by data
             if (!this.fixedBody) {
                 // allow it to render records, then resize
@@ -5082,8 +5103,8 @@
                      )
                     : ''
                 ) +
-                ' onmouseover="$(\'#grid_'+ this.name +'_frec_'+ record.recid +'\').addClass(\'w2ui-record-hover\')"'+
-                ' onmouseout ="$(\'#grid_'+ this.name +'_frec_'+ record.recid +'\').removeClass(\'w2ui-record-hover\')"'+
+                ' onmouseover="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').addClass(\'w2ui-record-hover\')"'+
+                ' onmouseout ="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').removeClass(\'w2ui-record-hover\')"'+
                 ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
                     ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
                 '>';
