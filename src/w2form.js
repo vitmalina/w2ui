@@ -11,10 +11,8 @@
 *   - form should read <select> <options> into items
 *   - two way data bindings
 *   - verify validation of fields
-*   - when field is blank, set record.field = null
 *   - added getChanges() - not complete
 *   - nested record object
-*   - reset: { label: 'Limpiar', action: function () {...
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
@@ -22,6 +20,8 @@
 *   - added field.html.style (for the whole field)
 *   - added enable/disable, show/hide
 *   - added field.disabled, field.hidden
+*   - when field is blank, set record.field = null
+*   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
 *
 ************************************************************************/
 
@@ -734,8 +734,18 @@
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) { // it is an object
-                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
-                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) +'</button>';
+                    var act  = this.actions[a];
+                    var info = { caption: '', style: '', "class": '' };
+                    if ($.isPlainObject(act)) {
+                        if (act.caption) info.caption = act.caption;
+                        if (act.style) info.style = act.style;
+                        if (act["class"]) info['class'] = act['class'];
+                    } else {
+                        info.caption = a;
+                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'btn-green'; else info['class'] = '';
+                    }
+                    buttons += '\n    <button name="'+ a +'" class="btn '+ info['class'] +'" style="'+ info.style +'">'+ 
+                                            w2utils.lang(info.caption) +'</button>';
                 }
                 buttons += '\n</div>';
             }
@@ -743,13 +753,15 @@
         },
 
         action: function (action, event) {
+            var click = null;
+            var act   = this.actions[action];
+            var click = act;
+            if ($.isPlainObject(act) && act.onClick) click = act.onClick;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });
+            var eventData = this.trigger({ phase: 'before', target: action, type: 'action', click: click, originalEvent: event });
             if (eventData.isCancelled === true) return;
             // default actions
-            if (typeof (this.actions[action]) == 'function') {
-                this.actions[action].call(this, event);
-            }
+            if (typeof click == 'function') click.call(this, event);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },

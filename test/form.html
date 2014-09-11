@@ -119,8 +119,13 @@
                 a2: 2
             },
             actions: {
-                reset: function () {
-                    this.clear();
+                reset: {
+                    caption : 'Some Action', 
+                    style   : 'border: 1px solid red',
+                    "class" : 'btn-blue',
+                    onClick : function () {
+                        this.clear();
+                    }
                 },
                 save: function () {
                     console.log('save', this.record);
