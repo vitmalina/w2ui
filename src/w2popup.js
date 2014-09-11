@@ -9,6 +9,7 @@
 *   - transition should include title, body and buttons, not just body
 *   - .message() should have same props (body, buttons, title?)
 *   - hide overlay on esc
+*   - resize nested elements in popup on onToggle
 *
 * == 1.5 changes
 *   - new: resizeMessages()

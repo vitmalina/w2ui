@@ -1575,9 +1575,8 @@
         },
 
         reset: function (noRefresh) {
-            // reset last remembered state
-            this.offset                 = 0;
-            this.total                  = 0;
+            // this.offset              = 0;   // reset should not reset offset
+            // this.total               = 0;   // reset should not reset total
             this.last.scrollTop         = 0;
             this.last.scrollLeft        = 0;
             this.last.selection.indexes = [];
@@ -1985,11 +1984,11 @@
                         '    type="text" style="font-family: inherit; font-size: inherit; outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
-                //issue #499
-                 if(typeof val == 'number'){
-                     val = w2utils.formatNumber(val);
-                 }
-                if (value == null) el.find('input').val(val != 'object' ? val : '');
+                // issue #499
+                if (typeof val == 'number') {
+                    val = w2utils.formatNumber(val);
+                }
+                if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
                 // init w2field
                 var input = el.find('input').get(0);
                 $(input).w2field(edit.type, $.extend(edit, { selected: val }));
@@ -2004,7 +2003,7 @@
                         obj.editChange.call(obj, input, index, column, event);
                     });
                 }, 10);
-                if (value != null) $(input).val(val != 'object' ? val : '');
+                if (value != null) $(input).val(typeof val != 'object' ? val : '');
             }
             setTimeout(function () {
                 el.find('input, select')
