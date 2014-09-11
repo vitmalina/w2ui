@@ -24,6 +24,7 @@
 *   - added resize() function and automatic watching for size
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - deprecate placeholder, read it from input
+*   - added get(), set(), setIndex() for fields
 *
 ************************************************************************/
 
@@ -435,6 +436,35 @@
                 }
             }, 200);
             $(obj.el).data('tmp', tmp);
+        },
+
+        get: function () {
+            var ret;
+            if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
+                ret = $(this.el).data('selected');
+            } else {
+                ret = $(this.el).val();
+            }
+            return ret;
+        },
+
+        set: function (val) {
+            if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
+                $(this.el).data('selected', val).change();
+                this.refresh();
+            } else {
+                $(this.el).val(val);
+            }
+        },
+
+        setIndex: function (ind) {
+            var items = this.options.items;
+            if (items && items[ind]) {
+                $(this.el).data('selected', items[ind]).change();
+                this.refresh();
+                return true;
+            } 
+            return false;
         },
 
         clear: function () {
@@ -2107,11 +2137,16 @@
         },
 
         getMonthHTML: function (month, year) {
-            var td         = new Date();
-            var months     = w2utils.settings.fullmonths;
-            var days       = w2utils.settings.fulldays;
-            var daysCount  = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
-            var today      = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate();
+            var td          = new Date();
+            var months      = w2utils.settings.fullmonths;
+            var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
+            var today       = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate();
+            var days        = w2utils.settings.fulldays.slice();    // creates copy of the array
+            var sdays       = w2utils.settings.shortdays.slice();   // creates copy of the array            
+            if (w2utils.settings.weekStarts != 'M') {
+                days.unshift(days.pop());
+                sdays.unshift(sdays.pop());
+            }
             // normalize date
             year  = w2utils.isInt(year)  ? parseInt(year)  : td.getFullYear();
             month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1;
@@ -2123,11 +2158,9 @@
             // start with the required date
             td = new Date(year, month-1, 1);
             var weekDay = td.getDay();
-            var tabDays = w2utils.settings.shortdays;
             var dayTitle = '';
-            for (var i = 0, len = tabDays.length; i < len; i++) {
-                dayTitle += '<td>' + tabDays[i] + '</td>';
-            }
+            for (var i = 0; i < sdays.length; i++) dayTitle += '<td title="'+ days[i] +'">' + sdays[i] + '</td>';
+
             var html  =
                 '<div class="w2ui-calendar-title title">'+
                 '    <div class="w2ui-calendar-previous previous"> <div></div> </div>'+
@@ -2139,6 +2172,7 @@
                 '    <tr>';
 
             var day = 1;
+            if (w2utils.settings.weekStarts != 'M') weekDay++;
             for (var ci = 1; ci < 43; ci++) {
                 if (weekDay === 0 && ci == 1) {
                     for (var ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&nbsp;</td>';
@@ -2151,11 +2185,11 @@
                     }
                 }
                 var dt  = year + '/' + month + '/' + day;
-
+                var DT  = new Date(dt);
                 var className = '';
-                if (ci % 7 == 6)  className  = ' w2ui-saturday';
-                if (ci % 7 === 0) className  = ' w2ui-sunday';
-                if (dt == today)  className += ' w2ui-today';
+                if (DT.getDay() == 6) className  = ' w2ui-saturday';
+                if (DT.getDay() == 0) className  = ' w2ui-sunday';
+                if (dt == today) className += ' w2ui-today';
 
                 var dspDay  = day;
                 var col     = '';
