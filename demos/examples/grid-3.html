@@ -26,6 +26,7 @@ $(function () {
         name: 'grid', 
         header: 'List of Names',
         url: 'data/list.json',
+        method: 'GET', // need this to avoid 412 error on Safari
         show: {
             header         : true,
             toolbar     : true,
