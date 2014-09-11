@@ -8,22 +8,20 @@
 * == NICE TO HAVE ==
 *   - refresh(field) - would refresh only one field
 *   - include delta on save
-*   - create an example how to do cascadic dropdown
 *   - form should read <select> <options> into items
 *   - two way data bindings
 *   - verify validation of fields
 *   - when field is blank, set record.field = null
-*   - show/hide a field
 *   - added getChanges() - not complete
 *   - nested record object
 *   - reset: { label: 'Limpiar', action: function () {...
-*   - add enable/disable, show/hide
-*   - add set()
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
 *   - added onProgress
 *   - added field.html.style (for the whole field)
+*   - added enable/disable, show/hide
+*   - added field.disabled, field.hidden
 *
 ************************************************************************/
 
@@ -202,6 +200,58 @@
                 }
             }
             return false;
+        },
+
+        show: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && fld.hidden) { 
+                    fld.hidden = false;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        hide: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && !fld.hidden) { 
+                    fld.hidden = true;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        enable: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && fld.disabled) { 
+                    fld.disabled = false;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        disable: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && !fld.disabled) { 
+                    fld.disabled = true;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
         },
 
         reload: function (callBack) {
@@ -854,14 +904,28 @@
                             $(fld).removeClass('w2ui-error');
                         }
                     }
+                    if (val == '' || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) val = null;
                     obj.record[this.name] = val;
                     // event after
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                 });
+                // required
                 if (field.required) {
                     $(field.el).parent().parent().addClass('w2ui-required');
                 } else {
                     $(field.el).parent().parent().removeClass('w2ui-required');
+                }
+                // disabled
+                if (field.disabled) {
+                    $(field.el).prop('readonly', true);
+                } else {
+                    $(field.el).prop('readonly', false);
+                }
+                // hidden
+                if (field.hidden) {
+                    $(field.el).parent().parent().hide();
+                } else {
+                    $(field.el).parent().parent().show();
                 }
             }
             // attach actions on buttons
