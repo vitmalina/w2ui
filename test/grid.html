@@ -31,7 +31,7 @@ $(function () {
             emptyRecords: true,
             columnHeaders: true,
             selectColumn: true,
-            //expandColumn: true,
+            // expandColumn: true,
             lineNumbers: true,
             toolbarAdd: true,
             toolbarEdit: true,
@@ -112,17 +112,19 @@ $(function () {
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
             { caption: '', span: 1 },
+            { caption: '', span: 1 },
             { caption: 'General Information', span: 2},
             { caption: 'Email', span: 1, master: true },
             { caption: 'Text', span: 1, master: true },
             { caption: 'Important Dates', span: 3 }
         ],
         columns: [                
-            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true },
-            { field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
-            { field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true },
-            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
-            { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
+            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen1: true },
+            { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true },
+            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, resizable: true, editable: { type: 'text' } },
+            { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true },
+            { field: 'email', caption: 'Email', size: '400px', resizable: true, sortable: true, frozen1: true },
+            { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2', frozen1: true },
             { field: 'sdate', caption: 'Date', size: '120px', render: 'date:yyyy-mm-dd', searchable: 'date', sortable: true, 
                 editable: { type: 'date', format: 'yyyy-mm-dd' } },
             { field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
@@ -216,10 +218,12 @@ $(function () {
             email: 'vm@gmail.com', manager: '--',
             snumber: Math.floor(Math.random() * 100000) + '',
             sdate: dt,
-            stime: dt
+            stime: dt,
+            style1: 'background-color: #efefef'
         });
     }
     // w2ui.grid.records[10].summary = true;
+    // w2ui.grid.records[11].summary = true;
     // w2ui.grid.records[0].sdate = null;
     // w2ui.grid.records[3].sdate = null;
     // w2ui.grid.records[7].sdate = null;
