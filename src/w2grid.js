@@ -784,14 +784,10 @@
                     } else {
                         var first = sel[0];
                         var last  = sel[sel.length-1];
-                        var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
-                        var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
                     }
                 } else { // other range
                     var first = ranges[r].range[0];
                     var last  = ranges[r].range[1];
-                    var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
-                    var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
                 }
                 if (first) {
                     var rg = {
@@ -819,6 +815,7 @@
             for (var a = 0; a < arguments.length; a++) {
                 var name = arguments[a];
                 $('#grid_'+ this.name +'_'+ name).remove();
+                $('#grid_'+ this.name +'_f'+ name).remove();
                 for (var r = this.ranges.length-1; r >= 0; r--) {
                     if (this.ranges[r].name == name) {
                         this.ranges.splice(r, 1);
@@ -832,45 +829,88 @@
         refreshRanges: function () {
             var obj  = this;
             var time = (new Date()).getTime();
-            var rec  = $('#grid_'+ this.name +'_records');
+            var rec1 = $('#grid_'+ this.name +'_frecords');
+            var rec2 = $('#grid_'+ this.name +'_records');
             for (var r in this.ranges) {
                 var rg    = this.ranges[r];
                 var first = rg.range[0];
                 var last  = rg.range[1];
                 var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
                 var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
+                var td1f  = $('#grid_'+ this.name +'_frec_'+ first.recid + ' td[col='+ first.column +']');
+                var td2f  = $('#grid_'+ this.name +'_frec_'+ last.recid + ' td[col='+ last.column +']');
                 var sel1  = $('#grid_'+ this.name +'_rec_top').next().find('td.w2ui-selected');
                 var sel2  = $('#grid_'+ this.name +'_rec_bottom').prev().find('td.w2ui-selected');
-                if ($('#grid_'+ this.name +'_'+ rg.name).length == 0) {
-                    rec.append('<div id="grid_'+ this.name +'_' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
-                                    (rg.name == 'selection' ?  '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
-                                '</div>');
-                } else {
-                    $('#grid_'+ this.name +'_'+ rg.name).attr('style', rg.style);
-                }
+                var sel1f = $('#grid_'+ this.name +'_frec_top').next().find('td.w2ui-selected');
+                var sel2f = $('#grid_'+ this.name +'_frec_bottom').prev().find('td.w2ui-selected');
                 // if virtual scrolling kicked in
                 if ((td1.length == 0 && td2.length != 0) || sel1.length > 0) {
-                    td1 = $('#grid_'+ this.name +'_rec_top').next().find('td[col='+ first.column +']');
+                    td1  = $('#grid_'+ this.name +'_rec_top').next().find('td[col='+ first.column +']');
                 }
                 if ((td2.length == 0 && td1.length != 0) || sel2.length > 0) {
-                    td2 = $('#grid_'+ this.name +'_rec_bottom').prev().find('td[col='+ last.column +']');
+                    td2  = $('#grid_'+ this.name +'_rec_bottom').prev().find('td[col='+ last.column +']');
                 }
-                // display range
-                if (td1.length > 0 && td2.length > 0) {
-                    $('#grid_'+ this.name +'_'+ rg.name).show().css({
-                        left    : (td1.position().left - 1 + rec.scrollLeft()) + 'px',
-                        top     : (td1.position().top - 1 + rec.scrollTop()) + 'px',
+                if ((td1f.length == 0 && td2f.length != 0) || sel1f.length > 0) { // frozen
+                    td1f = $('#grid_'+ this.name +'_frec_top').next().find('td[col='+ first.column +']');
+                }
+                if ((td2f.length == 0 && td1f.length != 0) || sel2f.length > 0) { // frozen
+                    td2f = $('#grid_'+ this.name +'_frec_bottom').prev().find('td[col='+ last.column +']');
+                }
+                // frozen regular columns range
+                var $range = $('#grid_'+ this.name +'_f'+ rg.name);
+                if (td1f.length > 0 || td2f.length > 0) {
+                    if ($range.length == 0) {
+                        rec1.append('<div id="grid_'+ this.name +'_f' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
+                                        (rg.name == 'selection' ?  '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
+                                    '</div>');
+                        $range = $('#grid_'+ this.name +'_f'+ rg.name);
+                    } else {
+                        $range.attr('style', rg.style);
+                        $range.find('.w2ui-selection-resizer').show();
+                    }
+                    if (td2f.length == 0) {
+                        td2f  = $('#grid_'+ this.name +'_frec_'+ last.recid + ' td:last-child');
+                        $range.css('border-right', '0px');
+                        $range.find('.w2ui-selection-resizer').hide();
+                        console.log('-->', td2f.length);
+                    }
+                    $range.show().css({
+                        left    : (td1f.position().left - 1 + rec1.scrollLeft()) + 'px',
+                        top     : (td1f.position().top - 1 + rec1.scrollTop()) + 'px',
+                        width   : (td2f.position().left - td1f.position().left + td2f.width() + 3) + 'px',
+                        height  : (td2f.position().top - td1f.position().top + td2f.height() + 3) + 'px'
+                    });
+                } else {
+                    $range.hide();                   
+                }
+                // regular columns range
+                var $range = $('#grid_'+ this.name +'_'+ rg.name);
+                if (td1.length > 0 || td2.length > 0) {
+                    if ($range.length == 0) {
+                        rec2.append('<div id="grid_'+ this.name +'_' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
+                                        (rg.name == 'selection' ?  '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
+                                    '</div>');
+                        $range = $('#grid_'+ this.name +'_'+ rg.name);
+                    } else {
+                        $range.attr('style', rg.style);
+                    }
+                    if (td1.length == 0) {
+                        td1 = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td:first-child');
+                        $range.css('border-left', '0px');
+                    }
+                    $range.show().css({
+                        left    : (td1.position().left - 1 + rec2.scrollLeft()) + 'px',
+                        top     : (td1.position().top - 1 + rec2.scrollTop()) + 'px',
                         width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
                         height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
                     });
                 } else {
-                    $('#grid_'+ this.name +'_'+ rg.name).hide();                   
+                    $range.hide();                   
                 }
             }
 
             // add resizer events
             $(this.box).find('#grid_'+ this.name +'_resizer').off('mousedown').on('mousedown', mouseStart);
-            //$(this.box).find('#grid_'+ this.name +'_resizer').off('selectstart').on('selectstart', function () { return false; }); // fixes chrome cursror bug
 
             var eventData = { phase: 'before', type: 'selectionExtend', target: obj.name, originalRange: null, newRange: null };
 
@@ -5012,7 +5052,6 @@
             }
             // check for grid end
             if (buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
-            console.log((new Date()).getTime() - time);
             return;
 
             function markSearch() {
@@ -5087,8 +5126,11 @@
                      )
                     : ''
                 ) +
-                ' onmouseover="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').addClass(\'w2ui-record-hover\')"'+
-                ' onmouseout ="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').removeClass(\'w2ui-record-hover\')"'+
+                (this.selectType == 'row' ? 
+                    ' onmouseover="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').addClass(\'w2ui-record-hover\')"'+
+                    ' onmouseout ="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').removeClass(\'w2ui-record-hover\')"' 
+                    : 
+                    '') +
                 ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
                     ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
                 '>';
@@ -5103,8 +5145,11 @@
                      )
                     : ''
                 ) +
-                ' onmouseover="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').addClass(\'w2ui-record-hover\')"'+
-                ' onmouseout ="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').removeClass(\'w2ui-record-hover\')"'+
+                (this.selectType == 'row' ? 
+                    ' onmouseover="$(\'#grid_'+ this.name +'_frec_'+ record.recid +'\').addClass(\'w2ui-record-hover\')"'+
+                    ' onmouseout ="$(\'#grid_'+ this.name +'_frec_'+ record.recid +'\').removeClass(\'w2ui-record-hover\')"'
+                    :
+                    '') +
                 ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
                     ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
                 '>';
