@@ -58,6 +58,8 @@
         "Confirmation" : "Confirmation",
         "Notification" : "Message",
         "Show" : "Montrer",
-        "Hide" : "Cacher"
+        "Hide" : "Cacher",
+		"begins" : "commence",
+		"ends" : "se termine"
     }
 }

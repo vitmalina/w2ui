@@ -58,6 +58,8 @@
         "Confirmation" : "Bevestiging",
         "Notification" : "Notificatie",
         "Show" : "Weergeven",
-        "Hide" : "Verbergen"
+        "Hide" : "Verbergen",
+		"begins" : "begint",
+		"ends" : "eindigt"
     }
 }
