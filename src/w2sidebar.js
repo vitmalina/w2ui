@@ -6,16 +6,16 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*   - return ids of all subitems
 *   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
 *   - reorder with grag and drop
-*   - add route property that would navigate to a #route
 *   - node.style is missleading - should be there to apply color for example
 *   - add multiselect
 *
 * == 1.5 changes
 *   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object
+*   - add route property that would navigate to a #route
+*   - return ids of all subitems
 *
 ************************************************************************/
 

@@ -2,6 +2,7 @@
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="../dist/w2ui.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
@@ -61,12 +62,12 @@ function showMenu(el) {
 
 function myConfirm () {
     w2confirm({ 
-            title: 'Заголовок',
-            msg: 'Сообщение', 
-            width: 550,
-            height: 300,
-            yes_text: 'Да',
-            no_text: 'Нет',
+            title: 'Title',
+            msg: 'Message', 
+            width: 500,
+            height: 250,
+            yes_text: 'Yes',
+            no_text: 'No',
             callBack: function (btn) { 
                 console.log('Common call back '+ btn);
             }
@@ -78,12 +79,55 @@ function myConfirm () {
             console.log('No clicked');
         });
 }
+
+function popupGrid() {
+    w2popup.open({
+        title   : 'Grid and Form',
+        width   : 700,
+        height  : 500,
+        showMax : true,
+        body    : '<div id="grid" style="position: absolute; left: 10px; right: 10px; top: 10px; height: 50%;"></div>'+
+                  '<div id="form" style="position: absolute; left: 10px; right: 10px; bottom: 10px; height: 50%;"></div>',
+        onOpen  : function (event) {
+            event.onComplete = function () {
+                $('#w2ui-popup #grid').w2render('grid');
+                $('#w2ui-popup #form').w2render('form');
+            }
+        }
+    })
+}
+
+function popupLayout() {
+    w2popup.open({
+        title   : 'Layout Inside Popup',
+        width   : 700,
+        height  : 500,
+        showMax : true,
+        body    : '<div id="layout" style="position: absolute; left: 10px; right: 10px; top: 10px; bottom: 10px"></div>',
+        onOpen  : function (event) {
+            event.onComplete = function () {
+                $('#w2ui-popup #layout').w2render('layout');
+            }
+        }
+    })
+}
+
+$(function () {
+    $().w2grid({ name: 'grid', columns: [{ caption: 'First', size: '100%' }, { caption: 'Second', size: '100%' }] });
+    $().w2form({ name: 'form', fields: [{ caption: 'First' }, { caption: 'Second' }] });
+    $().w2layout({ name: 'layout', panels: [
+        { type: 'top', style: 'border: 1px solid silver', size: '100px', resizable: true }, 
+        { type: 'right', style: 'border-left: 1px solid silver', size: '100px', resizable: true }
+    ]});
+})
 </script>
 </head>
 <body>
     <div style="padding: 10px">
         <button class="btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup</button>
         <button class="btn" value="Popup2"  onclick="$('#popup1').w2popup({ title: '123', showMax: true })">Popup2</button>
+        <button class="btn" value="Popup3"  onclick="popupGrid()">Popup Grid</button>
+        <button class="btn" value="Popup4"  onclick="popupLayout()">Popup Layout</button>
         <button class="btn" value="Overlay" onclick="showOverlay(this)">Overlay</button>
         <button class="btn" value="Menu"    onclick="showMenu(this)">Menu</button>
         <button class="btn" value="Alert"   onclick="w2alert('message');">Alert</button>

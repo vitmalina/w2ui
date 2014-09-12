@@ -9,7 +9,6 @@
 *   - transition should include title, body and buttons, not just body
 *   - .message() should have same props (body, buttons, title?)
 *   - hide overlay on esc
-*   - resize nested elements in popup on onToggle
 *
 * == 1.5 changes
 *   - new: resizeMessages()
@@ -18,6 +17,7 @@
 *   - added btn_yes and btn_no
 *   - dismissed message will slide up - added parameter unlock(speed)
 *   - refactore -webkit-* -moz-* to a function
+*   - resize nested elements in popup for onMin, onMax
 *
 ************************************************************************/
 
@@ -382,6 +382,11 @@ var w2popup = {};
                 w2popup.status    = 'open';
                 options.maximized = true;
                 obj.trigger($.extend(eventData, { phase: 'after'}));
+                // resize gird, form, layout inside popup
+                $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(function () {
+                    var name = $(this).attr('name');
+                    if (w2ui[name] && w2ui[name].resize) w2ui[name].resize();
+                })
             });
         },
 
@@ -401,6 +406,11 @@ var w2popup = {};
                 options.maximized = false;
                 options.prevSize  = null;
                 obj.trigger($.extend(eventData, { phase: 'after'}));
+                // resize gird, form, layout inside popup
+                $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(function () {
+                    var name = $(this).attr('name');
+                    if (w2ui[name] && w2ui[name].resize) w2ui[name].resize();
+                })
             });
         },
 

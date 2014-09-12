@@ -74,6 +74,9 @@
                 { field: 'field.list', type: 'list', required: true, 
                     options: { 
                         match: 'contains',
+                        compare: function (item) {
+                            if (item.id < 4) return false;
+                        },
                         items: [
                             { id: 0, text: 'Pickle, Susan' }, 
                             { id: 1, text: 'Adams, John' },

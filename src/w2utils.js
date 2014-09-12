@@ -20,10 +20,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == NICE TO HAVE ==
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
-*   - onComplete should pass widget as context (this)
 *   - add maxHeight for the w2menu
-*   - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
-*   - hidden and disabled in menus
 *   - isTime should support seconds
 *   - add time zone
 *   - TEST On IOS
@@ -37,6 +34,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - renamed size() -> formatSize()
 *   - added cssPrefix()
 *   - added w2utils.settings.weekStarts
+*   - onComplete should pass widget as context (this)
+*   - hidden and disabled in menus
 *
 ************************************************/
 
