@@ -17,12 +17,10 @@
 *   - problem with .set() and arrays, array get extended too, but should be replaced
 *   - move events into prototype
 *   - add grid.focus()
-*   - add showExtra, KickIn Infinite scroll when so many records
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
 *   - row drag and drop has bugs
-*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - header filtration
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
@@ -42,6 +40,7 @@
 *   - added vs_start and vs_extra
 *   - added update() - updates only data in the grid
 *   - add to docs onColumnDragStart, onColumnDragEnd
+*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *
 ************************************************************************/
 
@@ -3284,7 +3283,7 @@
             // mark selection
             setTimeout(function () {
                 var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
-                if (str != '') $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+                if (str != '' && obj.markSearch) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
             }, 50);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -4863,7 +4862,7 @@
 
             function markSearch() {
                 // mark search
-                if(obj.markSearch === false) return;
+                if (!obj.markSearch) return;
                 clearTimeout(obj.last.marker_timer);
                 obj.last.marker_timer = setTimeout(function () {
                     // mark all search strings
