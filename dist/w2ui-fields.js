@@ -21,10 +21,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == NICE TO HAVE ==
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
-*   - onComplete should pass widget as context (this)
 *   - add maxHeight for the w2menu
-*   - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
-*   - hidden and disabled in menus
 *   - isTime should support seconds
 *   - add time zone
 *   - TEST On IOS
@@ -37,6 +34,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added decimalSymbol
 *   - renamed size() -> formatSize()
 *   - added cssPrefix()
+*   - added w2utils.settings.weekStarts
+*   - onComplete should pass widget as context (this)
+*   - hidden and disabled in menus
 *
 ************************************************/
 
@@ -58,6 +58,7 @@ var w2utils = (function () {
             "fullmonths"        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
             "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
             "phrases"           : {}        // empty object for english phrases
         },
@@ -1703,7 +1704,6 @@ w2utils.keyboard = (function (obj) {
 *   - month selection, year selections
 *   - arrows no longer work (for int)
 *   - form to support custom types
-*   - add compare function for list, combo, enum
 *   - rewrite suffix and prefix positioning with translateY()
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
@@ -1714,6 +1714,8 @@ w2utils.keyboard = (function (obj) {
 *   - added resize() function and automatic watching for size
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - deprecate placeholder, read it from input
+*   - added get(), set(), setIndex() for fields
+*   - add compare function for list, combo, enum
 *
 ************************************************************************/
 
@@ -1972,6 +1974,7 @@ w2utils.keyboard = (function (obj) {
                         onError         : null,         // when data fails to load due to server error or other failure modes
                         onIconClick     : null,
                         renderDrop      : null,         // render function for drop down item
+                        compare         : null,         // compare function for filtering
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
@@ -2029,6 +2032,7 @@ w2utils.keyboard = (function (obj) {
                         markSearch      : true,
                         renderDrop      : null,          // render function for drop down item
                         renderItem      : null,          // render selected item
+                        compare         : null,          // compare function for filtering                        
                         style           : '',            // style for container div
                         onSearch        : null,          // when search needs to be performed
                         onRequest       : null,          // when request is submitted
@@ -2125,6 +2129,35 @@ w2utils.keyboard = (function (obj) {
                 }
             }, 200);
             $(obj.el).data('tmp', tmp);
+        },
+
+        get: function () {
+            var ret;
+            if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
+                ret = $(this.el).data('selected');
+            } else {
+                ret = $(this.el).val();
+            }
+            return ret;
+        },
+
+        set: function (val) {
+            if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
+                $(this.el).data('selected', val).change();
+                this.refresh();
+            } else {
+                $(this.el).val(val);
+            }
+        },
+
+        setIndex: function (ind) {
+            var items = this.options.items;
+            if (items && items[ind]) {
+                $(this.el).data('selected', items[ind]).change();
+                this.refresh();
+                return true;
+            } 
+            return false;
         },
 
         clear: function () {
@@ -3058,17 +3091,21 @@ w2utils.keyboard = (function (obj) {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
-                    var prefix = '';
-                    var suffix = '';
-                    if (['is', 'begins'].indexOf(options.match) != -1) prefix = '^';
-                    if (['is', 'ends'].indexOf(options.match) != -1) suffix = '$';
-                    try {
-                        var re = new RegExp(prefix + search + suffix, 'i');
-                        if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
-                    } catch (e) {}
+                    if (typeof options.compare == 'function') {
+                        item.hidden = (options.compare.call(this, item) === false ? true : false)
+                    } else {
+                        var prefix = '';
+                        var suffix = '';
+                        if (['is', 'begins'].indexOf(options.match) != -1) prefix = '^';
+                        if (['is', 'ends'].indexOf(options.match) != -1) suffix = '$';
+                        try {
+                            var re = new RegExp(prefix + search + suffix, 'i');
+                            if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
+                        } catch (e) {}
+                    }
                     // do not show selected items
                     if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
-                    if (item.hidden !== true) shown++;
+                    if (item.hidden !== true) { shown++; delete item.hidden; }
                 }
                 // preselect first item
                 options.index = 0;
@@ -3797,11 +3834,16 @@ w2utils.keyboard = (function (obj) {
         },
 
         getMonthHTML: function (month, year) {
-            var td         = new Date();
-            var months     = w2utils.settings.fullmonths;
-            var days       = w2utils.settings.fulldays;
-            var daysCount  = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
-            var today      = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate();
+            var td          = new Date();
+            var months      = w2utils.settings.fullmonths;
+            var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
+            var today       = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate();
+            var days        = w2utils.settings.fulldays.slice();    // creates copy of the array
+            var sdays       = w2utils.settings.shortdays.slice();   // creates copy of the array            
+            if (w2utils.settings.weekStarts != 'M') {
+                days.unshift(days.pop());
+                sdays.unshift(sdays.pop());
+            }
             // normalize date
             year  = w2utils.isInt(year)  ? parseInt(year)  : td.getFullYear();
             month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1;
@@ -3813,11 +3855,9 @@ w2utils.keyboard = (function (obj) {
             // start with the required date
             td = new Date(year, month-1, 1);
             var weekDay = td.getDay();
-            var tabDays = w2utils.settings.shortdays;
             var dayTitle = '';
-            for (var i = 0, len = tabDays.length; i < len; i++) {
-                dayTitle += '<td>' + tabDays[i] + '</td>';
-            }
+            for (var i = 0; i < sdays.length; i++) dayTitle += '<td title="'+ days[i] +'">' + sdays[i] + '</td>';
+
             var html  =
                 '<div class="w2ui-calendar-title title">'+
                 '    <div class="w2ui-calendar-previous previous"> <div></div> </div>'+
@@ -3829,6 +3869,7 @@ w2utils.keyboard = (function (obj) {
                 '    <tr>';
 
             var day = 1;
+            if (w2utils.settings.weekStarts != 'M') weekDay++;
             for (var ci = 1; ci < 43; ci++) {
                 if (weekDay === 0 && ci == 1) {
                     for (var ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&nbsp;</td>';
@@ -3841,11 +3882,11 @@ w2utils.keyboard = (function (obj) {
                     }
                 }
                 var dt  = year + '/' + month + '/' + day;
-
+                var DT  = new Date(dt);
                 var className = '';
-                if (ci % 7 == 6)  className  = ' w2ui-saturday';
-                if (ci % 7 === 0) className  = ' w2ui-sunday';
-                if (dt == today)  className += ' w2ui-today';
+                if (DT.getDay() == 6) className  = ' w2ui-saturday';
+                if (DT.getDay() == 0) className  = ' w2ui-sunday';
+                if (dt == today) className += ' w2ui-today';
 
                 var dspDay  = day;
                 var col     = '';

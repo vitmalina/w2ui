@@ -21,10 +21,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == NICE TO HAVE ==
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
-*   - onComplete should pass widget as context (this)
 *   - add maxHeight for the w2menu
-*   - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
-*   - hidden and disabled in menus
 *   - isTime should support seconds
 *   - add time zone
 *   - TEST On IOS
@@ -37,6 +34,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added decimalSymbol
 *   - renamed size() -> formatSize()
 *   - added cssPrefix()
+*   - added w2utils.settings.weekStarts
+*   - onComplete should pass widget as context (this)
+*   - hidden and disabled in menus
 *
 ************************************************/
 
@@ -58,6 +58,7 @@ var w2utils = (function () {
             "fullmonths"        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
             "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
             "phrases"           : {}        // empty object for english phrases
         },
@@ -1707,12 +1708,10 @@ w2utils.keyboard = (function (obj) {
 *   - problem with .set() and arrays, array get extended too, but should be replaced
 *   - move events into prototype
 *   - add grid.focus()
-*   - add showExtra, KickIn Infinite scroll when so many records
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
 *   - row drag and drop has bugs
-*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - header filtration
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
@@ -1732,6 +1731,7 @@ w2utils.keyboard = (function (obj) {
 *   - added vs_start and vs_extra
 *   - added update() - updates only data in the grid
 *   - add to docs onColumnDragStart, onColumnDragEnd
+*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *
 ************************************************************************/
 
@@ -3265,9 +3265,8 @@ w2utils.keyboard = (function (obj) {
         },
 
         reset: function (noRefresh) {
-            // reset last remembered state
-            this.offset                 = 0;
-            this.total                  = 0;
+            // this.offset              = 0;   // reset should not reset offset
+            // this.total               = 0;   // reset should not reset total
             this.last.scrollTop         = 0;
             this.last.scrollLeft        = 0;
             this.last.selection.indexes = [];
@@ -3675,11 +3674,11 @@ w2utils.keyboard = (function (obj) {
                         '    type="text" style="font-family: inherit; font-size: inherit; outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
-                //issue #499
-                 if(typeof val == 'number'){
-                     val = w2utils.formatNumber(val);
-                 }
-                if (value == null) el.find('input').val(val != 'object' ? val : '');
+                // issue #499
+                if (typeof val == 'number') {
+                    val = w2utils.formatNumber(val);
+                }
+                if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
                 // init w2field
                 var input = el.find('input').get(0);
                 $(input).w2field(edit.type, $.extend(edit, { selected: val }));
@@ -3694,7 +3693,7 @@ w2utils.keyboard = (function (obj) {
                         obj.editChange.call(obj, input, index, column, event);
                     });
                 }, 10);
-                if (value != null) $(input).val(val != 'object' ? val : '');
+                if (value != null) $(input).val(typeof val != 'object' ? val : '');
             }
             setTimeout(function () {
                 el.find('input, select')
@@ -3893,7 +3892,7 @@ w2utils.keyboard = (function (obj) {
                     msg   : obj.msgDelete, 
                     yes_class : 'btn-red',
                     callBack: function (result) {
-                        if (result == 'Yes') w2ui[obj.name].delete(true);
+                        if (result == 'Yes') w2ui[obj.name]['delete'](true);
                     }
                 });
                 return;
@@ -4975,7 +4974,7 @@ w2utils.keyboard = (function (obj) {
             // mark selection
             setTimeout(function () {
                 var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
-                if (str != '') $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+                if (str != '' && obj.markSearch) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
             }, 50);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -6554,7 +6553,7 @@ w2utils.keyboard = (function (obj) {
 
             function markSearch() {
                 // mark search
-                if(obj.markSearch === false) return;
+                if (!obj.markSearch) return;
                 clearTimeout(obj.last.marker_timer);
                 obj.last.marker_timer = setTimeout(function () {
                     // mark all search strings
@@ -6897,7 +6896,8 @@ w2utils.keyboard = (function (obj) {
                 // apply sort and search
                 setTimeout(function () {
                     // needs timeout as records need to be populated
-                    if (!(typeof this.url != 'object' ? this.url : this.url.get)) {
+                    // ez 10.09.2014 this -->
+                    if (!(typeof obj.url != 'object' ? obj.url : obj.url.get)) {
                         if (obj.sortData.length > 0) obj.localSort();
                         if (obj.searchData.length > 0) obj.localSearch();
                     }
@@ -8103,6 +8103,7 @@ w2utils.keyboard = (function (obj) {
 *   - added btn_yes and btn_no
 *   - dismissed message will slide up - added parameter unlock(speed)
 *   - refactore -webkit-* -moz-* to a function
+*   - resize nested elements in popup for onMin, onMax
 *
 ************************************************************************/
 
@@ -8467,6 +8468,11 @@ var w2popup = {};
                 w2popup.status    = 'open';
                 options.maximized = true;
                 obj.trigger($.extend(eventData, { phase: 'after'}));
+                // resize gird, form, layout inside popup
+                $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(function () {
+                    var name = $(this).attr('name');
+                    if (w2ui[name] && w2ui[name].resize) w2ui[name].resize();
+                })
             });
         },
 
@@ -8486,6 +8492,11 @@ var w2popup = {};
                 options.maximized = false;
                 options.prevSize  = null;
                 obj.trigger($.extend(eventData, { phase: 'after'}));
+                // resize gird, form, layout inside popup
+                $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(function () {
+                    var name = $(this).attr('name');
+                    if (w2ui[name] && w2ui[name].resize) w2ui[name].resize();
+                })
             });
         },
 
@@ -9908,16 +9919,16 @@ var w2confirm = function (msg, title, callBack) {
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*   - return ids of all subitems
 *   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
 *   - reorder with grag and drop
-*   - add route property that would navigate to a #route
 *   - node.style is missleading - should be there to apply color for example
 *   - add multiselect
 *
 * == 1.5 changes
 *   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object
+*   - add route property that would navigate to a #route
+*   - return ids of all subitems
 *
 ************************************************************************/
 
@@ -10754,7 +10765,6 @@ var w2confirm = function (msg, title, callBack) {
 *   - month selection, year selections
 *   - arrows no longer work (for int)
 *   - form to support custom types
-*   - add compare function for list, combo, enum
 *   - rewrite suffix and prefix positioning with translateY()
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
@@ -10765,6 +10775,8 @@ var w2confirm = function (msg, title, callBack) {
 *   - added resize() function and automatic watching for size
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - deprecate placeholder, read it from input
+*   - added get(), set(), setIndex() for fields
+*   - add compare function for list, combo, enum
 *
 ************************************************************************/
 
@@ -11023,6 +11035,7 @@ var w2confirm = function (msg, title, callBack) {
                         onError         : null,         // when data fails to load due to server error or other failure modes
                         onIconClick     : null,
                         renderDrop      : null,         // render function for drop down item
+                        compare         : null,         // compare function for filtering
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
@@ -11080,6 +11093,7 @@ var w2confirm = function (msg, title, callBack) {
                         markSearch      : true,
                         renderDrop      : null,          // render function for drop down item
                         renderItem      : null,          // render selected item
+                        compare         : null,          // compare function for filtering                        
                         style           : '',            // style for container div
                         onSearch        : null,          // when search needs to be performed
                         onRequest       : null,          // when request is submitted
@@ -11176,6 +11190,35 @@ var w2confirm = function (msg, title, callBack) {
                 }
             }, 200);
             $(obj.el).data('tmp', tmp);
+        },
+
+        get: function () {
+            var ret;
+            if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
+                ret = $(this.el).data('selected');
+            } else {
+                ret = $(this.el).val();
+            }
+            return ret;
+        },
+
+        set: function (val) {
+            if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
+                $(this.el).data('selected', val).change();
+                this.refresh();
+            } else {
+                $(this.el).val(val);
+            }
+        },
+
+        setIndex: function (ind) {
+            var items = this.options.items;
+            if (items && items[ind]) {
+                $(this.el).data('selected', items[ind]).change();
+                this.refresh();
+                return true;
+            } 
+            return false;
         },
 
         clear: function () {
@@ -12109,17 +12152,21 @@ var w2confirm = function (msg, title, callBack) {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
-                    var prefix = '';
-                    var suffix = '';
-                    if (['is', 'begins'].indexOf(options.match) != -1) prefix = '^';
-                    if (['is', 'ends'].indexOf(options.match) != -1) suffix = '$';
-                    try {
-                        var re = new RegExp(prefix + search + suffix, 'i');
-                        if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
-                    } catch (e) {}
+                    if (typeof options.compare == 'function') {
+                        item.hidden = (options.compare.call(this, item) === false ? true : false)
+                    } else {
+                        var prefix = '';
+                        var suffix = '';
+                        if (['is', 'begins'].indexOf(options.match) != -1) prefix = '^';
+                        if (['is', 'ends'].indexOf(options.match) != -1) suffix = '$';
+                        try {
+                            var re = new RegExp(prefix + search + suffix, 'i');
+                            if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
+                        } catch (e) {}
+                    }
                     // do not show selected items
                     if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
-                    if (item.hidden !== true) shown++;
+                    if (item.hidden !== true) { shown++; delete item.hidden; }
                 }
                 // preselect first item
                 options.index = 0;
@@ -12848,11 +12895,16 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         getMonthHTML: function (month, year) {
-            var td         = new Date();
-            var months     = w2utils.settings.fullmonths;
-            var days       = w2utils.settings.fulldays;
-            var daysCount  = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
-            var today      = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate();
+            var td          = new Date();
+            var months      = w2utils.settings.fullmonths;
+            var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
+            var today       = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate();
+            var days        = w2utils.settings.fulldays.slice();    // creates copy of the array
+            var sdays       = w2utils.settings.shortdays.slice();   // creates copy of the array            
+            if (w2utils.settings.weekStarts != 'M') {
+                days.unshift(days.pop());
+                sdays.unshift(sdays.pop());
+            }
             // normalize date
             year  = w2utils.isInt(year)  ? parseInt(year)  : td.getFullYear();
             month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1;
@@ -12864,11 +12916,9 @@ var w2confirm = function (msg, title, callBack) {
             // start with the required date
             td = new Date(year, month-1, 1);
             var weekDay = td.getDay();
-            var tabDays = w2utils.settings.shortdays;
             var dayTitle = '';
-            for (var i = 0, len = tabDays.length; i < len; i++) {
-                dayTitle += '<td>' + tabDays[i] + '</td>';
-            }
+            for (var i = 0; i < sdays.length; i++) dayTitle += '<td title="'+ days[i] +'">' + sdays[i] + '</td>';
+
             var html  =
                 '<div class="w2ui-calendar-title title">'+
                 '    <div class="w2ui-calendar-previous previous"> <div></div> </div>'+
@@ -12880,6 +12930,7 @@ var w2confirm = function (msg, title, callBack) {
                 '    <tr>';
 
             var day = 1;
+            if (w2utils.settings.weekStarts != 'M') weekDay++;
             for (var ci = 1; ci < 43; ci++) {
                 if (weekDay === 0 && ci == 1) {
                     for (var ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&nbsp;</td>';
@@ -12892,11 +12943,11 @@ var w2confirm = function (msg, title, callBack) {
                     }
                 }
                 var dt  = year + '/' + month + '/' + day;
-
+                var DT  = new Date(dt);
                 var className = '';
-                if (ci % 7 == 6)  className  = ' w2ui-saturday';
-                if (ci % 7 === 0) className  = ' w2ui-sunday';
-                if (dt == today)  className += ' w2ui-today';
+                if (DT.getDay() == 6) className  = ' w2ui-saturday';
+                if (DT.getDay() == 0) className  = ' w2ui-sunday';
+                if (dt == today) className += ' w2ui-today';
 
                 var dspDay  = day;
                 var col     = '';
@@ -13012,22 +13063,20 @@ var w2confirm = function (msg, title, callBack) {
 * == NICE TO HAVE ==
 *   - refresh(field) - would refresh only one field
 *   - include delta on save
-*   - create an example how to do cascadic dropdown
 *   - form should read <select> <options> into items
 *   - two way data bindings
 *   - verify validation of fields
-*   - when field is blank, set record.field = null
-*   - show/hide a field
 *   - added getChanges() - not complete
 *   - nested record object
-*   - reset: { label: 'Limpiar', action: function () {...
-*   - add enable/disable, show/hide
-*   - add set()
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
 *   - added onProgress
 *   - added field.html.style (for the whole field)
+*   - added enable/disable, show/hide
+*   - added field.disabled, field.hidden
+*   - when field is blank, set record.field = null
+*   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
 *
 ************************************************************************/
 
@@ -13206,6 +13255,58 @@ var w2confirm = function (msg, title, callBack) {
                 }
             }
             return false;
+        },
+
+        show: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && fld.hidden) { 
+                    fld.hidden = false;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        hide: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && !fld.hidden) { 
+                    fld.hidden = true;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        enable: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && fld.disabled) { 
+                    fld.disabled = false;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        disable: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && !fld.disabled) { 
+                    fld.disabled = true;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
         },
 
         reload: function (callBack) {
@@ -13688,8 +13789,18 @@ var w2confirm = function (msg, title, callBack) {
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) { // it is an object
-                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
-                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) +'</button>';
+                    var act  = this.actions[a];
+                    var info = { caption: '', style: '', "class": '' };
+                    if ($.isPlainObject(act)) {
+                        if (act.caption) info.caption = act.caption;
+                        if (act.style) info.style = act.style;
+                        if (act["class"]) info['class'] = act['class'];
+                    } else {
+                        info.caption = a;
+                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'btn-green'; else info['class'] = '';
+                    }
+                    buttons += '\n    <button name="'+ a +'" class="btn '+ info['class'] +'" style="'+ info.style +'">'+ 
+                                            w2utils.lang(info.caption) +'</button>';
                 }
                 buttons += '\n</div>';
             }
@@ -13697,13 +13808,15 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         action: function (action, event) {
+            var click = null;
+            var act   = this.actions[action];
+            var click = act;
+            if ($.isPlainObject(act) && act.onClick) click = act.onClick;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });
+            var eventData = this.trigger({ phase: 'before', target: action, type: 'action', click: click, originalEvent: event });
             if (eventData.isCancelled === true) return;
             // default actions
-            if (typeof (this.actions[action]) == 'function') {
-                this.actions[action].call(this, event);
-            }
+            if (typeof click == 'function') click.call(this, event);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -13858,14 +13971,28 @@ var w2confirm = function (msg, title, callBack) {
                             $(fld).removeClass('w2ui-error');
                         }
                     }
+                    if (val == '' || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) val = null;
                     obj.record[this.name] = val;
                     // event after
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                 });
+                // required
                 if (field.required) {
                     $(field.el).parent().parent().addClass('w2ui-required');
                 } else {
                     $(field.el).parent().parent().removeClass('w2ui-required');
+                }
+                // disabled
+                if (field.disabled) {
+                    $(field.el).prop('readonly', true);
+                } else {
+                    $(field.el).prop('readonly', false);
+                }
+                // hidden
+                if (field.hidden) {
+                    $(field.el).parent().parent().hide();
+                } else {
+                    $(field.el).parent().parent().show();
                 }
             }
             // attach actions on buttons
