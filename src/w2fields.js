@@ -13,7 +13,6 @@
 *   - month selection, year selections
 *   - arrows no longer work (for int)
 *   - form to support custom types
-*   - add compare function for list, combo, enum
 *   - rewrite suffix and prefix positioning with translateY()
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
@@ -25,6 +24,7 @@
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - deprecate placeholder, read it from input
 *   - added get(), set(), setIndex() for fields
+*   - add compare function for list, combo, enum
 *
 ************************************************************************/
 
@@ -283,6 +283,7 @@
                         onError         : null,         // when data fails to load due to server error or other failure modes
                         onIconClick     : null,
                         renderDrop      : null,         // render function for drop down item
+                        compare         : null,         // compare function for filtering
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
@@ -340,6 +341,7 @@
                         markSearch      : true,
                         renderDrop      : null,          // render function for drop down item
                         renderItem      : null,          // render selected item
+                        compare         : null,          // compare function for filtering                        
                         style           : '',            // style for container div
                         onSearch        : null,          // when search needs to be performed
                         onRequest       : null,          // when request is submitted
@@ -1398,17 +1400,21 @@
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
-                    var prefix = '';
-                    var suffix = '';
-                    if (['is', 'begins'].indexOf(options.match) != -1) prefix = '^';
-                    if (['is', 'ends'].indexOf(options.match) != -1) suffix = '$';
-                    try {
-                        var re = new RegExp(prefix + search + suffix, 'i');
-                        if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
-                    } catch (e) {}
+                    if (typeof options.compare == 'function') {
+                        item.hidden = (options.compare.call(this, item) === false ? true : false)
+                    } else {
+                        var prefix = '';
+                        var suffix = '';
+                        if (['is', 'begins'].indexOf(options.match) != -1) prefix = '^';
+                        if (['is', 'ends'].indexOf(options.match) != -1) suffix = '$';
+                        try {
+                            var re = new RegExp(prefix + search + suffix, 'i');
+                            if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
+                        } catch (e) {}
+                    }
                     // do not show selected items
                     if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
-                    if (item.hidden !== true) shown++;
+                    if (item.hidden !== true) { shown++; delete item.hidden; }
                 }
                 // preselect first item
                 options.index = 0;
