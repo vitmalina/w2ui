@@ -254,8 +254,7 @@
     // -- Implementation of core functionality
 
     w2grid.prototype = {    
-		//added w2utils.lang for the missing words that where not translated
-		msgDelete       : w2utils.lang('Are you sure you want to delete selected records?'),
+        msgDelete       : w2utils.lang('Are you sure you want to delete selected records?'),
         msgNotJSON      : w2utils.lang('Returned data is not in valid JSON format.'),
         msgAJAXerror    : w2utils.lang('AJAX error. See console for more details.'),
         msgRefresh      : w2utils.lang('Refreshing...'),

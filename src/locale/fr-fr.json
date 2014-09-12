@@ -59,7 +59,7 @@
         "Notification" : "Message",
         "Show" : "Montrer",
         "Hide" : "Cacher",
-		"begins" : "commence",
-		"ends" : "se termine"
+        "begins" : "commence",
+        "ends" : "se termine"
     }
 }

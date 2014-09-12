@@ -59,7 +59,7 @@
         "Notification" : "Notificatie",
         "Show" : "Weergeven",
         "Hide" : "Verbergen",
-		"begins" : "begint",
-		"ends" : "eindigt"
+        "begins" : "begint",
+        "ends" : "eindigt"
     }
 }
