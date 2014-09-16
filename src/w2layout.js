@@ -154,8 +154,8 @@
                     console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
                     return false;
                 }
-                var pname     = '#layout_'+ this.name + '_panel_'+ p.type;
-                var current = $(pname + '> .w2ui-panel-content');
+                var pname    = '#layout_'+ this.name + '_panel_'+ p.type;
+                var current  = $(pname + '> .w2ui-panel-content');
                 var panelTop = 0;
                 if (current.length > 0) {
                     $(pname).scrollTop(0);
@@ -633,6 +633,7 @@
                         if ($(pname +'> .w2ui-panel-content').length > 0) {
                             $(pname +'> .w2ui-panel-content')
                                 .removeClass()
+                                .removeAttr('name')
                                 .addClass('w2ui-panel-content')
                                 .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
                         }
@@ -643,6 +644,7 @@
                     if ($(pname +'> .w2ui-panel-content').length > 0) {
                         $(pname +'> .w2ui-panel-content')
                             .removeClass()
+                            .removeAttr('name')
                             .addClass('w2ui-panel-content')
                             .html(p.content)
                             .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
