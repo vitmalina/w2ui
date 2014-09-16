@@ -224,24 +224,24 @@
         // ----
         // properties that need to be in prototype
 
-        msgDelete    : 'Are you sure you want to delete selected records?',
-        msgNotJSON   : 'Returned data is not in valid JSON format.',
-        msgAJAXerror : 'AJAX error. See console for more details.',
-        msgRefresh   : 'Refreshing...',
+        msgDelete       : w2utils.lang('Are you sure you want to delete selected records?'),
+        msgNotJSON      : w2utils.lang('Returned data is not in valid JSON format.'),
+        msgAJAXerror    : w2utils.lang('AJAX error. See console for more details.'),
+        msgRefresh      : w2utils.lang('Refreshing...'),
 
         // for easy button overwrite
         buttons: {
-            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', hint: 'Reload data in the list' },
-            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', hint: 'Show/hide columns', arrow: false, html: '' },
+            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', hint: w2utils.lang('Reload data in the list') },
+            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
             'search'   : { type: 'html',   id: 'w2ui-search',
                             html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+
                                   'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
                           },
-            'search-go': { type: 'check',  id: 'w2ui-search-advanced', caption: 'Search...', hint: 'Open Search Fields' },
-            'add'      : { type: 'button', id: 'w2ui-add', caption: 'Add New', hint: 'Add new record', icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', caption: 'Edit', hint: 'Edit selected record', icon: 'w2ui-icon-pencil', disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', caption: 'Delete', hint: 'Delete selected records', icon: 'w2ui-icon-cross', disabled: true },
-            'save'     : { type: 'button', id: 'w2ui-save', caption: 'Save', hint: 'Save changed records', icon: 'w2ui-icon-check' }
+            'search-go': { type: 'check',  id: 'w2ui-search-advanced', caption: w2utils.lang('Search...'), hint: w2utils.lang('Open Search Fields') },
+            'add'      : { type: 'button', id: 'w2ui-add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
+            'edit'     : { type: 'button', id: 'w2ui-edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', disabled: true },
+            'save'     : { type: 'button', id: 'w2ui-save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         },
 
         add: function (record) {
@@ -2042,7 +2042,7 @@
                     msg     : obj.msgDelete, 
                     btn_yes : { "class": 'btn-red' },
                     callBack: function (result) {
-                        if (result == 'Yes') w2ui[obj.name].delete(true);
+                        if (result == 'Yes') w2ui[obj.name]['delete'](true);
                     }
                 });
                 return;
