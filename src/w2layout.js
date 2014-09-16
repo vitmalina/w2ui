@@ -660,6 +660,7 @@
                         if ($(pname +'> .w2ui-panel-content').length > 0) {
                             $(pname +'> .w2ui-panel-content')
                                 .removeClass()
+                                .removeAttr('name')
                                 .addClass('w2ui-panel-content')
                                 .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
                         }
@@ -670,6 +671,7 @@
                     if ($(pname +'> .w2ui-panel-content').length > 0) {
                         $(pname +'> .w2ui-panel-content')
                             .removeClass()
+                            .removeAttr('name')
                             .addClass('w2ui-panel-content')
                             .html(p.content)
                             .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
