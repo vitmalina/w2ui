@@ -462,8 +462,8 @@
                     item: it, object: it, originalEvent: event });
                 if (eventData.isCancelled === true) return;
 
-                var btn = $('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button');
-                btn.removeClass('down');
+                var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
+                $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
 
                 if (it.type === 'radio') {
                     for (var i = 0; i < this.items.length; i++) {
@@ -475,7 +475,7 @@
                         }
                     }
                     it.checked = true;
-                    btn.addClass('checked');
+                    $(btn).addClass('checked');
                 }
 
                 if (it.type === 'drop' || it.type === 'menu') {
@@ -505,7 +505,7 @@
                             }
                             function hideDrop(event) {
                                 it.checked = false;
-                                btn.removeClass('checked');
+                                $(btn).removeClass('checked');
                             }
                         }, 1);
                     }
@@ -514,9 +514,9 @@
                 if (it.type === 'check' || it.type === 'drop' || it.type === 'menu') {
                     it.checked = !it.checked;
                     if (it.checked) {
-                        btn.addClass('checked');
+                        $(btn).addClass('checked');
                     } else {
-                        btn.removeClass('checked');
+                        $(btn).removeClass('checked');
                     }
                 }
                 // route processing

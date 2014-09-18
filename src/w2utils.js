@@ -1279,9 +1279,14 @@ w2utils.keyboard = (function (obj) {
         div1.data('element', obj.length > 0 ? obj[0] : null)
             .data('options', options)
             .data('position', $(obj).offset().left + 'x' + $(obj).offset().top)
-            .fadeIn('fast').on('mousedown', function (event) {
+            .fadeIn('fast')
+            .on('click', function (event) {
+                // if there is label for input, it will produce 2 click events
+                if (event.target.tagName == 'LABEL') event.stopPropagation();
+            })
+            .on('mousedown', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault();
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1) event.preventDefault();
             });
         div1[0].hide   = hide;
         div1[0].resize = resize;
