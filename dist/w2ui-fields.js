@@ -37,6 +37,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added w2utils.settings.weekStarts
 *   - onComplete should pass widget as context (this)
 *   - hidden and disabled in menus
+*   - added menu.item.hint for overlay menues
 *
 ************************************************/
 
@@ -1280,9 +1281,14 @@ w2utils.keyboard = (function (obj) {
         div1.data('element', obj.length > 0 ? obj[0] : null)
             .data('options', options)
             .data('position', $(obj).offset().left + 'x' + $(obj).offset().top)
-            .fadeIn('fast').on('mousedown', function (event) {
+            .fadeIn('fast')
+            .on('click', function (event) {
+                // if there is label for input, it will produce 2 click events
+                if (event.target.tagName == 'LABEL') event.stopPropagation();
+            })
+            .on('mousedown', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault();
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1) event.preventDefault();
             });
         div1[0].hide   = hide;
         div1[0].resize = resize;
@@ -1660,7 +1666,7 @@ w2utils.keyboard = (function (obj) {
                         if (imgd == '') colspan++;
                         if (mitem.count == null) colspan++;
                         menu_html +=
-                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
+                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.hint ? 'title="'+ mitem.hint +'"' : '') +
                             '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
                             '        onmousedown="$(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); $(this).addClass(\'w2ui-selected\');"'+
                             '        onclick="event.stopPropagation(); '+

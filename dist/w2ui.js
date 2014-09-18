@@ -37,6 +37,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added w2utils.settings.weekStarts
 *   - onComplete should pass widget as context (this)
 *   - hidden and disabled in menus
+*   - added menu.item.hint for overlay menues
 *
 ************************************************/
 
@@ -1280,9 +1281,14 @@ w2utils.keyboard = (function (obj) {
         div1.data('element', obj.length > 0 ? obj[0] : null)
             .data('options', options)
             .data('position', $(obj).offset().left + 'x' + $(obj).offset().top)
-            .fadeIn('fast').on('mousedown', function (event) {
+            .fadeIn('fast')
+            .on('click', function (event) {
+                // if there is label for input, it will produce 2 click events
+                if (event.target.tagName == 'LABEL') event.stopPropagation();
+            })
+            .on('mousedown', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) === -1) event.preventDefault();
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1) event.preventDefault();
             });
         div1[0].hide   = hide;
         div1[0].resize = resize;
@@ -1660,7 +1666,7 @@ w2utils.keyboard = (function (obj) {
                         if (imgd == '') colspan++;
                         if (mitem.count == null) colspan++;
                         menu_html +=
-                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+
+                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.hint ? 'title="'+ mitem.hint +'"' : '') +
                             '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
                             '        onmousedown="$(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); $(this).addClass(\'w2ui-selected\');"'+
                             '        onclick="event.stopPropagation(); '+
@@ -1944,29 +1950,25 @@ w2utils.keyboard = (function (obj) {
     // ====================================================
     // -- Implementation of core functionality
 
-    w2grid.prototype = {
-        // ----
-        // properties that need to be in prototype
+    w2grid.prototype = {    
+        msgDelete       : w2utils.lang('Are you sure you want to delete selected records?'),
+        msgNotJSON      : w2utils.lang('Returned data is not in valid JSON format.'),
+        msgAJAXerror    : w2utils.lang('AJAX error. See console for more details.'),
+        msgRefresh      : w2utils.lang('Refreshing...'),
+        msgNeedReload   : w2utils.lang('Your remove data source record count has changed, reloading from the first record.'),
 
-        msgDelete       : 'Are you sure you want to delete selected records?',
-        msgNotJSON      : 'Returned data is not in valid JSON format.',
-        msgAJAXerror    : 'AJAX error. See console for more details.',
-        msgRefresh      : 'Refreshing...',
-        msgNeedReload   : 'Your remove data source record count has changed, reloading from the first record.',
-
-        // for easy button overwrite
         buttons: {
-            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', hint: 'Reload data in the list' },
-            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', hint: 'Show/hide columns', arrow: false, html: '' },
+            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', hint: w2utils.lang('Reload data in the list') },
+            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
             'search'   : { type: 'html',   id: 'w2ui-search',
                             html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+
                                   'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
                           },
-            'search-go': { type: 'check',  id: 'w2ui-search-advanced', caption: 'Search...', hint: 'Open Search Fields' },
-            'add'      : { type: 'button', id: 'w2ui-add', caption: 'Add New', hint: 'Add new record', icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', caption: 'Edit', hint: 'Edit selected record', icon: 'w2ui-icon-pencil', disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', caption: 'Delete', hint: 'Delete selected records', icon: 'w2ui-icon-cross', disabled: true },
-            'save'     : { type: 'button', id: 'w2ui-save', caption: 'Save', hint: 'Save changed records', icon: 'w2ui-icon-check' }
+            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', caption: w2utils.lang('Search'), hint: w2utils.lang('Open Search Fields') },
+            'add'      : { type: 'button', id: 'w2ui-add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
+            'edit'     : { type: 'button', id: 'w2ui-edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', disabled: true },
+            'save'     : { type: 'button', id: 'w2ui-save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         },
 
         add: function (record) {
@@ -7196,8 +7198,8 @@ w2utils.keyboard = (function (obj) {
                     console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
                     return false;
                 }
-                var pname     = '#layout_'+ this.name + '_panel_'+ p.type;
-                var current = $(pname + '> .w2ui-panel-content');
+                var pname    = '#layout_'+ this.name + '_panel_'+ p.type;
+                var current  = $(pname + '> .w2ui-panel-content');
                 var panelTop = 0;
                 if (current.length > 0) {
                     $(pname).scrollTop(0);
@@ -7675,6 +7677,7 @@ w2utils.keyboard = (function (obj) {
                         if ($(pname +'> .w2ui-panel-content').length > 0) {
                             $(pname +'> .w2ui-panel-content')
                                 .removeClass()
+                                .removeAttr('name')
                                 .addClass('w2ui-panel-content')
                                 .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
                         }
@@ -7685,6 +7688,7 @@ w2utils.keyboard = (function (obj) {
                     if ($(pname +'> .w2ui-panel-content').length > 0) {
                         $(pname +'> .w2ui-panel-content')
                             .removeClass()
+                            .removeAttr('name')
                             .addClass('w2ui-panel-content')
                             .html(p.content)
                             .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
@@ -9832,8 +9836,8 @@ var w2confirm = function (msg, title, callBack) {
                     item: it, object: it, originalEvent: event });
                 if (eventData.isCancelled === true) return;
 
-                var btn = $('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button');
-                btn.removeClass('down');
+                var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
+                $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
 
                 if (it.type === 'radio') {
                     for (var i = 0; i < this.items.length; i++) {
@@ -9845,7 +9849,7 @@ var w2confirm = function (msg, title, callBack) {
                         }
                     }
                     it.checked = true;
-                    btn.addClass('checked');
+                    $(btn).addClass('checked');
                 }
 
                 if (it.type === 'drop' || it.type === 'menu') {
@@ -9875,7 +9879,7 @@ var w2confirm = function (msg, title, callBack) {
                             }
                             function hideDrop(event) {
                                 it.checked = false;
-                                btn.removeClass('checked');
+                                $(btn).removeClass('checked');
                             }
                         }, 1);
                     }
@@ -9884,9 +9888,9 @@ var w2confirm = function (msg, title, callBack) {
                 if (it.type === 'check' || it.type === 'drop' || it.type === 'menu') {
                     it.checked = !it.checked;
                     if (it.checked) {
-                        btn.addClass('checked');
+                        $(btn).addClass('checked');
                     } else {
-                        btn.removeClass('checked');
+                        $(btn).removeClass('checked');
                     }
                 }
                 // route processing
