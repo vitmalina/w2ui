@@ -26,6 +26,7 @@
 *   - implement global routeData and all elements read from there
 *   - send parsed URL to the event if there is parseData
 *   - if you set searchData or sortData and call refresh() it should work
+*   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -685,12 +686,12 @@
                             case 'in':
                                 var tmp = sdata.value;
                                 if (sdata.svalue) tmp = sdata.svalue;
-                                if (tmp.indexOf(val1) !== -1) fl++;
+                                if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) !== -1) fl++;
                                 break;
                             case 'not in':
                                 var tmp = sdata.value;
                                 if (sdata.svalue) tmp = sdata.svalue;
-                                if (tmp.indexOf(val1) == -1) fl++;
+                                if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) == -1) fl++;
                                 break;
                             case 'begins':
                             case 'begins with': // need for back compatib.

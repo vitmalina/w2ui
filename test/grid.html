@@ -72,7 +72,7 @@ $(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [                
-            { field: 'personid', caption: 'ID', type: 'int' },
+            { field: 'personid', caption: 'ID', type: 'enum', options: { items: [ { id: 1, text: '1' }, { id: 2, text: '2' }, { id: 3, text: '3' } ]} },
             { field: 'fname', caption: 'First Name', type: 'list', 
                 options: { 
                     search: true,
