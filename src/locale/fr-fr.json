@@ -60,6 +60,9 @@
         "Show" : "Montrer",
         "Hide" : "Cacher",
         "begins" : "commence",
-        "ends" : "se termine"
+        "ends" : "se termine",
+        "No matches" : "Aucun résultat",
+        "Loading..." : "Chargement...",
+        "letters or more..." :  "lettres ou plus"
     }
 }
