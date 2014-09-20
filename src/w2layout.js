@@ -309,10 +309,14 @@
         },
 
         set: function (panel, options) {
-            var obj = this.get(panel, true);
-            if (obj === null) return false;
-            $.extend(this.panels[obj], options);
-            if (typeof options['content'] != 'undefined') this.refresh(panel); // refresh only when content changed
+            var ind = this.get(panel, true);
+            if (ind === null) return false;
+            $.extend(this.panels[ind], options);
+            // refresh only when content changed
+            if (typeof options['content'] != 'undefined') this.refresh(panel);
+            // show/hide resizer
+            var resizer = $('#layout_'+ this.name +'_resizer_'+ panel);
+            if (options.resizable) resizer.show(); else resizer.hide();
             this.resize(); // resize is needed when panel size is changed
             return true;
         },
