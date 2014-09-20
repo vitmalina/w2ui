@@ -37,6 +37,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - onComplete should pass widget as context (this)
 *   - hidden and disabled in menus
 *   - added menu.item.hint for overlay menues
+*   - added w2tag options.id, options.left, options.top
 *
 ************************************************/
 
@@ -1147,15 +1148,13 @@ w2utils.keyboard = (function (obj) {
         }
         return $(this).each(function (index, el) {
             // show or hide tag
-            var tagOrigID = el.id;
-            var tagID = w2utils.escapeId(el.id);
+            var tagOrigID = (options.id ? options.id : el.id);
+            var tagID = w2utils.escapeId(tagOrigID);
             if (text === '' || text == null) {
                 $('#w2ui-tag-'+tagID).css('opacity', 0);
-                setTimeout(function () {
-                    // remmove element
-                    clearInterval($('#w2ui-tag-'+tagID).data('timer'));
-                    $('#w2ui-tag-'+tagID).remove();
-                }, 300);
+                // remmove element
+                clearInterval($('#w2ui-tag-'+tagID).data('timer'));
+                $('#w2ui-tag-'+tagID).remove();
             } else {
                 // remove elements
                 clearInterval($('#w2ui-tag-'+tagID).data('timer'));
@@ -1175,8 +1174,8 @@ w2utils.keyboard = (function (obj) {
                     // monitor if moved
                     if ($('#w2ui-tag-'+tagID).data('position') !== ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
                         $('#w2ui-tag-'+tagID).css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
-                            left: ($(el).offset().left + el.offsetWidth) + 'px',
-                            top: $(el).offset().top + 'px'
+                            left: ($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0)) + 'px',
+                            top : ($(el).offset().top + (options.top ? options.top : 0)) + 'px'
                         }).data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top);
                     }
                 }, 100);
@@ -1184,8 +1183,8 @@ w2utils.keyboard = (function (obj) {
                     if (!$(el).offset()) return;
                     $('#w2ui-tag-'+tagID).css({
                         opacity: '1',
-                        left: ($(el).offset().left + el.offsetWidth) + 'px',
-                        top: $(el).offset().top + 'px'
+                        left: ($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0)) + 'px',
+                        top : ($(el).offset().top + (options.top ? options.top : 0)) + 'px'
                     }).html('<div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;"> <div class="w2ui-tag-body">'+ text +'</div> </div>')
                     .data('text', text)
                     .data('taged-el', el)
