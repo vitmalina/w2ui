@@ -156,6 +156,25 @@
             overflow: hidden;
         }
 
+        // for flat sidebar
+        .w2ui-node-flat {
+            padding: 6px 0px;
+            text-align: center;
+            .w2ui-node-image {
+                text-align: center;
+                width: auto;
+                // for font-awesome icons
+                & > span {
+                    font-size: 16px;
+                    color: @sidebar-node-color;
+                    text-shadow: @sidebar-node-text-shadow;
+                }
+                &.w2ui-icon {
+                    width: 21px;
+                }
+            }
+        }
+
         td.w2ui-node-dots {
             width: 18px;
             padding: 0px 0px 1px 7px;

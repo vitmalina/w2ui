@@ -16,6 +16,7 @@
 *   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object
 *   - add route property that would navigate to a #route
 *   - return ids of all subitems
+*   - added w2sidebar.flat
 *
 ************************************************************************/
 
@@ -35,6 +36,7 @@
         this.topHTML       = '';
         this.bottomHTML    = '';
         this.keyboard      = true;
+        this.flat          = false;
         this.onClick       = null;      // Fire when user click on Node Text
         this.onDblClick    = null;      // Fire when user dbl clicks
         this.onContextMenu = null;
@@ -655,8 +657,8 @@
                     '</div>'
                 );
             $(this.box).find('> div').css({
-                width    : $(this.box).width() + 'px',
-                height: $(this.box).height() + 'px'
+                width  : $(this.box).width() + 'px',
+                height : $(this.box).height() + 'px'
             });
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
             // adjust top and bottom
@@ -712,8 +714,8 @@
             }
             var nodeHTML;
             if (node !== this) {
-                var tmp    = '#node_'+ w2utils.escapeId(node.id);
-                nodeHTML    = getNodeHTML(node);
+                var tmp  = '#node_'+ w2utils.escapeId(node.id);
+                nodeHTML = getNodeHTML(node);
                 $(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>');
                 $(this.box).find(tmp).remove();
                 $(this.box).find(nm).remove();
@@ -749,7 +751,7 @@
                 if (typeof nd.caption != 'undefined') nd.text = nd.caption;
                 if (nd.group) {
                     html =
-                        '<div class="w2ui-node-group"  id="node_'+ nd.id +'"'+
+                        '<div class="w2ui-node-group" id="node_'+ nd.id +'"'+
                         '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '        onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '        onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
@@ -757,30 +759,47 @@
                         '    <span>'+ nd.text +'</span>'+
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
+                    if (obj.flat) {
+                        html = '<div class="w2ui-node-group" id="node_'+ nd.id +'"><span>&nbsp;</span></div>'+
+                               '<div id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
+                    }
                 } else {
                     if (nd.selected && !nd.disabled) obj.selected = nd.id;
                     tmp = '';
-                    if (img) tmp = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
+                    if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
                     if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
-                    html =
-                    '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
-                        '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
-                        '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
-                        '        if (event.preventDefault) event.preventDefault();"'+
-                        '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                        '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
-                        '<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
-                        '        if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
-                        '    <div class="w2ui-expand">'    + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
-                        '</td>'+
-                        '<td class="w2ui-node-data" nowrap>'+
-                            tmp +
-                            (nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
-                            '<div class="w2ui-node-caption">'+ nd.text +'</div>'+
-                        '</td>'+
-                        '</tr></table>'+
-                    '</div>'+
-                    '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
+                    html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                            '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
+                            '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
+                            '        if (event.preventDefault) event.preventDefault();"'+
+                            '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
+                            '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
+                            '<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
+                            '        if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
+                            '    <div class="w2ui-expand">'    + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
+                            '</td>'+
+                            '<td class="w2ui-node-data" nowrap>'+
+                                    tmp +
+                                    (nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
+                                    '<div class="w2ui-node-caption">'+ nd.text +'</div>'+
+                            '</td>'+
+                            '</tr></table>'+
+                            '</div>'+
+                            '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
+                    if (obj.flat) {
+                        html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                                '    onmouseover="$(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+ 
+                                                w2utils.base64encode(nd.text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
+                                '               { id: \'' + nd.id + '\', left: -5 })"'+
+                                '    onmouseout="$(this).find(\'.w2ui-node-data\').w2tag(null, { id: \'' + nd.id + '\' })"'+ 
+                                '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
+                                '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
+                                '        if (event.preventDefault) event.preventDefault();"'+
+                                '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
+                                '<div class="w2ui-node-data w2ui-node-flat">'+ tmp +'</div>'+
+                                '</div>'+
+                                '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
+                    }
                 }
                 return html;
             }
@@ -788,18 +807,15 @@
 
         resize: function () {
             var time = (new Date()).getTime();
-            // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
             if (eventData.isCancelled === true) return;
             // default action
             $(this.box).css('overflow', 'hidden');    // container should have no overflow
-            //$(this.box).find('.w2ui-sidebar-div').css('overflow', 'hidden');
             $(this.box).find('> div').css({
-                width        : $(this.box).width() + 'px',
-                height    : $(this.box).height() + 'px'
+                width  : $(this.box).width() + 'px',
+                height : $(this.box).height() + 'px'
             });
-            //$(this.box).find('.w2ui-sidebar-div').css('overflow', 'auto');
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             return (new Date()).getTime() - time;
