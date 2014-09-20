@@ -280,15 +280,14 @@ input[type=checkbox].w2ui-toggle:focus {
   transition: opacity 0.3s;
 }
 .w2ui-tag .w2ui-tag-body {
-  background-color: rgba(60, 60, 60, 0.82);
+  background-color: rgba(60, 60, 60, 0.9);
   display: inline-block;
   position: absolute;
-  border-radius: 4px;
-  padding: 4px 10px;
+  border-radius: 3px;
+  padding: 6px 10px;
   margin-left: 10px;
   margin-top: 0px;
   color: #ffffff !important;
-  box-shadow: 1px 1px 3px #000000;
   line-height: 100%;
   font-size: 11px;
   font-family: Verdana, Arial, sans-serif;
@@ -298,10 +297,10 @@ input[type=checkbox].w2ui-toggle:focus {
   position: absolute;
   width: 0;
   height: 0;
-  border-top: 5px solid transparent;
-  border-right: 5px solid rgba(60, 60, 60, 0.82);
-  border-bottom: 5px solid transparent;
-  margin: 2px 0 0 -15px;
+  border-top: 6px solid transparent;
+  border-right: 6px solid rgba(60, 60, 60, 0.9);
+  border-bottom: 6px solid transparent;
+  margin: 0px 0 0 -16px;
 }
 .w2ui-tag.w2ui-tag-popup {
   z-index: 1700;
@@ -2325,6 +2324,22 @@ button.btn-red.clicked {
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node-sub {
   overflow: hidden;
+}
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-flat {
+  padding: 6px 0px;
+  text-align: center;
+}
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-flat .w2ui-node-image {
+  text-align: center;
+  width: auto;
+}
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-flat .w2ui-node-image > span {
+  font-size: 16px;
+  color: #000000;
+  text-shadow: 0px 0px 0px #ffffff;
+}
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-flat .w2ui-node-image.w2ui-icon {
+  width: 21px;
 }
 .w2ui-sidebar .w2ui-sidebar-div td.w2ui-node-dots {
   width: 18px;
