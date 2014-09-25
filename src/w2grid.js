@@ -27,6 +27,8 @@
 *   - send parsed URL to the event if there is parseData
 *   - if you set searchData or sortData and call refresh() it should work
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
+*   - use column field for style: { 1: 'color: red' }
+*   - unselect fires too many times (if many is unselected, one event should fire)
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -364,6 +366,9 @@
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.records.length-1; r >= 0; r--) {
                     if (this.records[r].recid == arguments[a]) { this.records.splice(r, 1); removed++; }
+                }
+                for (var r = this.summary.length-1; r >= 0; r--) {
+                    if (this.summary[r].recid == arguments[a]) { this.summary.splice(r, 1); removed++; }
                 }
             }
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
