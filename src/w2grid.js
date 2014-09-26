@@ -44,6 +44,7 @@
 *   - added update() - updates only data in the grid
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
+*   - record.style[field_name]
 *
 ************************************************************************/
 
@@ -4983,8 +4984,9 @@
                     var tmp = col.render.toLowerCase().split(':');
                     if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
                 }
-                if (typeof record.style == 'object' && typeof record.style[col_ind] == 'string') {
-                    addStyle += record.style[col_ind] + ';';
+                if (typeof record.style == 'object') {
+                    if (typeof record.style[col_ind] == 'string') addStyle += record.style[col_ind] + ';';
+                    if (typeof record.style[col.field] == 'string') addStyle += record.style[col.field] + ';';
                 }
                 var isCellSelected = false;
                 if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
