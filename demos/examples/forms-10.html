@@ -22,9 +22,9 @@ $(function () {
         header : 'Auto-Generated Form',
         url    : 'server/post',
         fields : [
-            { name: 'first_name', type: 'text', required: true, html: { caption: 'First Name', attr: 'style="width: 300px"' } },
-            { name: 'last_name',  type: 'text', required: true, html: { caption: 'Last Name', attr: 'style="width: 300px"' } },
-            { name: 'comments',   type: 'textarea', html: { caption: 'Comments', attr: 'style="width: 300px; height: 90px"' } }
+            { field: 'first_name', type: 'text', required: true, html: { caption: 'First Name', attr: 'style="width: 300px"' } },
+            { field: 'last_name',  type: 'text', required: true, html: { caption: 'Last Name', attr: 'style="width: 300px"' } },
+            { field: 'comments',   type: 'textarea', html: { caption: 'Comments', attr: 'style="width: 300px; height: 90px"' } }
         ],
         actions: {
             'Save': function (event) {
