@@ -3097,7 +3097,7 @@ w2utils.keyboard = (function (obj) {
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
                     if (typeof options.compare == 'function') {
-                        item.hidden = (options.compare.call(this, item) === false ? true : false)
+                        item.hidden = (options.compare.call(this, item, search) === false ? true : false)
                     } else {
                         var prefix = '';
                         var suffix = '';

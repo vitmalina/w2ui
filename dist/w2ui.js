@@ -1723,6 +1723,8 @@ w2utils.keyboard = (function (obj) {
 *   - send parsed URL to the event if there is parseData
 *   - if you set searchData or sortData and call refresh() it should work
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
+*   - use column field for style: { 1: 'color: red' }
+*   - unselect fires too many times (if many is unselected, one event should fire)
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -1738,6 +1740,7 @@ w2utils.keyboard = (function (obj) {
 *   - added update() - updates only data in the grid
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
+*   - record.style[field_name]
 *
 ************************************************************************/
 
@@ -2060,6 +2063,9 @@ w2utils.keyboard = (function (obj) {
             for (var a = 0; a < arguments.length; a++) {
                 for (var r = this.records.length-1; r >= 0; r--) {
                     if (this.records[r].recid == arguments[a]) { this.records.splice(r, 1); removed++; }
+                }
+                for (var r = this.summary.length-1; r >= 0; r--) {
+                    if (this.summary[r].recid == arguments[a]) { this.summary.splice(r, 1); removed++; }
                 }
             }
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -6674,8 +6680,9 @@ w2utils.keyboard = (function (obj) {
                     var tmp = col.render.toLowerCase().split(':');
                     if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
                 }
-                if (typeof record.style == 'object' && typeof record.style[col_ind] == 'string') {
-                    addStyle += record.style[col_ind] + ';';
+                if (typeof record.style == 'object') {
+                    if (typeof record.style[col_ind] == 'string') addStyle += record.style[col_ind] + ';';
+                    if (typeof record.style[col.field] == 'string') addStyle += record.style[col.field] + ';';
                 }
                 var isCellSelected = false;
                 if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
@@ -12180,7 +12187,7 @@ var w2confirm = function (msg, title, callBack) {
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
                     if (typeof options.compare == 'function') {
-                        item.hidden = (options.compare.call(this, item) === false ? true : false)
+                        item.hidden = (options.compare.call(this, item, search) === false ? true : false)
                     } else {
                         var prefix = '';
                         var suffix = '';
