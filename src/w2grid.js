@@ -971,7 +971,7 @@
                     var index = this.get(recid, true);
                     if (index == null) continue;
                     var recEl = null;
-                    if (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end) {
+                    if (this.searchData.length !== 0 || (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end)) {
                         recEl = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
                     }
                     if (this.selectType == 'row') {
