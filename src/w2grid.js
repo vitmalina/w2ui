@@ -5017,7 +5017,15 @@
                 }
                 if (typeof col.render == 'object')   data = '<div>' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
-                    var tmp = col.render.toLowerCase().split(':');
+                    var t   = col.render.toLowerCase().indexOf(':');
+                    var tmp = [];
+                    if (t == -1) {
+                        tmp[0] = col.render.toLowerCase();
+                        tmp[1] = '';
+                    } else {
+                        tmp[0] = col.render.toLowerCase().substr(0, t);
+                        tmp[1] = col.render.toLowerCase().substr(t+1);
+                    }
                     var prefix = '';
                     var suffix = '';
                     if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) {
@@ -5032,11 +5040,17 @@
                     }
                     if (tmp[0] == 'time') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
-                        data = '<div>' + prefix + w2utils.formatTime(data, tmp[1] == 'h12' ? 'hh:mi pm': 'h24:min') + suffix + '</div>';
+                        if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
+                        if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
+                        data = '<div>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
                         data = '<div>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
+                    }
+                    if (tmp[0] == 'datetime') {
+                        if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display + '|' + w2utils.settings.time_format;
+                        data = '<div>' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
                         data = '<div>' + prefix + w2utils.age(data) + suffix + '</div>';

@@ -123,7 +123,7 @@ $(function () {
             { field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
-            { field: 'sdate', caption: 'Date', size: '120px', render1: 'date:yyyy-mm-dd', searchable: 'date', sortable: true, 
+            { field: 'sdate', caption: 'Date', size: '120px', render: 'datetime:dd.mm.yyyy|hh:mi:ss pm', searchable: 'date', sortable: true, 
                 editable: { type: 'date', format: 'yyyy-mm-dd' } },
             { field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
             { field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true, gridMinWidth: 1000 }
