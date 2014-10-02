@@ -256,7 +256,7 @@
 
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0) {
+            if (url && this.recid != 0 && this.recid != null) {
                 // this.clear();
                 this.request(callBack);
             } else {
@@ -595,7 +595,7 @@
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
-                    if (obj.recid != 0) ajaxOptions.type = 'PUT';
+                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'JSON') {
@@ -1122,7 +1122,7 @@
             // after render actions
             this.resize();
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0) {
+            if (url && this.recid != 0 && this.recid != null) {
                 this.request();
             } else {
                 this.refresh();
