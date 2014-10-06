@@ -456,7 +456,12 @@
                 };
                 // lock all panels
                 for (var p1 = 0; p1 < w2panels.length; p1++) {
-                    obj.lock(w2panels[p1], { opacity: 0 });
+                    var $tmp = $(obj.el(w2panels[p1])).parent().find('.w2ui-lock');
+                    if ($tmp.length > 0) {
+                        $tmp.attr('locked', 'previous');
+                    } else {
+                        obj.lock(w2panels[p1], { opacity: 0 });
+                    }
                 }
                 if (type == 'left' || type == 'right') {
                     obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left);
@@ -475,7 +480,12 @@
                 if (typeof obj.tmp.resize == 'undefined') return;
                 // unlock all panels
                 for (var p1 = 0; p1 < w2panels.length; p1++) {
-                    obj.unlock(w2panels[p1]);
+                    var $tmp = $(obj.el(w2panels[p1])).parent().find('.w2ui-lock');
+                    if ($tmp.attr('locked') == 'previous') {
+                        $tmp.removeAttr('locked');
+                    } else {
+                        obj.unlock(w2panels[p1]);
+                    }
                 }
                 // set new size
                 if (obj.tmp.diff_x !== 0 || obj.tmp.resize.diff_y !== 0) { // only recalculate if changed
