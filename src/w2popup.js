@@ -18,6 +18,7 @@
 *   - dismissed message will slide up - added parameter unlock(speed)
 *   - refactore -webkit-* -moz-* to a function
 *   - resize nested elements in popup for onMin, onMax
+*   - rename btn -> w2ui-btn and same for colored ones
 *
 ************************************************************************/
 
@@ -694,7 +695,7 @@ var w2alert = function (msg, title, callBack) {
                       '        <div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
                       '</div>' +
                       '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '        <button onclick="w2popup.message();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>' +
+                      '        <button onclick="w2popup.message();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>' +
                       '</div>',
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .w2ui-popup-btn').focus();
@@ -711,7 +712,7 @@ var w2alert = function (msg, title, callBack) {
             showClose : false,
             title     : title,
             body      : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
-            buttons   : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>',
+            buttons   : '<button onclick="w2popup.close();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>',
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () { $('#w2ui-popup .w2ui-popup-btn').focus(); }, 1);
@@ -782,11 +783,11 @@ var w2confirm = function (msg, title, callBack) {
                       '        <div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>' +
                       '</div>' +
                       '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '        <button id="Yes" class="w2ui-popup-btn btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
-                      '        <button id="No" class="w2ui-popup-btn btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
+                      '        <button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
+                      '        <button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
                       '</div>',
             onOpen: function () {
-                $('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
+                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click', function (event) {
                     w2popup.message();
                     if (typeof options.callBack == 'function') options.callBack(event.target.id);
                     if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
@@ -806,8 +807,8 @@ var w2confirm = function (msg, title, callBack) {
             modal      : true,
             showClose  : false,
             body       : '<div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons    : '<button id="Yes" class="w2ui-popup-btn btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'+
-                         '<button id="No" class="w2ui-popup-btn btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>',
+            buttons    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'+
+                         '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>',
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () {

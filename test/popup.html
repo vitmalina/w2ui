@@ -124,14 +124,14 @@ $(function () {
 </head>
 <body>
     <div style="padding: 10px">
-        <button class="btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup</button>
-        <button class="btn" value="Popup2"  onclick="$('#popup1').w2popup({ title: '123', showMax: true })">Popup2</button>
-        <button class="btn" value="Popup3"  onclick="popupGrid()">Popup Grid</button>
-        <button class="btn" value="Popup4"  onclick="popupLayout()">Popup Layout</button>
-        <button class="btn" value="Overlay" onclick="showOverlay(this)">Overlay</button>
-        <button class="btn" value="Menu"    onclick="showMenu(this)">Menu</button>
-        <button class="btn" value="Alert"   onclick="w2alert('message');">Alert</button>
-        <button class="btn" value="Confirm" onclick="myConfirm()">Confirm</button>
+        <button class="w2ui-btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup</button>
+        <button class="w2ui-btn" value="Popup2"  onclick="$('#popup1').w2popup({ title: '123', showMax: true })">Popup2</button>
+        <button class="w2ui-btn" value="Popup3"  onclick="popupGrid()">Popup Grid</button>
+        <button class="w2ui-btn" value="Popup4"  onclick="popupLayout()">Popup Layout</button>
+        <button class="w2ui-btn" value="Overlay" onclick="showOverlay(this)">Overlay</button>
+        <button class="w2ui-btn" value="Menu"    onclick="showMenu(this)">Menu</button>
+        <button class="w2ui-btn" value="Alert"   onclick="w2alert('message');">Alert</button>
+        <button class="w2ui-btn" value="Confirm" onclick="myConfirm()">Confirm</button>
     </div>
 
     <div id="popup1" style="display: none; width: 650px; height: 400px; overflow: auto">
@@ -158,8 +158,8 @@ $(function () {
             </div>
         </div>
         <div rel="buttons">
-            <button class="btn" onclick="$('#popup2').w2popup()" style="width: 150px">Switch to Popup 2</button>
-            <button class="btn" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div><div style=\'position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\'><button class=\'btn\' onclick=\'w2popup.message();\'>Close</button></div>' })">Message</button>
+            <button class="w2ui-btn" onclick="$('#popup2').w2popup()" style="width: 150px">Switch to Popup 2</button>
+            <button class="w2ui-btn" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div><div style=\'position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\'><button class=\'btn\' onclick=\'w2popup.message();\'>Close</button></div>' })">Message</button>
         </div>
     </div>
 
@@ -176,7 +176,7 @@ $(function () {
             </div>
         </div>
         <div rel="buttons">
-            <button class="btn" onclick="$('#popup1').w2popup({ transition: 'flip-left' })">Switch to Popup 1</button>
+            <button class="w2ui-btn" onclick="$('#popup1').w2popup({ transition: 'flip-left' })">Switch to Popup 1</button>
         </div>
     </div>
 
