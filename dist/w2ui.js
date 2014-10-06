@@ -1978,7 +1978,7 @@ w2utils.keyboard = (function (obj) {
             if (!$.isArray(record)) record = [record];
             var added = 0;
             for (var o in record) {
-                if (!this.recid && typeof record[o].recid == 'undefined') record[o].recid = record[o][this.recid];
+                if (this.recid && typeof record[o].recid == 'undefined') record[o].recid = record[o][this.recid];
                 if (record[o].recid == null || typeof record[o].recid == 'undefined') {
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
@@ -2667,7 +2667,7 @@ w2utils.keyboard = (function (obj) {
                     var index = this.get(recid, true);
                     if (index == null) continue;
                     var recEl = null;
-                    if (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end) {
+                    if (this.searchData.length !== 0 || (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end)) {
                         recEl = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
                     }
                     if (this.selectType == 'row') {
@@ -4054,7 +4054,7 @@ w2utils.keyboard = (function (obj) {
             if (eventData.isCancelled === true) return;
             // default behaviour
             var column = this.getColumn(field);
-            if (column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+            if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -6082,7 +6082,7 @@ w2utils.keyboard = (function (obj) {
                 if (s.hidden) continue;
                 var btn = '';
                 if (showBtn == false) {
-                    btn = '<button class="btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchClose(); }">X</button';
+                    btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchClose(); }">X</button';
                     showBtn = true;
                 }
                 if (typeof s.inTag   == 'undefined') s.inTag     = '';
@@ -6157,8 +6157,8 @@ w2utils.keyboard = (function (obj) {
             html += '<tr>'+
                     '    <td colspan="4" class="actions">'+
                     '        <div>'+
-                    '        <button class="btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
-                    '        <button class="btn btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
+                    '        <button class="w2ui-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
+                    '        <button class="w2ui-btn w2ui-btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
                     '        </div>'+
                     '    </td>'+
                     '</tr></table>';
@@ -6713,7 +6713,15 @@ w2utils.keyboard = (function (obj) {
                 }
                 if (typeof col.render == 'object')   data = '<div>' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
-                    var tmp = col.render.toLowerCase().split(':');
+                    var t   = col.render.toLowerCase().indexOf(':');
+                    var tmp = [];
+                    if (t == -1) {
+                        tmp[0] = col.render.toLowerCase();
+                        tmp[1] = '';
+                    } else {
+                        tmp[0] = col.render.toLowerCase().substr(0, t);
+                        tmp[1] = col.render.toLowerCase().substr(t+1);
+                    }
                     var prefix = '';
                     var suffix = '';
                     if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) {
@@ -6728,11 +6736,17 @@ w2utils.keyboard = (function (obj) {
                     }
                     if (tmp[0] == 'time') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
-                        data = '<div>' + prefix + w2utils.formatTime(data, tmp[1] == 'h12' ? 'hh:mi pm': 'h24:min') + suffix + '</div>';
+                        if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
+                        if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
+                        data = '<div>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
                         data = '<div>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
+                    }
+                    if (tmp[0] == 'datetime') {
+                        if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display + '|' + w2utils.settings.time_format;
+                        data = '<div>' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
                         data = '<div>' + prefix + w2utils.age(data) + suffix + '</div>';
@@ -13345,7 +13359,7 @@ var w2confirm = function (msg, title, callBack) {
 
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0) {
+            if (url && this.recid != 0 && this.recid != null) {
                 // this.clear();
                 this.request(callBack);
             } else {
@@ -13684,7 +13698,7 @@ var w2confirm = function (msg, title, callBack) {
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
-                    if (obj.recid != 0) ajaxOptions.type = 'PUT';
+                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'JSON') {
@@ -13831,9 +13845,9 @@ var w2confirm = function (msg, title, callBack) {
                         if (act["class"]) info['class'] = act['class'];
                     } else {
                         info.caption = a;
-                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'btn-green'; else info['class'] = '';
+                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'w2ui-btn-green'; else info['class'] = '';
                     }
-                    buttons += '\n    <button name="'+ a +'" class="btn '+ info['class'] +'" style="'+ info.style +'">'+ 
+                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+ 
                                             w2utils.lang(info.caption) +'</button>';
                 }
                 buttons += '\n</div>';
@@ -14211,7 +14225,7 @@ var w2confirm = function (msg, title, callBack) {
             // after render actions
             this.resize();
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0) {
+            if (url && this.recid != 0 && this.recid != null) {
                 this.request();
             } else {
                 this.refresh();
