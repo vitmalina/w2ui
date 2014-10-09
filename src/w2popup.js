@@ -19,6 +19,7 @@
 *   - refactore -webkit-* -moz-* to a function
 *   - resize nested elements in popup for onMin, onMax
 *   - rename btn -> w2ui-btn and same for colored ones
+*   - added options.body and options.buttons for w2popup.message
 *
 ************************************************************************/
 
@@ -498,7 +499,7 @@ var w2popup = {};
             var head     = $('#w2ui-popup .w2ui-msg-title');
             var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
             // remove message
-            if ($.trim(options.html) == '') {
+            if ($.trim(options.html) == '' && $.trim(options.body) == '' && $.trim(options.buttons) == '') {
                 var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
                 var options = $msg.data('options') || {};
                 $msg.css(w2utils.cssPrefix({ 
@@ -515,6 +516,10 @@ var w2popup = {};
                     if (typeof options.onClose == 'function') options.onClose();
                 }, 150);
             } else {
+                if ($.trim(options.body) != '' || $.trim(options.buttons) != '') {
+                    options.html = '<div class="w2ui-popup-message-body">'+ options.body +'</div>'+
+                        '<div class="w2ui-popup-message-buttons">'+ options.buttons +'</div>';
+                }
                 // hide previous messages
                 $('#w2ui-popup .w2ui-popup-message').css('z-index', 1390);
                 head.css('z-index', 1501);
@@ -691,12 +696,8 @@ var w2alert = function (msg, title, callBack) {
         w2popup.message({
             width   : 400,
             height  : 170,
-            html    : '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 45px; overflow: auto">' +
-                      '        <div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
-                      '</div>' +
-                      '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '        <button onclick="w2popup.message();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>' +
-                      '</div>',
+            body    : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
+            buttons : '<button onclick="w2popup.message();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>',            
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .w2ui-popup-btn').focus();
             },
@@ -779,13 +780,9 @@ var w2confirm = function (msg, title, callBack) {
           w2popup.message({
             width   : options.width,
             height  : options.height,
-            html    : '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">' +
-                      '        <div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>' +
-                      '</div>' +
-                      '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '        <button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
-                      '        <button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
-                      '</div>',
+            body    : '<div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>',
+            buttons : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
+                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click', function (event) {
                     w2popup.message();

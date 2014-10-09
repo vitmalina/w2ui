@@ -80,7 +80,7 @@
     }
 
     .w2ui-msg-body {
-        font-size: 13px;
+        font-size: 12px;
         line-height: 130%;
         padding: 0px 7px 7px 7px;
         color: @popup-body-color;
@@ -92,6 +92,7 @@
     }
 
     .w2ui-popup-message { // slide down message
+        font-size: 12px;
         position: absolute;
         z-index: 250;
         background-color: @popup-message-background-color; 
@@ -101,6 +102,26 @@
         border-top: 0px; 
         border-radius: 0px 0px 6px 6px; 
         overflow: auto;
+
+        .w2ui-popup-message-body {
+            position: absolute; 
+            top: 0px; 
+            bottom: 45px; 
+            left: 0px; 
+            right: 0px;
+            overflow: auto;
+        }
+
+        .w2ui-popup-message-buttons {
+            position: absolute; 
+            height: 45px; 
+            bottom: 0px; 
+            left: 0px; 
+            right: 0px; 
+            border-top: 1px solid #e5e5e5;
+            text-align: center;
+            padding: 8px;
+        }
     }
     
     .w2ui-msg-buttons {

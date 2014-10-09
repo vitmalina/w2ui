@@ -2,67 +2,44 @@
 <html>
 <head>
     <title>W2UI Demo: combo-9</title>
-    <link rel="stylesheet" type="text/css" href="../dist/w2ui-1.3.min.css" />
+    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.1.min.css" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="http://underscorejs.org/underscore.js"></script>
-    <script type="text/javascript" src="../dist/w2ui-1.3.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.1.min.js"></script>
     <script type="text/javascript" src="../src/w2utils.js"></script>
     <script type="text/javascript" src="../src/w2grid.js"></script>
 </head>
 <body>
 
-<div id="main" style="width: 100%; height: 400px;"></div>
+<div id="grid" style="width: 100%; height: 400px;"></div>
 
 <script type="text/javascript">
-// widget configuration
-var config = {
-    grid: { 
+$(function() {
+    $('#grid').w2grid({
         name: 'grid',
-        //url : 'http://w2ui.com/web/pages/demo/infinite/index.php',
-        show: { 
-            footer  : true,
-            toolbar : true,
-            selectColumn: true,
-            lineNumbers: true
+        url: {
+            get: 'grid3.json',
+            save: 'grid3.json'
         },
-        columns: [              
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true, searchable: 'int', resizable: true },
-            { field: 'fname', caption: 'First Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
-            { field: 'lname', caption: 'Last Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
-            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
-            { field: 'sdate', caption: 'Date', size: '200px', resizable: true, sortable: true },
-        ]
-    }
-}
-var time = (new Date()).getTime();
-
-$(function () {
-    $('#main').w2grid(config.grid);
-    w2ui.grid.lock('Generating Records');
-    setTimeout(function () {
-        generate(1000); // 12000 - which is 12mil max
-    }, 100);
+        // end block that causes grid to be eneditable
+        show: {
+            toolbar: true,
+            footer: true,
+            toolbarSave: true,
+            toolbarEdit: true
+        },
+        columns: [{
+            field: 'code',
+            caption: 'Code',
+            size: '120px',
+            sortable: true,
+            resizable: true,
+            editable: {
+                type: 'text'
+            }
+        }]
+    });
 });
-
-function generate(num) {
-    var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Alexander', 'Anton', 'Divia'];
-    var lname = ['Peterson', 'Rene', 'Johnson-Petrov', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Hertz', 'Volkov'];
-    w2ui.grid.records = [];
-    for (var i = 0; i < num * 1000; i++) {
-        w2ui['grid'].records.push({ 
-            recid : (i+1),
-            personid: (i+1),
-            fname: fname[Math.floor(Math.random() * fname.length)], 
-            lname: lname[Math.floor(Math.random() * lname.length)],
-            email: 'vm@gmail.com', sdate: '1/1/2013', manager: '--'
-        });
-    }
-    w2ui.grid.buffered = w2ui.grid.records.length;
-    w2ui.grid.total = w2ui.grid.buffered
-    w2ui.grid.unlock();
-    console.log('Generated records in '+ (((new Date()).getTime() - time) / 1000) +' sec');
-    console.log('Render Time: '+ (w2ui.grid.refresh() / 1000) +' sec');
-}
 </script>
 
 </body>
