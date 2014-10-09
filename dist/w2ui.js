@@ -1725,6 +1725,7 @@ w2utils.keyboard = (function (obj) {
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *   - use column field for style: { 1: 'color: red' }
 *   - unselect fires too many times (if many is unselected, one event should fire)
+*   - add selectType: 'none' so that no selection can be make but with mouse
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -7524,7 +7525,12 @@ w2utils.keyboard = (function (obj) {
                 };
                 // lock all panels
                 for (var p1 = 0; p1 < w2panels.length; p1++) {
-                    obj.lock(w2panels[p1], { opacity: 0 });
+                    var $tmp = $(obj.el(w2panels[p1])).parent().find('.w2ui-lock');
+                    if ($tmp.length > 0) {
+                        $tmp.attr('locked', 'previous');
+                    } else {
+                        obj.lock(w2panels[p1], { opacity: 0 });
+                    }
                 }
                 if (type == 'left' || type == 'right') {
                     obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left);
@@ -7543,7 +7549,12 @@ w2utils.keyboard = (function (obj) {
                 if (typeof obj.tmp.resize == 'undefined') return;
                 // unlock all panels
                 for (var p1 = 0; p1 < w2panels.length; p1++) {
-                    obj.unlock(w2panels[p1]);
+                    var $tmp = $(obj.el(w2panels[p1])).parent().find('.w2ui-lock');
+                    if ($tmp.attr('locked') == 'previous') {
+                        $tmp.removeAttr('locked');
+                    } else {
+                        obj.unlock(w2panels[p1]);
+                    }
                 }
                 // set new size
                 if (obj.tmp.diff_x !== 0 || obj.tmp.resize.diff_y !== 0) { // only recalculate if changed
@@ -8136,6 +8147,8 @@ w2utils.keyboard = (function (obj) {
 *   - dismissed message will slide up - added parameter unlock(speed)
 *   - refactore -webkit-* -moz-* to a function
 *   - resize nested elements in popup for onMin, onMax
+*   - rename btn -> w2ui-btn and same for colored ones
+*   - added options.body and options.buttons for w2popup.message
 *
 ************************************************************************/
 
@@ -8615,7 +8628,7 @@ var w2popup = {};
             var head     = $('#w2ui-popup .w2ui-msg-title');
             var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
             // remove message
-            if ($.trim(options.html) == '') {
+            if ($.trim(options.html) == '' && $.trim(options.body) == '' && $.trim(options.buttons) == '') {
                 var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
                 var options = $msg.data('options') || {};
                 $msg.css(w2utils.cssPrefix({ 
@@ -8632,6 +8645,10 @@ var w2popup = {};
                     if (typeof options.onClose == 'function') options.onClose();
                 }, 150);
             } else {
+                if ($.trim(options.body) != '' || $.trim(options.buttons) != '') {
+                    options.html = '<div class="w2ui-popup-message-body">'+ options.body +'</div>'+
+                        '<div class="w2ui-popup-message-buttons">'+ options.buttons +'</div>';
+                }
                 // hide previous messages
                 $('#w2ui-popup .w2ui-popup-message').css('z-index', 1390);
                 head.css('z-index', 1501);
@@ -8808,12 +8825,8 @@ var w2alert = function (msg, title, callBack) {
         w2popup.message({
             width   : 400,
             height  : 170,
-            html    : '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 45px; overflow: auto">' +
-                      '        <div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>' +
-                      '</div>' +
-                      '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '        <button onclick="w2popup.message();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>' +
-                      '</div>',
+            body    : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
+            buttons : '<button onclick="w2popup.message();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>',            
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .w2ui-popup-btn').focus();
             },
@@ -8829,7 +8842,7 @@ var w2alert = function (msg, title, callBack) {
             showClose : false,
             title     : title,
             body      : '<div class="w2ui-centered" style="font-size: 13px;">' + msg + '</div>',
-            buttons   : '<button onclick="w2popup.close();" class="w2ui-popup-btn btn">' + w2utils.lang('Ok') + '</button>',
+            buttons   : '<button onclick="w2popup.close();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>',
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () { $('#w2ui-popup .w2ui-popup-btn').focus(); }, 1);
@@ -8896,15 +8909,11 @@ var w2confirm = function (msg, title, callBack) {
           w2popup.message({
             width   : options.width,
             height  : options.height,
-            html    : '<div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 40px; overflow: auto">' +
-                      '        <div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>' +
-                      '</div>' +
-                      '<div style="position: absolute; bottom: 7px; left: 0px; right: 0px; text-align: center; padding: 5px">' +
-                      '        <button id="Yes" class="w2ui-popup-btn btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
-                      '        <button id="No" class="w2ui-popup-btn btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
-                      '</div>',
+            body    : '<div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>',
+            buttons : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
+                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
             onOpen: function () {
-                $('#w2ui-popup .w2ui-popup-message .btn').on('click', function (event) {
+                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click', function (event) {
                     w2popup.message();
                     if (typeof options.callBack == 'function') options.callBack(event.target.id);
                     if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
@@ -8924,8 +8933,8 @@ var w2confirm = function (msg, title, callBack) {
             modal      : true,
             showClose  : false,
             body       : '<div class="w2ui-centered" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons    : '<button id="Yes" class="w2ui-popup-btn btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'+
-                         '<button id="No" class="w2ui-popup-btn btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>',
+            buttons    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'+
+                         '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>',
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () {
