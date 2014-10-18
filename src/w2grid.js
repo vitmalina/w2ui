@@ -1261,7 +1261,7 @@
                             value1 = value1.id || '';
                         }
                     }
-                    if ((value1 != '' && value1 != null) || (typeof value2 != 'undefined' && value2 != '')) {
+                    if ((value1 !== '' && value1 != null) || (typeof value2 != 'undefined' && value2 !== '')) {
                         var tmp = {
                             field    : search.field,
                             type     : search.type,
@@ -1355,7 +1355,7 @@
                         var search = this.getSearch(field);
                         if (search == null) search = { field: field, type: 'text' };
                         if (search.field == field) this.last.caption = search.caption;
-                        if (value != '') {
+                        if (value !== '') {
                             var op  = 'contains';
                             var val = value;
                             if (['date', 'time'].indexOf(search.type) != -1) op = 'is';
@@ -1364,7 +1364,7 @@
                                 var tmp = el.data('selected');
                                 if (tmp && !$.isEmptyObject(tmp)) val = tmp.id; else val = '';
                             }
-                            if (search.type == 'int' && value != '') {
+                            if (search.type == 'int' && value !== '') {
                                 op = 'is';
                                 if (String(value).indexOf('-') != -1) {
                                     var tmp = value.split('-');
