@@ -1591,6 +1591,10 @@ button.w2ui-btn-red.clicked {
   color: #eeeeee !important;
   background-color: #292f3c !important;
 }
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-inactive,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-inactive {
+  background-color: #535d73 !important;
+}
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded {
   background-color: #CCDCF0 !important;
 }

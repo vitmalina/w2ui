@@ -1067,20 +1067,36 @@ w2utils.keyboard = (function (obj) {
 
     function mousedown (event) {
         var tag = event.target.tagName;
-        var obj = $(event.target).parents('.w2ui-reset');
-        if (obj.length > 0) {
-            var name = obj.attr('name');
-            if (w2ui[name] && w2ui[name].keyboard) w2ui_name = name;
+        var els = $(event.target).parents('.w2ui-grid, .w2ui-sidebar, .w2ui-popup');
+        if (els.length > 0) {
+            var name = els.attr('name');
+            var obj = w2ui[name];
+            if (name != w2ui_name) {
+                if (clear(event) === false) return; // event cancelled
+                if (active(name) === false) return; // event cancelled
+            }
+            if (obj && obj.keyboard) w2ui_name = name;
+        } else {
+            clear(event);
         }
     }
 
     function active (new_w2ui_name) {
-        if (typeof new_w2ui_name !== 'undefined') w2ui_name = new_w2ui_name;
-        return w2ui_name;
+        if (new_w2ui_name == null) return w2ui_name;
+        var obj = w2ui[new_w2ui_name];
+        if (obj && obj.focus) {
+            if (obj.focus.call(obj, event) === false) return false;
+        }
+        w2ui_name = new_w2ui_name;
+        return true;
     }
 
-    function clear () {
+    function clear (event) {
+        if (w2ui_name != null && w2ui[w2ui_name].blur) {
+            if (w2ui[w2ui_name].blur.call(w2ui[w2ui_name], event) === false) return false;
+        }
         w2ui_name = null;
+        return true;
     }
 
 })({});
@@ -1742,6 +1758,7 @@ w2utils.keyboard = (function (obj) {
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - record.style[field_name]
+*   - added focus(), blur(), onFocus, onBlur, hasFocus
 *
 ************************************************************************/
 
@@ -1805,6 +1822,7 @@ w2utils.keyboard = (function (obj) {
         this.reorderColumns = false;
         this.reorderRows    = false;
         this.markSearch     = true;
+        this.hasFocus       = false;
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -1854,6 +1872,8 @@ w2utils.keyboard = (function (obj) {
         this.onDestroy          = null;
         this.onStateSave        = null;
         this.onStateRestore     = null;
+        this.onFocus            = null;
+        this.onBlur             = null;
 
         // internal
         this.last = {
@@ -2638,6 +2658,7 @@ w2utils.keyboard = (function (obj) {
         },
 
         select: function () {
+            if (!this.hasFocus) return;
             if (arguments.length == 0) return 0;
             var time = (new Date).getTime();
             var selected = 0;
@@ -2748,6 +2769,7 @@ w2utils.keyboard = (function (obj) {
         },
 
         unselect: function () {
+            if (!this.hasFocus) return;
             var unselected = 0;
             var sel = this.last.selection;
             for (var a = 0; a < arguments.length; a++) {
@@ -2820,6 +2842,7 @@ w2utils.keyboard = (function (obj) {
         },
 
         selectAll: function () {
+            if (!this.hasFocus) return;
             var time = (new Date()).getTime();
             if (this.multiSelect === false) return;
             // event before
@@ -3940,6 +3963,7 @@ w2utils.keyboard = (function (obj) {
         },
 
         click: function (recid, event) {
+            if (!this.hasFocus) return;
             var time = (new Date()).getTime();
             var column = null;
             if (this.last.cancelClick == true || (event && event.altKey)) return;
@@ -4050,12 +4074,35 @@ w2utils.keyboard = (function (obj) {
         },
 
         columnClick: function (field, event) {
+            if (!this.hasFocus) return;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
             if (eventData.isCancelled === true) return;
             // default behaviour
             var column = this.getColumn(field);
             if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
+        },
+
+        focus: function (event) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
+            if (eventData.isCancelled === true) return false;
+            // default behaviour
+            $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
+            this.hasFocus = true;
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
+        },
+
+        blur: function (event) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
+            if (eventData.isCancelled === true) return false;
+            // default behaviour
+            $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            this.hasFocus = false;
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -4485,7 +4532,7 @@ w2utils.keyboard = (function (obj) {
         },
 
         dblClick: function (recid, event) {
-            //if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+            if (!this.hasFocus) return;
             // find columns
             var column = null;
             if (typeof recid == 'object') {
@@ -4515,6 +4562,7 @@ w2utils.keyboard = (function (obj) {
         },
 
         contextMenu: function (recid, event) {
+            if (!this.hasFocus) return;
             var obj = this;
             if (obj.last.userSelect == 'text') return;
             if (typeof event == 'undefined') event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ obj.name +'_rec_'+ recid)[0] };
@@ -4548,6 +4596,7 @@ w2utils.keyboard = (function (obj) {
         },
 
         menuClick: function (recid, index, event) {
+            if (!this.hasFocus) return;
             var obj = this;
             // event before
             var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: obj.name, originalEvent: event, 
@@ -8375,7 +8424,7 @@ var w2popup = {};
             }
             // save new options
             options._last_w2ui_name = w2utils.keyboard.active();
-            w2utils.keyboard.active(null);
+            w2utils.keyboard.clear();
             // keyboard events
             if (options.keyboard) $(document).on('keydown', this.keydown);
 
@@ -9423,6 +9472,7 @@ var w2confirm = function (msg, title, callBack) {
 *
 * == 1.5 changes
 *   - $('#toolbar').w2toolbar() - if called w/o argument then it returns toolbar object
+*   - change enable, disable can disable menu items
 *
 ************************************************************************/
 
@@ -9543,7 +9593,7 @@ var w2confirm = function (msg, title, callBack) {
                 $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove();
                 // remove from array
                 var ind = this.get(it.id, true);
-                if (ind) this.items.splice(ind, 1);
+                if (ind != null) this.items.splice(ind, 1);
             }
             return removed;
         },
@@ -9606,10 +9656,22 @@ var w2confirm = function (msg, title, callBack) {
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
+                var id = arguments[a].split(':');
+                var it = this.get(id[0]);
                 if (!it) continue;
                 items++;
-                it.disabled = false;
                 tmp.push(it.id);
+                if (it.type == 'menu' && id.length == 2) {
+                    // disable a menu item
+                    for (var i = 0; i < it.items.length; i++) {
+                        var item = it.items[i]
+                        if (item.id == id[1] || (item.id == null && item.text == id[1])) {
+                            item.disabled = false;
+                        }
+                    }
+                } else {
+                    it.disabled = false;
+                }
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
@@ -9620,11 +9682,22 @@ var w2confirm = function (msg, title, callBack) {
             var items = 0;
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
-                var it = this.get(arguments[a]);
+                var id = arguments[a].split(':');
+                var it = this.get(id[0]);
                 if (!it) continue;
                 items++;
-                it.disabled = true;
                 tmp.push(it.id);
+                if (it.type == 'menu' && id.length == 2) {
+                    // disable a menu item
+                    for (var i = 0; i < it.items.length; i++) {
+                        var item = it.items[i]
+                        if (item.id == id[1] || (item.id == null && item.text == id[1])) {
+                            item.disabled = true;
+                        }
+                    }
+                } else {
+                    it.disabled = true;
+                }
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
@@ -9971,6 +10044,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - add route property that would navigate to a #route
 *   - return ids of all subitems
 *   - added w2sidebar.flat
+*   - added focus(), blur(), onFocus, onBlur, hasFocus
 *
 ************************************************************************/
 
@@ -9991,6 +10065,7 @@ var w2confirm = function (msg, title, callBack) {
         this.bottomHTML    = '';
         this.keyboard      = true;
         this.flat          = false;
+        this.hasFocus      = false;
         this.onClick       = null;      // Fire when user click on Node Text
         this.onDblClick    = null;      // Fire when user dbl clicks
         this.onContextMenu = null;
@@ -10002,6 +10077,8 @@ var w2confirm = function (msg, title, callBack) {
         this.onRefresh     = null;
         this.onResize      = null;
         this.onDestroy     = null;
+        this.onFocus       = null;
+        this.onBlur        = null;
 
         $.extend(true, this, w2obj.sidebar, options);
     };
@@ -10088,14 +10165,18 @@ var w2confirm = function (msg, title, callBack) {
                 // need to be in reverse order
                 nodes  = arguments[1];
                 before = arguments[0];
-                ind    = this.get(before);
-                if (ind === null) {
-                    if (!$.isArray(nodes)) nodes = [nodes];
-                    txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
-                    console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
-                    return null;
+                if (before != null) {
+                    ind = this.get(before);
+                    if (ind === null) {
+                        if (!$.isArray(nodes)) nodes = [nodes];
+                        txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
+                        console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+                        return null;
+                    }
+                    parent = this.get(before).parent;
+                } else {
+                    parent = this;
                 }
-                parent = this.get(before).parent;
             }
             if (typeof parent == 'string') parent = this.get(parent);
             if (!$.isArray(nodes)) nodes = [nodes];
@@ -10320,6 +10401,7 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         collapse: function (id) {
+            if (!this.hasFocus) return;
             var obj = this;
             var nd  = this.get(id);
             // event before
@@ -10336,6 +10418,7 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         collapseAll: function (parent) {
+            if (!this.hasFocus) return;
             if (typeof parent == 'undefined') parent = this;
             if (typeof parent == 'string') parent = this.get(parent);
             if (parent.nodes == null) return false;
@@ -10348,6 +10431,7 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         expand: function (id) {
+            if (!this.hasFocus) return;
             var obj = this;
             var nd  = this.get(id);
             // event before
@@ -10364,6 +10448,7 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         expandAll: function (parent) {
+            if (!this.hasFocus) return;
             if (typeof parent == 'undefined') parent = this;
             if (typeof parent == 'string') parent = this.get(parent);
             if (parent.nodes == null) return false;
@@ -10386,6 +10471,7 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         click: function (id, event) {
+            if (!this.hasFocus) return;
             var obj = this;
             var nd  = this.get(id);
             if (nd === null) return;
@@ -10430,6 +10516,28 @@ var w2confirm = function (msg, title, callBack) {
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after' }));
             }, 1);
+        },
+
+        focus: function (event) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
+            if (eventData.isCancelled === true) return false;
+            // default behaviour
+            this.hasFocus = true;
+            $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
+        },
+
+        blur: function (event) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
+            if (eventData.isCancelled === true) return false;
+            // default behaviour
+            $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            this.hasFocus = false;
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         keydown: function (event) {
@@ -10537,7 +10645,7 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         dblClick: function (id, event) {
-            // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+            if (!this.hasFocus) return;
             var nd = this.get(id);
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
@@ -10549,6 +10657,7 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         contextMenu: function (id, event) {
+            if (!this.hasFocus) return;
             var obj = this;
             var nd  = obj.get(id);
             if (id != obj.selected) obj.click(id);
