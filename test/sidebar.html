@@ -22,6 +22,14 @@ $(function () {
         onMenuClick: function (event) {
             console.log(event);
         },
+        onFocus: function (event) {
+            console.log('focus: ', this.name, event);
+            // event.preventDefault();
+        },
+        onBlur: function (event) {
+            console.log('blur: ', this.name, event);
+            // event.preventDefault();
+        },        
         //onKeydown: function (event) { console.log('keyboard', event); event.preventDefault(); },
         nodes: [ 
             { id: 'level-1', text: 'Level 1', expanded: true, group: true, 

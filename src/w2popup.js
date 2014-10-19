@@ -246,7 +246,7 @@ var w2popup = {};
             }
             // save new options
             options._last_w2ui_name = w2utils.keyboard.active();
-            w2utils.keyboard.active(null);
+            w2utils.keyboard.clear();
             // keyboard events
             if (options.keyboard) $(document).on('keydown', this.keydown);
 

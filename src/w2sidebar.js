@@ -17,6 +17,7 @@
 *   - add route property that would navigate to a #route
 *   - return ids of all subitems
 *   - added w2sidebar.flat
+*   - added focus(), blur(), onFocus, onBlur, hasFocus
 *
 ************************************************************************/
 
@@ -37,6 +38,7 @@
         this.bottomHTML    = '';
         this.keyboard      = true;
         this.flat          = false;
+        this.hasFocus      = false;
         this.onClick       = null;      // Fire when user click on Node Text
         this.onDblClick    = null;      // Fire when user dbl clicks
         this.onContextMenu = null;
@@ -48,6 +50,8 @@
         this.onRefresh     = null;
         this.onResize      = null;
         this.onDestroy     = null;
+        this.onFocus       = null;
+        this.onBlur        = null;
 
         $.extend(true, this, w2obj.sidebar, options);
     };
@@ -370,6 +374,7 @@
         },
 
         collapse: function (id) {
+            if (!this.hasFocus) return;
             var obj = this;
             var nd  = this.get(id);
             // event before
@@ -386,6 +391,7 @@
         },
 
         collapseAll: function (parent) {
+            if (!this.hasFocus) return;
             if (typeof parent == 'undefined') parent = this;
             if (typeof parent == 'string') parent = this.get(parent);
             if (parent.nodes == null) return false;
@@ -398,6 +404,7 @@
         },
 
         expand: function (id) {
+            if (!this.hasFocus) return;
             var obj = this;
             var nd  = this.get(id);
             // event before
@@ -414,6 +421,7 @@
         },
 
         expandAll: function (parent) {
+            if (!this.hasFocus) return;
             if (typeof parent == 'undefined') parent = this;
             if (typeof parent == 'string') parent = this.get(parent);
             if (parent.nodes == null) return false;
@@ -436,6 +444,7 @@
         },
 
         click: function (id, event) {
+            if (!this.hasFocus) return;
             var obj = this;
             var nd  = this.get(id);
             if (nd === null) return;
@@ -480,6 +489,28 @@
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after' }));
             }, 1);
+        },
+
+        focus: function (event) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
+            if (eventData.isCancelled === true) return false;
+            // default behaviour
+            this.hasFocus = true;
+            $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
+        },
+
+        blur: function (event) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
+            if (eventData.isCancelled === true) return false;
+            // default behaviour
+            $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            this.hasFocus = false;
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         keydown: function (event) {
@@ -587,7 +618,7 @@
         },
 
         dblClick: function (id, event) {
-            // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+            if (!this.hasFocus) return;
             var nd = this.get(id);
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
@@ -599,6 +630,7 @@
         },
 
         contextMenu: function (id, event) {
+            if (!this.hasFocus) return;
             var obj = this;
             var nd  = obj.get(id);
             if (id != obj.selected) obj.click(id);

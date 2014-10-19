@@ -46,6 +46,7 @@
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - record.style[field_name]
+*   - added focus(), blur(), onFocus, onBlur, hasFocus
 *
 ************************************************************************/
 
@@ -109,6 +110,7 @@
         this.reorderColumns = false;
         this.reorderRows    = false;
         this.markSearch     = true;
+        this.hasFocus       = false;
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -158,6 +160,8 @@
         this.onDestroy          = null;
         this.onStateSave        = null;
         this.onStateRestore     = null;
+        this.onFocus            = null;
+        this.onBlur             = null;
 
         // internal
         this.last = {
@@ -942,6 +946,7 @@
         },
 
         select: function () {
+            if (!this.hasFocus) return;
             if (arguments.length == 0) return 0;
             var time = (new Date).getTime();
             var selected = 0;
@@ -1052,6 +1057,7 @@
         },
 
         unselect: function () {
+            if (!this.hasFocus) return;
             var unselected = 0;
             var sel = this.last.selection;
             for (var a = 0; a < arguments.length; a++) {
@@ -1124,6 +1130,7 @@
         },
 
         selectAll: function () {
+            if (!this.hasFocus) return;
             var time = (new Date()).getTime();
             if (this.multiSelect === false) return;
             // event before
@@ -2244,6 +2251,7 @@
         },
 
         click: function (recid, event) {
+            if (!this.hasFocus) return;
             var time = (new Date()).getTime();
             var column = null;
             if (this.last.cancelClick == true || (event && event.altKey)) return;
@@ -2354,12 +2362,35 @@
         },
 
         columnClick: function (field, event) {
+            if (!this.hasFocus) return;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
             if (eventData.isCancelled === true) return;
             // default behaviour
             var column = this.getColumn(field);
             if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
+        },
+
+        focus: function (event) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
+            if (eventData.isCancelled === true) return false;
+            // default behaviour
+            $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
+            this.hasFocus = true;
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
+        },
+
+        blur: function (event) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
+            if (eventData.isCancelled === true) return false;
+            // default behaviour
+            $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            this.hasFocus = false;
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -2789,7 +2820,7 @@
         },
 
         dblClick: function (recid, event) {
-            //if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
+            if (!this.hasFocus) return;
             // find columns
             var column = null;
             if (typeof recid == 'object') {
@@ -2819,6 +2850,7 @@
         },
 
         contextMenu: function (recid, event) {
+            if (!this.hasFocus) return;
             var obj = this;
             if (obj.last.userSelect == 'text') return;
             if (typeof event == 'undefined') event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ obj.name +'_rec_'+ recid)[0] };
@@ -2852,6 +2884,7 @@
         },
 
         menuClick: function (recid, index, event) {
+            if (!this.hasFocus) return;
             var obj = this;
             // event before
             var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: obj.name, originalEvent: event, 

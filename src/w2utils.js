@@ -1066,20 +1066,36 @@ w2utils.keyboard = (function (obj) {
 
     function mousedown (event) {
         var tag = event.target.tagName;
-        var obj = $(event.target).parents('.w2ui-reset');
-        if (obj.length > 0) {
-            var name = obj.attr('name');
-            if (w2ui[name] && w2ui[name].keyboard) w2ui_name = name;
+        var els = $(event.target).parents('.w2ui-grid, .w2ui-sidebar, .w2ui-popup');
+        if (els.length > 0) {
+            var name = els.attr('name');
+            var obj = w2ui[name];
+            if (name != w2ui_name) {
+                if (clear(event) === false) return; // event cancelled
+                if (active(name) === false) return; // event cancelled
+            }
+            if (obj && obj.keyboard) w2ui_name = name;
+        } else {
+            clear(event);
         }
     }
 
     function active (new_w2ui_name) {
-        if (typeof new_w2ui_name !== 'undefined') w2ui_name = new_w2ui_name;
-        return w2ui_name;
+        if (new_w2ui_name == null) return w2ui_name;
+        var obj = w2ui[new_w2ui_name];
+        if (obj && obj.focus) {
+            if (obj.focus.call(obj, event) === false) return false;
+        }
+        w2ui_name = new_w2ui_name;
+        return true;
     }
 
-    function clear () {
+    function clear (event) {
+        if (w2ui_name != null && w2ui[w2ui_name].blur) {
+            if (w2ui[w2ui_name].blur.call(w2ui[w2ui_name], event) === false) return false;
+        }
         w2ui_name = null;
+        return true;
     }
 
 })({});

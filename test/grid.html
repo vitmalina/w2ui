@@ -46,6 +46,14 @@ $(function () {
         onMenuClick: function (event) {
             console.log(event);
         },
+        onFocus: function (event) {
+            console.log('focus: ', this.name, event);
+            // event.preventDefault();
+        },
+        onBlur: function (event) {
+            console.log('blur: ', this.name, event);
+            event.preventDefault();
+        },
         postData: {
             "admin": 'somename'
         },
@@ -244,5 +252,6 @@ $(function () {
     <input type="button" value="Jump 375" onclick="w2ui.grid.skip(375);">
     <br>
     <div id="log" style="padding-top: 10px"></div>
+    this is some text
 </body>
 </html>
