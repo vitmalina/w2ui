@@ -134,14 +134,18 @@
                 // need to be in reverse order
                 nodes  = arguments[1];
                 before = arguments[0];
-                ind    = this.get(before);
-                if (ind === null) {
-                    if (!$.isArray(nodes)) nodes = [nodes];
-                    txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
-                    console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
-                    return null;
+                if (before != null) {
+                    ind = this.get(before);
+                    if (ind === null) {
+                        if (!$.isArray(nodes)) nodes = [nodes];
+                        txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
+                        console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+                        return null;
+                    }
+                    parent = this.get(before).parent;
+                } else {
+                    parent = this;
                 }
-                parent = this.get(before).parent;
             }
             if (typeof parent == 'string') parent = this.get(parent);
             if (!$.isArray(nodes)) nodes = [nodes];
