@@ -12,6 +12,7 @@
 *
 * == 1.5 changes
 *   - $('#toolbar').w2toolbar() - if called w/o argument then it returns toolbar object
+*   - change enable, disable can disable menu items
 *
 ************************************************************************/
 
@@ -195,10 +196,22 @@
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
+                var id = arguments[a].split(':');
+                var it = this.get(id[0]);
                 if (!it) continue;
                 items++;
-                it.disabled = false;
                 tmp.push(it.id);
+                if (it.type == 'menu' && id.length == 2) {
+                    // disable a menu item
+                    for (var i = 0; i < it.items.length; i++) {
+                        var item = it.items[i]
+                        if (item.id == id[1] || (item.id == null && item.text == id[1])) {
+                            item.disabled = false;
+                        }
+                    }
+                } else {
+                    it.disabled = false;
+                }
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
@@ -209,11 +222,22 @@
             var items = 0;
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
-                var it = this.get(arguments[a]);
+                var id = arguments[a].split(':');
+                var it = this.get(id[0]);
                 if (!it) continue;
                 items++;
-                it.disabled = true;
                 tmp.push(it.id);
+                if (it.type == 'menu' && id.length == 2) {
+                    // disable a menu item
+                    for (var i = 0; i < it.items.length; i++) {
+                        var item = it.items[i]
+                        if (item.id == id[1] || (item.id == null && item.text == id[1])) {
+                            item.disabled = true;
+                        }
+                    }
+                } else {
+                    it.disabled = true;
+                }
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
