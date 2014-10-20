@@ -2153,7 +2153,7 @@
             while (true) {
                 new_val = eventData.value_new;
                 if ((typeof new_val != 'object' && String(old_val) != String(new_val)) || 
-                    (typeof new_val == 'object' && (typeof old_val != 'object' || new_val.id != old_val.id))) {
+                    (typeof new_val == 'object' && (typeof old_val != 'object' || old_val === null || new_val.id != old_val.id))) {
                     // change event
                     eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
                     if (eventData.isCancelled !== true) {
