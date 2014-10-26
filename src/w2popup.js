@@ -599,7 +599,7 @@ var w2popup = {};
                     }, 100);
                 });
             } else {
-                $('#w2ui-lock').on('mouseup', function () { w2popup.close(); });
+                $('#w2ui-lock').on('mousedown', function () { w2popup.close(); });
             }
             return true;
         },
