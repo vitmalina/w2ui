@@ -5,15 +5,15 @@
 **/
 
 var kickStart = (function () {
-    var app = {};
-
     // public scope    
-    app.modules   = {};
-    app.config    = {};
-    app.define    = define;
-    app.require   = require;
-    app.register  = register;
 
+    var app = {
+        modules   : {},
+        config    : {},
+        define    : define,
+        require   : require,
+        register  : register
+    };
     return app;
 
     // ===========================================
@@ -213,31 +213,30 @@ var kickStart = (function () {
         }
     }
 })();
-/************************************************
-*  Library: KickStart - Minimalistic Framework
-*   - Dependencies: ks-core, jQuery
-**/
-
 kickStart.define({ name: 'route' });
 kickStart.register('route', function () {
     var app = kickStart;
     // private scope
     var routes  = {};
     var routeRE = {};
-    var options = { debug : false };
 
     addListener();
-    return {
+    var obj = {
         add     : add,
         remove  : remove,
         go      : go,
         get     : get,
         process : process,
-        list    : list
-    }
+        list    : list,
+        onAdd   : null,
+        onRemove: null,
+        onRoute : null
+    };
+    if (w2utils.event) $.extend(obj, w2utils.event, { handlers: [] });
+    return obj;
 
     /*
-    *    Public methods
+    *   Public methods
     */
 
     function add (route, handler) {
@@ -249,21 +248,37 @@ kickStart.register('route', function () {
             return app.route;
         }
         route = String('/'+route).replace(/\/{2,}/g, '/');
+        // if events are available
+        if (typeof app.route.trigger == 'function') {
+            var eventData = app.route.trigger({ phase: 'before', type: 'add', target: 'self', route: route, handler: handler });
+            if (eventData.isCancelled === true) return false;           
+        }
+        // default behavior
         routes[route] = handler;
+        // if events are available
+        if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         return app.route;
     }
 
     function remove (route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
+        // if events are available
+        if (typeof app.route.trigger == 'function') {
+            var eventData = app.route.trigger({ phase: 'before', type: 'remove', target: 'self', route: route, handler: handler });
+            if (eventData.isCancelled === true) return false;           
+        }
+        // default behavior
         delete routes[route];
         delete routeRE[route];
+        // if events are available
+        if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         return app.route;
     }
 
     function go (route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
         setTimeout(function () { window.location.hash = route; }, 1);
-        return app.route;        
+        return app.route;       
     }
 
     function get () {
@@ -290,10 +305,17 @@ kickStart.register('route', function () {
         var tmp  = hash.split('/');
         // check if modules is loaed
         if (tmp[1] && typeof app[tmp[1]] == 'undefined') {
-            if (options.debug) console.log('ROUTE: load module ' + tmp[1]);
+            // if events are available
+            if (typeof app.route.trigger == 'function') {
+                var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: hash });
+                if (eventData.isCancelled === true) return false;           
+            }
+            // load module
             app.require(tmp[1]).done(function () {
                 if (app.modules[tmp[1]]) process();
             });
+            // if events are available
+            if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         } else {
             // process route
             for (var r in routeRE) {
@@ -305,16 +327,22 @@ kickStart.register('route', function () {
                         params[routeRE[r].keys[p].name] = tmp[i];
                         i++;
                     }
-                    if (options.debug) console.log('ROUTE:', r, params);
+                    // if events are available
+                    if (typeof app.route.trigger == 'function') {
+                        var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: r, params: params });
+                        if (eventData.isCancelled === true) return false;           
+                    }
+                    // default error handler
                     routes[r](r, params);
+                    // if events are available
+                    if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
                 }
             }
         }
-        return app.route;
     }
 
     /*
-    *    Private methods
+    *   Private methods
     */
 
     function prepare () {
@@ -334,10 +362,10 @@ kickStart.register('route', function () {
                 .replace(/__plus__/g, '(.+)')
                 .replace(/\*/g, '(.*)');
             routeRE[r] = {
-                path  : new RegExp('^' + path + '$', 'i'),
-                keys  : keys
+                path    : new RegExp('^' + path + '$', 'i'),
+                keys    : keys
             }
-        }        
+        }       
     }
 
     function addListener () {
