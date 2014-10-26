@@ -3190,6 +3190,40 @@ w2utils.keyboard = (function (obj) {
             }
         },
 
+        searchReset: function (noRefresh) {
+            // event before
+            var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
+            if (eventData.isCancelled === true) return;
+            // default action
+            this.searchData  = [];
+            this.last.search = '';
+            this.last.logic  = 'OR';
+            // --- do not reset to All Fields (I think)
+            if (this.last.multi) {
+                if (!this.multiSearch) {
+                    this.last.field   = this.searches[0].field;
+                    this.last.caption = this.searches[0].caption;
+                } else {
+                    this.last.field   = 'all';
+                    this.last.caption = w2utils.lang('All Fields');
+                }
+            }
+            this.last.multi      = false;
+            this.last.xhr_offset = 0;
+            // reset scrolling position
+            this.last.scrollTop  = 0;
+            this.last.scrollLeft = 0;
+            this.last.selection.indexes = [];
+            this.last.selection.columns = {};
+            // -- clear all search field
+            this.searchClose();
+            $('#grid_'+ this.name +'_search_all').val('');
+            // apply search
+            if (!noRefresh) this.reload();
+            // event after
+            this.trigger($.extend(eventData, { phase: 'after' }));
+        },        
+
         searchShowFields: function () {
             var el   = $('#grid_'+ this.name +'_search_all');
             var html = '<div class="w2ui-select-field"><table>';
@@ -3232,7 +3266,7 @@ w2utils.keyboard = (function (obj) {
                 }
                 // set focus
                 setTimeout(function () { 
-                    el.focus(); /* do not do el.change() as it will refresh grid and pull from server */ 
+                    if (value !== null) el.focus(); /* do not do el.change() as it will refresh grid and pull from server */ 
                 }, 1);
             }
             // update field
@@ -3244,40 +3278,6 @@ w2utils.keyboard = (function (obj) {
             }
             el.attr('placeholder', search.caption);
             $().w2overlay();
-        },
-
-        searchReset: function (noRefresh) {
-            // event before
-            var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
-            if (eventData.isCancelled === true) return;
-            // default action
-            this.searchData  = [];
-            this.last.search = '';
-            this.last.logic  = 'OR';
-            // --- do not reset to All Fields (I think)
-            // if (this.last.multi) {
-            //     if (!this.multiSearch) {
-            //         this.last.field     = this.searches[0].field;
-            //         this.last.caption     = this.searches[0].caption;
-            //     } else {
-            //         this.last.field      = 'all';
-            //         this.last.caption     = w2utils.lang('All Fields');
-            //     }
-            // }
-            this.last.multi      = false;
-            this.last.xhr_offset = 0;
-            // reset scrolling position
-            this.last.scrollTop  = 0;
-            this.last.scrollLeft = 0;
-            this.last.selection.indexes = [];
-            this.last.selection.columns = {};
-            // -- clear all search field
-            this.searchClose();
-            $('#grid_'+ this.name +'_search_all').val('');
-            // apply search
-            if (!noRefresh) this.reload();
-            // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         clear: function (noRefresh) {
@@ -3305,7 +3305,7 @@ w2utils.keyboard = (function (obj) {
             this.last.range_start       = null;
             this.last.range_end         = null;
             this.last.xhr_offset        = 0;
-            this.searchReset(noRefresh);
+            // this.searchReset(noRefresh);     // do not reset search fields
             // initial sort
             if (this.last.sortData != null ) this.sortData = this.last.sortData;
             // select none without refresh
@@ -3550,8 +3550,8 @@ w2utils.keyboard = (function (obj) {
                             }
                         }
                         if (cmd == 'delete-records') {
-                            // reset() also triggers reload
                             this.reset(); // unselect old selections
+                            this.reload();
                             return;
                         }
                     }
@@ -5079,7 +5079,7 @@ w2utils.keyboard = (function (obj) {
             // reinit search_all
             if (this.last.field && this.last.field != 'all') {
                 var sd = this.searchData;
-                this.initAllField(this.last.field, (sd.length == 1 ? sd[0].value : null));
+                setTimeout(function () { obj.initAllField(obj.last.field, (sd.length == 1 ? sd[0].value : null)); }, 1);
             }
             // init footer
             $('#grid_'+ this.name +'_footer').html(this.getFooterHTML());            
@@ -8766,7 +8766,7 @@ var w2popup = {};
                     }, 100);
                 });
             } else {
-                $('#w2ui-lock').on('mouseup', function () { w2popup.close(); });
+                $('#w2ui-lock').on('mousedown', function () { w2popup.close(); });
             }
             return true;
         },
