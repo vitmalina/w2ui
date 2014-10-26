@@ -4,15 +4,15 @@
 **/
 
 var kickStart = (function () {
-    var app = {};
-
     // public scope    
-    app.modules   = {};
-    app.config    = {};
-    app.define    = define;
-    app.require   = require;
-    app.register  = register;
 
+    var app = {
+        modules   : {},
+        config    : {},
+        define    : define,
+        require   : require,
+        register  : register
+    };
     return app;
 
     // ===========================================
