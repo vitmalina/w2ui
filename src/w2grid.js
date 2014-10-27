@@ -47,6 +47,7 @@
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - record.style[field_name]
 *   - added focus(), blur(), onFocus, onBlur
+*   - added search.operator
 *
 ************************************************************************/
 
@@ -4507,15 +4508,17 @@
             var obj = this;
             // init searches
             for (var s = 0; s < this.searches.length; s++) {
-                var search = this.searches[s];
-                var sdata  = this.getSearchData(search.field);
+                var search   = this.searches[s];
+                var sdata    = this.getSearchData(search.field);
+                var operator = null;
                 search.type = String(search.type).toLowerCase();
                 if (typeof search.options != 'object') search.options = {};
                 // init types
                 switch (search.type) {
                     case 'text':
                     case 'alphanumeric':
-                        $('#grid_'+ this.name +'_operator_'+s).val('begins');
+                        operator = 'begins';
+                        if (search.operator && ['is', 'begins', 'contains', 'ends'].indexOf(search.operator) != -1) operator = search.operator;
                         if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
                             $('#grid_'+ this.name +'_field_' + s).w2field(search.type, search.options);
                         }
@@ -4529,6 +4532,8 @@
                     case 'date':
                     case 'time':
                         if (sdata && sdata.type == 'int' && ['in', 'not in'].indexOf(sdata.operator) != -1) break;
+                        operator = 'is';
+                        if (search.operator && ['is', 'between'].indexOf(search.operator) != -1) operator = search.operator;
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
                         $('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
                         setTimeout(function () { // convert to date if it is number
@@ -4538,22 +4543,31 @@
                         break;
 
                     case 'hex':
+                        operator = 'is';
+                        if (search.operator && ['is', 'between'].indexOf(search.operator) != -1) operator = search.operator;
                         break;
 
                     case 'list':
                     case 'combo':
                     case 'enum':
+                        if (search.type == 'list') operator = 'is'
+                        if (search.type == 'combo') {
+                            operator = 'begins'
+                            if (search.operator && ['is', 'begins', 'contains', 'ends'].indexOf(search.operator) != -1) operator = search.operator;
+                        }
+                        if (search.type == 'enum') {
+                            operator = 'in';
+                            if (search.operator && ['in', 'not in'].indexOf(search.operator) != -1) operator = search.operator;
+                        }                        
                         var options = search.options;
                         if (search.type == 'list') options.selected = {};
                         if (search.type == 'enum') options.selected = [];
                         if (sdata) options.selected = sdata.value;
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, $.extend({ openOnFocus: true }, options));
-                        if (search.type == 'combo') {
-                            $('#grid_'+ this.name +'_operator_'+s).val('begins');
-                        }
                         break;
 
                     case 'select':
+                        operator = 'is';
                         // build options
                         var options = '<option value="">--</option>';
                         for (var i = 0; i < search.options.items; i++) {
@@ -4587,6 +4601,8 @@
                             $('#grid_'+ this.name +'_field2_'+ s).val(sdata.value[1]).trigger('change');
                         }
                     }
+                } else {
+                    $('#grid_'+ this.name +'_operator_'+s).val(operator).trigger('change');
                 }
             }
             // add on change event
