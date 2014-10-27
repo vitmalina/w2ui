@@ -1263,6 +1263,7 @@
                         } else {
                             value1 = value1.id || '';
                         }
+                        if ($.isEmptyObject(value1)) value1 = '';
                     }
                     if ((value1 !== '' && value1 != null) || (typeof value2 != 'undefined' && value2 !== '')) {
                         var tmp = {
