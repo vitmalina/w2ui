@@ -26,6 +26,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - add time zone
 *   - TEST On IOS
 *   - $().w2marker() -- only unmarks first instance
+*   - subitems for w2menus()
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
@@ -1759,6 +1760,7 @@ w2utils.keyboard = (function (obj) {
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - record.style[field_name]
 *   - added focus(), blur(), onFocus, onBlur
+*   - added search.operator
 *
 ************************************************************************/
 
@@ -2975,6 +2977,7 @@ w2utils.keyboard = (function (obj) {
                         } else {
                             value1 = value1.id || '';
                         }
+                        if ($.isEmptyObject(value1)) value1 = '';
                     }
                     if ((value1 !== '' && value1 != null) || (typeof value2 != 'undefined' && value2 !== '')) {
                         var tmp = {
@@ -6218,15 +6221,17 @@ w2utils.keyboard = (function (obj) {
             var obj = this;
             // init searches
             for (var s = 0; s < this.searches.length; s++) {
-                var search = this.searches[s];
-                var sdata  = this.getSearchData(search.field);
+                var search   = this.searches[s];
+                var sdata    = this.getSearchData(search.field);
+                var operator = null;
                 search.type = String(search.type).toLowerCase();
                 if (typeof search.options != 'object') search.options = {};
                 // init types
                 switch (search.type) {
                     case 'text':
                     case 'alphanumeric':
-                        $('#grid_'+ this.name +'_operator_'+s).val('begins');
+                        operator = 'begins';
+                        if (search.operator && ['is', 'begins', 'contains', 'ends'].indexOf(search.operator) != -1) operator = search.operator;
                         if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
                             $('#grid_'+ this.name +'_field_' + s).w2field(search.type, search.options);
                         }
@@ -6240,6 +6245,8 @@ w2utils.keyboard = (function (obj) {
                     case 'date':
                     case 'time':
                         if (sdata && sdata.type == 'int' && ['in', 'not in'].indexOf(sdata.operator) != -1) break;
+                        operator = 'is';
+                        if (search.operator && ['is', 'between'].indexOf(search.operator) != -1) operator = search.operator;
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
                         $('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
                         setTimeout(function () { // convert to date if it is number
@@ -6249,22 +6256,31 @@ w2utils.keyboard = (function (obj) {
                         break;
 
                     case 'hex':
+                        operator = 'is';
+                        if (search.operator && ['is', 'between'].indexOf(search.operator) != -1) operator = search.operator;
                         break;
 
                     case 'list':
                     case 'combo':
                     case 'enum':
+                        if (search.type == 'list') operator = 'is'
+                        if (search.type == 'combo') {
+                            operator = 'begins'
+                            if (search.operator && ['is', 'begins', 'contains', 'ends'].indexOf(search.operator) != -1) operator = search.operator;
+                        }
+                        if (search.type == 'enum') {
+                            operator = 'in';
+                            if (search.operator && ['in', 'not in'].indexOf(search.operator) != -1) operator = search.operator;
+                        }                        
                         var options = search.options;
                         if (search.type == 'list') options.selected = {};
                         if (search.type == 'enum') options.selected = [];
                         if (sdata) options.selected = sdata.value;
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, $.extend({ openOnFocus: true }, options));
-                        if (search.type == 'combo') {
-                            $('#grid_'+ this.name +'_operator_'+s).val('begins');
-                        }
                         break;
 
                     case 'select':
+                        operator = 'is';
                         // build options
                         var options = '<option value="">--</option>';
                         for (var i = 0; i < search.options.items; i++) {
@@ -6298,6 +6314,8 @@ w2utils.keyboard = (function (obj) {
                             $('#grid_'+ this.name +'_field2_'+ s).val(sdata.value[1]).trigger('change');
                         }
                     }
+                } else {
+                    $('#grid_'+ this.name +'_operator_'+s).val(operator).trigger('change');
                 }
             }
             // add on change event
