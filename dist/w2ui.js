@@ -2364,7 +2364,8 @@ w2utils.keyboard = (function (obj) {
                         var search     = this.getSearch(sdata.field);
                         if (sdata  == null) continue;
                         if (search == null) search = { field: sdata.field, type: sdata.type };
-                        var val1 = String(obj.parseField(rec, search.field)).toLowerCase();
+                        var val1b = obj.parseField(rec, search.field);
+                        var val1  = String(val1b).toLowerCase();
                         if (typeof sdata.value != 'undefined') {
                             if (!$.isArray(sdata.value)) {
                                 var val2 = String(sdata.value).toLowerCase();
@@ -2413,11 +2414,13 @@ w2utils.keyboard = (function (obj) {
                                 var tmp = sdata.value;
                                 if (sdata.svalue) tmp = sdata.svalue;
                                 if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) !== -1) fl++;
+                                if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) !== -1) fl++;
                                 break;
                             case 'not in':
                                 var tmp = sdata.value;
                                 if (sdata.svalue) tmp = sdata.svalue;
                                 if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) == -1) fl++;
+                                if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) == -1) fl++;
                                 break;
                             case 'begins':
                             case 'begins with': // need for back compatib.
@@ -3042,11 +3045,11 @@ w2utils.keyboard = (function (obj) {
                                         operator : (search.type == 'text' ? 'contains' : 'is'),
                                         value    : value
                                     };
-                                    searchData.push(tmp);
+                                    if ($.trim(value) != '') searchData.push(tmp);
                                 }
                                 // range in global search box
-                                if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1 && String(value).indexOf('-') != -1) {
-                                    var t = String(value).split('-');
+                                if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1 && String($.trim(value)).indexOf('-') > 0) {
+                                    var t = $.trim(String(value)).split('-');
                                     var tmp = {
                                         field    : search.field,
                                         type     : search.type,
@@ -3054,6 +3057,27 @@ w2utils.keyboard = (function (obj) {
                                         value    : [t[0], t[1]]
                                     };
                                     searchData.push(tmp);
+                                }
+                                // lists fiels
+                                if (['list', 'enum'].indexOf(search.type) != -1) {
+                                    var new_values = [];
+                                    for (var key in search.options.items) {
+                                        var tmp = search.options.items[key];
+                                        try {
+                                            var re = new RegExp(value, 'i');
+                                            if (re.test(tmp)) new_values.push(key);
+                                            if (tmp.text && re.test(tmp.text)) new_values.push(tmp.id);
+                                        } catch (e) {}
+                                    }
+                                    if (new_values.length > 0) {
+                                        var tmp = {
+                                            field    : search.field,
+                                            type     : search.type,
+                                            operator : 'in',
+                                            value    : new_values
+                                        };
+                                        searchData.push(tmp);
+                                    }
                                 }
                             }
                         } else {
@@ -3513,18 +3537,17 @@ w2utils.keyboard = (function (obj) {
                             try { eval('data = '+ responseText); } catch (e) { }
                         }
                     }
-                    // convert recids
-                    if (obj.recid) {
-                        for (var r in data.records) {
-                            data.records[r]['recid'] = data.records[r][obj.recid];
-                        }
-                    }
-                    if (typeof data == 'undefined') {
+                    if (data == null) {
                         data = {
                             status       : 'error',
                             message      : this.msgNotJSON,
                             responseText : responseText
                         };
+                    } else if (obj.recid) {
+                        // convert recids
+                        for (var r in data.records) {
+                            data.records[r]['recid'] = data.records[r][obj.recid];
+                        }
                     }
                     if (data['status'] == 'error') {
                         obj.error(data['message']);
@@ -6141,10 +6164,8 @@ w2utils.keyboard = (function (obj) {
                 if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
                     var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" '+
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');" onclick="event.stopPropagation();">'+
-                        '    <option value="is">'+ w2utils.lang('is') +'</option>'+
-                        (['int'].indexOf(s.type) != -1 ? '<option value="in">'+ w2utils.lang('in') +'</option>' : '') +
-                        (['int'].indexOf(s.type) != -1 ? '<option value="not in">'+ w2utils.lang('not in') +'</option>' : '') +
-                        '<option value="between">'+ w2utils.lang('between') +'</option>'+
+                        '   <option value="is">'+ w2utils.lang('is') +'</option>'+
+                        '   <option value="between">'+ w2utils.lang('between') +'</option>'+
                         '</select>';
                 }
                 if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
@@ -9914,7 +9935,8 @@ var w2confirm = function (msg, title, callBack) {
             if (typeof item.onRender === 'function') newHTML = item.onRender.call(this, item.id, html);
             if (typeof this.onRender === 'function') newHTML = this.onRender(item.id, html);
             if (newHTML !== '' && newHTML != null) html = newHTML;
-            return html;
+            
+            return '<div>' + html + '</div>';
         },
 
         menuClick: function (event) {
