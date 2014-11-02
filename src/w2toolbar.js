@@ -447,7 +447,8 @@
             if (typeof item.onRender === 'function') newHTML = item.onRender.call(this, item.id, html);
             if (typeof this.onRender === 'function') newHTML = this.onRender(item.id, html);
             if (newHTML !== '' && newHTML != null) html = newHTML;
-            return html;
+            
+            return '<div>' + html + '</div>';
         },
 
         menuClick: function (event) {
