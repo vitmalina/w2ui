@@ -882,9 +882,9 @@
                     }
                     if (td2f.length == 0) {
                         td2f  = $('#grid_'+ this.name +'_frec_'+ last.recid + ' td:last-child');
+                        if (td2f.length == 0) td2f = $('#grid_'+ this.name +'_frec_bottom td:first-child');
                         $range.css('border-right', '0px');
                         $range.find('.w2ui-selection-resizer').hide();
-                        console.log('-->', td2f.length);
                     }
                     $range.show().css({
                         left    : (td1f.position().left - 1 + rec1.scrollLeft()) + 'px',
@@ -908,6 +908,7 @@
                     }
                     if (td1.length == 0) {
                         td1 = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td:first-child');
+                        if (td1.length == 0) td1 = $('#grid_'+ this.name +'_rec_top td:first-child');
                         $range.css('border-left', '0px');
                     }
                     $range.show().css({
