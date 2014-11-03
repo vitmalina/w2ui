@@ -4287,11 +4287,6 @@
             if (body.width() < $(records).find('>table').width() + $(frecords).find('>table').width() + 5) bodyOverflowX = true;
             if (body.height() - columns.height() < $(records).find('>table').height() + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) bodyOverflowY = true;
 
-            var bodyOverflowX = false;
-            var bodyOverflowY = false;
-            if (body.width() < $(records).find('>table').width() + $(frecords).find('>table').width() + 5) bodyOverflowX = true;
-            if (body.height() - columns.height() < $(records).find('>table').height() + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) bodyOverflowY = true;
-
             // body might be expanded by data
             if (!this.fixedBody) {
                 // allow it to render records, then resize
@@ -4380,7 +4375,8 @@
                     - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
                     - (this.show.lineNumbers ? lineNumberWidth : 0)
                     - (this.show.selectColumn ? 26 : 0)
-                    - (this.show.expandColumn ? 26 : 0);
+                    - (this.show.expandColumn ? 26 : 0)
+                    - 1; // left is 1xp due to border width
                 var width_box = width_max;
                 var percent = 0;
                 // gridMinWidth processiong
