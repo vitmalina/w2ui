@@ -886,12 +886,14 @@
                         $range.css('border-right', '0px');
                         $range.find('.w2ui-selection-resizer').hide();
                     }
-                    $range.show().css({
-                        left    : (td1f.position().left - 1 + rec1.scrollLeft()) + 'px',
-                        top     : (td1f.position().top - 1 + rec1.scrollTop()) + 'px',
-                        width   : (td2f.position().left - td1f.position().left + td2f.width() + 3) + 'px',
-                        height  : (td2f.position().top - td1f.position().top + td2f.height() + 3) + 'px'
-                    });
+                    if (first.recid != null && last.recid != null) {
+                        $range.show().css({
+                            left    : (td1f.position().left - 1 + rec1.scrollLeft()) + 'px',
+                            top     : (td1f.position().top - 1 + rec1.scrollTop()) + 'px',
+                            width   : (td2f.position().left - td1f.position().left + td2f.width() + 3) + 'px',
+                            height  : (td2f.position().top - td1f.position().top + td2f.height() + 3) + 'px'
+                        });
+                    }
                 } else {
                     $range.hide();                   
                 }
@@ -911,20 +913,21 @@
                         if (td1.length == 0) td1 = $('#grid_'+ this.name +'_rec_top td:first-child');
                         $range.css('border-left', '0px');
                     }
-                    $range.show().css({
-                        left    : (td1.position().left - 1 + rec2.scrollLeft()) + 'px',
-                        top     : (td1.position().top - 1 + rec2.scrollTop()) + 'px',
-                        width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
-                        height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
-                    });
+                    if (first.recid != null && last.recid != null) {
+                        $range.show().css({
+                            left    : (td1.position().left - 1 + rec2.scrollLeft()) + 'px',
+                            top     : (td1.position().top - 1 + rec2.scrollTop()) + 'px',
+                            width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
+                            height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
+                        });
+                    }
                 } else {
                     $range.hide();                   
                 }
             }
 
             // add resizer events
-            $(this.box).find('#grid_'+ this.name +'_resizer').off('mousedown').on('mousedown', mouseStart);
-
+            $(this.box).find('.w2ui-selection-resizer').off('mousedown').on('mousedown', mouseStart);
             var eventData = { phase: 'before', type: 'selectionExtend', target: obj.name, originalRange: null, newRange: null };
 
             function mouseStart (event) {
