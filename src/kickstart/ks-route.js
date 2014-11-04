@@ -17,7 +17,7 @@ kickStart.register('route', function () {
         onRemove: null,
         onRoute : null
     };
-    if (w2utils.event) $.extend(obj, w2utils.event, { handlers: [] });
+    if (typeof w2utils != 'undefined') $.extend(obj, w2utils.event, { handlers: [] });
     return obj;
 
     /*
