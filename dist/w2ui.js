@@ -11456,7 +11456,8 @@ var w2confirm = function (msg, title, callBack) {
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
-                        markSearch      : false
+                        markSearch      : false,
+                        method          : null          // if defined, overrides default ajax method
                     };
                     options.items = this.normMenu(options.items); // need to be first
                     if (this.type == 'list') {
@@ -12490,6 +12491,7 @@ var w2confirm = function (msg, title, callBack) {
                         data     : postData,
                         dataType : 'JSON' // expected from server
                     };
+                    if (options.method) ajaxOptions.type = options.method;
                     if (w2utils.settings.dataType == 'JSON') {
                         ajaxOptions.type        = 'POST';
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
@@ -13966,7 +13968,7 @@ var w2confirm = function (msg, title, callBack) {
                     }
                     // event after
                     obj.trigger($.extend(eventData, { phase: 'after' }));
-                    obj.refresh();
+                    // obj.refresh(); <- Apparently this makes form request data twice!
                     // call back
                     if (typeof callBack == 'function') callBack(data);
                 })

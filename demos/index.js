@@ -39,6 +39,7 @@ $(function () {
                     { id: 'combo-7', text: 'Popup & Grid', icon: 'fa-star-empty' },
                     { id: 'combo-8', text: 'Popup & Layout', icon: 'fa-star-empty' },
                     { id: 'combo-10', text: 'Dependent Fields', icon: 'fa-star-empty' },
+                    { id: 'combo-999', text: 'CMS', icon: 'fa-columns' }
                 ]
             },
             { id: 'layout', text: 'Layout', img: 'icon-folder', group1: true,
