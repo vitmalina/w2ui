@@ -28,7 +28,7 @@
         "Not alpha-numeric" : "不是字母或数字",
         "Not a valid email" : "不是有效的邮件地址",
         "Are you sure you want to delete selected records?" : "确定删除选中的数据吗？",
-        "Return data is not in JSON format. See console for more information." : "返回的数据不是JSON格式，更多信息查看控制台。",
+        "Return data is not in JSON format. See console for more information." : "返回的数据不是JSON格式，查看控制台以获取更多信息。",
         "Refreshing..." : "刷新中...",
         "All Fields" : "全部字段",
         "Multi Fields" : "多个字段",
