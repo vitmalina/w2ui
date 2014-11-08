@@ -16,7 +16,7 @@ $(function () {
     $('#grid').w2grid({ 
         name      : 'grid', 
         header    : 'List of Names',
-        url : '//w2ui.com/web/pages/demo/infinite/index.php',
+        // url : '//w2ui.com/web/pages/demo/infinite/index.php',
         // routeData : { id: 4 },
         // url       : '/1/:id/grid.json',
         // url     : {
@@ -24,14 +24,15 @@ $(function () {
         //     remove : 'grid3.json',
         //     save   : 'save'
         // },
-        reorderColumns: false,
+        reorderRows: true,
+        reorderColumns: true,
         show: { 
             toolbar: true,
             footer: true,
             header: true,
             emptyRecords: true,
             columnHeaders: true,
-            selectColumn: true,
+            selectColumn: false,
             // expandColumn: true,
             lineNumbers: true,
             toolbarAdd: true,
@@ -44,6 +45,9 @@ $(function () {
             { id: 2, text: 'View Item', icon: 'fa-camera' }, 
             { id: 4, text: 'Delete Item', icon: 'fa-minus' }
         ],
+        onReorderRow: function (event) {
+            console.log('reorder -->', event);
+        },
         onMenuClick: function (event) {
             console.log(event);
         },
@@ -53,7 +57,7 @@ $(function () {
         },
         onBlur: function (event) {
             console.log('blur: ', this.name, event);
-            event.preventDefault();
+            // event.preventDefault();
         },
         postData: {
             "admin": 'somename'
@@ -129,10 +133,10 @@ $(function () {
         ],
         columns: [                
             { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen1: true },
-            { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true },
+            // { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, editable: { type: 'combo', items: ['item 1', 'item 2', 'item 3']} },
             { field: 'fname', caption: 'First Name', size: '150px', sortable: true, resizable: true, editable: { type: 'text' } },
             { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true },
-            { field: 'email', caption: 'Email', size: '400px', resizable: true, sortable: true, frozen1: true },
+            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2', frozen1: true },
             { field: 'sdate', caption: 'Date', size: '120px', render: 'date:yyyy-mm-dd', searchable: 'date', sortable: true, 
                 editable: { type: 'date', format: 'yyyy-mm-dd' } },
@@ -217,7 +221,7 @@ $(function () {
     var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
     var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
     // add 10k records
-    for (var i = 0; i < 1000; i++) {
+    for (var i = 0; i < 11; i++) {
         var dt = new Date(((new Date()).getTime() - Math.floor(Math.random() * 1000000000)));
         w2ui['grid'].records.push({ 
             recid : (i + 1),
@@ -231,8 +235,8 @@ $(function () {
             style1: 'background-color: #efefef'
         });
     }
-    w2ui.grid.records[4].style = { fname: 'background-color: red' };
-    w2ui.grid.records[10].summary = true;
+    // w2ui.grid.records[4].style = { fname: 'background-color: red' };
+    // w2ui.grid.records[10].summary = true;
     // w2ui.grid.records[0].sdate = null;
     // w2ui.grid.records[3].sdate = null;
     // w2ui.grid.records[7].sdate = null;

@@ -49,6 +49,7 @@
 *   - record.style[field_name]
 *   - added focus(), blur(), onFocus, onBlur
 *   - added search.operator
+*   - refactor reorderRow (not finished)
 *
 ************************************************************************/
 
@@ -163,6 +164,7 @@
         this.onStateRestore     = null;
         this.onFocus            = null;
         this.onBlur             = null;
+        this.onReorderRow       = null;
 
         // internal
         this.last = {
@@ -223,7 +225,7 @@
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
-                if (records[r].recid == null || typeof records[r].recid == 'undefined') {
+                if (records[r].recid == null) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
                     return;
                 }
@@ -232,7 +234,7 @@
             // add searches
             for (var c in object.columns) {
                 var col = object.columns[c];
-                if (typeof col.searchable == 'undefined' || object.getSearch(col.field) != null) continue;
+                if (col.searchable == null || col.searchable === false || object.getSearch(col.field) != null) continue;
                 var stype = col.searchable;
                 var attr  = '';
                 if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
@@ -289,7 +291,7 @@
             var added = 0;
             for (var o in record) {
                 if (this.recid && typeof record[o].recid == 'undefined') record[o].recid = record[o][this.recid];
-                if (record[o].recid == null || typeof record[o].recid == 'undefined') {
+                if (record[o].recid == null) {
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
                 }
@@ -307,7 +309,7 @@
         },
 
         find: function (obj, returnIndex) {
-            if (typeof obj == 'undefined' || obj == null) obj = {};
+            if (obj == null) obj = {};
             var recs    = [];
             var hasDots = false;
             // check if property is nested - needed for speed
@@ -1405,7 +1407,7 @@
                                     if ($.trim(value) != '') searchData.push(tmp);
                                 }
                                 // range in global search box
-                                if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1 && String($.trim(value)).indexOf('-') > 0) {
+                                if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1 && $.trim(String(value)).split('-').length == 2) {
                                     var t = $.trim(String(value)).split('-');
                                     var tmp = {
                                         field    : search.field,
@@ -1743,7 +1745,7 @@
 
         request: function (cmd, add_params, url, callBack) {
             if (typeof add_params == 'undefined') add_params = {};
-            if (typeof url == 'undefined' || url == '' || url == null) url = this.url;
+            if (url == '' || url == null) url = this.url;
             if (url == '' || url == null) return;
             // build parameters list
             var params = {};
@@ -2055,8 +2057,8 @@
             if (typeof edit.style   == 'undefined') edit.style   = '';
             if (typeof edit.items   == 'undefined') edit.items   = [];
             var val = (rec.changes && typeof rec.changes[col.field] != 'undefined' ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
-            if (val == null || typeof val == 'undefined') val = '';
-            if (typeof value != 'undefined' && value != null) val = value;
+            if (val == null) val = '';
+            if (value != null) val = value;
             var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
             if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
                 addStyle += 'text-align: right;';
@@ -2245,6 +2247,7 @@
                 phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
                 value_new: new_val, value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
             };
+            if (old_val == null) old_val = '';
             while (true) {
                 new_val = eventData.value_new;
                 if ((typeof new_val != 'object' && String(old_val) != String(new_val)) || 
@@ -3528,6 +3531,45 @@
                         start  : true
                     };
                 }
+                if (obj.reorderRows == true) {
+                    var el = event.target;
+                    if (el.tagName != 'TD') el = $(el).parents('td')[0];
+                    if ($(el).hasClass('w2ui-col-number')) {
+                        obj.selectNone();
+                        obj.last.move.reorder = true; 
+                        // supress hover
+                        var eColor = $(obj.box).find('.w2ui-even.w2ui-empty-record').css('background-color');
+                        var oColor = $(obj.box).find('.w2ui-odd.w2ui-empty-record').css('background-color');
+                        $(obj.box).find('.w2ui-even td').not('.w2ui-col-number').css('background-color', eColor);
+                        $(obj.box).find('.w2ui-odd td').not('.w2ui-col-number').css('background-color', oColor);
+                        // display empty record and ghost record
+                        var mv = obj.last.move;
+                        if (!mv.ghost) {
+                            var row    = $('#grid_'+ obj.name + '_rec_'+ mv.recid);
+                            var tmp    = row.parents('table').find('tr:first-child').clone();
+                            mv.offsetY = event.offsetY;
+                            mv.from    = mv.recid;
+                            mv.pos     = row.position();
+                            mv.ghost   = $(row).clone(true);
+                            mv.ghost.removeAttr('id');
+                            row.find('td').remove();
+                            row.append('<td colspan="1000" style="height: '+ obj.recordHeight +'px; background-color: #eee; border-bottom: 1px dashed #aaa; border-top: 1px dashed #aaa;"></td>');
+                            var recs = $(obj.box).find('.w2ui-grid-records');
+                            recs.append('<table id="grid_'+ obj.name + '_ghost" style="position: absolute; z-index: 999999; opacity: 0.7; pointer-events: none;"></table>');
+                            $('#grid_'+ obj.name + '_ghost').append(tmp).append(mv.ghost);
+                        }
+                        var ghost = $('#grid_'+ obj.name + '_ghost');
+                        var recs  = $(obj.box).find('.w2ui-grid-records');
+                        ghost.css({
+                            top  : mv.pos.top + recs.scrollTop(),
+                            left : mv.pos.left,
+                            "border-top"    : '1px solid #aaa',
+                            "border-bottom" : '1px solid #aaa'
+                        });
+                    } else {
+                        obj.last.move.reorder = false;
+                    }
+                }
                 $(document).on('mousemove', mouseMove);
                 $(document).on('mouseup', mouseStop);
             }
@@ -3539,32 +3581,23 @@
                 mv.divY = (event.screenY - mv.y);
                 if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return; // only if moved more then 1px
                 obj.last.cancelClick = true;
-                if (obj.reorderRows == true) {
-                    if (!mv.ghost) {
-                        var row    = $('#grid_'+ obj.name + '_rec_'+ mv.recid);
-                        var tmp    = row.parents('table').find('tr:first-child').clone();
-                        mv.offsetY = event.offsetY;
-                        mv.from    = mv.recid;
-                        mv.pos     = row.position();
-                        mv.ghost   = $(row).clone(true);
-                        mv.ghost.removeAttr('id');
-                        row.find('td:first-child').replaceWith('<td colspan="1000" style="height: '+ obj.recordHeight +'px; background-color: #ddd"></td>');
-                        var recs = $(obj.box).find('.w2ui-grid-records');
-                        recs.append('<table id="grid_'+ obj.name + '_ghost" style="position: absolute; z-index: 999999; opacity: 0.8; border-bottom: 2px dashed #aaa; border-top: 2px dashed #aaa; pointer-events: none;"></table>');
-                        $('#grid_'+ obj.name + '_ghost').append(tmp).append(mv.ghost);
-                    }
-                    var recid = $(event.target).parents('tr').attr('recid');
+                if (obj.reorderRows == true && obj.last.move.reorder) {
+                    var tmp   = $(event.target).parents('tr');
+                    var recid = tmp.attr('recid');
                     if (recid != mv.from) {
                         var row1 = $('#grid_'+ obj.name + '_rec_'+ mv.recid);
                         var row2 = $('#grid_'+ obj.name + '_rec_'+ recid);
-                        if (event.screenY - mv.lastY < 0) row1.after(row2); else row2.after(row1);
+                        $(obj.box).find('.tmp-ghost').css('border-top', '0px');
+                        row2.addClass('tmp-ghost').css('border-top', '2px solid #769EFC');
+                        // MOVABLE GHOST
+                        // if (event.screenY - mv.lastY < 0) row1.after(row2); else row2.after(row1);
                         mv.lastY = event.screenY;
                         mv.to      = recid;
                     }
                     var ghost = $('#grid_'+ obj.name + '_ghost');
                     var recs  = $(obj.box).find('.w2ui-grid-records');
                     ghost.css({
-                        top     : mv.pos.top + mv.divY + recs.scrollTop(), // + mv.offsetY - obj.recordHeight / 2,
+                        top  : mv.pos.top + mv.divY + recs.scrollTop(),
                         left : mv.pos.left
                     });
                     return;
@@ -3634,14 +3667,31 @@
                 setTimeout(function () { delete obj.last.cancelClick; }, 1);
                 if ($(event.target).parents().hasClass('.w2ui-head') || $(event.target).hasClass('.w2ui-head')) return;
                 if (mv && mv.type == 'select') {
-                    if (obj.reorderRows == true) {
+                    if (obj.reorderRows == true && obj.last.move.reorder) {
+                        // event
+                        var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'reorderRow', recid: mv.from, moveAfter: mv.to });
+                        if (eventData.isCancelled === true) {
+                            $('#grid_'+ obj.name + '_ghost').remove();
+                            obj.refresh();
+                            return;
+                        }
+                        // default behavior
                         var ind1 = obj.get(mv.from, true);
-                        var tmp  = obj.records[ind1];
-                        obj.records.splice(ind1, 1);
                         var ind2 = obj.get(mv.to, true);
-                        if (ind1 > ind2) obj.records.splice(ind2, 0, tmp); else obj.records.splice(ind2+1, 0, tmp);
+                        var tmp  = obj.records[ind1];
+                        // swap records
+                        if (ind1 != null && ind2 != null) {
+                            obj.records.splice(ind1, 1);
+                            if (ind1 > ind2) {
+                                obj.records.splice(ind2, 0, tmp);
+                            } else {
+                                obj.records.splice(ind2 - 1, 0, tmp);
+                            }
+                        }
                         $('#grid_'+ obj.name + '_ghost').remove();
                         obj.refresh();
+                        // event after
+                        obj.trigger($.extend(eventData, { phase: 'after' }));
                     }
                 }
                 delete obj.last.move;
@@ -4284,7 +4334,7 @@
 
             var bodyOverflowX = false;
             var bodyOverflowY = false;
-            if (body.width() < $(records).find('>table').width() + $(frecords).find('>table').width() + 5) bodyOverflowX = true;
+            if (body.width() < $(records).find('>table').width() + $(frecords).find('>table').width()) bodyOverflowX = true;
             if (body.height() - columns.height() < $(records).find('>table').height() + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) bodyOverflowY = true;
 
             // body might be expanded by data
@@ -5222,7 +5272,8 @@
                 '>';
             if (this.show.lineNumbers) {
                 rec_html1 += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" '+
-                            '   class="w2ui-col-number '+ (isRowSelected  ? ' w2ui-row-selected' : '') +'">'+
+                            '   class="w2ui-col-number '+ (isRowSelected  ? ' w2ui-row-selected' : '') +'"'+
+                                (this.reorderRows ? 'style="cursor: move"' : '') + '>'+
                                 (summary !== true ? '<div>'+ lineNum +'</div>' : '') +
                             '</td>';
             }
@@ -5371,7 +5422,7 @@
                     var data = '<div title="'+ w2utils.stripTags(title) +'" style="'+ addStyle +'">'+ data +'</div>';
                 }
             }
-            if (data == null || typeof data == 'undefined') data = '';
+            if (data == null) data = '';
             return data;
         },
 
@@ -5379,11 +5430,17 @@
             var col    = this.columns[col_ind];
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.parseField(record, col.field);
-            if (record.changes && typeof record.changes[col.field] != 'undefined') data = record.changes[col.field];
-            if (data == null || typeof data == 'undefined') data = '';
+            if (record.changes && typeof record.changes[col.field] != 'undefined') {
+                data = record.changes[col.field];
+                if ($.isPlainObject(data)) {
+                    if (data.text != null) data = data.text;
+                    if (data.id != null) data = data.id;
+                }
+            }
+            if (data == null) data = '';
             return data;
         },
-
+        
         getFooterHTML: function () {
             return '<div>'+
                 '    <div class="w2ui-footer-left"></div>'+
@@ -5449,11 +5506,11 @@
                 var col = this.columns[i];
                 state.columns.push({
                     field           : col.field,
-                    hidden          : col.hidden,
-                    size            : col.size,
-                    sizeCalculated  : col.sizeCalculated,
-                    sizeOriginal    : col.sizeOriginal,
-                    sizeType        : col.sizeType
+                    hidden          : col.hidden ? true : false,
+                    size            : col.size ? col.size : null,
+                    sizeCalculated  : col.sizeCalculated ? col.sizeCalculated : null,
+                    sizeOriginal    : col.sizeOriginal ? col.sizeOriginal : null,
+                    sizeType        : col.sizeType ? col.sizeType : null
                 });
             }
             for (var i = 0; i < this.sortData.length; i++) state.sortData.push($.extend({}, this.sortData[i]));
