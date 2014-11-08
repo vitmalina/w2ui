@@ -1126,12 +1126,10 @@ w2utils.keyboard = (function (obj) {
     $.fn.w2marker = function () {
         var str = Array.prototype.slice.call(arguments, 0);
         if (str.length == 0 || !str[0]) { // remove marker
-            return $(this).each(function (index, el) {
-                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
-            });
+            return $(this).each(clearMarkedText);
         } else { // add marker
             return $(this).each(function (index, el) {
-                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
+                clearMarkedText(index, el);
                 for (var s = 0; s < str.length; s++) {
                     var tmp = str[s];
                     if (typeof tmp !== 'string') tmp = String(tmp);
@@ -1144,6 +1142,12 @@ w2utils.keyboard = (function (obj) {
                     return '<span class="w2ui-marker">' + matched + '</span>';
                 }
             });
+        }
+
+        function clearMarkedText(index, el) {
+            while (el.innerHTML.indexOf('<span class="w2ui-marker">') != -1) {
+                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
+            }
         }
     };
 
