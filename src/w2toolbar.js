@@ -97,16 +97,16 @@
             if (!$.isArray(items)) items = [items];
             for (var o = 0; o < items.length; o++) {
                 // checks
-                if (typeof items[o].type === 'undefined') {
+                if (typeof items[o].type == 'undefined') {
                     console.log('ERROR: The parameter "type" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
-                if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'break', 'html', 'spacer']) === -1) {
+                if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'break', 'html', 'spacer']) == -1) {
                     console.log('ERROR: The parameter "type" should be one of the following [button, check, radio, drop, menu, break, html, spacer] '+
                             'in w2toolbar.add() method.');
                     return;
                 }
-                if (typeof items[o].id === 'undefined') {
+                if (typeof items[o].id == 'undefined') {
                     console.log('ERROR: The parameter "id" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
@@ -140,21 +140,21 @@
 
         set: function (id, item) {
             var index = this.get(id, true);
-            if (index === null) return false;
+            if (index == null) return false;
             $.extend(this.items[index], item);
             this.refresh(id);
             return true;
         },
 
         get: function (id, returnIndex) {
-            if (arguments.length === 0) {
+            if (arguments.length == 0) {
                 var all = [];
                 for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id !== null) all.push(this.items[i1].id);
                 return all;
             }
             for (var i2 = 0; i2 < this.items.length; i2++) {
-                if (this.items[i2].id === id) {
-                    if (returnIndex === true) return i2; else return this.items[i2];
+                if (this.items[i2].id == id) {
+                    if (returnIndex == true) return i2; else return this.items[i2];
                 }
             }
             return null;
@@ -294,9 +294,9 @@
                        '<tr>';
             for (var i = 0; i < this.items.length; i++) {
                 var it = this.items[i];
+                if (it == null)  continue;
                 if (it.id == null) it.id = "item_" + i;
-                if (it === null)  continue;
-                if (it.type === 'spacer') {
+                if (it.type == 'spacer') {
                     html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
                 } else {
                     html += '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
@@ -333,20 +333,20 @@
             }
             // create or refresh only one item
             var it = this.get(id);
-            if (it === null) return false;
+            if (it == null) return false;
 
             var el = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id));
             var html  = this.getItemHTML(it);
-            if (el.length === 0) {
+            if (el.length == 0) {
                 // does not exist - create it
-                if (it.type === 'spacer') {
+                if (it.type == 'spacer') {
                     html = '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
                 } else {
                     html = '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
                         '    class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ html +
                         '</td>';
                 }
-                if (this.get(id, true) === this.items.length-1) {
+                if (this.get(id, true) == this.items.length-1) {
                     $(this.box).find('#tb_'+ this.name +'_right').before(html);
                 } else {
                     $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
@@ -399,8 +399,8 @@
             var html = '';
 
             if (typeof item.caption !== 'undefined') item.text = item.caption;
-            if (typeof item.hint === 'undefined') item.hint = '';
-            if (typeof item.text === 'undefined') item.text = '';
+            if (typeof item.hint == 'undefined') item.hint = '';
+            if (typeof item.text == 'undefined') item.text = '';
 
             switch (item.type) {
                 case 'menu':
@@ -424,7 +424,7 @@
                                     img +
                                     (item.text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.text +'</td>' : '') +
                                     (item.count != null ? '<td class="w2ui-tb-count" nowrap><span>'+ item.count +'</span></td>' : '') +
-                                    (((item.type === 'drop' || item.type === 'menu') && item.arrow !== false) ?
+                                    (((item.type == 'drop' || item.type == 'menu') && item.arrow !== false) ?
                                         '<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
                             '  </tr></table>'+
                             '</td></tr></table>';
@@ -444,8 +444,8 @@
             }
 
             var newHTML = '';
-            if (typeof item.onRender === 'function') newHTML = item.onRender.call(this, item.id, html);
-            if (typeof this.onRender === 'function') newHTML = this.onRender(item.id, html);
+            if (typeof item.onRender == 'function') newHTML = item.onRender.call(this, item.id, html);
+            if (typeof this.onRender == 'function') newHTML = this.onRender(item.id, html);
             if (newHTML !== '' && newHTML != null) html = newHTML;
             
             return '<div>' + html + '</div>';
@@ -490,11 +490,11 @@
                 var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
                 $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
 
-                if (it.type === 'radio') {
+                if (it.type == 'radio') {
                     for (var i = 0; i < this.items.length; i++) {
                         var itt = this.items[i];
-                        if (itt == null || itt.id === it.id || itt.type !== 'radio') continue;
-                        if (itt.group === it.group && itt.checked) {
+                        if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
+                        if (itt.group == it.group && itt.checked) {
                             itt.checked = false;
                             this.refresh(itt.id);
                         }
@@ -503,7 +503,7 @@
                     $(btn).addClass('checked');
                 }
 
-                if (it.type === 'drop' || it.type === 'menu') {
+                if (it.type == 'drop' || it.type == 'menu') {
                     if (it.checked) {
                         // if it was already checked, second click will hide it
                         it.checked = false;
@@ -514,12 +514,12 @@
                             if (!$.isPlainObject(it.overlay)) it.overlay = {};
                             var left = (el.width() - 50) / 2;
                             if (left > 19) left = 19;
-                            if (it.type === 'drop') {
+                            if (it.type == 'drop') {
                                 el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
                                     onHide: function () { hideDrop(); }
                                 }));
                             }
-                            if (it.type === 'menu') {
+                            if (it.type == 'menu') {
                                 el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
                                     select: function (event) {
                                         obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent });
@@ -536,7 +536,7 @@
                     }
                 }
 
-                if (it.type === 'check' || it.type === 'drop' || it.type === 'menu') {
+                if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
                     it.checked = !it.checked;
                     if (it.checked) {
                         $(btn).addClass('checked');
