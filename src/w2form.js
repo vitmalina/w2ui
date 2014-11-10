@@ -996,6 +996,7 @@
                         if (field.type == 'list') {
                             var tmp_value = ($.isPlainObject(value) ? value.id : value);
                             // normalized options
+                            if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
                             if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
                                 field.options.items = w2obj.field.prototype.normMenu(items);
