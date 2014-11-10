@@ -225,7 +225,7 @@
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
-                if (records[r].recid == null) {
+                if (records[r].recid == null && records[r][object.recid] == null) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
                     return;
                 }
@@ -290,8 +290,7 @@
             if (!$.isArray(record)) record = [record];
             var added = 0;
             for (var o in record) {
-                if (this.recid && typeof record[o].recid == 'undefined') record[o].recid = record[o][this.recid];
-                if (record[o].recid == null) {
+                if (record[o].recid == null && record[o][this.recid] == null) {
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
                 }
@@ -5228,6 +5227,7 @@
                 record = this.summary[ind];
             }
             if (!record) return '';
+            if (record.recid == null && this.recid != null && record[this.recid] != null) record.recid = record[this.recid];
             var id = w2utils.escapeId(record.recid);
             var isRowSelected = false;
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
