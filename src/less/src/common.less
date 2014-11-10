@@ -63,7 +63,8 @@ input[type=button] {
     &:active { .sys-button-active; }
 }
 
-input:not([type=button]), select, textarea {
+
+input:not([type=button]):not([type=submit]), select, textarea {
     padding: 4px;
     border: @input-border;
     border-radius: 3px;
