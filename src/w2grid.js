@@ -665,15 +665,15 @@
                         }
                         switch (sdata.operator) {
                             case 'is':
-                                 if (rec[search.field] == sdata.value) fl++; // do not hide record
+                                if (obj.parseField(rec, search.field) == sdata.value) fl++; // do not hide record
                                 if (search.type == 'date') {
-                                    var tmp  = (rec[search.field + '_'] instanceof Date ? rec[search.field + '_'] : rec[search.field]);
+                                    var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
                                     var val2 = w2utils.formatDate(val2, 'yyyy-mm-dd');
                                     if (val1 == val2) fl++;
                                 }
                                 if (search.type == 'time') {
-                                    var tmp  = (rec[search.field + '_'] instanceof Date ? rec[search.field + '_'] : rec[search.field]);
+                                    var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val1 = w2utils.formatTime(tmp, 'h24:mi');
                                     var val2 = w2utils.formatTime(val2, 'h24:mi');
                                     if (val1 == val2) fl++;
@@ -681,17 +681,17 @@
                                 break;
                             case 'between':
                                 if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
-                                    if (parseFloat(rec[search.field]) >= parseFloat(val2) && parseFloat(rec[search.field]) <= parseFloat(val3)) fl++;
+                                    if (parseFloat(obj.parseField(rec, search.field)) >= parseFloat(val2) && parseFloat(obj.parseField(rec, search.field)) <= parseFloat(val3)) fl++;
                                 }
                                 if (search.type == 'date') {
-                                    var val1 = (rec[search.field + '_'] instanceof Date ? rec[search.field + '_'] : rec[search.field]);
+                                    var val1 = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val2 = w2utils.isDate(val2, w2utils.settings.date_format, true);
                                     var val3 = w2utils.isDate(val3, w2utils.settings.date_format, true);
                                     if (val3 != null) val3 = new Date(val3.getTime() + 86400000); // 1 day
                                     if (val1 >= val2 && val1 < val3) fl++;
                                 }
                                 if (search.type == 'time') {
-                                    var val1 = (rec[search.field + '_'] instanceof Date ? rec[search.field + '_'] : rec[search.field]);
+                                    var val1 = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val2 = w2utils.isTime(val2, true);
                                     var val3 = w2utils.isTime(val3, true);
                                     val2 = (new Date()).setHours(val2.hours, val2.minutes, val2.seconds ? val2.seconds : 0, 0);
@@ -3291,6 +3291,18 @@
                 var rec_html = this.getRecordHTML(ind, line, isSummary);
                 $(tr1).replaceWith(rec_html[0]);
                 $(tr2).replaceWith(rec_html[1]);
+                // apply style to row if it was changed in render functions
+                var st = this.records[ind].style;
+                if (typeof st == 'string') {
+                    var tr1 = $(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid));
+                    var tr2 = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+                    tr1.attr('custom_style', st);
+                    tr2.attr('custom_style', st);
+                    if (!tr1.hasClass('w2ui-selected')) {
+                        tr1[0].style.cssText = 'height: '+ this.recordHeight + 'px;' + st;
+                        tr2[0].style.cssText = 'height: '+ this.recordHeight + 'px;' +st;
+                    }
+                }
                 if (isSummary) this.resize();
             }
         },
