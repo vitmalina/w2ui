@@ -2580,7 +2580,7 @@
                         var recid = parent.prev().attr('recid');
                         var grid  = parent.parents('.w2ui-grid').attr('name');
                         obj.selectNone();
-                        w2utils.keyboard.active(grid);
+                        w2utils.keyboard.active(grid, event);
                         w2ui[grid].set(recid, { expanded: false });
                         w2ui[grid].collapse(recid);
                         w2ui[grid].click(recid);
@@ -2686,7 +2686,7 @@
                                 obj.selectNone();
                                 var grid = subgrid.attr('name');
                                 var recs = w2ui[grid].records;
-                                w2utils.keyboard.active(grid);
+                                w2utils.keyboard.active(grid, event);
                                 w2ui[grid].click(recs[recs.length-1].recid);
                                 cancel = true;
                                 break;
@@ -2733,7 +2733,7 @@
                             var recid = parent.prev().attr('recid');
                             var grid  = parent.parents('.w2ui-grid').attr('name');
                             obj.selectNone();
-                            w2utils.keyboard.active(grid);
+                            w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recid);
                             cancel = true;
                             break;
@@ -2751,7 +2751,7 @@
                             obj.selectNone();
                             var grid = subgrid.attr('name');
                             var recs = w2ui[grid].records;
-                            w2utils.keyboard.active(grid);
+                            w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recs[0].recid);
                             cancel = true;
                             break;
@@ -2801,7 +2801,7 @@
                             var recid = parent.next().attr('recid');
                             var grid  = parent.parents('.w2ui-grid').attr('name');
                             obj.selectNone();
-                            w2utils.keyboard.active(grid);
+                            w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recid);
                             cancel = true;
                             break;

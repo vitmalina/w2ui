@@ -350,7 +350,7 @@ var w2popup = {};
                 obj.trigger($.extend(eventData, { phase: 'after'}));
             }, options.speed * 1000);
             // restore active
-            w2utils.keyboard.active(options._last_w2ui_name);
+            w2utils.keyboard.active(options._last_w2ui_name, {});
             // remove keyboard events
             if (options.keyboard) $(document).off('keydown', this.keydown);
         },
