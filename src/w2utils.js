@@ -1073,7 +1073,7 @@ w2utils.keyboard = (function (obj) {
             var obj = w2ui[name];
             if (name != w2ui_name) {
                 if (clear(event) === false) return; // event cancelled
-                if (active(name) === false) return; // event cancelled
+                if (active(event, name) === false) return; // event cancelled
             }
             if (obj && obj.keyboard) w2ui_name = name;
         } else {
@@ -1081,7 +1081,7 @@ w2utils.keyboard = (function (obj) {
         }
     }
 
-    function active (new_w2ui_name) {
+    function active (event, new_w2ui_name) {
         if (new_w2ui_name == null) return w2ui_name;
         var obj = w2ui[new_w2ui_name];
         if (obj && obj.focus) {
