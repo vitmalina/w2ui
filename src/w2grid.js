@@ -1914,9 +1914,11 @@
                             if (this.last.xhr_offset == 0) {
                                 this.records = [];
                                 this.summary = [];
-                                //data.xhr_status=data.status;
-                                delete data.status;
-                                $.extend(true, this, data);
+                                if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
+                                // records
+                                for (var r = 0; r < data.records.length; r++) {
+                                    this.records.push(data.records[r]);
+                                }
                             } else {
                                 if (parseInt(data.total) != parseInt(this.total)) {
                                     w2alert(this.msgNeedReload);
@@ -1924,12 +1926,9 @@
                                     this.reload();
                                     return;
                                 }
-                                var records = data.records;
-                                delete data.records;
-                                delete data.status;
-                                $.extend(true, this, data);
-                                for (var r = 0; r < records.length; r++) {
-                                    this.records.push(records[r]);
+                                // records
+                                for (var r = 0; r < data.records.length; r++) {
+                                    this.records.push(data.records[r]);
                                 }
                             }
                         }
