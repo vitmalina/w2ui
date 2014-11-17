@@ -21,6 +21,56 @@ $(function () {
         { id: 8, text: 'Nicolas Cage' },
     ];
 
+    var editFunc = function(record) {
+        return record.funcType;
+    };
+
+    var funcTypes = [
+        { type: 'int', min: 0, max: 100 },
+        { type: 'money' },
+        { type: 'percent' },
+        { type: 'hex' },
+        { type: 'color' },
+        { type: 'date' },
+        { type: 'time' },
+        { type: 'list', items: people },
+        { type: 'checkbox' }
+    ];
+
+    var getFuncType = function(index) {
+        if(index >= funcTypes.length){
+            return funcTypes[funcTypes.length - 1];
+        } else {
+            return funcTypes[index];
+        }
+    };
+
+    var getFuncValue = function(index) {
+        var funcType = getFuncType(index);
+        switch(funcType.type) {
+            case 'int':
+                return 5;
+            case 'money':
+                return  6;
+            case 'percent':
+                return 7;
+            case 'hex':
+                return 0x2;
+            case 'color':
+                return  0xffffff;
+            case 'date':
+                return new Date();
+            case 'time':
+                return new Date();
+            case 'list':
+                return 3;
+            case 'checkbox':
+                return false;
+            default:
+                throw 'not implemented ' + funcType.type;
+        }
+    };
+
     $('#grid').w2grid({ 
         name    : 'grid', 
         header    : 'List of Names',
@@ -66,14 +116,16 @@ $(function () {
                 }
             },
             { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } },
+            { field: 'funcValue', caption: 'func', size: '80px', sortable: true, resizable: true, editable: editFunc },
             // { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
             // { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
             // { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
         ],
     });
-    var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
-    var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
-    // add 10k records
+    // var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
+    // var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
+    // add 15 records
+
     for (var i = 0; i < 15; i++) {
         w2ui['grid'].records.push({ 
             recid : (i + 10),
@@ -83,6 +135,8 @@ $(function () {
             money: 6,
             check: Math.random() > 0.9 ? true : false,
             select: 2,
+            funcType: getFuncType(i),
+            funcValue: getFuncValue(i)
             // editable: false
         });
     }

@@ -2026,12 +2026,30 @@
             }
         },
 
+
+        getEdit: function(column, record){
+            if(!$.isPlainObject(record)){
+                record = this.get(record);
+            }
+            if(column && column.editable){
+               var edit = column.editable;
+               if(typeof edit === 'function'){
+                   return edit(record);
+               } else {
+                   return edit;
+               }
+            } else {
+               return null;
+            }
+        },
+
         editField: function (recid, column, value, event) {
             var obj   = this;
             var index = obj.get(recid, true);
             var rec   = obj.records[index];
             var col   = obj.columns[column];
-            var edit  = col ? col.editable : null;
+            var edit  = this.getEdit(col, rec);
+
             if (!rec || !col || !edit || rec.editable === false) return;
             if (['enum', 'file'].indexOf(edit.type) != -1) {
                 console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
@@ -2927,7 +2945,8 @@
             // default action
             this.selectNone();
             var col = this.columns[column];
-            if (col && $.isPlainObject(col.editable)) {
+            var edit = this.getEdit(col, recid);
+            if (col && $.isPlainObject(edit)) {
                 this.editField(recid, column, null, event);
             } else {
                 this.select({ recid: recid, column: column });
@@ -5359,7 +5378,7 @@
             var col    = this.columns[col_ind];
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.getCellValue(ind, col_ind, summary);
-            var edit   = col.editable;
+            var edit  = this.getEdit(col, record);
             // various renderers
             if (typeof col.render != 'undefined') {
                 if (typeof col.render == 'function') {
