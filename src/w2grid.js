@@ -4094,7 +4094,7 @@
                         '<table cellpadding="0" cellspacing="0"><tr>'+
                         '    <td>'+ this.buttons['search'].html +'</td>'+
                         '    <td>'+
-                        '        <input id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
+                        '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
                         '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
