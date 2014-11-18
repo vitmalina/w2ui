@@ -83,7 +83,7 @@ To use Grunt, you will still need to install NodeJS and NPM, then run npm instal
 they are described in package.json file.
 
 ```
-sudo npm install
+npm install
 ```
 
 ## File Structure
