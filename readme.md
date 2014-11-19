@@ -97,7 +97,7 @@ sudo npm install
 - libs           - auxilary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
 - server         - example implementations for a server implementation communicating with w2ui instances
 - test           - feature testing files
-  - qunit        - some qunit test
+- qa             - some qunit test
 ```
 
 
@@ -108,7 +108,7 @@ Your contributions are welcome. However, few things you need to know before cont
 1. Please check out latest code before changing anything. It is harder to merge if your changes will not merge clean.
 2. If you are changing JS files - do all changes in /src folder
 3. If you are changing CSS files - do all changes in LESS in /src/less/src
-4. If you want to help with unit test - do all changes in /test/qunit
+4. If you want to help with unit test - do all changes in /qa
 5. If you want to change documenation - do all changes in /docs
 6. If you want to add demos - do all changes in /demos
 
