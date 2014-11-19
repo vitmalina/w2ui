@@ -19,10 +19,11 @@ class w2Grid:
         elif op == "is":
           operator = "= LOWER(?)"
         elif op == "between":
-          operator = "BETWEEN ? AND ?"
           value    = value[0]
+          operator = "BETWEEN ? AND ?"
         elif op == "in":
-          operator = "IN (?)"
+          value    = value[0]
+          operator = "IN (%s)" % ','.join(['?'] * len(value))
         sql_components['where'].append("%s %s" % (field,operator))
         for v in value:
           sql_components['params'].append(v)
@@ -60,7 +61,6 @@ class w2Grid:
     sql += " LIMIT %s OFFSET %s" % (limit,offset)
 
     data = {}
-
     try:
       cursor = self.conn.cursor()
       # count records
@@ -76,23 +76,73 @@ class w2Grid:
       for row in rows:
         record = zip(columns,list(row))
         data['records'].append( dict(record) )
-
     except Exception, e:
       data['status'] = 'error'
       data['message'] = '%s\n%s' % (e,sql)
     return data
 
   def deleteRecords(self, table, keyField, data):
-    return {}
+    recs = data['selected'] 
+    # TODO: protect table, keyField from sql injection!!!
+    sql = "DELETE FROM %s WHERE %s IN (%s)" % (table, keyField,','.join(['?'] * len(recs)))
+    try:
+      cursor = self.conn.cursor()
+      cursor.execute(sql,recs)
+      data['status']  = 'success'
+      data['message'] = ''
+    except Exception, e:
+      data['status'] = 'error'
+      data['message'] = '%s\n%s' % (e,sql)
+    return data
 
   def getRecord(self, sql, recid):
-    return {}
+    try:
+      cursor = self.conn.cursor()
+      # execute sql
+      cursor.execute(sql,[recid])
+      data['status']  = 'success'
+      data['message'] = ''
+      columns = [ d[0] for d in cursor.description ]
+      row = cursor.fetchone()
+      record = zip(columns,list(row))[1:]
+      data['record'] = dict(record)
+    except Exception, e:
+      data['status'] = 'error'
+      data['message'] = '%s\n%s' % (e,sql)
+    return data
 
   def saveRecord(self, table, keyField, data):
-    return {}
+    # TODO: protect table, keyField, field names from sql injection!!!
+    fields, values = [], []
+    for k, v in data['record'].items():
+      if k == keyField: continue # key field should not be here
+      fields.append(k)
+      if v.startswith('__'):
+        v = v[2:]
+      elif v == "":
+        v = None
+      values.append(v)
+
+    if data.get('recid','0') == '0':
+      sql = "INSERT INTO %s (%s) VALUES (%s)" % (table,','.join(fields),','.join(['?']*len(fields)))
+    else:
+      sql = "UPDATE %s SET %s WHERE %s = ?" % (table, ','.join([ '%s=?' % f for f in fields ]), keyField)
+      values.append( data['recid'] )
+        
+    data = {}
+    try:
+      cursor = self.conn.cursor()
+      cursor.execute(sql,values)
+      data['status']  = 'success'
+      data['message'] = ''
+    except Exception, e:
+      data['status'] = 'error'
+      data['message'] = '%s\n%s' % (e,sql)
+    return data
 
   def newRecord(self, table, data):
-    return {}
+    return self.saveRecord(table, '', {'recid': 0, 'record': data})
 
   def getItems(self, sql):
+    # TODO: what's this function for?
     return {}
