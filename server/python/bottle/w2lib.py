@@ -81,13 +81,15 @@ class w2Grid:
       data['message'] = '%s\n%s' % (e,sql)
     return data
 
-  def deleteRecords(self, table, keyField, data):
-    recs = data['selected'] 
+  def deleteRecords(self, table, keyField, request):
+    recs = request['selected'] 
     # TODO: protect table, keyField from sql injection!!!
     sql = "DELETE FROM %s WHERE %s IN (%s)" % (table, keyField,','.join(['?'] * len(recs)))
+    data = {}
     try:
       cursor = self.conn.cursor()
       cursor.execute(sql,recs)
+      self.conn.commit()
       data['status']  = 'success'
       data['message'] = ''
     except Exception, e:
@@ -96,6 +98,7 @@ class w2Grid:
     return data
 
   def getRecord(self, sql, recid):
+    data = {}
     try:
       cursor = self.conn.cursor()
       # execute sql
@@ -111,10 +114,10 @@ class w2Grid:
       data['message'] = '%s\n%s' % (e,sql)
     return data
 
-  def saveRecord(self, table, keyField, data):
+  def saveRecord(self, table, keyField, request):
     # TODO: protect table, keyField, field names from sql injection!!!
     fields, values = [], []
-    for k, v in data['record'].items():
+    for k, v in request['record'].items():
       if k == keyField: continue # key field should not be here
       fields.append(k)
       if v.startswith('__'):
@@ -123,16 +126,17 @@ class w2Grid:
         v = None
       values.append(v)
 
-    if data.get('recid','0') == '0':
+    if request.get('recid','0') == '0':
       sql = "INSERT INTO %s (%s) VALUES (%s)" % (table,','.join(fields),','.join(['?']*len(fields)))
     else:
       sql = "UPDATE %s SET %s WHERE %s = ?" % (table, ','.join([ '%s=?' % f for f in fields ]), keyField)
-      values.append( data['recid'] )
+      values.append( request['recid'] )
         
     data = {}
     try:
       cursor = self.conn.cursor()
       cursor.execute(sql,values)
+      self.conn.commit()
       data['status']  = 'success'
       data['message'] = ''
     except Exception, e:
