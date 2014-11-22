@@ -48,10 +48,6 @@
 
         this.style         = '';
         this.focus         = 0;    // focus first or other element
-        this.msgNotJSON    = w2utils.lang('Return data is not in JSON format.');
-        this.msgAJAXerror  = w2utils.lang('AJAX error. See console for more details.');
-        this.msgRefresh    = w2utils.lang('Refreshing...');
-        this.msgSaving     = w2utils.lang('Saving...');
 
         // events
         this.onRequest   = null;
@@ -173,6 +169,10 @@
     // -- Implementation of core functionality
 
     w2form.prototype = {
+        msgNotJSON    : w2utils.lang('Return data is not in JSON format.'),
+        msgAJAXerror  : w2utils.lang('AJAX error. See console for more details.'),
+        msgRefresh    : w2utils.lang('Refreshing...'),
+        msgSaving     : w2utils.lang('Saving...'),
 
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
@@ -1085,8 +1085,8 @@
             }
             var html =  '<div>' +
                         (this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
-                        '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar"></div>' +
-                        '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' +
+                        '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
+                        '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
                             this.formHTML +
                         '</div>';
             $(this.box).attr('name', this.name)
