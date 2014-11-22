@@ -22,9 +22,7 @@ class w2grid_class {
         if (isset($request['search']) && is_array($request['search'])) {
             foreach ($request['search'] as $s => $search) {
                 if ($str != "") $str .= " ".$request['searchLogic']." ";
-                $operator = "=";
-                $field       = $search['field'];
-                $value    = "'".$search['value']."'";
+                $field = $search['field'];
                 switch (strtolower($search['operator'])) {
 
                     case 'begins':
@@ -61,6 +59,10 @@ class w2grid_class {
                         $operator = "IN";
                         $value    = "[".$search['value']."]";
                         break;
+
+                    default:
+                        $operator = "=";
+                        $value    = "'".$search['value']."'";
                 }
                 $str .= $field." ".$operator." ".$value;
             }
