@@ -1,4 +1,3 @@
 tmp/*
 node_modules/
-/nbproject/private/
-Talks.txt
+*.txt
