@@ -670,15 +670,14 @@
         },
 
         lock: function (msg, showSpinner) {
-            var box = $(this.box).find('> div:first-child');
             var args = Array.prototype.slice.call(arguments, 0);
-            args.unshift(box);
-            w2utils.lock.apply(window, args);
+            args.unshift(this.box);
+            setTimeout(function () { w2utils.lock.apply(window, args); }, 10);
         },
 
         unlock: function (speed) {
-            var obj = this;
-            setTimeout(function () { w2utils.unlock(obj.box, speed); }, 25); // needed timer so if server fast, it will not flash
+            var box = this.box;
+            setTimeout(function () { w2utils.unlock(box, speed); }, 25); // needed timer so if server fast, it will not flash
         },
 
         goto: function (page) {

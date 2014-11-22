@@ -864,9 +864,8 @@
         },
 
         lock: function (msg, showSpinner) {
-            var box = $(this.box).find('> div:first-child');
             var args = Array.prototype.slice.call(arguments, 0);
-            args.unshift(box);
+            args.unshift(this.box);
             w2utils.lock.apply(window, args);
         },
 
