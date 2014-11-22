@@ -2806,11 +2806,11 @@
                         '   style="position: absolute; top: -100px; height: 1px; width: 1px">'+ text +'</textarea>');
                     $('#_tmp_copy_data').focus().select();
                     // remove _tmp_copy_data textarea
-                    $(document).on('keyup', tmp_key_down);
-                    function tmp_key_down() { 
-                        $('#_tmp_copy_data').remove(); 
-                        $(document).off('keyup', tmp_key_down); 
+                    function tmp_key_down() {
+                        $('#_tmp_copy_data').remove();
+                        $(document).off('keyup', tmp_key_down);
                     }
+                    $(document).on('keyup', tmp_key_down);
                     break;
 
                 case 88: // x - cut
