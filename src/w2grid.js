@@ -1901,7 +1901,7 @@
                                 this.summary = [];
                                 if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
                                 // records
-                                for (var r = 0; r < data.records.length; r++) {
+                                for (var r = 0; r < data.records.length  - this.summary.length; r++) {
                                     this.records.push(data.records[r]);
                                 }
                             } else {
@@ -1912,7 +1912,7 @@
                                     return;
                                 }
                                 // records
-                                for (var r = 0; r < data.records.length; r++) {
+                                for (var r = 0; r < data.records.length - this.summary.length; r++) {
                                     this.records.push(data.records[r]);
                                 }
                             }
@@ -3357,7 +3357,6 @@
             if (tmp.length > 0) {
                 for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
                 for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
-                this.total = this.total - tmp.length;
             }
 
             // -- body
