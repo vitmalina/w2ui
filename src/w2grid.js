@@ -1637,7 +1637,8 @@
             if (field == 'all') {
                 var search = { field: 'all', caption: w2utils.lang('All Fields') };
                 el.w2field('clear');
-                el.change().focus();
+                el.change();
+                if (value !== null) el.focus();
             } else {
                 var search = this.getSearch(field);
                 if (search == null) return;
@@ -1665,36 +1666,29 @@
             $().w2overlay();
         },
 
+        // clears records and related params
         clear: function (noRefresh) {
-            // this.offset              = 0;   // clear should not reset offset
-            // this.total               = 0;   // clear should not reset total
-            this.records                = [];
-            this.summary                = [];
-            this.last.scrollTop         = 0;
-            this.last.scrollLeft        = 0;
-            this.last.selection.indexes = [];
-            this.last.selection.columns = {};
-            this.last.range_start       = null;
-            this.last.range_end         = null;
-            this.last.xhr_offset        = 0;   // need this for reload button to work on remote data set
+            this.total            = 0; 
+            this.records          = [];
+            this.summary          = [];
+            this.last.xhr_offset  = 0;   // need this for reload button to work on remote data set
+            this.reset(true);
+            // refresh
             if (!noRefresh) this.refresh();
         },
 
+        // clears scroll position, selection, ranges, goes to initial sort
         reset: function (noRefresh) {
-            // this.offset              = 0;   // reset should not reset offset
-            // this.total               = 0;   // reset should not reset total
-            this.last.scrollTop         = 0;
-            this.last.scrollLeft        = 0;
-            this.last.selection.indexes = [];
-            this.last.selection.columns = {};
-            this.last.range_start       = null;
-            this.last.range_end         = null;
-            this.last.xhr_offset        = 0;
-            // this.searchReset(noRefresh);     // do not reset search fields
-            // initial sort
-            if (this.last.sortData != null ) this.sortData = this.last.sortData;
-            // select none without refresh
+            // position
+            this.last.scrollTop   = 0;
+            this.last.scrollLeft  = 0;
+            this.last.selection   = { indexes : [], column : {} };
+            this.last.range_start = null;
+            this.last.range_end   = null;
+            // additional
+            this.sortData = (this.last.initialSort != null ? this.last.initialSort : []);
             this.set({ expanded: false }, true);
+            $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
             // refresh
             if (!noRefresh) this.refresh();
         },
@@ -1705,12 +1699,7 @@
                 this.offset = parseInt(offset);
                 if (this.offset > this.total) this.offset = this.total - this.limit;
                 if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
-                this.records  = [];
-                this.last.xhr_offset = 0;
-                this.last.pull_more  = true;
-                this.last.scrollTop  = 0;
-                this.last.scrollLeft = 0;
-                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
+                this.clear(true);
                 this.reload();
             } else {
                 console.log('ERROR: grid.skip() can only be called when you have remote data source.');
@@ -1718,26 +1707,22 @@
         },
 
         load: function (url, callBack) {
-            if (typeof url == 'undefined') {
+            if (url == null) {
                 console.log('ERROR: You need to provide url argument when calling .load() method of "'+ this.name +'" object.');
                 return;
             }
             // default action
+            this.clear(true);
             this.request('get-records', {}, url, callBack);
         },
 
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url) {
-                this.clear(true);
-                this.request('get-records', {}, null, callBack);
+                this.load(url, callBack);
             } else {
-                this.last.scrollTop   = 0;
-                this.last.scrollLeft  = 0;
-                this.last.range_start = null;
-                this.last.range_end   = null;
+                this.reset();
                 this.localSearch();
-                this.refresh();
                 if (typeof callBack == 'function') callBack({ status: 'success' });
             }
         },
@@ -3460,7 +3445,7 @@
                 this.box = box;
             }
             if (!this.box) return;
-            if (this.last.sortData == null) this.last.sortData = this.sortData;
+            if (this.last.initialSort == null) this.last.initialSort = this.sortData;
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
             if (eventData.isCancelled === true) return;
