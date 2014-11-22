@@ -97,6 +97,7 @@
         node: {
             id              : null,
             text            : '',
+            html            : null,
             count           : null,
             img             : null,
             icon            : null,
@@ -780,9 +781,14 @@
                         '<div class="w2ui-node-group" id="node_'+ nd.id +'"'+
                         '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '        onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
-                        '        onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                        (nd.groupShowHide ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
-                        '    <span>'+ nd.text +'</span>'+
+                        '        onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">';
+                    if (nd.html) {
+                      html=html+nd.html;
+                    } else {
+                      html=html+(nd.groupShowHide ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
+                        '    <span>'+ nd.text +'</span>';
+                    }
+                    html=html+
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
