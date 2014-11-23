@@ -134,7 +134,7 @@ test( "w2utils.formatDateTime()", function () {
     equal( w2utils.formatDateTime(undefined), '', "- undefined -" );
     equal( w2utils.formatDateTime({}), '',        "- object -" );
     equal( w2utils.formatDateTime([]), '',        "- array -" );
-    equal( w2utils.formatDateTime('Sat Jul 26 2014 11:23:07 GMT-0700 (PDT)'), '7/26/2014 11:23 am', "default format" );
+    equal( w2utils.formatDateTime('Sat Nov 22 2014 22:29:17 GMT-0800 (PST)'), '11/22/2014 10:29 pm', "default format" );
 
     for (var v in values) {
         var tmp = v.split(' => ');
