@@ -11,6 +11,7 @@
 *   - reorder with grag and drop
 *   - node.style is missleading - should be there to apply color for example
 *   - add multiselect
+*   - add renderer for the node
 *
 * == 1.5 changes
 *   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object

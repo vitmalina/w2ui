@@ -50,6 +50,7 @@
 *   - added focus(), blur(), onFocus, onBlur
 *   - added search.operator
 *   - refactor reorderRow (not finished)
+*   - return JSON can now have summary array
 *
 ************************************************************************/
 
@@ -1900,10 +1901,6 @@
                                 this.records = [];
                                 this.summary = [];
                                 if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
-                                // records
-                                for (var r = 0; r < data.records.length; r++) {
-                                    this.records.push(data.records[r]);
-                                }
                             } else {
                                 if (parseInt(data.total) != parseInt(this.total)) {
                                     w2alert(this.msgNeedReload);
@@ -1911,10 +1908,19 @@
                                     this.reload();
                                     return;
                                 }
-                                // records
+                            }
+                            // records
+                            if (data.records) {
                                 for (var r = 0; r < data.records.length; r++) {
                                     this.records.push(data.records[r]);
                                 }
+                            }
+                            // summary records (if any)
+                            if (data.summary) {
+                                this.summary = [];
+                                for (var r = 0; r < data.summary.length; r++) {
+                                    this.summary.push(data.summary[r]);
+                                }                                
                             }
                         }
                         if (cmd == 'delete-records') {
