@@ -22,6 +22,7 @@
 *   - added field.disabled, field.hidden
 *   - when field is blank, set record.field = null
 *   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
+*   - added ability to generate radio and select html in generateHTML()
 *
 ************************************************************************/
 
@@ -695,16 +696,55 @@
                 var html = '';
                 var field = this.fields[f];
                 if (typeof field.html == 'undefined') field.html = {};
+                if (typeof field.options == 'undefined') field.options = {};
                 field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0 }, field.html);
                 if (typeof page == 'undefined') page = field.html.page;
                 if (field.html.caption == '') field.html.caption = field.name;
+                // input control
                 var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
-                if ((field.type === 'pass') || (field.type === 'password')){
-                    input = '<input name="' + field.name + '" type = "password" ' + field.html.attr + '/>';
+                switch (field.type) {
+                    case 'pass':
+                    case 'password':
+                        input = '<input name="' + field.name + '" type = "password" ' + field.html.attr + '/>';
+                        break;
+                    case 'checkbox':
+                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
+                        break;
+                    case 'radio':
+                        input = '';
+                        // normalized options
+                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (!$.isArray(items)) items = [];
+                        if (items.length > 0) {
+                            items = w2obj.field.prototype.normMenu(items);
+                        }
+                        // generate
+                        for (var i = 0; i < items.length; i++) {
+                            input += '<label><input name="' + field.name + '" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
+                                '&nbsp;' + items[i].text + '</label><br>';
+                        }
+                        break;
+                    case 'select':
+                        input = '<select name="' + field.name + '" ' + field.html.attr + '>';
+                        // normalized options
+                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (!$.isArray(items)) items = [];
+                        if (items.length > 0) {
+                            items = w2obj.field.prototype.normMenu(items);
+                        }
+                        // generate
+                        for (var i = 0; i < items.length; i++) {
+                            input += '<option value="'+ items[i].id + '">' + items[i].text + '</option>';
+                        }
+                        input += '</select>';
+                        break;
+                    case 'textarea':
+                        input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
+                        break;
+                    case 'toggle':
+                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-toggle"/><div><div></div></div>';
+                        break;
                 }
-                if (field.type == 'checkbox') input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
-                if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
-                if (field.type == 'toggle')   input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-toggle"/><div><div></div></div>';
                 if (field.html.group) {
                     if (group != '') html += '\n   </div>';
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
