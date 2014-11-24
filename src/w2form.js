@@ -927,10 +927,12 @@
                     $(field.el).parent().parent().removeClass('w2ui-required');
                 }
                 // disabled
-                if (field.disabled) {
-                    $(field.el).prop('readonly', true);
-                } else {
-                    $(field.el).prop('readonly', false);
+                if (field.disabled != null) {
+                    if (field.disabled) {
+                        $(field.el).prop('readonly', true);
+                    } else {
+                        $(field.el).prop('readonly', false);
+                    }
                 }
                 // hidden
                 if (field.hidden) {
