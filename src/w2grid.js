@@ -5351,13 +5351,14 @@
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.getCellValue(ind, col_ind, summary);
             var edit   = col.editable;
+            var maxh   = 'style="max-height: '+ parseInt(this.recordHeight) +'px;"';
             // various renderers
             if (typeof col.render != 'undefined') {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
-                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div>' + data + '</div>';
+                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div '+ maxh +'>' + data + '</div>';
                 }
-                if (typeof col.render == 'object')   data = '<div>' + (col.render[data] || '') + '</div>';
+                if (typeof col.render == 'object')   data = '<div '+ maxh +'>' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');
                     var tmp = [];
@@ -5378,27 +5379,27 @@
                         if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
                         if (tmp[0] == 'int')     { tmp[1] = 0; }
                         // format
-                        data = '<div>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
+                        data = '<div '+ maxh +'>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
                     }
                     if (tmp[0] == 'time') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
                         if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
                         if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
-                        data = '<div>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
-                        data = '<div>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display + '|' + w2utils.settings.time_format;
-                        data = '<div>' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
-                        data = '<div>' + prefix + w2utils.age(data) + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + w2utils.age(data) + suffix + '</div>';
                     }
                     if (tmp[0] == 'toggle') {
-                        data = '<div>' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
                     }
                 }
             } else {
@@ -5413,7 +5414,7 @@
                            '">';
                 }
                 if (!this.show.recordTitles) {
-                    var data = '<div style="'+ addStyle +'">'+ data +'</div>';
+                    var data = '<div '+ maxh +' style="'+ addStyle +'">'+ data +'</div>';
                 } else {
                     // title overwrite
                     var title = String(data).replace(/"/g, "''");
@@ -5421,7 +5422,7 @@
                         if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
                         if (typeof col.title == 'string')   title = col.title;
                     }
-                    var data = '<div title="'+ w2utils.stripTags(title) +'" style="'+ addStyle +'">'+ data +'</div>';
+                    var data = '<div '+ maxh +' title="'+ w2utils.stripTags(title) +'" style="'+ addStyle +'">'+ data +'</div>';
                 }
             }
             if (data == null) data = '';
