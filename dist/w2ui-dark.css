@@ -123,7 +123,7 @@ input[type=button]:active {
   color: white;
   background-color: #282F3E;
 }
-input:not([type=button]),
+input:not([type=button]):not([type=submit]),
 select,
 textarea {
   padding: 4px;
@@ -133,15 +133,15 @@ textarea {
   background-color: #515b7e;
   line-height: normal;
 }
-input:not([type=button]):focus,
+input:not([type=button]):not([type=submit]):focus,
 select:focus,
 textarea:focus {
   outline-color: #aaa871;
 }
-input:not([type=button]):disabled,
+input:not([type=button]):not([type=submit]):disabled,
 select:disabled,
 textarea:disabled,
-input:not([type=button])[readonly],
+input:not([type=button]):not([type=submit])[readonly],
 select[readonly],
 textarea[readonly] {
   background-color: #f1f1f1;
@@ -1212,7 +1212,7 @@ button.w2ui-btn-red.clicked {
 .w2ui-select[readonly],
 .w2ui-select[disabled] {
   background-image: none;
-  background-color: #f1f1f1 !importan;
+  background-color: #f1f1f1 !important;
   color: #777 !important;
 }
 /*
@@ -2236,6 +2236,7 @@ button.w2ui-btn-red.clicked {
 * ---- Sidebar ----
 */
 .w2ui-sidebar {
+  position: relative;
   cursor: default;
   overflow: hidden !important;
   background-color: #323948 !important;
@@ -2253,7 +2254,7 @@ button.w2ui-btn-red.clicked {
   box-sizing: border-box;
 }
 .w2ui-sidebar > div {
-  position: relative;
+  position: absolute;
   overflow: hidden;
 }
 .w2ui-sidebar .w2ui-sidebar-top {
