@@ -3395,7 +3395,7 @@ w2utils.keyboard = (function (obj) {
             if (!noRefresh) this.refresh();
         },
 
-        // clears scroll position, selection, ranges, goes to initial sort
+        // clears scroll position, selection, ranges
         reset: function (noRefresh) {
             // position
             this.last.scrollTop   = 0;
@@ -3404,7 +3404,6 @@ w2utils.keyboard = (function (obj) {
             this.last.range_start = null;
             this.last.range_end   = null;
             // additional
-            this.sortData = (this.last.initialSort != null ? this.last.initialSort : []);
             this.set({ expanded: false }, true);
             $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
             // refresh
@@ -5168,7 +5167,6 @@ w2utils.keyboard = (function (obj) {
                 this.box = box;
             }
             if (!this.box) return;
-            if (this.last.initialSort == null) this.last.initialSort = this.sortData;
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
             if (eventData.isCancelled === true) return;
@@ -7068,13 +7066,14 @@ w2utils.keyboard = (function (obj) {
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.getCellValue(ind, col_ind, summary);
             var edit   = col.editable;
+            var maxh   = 'style="max-height: '+ parseInt(this.recordHeight) +'px;"';
             // various renderers
             if (typeof col.render != 'undefined') {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
-                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div>' + data + '</div>';
+                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div '+ maxh +'>' + data + '</div>';
                 }
-                if (typeof col.render == 'object')   data = '<div>' + (col.render[data] || '') + '</div>';
+                if (typeof col.render == 'object')   data = '<div '+ maxh +'>' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');
                     var tmp = [];
@@ -7095,27 +7094,27 @@ w2utils.keyboard = (function (obj) {
                         if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
                         if (tmp[0] == 'int')     { tmp[1] = 0; }
                         // format
-                        data = '<div>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
+                        data = '<div '+ maxh +'>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
                     }
                     if (tmp[0] == 'time') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
                         if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
                         if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
-                        data = '<div>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
-                        data = '<div>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display + '|' + w2utils.settings.time_format;
-                        data = '<div>' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
-                        data = '<div>' + prefix + w2utils.age(data) + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + w2utils.age(data) + suffix + '</div>';
                     }
                     if (tmp[0] == 'toggle') {
-                        data = '<div>' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
+                        data = '<div '+ maxh +'>' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
                     }
                 }
             } else {
@@ -7130,7 +7129,7 @@ w2utils.keyboard = (function (obj) {
                            '">';
                 }
                 if (!this.show.recordTitles) {
-                    var data = '<div style="'+ addStyle +'">'+ data +'</div>';
+                    var data = '<div '+ maxh +' style="'+ addStyle +'">'+ data +'</div>';
                 } else {
                     // title overwrite
                     var title = String(data).replace(/"/g, "''");
@@ -7138,7 +7137,7 @@ w2utils.keyboard = (function (obj) {
                         if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
                         if (typeof col.title == 'string')   title = col.title;
                     }
-                    var data = '<div title="'+ w2utils.stripTags(title) +'" style="'+ addStyle +'">'+ data +'</div>';
+                    var data = '<div '+ maxh +' title="'+ w2utils.stripTags(title) +'" style="'+ addStyle +'">'+ data +'</div>';
                 }
             }
             if (data == null) data = '';
@@ -13552,6 +13551,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - added field.disabled, field.hidden
 *   - when field is blank, set record.field = null
 *   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
+*   - added ability to generate radio and select html in generateHTML()
 *
 ************************************************************************/
 
@@ -14225,16 +14225,55 @@ var w2confirm = function (msg, title, callBack) {
                 var html = '';
                 var field = this.fields[f];
                 if (typeof field.html == 'undefined') field.html = {};
+                if (typeof field.options == 'undefined') field.options = {};
                 field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0 }, field.html);
                 if (typeof page == 'undefined') page = field.html.page;
                 if (field.html.caption == '') field.html.caption = field.name;
+                // input control
                 var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
-                if ((field.type === 'pass') || (field.type === 'password')){
-                    input = '<input name="' + field.name + '" type = "password" ' + field.html.attr + '/>';
+                switch (field.type) {
+                    case 'pass':
+                    case 'password':
+                        input = '<input name="' + field.name + '" type = "password" ' + field.html.attr + '/>';
+                        break;
+                    case 'checkbox':
+                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
+                        break;
+                    case 'radio':
+                        input = '';
+                        // normalized options
+                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (!$.isArray(items)) items = [];
+                        if (items.length > 0) {
+                            items = w2obj.field.prototype.normMenu(items);
+                        }
+                        // generate
+                        for (var i = 0; i < items.length; i++) {
+                            input += '<label><input name="' + field.name + '" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
+                                '&nbsp;' + items[i].text + '</label><br>';
+                        }
+                        break;
+                    case 'select':
+                        input = '<select name="' + field.name + '" ' + field.html.attr + '>';
+                        // normalized options
+                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (!$.isArray(items)) items = [];
+                        if (items.length > 0) {
+                            items = w2obj.field.prototype.normMenu(items);
+                        }
+                        // generate
+                        for (var i = 0; i < items.length; i++) {
+                            input += '<option value="'+ items[i].id + '">' + items[i].text + '</option>';
+                        }
+                        input += '</select>';
+                        break;
+                    case 'textarea':
+                        input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
+                        break;
+                    case 'toggle':
+                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-toggle"/><div><div></div></div>';
+                        break;
                 }
-                if (field.type == 'checkbox') input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
-                if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
-                if (field.type == 'toggle')   input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-toggle"/><div><div></div></div>';
                 if (field.html.group) {
                     if (group != '') html += '\n   </div>';
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
