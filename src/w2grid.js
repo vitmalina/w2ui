@@ -1678,7 +1678,7 @@
             if (!noRefresh) this.refresh();
         },
 
-        // clears scroll position, selection, ranges, goes to initial sort
+        // clears scroll position, selection, ranges
         reset: function (noRefresh) {
             // position
             this.last.scrollTop   = 0;
@@ -1687,7 +1687,6 @@
             this.last.range_start = null;
             this.last.range_end   = null;
             // additional
-            this.sortData = (this.last.initialSort != null ? this.last.initialSort : []);
             this.set({ expanded: false }, true);
             $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
             // refresh
