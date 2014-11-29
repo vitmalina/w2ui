@@ -3450,7 +3450,6 @@
                 this.box = box;
             }
             if (!this.box) return;
-            if (this.last.initialSort == null) this.last.initialSort = this.sortData;
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
             if (eventData.isCancelled === true) return;
