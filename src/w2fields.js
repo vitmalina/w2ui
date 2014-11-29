@@ -287,7 +287,8 @@
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
-                        markSearch      : false
+                        markSearch      : false,
+                        method          : null          // if defined, overrides default ajax method
                     };
                     options.items = this.normMenu(options.items); // need to be first
                     if (this.type == 'list') {
@@ -352,7 +353,8 @@
                         onNew           : null,          // when new item should be added
                         onRemove        : null,          // when an item is removed
                         onMouseOver     : null,          // when an item is mouse over
-                        onMouseOut      : null           // when an item is mouse out
+                        onMouseOut      : null,          // when an item is mouse out
+                        method          : null           // if defined, overrides default ajax method
                     };
                     options = $.extend({}, defaults, options, {
                         align    : 'both',    // same width as control
@@ -1321,6 +1323,7 @@
                         data     : postData,
                         dataType : 'JSON' // expected from server
                     };
+                    if (options.method) ajaxOptions.type = options.method;
                     if (w2utils.settings.dataType == 'JSON') {
                         ajaxOptions.type        = 'POST';
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
