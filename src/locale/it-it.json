@@ -71,6 +71,8 @@
 		"Show/hide columns" : "Mostra/Nascondi colonne",
 		"Skip" : "Salta",
 		"Yes" : "Si",
-		"yesterday" : "ieri"
+		"yesterday" : "ieri",
+		"Edit selected record": "Modifica elemento selezionato",
+		"Edit": "Modifica"
 	}
 }
