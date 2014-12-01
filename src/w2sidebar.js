@@ -118,8 +118,9 @@
             onExpand        : null,
             onCollapse      : null,
             // internal
-            parent          : null,    // node object
-            sidebar         : null
+            parent          : null,         // node object
+            sidebar         : null,
+            render          : null,         // custom render function(node)    
         },
 
         add: function (parent, nodes) {
@@ -782,8 +783,14 @@
                         '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '        onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '        onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                        (nd.groupShowHide ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
-                        '    <span>'+ nd.text +'</span>'+
+                        (nd.groupShowHide ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>');
+                    if (typeof(nd.render) != 'function') {
+                        html=html+'<span>'+ nd.text +'</span>';
+                    } else {
+                        nd.text=nd.render(nd);
+                        html=html+nd.text;
+                    }
+                    html=html+
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
@@ -795,6 +802,9 @@
                     tmp = '';
                     if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
                     if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
+                    if (typeof(nd.render) == 'function') {
+                        nd.text=nd.render(nd);
+                    }
                     html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
