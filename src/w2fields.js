@@ -25,6 +25,7 @@
 *   - deprecate placeholder, read it from input
 *   - added get(), set(), setIndex() for fields
 *   - add compare function for list, combo, enum
+*   - Added selection for the current date in the calendar
 *
 ************************************************************************/
 
@@ -1479,7 +1480,7 @@
                 var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 (function refreshCalendar(month, year) {
-                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year));
+                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
                             if ($(this).next().hasClass('w2ui-calendar-jump')) {
@@ -2145,7 +2146,7 @@
             return html;
         },
 
-        getMonthHTML: function (month, year) {
+        getMonthHTML: function (month, year, selected) {
             var td          = new Date();
             var months      = w2utils.settings.fullmonths;
             var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
@@ -2209,7 +2210,8 @@
                     bgcol   = 'background-color: ' + tmp[0] + ';';
                     col     = 'color: ' + tmp[1] + ';';
                 }
-                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' : 'w2ui-blocked') + className + '" style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
+                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' + (tmp_dt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
+                        '   style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
                             dspDay +
                         '</td>';
                 if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';
