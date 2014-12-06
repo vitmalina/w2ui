@@ -26,6 +26,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - TEST On IOS
 *   - $().w2marker() -- only unmarks first instance
 *   - subitems for w2menus()
+*   - add w2utils.lang wrap for all captions in all buttons.
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
