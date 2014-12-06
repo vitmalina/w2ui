@@ -249,11 +249,9 @@
             p.hidden = false;
             if (immediate === true) {
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });
-                if (p.resizable) $('#layout_'+ obj.name +'_resizer_'+panel).show();
                 obj.trigger($.extend(eventData, { phase: 'after' }));
                 obj.resize();
             } else {
-                if (p.resizable) $('#layout_'+ obj.name +'_resizer_'+panel).show();
                 // resize
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });
                 $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
@@ -283,11 +281,9 @@
             p.hidden = true;
             if (immediate === true) {
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'    });
-                $('#layout_'+ obj.name +'_resizer_'+panel).hide();
                 obj.trigger($.extend(eventData, { phase: 'after' }));
                 obj.resize();
             } else {
-                $('#layout_'+ obj.name +'_resizer_'+panel).hide();
                 // hide
                 $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'    });
@@ -315,8 +311,6 @@
             // refresh only when content changed
             if (typeof options['content'] != 'undefined') this.refresh(panel);
             // show/hide resizer
-            var resizer = $('#layout_'+ this.name +'_resizer_'+ panel);
-            if (options.resizable) resizer.show(); else resizer.hide();
             this.resize(); // resize is needed when panel size is changed
             return true;
         },
@@ -788,6 +782,7 @@
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_top').hide();
+                $('#layout_'+ this.name +'_resizer_top').hide();
             }
             // left if any
             if (pleft !== null && pleft.hidden !== true) {
@@ -873,6 +868,7 @@
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_right').hide();
+                $('#layout_'+ this.name +'_resizer_right').hide();
             }
             // bottom if any
             if (pbottom !== null && pbottom.hidden !== true) {
@@ -913,6 +909,7 @@
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_bottom').hide();
+                $('#layout_'+ this.name +'_resizer_bottom').hide();
             }
             // main - always there
             l = 0 + (sleft ? pleft.sizeCalculated + this.padding : 0);
@@ -976,6 +973,7 @@
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_preview').hide();
+                $('#layout_'+ this.name +'_resizer_preview').hide();
             }
 
             // display tabs and toolbar if needed
