@@ -31,6 +31,7 @@
 *   - unselect fires too many times (if many is unselected, one event should fire)
 *   - add selectType: 'none' so that no selection can be make but with mouse
 *   - send parsed URL to the event if there is routeData
+*   - reorder records with frozen columns
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -1603,7 +1604,7 @@
             this.last.selection.columns = {};
             // -- clear all search field
             this.searchClose();
-            $('#grid_'+ this.name +'_search_all').val('');
+            $('#grid_'+ this.name +'_search_all').val('').removeData('selected');
             // apply search
             if (!noRefresh) this.reload();
             // event after
@@ -1719,6 +1720,7 @@
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url) {
+                // TODO: remember selection and reselect it after reload
                 this.load(url, callBack);
             } else {
                 this.reset();
@@ -4221,6 +4223,7 @@
                     if (event.preventDefault) event.preventDefault();
                     // fix sizes
                     for (var c = 0; c < obj.columns.length; c++) {
+                        if (obj.columns[c].hidden) continue;
                         if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
                         obj.columns[c].size = obj.columns[c].sizeCalculated;
                     }
