@@ -1093,7 +1093,7 @@ w2utils.keyboard = (function (obj) {
     }
 
     function clear (event) {
-        if (w2ui_name != null && w2ui[w2ui_name].blur) {
+        if (w2ui_name != null && w2ui[w2ui_name] && w2ui[w2ui_name].blur) {
             if (w2ui[w2ui_name].blur.call(w2ui[w2ui_name], event) === false) return false;
         }
         w2ui_name = null;
