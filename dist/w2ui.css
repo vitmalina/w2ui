@@ -1133,7 +1133,6 @@ button.w2ui-btn-red.clicked {
   background-color: #ffffff;
 }
 .w2ui-calendar table.w2ui-calendar-days td.w2ui-today {
-  border: 1px solid #8cb067;
   color: #000000;
   background-color: #e2f7cd;
 }
@@ -1141,6 +1140,9 @@ button.w2ui-btn-red.clicked {
   border: 1px solid #cccccc;
   color: #000000;
   background-color: #e9e9e9;
+}
+.w2ui-calendar table.w2ui-calendar-days td.w2ui-date-selected {
+  border: 1px solid #8cb067;
 }
 .w2ui-calendar table.w2ui-calendar-days td.w2ui-blocked {
   text-decoration: line-through;

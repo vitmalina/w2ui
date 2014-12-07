@@ -27,6 +27,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - TEST On IOS
 *   - $().w2marker() -- only unmarks first instance
 *   - subitems for w2menus()
+*   - add w2utils.lang wrap for all captions in all buttons.
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
@@ -1748,6 +1749,7 @@ w2utils.keyboard = (function (obj) {
 *   - unselect fires too many times (if many is unselected, one event should fire)
 *   - add selectType: 'none' so that no selection can be make but with mouse
 *   - send parsed URL to the event if there is routeData
+*   - reorder records with frozen columns
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -3320,7 +3322,7 @@ w2utils.keyboard = (function (obj) {
             this.last.selection.columns = {};
             // -- clear all search field
             this.searchClose();
-            $('#grid_'+ this.name +'_search_all').val('');
+            $('#grid_'+ this.name +'_search_all').val('').removeData('selected');
             // apply search
             if (!noRefresh) this.reload();
             // event after
@@ -3436,6 +3438,7 @@ w2utils.keyboard = (function (obj) {
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url) {
+                // TODO: remember selection and reselect it after reload
                 this.load(url, callBack);
             } else {
                 this.reset();
@@ -5938,6 +5941,7 @@ w2utils.keyboard = (function (obj) {
                     if (event.preventDefault) event.preventDefault();
                     // fix sizes
                     for (var c = 0; c < obj.columns.length; c++) {
+                        if (obj.columns[c].hidden) continue;
                         if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
                         obj.columns[c].size = obj.columns[c].sizeCalculated;
                     }
@@ -7684,11 +7688,9 @@ w2utils.keyboard = (function (obj) {
             p.hidden = false;
             if (immediate === true) {
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });
-                if (p.resizable) $('#layout_'+ obj.name +'_resizer_'+panel).show();
                 obj.trigger($.extend(eventData, { phase: 'after' }));
                 obj.resize();
             } else {
-                if (p.resizable) $('#layout_'+ obj.name +'_resizer_'+panel).show();
                 // resize
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' });
                 $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
@@ -7718,11 +7720,9 @@ w2utils.keyboard = (function (obj) {
             p.hidden = true;
             if (immediate === true) {
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'    });
-                $('#layout_'+ obj.name +'_resizer_'+panel).hide();
                 obj.trigger($.extend(eventData, { phase: 'after' }));
                 obj.resize();
             } else {
-                $('#layout_'+ obj.name +'_resizer_'+panel).hide();
                 // hide
                 $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'    });
@@ -7750,8 +7750,6 @@ w2utils.keyboard = (function (obj) {
             // refresh only when content changed
             if (typeof options['content'] != 'undefined') this.refresh(panel);
             // show/hide resizer
-            var resizer = $('#layout_'+ this.name +'_resizer_'+ panel);
-            if (options.resizable) resizer.show(); else resizer.hide();
             this.resize(); // resize is needed when panel size is changed
             return true;
         },
@@ -8223,6 +8221,7 @@ w2utils.keyboard = (function (obj) {
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_top').hide();
+                $('#layout_'+ this.name +'_resizer_top').hide();
             }
             // left if any
             if (pleft !== null && pleft.hidden !== true) {
@@ -8308,6 +8307,7 @@ w2utils.keyboard = (function (obj) {
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_right').hide();
+                $('#layout_'+ this.name +'_resizer_right').hide();
             }
             // bottom if any
             if (pbottom !== null && pbottom.hidden !== true) {
@@ -8348,6 +8348,7 @@ w2utils.keyboard = (function (obj) {
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_bottom').hide();
+                $('#layout_'+ this.name +'_resizer_bottom').hide();
             }
             // main - always there
             l = 0 + (sleft ? pleft.sizeCalculated + this.padding : 0);
@@ -8411,6 +8412,7 @@ w2utils.keyboard = (function (obj) {
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_preview').hide();
+                $('#layout_'+ this.name +'_resizer_preview').hide();
             }
 
             // display tabs and toolbar if needed
@@ -11251,6 +11253,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - deprecate placeholder, read it from input
 *   - added get(), set(), setIndex() for fields
 *   - add compare function for list, combo, enum
+*   - Added selection for the current date in the calendar
 *
 ************************************************************************/
 
@@ -11513,7 +11516,8 @@ var w2confirm = function (msg, title, callBack) {
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
-                        markSearch      : false
+                        markSearch      : false,
+                        method          : null          // if defined, overrides default ajax method
                     };
                     options.items = this.normMenu(options.items); // need to be first
                     if (this.type == 'list') {
@@ -11578,7 +11582,8 @@ var w2confirm = function (msg, title, callBack) {
                         onNew           : null,          // when new item should be added
                         onRemove        : null,          // when an item is removed
                         onMouseOver     : null,          // when an item is mouse over
-                        onMouseOut      : null           // when an item is mouse out
+                        onMouseOut      : null,          // when an item is mouse out
+                        method          : null           // if defined, overrides default ajax method
                     };
                     options = $.extend({}, defaults, options, {
                         align    : 'both',    // same width as control
@@ -12547,6 +12552,7 @@ var w2confirm = function (msg, title, callBack) {
                         data     : postData,
                         dataType : 'JSON' // expected from server
                     };
+                    if (options.method) ajaxOptions.type = options.method;
                     if (w2utils.settings.dataType == 'JSON') {
                         ajaxOptions.type        = 'POST';
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
@@ -12702,7 +12708,7 @@ var w2confirm = function (msg, title, callBack) {
                 var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 (function refreshCalendar(month, year) {
-                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year));
+                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
                             if ($(this).next().hasClass('w2ui-calendar-jump')) {
@@ -13368,7 +13374,7 @@ var w2confirm = function (msg, title, callBack) {
             return html;
         },
 
-        getMonthHTML: function (month, year) {
+        getMonthHTML: function (month, year, selected) {
             var td          = new Date();
             var months      = w2utils.settings.fullmonths;
             var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
@@ -13432,7 +13438,8 @@ var w2confirm = function (msg, title, callBack) {
                     bgcol   = 'background-color: ' + tmp[0] + ';';
                     col     = 'color: ' + tmp[1] + ';';
                 }
-                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' : 'w2ui-blocked') + className + '" style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
+                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' + (tmp_dt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
+                        '   style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
                             dspDay +
                         '</td>';
                 if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';

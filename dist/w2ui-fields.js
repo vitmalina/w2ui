@@ -27,6 +27,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - TEST On IOS
 *   - $().w2marker() -- only unmarks first instance
 *   - subitems for w2menus()
+*   - add w2utils.lang wrap for all captions in all buttons.
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
@@ -1742,6 +1743,7 @@ w2utils.keyboard = (function (obj) {
 *   - deprecate placeholder, read it from input
 *   - added get(), set(), setIndex() for fields
 *   - add compare function for list, combo, enum
+*   - Added selection for the current date in the calendar
 *
 ************************************************************************/
 
@@ -2004,7 +2006,8 @@ w2utils.keyboard = (function (obj) {
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
-                        markSearch      : false
+                        markSearch      : false,
+                        method          : null          // if defined, overrides default ajax method
                     };
                     options.items = this.normMenu(options.items); // need to be first
                     if (this.type == 'list') {
@@ -2069,7 +2072,8 @@ w2utils.keyboard = (function (obj) {
                         onNew           : null,          // when new item should be added
                         onRemove        : null,          // when an item is removed
                         onMouseOver     : null,          // when an item is mouse over
-                        onMouseOut      : null           // when an item is mouse out
+                        onMouseOut      : null,          // when an item is mouse out
+                        method          : null           // if defined, overrides default ajax method
                     };
                     options = $.extend({}, defaults, options, {
                         align    : 'both',    // same width as control
@@ -3038,6 +3042,7 @@ w2utils.keyboard = (function (obj) {
                         data     : postData,
                         dataType : 'JSON' // expected from server
                     };
+                    if (options.method) ajaxOptions.type = options.method;
                     if (w2utils.settings.dataType == 'JSON') {
                         ajaxOptions.type        = 'POST';
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
@@ -3193,7 +3198,7 @@ w2utils.keyboard = (function (obj) {
                 var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 (function refreshCalendar(month, year) {
-                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year));
+                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
                             if ($(this).next().hasClass('w2ui-calendar-jump')) {
@@ -3859,7 +3864,7 @@ w2utils.keyboard = (function (obj) {
             return html;
         },
 
-        getMonthHTML: function (month, year) {
+        getMonthHTML: function (month, year, selected) {
             var td          = new Date();
             var months      = w2utils.settings.fullmonths;
             var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
@@ -3923,7 +3928,8 @@ w2utils.keyboard = (function (obj) {
                     bgcol   = 'background-color: ' + tmp[0] + ';';
                     col     = 'color: ' + tmp[1] + ';';
                 }
-                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' : 'w2ui-blocked') + className + '" style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
+                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' + (tmp_dt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
+                        '   style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
                             dspDay +
                         '</td>';
                 if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';
