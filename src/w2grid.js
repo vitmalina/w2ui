@@ -1684,7 +1684,7 @@
             // position
             this.last.scrollTop   = 0;
             this.last.scrollLeft  = 0;
-            this.last.selection   = { indexes : [], column : {} };
+            this.last.selection   = { indexes : [], columns : {} };
             this.last.range_start = null;
             this.last.range_end   = null;
             // additional
