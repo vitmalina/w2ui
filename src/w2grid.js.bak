@@ -52,7 +52,6 @@
 *   - added search.operator
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
-*   - added additional search filter options for int, float, date, time
 *
 ************************************************************************/
 

@@ -99,7 +99,7 @@ var w2utils = (function () {
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1) 
+                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1)
                  ? true : false),
         isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
@@ -699,14 +699,14 @@ var w2utils = (function () {
                 $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
                     'transform' : '',
-                    'backface-visibility': ''  
+                    'backface-visibility': ''
                 }));
             }
             if (div_old) {
                 $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
                     'transform' : '',
-                    'backface-visibility': ''  
+                    'backface-visibility': ''
                 }));
                 if (div_old.parentNode) $(div_old.parentNode).css(w2utils.cssPrefix('perspective', ''));
             }
@@ -745,7 +745,7 @@ var w2utils = (function () {
             mess.html(options.msg).fadeIn(200);
         } else {
             $lock.show();
-            mess.html(options.msg).show(0);            
+            mess.html(options.msg).show(0);
         }
         // hide all tags (do not hide overlays as the form can be in overlay)
         $().w2tag();
@@ -760,7 +760,7 @@ var w2utils = (function () {
             }, speed);
         } else {
             $(box).find('.w2ui-lock').remove();
-            $(box).find('.w2ui-lock-msg').remove();            
+            $(box).find('.w2ui-lock-msg').remove();
         }
     }
 
@@ -805,7 +805,7 @@ var w2utils = (function () {
     function locale (locale) {
         if (!locale) locale = 'en-us';
         if (locale.length === 5) locale = 'locale/'+ locale +'.json';
-        
+
         // clear phrases from language before
         w2utils.settings.phrases = {};
 
@@ -919,7 +919,7 @@ var w2utils = (function () {
             ret = newCSS;
         }
         return ret;
-    } 
+    }
 
 })();
 
@@ -1258,7 +1258,7 @@ w2utils.keyboard = (function (obj) {
         };
         if (arguments.length == 1) {
             if (typeof html == 'object') {
-                options = html; 
+                options = html;
             } else {
                 options = { html: html };
             }
@@ -1559,7 +1559,7 @@ w2utils.keyboard = (function (obj) {
                     });
                 if (options.search) {
                     if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName == 'texarea') return;
-                    $('#w2ui-overlay'+ name +' #menu-search').focus();                    
+                    $('#w2ui-overlay'+ name +' #menu-search').focus();
                 }
             }, 200);
             mresize();
@@ -1713,4 +1713,3 @@ w2utils.keyboard = (function (obj) {
         }
     };
 })();
-
