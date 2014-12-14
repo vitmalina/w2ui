@@ -1,15 +1,18 @@
-kickStart.define({ name: 'route' });
+kickStart.define({ route: { } });
 kickStart.register('route', function () {
-    var app = kickStart;
     // private scope
+    var app     = kickStart;
     var routes  = {};
     var routeRE = {};
+    var silent;
 
     addListener();
+
     var obj = {
         add     : add,
         remove  : remove,
         go      : go,
+        set     : set,
         get     : get,
         process : process,
         list    : list,
@@ -24,7 +27,7 @@ kickStart.register('route', function () {
     *   Public methods
     */
 
-    function add (route, handler) {
+    function add(route, handler) {
         if (typeof route == 'object') {
             for (var r in route) {
                 var tmp = String('/'+ r).replace(/\/{2,}/g, '/');
@@ -45,7 +48,7 @@ kickStart.register('route', function () {
         return app.route;
     }
 
-    function remove (route) {
+    function remove(route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
         // if events are available
         if (typeof app.route.trigger == 'function') {
@@ -60,17 +63,24 @@ kickStart.register('route', function () {
         return app.route;
     }
 
-    function go (route) {
+    function go(route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
         setTimeout(function () { window.location.hash = route; }, 1);
         return app.route;       
     }
 
-    function get () {
+    function set(route) {
+        silent = true;
+        go(route);
+        setTimeout(function () { silent = false }, 1);
+        return app.route;       
+    }
+
+    function get() {
         return window.location.hash.substr(1).replace(/\/{2,}/g, '/');
     }
 
-    function list () {
+    function list() {
         prepare();
         var res = {};
         for (var r in routes) {
@@ -82,7 +92,8 @@ kickStart.register('route', function () {
         return res;
     }
 
-    function process () {
+    function process() {
+        if (silent === true) return;
         prepare();
         // match routes
         var hash = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
@@ -130,7 +141,7 @@ kickStart.register('route', function () {
     *   Private methods
     */
 
-    function prepare () {
+    function prepare() {
         // make sure all routes are parsed to RegEx
         for (var r in routes) {
             if (routeRE[r]) continue;
@@ -153,7 +164,7 @@ kickStart.register('route', function () {
         }       
     }
 
-    function addListener () {
+    function addListener() {
         if (window.addEventListener) {
             window.addEventListener('hashchange', process, false);
         } else {
@@ -161,7 +172,7 @@ kickStart.register('route', function () {
         }
     }
 
-    function removeListener () {
+    function removeListener() {
         if (window.removeEventListener) {
             window.removeEventListener('hashchange', process);
         } else {
