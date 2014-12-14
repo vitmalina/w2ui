@@ -1069,7 +1069,7 @@ w2utils.keyboard = (function (obj) {
 
     function mousedown (event) {
         var tag = event.target.tagName;
-        var els = $(event.target).parents('.w2ui-grid, .w2ui-sidebar, .w2ui-popup');
+        var els = $(event.target).parents('.w2ui-grid, .w2ui-sidebar, .w2ui-popup, .w2ui-keyboard');
         if (els.length > 0) {
             var name = els.attr('name');
             var obj = w2ui[name];
@@ -1094,7 +1094,7 @@ w2utils.keyboard = (function (obj) {
     }
 
     function clear (event) {
-        if (w2ui_name != null && w2ui[w2ui_name].blur) {
+        if (w2ui_name != null && w2ui[w2ui_name] && w2ui[w2ui_name].blur) {
             if (w2ui[w2ui_name].blur.call(w2ui[w2ui_name], event) === false) return false;
         }
         w2ui_name = null;
