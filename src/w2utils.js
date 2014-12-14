@@ -1068,7 +1068,7 @@ w2utils.keyboard = (function (obj) {
 
     function mousedown (event) {
         var tag = event.target.tagName;
-        var els = $(event.target).parents('.w2ui-grid, .w2ui-sidebar, .w2ui-popup');
+        var els = $(event.target).parents('.w2ui-grid, .w2ui-sidebar, .w2ui-popup, .w2ui-keyboard');
         if (els.length > 0) {
             var name = els.attr('name');
             var obj = w2ui[name];
