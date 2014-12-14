@@ -2071,7 +2071,11 @@
             var index = obj.get(recid, true);
             var rec   = obj.records[index];
             var col   = obj.columns[column];
-            var edit  = col ? col.editable : null;
+            
+            var edit = rec ? rec.editable : null;
+            if (!edit)
+              edit = col ? col.editable : null;
+              
             if (!rec || !col || !edit || rec.editable === false) return;
             if (['enum', 'file'].indexOf(edit.type) != -1) {
                 console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
