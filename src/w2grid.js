@@ -4679,8 +4679,8 @@
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');" onclick="event.stopPropagation();">'+
                         '   <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '   <option value="between">'+ w2utils.lang('between') +'</option>'+
-                        '   <option value="less">'+ w2utils.lang('less') +'</option>'+
-                        '   <option value="more">'+ w2utils.lang('more') +'</option>'+
+                        '   <option value="less">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'before' : 'less') +'</option>'+
+                        '   <option value="more">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'after' : 'more') +'</option>'+
                         '</select>';
                 }
                 if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
