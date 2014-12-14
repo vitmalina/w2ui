@@ -32,6 +32,7 @@
 *   - add selectType: 'none' so that no selection can be make but with mouse
 *   - send parsed URL to the event if there is routeData
 *   - reorder records with frozen columns
+*   - focus/blur for selectType = cell not display grayed out selection
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -52,6 +53,7 @@
 *   - added search.operator
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
+*   - added selectionSave, selectionRestore - for internal use
 *
 ************************************************************************/
 
@@ -582,9 +584,11 @@
             }
             if ($.isEmptyObject(this.sortData)) return;
             var time = (new Date()).getTime();
-            var obj = this;
+            var obj  = this;
             // process date fields
+            obj.selectionSave();
             obj.prepareData();
+            obj.reset();
             // process sortData
             for (var s in this.sortData) {
                 var column = this.getColumn(this.sortData[s].field); 
@@ -622,6 +626,7 @@
                 }
                 return ret;
             });
+            obj.selectionRestore();
             time = (new Date()).getTime() - time;
             if (silent !== true && obj.show.statusSort) {
                 setTimeout(function () { 
@@ -1684,7 +1689,7 @@
             // position
             this.last.scrollTop   = 0;
             this.last.scrollLeft  = 0;
-            this.last.selection   = { indexes : [], column : {} };
+            this.last.selection   = { indexes: [], columns: {} };
             this.last.range_start = null;
             this.last.range_end   = null;
             // additional
@@ -1718,13 +1723,19 @@
         },
 
         reload: function (callBack) {
-            var url = (typeof this.url != 'object' ? this.url : this.url.get);
+            var grid = this;
+            var url  = (typeof this.url != 'object' ? this.url : this.url.get);
+            grid.selectionSave();
             if (url) {
-                // TODO: remember selection and reselect it after reload
-                this.load(url, callBack);
+                // need to remember selection (not just last.selection object)
+                this.load(url, function () {
+                    grid.selectionRestore();
+                    if (typeof callBack == 'function') callBack();
+                });
             } else {
-                this.reset();
+                this.reset(true);
                 this.localSearch();
+                this.selectionRestore();
                 if (typeof callBack == 'function') callBack({ status: 'success' });
             }
         },
@@ -2460,7 +2471,7 @@
             var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
-            $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
+            $(this.box).find('.w2ui-inactive').removeClass('w2ui-inactive');
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -3080,7 +3091,6 @@
             } else {
                 this.sortData = [];
             }
-            this.selectNone();
             // if local
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
@@ -3199,7 +3209,6 @@
         resize: function () {
             var obj  = this;
             var time = (new Date()).getTime();
-            //if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             // make sure the box is right
             if (!this.box || $(this.box).attr('name') != this.name) return;
             // determine new width and height
@@ -3305,7 +3314,6 @@
             if (this.total <= 0 && !url && this.searchData.length == 0) {
                 this.total = this.records.length;
             }
-            //if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             this.toolbar.disable('w2ui-edit', 'w2ui-delete');
             if (!this.box) return;
             // event before
@@ -3441,7 +3449,6 @@
         render: function (box) {
             var obj  = this;
             var time = (new Date()).getTime();
-            //if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             if (box != null) {
                 if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                     $(this.box)
@@ -5712,6 +5719,34 @@
             } else {
                 return null;
             }
+        },
+
+        selectionSave: function () {
+            this.last._selection = this.getSelection();
+            return this.last._selection;
+        },
+
+        selectionRestore: function () {
+            this.last.selection = { indexes: [], columns: {} };
+            var sel = this.last.selection;
+            var lst = this.last._selection;
+            for (var i = 0; i < lst.length; i++) {
+                if ($.isPlainObject(lst[i])) {
+                    // selectType: cell
+                    var tmp = this.get(lst[i].recid, true);
+                    if (tmp != null) {
+                        if (sel.indexes.indexOf(tmp) == -1) sel.indexes.push(tmp);
+                        if (!sel.columns[tmp]) sel.columns[tmp] = [];
+                        sel.columns[tmp].push(lst[i].column);
+                    }
+                } else {
+                    // selectType: row
+                    var tmp = this.get(lst[i], true);
+                    if (tmp != null) sel.indexes.push(tmp);
+                }
+            }
+            delete this.last._selection;
+            this.refresh();
         }
     };
 
