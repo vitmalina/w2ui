@@ -2073,8 +2073,7 @@
             var col   = obj.columns[column];
             
             var edit = rec ? rec.editable : null;
-            if (!edit)
-              edit = col ? col.editable : null;
+            if (edit == null) edit = col ? col.editable : null;
               
             if (!rec || !col || !edit || rec.editable === false) return;
             if (['enum', 'file'].indexOf(edit.type) != -1) {
