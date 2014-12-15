@@ -8,11 +8,11 @@ var kickStart = (function () {
 
     var app = {
         modules   : {},
-        config    : {},
         define    : define,
         require   : require,
         register  : register
     };
+    if (!window.app) window.app = app;
     return app;
 
     // ===========================================
@@ -43,13 +43,12 @@ var kickStart = (function () {
                 }
             });
         }
-        if (!$.isArray(mod)) mod = [mod];
         for (var m in mod) {
-            if (app.modules.hasOwnProperty(mod[m].name)) {
-                console.log('ERROR: module ' + mod[m].name + ' is already registered.');
+            if (app.modules.hasOwnProperty(m)) {
+                console.log('ERROR: module ' + m + ' is already registered.');
                 return false;
             }
-            app.modules[mod[m].name] = $.extend({}, mod[m], { loaded: false, files: {} });
+            app.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
         }
         return true;
     }
@@ -68,13 +67,10 @@ var kickStart = (function () {
             return false;
         }
         // register module
-        var mod = null;
-        for (var m in app.modules) {
-            if (app.modules[m].name == name) mod = app.modules[m];
-        }
+        var mod = app.modules[name];
         // init module
         app[name] = moduleFunction(mod.files, mod);
-        app.modules[name].loaded = true;
+        app.modules[name].ready = true;
         return;
     }
 
@@ -115,15 +111,15 @@ var kickStart = (function () {
                 } else { 
                     (function (name) { // need closure
                         // load dependencies
-                        getFiles(app.modules[name].assets.concat([app.modules[name].main]), function (files) {
-                            var main = files[app.modules[name].main];
-                            delete files[app.modules[name].main];
+                        getFiles(app.modules[name].assets.concat([app.modules[name].start]), function (files) {
+                            var start = files[app.modules[name].start];
+                            delete files[app.modules[name].start];
                             // register assets
                             app.modules[name].files  = files;
-                            app.modules[name].loaded = true;
-                            // execute main file
+                            app.modules[name].ready  = true;
+                            // execute start file
                             try { 
-                                eval(main); 
+                                eval(start); 
                             } catch (e) { 
                                 failed = true;
                                 // find error line
@@ -132,17 +128,17 @@ var kickStart = (function () {
                                 if (tmp) tmp = tmp[0].split(':');
                                 if (tmp) {
                                     // display error
-                                    console.error('ERROR: ' + err[0] + ' ==> ' + app.modules[name].main + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
+                                    console.error('ERROR: ' + err[0] + ' ==> ' + app.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
                                     console.log(e.stack);
                                 } else {
-                                    console.error('ERROR: ' + app.modules[name].main);
+                                    console.error('ERROR: ' + app.modules[name].start);
                                     console.log(e.stack);
                                 }
-                                if (typeof app.config.fail == 'function') app.config.fail(app.modules[name]);
+                                // if (typeof app.config.fail == 'function') app.config.fail(app.modules[name]);
                                 if (typeof promise._fail == 'function') promise._fail(app.modules[name]);
                             }
                             // check ready
-                            if (typeof app.config.ready == 'function') app.config.ready(app.modules[name]);
+                            // if (typeof app.config.ready == 'function') app.config.ready(app.modules[name]);
                             if (typeof promise._ready == 'function') promise._ready(app.modules[name]);
                             modCount--;
                             isFinished();
@@ -157,11 +153,11 @@ var kickStart = (function () {
         function isFinished () {
             if (modCount == 0) {
                 if (failed !== true) {
-                    if (typeof app.config.done == 'function') app.config.done(app.modules[name]);
+                    // if (typeof app.config.done == 'function') app.config.done(app.modules[name]);
                     if (typeof promise._done == 'function') promise._done(app.modules[name]);
                     if (typeof callBack == 'function') callBack();
                 }
-                if (typeof app.config.always == 'function') app.config.always(app.modules[name]);
+                // if (typeof app.config.always == 'function') app.config.always(app.modules[name]);
                 if (typeof promise._always == 'function') promise._always();
             }
         }

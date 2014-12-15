@@ -5,9 +5,21 @@
     <script src="../src/kickstart/ks-route.js"></script>
 </head>
 <body>
+See console
 <script>
 $(function () {
-    console.log('Loaded.');
+	app.define({
+		"main": {
+		 	"start": "app/main/main.js",
+		 	"assets": [
+		 		"app/main/config.js",
+		 		"app/main/main-config.js",
+		 		"app/main/formula-config.js",
+		 		"app/main/panel.js",
+		 		"app/main/formula.js"
+		 	]
+		}
+	})
 });
 </script>
 </body>
