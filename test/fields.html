@@ -5,6 +5,7 @@
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
+<script type="text/javascript" src="../src/w2popup.js"></script>
 <script>
     $(function () {
         var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
@@ -103,10 +104,11 @@
                 console.log('enum remove', event.item);
             },
             onAdd: function (event) {
-                console.log('enum add', event);
+                console.log('enum add', event);                
             },
             onNew: function (event) {
                 console.log('enum new', event);
+                $().w2popup({'title':'test'})
             }
         });
         $('.file').w2field('file', {
