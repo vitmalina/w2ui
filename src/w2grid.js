@@ -888,7 +888,7 @@
             var time = (new Date()).getTime();
             var rec1 = $('#grid_'+ this.name +'_frecords');
             var rec2 = $('#grid_'+ this.name +'_records');
-            for (var r in this.ranges) {
+            for (r = 0; r < this.ranges.length; r++) {
                 var rg    = this.ranges[r];
                 var first = rg.range[0];
                 var last  = rg.range[1];
