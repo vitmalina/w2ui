@@ -1,0 +1,21 @@
+{% extends "django_w2ui/base.html" %}
+{% load url from future %}
+
+{% block container %}
+<div class="hero-unit">
+    <h1>Django w2ui Demo</h1>
+
+    <p class="lead">
+        Django w2ui provides easy integration between <a href="http://w2ui.com/web/docs/grid">w2ui grid</a> and <a href="http://www.djangoproject.com">Django</a>.
+    </p>
+
+    <p>Explore Django w2ui usage through these simple demo pages</p>
+
+    <p>
+        <a class="btn btn-primary btn-large" href="{% url 'server-side-objects' %}">
+            Server-side
+        </a>
+    </p>
+
+</div>
+{% endblock %}
