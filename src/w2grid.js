@@ -237,7 +237,7 @@
                 object.records[r] = $.extend(true, {}, records[r]);
             }
             // add searches
-            for (var c in object.columns) {
+            for (c = 0; c < object.columns.length; c++) {
                 var col = object.columns[c];
                 if (col.searchable == null || col.searchable === false || object.getSearch(col.field) != null) continue;
                 var stype = col.searchable;
@@ -2071,10 +2071,10 @@
             var index = obj.get(recid, true);
             var rec   = obj.records[index];
             var col   = obj.columns[column];
-            
+
             var edit = rec ? rec.editable : null;
             if (edit == null) edit = col ? col.editable : null;
-              
+
             if (!rec || !col || !edit || rec.editable === false) return;
             if (['enum', 'file'].indexOf(edit.type) != -1) {
                 console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
