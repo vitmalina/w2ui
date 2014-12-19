@@ -403,7 +403,7 @@
                 if (before === null) before = this.columns.length;
             }
             if (!$.isArray(columns)) columns = [columns];
-            for (var o in columns) {
+            for (o = 0; o < columns.length; o++) {
                 this.columns.splice(before, 0, columns[o]);
                 // if column is searchable, add search field
                 if (columns[o].searchable) {
