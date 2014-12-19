@@ -19,11 +19,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *  - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
-*   - date has problems in FF new Date('yyyy-mm-dd') breaks
-*   - bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
-*   - format date and time is buggy
 *   - onComplete should pass widget as context (this)
 *   - add maxHeight for the w2menu
 *   - user localization from another lib (make it generic), https://github.com/jquery/globalize#readme
@@ -186,7 +183,7 @@ var w2utils = (function () {
         dt = new Date(year, month - 1, day);
         // do checks
         if (month == null) return false;
-        if (dt === 'Invalid Date') return false;
+        if (String(dt) == 'Invalid Date') return false;
         if ((dt.getMonth() + 1 !== month) || (dt.getDate() !== day) || (dt.getFullYear() !== year)) return false;
         if (retDate === true) return dt; else return true;
     }
@@ -229,7 +226,7 @@ var w2utils = (function () {
         if (dateStr === '' || dateStr == null) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-        if (d1 === 'Invalid Date') return '';
+        if (String(d1) == 'Invalid Date') return '';
 
         var d2  = new Date();
         var sec = (d2.getTime() - d1.getTime()) / 1000;
@@ -265,7 +262,7 @@ var w2utils = (function () {
         if (dateStr === '' || dateStr == null) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-        if (d1 === 'Invalid Date') return '';
+        if (String(d1) == 'Invalid Date') return '';
 
         var months = w2utils.settings.shortmonths;
         var d2   = new Date(); // today
@@ -315,7 +312,7 @@ var w2utils = (function () {
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
-        if (dt === 'Invalid Date') return '';
+        if (String(dt) == 'Invalid Date') return '';
 
         var year  = dt.getFullYear();
         var month = dt.getMonth();
@@ -350,7 +347,7 @@ var w2utils = (function () {
             dt.setHours(tmp.hours);
             dt.setMinutes(tmp.minutes);
         }
-        if (dt === 'Invalid Date') return '';
+        if (String(dt) == 'Invalid Date') return '';
 
         var type = 'am';
         var hour = dt.getHours();
@@ -11196,7 +11193,7 @@ var w2confirm = function (msg, title, callBack) {
             if (['date', 'time'].indexOf(this.type) != -1) {
                 // convert linux timestamps
                 var tmp = parseInt(obj.el.value);
-                if (w2utils.isInt(tmp) && tmp > 1000) {
+                if (w2utils.isInt(obj.el.value) && tmp > 3000) {
                     if (this.type == 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).change();
                     if (this.type == 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).change();
                 }
