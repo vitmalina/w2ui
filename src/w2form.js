@@ -1012,8 +1012,8 @@
                     case 'money':
                     case 'currency':
                     case 'percent':
-                        //issue #499
-                        if(typeof value == 'number'){
+                        //issue #499, issue 761: Add conditional for autoFormat
+                        if(typeof value == 'number' && field.options.autoFormat){
                              field.el.value = w2utils.formatNumber(value,field.options.groupSymbol,field.options.decimalSymbol);
                          } else {
                              field.el.value = value;
