@@ -955,7 +955,9 @@
                             $(fld).removeClass('w2ui-error');
                         }
                     }
-                    if (val == '' || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) val = null;
+                    if (val === '' || val == null || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                        val = null;
+                    }
                     obj.record[this.name] = val;
                     // event after
                     obj.trigger($.extend(eventData, { phase: 'after' }));
