@@ -764,7 +764,8 @@
                                 break;
                             case 'ends':
                             case 'ends with': // need for back compatib.
-                                if (val1.lastIndexOf(val2) == val1.length - val2.length) fl++; // do not hide record
+                                var lastIndex = val1.lastIndexOf(val2);
+                                if (lastIndex !== -1 && lastIndex == val1.length - val2.length) fl++; // do not hide record
                                 break;
                         }
                     }
@@ -5769,6 +5770,7 @@
         },
 
         selectionRestore: function () {
+            var time = (new Date()).getTime();
             this.last.selection = { indexes: [], columns: {} };
             var sel = this.last.selection;
             var lst = this.last._selection;
@@ -5789,6 +5791,7 @@
             }
             delete this.last._selection;
             this.refresh();
+            return (new Date()).getTime() - time;
         }
     };
 
