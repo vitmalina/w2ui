@@ -317,7 +317,7 @@ var w2popup = {};
 
         keydown: function (event) {
             var options = $('#w2ui-popup').data('options');
-            if (!options.keyboard) return;
+            if (!options || !options.keyboard) return;
             // trigger event
             var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, originalEvent: event });
             if (eventData.isCancelled === true) return;
