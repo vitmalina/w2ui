@@ -28,6 +28,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - subitems for w2menus()
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - add isDateTime()
+*   - remove momentjs
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
