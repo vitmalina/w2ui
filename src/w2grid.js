@@ -291,7 +291,7 @@
             'save'     : { type: 'button', id: 'w2ui-save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         },
 
-        add: function (record) {
+        add: function (record, first) {
             if (!$.isArray(record)) record = [record];
             var added = 0;
             for (var o in record) {
@@ -299,7 +299,7 @@
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
                 }
-                this.records.push(record[o]);
+                if (first) this.records.unshift(record[o]); else this.records.push(record[o]);
                 added++;
             }
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
