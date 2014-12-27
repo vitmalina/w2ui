@@ -33,6 +33,9 @@
 *   - send parsed URL to the event if there is routeData
 *   - reorder records with frozen columns
 *   - focus/blur for selectType = cell not display grayed out selection
+*   - frozen columns 
+        - load more only on the right side
+        - scrolling on frozen columns is not working only on regular columns
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -1814,7 +1817,7 @@
             // call server to get data
             var obj = this;
             if (this.last.xhr_offset == 0) {
-                this.lock(this.msgRefresh, true);
+                setTimeout(function() { obj.lock(obj.msgRefresh, true); }, 50);
             } else {
                 var more = $('#grid_'+ this.name +'_rec_more');
                 if (this.autoLoad === true) {

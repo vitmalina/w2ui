@@ -19,6 +19,7 @@
 *   - return ids of all subitems
 *   - added w2sidebar.flat
 *   - added focus(), blur(), onFocus, onBlur
+*   - unselect w/o arguments will unselect selected node
 *
 ************************************************************************/
 
@@ -351,6 +352,10 @@
         },
 
         unselect: function (id) {
+            // if no arguments provided, unselect selected node
+            if (arguments.length == 0) {
+                id = this.selected;
+            }
             var current = this.get(id);
             if (!current) return false;
             current.selected = false;

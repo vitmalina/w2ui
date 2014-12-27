@@ -25,6 +25,7 @@
             items.push(item);
         }
         $('.date').w2field('date', { silent: false, format: 'dd/mm/yyyy' });
+        $('.datetime').w2field('datetime', {});
         $('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
         $('.color').w2field('color');
         $('.int').w2field({ type: 'int', min: -36000, max: 36000 });
@@ -213,6 +214,12 @@
             <label>date:</label>
             <div>
                 <input class="date" type="text" size="20"/>
+            </div>
+        </div>    
+        <div class="w2ui-field">
+            <label>datetime:</label>
+            <div>
+                <input class="datetime" type="text" size="20"/>
             </div>
         </div>    
         <div class="w2ui-field">

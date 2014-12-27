@@ -32,8 +32,8 @@ $(function () {
             header: true,
             emptyRecords: true,
             columnHeaders: true,
-            selectColumn: false,
-            // expandColumn: true,
+            selectColumn: true,
+            expandColumn: false,
             lineNumbers: true,
             toolbarAdd: true,
             toolbarEdit: true,
@@ -85,42 +85,8 @@ $(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [                
-            { field: 'personid', caption: 'ID', type: 'enum', options: { items: [ { id: 1, text: '1' }, { id: 2, text: '2' }, { id: 3, text: '3' } ]} },
-            { field: 'fname', caption: 'First Name', type: 'list', 
-                options: { 
-                    search: true,
-                    applyFilter: true,
-                    items: [
-                        { id: 'Avinash', text: 'Name: Avinash' }, 
-                        { id: 'Vitali', text: 'Name: Vitali' },
-                        { id: 'Sue', text: 'Name: Sue' },
-                        { id: 'Peter', text: 'Name: Peter' },
-                        { id: 'Frank', text: 'Name: Frank' }, 
-                        { id: 'Kate', text: 'Name: Kate' }, 
-                        { id: 'Susan', text: 'Name: Susan' }, 
-                        { id: 'Snehal', text: 'Name: Snehal' }, 
-                        { id: 'Dima', text: 'Name: Dima' }, 
-                    ]
-                }
-            },
-            { field: 'fname', caption: 'First Name', type: 'enum', 
-                options: { 
-                    search: true,
-                    applyFilter: true,
-                    items: [
-                        { id: 'Avinash', text: 'Name: Avinash' }, 
-                        { id: 'Vitali', text: 'Name: Vitali' },
-                        { id: 'Sue', text: 'Name: Sue' },
-                        { id: 'Peter', text: 'Name: Peter' },
-                        { id: 'Frank', text: 'Name: Frank' }, 
-                        { id: 'Kate', text: 'Name: Kate' }, 
-                        { id: 'Susan', text: 'Name: Susan' }, 
-                        { id: 'Snehal', text: 'Name: Snehal' }, 
-                        { id: 'Dima', text: 'Name: Dima' }, 
-                    ]
-                }
-            },
-            { field: 'lname', caption: 'Last Name', type: 'text' }
+            { field: 'userid', caption: 'ID', type: 'int' },
+            { field: 'fname', caption: 'First Name', type: 'text' }
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
@@ -132,7 +98,7 @@ $(function () {
             { caption: 'Important Dates', span: 3 }
         ],
         columns: [                
-            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen1: true },
+            { field: 'userid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true },
             // { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, editable: { type: 'combo', items: ['item 1', 'item 2', 'item 3']} },
             { field: 'fname', caption: 'First Name', size: '150px', sortable: true, resizable: true, editable: { type: 'text' } },
             { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true },
