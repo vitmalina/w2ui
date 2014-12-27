@@ -1087,6 +1087,7 @@
                         $(field.el).prop('checked', value ? true : false);
                         break;
                     default:
+                        $(field.el).val(value);
                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
                         break;
                 }
