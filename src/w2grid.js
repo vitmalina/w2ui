@@ -2074,12 +2074,22 @@
             var obj   = this;
             var index = obj.get(recid, true);
             var rec   = obj.records[index];
+            var edit  = rec ? rec.editable : null;
+            if (!column) {
+                for (i=0; i < obj.columns.length; i++) {
+                    if (obj.columns[i].field == obj.recid) continue;
+                    if (obj.columns[i].hidden != true && obj.columns[i].editable && rec.editable != false) {
+                        column=i;
+                        break;
+                    }
+                }
+            }
             var col   = obj.columns[column];
-            
-            var edit = rec ? rec.editable : null;
-            if (edit == null) edit = col ? col.editable : null;
-              
-            if (!rec || !col || !edit || rec.editable === false) return;
+            if (edit == null) edit = col ? col.editable : null;             
+            if (!rec || !col || !edit || rec.editable === false) {
+                console.log('ERROR: This record is not editable.');
+                return;
+            }
             if (['enum', 'file'].indexOf(edit.type) != -1) {
                 console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
                 return;
