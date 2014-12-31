@@ -2467,12 +2467,14 @@
 
         getYearHTML: function () {
             var months = w2utils.settings.shortmonths;
+            var start_year = w2utils.settings.dateStartYear;
+            var end_year = w2utils.settings.dateEndYear;
             var mhtml  = '';
             var yhtml  = '';
             for (var m = 0; m < months.length; m++) {
                 mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>';
             }
-            for (var y = 1950; y <= 2020; y++) {
+            for (var y = start_year; y <= end_year; y++) {
                 yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>';
             }
             return '<div>'+ mhtml +'</div><div>'+ yhtml +'</div>';
