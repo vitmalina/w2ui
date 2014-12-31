@@ -1817,7 +1817,7 @@
             // call server to get data
             var obj = this;
             if (this.last.xhr_offset == 0) {
-                setTimeout(function() { obj.lock(obj.msgRefresh, true); }, 50);
+                obj.lock(obj.msgRefresh, true);
             } else {
                 var more = $('#grid_'+ this.name +'_rec_more');
                 if (this.autoLoad === true) {
