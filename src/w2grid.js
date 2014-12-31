@@ -5795,6 +5795,71 @@
             delete this.last._selection;
             this.refresh();
             return (new Date()).getTime() - time;
+        },
+
+        exportData: function (Data, type, showFields) {
+        // Data       : {}. Can be any data you want to export (records, columns, custom, etc...).
+        // type       : string. Extension of file name 'xls' or 'csv' are possible. By default 'excel' format is done on array
+        // showFields : boolean (optional). Insert field names on top of the file data. By default 'false'
+
+            var arrData = typeof Data != 'object' ? JSON.parse(Data) : Data;
+            fileName = 'ExportData.' + type;
+            var Data = '';
+            // show fields on first row ?
+            if (showFields) {
+                var row = "";
+                for (var index in arrData[0]) {
+                    if (row !="" && type =='csv') row +=',';
+                    row += index + '\t';
+                }
+                row = row.slice(0, -1);
+                Data += row + '\r\n';
+            }
+            // Prepare array data format
+            for (var i = 0; i < arrData.length; i++) {
+                var row = "";
+                for (var index in arrData[i]) {
+                    if (row !="" && type =='csv') row +=',';
+                    row += (type == 'xls') ? '"' + arrData[i][index] + '"\t' :  arrData[i][index] + '\t'
+                }
+                row.slice(0, row.length - 1);
+                Data += row + '\r\n';
+            }
+            // No data?
+            if (Data == '') {
+                w2alert('No Data Found');
+                return;
+            }
+            var link = document.createElement("a");
+            // browser with HTML5 support download attribute
+            if (link.download !== undefined) {
+                var uri = 'data:application/vnd.ms-excel,' + escape(Data);
+                link.setAttribute ( 'href', uri);
+                link.setAttribute('style', "visibility:hidden");
+                link.setAttribute ('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            // IE 10,11+
+            else if (navigator.msSaveBlob) {
+                var blob = new Blob([Data], {
+                    "type": "text/csv;charset=utf8;"			
+                });
+                navigator.msSaveBlob(blob, fileName);
+            }
+            // old IE 9-  remove this part ?? deprecated browsers ??
+            var ua = window.navigator.userAgent;
+            var ie = ua.indexOf('MSIE ');
+            if ((ie > -1)) {
+                if (document.execCommand) {
+                    var oWin = window.open("about:blank","_blank");
+                    oWin.document.write(Data);
+                    oWin.document.close();
+                    var success = oWin.document.execCommand('SaveAs', true, fileName)
+                    oWin.close();
+                }
+            }
         }
     };
 
