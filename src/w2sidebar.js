@@ -8,7 +8,7 @@
 * == NICE TO HAVE ==
 *   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*   - reorder with grag and drop
+*   - reorder with drag and drop
 *   - node.style is missleading - should be there to apply color for example
 *   - add multiselect
 *   - add renderer for the node
