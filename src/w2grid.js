@@ -1369,6 +1369,8 @@
                     var value1   = field1.val();
                     var value2   = field2.val();
                     var svalue   = null;
+                    var text     = null;
+
                     if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
                         var fld1 = field1.data('w2field');
                         var fld2 = field2.data('w2field');
@@ -1385,6 +1387,7 @@
                             }
                             if ($.isEmptyObject(value1)) value1 = '';
                         } else {
+                            text = value1.text || '';
                             value1 = value1.id || '';
                         }
                     }
@@ -1404,6 +1407,8 @@
                             $.extend(tmp, { value: value1 });
                         }
                         if (svalue) $.extend(tmp, { svalue: svalue });
+                        if (text) $.extend(tmp, { text: text });
+
                         // conver date to unix time
                         try {
                             if (search.type == 'date' && operator == 'between') {
@@ -4820,6 +4825,7 @@
                         if (search.type == 'enum') options.selected = [];
                         if (sdata) options.selected = sdata.value;
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, $.extend({ openOnFocus: true }, options));
+                        if (sdata && sdata.text != null) $('#grid_'+ this.name +'_field_'+s).data('selected', {id: sdata.value, text: sdata.text});
                         break;
 
                     case 'select':
