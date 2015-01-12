@@ -1761,6 +1761,12 @@ button.w2ui-btn-red.clicked {
   text-align: center;
   font-weight: bold;
 }
+.w2ui-grid .w2ui-grid-body table .w2ui-col-selected {
+  background-color: #d1d1d1 !important;
+}
+.w2ui-grid .w2ui-grid-body table .w2ui-row-selected {
+  background-color: #d1d1d1 !important;
+}
 .w2ui-grid .w2ui-grid-body div.w2ui-col-header {
   height: auto !important;
   width: 100%;
