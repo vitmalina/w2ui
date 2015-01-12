@@ -1898,7 +1898,7 @@ w2utils.keyboard = (function (obj) {
             if (!$.isArray(record)) record = [record];
             var added = 0;
             for (var o in record) {
-                if (!this.recid && typeof record[o].recid == 'undefined') record[o].recid = record[o][this.recid];
+                if (this.recid && typeof record[o].recid == 'undefined') record[o].recid = record[o][this.recid];
                 if (record[o].recid == null || typeof record[o].recid == 'undefined') {
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
@@ -5471,6 +5471,7 @@ w2utils.keyboard = (function (obj) {
                     if (event.preventDefault) event.preventDefault();
                     // fix sizes
                     for (var c in obj.columns) {
+                        if (obj.columns[c].hidden) continue;
                         if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
                         obj.columns[c].size = obj.columns[c].sizeCalculated;
                     }
@@ -8144,7 +8145,7 @@ var w2popup = {};
 
         keydown: function (event) {
             var options = $('#w2ui-popup').data('options');
-            if (!options.keyboard) return;
+            if (!options || !options.keyboard) return;
             // trigger event
             var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, originalEvent: event });
             if (eventData.isCancelled === true) return;
