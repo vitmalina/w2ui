@@ -99,7 +99,9 @@ $(function () {
         ],
         columns: [                
             { field: 'userid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true },
-            // { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, editable: { type: 'combo', items: ['item 1', 'item 2', 'item 3']} },
+            { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, 
+                editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } } 
+            },
             { field: 'fname', caption: 'First Name', size: '150px', sortable: true, resizable: true, editable: { type: 'text' } },
             { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },

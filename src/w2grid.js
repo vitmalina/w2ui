@@ -2478,11 +2478,14 @@
                 // clear other if necessary
                 if (((!event.ctrlKey && !event.shiftKey && !event.metaKey) || !this.multiSelect) && !this.showSelectColumn) {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
-                    if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
-                    if (flag === true) {
-                        this.unselect({ recid: recid, column: column });
-                    } else {
-                        this.select({ recid: recid, column: column });
+                    // only if clicked on unselected record
+                    if (!flag) {
+                        if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
+                        if (flag === true) {
+                            this.unselect({ recid: recid, column: column });
+                        } else {
+                            this.select({ recid: recid, column: column });
+                        }
                     }
                 } else {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
@@ -2526,6 +2529,7 @@
             if (eventData.isCancelled === true) return false;
             // default behaviour
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            $(this.box).find('.w2ui-selection').addClass('w2ui-inactive');
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -2578,9 +2582,6 @@
 
                 case 27: // escape
                     obj.selectNone();
-                    if (sel.length > 0 && typeof sel[0] == 'object') {
-                        obj.select({ recid: sel[0].recid, column: sel[0].column });
-                    }
                     cancel = true;
                     break;
 
