@@ -57,7 +57,7 @@ class w2grid_class {
 
                     case 'in':
                         $operator = "IN";
-                        $value    = "[".$search['value']."]";
+                        $value    = "(".$search['value'].")";
                         break;
 
                     default:

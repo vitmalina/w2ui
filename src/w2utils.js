@@ -27,6 +27,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - $().w2marker() -- only unmarks first instance
 *   - subitems for w2menus()
 *   - add w2utils.lang wrap for all captions in all buttons.
+*   - add isDateTime()
+*   - remove momentjs
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
@@ -63,7 +65,9 @@ var w2utils = (function () {
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
             "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
-            "phrases"           : {}        // empty object for english phrases
+            "phrases"           : {},       // empty object for english phrases
+            "dateStartYear"     : 1950,     // start year for date-picker
+            "dateEndYear"       : 2020      // end year for date picker
         },
         isInt           : isInt,
         isFloat         : isFloat,
@@ -73,6 +77,7 @@ var w2utils = (function () {
         isEmail         : isEmail,
         isDate          : isDate,
         isTime          : isTime,
+        isDateTime      : isDateTime,
         age             : age,
         date            : date,
         formatSize      : formatSize,
@@ -103,7 +108,8 @@ var w2utils = (function () {
                  ? true : false),
         isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
-                 ? true : false)
+                 ? true : false),
+        use_momentjs : ((typeof moment === 'function') && (typeof moment.version === 'string'))
     };
     return obj;
 
@@ -235,6 +241,22 @@ var w2utils = (function () {
             };
         }
         return true;
+    }
+
+    function isDateTime (val, format, retDate) {
+        if(w2utils.use_momentjs) {
+            var dt = moment(val, format);
+            var valid = dt.isValid();
+            if (valid && (retDate === true)){
+                return dt.clone().toDate();
+            }
+            return valid;
+        }
+        // TODO: perform time check, too
+        format = format.split('|')[0];
+        val    = val.split(' ')[0];
+        //console.log("isDateTime() - " + val + " / " + format);
+        return isDate(val, format, retDate);
     }
 
     function age (dateStr) {

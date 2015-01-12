@@ -28,6 +28,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - $().w2marker() -- only unmarks first instance
 *   - subitems for w2menus()
 *   - add w2utils.lang wrap for all captions in all buttons.
+*   - add isDateTime()
+*   - remove momentjs
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
@@ -64,7 +66,9 @@ var w2utils = (function () {
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
             "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
-            "phrases"           : {}        // empty object for english phrases
+            "phrases"           : {},       // empty object for english phrases
+            "dateStartYear"     : 1950,     // start year for date-picker
+            "dateEndYear"       : 2020      // end year for date picker
         },
         isInt           : isInt,
         isFloat         : isFloat,
@@ -74,6 +78,7 @@ var w2utils = (function () {
         isEmail         : isEmail,
         isDate          : isDate,
         isTime          : isTime,
+        isDateTime      : isDateTime,
         age             : age,
         date            : date,
         formatSize      : formatSize,
@@ -100,11 +105,12 @@ var w2utils = (function () {
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1) 
+                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1)
                  ? true : false),
         isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
-                 ? true : false)
+                 ? true : false),
+        use_momentjs : ((typeof moment === 'function') && (typeof moment.version === 'string'))
     };
     return obj;
 
@@ -236,6 +242,22 @@ var w2utils = (function () {
             };
         }
         return true;
+    }
+
+    function isDateTime (val, format, retDate) {
+        if(w2utils.use_momentjs) {
+            var dt = moment(val, format);
+            var valid = dt.isValid();
+            if (valid && (retDate === true)){
+                return dt.clone().toDate();
+            }
+            return valid;
+        }
+        // TODO: perform time check, too
+        format = format.split('|')[0];
+        val    = val.split(' ')[0];
+        //console.log("isDateTime() - " + val + " / " + format);
+        return isDate(val, format, retDate);
     }
 
     function age (dateStr) {
@@ -700,14 +722,14 @@ var w2utils = (function () {
                 $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
                     'transform' : '',
-                    'backface-visibility': ''  
+                    'backface-visibility': ''
                 }));
             }
             if (div_old) {
                 $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
                     'transform' : '',
-                    'backface-visibility': ''  
+                    'backface-visibility': ''
                 }));
                 if (div_old.parentNode) $(div_old.parentNode).css(w2utils.cssPrefix('perspective', ''));
             }
@@ -746,7 +768,7 @@ var w2utils = (function () {
             mess.html(options.msg).fadeIn(200);
         } else {
             $lock.show();
-            mess.html(options.msg).show(0);            
+            mess.html(options.msg).show(0);
         }
         // hide all tags (do not hide overlays as the form can be in overlay)
         $().w2tag();
@@ -761,7 +783,7 @@ var w2utils = (function () {
             }, speed);
         } else {
             $(box).find('.w2ui-lock').remove();
-            $(box).find('.w2ui-lock-msg').remove();            
+            $(box).find('.w2ui-lock-msg').remove();
         }
     }
 
@@ -806,7 +828,7 @@ var w2utils = (function () {
     function locale (locale) {
         if (!locale) locale = 'en-us';
         if (locale.length === 5) locale = 'locale/'+ locale +'.json';
-        
+
         // clear phrases from language before
         w2utils.settings.phrases = {};
 
@@ -920,7 +942,7 @@ var w2utils = (function () {
             ret = newCSS;
         }
         return ret;
-    } 
+    }
 
 })();
 
@@ -1259,7 +1281,7 @@ w2utils.keyboard = (function (obj) {
         };
         if (arguments.length == 1) {
             if (typeof html == 'object') {
-                options = html; 
+                options = html;
             } else {
                 options = { html: html };
             }
@@ -1560,7 +1582,7 @@ w2utils.keyboard = (function (obj) {
                     });
                 if (options.search) {
                     if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName == 'texarea') return;
-                    $('#w2ui-overlay'+ name +' #menu-search').focus();                    
+                    $('#w2ui-overlay'+ name +' #menu-search').focus();
                 }
             }, 200);
             mresize();
@@ -1714,7 +1736,6 @@ w2utils.keyboard = (function (obj) {
         }
     };
 })();
-
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -1877,7 +1898,7 @@ w2utils.keyboard = (function (obj) {
             type = String(type).toLowerCase();
             if (!this.custom[type]) return false;
             delete this.custom[type];
-            return true
+            return true;
         },
 
         init: function () {
@@ -1980,6 +2001,21 @@ w2utils.keyboard = (function (obj) {
                     break;
 
                 case 'datetime':
+                    defaults = {
+                        format      : w2utils.settings.date_format + '|hh24:mm',
+                        keyboard    : true,
+                        silent      : true,
+                        start       : '',       // string or jquery object or Date object
+                        end         : '',       // string or jquery object or Date object
+                        blocked     : [],       // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
+                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formated with w2utils.settings.date_format
+                        placeholder : null,     // optional. will fall back to this.format if not specified. Only used if this.el has no placeholder attribute.
+                        format_mjs  : 'M/D/YYYY HH:mm', // date format for moment.js, should be equal to "this.format" translated to ISO 8601, see http://momentjs.com/docs/#/parsing/string-format
+                        btn_now     : true,     // show/hide the use-current-date-and-time button
+                    };
+                    this.options = $.extend(true, {}, defaults, options);
+                    options = this.options; // since object is re-created, need to re-assign
+                    if ($(this.el).attr('placeholder') == null) $(this.el).attr('placeholder', options.placeholder || options.format);
                     break;
 
                 case 'list':
@@ -2050,7 +2086,7 @@ w2utils.keyboard = (function (obj) {
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
                         postData        : {},
-                        minLength       : 1, 
+                        minLength       : 1,
                         cacheMax        : 250,
                         maxWidth        : 250,           // max width for a single item
                         maxHeight       : 350,           // max height for input control to grow
@@ -2061,7 +2097,7 @@ w2utils.keyboard = (function (obj) {
                         markSearch      : true,
                         renderDrop      : null,          // render function for drop down item
                         renderItem      : null,          // render selected item
-                        compare         : null,          // compare function for filtering                        
+                        compare         : null,          // compare function for filtering
                         style           : '',            // style for container div
                         onSearch        : null,          // when search needs to be performed
                         onRequest       : null,          // when request is submitted
@@ -2125,13 +2161,13 @@ w2utils.keyboard = (function (obj) {
             }
             // attach events
             this.tmp = {
-                onChange    : function (event) { obj.change.call(obj, event) },
-                onClick     : function (event) { obj.click.call(obj, event) },
-                onFocus     : function (event) { obj.focus.call(obj, event) },
-                onBlur      : function (event) { obj.blur.call(obj, event) },
-                onKeydown   : function (event) { obj.keyDown.call(obj, event) },
-                onKeyup     : function (event) { obj.keyUp.call(obj, event) },
-                onKeypress  : function (event) { obj.keyPress.call(obj, event) }
+                onChange    : function (event) { obj.change.call(obj, event); },
+                onClick     : function (event) { obj.click.call(obj, event); },
+                onFocus     : function (event) { obj.focus.call(obj, event); },
+                onBlur      : function (event) { obj.blur.call(obj, event); },
+                onKeydown   : function (event) { obj.keyDown.call(obj, event); },
+                onKeyup     : function (event) { obj.keyUp.call(obj, event); },
+                onKeypress  : function (event) { obj.keyPress.call(obj, event); }
             };
             $(this.el)
                 .addClass('w2field')
@@ -2153,7 +2189,7 @@ w2utils.keyboard = (function (obj) {
             var tmp = $(obj.el).data('tmp') || {};
             tmp.sizeTimer = setInterval(function () {
                 if ($(obj.el).parents('body').length > 0) {
-                    obj.resize(); 
+                    obj.resize();
                 } else {
                     clearInterval(tmp.sizeTimer);
                 }
@@ -2186,7 +2222,7 @@ w2utils.keyboard = (function (obj) {
                 $(this.el).data('selected', items[ind]).change();
                 this.refresh();
                 return true;
-            } 
+            }
             return false;
         },
 
@@ -2250,10 +2286,10 @@ w2utils.keyboard = (function (obj) {
                     if (!obj.helpers.focus) return;
                     // if empty show no icon
                     if (!$.isEmptyObject(selected) && options.icon) {
-                        options.prefix = '<span class="w2ui-icon '+ options.icon +'"style="cursor: pointer; font-size: 14px;' + 
+                        options.prefix = '<span class="w2ui-icon '+ options.icon +'"style="cursor: pointer; font-size: 14px;' +
                                          ' display: inline-block; margin-top: -1px; color: #7F98AD;'+ options.iconStyle +'">'+
                             '</span>';
-                        obj.addPrefix();                        
+                        obj.addPrefix();
                     } else {
                         options.prefix = '';
                         obj.addPrefix();
@@ -2267,7 +2303,7 @@ w2utils.keyboard = (function (obj) {
                         $(focus).css('opacity', 1).prev().css('opacity', 1);
                         $(obj.el).val('');
                         setTimeout(function () {
-                            if (obj.helpers.prefix) obj.helpers.prefix.hide(); 
+                            if (obj.helpers.prefix) obj.helpers.prefix.hide();
                             var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';
                             if (options.icon) {
                                 $(focus).css('margin-left', '17px');
@@ -2280,13 +2316,13 @@ w2utils.keyboard = (function (obj) {
                     }
                     // if readonly or disabled
                     if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
-                        setTimeout(function () { 
-                            $(obj.helpers.prefix).css('opacity', '0.6'); 
+                        setTimeout(function () {
+                            $(obj.helpers.prefix).css('opacity', '0.6');
                             $(obj.helpers.suffix).css('opacity', '0.6');
                         }, 1);
                     } else {
-                        setTimeout(function () { 
-                            $(obj.helpers.prefix).css('opacity', '1'); 
+                        setTimeout(function () {
+                            $(obj.helpers.prefix).css('opacity', '1');
                             $(obj.helpers.suffix).css('opacity', '1');
                         }, 1);
                     }
@@ -2310,9 +2346,9 @@ w2utils.keyboard = (function (obj) {
                 var ul  = div.find('ul');
                 div.attr('style', div.attr('style') + ';' + options.style);
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
-                    div.addClass('w2ui-readonly'); 
+                    div.addClass('w2ui-readonly');
                     div.css('pointer-events', 'none').find('li').css('opacity', '0.6');
-                    $(obj.helpers.multi).find('input').prop('readonly', true);                    
+                    $(obj.helpers.multi).find('input').prop('readonly', true);
                 } else {
                     div.removeClass('w2ui-readonly');
                     div.css('pointer-events', 'auto').find('li').css('opacity', '1');
@@ -2416,7 +2452,7 @@ w2utils.keyboard = (function (obj) {
                                 $(tmp).data('mouse', 'out');
                                 var item = selected[$(tmp).attr('index')];
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'f', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                var eventData = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -2430,7 +2466,7 @@ w2utils.keyboard = (function (obj) {
                 if (cntHeight > options.maxHeight) cntHeight = options.maxHeight;
                 if (div.length > 0) div[0].scrollTop = 1000;
                 var inpHeight = w2utils.getSize($(this.el), 'height') - 2;
-                if (inpHeight > cntHeight) cntHeight = inpHeight
+                if (inpHeight > cntHeight) cntHeight = inpHeight;
                 $(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden') });
                 if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0);
                 $(this.el).css({ 'height' : (cntHeight + 2) + 'px' });
@@ -2556,15 +2592,16 @@ w2utils.keyboard = (function (obj) {
             if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
                 obj.refresh();
                 // need time out to show icon indent properly
-                setTimeout(function () { obj.refresh(); }, 5); 
+                setTimeout(function () { obj.refresh(); }, 5);
             }
             // date, time
-            if (['date', 'time'].indexOf(this.type) != -1) {
+            if (['date', 'time', 'datetime'].indexOf(this.type) != -1) {
                 // convert linux timestamps
                 var tmp = parseInt(obj.el.value);
                 if (w2utils.isInt(obj.el.value) && tmp > 3000) {
                     if (this.type == 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).change();
                     if (this.type == 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).change();
+                    if (this.type == 'datetime') $(obj.el).val(w2utils.formatDateTime(new Date(tmp), options.format)).change();
                 }
             }
         },
@@ -2576,7 +2613,7 @@ w2utils.keyboard = (function (obj) {
                 if (!$(this.el).is(':focus')) this.focus(event);
             }
             // other fields with drops
-            if (['date', 'time', 'color'].indexOf(this.type) != -1) {
+            if (['date', 'time', 'color', 'datetime'].indexOf(this.type) != -1) {
                 this.updateOverlay();
             }
         },
@@ -2585,7 +2622,7 @@ w2utils.keyboard = (function (obj) {
             var obj     = this;
             var options = this.options;
             // color, date, time
-            if (['color', 'date', 'time'].indexOf(obj.type) !== -1) {
+            if (['color', 'date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
                 if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 setTimeout(function () { obj.updateOverlay(); }, 150);
@@ -2615,7 +2652,7 @@ w2utils.keyboard = (function (obj) {
             var options = obj.options;
             var val     = $(obj.el).val().trim();
             // hide overlay
-            if (['color', 'date', 'time', 'list', 'combo', 'enum'].indexOf(obj.type) != -1) {
+            if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) != -1) {
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
             }
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
@@ -2628,7 +2665,7 @@ w2utils.keyboard = (function (obj) {
                 }
             }
             // date or time
-            if (['date', 'time'].indexOf(obj.type) != -1) {
+            if (['date', 'time', 'datetime'].indexOf(obj.type) != -1) {
                 // check if in range
                 if (val !== '' && !obj.inRange(obj.el.value)) {
                     $(obj.el).val('').removeData('selected').change();
@@ -2644,10 +2681,17 @@ w2utils.keyboard = (function (obj) {
                             setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
                         }
                     }
-                    if (obj.type == 'time' && val !== '' && !w2utils.isTime(obj.el.value)) {
+                    else if (obj.type == 'time' && val !== '' && !w2utils.isTime(obj.el.value)) {
                         $(obj.el).val('').removeData('selected').change();
                         if (options.silent === false) {
                             $(obj.el).w2tag('Not a valid time');
+                            setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
+                        }
+                    }
+                    else if (obj.type == 'datetime' && val !== '' && !(options.use_moment_js ? w2utils.isDateTime(obj.el.value, options.format_mjs) : w2utils.isDateTime(obj.el.value, options.format))) {
+                        $(obj.el).val('').removeData('selected').change();
+                        if (options.silent === false) {
+                            $(obj.el).w2tag('Not a valid date');
                             setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
                         }
                     }
@@ -2678,7 +2722,7 @@ w2utils.keyboard = (function (obj) {
                 }
             }
             // update date popup
-            if (['date', 'time'].indexOf(obj.type) != -1) {
+            if (['date', 'time', 'datetime'].indexOf(obj.type) != -1) {
                 setTimeout(function () { obj.updateOverlay(); }, 1);
             }
         },
@@ -2719,7 +2763,7 @@ w2utils.keyboard = (function (obj) {
                 if (!options.keyboard || $(obj.el).attr('readonly')) return;
                 var cancel  = false;
                 var daymil  = 24*60*60*1000;
-                var inc        = 1;
+                var inc     = 1;
                 if (event.ctrlKey || event.metaKey) inc = 10;
                 var dt = w2utils.isDate($(obj.el).val(), options.format, true);
                 if (!dt) { dt = new Date(); daymil = 0; }
@@ -2773,6 +2817,41 @@ w2utils.keyboard = (function (obj) {
                     setTimeout(function () {
                         // set cursor to the end
                         obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
+                    }, 0);
+                }
+            }
+            // datetime
+            if (obj.type == 'datetime') {
+                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                var cancel  = false;
+                var daymil  = 24*60*60*1000;
+                var inc     = 1;
+                if (event.ctrlKey || event.metaKey) inc = 10;
+                var str = $(obj.el).val();
+                var dt = (w2utils.use_momentjs ? w2utils.isDateTime(str, this.options.format_mjs, true) : w2utils.isDateTime(str, this.options.format, true));
+                if (!dt) { dt = new Date(); daymil = 0; }
+                switch (key) {
+                    case 38: // up
+                        if (event.shiftKey) break; // no action if shift key is pressed
+                        var newDT = w2utils.formatDateTime(dt.getTime() + daymil, options.format);
+                        if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format);
+                        $(obj.el).val(newDT).change();
+                        cancel = true;
+                        break;
+                    case 40: // down
+                        if (event.shiftKey) break; // no action if shift key is pressed
+                        var newDT = w2utils.formatDateTime(dt.getTime() - daymil, options.format);
+                        if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format);
+                        $(obj.el).val(newDT).change();
+                        cancel = true;
+                        break;
+                }
+                if (cancel) {
+                    event.preventDefault();
+                    setTimeout(function () {
+                        // set cursor to the end
+                        obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
+                        obj.updateOverlay();
                     }, 0);
                 }
             }
@@ -2862,7 +2941,7 @@ w2utils.keyboard = (function (obj) {
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             } else {
                                 // trigger event
-                                item = { id: multi.val(), text: multi.val() }
+                                item = { id: multi.val(), text: multi.val() };
                                 var eventData = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
                                 item = eventData.item; // need to reassign because it could be recreated by user
@@ -3081,9 +3160,9 @@ w2utils.keyboard = (function (obj) {
                             // default behavior
                             if (status != 'abort') {
                                 var data;
-                                try { data = $.parseJSON(xhr.responseText) } catch (e) {}
-                                console.log('ERROR: Server communication failed.', 
-                                    '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] }, 
+                                try { data = $.parseJSON(xhr.responseText); } catch (e) {}
+                                console.log('ERROR: Server communication failed.',
+                                    '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                                     '\n         OR:', { status: 'error', message: 'error message' },
                                     '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
                             }
@@ -3123,7 +3202,7 @@ w2utils.keyboard = (function (obj) {
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
                     if (typeof options.compare == 'function') {
-                        item.hidden = (options.compare.call(this, item, search) === false ? true : false)
+                        item.hidden = (options.compare.call(this, item, search) === false ? true : false);
                     } else {
                         var prefix = '';
                         var suffix = '';
@@ -3144,10 +3223,10 @@ w2utils.keyboard = (function (obj) {
                 if (shown <= 0) options.index = -1;
                 options.spinner = false;
                 obj.updateOverlay();
-                setTimeout(function () { 
+                setTimeout(function () {
                     var html = $('#w2ui-overlay').html() || '';
                     if (options.markSearch && html.indexOf('$.fn.w2menuHandler') != -1) { // do not highlight when no items
-                        $('#w2ui-overlay').w2marker(search); 
+                        $('#w2ui-overlay').w2marker(search);
                     }
                 }, 1);
             } else {
@@ -3285,6 +3364,133 @@ w2utils.keyboard = (function (obj) {
                             });
                     });
             }
+            // datetime
+            if (this.type == 'datetime') {
+                if ($(obj.el).attr('readonly')) return;
+                // hide overlay if we are in the time selection
+                if ($("#w2ui-overlay .w2ui-time").length > 0) $('#w2ui-overlay')[0].hide();
+                if ($('#w2ui-overlay').length == 0) {
+                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
+                        css: { "background-color": "#f5f5f5" }
+                    });
+                }
+                var month, year;
+                var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
+                if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
+                var selDate = null;
+                (function refreshCalendar(month, year) {
+                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
+                    // add "now" button
+                    if(obj.options.btn_now) {
+                        $('#w2ui-overlay > div > div .w2ui-calendar-previous.previous').after('<div class="w2ui-calendar-previous now"></div>');
+                        // openclipart 194286
+                        var bg_image = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAJiS0dEAP+Hj8y/AAAACXBIWXMAAAsTAAALEwEAmpwYAAABDUlEQVQoz23QzyuDARgH8E+0hsSi6aWGklrz42CUiJVcFuXCmDZZKYZyQEocnDnt6B9xWXJ4/4CVUsp/4uLwbkX2fG/P93N4emg3I6aN62zbGXTkxqq8U5P/627nAs+G0ONYKlrHxZtgVc6AvCpIKkXrgt0mKCmriHkVA2c8CtXUhEKhL8+ehL692IzAu4Q9RYlmtlQkvEnJCRRooEuvwKCkMb1G9asL9KkajgBJd0rKHky7llNXUTVOC8QtSEvLGjAjUJfVEd3dsObWonv7DtyY8mBTXdB6TUPGnkkFK5ZtSNkx9xdkFWWUbMk7M6Fs6S+Yd2LWhV3bLqWdWP8NPl21yYe+Fsg6bJOlVv0DQzw+zwokgrkAAAAASUVORK5CYII=)";
+                        $('#w2ui-overlay div div.w2ui-calendar-previous.now').css({
+                            'width': '20px', 'text-align': 'center', 'vertical-align': 'middle', 'background-repeat': 'no-repeat', 'background-position': 'center', 'background-image': bg_image,
+                        });
+                    }
+                    $('#w2ui-overlay .w2ui-calendar-title')
+                        .on('mousedown', function () {
+                            if ($(this).next().hasClass('w2ui-calendar-jump')) {
+                                $(this).next().remove();
+                            } else {
+                                var selYear, selMonth;
+                                $(this).after('<div class="w2ui-calendar-jump" style=""></div>');
+                                $(this).next().hide().html(obj.getYearHTML()).fadeIn(200);
+                                setTimeout(function () {
+                                    $('#w2ui-overlay .w2ui-calendar-jump')
+                                        .find('.w2ui-jump-month, .w2ui-jump-year')
+                                        .on('click', function () {
+                                            if ($(this).hasClass('w2ui-jump-month')) {
+                                                $(this).parent().find('.w2ui-jump-month').removeClass('selected');
+                                                $(this).addClass('selected');
+                                                selMonth = $(this).attr('name');
+                                            }
+                                            if ($(this).hasClass('w2ui-jump-year')) {
+                                                $(this).parent().find('.w2ui-jump-year').removeClass('selected');
+                                                $(this).addClass('selected');
+                                                selYear = $(this).attr('name');
+                                            }
+                                            if (selYear != null && selMonth != null) {
+                                                $('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100);
+                                                setTimeout(function () { refreshCalendar(parseInt(selMonth)+1, selYear); }, 100);
+                                            }
+                                        });
+                                    $('#w2ui-overlay .w2ui-calendar-jump >:last-child').prop('scrollTop', 2000);
+                                }, 1);
+                            }
+                        });
+                    $('#w2ui-overlay .w2ui-date')
+                        .on('mousedown', function () {
+                            var day = $(this).attr('date');
+                            $(obj.el).val(day).change();
+                            $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+                            selDate = new Date($(this).attr('data-date'));
+                        })
+                        .on('mouseup', function () {
+                            /*setTimeout(function () {
+                                if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
+                            }, 10);*/
+                            // continue with time picker
+                            var selHour, selMin;
+                            if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                            $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
+                            var h24 = (obj.options.format == 'h24');
+                            $('#w2ui-overlay > div').html(obj.getHourHTML());
+                            $('#w2ui-overlay .w2ui-time')
+                                .on('mousedown', function (event) {
+                                    $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+                                    selHour = $(this).attr('hour');
+                                    selDate.setHours(selHour);
+                                    var txt = w2utils.formatDateTime(selDate, obj.options.format);
+                                    $(obj.el).val(txt).change();
+                                    //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                })
+                                .on('mouseup', function () {
+                                    var hour = $(this).attr('hour');
+                                    if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
+                                    $('#w2ui-overlay > div').html(obj.getMinHTML(hour));
+                                    $('#w2ui-overlay .w2ui-time')
+                                        .on('mousedown', function () {
+                                            $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+                                            selMin = $(this).attr('min');
+                                            selDate.setHours(selHour, selMin);
+                                            var txt = w2utils.formatDateTime(selDate, obj.options.format);
+                                            $(obj.el).val(txt).change();
+                                            //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                        })
+                                        .on('mouseup', function () {
+                                            setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
+                                        });
+                                });
+                        });
+                    $('#w2ui-overlay .previous').on('mousedown', function () {
+                        var tmp = obj.options.current.split('/');
+                        tmp[0]  = parseInt(tmp[0]) - 1;
+                        refreshCalendar(tmp[0], tmp[1]);
+                    });
+                    $('#w2ui-overlay .next').on('mousedown', function () {
+                        var tmp = obj.options.current.split('/');
+                        tmp[0]  = parseInt(tmp[0]) + 1;
+                        refreshCalendar(tmp[0], tmp[1]);
+                    });
+                    // "now" button
+                    $('#w2ui-overlay .now')
+                        .on('mousedown', function () {
+                            // this currently ignores blocked days or start / end dates!
+                            var day = w2utils.formatDateTime(new Date(), obj.options.format);
+                            $(obj.el).val(day).change();
+                            //$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+                            return false;
+                        })
+                        .on('mouseup', function () {
+                            setTimeout(function () {
+                                if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
+                            }, 10);
+                        });
+                }) (month, year);
+            }
             // list
             if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
                 var el    = this.el;
@@ -3305,7 +3511,7 @@ w2utils.keyboard = (function (obj) {
                         $().w2overlay();
                         setTimeout(function () {
                             delete obj.tmp.force_hide;
-                        }, 1);                        
+                        }, 1);
                         return;
                     }
                     if ($(input).val() != '') delete obj.tmp.force_open;
@@ -3368,7 +3574,7 @@ w2utils.keyboard = (function (obj) {
                     if (this.options.blocked && $.inArray(str, this.options.blocked) != -1) inRange = false;
                 }
             }
-            if (this.type == 'time') {
+            else if (this.type == 'time') {
                 if (this.options.start || this.options.end) {
                     var tm  = this.toMin(str);
                     var tm1 = this.toMin(this.options.start);
@@ -3378,6 +3584,54 @@ w2utils.keyboard = (function (obj) {
                     if (tm >= tm1 && tm <= tm2) inRange = true;
                 } else {
                     inRange = true;
+                }
+            }
+            else if (this.type == 'datetime') {
+                var dt = (w2utils.use_momentjs ? w2utils.isDateTime(str, this.options.format_mjs, true) : w2utils.isDateTime(str, this.options.format, true));
+                if (dt) {
+                    // enable range
+                    if (this.options.start || this.options.end) {
+                        var start, end;
+                        if(typeof this.options.start == 'object' && this.options.start instanceof Date) {
+                            start = this.options.start;
+                        } else {
+                            var st = (typeof this.options.start == 'string' ? this.options.start : $(this.options.start).val());
+                            start  = (w2utils.use_momentjs ? w2utils.isDateTime(st, this.options.format_mjs, true) : w2utils.isDateTime(st, this.options.format, true));
+                        }
+                        if(typeof this.options.end == 'object' && this.options.end instanceof Date) {
+                            end = this.options.end;
+                        } else {
+                            var en = (typeof this.options.end == 'string' ? this.options.end : $(this.options.end).val());
+                            end    = (w2utils.use_momentjs ? w2utils.isDateTime(en, this.options.format_mjs, true) : w2utils.isDateTime(en, this.options.format, true));
+                        }
+                        var current = dt; // new Date(dt);
+                        if (!start) start = current;
+                        if (!end) end = current;
+                        if (current >= start && current <= end) inRange = true;
+                        /*console.log(str);
+                        console.log(this.options.format_mjs);
+                        console.log(start);
+                        console.log(end);
+                        console.log(current);
+                        console.log("inRange: " + inRange);//*/
+                    } else {
+                        inRange = true;
+                    }
+                    // block predefined dates
+                    if (inRange && this.options.blocked) {
+                        for (var i=0; i<this.options.blocked.length; i++) {
+                            var blocked = this.options.blocked[i];
+                            if(typeof blocked == 'string') {
+                                // convert string to Date object
+                                blocked = (w2utils.use_momentjs ? w2utils.isDateTime(blocked, this.options.format_mjs, true) : w2utils.isDateTime(blocked, this.options.format, true));
+                            }
+                            // check for Date object with the same day
+                            if(typeof blocked == 'object' && blocked instanceof Date && (blocked.getFullYear() == dt.getFullYear() && blocked.getMonth() == dt.getMonth() && blocked.getDate() == dt.getDate())) {
+                                inRange = false;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             return inRange;
@@ -3449,11 +3703,11 @@ w2utils.keyboard = (function (obj) {
                                 // event before
                                 var eventData = obj.trigger({ phase: 'before', type: 'iconClick', target: obj.el, el: $(this).find('span.w2ui-icon')[0] });
                                 if (eventData.isCancelled === true) return;
-                                
+
                                 // intentionally empty
 
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));                                
+                                obj.trigger($.extend(eventData, { phase: 'after' }));
                             } else {
                                 if (obj.type == 'list') {
                                     $(obj.helpers.focus).find('input').focus();
@@ -3576,7 +3830,7 @@ w2utils.keyboard = (function (obj) {
             $(obj.helpers.focus).remove();
             // build helper
             var html =
-                '<div class="w2ui-field-helper">'+ 
+                '<div class="w2ui-field-helper">'+
                 '    <div class="w2ui-icon icon-search" style="opacity: 0"></div>'+
                 '    <input type="text" autocomplete="off">'+
                 '<div>';
@@ -3619,7 +3873,7 @@ w2utils.keyboard = (function (obj) {
                 .on('blur', function (event) {
                     $(obj.el).css('outline', 'none');
                     $(this).val('');
-                    obj.refresh(); 
+                    obj.refresh();
                     $(obj.el).triggerHandler('blur');
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                     if (pholder != null) $(obj.el).attr('placeholder', pholder);
@@ -3627,16 +3881,16 @@ w2utils.keyboard = (function (obj) {
                 .on('keydown', function (event) {
                     var el = this;
                     obj.keyDown(event);
-                    setTimeout(function () { 
+                    setTimeout(function () {
                         if (el.value == '') $(obj.el).attr('placeholder', pholder); else $(obj.el).attr('placeholder', '');
                     }, 10);
                 })
-                .on('keyup', function (event) { obj.keyUp(event) })
+                .on('keyup', function (event) { obj.keyUp(event); })
                 .on('keypress', function (event) { obj.keyPress(event); });
             // MAIN div
             helper.on('click', function (event) { $(this).find('input').focus(); });
             obj.refresh();
-        },    
+        },
 
         addMulti: function () {
             var obj         = this;
@@ -3671,7 +3925,7 @@ w2utils.keyboard = (function (obj) {
                         '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1">'+
                         '   </div>'+
                         '    <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
-                        '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+                        
+                        '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
                         '    </div>'+
                         '</div>';
             }
@@ -3708,8 +3962,8 @@ w2utils.keyboard = (function (obj) {
                         $(obj.el).triggerHandler('blur');
                         if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                     })
-                    .on('keyup',    function (event) { obj.keyUp(event) })
-                    .on('keydown',  function (event) { obj.keyDown(event) })
+                    .on('keyup',    function (event) { obj.keyUp(event); })
+                    .on('keydown',  function (event) { obj.keyDown(event); })
                     .on('keypress', function (event) { div.find('.w2ui-enum-placeholder').remove(); obj.keyPress(event); });
                 // MAIN div
                 div.on('click', function (event) { $(this).find('input').focus(); });
@@ -3725,7 +3979,7 @@ w2utils.keyboard = (function (obj) {
                     })
                     .on('dragenter', function (event) {
                         if ($(obj.el).attr('readonly')) return;
-                        $(div).addClass('w2ui-file-dragover'); 
+                        $(div).addClass('w2ui-file-dragover');
                     })
                     .on('dragleave', function (event) {
                         if ($(obj.el).attr('readonly')) return;
@@ -3759,7 +4013,7 @@ w2utils.keyboard = (function (obj) {
                     });
             }
             obj.refresh();
-        },    
+        },
 
         addFile: function (file) {
             var obj      = this;
@@ -3776,10 +4030,10 @@ w2utils.keyboard = (function (obj) {
             var size = 0;
             var cnt  = 0;
             var err;
-            for (var s in selected) { 
+            for (var s in selected) {
                 // check for dups
                 if (selected[s].name == file.name && selected[s].size == file.size) return;
-                size += selected[s].size; cnt++; 
+                size += selected[s].size; cnt++;
             }
             // trigger event
             var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
@@ -3870,7 +4124,7 @@ w2utils.keyboard = (function (obj) {
             var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
             var today       = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate();
             var days        = w2utils.settings.fulldays.slice();    // creates copy of the array
-            var sdays       = w2utils.settings.shortdays.slice();   // creates copy of the array            
+            var sdays       = w2utils.settings.shortdays.slice();   // creates copy of the array
             if (w2utils.settings.weekStarts != 'M') {
                 days.unshift(days.pop());
                 sdays.unshift(sdays.pop());
@@ -3901,6 +4155,10 @@ w2utils.keyboard = (function (obj) {
 
             var day = 1;
             if (w2utils.settings.weekStarts != 'M') weekDay++;
+            if(this.type === 'datetime') {
+                var dt_sel = (w2utils.use_momentjs ? w2utils.isDateTime(selected, this.options.format_mjs, true) : w2utils.isDateTime(selected, this.options.format, true));
+                selected = w2utils.formatDate(dt_sel, w2utils.settings.date_format);
+            }
             for (var ci = 1; ci < 43; ci++) {
                 if (weekDay === 0 && ci == 1) {
                     for (var ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&nbsp;</td>';
@@ -3922,14 +4180,21 @@ w2utils.keyboard = (function (obj) {
                 var dspDay  = day;
                 var col     = '';
                 var bgcol   = '';
-                var tmp_dt  = w2utils.formatDate(dt, this.options.format);
-                if (this.options.colored && this.options.colored[tmp_dt] !== undefined) { // if there is predefined colors for dates
-                    var tmp = this.options.colored[tmp_dt].split(':');
+                var tmp_dt, tmp_dt_fmt;
+                if(this.type === 'datetime') {
+                    tmp_dt      = w2utils.formatDateTime(dt, this.options.format);
+                    tmp_dt_fmt  = w2utils.formatDate(dt, w2utils.settings.date_format);
+                } else {
+                    tmp_dt      = w2utils.formatDate(dt, this.options.format);
+                    tmp_dt_fmt  = tmp_dt;
+                }
+                if (this.options.colored && this.options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
+                    var tmp = this.options.colored[tmp_dt_fmt].split(':');
                     bgcol   = 'background-color: ' + tmp[0] + ';';
                     col     = 'color: ' + tmp[1] + ';';
                 }
-                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' + (tmp_dt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
-                        '   style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
+                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' + (tmp_dt_fmt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
+                        '   style="'+ col + bgcol + '" date="'+ tmp_dt +'" data-date="'+ DT +'">'+
                             dspDay +
                         '</td>';
                 if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';
@@ -3941,27 +4206,29 @@ w2utils.keyboard = (function (obj) {
 
         getYearHTML: function () {
             var months = w2utils.settings.shortmonths;
+            var start_year = w2utils.settings.dateStartYear;
+            var end_year = w2utils.settings.dateEndYear;
             var mhtml  = '';
             var yhtml  = '';
             for (var m = 0; m < months.length; m++) {
                 mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>';
             }
-            for (var y = 1950; y <= 2020; y++) {
-                yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>'
+            for (var y = start_year; y <= end_year; y++) {
+                yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>';
             }
             return '<div>'+ mhtml +'</div><div>'+ yhtml +'</div>';
         },
 
         getHourHTML: function () {
             var tmp = [];
-            var h24 = (this.options.format == 'h24');
+            var h24 = (this.options.format.indexOf('h24') > -1);
             for (var a = 0; a < 24; a++) {
                 var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
                 if (a == 12 && !h24) time = '12:00 pm';
                 if (!tmp[Math.floor(a/8)]) tmp[Math.floor(a/8)] = '';
                 var tm1 = this.fromMin(this.toMin(time));
                 var tm2 = this.fromMin(this.toMin(time) + 59);
-                tmp[Math.floor(a/8)] += '<div class="'+ (this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
+                tmp[Math.floor(a/8)] += '<div class="'+ ((this.type === 'datetime') || this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
             }
             var html =
                 '<div class="w2ui-calendar-time"><table><tr>'+
@@ -3974,13 +4241,13 @@ w2utils.keyboard = (function (obj) {
 
         getMinHTML: function (hour) {
             if (typeof hour == 'undefined') hour = 0;
-            var h24 = (this.options.format == 'h24');
+            var h24 = (this.options.format.indexOf('h24') > -1);
             var tmp = [];
             for (var a = 0; a < 60; a += 5) {
                 var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
                 var ind = a < 20 ? 0 : (a < 40 ? 1 : 2);
                 if (!tmp[ind]) tmp[ind] = '';
-                tmp[ind] += '<div class="'+ (this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
+                tmp[ind] += '<div class="'+ ((this.type === 'datetime') || this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
             }
             var html =
                 '<div class="w2ui-calendar-time"><table><tr>'+

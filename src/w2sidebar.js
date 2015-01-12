@@ -8,7 +8,7 @@
 * == NICE TO HAVE ==
 *   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*   - reorder with grag and drop
+*   - reorder with dgrag and drop
 *   - node.style is missleading - should be there to apply color for example
 *   - add multiselect
 *   - add renderer for the node
@@ -19,6 +19,7 @@
 *   - return ids of all subitems
 *   - added w2sidebar.flat
 *   - added focus(), blur(), onFocus, onBlur
+*   - unselect w/o arguments will unselect selected node
 *
 ************************************************************************/
 
@@ -351,6 +352,10 @@
         },
 
         unselect: function (id) {
+            // if no arguments provided, unselect selected node
+            if (arguments.length == 0) {
+                id = this.selected;
+            }
             var current = this.get(id);
             if (!current) return false;
             current.selected = false;
@@ -709,9 +714,9 @@
 
         refresh: function (id) {
             var time = (new Date()).getTime();
-            // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name) });
+            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), 
+                fullRefresh: (typeof id != 'undefined' ? false : true) });
             if (eventData.isCancelled === true) return;
             // adjust top and bottom
             if (this.topHTML !== '') {
@@ -756,7 +761,15 @@
                 nd = node.nodes[i];
                 nodeHTML = getNodeHTML(nd);
                 $(this.box).find(nm).append(nodeHTML);
-                if (nd.nodes.length !== 0) { this.refresh(nd.id); }
+                if (nd.nodes.length !== 0) { 
+                    this.refresh(nd.id); 
+                } else {
+                    // trigger event
+                    var eventData2 = this.trigger({ phase: 'before', type: 'refresh', target: nd.id });
+                    if (eventData2.isCancelled === true) return;
+                    // event after
+                    this.trigger($.extend(eventData2, { phase: 'after' }));
+                }
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));

@@ -33,6 +33,9 @@
 *   - send parsed URL to the event if there is routeData
 *   - reorder records with frozen columns
 *   - focus/blur for selectType = cell not display grayed out selection
+*   - frozen columns 
+        - load more only on the right side
+        - scrolling on frozen columns is not working only on regular columns
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -291,7 +294,7 @@
             'save'     : { type: 'button', id: 'w2ui-save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         },
 
-        add: function (record) {
+        add: function (record, first) {
             if (!$.isArray(record)) record = [record];
             var added = 0;
             for (var o in record) {
@@ -299,7 +302,7 @@
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
                 }
-                this.records.push(record[o]);
+                if (first) this.records.unshift(record[o]); else this.records.push(record[o]);
                 added++;
             }
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -764,7 +767,8 @@
                                 break;
                             case 'ends':
                             case 'ends with': // need for back compatib.
-                                if (val1.lastIndexOf(val2) == val1.length - val2.length) fl++; // do not hide record
+                                var lastIndex = val1.lastIndexOf(val2);
+                                if (lastIndex !== -1 && lastIndex == val1.length - val2.length) fl++; // do not hide record
                                 break;
                         }
                     }
@@ -1813,7 +1817,7 @@
             // call server to get data
             var obj = this;
             if (this.last.xhr_offset == 0) {
-                this.lock(this.msgRefresh, true);
+                obj.lock(obj.msgRefresh, true);
             } else {
                 var more = $('#grid_'+ this.name +'_rec_more');
                 if (this.autoLoad === true) {
@@ -2474,11 +2478,14 @@
                 // clear other if necessary
                 if (((!event.ctrlKey && !event.shiftKey && !event.metaKey) || !this.multiSelect) && !this.showSelectColumn) {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
-                    if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
-                    if (flag === true) {
-                        this.unselect({ recid: recid, column: column });
-                    } else {
-                        this.select({ recid: recid, column: column });
+                    // only if clicked on unselected record
+                    if (!flag) {
+                        if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
+                        if (flag === true) {
+                            this.unselect({ recid: recid, column: column });
+                        } else {
+                            this.select({ recid: recid, column: column });
+                        }
                     }
                 } else {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
@@ -2522,6 +2529,7 @@
             if (eventData.isCancelled === true) return false;
             // default behaviour
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            $(this.box).find('.w2ui-selection').addClass('w2ui-inactive');
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -2574,9 +2582,6 @@
 
                 case 27: // escape
                     obj.selectNone();
-                    if (sel.length > 0 && typeof sel[0] == 'object') {
-                        obj.select({ recid: sel[0].recid, column: sel[0].column });
-                    }
                     cancel = true;
                     break;
 
@@ -2657,6 +2662,7 @@
                             } else {
                                 event.shiftKey = false;
                                 obj.click({ recid: recid, column: prev }, event);
+                                obj.scrollIntoView(ind, prev);
                             }
                         } else {
                             // if selected more then one, then select first
@@ -2699,7 +2705,9 @@
                                 obj.unselect.apply(obj, unSel);
                                 obj.select.apply(obj, newSel);
                             } else {
+                                event.shiftKey = false;
                                 obj.click({ recid: recid, column: next }, event);
+                                obj.scrollIntoView(ind, next);
                             }
                         } else {
                             // if selected more then one, then select first
@@ -2928,26 +2936,51 @@
             }
         },
 
-        scrollIntoView: function (ind) {
+        scrollIntoView: function (ind, column) {
             var buffered = this.records.length;
             if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            if (buffered == 0) return;
             if (typeof ind == 'undefined') {
                 var sel = this.getSelection();
                 if (sel.length == 0) return;
-                ind = this.get(sel[0], true);
+                if ($.isPlainObject(sel[0])) {
+                    ind     = sel[0].index;
+                    column  = sel[0].column;
+                } else {
+                    ind = this.get(sel[0], true);
+                }
             }
             var records = $('#grid_'+ this.name +'_records');
-            if (buffered == 0) return;
             // if all records in view
             var len = this.last.searchIds.length;
-            if (records.height() > this.recordHeight * (len > 0 ? len : buffered)) return;
             if (len > 0) ind = this.last.searchIds.indexOf(ind); // if seach is applied
-            // scroll to correct one
-            var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
-            var t2 = t1 + Math.floor(records.height() / this.recordHeight);
-            if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, 250, 'linear');
-            if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, 250, 'linear');
-            if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight });
+
+            // vertical
+            if (records.height() < this.recordHeight * (len > 0 ? len : buffered)) {
+                // scroll to correct one
+                var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
+                var t2 = t1 + Math.floor(records.height() / this.recordHeight);
+                if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, 250, 'linear');
+                if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, 250, 'linear');
+                if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight });
+            }
+
+            // horizontal
+            if (column != null) {
+                var x1 = 0;
+                var x2 = 0;
+                for (var i = 0; i <= column; i++) {
+                    var col = this.columns[i];
+                    if (col.frozen || col.hidden) continue;
+                    x1 = x2;
+                    x2 += parseInt(col.sizeCalculated);
+                }
+                if (records.width() < x2 - records.scrollLeft()) { // right
+                    records.animate({ 'scrollLeft': x1 - 20 }, 250, 'linear');
+                } else if (x1 < records.scrollLeft()) { // left
+                    records.animate({ 'scrollLeft': x2 - records.width() + 40 }, 250, 'linear'); // 40 because scrollbar is 20
+                }
+            }
         },
 
         dblClick: function (recid, event) {
@@ -3476,7 +3509,10 @@
             this.trigger($.extend(eventData, { phase: 'after' }));
             obj.resize();
             obj.addRange('selection');
-            setTimeout(function () { obj.resize(); obj.scroll(); }, 1); // allow to render first
+            setTimeout(function () { // allow to render first
+                obj.resize(); // needed for horizontal scroll to show (do not remove)
+                obj.scroll(); 
+            }, 1);
 
             if ( obj.reorderColumns && !obj.last.columnDrag ) {
                 obj.last.columnDrag = obj.initColumnDrag();
@@ -5769,6 +5805,7 @@
         },
 
         selectionRestore: function () {
+            var time = (new Date()).getTime();
             this.last.selection = { indexes: [], columns: {} };
             var sel = this.last.selection;
             var lst = this.last._selection;
@@ -5789,6 +5826,7 @@
             }
             delete this.last._selection;
             this.refresh();
+            return (new Date()).getTime() - time;
         }
     };
 

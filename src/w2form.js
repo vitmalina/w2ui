@@ -955,7 +955,9 @@
                             $(fld).removeClass('w2ui-error');
                         }
                     }
-                    if (val == '' || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) val = null;
+                    if (val === '' || val == null || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                        val = null;
+                    }
                     obj.record[this.name] = val;
                     // event after
                     obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -1010,14 +1012,10 @@
                     case 'money':
                     case 'currency':
                     case 'percent':
-                        //issue #499
-                        if(typeof value == 'number'){
-                             field.el.value = w2utils.formatNumber(value,field.options.groupSymbol,field.options.decimalSymbol);
-                         } else {
-                             field.el.value = value;
-                         }
-                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
-                         break;
+                        // issue #761
+                        field.el.value = value;
+                        $(field.el).w2field($.extend({}, field.options, { type: field.type }));
+                        break;
                     case 'hex':
                     case 'alphanumeric':
                     case 'color':
@@ -1089,6 +1087,7 @@
                         $(field.el).prop('checked', value ? true : false);
                         break;
                     default:
+                        $(field.el).val(value);
                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
                         break;
                 }

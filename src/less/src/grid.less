@@ -348,6 +348,14 @@
                     font-weight: bold;
                 }
             }
+
+            .w2ui-col-selected {
+                background-color: #d1d1d1 !important;
+            }
+            
+            .w2ui-row-selected {
+                background-color: #d1d1d1 !important;
+            }            
         }
 
         div.w2ui-col-header { // div needed
@@ -496,56 +504,86 @@
 
 /* SpeadSheet */
 
-.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd:hover,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even:hover,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd:hover,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even:hover {
-    background-color: inherit;
-}
+.w2ui-ss .w2ui-grid-body {
 
-.w2ui-ss .w2ui-grid-records table td, 
-.w2ui-ss .w2ui-grid-frecords table td {
-    border-right-width: 1px;
-    border-bottom: 1px solid #efefef;
-}
+    .w2ui-grid-records {
+        table tr td.w2ui-selected {
+            background-color: #EEF4FE !important;
+        }
+        table tr td.w2ui-inactive {
+            background-color: #F4F6F9 !important;
+        }
+        // line border
+        table td {
+            border-right-width: 1px;
+            border-bottom: 1px solid #efefef;
+        }
+        // no alternating rows
+        table tr.w2ui-odd,
+        table tr.w2ui-even,
+        table tr.w2ui-odd:hover,
+        table tr.w2ui-even:hover {
+            background-color: inherit;
+        }
+        table tr:first-child td {
+            border-bottom: 0px;
+        }
+    }
 
-.w2ui-ss .w2ui-grid-records table tr:first-child td,
-.w2ui-ss .w2ui-grid-frecords table tr:first-child td {
-    border-bottom: 0px;
-}
+    .w2ui-grid-frecords {
+        table tr td.w2ui-selected {
+            background-color: #EEF4FE !important;
+        }
+        table tr td.w2ui-inactive {
+            background-color: #F4F6F9 !important;
+        }
+        // line border
+        table td {
+            border-right-width: 1px;
+            border-bottom: 1px solid #efefef;
+        }
+        // no alternating rows
+        table tr.w2ui-odd,
+        table tr.w2ui-even,
+        table tr.w2ui-odd:hover,
+        table tr.w2ui-even:hover {
+            background-color: inherit;
+        }
+        table tr:first-child td {
+            border-bottom: 0px;
+        }
+    }
 
-.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr.w2ui-selected,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-selected,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-selected,
-.w2ui-ss .w2ui-grid-body .w2ui-grid-frecords table tr td.w2ui-selected {
-    background-color: #EEF4FE !important;
-}
-
-.w2ui-ss .w2ui-changed {
-    background: inherit; /* do not show changed for spreadsheet */
-}
-
-.w2ui-ss .w2ui-grid-body .w2ui-selection {
-    position: absolute; 
-    border: 2px solid #6299DA; /* #457FC2; */
-    pointer-events: none; 
-    .w2ui-selection-resizer {
-        cursor: crosshair; 
+    .w2ui-selection {
         position: absolute; 
-        bottom: 0px; 
-        right: 0px; 
-        width: 6px; 
-        height: 6px; 
-        margin-right: -3px; 
-        margin-bottom: -3px;
-        background-color: #457FC2; 
-        border: 0.5px solid #fff; 
-        outline: 1px solid white; 
-        pointer-events: auto; 
+        border: 2px solid #6299DA; /* #457FC2; */
+        pointer-events: none; 
+        
+        .w2ui-selection-resizer {
+            cursor: crosshair; 
+            position: absolute; 
+            bottom: 0px; 
+            right: 0px; 
+            width: 6px; 
+            height: 6px; 
+            margin-right: -3px; 
+            margin-bottom: -3px;
+            background-color: #457FC2; 
+            border: 0.5px solid #fff; 
+            outline: 1px solid white; 
+            pointer-events: auto;
+        }
+
+        &.w2ui-inactive {
+            border: 2px solid #C0C2C5;
+            .w2ui-selection-resizer {
+                 background-color: #B0B0B0;
+            }
+        }
+    }    
+
+    .w2ui-changed {
+        background: inherit; /* do not show changed for spreadsheet */
     }
 }
 
