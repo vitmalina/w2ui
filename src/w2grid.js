@@ -2662,6 +2662,7 @@
                             } else {
                                 event.shiftKey = false;
                                 obj.click({ recid: recid, column: prev }, event);
+                                obj.scrollIntoView(ind, prev);
                             }
                         } else {
                             // if selected more then one, then select first
@@ -2704,7 +2705,9 @@
                                 obj.unselect.apply(obj, unSel);
                                 obj.select.apply(obj, newSel);
                             } else {
+                                event.shiftKey = false;
                                 obj.click({ recid: recid, column: next }, event);
+                                obj.scrollIntoView(ind, next);
                             }
                         } else {
                             // if selected more then one, then select first
@@ -2933,26 +2936,51 @@
             }
         },
 
-        scrollIntoView: function (ind) {
+        scrollIntoView: function (ind, column) {
             var buffered = this.records.length;
             if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            if (buffered == 0) return;
             if (typeof ind == 'undefined') {
                 var sel = this.getSelection();
                 if (sel.length == 0) return;
-                ind = this.get(sel[0], true);
+                if ($.isPlainObject(sel[0])) {
+                    ind     = sel[0].index;
+                    column  = sel[0].column;
+                } else {
+                    ind = this.get(sel[0], true);
+                }
             }
             var records = $('#grid_'+ this.name +'_records');
-            if (buffered == 0) return;
             // if all records in view
             var len = this.last.searchIds.length;
-            if (records.height() > this.recordHeight * (len > 0 ? len : buffered)) return;
             if (len > 0) ind = this.last.searchIds.indexOf(ind); // if seach is applied
-            // scroll to correct one
-            var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
-            var t2 = t1 + Math.floor(records.height() / this.recordHeight);
-            if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, 250, 'linear');
-            if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, 250, 'linear');
-            if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight });
+
+            // vertical
+            if (records.height() < this.recordHeight * (len > 0 ? len : buffered)) {
+                // scroll to correct one
+                var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
+                var t2 = t1 + Math.floor(records.height() / this.recordHeight);
+                if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, 250, 'linear');
+                if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, 250, 'linear');
+                if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight });
+            }
+
+            // horizontal
+            if (column != null) {
+                var x1 = 0;
+                var x2 = 0;
+                for (var i = 0; i <= column; i++) {
+                    var col = this.columns[i];
+                    if (col.frozen || col.hidden) continue;
+                    x1 = x2;
+                    x2 += parseInt(col.sizeCalculated);
+                }
+                if (records.width() < x2 - records.scrollLeft()) { // right
+                    records.animate({ 'scrollLeft': x1 - 20 }, 250, 'linear');
+                } else if (x1 < records.scrollLeft()) { // left
+                    records.animate({ 'scrollLeft': x2 - records.width() + 40 }, 250, 'linear'); // 40 because scrollbar is 20
+                }
+            }
         },
 
         dblClick: function (recid, event) {
