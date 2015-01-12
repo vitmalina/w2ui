@@ -1,0 +1,30 @@
+{% extends "django_w2ui/base.html" %}
+{% load url from future %}
+
+{% block server-side %}active{% endblock %}
+
+{% block container %}
+
+<h2>Server-side processing</h2>
+
+<div class="row subnav">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container">
+                <ul class="nav"> 
+                    <li class="{% block server-side-objects %}{% endblock %}">
+                        <a href="{% url "server-side-objects" %}">Using objects</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block server-side-container %}{% endblock %}
+
+{% endblock %}
+
+{% block extra-script %}
+
+{% endblock %}
