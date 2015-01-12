@@ -713,7 +713,7 @@
                                 $(tmp).data('mouse', 'out');
                                 var item = selected[$(tmp).attr('index')];
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'f', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                var eventData = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
