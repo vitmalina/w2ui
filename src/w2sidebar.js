@@ -8,7 +8,7 @@
 * == NICE TO HAVE ==
 *   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*   - reorder with grag and drop
+*   - reorder with drag and drop
 *   - node.style is missleading - should be there to apply color for example
 *   - add multiselect
 *   - add renderer for the node
@@ -758,10 +758,16 @@
             // refresh sub nodes
             $(this.box).find(nm).html('');
             for (var i = 0; i < node.nodes.length; i++) {
-                nd = node.nodes[i];
-                nodeHTML = getNodeHTML(nd);
-                $(this.box).find(nm).append(nodeHTML);
-                if (nd.nodes.length !== 0) { this.refresh(nd.id); }
+               nd = node.nodes[i];
+               var eventData_SubNode = this.trigger({ phase: 'before', type: 'renderNode', node: nd });
+               if (eventData.isCancelled !== true) {
+                  nodeHTML = getNodeHTML(nd);
+                  $(this.box).find(nm).append(nodeHTML);
+               }
+               eventData_SubNode=this.trigger($.extend(eventData_SubNode, { phase: 'after', target: nd.id }));
+               if (eventData.isCancelled !== true) {
+                  if (nd.nodes.length !== 0) { this.refresh(nd.id); }
+               }
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
