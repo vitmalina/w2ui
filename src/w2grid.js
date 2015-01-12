@@ -3821,6 +3821,7 @@
                     if (event.preventDefault) event.preventDefault();
                     // fix sizes
                     for (var c in obj.columns) {
+                        if (obj.columns[c].hidden) continue;
                         if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
                         obj.columns[c].size = obj.columns[c].sizeCalculated;
                     }
