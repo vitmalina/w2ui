@@ -1775,6 +1775,7 @@ w2utils.keyboard = (function (obj) {
 *   - frozen columns 
         - load more only on the right side
         - scrolling on frozen columns is not working only on regular columns
+*   - copy or large number of records is slow
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -1797,6 +1798,7 @@ w2utils.keyboard = (function (obj) {
 *   - return JSON can now have summary array
 *   - added selectionSave, selectionRestore - for internal use
 *   - added additional search filter options for int, float, date, time
+*   - added getLineHTML
 *
 ************************************************************************/
 
@@ -1847,19 +1849,20 @@ w2utils.keyboard = (function (obj) {
             skipRecords     : true
         };
 
-        this.autoLoad       = true;     // for infinite scroll
-        this.fixedBody      = true;     // if false; then grid grows with data
-        this.recordHeight   = 24;
-        this.vs_start       = 300;
-        this.vs_extra       = 15;
-        this.keyboard       = true;
-        this.selectType     = 'row';    // can be row|cell
-        this.multiSearch    = true;
-        this.multiSelect    = true;
-        this.multiSort      = true;
-        this.reorderColumns = false;
-        this.reorderRows    = false;
-        this.markSearch     = true;
+        this.autoLoad        = true;     // for infinite scroll
+        this.fixedBody       = true;     // if false; then grid grows with data
+        this.recordHeight    = 24;
+        this.lineNumberWidth = null;
+        this.vs_start        = 300;
+        this.vs_extra        = 15;
+        this.keyboard        = true;
+        this.selectType      = 'row';    // can be row|cell
+        this.multiSearch     = true;
+        this.multiSelect     = true;
+        this.multiSort       = true;
+        this.reorderColumns  = false;
+        this.reorderRows     = false;
+        this.markSearch      = true;
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -2579,7 +2582,7 @@ w2utils.keyboard = (function (obj) {
                     if (this.show.selectionBorder === false) continue;
                     var sel = this.getSelection();
                     if (sel.length == 0) {
-                        this.removeRange(ranges[r].name);
+                        this.removeRange('selection');
                         continue;
                     } else {
                         var first = sel[0];
@@ -2597,7 +2600,7 @@ w2utils.keyboard = (function (obj) {
                     };
                     // add range
                     var ind = false;
-                    for (var t in this.ranges) if (this.ranges[t].name == ranges[r].name) { ind = r; break; }
+                    for (var t in this.ranges) if (this.ranges[t].name == ranges[r].name) { ind = t; break; }
                     if (ind !== false) {
                         this.ranges[ind] = rg;
                     } else {
@@ -2635,27 +2638,31 @@ w2utils.keyboard = (function (obj) {
                 var rg    = this.ranges[r];
                 var first = rg.range[0];
                 var last  = rg.range[1];
-                var td1   = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td[col='+ first.column +']');
-                var td2   = $('#grid_'+ this.name +'_rec_'+ last.recid + ' td[col='+ last.column +']');
-                var td1f  = $('#grid_'+ this.name +'_frec_'+ first.recid + ' td[col='+ first.column +']');
-                var td2f  = $('#grid_'+ this.name +'_frec_'+ last.recid + ' td[col='+ last.column +']');
-                var sel1  = $('#grid_'+ this.name +'_rec_top').next().find('td.w2ui-selected');
-                var sel2  = $('#grid_'+ this.name +'_rec_bottom').prev().find('td.w2ui-selected');
-                var sel1f = $('#grid_'+ this.name +'_frec_top').next().find('td.w2ui-selected');
-                var sel2f = $('#grid_'+ this.name +'_frec_bottom').prev().find('td.w2ui-selected');
+                if (first.index == null) first.index = this.get(first.recid, true);
+                if (last.index == null) last.index = this.get(last.recid, true);
+                var td1   = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) + ' td[col="'+ first.column +'"]');
+                var td2   = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]');
+                var td1f  = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(first.recid) + ' td[col="'+ first.column +'"]');
+                var td2f  = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]');
+
                 // if virtual scrolling kicked in
-                if ((td1.length == 0 && td2.length != 0) || sel1.length > 0) {
-                    td1  = $('#grid_'+ this.name +'_rec_top').next().find('td[col='+ first.column +']');
+                var index_top     = parseInt($('#grid_'+ this.name +'_rec_top').next().attr('index'));
+                var index_bottom  = parseInt($('#grid_'+ this.name +'_rec_bottom').prev().attr('index'));
+                var index_ftop    = parseInt($('#grid_'+ this.name +'_frec_top').next().attr('index'));
+                var index_fbottom = parseInt($('#grid_'+ this.name +'_frec_bottom').prev().attr('index'));
+                if (td1.length == 0 && first.index < index_top && last.index > index_top) {
+                    td1 = $('#grid_'+ this.name +'_rec_top').next().find('td[col='+ first.column +']');
                 }
-                if ((td2.length == 0 && td1.length != 0) || sel2.length > 0) {
-                    td2  = $('#grid_'+ this.name +'_rec_bottom').prev().find('td[col='+ last.column +']');
+                if (td2.length == 0 && last.index > index_bottom && first.index < index_bottom) {
+                    td2 = $('#grid_'+ this.name +'_rec_bottom').prev().find('td[col='+ last.column +']');
                 }
-                if ((td1f.length == 0 && td2f.length != 0) || sel1f.length > 0) { // frozen
+                if (td1f.length == 0 && first.index < index_ftop && last.index > index_ftop) { // frozen
                     td1f = $('#grid_'+ this.name +'_frec_top').next().find('td[col='+ first.column +']');
                 }
-                if ((td2f.length == 0 && td1f.length != 0) || sel2f.length > 0) { // frozen
+                if (td2f.length == 0 && last.index > index_fbottom && first.index < index_fbottom) {  // frozen
                     td2f = $('#grid_'+ this.name +'_frec_bottom').prev().find('td[col='+ last.column +']');
                 }
+
                 // frozen regular columns range
                 var $range = $('#grid_'+ this.name +'_f'+ rg.name);
                 if (td1f.length > 0 || td2f.length > 0) {
@@ -2669,18 +2676,20 @@ w2utils.keyboard = (function (obj) {
                         $range.find('.w2ui-selection-resizer').show();
                     }
                     if (td2f.length == 0) {
-                        td2f  = $('#grid_'+ this.name +'_frec_'+ last.recid + ' td:last-child');
+                        td2f  = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) +' td:last-child');
                         if (td2f.length == 0) td2f = $('#grid_'+ this.name +'_frec_bottom td:first-child');
                         $range.css('border-right', '0px');
                         $range.find('.w2ui-selection-resizer').hide();
                     }
-                    if (first.recid != null && last.recid != null) {
+                    if (first.recid != null && last.recid != null && td1f.length > 0 && td2f.length > 0) {
                         $range.show().css({
                             left    : (td1f.position().left - 1 + rec1.scrollLeft()) + 'px',
                             top     : (td1f.position().top - 1 + rec1.scrollTop()) + 'px',
                             width   : (td2f.position().left - td1f.position().left + td2f.width() + 3) + 'px',
                             height  : (td2f.position().top - td1f.position().top + td2f.height() + 3) + 'px'
                         });
+                    } else {
+                        $range.hide();
                     }
                 } else {
                     $range.hide();
@@ -2697,17 +2706,19 @@ w2utils.keyboard = (function (obj) {
                         $range.attr('style', rg.style);
                     }
                     if (td1.length == 0) {
-                        td1 = $('#grid_'+ this.name +'_rec_'+ first.recid + ' td:first-child');
+                        td1 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) +' td:first-child');
                         if (td1.length == 0) td1 = $('#grid_'+ this.name +'_rec_top td:first-child');
                         $range.css('border-left', '0px');
                     }
-                    if (first.recid != null && last.recid != null) {
+                    if (first.recid != null && last.recid != null && td1.length > 0 && td2.length > 0) {
                         $range.show().css({
                             left    : (td1.position().left - 1 + rec2.scrollLeft()) + 'px',
                             top     : (td1.position().top - 1 + rec2.scrollTop()) + 'px',
                             width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
                             height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
                         });
+                    } else {
+                        $range.hide();
                     }
                 } else {
                     $range.hide();
@@ -2919,8 +2930,8 @@ w2utils.keyboard = (function (obj) {
                     if (eventData.isCancelled === true) continue;
                     // default action
                     sel.indexes.splice(sel.indexes.indexOf(index), 1);
-                    recEl1.removeClass('w2ui-selected').removeData('selected').find('.w2ui-col-number').removeClass('w2ui-row-selected');
-                    recEl2.removeClass('w2ui-selected').removeData('selected').find('.w2ui-col-number').removeClass('w2ui-row-selected');
+                    recEl1.removeClass('w2ui-selected w2ui-inactive').removeData('selected').find('.w2ui-col-number').removeClass('w2ui-row-selected');
+                    recEl2.removeClass('w2ui-selected w2ui-inactive').removeData('selected').find('.w2ui-col-number').removeClass('w2ui-row-selected');
                     if (recEl1.length != 0) {
                         recEl1[0].style.cssText = 'height: '+ this.recordHeight +'px; ' + recEl1.attr('custom_style');
                         recEl2[0].style.cssText = 'height: '+ this.recordHeight +'px; ' + recEl2.attr('custom_style');
@@ -2941,8 +2952,8 @@ w2utils.keyboard = (function (obj) {
                     if (eventData.isCancelled === true) continue;
                     // default action
                     s.splice(s.indexOf(col), 1);
-                    $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected');
-                    $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected');
+                    $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected w2ui-inactive');
+                    $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected w2ui-inactive');
                     // check if any row/column still selected
                     var isColSelected = false;
                     var isRowSelected = false;
@@ -3045,16 +3056,16 @@ w2utils.keyboard = (function (obj) {
             var sel = this.last.selection;
             // remove selected class
             if (this.selectType == 'row') {
-                $(this.box).find('.w2ui-grid-records tr.w2ui-selected').removeClass('w2ui-selected').removeData('selected')
+                $(this.box).find('.w2ui-grid-records tr.w2ui-selected').removeClass('w2ui-selected w2ui-inactive').removeData('selected')
                     .find('.w2ui-col-number').removeClass('w2ui-row-selected');
-                $(this.box).find('.w2ui-grid-frecords tr.w2ui-selected').removeClass('w2ui-selected').removeData('selected')
+                $(this.box).find('.w2ui-grid-frecords tr.w2ui-selected').removeClass('w2ui-selected w2ui-inactive').removeData('selected')
                     .find('.w2ui-col-number').removeClass('w2ui-row-selected');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', false);
             } else {
                 $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').removeClass('w2ui-col-selected');
                 $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').removeClass('w2ui-row-selected');
                 $(this.box).find('.w2ui-grid-frecords tr .w2ui-col-number').removeClass('w2ui-row-selected');
-                $(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected').removeData('selected');
+                $(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected w2ui-inactive').removeData('selected');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', false);
             }
             sel.indexes = [];
@@ -4379,6 +4390,10 @@ w2utils.keyboard = (function (obj) {
                         obj.collapse(recid, event);
                     } else {
                         var prev = obj.prevCell(columns[0]);
+                        if (!shiftKey && prev == null) {
+                            this.selectNone();
+                            prev = 0;
+                        }
                         if (prev != null) {
                             if (shiftKey && obj.multiSelect) {
                                 if (tmpUnselect()) return;
@@ -4424,6 +4439,10 @@ w2utils.keyboard = (function (obj) {
                         obj.expand(recid, event);
                     } else {
                         var next = obj.nextCell(columns[columns.length-1]);
+                        if (!shiftKey && next == null) {
+                            this.selectNone();
+                            next = this.columns.length-1;
+                        }
                         if (next !== null) {
                             if (shiftKey && key == 39 && obj.multiSelect) {
                                 if (tmpUnselect()) return;
@@ -4467,6 +4486,13 @@ w2utils.keyboard = (function (obj) {
                     if (recEL.length <= 0) break;
                     // move to the previous record
                     var prev = obj.prevRow(ind);
+                    if (!shiftKey && prev == null) {
+                        if (this.searchData.length != 0 && !this.url) {
+                            prev = this.last.searchIds[0];
+                        } else {
+                            prev = 0;
+                        }
+                    }
                     if (prev != null) {
                         // jump into subgrid
                         if (obj.records[prev].expanded) {
@@ -4548,6 +4574,13 @@ w2utils.keyboard = (function (obj) {
                     }
                     // move to the next record
                     var next = obj.nextRow(ind2);
+                    if (!shiftKey && next == null) {
+                        if (this.searchData.length != 0 && !this.url) {
+                            next = this.last.searchIds[this.last.searchIds.length - 1];
+                        } else {
+                            next = this.records.length - 1;
+                        }
+                    }
                     if (next != null) {
                         if (shiftKey && obj.multiSelect) { // expand selection
                             if (tmpUnselect()) return;
@@ -4625,14 +4658,25 @@ w2utils.keyboard = (function (obj) {
                     }
                     break;
             }
-            var tmp = [187, 189, 32]; // =-spacebar
+            var tmp = [32, 187, 189, 192, 219, 220, 221, 186, 222, 188, 190, 191]; // other typable chars
             for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
             if (tmp.indexOf(key) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
                 if (columns.length == 0) columns.push(0);
                 var tmp = String.fromCharCode(key);
-                if (key == 187) tmp = '=';
-                if (key == 189) tmp = '-';
-                if (!shiftKey)  tmp = tmp.toLowerCase();
+                if (!shiftKey) tmp = tmp.toLowerCase();
+                switch (key) {
+                    case 187: tmp = (!event.shiftKey ? '=' : '+'); break;
+                    case 189: tmp = (!event.shiftKey ? '-' : '_'); break;
+                    case 192: tmp = (!event.shiftKey ? '`' : '~'); break;
+                    case 219: tmp = (!event.shiftKey ? '[' : '{'); break;
+                    case 220: tmp = (!event.shiftKey ? '\\' : '|'); break;
+                    case 221: tmp = (!event.shiftKey ? ']' : '}'); break;
+                    case 186: tmp = (!event.shiftKey ? ';' : ':'); break;
+                    case 222: tmp = (!event.shiftKey ? '\'' : '"'); break;
+                    case 188: tmp = (!event.shiftKey ? ',' : '<'); break;
+                    case 190: tmp = (!event.shiftKey ? '.' : '>'); break;
+                    case 191: tmp = (!event.shiftKey ? '/' : '?'); break;
+                }
                 obj.editField(recid, columns[0], tmp, event);
                 cancel = true;
             }
@@ -6155,6 +6199,7 @@ w2utils.keyboard = (function (obj) {
             var scroll1  = $('#grid_'+ this.name +'_scroll1');
             var lineNumberWidth = String(this.total).length * 8 + 10;
             if (lineNumberWidth < 34) lineNumberWidth = 34; // 3 digit width
+            if (this.lineNumberWidth != null) lineNumberWidth = this.lineNumberWidth;
 
             var bodyOverflowX = false;
             var bodyOverflowY = false;
@@ -7059,7 +7104,7 @@ w2utils.keyboard = (function (obj) {
             var isRowSelected = false;
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             // render TR
-            rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" '+
+            rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
                 ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
@@ -7078,7 +7123,7 @@ w2utils.keyboard = (function (obj) {
                 ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
                     ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
                 '>';
-            rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" '+
+            rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
                 ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
@@ -7101,7 +7146,7 @@ w2utils.keyboard = (function (obj) {
                 rec_html1 += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" '+
                             '   class="w2ui-col-number '+ (isRowSelected  ? ' w2ui-row-selected' : '') +'"'+
                                 (this.reorderRows ? 'style="cursor: move"' : '') + '>'+
-                                (summary !== true ? '<div>'+ lineNum +'</div>' : '') +
+                                (summary !== true ? this.getLineHTML(lineNum, record) : '') +
                             '</td>';
             }
             if (this.show.selectColumn) {
@@ -7169,6 +7214,10 @@ w2utils.keyboard = (function (obj) {
             rec_html1 += '</tr>';
             rec_html2 += '</tr>';
             return [rec_html1, rec_html2];
+        },
+
+        getLineHTML: function(lineNum) {
+            return '<div>' + lineNum + '</div>';
         },
 
         getCellHTML: function (ind, col_ind, summary) {
