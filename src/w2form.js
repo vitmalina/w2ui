@@ -1163,7 +1163,7 @@
             // after render actions
             this.resize();
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0 && this.recid != null) {
+            if (url) {
                 this.request();
             } else {
                 this.refresh();
