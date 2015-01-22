@@ -24,7 +24,7 @@
   margin: 0px;
   padding: 0px;
 }
-.w2ui-reset table {
+.w2ui-reset table tr td {
   font-family: Verdana, Arial, sans-serif;
   font-size: 11px;
   max-width: none;
