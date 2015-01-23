@@ -68,11 +68,11 @@
   padding: 0px;
 }
 .w2ui-reset table {
+  max-width: none;
   background-color: transparent;
   border-collapse: separate;
-  border-spacing: 0;  
+  border-spacing: 0;
   border: none;
-  max-width: none;
 }
 .w2ui-reset table tr th,
 .w2ui-reset table tr td {

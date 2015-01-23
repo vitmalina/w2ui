@@ -17,12 +17,15 @@
         // do not include any font-* properties
     }
     table {
-        font-family: @main-font-family;
-        font-size: 11px;
         max-width: none;
         background-color: transparent;
         border-collapse: separate;
         border-spacing: 0;
+        border: none;
+    }
+    table tr th, table tr td {
+        font-family: @main-font-family;
+        font-size: 11px;	    
     }
     & input, & textarea {
         width: auto;
