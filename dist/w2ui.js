@@ -3119,6 +3119,7 @@ w2utils.keyboard = (function (obj) {
                     var value1   = field1.val();
                     var value2   = field2.val();
                     var svalue   = null;
+                    var text = null;
                     if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
                         var fld1 = field1.data('w2field');
                         var fld2 = field2.data('w2field');
@@ -3132,11 +3133,12 @@ w2utils.keyboard = (function (obj) {
                             for (var v in value1) {
                                 svalue.push(w2utils.isFloat(value1[v].id) ? parseFloat(value1[v].id) : String(value1[v].id).toLowerCase());
                                 delete value1[v].hidden;
+                                if ($.isEmptyObject(value1)) value1 = '';
                             }
                         } else {
+                            text = value1.text || '';
                             value1 = value1.id || '';
                         }
-                        if ($.isEmptyObject(value1)) value1 = '';
                     }
                     if ((value1 !== '' && value1 != null) || (typeof value2 != 'undefined' && value2 !== '')) {
                         var tmp = {
@@ -3154,6 +3156,7 @@ w2utils.keyboard = (function (obj) {
                             $.extend(tmp, { value: value1 });
                         }
                         if (svalue) $.extend(tmp, { svalue: svalue });
+                        if (text) $.extend(tmp, { text: text });
                         // conver date to unix time
                         try {
                             if (search.type == 'date' && operator == 'between') {
@@ -5226,9 +5229,9 @@ w2utils.keyboard = (function (obj) {
             // -- separate summary
             var tmp = this.find({ summary: true }, true);
             if (tmp.length > 0) {
+                this.summary = [];
                 for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
                 for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
-                this.total = this.total - tmp.length;
             }
 
             // -- body
@@ -6636,6 +6639,7 @@ w2utils.keyboard = (function (obj) {
                         if (search.type == 'enum') options.selected = [];
                         if (sdata) options.selected = sdata.value;
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, $.extend({ openOnFocus: true }, options));
+                        if (sdata && sdata.text != null) $('#grid_'+ this.name +'_field_'+s).data('selected', {id: sdata.value, text: sdata.text});
                         break;
 
                     case 'select':
