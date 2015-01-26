@@ -125,7 +125,7 @@ $(function () {
 <body>
     <div style="padding: 10px">
         <button class="w2ui-btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup</button>
-        <button class="w2ui-btn" value="Popup2"  onclick="$('#popup1').w2popup({ title: '123', showMax: true })">Popup2</button>
+        <button class="w2ui-btn" value="Popup2"  onclick="$('#popup1').w2popup({ showMax: true })">Popup2</button>
         <button class="w2ui-btn" value="Popup3"  onclick="popupGrid()">Popup Grid</button>
         <button class="w2ui-btn" value="Popup4"  onclick="popupLayout()">Popup Layout</button>
         <button class="w2ui-btn" value="Overlay" onclick="showOverlay(this)">Overlay</button>
@@ -134,12 +134,13 @@ $(function () {
         <button class="w2ui-btn" value="Confirm" onclick="myConfirm()">Confirm</button>
     </div>
 
-    <div id="popup1" style="display: none; width: 650px; height: 400px; overflow: auto">
+    <hr>
+    <div id="popup1" style="display: none1; width: 650px; height: 400px; overflow: auto">
         <div rel="title">
             Popup #1 Title
         </div>
         <div rel="body">
-            <div style="padding: 10; font-size: 11px; line-height: 150%;">
+            <div style="padding: 10; font-size: 11px; line-height: 150%;" id="some">
                 <div style="float:left; background-color: white; width:150px; height:80px; border: 1px solid silver; margin:5px;">
                 </div>
                 This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
@@ -158,14 +159,13 @@ $(function () {
             </div>
         </div>
         <div rel="buttons">
-            <button class="w2ui-btn" onclick="$('#popup2').w2popup()" style="width: 150px">Switch to Popup 2</button>
+            <button class="w2ui-btn" onclick="$('#popup2').w2popup({ transition: 'slide-left', showMax: false })" style="width: 150px">Switch to Popup 2</button>
             <button class="w2ui-btn" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div><div style=\'position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\'><button class=\'btn\' onclick=\'w2popup.message();\'>Close</button></div>' })">Message</button>
         </div>
     </div>
 
-    <!-- Second Popup Window -->
-
-    <div id="popup2" style="display: none; width: 400px; height: 200px; overflow: auto">
+    <hr>
+    <div id="popup2" style="display1: none; width: 600px; height: 300px; overflow: auto">
         <div rel="title">
             Popup #2
         </div>
@@ -176,11 +176,12 @@ $(function () {
             </div>
         </div>
         <div rel="buttons">
-            <button class="w2ui-btn" onclick="$('#popup1').w2popup({ transition: 'flip-left' })">Switch to Popup 1</button>
+            <button class="w2ui-btn" onclick="$('#popup1').w2popup({ transition: 'slide-right', showMax: true })">Switch to Popup 1</button>
         </div>
     </div>
 
-    <div id="popup3" style="width: 500px; height: 300px; display: none">
+    <hr>
+    <div id="popup3" style="width: 500px; height: 300px; display1: none">
         <div style="border: 1px solid red; width: 100%; height: 100%; padding: 10px;">
             This is just a text
         </div>
