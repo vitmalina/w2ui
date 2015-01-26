@@ -1741,6 +1741,9 @@ button.w2ui-btn-red.clicked {
   padding: 0px 7px 0px 3px;
   text-align: right;
 }
+.w2ui-grid .w2ui-grid-body table .w2ui-col-number.w2ui-head {
+  cursor: pointer;
+}
 .w2ui-grid .w2ui-grid-body table .w2ui-col-select {
   width: 26px;
 }
@@ -2167,8 +2170,8 @@ button.w2ui-btn-red.clicked {
   background-color: #cccccc;
   border: 1px solid #aaaaaa;
 }
-.w2ui-popup .w2ui-box1,
-.w2ui-popup .w2ui-box2 {
+.w2ui-popup .w2ui-box,
+.w2ui-popup .w2ui-box-temp {
   position: absolute;
   left: 0px;
   right: 0px;
