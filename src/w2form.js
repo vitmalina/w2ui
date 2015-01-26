@@ -399,7 +399,7 @@
             }
             if (typeof postData == 'undefined' || postData == null) postData = {};
             if (!this.url || (typeof this.url == 'object' && !this.url.get)) return;
-            if (this.recid == null || typeof this.recid == 'undefined') this.recid = 0;
+            if (this.recid == null) this.recid = 0;
             // build parameters list
             var params = {};
             // add list params
