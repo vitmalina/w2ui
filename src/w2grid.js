@@ -60,6 +60,8 @@
 *   - added selectionSave, selectionRestore - for internal use
 *   - added additional search filter options for int, float, date, time
 *   - added getLineHTML
+*   - added lineNumberWidth
+*   - add searches.style
 *
 ************************************************************************/
 
@@ -1107,7 +1109,9 @@
                     var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
                     var column = typeof arguments[a] == 'object' ? arguments[a].column : null;
                     new_sel[recid] = new_sel[recid] || [];
-                    if (w2utils.isInt(column)) {
+                    if ($.isArray(column)) {
+                        new_sel[recid] = column;
+                    } else if (w2utils.isInt(column)) {
                         new_sel[recid].push(column);
                     } else {
                         for (var c in this.columns) { if (this.columns[c].hidden) continue; new_sel[recid].push(parseInt(c)); }
@@ -2092,10 +2096,10 @@
             var rec   = obj.records[index];
             var col   = obj.columns[column];
             
-            var edit = rec ? rec.editable : null;
-            if (edit == null) edit = col ? col.editable : null;
-              
+            var edit = (rec ? rec.editable : null);
+            if (edit == null || edit === true) edit = (col ? col.editable : null);
             if (!rec || !col || !edit || rec.editable === false) return;
+            
             if (['enum', 'file'].indexOf(edit.type) != -1) {
                 console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
                 return;
@@ -2523,8 +2527,49 @@
             var eventData = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
             if (eventData.isCancelled === true) return;
             // default behaviour
-            var column = this.getColumn(field);
-            if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+            if (this.selectType == 'row') {
+                var column = this.getColumn(field);
+                if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+                if (eventData.field == 'line-number') {
+                    if (this.getSelection().length >= this.records.length) {
+                        this.selectNone(); 
+                    } else {
+                        this.selectAll();
+                    }
+                }
+            } else {
+                // select entire column
+                if (eventData.field == 'line-number') {
+                    if (this.getSelection().length >= this.records.length) {
+                        this.selectNone(); 
+                    } else {
+                        this.selectAll();
+                    }
+                } else {
+                    if (!event.shiftKey) this.selectNone();            
+                    var tmp     = this.getSelection();
+                    var column  = this.getColumn(eventData.field, true);
+                    var sel     = [];
+                    var cols    = [];
+                    // check if there was a selection before
+                    if (tmp.length != 0) {
+                        var start = column;
+                        var end = tmp[0].column;
+                        if (start > end) {
+                            start = tmp[0].column;
+                            end = column;
+                        }
+                        for (var i=start; i<=end; i++) cols.push(i);
+                    } else {
+                        cols.push(column);
+                    }
+                    // --
+                    for (var i = 0; i < this.records.length; i++) {
+                        sel.push({ recid: this.records[i].recid, column: cols });
+                    }
+                    this.select.apply(this, sel);
+                }
+            }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -3641,7 +3686,7 @@
                     $(this.box).on('selectstart', function () { return false; });
                 }
                 // regular record select
-                if ($(event.target).parents().hasClass('w2ui-head') || $(event.target).hasClass('w2ui-head')) return;
+                if (obj.selectType == 'row' && ($(event.target).parents().hasClass('w2ui-head') || $(event.target).hasClass('w2ui-head'))) return;
                 if (obj.last.move && obj.last.move.type == 'expand') return;
                 // if altKey - alow text selection
                 if (event.altKey) {
@@ -3658,7 +3703,7 @@
                         divX   : 0,
                         divY   : 0,
                         recid  : $(event.target).parents('tr').attr('recid'),
-                        column : (event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col')),
+                        column : parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col')),
                         type   : 'select',
                         ghost  : false,
                         start  : true
@@ -3709,6 +3754,7 @@
 
             function mouseMove (event) {
                 var mv = obj.last.move;
+                // console.log('move');
                 if (!mv || mv.type != 'select') return;
                 mv.divX = (event.screenX - mv.x);
                 mv.divY = (event.screenY - mv.y);
@@ -3741,56 +3787,96 @@
                 }
                 var newSel= [];
                 var recid = (event.target.tagName == 'TR' ? $(event.target).attr('recid') : $(event.target).parents('tr').attr('recid'));
-                if (typeof recid == 'undefined') return;
-                var ind1  = obj.get(mv.recid, true);
-                // |:wolfmanx:| this happens when selection is started on summary row
-                if (ind1 === null) return;
-                var ind2  = obj.get(recid, true);
-                // this happens when selection is extended into summary row (a good place to implement scrolling)
-                if (ind2 === null) return;
-                var col1 = parseInt(mv.column);
-                var col2 = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
-                if (ind1 > ind2) { var tmp = ind1; ind1 = ind2; ind2 = tmp; }
-                // check if need to refresh
-                var tmp = 'ind1:'+ ind1 +',ind2;'+ ind2 +',col1:'+ col1 +',col2:'+ col2;
-                if (mv.range == tmp) return;
-                mv.range = tmp;
-                for (var i = ind1; i <= ind2; i++) {
-                    if (obj.last.searchIds.length > 0 && obj.last.searchIds.indexOf(i) == -1) continue;
-                    if (obj.selectType != 'row') {
-                        if (col1 > col2) { var tmp = col1; col1 = col2; col2 = tmp; }
-                        var tmp = [];
-                        for (var c = col1; c <= col2; c++) {
-                            if (obj.columns[c].hidden) continue;
-                            newSel.push({ recid: obj.records[i].recid, column: parseInt(c) });
-                        }
+                if (recid == null) {
+                    // select by dragging columns
+                    if (obj.selectType == 'row') return;
+                    var col = parseInt($(event.target).parents('td').attr('col'));
+                    if (isNaN(col)) {
+                        obj.removeRange('column-selection');
+                        $(obj.box).find('.w2ui-grid-columns .w2ui-col-header').removeClass('w2ui-col-selected');
+                        $(obj.box).find('.w2ui-col-number').removeClass('w2ui-row-selected');
+                        delete mv.colRange;
                     } else {
-                        newSel.push(obj.records[i].recid);
+                        // add all columns in between
+                        var newRange = col + '-' + col;
+                        if (mv.column < col) newRange = mv.column + '-' + col;
+                        if (mv.column > col) newRange = col + '-' + mv.column;
+                        if (mv.colRange == null) obj.selectNone();
+                        // highlight columns
+                        var tmp = newRange.split('-');
+                        $(obj.box).find('.w2ui-grid-columns .w2ui-col-header').removeClass('w2ui-col-selected');
+                        for (var j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) {
+                            $(obj.box).find('#grid_'+ obj.name +'_column_' + j + ' .w2ui-col-header').addClass('w2ui-col-selected');
+                        }
+                        $(obj.box).find('.w2ui-col-number').not('.w2ui-head').addClass('w2ui-row-selected');
+                        // show new range
+                        if (mv.colRange != newRange) {
+                            mv.colRange = newRange;
+                            obj.removeRange('column-selection');
+                            obj.addRange({
+                                name  : 'column-selection',
+                                range : [{ recid: obj.records[0].recid, column: tmp[0] }, { recid: obj.records[obj.records.length-1].recid, column: tmp[1] }],
+                                style : 'background-color: rgba(90, 145, 234, 0.1)'
+                            });
+                        }
                     }
-                }
-                if (obj.selectType != 'row') {
-                    var sel = obj.getSelection();
-                    // add more items
-                    var tmp = [];
-                    for (var ns = 0; ns < newSel.length; ns++) {
-                        var flag = false;
-                        for (var s = 0; s < sel.length; s++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
-                        if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column });
+
+                } else { // regular selection
+
+                    var ind1  = obj.get(mv.recid, true);
+                    // this happens when selection is started on summary row
+                    if (ind1 === null || (obj.records[ind1] && obj.records[ind1].recid != mv.recid)) return;
+                    var ind2  = obj.get(recid, true);
+                    // this happens when selection is extended into summary row (a good place to implement scrolling)
+                    if (ind2 === null) return;
+                    var col1 = parseInt(mv.column);
+                    var col2 = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
+                    if (!col1 && !col2) { // line number select entire record
+                        col1 = 0;
+                        col2 = obj.columns.length-1;
                     }
-                    obj.select.apply(obj, tmp);
-                    // remove items
-                    var tmp = [];
-                    for (var s = 0; s < sel.length; s++) {
-                        var flag = false;
-                        for (var ns = 0; ns < newSel.length; ns++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
-                        if (!flag) tmp.push({ recid: sel[s].recid, column: sel[s].column });
+                    if (ind1 > ind2) { var tmp = ind1; ind1 = ind2; ind2 = tmp; }
+                    // check if need to refresh
+                    var tmp = 'ind1:'+ ind1 +',ind2;'+ ind2 +',col1:'+ col1 +',col2:'+ col2;
+                    if (mv.range == tmp) return;
+                    mv.range = tmp;
+                    for (var i = ind1; i <= ind2; i++) {
+                        if (obj.last.searchIds.length > 0 && obj.last.searchIds.indexOf(i) == -1) continue;
+                        if (obj.selectType != 'row') {
+                            if (col1 > col2) { var tmp = col1; col1 = col2; col2 = tmp; }
+                            var tmp = [];
+                            for (var c = col1; c <= col2; c++) {
+                                if (obj.columns[c].hidden) continue;
+                                newSel.push({ recid: obj.records[i].recid, column: parseInt(c) });
+                            }
+                        } else {
+                            newSel.push(obj.records[i].recid);
+                        }
                     }
-                    obj.unselect.apply(obj, tmp);
-                } else {
-                    if (obj.multiSelect) {
+                    if (obj.selectType != 'row') {
                         var sel = obj.getSelection();
-                        for (var ns = 0; ns < newSel.length; ns++) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
-                        for (var s = 0; s < sel.length; s++) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+                        // add more items
+                        var tmp = [];
+                        for (var ns = 0; ns < newSel.length; ns++) {
+                            var flag = false;
+                            for (var s = 0; s < sel.length; s++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                            if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column });
+                        }
+                        obj.select.apply(obj, tmp);
+                        // remove items
+                        var tmp = [];
+                        for (var s = 0; s < sel.length; s++) {
+                            var flag = false;
+                            for (var ns = 0; ns < newSel.length; ns++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                            if (!flag) tmp.push({ recid: sel[s].recid, column: sel[s].column });
+                        }
+                        obj.unselect.apply(obj, tmp);
+                    } else {
+                        if (obj.multiSelect) {
+                            var sel = obj.getSelection();
+                            for (var ns = 0; ns < newSel.length; ns++) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
+                            for (var s = 0; s < sel.length; s++) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+                        }
                     }
                 }
             }
@@ -3800,6 +3886,17 @@
                 setTimeout(function () { delete obj.last.cancelClick; }, 1);
                 if ($(event.target).parents().hasClass('.w2ui-head') || $(event.target).hasClass('.w2ui-head')) return;
                 if (mv && mv.type == 'select') {
+                    if (mv.colRange != null) {
+                        var tmp = mv.colRange.split('-');
+                        var sel = [];
+                        for (var i = 0; i < obj.records.length; i++) {
+                            var cols = []
+                            for (var j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) cols.push(j);
+                            sel.push({ recid: obj.records[i].recid, column: cols });
+                        }
+                        obj.select.apply(obj, sel);
+                        obj.removeRange('column-selection');
+                    }
                     if (obj.reorderRows == true && obj.last.move.reorder) {
                         // event
                         var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'reorderRow', recid: mv.from, moveAfter: mv.to });
@@ -4752,9 +4849,10 @@
                     btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchClose(); }">X</button';
                     showBtn = true;
                 }
-                if (typeof s.inTag   == 'undefined') s.inTag     = '';
-                if (typeof s.outTag  == 'undefined') s.outTag     = '';
-                if (typeof s.type    == 'undefined') s.type     = 'text';
+                if (typeof s.inTag   == 'undefined') s.inTag  = '';
+                if (typeof s.outTag  == 'undefined') s.outTag = '';
+                if (typeof s.style   == 'undefined') s.style = '';
+                if (typeof s.type    == 'undefined') s.type   = 'text';
                 if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
                     var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
@@ -4796,7 +4894,7 @@
                     case 'list':
                     case 'combo':
                     case 'enum':
-                        html += '<input rel="search" type="text" style="width: 300px;" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
+                        html += '<input rel="search" type="text" size="40" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
                         break;
 
                     case 'int':
@@ -4806,14 +4904,14 @@
                     case 'percent':
                     case 'date':
                     case 'time':
-                        html += '<input rel="search" type="text" size="12" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>'+
+                        html += '<input rel="search" type="text" size="12" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>'+
                                 '<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">'+
                                 '&nbsp;-&nbsp;&nbsp;<input rel="search" type="text" style="width: 90px" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
                                 '</span>';
                         break;
 
                     case 'select':
-                        html += '<select rel="search" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'  onclick="event.stopPropagation();"></select>';
+                        html += '<select rel="search" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'  onclick="event.stopPropagation();"></select>';
                         break;
 
                 }
