@@ -42,6 +42,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - hidden and disabled in menus
 *   - added menu.item.hint for overlay menues
 *   - added w2tag options.id, options.left, options.top
+*   - added w2tag options.position = top|bottom|left|right - default is right
 *
 ************************************************/
 
@@ -1205,8 +1206,11 @@ w2utils.keyboard = (function (obj) {
                 $('#w2ui-tag-'+tagID).remove();
                 // insert
                 $('body').append(
-                    '<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') +
-                    '" style=""></div>');
+                    '<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+ 
+                    '   <div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;">'+
+                    '      <div class="w2ui-tag-body">'+ text +'</div>'+
+                    '   </div>' +
+                    '</div>');
 
                 var timer = setInterval(function () {
                     // monitor if destroyed
@@ -1216,25 +1220,66 @@ w2utils.keyboard = (function (obj) {
                         return;
                     }
                     // monitor if moved
-                    if ($('#w2ui-tag-'+tagID).data('position') !== ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
+                    var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
+                    var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
+                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
+                    if (options.position == 'top') {
+                        posClass  = 'w2ui-tag-top';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0)) - height - 10;
+                    }
+                    if (options.position == 'bottom') {
+                        posClass  = 'w2ui-tag-bottom';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                        posTop    = parseInt($(el).offset().top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                    }
+                    if (options.position == 'left') {
+                        posClass  = 'w2ui-tag-left';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - width - 20;
+                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    }
+                    if ($('#w2ui-tag-'+tagID).data('position') !== posLeft + 'x' + posTop) {
                         $('#w2ui-tag-'+tagID).css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
-                            left: ($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0)) + 'px',
-                            top : ($(el).offset().top + (options.top ? options.top : 0)) + 'px'
-                        }).data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top);
+                            left: posLeft + 'px',
+                            top : posTop + 'px'
+                        }).data('position', posLeft + 'x' + posTop);
                     }
                 }, 100);
                 setTimeout(function () {
                     if (!$(el).offset()) return;
-                    $('#w2ui-tag-'+tagID).css({
-                        opacity: '1',
-                        left: ($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0)) + 'px',
-                        top : ($(el).offset().top + (options.top ? options.top : 0)) + 'px'
-                    }).html('<div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;"> <div class="w2ui-tag-body">'+ text +'</div> </div>')
-                    .data('text', text)
-                    .data('taged-el', el)
-                    .data('options', options)
-                    .data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top)
-                    .data('timer', timer);
+                    var posClass = 'w2ui-tag-right';
+                    var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
+                    var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
+                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
+                    if (options.position == 'top') {
+                        posClass  = 'w2ui-tag-top';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0)) - height - 10;
+                    }
+                    if (options.position == 'bottom') {
+                        posClass  = 'w2ui-tag-bottom';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                        posTop    = parseInt($(el).offset().top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                    }
+                    if (options.position == 'left') {
+                        posClass  = 'w2ui-tag-left';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - width - 20;
+                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    }
+                    $('#w2ui-tag-' + tagID)
+                        .css({
+                            opacity : '1',
+                            left    : posLeft + 'px',
+                            top     : posTop + 'px'
+                        })
+                        .data('text', text)
+                        .data('taged-el', el)
+                        .data('options', options)
+                        .data('position', posLeft + 'x' + posTop)
+                        .data('timer', timer)
+                        .find('.w2ui-tag-body').addClass(posClass);
                     $(el).off('keypress', tmp_hide).on('keypress', tmp_hide).off('change', tmp_hide).on('change', tmp_hide)
                         .css(options.css).addClass(options['class']);
                     if (typeof options.onShow === 'function') options.onShow();
