@@ -2546,13 +2546,15 @@
                         this.selectAll();
                     }
                 } else {
-                    if (!event.shiftKey) this.selectNone();            
+                    if (!event.shiftKey && !event.metaKey && !event.ctrlKey) {
+                        this.selectNone();
+                    }
                     var tmp     = this.getSelection();
                     var column  = this.getColumn(eventData.field, true);
                     var sel     = [];
                     var cols    = [];
                     // check if there was a selection before
-                    if (tmp.length != 0) {
+                    if (tmp.length != 0 && event.shiftKey) {
                         var start = column;
                         var end = tmp[0].column;
                         if (start > end) {
@@ -2998,8 +3000,8 @@
             obj.trigger($.extend(eventData, { phase: 'after' }));
 
             function selectTopRecord() {
-                var ind = Math.floor((records[0].scrollTop + (records.height() / 2.1)) / obj.recordHeight);
-                if (!obj.records[ind]) ind = 0;
+                var ind = Math.floor(records[0].scrollTop / obj.recordHeight) + 1;
+                if (!obj.records[ind] || ind < 2) ind = 0;
                 obj.select({ recid: obj.records[ind].recid, column: 0});
             }
 
@@ -3831,7 +3833,7 @@
                     if (ind2 === null) return;
                     var col1 = parseInt(mv.column);
                     var col2 = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
-                    if (!col1 && !col2) { // line number select entire record
+                    if (isNaN(col1) && isNaN(col2)) { // line number select entire record
                         col1 = 0;
                         col2 = obj.columns.length-1;
                     }
