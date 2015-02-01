@@ -29,6 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - add isDateTime()
 *   - remove momentjs
+*   - $().w2date(), $().w2dateTime()
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
@@ -43,6 +44,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added menu.item.hint for overlay menues
 *   - added w2tag options.id, options.left, options.top
 *   - added w2tag options.position = top|bottom|left|right - default is right
+*   - added $().w2color(color, callBack) 
+*   - added custom colors
 *
 ************************************************/
 
@@ -1779,4 +1782,127 @@ w2utils.keyboard = (function (obj) {
             return menu_html;
         }
     };
+
+    $.fn.w2color = function (color, callBack) {
+        var obj   = this;
+        var el    = $(this)[0];
+        var index = [-1, -1];
+        if ($.fn.w2colorPalette == null) {
+            $.fn.w2colorPalette = [
+                ['000000', '666666', '999999', 'BBBBBB', 'DDDDDD', 'EEEEEE', 'F3F3F3', 'FFFFFF'],
+                ['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '006CE7', '9B24F4', 'FF21F5'],
+                ['FFEAEA', 'FCEFE1', 'FCF5E1', 'EBF7E7', 'E9F3F5', 'ECF4FC', 'EAE6F4', 'F5E7ED'],
+                ['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
+                ['EA9899', 'F9CB9C', 'FEE599', 'B6D7A8', 'A2C4C9', '9FC5E8', 'B4A7D6', 'D5A6BD'],
+                ['E06666', 'F6B26B', 'FED966', '93C47D', '76A5AF', '6FA8DC', '8E7CC3', 'C27BA0'],
+                ['CC0814', 'E69138', 'F1C232', '6AA84F', '45818E', '3D85C6', '674EA7', 'A54D79'],
+                ['99050C', 'B45F17', 'BF901F', '37761D', '124F5C', '0A5394', '351C75', '741B47'],
+                // ['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030'],
+                ['F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2'] // custom colors (up to 4)
+            ];
+        }
+        var pal = $.fn.w2colorPalette;
+        if (typeof color != 'string') color = '';
+        if (color) color = String(color).toUpperCase();
+
+        if ($('#w2ui-overlay').length == 0) {
+            $(el).w2overlay(getColorHTML(color), { 
+                onHide: function () {
+                    if (typeof callBack == 'function') callBack($(el).data('_color'));
+                    $(el).removeData('_color');
+                }
+            });
+        } else { // only refresh contents
+            $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(color));
+        }
+        // bind events
+        $('#w2ui-overlay .color')
+            .on('mousedown', function (event) {
+                var color = $(event.originalEvent.target).attr('name');
+                index = $(event.originalEvent.target).attr('index').split(':');
+                $(el).data('_color', color);
+            })
+            .on('mouseup', function () {
+                setTimeout(function () {
+                    if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
+                }, 10);
+            });
+        $('#w2ui-overlay input')
+            .on('mousedown', function (event) {
+                $('#w2ui-overlay').data('keepOpen', true);
+                setTimeout(function () { $('#w2ui-overlay').data('keepOpen', true); }, 10);
+                event.stopPropagation();
+            })
+            .on('keyup', function (event) {
+                if (this.value != '' && this.value[0] != '#') this.value = '#' + this.value;
+            })
+            .on('change', function (event) {
+                var tmp = this.value;
+                if (tmp.substr(0, 1) == '#') tmp = tmp.substr(1);
+                if (tmp.length != 6) {
+                    $(this).w2tag('Invalid color.');
+                    return;
+                }
+                $.fn.w2colorPalette[pal.length - 1].unshift(tmp.toUpperCase());
+                $(el).w2color(color, callBack);
+                setTimeout(function() { $('#w2ui-overlay input')[0].focus(); }, 100);
+            })
+            .w2field('hex');
+
+        el.nav = function (direction) {
+            switch (direction) {
+                case 'up':
+                    index[0]--;
+                    break;
+                case 'down':
+                    index[0]++;
+                    break;
+                case 'right': 
+                    index[1]++;
+                    break;
+                case 'left':
+                    index[1]--;
+                    break;
+            }
+            if (index[0] < 0) index[0] = 0;
+            if (index[0] > pal.length - 2) index[0] = pal.length - 2;
+            if (index[1] < 0) index[1] = 0;
+            if (index[1] > pal[0].length - 1) index[1] = pal[0].length - 1;
+
+            color = pal[index[0]][index[1]];
+            $(el).data('_color', color);
+            return color;
+        };
+
+        function getColorHTML(color) {
+            var html =  '<div class="w2ui-color">'+
+                        '<table cellspacing="5">';
+            for (var i = 0; i < pal.length - 1; i++) {
+                html += '<tr>';
+                for (var j = 0; j < pal[i].length; j++) {
+                    html += '<td>'+
+                            '    <div class="color" style="background-color: #'+ pal[i][j] +';" name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+
+                            '        '+ (color == pal[i][j] ? '&#149;' : '&nbsp;') +
+                            '    </div>'+
+                            '</td>';
+                    if (color == pal[i][j]) index = [i, j];
+                }
+                html += '</tr>';
+                if (i < 2) html += '<tr><td style="height: 8px" colspan="8"></td></tr>';
+            }
+            var tmp = pal[pal.length - 1];
+            html += '<tr><td style="height: 8px" colspan="8"></td></tr>'+
+                    '<tr>'+
+                    '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (color == tmp[0] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (color == tmp[1] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (color == tmp[2] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (color == tmp[3] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '</tr>'+
+                    '<tr><td style="height: 4px" colspan="8"></td></tr>';
+            html += '</table></div>';
+            return html;
+        }        
+    };
+
 })();

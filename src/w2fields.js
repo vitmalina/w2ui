@@ -25,7 +25,7 @@
 *   - deprecate placeholder, read it from input
 *   - added get(), set(), setIndex() for fields
 *   - add compare function for list, combo, enum
-*   - Added selection for the current date in the calendar
+*   - added selection for the current date in the calendar
 *
 ************************************************************************/
 
@@ -137,17 +137,6 @@
     w2field.prototype = {
 
         custom: {},  // map of custom types
-
-        pallete: [
-            ['000000', '444444', '666666', '999999', 'CCCCCC', 'EEEEEE', 'F3F3F3', 'FFFFFF'],
-            ['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '0424F3', '9B24F4', 'FF21F5'],
-            ['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
-            ['EA9899', 'F9CB9C', 'FEE599', 'B6D7A8', 'A2C4C9', '9FC5E8', 'B4A7D6', 'D5A6BD'],
-            ['E06666', 'F6B26B', 'FED966', '93C47D', '76A5AF', '6FA8DC', '8E7CC3', 'C27BA0'],
-            ['CC0814', 'E69138', 'F1C232', '6AA84F', '45818E', '3D85C6', '674EA7', 'A54D79'],
-            ['99050C', 'B45F17', 'BF901F', '37761D', '124F5C', '0A5394', '351C75', '741B47'],
-            ['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030']
-        ],
 
         addType: function (type, handler) {
             type = String(type).toLowerCase();
@@ -1130,31 +1119,25 @@
                     }, 20);
                 }
                 if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
-                    if (typeof obj.tmp.cind1 == 'undefined') {
-                        obj.tmp.cind1 = -1;
-                        obj.tmp.cind2 = -1;
-                    } else {
-                        switch (key) {
-                            case 38: // up
-                                obj.tmp.cind1--;
-                                break;
-                            case 40: // down
-                                obj.tmp.cind1++;
-                                break;
-                            case 39: // right
-                                obj.tmp.cind2++;
-                                break;
-                            case 37: // left
-                                obj.tmp.cind2--;
-                                break;
-                        }
-                        if (obj.tmp.cind1 < 0) obj.tmp.cind1 = 0;
-                        if (obj.tmp.cind1 > this.pallete.length - 1) obj.tmp.cind1 = this.pallete.length - 1;
-                        if (obj.tmp.cind2 < 0) obj.tmp.cind2 = 0;
-                        if (obj.tmp.cind2 > this.pallete[0].length - 1) obj.tmp.cind2 = this.pallete[0].length - 1;
+                    var dir      = null;
+                    var newColor = null;
+                    switch (key) {
+                        case 38: // up
+                            dir = 'up';
+                            break;
+                        case 40: // down
+                            dir = 'down';
+                            break;
+                        case 39: // right
+                            dir = 'right';
+                            break;
+                        case 37: // left
+                            dir = 'left';
+                            break;
                     }
-                    if ([37, 38, 39, 40].indexOf(key) != -1) {
-                        $(obj.el).val(this.pallete[obj.tmp.cind1][obj.tmp.cind2]).change();
+                    if (obj.el.nav && dir != null) {
+                        newColor = obj.el.nav(dir);
+                        $(obj.el).val(newColor).change();
                         event.preventDefault();
                     }
                 }
@@ -1505,26 +1488,10 @@
             // color
             if (this.type == 'color') {
                 if ($(obj.el).attr('readonly')) return;
-                if ($('#w2ui-overlay').length == 0) {
-                    $(obj.el).w2overlay(obj.getColorHTML());
-                } else {
-                    $('#w2ui-overlay > div').html(obj.getColorHTML());
-                }
-                // bind events
-                $('#w2ui-overlay .color')
-                    .on('mousedown', function (event) {
-                        var color = $(event.originalEvent.target).attr('name');
-                        var index = $(event.originalEvent.target).attr('index').split(':');
-                        obj.tmp.cind1 = index[0];
-                        obj.tmp.cind2 = index[1];
-                        $(obj.el).val(color).change();
-                        $(this).html('&#149;');
-                    })
-                    .on('mouseup', function () {
-                        setTimeout(function () {
-                            if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
-                        }, 10);
-                    });
+                $(this.el).w2color($(this.el).val(), function (color) {
+                    if (color == null) return;
+                    $(obj.el).val(color).change();
+                });
             }
             // date
             if (this.type == 'date') {
@@ -1869,12 +1836,6 @@
                         if (!start) start = current;
                         if (!end) end = current;
                         if (current >= start && current <= end) inRange = true;
-                        /*console.log(str);
-                        console.log(this.options.format_mjs);
-                        console.log(start);
-                        console.log(end);
-                        console.log(current);
-                        console.log("inRange: " + inRange);//*/
                     } else {
                         inRange = true;
                     }
@@ -2360,25 +2321,6 @@
             }
         },
 
-        getColorHTML: function () {
-            var html =  '<div class="w2ui-color">'+
-                        '<table cellspacing="5">';
-            for (var i = 0; i < 8; i++) {
-                html += '<tr>';
-                for (var j = 0; j < 8; j++) {
-                    html += '<td>'+
-                            '    <div class="color" style="background-color: #'+ this.pallete[i][j] +';" name="'+ this.pallete[i][j] +'" index="'+ i + ':' + j +'">'+
-                            '        '+ ($(this.el).val() == this.pallete[i][j] ? '&#149;' : '&nbsp;')+
-                            '    </div>'+
-                            '</td>';
-                }
-                html += '</tr>';
-                if (i < 2) html += '<tr><td style="height: 8px" colspan="8"></td></tr>';
-            }
-            html += '</table></div>';
-            return html;
-        },
-
         getMonthHTML: function (month, year, selected) {
             var td          = new Date();
             var months      = w2utils.settings.fullmonths;
@@ -2390,13 +2332,15 @@
                 days.unshift(days.pop());
                 sdays.unshift(sdays.pop());
             }
+            var options = this.options;
+            if (options == null) options = {};
             // normalize date
             year  = w2utils.isInt(year)  ? parseInt(year)  : td.getFullYear();
             month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1;
             if (month > 12) { month -= 12; year++; }
             if (month < 1 || month === 0)  { month += 12; year--; }
             if (year/4 == Math.floor(year/4)) { daysCount[1] = '29'; } else { daysCount[1] = '28'; }
-            this.options.current = month + '/' + year;
+            options.current = month + '/' + year;
 
             // start with the required date
             td = new Date(year, month-1, 1);
@@ -2417,7 +2361,7 @@
             var day = 1;
             if (w2utils.settings.weekStarts != 'M') weekDay++;
             if(this.type === 'datetime') {
-                var dt_sel = (w2utils.use_momentjs ? w2utils.isDateTime(selected, this.options.format_mjs, true) : w2utils.isDateTime(selected, this.options.format, true));
+                var dt_sel = (w2utils.use_momentjs ? w2utils.isDateTime(selected, options.format_mjs, true) : w2utils.isDateTime(selected, options.format, true));
                 selected = w2utils.formatDate(dt_sel, w2utils.settings.date_format);
             }
             for (var ci = 1; ci < 43; ci++) {
@@ -2443,14 +2387,14 @@
                 var bgcol   = '';
                 var tmp_dt, tmp_dt_fmt;
                 if(this.type === 'datetime') {
-                    tmp_dt      = w2utils.formatDateTime(dt, this.options.format);
+                    tmp_dt      = w2utils.formatDateTime(dt, options.format);
                     tmp_dt_fmt  = w2utils.formatDate(dt, w2utils.settings.date_format);
                 } else {
-                    tmp_dt      = w2utils.formatDate(dt, this.options.format);
+                    tmp_dt      = w2utils.formatDate(dt, options.format);
                     tmp_dt_fmt  = tmp_dt;
                 }
-                if (this.options.colored && this.options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
-                    var tmp = this.options.colored[tmp_dt_fmt].split(':');
+                if (options.colored && options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
+                    var tmp = options.colored[tmp_dt_fmt].split(':');
                     bgcol   = 'background-color: ' + tmp[0] + ';';
                     col     = 'color: ' + tmp[1] + ';';
                 }
@@ -2482,7 +2426,9 @@
 
         getHourHTML: function () {
             var tmp = [];
-            var h24 = (this.options.format.indexOf('h24') > -1);
+            var options = this.options;
+            if (options == null) options = { format: w2utils.settings.time_format };
+            var h24 = (options.format.indexOf('h24') > -1);
             for (var a = 0; a < 24; a++) {
                 var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
                 if (a == 12 && !h24) time = '12:00 pm';
@@ -2502,7 +2448,9 @@
 
         getMinHTML: function (hour) {
             if (typeof hour == 'undefined') hour = 0;
-            var h24 = (this.options.format.indexOf('h24') > -1);
+            var options = this.options;
+            if (options == null) options = { format: w2utils.settings.time_format };
+            var h24 = (options.format.indexOf('h24') > -1);
             var tmp = [];
             for (var a = 0; a < 60; a += 5) {
                 var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
@@ -2538,7 +2486,9 @@
             if (time < 0) time = 24 * 60 + time;
             var hour = Math.floor(time/60);
             var min  = ((time % 60) < 10 ? '0' : '') + (time % 60);
-            if (this.options.format.indexOf('h24') != -1) {
+            var options = this.options;
+            if (options == null) options = { format: w2utils.settings.time_format };
+            if (options.format.indexOf('h24') != -1) {
                 ret = hour + ':' + min;
             } else {
                 ret = (hour <= 12 ? hour : hour - 12) + ':' + min + ' ' + (hour >= 12 ? 'pm' : 'am');
