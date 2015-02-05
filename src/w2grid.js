@@ -1725,7 +1725,7 @@
             }
             // update field
             if (this.last.search != '') {
-				this.last.caption = search.caption;
+                this.last.caption = search.caption;
                 this.search(search.field, this.last.search);
             } else {
                 this.last.field   = search.field;
