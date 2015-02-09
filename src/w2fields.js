@@ -28,6 +28,8 @@
 *   - add compare function for list, combo, enum
 *   - added selection for the current date in the calendar
 *   - added for enum options.onScroll
+*   - modified clearCache()
+*   - changed onSearch - happens when search input changes
 *
 ************************************************************************/
 
@@ -622,13 +624,13 @@
                     }, 1);
                 }
 
-                // celan
+                // clean
                 div.find('.w2ui-enum-placeholder').remove();
                 ul.find('li').not('li.nomouse').remove();
                 // add new list
                 if (html != '') {
                     ul.prepend(html);
-                } else if ($(obj.el).attr('placeholder') != null) {
+                } else if ($(obj.el).attr('placeholder') != null && div.find('input').val() == '') {
                     var style =
                         'padding-top: ' + $(this.el).css('padding-top') + ';'+
                         'padding-left: ' + $(this.el).css('padding-left') + '; ' +
@@ -648,31 +650,31 @@
                     .find('li')
                     .data('mouse', 'out')
                     .on('click', function (event) {
-                        console.log('click');
-                        var item = selected[$(event.target).attr('index')];
-                        if ($(event.target).hasClass('nomouse')) return;
+                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        var item   = selected[$(target).attr('index')];
+                        if ($(target).hasClass('nomouse')) return;
                         event.stopPropagation();
                         // trigger event
                         var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
                         if (eventData.isCancelled === true) return;
                         // default behavior
-                        if ($(event.target).hasClass('w2ui-list-remove')) {
+                        if ($(target).hasClass('w2ui-list-remove')) {
                             if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
                             // default behavior
                             $().w2overlay();
-                            selected.splice($(event.target).attr('index'), 1);
+                            selected.splice($(target).attr('index'), 1);
                             $(obj.el).trigger('change');
-                            $(event.target).parent().fadeOut('fast');
+                            $(target).parent().fadeOut('fast');
                             setTimeout(function () {
                                 obj.refresh();
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             }, 300);
                         }
-                        if (obj.type == 'file' && !$(event.target).hasClass('w2ui-list-remove')) {
+                        if (obj.type == 'file' && !$(target).hasClass('w2ui-list-remove')) {
                             var preview = '';
                             if ((/image/i).test(item.type)) { // image
                                 preview = '<div style="padding: 3px;">'+
@@ -698,34 +700,32 @@
                                 '    </table>'+
                                 '</div>';
                             $('#w2ui-overlay').remove();
-                            $(event.target).w2overlay(preview);
+                            $(target).w2overlay(preview);
                         }
                         // event after
                         obj.trigger($.extend(eventData, { phase: 'after' }));
                     })
                     .on('mouseover', function (event) {
-                        var tmp = event.target;
-                        if (tmp.tagName != 'LI') tmp = tmp.parentNode;
-                        if ($(tmp).hasClass('nomouse')) return;
-                        if ($(tmp).data('mouse') == 'out') {
-                            var item = selected[$(tmp).attr('index')];
+                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        if ($(target).hasClass('nomouse')) return;
+                        if ($(target).data('mouse') == 'out') {
+                            var item = selected[$(target).attr('index')];
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
                             // event after
                             obj.trigger($.extend(eventData, { phase: 'after' }));
                         }
-                        $(tmp).data('mouse', 'over');
+                        $(target).data('mouse', 'over');
                     })
                     .on('mouseout', function (event) {
-                        var tmp = event.target;
-                        if (tmp.tagName != 'LI') tmp = tmp.parentNode;
-                        if ($(tmp).hasClass('nomouse')) return;
-                        $(tmp).data('mouse', 'leaving');
+                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        if ($(target).hasClass('nomouse')) return;
+                        $(target).data('mouse', 'leaving');
                         setTimeout(function () {
-                            if ($(tmp).data('mouse') == 'leaving') {
-                                $(tmp).data('mouse', 'out');
-                                var item = selected[$(tmp).attr('index')];
+                            if ($(target).data('mouse') == 'leaving') {
+                                $(target).data('mouse', 'out');
+                                var item = selected[$(target).attr('index')];
                                 // trigger event
                                 var eventData = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
@@ -1171,11 +1171,19 @@
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
                 if ($(obj.el).attr('readonly')) return;
                 var selected  = $(obj.el).data('selected');
-                var focus     = $(obj.helpers.focus).find('input');
+                var focus     = $(obj.el);
                 var indexOnly = false;
-                // arrows
-                if (obj.type == 'list') {
-                    if ([37, 38, 39, 40].indexOf(key) == -1) obj.refresh(); 
+                if (['list', 'enum'].indexOf(obj.type) != -1) {
+                    if (obj.type == 'list') {
+                        focus = $(obj.helpers.focus).find('input');
+                    }
+                    if (obj.type == 'enum') {
+                        focus = $(obj.helpers.multi).find('input');
+                    }
+                    // not arrows - refresh
+                    if ([37, 38, 39, 40].indexOf(key) == -1) {
+                        setTimeout(function () { obj.refresh(); }, 1);
+                    }
                     // paste
                     if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
                         setTimeout(function () { 
@@ -1184,12 +1192,13 @@
                             obj.request();
                         }, 50);
                     }
+
                 }
                 // apply arrows
                 switch (key) {
                     case 27: // escape
                         if (obj.type == 'list') {
-                            if ($(focus).val() != '') $(focus).val('');
+                            if (focus.val() != '') focus.val('');
                             event.stopPropagation(); // escape in field should not close popup
                         }
                         break;
@@ -1200,7 +1209,6 @@
                     case 13: // enter
                         if ($('#w2ui-overlay').length == 0) break; // no action if overlay not open
                         var item  = options.items[options.index];
-                        var multi = $(obj.helpers.multi).find('input');
                         if (obj.type == 'enum') {
                             if (item != null) {
                                 // trigger event
@@ -1213,13 +1221,13 @@
                                 delete obj.tmp.force_open;
                                 selected.push(item);
                                 $(obj.el).change();
-                                multi.val('').width(20);
+                                focus.val('').width(20);
                                 obj.refresh();
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             } else {
                                 // trigger event
-                                item = { id: multi.val(), text: multi.val() };
+                                item = { id: focus.val(), text: focus.val() };
                                 var eventData = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
                                 item = eventData.item; // need to reassign because it could be recreated by user
@@ -1229,7 +1237,7 @@
                                     delete obj.tmp.force_open;
                                     selected.push(item);
                                     $(obj.el).change();
-                                    multi.val('').width(20);
+                                    focus.val('').width(20);
                                     obj.refresh();
                                 }
                                 // event after
@@ -1249,7 +1257,7 @@
                     case 8:  // backspace
                     case 46: // delete
                         if (obj.type == 'enum' && key == 8) {
-                            if ($(obj.helpers.multi).find('input').val() == '' && selected.length > 0) {
+                            if (focus.val() == '' && selected.length > 0) {
                                 var item = selected[selected.length - 1];
                                 // trigger event
                                 var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -1262,7 +1270,7 @@
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             }
                         }
-                        if (obj.type == 'list' && $(focus).val() == '') {
+                        if (obj.type == 'list' && focus.val() == '') {
                             $(obj.el).data('selected', {}).change();
                             obj.refresh();
                         }
@@ -1284,9 +1292,7 @@
                             while (options.items[options.index] && options.items[options.index].hidden) options.index--;
                         }
                         // show overlay if not shown
-                        var input = obj.el;
-                        if (['enum'].indexOf(obj.type) != -1) input = obj.helpers.multi.find('input');
-                        if ($(input).val() == '' && $('#w2ui-overlay').length == 0) {
+                        if (focus.val() == '' && $('#w2ui-overlay').length == 0) {
                             obj.tmp.force_open = true;
                         } else {
                             indexOnly = true;
@@ -1302,10 +1308,10 @@
                     setTimeout(function () {
                         // set cursor to the end
                         if (obj.type == 'enum') {
-                            var tmp = obj.helpers.multi.find('input').get(0);
+                            var tmp = focus.get(0);
                             tmp.setSelectionRange(tmp.value.length, tmp.value.length);
                         } else if (obj.type == 'list') {
-                            var tmp = obj.helpers.focus.find('input').get(0);
+                            var tmp = focus.get(0);
                             tmp.setSelectionRange(tmp.value.length, tmp.value.length);
                         } else {
                             obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
@@ -1315,15 +1321,20 @@
                 }
                 // expand input
                 if (obj.type == 'enum') {
-                    var input  = obj.helpers.multi.find('input');
-                    var search = input.val();
-                    input.width(((search.length + 2) * 8) + 'px');
+                    focus.width(((focus.val().length + 2) * 8) + 'px');
                 }
                 // run search
                 if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                    // run search
                     setTimeout(function () {
+                        // trigger event
+                        var eventData = obj.trigger({ phase: 'before', type: 'search', target: focus, search: focus.val() });
+                        if (eventData.isCancelled === true) return;
+                        // default action                        
                         if (!obj.tmp.force_hide) obj.request();
                         obj.search();
+                        // event after
+                        obj.trigger($.extend(eventData, { phase: 'after' }));                        
                     }, 1);
                 }
             }
@@ -1344,7 +1355,6 @@
             this.tmp.xhr_loading = false;
             this.tmp.xhr_search  = '';
             this.tmp.xhr_total   = -1;
-            this.search();
         },
 
         request: function (interval) {
@@ -1395,7 +1405,6 @@
                     if (eventData.isCancelled === true) return;
                     url      = eventData.url;
                     postData = eventData.postData;
-                    // console.log('REMOTE SEARCH:', search);
                     var ajaxOptions = {
                         type     : 'GET',
                         url      : url,
@@ -1429,7 +1438,6 @@
                             options.items       = obj.normMenu(data.items);
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
-                            // console.log('-->', 'retrieved:', obj.tmp.xhr_total);
                             // event after
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                         })
@@ -1449,6 +1457,7 @@
                             }
                             // reset stats
                             obj.clearCache();
+                            obj.search();
                             // event after
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                         });
@@ -1459,12 +1468,12 @@
         },
 
         search: function () {
-            var obj     = this;
-            var options = this.options;
-            var search  = $(obj.el).val();
-            var target  = obj.el;
-            var ids     = [];
-            var selected= $(obj.el).data('selected');
+            var obj      = this;
+            var options  = this.options;
+            var search   = $(obj.el).val();
+            var target   = obj.el;
+            var ids      = [];
+            var selected = $(obj.el).data('selected');
             if (obj.type == 'enum') {
                 target = $(obj.helpers.multi).find('input');
                 search = target.val();
@@ -1475,9 +1484,6 @@
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
-            // trigger event
-            var eventData = obj.trigger({ phase: 'before', type: 'search', target: target, search: search });
-            if (eventData.isCancelled === true) return;
             if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
@@ -1515,8 +1521,6 @@
                 options.spinner = true;
                 obj.updateOverlay();
             }
-            // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         updateOverlay: function (indexOnly) {
@@ -2223,7 +2227,7 @@
                     })
                     .on('keyup',    function (event) { obj.keyUp(event); })
                     .on('keydown',  function (event) { obj.keyDown(event); })
-                    .on('keypress', function (event) { div.find('.w2ui-enum-placeholder').remove(); obj.keyPress(event); });
+                    .on('keypress', function (event) { obj.keyPress(event); });
                 // MAIN div
                 div.on('click', function (event) { $(this).find('input').focus(); });
             }
