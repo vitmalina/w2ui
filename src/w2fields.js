@@ -16,6 +16,7 @@
 *   - rewrite suffix and prefix positioning with translateY()
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
+*   - for type: list -> read value from attr('value')
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
@@ -26,6 +27,7 @@
 *   - added get(), set(), setIndex() for fields
 *   - add compare function for list, combo, enum
 *   - added selection for the current date in the calendar
+*   - added for enum options.onScroll
 *
 ************************************************************************/
 
@@ -48,6 +50,7 @@
         this.onMouseOver = options.onMouseOver || null;
         this.onMouseOut  = options.onMouseOut  || null;
         this.onIconClick = options.onIconClick || null;
+        this.onScroll    = options.onScroll || null;
         this.tmp         = {}; // temp object
         // clean up some options
         delete this.options.type;
@@ -59,6 +62,7 @@
         delete this.options.onMouseOver;
         delete this.options.onMouseOut;
         delete this.options.onIconClick;
+        delete this.options.onScroll;
         // extend with defaults
         $.extend(true, this, w2obj.field);
     };
@@ -359,6 +363,7 @@
                         onRemove        : null,          // when an item is removed
                         onMouseOver     : null,          // when an item is mouse over
                         onMouseOut      : null,          // when an item is mouse out
+                        onScroll        : null,          // when div with selected items is scrolled
                         method          : null           // if defined, overrides default ajax method
                     };
                     options = $.extend({}, defaults, options, {
@@ -595,15 +600,28 @@
                 var div = obj.helpers.multi;
                 var ul  = div.find('ul');
                 div.attr('style', div.attr('style') + ';' + options.style);
+                $(obj.el).css('z-index', '-1');
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
-                    div.addClass('w2ui-readonly');
-                    div.css('pointer-events', 'none').find('li').css('opacity', '0.6');
-                    $(obj.helpers.multi).find('input').prop('readonly', true);
+                    setTimeout(function () {
+                        div[0].scrollTop = 0; // scroll to the top 
+                        div.addClass('w2ui-readonly')
+                            .find('li').css('opacity', '0.9')
+                            .parent().find('li.nomouse').hide()
+                            .find('input').prop('readonly', true)
+                            .parents('ul')
+                            .find('.w2ui-list-remove').hide();
+                    }, 1);
                 } else {
-                    div.removeClass('w2ui-readonly');
-                    div.css('pointer-events', 'auto').find('li').css('opacity', '1');
-                    $(obj.helpers.multi).find('input').prop('readonly', false);
+                    setTimeout(function () {
+                        div.removeClass('w2ui-readonly')
+                            .find('li').css('opacity', '1')
+                            .parent().find('li.nomouse').show()
+                            .find('input').prop('readonly', false)
+                            .parents('ul')
+                            .find('.w2ui-list-remove').show();
+                    }, 1);
                 }
+
                 // celan
                 div.find('.w2ui-enum-placeholder').remove();
                 ul.find('li').not('li.nomouse').remove();
@@ -621,9 +639,16 @@
                     div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ $(obj.el).attr('placeholder') +'</div>');
                 }
                 // ITEMS events
-                div.find('li')
+                div.off('scroll.w2field').on('scroll.w2field', function (event) {
+                        var eventData = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event });
+                        if (eventData.isCancelled === true) return;
+                        // event after
+                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                    })
+                    .find('li')
                     .data('mouse', 'out')
                     .on('click', function (event) {
+                        console.log('click');
                         var item = selected[$(event.target).attr('index')];
                         if ($(event.target).hasClass('nomouse')) return;
                         event.stopPropagation();
@@ -1148,8 +1173,17 @@
                 var selected  = $(obj.el).data('selected');
                 var focus     = $(obj.helpers.focus).find('input');
                 var indexOnly = false;
+                // arrows
                 if (obj.type == 'list') {
-                    if ([37, 38, 39, 40].indexOf(key) == -1) obj.refresh(); // arrows
+                    if ([37, 38, 39, 40].indexOf(key) == -1) obj.refresh(); 
+                    // paste
+                    if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
+                        setTimeout(function () { 
+                            obj.refresh();
+                            obj.search();
+                            obj.request();
+                        }, 50);
+                    }
                 }
                 // apply arrows
                 switch (key) {
@@ -1296,8 +1330,11 @@
         },
 
         keyUp: function (event) {
+            var obj = this;
             if (this.type == 'color') {
-                if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) $(this).prop('maxlength', 6);
+                if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
+                    $(this).prop('maxlength', 6);
+                }
             }
         },
 
