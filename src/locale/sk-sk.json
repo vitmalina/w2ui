@@ -44,6 +44,8 @@
         "Search..." : "Vyhľadávanie...",
         "Open Search Fields" : "Otvoriť vyhľadávacie polia",
         "is" : "je",
+        "before" : "pred",
+        "after" : "po",
         "begins with" : "začína s",
         "begins" : "začína na",
         "contains" : "obsahuje",
