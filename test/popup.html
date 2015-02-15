@@ -156,11 +156,11 @@ $(function () {
                 This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
                 <br>
                 <input id="date" type="text"/>
-            </div>
+           </div>
         </div>
         <div rel="buttons">
             <button class="w2ui-btn" onclick="$('#popup2').w2popup({ transition: 'slide-left', showMax: false })" style="width: 150px">Switch to Popup 2</button>
-            <button class="w2ui-btn" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div><div style=\'position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\'><button class=\'btn\' onclick=\'w2popup.message();\'>Close</button></div>' })">Message</button>
+            <button class="w2ui-btn" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div><div style=\'position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\'><button class=\'w2ui-btn\' onclick=\'w2popup.message();\'>Close</button></div>' })">Message</button>
         </div>
     </div>
 

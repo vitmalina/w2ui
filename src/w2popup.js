@@ -21,6 +21,7 @@
 *   - added options.body and options.buttons for w2popup.message
 *   - .message() should have same props (body, buttons, title?)
 *   - template improvements (if template already in DOM, it will move it under popup, not recreate)
+*   - added focus()
 *
 ************************************************************************/
 
@@ -184,6 +185,7 @@ var w2popup = {};
                         '       </div>'+
                         '   </div>'+
                         '   <div class="w2ui-msg-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
+                        '   <input class="w2ui-popup-hidden" style="position: absolute; top: -100px">'+ // this is needed to keep focus in popup
                         '</div>';
                 $('body').append(msg);
                 if (options.title) $('#w2ui-popup .w2ui-msg-title').append(options.title);
@@ -198,6 +200,7 @@ var w2popup = {};
                             'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
                             'transform' : 'scale(1)'
                         }));
+                        obj.focus();
                 }, 1);
                 // clean transform
                 setTimeout(function () {
@@ -264,6 +267,8 @@ var w2popup = {};
                     if ($body.length == 1) $body[0].style.cssText = options.style;
                     // remove max state
                     $('#w2ui-popup').data('prev-size', null);
+                    // focus on first button
+                    obj.focus();
                     // call event onChange
                     w2popup.status = 'open';
                     obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -507,6 +512,7 @@ var w2popup = {};
         },
 
         message: function (options) {
+            var obj = this;
             $().w2tag(); // hide all tags
             if (!options) options = { width: 200, height: 100 };
             var pWidth   = parseInt($('#w2ui-popup').width());
@@ -545,6 +551,7 @@ var w2popup = {};
                 }
                 setTimeout(function () {
                     $msg.remove();
+                    obj.focus();
                     if (typeof options.onClose == 'function') options.onClose();
                 }, 150);
             } else {
@@ -580,12 +587,41 @@ var w2popup = {};
                     // timer for lock
                     if (msgCount == 0) w2popup.lock();
                     setTimeout(function() {
+                        obj.focus();
                         // has to be on top of lock
                         $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
                         if (typeof options.onOpen == 'function') options.onOpen();
                     }, 350);
                 }
             }
+        },
+
+        focus: function () {
+            var tmp = null;
+            var pop = $('#w2ui-popup');
+            var sel = 'input:visible, button:visible, select:visible';
+            // clear previous blur
+            $(pop).find(sel).off('.keep-focus');
+            // in messar or popup
+            var cnt = $('#w2ui-popup .w2ui-popup-message').length - 1;
+            var msg = $('#w2ui-popup #w2ui-message' + cnt);
+            if (msg.length > 0) {
+                $(msg[msg.length - 1]).find('button').get(0).focus();
+                tmp = msg;
+            } else if (pop.length > 0) {
+                pop.find('.w2ui-msg-buttons button').get(0).focus();
+                tmp = pop;
+            }
+            // keep focus/blur inside popup
+            $(tmp).find(sel)
+                .on('blur.keep-focus', function (event) {
+                    setTimeout(function () {
+                        var focus = $(pop).find(':focus');
+                        if (focus.length == 0 || focus.hasClass('w2ui-popup-hidden') || $(tmp).find(sel).index(focus) == -1) {
+                            $(tmp).find(sel)[0].focus();
+                        }
+                    }, 1);
+                });
         },
 
         lock: function (msg, showSpinner) {
@@ -859,12 +895,16 @@ var w2confirm = function (msg, title, callBack) {
             buttons : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
                       '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
             onOpen: function () {
-                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click', function (event) {
+                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click.w2confirm', function (event) {
                     w2popup.message();
                     if (typeof options.callBack == 'function') options.callBack(event.target.id);
                     if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
                     if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                 });
+            },
+            onClose: function () {
+                // needed this because there might be other messages
+                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').off('click.w2confirm');   
             }
             // onKeydown will not work here
         });
