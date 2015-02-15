@@ -8980,6 +8980,7 @@ w2utils.keyboard = (function (obj) {
 *   - added options.body and options.buttons for w2popup.message
 *   - .message() should have same props (body, buttons, title?)
 *   - template improvements (if template already in DOM, it will move it under popup, not recreate)
+*   - added focus()
 *
 ************************************************************************/
 
@@ -9143,6 +9144,7 @@ var w2popup = {};
                         '       </div>'+
                         '   </div>'+
                         '   <div class="w2ui-msg-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
+                        '   <input class="w2ui-popup-hidden" style="position: absolute; top: -100px">'+ // this is needed to keep focus in popup
                         '</div>';
                 $('body').append(msg);
                 if (options.title) $('#w2ui-popup .w2ui-msg-title').append(options.title);
@@ -9157,6 +9159,7 @@ var w2popup = {};
                             'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
                             'transform' : 'scale(1)'
                         }));
+                        obj.focus();
                 }, 1);
                 // clean transform
                 setTimeout(function () {
@@ -9223,6 +9226,8 @@ var w2popup = {};
                     if ($body.length == 1) $body[0].style.cssText = options.style;
                     // remove max state
                     $('#w2ui-popup').data('prev-size', null);
+                    // focus on first button
+                    obj.focus();
                     // call event onChange
                     w2popup.status = 'open';
                     obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -9466,6 +9471,7 @@ var w2popup = {};
         },
 
         message: function (options) {
+            var obj = this;
             $().w2tag(); // hide all tags
             if (!options) options = { width: 200, height: 100 };
             var pWidth   = parseInt($('#w2ui-popup').width());
@@ -9504,6 +9510,7 @@ var w2popup = {};
                 }
                 setTimeout(function () {
                     $msg.remove();
+                    obj.focus();
                     if (typeof options.onClose == 'function') options.onClose();
                 }, 150);
             } else {
@@ -9539,12 +9546,41 @@ var w2popup = {};
                     // timer for lock
                     if (msgCount == 0) w2popup.lock();
                     setTimeout(function() {
+                        obj.focus();
                         // has to be on top of lock
                         $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
                         if (typeof options.onOpen == 'function') options.onOpen();
                     }, 350);
                 }
             }
+        },
+
+        focus: function () {
+            var tmp = null;
+            var pop = $('#w2ui-popup');
+            var sel = 'input:visible, button:visible, select:visible';
+            // clear previous blur
+            $(pop).find(sel).off('.keep-focus');
+            // in messar or popup
+            var cnt = $('#w2ui-popup .w2ui-popup-message').length - 1;
+            var msg = $('#w2ui-popup #w2ui-message' + cnt);
+            if (msg.length > 0) {
+                $(msg[msg.length - 1]).find('button').get(0).focus();
+                tmp = msg;
+            } else if (pop.length > 0) {
+                pop.find('.w2ui-msg-buttons button').get(0).focus();
+                tmp = pop;
+            }
+            // keep focus/blur inside popup
+            $(tmp).find(sel)
+                .on('blur.keep-focus', function (event) {
+                    setTimeout(function () {
+                        var focus = $(pop).find(':focus');
+                        if (focus.length == 0 || focus.hasClass('w2ui-popup-hidden') || $(tmp).find(sel).index(focus) == -1) {
+                            $(tmp).find(sel)[0].focus();
+                        }
+                    }, 1);
+                });
         },
 
         lock: function (msg, showSpinner) {
@@ -9818,12 +9854,16 @@ var w2confirm = function (msg, title, callBack) {
             buttons : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
                       '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
             onOpen: function () {
-                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click', function (event) {
+                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click.w2confirm', function (event) {
                     w2popup.message();
                     if (typeof options.callBack == 'function') options.callBack(event.target.id);
                     if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
                     if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                 });
+            },
+            onClose: function () {
+                // needed this because there might be other messages
+                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').off('click.w2confirm');   
             }
             // onKeydown will not work here
         });
@@ -11880,6 +11920,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - rewrite suffix and prefix positioning with translateY()
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
+*   - for type: list -> read value from attr('value')
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
@@ -11890,6 +11931,9 @@ var w2confirm = function (msg, title, callBack) {
 *   - added get(), set(), setIndex() for fields
 *   - add compare function for list, combo, enum
 *   - added selection for the current date in the calendar
+*   - added for enum options.onScroll
+*   - modified clearCache()
+*   - changed onSearch - happens when search input changes
 *
 ************************************************************************/
 
@@ -11912,6 +11956,7 @@ var w2confirm = function (msg, title, callBack) {
         this.onMouseOver = options.onMouseOver || null;
         this.onMouseOut  = options.onMouseOut  || null;
         this.onIconClick = options.onIconClick || null;
+        this.onScroll    = options.onScroll || null;
         this.tmp         = {}; // temp object
         // clean up some options
         delete this.options.type;
@@ -11923,6 +11968,7 @@ var w2confirm = function (msg, title, callBack) {
         delete this.options.onMouseOver;
         delete this.options.onMouseOut;
         delete this.options.onIconClick;
+        delete this.options.onScroll;
         // extend with defaults
         $.extend(true, this, w2obj.field);
     };
@@ -12223,6 +12269,7 @@ var w2confirm = function (msg, title, callBack) {
                         onRemove        : null,          // when an item is removed
                         onMouseOver     : null,          // when an item is mouse over
                         onMouseOut      : null,          // when an item is mouse out
+                        onScroll        : null,          // when div with selected items is scrolled
                         method          : null           // if defined, overrides default ajax method
                     };
                     options = $.extend({}, defaults, options, {
@@ -12459,22 +12506,35 @@ var w2confirm = function (msg, title, callBack) {
                 var div = obj.helpers.multi;
                 var ul  = div.find('ul');
                 div.attr('style', div.attr('style') + ';' + options.style);
+                $(obj.el).css('z-index', '-1');
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
-                    div.addClass('w2ui-readonly');
-                    div.css('pointer-events', 'none').find('li').css('opacity', '0.6');
-                    $(obj.helpers.multi).find('input').prop('readonly', true);
+                    setTimeout(function () {
+                        div[0].scrollTop = 0; // scroll to the top 
+                        div.addClass('w2ui-readonly')
+                            .find('li').css('opacity', '0.9')
+                            .parent().find('li.nomouse').hide()
+                            .find('input').prop('readonly', true)
+                            .parents('ul')
+                            .find('.w2ui-list-remove').hide();
+                    }, 1);
                 } else {
-                    div.removeClass('w2ui-readonly');
-                    div.css('pointer-events', 'auto').find('li').css('opacity', '1');
-                    $(obj.helpers.multi).find('input').prop('readonly', false);
+                    setTimeout(function () {
+                        div.removeClass('w2ui-readonly')
+                            .find('li').css('opacity', '1')
+                            .parent().find('li.nomouse').show()
+                            .find('input').prop('readonly', false)
+                            .parents('ul')
+                            .find('.w2ui-list-remove').show();
+                    }, 1);
                 }
-                // celan
+
+                // clean
                 div.find('.w2ui-enum-placeholder').remove();
                 ul.find('li').not('li.nomouse').remove();
                 // add new list
                 if (html != '') {
                     ul.prepend(html);
-                } else if ($(obj.el).attr('placeholder') != null) {
+                } else if ($(obj.el).attr('placeholder') != null && div.find('input').val() == '') {
                     var style =
                         'padding-top: ' + $(this.el).css('padding-top') + ';'+
                         'padding-left: ' + $(this.el).css('padding-left') + '; ' +
@@ -12485,7 +12545,13 @@ var w2confirm = function (msg, title, callBack) {
                     div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ $(obj.el).attr('placeholder') +'</div>');
                 }
                 // ITEMS events
-                div.find('li')
+                div.off('scroll.w2field').on('scroll.w2field', function (event) {
+                        var eventData = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event });
+                        if (eventData.isCancelled === true) return;
+                        // event after
+                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                    })
+                    .find('li')
                     .data('mouse', 'out')
                     .on('click', function (event) {
                         var item = selected[$(event.target).attr('index')];
@@ -13010,16 +13076,34 @@ var w2confirm = function (msg, title, callBack) {
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
                 if ($(obj.el).attr('readonly')) return;
                 var selected  = $(obj.el).data('selected');
-                var focus     = $(obj.helpers.focus).find('input');
+                var focus     = $(obj.el);
                 var indexOnly = false;
-                if (obj.type == 'list') {
-                    if ([37, 38, 39, 40].indexOf(key) == -1) obj.refresh(); // arrows
+                if (['list', 'enum'].indexOf(obj.type) != -1) {
+                    if (obj.type == 'list') {
+                        focus = $(obj.helpers.focus).find('input');
+                    }
+                    if (obj.type == 'enum') {
+                        focus = $(obj.helpers.multi).find('input');
+                    }
+                    // not arrows - refresh
+                    if ([37, 38, 39, 40].indexOf(key) == -1) {
+                        setTimeout(function () { obj.refresh(); }, 1);
+                    }
+                    // paste
+                    if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
+                        setTimeout(function () { 
+                            obj.refresh();
+                            obj.search();
+                            obj.request();
+                        }, 50);
+                    }
+
                 }
                 // apply arrows
                 switch (key) {
                     case 27: // escape
                         if (obj.type == 'list') {
-                            if ($(focus).val() != '') $(focus).val('');
+                            if (focus.val() != '') focus.val('');
                             event.stopPropagation(); // escape in field should not close popup
                         }
                         break;
@@ -13030,7 +13114,6 @@ var w2confirm = function (msg, title, callBack) {
                     case 13: // enter
                         if ($('#w2ui-overlay').length == 0) break; // no action if overlay not open
                         var item  = options.items[options.index];
-                        var multi = $(obj.helpers.multi).find('input');
                         if (obj.type == 'enum') {
                             if (item != null) {
                                 // trigger event
@@ -13043,13 +13126,13 @@ var w2confirm = function (msg, title, callBack) {
                                 delete obj.tmp.force_open;
                                 selected.push(item);
                                 $(obj.el).change();
-                                multi.val('').width(20);
+                                focus.val('').width(20);
                                 obj.refresh();
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             } else {
                                 // trigger event
-                                item = { id: multi.val(), text: multi.val() };
+                                item = { id: focus.val(), text: focus.val() };
                                 var eventData = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
                                 item = eventData.item; // need to reassign because it could be recreated by user
@@ -13059,7 +13142,7 @@ var w2confirm = function (msg, title, callBack) {
                                     delete obj.tmp.force_open;
                                     selected.push(item);
                                     $(obj.el).change();
-                                    multi.val('').width(20);
+                                    focus.val('').width(20);
                                     obj.refresh();
                                 }
                                 // event after
@@ -13079,7 +13162,7 @@ var w2confirm = function (msg, title, callBack) {
                     case 8:  // backspace
                     case 46: // delete
                         if (obj.type == 'enum' && key == 8) {
-                            if ($(obj.helpers.multi).find('input').val() == '' && selected.length > 0) {
+                            if (focus.val() == '' && selected.length > 0) {
                                 var item = selected[selected.length - 1];
                                 // trigger event
                                 var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -13092,7 +13175,7 @@ var w2confirm = function (msg, title, callBack) {
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             }
                         }
-                        if (obj.type == 'list' && $(focus).val() == '') {
+                        if (obj.type == 'list' && focus.val() == '') {
                             $(obj.el).data('selected', {}).change();
                             obj.refresh();
                         }
@@ -13114,9 +13197,7 @@ var w2confirm = function (msg, title, callBack) {
                             while (options.items[options.index] && options.items[options.index].hidden) options.index--;
                         }
                         // show overlay if not shown
-                        var input = obj.el;
-                        if (['enum'].indexOf(obj.type) != -1) input = obj.helpers.multi.find('input');
-                        if ($(input).val() == '' && $('#w2ui-overlay').length == 0) {
+                        if (focus.val() == '' && $('#w2ui-overlay').length == 0) {
                             obj.tmp.force_open = true;
                         } else {
                             indexOnly = true;
@@ -13132,10 +13213,10 @@ var w2confirm = function (msg, title, callBack) {
                     setTimeout(function () {
                         // set cursor to the end
                         if (obj.type == 'enum') {
-                            var tmp = obj.helpers.multi.find('input').get(0);
+                            var tmp = focus.get(0);
                             tmp.setSelectionRange(tmp.value.length, tmp.value.length);
                         } else if (obj.type == 'list') {
-                            var tmp = obj.helpers.focus.find('input').get(0);
+                            var tmp = focus.get(0);
                             tmp.setSelectionRange(tmp.value.length, tmp.value.length);
                         } else {
                             obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
@@ -13145,23 +13226,31 @@ var w2confirm = function (msg, title, callBack) {
                 }
                 // expand input
                 if (obj.type == 'enum') {
-                    var input  = obj.helpers.multi.find('input');
-                    var search = input.val();
-                    input.width(((search.length + 2) * 8) + 'px');
+                    focus.width(((focus.val().length + 2) * 8) + 'px');
                 }
                 // run search
                 if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                    // run search
                     setTimeout(function () {
+                        // trigger event
+                        var eventData = obj.trigger({ phase: 'before', type: 'search', target: focus, search: focus.val() });
+                        if (eventData.isCancelled === true) return;
+                        // default action                        
                         if (!obj.tmp.force_hide) obj.request();
                         obj.search();
+                        // event after
+                        obj.trigger($.extend(eventData, { phase: 'after' }));                        
                     }, 1);
                 }
             }
         },
 
         keyUp: function (event) {
+            var obj = this;
             if (this.type == 'color') {
-                if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) $(this).prop('maxlength', 6);
+                if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
+                    $(this).prop('maxlength', 6);
+                }
             }
         },
 
@@ -13171,7 +13260,6 @@ var w2confirm = function (msg, title, callBack) {
             this.tmp.xhr_loading = false;
             this.tmp.xhr_search  = '';
             this.tmp.xhr_total   = -1;
-            this.search();
         },
 
         request: function (interval) {
@@ -13222,7 +13310,6 @@ var w2confirm = function (msg, title, callBack) {
                     if (eventData.isCancelled === true) return;
                     url      = eventData.url;
                     postData = eventData.postData;
-                    // console.log('REMOTE SEARCH:', search);
                     var ajaxOptions = {
                         type     : 'GET',
                         url      : url,
@@ -13256,7 +13343,6 @@ var w2confirm = function (msg, title, callBack) {
                             options.items       = obj.normMenu(data.items);
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
-                            // console.log('-->', 'retrieved:', obj.tmp.xhr_total);
                             // event after
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                         })
@@ -13276,6 +13362,7 @@ var w2confirm = function (msg, title, callBack) {
                             }
                             // reset stats
                             obj.clearCache();
+                            obj.search();
                             // event after
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                         });
@@ -13286,12 +13373,12 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         search: function () {
-            var obj     = this;
-            var options = this.options;
-            var search  = $(obj.el).val();
-            var target  = obj.el;
-            var ids     = [];
-            var selected= $(obj.el).data('selected');
+            var obj      = this;
+            var options  = this.options;
+            var search   = $(obj.el).val();
+            var target   = obj.el;
+            var ids      = [];
+            var selected = $(obj.el).data('selected');
             if (obj.type == 'enum') {
                 target = $(obj.helpers.multi).find('input');
                 search = target.val();
@@ -13302,9 +13389,6 @@ var w2confirm = function (msg, title, callBack) {
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
-            // trigger event
-            var eventData = obj.trigger({ phase: 'before', type: 'search', target: target, search: search });
-            if (eventData.isCancelled === true) return;
             if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
@@ -13342,8 +13426,6 @@ var w2confirm = function (msg, title, callBack) {
                 options.spinner = true;
                 obj.updateOverlay();
             }
-            // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         updateOverlay: function (indexOnly) {
@@ -14050,7 +14132,7 @@ var w2confirm = function (msg, title, callBack) {
                     })
                     .on('keyup',    function (event) { obj.keyUp(event); })
                     .on('keydown',  function (event) { obj.keyDown(event); })
-                    .on('keypress', function (event) { div.find('.w2ui-enum-placeholder').remove(); obj.keyPress(event); });
+                    .on('keypress', function (event) { obj.keyPress(event); });
                 // MAIN div
                 div.on('click', function (event) { $(this).find('input').focus(); });
             }

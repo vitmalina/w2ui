@@ -518,10 +518,11 @@ input[type=checkbox].w2ui-toggle:focus {
   margin: -3px 8px -7px -10px;
 }
 button.w2ui-btn {
+  position: relative;
   display: inline-block;
   border-radius: 4px;
   margin: 0px 5px;
-  padding: 7px 12px 6px 12px !important;
+  padding: 6px 12px 6px 12px !important;
   color: #666;
   font-size: 12px !important;
   border: 1px solid #B6B6B6;
@@ -535,7 +536,7 @@ button.w2ui-btn {
   box-shadow: 0px 1px 0px white;
   cursor: default;
   min-width: 75px;
-  line-height: 100% !important;
+  line-height: 110% !important;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -571,6 +572,19 @@ button.w2ui-btn:disabled {
   color: #bdbcbc !important;
   text-shadow: none !important;
 }
+button.w2ui-btn:focus:before {
+  content: "";
+  border: 1px dashed #aaa;
+  border-radius: 3px;
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+}
+button.w2ui-btn::-moz-focus-inner {
+  border: 0;
+}
 button.w2ui-btn-blue {
   color: white;
   background-image: -webkit-linear-gradient(#80c0f7 0%, #269df0 100%);
@@ -580,7 +594,7 @@ button.w2ui-btn-blue {
   background-image: linear-gradient(#80c0f7 0%, #269df0 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff269df0', endColorstr='#ff80c0f7', GradientType=0);
   border: 1px solid #538AB7;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
 }
 button.w2ui-btn-blue:hover {
   color: white;
@@ -591,7 +605,7 @@ button.w2ui-btn-blue:hover {
   background-image: linear-gradient(#73b6f0 0%, #2391dd 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff2391dd', endColorstr='#ff73b6f0', GradientType=0);
   border: 1px solid #497BA3;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
 }
 button.w2ui-btn-blue:active,
 button.w2ui-btn-blue.clicked {
@@ -603,7 +617,10 @@ button.w2ui-btn-blue.clicked {
   background-image: linear-gradient(#1e83c9 0%, #1e83c9 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff1e83c9', endColorstr='#ff1e83c9', GradientType=0);
   border: 1px solid #1268A6;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
+}
+button.w2ui-btn-blue:focus:before {
+  border: 1px dashed #e8e8e8;
 }
 button.w2ui-btn-green {
   color: white;
@@ -614,7 +631,7 @@ button.w2ui-btn-green {
   background-image: linear-gradient(#81cf81 0%, #52a452 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff52a452', endColorstr='#ff81cf81', GradientType=0);
   border: 1px solid #479247;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
 }
 button.w2ui-btn-green:hover {
   color: white;
@@ -625,7 +642,7 @@ button.w2ui-btn-green:hover {
   background-image: linear-gradient(#6abe68 0%, #3f8f3d 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff3f8f3d', endColorstr='#ff6abe68', GradientType=0);
   border: 1px solid #479247;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
 }
 button.w2ui-btn-green:active,
 button.w2ui-btn-green.clicked {
@@ -637,7 +654,10 @@ button.w2ui-btn-green.clicked {
   background-image: linear-gradient(#377d36 0%, #377d36 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff377d36', endColorstr='#ff377d36', GradientType=0);
   border: 1px solid #555 !important;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
+}
+button.w2ui-btn-green:focus:before {
+  border: 1px dashed #e8e8e8;
 }
 button.w2ui-btn-orange {
   color: white;
@@ -648,7 +668,7 @@ button.w2ui-btn-orange {
   background-image: linear-gradient(#fcc272 0%, #fb8822 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#fffb8822', endColorstr='#fffcc272', GradientType=0);
   border: 1px solid #B68B4C;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
 }
 button.w2ui-btn-orange:hover {
   color: white;
@@ -659,7 +679,7 @@ button.w2ui-btn-orange:hover {
   background-image: linear-gradient(#f4ad59 0%, #f1731f 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#fff1731f', endColorstr='#fff4ad59', GradientType=0);
   border: 1px solid #B68B4C;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
 }
 button.w2ui-btn-orange:active,
 button.w2ui-btn-orange.clicked {
@@ -671,7 +691,10 @@ button.w2ui-btn-orange.clicked {
   background-image: -o-linear-gradient(#b98747 0%, #b98747 100%);
   background-image: linear-gradient(#b98747 0%, #b98747 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffb98747', endColorstr='#ffb98747', GradientType=0);
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
+}
+button.w2ui-btn-orange:focus:before {
+  border: 1px dashed #f9f9f9;
 }
 button.w2ui-btn-red {
   color: white;
@@ -682,7 +705,7 @@ button.w2ui-btn-red {
   background-image: linear-gradient(#ff6e70 0%, #c72d2d 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffc72d2d', endColorstr='#ffff6e70', GradientType=0);
   border: 1px solid #BB3C3E;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
 }
 button.w2ui-btn-red:hover {
   color: white;
@@ -693,7 +716,7 @@ button.w2ui-btn-red:hover {
   background-image: linear-gradient(#ee696c 0%, #ae2527 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffae2527', endColorstr='#ffee696c', GradientType=0);
   border: 1px solid #BB3C3E;
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
 }
 button.w2ui-btn-red:active,
 button.w2ui-btn-red.clicked {
@@ -705,7 +728,22 @@ button.w2ui-btn-red.clicked {
   background-image: -o-linear-gradient(#9c2123 0%, #9c2123 100%);
   background-image: linear-gradient(#9c2123 0%, #9c2123 100%);
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff9c2123', endColorstr='#ff9c2123', GradientType=0);
-  text-shadow: 1px 1px 1px #777777;
+  text-shadow: 0px 0px 1px #111111;
+}
+button.w2ui-btn-red:focus:before {
+  border: 1px dashed #ddd;
+}
+button.w2ui-btn-small {
+  padding: 5px !important;
+  margin: 0px;
+  min-width: 0px;
+}
+button.w2ui-btn-small:focus:before {
+  border-radius: 2px;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
 }
 /*************************************************
 * ---- Forms ----
