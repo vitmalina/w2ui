@@ -930,7 +930,7 @@ var w2confirm = function (msg, title, callBack) {
                         if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
                         if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                     });
-                    $('#w2ui-popup .w2ui-popup-btn#No').focus();
+                    $('#w2ui-popup .w2ui-popup-btn#Yes').focus();
                 }, 1);
             },
             onKeydown: function (event) {
