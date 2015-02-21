@@ -62,6 +62,8 @@
 *   - added getLineHTML
 *   - added lineNumberWidth
 *   - add searches.style
+*   - getColumn without params returns fields of all columns
+*   - getSearch without params returns fields of all searches
 *
 ************************************************************************/
 
@@ -443,6 +445,13 @@
         },
 
         getColumn: function (field, returnIndex) {
+            // no arguments - return fields of all columns
+            if (arguments.length == 0) {
+                var ret = [];
+                for (var i = 0; i < this.columns.length; i++) ret.push(this.columns[i].field);
+                return ret;
+            }
+            // find column
             for (var i = 0; i < this.columns.length; i++) {
                 if (this.columns[i].field == field) {
                     if (returnIndex === true) return i; else return this.columns[i];
@@ -528,6 +537,13 @@
         },
 
         getSearch: function (field, returnIndex) {
+            // no arguments - return fields of all searches
+            if (arguments.length == 0) {
+                var ret = [];
+                for (var i = 0; i < this.searches.length; i++) ret.push(this.searches[i].field);
+                return ret;
+            }
+            // find search
             for (var i = 0; i < this.searches.length; i++) {
                 if (this.searches[i].field == field) {
                     if (returnIndex === true) return i; else return this.searches[i];
