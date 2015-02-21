@@ -2373,6 +2373,10 @@
                     $(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
                 }
             }
+            // enable/disable toolbar search button
+            if (this.show.toolbarSave) {
+                if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save');
+            }
         },
 
         "delete": function (force) {
@@ -3618,6 +3622,10 @@
                 var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
                 if (str != '' && obj.markSearch) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
             }, 50);
+            // enable/disable toolbar search button
+            if (this.show.toolbarSave) {
+                if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save');
+            }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             obj.resize();
