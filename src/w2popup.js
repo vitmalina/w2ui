@@ -606,10 +606,12 @@ var w2popup = {};
             var cnt = $('#w2ui-popup .w2ui-popup-message').length - 1;
             var msg = $('#w2ui-popup #w2ui-message' + cnt);
             if (msg.length > 0) {
-                $(msg[msg.length - 1]).find('button').get(0).focus();
+                var btn =$(msg[msg.length - 1]).find('button')
+                if (btn.length > 0) btn[0].focus();
                 tmp = msg;
             } else if (pop.length > 0) {
-                pop.find('.w2ui-msg-buttons button').get(0).focus();
+                var btn = pop.find('.w2ui-msg-buttons button');
+                if (btn.length > 0) btn[0].focus();
                 tmp = pop;
             }
             // keep focus/blur inside popup
