@@ -745,6 +745,11 @@
                 $(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden') });
                 if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0);
                 $(this.el).css({ 'height' : (cntHeight + 2) + 'px' });
+                // update size
+                if (obj.type == 'enum') {
+                    var tmp = obj.helpers.multi.find('input');
+                    tmp.width(((tmp.val().length + 2) * 8) + 'px');
+                }
             }
             return (new Date()).getTime() - time;
         },
@@ -1192,7 +1197,6 @@
                             obj.request();
                         }, 50);
                     }
-
                 }
                 // apply arrows
                 switch (key) {
@@ -1328,7 +1332,7 @@
                     // run search
                     setTimeout(function () {
                         // trigger event
-                        var eventData = obj.trigger({ phase: 'before', type: 'search', target: focus, search: focus.val() });
+                        var eventData = obj.trigger({ phase: 'before', type: 'search', originalEvent: event, target: focus, search: focus.val() });
                         if (eventData.isCancelled === true) return;
                         // default action                        
                         if (!obj.tmp.force_hide) obj.request();
