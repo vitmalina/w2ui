@@ -442,6 +442,11 @@
                 ajaxOptions.type = 'GET';
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
+            if (w2utils.settings.dataType == 'RESTFULLJSON') {
+                ajaxOptions.type = 'GET';
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                ajaxOptions.contentType = 'application/json';
+            }
             if (w2utils.settings.dataType == 'JSON') {
                 ajaxOptions.type        = 'POST';
                 ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
@@ -598,6 +603,11 @@
                 if (w2utils.settings.dataType == 'RESTFULL') {
                     if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                }
+                if (w2utils.settings.dataType == 'RESTFULLJSON') {
+                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
                 }
                 if (w2utils.settings.dataType == 'JSON') {
                     ajaxOptions.type        = 'POST';
