@@ -4964,6 +4964,7 @@ w2utils.keyboard = (function (obj) {
             if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                 $(this.box)
                     .removeAttr('name')
+                    .off('selectstart')
                     .removeClass('w2ui-reset w2ui-grid')
                     .html('');
             }
@@ -7414,6 +7415,7 @@ w2utils.keyboard = (function (obj) {
                             $(pname +'> .w2ui-panel-content')
                                 .removeClass()
                                 .removeAttr('name')
+                                .off('selectstart') // needed if previous was grid
                                 .addClass('w2ui-panel-content')
                                 .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
                         }
@@ -7425,6 +7427,7 @@ w2utils.keyboard = (function (obj) {
                         $(pname +'> .w2ui-panel-content')
                             .removeClass()
                             .removeAttr('name')
+                            .off('selectstart') // needed if previous was grid
                             .addClass('w2ui-panel-content')
                             .html(p.content)
                             .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
