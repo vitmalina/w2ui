@@ -3970,6 +3970,7 @@
                 $(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-reset w2ui-grid')
+                    .off('selectstart')
                     .html('');
             }
             delete w2ui[this.name];
