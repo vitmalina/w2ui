@@ -3314,6 +3314,7 @@
             if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                 $(this.box)
                     .removeAttr('name')
+                    .off('selectstart')
                     .removeClass('w2ui-reset w2ui-grid')
                     .html('');
             }
