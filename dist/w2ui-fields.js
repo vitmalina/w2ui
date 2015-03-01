@@ -1221,7 +1221,8 @@ w2utils.keyboard = (function (obj) {
 
                 var timer = setInterval(function () {
                     // monitor if destroyed
-                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0)) {
+                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0) 
+                            || $('#w2ui-tag-' + tagID).find('.w2ui-tag-body').length == 0) {
                         clearInterval($('#w2ui-tag-'+tagID).data('timer'));
                         tmp_hide();
                         return;
@@ -1229,8 +1230,9 @@ w2utils.keyboard = (function (obj) {
                     // monitor if moved
                     var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
                     var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
-                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
+                    var tagBody  = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body');
+                    var width    = tagBody[0].offsetWidth;
+                    var height   = tagBody[0].offsetHeight;
                     if (options.position == 'top') {
                         posClass  = 'w2ui-tag-top';
                         posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
@@ -1258,8 +1260,10 @@ w2utils.keyboard = (function (obj) {
                     var posClass = 'w2ui-tag-right';
                     var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
                     var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
-                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
+                    var tagBody  = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body');
+                    if (tagBody.length == 0) return;
+                    var width    = tagBody[0].offsetWidth;
+                    var height   = tagBody[0].offsetHeight;
                     if (options.position == 'top') {
                         posClass  = 'w2ui-tag-top';
                         posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
@@ -1943,6 +1947,7 @@ w2utils.keyboard = (function (obj) {
 *   - added for enum options.onScroll
 *   - modified clearCache()
 *   - changed onSearch - happens when search input changes
+*   - added options.method - for combo/list/enum if url is defined
 *
 ************************************************************************/
 
@@ -2192,7 +2197,8 @@ w2utils.keyboard = (function (obj) {
                     defaults = {
                         items           : [],
                         selected        : {},
-                        url             : null,         // url to pull data from
+                        url             : null,          // url to pull data from
+                        method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
                         minLength       : 1,
                         cacheMax        : 250,
@@ -2254,6 +2260,7 @@ w2utils.keyboard = (function (obj) {
                         selected        : [],
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
+                        method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
                         minLength       : 1,
                         cacheMax        : 250,
@@ -2571,23 +2578,23 @@ w2utils.keyboard = (function (obj) {
                         var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
                         if (eventData.isCancelled === true) return;
                         // default behavior
-                        if ($(target).hasClass('w2ui-list-remove')) {
+                        if ($(event.target).hasClass('w2ui-list-remove')) {
                             if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
                             // default behavior
                             $().w2overlay();
-                            selected.splice($(target).attr('index'), 1);
+                            selected.splice($(event.target).attr('index'), 1);
                             $(obj.el).trigger('change');
-                            $(target).parent().fadeOut('fast');
+                            $(event.target).parent().fadeOut('fast');
                             setTimeout(function () {
                                 obj.refresh();
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             }, 300);
                         }
-                        if (obj.type == 'file' && !$(target).hasClass('w2ui-list-remove')) {
+                        if (obj.type == 'file' && !$(event.target).hasClass('w2ui-list-remove')) {
                             var preview = '';
                             if ((/image/i).test(item.type)) { // image
                                 preview = '<div style="padding: 3px;">'+
@@ -2622,7 +2629,7 @@ w2utils.keyboard = (function (obj) {
                         var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
                         if ($(target).hasClass('nomouse')) return;
                         if ($(target).data('mouse') == 'out') {
-                            var item = selected[$(target).attr('index')];
+                            var item = selected[$(event.target).attr('index')];
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
@@ -2638,7 +2645,7 @@ w2utils.keyboard = (function (obj) {
                         setTimeout(function () {
                             if ($(target).data('mouse') == 'leaving') {
                                 $(target).data('mouse', 'out');
-                                var item = selected[$(target).attr('index')];
+                                var item = selected[$(event.target).attr('index')];
                                 // trigger event
                                 var eventData = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
@@ -3334,6 +3341,7 @@ w2utils.keyboard = (function (obj) {
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                         ajaxOptions.contentType = 'application/json';
                     }
+                    if (options.method != null) ajaxOptions.type = options.method;
                     obj.tmp.xhr = $.ajax(ajaxOptions)
                         .done(function (data, status, xhr) {
                             // trigger event
