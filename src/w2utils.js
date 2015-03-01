@@ -1220,7 +1220,8 @@ w2utils.keyboard = (function (obj) {
 
                 var timer = setInterval(function () {
                     // monitor if destroyed
-                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0)) {
+                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0) 
+                            || $('#w2ui-tag-' + tagID).find('.w2ui-tag-body').length == 0) {
                         clearInterval($('#w2ui-tag-'+tagID).data('timer'));
                         tmp_hide();
                         return;
@@ -1228,8 +1229,9 @@ w2utils.keyboard = (function (obj) {
                     // monitor if moved
                     var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
                     var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
-                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
+                    var tagBody  = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body');
+                    var width    = tagBody[0].offsetWidth;
+                    var height   = tagBody[0].offsetHeight;
                     if (options.position == 'top') {
                         posClass  = 'w2ui-tag-top';
                         posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
@@ -1257,8 +1259,10 @@ w2utils.keyboard = (function (obj) {
                     var posClass = 'w2ui-tag-right';
                     var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
                     var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
-                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
+                    var tagBody  = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body');
+                    if (tagBody.length == 0) return;
+                    var width    = tagBody[0].offsetWidth;
+                    var height   = tagBody[0].offsetHeight;
                     if (options.position == 'top') {
                         posClass  = 'w2ui-tag-top';
                         posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
