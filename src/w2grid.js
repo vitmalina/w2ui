@@ -656,7 +656,7 @@
                                 break;
                             case 'ends':
                             case 'ends with': // need for back compatib.
-                                if (val1.indexOf(val2) == val1.length - val2.length) fl++; // do not hide record
+                                if (val1.indexOf(val2) >= 0 && val1.indexOf(val2) == val1.length - val2.length) fl++; // do not hide record
                                 break;
                         }
                     }
