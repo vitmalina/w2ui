@@ -1895,6 +1895,13 @@
                 if (params.cmd == 'delete-records') ajaxOptions.type = 'DELETE';
                 ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
+            if (w2utils.settings.dataType == 'RESTFULLJSON') {
+                ajaxOptions.type = 'GET';
+                if (params.cmd == 'save-records')   ajaxOptions.type = 'PUT';  // so far it is always update
+                if (params.cmd == 'delete-records') ajaxOptions.type = 'DELETE';
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                ajaxOptions.contentType = 'application/json';
+            }
             if (w2utils.settings.dataType == 'JSON') {
                 ajaxOptions.type        = 'POST';
                 ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
