@@ -620,7 +620,8 @@ var w2popup = {};
                     setTimeout(function () {
                         var focus = $(pop).find(':focus');
                         if (focus.length == 0 || focus.hasClass('w2ui-popup-hidden') || $(tmp).find(sel).index(focus) == -1) {
-                            $(tmp).find(sel)[0].focus();
+                            var el = $(tmp).find(sel);
+                            if (el.length > 0) el.focus();
                         }
                     }, 1);
                 });
@@ -899,9 +900,12 @@ var w2confirm = function (msg, title, callBack) {
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click.w2confirm', function (event) {
                     w2popup.message();
-                    if (typeof options.callBack == 'function') options.callBack(event.target.id);
-                    if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
-                    if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
+                    // need to wait for message to slide up
+                    setTimeout(function () {
+                        if (typeof options.callBack == 'function') options.callBack(event.target.id);
+                        if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
+                        if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
+                    }, 300);
                 });
             },
             onClose: function () {
