@@ -642,6 +642,7 @@
                             $(pname +'> .w2ui-panel-content')
                                 .removeClass()
                                 .removeAttr('name')
+                                .off('selectstart') // needed if previous was grid
                                 .addClass('w2ui-panel-content')
                                 .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
                         }
@@ -653,6 +654,7 @@
                         $(pname +'> .w2ui-panel-content')
                             .removeClass()
                             .removeAttr('name')
+                            .off('selectstart') // needed if previous was grid
                             .addClass('w2ui-panel-content')
                             .html(p.content)
                             .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;

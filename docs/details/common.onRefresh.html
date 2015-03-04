@@ -48,3 +48,6 @@ w2ui.layout.on('refresh', function(event) {
     }
 });
 </textarea>
+
+<h4>Layout, Sidebar, Toolbar, Tabs</h4>
+For layout, sidebar, toolbar and tabs the refresh event will be triggered for each refreshed panel (node, item, tab). It differs from other widgets, but it seems to be necessary because for layout, sidebar, toolbar and tabs the refresh method takes an argument that specifies which panel, node, item or tab to refresh.

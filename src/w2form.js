@@ -399,7 +399,7 @@
             }
             if (typeof postData == 'undefined' || postData == null) postData = {};
             if (!this.url || (typeof this.url == 'object' && !this.url.get)) return;
-            if (this.recid == null || typeof this.recid == 'undefined') this.recid = 0;
+            if (this.recid == null) this.recid = 0;
             // build parameters list
             var params = {};
             // add list params
@@ -441,6 +441,11 @@
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+            }
+            if (w2utils.settings.dataType == 'RESTFULLJSON') {
+                ajaxOptions.type = 'GET';
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                ajaxOptions.contentType = 'application/json';
             }
             if (w2utils.settings.dataType == 'JSON') {
                 ajaxOptions.type        = 'POST';
@@ -598,6 +603,11 @@
                 if (w2utils.settings.dataType == 'RESTFULL') {
                     if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                }
+                if (w2utils.settings.dataType == 'RESTFULLJSON') {
+                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
                 }
                 if (w2utils.settings.dataType == 'JSON') {
                     ajaxOptions.type        = 'POST';

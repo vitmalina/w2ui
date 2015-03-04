@@ -3,7 +3,7 @@
 *   - Following objects defined
 *        - w2toolbar        - toolbar widget
 *        - $().w2toolbar    - jQuery wrapper
-*   - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery, w2utils, w2field
 *
 * == NICE TO HAVE ==
 *   - on overflow display << >>
@@ -13,6 +13,10 @@
 * == 1.5 changes
 *   - $('#toolbar').w2toolbar() - if called w/o argument then it returns toolbar object
 *   - change enable, disable can disable menu items
+*   - item.render method
+*   - hint property
+*   - hintShow(), hintHide() methods
+*   - added button types: color, text-color
 *
 ************************************************************************/
 
@@ -23,6 +27,7 @@
         this.routeData = {};        // data for dynamic routes
         this.items     = [];
         this.right     = '';        // HTML text on the right of toolbar
+        this.hint      = 'normal';  // can be normal, top, bottom
         this.onClick   = null;
         this.onRender  = null;
         this.onRefresh = null;
@@ -86,6 +91,7 @@
             group    : null,        // used for radio buttons
             items    : null,        // for type menu it is an array of items in the menu
             overlay  : {},
+            rebder   : null,        // item renderer if any
             onClick  : null
         },
 
@@ -101,7 +107,7 @@
                     console.log('ERROR: The parameter "type" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
-                if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'break', 'html', 'spacer']) == -1) {
+                if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'color', 'text-color', 'break', 'html', 'spacer']) == -1) {
                     console.log('ERROR: The parameter "type" should be one of the following [button, check, radio, drop, menu, break, html, spacer] '+
                             'in w2toolbar.add() method.');
                     return;
@@ -397,24 +403,38 @@
 
         getItemHTML: function (item) {
             var html = '';
-
             if (typeof item.caption !== 'undefined') item.text = item.caption;
             if (typeof item.hint == 'undefined') item.hint = '';
             if (typeof item.text == 'undefined') item.text = '';
+            var img  = '<td>&nbsp;</td>';
+            var text = item.text;
+            if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
+            if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
 
             switch (item.type) {
+                case 'color':
+                case 'text-color':
+                    if (typeof item.color == 'string' && item.color.substr(0,1) == '#') item.color = item.color.substr(1);
+                    if (item.type == 'color') {
+                        text = '<div style="height: 12px; width: 12px; margin-top: 1px; border: 1px solid #efefef; '+
+                               '        background-color: #'+ (item.color != null ? item.color : 'fff') +'; float: left;"></div>'+
+                               (item.text ? '<div style="margin-left: 17px;">' + item.text + '</div>' : '');
+                    }
+                    if (item.type == 'text-color') {
+                        text = '<div style="color: #'+ (item.color != null ? item.color : '444') +';">'+
+                                    (item.text ? item.text : '<b>Aa</b>') +
+                               '</div>';
+                    }
                 case 'menu':
                 case 'button':
                 case 'check':
                 case 'radio':
                 case 'drop':
-                    var img = '<td>&nbsp;</td>';
-                    if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
-                    if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
-                    html += '<table cellpadding="0" cellspacing="0" title="'+ item.hint +'" class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
+                    html += '<table cellpadding="0" cellspacing="0" '+ (this.hint == 'normal' ? 'title="'+ item.hint +'"' : '') +
+                            '       class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
-                            '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over');" : "") + '"'+
-                            '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over').removeClass('down');" : "") + '"'+
+                            '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over'); w2ui['"+ this.name +"'].hintShow('"+ item.id +"', event);" : "") + '"'+
+                            '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].hintHide('"+ item.id +"', event);" : "") + '"'+
                             '       onmousedown = "' + (!item.disabled ? "$(this).addClass('down');" : "") + '"'+
                             '       onmouseup   = "' + (!item.disabled ? "$(this).removeClass('down');" : "") + '"'+
                             '>'+
@@ -422,33 +442,62 @@
                             '  <table cellpadding="1" cellspacing="0">'+
                             '  <tr>' +
                                     img +
-                                    (item.text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ item.text +'</td>' : '') +
+                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ text +'</td>' : '') +
                                     (item.count != null ? '<td class="w2ui-tb-count" nowrap><span>'+ item.count +'</span></td>' : '') +
-                                    (((item.type == 'drop' || item.type == 'menu') && item.arrow !== false) ?
+                                    (((['menu', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
                                         '<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
                             '  </tr></table>'+
                             '</td></tr></table>';
                     break;
 
                 case 'break':
-                    html +=    '<table cellpadding="0" cellspacing="0"><tr>'+
+                    html += '<table cellpadding="0" cellspacing="0"><tr>'+
                             '    <td><div class="w2ui-break">&nbsp;</div></td>'+
                             '</tr></table>';
                     break;
 
                 case 'html':
-                    html +=    '<table cellpadding="0" cellspacing="0"><tr>'+
+                    html += '<table cellpadding="0" cellspacing="0"><tr>'+
                             '    <td nowrap>' + item.html + '</td>'+
                             '</tr></table>';
                     break;
             }
 
             var newHTML = '';
-            if (typeof item.onRender == 'function') newHTML = item.onRender.call(this, item.id, html);
-            if (typeof this.onRender == 'function') newHTML = this.onRender(item.id, html);
+            if (typeof item.render == 'function') newHTML = item.render.call(this, item.id, html);
             if (newHTML !== '' && newHTML != null) html = newHTML;
             
             return '<div>' + html + '</div>';
+        },
+
+        hintShow: function (id) {
+            if (this.hint == 'normal') return;
+            var $el  = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id));
+            var item = this.get(id);
+            var pos  = this.hint;
+            $el.prop('_mouse_over', true);
+            setTimeout(function () {
+                if ($el.prop('_mouse_over') === true && $el.prop('_mouse_hint') !== true) {
+                    $el.prop('_mouse_hint', true);
+                    // show hint
+                    if (['menu', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return; // not for opened drop downs
+                    $el.w2tag(item.hint, { position: pos });
+                }
+            }, 1);
+        },
+
+        hintHide: function (id) {
+            if (this.hint == 'normal') return;
+            var $el  = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id));
+            var item = this.get(id);
+            $el.removeProp('_mouse_over');
+            setTimeout(function () {
+                if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_hint') === true) {
+                    $el.removeProp('_mouse_hint');
+                    // hide hint
+                    $el.w2tag();
+                }
+            }, 1);
         },
 
         menuClick: function (event) {
@@ -478,6 +527,24 @@
             }
         },
 
+        colorClick: function (event) {
+            var obj = this;
+            if (event.item && !event.item.disabled) {
+                // event before
+                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item, 
+                    color: event.color, originalEvent: event.originalEvent });
+                if (eventData.isCancelled === true) return;
+
+                // default behavior
+                event.item.color = event.color;
+                obj.refresh(event.item.id);
+
+                // event after
+                this.trigger($.extend(eventData, { phase: 'after' }));
+            }
+        },
+
+
         click: function (id, event) {
             var obj = this;
             var it  = this.get(id);
@@ -489,6 +556,7 @@
 
                 var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
                 $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
+                obj.hintHide(id);
 
                 if (it.type == 'radio') {
                     for (var i = 0; i < this.items.length; i++) {
@@ -503,7 +571,7 @@
                     $(btn).addClass('checked');
                 }
 
-                if (it.type == 'drop' || it.type == 'menu') {
+                if (['menu', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                     if (it.checked) {
                         // if it was already checked, second click will hide it
                         it.checked = false;
@@ -528,6 +596,14 @@
                                     onHide: function () { hideDrop(); }
                                 }));
                             }
+                            if (['color', 'text-color'].indexOf(it.type) != -1) {
+                                $(el).w2color(it.color, function (color, index) {
+                                    if (color != null) {
+                                        obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
+                                    }
+                                    hideDrop();
+                                });
+                            }
                             function hideDrop(event) {
                                 it.checked = false;
                                 $(btn).removeClass('checked');
@@ -536,7 +612,7 @@
                     }
                 }
 
-                if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
+                if (['check', 'menu', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                     it.checked = !it.checked;
                     if (it.checked) {
                         $(btn).addClass('checked');

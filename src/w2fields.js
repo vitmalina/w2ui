@@ -16,6 +16,7 @@
 *   - rewrite suffix and prefix positioning with translateY()
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
+*   - for type: list -> read value from attr('value')
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
@@ -25,7 +26,11 @@
 *   - deprecate placeholder, read it from input
 *   - added get(), set(), setIndex() for fields
 *   - add compare function for list, combo, enum
-*   - Added selection for the current date in the calendar
+*   - added selection for the current date in the calendar
+*   - added for enum options.onScroll
+*   - modified clearCache()
+*   - changed onSearch - happens when search input changes
+*   - added options.method - for combo/list/enum if url is defined
 *
 ************************************************************************/
 
@@ -48,6 +53,7 @@
         this.onMouseOver = options.onMouseOver || null;
         this.onMouseOut  = options.onMouseOut  || null;
         this.onIconClick = options.onIconClick || null;
+        this.onScroll    = options.onScroll || null;
         this.tmp         = {}; // temp object
         // clean up some options
         delete this.options.type;
@@ -59,6 +65,7 @@
         delete this.options.onMouseOver;
         delete this.options.onMouseOut;
         delete this.options.onIconClick;
+        delete this.options.onScroll;
         // extend with defaults
         $.extend(true, this, w2obj.field);
     };
@@ -137,17 +144,6 @@
     w2field.prototype = {
 
         custom: {},  // map of custom types
-
-        pallete: [
-            ['000000', '444444', '666666', '999999', 'CCCCCC', 'EEEEEE', 'F3F3F3', 'FFFFFF'],
-            ['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '0424F3', '9B24F4', 'FF21F5'],
-            ['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
-            ['EA9899', 'F9CB9C', 'FEE599', 'B6D7A8', 'A2C4C9', '9FC5E8', 'B4A7D6', 'D5A6BD'],
-            ['E06666', 'F6B26B', 'FED966', '93C47D', '76A5AF', '6FA8DC', '8E7CC3', 'C27BA0'],
-            ['CC0814', 'E69138', 'F1C232', '6AA84F', '45818E', '3D85C6', '674EA7', 'A54D79'],
-            ['99050C', 'B45F17', 'BF901F', '37761D', '124F5C', '0A5394', '351C75', '741B47'],
-            ['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030']
-        ],
 
         addType: function (type, handler) {
             type = String(type).toLowerCase();
@@ -284,7 +280,8 @@
                     defaults = {
                         items           : [],
                         selected        : {},
-                        url             : null,         // url to pull data from
+                        url             : null,          // url to pull data from
+                        method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
                         minLength       : 1,
                         cacheMax        : 250,
@@ -346,6 +343,7 @@
                         selected        : [],
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
+                        method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
                         minLength       : 1,
                         cacheMax        : 250,
@@ -370,6 +368,7 @@
                         onRemove        : null,          // when an item is removed
                         onMouseOver     : null,          // when an item is mouse over
                         onMouseOut      : null,          // when an item is mouse out
+                        onScroll        : null,          // when div with selected items is scrolled
                         method          : null           // if defined, overrides default ajax method
                     };
                     options = $.extend({}, defaults, options, {
@@ -606,22 +605,35 @@
                 var div = obj.helpers.multi;
                 var ul  = div.find('ul');
                 div.attr('style', div.attr('style') + ';' + options.style);
+                $(obj.el).css('z-index', '-1');
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
-                    div.addClass('w2ui-readonly');
-                    div.css('pointer-events', 'none').find('li').css('opacity', '0.6');
-                    $(obj.helpers.multi).find('input').prop('readonly', true);
+                    setTimeout(function () {
+                        div[0].scrollTop = 0; // scroll to the top 
+                        div.addClass('w2ui-readonly')
+                            .find('li').css('opacity', '0.9')
+                            .parent().find('li.nomouse').hide()
+                            .find('input').prop('readonly', true)
+                            .parents('ul')
+                            .find('.w2ui-list-remove').hide();
+                    }, 1);
                 } else {
-                    div.removeClass('w2ui-readonly');
-                    div.css('pointer-events', 'auto').find('li').css('opacity', '1');
-                    $(obj.helpers.multi).find('input').prop('readonly', false);
+                    setTimeout(function () {
+                        div.removeClass('w2ui-readonly')
+                            .find('li').css('opacity', '1')
+                            .parent().find('li.nomouse').show()
+                            .find('input').prop('readonly', false)
+                            .parents('ul')
+                            .find('.w2ui-list-remove').show();
+                    }, 1);
                 }
-                // celan
+
+                // clean
                 div.find('.w2ui-enum-placeholder').remove();
                 ul.find('li').not('li.nomouse').remove();
                 // add new list
                 if (html != '') {
                     ul.prepend(html);
-                } else if ($(obj.el).attr('placeholder') != null) {
+                } else if ($(obj.el).attr('placeholder') != null && div.find('input').val() == '') {
                     var style =
                         'padding-top: ' + $(this.el).css('padding-top') + ';'+
                         'padding-left: ' + $(this.el).css('padding-left') + '; ' +
@@ -632,11 +644,18 @@
                     div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ $(obj.el).attr('placeholder') +'</div>');
                 }
                 // ITEMS events
-                div.find('li')
+                div.off('scroll.w2field').on('scroll.w2field', function (event) {
+                        var eventData = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event });
+                        if (eventData.isCancelled === true) return;
+                        // event after
+                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                    })
+                    .find('li')
                     .data('mouse', 'out')
                     .on('click', function (event) {
-                        var item = selected[$(event.target).attr('index')];
-                        if ($(event.target).hasClass('nomouse')) return;
+                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        var item   = selected[$(target).attr('index')];
+                        if ($(target).hasClass('nomouse')) return;
                         event.stopPropagation();
                         // trigger event
                         var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -684,36 +703,34 @@
                                 '    </table>'+
                                 '</div>';
                             $('#w2ui-overlay').remove();
-                            $(event.target).w2overlay(preview);
+                            $(target).w2overlay(preview);
                         }
                         // event after
                         obj.trigger($.extend(eventData, { phase: 'after' }));
                     })
                     .on('mouseover', function (event) {
-                        var tmp = event.target;
-                        if (tmp.tagName != 'LI') tmp = tmp.parentNode;
-                        if ($(tmp).hasClass('nomouse')) return;
-                        if ($(tmp).data('mouse') == 'out') {
-                            var item = selected[$(tmp).attr('index')];
+                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        if ($(target).hasClass('nomouse')) return;
+                        if ($(target).data('mouse') == 'out') {
+                            var item = selected[$(event.target).attr('index')];
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
                             // event after
                             obj.trigger($.extend(eventData, { phase: 'after' }));
                         }
-                        $(tmp).data('mouse', 'over');
+                        $(target).data('mouse', 'over');
                     })
                     .on('mouseout', function (event) {
-                        var tmp = event.target;
-                        if (tmp.tagName != 'LI') tmp = tmp.parentNode;
-                        if ($(tmp).hasClass('nomouse')) return;
-                        $(tmp).data('mouse', 'leaving');
+                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        if ($(target).hasClass('nomouse')) return;
+                        $(target).data('mouse', 'leaving');
                         setTimeout(function () {
-                            if ($(tmp).data('mouse') == 'leaving') {
-                                $(tmp).data('mouse', 'out');
-                                var item = selected[$(tmp).attr('index')];
+                            if ($(target).data('mouse') == 'leaving') {
+                                $(target).data('mouse', 'out');
+                                var item = selected[$(event.target).attr('index')];
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'f', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                var eventData = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -731,6 +748,11 @@
                 $(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden') });
                 if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0);
                 $(this.el).css({ 'height' : (cntHeight + 2) + 'px' });
+                // update size
+                if (obj.type == 'enum') {
+                    var tmp = obj.helpers.multi.find('input');
+                    tmp.width(((tmp.val().length + 2) * 8) + 'px');
+                }
             }
             return (new Date()).getTime() - time;
         },
@@ -1130,31 +1152,25 @@
                     }, 20);
                 }
                 if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
-                    if (typeof obj.tmp.cind1 == 'undefined') {
-                        obj.tmp.cind1 = -1;
-                        obj.tmp.cind2 = -1;
-                    } else {
-                        switch (key) {
-                            case 38: // up
-                                obj.tmp.cind1--;
-                                break;
-                            case 40: // down
-                                obj.tmp.cind1++;
-                                break;
-                            case 39: // right
-                                obj.tmp.cind2++;
-                                break;
-                            case 37: // left
-                                obj.tmp.cind2--;
-                                break;
-                        }
-                        if (obj.tmp.cind1 < 0) obj.tmp.cind1 = 0;
-                        if (obj.tmp.cind1 > this.pallete.length - 1) obj.tmp.cind1 = this.pallete.length - 1;
-                        if (obj.tmp.cind2 < 0) obj.tmp.cind2 = 0;
-                        if (obj.tmp.cind2 > this.pallete[0].length - 1) obj.tmp.cind2 = this.pallete[0].length - 1;
+                    var dir      = null;
+                    var newColor = null;
+                    switch (key) {
+                        case 38: // up
+                            dir = 'up';
+                            break;
+                        case 40: // down
+                            dir = 'down';
+                            break;
+                        case 39: // right
+                            dir = 'right';
+                            break;
+                        case 37: // left
+                            dir = 'left';
+                            break;
                     }
-                    if ([37, 38, 39, 40].indexOf(key) != -1) {
-                        $(obj.el).val(this.pallete[obj.tmp.cind1][obj.tmp.cind2]).change();
+                    if (obj.el.nav && dir != null) {
+                        newColor = obj.el.nav(dir);
+                        $(obj.el).val(newColor).change();
                         event.preventDefault();
                     }
                 }
@@ -1163,16 +1179,33 @@
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
                 if ($(obj.el).attr('readonly')) return;
                 var selected  = $(obj.el).data('selected');
-                var focus     = $(obj.helpers.focus).find('input');
+                var focus     = $(obj.el);
                 var indexOnly = false;
-                if (obj.type == 'list') {
-                    if ([37, 38, 39, 40].indexOf(key) == -1) obj.refresh(); // arrows
+                if (['list', 'enum'].indexOf(obj.type) != -1) {
+                    if (obj.type == 'list') {
+                        focus = $(obj.helpers.focus).find('input');
+                    }
+                    if (obj.type == 'enum') {
+                        focus = $(obj.helpers.multi).find('input');
+                    }
+                    // not arrows - refresh
+                    if ([37, 38, 39, 40].indexOf(key) == -1) {
+                        setTimeout(function () { obj.refresh(); }, 1);
+                    }
+                    // paste
+                    if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
+                        setTimeout(function () { 
+                            obj.refresh();
+                            obj.search();
+                            obj.request();
+                        }, 50);
+                    }
                 }
                 // apply arrows
                 switch (key) {
                     case 27: // escape
                         if (obj.type == 'list') {
-                            if ($(focus).val() != '') $(focus).val('');
+                            if (focus.val() != '') focus.val('');
                             event.stopPropagation(); // escape in field should not close popup
                         }
                         break;
@@ -1183,7 +1216,6 @@
                     case 13: // enter
                         if ($('#w2ui-overlay').length == 0) break; // no action if overlay not open
                         var item  = options.items[options.index];
-                        var multi = $(obj.helpers.multi).find('input');
                         if (obj.type == 'enum') {
                             if (item != null) {
                                 // trigger event
@@ -1196,13 +1228,13 @@
                                 delete obj.tmp.force_open;
                                 selected.push(item);
                                 $(obj.el).change();
-                                multi.val('').width(20);
+                                focus.val('').width(20);
                                 obj.refresh();
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             } else {
                                 // trigger event
-                                item = { id: multi.val(), text: multi.val() };
+                                item = { id: focus.val(), text: focus.val() };
                                 var eventData = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
                                 item = eventData.item; // need to reassign because it could be recreated by user
@@ -1212,7 +1244,7 @@
                                     delete obj.tmp.force_open;
                                     selected.push(item);
                                     $(obj.el).change();
-                                    multi.val('').width(20);
+                                    focus.val('').width(20);
                                     obj.refresh();
                                 }
                                 // event after
@@ -1232,7 +1264,7 @@
                     case 8:  // backspace
                     case 46: // delete
                         if (obj.type == 'enum' && key == 8) {
-                            if ($(obj.helpers.multi).find('input').val() == '' && selected.length > 0) {
+                            if (focus.val() == '' && selected.length > 0) {
                                 var item = selected[selected.length - 1];
                                 // trigger event
                                 var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -1245,7 +1277,7 @@
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             }
                         }
-                        if (obj.type == 'list' && $(focus).val() == '') {
+                        if (obj.type == 'list' && focus.val() == '') {
                             $(obj.el).data('selected', {}).change();
                             obj.refresh();
                         }
@@ -1267,9 +1299,7 @@
                             while (options.items[options.index] && options.items[options.index].hidden) options.index--;
                         }
                         // show overlay if not shown
-                        var input = obj.el;
-                        if (['enum'].indexOf(obj.type) != -1) input = obj.helpers.multi.find('input');
-                        if ($(input).val() == '' && $('#w2ui-overlay').length == 0) {
+                        if (focus.val() == '' && $('#w2ui-overlay').length == 0) {
                             obj.tmp.force_open = true;
                         } else {
                             indexOnly = true;
@@ -1285,10 +1315,10 @@
                     setTimeout(function () {
                         // set cursor to the end
                         if (obj.type == 'enum') {
-                            var tmp = obj.helpers.multi.find('input').get(0);
+                            var tmp = focus.get(0);
                             tmp.setSelectionRange(tmp.value.length, tmp.value.length);
                         } else if (obj.type == 'list') {
-                            var tmp = obj.helpers.focus.find('input').get(0);
+                            var tmp = focus.get(0);
                             tmp.setSelectionRange(tmp.value.length, tmp.value.length);
                         } else {
                             obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length);
@@ -1298,23 +1328,31 @@
                 }
                 // expand input
                 if (obj.type == 'enum') {
-                    var input  = obj.helpers.multi.find('input');
-                    var search = input.val();
-                    input.width(((search.length + 2) * 8) + 'px');
+                    focus.width(((focus.val().length + 2) * 8) + 'px');
                 }
                 // run search
                 if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                    // run search
                     setTimeout(function () {
+                        // trigger event
+                        var eventData = obj.trigger({ phase: 'before', type: 'search', originalEvent: event, target: focus, search: focus.val() });
+                        if (eventData.isCancelled === true) return;
+                        // default action                        
                         if (!obj.tmp.force_hide) obj.request();
                         obj.search();
+                        // event after
+                        obj.trigger($.extend(eventData, { phase: 'after' }));                        
                     }, 1);
                 }
             }
         },
 
         keyUp: function (event) {
+            var obj = this;
             if (this.type == 'color') {
-                if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) $(this).prop('maxlength', 6);
+                if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
+                    $(this).prop('maxlength', 6);
+                }
             }
         },
 
@@ -1324,7 +1362,6 @@
             this.tmp.xhr_loading = false;
             this.tmp.xhr_search  = '';
             this.tmp.xhr_total   = -1;
-            this.search();
         },
 
         request: function (interval) {
@@ -1375,7 +1412,6 @@
                     if (eventData.isCancelled === true) return;
                     url      = eventData.url;
                     postData = eventData.postData;
-                    // console.log('REMOTE SEARCH:', search);
                     var ajaxOptions = {
                         type     : 'GET',
                         url      : url,
@@ -1388,6 +1424,7 @@
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                         ajaxOptions.contentType = 'application/json';
                     }
+                    if (options.method != null) ajaxOptions.type = options.method;
                     obj.tmp.xhr = $.ajax(ajaxOptions)
                         .done(function (data, status, xhr) {
                             // trigger event
@@ -1409,7 +1446,6 @@
                             options.items       = obj.normMenu(data.items);
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
-                            // console.log('-->', 'retrieved:', obj.tmp.xhr_total);
                             // event after
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                         })
@@ -1429,6 +1465,7 @@
                             }
                             // reset stats
                             obj.clearCache();
+                            obj.search();
                             // event after
                             obj.trigger($.extend(eventData2, { phase: 'after' }));
                         });
@@ -1439,12 +1476,12 @@
         },
 
         search: function () {
-            var obj     = this;
-            var options = this.options;
-            var search  = $(obj.el).val();
-            var target  = obj.el;
-            var ids     = [];
-            var selected= $(obj.el).data('selected');
+            var obj      = this;
+            var options  = this.options;
+            var search   = $(obj.el).val();
+            var target   = obj.el;
+            var ids      = [];
+            var selected = $(obj.el).data('selected');
             if (obj.type == 'enum') {
                 target = $(obj.helpers.multi).find('input');
                 search = target.val();
@@ -1455,9 +1492,6 @@
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
-            // trigger event
-            var eventData = obj.trigger({ phase: 'before', type: 'search', target: target, search: search });
-            if (eventData.isCancelled === true) return;
             if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
@@ -1495,8 +1529,6 @@
                 options.spinner = true;
                 obj.updateOverlay();
             }
-            // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         updateOverlay: function (indexOnly) {
@@ -1505,26 +1537,10 @@
             // color
             if (this.type == 'color') {
                 if ($(obj.el).attr('readonly')) return;
-                if ($('#w2ui-overlay').length == 0) {
-                    $(obj.el).w2overlay(obj.getColorHTML());
-                } else {
-                    $('#w2ui-overlay > div').html(obj.getColorHTML());
-                }
-                // bind events
-                $('#w2ui-overlay .color')
-                    .on('mousedown', function (event) {
-                        var color = $(event.originalEvent.target).attr('name');
-                        var index = $(event.originalEvent.target).attr('index').split(':');
-                        obj.tmp.cind1 = index[0];
-                        obj.tmp.cind2 = index[1];
-                        $(obj.el).val(color).change();
-                        $(this).html('&#149;');
-                    })
-                    .on('mouseup', function () {
-                        setTimeout(function () {
-                            if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
-                        }, 10);
-                    });
+                $(this.el).w2color($(this.el).val(), function (color) {
+                    if (color == null) return;
+                    $(obj.el).val(color).change();
+                });
             }
             // date
             if (this.type == 'date') {
@@ -1869,12 +1885,6 @@
                         if (!start) start = current;
                         if (!end) end = current;
                         if (current >= start && current <= end) inRange = true;
-                        /*console.log(str);
-                        console.log(this.options.format_mjs);
-                        console.log(start);
-                        console.log(end);
-                        console.log(current);
-                        console.log("inRange: " + inRange);//*/
                     } else {
                         inRange = true;
                     }
@@ -2225,7 +2235,7 @@
                     })
                     .on('keyup',    function (event) { obj.keyUp(event); })
                     .on('keydown',  function (event) { obj.keyDown(event); })
-                    .on('keypress', function (event) { div.find('.w2ui-enum-placeholder').remove(); obj.keyPress(event); });
+                    .on('keypress', function (event) { obj.keyPress(event); });
                 // MAIN div
                 div.on('click', function (event) { $(this).find('input').focus(); });
             }
@@ -2360,25 +2370,6 @@
             }
         },
 
-        getColorHTML: function () {
-            var html =  '<div class="w2ui-color">'+
-                        '<table cellspacing="5">';
-            for (var i = 0; i < 8; i++) {
-                html += '<tr>';
-                for (var j = 0; j < 8; j++) {
-                    html += '<td>'+
-                            '    <div class="color" style="background-color: #'+ this.pallete[i][j] +';" name="'+ this.pallete[i][j] +'" index="'+ i + ':' + j +'">'+
-                            '        '+ ($(this.el).val() == this.pallete[i][j] ? '&#149;' : '&nbsp;')+
-                            '    </div>'+
-                            '</td>';
-                }
-                html += '</tr>';
-                if (i < 2) html += '<tr><td style="height: 8px" colspan="8"></td></tr>';
-            }
-            html += '</table></div>';
-            return html;
-        },
-
         getMonthHTML: function (month, year, selected) {
             var td          = new Date();
             var months      = w2utils.settings.fullmonths;
@@ -2390,13 +2381,15 @@
                 days.unshift(days.pop());
                 sdays.unshift(sdays.pop());
             }
+            var options = this.options;
+            if (options == null) options = {};
             // normalize date
             year  = w2utils.isInt(year)  ? parseInt(year)  : td.getFullYear();
             month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1;
             if (month > 12) { month -= 12; year++; }
             if (month < 1 || month === 0)  { month += 12; year--; }
             if (year/4 == Math.floor(year/4)) { daysCount[1] = '29'; } else { daysCount[1] = '28'; }
-            this.options.current = month + '/' + year;
+            options.current = month + '/' + year;
 
             // start with the required date
             td = new Date(year, month-1, 1);
@@ -2417,7 +2410,7 @@
             var day = 1;
             if (w2utils.settings.weekStarts != 'M') weekDay++;
             if(this.type === 'datetime') {
-                var dt_sel = (w2utils.use_momentjs ? w2utils.isDateTime(selected, this.options.format_mjs, true) : w2utils.isDateTime(selected, this.options.format, true));
+                var dt_sel = (w2utils.use_momentjs ? w2utils.isDateTime(selected, options.format_mjs, true) : w2utils.isDateTime(selected, options.format, true));
                 selected = w2utils.formatDate(dt_sel, w2utils.settings.date_format);
             }
             for (var ci = 1; ci < 43; ci++) {
@@ -2443,14 +2436,14 @@
                 var bgcol   = '';
                 var tmp_dt, tmp_dt_fmt;
                 if(this.type === 'datetime') {
-                    tmp_dt      = w2utils.formatDateTime(dt, this.options.format);
+                    tmp_dt      = w2utils.formatDateTime(dt, options.format);
                     tmp_dt_fmt  = w2utils.formatDate(dt, w2utils.settings.date_format);
                 } else {
-                    tmp_dt      = w2utils.formatDate(dt, this.options.format);
+                    tmp_dt      = w2utils.formatDate(dt, options.format);
                     tmp_dt_fmt  = tmp_dt;
                 }
-                if (this.options.colored && this.options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
-                    var tmp = this.options.colored[tmp_dt_fmt].split(':');
+                if (options.colored && options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
+                    var tmp = options.colored[tmp_dt_fmt].split(':');
                     bgcol   = 'background-color: ' + tmp[0] + ';';
                     col     = 'color: ' + tmp[1] + ';';
                 }
@@ -2482,7 +2475,9 @@
 
         getHourHTML: function () {
             var tmp = [];
-            var h24 = (this.options.format.indexOf('h24') > -1);
+            var options = this.options;
+            if (options == null) options = { format: w2utils.settings.time_format };
+            var h24 = (options.format.indexOf('h24') > -1);
             for (var a = 0; a < 24; a++) {
                 var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
                 if (a == 12 && !h24) time = '12:00 pm';
@@ -2502,7 +2497,9 @@
 
         getMinHTML: function (hour) {
             if (typeof hour == 'undefined') hour = 0;
-            var h24 = (this.options.format.indexOf('h24') > -1);
+            var options = this.options;
+            if (options == null) options = { format: w2utils.settings.time_format };
+            var h24 = (options.format.indexOf('h24') > -1);
             var tmp = [];
             for (var a = 0; a < 60; a += 5) {
                 var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
@@ -2538,7 +2535,9 @@
             if (time < 0) time = 24 * 60 + time;
             var hour = Math.floor(time/60);
             var min  = ((time % 60) < 10 ? '0' : '') + (time % 60);
-            if (this.options.format.indexOf('h24') != -1) {
+            var options = this.options;
+            if (options == null) options = { format: w2utils.settings.time_format };
+            if (options.format.indexOf('h24') != -1) {
                 ret = hour + ':' + min;
             } else {
                 ret = (hour <= 12 ? hour : hour - 12) + ':' + min + ' ' + (hour >= 12 ? 'pm' : 'am');

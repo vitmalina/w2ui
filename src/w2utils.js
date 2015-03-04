@@ -29,6 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - add isDateTime()
 *   - remove momentjs
+*   - $().w2date(), $().w2dateTime()
 *
 * == 1.5 changes
 *   - date has problems in FF new Date('yyyy-mm-dd') breaks
@@ -42,6 +43,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - hidden and disabled in menus
 *   - added menu.item.hint for overlay menues
 *   - added w2tag options.id, options.left, options.top
+*   - added w2tag options.position = top|bottom|left|right - default is right
+*   - added $().w2color(color, callBack) 
+*   - added custom colors
 *
 ************************************************/
 
@@ -64,7 +68,7 @@ var w2utils = (function () {
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
-            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
+            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, RESTFULLJSON, JSON (case sensative)
             "phrases"           : {},       // empty object for english phrases
             "dateStartYear"     : 1950,     // start year for date-picker
             "dateEndYear"       : 2020      // end year for date picker
@@ -422,6 +426,9 @@ var w2utils = (function () {
         } else {
             fmt = format.split('|');
         }
+        // older formats support
+        if (fmt[1] == 'h12') fmt[1] = 'h:m pm';
+        if (fmt[1] == 'h24') fmt[1] = 'h24:m';        
         return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1]);
     }
 
@@ -1205,36 +1212,84 @@ w2utils.keyboard = (function (obj) {
                 $('#w2ui-tag-'+tagID).remove();
                 // insert
                 $('body').append(
-                    '<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') +
-                    '" style=""></div>');
+                    '<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+ 
+                    '   <div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;">'+
+                    '      <div class="w2ui-tag-body">'+ text +'</div>'+
+                    '   </div>' +
+                    '</div>');
 
                 var timer = setInterval(function () {
                     // monitor if destroyed
-                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0)) {
+                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0) 
+                            || $('#w2ui-tag-' + tagID).find('.w2ui-tag-body').length == 0) {
                         clearInterval($('#w2ui-tag-'+tagID).data('timer'));
                         tmp_hide();
                         return;
                     }
                     // monitor if moved
-                    if ($('#w2ui-tag-'+tagID).data('position') !== ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top) {
+                    var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
+                    var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    var tagBody  = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body');
+                    var width    = tagBody[0].offsetWidth;
+                    var height   = tagBody[0].offsetHeight;
+                    if (options.position == 'top') {
+                        posClass  = 'w2ui-tag-top';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0)) - height - 10;
+                    }
+                    if (options.position == 'bottom') {
+                        posClass  = 'w2ui-tag-bottom';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                        posTop    = parseInt($(el).offset().top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                    }
+                    if (options.position == 'left') {
+                        posClass  = 'w2ui-tag-left';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - width - 20;
+                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    }
+                    if ($('#w2ui-tag-'+tagID).data('position') !== posLeft + 'x' + posTop) {
                         $('#w2ui-tag-'+tagID).css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
-                            left: ($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0)) + 'px',
-                            top : ($(el).offset().top + (options.top ? options.top : 0)) + 'px'
-                        }).data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top);
+                            left: posLeft + 'px',
+                            top : posTop + 'px'
+                        }).data('position', posLeft + 'x' + posTop);
                     }
                 }, 100);
                 setTimeout(function () {
                     if (!$(el).offset()) return;
-                    $('#w2ui-tag-'+tagID).css({
+                    var posClass = 'w2ui-tag-right';
+                    var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
+                    var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    var tagBody  = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body');
+                    if (tagBody.length == 0) return;
+                    var width    = tagBody[0].offsetWidth;
+                    var height   = tagBody[0].offsetHeight;
+                    if (options.position == 'top') {
+                        posClass  = 'w2ui-tag-top';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0)) - height - 10;
+                    }
+                    if (options.position == 'bottom') {
+                        posClass  = 'w2ui-tag-bottom';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                        posTop    = parseInt($(el).offset().top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                    }
+                    if (options.position == 'left') {
+                        posClass  = 'w2ui-tag-left';
+                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - width - 20;
+                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    }
+                    $('#w2ui-tag-' + tagID)
+                        .css({
                         opacity: '1',
-                        left: ($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0)) + 'px',
-                        top : ($(el).offset().top + (options.top ? options.top : 0)) + 'px'
-                    }).html('<div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;"> <div class="w2ui-tag-body">'+ text +'</div> </div>')
+                            left    : posLeft + 'px',
+                            top     : posTop + 'px'
+                        })
                     .data('text', text)
                     .data('taged-el', el)
                     .data('options', options)
-                    .data('position', ($(el).offset().left + el.offsetWidth) + 'x' + $(el).offset().top)
-                    .data('timer', timer);
+                        .data('position', posLeft + 'x' + posTop)
+                        .data('timer', timer)
+                        .find('.w2ui-tag-body').addClass(posClass);
                     $(el).off('keypress', tmp_hide).on('keypress', tmp_hide).off('change', tmp_hide).on('change', tmp_hide)
                         .css(options.css).addClass(options['class']);
                     if (typeof options.onShow === 'function') options.onShow();
@@ -1734,4 +1789,127 @@ w2utils.keyboard = (function (obj) {
             return menu_html;
         }
     };
+
+    $.fn.w2color = function (color, callBack) {
+        var obj   = this;
+        var el    = $(this)[0];
+        var index = [-1, -1];
+        if ($.fn.w2colorPalette == null) {
+            $.fn.w2colorPalette = [
+                ['000000', '666666', '999999', 'BBBBBB', 'DDDDDD', 'EEEEEE', 'F3F3F3', 'FFFFFF'],
+                ['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '006CE7', '9B24F4', 'FF21F5'],
+                ['FFEAEA', 'FCEFE1', 'FCF5E1', 'EBF7E7', 'E9F3F5', 'ECF4FC', 'EAE6F4', 'F5E7ED'],
+                ['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
+                ['EA9899', 'F9CB9C', 'FEE599', 'B6D7A8', 'A2C4C9', '9FC5E8', 'B4A7D6', 'D5A6BD'],
+                ['E06666', 'F6B26B', 'FED966', '93C47D', '76A5AF', '6FA8DC', '8E7CC3', 'C27BA0'],
+                ['CC0814', 'E69138', 'F1C232', '6AA84F', '45818E', '3D85C6', '674EA7', 'A54D79'],
+                ['99050C', 'B45F17', 'BF901F', '37761D', '124F5C', '0A5394', '351C75', '741B47'],
+                // ['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030'],
+                ['F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2'] // custom colors (up to 4)
+            ];
+        }
+        var pal = $.fn.w2colorPalette;
+        if (typeof color != 'string') color = '';
+        if (color) color = String(color).toUpperCase();
+
+        if ($('#w2ui-overlay').length == 0) {
+            $(el).w2overlay(getColorHTML(color), { 
+                onHide: function () {
+                    if (typeof callBack == 'function') callBack($(el).data('_color'));
+                    $(el).removeData('_color');
+                }
+            });
+        } else { // only refresh contents
+            $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(color));
+        }
+        // bind events
+        $('#w2ui-overlay .color')
+            .on('mousedown', function (event) {
+                var color = $(event.originalEvent.target).attr('name');
+                index = $(event.originalEvent.target).attr('index').split(':');
+                $(el).data('_color', color);
+            })
+            .on('mouseup', function () {
+                setTimeout(function () {
+                    if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
+                }, 10);
+            });
+        $('#w2ui-overlay input')
+            .on('mousedown', function (event) {
+                $('#w2ui-overlay').data('keepOpen', true);
+                setTimeout(function () { $('#w2ui-overlay').data('keepOpen', true); }, 10);
+                event.stopPropagation();
+            })
+            .on('keyup', function (event) {
+                if (this.value != '' && this.value[0] != '#') this.value = '#' + this.value;
+            })
+            .on('change', function (event) {
+                var tmp = this.value;
+                if (tmp.substr(0, 1) == '#') tmp = tmp.substr(1);
+                if (tmp.length != 6) {
+                    $(this).w2tag('Invalid color.');
+                    return;
+                }
+                $.fn.w2colorPalette[pal.length - 1].unshift(tmp.toUpperCase());
+                $(el).w2color(color, callBack);
+                setTimeout(function() { $('#w2ui-overlay input')[0].focus(); }, 100);
+            })
+            .w2field('hex');
+
+        el.nav = function (direction) {
+            switch (direction) {
+                case 'up':
+                    index[0]--;
+                    break;
+                case 'down':
+                    index[0]++;
+                    break;
+                case 'right': 
+                    index[1]++;
+                    break;
+                case 'left':
+                    index[1]--;
+                    break;
+            }
+            if (index[0] < 0) index[0] = 0;
+            if (index[0] > pal.length - 2) index[0] = pal.length - 2;
+            if (index[1] < 0) index[1] = 0;
+            if (index[1] > pal[0].length - 1) index[1] = pal[0].length - 1;
+
+            color = pal[index[0]][index[1]];
+            $(el).data('_color', color);
+            return color;
+        };
+
+        function getColorHTML(color) {
+            var html =  '<div class="w2ui-color">'+
+                        '<table cellspacing="5">';
+            for (var i = 0; i < pal.length - 1; i++) {
+                html += '<tr>';
+                for (var j = 0; j < pal[i].length; j++) {
+                    html += '<td>'+
+                            '    <div class="color" style="background-color: #'+ pal[i][j] +';" name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+
+                            '        '+ (color == pal[i][j] ? '&#149;' : '&nbsp;') +
+                            '    </div>'+
+                            '</td>';
+                    if (color == pal[i][j]) index = [i, j];
+                }
+                html += '</tr>';
+                if (i < 2) html += '<tr><td style="height: 8px" colspan="8"></td></tr>';
+            }
+            var tmp = pal[pal.length - 1];
+            html += '<tr><td style="height: 8px" colspan="8"></td></tr>'+
+                    '<tr>'+
+                    '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (color == tmp[0] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (color == tmp[1] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (color == tmp[2] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (color == tmp[3] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '</tr>'+
+                    '<tr><td style="height: 4px" colspan="8"></td></tr>';
+            html += '</table></div>';
+            return html;
+        }        
+    };
+
 })();

@@ -8,28 +8,20 @@
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
-<style>
-.w2ui-col-selected {
-    background-color: #d1d1d1 !important;
-}
-.w2ui-row-selected {
-    background-color: #d1d1d1 !important;
-}
-</style>
 <script>
 $(function () {
     $('#grid').w2grid({ 
-        name : 'grid2', 
+        name : 'grid', 
         show : { 
             toolbar     : true,
             footer      : true,
             lineNumbers : true,
             toolbarDelete: true,
-            selectColumn : true
+            selectColumn : false
         },
         selectType: 'cell',
         columns: [                
-            { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', editable: { type: 'text' }, frozen: true},
+            { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', editable: { type: 'text' }, frozen: true },
             { field: 'b', caption: '<div style="text-align: center">B</div>', size: '95px', editable: { type: 'text' }, frozen: true},
             { field: 'c', caption: '<div style="text-align: center">C</div>', size: '95px', editable: { type: 'text' }},
             { field: 'd', caption: '<div style="text-align: center">D</div>', size: '95px', editable: { type: 'text' }},
@@ -40,25 +32,31 @@ $(function () {
             { field: 'j', caption: '<div style="text-align: center">J</div>', size: '95px', editable: { type: 'text' }},
             { field: 'k', caption: '<div style="text-align: center">K</div>', size: '95px', editable: { type: 'text' }},
             { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
+            { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
+            { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
+            { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
+            { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
+            { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
+            { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
             { field: 'm', caption: '<div style="text-align: center">M</div>', size: '95px', editable: { type: 'text' }}
         ],
     });
     // add 10k records
     for (var i = 0; i < 3000; i++) {
-        w2ui['grid2'].records.push({ 
+        w2ui['grid'].records.push({ 
             recid : (i + 10),
             a: 'some',
             b: 'sample',
             k: 'text'
         });
     }
-    w2ui.grid2.records[1].a = 'A1';
-    w2ui.grid2.records[1].b = 'BBB1';
-    w2ui.grid2.records[1].c = 'CC1';
-    w2ui.grid2.records[1].d = 'DD1';
-    w2ui.grid2.records[4].summary = true;
-    w2ui.grid2.records[1].style = { 1: 'background-color: red !important' };
-    w2ui.grid2.refresh();
+    w2ui.grid.records[1].a = 'A1';
+    w2ui.grid.records[1].b = 'BBB1';
+    w2ui.grid.records[1].c = 'CC1';
+    w2ui.grid.records[1].d = 'DD1';
+    w2ui.grid.records[4].summary = true;
+    w2ui.grid.records[1].style = { 1: 'background-color: red !important' };
+    w2ui.grid.refresh();
 });
 </script>
 </head>

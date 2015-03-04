@@ -17,22 +17,29 @@
         // do not include any font-* properties
     }
     table {
-        font-family: @main-font-family;
-        font-size: 11px;
         max-width: none;
         background-color: transparent;
         border-collapse: separate;
         border-spacing: 0;
+        border: none;
+    }
+    table tr th, table tr td {
+        font-family: @main-font-family;
+        font-size: 11px;	    
     }
     & input, & textarea {
+        display: inline-block;
         width: auto;
         height: auto;
         vertical-align: baseline;
         padding: 4px;
+        margin: 0;
+        font-size: 11px;
     }
     select {
         padding: 1px;
         height: 23px;
+        font-size: 11px;
     }
 }
 
@@ -234,19 +241,22 @@ input[type=checkbox].w2ui-toggle:focus {
     .transition(opacity, 0.3s);
 
     .w2ui-tag-body {
-        background-color: @bubble-tag-background-color;
+        box-sizing: border-box;
         display: inline-block;
         position: absolute;
         border-radius: 3px;
         padding: 6px 10px;
         margin-left: 10px;
         margin-top: 0px;
+        background-color: @bubble-tag-background-color;
         color: @bubble-tag-color !important;
-        //box-shadow: @bubble-tag-shadow;
-        line-height: 100%;
         font-size: 11px;
-        font-family: @main-font-family;
-        &:before {
+        font-family: verdana;
+        text-shadow: 1px 1px 3px #000; // for sharper text in a bubble
+        line-height: 100%;
+        letter-spacing: 0.1px;
+
+        &.w2ui-tag-right:before {
             content: "";
             position: absolute;
             width: 0;
@@ -255,6 +265,41 @@ input[type=checkbox].w2ui-toggle:focus {
             border-right: 6px solid @bubble-tag-background-color;
             border-bottom: 6px solid transparent;
             margin: 0px 0 0 -16px;
+        }
+
+        &.w2ui-tag-left:after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-left: 6px solid @bubble-tag-background-color;
+            border-bottom: 6px solid transparent;
+            margin: 0px 0 0 10px;
+        }
+
+        &.w2ui-tag-bottom:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-right: 6px solid transparent;
+            border-left: 6px solid transparent;
+            border-bottom: 6px solid @bubble-tag-background-color;
+            margin: -12px 0 0 2px;
+        }
+
+        &.w2ui-tag-top:after {
+            content: "";
+            position: absolute;
+            left: 12px; 
+            width: 0;
+            height: 0;
+            border-right: 6px solid transparent;
+            border-left: 6px solid transparent;
+            border-top: 6px solid @bubble-tag-background-color;
+            margin: 17px 0 0;
         }
     }
     &.w2ui-tag-popup {    // if it is inside popup 
