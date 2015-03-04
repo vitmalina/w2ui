@@ -1280,13 +1280,13 @@ w2utils.keyboard = (function (obj) {
                     }
                     $('#w2ui-tag-' + tagID)
                         .css({
-                        opacity: '1',
+                            opacity : '1',
                             left    : posLeft + 'px',
                             top     : posTop + 'px'
                         })
-                    .data('text', text)
-                    .data('taged-el', el)
-                    .data('options', options)
+                        .data('text', text)
+                        .data('taged-el', el)
+                        .data('options', options)
                         .data('position', posLeft + 'x' + posTop)
                         .data('timer', timer)
                         .find('.w2ui-tag-body').addClass(posClass);
