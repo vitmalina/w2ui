@@ -599,7 +599,7 @@ var w2popup = {};
         focus: function () {
             var tmp = null;
             var pop = $('#w2ui-popup');
-            var sel = 'input:visible, button:visible, select:visible';
+            var sel = 'input:visible, button:visible, select:visible, textarea:visible';
             // clear previous blur
             $(pop).find(sel).off('.keep-focus');
             // in messar or popup
