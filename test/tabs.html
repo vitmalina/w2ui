@@ -11,11 +11,12 @@
             active   : 'tab1',
             right    : '12232',
             flow     : 'up',
+            tooltip  : 'top',
             routeData: { id: 8, vid: '2.32.3' },
             tabs : [
-                { id: 't1.1', text:    'Tab 1', route: '/tab1' },
-                { id: 't2.2', caption: 'Tab 2', route: '/tab2/:id', closable: true },
-                { id: 'tab3', caption: 'Tab 3', route: '/tab3/:id/view', closable: true },
+                { id: 't1.1', text:    'Tab 1', route: '/tab1', tooltip: 'some tooltip' },
+                { id: 't2.2', caption: 'Tab 2', route: '/tab2/:id', closable: true, tooltip: 'some other' },
+                { id: 'tab3', caption: 'Tab 3', route: '/tab3/:id/view', closable: true, tooltip: 'none' },
                 { id: 'tab4', caption: 'Tab 4', route: '/tab4/:id/some', closable: true },
                 { id: 'tab5', caption: 'Tab 5', route: '/tab5/ok/:vid', closable: true },
                 { id: 'tab6', caption: 'Tab 6', route: '/tab6/:id/:vid-:id', closable: true },
@@ -29,12 +30,13 @@
     });
 
     function changeTab() {
-        w2ui['tabs'].get('tab2.2').caption = '<div style="width: 300px">new and long</div>'; 
+        w2ui['tabs'].get('t2.2').text = '<div style="width: 300px">new and long</div>'; 
         w2ui['tabs'].refresh();        
     }
 </script>
 <body>
+    <br><br>
     <div id="tabs" style="padding: 15px;"></div>
     <br>
-    <button onclick="changeTab()">Change Tab</button>
+    <button class="w2ui-btn" onclick="changeTab()">Change Tab</button>
 </body>

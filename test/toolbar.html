@@ -11,14 +11,14 @@
         $('#toolbar').w2toolbar({
             name: 'toolbar',
             routeData: { id: 5, vid: '40-43' },
-            hint: 'top',
+            tooltip: 'top',
             items: [
-                { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', hint: 'Check <br>button', checked: true, route: '/project' },
-                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa-star', hint: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
+                { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: 'Check <br>button', checked: true, route: '/project' },
+                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
                 { type: 'break', id: 'break0' },
                 { type: 'menu',  id: 'item2', caption: 'Drop Down', img: 'icon-folder', icon: 'fa-camera', hint: 'Menu button', 
                     items: [
-                        { text: 'Item 1', img: 'icon-page', route: '/project/:id/item1' }, 
+                        { text: 'Item 1', img: 'icon-page', route: '/project/:id/item1', tooltip: 'some' }, 
                         { text: 'Item 2', img: 'icon-page', route: '/project/:id/item2', disabled: true }, 
                         { text: 'Item 3', value: 'Item Three', img: 'icon-page', route: '/project/:id/item2' }
                     ]
@@ -28,9 +28,29 @@
                         { id: 'item1', text: 'First Item', count: 3, icon: 'fa-heart' }, 
                         { id: 'item2', text: 'Item 2', icon: 'fa-user', count: 12 }, 
                         { id: 'item3', text: 'Item 3', icon: 'fa-star-empty' }, 
-                        { id: 'item4', text: 'Item 4', icon: 'fa-link' },
-                        { id: 'item5', text: 'Without Image, Just Text' }
+                        { id: 'item4', text: 'Item 4', icon: 'fa-link', hotkey: '⌘A' },
+                        { id: 'item5', text: 'Without Image, Just Text', hotkey: '⌘B' }
                     ], overlay: { top1: 10 }
+                },
+                { type: 'menu-check', id: 'menu.check', text: 'Menu: Check',
+                     items: [
+                        { id: 'item1', text: 'First Item', count: 3, icon: 'fa-heart' }, 
+                        { text: '--' },
+                        { id: 'item2', text: 'Item 2', icon: 'fa-user', count: 12 }, 
+                        { id: 'item3', text: 'Item 3', icon: 'fa-star-empty', hotkey: '⌘S' }, 
+                        { text: '--' },
+                        { id: 'item4', text: 'Item 4', icon: 'fa-link', hotkey: '⌘W' }
+                    ], 
+                },
+                { type: 'menu-radio', id: 'menu.radio', text: 'Menu: Radio',
+                     items: [
+                        { id: 'item1', text: 'First Item', count: 3, icon: 'fa-heart' }, 
+                        { text: '--' },
+                        { id: 'item2', text: 'Item 2', icon: 'fa-user', count: 12 }, 
+                        { id: 'item3', text: 'Item 3', icon: 'fa-star-empty' }, 
+                        { text: '--' },
+                        { id: 'item4', text: 'Item 4', icon: 'fa-link', hotkey: '⌘L' }
+                    ], 
                 },
                 { type: 'break', id: 'break1' },
                 { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa-user', img: 'icon-add', checked: true,

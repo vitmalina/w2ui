@@ -24,6 +24,7 @@ $(function () {
         //     remove : 'grid3.json',
         //     save   : 'save'
         // },
+        columnTooltip: 'top',
         reorderRows: true,
         reorderColumns: true,
         show: { 
@@ -98,8 +99,8 @@ $(function () {
             { caption: 'Important Dates', span: 3 }
         ],
         columns: [                
-            { field: 'userid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true },
-            { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, 
+            { field: 'userid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true, tooltip: 'User ID' },
+            { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, tooltip: 'Person ID', 
                 render: function (record) { 
                     if (record.changes && record.changes['personid']) {
                         return record.changes['personid'].text;
@@ -109,7 +110,7 @@ $(function () {
                 },
                 editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } } 
             },
-            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, resizable: true, editable: { type: 'text' } },
+            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name' },
             { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2', frozen1: true },

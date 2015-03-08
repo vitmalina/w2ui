@@ -64,7 +64,7 @@
 *   - add searches.style
 *   - getColumn without params returns fields of all columns
 *   - getSearch without params returns fields of all searches
-*   - added column.hint
+*   - added column.tooltip
 *
 ************************************************************************/
 
@@ -129,6 +129,7 @@
         this.reorderColumns  = false;
         this.reorderRows     = false;
         this.markSearch      = true;
+        this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -289,17 +290,17 @@
         msgNeedReload   : w2utils.lang('Your remove data source record count has changed, reloading from the first record.'),
 
         buttons: {
-            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', hint: w2utils.lang('Reload data in the list') },
-            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', hint: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
+            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: w2utils.lang('Reload data in the list') },
+            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
             'search'   : { type: 'html',   id: 'w2ui-search',
                             html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
                                   'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
                           },
-            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', caption: w2utils.lang('Search'), hint: w2utils.lang('Open Search Fields') },
-            'add'      : { type: 'button', id: 'w2ui-add', caption: w2utils.lang('Add New'), hint: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', caption: w2utils.lang('Edit'), hint: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', caption: w2utils.lang('Delete'), hint: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', disabled: true },
-            'save'     : { type: 'button', id: 'w2ui-save', caption: w2utils.lang('Save'), hint: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
+            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: w2utils.lang('Search'), tooltip: w2utils.lang('Open Search Fields') },
+            'add'      : { type: 'button', id: 'w2ui-add', text: w2utils.lang('Add New'), tooltip: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
+            'edit'     : { type: 'button', id: 'w2ui-edit', text: w2utils.lang('Edit'), tooltip: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', text: w2utils.lang('Delete'), tooltip: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', disabled: true },
+            'save'     : { type: 'button', id: 'w2ui-save', text: w2utils.lang('Save'), tooltip: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
         },
 
         add: function (record, first) {
@@ -3997,7 +3998,7 @@
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
                 if (col.hideable === false) continue;
-                if (!tmp && this.columns[c].hint) tmp = this.columns[c].hint;
+                if (!tmp && this.columns[c].tooltip) tmp = this.columns[c].tooltip;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
                 col_html += '<tr>'+
                     '<td style="width: 30px">'+
@@ -5216,7 +5217,9 @@
                             resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
                         }
                         tmpf  = '<td id="grid_'+ obj.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
-                                     (col.hint ? 'title="'+ col.hint +'" ' : '') +
+                                     (obj.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
+                                '    onmouseover = "w2ui[\''+ obj.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
+                                '    onmouseout  = "w2ui[\''+ obj.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
                                 '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                     resizer +
                                 '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
@@ -5233,6 +5236,35 @@
                 html2 += '</tr>';
                 return [html1, html2];
             }
+        },
+
+        columnTooltipShow: function (ind) {
+            if (this.columnTooltip == 'normal') return;
+            var $el  = $(this.box).find('#grid_'+ this.name + '_column_'+ ind);
+            var item = this.columns[ind];
+            var pos  = this.columnTooltip;
+            $el.prop('_mouse_over', true);
+            setTimeout(function () {
+                if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
+                    $el.prop('_mouse_tooltip', true);
+                    // show tooltip
+                    $el.w2tag(item.tooltip, { position: pos });
+                }
+            }, 1);
+        },
+
+        columnTooltipHide: function (ind) {
+            if (this.columnTooltip == 'normal') return;
+            var $el  = $(this.box).find('#grid_'+ this.name + '_column_'+ ind);
+            var item = this.columns[ind];
+            $el.removeProp('_mouse_over');
+            setTimeout(function () {
+                if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_tooltip') === true) {
+                    $el.removeProp('_mouse_tooltip');
+                    // hide tooltip
+                    $el.w2tag();
+                }
+            }, 1);
         },
 
         getRecordsHTML: function () {
