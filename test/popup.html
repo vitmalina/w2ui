@@ -60,6 +60,25 @@ function showMenu(el) {
     });
 }
 
+function checkMenu(el) {
+    $(el).w2menu({
+        type: 'radio',
+        items: [
+            { id: 1, text: 'Iten A', checked: true },
+            { id: 2, text: '--' },
+            { id: 3, text: 'Item 1' },
+            { id: 4, text: 'Item 2', disabled: true },
+            { id: 5, text: 'Item 3' },
+            { id: 6, text: 'Item 4' },
+            { id: 7, text: '--' },
+            { id: 8, text: 'Item 5' },
+        ],
+        onSelect: function (event) { 
+            console.log(event); 
+        }
+    });
+}
+
 function myConfirm () {
     w2confirm({ 
             title: 'Title',
@@ -78,6 +97,27 @@ function myConfirm () {
         .no(function () {
             console.log('No clicked');
         });
+}
+
+function popup3 () {
+    w2popup.open({
+        title   : 'Some title',
+        buttons : '<button id="btnConfirm" class="w2ui-btn">Open Confirm</button>',
+        width   : 600,
+        height  : 400,
+        onOpen  : function (event) {
+            event.onComplete = function () { 
+                _tmp();
+                $('#w2ui-popup #btnConfirm').on('click', _tmp);
+            };
+            function _tmp() {
+                w2confirm('Click "NO" to open an w2alert.')
+                    .no(function () {
+                        w2alert('You clicked "NO" button.');
+                    });                
+            }
+        }
+    });
 }
 
 function popupGrid() {
@@ -104,6 +144,7 @@ function popupLayout() {
         height  : 500,
         showMax : true,
         body    : '<div id="layout" style="position: absolute; left: 10px; right: 10px; top: 10px; bottom: 10px"></div>',
+        buttons : '<button class="w2ui-btn" onclick="w2alert(22)">Message</button>',
         onOpen  : function (event) {
             event.onComplete = function () {
                 $('#w2ui-popup #layout').w2render('layout');
@@ -116,7 +157,13 @@ $(function () {
     $().w2grid({ name: 'grid', columns: [{ caption: 'First', size: '100%' }, { caption: 'Second', size: '100%' }] });
     $().w2form({ name: 'form', fields: [{ caption: 'First' }, { caption: 'Second' }] });
     $().w2layout({ name: 'layout', panels: [
-        { type: 'top', style: 'border: 1px solid silver', size: '100px', resizable: true }, 
+        { type: 'top', style: 'border: 1px solid silver', size: '100px', resizable: true,
+            toolbar: {
+                items: [
+                    { id: 'btn1', type: 'menu', caption: 'Menu', items: [{ id: 1, text: 'Item 1'}, { id: 2, text: 'item 2'}] }
+                ]
+            }
+        }, 
         { type: 'right', style: 'border-left: 1px solid silver', size: '100px', resizable: true }
     ]});
 })
@@ -124,12 +171,14 @@ $(function () {
 </head>
 <body>
     <div style="padding: 10px">
-        <button class="w2ui-btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup</button>
-        <button class="w2ui-btn" value="Popup2"  onclick="$('#popup1').w2popup({ showMax: true })">Popup2</button>
+        <button class="w2ui-btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup from File</button>
+        <button class="w2ui-btn" value="Popup2"  onclick="$('#popup1').w2popup({ showMax: true })">Popup from HTML</button>
+        <button class="w2ui-btn" value="Popup5"  onclick="popup3()">Popup & Confirm</button>
         <button class="w2ui-btn" value="Popup3"  onclick="popupGrid()">Popup Grid</button>
         <button class="w2ui-btn" value="Popup4"  onclick="popupLayout()">Popup Layout</button>
         <button class="w2ui-btn" value="Overlay" onclick="showOverlay(this)">Overlay</button>
         <button class="w2ui-btn" value="Menu"    onclick="showMenu(this)">Menu</button>
+        <button class="w2ui-btn" value="Menu"    onclick="checkMenu(this)">Check Menu</button>
         <button class="w2ui-btn" value="Alert"   onclick="w2alert('message');">Alert</button>
         <button class="w2ui-btn" value="Confirm" onclick="myConfirm()">Confirm</button>
     </div>
@@ -178,14 +227,6 @@ $(function () {
         <div rel="buttons">
             <button class="w2ui-btn" onclick="$('#popup1').w2popup({ transition: 'slide-right', showMax: true })">Switch to Popup 1</button>
         </div>
-    </div>
-
-    <hr>
-    <div id="popup3" style="width: 500px; height: 300px; display1: none">
-        <div style="border: 1px solid red; width: 100%; height: 100%; padding: 10px;">
-            This is just a text
-        </div>
-        <div rel="title">Titlte 444</div>
     </div>
 
 </body>

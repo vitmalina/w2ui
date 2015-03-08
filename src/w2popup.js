@@ -599,7 +599,7 @@ var w2popup = {};
         focus: function () {
             var tmp = null;
             var pop = $('#w2ui-popup');
-            var sel = 'input:visible, button:visible, select:visible';
+            var sel = 'input:visible, button:visible, select:visible, textarea:visible';
             // clear previous blur
             $(pop).find(sel).off('.keep-focus');
             // in messar or popup
@@ -618,10 +618,10 @@ var w2popup = {};
             $(tmp).find(sel)
                 .on('blur.keep-focus', function (event) {
                     setTimeout(function () {
-                        var focus = $(pop).find(':focus');
-                        if (focus.length == 0 || focus.hasClass('w2ui-popup-hidden') || $(tmp).find(sel).index(focus) == -1) {
+                        var focus = $(':focus');
+                        if ((focus.length > 0 && !$(tmp).find(sel).is(focus)) || focus.hasClass('w2ui-popup-hidden')) {
                             var el = $(tmp).find(sel);
-                            if (el.length > 0) el.focus();
+                            if (el.length > 0) el[0].focus();
                         }
                     }, 1);
                 });
