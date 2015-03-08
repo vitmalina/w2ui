@@ -14,6 +14,8 @@
 *   - $('#tabs').w2tabs() - if called w/o argument then it returns tabs object
 *   - added flow property (up/down)
 *   - added tab.style
+*   - added tooltipShow, tooltipHide methods
+*   - added tooltip property and tab.tooltip
 *
 ************************************************************************/
 
@@ -23,6 +25,7 @@
         this.name      = null;      // unique name for w2ui
         this.active    = null;
         this.flow      = 'down';    // can be down or up
+        this.tooltip   = 'normal';  // can be normal, top, bottom, left, right
         this.tabs      = [];
         this.routeData = {};        // data for dynamic routes
         this.right     = '';
@@ -75,12 +78,12 @@
     w2tabs.prototype = {
         tab : {
             id        : null,        // command to be sent to all event handlers
-            text      : '',
+            text      : null,
             route     : null,
             hidden    : false,
             disabled  : false,
             closable  : false,
-            hint      : '',
+            tooltip   : null,
             style     : '',
             onClick   : null,
             onRefresh : null,
@@ -221,6 +224,35 @@
             return disabled;
         },
 
+        tooltipShow: function (id) {
+            if (this.tooltip == 'normal') return;
+            var $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id));
+            var item = this.get(id);
+            var pos  = this.tooltip;
+            $el.prop('_mouse_over', true);
+            setTimeout(function () {
+                if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
+                    $el.prop('_mouse_tooltip', true);
+                    // show tooltip
+                    $el.w2tag(item.tooltip, { position: pos });
+                }
+            }, 1);
+        },
+
+        tooltipHide: function (id) {
+            if (this.tooltip == 'normal') return;
+            var $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id));
+            var item = this.get(id);
+            $el.removeProp('_mouse_over');
+            setTimeout(function () {
+                if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_tooltip') === true) {
+                    $el.removeProp('_mouse_tooltip');
+                    // hide tooltip
+                    $el.w2tag();
+                }
+            }, 1);
+        },
+
         refresh: function (id) {
             var time = (new Date()).getTime();
             if (this.flow == 'up') $(this.box).addClass('w2ui-tabs-up'); else $(this.box).removeClass('w2ui-tabs-up');
@@ -234,12 +266,23 @@
                 // create or refresh only one item
                 var tab = this.get(id);
                 if (tab === null) return false;
-                if (typeof tab.caption !== 'undefined') tab.text = tab.caption;
+                if (tab.text == null && tab.caption != null) tab.text = tab.caption;
+                if (tab.tooltip == null && tab.hint != null) tab.tooltip = tab.hint; // for backward compatibility
 
-                var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
-                var tabHTML = (tab.closable ? '<div class="w2ui-tab-close" onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);"></div>' : '') +
+                var jq_el    = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
+                var closable = '';
+                if (tab.closable && !tab.disabled) {
+                    closable = '<div class="w2ui-tab-close" '+
+                               '    onmouseover = "w2ui[\''+ this.name +'\'].tooltipShow(\''+ tab.id +'\', event);"'+
+                               '    onmouseout  = "w2ui[\''+ this.name +'\'].tooltipHide(\''+ tab.id +'\', event);"'+
+                               '    onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);">'+
+                               '</div>';
+                }
+                var tabHTML = closable +
                     '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
-                    '        title="'+ (typeof tab.hint !== 'undefined' ? tab.hint : '') +'" style="'+ tab.style +'" '+ 
+                    '        title="'+ (this.tooltip == 'normal' && tab.tooltip != null ? tab.tooltip : '') +'" style="'+ tab.style +'" '+ 
+                    '        onmouseover = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipShow('"+ tab.id +"', event);" : "") + '"'+
+                    '        onmouseout  = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipHide('"+ tab.id +"', event);" : "") + '"'+                    
                     '        onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
                 if (jq_el.length === 0) {
                     // does not exist - create it
@@ -392,7 +435,7 @@
             var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
             if (jq_el.length !== 0) return; // already exists
             // measure width
-            if (typeof tab.caption !== 'undefined') tab.text = tab.caption;
+            if (tab.text == null && tab.caption != null) tab.text = tab.caption;
             var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
                 '<table cellspacing="0" cellpadding="1" width="100%"><tr>'+
                 '<td id="_tmp_simple_tab" style="" valign="middle">'+
