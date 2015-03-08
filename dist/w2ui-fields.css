@@ -358,6 +358,14 @@ input[type=checkbox].w2ui-toggle:focus {
   box-shadow: 0 0 2px #ffffff;
   text-shadow: 1px 1px 1px #e6e6e6;
 }
+.w2ui-overlay table.w2ui-drop-menu td.menu-count > span.hotkey {
+  border: none;
+  border-radius: 0px;
+  background-color: transparent !important;
+  color: #888;
+  box-shadow: none;
+  text-shadow: none;
+}
 .w2ui-overlay table.w2ui-drop-menu tr:hover {
   color: inherit;
   background-color: #e6f0ff;

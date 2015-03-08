@@ -42,11 +42,13 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added w2utils.settings.weekStarts
 *   - onComplete should pass widget as context (this)
 *   - hidden and disabled in menus
-*   - added menu.item.hint for overlay menues
+*   - added menu.item.tooltip for overlay menues
 *   - added w2tag options.id, options.left, options.top
 *   - added w2tag options.position = top|bottom|left|right - default is right
 *   - added $().w2color(color, callBack) 
 *   - added custom colors
+*   - added w2menu.options.type = radio|check
+*   - added w2menu items.hotkey
 *
 ************************************************/
 
@@ -852,7 +854,7 @@ var w2utils = (function () {
                 var p = w2obj.grid.prototype;
                 for (var b in p.buttons) { // buttons is an object
                     p.buttons[b].caption = w2utils.lang(p.buttons[b].caption);
-                    p.buttons[b].hint    = w2utils.lang(p.buttons[b].hint);
+                    p.buttons[b].tooltip = w2utils.lang(p.buttons[b].tooltip);
                 }
                 p.msgDelete  = w2utils.lang(p.msgDelete);
                 p.msgNotJSON = w2utils.lang(p.msgNotJSON);
@@ -1221,7 +1223,8 @@ w2utils.keyboard = (function (obj) {
 
                 var timer = setInterval(function () {
                     // monitor if destroyed
-                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0)) {
+                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0) 
+                            || $('#w2ui-tag-' + tagID).find('.w2ui-tag-body').length == 0) {
                         clearInterval($('#w2ui-tag-'+tagID).data('timer'));
                         tmp_hide();
                         return;
@@ -1229,8 +1232,9 @@ w2utils.keyboard = (function (obj) {
                     // monitor if moved
                     var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
                     var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
-                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
+                    var tagBody  = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body');
+                    var width    = tagBody[0].offsetWidth;
+                    var height   = tagBody[0].offsetHeight;
                     if (options.position == 'top') {
                         posClass  = 'w2ui-tag-top';
                         posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
@@ -1258,8 +1262,10 @@ w2utils.keyboard = (function (obj) {
                     var posClass = 'w2ui-tag-right';
                     var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
                     var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
-                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
+                    var tagBody  = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body');
+                    if (tagBody.length == 0) return;
+                    var width    = tagBody[0].offsetWidth;
+                    var height   = tagBody[0].offsetHeight;
                     if (options.position == 'top') {
                         posClass  = 'w2ui-tag-top';
                         posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
@@ -1348,7 +1354,7 @@ w2utils.keyboard = (function (obj) {
                 tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
                 if (typeof tmp_hide === 'function') tmp_hide();
             } else {
-            $('#w2ui-overlay'+ name).remove();
+                $('#w2ui-overlay'+ name).remove();
             }
             return $(this);
         }
@@ -1545,11 +1551,13 @@ w2utils.keyboard = (function (obj) {
                 icon     : '',
                 count    : '',
                 hidden   : false,
+                checked  : null,
                 disabled : false
                 ...
             }
         */
         var defaults = {
+            type       : 'normal',    // can be normal, radio, check
             index      : null,        // current selected
             items      : [],
             render     : null,
@@ -1595,7 +1603,13 @@ w2utils.keyboard = (function (obj) {
             if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select;
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender;
             // since only one overlay can exist at a time
-            $.fn.w2menuHandler = function (event, index) {
+            $.fn.w2menuClick = function (event, index) {
+                if (['radio', 'check'].indexOf(options.type) != -1) {
+                    // move checkbox
+                    $(event.target).parents('tr').find('.w2ui-icon')
+                        .removeClass('w2ui-icon-empty')
+                        .addClass('w2ui-icon-check');
+                }
                 if (typeof options.onSelect === 'function') {
                     // need time so that menu first hides
                     setTimeout(function () {
@@ -1608,7 +1622,38 @@ w2utils.keyboard = (function (obj) {
                 }
                 // do not uncomment (or enum search type is not working in grid)
                 // setTimeout(function () { $(document).click(); }, 50);
+                // -- hide
+                var div = $('#w2ui-overlay'+ name);
+                if (typeof div[0].hide === 'function') {
+                    div.removeData('keepOpen');
+                    div[0].hide();
+                }
             };
+            $.fn.w2menuDown = function (event, index) {
+                var $el = $(event.target).parents('tr');
+                var tmp = $el.find('.w2ui-icon');
+                if (tmp.hasClass('w2ui-icon-empty')) {
+                    if (options.type == 'radio') {
+                        tmp.parents('table').find('.w2ui-icon')
+                            .removeClass('w2ui-icon-check')
+                            .addClass('w2ui-icon-empty');
+                    }
+                    tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
+                } else if (tmp.hasClass('w2ui-icon-check') && (options.type == 'check')) {
+                    tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
+                }
+                $el.parent().find('tr').removeClass('w2ui-selected');
+                $el.addClass('w2ui-selected');
+                $.fn.w2menuTmp = $el;
+            }
+            $.fn.w2menuOut = function (event, index) {
+                var $tmp = $($.fn.w2menuTmp);
+                if ($tmp.length > 0) {
+                    $tmp.removeClass('w2ui-selected');
+                    $tmp.find('.w2ui-icon').removeClass('w2ui-icon-check');
+                    delete $.fn.w2menuTmp;
+                }
+            }
             var html = '';
             if (options.search) {
                 html +=
@@ -1670,12 +1715,12 @@ w2utils.keyboard = (function (obj) {
             switch (key) {
                 case 13: // enter
                     $('#w2ui-overlay'+ name).remove();
-                    $.fn.w2menuHandler(event, options.index);
+                    $.fn.w2menuClick(event, options.index);
                     break;
                 case 9:  // tab
                 case 27: // escape
                     $('#w2ui-overlay'+ name).remove();
-                    $.fn.w2menuHandler(event, -1);
+                    $.fn.w2menuClick(event, -1);
                     break;
                 case 38: // up
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
@@ -1746,6 +1791,9 @@ w2utils.keyboard = (function (obj) {
                     if (img  == null) img  = null;
                     if (icon == null) icon = null;
                 }
+                if (['radio', 'check'].indexOf(options.type) != -1) {
+                    if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty';
+                }
                 if (mitem.hidden !== true) {
                     var imgd = '';
                     var txt = mitem.text;
@@ -1758,23 +1806,30 @@ w2utils.keyboard = (function (obj) {
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;
                         if (imgd == '') colspan++;
-                        if (mitem.count == null) colspan++;
+                        if (mitem.count == null && mitem.hotkey == null) colspan++;
+                        if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint; // for backward compatibility
                         menu_html +=
-                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.hint ? 'title="'+ mitem.hint +'"' : '') +
+                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ mitem.tooltip +'"' : '') +
                             '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
-                            '        onmousedown="$(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); $(this).addClass(\'w2ui-selected\');"'+
+                            '        onmousedown="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
+                            '               $.fn.w2menuDown(event, \''+ f +'\');"'+
+                            '        onmouseout="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
+                            '               $.fn.w2menuOut(event, \''+ f +'\');"'+
                             '        onclick="event.stopPropagation(); '+
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               $(\'#w2ui-overlay'+ name +'\').remove(); '+
-                            '               $.fn.w2menuHandler(event, \''+ f +'\');">'+
+                            '               $.fn.w2menuClick(event, \''+ f +'\');">'+
                                 imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ txt +'</td>'+
-                            '   <td class="menu-count">'+ (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') + '</td>' +
+                            '   <td class="menu-count">'+ 
+                                    (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') + 
+                                    (mitem.hotkey != null ? '<span class="hotkey">' + mitem.hotkey + '</span>' : '') + 
+                            '</td>' +
                             '</tr>';
                         count++;
+                        console.log(mitem.hotkey);
                     } else {
                         // horizontal line
-                        menu_html += '<tr><td colspan="2" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
+                        menu_html += '<tr><td colspan="3" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
                     }
                 }
                 options.items[f] = mitem;
@@ -1943,6 +1998,7 @@ w2utils.keyboard = (function (obj) {
 *   - added for enum options.onScroll
 *   - modified clearCache()
 *   - changed onSearch - happens when search input changes
+*   - added options.method - for combo/list/enum if url is defined
 *
 ************************************************************************/
 
@@ -2192,7 +2248,8 @@ w2utils.keyboard = (function (obj) {
                     defaults = {
                         items           : [],
                         selected        : {},
-                        url             : null,         // url to pull data from
+                        url             : null,          // url to pull data from
+                        method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
                         minLength       : 1,
                         cacheMax        : 250,
@@ -2254,6 +2311,7 @@ w2utils.keyboard = (function (obj) {
                         selected        : [],
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
+                        method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
                         minLength       : 1,
                         cacheMax        : 250,
@@ -2571,23 +2629,23 @@ w2utils.keyboard = (function (obj) {
                         var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
                         if (eventData.isCancelled === true) return;
                         // default behavior
-                        if ($(target).hasClass('w2ui-list-remove')) {
+                        if ($(event.target).hasClass('w2ui-list-remove')) {
                             if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
                             // default behavior
                             $().w2overlay();
-                            selected.splice($(target).attr('index'), 1);
+                            selected.splice($(event.target).attr('index'), 1);
                             $(obj.el).trigger('change');
-                            $(target).parent().fadeOut('fast');
+                            $(event.target).parent().fadeOut('fast');
                             setTimeout(function () {
                                 obj.refresh();
                                 // event after
                                 obj.trigger($.extend(eventData, { phase: 'after' }));
                             }, 300);
                         }
-                        if (obj.type == 'file' && !$(target).hasClass('w2ui-list-remove')) {
+                        if (obj.type == 'file' && !$(event.target).hasClass('w2ui-list-remove')) {
                             var preview = '';
                             if ((/image/i).test(item.type)) { // image
                                 preview = '<div style="padding: 3px;">'+
@@ -2622,7 +2680,7 @@ w2utils.keyboard = (function (obj) {
                         var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
                         if ($(target).hasClass('nomouse')) return;
                         if ($(target).data('mouse') == 'out') {
-                            var item = selected[$(target).attr('index')];
+                            var item = selected[$(event.target).attr('index')];
                             // trigger event
                             var eventData = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (eventData.isCancelled === true) return;
@@ -2638,7 +2696,7 @@ w2utils.keyboard = (function (obj) {
                         setTimeout(function () {
                             if ($(target).data('mouse') == 'leaving') {
                                 $(target).data('mouse', 'out');
-                                var item = selected[$(target).attr('index')];
+                                var item = selected[$(event.target).attr('index')];
                                 // trigger event
                                 var eventData = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
                                 if (eventData.isCancelled === true) return;
@@ -3334,6 +3392,7 @@ w2utils.keyboard = (function (obj) {
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                         ajaxOptions.contentType = 'application/json';
                     }
+                    if (options.method != null) ajaxOptions.type = options.method;
                     obj.tmp.xhr = $.ajax(ajaxOptions)
                         .done(function (data, status, xhr) {
                             // trigger event
