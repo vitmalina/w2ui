@@ -281,26 +281,49 @@
 
     // ====================================================
     // -- Implementation of core functionality
+    
+    // set grid toolbar and buttons strings using the current language
+    w2grid.localize = function() {
+        var p = w2grid.prototype;
+
+        p.msgDelete = w2utils.lang('Are you sure you want to delete selected records?');
+        p.msgNotJSON = w2utils.lang('Returned data is not in valid JSON format.');
+        p.msgAJAXerror = w2utils.lang('AJAX error. See console for more details.');
+        p.msgRefresh = w2utils.lang('Refreshing...');
+        p.msgNeedReload = w2utils.lang('Your remove data source record count has changed, reloading from the first record.');
+
+        p.buttons['reload'].tooltip = w2utils.lang("Reload data in the list");
+        p.buttons['columns'].tooltip = w2utils.lang("Show/hide columns");
+        p.buttons['search-go'].text = w2utils.lang("Search");
+        p.buttons['search-go'].tooltip = w2utils.lang("Open Search Fields");
+        p.buttons['add'].text = w2utils.lang("Add New");
+        p.buttons['add'].tooltip = w2utils.lang("Add new record");
+        p.buttons['edit'].text = w2utils.lang("Edit");
+        p.buttons['edit'].tooltip = w2utils.lang("Edit selected record");
+        p.buttons['delete'].text = w2utils.lang("Delete");
+        p.buttons['delete'].tooltip = w2utils.lang("Delete selected record");
+        p.buttons['save'].text = w2utils.lang("Save");
+        p.buttons['save'].tooltip = w2utils.lang("Save selected record");
+        p.buttons['search'].html = '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
+                                  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>';
+    };
 
     w2grid.prototype = {
-        msgDelete       : w2utils.lang('Are you sure you want to delete selected records?'),
-        msgNotJSON      : w2utils.lang('Returned data is not in valid JSON format.'),
-        msgAJAXerror    : w2utils.lang('AJAX error. See console for more details.'),
-        msgRefresh      : w2utils.lang('Refreshing...'),
-        msgNeedReload   : w2utils.lang('Your remove data source record count has changed, reloading from the first record.'),
+        msgDelete       : '',
+        msgNotJSON      : '',
+        msgAJAXerror    : '',
+        msgRefresh      : '',
+        msgNeedReload   : '',
 
         buttons: {
-            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: w2utils.lang('Reload data in the list') },
-            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
-            'search'   : { type: 'html',   id: 'w2ui-search',
-                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
-                                  'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
-                          },
-            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: w2utils.lang('Search'), tooltip: w2utils.lang('Open Search Fields') },
-            'add'      : { type: 'button', id: 'w2ui-add', text: w2utils.lang('Add New'), tooltip: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', text: w2utils.lang('Edit'), tooltip: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', text: w2utils.lang('Delete'), tooltip: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', disabled: true },
-            'save'     : { type: 'button', id: 'w2ui-save', text: w2utils.lang('Save'), tooltip: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
+            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: '' },
+            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: '', arrow: false, html: '' },
+            'search'   : { type: 'html',   id: 'w2ui-search', html: ''},
+            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: '', tooltip: '' },
+            'add'      : { type: 'button', id: 'w2ui-add', text: '', tooltip: '', icon: 'w2ui-icon-plus' },
+            'edit'     : { type: 'button', id: 'w2ui-edit', text: '', tooltip: '', icon: 'w2ui-icon-pencil', disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', text: '', tooltip: '', icon: 'w2ui-icon-cross', disabled: true },
+            'save'     : { type: 'button', id: 'w2ui-save', text: '', tooltip: '', icon: 'w2ui-icon-check' }
         },
 
         add: function (record, first) {
@@ -6053,6 +6076,7 @@
         }
     };
 
+    w2grid.localize();
     $.extend(w2grid.prototype, w2utils.event);
     w2obj.grid = w2grid;
 })();
