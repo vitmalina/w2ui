@@ -12,7 +12,7 @@ $(function () {
         name: 'layout',
         panels: [
             { type: 'top', size: '20%', resizable: true },
-            { type: 'left', size: '20%', resizable: true, title: 'Some Title' },
+            { type: 'left', size: '-300px', resizable: true, title: 'Some Title' },
             { type: 'main', 
                 title: 'Main Panel Title',
                 content: 'some',
@@ -43,7 +43,7 @@ $(function () {
                     }
                 }
             },
-            { type: 'right', size: '20%', resizable: true, onHide: function (event) { console.log('hide right'); } },
+            { type: 'right', size: '300px', resizable: true, onHide: function (event) { console.log('hide right'); } },
             { type: 'preview', size: '50%', resizable: true,
                 tabs1: {
                     active : 'tab3',
@@ -64,6 +64,7 @@ $(function () {
     });
 
     w2ui['layout'].on('resize', function(event) {
+        return;
         event.onComplete = function () {
             var width  = w2ui['layout'].get('main').width;
             var height = w2ui['layout'].get('main').height;

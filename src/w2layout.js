@@ -13,6 +13,7 @@
 *
 * == 1.5 changes
 *   - $('#layout').w2layout() - if called w/o argument then it returns layout object
+*   - negative -size for left/right panels
 *
 ************************************************************************/
 
@@ -110,7 +111,7 @@
     w2layout.prototype = {
         // default setting for a panel
         panel: {
-            type      : null,        // left, right, top, bottom
+            type      : null,       // left, right, top, bottom
             title     : '',
             size      : 100,        // width or height depending on panel name
             minSize   : 20,
@@ -119,11 +120,11 @@
             resizable : false,
             overflow  : 'auto',
             style     : '',
-            content   : '',        // can be String or Object with .render(box) method
+            content   : '',         // can be String or Object with .render(box) method
             tabs      : null,
             toolbar   : null,
-            width     : null,        // read only
-            height    : null,        // read only
+            width     : null,       // read only
+            height    : null,       // read only
             show : {
                 toolbar : false,
                 tabs    : false
@@ -515,10 +516,13 @@
                     }
                     // set size
                     if (str.substr(str.length-1) == '%') {
-                        panel.size = Math.floor(ns * 100 /
-                            (panel.type == 'left' || panel.type == 'right' ? width : height - nd) * 100) / 100 + '%';
+                        panel.size = Math.floor(ns * 100 / (panel.type == 'left' || panel.type == 'right' ? width : height - nd) * 100) / 100 + '%';
                     } else {
-                        panel.size = ns;
+                        if (String(panel.size).substr(0, 1) == '-') {
+                            panel.size = parseInt(panel.size) - panel.sizeCalculated + ns;
+                        } else {
+                            panel.size = ns;
+                        }
                     }
                     obj.resize();
                 }
@@ -744,6 +748,21 @@
                     tmp.sizeCalculated = parseInt(tmp.size);
                 }
                 tmp.sizeCalculated = Math.max(tmp.sizeCalculated, parseInt(tmp.minSize));
+            }
+            // negative size
+            if (String(pright.size).substr(0, 1) == '-') {
+                if (sleft && pleft.size.substr(0, 1) == '-') {
+                    console.log('ERROR: you cannot have both left panel.size and right panel.size be negative.');
+                } else {
+                    pright.sizeCalculated = width - (sleft ? pleft.sizeCalculated : 0) + parseInt(pright.size);
+                }
+            }
+            if (String(pleft.size).substr(0, 1) == '-') {
+                if (sright && pright.size.substr(0, 1) == '-') {
+                    console.log('ERROR: you cannot have both left panel.size and right panel.size be negative.');
+                } else {
+                    pleft.sizeCalculated = width - (sright ? pright.sizeCalculated : 0) + parseInt(pleft.size);
+                }
             }
             // top if any
             if (ptop !== null && ptop.hidden !== true) {
