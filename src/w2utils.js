@@ -50,6 +50,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added w2menu items.hotkey
 *   - added options.contextMenu for w2overlay()
 *   - added options.noTip for w2overlay()
+*   - added options.overlayStyle for w2overlay()
 *
 ************************************************/
 
@@ -1334,6 +1335,7 @@ w2utils.keyboard = (function (obj) {
             contextMenu : false,    // if true, it will be opened at mouse position
             style       : '',        // additional style for main div
             'class'     : '',        // additional class name for main div
+            overlayStyle: '',
             onShow      : null,      // event on show
             onHide      : null,      // event on hide
             openAbove   : false,     // show above control
@@ -1373,7 +1375,7 @@ w2utils.keyboard = (function (obj) {
         }
         // append
         $('body').append(
-            '<div id="w2ui-overlay'+ name +'" style="display: none"'+
+            '<div id="w2ui-overlay'+ name +'" style="display: none; '+ options.overlayStyle +'"'+
             '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
             '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
@@ -1478,25 +1480,25 @@ w2utils.keyboard = (function (obj) {
                     }, 1);
                     setTimeout(function () { div2.find('div.menu').css('overflow-x', 'auto'); }, 10);
                 }
-                // alignment
-                switch (options.align) {
-                    case 'both':
-                        options.left = 17;
-                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
-                        break;
-                    case 'left':
-                        options.left = 17;
-                        break;
-                    case 'right':
-                        options.tipLeft = w - 45;
-                        options.left = w2utils.getSize($(obj), 'width') - w + 10;
-                        break;
-                }
                 // adjust position
                 var tmp = (w - 17) / 2;
                 var boxLeft  = options.left;
                 var boxWidth = options.width;
                 var tipLeft  = options.tipLeft;
+                // alignment
+                switch (options.align) {
+                    case 'both':
+                        boxLeft = 17 + parseInt(options.left);
+                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
+                        break;
+                    case 'left':
+                        boxLeft = 17 + parseInt(options.left);
+                        break;
+                    case 'right':
+                        boxLeft = w - 45 + parseInt(options.left);
+                        tipLeft = w2utils.getSize($(obj), 'width') - w + 10;
+                        break;
+                }
                 if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
                 if (tmp < 25) {
                     boxLeft = 25 - tmp;
