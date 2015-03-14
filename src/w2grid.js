@@ -3148,27 +3148,25 @@
             }
             if (w2utils.isFloat(recid)) recid = parseFloat(recid);
             if (this.getSelection().indexOf(recid) == -1) obj.click(recid);
-            // need timeout to allow click to finish first
-            setTimeout(function () {
-                // event before
-                var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid });
-                if (eventData.isCancelled === true) return;
-                // default action
-                if (obj.menu.length > 0) {
-                    $(obj.box).find(event.target)
-                        .w2menu(obj.menu, {
-                            left    : event.offsetX,
-                            onSelect: function (event) {
-                                obj.menuClick(recid, parseInt(event.index), event.originalEvent);
-                            }
+            // event before
+            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid });
+            if (eventData.isCancelled === true) return;
+            // default action
+            if (obj.menu.length > 0) {
+                $(obj.box).find(event.target)
+                    .w2menu(obj.menu, {
+                        originalEvent: event,
+                        contextMenu: true,
+                        onSelect: function (event) {
+                            obj.menuClick(recid, parseInt(event.index), event.originalEvent);
                         }
-                    );
-                }
-                // event after
-                obj.trigger($.extend(eventData, { phase: 'after' }));
-            }, 150); // need timer 150 for FF
+                    }
+                );
+            }
             // cancel event
             if (event.preventDefault) event.preventDefault();
+            // event after
+            obj.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         menuClick: function (recid, index, event) {

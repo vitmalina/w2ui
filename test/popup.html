@@ -153,6 +153,20 @@ function popupLayout() {
     })
 }
 
+function contextMenu2(event) {
+    $('body').w2menu({
+        items: [
+            { id: 1, text: 'First item' },
+            { id: 2, text: 'Second item' },
+        ],
+        onSelect: function (event) {
+            console.log('select', event);
+        },
+        originalEvent: event
+    })
+    event.preventDefault();
+}
+
 $(function () {
     $().w2grid({ name: 'grid', columns: [{ caption: 'First', size: '100%' }, { caption: 'Second', size: '100%' }] });
     $().w2form({ name: 'form', fields: [{ caption: 'First' }, { caption: 'Second' }] });
@@ -170,7 +184,7 @@ $(function () {
 </script>
 </head>
 <body>
-    <div style="padding: 10px">
+    <div style="padding: 10px; border: 1px solid gray" oncontextmenu="contextMenu2(event)">
         <button class="w2ui-btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup from File</button>
         <button class="w2ui-btn" value="Popup2"  onclick="$('#popup1').w2popup({ showMax: true })">Popup from HTML</button>
         <button class="w2ui-btn" value="Popup5"  onclick="popup3()">Popup & Confirm</button>

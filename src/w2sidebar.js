@@ -631,26 +631,27 @@
             var obj = this;
             var nd  = obj.get(id);
             if (id != obj.selected) obj.click(id);
-            // need timeout to allow click to finish first
-            setTimeout(function () {
-                // event before
-                var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
-                if (eventData.isCancelled === true) return;
-                // default action
-                if (nd.group || nd.disabled) return;
-                if (obj.menu.length > 0) {
-                    $(obj.box).find('#node_'+ w2utils.escapeId(id))
-                        .w2menu(obj.menu, {
-                            left    : (event ? event.offsetX || event.pageX : 50) - 25,
-                            onSelect: function (event) { 
-                                obj.menuClick(id, parseInt(event.index), event.originalEvent); 
-                            }
+            // event before
+            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
+            if (eventData.isCancelled === true) return;
+            // default action
+            if (nd.group || nd.disabled) return;
+            if (obj.menu.length > 0) {
+                $(obj.box).find('#node_'+ w2utils.escapeId(id))
+                    .w2menu({
+                        items: obj.menu,
+                        contextMenu: true,
+                        originalEvent: event,
+                        onSelect: function (event) { 
+                            obj.menuClick(id, parseInt(event.index), event.originalEvent); 
                         }
-                    );
-                }
-                // event after
-                obj.trigger($.extend(eventData, { phase: 'after' }));
-            }, 150); // need timer 150 for FF
+                    }
+                );
+            }
+            // cancel event
+            if (event.preventDefault) event.preventDefault();
+            // event after
+            obj.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         menuClick: function (itemId, index, event) {
@@ -820,8 +821,7 @@
                     }
                     html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
-                            '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
-                            '        if (event.preventDefault) event.preventDefault();"'+
+                            '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
                             '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
                             '<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
@@ -843,8 +843,7 @@
                                 '               { id: \'' + nd.id + '\', left: -5 })"'+
                                 '    onmouseout="$(this).find(\'.w2ui-node-data\').w2tag(null, { id: \'' + nd.id + '\' })"'+ 
                                 '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
-                                '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event); '+
-                                '        if (event.preventDefault) event.preventDefault();"'+
+                                '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                                 '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
                                 '<div class="w2ui-node-data w2ui-node-flat">'+ tmp +'</div>'+
                                 '</div>'+
