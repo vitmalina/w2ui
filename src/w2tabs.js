@@ -385,8 +385,8 @@
             $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
             this.active = tab.id;
             // route processing
-            if (tab.route) {
-                var route = String('/'+ tab.route).replace(/\/{2,}/g, '/');
+            if (typeof tab.route == 'string') {
+                var route = tab.route !== '' ? String('/'+ tab.route).replace(/\/{2,}/g, '/') : '';
                 var info  = w2utils.parseRoute(route);
                 if (info.keys.length > 0) {
                     for (var k = 0; k < info.keys.length; k++) {

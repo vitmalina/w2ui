@@ -527,8 +527,8 @@
                         item.selected.splice(ind, 1);
                     }
                 }
-                if (it.route) {
-                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
+                if (typeof it.route == 'string') {
+                    var route = it.route !== '' ? String('/'+ it.route).replace(/\/{2,}/g, '/') : '';
                     var info  = w2utils.parseRoute(route);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {

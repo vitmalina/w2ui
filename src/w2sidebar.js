@@ -476,8 +476,8 @@
                 obj.get(id).selected = true;
                 obj.selected = id;
                 // route processing
-                if (nd.route) {
-                    var route = String('/'+ nd.route).replace(/\/{2,}/g, '/');
+                if (typeof nd.route == 'string') {
+                    var route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : '';
                     var info  = w2utils.parseRoute(route);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
