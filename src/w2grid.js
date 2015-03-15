@@ -2528,14 +2528,11 @@
                 // clear other if necessary
                 if (((!event.ctrlKey && !event.shiftKey && !event.metaKey) || !this.multiSelect) && !this.showSelectColumn) {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
-                    // only if clicked on unselected record
-                    if (!flag) {
-                        if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
-                        if (flag === true) {
-                            this.unselect({ recid: recid, column: column });
-                        } else {
-                            this.select({ recid: recid, column: column });
-                        }
+                    if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
+                    if (flag === true && sel.length == 1) {
+                        this.unselect({ recid: recid, column: column });
+                    } else {
+                        this.select({ recid: recid, column: column });
                     }
                 } else {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
