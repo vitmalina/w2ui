@@ -853,15 +853,6 @@ var w2utils = (function () {
             cache    : false,
             success  : function (data, status, xhr) {
                 w2utils.settings = $.extend(true, w2utils.settings, data);
-                // apply translation to some prototype functions
-                var p = w2obj.grid.prototype;
-                for (var b in p.buttons) { // buttons is an object
-                    p.buttons[b].caption = w2utils.lang(p.buttons[b].caption);
-                    p.buttons[b].tooltip = w2utils.lang(p.buttons[b].tooltip);
-                }
-                p.msgDelete  = w2utils.lang(p.msgDelete);
-                p.msgNotJSON = w2utils.lang(p.msgNotJSON);
-                p.msgRefresh = w2utils.lang(p.msgRefresh);
             },
             error    : function (xhr, status, msg) {
                 console.log('ERROR: Cannot load locale '+ locale);
@@ -2296,24 +2287,24 @@ w2utils.keyboard = (function (obj) {
     // -- Implementation of core functionality
 
     w2grid.prototype = {
-        msgDelete       : w2utils.lang('Are you sure you want to delete selected records?'),
-        msgNotJSON      : w2utils.lang('Returned data is not in valid JSON format.'),
-        msgAJAXerror    : w2utils.lang('AJAX error. See console for more details.'),
-        msgRefresh      : w2utils.lang('Refreshing...'),
-        msgNeedReload   : w2utils.lang('Your remove data source record count has changed, reloading from the first record.'),
+        msgDelete       : 'Are you sure you want to delete selected records?',
+        msgNotJSON      : 'Returned data is not in valid JSON format.',
+        msgAJAXerror    : 'AJAX error. See console for more details.',
+        msgRefresh      : 'Refreshing...',
+        msgNeedReload   : 'Your remove data source record count has changed, reloading from the first record.',
 
         buttons: {
-            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: w2utils.lang('Reload data in the list') },
-            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
+            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
+            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns', arrow: false, html: '' },
             'search'   : { type: 'html',   id: 'w2ui-search',
-                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
+                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+
                                   'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
                           },
-            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: w2utils.lang('Search'), tooltip: w2utils.lang('Open Search Fields') },
-            'add'      : { type: 'button', id: 'w2ui-add', text: w2utils.lang('Add New'), tooltip: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', text: w2utils.lang('Edit'), tooltip: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', text: w2utils.lang('Delete'), tooltip: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', disabled: true },
-            'save'     : { type: 'button', id: 'w2ui-save', text: w2utils.lang('Save'), tooltip: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
+            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: 'Search', tooltip: 'Open Search Fields' },
+            'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: 'Add new record', icon: 'w2ui-icon-plus' },
+            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', disabled: true },
+            'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: 'Save changed records', icon: 'w2ui-icon-check' }
         },
 
         add: function (record, first) {
@@ -3869,7 +3860,7 @@ w2utils.keyboard = (function (obj) {
             // call server to get data
             var obj = this;
             if (this.last.xhr_offset == 0) {
-                obj.lock(obj.msgRefresh, true);
+                obj.lock(w2utils.lang(obj.msgRefresh), true);
             } else {
                 var more = $('#grid_'+ this.name +'_rec_more');
                 if (this.autoLoad === true) {
@@ -3996,7 +3987,7 @@ w2utils.keyboard = (function (obj) {
                     if (data == null) {
                         data = {
                             status       : 'error',
-                            message      : this.msgNotJSON,
+                            message      : w2utils.lang(this.msgNotJSON),
                             responseText : responseText
                         };
                     } else if (obj.recid) {
@@ -4015,7 +4006,7 @@ w2utils.keyboard = (function (obj) {
                                 if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
                             } else {
                                 if (parseInt(data.total) != parseInt(this.total)) {
-                                    w2alert(this.msgNeedReload);
+                                    w2alert(w2utils.lang(this.msgNeedReload));
                                     delete this.last.xhr_offset;
                                     this.reload();
                                     return;
@@ -4048,7 +4039,7 @@ w2utils.keyboard = (function (obj) {
                     message      : this.msgAJAXerror,
                     responseText : responseText
                 };
-                obj.error(this.msgAJAXerror);
+                obj.error(w2utils.lang(this.msgAJAXerror));
             }
             // event after
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -4108,7 +4099,7 @@ w2utils.keyboard = (function (obj) {
             var obj = this;
             var changes = this.getChanges();
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'submit', changes: changes });
+            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes });
             if (eventData.isCancelled === true) return;
             var url = (typeof this.url != 'object' ? this.url : this.url.save);
             if (url) {
@@ -4414,7 +4405,7 @@ w2utils.keyboard = (function (obj) {
             if (this.msgDelete != '' && !force) {
                 w2confirm({
                     title : w2utils.lang('Delete Confirmation'),
-                    msg   : obj.msgDelete,
+                    msg   : w2utils.lang(obj.msgDelete),
                     yes_class : 'btn-red',
                     callBack: function (result) {
                         if (result == 'Yes') w2ui[obj.name]['delete'](true);
@@ -4541,14 +4532,11 @@ w2utils.keyboard = (function (obj) {
                 // clear other if necessary
                 if (((!event.ctrlKey && !event.shiftKey && !event.metaKey) || !this.multiSelect) && !this.showSelectColumn) {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
-                    // only if clicked on unselected record
-                    if (!flag) {
-                        if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
-                        if (flag === true) {
-                            this.unselect({ recid: recid, column: column });
-                        } else {
-                            this.select({ recid: recid, column: column });
-                        }
+                    if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
+                    if (flag === true && sel.length == 1) {
+                        this.unselect({ recid: recid, column: column });
+                    } else {
+                        this.select({ recid: recid, column: column });
                     }
                 } else {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
@@ -11121,11 +11109,11 @@ var w2confirm = function (msg, title, callBack) {
                     if (item.type == 'color') {
                         text = '<div style="height: 12px; width: 12px; margin-top: 1px; border: 1px solid #efefef; '+
                                '        background-color: #'+ (item.color != null ? item.color : 'fff') +'; float: left;"></div>'+
-                               (item.text ? '<div style="margin-left: 17px;">' + item.text + '</div>' : '');
+                               (item.text ? '<div style="margin-left: 17px;">' + w2utils.lang(item.text) + '</div>' : '');
                     }
                     if (item.type == 'text-color') {
                         text = '<div style="color: #'+ (item.color != null ? item.color : '444') +';">'+
-                                    (item.text ? item.text : '<b>Aa</b>') +
+                                    (item.text ? w2utils.lang(item.text) : '<b>Aa</b>') +
                                '</div>';
                     }
                 case 'menu':
@@ -11135,7 +11123,7 @@ var w2confirm = function (msg, title, callBack) {
                 case 'check':
                 case 'radio':
                 case 'drop':
-                    html += '<table cellpadding="0" cellspacing="0" '+ (this.tooltip == 'normal' && item.tooltip != null ? 'title="'+ item.tooltip +'"' : '') +
+                    html += '<table cellpadding="0" cellspacing="0" '+ (this.tooltip == 'normal' && item.tooltip != null ? 'title="'+ w2utils.lang(item.tooltip) +'"' : '') +
                             '       class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
                             '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over'); w2ui['"+ this.name +"'].tooltipShow('"+ item.id +"', event);" : "") + '"'+
@@ -11147,7 +11135,7 @@ var w2confirm = function (msg, title, callBack) {
                             '  <table cellpadding="1" cellspacing="0">'+
                             '  <tr>' +
                                     img +
-                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ text +'</td>' : '') +
+                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ w2utils.lang(text) +'</td>' : '') +
                                     (item.count != null ? '<td class="w2ui-tb-count" nowrap><span>'+ item.count +'</span></td>' : '') +
                                     (((['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
                                         '<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
@@ -11186,7 +11174,7 @@ var w2confirm = function (msg, title, callBack) {
                     $el.prop('_mouse_tooltip', true);
                     // show tooltip
                     if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return; // not for opened drop downs
-                    $el.w2tag(item.tooltip, { position: pos });
+                    $el.w2tag(w2utils.lang(item.tooltip), { position: pos });
                 }
             }, 1);
         },
