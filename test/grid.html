@@ -46,6 +46,9 @@ $(function () {
             { id: 2, text: 'View Item', icon: 'fa-camera' }, 
             { id: 4, text: 'Delete Item', icon: 'fa-minus' }
         ],
+        onSave: function (event) {
+            console.log('save', event);
+        },
         onReorderRow: function (event) {
             console.log('reorder -->', event);
         },

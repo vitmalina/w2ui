@@ -2095,7 +2095,7 @@
             var obj = this;
             var changes = this.getChanges();
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'submit', changes: changes });
+            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes });
             if (eventData.isCancelled === true) return;
             var url = (typeof this.url != 'object' ? this.url : this.url.save);
             if (url) {
