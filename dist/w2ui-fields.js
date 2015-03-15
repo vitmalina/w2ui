@@ -49,6 +49,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added custom colors
 *   - added w2menu.options.type = radio|check
 *   - added w2menu items.hotkey
+*   - added options.contextMenu for w2overlay()
+*   - added options.noTip for w2overlay()
+*   - added options.overlayStyle for w2overlay()
 *
 ************************************************/
 
@@ -1319,22 +1322,25 @@ w2utils.keyboard = (function (obj) {
         var obj  = this;
         var name = '';
         var defaults = {
-            name      : null,      // it not null, then allows multiple concurent overlays
-            html      : '',        // html text to display
-            align     : 'none',    // can be none, left, right, both
-            left      : 0,         // offset left
-            top       : 0,         // offset top
-            tipLeft   : 30,        // tip offset left
-            width     : 0,         // fixed width
-            height    : 0,         // fixed height
-            maxWidth  : null,      // max width if any
-            maxHeight : null,      // max height if any
-            style     : '',        // additional style for main div
-            'class'   : '',        // additional class name for main div
-            onShow    : null,      // event on show
-            onHide    : null,      // event on hide
-            openAbove : false,     // show abover control
-            tmp       : {}
+            name        : null,      // it not null, then allows multiple concurent overlays
+            html        : '',        // html text to display
+            align       : 'none',    // can be none, left, right, both
+            left        : 0,         // offset left
+            top         : 0,         // offset top
+            tipLeft     : 30,        // tip offset left
+            noTip       : false,      // if true - no tip will be displayed
+            width       : 0,         // fixed width
+            height      : 0,         // fixed height
+            maxWidth    : null,      // max width if any
+            maxHeight   : null,      // max height if any
+            contextMenu : false,    // if true, it will be opened at mouse position
+            style       : '',        // additional style for main div
+            'class'     : '',        // additional class name for main div
+            overlayStyle: '',
+            onShow      : null,      // event on show
+            onHide      : null,      // event on hide
+            openAbove   : false,     // show above control
+            tmp         : {}
         };
         if (arguments.length == 1) {
             if (typeof html == 'object') {
@@ -1347,9 +1353,9 @@ w2utils.keyboard = (function (obj) {
         if (!$.isPlainObject(options)) options = {};
         options = $.extend({}, defaults, options);
         if (options.name) name = '-' + options.name;
-        // if empty then hide
+        // hide
         var tmp_hide;
-        if (this.length === 0 || options.html === '' || options.html == null) {
+        if (this.length == 0 || options.html === '' || options.html == null) {
             if ($('#w2ui-overlay'+ name).length > 0) {
                 tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
                 if (typeof tmp_hide === 'function') tmp_hide();
@@ -1358,13 +1364,19 @@ w2utils.keyboard = (function (obj) {
             }
             return $(this);
         }
+        // hide previous if any
         if ($('#w2ui-overlay'+ name).length > 0) {
             tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
             $(document).off('click', tmp_hide);
             if (typeof tmp_hide === 'function') tmp_hide();
         }
+        if (obj.length > 0 && (obj[0].tagName == 'BODY' || obj[0].tagName == null)) options.contextMenu = true;
+        if (options.contextMenu && options.originalEvent == null) {
+            console.log('ERROR: for context menu you need to pass options.originalEvent.');
+        }
+        // append
         $('body').append(
-            '<div id="w2ui-overlay'+ name +'" style="display: none"'+
+            '<div id="w2ui-overlay'+ name +'" style="display: none; '+ options.overlayStyle +'"'+
             '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
             '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
@@ -1378,9 +1390,10 @@ w2utils.keyboard = (function (obj) {
         var bc  = div2.css('background-color');
         if (bc != null && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
 
+        var offset = $(obj).offset() || {};
         div1.data('element', obj.length > 0 ? obj[0] : null)
             .data('options', options)
-            .data('position', $(obj).offset().left + 'x' + $(obj).offset().top)
+            .data('position', offset.left + 'x' + offset.top)
             .fadeIn('fast')
             .on('click', function (event) {
                 // if there is label for input, it will produce 2 click events
@@ -1409,7 +1422,8 @@ w2utils.keyboard = (function (obj) {
             var tmp = $('#w2ui-overlay'+ name);
             if (tmp.data('element') !== obj[0]) return; // it if it different overlay
             if (tmp.length === 0) return;
-            var pos = $(obj).offset().left + 'x' + $(obj).offset().top;
+            var offset = $(obj).offset() || {};
+            var pos = offset.left + 'x' + offset.top;
             if (tmp.data('position') !== pos) {
                 hide();
             } else {
@@ -1418,7 +1432,8 @@ w2utils.keyboard = (function (obj) {
         }
 
         // click anywhere else hides the drop down
-        function hide () {
+        function hide(event) {
+            if (event && event.button != 0) return; // only for left click button
             var div1 = $('#w2ui-overlay'+ name);
             if (div1.data('keepOpen') === true) {
                 div1.removeData('keepOpen');
@@ -1466,50 +1481,74 @@ w2utils.keyboard = (function (obj) {
                     }, 1);
                     setTimeout(function () { div2.find('div.menu').css('overflow-x', 'auto'); }, 10);
                 }
-                // alignment
-                switch (options.align) {
-                    case 'both':
-                        options.left = 17;
-                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
-                        break;
-                    case 'left':
-                        options.left = 17;
-                        break;
-                    case 'right':
-                        options.tipLeft = w - 45;
-                        options.left = w2utils.getSize($(obj), 'width') - w + 10;
-                        break;
-                }
                 // adjust position
                 var tmp = (w - 17) / 2;
                 var boxLeft  = options.left;
                 var boxWidth = options.width;
                 var tipLeft  = options.tipLeft;
+                // alignment
+                switch (options.align) {
+                    case 'both':
+                        boxLeft = 17 + parseInt(options.left);
+                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
+                        break;
+                    case 'left':
+                        boxLeft = 17 + parseInt(options.left);
+                        break;
+                    case 'right':
+                        boxLeft = w - 45 + parseInt(options.left);
+                        tipLeft = w2utils.getSize($(obj), 'width') - w + 10;
+                        break;
+                }
                 if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
                 if (tmp < 25) {
                     boxLeft = 25 - tmp;
                     tipLeft = Math.floor(tmp);
                 }
                 // Y coord
+                var X, Y, offsetTop;
+                if (options.contextMenu) { // context menu
+                    X = options.originalEvent.pageX + 8;
+                    Y = options.originalEvent.pageY - 0;
+                    offsetTop = options.originalEvent.pageY;
+                } else {
+                    var offset = obj.offset() || {};
+                    X = ((offset.left > 25 ? offset.left : 25) + boxLeft);
+                    Y = (offset.top + w2utils.getSize(obj, 'height') + options.top + 7);
+                    offsetTop = offset.top;
+                }
                 div1.css({
-                    top         : (obj.offset().top + w2utils.getSize(obj, 'height') + options.top + 7) + 'px',
-                    left        : ((obj.offset().left > 25 ? obj.offset().left : 25) + boxLeft) + 'px',
+                    top         :  Y + 'px',
+                    left        :  X + 'px',
                     'min-width' : boxWidth,
                     'min-height': (options.height ? options.height : 'auto')
                 });
                 // $(window).height() - has a problem in FF20
-                var maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
-                var maxWidth  = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
+                var offset = div2.offset() || {};
+                var maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7;
+                var maxWidth  = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
+                if (options.contextMenu) { // context menu
+                    maxHeight = window.innerHeight - options.originalEvent.pageY;
+                    maxWidth  = window.innerWidth - options.originalEvent.pageX;
+                }
+
                 if ((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) {
+                    var tipOffset;
                     // show on top
-                    maxHeight = div2.offset().top - $(document).scrollTop() - 7;
+                    if (options.contextMenu) { // context menu
+                        maxHeight = options.originalEvent.pageY - 7;
+                        tipOffset = 5;
+                    } else {
+                        maxHeight = offset.top - $(document).scrollTop() - 7;
+                        tipOffset = 24;
+                    }
                     if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
                     if (h > maxHeight) {
                         overflowY = true;
                         div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
                         h = maxHeight;
                     }
-                    div1.css('top', ($(obj).offset().top - h - 24 + options.top) + 'px');
+                    div1.css('top', (offsetTop - h - tipOffset + options.top) + 'px');
                     div1.find('>style').html(
                         '#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'+
                         '#w2ui-overlay'+ name +':after { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'
@@ -1528,11 +1567,18 @@ w2utils.keyboard = (function (obj) {
                 }
                 // check width
                 w = div2.width();
-                maxWidth = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
+                maxWidth = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
                 if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth;
                 if (w > maxWidth && options.align !== 'both') {
                     options.align = 'right';
                     setTimeout(function () { resize(); }, 1);
+                }
+                // don't show tip
+                if (options.contextMenu || options.noTip) { // context menu
+                    div1.find('>style').html(
+                        '#w2ui-overlay'+ name +':before { display: none; }'+
+                        '#w2ui-overlay'+ name +':after { display: none; }'
+                    );
                 }
                 // check scroll bar
                 if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
@@ -1826,7 +1872,6 @@ w2utils.keyboard = (function (obj) {
                             '</td>' +
                             '</tr>';
                         count++;
-                        console.log(mitem.hotkey);
                     } else {
                         // horizontal line
                         menu_html += '<tr><td colspan="3" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';

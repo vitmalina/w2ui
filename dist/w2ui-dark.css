@@ -2354,6 +2354,11 @@ button.w2ui-btn-small:focus:before {
   border-bottom-right-radius: 6px;
   bottom: 0px !important;
 }
+.w2ui-popup .w2ui-alert-msg,
+.w2ui-popup .w2ui-confirm-msg {
+  font-size: 13px;
+  line-height: 1.5;
+}
 /*************************************************
 * ---- Sidebar ----
 */
