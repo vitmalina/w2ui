@@ -12,7 +12,7 @@
 *
 * == 1.5 changes
 *   - $('#toolbar').w2toolbar() - if called w/o argument then it returns toolbar object
-*   - change enable, disable can disable menu items
+*   - enable, disable, show, hide, get, set, click --> will look into menu items too
 *   - item.render method
 *   - tooltip property
 *   - tooltipShow(), tooltipHide() methods
@@ -92,7 +92,7 @@
             group    : null,        // used for radio buttons
             items    : null,        // for type menu it is an array of items in the menu
             overlay  : {},
-            rebder   : null,        // item renderer if any
+            render   : null,        // item renderer if any
             onClick  : null
         },
 
@@ -134,7 +134,7 @@
             var removed = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
-                if (!it) continue;
+                if (!it || String(arguments[a]).indexOf(':') != -1) continue;
                 removed++;
                 // remove from screen
                 $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove();
@@ -145,11 +145,11 @@
             return removed;
         },
 
-        set: function (id, item) {
-            var index = this.get(id, true);
-            if (index == null) return false;
-            $.extend(this.items[index], item);
-            this.refresh(id);
+        set: function (id, newOptions) {
+            var item = this.get(id);
+            if (item == null) return false;
+            $.extend(item, newOptions);
+            this.refresh(String(id).split(':')[0]);
             return true;
         },
 
@@ -159,9 +159,19 @@
                 for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id !== null) all.push(this.items[i1].id);
                 return all;
             }
+            var tmp = String(id).split(':');
             for (var i2 = 0; i2 < this.items.length; i2++) {
-                if (this.items[i2].id == id) {
-                    if (returnIndex == true) return i2; else return this.items[i2];
+                var it = this.items[i2];
+                // find a menu item
+                if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1 && tmp.length == 2 && it.id == tmp[0]) {
+                    for (var i = 0; i < it.items.length; i++) {
+                        var item = it.items[i];
+                        if (item.id == tmp[1] || (item.id == null && item.text == tmp[1])) {
+                            if (returnIndex == true) return i; else return item;
+                        }
+                    }
+                } else if (it.id == tmp[0]) {
+                    if (returnIndex == true) return i2; else return it;
                 }
             }
             return null;
@@ -176,7 +186,7 @@
                 if (!it) continue;
                 items++;
                 it.hidden = false;
-                tmp.push(it.id);
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
@@ -191,7 +201,7 @@
                 if (!it) continue;
                 items++;
                 it.hidden = true;
-                tmp.push(it.id);
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
@@ -203,22 +213,10 @@
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
-                var id = arguments[a].split(':');
-                var it = this.get(id[0]);
                 if (!it) continue;
                 items++;
-                tmp.push(it.id);
-                if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1 && id.length == 2) {
-                    // disable a menu item
-                    for (var i = 0; i < it.items.length; i++) {
-                        var item = it.items[i]
-                        if (item.id == id[1] || (item.id == null && item.text == id[1])) {
-                            item.disabled = false;
-                        }
-                    }
-                } else {
-                    it.disabled = false;
-                }
+                it.disabled = false;
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
@@ -229,22 +227,11 @@
             var items = 0;
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
-                var id = arguments[a].split(':');
-                var it = this.get(id[0]);
+                var it = this.get(arguments[a]);
                 if (!it) continue;
                 items++;
-                tmp.push(it.id);
-                if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1 && id.length == 2) {
-                    // disable a menu item
-                    for (var i = 0; i < it.items.length; i++) {
-                        var item = it.items[i]
-                        if (item.id == id[1] || (item.id == null && item.text == id[1])) {
-                            item.disabled = true;
-                        }
-                    }
-                } else {
-                    it.disabled = true;
-                }
+                it.disabled = true;
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
@@ -256,10 +243,10 @@
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
-                if (!it) continue;
+                if (!it || String(arguments[a]).indexOf(':') != -1) continue;
                 items++;
                 it.checked = true;
-                tmp.push(it.id);
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
@@ -271,13 +258,127 @@
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
-                if (!it) continue;
+                if (!it || String(arguments[a]).indexOf(':') != -1) continue;
                 items++;
                 it.checked = false;
-                tmp.push(it.id);
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
             setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
             return items;
+        },
+
+        click: function (id, event) {
+            var obj = this;
+            // click on menu items
+            var tmp = String(id).split(':');
+            var it  = this.get(tmp[0]);
+            if (tmp.length > 1) {
+                var subItem = this.get(id);
+                if (subItem && !subItem.disabled) {
+                    obj.menuClick({ name: obj.name, item: it, subItem: subItem, originalEvent: event });                
+                }
+                return;
+            }
+            if (it && !it.disabled) {
+                // event before
+                var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id !== 'undefined' ? id : this.name),
+                    item: it, object: it, originalEvent: event });
+                if (eventData.isCancelled === true) return;
+
+                var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
+                $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
+                obj.tooltipHide(id);
+
+                if (it.type == 'radio') {
+                    for (var i = 0; i < this.items.length; i++) {
+                        var itt = this.items[i];
+                        if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
+                        if (itt.group == it.group && itt.checked) {
+                            itt.checked = false;
+                            this.refresh(itt.id);
+                        }
+                    }
+                    it.checked = true;
+                    $(btn).addClass('checked');
+                }
+
+                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
+                    if (it.checked) {
+                        // if it was already checked, second click will hide it
+                        it.checked = false;
+                    } else {
+                        // show overlay
+                        setTimeout(function () {
+                            var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
+                            if (!$.isPlainObject(it.overlay)) it.overlay = {};
+                            var left = (el.width() - 50) / 2;
+                            if (left > 19) left = 19;
+                            if (it.type == 'drop') {
+                                el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
+                                    onHide: function () { hideDrop(); }
+                                }));
+                            }
+                            if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
+                                var menuType = 'normal';
+                                if (it.type == 'menu-radio') {
+                                    menuType = 'radio';
+                                    it.items.forEach(function (item) {
+                                        if (it.selected == item.id) item.checked = true; else delete item.checked;
+                                    });
+                                }
+                                if (it.type == 'menu-check') {
+                                    menuType = 'check';
+                                    it.items.forEach(function (item) {
+                                        if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else delete item.checked;
+                                    });
+                                }
+                                el.w2menu($.extend({ items: it.items, left: left, top: 3 }, it.overlay, {
+                                    type: menuType,
+                                    select: function (event) {
+                                        obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent });
+                                        hideDrop();
+                                    },
+                                    onHide: function () { hideDrop(); }
+                                }));
+                            }
+                            if (['color', 'text-color'].indexOf(it.type) != -1) {
+                                $(el).w2color(it.color, function (color, index) {
+                                    if (color != null) {
+                                        obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
+                                    }
+                                    hideDrop();
+                                });
+                            }
+                            function hideDrop(event) {
+                                it.checked = false;
+                                $(btn).removeClass('checked');
+                            }
+                        }, 1);
+                    }
+                }
+
+                if (['check', 'menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
+                    it.checked = !it.checked;
+                    if (it.checked) {
+                        $(btn).addClass('checked');
+                    } else {
+                        $(btn).removeClass('checked');
+                    }
+                }
+                // route processing
+                if (it.route) {
+                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
+                    var info  = w2utils.parseRoute(route);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
+                        }
+                    }
+                    setTimeout(function () { window.location.hash = route; }, 1);
+                }
+                // event after
+                this.trigger($.extend(eventData, { phase: 'after' }));
+            }
         },
 
         render: function (box) {
@@ -359,6 +460,11 @@
                     $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
                 }
             } else {
+                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked == true) {
+                    it.checked = false;
+                    html = this.getItemHTML(it);
+                    if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide();
+                }
                 // refresh
                 el.html(html);
                 if (it.hidden) { el.css('display', 'none'); } else { el.css('display', ''); }
@@ -556,112 +662,6 @@
                 event.item.color = event.color;
                 obj.refresh(event.item.id);
 
-                // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
-            }
-        },
-
-
-        click: function (id, event) {
-            var obj = this;
-            var it  = this.get(id);
-            if (it && !it.disabled) {
-                // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id !== 'undefined' ? id : this.name),
-                    item: it, object: it, originalEvent: event });
-                if (eventData.isCancelled === true) return;
-
-                var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
-                $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
-                obj.tooltipHide(id);
-
-                if (it.type == 'radio') {
-                    for (var i = 0; i < this.items.length; i++) {
-                        var itt = this.items[i];
-                        if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
-                        if (itt.group == it.group && itt.checked) {
-                            itt.checked = false;
-                            this.refresh(itt.id);
-                        }
-                    }
-                    it.checked = true;
-                    $(btn).addClass('checked');
-                }
-
-                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
-                    if (it.checked) {
-                        // if it was already checked, second click will hide it
-                        it.checked = false;
-                    } else {
-                        // show overlay
-                        setTimeout(function () {
-                            var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
-                            if (!$.isPlainObject(it.overlay)) it.overlay = {};
-                            var left = (el.width() - 50) / 2;
-                            if (left > 19) left = 19;
-                            if (it.type == 'drop') {
-                                el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
-                                    onHide: function () { hideDrop(); }
-                                }));
-                            }
-                            if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
-                                var menuType = 'normal';
-                                if (it.type == 'menu-radio') {
-                                    menuType = 'radio';
-                                    it.items.forEach(function (item) {
-                                        if (it.selected == item.id) item.checked = true; else delete item.checked;
-                                    });
-                                }
-                                if (it.type == 'menu-check') {
-                                    menuType = 'check';
-                                    it.items.forEach(function (item) {
-                                        if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else delete item.checked;
-                                    });
-                                }
-                                el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
-                                    type: menuType,
-                                    select: function (event) {
-                                        obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent });
-                                        hideDrop();
-                                    },
-                                    onHide: function () { hideDrop(); }
-                                }));
-                            }
-                            if (['color', 'text-color'].indexOf(it.type) != -1) {
-                                $(el).w2color(it.color, function (color, index) {
-                                    if (color != null) {
-                                        obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
-                                    }
-                                    hideDrop();
-                                });
-                            }
-                            function hideDrop(event) {
-                                it.checked = false;
-                                $(btn).removeClass('checked');
-                            }
-                        }, 1);
-                    }
-                }
-
-                if (['check', 'menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
-                    it.checked = !it.checked;
-                    if (it.checked) {
-                        $(btn).addClass('checked');
-                    } else {
-                        $(btn).removeClass('checked');
-                    }
-                }
-                // route processing
-                if (it.route) {
-                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
-                    var info  = w2utils.parseRoute(route);
-                    if (info.keys.length > 0) {
-                        for (var k = 0; k < info.keys.length; k++) {
-                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
-                        }
-                    }
-                    setTimeout(function () { window.location.hash = route; }, 1);
-                }
                 // event after
                 this.trigger($.extend(eventData, { phase: 'after' }));
             }
