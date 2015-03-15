@@ -852,8 +852,6 @@ var w2utils = (function () {
             cache    : false,
             success  : function (data, status, xhr) {
                 w2utils.settings = $.extend(true, w2utils.settings, data);
-                // apply translation to some prototype functions
-                w2obj.grid.localize();
             },
             error    : function (xhr, status, msg) {
                 console.log('ERROR: Cannot load locale '+ locale);

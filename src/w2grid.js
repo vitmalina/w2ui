@@ -283,24 +283,24 @@
     // -- Implementation of core functionality
 
     w2grid.prototype = {
-        msgDelete       : w2utils.lang('Are you sure you want to delete selected records?'),
-        msgNotJSON      : w2utils.lang('Returned data is not in valid JSON format.'),
-        msgAJAXerror    : w2utils.lang('AJAX error. See console for more details.'),
-        msgRefresh      : w2utils.lang('Refreshing...'),
-        msgNeedReload   : w2utils.lang('Your remove data source record count has changed, reloading from the first record.'),
+        msgDelete       : 'Are you sure you want to delete selected records?',
+        msgNotJSON      : 'Returned data is not in valid JSON format.',
+        msgAJAXerror    : 'AJAX error. See console for more details.',
+        msgRefresh      : 'Refreshing...',
+        msgNeedReload   : 'Your remove data source record count has changed, reloading from the first record.',
 
         buttons: {
-            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: w2utils.lang('Reload data in the list') },
-            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: w2utils.lang('Show/hide columns'), arrow: false, html: '' },
+            'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
+            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns', arrow: false, html: '' },
             'search'   : { type: 'html',   id: 'w2ui-search',
-                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
+                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+
                                   'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
                           },
-            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: w2utils.lang('Search'), tooltip: w2utils.lang('Open Search Fields') },
-            'add'      : { type: 'button', id: 'w2ui-add', text: w2utils.lang('Add New'), tooltip: w2utils.lang('Add new record'), icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', text: w2utils.lang('Edit'), tooltip: w2utils.lang('Edit selected record'), icon: 'w2ui-icon-pencil', disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', text: w2utils.lang('Delete'), tooltip: w2utils.lang('Delete selected records'), icon: 'w2ui-icon-cross', disabled: true },
-            'save'     : { type: 'button', id: 'w2ui-save', text: w2utils.lang('Save'), tooltip: w2utils.lang('Save changed records'), icon: 'w2ui-icon-check' }
+            'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: 'Search', tooltip: 'Open Search Fields' },
+            'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: 'Add new record', icon: 'w2ui-icon-plus' },
+            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', disabled: true },
+            'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: 'Save changed records', icon: 'w2ui-icon-check' }
         },
 
         add: function (record, first) {
@@ -1856,7 +1856,7 @@
             // call server to get data
             var obj = this;
             if (this.last.xhr_offset == 0) {
-                obj.lock(obj.msgRefresh, true);
+                obj.lock(w2utils.lang(obj.msgRefresh), true);
             } else {
                 var more = $('#grid_'+ this.name +'_rec_more');
                 if (this.autoLoad === true) {
@@ -1983,7 +1983,7 @@
                     if (data == null) {
                         data = {
                             status       : 'error',
-                            message      : this.msgNotJSON,
+                            message      : w2utils.lang(this.msgNotJSON),
                             responseText : responseText
                         };
                     } else if (obj.recid) {
@@ -2002,7 +2002,7 @@
                                 if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
                             } else {
                                 if (parseInt(data.total) != parseInt(this.total)) {
-                                    w2alert(this.msgNeedReload);
+                                    w2alert(w2utils.lang(this.msgNeedReload));
                                     delete this.last.xhr_offset;
                                     this.reload();
                                     return;
@@ -2035,7 +2035,7 @@
                     message      : this.msgAJAXerror,
                     responseText : responseText
                 };
-                obj.error(this.msgAJAXerror);
+                obj.error(w2utils.lang(this.msgAJAXerror));
             }
             // event after
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -2401,7 +2401,7 @@
             if (this.msgDelete != '' && !force) {
                 w2confirm({
                     title : w2utils.lang('Delete Confirmation'),
-                    msg   : obj.msgDelete,
+                    msg   : w2utils.lang(obj.msgDelete),
                     yes_class : 'btn-red',
                     callBack: function (result) {
                         if (result == 'Yes') w2ui[obj.name]['delete'](true);
