@@ -526,11 +526,11 @@
                     if (item.type == 'color') {
                         text = '<div style="height: 12px; width: 12px; margin-top: 1px; border: 1px solid #efefef; '+
                                '        background-color: #'+ (item.color != null ? item.color : 'fff') +'; float: left;"></div>'+
-                               (item.text ? '<div style="margin-left: 17px;">' + item.text + '</div>' : '');
+                               (item.text ? '<div style="margin-left: 17px;">' + w2utils.lang(item.text) + '</div>' : '');
                     }
                     if (item.type == 'text-color') {
                         text = '<div style="color: #'+ (item.color != null ? item.color : '444') +';">'+
-                                    (item.text ? item.text : '<b>Aa</b>') +
+                                    (item.text ? w2utils.lang(item.text) : '<b>Aa</b>') +
                                '</div>';
                     }
                 case 'menu':
@@ -540,7 +540,7 @@
                 case 'check':
                 case 'radio':
                 case 'drop':
-                    html += '<table cellpadding="0" cellspacing="0" '+ (this.tooltip == 'normal' && item.tooltip != null ? 'title="'+ item.tooltip +'"' : '') +
+                    html += '<table cellpadding="0" cellspacing="0" '+ (this.tooltip == 'normal' && item.tooltip != null ? 'title="'+ w2utils.lang(item.tooltip) +'"' : '') +
                             '       class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
                             '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over'); w2ui['"+ this.name +"'].tooltipShow('"+ item.id +"', event);" : "") + '"'+
@@ -552,7 +552,7 @@
                             '  <table cellpadding="1" cellspacing="0">'+
                             '  <tr>' +
                                     img +
-                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ text +'</td>' : '') +
+                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ w2utils.lang(text) +'</td>' : '') +
                                     (item.count != null ? '<td class="w2ui-tb-count" nowrap><span>'+ item.count +'</span></td>' : '') +
                                     (((['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
                                         '<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
@@ -591,7 +591,7 @@
                     $el.prop('_mouse_tooltip', true);
                     // show tooltip
                     if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return; // not for opened drop downs
-                    $el.w2tag(item.tooltip, { position: pos });
+                    $el.w2tag(w2utils.lang(item.tooltip), { position: pos });
                 }
             }, 1);
         },
