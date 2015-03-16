@@ -92,7 +92,9 @@
             }
         }
 
-        .w2ui-selected, .w2ui-selected:hover {
+        .w2ui-selected, 
+        .w2ui-selected:hover {
+            position: relative;
             .linear-gradient-vertical(@sidebar-node-selected-linear-gradient-start, @sidebar-node-selected-linear-gradient-end);
             border-top: @sidebar-node-selected-border-top;
             border-bottom: @sidebar-node-selected-border-bottom;
@@ -106,7 +108,26 @@
             }
         }
 
-        .w2ui-disabled, .w2ui-disabled:hover {
+        .w2ui-inactive {
+        }
+
+        .w2ui-selected:before {
+            content: "";
+            border: 1px dashed #eee;
+            border-radius: 3px;
+            position: absolute;
+            top: 2px;
+            bottom: 2px;
+            left: 2px;
+            right: 2px;
+        }
+
+        .w2ui-selected.w2ui-inactive:before {
+            border: 1px dashed transparent !important;
+        }
+
+        .w2ui-disabled, 
+        .w2ui-disabled:hover {
             background: transparent !important;
             border-top: @sidebar-node-border-top;
             border-bottom: @sidebar-node-border-bottom;

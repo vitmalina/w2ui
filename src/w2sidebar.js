@@ -20,6 +20,7 @@
 *   - added w2sidebar.flat
 *   - added focus(), blur(), onFocus, onBlur
 *   - unselect w/o arguments will unselect selected node
+*   - added hasFocus property
 *
 ************************************************************************/
 
@@ -40,6 +41,7 @@
         this.bottomHTML    = '';
         this.keyboard      = true;
         this.flat          = false;
+        this.hasFocus      = false;
         this.onClick       = null;      // Fire when user click on Node Text
         this.onDblClick    = null;      // Fire when user dbl clicks
         this.onContextMenu = null;
@@ -493,11 +495,17 @@
         },
 
         focus: function (event) {
+            var obj = this;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
+            this.hasFocus = true;
             $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
+            setTimeout(function () {
+                var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
+                if (!$input.is(':focus')) $input.focus();
+            }, 10);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -507,6 +515,7 @@
             var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
+            this.hasFocus = false;
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -515,7 +524,8 @@
         keydown: function (event) {
             var obj = this;
             var nd  = obj.get(obj.selected);
-            if (!nd || obj.keyboard !== true) return;
+            if (obj.keyboard !== true) return;
+            if (!nd) nd = obj.nodes[0];
             // trigger event
             var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
             if (eventData.isCancelled === true) return;
@@ -667,6 +677,7 @@
 
         render: function (box) {
             var time = (new Date()).getTime();
+            var obj  = this;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
             if (eventData.isCancelled === true) return;
@@ -685,6 +696,8 @@
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-sidebar')
                 .html('<div>'+
+                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; '+
+                        '       width: 0px; border: 0px; padding: 0px; opacity: 0">'+
                         '<div class="w2ui-sidebar-top"></div>' +
                         '<div class="w2ui-sidebar-div"></div>'+
                         '<div class="w2ui-sidebar-bottom"></div>'+
@@ -706,6 +719,30 @@
                 $(this.box).find('.w2ui-sidebar-div')
                     .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
             }
+            // focus
+            var kbd_timer;
+            $(this.box).find('#sidebar_'+ this.name + '_focus')
+                .on('focus', function (event) { 
+                    clearTimeout(kbd_timer);
+                    if (!obj.hasFocus) obj.focus();
+                })
+                .on('blur', function (event) { 
+                    kbd_timer = setTimeout(function () { 
+                        if (obj.hasFocus) { obj.blur(); }
+                    }, 100);
+                })
+                .on('keydown', function (event) {
+                    if (event.keyCode != 9) { // not tab
+                        w2ui[obj.name].keydown.call(w2ui[obj.name], event);
+                    } 
+                });
+            $(this.box).off('mousedown').on('mousedown', function () {
+                // set focus to grid
+                setTimeout(function () {
+                    var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
+                    if (!$input.is(':focus')) $input.focus();
+                }, 1);
+            });
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             // ---
