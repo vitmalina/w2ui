@@ -15,7 +15,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - $().w2overlay    - overlay plugin
 *        - $().w2menu       - menu plugin
 *        - w2utils.event    - generic event object
-*        - w2utils.keyboard - object for keyboard navigation
 *  - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
@@ -1059,76 +1058,6 @@ w2utils.event = {
 };
 
 /***********************************************************
-*  Common Keyboard Handler. Supported in
-*  - grid
-*  - sidebar
-*  - popup
-*
-*********************************************************/
-
-w2utils.keyboard = (function (obj) {
-    // private scope
-    var w2ui_name = null;
-
-    obj.active    = active;
-    obj.clear     = clear;
-
-    init();
-    return obj;
-
-    function init() {
-        $(document).on('keydown', keydown);
-        $(document).on('mousedown', mousedown);
-    }
-
-    function keydown (event) {
-        var tag = event.target.tagName;
-        if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) !== -1) return;
-        if ($(event.target).prop('contenteditable') === 'true') return;
-        if (!w2ui_name) return;
-        // pass to appropriate widget
-        if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].keydown === 'function') {
-            w2ui[w2ui_name].keydown.call(w2ui[w2ui_name], event);
-        }
-    }
-
-    function mousedown (event) {
-        var tag = event.target.tagName;
-        var els = $(event.target).parents('.w2ui-grid, .w2ui-sidebar, .w2ui-popup, .w2ui-keyboard');
-        if (els.length > 0) {
-            var name = els.attr('name');
-            var obj = w2ui[name];
-            if (name != w2ui_name) {
-                if (clear(event) === false) return; // event cancelled
-                if (active(name, event) === false) return; // event cancelled
-            }
-            if (obj && obj.keyboard) w2ui_name = name;
-        } else {
-            clear(event);
-        }
-    }
-
-    function active (new_w2ui_name, event) {
-        if (new_w2ui_name == null) return w2ui_name;
-        var obj = w2ui[new_w2ui_name];
-        if (obj && obj.focus) {
-            if (obj.focus.call(obj, event) === false) return false;
-        }
-        w2ui_name = new_w2ui_name;
-        return true;
-    }
-
-    function clear (event) {
-        if (w2ui_name != null && w2ui[w2ui_name] && w2ui[w2ui_name].blur) {
-            if (w2ui[w2ui_name].blur.call(w2ui[w2ui_name], event) === false) return false;
-        }
-        w2ui_name = null;
-        return true;
-    }
-
-})({});
-
-/***********************************************************
 *  Commonly used plugins
 *  --- used primarily in grid and form
 *
@@ -2069,6 +1998,7 @@ w2utils.keyboard = (function (obj) {
 *   - getColumn without params returns fields of all columns
 *   - getSearch without params returns fields of all searches
 *   - added column.tooltip
+*   - added hasFocus, refactored w2utils.keyboard
 *
 ************************************************************************/
 
@@ -2119,6 +2049,7 @@ w2utils.keyboard = (function (obj) {
             skipRecords     : true
         };
 
+        this.hasFocus         = false;
         this.autoLoad        = true;     // for infinite scroll
         this.fixedBody       = true;     // if false; then grid grows with data
         this.recordHeight    = 24;
@@ -4444,8 +4375,9 @@ w2utils.keyboard = (function (obj) {
         },
 
         click: function (recid, event) {
-            var time = (new Date()).getTime();
+            var time   = (new Date()).getTime();
             var column = null;
+            var obj    = this;
             if (this.last.cancelClick == true || (event && event.altKey)) return;
             if (typeof recid == 'object') {
                 column = recid.column;
@@ -4608,11 +4540,17 @@ w2utils.keyboard = (function (obj) {
         },
 
         focus: function (event) {
+            var obj = this;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
+            this.hasFocus = true;
             $(this.box).find('.w2ui-inactive').removeClass('w2ui-inactive');
+            setTimeout(function () {
+                var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                if (!$input.is(':focus')) $input.focus();
+            }, 10);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -4622,6 +4560,7 @@ w2utils.keyboard = (function (obj) {
             var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
+            this.hasFocus = false;
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
             $(this.box).find('.w2ui-selection').addClass('w2ui-inactive');
             // event after
@@ -4721,7 +4660,7 @@ w2utils.keyboard = (function (obj) {
                         var recid = parent.prev().attr('recid');
                         var grid  = parent.parents('.w2ui-grid').attr('name');
                         obj.selectNone();
-                        w2utils.keyboard.active(grid, event);
+                        // w2utils.keyboard.active(grid, event);
                         w2ui[grid].set(recid, { expanded: false });
                         w2ui[grid].collapse(recid);
                         w2ui[grid].click(recid);
@@ -4845,7 +4784,7 @@ w2utils.keyboard = (function (obj) {
                                 obj.selectNone();
                                 var grid = subgrid.attr('name');
                                 var recs = w2ui[grid].records;
-                                w2utils.keyboard.active(grid, event);
+                                // w2utils.keyboard.active(grid, event);
                                 w2ui[grid].click(recs[recs.length-1].recid);
                                 cancel = true;
                                 break;
@@ -4892,7 +4831,7 @@ w2utils.keyboard = (function (obj) {
                             var recid = parent.prev().attr('recid');
                             var grid  = parent.parents('.w2ui-grid').attr('name');
                             obj.selectNone();
-                            w2utils.keyboard.active(grid, event);
+                            // w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recid);
                             cancel = true;
                             break;
@@ -4910,7 +4849,7 @@ w2utils.keyboard = (function (obj) {
                             obj.selectNone();
                             var grid = subgrid.attr('name');
                             var recs = w2ui[grid].records;
-                            w2utils.keyboard.active(grid, event);
+                            // w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recs[0].recid);
                             cancel = true;
                             break;
@@ -4967,7 +4906,7 @@ w2utils.keyboard = (function (obj) {
                             var recid = parent.next().attr('recid');
                             var grid  = parent.parents('.w2ui-grid').attr('name');
                             obj.selectNone();
-                            w2utils.keyboard.active(grid, event);
+                            // w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recid);
                             cancel = true;
                             break;
@@ -5680,6 +5619,7 @@ w2utils.keyboard = (function (obj) {
                       '    <div id="grid_'+ this.name +'_fsummary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
+                      '    <input id="grid_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; width: 0px; border: 0px; padding: 0px; opacity: 0">'+
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -5698,11 +5638,26 @@ w2utils.keyboard = (function (obj) {
             this.stateRestore();
             if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
             this.reload();
-
+            // focus
+            var kbd_timer;
+            $(this.box).find('#grid_'+ this.name + '_focus')
+                .on('focus', function (event) { 
+                    clearTimeout(kbd_timer);
+                    if (!obj.hasFocus) obj.focus();
+                })
+                .on('blur', function (event) { 
+                    kbd_timer = setTimeout(function () { 
+                        if (obj.hasFocus) { obj.blur(); }
+                    }, 100);
+                })
+                .on('keydown', function (event) {
+                    if (event.keyCode != 9) { // not tab
+                        w2ui[obj.name].keydown.call(w2ui[obj.name], event);
+                    } 
+                });
             // init mouse events for mouse selection
             $(this.box).on('mousedown', mouseStart);
             $(this.box).on('selectstart', function () { return false; }); // fixes chrome cursor bug
-
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             // attach to resize event
@@ -5713,6 +5668,12 @@ w2utils.keyboard = (function (obj) {
             return (new Date()).getTime() - time;
 
             function mouseStart (event) {
+                // set focus to grid
+                setTimeout(function () {
+                    var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                    if (!$input.is(':focus')) $input.focus();
+                }, 1);
+
                 if (event.which != 1) return; // if not left mouse button
                 // restore css user-select
                 if (obj.last.userSelect == 'text') {
@@ -6350,8 +6311,9 @@ w2utils.keyboard = (function (obj) {
                         '<table cellpadding="0" cellspacing="0"><tr>'+
                         '    <td>'+ this.buttons['search'].html +'</td>'+
                         '    <td>'+
-                        '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
+                        '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
+                        '            onmousedown="event.stopPropagation()"'+
                         '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
                         '                var grid = w2ui[\''+ this.name +'\']; '+
@@ -9413,8 +9375,7 @@ var w2popup = {};
             }
 
             // save new options
-            options._last_w2ui_name = w2utils.keyboard.active();
-            w2utils.keyboard.clear();
+            options._last_focus = $(':focus');
             // keyboard events
             if (options.keyboard) $(document).on('keydown', this.keydown);
 
@@ -9520,11 +9481,11 @@ var w2popup = {};
                 obj._restoreTemplate();
                 $('#w2ui-popup').remove();
                 w2popup.status = 'closed';
+                // restore active
+                if (options._last_focus.length > 0) options._last_focus.focus();
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after'}));
             }, options.speed * 1000);
-            // restore active
-            w2utils.keyboard.active(options._last_w2ui_name, {});
             // remove keyboard events
             if (options.keyboard) $(document).off('keydown', this.keydown);
         },
@@ -11278,6 +11239,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - added w2sidebar.flat
 *   - added focus(), blur(), onFocus, onBlur
 *   - unselect w/o arguments will unselect selected node
+*   - added hasFocus property
 *
 ************************************************************************/
 
@@ -11298,6 +11260,7 @@ var w2confirm = function (msg, title, callBack) {
         this.bottomHTML    = '';
         this.keyboard      = true;
         this.flat          = false;
+        this.hasFocus      = false;
         this.onClick       = null;      // Fire when user click on Node Text
         this.onDblClick    = null;      // Fire when user dbl clicks
         this.onContextMenu = null;
@@ -11751,11 +11714,17 @@ var w2confirm = function (msg, title, callBack) {
         },
 
         focus: function (event) {
+            var obj = this;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
+            this.hasFocus = true;
             $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
+            setTimeout(function () {
+                var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
+                if (!$input.is(':focus')) $input.focus();
+            }, 10);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -11765,6 +11734,7 @@ var w2confirm = function (msg, title, callBack) {
             var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
+            this.hasFocus = false;
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -11773,7 +11743,8 @@ var w2confirm = function (msg, title, callBack) {
         keydown: function (event) {
             var obj = this;
             var nd  = obj.get(obj.selected);
-            if (!nd || obj.keyboard !== true) return;
+            if (obj.keyboard !== true) return;
+            if (!nd) nd = obj.nodes[0];
             // trigger event
             var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
             if (eventData.isCancelled === true) return;
@@ -11925,6 +11896,7 @@ var w2confirm = function (msg, title, callBack) {
 
         render: function (box) {
             var time = (new Date()).getTime();
+            var obj  = this;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
             if (eventData.isCancelled === true) return;
@@ -11943,6 +11915,8 @@ var w2confirm = function (msg, title, callBack) {
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-sidebar')
                 .html('<div>'+
+                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; '+
+                        '       width: 0px; border: 0px; padding: 0px; opacity: 0">'+
                         '<div class="w2ui-sidebar-top"></div>' +
                         '<div class="w2ui-sidebar-div"></div>'+
                         '<div class="w2ui-sidebar-bottom"></div>'+
@@ -11964,6 +11938,30 @@ var w2confirm = function (msg, title, callBack) {
                 $(this.box).find('.w2ui-sidebar-div')
                     .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
             }
+            // focus
+            var kbd_timer;
+            $(this.box).find('#sidebar_'+ this.name + '_focus')
+                .on('focus', function (event) { 
+                    clearTimeout(kbd_timer);
+                    if (!obj.hasFocus) obj.focus();
+                })
+                .on('blur', function (event) { 
+                    kbd_timer = setTimeout(function () { 
+                        if (obj.hasFocus) { obj.blur(); }
+                    }, 100);
+                })
+                .on('keydown', function (event) {
+                    if (event.keyCode != 9) { // not tab
+                        w2ui[obj.name].keydown.call(w2ui[obj.name], event);
+                    } 
+                });
+            $(this.box).off('mousedown').on('mousedown', function () {
+                // set focus to grid
+                setTimeout(function () {
+                    var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
+                    if (!$input.is(':focus')) $input.focus();
+                }, 1);
+            });
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             // ---

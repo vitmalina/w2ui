@@ -2445,6 +2445,7 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover {
+  position: relative;
   background-image: -webkit-linear-gradient(#69b1e0, #4a96d3);
   background-image: -moz-linear-gradient(#69b1e0, #4a96d3);
   background-image: -ms-linear-gradient(#69b1e0, #4a96d3);
@@ -2464,6 +2465,19 @@ button.w2ui-btn-small:focus:before {
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover td.w2ui-node-dots {
   color: #ffffff !important;
   text-shadow: 1px 1px 2px #666666 !important;
+}
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:before {
+  content: "";
+  border: 1px dashed #eee;
+  border-radius: 3px;
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+}
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected.w2ui-inactive:before {
+  border: 1px dashed transparent !important;
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover {
