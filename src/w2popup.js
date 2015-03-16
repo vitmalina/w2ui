@@ -276,8 +276,7 @@ var w2popup = {};
             }
 
             // save new options
-            options._last_w2ui_name = w2utils.keyboard.active();
-            w2utils.keyboard.clear();
+            options._last_focus = $(':focus');
             // keyboard events
             if (options.keyboard) $(document).on('keydown', this.keydown);
 
@@ -383,11 +382,11 @@ var w2popup = {};
                 obj._restoreTemplate();
                 $('#w2ui-popup').remove();
                 w2popup.status = 'closed';
+                // restore active
+                if (options._last_focus.length > 0) options._last_focus.focus();
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after'}));
             }, options.speed * 1000);
-            // restore active
-            w2utils.keyboard.active(options._last_w2ui_name, {});
             // remove keyboard events
             if (options.keyboard) $(document).off('keydown', this.keydown);
         },

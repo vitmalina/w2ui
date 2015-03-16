@@ -14,7 +14,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - $().w2overlay    - overlay plugin
 *        - $().w2menu       - menu plugin
 *        - w2utils.event    - generic event object
-*        - w2utils.keyboard - object for keyboard navigation
 *  - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
@@ -1056,77 +1055,6 @@ w2utils.event = {
         return eventData;
     }
 };
-
-/***********************************************************
-*  Common Keyboard Handler. Supported in
-*  - grid
-*  - sidebar
-*  - popup
-*
-*********************************************************/
-
-w2utils.keyboard = (function (obj) {
-    // private scope
-    var w2ui_name = null;
-
-    obj.active    = active;
-    obj.clear     = clear;
-
-    init();
-    return obj;
-
-    function init() {
-        $(document).on('keydown', keydown);
-        $(document).on('mousedown', mousedown);
-    }
-
-    function keydown (event) {
-        var tag = event.target.tagName;
-        if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) !== -1) return;
-        if ($(event.target).prop('contenteditable') === 'true') return;
-        if (!w2ui_name) return;
-        // pass to appropriate widget
-        if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].keydown === 'function') {
-            w2ui[w2ui_name].keydown.call(w2ui[w2ui_name], event);
-        }
-    }
-
-    function mousedown (event) {
-        var tag = event.target.tagName;
-        var els = $(event.target).parents('.w2ui-popup, .w2ui-keyboard');
-        if (els.length > 0) {
-            var name = els.attr('name');
-            var obj = w2ui[name];
-            if (name != w2ui_name) {
-                if (clear(event) === false) return; // event cancelled
-                if (active(name, event) === false) return; // event cancelled
-            }
-            if (obj && obj.keyboard) w2ui_name = name;
-        } else {
-            clear(event);
-        }
-    }
-
-    function active (new_w2ui_name, event) {
-        if (new_w2ui_name == null) return w2ui_name;
-        var obj = w2ui[new_w2ui_name];
-        var old_name = w2ui_name;
-        w2ui_name = new_w2ui_name;
-        if (old_name != w2ui_name && obj && obj.focus) {
-            if (obj.focus.call(obj, event) === false) return false;
-        }
-        return true;
-    }
-
-    function clear (event) {
-        if (w2ui_name != null && w2ui[w2ui_name] && w2ui[w2ui_name].blur) {
-            if (w2ui[w2ui_name].blur.call(w2ui[w2ui_name], event) === false) return false;
-        }
-        w2ui_name = null;
-        return true;
-    }
-
-})({});
 
 /***********************************************************
 *  Commonly used plugins
