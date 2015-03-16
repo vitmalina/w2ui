@@ -429,7 +429,7 @@
             if (parent.nodes == null) return false;
             for (var i = 0; i < parent.nodes.length; i++) {
                 if (parent.nodes[i].expanded === false) parent.nodes[i].expanded = true;
-                if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
+                if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.expandAll(parent.nodes[i]);
             }
             this.refresh(parent.id);
         },
