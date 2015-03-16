@@ -235,16 +235,17 @@ $(function () {
 </script>
 </head>
 <body>
+    <input placeholder="before grid" style="margin: 10px 0px;">
     <div id="grid" style="width: 1024px; height: 568px;"></div>
+    <input placeholder="after grid" style="margin: 10px 0px;">
     <br>
-    <input type="button" value="destroy"  onclick="$().w2destroy('grid');">
-    <input type="button" value="Jump 0"   onclick="w2ui.grid.skip(0);">
-    <input type="button" value="Jump 10"  onclick="w2ui.grid.skip(10);">
-    <input type="button" value="Jump 110" onclick="w2ui.grid.skip(110);">
-    <input type="button" value="Jump 300" onclick="w2ui.grid.skip(300);">
-    <input type="button" value="Jump 375" onclick="w2ui.grid.skip(375);">
+    <button class="w2ui-btn" onclick="$().w2destroy('grid');">Destroy</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(0);">Skip 0</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(10);">Skip 10</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(110);">Skip 110</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(300);">Skip 300</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(375);">Skip 375</button>
     <br>
     <div id="log" style="padding-top: 10px"></div>
-    this is some text
 </body>
 </html>

@@ -65,6 +65,7 @@
 *   - getColumn without params returns fields of all columns
 *   - getSearch without params returns fields of all searches
 *   - added column.tooltip
+*   - added hasFocus, refactored w2utils.keyboard
 *
 ************************************************************************/
 
@@ -115,6 +116,7 @@
             skipRecords     : true
         };
 
+        this.hasFocus         = false;
         this.autoLoad        = true;     // for infinite scroll
         this.fixedBody       = true;     // if false; then grid grows with data
         this.recordHeight    = 24;
@@ -2440,8 +2442,9 @@
         },
 
         click: function (recid, event) {
-            var time = (new Date()).getTime();
+            var time   = (new Date()).getTime();
             var column = null;
+            var obj    = this;
             if (this.last.cancelClick == true || (event && event.altKey)) return;
             if (typeof recid == 'object') {
                 column = recid.column;
@@ -2604,11 +2607,17 @@
         },
 
         focus: function (event) {
+            var obj = this;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
+            this.hasFocus = true;
             $(this.box).find('.w2ui-inactive').removeClass('w2ui-inactive');
+            setTimeout(function () {
+                var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                if (!$input.is(':focus')) $input.focus();
+            }, 10);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -2618,6 +2627,7 @@
             var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
             if (eventData.isCancelled === true) return false;
             // default behaviour
+            this.hasFocus = false;
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
             $(this.box).find('.w2ui-selection').addClass('w2ui-inactive');
             // event after
@@ -2717,7 +2727,7 @@
                         var recid = parent.prev().attr('recid');
                         var grid  = parent.parents('.w2ui-grid').attr('name');
                         obj.selectNone();
-                        w2utils.keyboard.active(grid, event);
+                        // w2utils.keyboard.active(grid, event);
                         w2ui[grid].set(recid, { expanded: false });
                         w2ui[grid].collapse(recid);
                         w2ui[grid].click(recid);
@@ -2841,7 +2851,7 @@
                                 obj.selectNone();
                                 var grid = subgrid.attr('name');
                                 var recs = w2ui[grid].records;
-                                w2utils.keyboard.active(grid, event);
+                                // w2utils.keyboard.active(grid, event);
                                 w2ui[grid].click(recs[recs.length-1].recid);
                                 cancel = true;
                                 break;
@@ -2888,7 +2898,7 @@
                             var recid = parent.prev().attr('recid');
                             var grid  = parent.parents('.w2ui-grid').attr('name');
                             obj.selectNone();
-                            w2utils.keyboard.active(grid, event);
+                            // w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recid);
                             cancel = true;
                             break;
@@ -2906,7 +2916,7 @@
                             obj.selectNone();
                             var grid = subgrid.attr('name');
                             var recs = w2ui[grid].records;
-                            w2utils.keyboard.active(grid, event);
+                            // w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recs[0].recid);
                             cancel = true;
                             break;
@@ -2963,7 +2973,7 @@
                             var recid = parent.next().attr('recid');
                             var grid  = parent.parents('.w2ui-grid').attr('name');
                             obj.selectNone();
-                            w2utils.keyboard.active(grid, event);
+                            // w2utils.keyboard.active(grid, event);
                             w2ui[grid].click(recid);
                             cancel = true;
                             break;
@@ -3676,6 +3686,7 @@
                       '    <div id="grid_'+ this.name +'_fsummary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
+                      '    <input id="grid_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; width: 0px; border: 0px; padding: 0px; opacity: 0">'+
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -3694,11 +3705,26 @@
             this.stateRestore();
             if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
             this.reload();
-
+            // focus
+            var kbd_timer;
+            $(this.box).find('#grid_'+ this.name + '_focus')
+                .on('focus', function (event) { 
+                    clearTimeout(kbd_timer);
+                    if (!obj.hasFocus) obj.focus();
+                })
+                .on('blur', function (event) { 
+                    kbd_timer = setTimeout(function () { 
+                        if (obj.hasFocus) { obj.blur(); }
+                    }, 100);
+                })
+                .on('keydown', function (event) {
+                    if (event.keyCode != 9) { // not tab
+                        w2ui[obj.name].keydown.call(w2ui[obj.name], event);
+                    } 
+                });
             // init mouse events for mouse selection
             $(this.box).on('mousedown', mouseStart);
             $(this.box).on('selectstart', function () { return false; }); // fixes chrome cursor bug
-
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             // attach to resize event
@@ -3709,6 +3735,12 @@
             return (new Date()).getTime() - time;
 
             function mouseStart (event) {
+                // set focus to grid
+                setTimeout(function () {
+                    var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                    if (!$input.is(':focus')) $input.focus();
+                }, 1);
+
                 if (event.which != 1) return; // if not left mouse button
                 // restore css user-select
                 if (obj.last.userSelect == 'text') {
@@ -4346,8 +4378,9 @@
                         '<table cellpadding="0" cellspacing="0"><tr>'+
                         '    <td>'+ this.buttons['search'].html +'</td>'+
                         '    <td>'+
-                        '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" '+
+                        '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
+                        '            onmousedown="event.stopPropagation()"'+
                         '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
                         '                var grid = w2ui[\''+ this.name +'\']; '+
