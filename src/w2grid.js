@@ -2166,8 +2166,8 @@
                     html += '<option value="'+ edit.items[i].id +'" '+ (edit.items[i].id == val ? 'selected' : '') +'>'+ edit.items[i].text +'</option>';
                 }
                 el.addClass('w2ui-editable')
-                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'" '+
-                        '    style="width: 100%; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
+                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'" onmousedown="event.stopPropagation()"'+
+                        '    style="width: 100%; outline: none; border: 0px !important;'+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    '+ edit.inTag +
                         '>'+ html +'</select>' + edit.outTag);
                 el.find('select').focus()
@@ -2307,6 +2307,7 @@
                     });
                 // focus and select
                 var tmp = el.find('input').focus();
+                clearTimeout(obj.last.kbd_timer); // keep focus
                 if (value != null) {
                     // set cursor to the end
                     tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
@@ -2320,6 +2321,12 @@
         },
 
         editChange: function (el, index, column, event) {
+            var obj = this;
+            // keep focus
+            setTimeout(function () {
+                var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                if (!$input.is(':focus')) $input.focus();
+            }, 10);
             // all other fields
             var summary = index < 0;
             index = index < 0 ? -index - 1 : index;
@@ -2404,7 +2411,7 @@
                 w2confirm({
                     title : w2utils.lang('Delete Confirmation'),
                     msg   : w2utils.lang(obj.msgDelete),
-                    yes_class : 'btn-red',
+                    yes_class : 'w2ui-btn-red',
                     callBack: function (result) {
                         if (result == 'Yes') w2ui[obj.name]['delete'](true);
                     }
@@ -2416,8 +2423,8 @@
             if (url) {
                 this.request('delete-records');
             } else {
-                this.selectNone();
                 if (typeof recs[0] != 'object') {
+                    this.selectNone();
                     this.remove.apply(this, recs);
                 } else {
                     // clear cells
@@ -2987,18 +2994,7 @@
                 case 91: // cmd key
                     // SLOW: 10k records take 7.0
                     if (empty) break;
-                    var text = obj.copy();
-                    $('body').append('<textarea id="_tmp_copy_data" '+
-                        '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
-                        '   onkeydown="w2ui[\''+ obj.name +'\'].keydown(event)"'+
-                        '   style="position: absolute; top: -100px; height: 1px; width: 1px">'+ text +'</textarea>');
-                    $('#_tmp_copy_data').focus().select();
-                    // remove _tmp_copy_data textarea
-                    function tmp_key_down() {
-                        $('#_tmp_copy_data').remove();
-                        $(document).off('keyup', tmp_key_down);
-                    }
-                    $(document).on('keyup', tmp_key_down);
+                    $('#grid_'+ obj.name + '_focus').val(obj.copy()).select();
                     break;
 
                 case 88: // x - cut
@@ -3015,6 +3011,16 @@
                 var tmp = String.fromCharCode(key);
                 if (!shiftKey) tmp = tmp.toLowerCase();
                 switch (key) {
+                    case 49:  tmp = (!event.shiftKey ? '1' : '!'); break;
+                    case 50:  tmp = (!event.shiftKey ? '2' : '@'); break;
+                    case 51:  tmp = (!event.shiftKey ? '3' : '#'); break;
+                    case 52:  tmp = (!event.shiftKey ? '4' : '$'); break;
+                    case 53:  tmp = (!event.shiftKey ? '5' : '%'); break;
+                    case 54:  tmp = (!event.shiftKey ? '6' : '^'); break;
+                    case 55:  tmp = (!event.shiftKey ? '7' : '&'); break;
+                    case 56:  tmp = (!event.shiftKey ? '8' : '*'); break;
+                    case 57:  tmp = (!event.shiftKey ? '9' : '('); break;
+                    case 48:  tmp = (!event.shiftKey ? '0' : ')'); break;
                     case 187: tmp = (!event.shiftKey ? '=' : '+'); break;
                     case 189: tmp = (!event.shiftKey ? '-' : '_'); break;
                     case 192: tmp = (!event.shiftKey ? '`' : '~'); break;
@@ -3686,7 +3692,8 @@
                       '    <div id="grid_'+ this.name +'_fsummary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
-                      '    <input id="grid_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; width: 0px; border: 0px; padding: 0px; opacity: 0">'+
+                      '    <textarea id="grid_'+ this.name +'_focus" style="position: absolute; top: -10px; right: 0px; z-index: 1; '+
+                      '         width: 1px; height: 1px; border: 0px; padding: 0px; opacity: 0; resize: none"></textarea>'+
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -3706,16 +3713,19 @@
             if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
             this.reload();
             // focus
-            var kbd_timer;
             $(this.box).find('#grid_'+ this.name + '_focus')
                 .on('focus', function (event) { 
-                    clearTimeout(kbd_timer);
+                    clearTimeout(obj.last.kbd_timer);
                     if (!obj.hasFocus) obj.focus();
                 })
                 .on('blur', function (event) { 
-                    kbd_timer = setTimeout(function () { 
+                    obj.last.kbd_timer = setTimeout(function () { 
                         if (obj.hasFocus) { obj.blur(); }
-                    }, 100);
+                    }, 100); // need this timer to be 100 ms
+                })
+                .on('paste', function (event) {
+                    var el = this;
+                    setTimeout(function () { w2ui[obj.name].paste(el.value); }, 1)
                 })
                 .on('keydown', function (event) {
                     if (event.keyCode != 9) { // not tab
@@ -4022,7 +4032,7 @@
             var col_html =  '<div class="w2ui-col-on-off">'+
                             '<table><tr>'+
                             '<td style="width: 30px">'+
-                            '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabIndex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
+                            '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabindex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
                             '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
                             '</td>'+
                             '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(document).click();">'+
@@ -4036,7 +4046,7 @@
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
                 col_html += '<tr>'+
                     '<td style="width: 30px">'+
-                    '    <input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+ (col.hidden ? '' : 'checked') +
+                    '    <input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabindex="-1" '+ (col.hidden ? '' : 'checked') +
                     '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');">'+
                     '</td>'+
                     '<td>'+
@@ -4380,7 +4390,8 @@
                         '    <td>'+
                         '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
-                        '            onmousedown="event.stopPropagation()"'+
+                        '            onmousedown="event.stopPropagation();"'+
+                        '            onfocus="clearTimeout(w2ui[\''+ this.name +'\'].last.kbd_timer);"'+
                         '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
                         '                var grid = w2ui[\''+ this.name +'\']; '+
@@ -5215,7 +5226,7 @@
                     html1 += '<td class="w2ui-head w2ui-col-select" '+
                             '        onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
                             '    <div>'+
-                            '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" tabIndex="-1"'+
+                            '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" tabindex="-1"'+
                             '            style="' + (obj.multiSelect == false ? 'display: none;' : '') + '"'+
                             '            onclick="if (this.checked) w2ui[\''+ obj.name +'\'].selectAll(); '+
                             '                     else w2ui[\''+ obj.name +'\'].selectNone(); '+
@@ -5618,7 +5629,7 @@
                         '        onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
                             (summary !== true ?
                             '    <div>'+
-                            '        <input class="w2ui-grid-select-check" type="checkbox" tabIndex="-1"'+
+                            '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1"'+
                             '            '+ (isRowSelected ? 'checked="checked"' : '') +
                             '            onclick="var obj = w2ui[\''+ this.name +'\']; '+
                             '                if (!obj.multiSelect) { obj.selectNone(); }'+
@@ -5745,7 +5756,7 @@
                 if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
                     var changeInd = summary ? -(ind + 1) : ind;
                     addStyle = 'text-align: center';
-                    data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
+                    data = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
                            '    var obj = w2ui[\''+ this.name + '\']; '+
                            '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                            '">';
