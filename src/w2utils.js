@@ -1295,7 +1295,7 @@ w2utils.event = {
         }
         // append
         $('body').append(
-            '<div id="w2ui-overlay'+ name +'" style="display: none; '+ options.overlayStyle +'"'+
+            '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'"'+
             '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
             '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
@@ -1326,7 +1326,6 @@ w2utils.event = {
         div1[0].resize = resize;
 
         // need time to display
-        resize();
         setTimeout(function () {
             resize();
             $(document).off('click', hide).on('click', hide);
@@ -1415,8 +1414,8 @@ w2utils.event = {
                         boxLeft = 17 + parseInt(options.left);
                         break;
                     case 'right':
-                        boxLeft = w - 45 + parseInt(options.left);
-                        tipLeft = w2utils.getSize($(obj), 'width') - w + 10;
+                        boxLeft = w2utils.getSize($(obj), 'width') - w + 14 + parseInt(options.left);
+                        tipLeft = w - 40;
                         break;
                 }
                 if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
@@ -1437,8 +1436,8 @@ w2utils.event = {
                     offsetTop = offset.top;
                 }
                 div1.css({
-                    top         :  Y + 'px',
                     left        :  X + 'px',
+                    top         :  Y + 'px',
                     'min-width' : boxWidth,
                     'min-height': (options.height ? options.height : 'auto')
                 });

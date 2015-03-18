@@ -128,21 +128,34 @@
         // resiabled elements
         $('#resize_list').w2field('list', { icon: 'fa-star', items: items, selected: $.parseJSON('{"id":4,"fname":"Thomas","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":2651849,"sdate":1566800000000,"text":"Thomas Cuban","hidden":false}') });
         $('#resize_enum').w2field('enum', { icon: 'fa-star', items: items });        
-        $('#resize_file').w2field('file', { icon: 'fa-star', items: items });        
+        $('#resize_file').w2field('file', { icon: 'fa-star', items: items });
+
+        // off screen
+        $('.screen').w2field('date');
+
     });
 </script>
 <body>
-    <input type="button" value="Set Readonly" onclick="$('input, textarea, select').prop('readonly', true).change()">
-    <input type="button" value="Clear Readonly" onclick="$('input, textarea, select').prop('readonly', false).change()">
-    <input type="button" value="Disable" onclick="$('input, textarea, select').not('[type=button]').prop('disabled', true).change()">
-    <input type="button" value="Enable" onclick="$('input, textarea, select').not('[type=button]').prop('disabled', false).change()">
+    <button class="w2ui-btn" onclick="$('input, textarea, select').prop('readonly', true).change()">Read Only</button>
+    <button class="w2ui-btn" onclick="$('input, textarea, select').prop('readonly', false).change()">Clear Readonly</button>
+    <button class="w2ui-btn" onclick="$('input, textarea, select').not('[type=button]').prop('disabled', true).change()">Disable</button>
+    <button class="w2ui-btn" onclick="$('input, textarea, select').not('[type=button]').prop('disabled', false).change()">Enable</button>
     &nbsp;&nbsp;&nbsp;
-    <input type="button" value="Reset All" onclick="$('input').each(function () { if ($(this).w2field()) $(this).w2field().clear() }).length">
+    <button class="w2ui-btn" onclick="$('input').each(function () { if ($(this).w2field()) $(this).w2field().clear() }).length">Reset All</button>
     &nbsp;&nbsp;&nbsp;
-    <input type="button" value="Show" onclick="$('#extra').show()">
-    <input type="button" value="Hide" onclick="$('#extra').hide()">
+    <button class="w2ui-btn" onclick="$('#extra').show()">Show</button>
+    <button class="w2ui-btn" onclick="$('#extra').hide()">Hide</button>
     <br>
     <br>
+    <div style="position: absolute; top: 5px; right: 5px; width: 80px; height: 24px; background-color: #efefef; padding: 5px;">
+        <input id="screen1" class="screen" style="width: 80px">
+    </div>
+    <div style="position: absolute; bottom: 5px; right: 5px; width: 80px; height: 24px; background-color: #efefef; padding: 5px;">
+        <input id="screen2" class="screen" style="width: 80px">
+    </div>
+    <div style="position: absolute; bottom: 5px; left: 5px; width: 80px; height: 24px; background-color: #efefef; padding: 5px;">
+        <input id="screen3" class="screen" style="width: 80px">
+    </div>
     <div id="extra" style="display: none">
         <div style="border: 1px solid silver; background-color: #eee; width: 50%; padding: 20px; margin-top: 5px; border-radius: 2px">
             <input id="resize_list" style="width:100%">

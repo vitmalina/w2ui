@@ -2166,7 +2166,7 @@
                     html += '<option value="'+ edit.items[i].id +'" '+ (edit.items[i].id == val ? 'selected' : '') +'>'+ edit.items[i].text +'</option>';
                 }
                 el.addClass('w2ui-editable')
-                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'" onmousedown="event.stopPropagation()"'+
+                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'"'+
                         '    style="width: 100%; outline: none; border: 0px !important;'+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    '+ edit.inTag +
                         '>'+ html +'</select>' + edit.outTag);
@@ -2206,7 +2206,7 @@
             }
             setTimeout(function () {
                 el.find('input, select')
-                    .on('click', function (event) {
+                    .on('mousedown', function (event) {
                         event.stopPropagation();
                     })
                     .on('keydown', function (event) {
