@@ -832,7 +832,7 @@ var w2alert = function (msg, title, callBack) {
                 setTimeout(function () { $('#w2ui-popup .w2ui-popup-btn').focus(); }, 1);
             },
             onKeydown: function (event) {
-            $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked'); 
+                $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked'); 
             },
             onClose: function () {
                 if (typeof callBack == 'function') callBack();
@@ -898,18 +898,19 @@ var w2confirm = function (msg, title, callBack) {
                       '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click.w2confirm', function (event) {
+                    w2popup._confirm_btn = event.target.id;
                     w2popup.message();
-                    // need to wait for message to slide up
-                    setTimeout(function () {
-                        if (typeof options.callBack == 'function') options.callBack(event.target.id);
-                        if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
-                        if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
-                    }, 300);
                 });
             },
             onClose: function () {
                 // needed this because there might be other messages
                 $('#w2ui-popup .w2ui-popup-message .w2ui-btn').off('click.w2confirm');   
+                // need to wait for message to slide up
+                setTimeout(function () {
+                    if (typeof options.callBack == 'function') options.callBack(w2popup._confirm_btn);
+                    if (w2popup._confirm_btn == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
+                    if (w2popup._confirm_btn == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
+                }, 300);
             }
             // onKeydown will not work here
         });
