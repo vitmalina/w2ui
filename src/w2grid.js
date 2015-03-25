@@ -244,7 +244,7 @@
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
-                if (records[r].recid == null && records[r][object.recid] == null) {
+                if (records[r].recid == null && records[r][object.recid] == null && !records[r].summary) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
                     return;
                 }
