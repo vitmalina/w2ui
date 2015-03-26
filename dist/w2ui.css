@@ -2167,6 +2167,13 @@ button.w2ui-btn-red.clicked {
   background-color: #cccccc;
   border: 1px solid #aaaaaa;
 }
+.w2ui-popup .w2ui-msg-min {
+  background-position: 0px 0px;
+}
+.w2ui-popup .w2ui-msg-min:hover {
+  background-color: #cccccc;
+  border: 1px solid #aaaaaa;
+}
 .w2ui-popup .w2ui-box1,
 .w2ui-popup .w2ui-box2 {
   position: absolute;
@@ -2244,6 +2251,26 @@ button.w2ui-btn-red.clicked {
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
   bottom: 0px !important;
+}
+.w2ui-popup.inactive {
+  box-shadow: none;
+  border-color: #cccccc;
+  opacity: 0.9 !important;
+}
+.w2taskbar {
+  position: fixed;
+  width: 10000px;
+  height: 35px;
+  bottom: 0;
+  left: 0;
+  z-index: 18000;
+}
+.w2taskbar .w2ui-popup {
+  float: left;
+  margin-right: 5px;
+  position: relative;
+  top: 0 !important;
+  left: 0 !important;
 }
 /*************************************************
 * ---- Sidebar ----
