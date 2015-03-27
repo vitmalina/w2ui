@@ -1,0 +1,23 @@
+{
+  "name": "rardashboard",
+  "main": "index.html",
+  "version": "0.0.2",
+  "single-instance": true,
+  "manifestUrl": "http://10.2.2.10:8811/api/utils/getmanifest",
+  "packages": {
+    "win": "http://10.2.2.10:8811/update/app.zip"
+  },
+  "webkit": {
+    "plugin": true
+  },
+  "window": {
+    "title": "RAR Dashboard",
+    "width": 800,
+    "height": 600,
+    "min_width": 400,
+    "min_height": 300,
+    "toolbar": true,
+    "kiosk": false
+  },
+  "chromium-args": "--child-clean-exit --ignore-certificate-errors"
+}

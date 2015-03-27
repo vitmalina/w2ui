@@ -9509,9 +9509,7 @@ var w2confirm = function (msg, title, callBack) {
 
 var w2panel = {};
 //TODO: check name and assign one if not found
-var w2panelManager = {
-    panels: []
-};
+//
 (function() {
 
     // ====================================================
@@ -9521,10 +9519,11 @@ var w2panelManager = {
         //append taskbar for minimized windows 
         if ($('#w2taskbar-container').length === 0) {
             $('body').append('<div class="w2taskbar" id="w2taskbar-container"></div>');
-            $('body').on('mousedown', function(e) {
-                e.stopPropagation();
-                w2panel.focus('none');
-            });
+            // $('body').on('mousedown', function(e) {
+            //     e.stopPropagation();
+            //     w2panel.focus('none');
+            // });
+
         }
         if (typeof method === 'undefined') {
             options = {};
@@ -9545,6 +9544,8 @@ var w2panelManager = {
 
         if (options.modal) {
             options.name = ''; //we don't want multiple modals
+        } else if (!options.name) {
+            options.name = 'panel1'; // for now we give it a default name and force user to provide for multiple windows
         }
         for (var i in w2ui.panels) {
             if (w2ui.panels[i].name === options.name) {
@@ -9568,7 +9569,7 @@ var w2panelManager = {
                     dlgOptions.title = el.find('div[rel=title]').html();
                 }
                 if (el.find('div[rel=body]').length > 0) {
-                    dlgOptions.body = el.find('div[rel=body]').html();
+                    dlgOptions.body = el.find('div[rel=body]');
                     dlgOptions.style = el.find('div[rel=body]')[0].style.cssText;
                 }
                 if (el.find('div[rel=buttons]').length > 0) {
@@ -9576,7 +9577,7 @@ var w2panelManager = {
                 }
             } else {
                 dlgOptions.title = '&nbsp;';
-                dlgOptions.body = el.html();
+                dlgOptions.body = el;
             }
             if (parseInt(el.css('width')) !== 0) dlgOptions.width = parseInt(el.css('width'));
             if (parseInt(el.css('height')) !== 0) dlgOptions.height = parseInt(el.css('height'));
@@ -9586,9 +9587,12 @@ var w2panelManager = {
 
         // show popup
         if (options.modal) {
-            //close other panels - multiple in modal mode is not supported
-            w2panel.closeAll();
+            // //close other panels - multiple in modal mode is not supported
+            // w2panel._closeAll(function() {
+            //     w2ui.panels = [];
             return w2panel[method]($.extend({}, dlgOptions, options));
+            // });
+
         } else {
             var panel = $.extend({}, {}, w2panel);
             return panel[method]($.extend({}, dlgOptions, options));
@@ -9608,6 +9612,7 @@ var w2panelManager = {
             color: '#000',
             opacity: 0.4,
             speed: 0.3,
+            startZ: 1100,
             modal: false,
             maximized: false,
             minimized: false,
@@ -9715,8 +9720,9 @@ var w2panelManager = {
                 if (options.showMin) {
                     btn += '<div class="w2ui-msg-button w2ui-msg-min" data-panel="' + obj.name + '" data-action="min" onmousedown="event.stopPropagation()" onclick="w2panel.action(event)">Min</div>';
                 }
-                var msg = '<div id="' + obj.name + 'w2ui-popup" class="w2ui-popup" style="opacity: 0; left: ' + left + 'px; top: ' + top + 'px;' +
+                var msg = '<div id="' + obj.name + 'w2ui-popup" class="w2ui-popup ' + (options.modal ? ' modal' : '') + '" style="opacity: 0; left: ' + left + 'px; top: ' + top + 'px;' +
                     '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; ' +
+                    //(options.resizable ? 'resize:both;' : '') +
                     w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"' +
                     '>' +
                     '   <div class="w2ui-msg-title" style="' + (options.title === '' ? 'display: none' : '') + '">' + btn + options.title + '</div>' +
@@ -9731,12 +9737,14 @@ var w2panelManager = {
                     (options.buttons === '' ? ' w2ui-msg-no-buttons' : '') + '" style="' + options.style + '"></div>' +
                     '       </div>' +
                     '   <div class="w2ui-msg-buttons" style="' + (options.buttons === '' ? 'display: none' : '') + '">' + options.buttons + '</div>' +
+                    (options.resizable ? '<div class="w2panel-resizer"></div>' : '') +
                     '</div>';
                 $('body').append(msg);
                 //if (options.modal) {
                 //   $(options.body).appendTo('.w2ui-msg-body');
                 //} else {
-                $('<div>' + options.body + '</div>').appendTo('.w2panel-content-' + obj.name);
+                $(options.body).appendTo('.w2panel-content-' + obj.name);
+                // $('<div>' + options.body + '</div>').appendTo('.w2panel-content-' + obj.name);
                 //}
 
                 // allow element to render
@@ -9830,19 +9838,80 @@ var w2panelManager = {
             // keyboard events
             if (options.keyboard) $(document).on('keydown', this.keydown);
 
-            // initialize move
+            // initialize move and resize
             var tmp = {
                 resizing: false,
                 mvMove: mvMove,
-                mvStop: mvStop
+                mvStop: mvStop,
+                rsExpand: rsExpand,
+                rsStop: rsStop
             };
             $('#' + obj.name + 'w2ui-popup').on('click', function(event) {
-                w2panel.setActive(obj.name);
+                if (!obj.isActive) {
+                    w2panel.setActive(obj.name);
+                }
             });
             $('#' + obj.name + 'w2ui-popup .w2ui-msg-title').on('mousedown', function(event) {
-                w2panel.setActive(obj.name);
-                if (!w2panel.get().maximized) mvStart(event);
+                // w2panel.setActive(obj.name);
+                if (!w2panel.get().maximized && !w2panel.get().minimized) mvStart(event);
             });
+
+            $('#' + obj.name + 'w2ui-popup .w2panel-resizer').on('mousedown', function(event) {
+                if (!w2panel.get().maximized && !w2panel.get().minimized) rsStart(event);
+            });
+
+            function rsStart(evnt) {
+                if (!options.resizable) {
+                    return;
+                }
+                if (!evnt) evnt = window.event;
+                if (!window.addEventListener) {
+                    window.document.attachEvent('onselectstart', function() {
+                        return false;
+                    });
+                }
+
+                var el = $('#' + obj.name + 'w2ui-popup');
+                tmp.size_w = el.width();
+                tmp.size_h = el.height();
+
+                tmp.x = evnt.screenX;
+                tmp.y = evnt.screenY;
+                tmp.resizing = true;
+
+                $(document).on('mousemove', tmp.rsExpand);
+                $(document).on('mouseup', tmp.rsStop);
+                if (evnt.stopPropagation) evnt.stopPropagation();
+                else evnt.cancelBubble = true;
+                if (evnt.preventDefault) evnt.preventDefault();
+                else return false;
+            }
+
+            function rsExpand(evnt) {
+                if (tmp.resizing !== true) return;
+                if (!evnt) evnt = window.event;
+                tmp.div_w = tmp.size_w + evnt.screenX - tmp.x;
+                tmp.div_h = tmp.size_h + evnt.screenY - tmp.y;
+                $('#' + obj.name + 'w2ui-popup').css({
+                    'width': tmp.div_w,
+                    'height': tmp.div_h
+                });
+                //var tmp_int = setInterval(function() {
+                obj.resizeMessages();
+                //}, 10);
+            }
+
+            function rsStop(evnt) {
+                if (tmp.resizing !== true) return;
+                if (!evnt) evnt = window.event;
+                w2panel.status = 'open';
+                tmp.resizing = false;
+                tmp.div_w = 0;
+                tmp.div_h = 0;
+                $(document).off('mousemove', tmp.rsExpand);
+                $(document).off('mouseup', tmp.rsStop);
+                if (!tmp.isLocked) w2panel.unlock();
+            }
 
             // handlers
             function mvStart(evnt) {
@@ -9910,7 +9979,7 @@ var w2panelManager = {
 
         action: function(e) {
             var el = $(e.currentTarget);
-            var panelName = el.data('panel')
+            var panelName = el.data('panel');
             var action = el.data('action');
             var panel = w2panel.setActive(panelName);
             switch (action) {
@@ -9954,19 +10023,44 @@ var w2panelManager = {
                 phase: 'after'
             }));
         },
-        focus: function(panel) {
-            var z = $('#' + panel.name + 'w2ui-popup').css('z-index');
-            for (var i in w2ui.panels) {
-                if (w2ui.panels[i].name === panel.name) {
-                    // w2ui.panels[i].isActive = true;
-                    $('#' + w2ui.panels[i].name + 'w2ui-popup').removeClass('inactive');
-                    $('#' + w2ui.panels[i].name + 'w2ui-popup').css('z-index', z + 1);
-                } else {
-                    // w2ui.panels[i].isActive = false;
-                    $('#' + w2ui.panels[i].name + 'w2ui-popup').addClass('inactive');
-                    $('#' + w2ui.panels[i].name + 'w2ui-popup').css('z-index', z - 1);
+
+        _getHighestIndex: function() {
+            var highest_index = 1100;
+            $(".w2ui-popup").each(function() {
+                // always use a radix when using parseInt
+                var current_index = parseInt($(this).css("zIndex"), 10);
+                if (current_index > current_index) {
+                    highest_index = current_index;
                 }
+            });
+            return highest_index;
+        },
+
+        focus: function(panel) {
+            $(".w2ui-popup").addClass('inactive');
+            if (panel === 'none') {
+                return;
+            } else {
+                var index_highest = w2panel._getHighestIndex();
+                var index_current = parseInt($('#' + panel.name + 'w2ui-popup').css('z-index'), 10);
+                if (index_highest === index_current) {
+                    $('#' + panel.name + 'w2ui-popup').removeClass('inactive');
+                    return;
+                }
+                // for (var i in w2ui.panels) {
+                //     if (w2ui.panels[i].name === panel.name) {
+                //         // w2ui.panels[i].isActive = true;
+                //         $('#' + w2ui.panels[i].name + 'w2ui-popup').removeClass('inactive');
+                //         $('#' + w2ui.panels[i].name + 'w2ui-popup').css('z-index', index_highest + 1);
+                //     } else {
+                //         // w2ui.panels[i].isActive = false;
+                //         $('#' + w2ui.panels[i].name + 'w2ui-popup').addClass('inactive');
+                //         $('#' + w2ui.panels[i].name + 'w2ui-popup').css('z-index', index_highest - 1);
+                //     }
+                // }
+
             }
+
         },
         _close: function(opts) {
             var obj = w2panel.getActive();
@@ -10010,7 +10104,7 @@ var w2panelManager = {
             // remove keyboard events
             if (options.keyboard) $(document).off('keydown', obj.keydown);
         },
-        closeAll: function() {
+        _closeAll: function(callBack) {
             for (var i in w2ui.panels) {
                 var obj = w2ui.panels[i];
                 var options = $.extend({}, $('#' + obj.name + 'w2ui-popup').data('options'), {});
@@ -10044,6 +10138,9 @@ var w2panelManager = {
                     obj.trigger($.extend(eventData, {
                         phase: 'after'
                     }));
+                    if (i === w2ui.panels.length) {
+                        callBack.call();
+                    }
                 }, options.speed * 1000);
                 // restore active
 
@@ -10051,7 +10148,7 @@ var w2panelManager = {
                 // remove keyboard events
                 if (options.keyboard) $(document).off('keydown', obj.keydown);
             }
-            w2ui.panels = [];
+
         },
         toggle: function(panel) {
             var name = panel.get().name;
@@ -10334,7 +10431,7 @@ var w2panelManager = {
                 if (typeof selector != 'undefined' && $('#w2ui-tmp #' + selector).length > 0) {
                     $('#w2ui-tmp #' + selector).w2panel(options);
                 } else {
-                    $('#w2ui-tmp > div').w2panel(options);
+                    $('#w2ui-tmp').w2panel(options);
                 }
                 // link styles
                 if ($('#w2ui-tmp > style').length > 0) {
@@ -10344,7 +10441,7 @@ var w2panelManager = {
                     }
                     $('#' + options.name + 'w2ui-popup #div-style').html(style);
                 }
-                $('#w2ui-tmp').remove();
+                $('#w2ui-tmp').show();
             }
         },
 

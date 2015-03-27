@@ -4,7 +4,8 @@
 
 .w2ui-popup {
     position: fixed;
-    z-index: 1600;
+    resize:both;
+    z-index: 1100;
     overflow: hidden;
     font-family: @main-font-family;
     border-radius: 6px;
@@ -17,6 +18,26 @@
     &, & * {
         .box-sizing;
     }
+
+    *{
+        resize:none;
+    }
+
+    .w2panel-resizer{
+        width: 10px;
+        font-size: 10px;
+        height: 10px;
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+        z-index: 300;
+        cursor:default;
+        transform: rotate(90deg);
+        -ms-transform: rotate(90deg); /* IE 9 */
+        -webkit-transform: rotate(90deg); /* Safari and Chrome */
+    }
+
+
 
     .w2ui-msg-title {
         padding: 6px;
@@ -165,6 +186,9 @@
         border-color: #cccccc;
         opacity:0.9 !important;
     }
+.w2ui-popup.modal{
+        z-index:1200;
+}
 .w2taskbar{
     position: fixed;
     width: 10000px;
