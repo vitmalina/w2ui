@@ -5402,7 +5402,7 @@
             var end     = start + Math.floor(records.height() / this.recordHeight) + this.last.show_extra * 2 + 1;
             // var div  = start - this.last.range_start;
             if (start < 1) start = 1;
-            if (end > this.total) end = this.total;
+            if (end > buffered) end = buffered;
             var tr1  = records.find('#grid_'+ this.name +'_rec_top');
             var tr2  = records.find('#grid_'+ this.name +'_rec_bottom');
             var tr1f = frecords.find('#grid_'+ this.name +'_frec_top');
