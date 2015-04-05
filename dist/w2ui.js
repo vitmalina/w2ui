@@ -134,7 +134,9 @@ var w2utils = (function () {
 
     function isMoney (val) {
         var se = w2utils.settings;
-        var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\\'+ se.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
+        var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
+                            '[-+]?'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
+                            '[0-9]*[\\'+ se.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
         if (typeof val === 'string') {
             val = val.replace(new RegExp(se.groupSymbol, 'g'), '');
         }
@@ -1296,7 +1298,7 @@ w2utils.event = {
         }
         // append
         $('body').append(
-            '<div id="w2ui-overlay'+ name +'" style="display: none; '+ options.overlayStyle +'"'+
+            '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'"'+
             '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
             '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
@@ -1327,7 +1329,6 @@ w2utils.event = {
         div1[0].resize = resize;
 
         // need time to display
-        resize();
         setTimeout(function () {
             resize();
             $(document).off('click', hide).on('click', hide);
@@ -1416,8 +1417,8 @@ w2utils.event = {
                         boxLeft = 17 + parseInt(options.left);
                         break;
                     case 'right':
-                        boxLeft = w - 45 + parseInt(options.left);
-                        tipLeft = w2utils.getSize($(obj), 'width') - w + 10;
+                        boxLeft = w2utils.getSize($(obj), 'width') - w + 14 + parseInt(options.left);
+                        tipLeft = w - 40;
                         break;
                 }
                 if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
@@ -1438,8 +1439,8 @@ w2utils.event = {
                     offsetTop = offset.top;
                 }
                 div1.css({
-                    top         :  Y + 'px',
                     left        :  X + 'px',
+                    top         :  Y + 'px',
                     'min-width' : boxWidth,
                     'min-height': (options.height ? options.height : 'auto')
                 });
@@ -4099,8 +4100,8 @@ w2utils.event = {
                     html += '<option value="'+ edit.items[i].id +'" '+ (edit.items[i].id == val ? 'selected' : '') +'>'+ edit.items[i].text +'</option>';
                 }
                 el.addClass('w2ui-editable')
-                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'" '+
-                        '    style="width: 100%; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
+                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'"'+
+                        '    style="width: 100%; outline: none; border: 0px !important;'+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
                         '    '+ edit.inTag +
                         '>'+ html +'</select>' + edit.outTag);
                 el.find('select').focus()
@@ -4139,7 +4140,7 @@ w2utils.event = {
             }
             setTimeout(function () {
                 el.find('input, select')
-                    .on('click', function (event) {
+                    .on('mousedown', function (event) {
                         event.stopPropagation();
                     })
                     .on('keydown', function (event) {
@@ -4240,6 +4241,7 @@ w2utils.event = {
                     });
                 // focus and select
                 var tmp = el.find('input').focus();
+                clearTimeout(obj.last.kbd_timer); // keep focus
                 if (value != null) {
                     // set cursor to the end
                     tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
@@ -4253,6 +4255,12 @@ w2utils.event = {
         },
 
         editChange: function (el, index, column, event) {
+            var obj = this;
+            // keep focus
+            setTimeout(function () {
+                var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                if (!$input.is(':focus')) $input.focus();
+            }, 10);
             // all other fields
             var summary = index < 0;
             index = index < 0 ? -index - 1 : index;
@@ -4337,7 +4345,7 @@ w2utils.event = {
                 w2confirm({
                     title : w2utils.lang('Delete Confirmation'),
                     msg   : w2utils.lang(obj.msgDelete),
-                    yes_class : 'btn-red',
+                    yes_class : 'w2ui-btn-red',
                     callBack: function (result) {
                         if (result == 'Yes') w2ui[obj.name]['delete'](true);
                     }
@@ -4349,8 +4357,8 @@ w2utils.event = {
             if (url) {
                 this.request('delete-records');
             } else {
-                this.selectNone();
                 if (typeof recs[0] != 'object') {
+                    this.selectNone();
                     this.remove.apply(this, recs);
                 } else {
                     // clear cells
@@ -4920,18 +4928,7 @@ w2utils.event = {
                 case 91: // cmd key
                     // SLOW: 10k records take 7.0
                     if (empty) break;
-                    var text = obj.copy();
-                    $('body').append('<textarea id="_tmp_copy_data" '+
-                        '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
-                        '   onkeydown="w2ui[\''+ obj.name +'\'].keydown(event)"'+
-                        '   style="position: absolute; top: -100px; height: 1px; width: 1px">'+ text +'</textarea>');
-                    $('#_tmp_copy_data').focus().select();
-                    // remove _tmp_copy_data textarea
-                    function tmp_key_down() {
-                        $('#_tmp_copy_data').remove();
-                        $(document).off('keyup', tmp_key_down);
-                    }
-                    $(document).on('keyup', tmp_key_down);
+                    $('#grid_'+ obj.name + '_focus').val(obj.copy()).select();
                     break;
 
                 case 88: // x - cut
@@ -4948,6 +4945,16 @@ w2utils.event = {
                 var tmp = String.fromCharCode(key);
                 if (!shiftKey) tmp = tmp.toLowerCase();
                 switch (key) {
+                    case 49:  tmp = (!event.shiftKey ? '1' : '!'); break;
+                    case 50:  tmp = (!event.shiftKey ? '2' : '@'); break;
+                    case 51:  tmp = (!event.shiftKey ? '3' : '#'); break;
+                    case 52:  tmp = (!event.shiftKey ? '4' : '$'); break;
+                    case 53:  tmp = (!event.shiftKey ? '5' : '%'); break;
+                    case 54:  tmp = (!event.shiftKey ? '6' : '^'); break;
+                    case 55:  tmp = (!event.shiftKey ? '7' : '&'); break;
+                    case 56:  tmp = (!event.shiftKey ? '8' : '*'); break;
+                    case 57:  tmp = (!event.shiftKey ? '9' : '('); break;
+                    case 48:  tmp = (!event.shiftKey ? '0' : ')'); break;
                     case 187: tmp = (!event.shiftKey ? '=' : '+'); break;
                     case 189: tmp = (!event.shiftKey ? '-' : '_'); break;
                     case 192: tmp = (!event.shiftKey ? '`' : '~'); break;
@@ -5078,7 +5085,7 @@ w2utils.event = {
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
 
-        contextMenu: function (recid, event) {
+        contextMenu: function (recid, column, event) {
             var obj = this;
             if (obj.last.userSelect == 'text') return;
             if (typeof event == 'undefined') event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ obj.name +'_rec_'+ recid)[0] };
@@ -5087,9 +5094,21 @@ w2utils.event = {
                 event.offsetY = event.layerY - event.target.offsetTop;
             }
             if (w2utils.isFloat(recid)) recid = parseFloat(recid);
-            if (this.getSelection().indexOf(recid) == -1) obj.click(recid);
+            var sel = this.getSelection();
+            if (this.selectType == 'row') {
+                if (sel.indexOf(recid) == -1) obj.click(recid);
+            } else {
+                var $tmp = $(event.target);
+                if ($tmp[0].tagName != 'TD') $tmp = $(event.target).parents('td');
+                var selected = false;
+                column = $tmp.attr('col');
+                for (var i=0; i<sel.length; i++) {
+                    if (sel[i].recid == recid && sel[i].column == column) selected = true;
+                }
+                if (!selected && recid != null && column != null) obj.click({ recid: recid, column: column });
+            }
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid });
+            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid, column: column });
             if (eventData.isCancelled === true) return;
             // default action
             if (obj.menu.length > 0) {
@@ -5619,7 +5638,8 @@ w2utils.event = {
                       '    <div id="grid_'+ this.name +'_fsummary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
-                      '    <input id="grid_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; width: 0px; border: 0px; padding: 0px; opacity: 0">'+
+                      '    <textarea id="grid_'+ this.name +'_focus" style="position: absolute; top: -10px; right: 0px; z-index: 1; '+
+                      '         width: 1px; height: 1px; border: 0px; padding: 0px; opacity: 0; resize: none"></textarea>'+
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -5639,16 +5659,19 @@ w2utils.event = {
             if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
             this.reload();
             // focus
-            var kbd_timer;
             $(this.box).find('#grid_'+ this.name + '_focus')
                 .on('focus', function (event) { 
-                    clearTimeout(kbd_timer);
+                    clearTimeout(obj.last.kbd_timer);
                     if (!obj.hasFocus) obj.focus();
                 })
                 .on('blur', function (event) { 
-                    kbd_timer = setTimeout(function () { 
+                    obj.last.kbd_timer = setTimeout(function () { 
                         if (obj.hasFocus) { obj.blur(); }
-                    }, 100);
+                    }, 100); // need this timer to be 100 ms
+                })
+                .on('paste', function (event) {
+                    var el = this;
+                    setTimeout(function () { w2ui[obj.name].paste(el.value); }, 1)
                 })
                 .on('keydown', function (event) {
                     if (event.keyCode != 9) { // not tab
@@ -5955,7 +5978,7 @@ w2utils.event = {
             var col_html =  '<div class="w2ui-col-on-off">'+
                             '<table><tr>'+
                             '<td style="width: 30px">'+
-                            '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabIndex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
+                            '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabindex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
                             '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
                             '</td>'+
                             '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(document).click();">'+
@@ -5969,7 +5992,7 @@ w2utils.event = {
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
                 col_html += '<tr>'+
                     '<td style="width: 30px">'+
-                    '    <input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabIndex="-1" '+ (col.hidden ? '' : 'checked') +
+                    '    <input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabindex="-1" '+ (col.hidden ? '' : 'checked') +
                     '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');">'+
                     '</td>'+
                     '<td>'+
@@ -6313,7 +6336,8 @@ w2utils.event = {
                         '    <td>'+
                         '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
-                        '            onmousedown="event.stopPropagation()"'+
+                        '            onmousedown="event.stopPropagation();"'+
+                        '            onfocus="clearTimeout(w2ui[\''+ this.name +'\'].last.kbd_timer);"'+
                         '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
                         '                var grid = w2ui[\''+ this.name +'\']; '+
@@ -7110,6 +7134,7 @@ w2utils.event = {
                         }
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
                                '    rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
+                               '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
                                '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                    resizer +
                                '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
@@ -7148,7 +7173,7 @@ w2utils.event = {
                     html1 += '<td class="w2ui-head w2ui-col-select" '+
                             '        onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
                             '    <div>'+
-                            '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" tabIndex="-1"'+
+                            '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" tabindex="-1"'+
                             '            style="' + (obj.multiSelect == false ? 'display: none;' : '') + '"'+
                             '            onclick="if (this.checked) w2ui[\''+ obj.name +'\'].selectAll(); '+
                             '                     else w2ui[\''+ obj.name +'\'].selectNone(); '+
@@ -7188,6 +7213,7 @@ w2utils.event = {
                                      (obj.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
                                 '    onmouseover = "w2ui[\''+ obj.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
                                 '    onmouseout  = "w2ui[\''+ obj.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
+                                '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ i +', event);"'+
                                 '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                     resizer +
                                 '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
@@ -7507,7 +7533,7 @@ w2utils.event = {
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
                         :
                         '    onclick  = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
-                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', event);"'
+                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', null, event);"'
                      )
                     : ''
                 ) +
@@ -7526,7 +7552,7 @@ w2utils.event = {
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick(\''+ record.recid +'\', event);"'
                         :
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.click(\''+ record.recid +'\', event);"'+
-                        '    oncontextmenu = "var obj = w2ui[\''+ this.name +'\']; obj.contextMenu(\''+ record.recid +'\', event);"'
+                        '    oncontextmenu = "var obj = w2ui[\''+ this.name +'\']; obj.contextMenu(\''+ record.recid +'\', null, event);"'
                      )
                     : ''
                 ) +
@@ -7551,7 +7577,7 @@ w2utils.event = {
                         '        onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
                             (summary !== true ?
                             '    <div>'+
-                            '        <input class="w2ui-grid-select-check" type="checkbox" tabIndex="-1"'+
+                            '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1"'+
                             '            '+ (isRowSelected ? 'checked="checked"' : '') +
                             '            onclick="var obj = w2ui[\''+ this.name +'\']; '+
                             '                if (!obj.multiSelect) { obj.selectNone(); }'+
@@ -7678,7 +7704,7 @@ w2utils.event = {
                 if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
                     var changeInd = summary ? -(ind + 1) : ind;
                     addStyle = 'text-align: center';
-                    data = '<input type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
+                    data = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
                            '    var obj = w2ui[\''+ this.name + '\']; '+
                            '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                            '">';
@@ -9226,7 +9252,7 @@ var w2popup = {};
             setTimeout(function () { $('#w2ui-popup').data('options', options); }, 100);
             // if new - reset event handlers
             if ($('#w2ui-popup').length == 0) {
-                w2popup.handlers  = [];
+                // w2popup.handlers  = []; // if commented, allows to add w2popup.on() for all
                 w2popup.onMax     = null;
                 w2popup.onMin     = null;
                 w2popup.onToggle  = null;
@@ -9648,8 +9674,13 @@ var w2popup = {};
                     $('#w2ui-popup #w2ui-message'+ (msgCount-2)).css('z-index', 1500);
                 }
                 setTimeout(function () {
+                    var $focus = $msg.data('prev_focus');
                     $msg.remove();
-                    obj.focus();
+                    if ($focus.length > 0) {
+                        $focus.focus();
+                    } else {
+                        obj.focus();
+                    }
                     if (typeof options.onClose == 'function') options.onClose();
                 }, 150);
             } else {
@@ -9669,7 +9700,7 @@ var w2popup = {};
                                 w2utils.cssPrefix('transition', '.3s', true) + '"' +
                                 (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
                             '</div>');
-                $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options);
+                $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options).data('prev_focus', $(':focus'));
                 var display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display');
                 $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
                     'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
@@ -9931,7 +9962,7 @@ var w2alert = function (msg, title, callBack) {
                 setTimeout(function () { $('#w2ui-popup .w2ui-popup-btn').focus(); }, 1);
             },
             onKeydown: function (event) {
-            $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked'); 
+                $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked'); 
             },
             onClose: function () {
                 if (typeof callBack == 'function') callBack();
@@ -9997,18 +10028,19 @@ var w2confirm = function (msg, title, callBack) {
                       '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click.w2confirm', function (event) {
+                    w2popup._confirm_btn = event.target.id;
                     w2popup.message();
-                    // need to wait for message to slide up
-                    setTimeout(function () {
-                        if (typeof options.callBack == 'function') options.callBack(event.target.id);
-                        if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
-                        if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
-                    }, 300);
                 });
             },
             onClose: function () {
                 // needed this because there might be other messages
                 $('#w2ui-popup .w2ui-popup-message .w2ui-btn').off('click.w2confirm');   
+                // need to wait for message to slide up
+                setTimeout(function () {
+                    if (typeof options.callBack == 'function') options.callBack(w2popup._confirm_btn);
+                    if (w2popup._confirm_btn == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
+                    if (w2popup._confirm_btn == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
+                }, 300);
             }
             // onKeydown will not work here
         });
@@ -11650,7 +11682,7 @@ var w2confirm = function (msg, title, callBack) {
             if (parent.nodes == null) return false;
             for (var i = 0; i < parent.nodes.length; i++) {
                 if (parent.nodes[i].expanded === false) parent.nodes[i].expanded = true;
-                if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i]);
+                if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.expandAll(parent.nodes[i]);
             }
             this.refresh(parent.id);
         },
