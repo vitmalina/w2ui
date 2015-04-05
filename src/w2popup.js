@@ -127,7 +127,7 @@ var w2popup = {};
             setTimeout(function () { $('#w2ui-popup').data('options', options); }, 100);
             // if new - reset event handlers
             if ($('#w2ui-popup').length == 0) {
-                w2popup.handlers  = [];
+                // w2popup.handlers  = []; // if commented, allows to add w2popup.on() for all
                 w2popup.onMax     = null;
                 w2popup.onMin     = null;
                 w2popup.onToggle  = null;
@@ -549,8 +549,13 @@ var w2popup = {};
                     $('#w2ui-popup #w2ui-message'+ (msgCount-2)).css('z-index', 1500);
                 }
                 setTimeout(function () {
+                    var $focus = $msg.data('prev_focus');
                     $msg.remove();
-                    obj.focus();
+                    if ($focus.length > 0) {
+                        $focus.focus();
+                    } else {
+                        obj.focus();
+                    }
                     if (typeof options.onClose == 'function') options.onClose();
                 }, 150);
             } else {
@@ -570,7 +575,7 @@ var w2popup = {};
                                 w2utils.cssPrefix('transition', '.3s', true) + '"' +
                                 (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
                             '</div>');
-                $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options);
+                $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options).data('prev_focus', $(':focus'));
                 var display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display');
                 $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
                     'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
