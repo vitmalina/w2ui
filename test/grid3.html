@@ -40,6 +40,13 @@ $(function () {
             { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
             { field: 'm', caption: '<div style="text-align: center">M</div>', size: '95px', editable: { type: 'text' }}
         ],
+        menu: ['some', 'other'],
+        onContextMenu: function (event) {
+            // console.log('context', event);
+        }
+    });
+    w2ui.grid.on('onContextMenu', function (event) {
+        console.log('+++', event);
     });
     // add 10k records
     for (var i = 0; i < 3000; i++) {

@@ -3151,7 +3151,7 @@
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
 
-        contextMenu: function (recid, event) {
+        contextMenu: function (recid, column, event) {
             var obj = this;
             if (obj.last.userSelect == 'text') return;
             if (typeof event == 'undefined') event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ obj.name +'_rec_'+ recid)[0] };
@@ -3160,9 +3160,21 @@
                 event.offsetY = event.layerY - event.target.offsetTop;
             }
             if (w2utils.isFloat(recid)) recid = parseFloat(recid);
-            if (this.getSelection().indexOf(recid) == -1) obj.click(recid);
+            var sel = this.getSelection();
+            if (this.selectType == 'row') {
+                if (sel.indexOf(recid) == -1) obj.click(recid);
+            } else {
+                var $tmp = $(event.target);
+                if ($tmp[0].tagName != 'TD') $tmp = $(event.target).parents('td');
+                var selected = false;
+                column = $tmp.attr('col');
+                for (var i=0; i<sel.length; i++) {
+                    if (sel[i].recid == recid && sel[i].column == column) selected = true;
+                }
+                if (!selected && recid != null && column != null) obj.click({ recid: recid, column: column });
+            }
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid });
+            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid, column: column });
             if (eventData.isCancelled === true) return;
             // default action
             if (obj.menu.length > 0) {
@@ -5188,6 +5200,7 @@
                         }
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
                                '    rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
+                               '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
                                '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                    resizer +
                                '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
@@ -5266,6 +5279,7 @@
                                      (obj.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
                                 '    onmouseover = "w2ui[\''+ obj.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
                                 '    onmouseout  = "w2ui[\''+ obj.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
+                                '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ i +', event);"'+
                                 '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                     resizer +
                                 '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
@@ -5585,7 +5599,7 @@
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
                         :
                         '    onclick  = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
-                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', event);"'
+                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', null, event);"'
                      )
                     : ''
                 ) +
@@ -5604,7 +5618,7 @@
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick(\''+ record.recid +'\', event);"'
                         :
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.click(\''+ record.recid +'\', event);"'+
-                        '    oncontextmenu = "var obj = w2ui[\''+ this.name +'\']; obj.contextMenu(\''+ record.recid +'\', event);"'
+                        '    oncontextmenu = "var obj = w2ui[\''+ this.name +'\']; obj.contextMenu(\''+ record.recid +'\', null, event);"'
                      )
                     : ''
                 ) +
