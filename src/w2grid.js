@@ -295,7 +295,7 @@
             'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
             'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns', arrow: false, html: '' },
             'search'   : { type: 'html',   id: 'w2ui-search',
-                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ 'Select Search Field' +'" '+
+                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
                                   'onclick="var obj = w2ui[$(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
                           },
             'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: 'Search', tooltip: 'Open Search Fields' },
@@ -4376,6 +4376,7 @@
         },
 
         initToolbar: function () {
+            var obj = this;
             // -- if toolbar is true
             if (typeof this.toolbar['render'] == 'undefined') {
                 var tmp_items = this.toolbar.items;
@@ -4511,6 +4512,22 @@
                     // no default action
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                 });
+            } else {
+                var pos1, pos2;
+                var search = this.toolbar.get('w2ui-search');
+                var tmp = search.html;
+                pos1 = tmp.indexOf('placeholder="');
+                pos2 = tmp.indexOf('"', pos1+13);
+                tmp  = tmp.substr(0, pos1+13) + w2utils.lang('All Fields') + tmp.substr(pos2);
+                pos1 = tmp.indexOf('title="');
+                pos2 = tmp.indexOf('"', pos1+7);
+                tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Select Search Field') + tmp.substr(pos2);
+                pos1 = tmp.indexOf('title="', pos2);
+                pos2 = tmp.indexOf('"', pos1+7);
+                tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Clear Search') + tmp.substr(pos2);
+                setTimeout(function () {
+                    obj.toolbar.set('w2ui-search', { html: tmp });
+                }, 1);
             }
             return;
         },

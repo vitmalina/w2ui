@@ -31,6 +31,7 @@
         "Return data is not in JSON format. See console for more information." : "Возвращенные данные не в формате JSON. Смотрите в консоли ошибки.",
         "Refreshing..." : "Обновление...",
         "All Fields" : "Все поля",
+        "Clear Search": "Очистить поиск",
         "Multi Fields" : "Несколько полей",
         "Delete Confirmation": "Подтверждение удаления",
         "Ok": "OK",
