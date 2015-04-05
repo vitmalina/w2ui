@@ -256,6 +256,8 @@ test( "w2utils.isMoney() - Default Format", function() {
         '$4,000'    : true,
         '$-4,000'   : true,
         '$+4,000'   : true,
+        '-$4,000'   : true,
+        '+$4,000'   : true,
         '1 000'     : false,
         '4.0€'      : false,
         '4 000€'    : false,
