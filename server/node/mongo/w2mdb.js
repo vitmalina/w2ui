@@ -268,7 +268,7 @@ exports.serveDBMongo = function(req, res, collectionName)
             break;
             
         case  'save-records':
-            console.log("save-records");
+            //console.log("save-records");
             {
                 //console.log("c",req.body.changes);
 
@@ -395,6 +395,15 @@ exports.serveDBMongo = function(req, res, collectionName)
                             });
                         });
                     });
+                }
+                else
+                {
+                    // Nothing to save, consider it successfull :-)
+                    var save_response = {
+                        status    : "success",
+                    };
+
+                    res.send(save_response);                    
                 }
             }
            break;
