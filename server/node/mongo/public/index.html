@@ -125,11 +125,6 @@ var config = {
 		}
 	},
         
-       //{ name: 'fill_media', type: 'enum', required: true,
-       //                    options: {openOnFocus: true,minLength:0,max :20, url : "/media/items.json?select=DUQSi-INDONESIA" },                                                   
-       //                    html: { caption: 'Fill Media' , attr: "style='width: 320px; height: 300px; resize: none; white-space:normal;'" } 
-       //                 },
-
 	form: { 
 		header: 'Positions',
 		name: 'form',
@@ -145,10 +140,15 @@ var config = {
 			{ name: 'lon', type: 'text', html: { caption: 'Lon', attr: 'size="12"' } } ,
 
 		],
+                onSave: function (event) {
+                   event.onComplete = function() {
+                      w2ui.grid.reload();
+                   }
+                },
 		actions: {
 			New: function () {
  			       this.clear();                                
-                               console.log("Set recid ro 0");
+                               console.log("Set recid to 0");
                                this.recid = 0;
                                // Delete hidden _id if it exists
                                if (w2ui.form.record._id)
@@ -179,8 +179,7 @@ var config = {
                                                 //var newrec=$.extend(true, resultData.record,{ name : "Double click to edit" });
                                                 var newrec = resultData.record;
                                                 console.log("newrec", newrec);
-                                                w2ui.form.recid=newrec.recid;
-                                                w2ui.grid.reload();
+                                                w2ui.form.recid=newrec.recid;                                                
                                             })
                                             .fail(function(jqXHR, textStatus, errorThrown) {
                                                 // Handle error
