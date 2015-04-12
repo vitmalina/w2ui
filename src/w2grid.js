@@ -2083,7 +2083,14 @@
                 var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
                     if (s == 'recid') continue; // do not allow to change recid
-                    try { eval('record.' + s + ' = changes[c][s]'); } catch (e) {}
+                    var key = "." + s;
+                    if (w2utils.isFloat(s)) key = "['" + s + "']";
+                    if (String(s).indexOf("'") != -1) key = "['" + s.replace(/'/g, "\\'") + "']";
+                    try { 
+                        eval('record' + key + ' = changes[c][s]'); 
+                    } catch (e) {
+                        console.log('ERROR: Cannot merge. ', e.message || '', e);
+                    }
                     delete record.changes;
                 }
             }
@@ -2665,15 +2672,16 @@
                     columns.push(sel[ii].column);
                     ii++;
                 }
-                recid2  = sel[sel.length-1].recid;
+                recid2 = sel[sel.length-1].recid;
             }
-            var ind    = obj.get(recid, true);
-            var ind2   = obj.get(recid2, true);
-            var rec    = obj.get(recid);
-            var recEL  = $('#grid_'+ obj.name +'_rec_'+ (ind !== null ? w2utils.escapeId(obj.records[ind].recid) : 'none'));
-            var cancel = false;
-            var key    = event.keyCode;
-            var shiftKey= event.shiftKey;
+            var ind      = obj.get(recid, true);
+            var ind2     = obj.get(recid2, true);
+            var rec      = obj.get(recid);
+            var recEL    = $('#grid_'+ obj.name +'_rec_'+ (ind !== null ? w2utils.escapeId(obj.records[ind].recid) : 'none'));
+            var cancel   = false;
+            var key      = event.keyCode;
+            var shiftKey = event.shiftKey;
+
             if (key == 9) { // tab key
                 if (event.shiftKey) key = 37; else key = 39; // replace with arrows
                 shiftKey = false;
@@ -2994,7 +3002,15 @@
                 case 91: // cmd key
                     // SLOW: 10k records take 7.0
                     if (empty) break;
-                    $('#grid_'+ obj.name + '_focus').val(obj.copy()).select();
+                    obj.last.copy_event = obj.copy(false);
+                    $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
+                    break;
+
+                case 67: // - c
+                    // this fill trigger event.onComplete
+                    if (event.metaKey || event.ctrlKey) {
+                        obj.copy(obj.last.copy_event);
+                    }
                     break;
 
                 case 88: // x - cut
@@ -3171,7 +3187,8 @@
                 for (var i=0; i<sel.length; i++) {
                     if (sel[i].recid == recid && sel[i].column == column) selected = true;
                 }
-                if (!selected && recid != null && column != null) obj.click({ recid: recid, column: column });
+                if (!selected && recid != null) obj.click({ recid: recid, column: column });
+                if (!selected && column != null) obj.columnClick(this.columns[column].field, event);
             }
             // event before
             var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid, column: column });
@@ -3329,7 +3346,13 @@
             }
         },
 
-        copy: function () {
+        copy: function (flag) {
+            if ($.isPlainObject(flag)) {
+                // event after
+                this.trigger($.extend(flag, { phase: 'after' }));
+                return flag.text;
+            }
+            // generate text to copy
             var sel = this.getSelection();
             if (sel.length == 0) return '';
             var text = '';
@@ -3376,13 +3399,23 @@
                 }
             }
             text = text.substr(0, text.length - 1);
-            // before event
-            var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
-            if (eventData.isCancelled === true) return '';
-            text = eventData.text;
-            // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
-            return text;
+
+            // if called without params
+            if (flag == null) {
+                // before event
+                var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+                if (eventData.isCancelled === true) return '';
+                text = eventData.text;
+                // event after
+                this.trigger($.extend(eventData, { phase: 'after' }));
+                return text;
+            } else if (flag === false) { // only before event
+                // before event
+                var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+                if (eventData.isCancelled === true) return '';
+                text = eventData.text;
+                return eventData;
+            }
         },
 
         paste: function (text) {
@@ -4515,19 +4548,21 @@
             } else {
                 var pos1, pos2;
                 var search = this.toolbar.get('w2ui-search');
-                var tmp = search.html;
-                pos1 = tmp.indexOf('placeholder="');
-                pos2 = tmp.indexOf('"', pos1+13);
-                tmp  = tmp.substr(0, pos1+13) + w2utils.lang('All Fields') + tmp.substr(pos2);
-                pos1 = tmp.indexOf('title="');
-                pos2 = tmp.indexOf('"', pos1+7);
-                tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Select Search Field') + tmp.substr(pos2);
-                pos1 = tmp.indexOf('title="', pos2);
-                pos2 = tmp.indexOf('"', pos1+7);
-                tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Clear Search') + tmp.substr(pos2);
-                setTimeout(function () {
-                    obj.toolbar.set('w2ui-search', { html: tmp });
-                }, 1);
+                if (search != null) {
+                    var tmp = search.html;
+                    pos1 = tmp.indexOf('placeholder="');
+                    pos2 = tmp.indexOf('"', pos1+13);
+                    tmp  = tmp.substr(0, pos1+13) + w2utils.lang('All Fields') + tmp.substr(pos2);
+                    pos1 = tmp.indexOf('title="');
+                    pos2 = tmp.indexOf('"', pos1+7);
+                    tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Select Search Field') + tmp.substr(pos2);
+                    pos1 = tmp.indexOf('title="', pos2);
+                    pos2 = tmp.indexOf('"', pos1+7);
+                    tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Clear Search') + tmp.substr(pos2);
+                    setTimeout(function () {
+                        obj.toolbar.set('w2ui-search', { html: tmp });
+                    }, 1);
+                }
             }
             return;
         },
