@@ -27,7 +27,7 @@
         font-family: @main-font-family;
         font-size: 11px;	    
     }
-    & input, & textarea {
+    input:not([type=button]):not([type=submit]), select, textarea {
         display: inline-block;
         width: auto;
         height: auto;
@@ -35,12 +35,37 @@
         padding: 4px;
         margin: 0;
         font-size: 11px;
+        border: @input-border;
+        border-radius: 3px;
+        color: @input-color;
+        background-color: @input-background-color;
+        line-height: normal;
+        &:focus {
+            outline-color: @input-focus-outline-color;    
+        }
+        &:disabled, &[readonly] {
+            background-color: #f1f1f1;
+            color: #777;
+        }
+    }
+    input[type=button] {
+        .sys-button;
+        &:hover { .sys-button-hover; }
+        &:active { .sys-button-active; }
     }
     select {
-        padding: 1px;
+        padding: 2px;
         height: 23px;
         font-size: 11px;
     }
+    /* IE9-11 specific classes */
+    /* needs doblue :: */
+    input::-ms-clear { 
+        display: none;
+    }
+    input:-ms-input-placeholder {
+        color: #aaa !important;
+    }    
 }
 
 .w2ui-centered {
@@ -58,47 +83,6 @@
 .w2ui-disabled, .w2ui-readonly {
     background-color: #f1f1f1 !important;
     color: #777 !important;
-}
-
-/*************************************************
-* ---- Input Controls ----
-*/
-
-input[type=button] {
-    .sys-button;
-    &:hover { .sys-button-hover; }
-    &:active { .sys-button-active; }
-}
-
-input:not([type=button]):not([type=submit]), select, textarea {
-    padding: 4px;
-    border: @input-border;
-    border-radius: 3px;
-    color: @input-color;
-    background-color: @input-background-color;
-    line-height: normal;
-    &:focus {
-        outline-color: @input-focus-outline-color;    
-    }
-    &:disabled, &[readonly] {
-        background-color: #f1f1f1;
-        color: #777;
-    }    
-}
-
-/* IE9-11 specific classes */
-
-/* needs doblue :: */
-input::-ms-clear { 
-    display: none;
-}
-
-input:-ms-input-placeholder {
-    color: #aaa !important;
-}
-
-select {
-    padding: 2px;
 }
 
 /* On/Off switch */

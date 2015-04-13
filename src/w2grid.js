@@ -2187,7 +2187,8 @@
             } else {
                 el.addClass('w2ui-editable')
                     .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" '+
-                        '    type="text" style="font-family: inherit; font-size: inherit; outline: none; '+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
+                        '    type="text" style="font-family: inherit; font-size: inherit; padding: 3px 2px; border-color: transparent; outline: none; '+ addStyle + edit.style +'" '+
+                        '    field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
                 // issue #499
