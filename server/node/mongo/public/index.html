@@ -132,7 +132,7 @@ var config = {
 		fields: [
 			{ name: 'name', type: 'text', required: true, html: { caption: 'Short Name', attr: 'size="20" maxlength="20"' } },
                         { name: 'users', type: 'enum', required: false,
-                           options: {openOnFocus: true,minLength:0,max :20, url : "/api/user/enum" },                                                   
+                           options: {openOnFocus: true,minLength:0,max :20, url : "/api/enum/user" },                                                   
                            html: { caption: 'Users at location' , attr: "style='width: 320px; height: 300px; resize: none; white-space:normal;'" } 
                         },
 			{ name: 'lname', type: 'text', html: { caption: 'Long name', attr: 'size="40"' } },
@@ -162,43 +162,18 @@ var config = {
 				if (errors.length > 0) return;
 				if (this.recid == 0) {
                                     // We are saving a new record,   
-
-                                     // Check what our id will be. 
-                                     var ajaxOptions = {
-                                       type     : 'POST',
-                                       url      : '/api/position',
-                                       data     : {
-                                         cmd: "add-record"
-                                       },
-                                      dataType: 'text'  // expected data type from server
-                                     };
-
-                                    $.ajax(ajaxOptions)
-                                            .done(function(data, status, xhr) {
-                                                var resultData = jQuery.parseJSON(data);
-                                                //var newrec=$.extend(true, resultData.record,{ name : "Double click to edit" });
-                                                var newrec = resultData.record;
-                                                console.log("newrec", newrec);
-                                                w2ui.form.recid=newrec.recid;                                                
-                                            })
-                                            .fail(function(jqXHR, textStatus, errorThrown) {
-                                                // Handle error
-                                     });
-
-                                    this.save();
-                                    
-                                    
-				} else {
+                                    this.save(); 
+                                  } else {
                                        // Just update the grid with our data
                                        this.save();
-	 				w2ui.grid.set(this.recid, this.record);
-					w2ui.grid.selectNone();
+	 			       w2ui.grid.set(this.recid, this.record);
+				       w2ui.grid.selectNone();
 
 				}
                                 //w2ui.grid.reload();
                                 if (this.record.lat && this.record.lon)
                                 {
-                                  CenterMap(this.record.lat,this.record.lon,this.record.name);
+                                  CenterMap(Number(this.record.lat),Number(this.record.lon),this.record.name);
                                 }
                                 //location.reload(true);
 			}
@@ -297,10 +272,9 @@ function CenterMap(lat,long,name) {
         $.ajax(ajaxOptions)
                 .done(function(data, status, xhr) {
                     var resultData = jQuery.parseJSON(data);
-                    //var newrec=$.extend(true, resultData.record,{ name : "Double click to edit" });
                     var newrec = resultData.record;
                     console.log("newrec", newrec);
-                    w2ui.form.recid = 0;
+                    w2ui.form.recid = newrec.recid;
                     if (w2ui.form.record._id)
                     {
                         delete w2ui.form.record._id;

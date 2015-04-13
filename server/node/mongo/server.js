@@ -36,25 +36,31 @@ app.disable('etag');
 var db = require('./w2mdb.js');
 
 
+//------ Setup position with help of ksdb.js
+
+var ksdb = require('./ksdb.js');
+
+ksdb.setupKickstartCollection(app,"position")
+
+// ----- Setup counter for user collection
+
+
+w2mdb.initCounters("user");
+
+
 //------ Routing of api ---------
 
-app.post("/api/position/",function(req,res,next){   
-	w2mdb.serveDBMongo(req,res,"position");
-    });
 
-app.get("/api/position/enum",function(req,res,next){   
-	w2mdb.enumDBMongo(req,res,"position","name");
-    });
 
 app.post("/api/user/",function(req,res,next){   
 	w2mdb.serveDBMongo(req,res,"user");
     });
 
-app.get("/api/user/enum",function(req,res,next){   
+app.get("/api/enum/user",function(req,res,next){   
 	w2mdb.enumDBMongo(req,res,"user","name");
     });
 
-app.post("/api/user/enum",function(req,res,next){   
+app.post("/api/enum/user",function(req,res,next){   
 	w2mdb.enumDBMongo(req,res,"user","name");
     });
 

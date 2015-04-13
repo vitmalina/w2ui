@@ -1,3 +1,11 @@
+
+# Node/Mongo w2ui generic backend driver
+
+## Synopsis
+
+
+## Installation
+
 To run the server with example client public/index.htlm
 
 npm install
@@ -8,21 +16,30 @@ http://localhost:3000
 
 ---------------------------------------------
 
-The mongo server driver is w2mdb.js
-The test application is public/index.html 
+## Files
+
+..* w2mdb.js, The mongo server driver. 
+..* ksdb.js,  To use mongo as simple backend for the kickstart project.
+..* server.js, Http & api server. 
+..* public/index.html test application
+
+## Example
 
 The application stores users and positions in the collections 
 "users" & "positions"
 
 It uses an openlayer map to generate data when clicking the map 
-and then pressing save.
+and then pressing save. [Open layers](http://openlayers.org/)
 
 In the top part you can generate users and later use them in the
 "Users at location" form.
 
+
+## Test data
+
 When you have entered some data you can test the api with,
 
-http://localhost:3000/api/position/enum
+http://localhost:3000/api/enum/position
 
-http://localhost:3000/api/user/enum
+http://localhost:3000/api/enum/user
 
