@@ -58,6 +58,8 @@
   box-sizing: border-box;
   font-family: Verdana, Arial, sans-serif;
   font-size: 11px;
+  /* IE9-11 specific classes */
+  /* needs doblue :: */
 }
 .w2ui-reset * {
   color: default;
@@ -82,7 +84,8 @@
   font-family: Verdana, Arial, sans-serif;
   font-size: 11px;
 }
-.w2ui-reset input,
+.w2ui-reset input:not([type=button]):not([type=submit]),
+.w2ui-reset select,
 .w2ui-reset textarea {
   display: inline-block;
   width: auto;
@@ -91,11 +94,50 @@
   padding: 4px;
   margin: 0;
   font-size: 11px;
+  border: 1px solid #777f8c;
+  border-radius: 3px;
+  color: #c0c8d5;
+  background-color: #515b7e;
+  line-height: normal;
+}
+.w2ui-reset input:not([type=button]):not([type=submit]):focus,
+.w2ui-reset select:focus,
+.w2ui-reset textarea:focus {
+  outline-color: #aaa871;
+}
+.w2ui-reset input:not([type=button]):not([type=submit]):disabled,
+.w2ui-reset select:disabled,
+.w2ui-reset textarea:disabled,
+.w2ui-reset input:not([type=button]):not([type=submit])[readonly],
+.w2ui-reset select[readonly],
+.w2ui-reset textarea[readonly] {
+  background-color: #f1f1f1;
+  color: #777;
+}
+.w2ui-reset input[type=button] {
+  border-radius: 3px;
+  border: 1px solid #242A37;
+  background-color: #536184;
+  color: #C0C8D5;
+}
+.w2ui-reset input[type=button]:hover {
+  color: #C0C8D5;
+  background-color: #36415F;
+}
+.w2ui-reset input[type=button]:active {
+  color: white;
+  background-color: #282F3E;
 }
 .w2ui-reset select {
-  padding: 1px;
+  padding: 2px;
   height: 23px;
   font-size: 11px;
+}
+.w2ui-reset input::-ms-clear {
+  display: none;
+}
+.w2ui-reset input:-ms-input-placeholder {
+  color: #aaa !important;
 }
 .w2ui-centered {
   position: absolute;
@@ -116,58 +158,6 @@
 .w2ui-readonly {
   background-color: #f1f1f1 !important;
   color: #777 !important;
-}
-/*************************************************
-* ---- Input Controls ----
-*/
-input[type=button] {
-  border-radius: 3px;
-  border: 1px solid #242A37;
-  background-color: #536184;
-  color: #C0C8D5;
-}
-input[type=button]:hover {
-  color: #C0C8D5;
-  background-color: #36415F;
-}
-input[type=button]:active {
-  color: white;
-  background-color: #282F3E;
-}
-input:not([type=button]):not([type=submit]),
-select,
-textarea {
-  padding: 4px;
-  border: 1px solid #777f8c;
-  border-radius: 3px;
-  color: #c0c8d5;
-  background-color: #515b7e;
-  line-height: normal;
-}
-input:not([type=button]):not([type=submit]):focus,
-select:focus,
-textarea:focus {
-  outline-color: #aaa871;
-}
-input:not([type=button]):not([type=submit]):disabled,
-select:disabled,
-textarea:disabled,
-input:not([type=button]):not([type=submit])[readonly],
-select[readonly],
-textarea[readonly] {
-  background-color: #f1f1f1;
-  color: #777;
-}
-/* IE9-11 specific classes */
-/* needs doblue :: */
-input::-ms-clear {
-  display: none;
-}
-input:-ms-input-placeholder {
-  color: #aaa !important;
-}
-select {
-  padding: 2px;
 }
 /* On/Off switch */
 input[type="checkbox"].w2ui-toggle {
