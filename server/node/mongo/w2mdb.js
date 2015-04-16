@@ -55,17 +55,16 @@
 
 */
 
-var dbs = "mongodb://localhost:27017/w2ui";
+var dbs = "mongodb://localhost:27017/w2uidb";
 
 var mc = require('mongodb').MongoClient;
-
-
+var ObjectID = require('mongodb').ObjectID;
+var BSON = require('mongodb').BSONPure;
 var mongodb = require('mongodb');
 var events = require('events');
 
 
 var event = new events.EventEmitter();
-
 event.setMaxListeners(20);
 
 
@@ -170,16 +169,18 @@ exports.enumDBMongo = function(req, res, collectionName,dataitem)
                  cursor.each(function(err, item) {
                     if (item)
                     {
-                        var myRes=
-                                {
-                                  id : item._id,
-                                  text: item[dataitem],
-                                  recid: item.recid
-                                };
-                           array.push(myRes);
+                        //if (item.inactive != '1')
+                        {
+                            var myRes=
+                                    {
+                                      id : item._id,
+                                      text: item[dataitem],
+                                      recid: item.recid
+                                    };
+                               array.push(myRes);
 
-                        j++;
-
+                            j++;
+                        }
                      }
                      else
                      {
@@ -241,7 +242,6 @@ getRecords = function(req,res,collectionName)
                         item.selected = false;
                         item.recid = Number(item.recid);
                         array.push(item);
-                        //array[j].recid = j;
                     }
                     else
                     {
@@ -260,14 +260,44 @@ getRecords = function(req,res,collectionName)
     });
 }
 
-saveRecord = function(req,res,collectionName,autoIncVarName,newId)
+function isValidObjectID(str) {
+  // coerce to string so the function can be generically used to test both strings and native objectIds created by the driver
+  str = str + '';
+  var len = str.length, valid = false;
+  if (len == 12 || len == 24) {
+    valid = /^[0-9a-fA-F]+$/.test(str);
+  }
+  return valid;
+}
+
+
+customConvert = function(myId)
+{
+        if (myId) {
+
+            if (isValidObjectID(myId))
+            {
+                myId=ObjectID(myId);
+            }
+            else if (typeof myId === 'string') {
+                // No numbered strings allowed
+                if (parseFloat(myId).toString() === myId) {
+                    myId=Number(myId);
+                }
+            }
+            else if (typeof myId === 'number') {
+                // Store id as a number
+            }                       
+        }
+   return (myId);
+}              
+
+saveRecord = function(req,res,collectionName,autoIncVarName,newRecId)
 {
     
-    // Note the difference between
-    // req.body.record["_id"];
-    // req.body._id;  
+    // We try to use these to identify our object
     // req.body.recid;
-    // req.body.record.recid
+    // req.body.record["_id"];
 
 
         mc.connect(dbs, function(err, db) {
@@ -276,9 +306,13 @@ saveRecord = function(req,res,collectionName,autoIncVarName,newId)
             
               if (autoIncVarName)
               {
-                //console.log("Autoinc",collectionName,autoIncVarName);                
-                req.body.record[autoIncVarName]=newId;
-                req.body.record.recid=newId;
+		  //console.log("Autoinc",collectionName,autoIncVarName);                
+                req.body.record[autoIncVarName]=newRecId;
+                req.body.record.recid=newRecId;
+                if (autoIncVarName!="recid")
+                {
+                  req.body.record["_id"]=newRecId;
+                }
               }
 
             
@@ -287,40 +321,17 @@ saveRecord = function(req,res,collectionName,autoIncVarName,newId)
 
               
                 var myRecId=req.body.recid;
-                //console.log("save",myRecId);
-
-                // Get next free recid
-                //var maxId=0;
-                //for (var qix=0;qix<docs.length;qix++)
-                //{
-                //    if (Number(docs[qix].recid)>maxId)
-                //    {
-                //       maxId=Number(docs[qix].recid);
-                //    }
-                //}
-                //maxId+=1;
-
                 // We use the _id received as our _id if it exists. :-P 
                 var myId=req.body.record["_id"];
                 //console.log("got _id",myId);
-                // Prevent using "3" and 3 as same _id
-                if (Number(req.body.record["_id"])==myId)
-                {
-                    // Preserve leading 000
-                    if (myId.charAt(0)!=="0")
-                    {
-                       myId=Number(req.body.record["_id"]);
-                    }
-                }
-                if (!myId){
-                    // Set the id to next free recid
-                    myId=req.body.recid;
-                }
-
+                
+                // Prevent using "3" and 3 as same _id                                
+                myId=customConvert(myId);
+                
                 // Check if we need a new recid 
                 if (Number(myRecId)==0)
                 {
-                    myRecId=newId;
+                    myRecId=newRecId;
                 }
                 else
                 {
@@ -339,10 +350,12 @@ saveRecord = function(req,res,collectionName,autoIncVarName,newId)
                 }
 
                 var doc = clone(req.body.record);
-                doc._id=myId;
+                // Use generated id unless we found one. :-P
+                if (myId) {
+                   doc._id=myId;
+                }
                 doc.recid=Number(myRecId);
                 //console.log("saving id,recid",myId,myRecId);
-
 
                 collection.save(doc, { w: 1} , function(err, docs) {
                     if (err) {
@@ -381,7 +394,8 @@ getRecord = function(req,res,collectionName)
                     if (item)
                     {
                         if (item.recid==req.body.recid)
-                        {
+                        {   
+                            item._id=item._id.toString();
                             array.push(item);
                         }
                     }
@@ -404,11 +418,162 @@ getRecord = function(req,res,collectionName)
     });           
 }
 
+saveRecords = function(req,res,collectionName){
+    if (req.body.changes)
+    {
+
+        var changes = req.body.changes;
+        var myRecId = req.body.changes[0].recid;
+        var myId = req.body.changes[0].id;
+        var myData = req.body.changes[0];
+
+        var updateEvent = new events.EventEmitter();
+
+        // Only send the result when finished updating
+        var numUpdates = 0;
+        updateEvent.on('update', function() {
+            numUpdates++;
+            //console.log("upd2",numUpdates);
+            if (numUpdates == changes.length)
+            {
+                var save_response = {
+                    status: "success",
+                };
+
+                res.send(save_response);
+
+                updateEvent = undefined
+            }
+        });
+
+    getDB(function(db) {     
+         db.collection(collectionName, function(err, collection) {
+                collection.find().toArray(function(err, docs) {
+                    if (err)
+                    {
+                        var err_response = {
+                            status: "error",
+                            message: err.errmsg
+                        };
+                        res.send(err_response);
+                        throw(err);                                        
+                    }
+
+                    var maxId = 0;
+                    for (var qix = 0; qix < docs.length; qix++)
+                    {
+                        if (Number(docs[qix]._id) > maxId)
+                        {
+                            maxId = Number(docs[qix]._id);
+                        }
+                    }
+                    maxId += 1;
+
+                    // We use the id as our id if it exists. :-P
+                    for (var ix = 0; ix < changes.length; ix++) {
+                        // Find _id for our recid
+                        var docId;
+                        for (var z = 0; z < docs.length; z++)
+                        {
+                            if (Number(docs[z].recid) == Number(changes[ix].recid))
+                            {
+                                docId = docs[z]._id;
+                            }
+                        }
+
+                        myRecId = changes[ix].recid;
+                        myData = changes[ix];
+
+                        if (changes[ix]._id)
+                        {
+                            myId=customConvert(myId);
+                        }
+                        else
+                        {
+                            //console.log("No id was available in change");
+                            if (docId) {
+                                // Document with correct id was found
+                                myId=docId;
+                            }
+                            else
+                            {
+                              // Use generated id
+                            }
+                        }
+
+                        // Similar function to $extend
+                        function clone(a) {
+                            return JSON.parse(JSON.stringify(a));
+                        }
+                        var doc = clone(myData);
+                        doc._id = myId;
+                        doc.recid = Number(myRecId);
+                        myData.recid = Number(myData.recid);
+
+                        // Document already exists
+                        if (docId)
+                        {
+                            collection.update(
+                            {_id: docId},
+                            {$set: myData},
+                            {w: 0}, function(err, doc) {
+                                updateEvent.emit('update');
+
+                                if (err) {
+                                    var err_response = {
+                                        status: "error",
+                                        message: err.errmsg
+                                    };
+                                    //res.send(err_response);
+                                    //console.log(err_response);
+                                }
+                                else
+                                {
+
+                                }
+                            });
+                        }
+                        else
+                        {
+                            // No such recid was found create new document
+                            collection.save(doc, {w: 1}, function(err, docs) {
+                                updateEvent.emit('update');
+
+
+                                if (err) {
+                                    var err_response = {
+                                        status: "error",
+                                        message: err.errmsg
+                                    };
+                                    //res.send(err_response);
+                                    //console.log(err_response);
+                                }
+                                else
+                                {
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    }
+    else
+    {
+        var save_response = {
+            status: "success",
+        };
+
+        res.send(save_response);
+
+    }
+}
+            
 
 exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
 {
-    //console.log("serveDBMongo body", req.body);
-    //console.log("serverCmd", req.body.cmd);
+    console.log("serveDBMongo body", req.body);
+    console.log("serverCmd", req.body.cmd);
 
     switch (req.body.cmd)
     {
@@ -447,140 +612,7 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
             //console.log("save-records");
             {
                 //console.log("c",req.body.changes);
-
-                if (req.body.changes)
-                {
-
-                    var changes = req.body.changes;
-                    var myRecId = req.body.changes[0].recid;
-                    var myId = req.body.changes[0].id;
-                    var myData = req.body.changes[0];
-
-
-                    mc.connect(dbs, function(err, db) {
-                        db.collection(collectionName, function(err, collection) {
-                            // Use count as the key if we dont have recid
-                            collection.find().toArray(function(err, docs) {
-                                if (err)
-                                {
-                                    var err_response = {
-                                        status: "error",
-                                        message: err.errmsg
-                                    };
-                                    res.send(err_response);
-                                    //throw(err);                                        
-                                }
-                                else
-                                {
-                                }
-
-                                var maxId = 0;
-                                for (var qix = 0; qix < docs.length; qix++)
-                                {
-                                    if (Number(docs[qix]._id) > maxId)
-                                    {
-                                        maxId = Number(docs[qix]._id);
-                                    }
-                                }
-                                maxId += 1;
-
-                                // We use the id as our id if it exists. :-P 
-                                for (var ix = 0; ix < changes.length; ix++)
-                                {                                    
-                                    // Find _id for our recid
-                                    var docId;
-                                    for (var z = 0; z < docs.length; z++)
-                                    {
-                                        if (Number(docs[z].recid)==Number(changes[ix].recid))
-                                        {
-                                            docId=docs[z]._id;
-                                        }
-                                    }
-
-                                    myRecId = changes[ix].recid;
-                                    myData = changes[ix];
-
-                                    if (changes[ix]._id)
-                                    {
-                                        myId = changes[ix]._id
-                                    }
-                                    else
-                                    {
-                                        myId = maxId;
-                                    }
-
-                                    // Similar function to $extend
-                                    function clone(a) {
-                                        return JSON.parse(JSON.stringify(a));
-                                    }
-                                    var doc = clone(myData);
-                                    doc._id = myId.toString();
-                                    doc.recid = Number(myRecId);
-                                    myData.recid=Number(myData.recid);
-
-                                    // Document already exists
-                                    if (docId)
-                                    {
-                                        collection.update(
-                                          {_id: docId},
-                                          { $set: myData},
-                                          {w: 0},function(err,doc) {                                           
-                                            if (err) {
-                                                var err_response = {
-                                                    status: "error",
-                                                    message: err.errmsg
-                                                };
-                                                //res.send(err_response);
-                                                //console.log(err_response);
-                                            }
-                                            else
-                                            {
-                                                var save_response = {
-                                                    status    : "success",
-                                                };
-
-                                                res.send(save_response);
-
-                                            }
-                                          });
-                                    }
-                                    else 
-                                    {
-                                        // No such recid was found create new document
-                                        collection.save(doc, {w: 1}, function(err, docs) {
-                                            if (err) {
-                                                var err_response = {
-                                                    status: "error",
-                                                    message: err.errmsg
-                                                };
-                                                //res.send(err_response);
-                                                //console.log(err_response);
-                                            }
-                                            else
-                                            {
-                                                var save_response = {
-                                                    status    : "success",
-                                                };
-
-                                                res.send(save_response);
-
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        });
-                    });
-                }
-                else
-                {
-                    var save_response = {
-                        status    : "success",
-                    };
-
-                    res.send(save_response);
-
-                }
+                saveRecords(req,res,collectionName);
             }
            break;
             

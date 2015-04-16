@@ -18,10 +18,10 @@ http://localhost:3000
 
 ## Files
 
-..* w2mdb.js, The mongo server driver. 
-..* ksdb.js,  To use mongo as simple backend for the kickstart project.
-..* server.js, Http & api server. 
-..* public/index.html test application
+* w2mdb.js, The mongo server driver. 
+* ksdb.js,  Example how to use mongo as simple backend for the kickstart project.
+* server.js, Http & api server. 
+* public/index.html test application
 
 ## Example
 
