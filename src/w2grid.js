@@ -3185,8 +3185,9 @@
                 if ($tmp[0].tagName != 'TD') $tmp = $(event.target).parents('td');
                 var selected = false;
                 column = $tmp.attr('col');
+                // check if any selected sel in the right row/column
                 for (var i=0; i<sel.length; i++) {
-                    if (sel[i].recid == recid && sel[i].column == column) selected = true;
+                    if (sel[i].recid == recid || sel[i].column == column) selected = true;
                 }
                 if (!selected && recid != null) obj.click({ recid: recid, column: column });
                 if (!selected && column != null) obj.columnClick(this.columns[column].field, event);
