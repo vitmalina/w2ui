@@ -16,7 +16,6 @@
 *   - hidden searches could not be clearned by the user
 *   - problem with .set() and arrays, array get extended too, but should be replaced
 *   - move events into prototype
-*   - add grid.focus()
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
@@ -66,6 +65,7 @@
 *   - getSearch without params returns fields of all searches
 *   - added column.tooltip
 *   - added hasFocus, refactored w2utils.keyboard
+*   - do not clear selection when clicked and it was not in focus
 *
 ************************************************************************/
 
@@ -116,7 +116,7 @@
             skipRecords     : true
         };
 
-        this.hasFocus         = false;
+        this.hasFocus        = false;
         this.autoLoad        = true;     // for infinite scroll
         this.fixedBody       = true;     // if false; then grid grows with data
         this.recordHeight    = 24;
@@ -2457,6 +2457,10 @@
         },
 
         click: function (recid, event) {
+            if (this.last.skipClick) {
+                delete this.last.skipClick;
+                return;
+            }
             var time   = (new Date()).getTime();
             var column = null;
             var obj    = this;
@@ -3792,6 +3796,10 @@
             return (new Date()).getTime() - time;
 
             function mouseStart (event) {
+                // skip record click if was not in focus
+                if (!obj.hasFocus && $(event.target).parents('table').parent().hasClass('w2ui-grid-records') && obj.getSelection().length != 0) {
+                    obj.last.skipClick = true;
+                }
                 // set focus to grid
                 setTimeout(function () {
                     var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
