@@ -6,7 +6,6 @@
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
-*   - frozen columns
 *   - add colspans
 *   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
@@ -20,16 +19,15 @@
 *   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
 *   - row drag and drop has bugs
-*   - header filtration
+*   - header filtration ?? not sure
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
-*   - send parsed URL to the event if there is parseData
+*   - send parsed URL to the event if there is routeData
 *   - if you set searchData or sortData and call refresh() it should work
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *   - use column field for style: { 1: 'color: red' }
 *   - unselect fires too many times (if many is unselected, one event should fire)
 *   - add selectType: 'none' so that no selection can be make but with mouse
-*   - send parsed URL to the event if there is routeData
 *   - reorder records with frozen columns
 *   - focus/blur for selectType = cell not display grayed out selection
 *   - frozen columns 
@@ -56,6 +54,7 @@
 *   - added search.operator
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
+*   - frozen columns
 *   - added selectionSave, selectionRestore - for internal use
 *   - added additional search filter options for int, float, date, time
 *   - added getLineHTML
@@ -2187,7 +2186,7 @@
             } else {
                 el.addClass('w2ui-editable')
                     .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" '+
-                        '    type="text" style="font-family: inherit; font-size: inherit; padding: 3px 2px; border-color: transparent; outline: none; '+ addStyle + edit.style +'" '+
+                        '    type="text" style="font-family: inherit; font-size: inherit; padding: 3px; border-color: transparent; outline: none; '+ addStyle + edit.style +'" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
@@ -4464,7 +4463,7 @@
                         '    </td>'+
                         '    <td>'+
                         '        <div title="'+ w2utils.lang('Clear Search') +'" class="w2ui-search-clear" id="grid_'+ this.name +'_searchClear"  '+
-                        '             onclick="var obj = w2ui[\''+ this.name +'\']; obj.searchReset();" '+
+                        '             onclick="var obj = w2ui[\''+ this.name +'\']; obj.searchReset();" style="display: none"'+
                         '        >&nbsp;&nbsp;</div>'+
                         '    </td>'+
                         '</tr></table>'+
@@ -5004,7 +5003,7 @@
                 if (typeof s.style   == 'undefined') s.style = '';
                 if (typeof s.type    == 'undefined') s.type   = 'text';
                 if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
+                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();" class="w2ui-input">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '    <option value="begins">'+ w2utils.lang('begins') +'</option>'+
                         '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
@@ -5012,7 +5011,7 @@
                         '</select>';
                 }
                 if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" '+
+                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" '+
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');" onclick="event.stopPropagation();">'+
                         '   <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '   <option value="between">'+ w2utils.lang('between') +'</option>'+
@@ -5021,12 +5020,12 @@
                         '</select>';
                 }
                 if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
+                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();" class="w2ui-input">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '</select>';
                 }
                 if (['enum'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();">'+
+                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();" class="w2ui-input">'+
                         '    <option value="in">'+ w2utils.lang('in') +'</option>'+
                         '    <option value="not in">'+ w2utils.lang('not in') +'</option>'+
                         '</select>';
@@ -5044,7 +5043,7 @@
                     case 'list':
                     case 'combo':
                     case 'enum':
-                        html += '<input rel="search" type="text" size="40" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
+                        html += '<input rel="search" type="text" size="40" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>';
                         break;
 
                     case 'int':
@@ -5054,14 +5053,15 @@
                     case 'percent':
                     case 'date':
                     case 'time':
-                        html += '<input rel="search" type="text" size="12" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>'+
+                        html += '<input rel="search" type="text" size="12" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'>'+
                                 '<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">'+
-                                '&nbsp;-&nbsp;&nbsp;<input rel="search" type="text" style="width: 90px" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
+                                '&nbsp;-&nbsp;&nbsp;<input rel="search" type="text" class="w2ui-input" style="width: 90px" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'>'+
                                 '</span>';
                         break;
 
                     case 'select':
-                        html += '<select rel="search" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'  onclick="event.stopPropagation();"></select>';
+                        html += '<select rel="search" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" '+
+                                ' name="'+ s.field +'" '+ s.inTag +'  onclick="event.stopPropagation();"></select>';
                         break;
 
                 }

@@ -711,14 +711,14 @@
                 if (typeof page == 'undefined') page = field.html.page;
                 if (field.html.caption == '') field.html.caption = field.name;
                 // input control
-                var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
+                var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +'/>';
                 switch (field.type) {
                     case 'pass':
                     case 'password':
-                        input = '<input name="' + field.name + '" type = "password" ' + field.html.attr + '/>';
+                        input = '<input name="' + field.name + '" class="w2ui-input" type = "password" ' + field.html.attr + '/>';
                         break;
                     case 'checkbox':
-                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
+                        input = '<input name="'+ field.name +'" class="w2ui-input" type="checkbox" '+ field.html.attr +'/>';
                         break;
                     case 'radio':
                         input = '';
@@ -730,12 +730,12 @@
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label><input name="' + field.name + '" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
+                            input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
                                 '&nbsp;' + items[i].text + '</label><br>';
                         }
                         break;
                     case 'select':
-                        input = '<select name="' + field.name + '" ' + field.html.attr + '>';
+                        input = '<select name="' + field.name + '" class="w2ui-input" ' + field.html.attr + '>';
                         // normalized options
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
@@ -749,10 +749,10 @@
                         input += '</select>';
                         break;
                     case 'textarea':
-                        input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
+                        input = '<textarea name="'+ field.name +'" class="w2ui-input" '+ field.html.attr +'></textarea>';
                         break;
                     case 'toggle':
-                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-toggle"/><div><div></div></div>';
+                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
                         break;
                 }
                 if (field.html.group) {
