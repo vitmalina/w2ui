@@ -58,8 +58,6 @@
   box-sizing: border-box;
   font-family: Verdana, Arial, sans-serif;
   font-size: 11px;
-  /* IE9-11 specific classes */
-  /* needs doblue :: */
 }
 .w2ui-reset * {
   color: default;
@@ -84,7 +82,7 @@
   font-family: Verdana, Arial, sans-serif;
   font-size: 11px;
 }
-.w2ui-reset input:not([type=button]):not([type=submit]),
+.w2ui-reset input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),
 .w2ui-reset select,
 .w2ui-reset textarea {
   display: inline-block;
@@ -94,36 +92,11 @@
   padding: 4px;
   margin: 0;
   font-size: 11px;
-  border: 1px solid #bbbbbb;
-  border-radius: 3px;
-  color: #000000;
-  background-color: #ffffff;
-  line-height: normal;
-}
-.w2ui-reset input:not([type=button]):not([type=submit]):focus,
-.w2ui-reset select:focus,
-.w2ui-reset textarea:focus {
-  outline-color: #72b2ff;
-}
-.w2ui-reset input:not([type=button]):not([type=submit]):disabled,
-.w2ui-reset select:disabled,
-.w2ui-reset textarea:disabled,
-.w2ui-reset input:not([type=button]):not([type=submit])[readonly],
-.w2ui-reset select[readonly],
-.w2ui-reset textarea[readonly] {
-  background-color: #f1f1f1;
-  color: #777;
 }
 .w2ui-reset select {
-  padding: 2px;
+  padding: 1px;
   height: 23px;
   font-size: 11px;
-}
-.w2ui-reset input::-ms-clear {
-  display: none;
-}
-.w2ui-reset input:-ms-input-placeholder {
-  color: #aaa !important;
 }
 .w2ui-centered {
   position: absolute;
@@ -144,6 +117,44 @@
 .w2ui-readonly {
   background-color: #f1f1f1 !important;
   color: #777 !important;
+}
+/*************************************************
+* ---- Input Controls ----
+*/
+input:not([type=button]):not([type=submit]).w2ui-input,
+select.w2ui-input,
+textarea.w2ui-input {
+  padding: 4px;
+  border: 1px solid #bbbbbb;
+  border-radius: 3px;
+  color: #000000;
+  background-color: #ffffff;
+  line-height: normal;
+}
+input:not([type=button]):not([type=submit]).w2ui-input:focus,
+select.w2ui-input:focus,
+textarea.w2ui-input:focus {
+  outline-color: #72b2ff;
+}
+input:not([type=button]):not([type=submit]).w2ui-input:disabled,
+select.w2ui-input:disabled,
+textarea.w2ui-input:disabled,
+input:not([type=button]):not([type=submit]).w2ui-input[readonly],
+select.w2ui-input[readonly],
+textarea.w2ui-input[readonly] {
+  background-color: #f1f1f1;
+  color: #777;
+}
+/* IE9-11 specific classes */
+/* needs doblue :: */
+input.w2ui-input::-ms-clear {
+  display: none;
+}
+input.w2ui-input:-ms-input-placeholder {
+  color: #aaa !important;
+}
+select.w2ui-input {
+  padding: 2px;
 }
 /* On/Off switch */
 input[type="checkbox"].w2ui-toggle {
@@ -1544,15 +1555,15 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-all {
   outline: none !important;
-  width: 160px;
-  border-radius: 10px;
-  line-height: normal;
-  height: 22px;
-  border: 1px solid #b9b9b9;
-  color: #000000;
-  background-color: #ffffff;
-  padding: 3px 18px 3px 23px;
-  margin: 0px;
+  width: 160px !important;
+  border-radius: 10px !important;
+  line-height: normal !important;
+  height: 22px !important;
+  border: 1px solid #b9b9b9 !important;
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  padding: 3px 18px 3px 23px !important;
+  margin: 0px !important;
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-down {
   position: absolute;
@@ -2116,7 +2127,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-overlay .w2ui-grid-searches table td.close-btn button {
   min-width: 24px;
   height: 24px;
-  padding-top: 6px !important;
+  padding-top: 5px !important;
 }
 .w2ui-overlay .w2ui-grid-searches table td.caption {
   text-align: right;
