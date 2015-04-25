@@ -2686,11 +2686,6 @@
             var key      = event.keyCode;
             var shiftKey = event.shiftKey;
 
-            if (key == 9) { // tab key
-                if (event.shiftKey) key = 37; else key = 39; // replace with arrows
-                shiftKey = false;
-                cancel   = true;
-            }
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
@@ -3778,9 +3773,7 @@
                     setTimeout(function () { w2ui[obj.name].paste(el.value); }, 1)
                 })
                 .on('keydown', function (event) {
-                    if (event.keyCode != 9) { // not tab
-                        w2ui[obj.name].keydown.call(w2ui[obj.name], event);
-                    } 
+                    w2ui[obj.name].keydown.call(w2ui[obj.name], event);
                 });
             // init mouse events for mouse selection
             $(this.box).on('mousedown', mouseStart);
