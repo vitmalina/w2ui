@@ -105,6 +105,7 @@ var w2utils = (function () {
         lang            : lang,
         locale          : locale,
         getSize         : getSize,
+        getStrWidth     : getStrWidth,
         scrollBarSize   : scrollBarSize,
         checkName       : checkName,
         checkUniqueId   : checkUniqueId,
@@ -831,6 +832,14 @@ var w2utils = (function () {
             case '+height'  : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
         }
         return 0;
+    }
+
+    function getStrWidth (str, styles) {
+        var w, html = '<div id="_tmp_width" style="position: absolute; top: -900px;'+ styles +'">'+ str +'</div>';
+        $('body').append(html);
+        w = $('#_tmp_width').width();
+        $('#_tmp_width').remove();
+        return w;
     }
 
     function lang (phrase) {

@@ -105,6 +105,7 @@ var w2utils = (function () {
         lang            : lang,
         locale          : locale,
         getSize         : getSize,
+        getStrWidth     : getStrWidth,
         scrollBarSize   : scrollBarSize,
         checkName       : checkName,
         checkUniqueId   : checkUniqueId,
@@ -831,6 +832,14 @@ var w2utils = (function () {
             case '+height'  : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom;
         }
         return 0;
+    }
+
+    function getStrWidth (str, styles) {
+        var w, html = '<div id="_tmp_width" style="position: absolute; top: -900px;'+ styles +'">'+ str +'</div>';
+        $('body').append(html);
+        w = $('#_tmp_width').width();
+        $('#_tmp_width').remove();
+        return w;
     }
 
     function lang (phrase) {
@@ -1940,7 +1949,6 @@ w2utils.event = {
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
-*   - add colspans
 *   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
 *   - easy bubbles in the grid
@@ -1999,6 +2007,8 @@ w2utils.event = {
 *   - added column.tooltip
 *   - added hasFocus, refactored w2utils.keyboard
 *   - do not clear selection when clicked and it was not in focus
+*   - added record.w2ui.colspan
+*   - editable area extands with typing
 *
 ************************************************************************/
 
@@ -4085,6 +4095,12 @@ w2utils.event = {
             // create input element
             var tr = $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(recid));
             var el = tr.find('[col='+ column +'] > div');
+            // for spreadsheet - insert into selection
+            if (this.selectType != 'row') {
+                $('#grid_'+ this.name +'_selection')
+                    .prepend('<div style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;"></div>');
+                el = $('#grid_'+ this.name +'_selection > div:first-child');
+            }
             if (typeof edit.inTag   == 'undefined') edit.inTag   = '';
             if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
             if (typeof edit.style   == 'undefined') edit.style   = '';
@@ -4107,7 +4123,9 @@ w2utils.event = {
                 }
                 el.addClass('w2ui-editable')
                     .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'"'+
-                        '    style="width: 100%; outline: none; border: 0px !important;'+ addStyle + edit.style +'" field="'+ col.field +'" recid="'+ recid +'" '+
+                        '    style="width: 100%; pointer-events: auto; padding: 0px; margin: 0px; '+
+                        '       outline: none; border: 0px !important; '+ addStyle + edit.style +'" '+
+                        '    field="'+ col.field +'" recid="'+ recid +'" '+
                         '    '+ edit.inTag +
                         '>'+ html +'</select>' + edit.outTag);
                 el.find('select').focus()
@@ -4118,9 +4136,12 @@ w2utils.event = {
                         obj.editChange.call(obj, this, index, column, event);
                     });
             } else {
+                var $tmp = tr.find('[col='+ column +'] > div');
+                var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size');
                 el.addClass('w2ui-editable')
                     .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" '+
-                        '    type="text" style="font-family: inherit; font-size: inherit; padding: 3px; border-color: transparent; outline: none; '+ addStyle + edit.style +'" '+
+                        '    type="text" style="'+ font +'; width: 100%; height: 100%; padding: 3px; '+
+                        '       border-color: transparent; outline: none; pointer-events: auto; '+ addStyle + edit.style +'" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
@@ -4245,7 +4266,11 @@ w2utils.event = {
                                 break;
                         }
                         if (cancel) if (event.preventDefault) event.preventDefault();
-                    });
+                        // if input too small - expand
+                        expand.call(this, event);
+                    })
+                    .on('keyup', function (event) { expand.call(this, event); });
+
                 // focus and select
                 var tmp = el.find('input').focus();
                 clearTimeout(obj.last.kbd_timer); // keep focus
@@ -4255,10 +4280,21 @@ w2utils.event = {
                 } else {
                     tmp.select();
                 }
-
+                expand.call(el.find('input, select')[0], null);
             }, 1);
             // event after
             obj.trigger($.extend(eventData, { phase: 'after' }));
+            return;
+
+            function expand(event) {
+                var val   = this.value;
+                var $sel  = $('#grid_'+ obj.name +'_selection');
+                var style = 'font-family: '+ $(this).css('font-family') + '; font-size: '+ $(this).css('font-size') + ';';
+                var width = w2utils.getStrWidth(val, style);
+                if (width + 20 > $sel.width()) {
+                    $sel.width(width + 20);
+                }                    
+            }
         },
 
         editChange: function (el, index, column, event) {
@@ -4620,11 +4656,6 @@ w2utils.event = {
             var key      = event.keyCode;
             var shiftKey = event.shiftKey;
 
-            if (key == 9) { // tab key
-                if (event.shiftKey) key = 37; else key = 39; // replace with arrows
-                shiftKey = false;
-                cancel   = true;
-            }
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
@@ -5712,9 +5743,7 @@ w2utils.event = {
                     setTimeout(function () { w2ui[obj.name].paste(el.value); }, 1)
                 })
                 .on('keydown', function (event) {
-                    if (event.keyCode != 9) { // not tab
-                        w2ui[obj.name].keydown.call(w2ui[obj.name], event);
-                    } 
+                    w2ui[obj.name].keydown.call(w2ui[obj.name], event);
                 });
             // init mouse events for mouse selection
             $(this.box).on('mousedown', mouseStart);
@@ -7666,10 +7695,23 @@ w2utils.event = {
                             '' ) +
                         '</td>';
             }
-            var col_ind = 0;
+            var col_ind  = 0;
+            var col_skip = 0;
+            var col_span = 1;
             while (true) {
                 var col = this.columns[col_ind];
-                if (col.hidden) { col_ind++; if (typeof this.columns[col_ind] == 'undefined') break; else continue; }
+                if (col_skip > 0) {
+                    col_ind++;
+                    if (this.columns[col_ind] == null) break;
+                    record.w2ui.colspan[col.field] = 0; // need it for other methods
+                    col_span = 1;
+                    col_skip--;
+                    continue;
+                }
+                if (col.hidden) { 
+                    col_ind++; 
+                    if (this.columns[col_ind] == null) break; else continue; 
+                }
                 var isChanged = !summary && record.changes && typeof record.changes[col.field] != 'undefined';
                 var rec_cell  = this.getCellHTML(ind, col_ind, summary);
                 var addStyle  = '';
@@ -7681,17 +7723,26 @@ w2utils.event = {
                     if (typeof record.style[col_ind] == 'string') addStyle += record.style[col_ind] + ';';
                     if (typeof record.style[col.field] == 'string') addStyle += record.style[col.field] + ';';
                 }
+                if (record.w2ui && typeof record.w2ui.colspan == 'object') {
+                    var tmp = parseInt(record.w2ui.colspan[col.field]) || null;
+                    if (tmp > 1) {
+                        col_span = tmp;
+                        col_skip = tmp - 1;
+                    }
+                }
                 var isCellSelected = false;
                 if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
                 tmph = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + (isChanged ? ' w2ui-changed' : '') +'" '+
-                        '    id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
-                        '    style="'+ addStyle + (typeof col.style != 'undefined' ? col.style : '') +'" '+
-                                     (typeof col.attr != 'undefined' ? col.attr : '') +'>'+
+                        '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
+                        '   style="'+ addStyle + (typeof col.style != 'undefined' ? col.style : '') +'" '+
+                            (col.attr != null ? col.attr : '') +
+                            (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
+                        '>'+
                              rec_cell +
                         '</td>';
                 if (col.frozen) rec_html1 += tmph; else rec_html2 += tmph;
                 col_ind++;
-                if (typeof this.columns[col_ind] == 'undefined') break;
+                if (this.columns[col_ind] == null) break;
             }
             rec_html1 += '<td class="w2ui-grid-data-last"></td>';
             rec_html2 += '<td class="w2ui-grid-data-last"></td>';
