@@ -251,8 +251,8 @@
                 object.records[r] = $.extend(true, {}, records[r]);
             }
             // add searches
-            for (var c in object.columns) {
-                var col = object.columns[c];
+            for (var i = 0; i < object.columns.length; i++) {
+                var col = object.columns[i];
                 if (col.searchable == null || col.searchable === false || object.getSearch(col.field) != null) continue;
                 var stype = col.searchable;
                 var attr  = '';
@@ -308,12 +308,12 @@
         add: function (record, first) {
             if (!$.isArray(record)) record = [record];
             var added = 0;
-            for (var o in record) {
-                if (record[o].recid == null && record[o][this.recid] == null) {
+            for (var i = 0; i < record.length; i++) {
+                if (record[i].recid == null && record[i][this.recid] == null) {
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
                 }
-                if (first) this.records.unshift(record[o]); else this.records.push(record[o]);
+                if (first) this.records.unshift(record[i]); else this.records.push(record[i]);
                 added++;
             }
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -354,8 +354,8 @@
             }
             // update all records
             if (recid == null) {
-                for (var r in this.records) {
-                    $.extend(true, this.records[r], record); // recid is the whole record
+                for (var i = 0; i < this.records.length; i++) {
+                    $.extend(true, this.records[i], record); // recid is the whole record
                 }
                 if (noRefresh !== true) this.refresh();
             } else { // find record to update
@@ -417,14 +417,14 @@
                 if (before === null) before = this.columns.length;
             }
             if (!$.isArray(columns)) columns = [columns];
-            for (var o in columns) {
-                this.columns.splice(before, 0, columns[o]);
+            for (var i = 0; i < columns.length; i++) {
+                this.columns.splice(before, 0, columns[i]);
                 // if column is searchable, add search field
-                if (columns[o].searchable) {
-                    var stype = columns[o].searchable;
+                if (columns[i].searchable) {
+                    var stype = columns[i].searchable;
                     var attr  = '';
-                    if (columns[o].searchable === true) { stype = 'text'; attr = 'size="20"'; }
-                    this.addSearch({ field: columns[o].field, caption: columns[o].caption, type: stype, attr: attr });
+                    if (columns[i].searchable === true) { stype = 'text'; attr = 'size="20"'; }
+                    this.addSearch({ field: columns[i].field, caption: columns[i].caption, type: stype, attr: attr });
                 }
                 before++;
                 added++;
@@ -520,8 +520,8 @@
                 if (before === null) before = this.searches.length;
             }
             if (!$.isArray(search)) search = [search];
-            for (var o in search) {
-                this.searches.splice(before, 0, search[o]);
+            for (var i = 0; i < search.length; i++) {
+                this.searches.splice(before, 0, search[i]);
                 before++;
                 added++;
             }
@@ -599,8 +599,8 @@
         },
 
         getSearchData: function (field) {
-            for (var s in this.searchData) {
-                if (this.searchData[s].field == field) return this.searchData[s];
+            for (var i = 0; i < this.searchData.length; i++) {
+                if (this.searchData[i].field == field) return this.searchData[i];
             }
             return null;
         },
@@ -619,24 +619,24 @@
             obj.prepareData();
             obj.reset();
             // process sortData
-            for (var s in this.sortData) {
-                var column = this.getColumn(this.sortData[s].field);
+            for (var i = 0; i < this.sortData.length; i++) {
+                var column = this.getColumn(this.sortData[i].field);
                 if (!column) return;
                 if (typeof column.render == 'string') {
                     if (['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
-                        this.sortData[s]['field_'] = column.field + '_';
+                        this.sortData[i]['field_'] = column.field + '_';
                     }
                     if (['time'].indexOf(column.render.split(':')[0]) != -1) {
-                        this.sortData[s]['field_'] = column.field + '_';
+                        this.sortData[i]['field_'] = column.field + '_';
                     }
                 }
             }
             // process sort
             this.records.sort(function (a, b) {
                 var ret = 0;
-                for (var s in obj.sortData) {
-                    var fld = obj.sortData[s].field;
-                    if (obj.sortData[s].field_) fld = obj.sortData[s].field_;
+                for (var i = 0; i < obj.sortData.length; i++) {
+                    var fld = obj.sortData[i].field;
+                    if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
                     var aa = a[fld];
                     var bb = b[fld];
                     if (String(fld).indexOf('.') != -1) {
@@ -645,8 +645,8 @@
                     }
                     if (typeof aa == 'string') aa = $.trim(aa.toLowerCase());
                     if (typeof bb == 'string') bb = $.trim(bb.toLowerCase());
-                    if (aa > bb) ret = (obj.sortData[s].direction == 'asc' ? 1 : -1);
-                    if (aa < bb) ret = (obj.sortData[s].direction == 'asc' ? -1 : 1);
+                    if (aa > bb) ret = (obj.sortData[i].direction == 'asc' ? 1 : -1);
+                    if (aa < bb) ret = (obj.sortData[i].direction == 'asc' ? -1 : 1);
                     if (typeof aa != 'object' && typeof bb == 'object') ret = -1;
                     if (typeof bb != 'object' && typeof aa == 'object') ret = 1;
                     if (aa == null && bb != null) ret = 1;    // all nuls and undefined on bottom
@@ -681,11 +681,11 @@
             // hide records that did not match
             if (this.searchData.length > 0 && !url) {
                 this.total = 0;
-                for (var r in this.records) {
-                    var rec = this.records[r];
+                for (var i = 0; i < this.records.length; i++) {
+                    var rec = this.records[i];
                     var fl  = 0;
-                    for (var s in this.searchData) {
-                        var sdata      = this.searchData[s];
+                    for (var j = 0; j < this.searchData.length; j++) {
+                        var sdata      = this.searchData[j];
                         var search     = this.getSearch(sdata.field);
                         if (sdata  == null) continue;
                         if (search == null) search = { field: sdata.field, type: sdata.type };
@@ -859,9 +859,9 @@
             if (this.selectType == 'row') return added;
             if (!$.isArray(ranges)) ranges = [ranges];
             // if it is selection
-            for (var r in ranges) {
-                if (typeof ranges[r] != 'object') ranges[r] = { name: 'selection' };
-                if (ranges[r].name == 'selection') {
+            for (var i = 0; i < ranges.length; i++) {
+                if (typeof ranges[i] != 'object') ranges[i] = { name: 'selection' };
+                if (ranges[i].name == 'selection') {
                     if (this.show.selectionBorder === false) continue;
                     var sel = this.getSelection();
                     if (sel.length == 0) {
@@ -872,18 +872,18 @@
                         var last  = sel[sel.length-1];
                     }
                 } else { // other range
-                    var first = ranges[r].range[0];
-                    var last  = ranges[r].range[1];
+                    var first = ranges[i].range[0];
+                    var last  = ranges[i].range[1];
                 }
                 if (first) {
                     var rg = {
-                        name: ranges[r].name,
+                        name: ranges[i].name,
                         range: [{ recid: first.recid, column: first.column }, { recid: last.recid, column: last.column }],
-                        style: ranges[r].style || ''
+                        style: ranges[i].style || ''
                     };
                     // add range
                     var ind = false;
-                    for (var t in this.ranges) if (this.ranges[t].name == ranges[r].name) { ind = t; break; }
+                    for (var j = 0; j < this.ranges.length; j++) if (this.ranges[j].name == ranges[i].name) { ind = t; break; }
                     if (ind !== false) {
                         this.ranges[ind] = rg;
                     } else {
@@ -917,8 +917,8 @@
             var time = (new Date()).getTime();
             var rec1 = $('#grid_'+ this.name +'_frecords');
             var rec2 = $('#grid_'+ this.name +'_records');
-            for (var r in this.ranges) {
-                var rg    = this.ranges[r];
+            for (var i = 0; i < this.ranges.length; i++) {
+                var rg    = this.ranges[i];
                 var first = rg.range[0];
                 var last  = rg.range[1];
                 if (first.index == null) first.index = this.get(first.recid, true);
@@ -1227,7 +1227,7 @@
                     var col  = arguments[a].column;
                     if (!w2utils.isInt(col)) { // unselect all columns
                         var cols = [];
-                        for (var c in this.columns) { if (this.columns[c].hidden) continue; cols.push({ recid: recid, column: parseInt(c) }); }
+                        for (var i = 0; i < this.columns.length; i++) { if (this.columns[i].hidden) continue; cols.push({ recid: recid, column: i }); }
                         return this.unselect.apply(this, cols);
                     }
                     var s = sel.columns[index];
@@ -1243,9 +1243,9 @@
                     var isColSelected = false;
                     var isRowSelected = false;
                     var tmp = this.getSelection();
-                    for (var t in tmp) {
-                        if (tmp[t].column == col) isColSelected = true;
-                        if (tmp[t].recid == recid) isRowSelected = true;
+                    for (var i = 0; i < tmp.length; i++) {
+                        if (tmp[i].column == col) isColSelected = true;
+                        if (tmp[i].recid == recid) isRowSelected = true;
                     }
                     if (!isColSelected) {
                        $(this.box).find('.w2ui-grid-columns td[col='+ col +'] .w2ui-col-header').removeClass('w2ui-col-selected');
@@ -1287,7 +1287,7 @@
             var url  = (typeof this.url != 'object' ? this.url : this.url.get);
             var sel  = this.last.selection;
             var cols = [];
-            for (var c in this.columns) cols.push(parseInt(c));
+            for (var i = 0; i < this.columns.length; i++) cols.push(i);
             // if local data source and searched
             sel.indexes = [];
             if (!url && this.searchData.length !== 0) {
@@ -1367,17 +1367,17 @@
             var ret = [];
             var sel = this.last.selection;
             if (this.selectType == 'row') {
-                for (var s in sel.indexes) {
-                    if (!this.records[sel.indexes[s]]) continue;
-                    if (returnIndex === true) ret.push(sel.indexes[s]); else ret.push(this.records[sel.indexes[s]].recid);
+                for (var i = 0; i < sel.indexes.length; i++) {
+                    if (!this.records[sel.indexes[i]]) continue;
+                    if (returnIndex === true) ret.push(sel.indexes[i]); else ret.push(this.records[sel.indexes[i]].recid);
                 }
                 return ret;
             } else {
-                for (var s in sel.indexes) {
-                    var cols = sel.columns[sel.indexes[s]];
-                    if (!this.records[sel.indexes[s]]) continue;
-                    for (var c in cols) {
-                        ret.push({ recid: this.records[sel.indexes[s]].recid, index: parseInt(sel.indexes[s]), column: cols[c] });
+                for (var i = 0; i < sel.indexes.length; i++) {
+                    var cols = sel.columns[sel.indexes[i]];
+                    if (!this.records[sel.indexes[i]]) continue;
+                    for (var j = 0; j < cols.length; j++) {
+                        ret.push({ recid: this.records[sel.indexes[i]].recid, index: parseInt(sel.indexes[i]), column: cols[j] });
                     }
                 }
                 return ret;
@@ -1396,8 +1396,8 @@
             if (arguments.length == 0) {
                 last_search = '';
                 // advanced search
-                for (var s in this.searches) {
-                    var search   = this.searches[s];
+                for (var i = 0; i < this.searches.length; i++) {
+                    var search   = this.searches[i];
                     var operator = $('#grid_'+ this.name + '_operator_'+ s).val();
                     var field1   = $('#grid_'+ this.name + '_field_'+ s);
                     var field2   = $('#grid_'+ this.name + '_field2_'+ s);
@@ -1416,9 +1416,9 @@
                         value1 = field1.data('selected') || {};
                         if ($.isArray(value1)) {
                             svalue = [];
-                            for (var v in value1) {
-                                svalue.push(w2utils.isFloat(value1[v].id) ? parseFloat(value1[v].id) : String(value1[v].id).toLowerCase());
-                                delete value1[v].hidden;
+                            for (var j = 0; j < value1.length; j++) {
+                                svalue.push(w2utils.isFloat(value1[j].id) ? parseFloat(value1[j].id) : String(value1[j].id).toLowerCase());
+                                delete value1[j].hidden;
                             }
                             if ($.isEmptyObject(value1)) value1 = '';
                         } else {
@@ -1478,8 +1478,8 @@
                     if (field.toLowerCase() == 'all') {
                         // if there are search fields loop thru them
                         if (this.searches.length > 0) {
-                            for (var s in this.searches) {
-                                var search = this.searches[s];
+                            for (var i = 0; i < this.searches.length; i++) {
+                                var search = this.searches[i];
                                 if (search.type == 'text' || (search.type == 'alphanumeric' && w2utils.isAlphaNumeric(value))
                                         || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
                                         || (search.type == 'percent' && w2utils.isFloat(value)) || (search.type == 'hex' && w2utils.isHex(value))
@@ -1528,9 +1528,9 @@
                             }
                         } else {
                             // no search fields, loop thru columns
-                            for (var c in this.columns) {
+                            for (var i = 0; i < this.columns.length; i++) {
                                 var tmp = {
-                                    field    : this.columns[c].field,
+                                    field    : this.columns[i].field,
                                     type     : 'text',
                                     operator : 'contains',
                                     value    : value
@@ -1565,7 +1565,7 @@
                                     var tmp = value.split(',');
                                     op  = 'in';
                                     val = [];
-                                    for (var t in tmp) val.push(tmp[t]);
+                                    for (var i = 0; i < tmp.length; i++) val.push(tmp[i]);
                                 }
                             }
                             var tmp = {
@@ -1589,13 +1589,13 @@
                 last_search = '';
                 last_multi  = true;
                 last_logic  = logic;
-                for (var f in field) {
-                    var data   = field[f];
+                for (var i = 0; i < field.length; i++) {
+                    var data   = field[i];
                     var search = this.getSearch(data.field);
                     if (search == null) search = { type: 'text', operator: 'contains' };
                     if ($.isArray(data.value)) {
-                        for (var v in data.value) {
-                            if (typeof data.value[v] == 'string') data.value[v] = data.value[v].toLowerCase();
+                        for (var j = 0; j < data.value.length; j++) {
+                            if (typeof data.value[j] == 'string') data.value[j] = data.value[j].toLowerCase();
                         }
                     }
                     // merge current field and search if any
@@ -1990,8 +1990,8 @@
                         };
                     } else if (obj.recid) {
                         // convert recids
-                        for (var r in data.records) {
-                            data.records[r]['recid'] = data.records[r][obj.recid];
+                        for (var i = 0; i < data.records.length; i++) {
+                            data.records[i]['recid'] = data.records[i][obj.recid];
                         }
                     }
                     if (data['status'] == 'error') {
