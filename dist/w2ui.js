@@ -4069,12 +4069,12 @@ w2utils.event = {
         },
 
         editField: function (recid, column, value, event) {
-            var obj   = this;
-            var index = obj.get(recid, true);
-            var rec   = obj.records[index];
-            var col   = obj.columns[column];
-            
-            var edit = (rec ? rec.editable : null);
+            var obj    = this;
+            var index  = obj.get(recid, true);
+            var rec    = obj.records[index];
+            var col    = obj.columns[column];
+            var prefix = (col.frozen === true ? '_f' : '_');
+            var edit   = (rec ? rec.editable : null);
             if (edit == null || edit === true) edit = (col ? col.editable : null);
             if (!rec || !col || !edit || rec.editable === false) return;
             
@@ -4093,13 +4093,13 @@ w2utils.event = {
             this.last.edit_col = column;
             if (['checkbox', 'check'].indexOf(edit.type) != -1) return;
             // create input element
-            var tr = $('#grid_'+ obj.name +'_rec_'+ w2utils.escapeId(recid));
+            var tr = $('#grid_'+ obj.name + prefix +'rec_' + w2utils.escapeId(recid));
             var el = tr.find('[col='+ column +'] > div');
             // for spreadsheet - insert into selection
             if (this.selectType != 'row') {
-                $('#grid_'+ this.name +'_selection')
+                $('#grid_'+ this.name + prefix + 'selection')
                     .prepend('<div style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;"></div>');
-                el = $('#grid_'+ this.name +'_selection > div:first-child');
+                el = $('#grid_'+ this.name + prefix + 'selection > div:first-child');
             }
             if (typeof edit.inTag   == 'undefined') edit.inTag   = '';
             if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
@@ -4135,6 +4135,24 @@ w2utils.event = {
                     .on('blur', function (event) {
                         obj.editChange.call(obj, this, index, column, event);
                     });
+            } if (edit.type == 'div') {
+                var $tmp = tr.find('[col='+ column +'] > div');
+                var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size') + ';';
+                el.addClass('w2ui-editable')
+                    .html('<div id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" class="grid-input"'+
+                        '    contenteditable style="'+ font + addStyle + edit.style +'" '+
+                        '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
+                        '></div>' + edit.outTag);
+                if (value == null) el.find('div.grid-input').text(typeof val != 'object' ? val : '');
+                // add blur listener
+                var input = el.find('div.grid-input').get(0);
+                setTimeout(function () {
+                    var tmp = input;
+                    $(tmp).on('blur', function (event) {
+                        obj.editChange.call(obj, tmp, index, column, event);
+                    });
+                }, 10);
+                if (value != null) $(input).text(typeof val != 'object' ? val : '');
             } else {
                 var $tmp = tr.find('[col='+ column +'] > div');
                 var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size');
@@ -4167,9 +4185,17 @@ w2utils.event = {
                 if (value != null) $(input).val(typeof val != 'object' ? val : '');
             }
             setTimeout(function () {
-                el.find('input, select')
+                $(obj.box).off('selectstart');
+                el.find('input, select, div.grid-input')
                     .on('mousedown', function (event) {
                         event.stopPropagation();
+                    })
+                    .on('click', function (event) {
+                        if (edit.type == 'div') {
+                            expand.call(el.find('div.grid-input')[0], null);
+                        } else {
+                            expand.call(el.find('input, select')[0], null);
+                        }
                     })
                     .on('keydown', function (event) {
                         var cancel = false;
@@ -4221,39 +4247,8 @@ w2utils.event = {
                                         }
                                     }, 100);
                                 }
-                                break;
-
-                            case 38: // up arrow
-                                if (!event.shiftKey) break;
-                                cancel = true;
-                                var next = obj.prevRow(index);
-                                if (next != index) {
-                                    this.blur();
-                                    setTimeout(function () {
-                                        if (obj.selectType != 'row') {
-                                            obj.selectNone();
-                                            obj.select({ recid: obj.records[next].recid, column: column });
-                                        } else {
-                                            obj.editField(obj.records[next].recid, column, null, event);
-                                        }
-                                    }, 1);
-                                }
-                                break;
-
-                            case 40: // down arrow
-                                if (!event.shiftKey) break;
-                                cancel = true;
-                                var next = obj.nextRow(index);
-                                if (next != null && next != index) {
-                                    this.blur();
-                                    setTimeout(function () {
-                                        if (obj.selectType != 'row') {
-                                            obj.selectNone();
-                                            obj.select({ recid: obj.records[next].recid, column: column });
-                                        } else {
-                                            obj.editField(obj.records[next].recid, column, null, event);
-                                        }
-                                    }, 1);
+                                if (this.tagName == 'DIV') {
+                                    event.preventDefault();
                                 }
                                 break;
 
@@ -4269,32 +4264,65 @@ w2utils.event = {
                         // if input too small - expand
                         expand.call(this, event);
                     })
-                    .on('keyup', function (event) { expand.call(this, event); });
-
+                    .on('keyup', function (event) { 
+                        expand.call(this, event); 
+                    });
                 // focus and select
-                var tmp = el.find('input').focus();
-                clearTimeout(obj.last.kbd_timer); // keep focus
-                if (value != null) {
-                    // set cursor to the end
-                    tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
+                if (edit.type == 'div') {
+                    var tmp = el.find('div.grid-input').focus();
+                    clearTimeout(obj.last.kbd_timer); // keep focus
+                    if (value != null) {
+                        // set cursor to the end
+                        setCursorPosition(tmp[0], $(tmp).text().length);
+                    } else {
+                        // select entire text
+                        setCursorPosition(tmp[0], 0, $(tmp).text().length);
+                    }
+                    expand.call(el.find('div.grid-input')[0], null);
                 } else {
-                    tmp.select();
+                    var tmp = el.find('input').focus();
+                    clearTimeout(obj.last.kbd_timer); // keep focus
+                    if (value != null) {
+                        // set cursor to the end
+                        tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
+                    } else {
+                        tmp.select();
+                    }
+                    expand.call(el.find('input, select')[0], null);
                 }
-                expand.call(el.find('input, select')[0], null);
             }, 1);
             // event after
             obj.trigger($.extend(eventData, { phase: 'after' }));
             return;
 
             function expand(event) {
-                var val   = this.value;
-                var $sel  = $('#grid_'+ obj.name +'_selection');
-                var style = 'font-family: '+ $(this).css('font-family') + '; font-size: '+ $(this).css('font-size') + ';';
-                var width = w2utils.getStrWidth(val, style);
-                if (width + 20 > $sel.width()) {
-                    $sel.width(width + 20);
-                }                    
+                try {
+                    var val   = (this.tagName == 'DIV' ? $(this).text() : this.value);
+                    var $sel  = $('#grid_'+ obj.name + prefix + 'selection');
+                    var style = 'font-family: '+ $(this).css('font-family') + '; font-size: '+ $(this).css('font-size') + ';';
+                    var width = w2utils.getStrWidth(val, style);
+                    if (width + 20 > $sel.width()) {
+                        $sel.width(width + 20);
+                    }
+                } catch (e) {
+                }
             }
+
+            function setCursorPosition(element, start, end) {
+                var rg  = document.createRange();
+                var sel = window.getSelection();
+                var el  = element.childNodes[0];
+                if (el == null) return;
+                if (start > el.length) start = el.length;
+                rg.setStart(el, start);
+                if (end) {
+                    rg.setEnd(el, end);
+                } else {
+                    rg.collapse(true);
+                }
+                sel.removeAllRanges();
+                sel.addRange(rg);
+            }            
         },
 
         editChange: function (el, index, column, event) {
@@ -4309,9 +4337,9 @@ w2utils.event = {
             index = index < 0 ? -index - 1 : index;
             var records = summary ? this.summary : this.records;
             var rec     = records[index];
-            var tr      = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid));
             var col     = this.columns[column];
-            var new_val = el.value;
+            var tr      = $('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid));
+            var new_val = (el.tagName == 'DIV' ? $(el).text() : el.value);
             var old_val = this.parseField(rec, col.field);
             var tmp     = $(el).data('w2field');
             if (tmp) {
