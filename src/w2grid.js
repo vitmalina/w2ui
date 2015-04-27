@@ -2228,6 +2228,9 @@
                     .on('mousedown', function (event) {
                         event.stopPropagation();
                     })
+                    .on('click', function (event) {
+                        expand.call(el.find('input, select')[0], null);                        
+                    })
                     .on('keydown', function (event) {
                         var cancel = false;
                         switch (event.keyCode) {
