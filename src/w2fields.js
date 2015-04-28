@@ -2295,8 +2295,7 @@
                 type     : file.type,
                 modified : file.lastModifiedDate,
                 size     : file.size,
-                content  : null,
-                file     : file
+                content  : null
             };
             var size = 0;
             var cnt  = 0;
