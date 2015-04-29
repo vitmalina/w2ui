@@ -1134,7 +1134,7 @@
                     } else if (w2utils.isInt(column)) {
                         new_sel[recid].push(column);
                     } else {
-                        for (var c in this.columns) { if (this.columns[c].hidden) continue; new_sel[recid].push(parseInt(c)); }
+                        for (var i = 0; i < this.columns.length; i++) { if (this.columns[i].hidden) continue; new_sel[recid].push(parseInt(i)); }
                     }
                 }
                 // add all
@@ -1507,11 +1507,11 @@
                                 // lists fiels
                                 if (['list', 'enum'].indexOf(search.type) != -1) {
                                     var new_values = [];
-                                    for (var key in search.options.items) {
-                                        var tmp = search.options.items[key];
+                                    for (var j = 0; j < search.options.items; j++) {
+                                        var tmp = search.options.items[j];
                                         try {
                                             var re = new RegExp(value, 'i');
-                                            if (re.test(tmp)) new_values.push(key);
+                                            if (re.test(tmp)) new_values.push(j);
                                             if (tmp.text && re.test(tmp.text)) new_values.push(tmp.id);
                                         } catch (e) {}
                                     }
