@@ -1,0 +1,16 @@
+source 'https://rubygems.org'
+
+gem 'sinatra'
+gem 'sinatra-contrib'
+
+gem 'rake'
+gem 'mysql2'
+gem 'activerecord'
+gem 'sinatra-activerecord'
+gem 'faker'
+
+group :development do
+  gem 'annotate'
+  gem 'pry', require: false
+  gem 'pry-byebug', require: false
+end
