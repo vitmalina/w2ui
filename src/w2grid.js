@@ -797,7 +797,9 @@
                                 break;
                         }
                     }
-                    if ((this.last.logic == 'OR' && fl != 0) || (this.last.logic == 'AND' && fl == this.searchData.length)) this.last.searchIds.push(parseInt(r));
+                    if ((this.last.logic == 'OR' && fl != 0) || (this.last.logic == 'AND' && fl == this.searchData.length)) {
+                        this.last.searchIds.push(parseInt(i));
+                    }
                 }
                 this.total = this.last.searchIds.length;
             }
@@ -2275,10 +2277,10 @@
                         switch (event.keyCode) {
                             case 9:  // tab
                                 var next_rec = recid;
-                                var next_col = event.shiftKey ? obj.prevCell(column, true) : obj.nextCell(column, true);
+                                var next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true);
                                 // next or prev row
                                 if (next_col == null) {
-                                    var tmp = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
+                                    var tmp = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
                                     if (tmp != null && tmp != index) {
                                         next_rec = obj.records[tmp].recid;
                                         // find first editable row
@@ -2309,7 +2311,7 @@
 
                             case 13: // enter
                                 this.blur();
-                                var next = event.shiftKey ? obj.prevRow(index) : obj.nextRow(index);
+                                var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
                                 if (next != null && next != index) {
                                     setTimeout(function () {
                                         if (obj.selectType != 'row') {
@@ -2830,7 +2832,7 @@
                         obj.set(recid, { expanded: false }, true);
                         obj.collapse(recid, event);
                     } else {
-                        var prev = obj.prevCell(columns[0]);
+                        var prev = obj.prevCell(ind, columns[0]);
                         if (!shiftKey && prev == null) {
                             this.selectNone();
                             prev = 0;
@@ -2879,7 +2881,7 @@
                         if (recEL.length <= 0 || rec.expanded === true || obj.show.expandColumn !== true) break;
                         obj.expand(recid, event);
                     } else {
-                        var next = obj.nextCell(columns[columns.length-1]);
+                        var next = obj.nextCell(ind, columns[columns.length-1]);
                         if (!shiftKey && next == null) {
                             this.selectNone();
                             next = this.columns.length-1;
@@ -2926,7 +2928,7 @@
                     if (empty) selectTopRecord();
                     if (recEL.length <= 0) break;
                     // move to the previous record
-                    var prev = obj.prevRow(ind);
+                    var prev = obj.prevRow(ind, columns[0]);
                     if (!shiftKey && prev == null) {
                         if (this.searchData.length != 0 && !this.url) {
                             prev = this.last.searchIds[0];
@@ -3014,7 +3016,7 @@
                         }
                     }
                     // move to the next record
-                    var next = obj.nextRow(ind2);
+                    var next = obj.nextRow(ind2, columns[0]);
                     if (!shiftKey && next == null) {
                         if (this.searchData.length != 0 && !this.url) {
                             next = this.last.searchIds[this.last.searchIds.length - 1];
@@ -6175,37 +6177,46 @@
             }
         },
 
-        nextCell: function (col_ind, editable) {
+        nextCell: function (index, col_ind, editable) {
             var check = col_ind + 1;
             if (this.columns.length == check) return null;
-            if (editable === true) {
-                var edit = this.columns[check].editable;
-                if (this.columns[check].hidden || typeof edit == 'undefined'
-                    || (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.nextCell(check, editable);
+
+            var tmp  = this.records[index].w2ui;
+            var span = (tmp && tmp.colspan ? tmp.colspan[this.columns[check].field] : 1);
+            var edit = this.columns[check].editable;
+            if (this.columns[check].hidden || span == 0 
+                    || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
+                return this.nextCell(index, check, editable);
             }
             return check;
         },
 
-        prevCell: function (col_ind, editable) {
+        prevCell: function (index, col_ind, editable) {
             var check = col_ind - 1;
             if (check < 0) return null;
-            if (editable === true) {
-                var edit = this.columns[check].editable;
-                if (this.columns[check].hidden || typeof edit == 'undefined'
-                    || (edit && ['checkbox', 'check'].indexOf(edit.type) != -1)) return this.prevCell(check, editable);
+            var tmp  = this.records[index].w2ui;
+            var span = (tmp && tmp.colspan ? tmp.colspan[this.columns[check].field] : 1);
+            var edit = this.columns[check].editable;
+            if (this.columns[check].hidden || span == 0 
+                    || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
+                return this.prevCell(index, check, editable);
             }
             return check;
         },
 
-        nextRow: function (ind) {
-            if ((ind + 1 < this.records.length && this.last.searchIds.length == 0) // if there are more records
-                    || (this.last.searchIds.length > 0 && ind < this.last.searchIds[this.last.searchIds.length-1])) {
+        nextRow: function (ind, col_ind) {
+            var sids = this.last.searchIds;
+            if ((ind + 1 < this.records.length && sids.length == 0) // if there are more records
+                    || (sids.length > 0 && ind < sids[sids.length-1])) {
                 ind++;
-                if (this.last.searchIds.length > 0) {
-                    while (true) {
-                        if ($.inArray(ind, this.last.searchIds) != -1 || ind > this.records.length) break;
-                        ind++;
-                    }
+                if (sids.length > 0) while (true) {
+                    if ($.inArray(ind, sids) != -1 || ind > this.records.length) break;
+                    ind++;
+                }
+                //  check for colspan
+                var tmp = this.records[ind].w2ui;
+                if (tmp && tmp.colspan && tmp.colspan[this.columns[col_ind].field] == 0) {
+                    return this.nextRow(ind, col_ind);
                 }
                 return ind;
             } else {
@@ -6213,15 +6224,19 @@
             }
         },
 
-        prevRow: function (ind) {
-            if ((ind > 0 && this.last.searchIds.length == 0)  // if there are more records
-                    || (this.last.searchIds.length > 0 && ind > this.last.searchIds[0])) {
+        prevRow: function (ind, col_ind) {
+            var sids = this.last.searchIds;
+            if ((ind > 0 && sids.length == 0)  // if there are more records
+                    || (sids.length > 0 && ind > sids[0])) {
                 ind--;
-                if (this.last.searchIds.length > 0) {
-                    while (true) {
-                        if ($.inArray(ind, this.last.searchIds) != -1 || ind < 0) break;
-                        ind--;
-                    }
+                if (sids.length > 0) while (true) {
+                    if ($.inArray(ind, sids) != -1 || ind < 0) break;
+                    ind--;
+                }
+                //  check for colspan
+                var tmp = this.records[ind].w2ui;
+                if (tmp && tmp.colspan && tmp.colspan[this.columns[col_ind].field] == 0) {
+                    return this.prevRow(ind, col_ind);
                 }
                 return ind;
             } else {

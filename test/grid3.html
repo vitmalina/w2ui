@@ -21,7 +21,7 @@ $(function () {
         },
         selectType: 'cell',
         columns: [                
-            { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', editable: { type: 'div' }, frozen: true },
+            { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', searchable: true, editable: { type: 'div' }, frozen: true },
             { field: 'b', caption: '<div style="text-align: center">B</div>', size: '95px', editable: { type: 'div' }, frozen: true},
             { field: 'c', caption: '<div style="text-align: center">C</div>', size: '95px', editable: { type: 'div' }},
             { field: 'd', caption: '<div style="text-align: center">D</div>', size: '95px', editable: { type: 'div' }},
@@ -58,9 +58,15 @@ $(function () {
         });
     }
     w2ui.grid.records[1].a = 'A1';
+    w2ui.grid.records[5].a = 'A1';
     w2ui.grid.records[1].b = 'BBB1';
     w2ui.grid.records[1].d = 'This is some long text in cell C';
+    w2ui.grid.records[1].w2ui = { colspan: { d: 2 } };
     w2ui.grid.records[1].c = 'CC1';
+    w2ui.grid.records[2].w2ui = { colspan: { e: 4 } };
+    w2ui.grid.records[2].e = 'This is some long text in cell E';
+    w2ui.grid.records[3].w2ui = { colspan: { e: 4 } };
+    w2ui.grid.records[3].e = 'This is some long text in cell E';
     w2ui.grid.records[4].summary = true;
     w2ui.grid.records[1].style = { 1: 'background-color: red !important' };
     w2ui.grid.refresh();
