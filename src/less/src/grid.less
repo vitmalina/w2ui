@@ -104,7 +104,7 @@
             .user-select(text);
         }
 
-        div.grid-input {
+        div.w2ui-input {
             .user-select(tex);
             pointer-events: auto;
             background-color: white;
@@ -414,6 +414,13 @@
         .background-image(@image-changed, no-repeat, top, right);
     }
     
+    .w2ui-edit-box {
+        position: absolute; 
+        z-index: 1001;
+        border: 2px solid #6299DA;
+        pointer-events: auto; 
+    }
+
     .w2ui-editable {
         overflow: hidden; 
         height: 100% !important;
@@ -572,6 +579,7 @@
 
     .w2ui-selection {
         position: absolute; 
+        z-index: 1000;
         border: 2px solid #6299DA; /* #457FC2; */
         pointer-events: none; 
         

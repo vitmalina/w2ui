@@ -883,7 +883,7 @@
                     };
                     // add range
                     var ind = false;
-                    for (var j = 0; j < this.ranges.length; j++) if (this.ranges[j].name == ranges[i].name) { ind = t; break; }
+                    for (var j = 0; j < this.ranges.length; j++) if (this.ranges[j].name == ranges[i].name) { ind = j; break; }
                     if (ind !== false) {
                         this.ranges[ind] = rg;
                     } else {
@@ -945,6 +945,13 @@
                 if (td2f.length == 0 && last.index > index_fbottom && first.index < index_fbottom) {  // frozen
                     td2f = $('#grid_'+ this.name +'_frec_bottom').prev().find('td[col='+ last.column +']');
                 }
+
+                // do not show selection cell if it is editable
+                var edit  = $(this.box).find('#grid_'+ this.name + '_editable');
+                var tmp   = edit.find('.w2ui-input')
+                var tmp1  = tmp.attr('recid');
+                var tmp2  = tmp.attr('column');
+                if (rg.name == 'selection' && rg.range[0].recid == tmp1 && rg.range[0].column == tmp2) continue;
 
                 // frozen regular columns range
                 var $range = $('#grid_'+ this.name +'_f'+ rg.name);
@@ -2152,11 +2159,18 @@
             // create input element
             var tr = $('#grid_'+ obj.name + prefix +'rec_' + w2utils.escapeId(recid));
             var el = tr.find('[col='+ column +'] > div');
+            // clear previous if any
+            $(this.box).find('div.w2ui-edit-box').remove();
             // for spreadsheet - insert into selection
             if (this.selectType != 'row') {
                 $('#grid_'+ this.name + prefix + 'selection')
-                    .prepend('<div style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;"></div>');
-                el = $('#grid_'+ this.name + prefix + 'selection > div:first-child');
+                    .attr('id', 'grid_'+ this.name + '_editable')
+                    .removeClass('w2ui-selection')
+                    .addClass('w2ui-edit-box')
+                    .prepend('<div style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;"></div>')
+                    .find('.w2ui-selection-resizer')
+                    .remove();
+                el = $('#grid_'+ this.name + '_editable >div:first-child');
             }
             if (typeof edit.inTag   == 'undefined') edit.inTag   = '';
             if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
@@ -2190,22 +2204,24 @@
                         delete obj.last.move;
                     })
                     .on('blur', function (event) {
+                        if ($(this).data('keep-open') == true) return;
                         obj.editChange.call(obj, this, index, column, event);
                     });
             } if (edit.type == 'div') {
                 var $tmp = tr.find('[col='+ column +'] > div');
                 var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size') + ';';
                 el.addClass('w2ui-editable')
-                    .html('<div id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" class="grid-input"'+
+                    .html('<div id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input"'+
                         '    contenteditable style="'+ font + addStyle + edit.style +'" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
                         '></div>' + edit.outTag);
-                if (value == null) el.find('div.grid-input').text(typeof val != 'object' ? val : '');
+                if (value == null) el.find('div.w2ui-input').text(typeof val != 'object' ? val : '');
                 // add blur listener
-                var input = el.find('div.grid-input').get(0);
+                var input = el.find('div.w2ui-input').get(0);
                 setTimeout(function () {
                     var tmp = input;
                     $(tmp).on('blur', function (event) {
+                        if ($(this).data('keep-open') == true) return;
                         obj.editChange.call(obj, tmp, index, column, event);
                     });
                 }, 10);
@@ -2236,6 +2252,7 @@
                         if (typeof val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
                     }
                     $(tmp).on('blur', function (event) {
+                        if ($(this).data('keep-open') == true) return;
                         obj.editChange.call(obj, input, index, column, event);
                     });
                 }, 10);
@@ -2243,22 +2260,20 @@
             }
             setTimeout(function () {
                 $(obj.box).off('selectstart');
-                el.find('input, select, div.grid-input')
+                el.find('input, select, div.w2ui-input')
                     .on('mousedown', function (event) {
                         event.stopPropagation();
                     })
                     .on('click', function (event) {
                         if (edit.type == 'div') {
-                            expand.call(el.find('div.grid-input')[0], null);
+                            expand.call(el.find('div.w2ui-input')[0], null);
                         } else {
                             expand.call(el.find('input, select')[0], null);
                         }
                     })
                     .on('keydown', function (event) {
-                        var cancel = false;
                         switch (event.keyCode) {
                             case 9:  // tab
-                                cancel = true;
                                 var next_rec = recid;
                                 var next_col = event.shiftKey ? obj.prevCell(column, true) : obj.nextCell(column, true);
                                 // next or prev row
@@ -2289,6 +2304,7 @@
                                         obj.editField(next_rec, next_col, null, event);
                                     }
                                 }, 1);
+                                if (event.preventDefault) event.preventDefault();
                                 break;
 
                             case 13: // enter
@@ -2302,7 +2318,7 @@
                                         } else {
                                             obj.editField(obj.records[next].recid, column, null, event);
                                         }
-                                    }, 100);
+                                    }, 1);
                                 }
                                 if (this.tagName == 'DIV') {
                                     event.preventDefault();
@@ -2312,12 +2328,15 @@
                             case 27: // escape
                                 var old = obj.parseField(rec, col.field);
                                 if (rec.changes && typeof rec.changes[col.field] != 'undefined') old = rec.changes[col.field];
-                                this.value = typeof old != 'undefined' ? old : '';
+                                if (this.tagName == 'DIV') {
+                                    $(this).text(typeof old != 'undefined' ? old : '');
+                                } else {
+                                    this.value = typeof old != 'undefined' ? old : '';
+                                }
                                 this.blur();
                                 setTimeout(function () { obj.select({ recid: recid, column: column }); }, 1);
                                 break;
                         }
-                        if (cancel) if (event.preventDefault) event.preventDefault();
                         // if input too small - expand
                         expand.call(this, event);
                     })
@@ -2326,7 +2345,7 @@
                     });
                 // focus and select
                 if (edit.type == 'div') {
-                    var tmp = el.find('div.grid-input').focus();
+                    var tmp = el.find('div.w2ui-input').focus();
                     clearTimeout(obj.last.kbd_timer); // keep focus
                     if (value != null) {
                         // set cursor to the end
@@ -2335,7 +2354,7 @@
                         // select entire text
                         setCursorPosition(tmp[0], 0, $(tmp).text().length);
                     }
-                    expand.call(el.find('div.grid-input')[0], null);
+                    expand.call(el.find('div.w2ui-input')[0], null);
                 } else {
                     var tmp = el.find('input').focus();
                     clearTimeout(obj.last.kbd_timer); // keep focus
@@ -2347,6 +2366,7 @@
                     }
                     expand.call(el.find('input, select')[0], null);
                 }
+                tmp[0].resize = expand;
             }, 1);
             // event after
             obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -2355,7 +2375,7 @@
             function expand(event) {
                 try {
                     var val   = (this.tagName == 'DIV' ? $(this).text() : this.value);
-                    var $sel  = $('#grid_'+ obj.name + prefix + 'selection');
+                    var $sel  = $('#grid_'+ obj.name + '_editable');
                     var style = 'font-family: '+ $(this).css('font-family') + '; font-size: '+ $(this).css('font-size') + ';';
                     var width = w2utils.getStrWidth(val, style);
                     if (width + 20 > $sel.width()) {
@@ -2453,6 +2473,8 @@
                     $(tr).find('[col='+ column +']').removeClass('w2ui-changed').html(cell);
                 }
             }
+            // remove
+            $(this.box).find('div.w2ui-edit-box').remove();
             // enable/disable toolbar search button
             if (this.show.toolbarSave) {
                 if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save');
