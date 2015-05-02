@@ -50,6 +50,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added options.contextMenu for w2overlay()
 *   - added options.noTip for w2overlay()
 *   - added options.overlayStyle for w2overlay()
+*   - added options.selectable
 *
 ************************************************/
 
@@ -1259,6 +1260,7 @@ w2utils.event = {
             top         : 0,         // offset top
             tipLeft     : 30,        // tip offset left
             noTip       : false,      // if true - no tip will be displayed
+            selectable  : false,
             width       : 0,         // fixed width
             height      : 0,         // fixed height
             maxWidth    : null,      // max width if any
@@ -1331,7 +1333,9 @@ w2utils.event = {
             })
             .on('mousedown', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1) event.preventDefault();
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1 && !options.selectable) {
+                    event.preventDefault();
+                }
             });
         div1[0].hide   = hide;
         div1[0].resize = resize;
