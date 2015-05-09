@@ -16,6 +16,7 @@
 *   - added tab.style
 *   - added tooltipShow, tooltipHide methods
 *   - added tooltip property and tab.tooltip
+*   - added tooltip property and tab.class
 *
 ************************************************************************/
 
@@ -279,7 +280,8 @@
                                '</div>';
                 }
                 var tabHTML = closable +
-                    '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') +'" '+
+                    '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') 
+                                + (tab['class'] ? ' ' + tab['class'] : '') +'" '+
                     '        title="'+ (this.tooltip == 'normal' && tab.tooltip != null ? tab.tooltip : '') +'" style="'+ tab.style +'" '+ 
                     '        onmouseover = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipShow('"+ tab.id +"', event);" : "") + '"'+
                     '        onmouseout  = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipHide('"+ tab.id +"', event);" : "") + '"'+                    
