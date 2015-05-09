@@ -12205,11 +12205,15 @@ var w2confirm = function (msg, title, callBack) {
             var width    = 0; // 11 - show search icon, 0 do not show
             // clean up & init
             $(obj.helpers.focus).remove();
+            // remember original tabindex
+            var tabIndex = $(obj.el).attr('tabIndex');
+            if (tabIndex && tabIndex != -1) obj.el._tabIndex = tabIndex;
+            if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+ 
                 '    <div class="w2ui-icon icon-search"></div>'+
-                '    <input type="text" autocomplete="off">'+
+                '    <input type="text" autocomplete="off" tabindex="'+ tabIndex +'">'+
                 '<div>';
             $(obj.el).attr('tabindex', -1).before(html);
             var helper = $(obj.el).prev();
