@@ -892,7 +892,7 @@ var w2confirm = function (msg, title, callBack) {
         options.no_style     = options.btn_no.style || options.no_style;
         options.no_callBack  = options.btn_no.callBack || options.no_callBack;
     }
-    if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
+    if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
         if (options.width > w2popup.get().width) options.width = w2popup.get().width;
         if (options.height > (w2popup.get().height - 50)) options.height = w2popup.get().height - 50;
           w2popup.message({
