@@ -440,10 +440,12 @@
             var node = this.get(id);
             if (node === null) return false;
             if (node.parent) {
-                node.parent.expanded = true;
+                if (!node.parent.expanded) {
+                    node.parent.expanded = true;
+                    this.refresh(node.parent.id);
+                }
                 this.expandParents(node.parent.id);
             }
-            this.refresh(id);
             return true;
         },
 
