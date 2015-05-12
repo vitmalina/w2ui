@@ -13444,7 +13444,9 @@ var w2confirm = function (msg, title, callBack) {
                             value_previous = $.extend(true, {}, cv); // clone object
                         }
                     }
-                    if (field.type == 'toggle') value_new = ($(this).prop('checked') ? 1 : 0);
+                    if (['toggle', 'checkbox'].indexOf(field.type) != -1) {
+                        value_new = ($(this).prop('checked') ? true : false);
+                    }
                     // clean extra chars
                     if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {
                         value_new = $(this).data('w2field').clean(value_new);
