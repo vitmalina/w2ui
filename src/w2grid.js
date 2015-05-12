@@ -3856,7 +3856,7 @@
                 });
             // init mouse events for mouse selection
             $(this.box).on('mousedown', mouseStart);
-            $(this.box).on('selectstart', function () { return false; }); // fixes chrome cursor bug
+            if (!!window.chrome) $(this.box).on('selectstart', function () { return false; }); // fixes chrome cursor bug
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             // attach to resize event
