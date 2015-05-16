@@ -307,6 +307,10 @@
                 cursor: default;
                 overflow: hidden;
 
+                &.w2ui-soft-span, &.w2ui-soft-hidden {
+                    border-right-color: transparent;
+                }
+
                 &.w2ui-grid-data {
                     margin: 0px;
                     padding: 0px;
@@ -604,7 +608,15 @@
                  background-color: #B0B0B0;
             }
         }
-    }    
+    }
+
+    .w2ui-soft-range  {
+        position: absolute; 
+        pointer-events: none; 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     .w2ui-changed {
         background: inherit; /* do not show changed for spreadsheet */
