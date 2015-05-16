@@ -438,7 +438,6 @@
             function resizeStart(type, evnt) {
                 if (!obj.box) return;
                 if (!evnt) evnt = window.event;
-                if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
                 $(document).off('mousemove', obj.tmp.events.mouseMove).on('mousemove', obj.tmp.events.mouseMove);
                 $(document).off('mouseup', obj.tmp.events.mouseUp).on('mouseup', obj.tmp.events.mouseUp);
                 obj.tmp.resize = {
@@ -469,7 +468,6 @@
             function resizeStop(evnt) {
                 if (!obj.box) return;
                 if (!evnt) evnt = window.event;
-                if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
                 $(document).off('mousemove', obj.tmp.events.mouseMove);
                 $(document).off('mouseup', obj.tmp.events.mouseUp);
                 if (typeof obj.tmp.resize == 'undefined') return;
@@ -646,7 +644,6 @@
                             $(pname +'> .w2ui-panel-content')
                                 .removeClass()
                                 .removeAttr('name')
-                                .off('selectstart') // needed if previous was grid
                                 .addClass('w2ui-panel-content')
                                 .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
                         }
@@ -658,7 +655,6 @@
                         $(pname +'> .w2ui-panel-content')
                             .removeClass()
                             .removeAttr('name')
-                            .off('selectstart') // needed if previous was grid
                             .addClass('w2ui-panel-content')
                             .html(p.content)
                             .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
