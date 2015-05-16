@@ -173,21 +173,37 @@ var w2popup = {};
                 if (options.showMax) {
                     btn += '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>';
                 }
-                var msg='<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
-                        '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
+                // first insert just body
+                var msg = '<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
+                          '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
                               w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"' +
-                        '>'+
-                        '   <div class="w2ui-msg-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
-                        '   <div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') + 
-                                    (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
-                        '       <div class="w2ui-msg-body' + (!options.title != '' ? ' w2ui-msg-no-title' : '') + 
-                                    (!options.buttons ? ' w2ui-msg-no-buttons' : '') + '" style="' + options.style + '">' + 
-                        '       </div>'+
-                        '   </div>'+
-                        '   <div class="w2ui-msg-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
-                        '   <input class="w2ui-popup-hidden" style="position: absolute; top: -100px">'+ // this is needed to keep focus in popup
-                        '</div>';
+                          '>' + (typeof options.body == 'string' ? options.body : '') + '</div>';
                 $('body').append(msg);
+                // parse rel=*
+                var parts = $('#w2ui-popup');
+                if (parts.find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
+                    // title
+                    var tmp = parts.find('div[rel=title]');
+                    if (tmp.length > 0) { options.title = tmp.html(); tmp.remove(); }
+                    // buttons
+                    var tmp = parts.find('div[rel=buttons]');
+                    if (tmp.length > 0) { options.buttons = tmp.html(); tmp.remove(); }
+                    // body
+                    var tmp = parts.find('div[rel=body]');
+                    if (tmp.length > 0) options.body = tmp.html(); else options.body = parts.html();
+                }
+                // then content
+                var msg = '<div class="w2ui-msg-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
+                          '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') + 
+                                    (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
+                          '    <div class="w2ui-msg-body' + (!options.title != '' ? ' w2ui-msg-no-title' : '') + 
+                                    (!options.buttons ? ' w2ui-msg-no-buttons' : '') + '" style="' + options.style + '">' + 
+                          '    </div>'+
+                          '</div>'+
+                          '<div class="w2ui-msg-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
+                          '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px">'; // this is needed to keep focus in popup
+                $('#w2ui-popup').html(msg);
+
                 if (options.title) $('#w2ui-popup .w2ui-msg-title').append(options.title);
                 if (options.buttons) $('#w2ui-popup .w2ui-msg-buttons').append(options.buttons);
                 if (options.body) $('#w2ui-popup .w2ui-msg-body').append(options.body);
@@ -231,6 +247,20 @@ var w2popup = {};
                 // show new items
                 var cloned = $('#w2ui-popup .w2ui-box').clone();
                 cloned.removeClass('w2ui-box').addClass('w2ui-box-temp').find('.w2ui-msg-body').empty().append(options.body);
+                // parse rel=*
+                if (typeof options.body == 'string' && cloned.find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
+                    // title
+                    var tmp = cloned.find('div[rel=title]');
+                    if (tmp.length > 0) { options['title'] = tmp.html(); tmp.remove(); }
+                    // buttons
+                    var tmp = cloned.find('div[rel=buttons]');
+                    if (tmp.length > 0) { options['buttons'] = tmp.html(); tmp.remove(); }
+                    // body
+                    var tmp = cloned.find('div[rel=body]');
+                    if (tmp.length > 0) options['body'] = tmp.html(); else options['body'] = cloned.html();
+                    // set proper body
+                    cloned.html(options.body);
+                }
                 $('#w2ui-popup .w2ui-box').after(cloned);
 
                 if (options.buttons) {
@@ -293,7 +323,6 @@ var w2popup = {};
             // handlers
             function mvStart(evnt) {
                 if (!evnt) evnt = window.event;
-                if (!window.addEventListener) { window.document.attachEvent('onselectstart', function() { return false; } ); }
                 w2popup.status = 'moving';
                 tmp.resizing = true;
                 tmp.isLocked = $('#w2ui-popup > .w2ui-lock').length == 1 ? true : false;
