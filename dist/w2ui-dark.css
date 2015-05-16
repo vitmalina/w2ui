@@ -295,6 +295,11 @@ input[type=checkbox].w2ui-toggle:focus {
 .w2ui-overlay.w2ui-overlay-popup {
   z-index: 1700;
 }
+.w2ui-overlay .no-color {
+  border: 1px solid #eee;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==');
+  background-size: 15px 15px;
+}
 .w2ui-tag {
   position: absolute;
   z-index: 1300;
@@ -1627,7 +1632,7 @@ button.w2ui-btn-small:focus:before {
   -ms-user-select: text;
   -o-user-select: text;
 }
-.w2ui-grid .w2ui-grid-body div.grid-input {
+.w2ui-grid .w2ui-grid-body div.w2ui-input {
   user-select: tex;
   -webkit-user-select: tex;
   -moz-user-select: tex;
@@ -1836,6 +1841,10 @@ button.w2ui-btn-small:focus:before {
   cursor: default;
   overflow: hidden;
 }
+.w2ui-grid .w2ui-grid-body table td.w2ui-soft-span,
+.w2ui-grid .w2ui-grid-body table td.w2ui-soft-hidden {
+  border-right-color: transparent;
+}
 .w2ui-grid .w2ui-grid-body table td.w2ui-grid-data {
   margin: 0px;
   padding: 0px;
@@ -1925,6 +1934,12 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-grid .w2ui-changed {
   background: url(data:image/gif;base64,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) no-repeat top right;
+}
+.w2ui-grid .w2ui-edit-box {
+  position: absolute;
+  z-index: 1001;
+  border: 2px solid #6299DA;
+  pointer-events: auto;
 }
 .w2ui-grid .w2ui-editable {
   overflow: hidden;
@@ -2060,6 +2075,7 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection {
   position: absolute;
+  z-index: 1000;
   border: 2px solid #6299DA;
   /* #457FC2; */
   pointer-events: none;
@@ -2083,6 +2099,13 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection.w2ui-inactive .w2ui-selection-resizer {
   background-color: #B0B0B0;
+}
+.w2ui-ss .w2ui-grid-body .w2ui-soft-range {
+  position: absolute;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .w2ui-ss .w2ui-grid-body .w2ui-changed {
   background: inherit;
@@ -2724,6 +2747,7 @@ button.w2ui-btn-small:focus:before {
   margin: 0px 1px;
   border-radius: 4px;
   height: 24px;
+  min-width: 24px;
   border: 1px solid transparent;
   background-color: transparent;
 }
@@ -2731,7 +2755,7 @@ button.w2ui-btn-small:focus:before {
   width: 16px;
   height: 16px;
   padding: 0px;
-  margin: 5px 4px 3px 3px !important;
+  margin: 5px 1px 3px 3px !important;
   border: 0px !important;
   text-align: center;
 }

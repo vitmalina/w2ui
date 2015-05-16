@@ -235,6 +235,11 @@ input[type=checkbox].w2ui-toggle:focus {
 .w2ui-overlay.w2ui-overlay-popup {
   z-index: 1700;
 }
+.w2ui-overlay .no-color {
+  border: 1px solid #eee;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==');
+  background-size: 15px 15px;
+}
 .w2ui-tag {
   position: absolute;
   z-index: 1300;

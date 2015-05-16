@@ -281,6 +281,11 @@ input[type=checkbox].w2ui-toggle:focus {
 .w2ui-overlay.w2ui-overlay-popup {
   z-index: 1700;
 }
+.w2ui-overlay .no-color {
+  border: 1px solid #eee;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==');
+  background-size: 15px 15px;
+}
 .w2ui-tag {
   position: absolute;
   z-index: 1300;
@@ -1613,7 +1618,7 @@ button.w2ui-btn-small:focus:before {
   -ms-user-select: text;
   -o-user-select: text;
 }
-.w2ui-grid .w2ui-grid-body div.grid-input {
+.w2ui-grid .w2ui-grid-body div.w2ui-input {
   user-select: tex;
   -webkit-user-select: tex;
   -moz-user-select: tex;
@@ -1822,6 +1827,10 @@ button.w2ui-btn-small:focus:before {
   cursor: default;
   overflow: hidden;
 }
+.w2ui-grid .w2ui-grid-body table td.w2ui-soft-span,
+.w2ui-grid .w2ui-grid-body table td.w2ui-soft-hidden {
+  border-right-color: transparent;
+}
 .w2ui-grid .w2ui-grid-body table td.w2ui-grid-data {
   margin: 0px;
   padding: 0px;
@@ -1911,6 +1920,12 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-grid .w2ui-changed {
   background: url(data:image/gif;base64,R0lGODlhCgAKAJEAALAABf///wAAAAAAACH5BAEAAAIALAAAAAAKAAoAAAIPlI8Hy8mbxIsSUnup3rQAADs=) no-repeat top right;
+}
+.w2ui-grid .w2ui-edit-box {
+  position: absolute;
+  z-index: 1001;
+  border: 2px solid #6299DA;
+  pointer-events: auto;
 }
 .w2ui-grid .w2ui-editable {
   overflow: hidden;
@@ -2046,6 +2061,7 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection {
   position: absolute;
+  z-index: 1000;
   border: 2px solid #6299DA;
   /* #457FC2; */
   pointer-events: none;
@@ -2069,6 +2085,13 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection.w2ui-inactive .w2ui-selection-resizer {
   background-color: #B0B0B0;
+}
+.w2ui-ss .w2ui-grid-body .w2ui-soft-range {
+  position: absolute;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .w2ui-ss .w2ui-grid-body .w2ui-changed {
   background: inherit;
@@ -2715,6 +2738,7 @@ button.w2ui-btn-small:focus:before {
   margin: 0px 1px;
   border-radius: 4px;
   height: 24px;
+  min-width: 24px;
   border: 1px solid transparent;
   background-color: transparent;
 }
@@ -2722,7 +2746,7 @@ button.w2ui-btn-small:focus:before {
   width: 16px;
   height: 16px;
   padding: 0px;
-  margin: 5px 4px 3px 3px !important;
+  margin: 5px 1px 3px 3px !important;
   border: 0px !important;
   text-align: center;
 }
