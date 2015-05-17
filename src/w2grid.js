@@ -5387,12 +5387,12 @@
                 }
                 if (obj.show.selectColumn) {
                     html1 += '<td class="w2ui-head w2ui-col-select">'+
-                            '    <div style="height: '+ (obj.recordHeight+1) +'px">&nbsp;</div>'+
+                            '    <div style="height: 25px">&nbsp;</div>'+
                             '</td>';
                 }
                 if (obj.show.expandColumn) {
                     html1 += '<td class="w2ui-head w2ui-col-expand">'+
-                            '    <div style="height: '+ (obj.recordHeight+1) +'px">&nbsp;</div>'+
+                            '    <div style="height: 25px">&nbsp;</div>'+
                             '</td>';
                 }
                 var ii = 0;
