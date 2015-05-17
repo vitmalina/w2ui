@@ -2186,7 +2186,9 @@
             if (eventData.isCancelled === true) return;
             // default behaviour
             var column = this.getColumn(field);
-            if (column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+            if (column && column.sortable) {
+                this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+            }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
