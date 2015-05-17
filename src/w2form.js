@@ -282,7 +282,7 @@
                 return;
             }
             // need a time out because message might be already up)
-            setTimeout(function () { w2alert(msg, 'Error');    }, 1);
+            setTimeout(function () { w2alert(msg, w2utils.lang('Error'));    }, 1);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },

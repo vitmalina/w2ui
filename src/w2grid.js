@@ -2125,7 +2125,7 @@
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                 return;
             }
-            w2alert(msg, 'Error');
+            w2alert(msg, w2utils.lang('Error'));
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
