@@ -1118,10 +1118,14 @@
                 var id  = 'grid_'+ obj.name +'_softspan_'+ tmp.row +'_'+ tmp.col;
                 var $el = $(obj.box).find('#'+id);
                 // insert if does not exits or different width
-                if ($el.length == 0 || tmp.width != w2utils.getSize($el[0], 'width') || tmp.html != $el.html()) {
+                if ($el.length == 0 
+                        || tmp.width != w2utils.getSize($el[0], 'width') 
+                        || tmp.html != $el.html() 
+                        || tmp.html != $el.attr('data-style')) {
                     $el.remove();
                     $(this).parents('table').parent()
-                        .append('<div id="'+ id +'" recid="'+ obj.records[tmp.row].recid +'" index="'+ tmp.row +'" index="'+ tmp.column +'" class="w2ui-soft-range" '+
+                        .append('<div id="'+ id +'" recid="'+ obj.records[tmp.row].recid +'" index="'+ tmp.row +'" index="'+ tmp.column +'" '+
+                            '   class="w2ui-soft-range" data-style="' + tmp.style + '"' +
                             '   style="'+ tmp.style +'; left: '+ tmp.left +'px; top: '+ tmp.top +'px; width: '+ tmp.width +'px">'+ 
                                 tmp.html +
                             '</div>')

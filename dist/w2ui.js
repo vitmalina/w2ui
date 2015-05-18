@@ -3065,10 +3065,14 @@ w2utils.event = {
                 var id  = 'grid_'+ obj.name +'_softspan_'+ tmp.row +'_'+ tmp.col;
                 var $el = $(obj.box).find('#'+id);
                 // insert if does not exits or different width
-                if ($el.length == 0 || tmp.width != w2utils.getSize($el[0], 'width') || tmp.html != $el.html()) {
+                if ($el.length == 0 
+                        || tmp.width != w2utils.getSize($el[0], 'width') 
+                        || tmp.html != $el.html() 
+                        || tmp.html != $el.attr('data-style')) {
                     $el.remove();
                     $(this).parents('table').parent()
-                        .append('<div id="'+ id +'" recid="'+ obj.records[tmp.row].recid +'" index="'+ tmp.row +'" index="'+ tmp.column +'" class="w2ui-soft-range" '+
+                        .append('<div id="'+ id +'" recid="'+ obj.records[tmp.row].recid +'" index="'+ tmp.row +'" index="'+ tmp.column +'" '+
+                            '   class="w2ui-soft-range" data-style="' + tmp.style + '"' +
                             '   style="'+ tmp.style +'; left: '+ tmp.left +'px; top: '+ tmp.top +'px; width: '+ tmp.width +'px">'+ 
                                 tmp.html +
                             '</div>')
@@ -4072,7 +4076,7 @@ w2utils.event = {
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                 return;
             }
-            w2alert(msg, 'Error');
+            w2alert(msg, w2utils.lang('Error'));
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -7334,12 +7338,12 @@ w2utils.event = {
                 }
                 if (obj.show.selectColumn) {
                     html1 += '<td class="w2ui-head w2ui-col-select">'+
-                            '    <div style="height: '+ (obj.recordHeight+1) +'px">&nbsp;</div>'+
+                            '    <div style="height: 25px">&nbsp;</div>'+
                             '</td>';
                 }
                 if (obj.show.expandColumn) {
                     html1 += '<td class="w2ui-head w2ui-col-expand">'+
-                            '    <div style="height: '+ (obj.recordHeight+1) +'px">&nbsp;</div>'+
+                            '    <div style="height: 25px">&nbsp;</div>'+
                             '</td>';
                 }
                 var ii = 0;
@@ -7758,16 +7762,16 @@ w2utils.event = {
                 ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
-                        '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
+                        '    onclick  = "w2ui[\''+ this.name +'\'].dblClick($(this).attr(\'recid\'), event);"'
                         :
-                        '    onclick  = "w2ui[\''+ this.name +'\'].click(\''+ record.recid +'\', event);"'+
-                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(\''+ record.recid +'\', null, event);"'
+                        '    onclick  = "w2ui[\''+ this.name +'\'].click($(this).attr(\'recid\'), event);"'+
+                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu($(this).attr(\'recid\'), null, event);"'
                      )
                     : ''
                 ) +
                 (this.selectType == 'row' ?
-                    ' onmouseover="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').addClass(\'w2ui-record-hover\')"'+
-                    ' onmouseout ="$(\'#grid_'+ this.name +'_rec_'+ record.recid +'\').removeClass(\'w2ui-record-hover\')"'
+                    ' onmouseover="$(\'#grid_'+ this.name +'_rec_\'+ w2utils.escapeId($(this).attr(\'recid\'))).addClass(\'w2ui-record-hover\')"'+
+                    ' onmouseout ="$(\'#grid_'+ this.name +'_rec_\'+ w2utils.escapeId($(this).attr(\'recid\'))).removeClass(\'w2ui-record-hover\')"'
                     :
                     '') +
                 ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
@@ -7777,16 +7781,16 @@ w2utils.event = {
                 ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
-                        '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick(\''+ record.recid +'\', event);"'
+                        '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick($(this).attr(\'recid\'), event);"'
                         :
-                        '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.click(\''+ record.recid +'\', event);"'+
-                        '    oncontextmenu = "var obj = w2ui[\''+ this.name +'\']; obj.contextMenu(\''+ record.recid +'\', null, event);"'
+                        '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.click($(this).attr(\'recid\'), event);"'+
+                        '    oncontextmenu = "var obj = w2ui[\''+ this.name +'\']; obj.contextMenu($(this).attr(\'recid\'), null, event);"'
                      )
                     : ''
                 ) +
                 (this.selectType == 'row' ?
-                    ' onmouseover="$(\'#grid_'+ this.name +'_frec_'+ record.recid +'\').addClass(\'w2ui-record-hover\')"'+
-                    ' onmouseout ="$(\'#grid_'+ this.name +'_frec_'+ record.recid +'\').removeClass(\'w2ui-record-hover\')"'
+                    ' onmouseover="$(\'#grid_'+ this.name +'_frec_\' + w2utils.escapeId($(this).attr(\'recid\'))).addClass(\'w2ui-record-hover\')"'+
+                    ' onmouseout ="$(\'#grid_'+ this.name +'_frec_\' + w2utils.escapeId($(this).attr(\'recid\'))).removeClass(\'w2ui-record-hover\')"'
                     :
                     '') +
                 ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
@@ -7807,9 +7811,10 @@ w2utils.event = {
                             '    <div>'+
                             '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1"'+
                             '            '+ (isRowSelected ? 'checked="checked"' : '') +
-                            '            onclick="var obj = w2ui[\''+ this.name +'\']; '+
+                            '            onclick="var obj = w2ui[\''+ this.name +'\']; var recid = $(this).parents(\'tr\').attr(\'recid\'); '+
+                            '                clearTimeout(obj.last.kbd_timer); $(obj.box).find(\'#grid_'+ this.name + '_focus\').focus(); /* keep focus */' + 
                             '                if (!obj.multiSelect) { obj.selectNone(); }'+
-                            '                if (this.checked) obj.select(\''+ record.recid + '\'); else obj.unselect(\''+ record.recid + '\'); '+
+                            '                if (this.checked) obj.select(recid); else obj.unselect(recid); '+
                             '                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
                             '    </div>'
                             :
@@ -7825,7 +7830,7 @@ w2utils.event = {
                         '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
                             (summary !== true ?
                             '    <div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
-                            '            onclick="w2ui[\''+ this.name +'\'].toggle(\''+ record.recid +'\', event); '+
+                            '            onclick="w2ui[\''+ this.name +'\'].toggle($(this).parents(\'tr\').attr(\'recid\');, event); '+
                             '                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
                             '        '+ tmp_img +' </div>'
                             :
@@ -15350,7 +15355,7 @@ var w2confirm = function (msg, title, callBack) {
                 return;
             }
             // need a time out because message might be already up)
-            setTimeout(function () { w2alert(msg, 'Error');    }, 1);
+            setTimeout(function () { w2alert(msg, w2utils.lang('Error'));    }, 1);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
