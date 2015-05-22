@@ -118,6 +118,7 @@
         this.onEditField        = null;
         this.onRender           = null;
         this.onRefresh          = null;
+        this.onRefreshRow       = null;
         this.onReload           = null;
         this.onResize           = null;
         this.onDestroy          = null;
@@ -2938,6 +2939,7 @@
         refreshRow: function (recid) {
             var tr = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
             if (tr.length != 0) {
+                var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refreshRow' });
                 var ind  = this.get(recid, true);
                 var line = tr.attr('line');
                 var isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true);
@@ -2946,6 +2948,7 @@
                 if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
                 $(tr).replaceWith(this.getRecordHTML(ind, line, isSummary));
                 if (isSummary) this.resize();
+                this.trigger($.extend(eventData, { phase: 'after' }));
             }
         },
 
@@ -4678,9 +4681,17 @@
             var isRowSelected = false;
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             // render TR
-            rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" '+
-                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
-                (summary !== true ?
+            rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'"'
+                +' recid="'+ record.recid +'"'
+                +' line="'+ lineNum +'" '
+                +' class="'
+                    + (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') 
+                    + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') 
+                    + (record.expanded === true ? ' w2ui-expanded' : '')
+                    + (typeof record['_custom_class'] === 'string' ? ' '+record._custom_class : '')
+                    + (typeof record['_custom_class'] === 'function' ? ' '+record._custom_class(record) : '')
+                + '" ' 
+                + (summary !== true ?
                     (w2utils.isIOS ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
                         :
@@ -4689,13 +4700,17 @@
                      )
                     : ''
                 ) +
-                ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') +'" '+
-                    ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
-                '>';
+                ' style="height: '
+                    + this.recordHeight +'px; '
+                    + (!isRowSelected && typeof record['style'] == 'string' ? record['style'] : '') 
+                +'" '+
+                ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '')
+            + '>';
             if (this.show.lineNumbers) {
-                rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '" class="w2ui-col-number">'+
-                                (summary !== true ? '<div>'+ lineNum +'</div>' : '') +
-                            '</td>';
+                rec_html += '<td id="grid_'+ this.name +'_cell_'+ ind +'_number' + (summary ? '_s' : '') + '"'
+                    +' class="w2ui-col-number">'
+                    + (summary !== true ? '<div>'+ lineNum +'</div>' : '')
+                + '</td>';
             }
             if (this.show.selectColumn) {
                 rec_html +=
