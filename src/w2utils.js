@@ -1461,7 +1461,7 @@ w2utils.event = {
                 var maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7;
                 var maxWidth  = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
                 if (options.contextMenu) { // context menu
-                    maxHeight = window.innerHeight - options.originalEvent.pageY;
+                    maxHeight = window.innerHeight - options.originalEvent.pageY - 15;
                     maxWidth  = window.innerWidth - options.originalEvent.pageX;
                 }
 
@@ -1514,7 +1514,7 @@ w2utils.event = {
                     );
                 }
                 // check scroll bar
-                if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
+                if (overflowY) div2.width(w + w2utils.scrollBarSize() + 2);
             }
         }
     };
