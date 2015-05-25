@@ -2434,9 +2434,9 @@
                     expand.call(el.find('input, select')[0], null);
                 }
                 tmp[0].resize = expand;
+                // event after
+                obj.trigger($.extend(eventData, { phase: 'after', input: el.find('input, select, div.w2ui-input') }));
             }, 1);
-            // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
             return;
 
             function expand(event) {
@@ -3591,6 +3591,7 @@
                 var cnt  = 0;
                 var rec  = this.records[ind];
                 var cols = [];
+                if (rec == null) continue;
                 for (var dt = 0; dt < tmp.length; dt++) {
                     if (!this.columns[col + cnt]) continue;
                     var field = this.columns[col + cnt].field;
