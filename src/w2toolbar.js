@@ -18,6 +18,7 @@
 *   - tooltipShow(), tooltipHide() methods
 *   - added button types: color, text-color
 *   - added button types: menu-check, menu-radio - will save into item.selected
+*   - item.text and item.html - can be functions now (or string)
 *
 ************************************************************************/
 
@@ -516,6 +517,7 @@
             if (item.tooltip == null) item.tooltip = '';
             var img  = '<td>&nbsp;</td>';
             var text = item.text;
+            if (typeof text == 'function') text = text.call(item);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
             if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
 
@@ -568,7 +570,7 @@
 
                 case 'html':
                     html += '<table cellpadding="0" cellspacing="0"><tr>'+
-                            '    <td nowrap>' + item.html + '</td>'+
+                            '    <td nowrap>' + (typeof item.html == 'function' ? item.html.call(item) : item.html) + '</td>'+
                             '</tr></table>';
                     break;
             }
