@@ -2260,15 +2260,17 @@
                         '    field="'+ col.field +'" recid="'+ recid +'" '+
                         '    '+ edit.inTag +
                         '>'+ html +'</select>' + edit.outTag);
-                el.find('select').focus()
-                    .on('change', function (event) {
-                        delete obj.last.move;
-                    })
-                    .on('blur', function (event) {
-                        if ($(this).data('keep-open') == true) return;
-                        obj.editChange.call(obj, this, index, column, event);
-                    });
-            } if (edit.type == 'div') {
+                setTimeout(function () {
+                    el.find('select').focus()
+                        .on('change', function (event) {
+                            delete obj.last.move;
+                        })
+                        .on('blur', function (event) {
+                            if ($(this).data('keep-open') == true) return;
+                            obj.editChange.call(obj, this, index, column, event);
+                        });
+                }, 10);
+            } else if (edit.type == 'div') {
                 var $tmp = tr.find('[col='+ column +'] > div');
                 var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size') + ';';
                 el.addClass('w2ui-editable')
@@ -2423,7 +2425,7 @@
                     }
                     expand.call(el.find('div.w2ui-input')[0], null);
                 } else {
-                    var tmp = el.find('input').focus();
+                    var tmp = el.find('input, select').focus();
                     clearTimeout(obj.last.kbd_timer); // keep focus
                     if (value != null) {
                         // set cursor to the end
@@ -2500,7 +2502,7 @@
             while (true) {
                 new_val = eventData.value_new;
                 if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
-                    (typeof new_val == 'object' && (typeof old_val != 'object' || old_val === null || new_val.id != old_val.id))) {
+                    (typeof new_val == 'object' && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
                     // change event
                     eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
                     if (eventData.isCancelled !== true) {
@@ -5985,14 +5987,14 @@
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.getCellValue(ind, col_ind, summary);
             var edit   = col.editable;
-            var maxh   = 'style="max-height: '+ parseInt(this.recordHeight) +'px;"';
+            var style  = 'max-height: '+ parseInt(this.recordHeight) +'px;';
             // various renderers
             if (typeof col.render != 'undefined') {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
-                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div '+ maxh +'>' + data + '</div>';
+                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div style="'+ style +'">' + data + '</div>';
                 }
-                if (typeof col.render == 'object')   data = '<div '+ maxh +'>' + (col.render[data] || '') + '</div>';
+                if (typeof col.render == 'object')   data = '<div style="'+ style +'">' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');
                     var tmp = [];
@@ -6013,51 +6015,48 @@
                         if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
                         if (tmp[0] == 'int')     { tmp[1] = 0; }
                         // format
-                        data = '<div '+ maxh +'>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
+                        data = '<div style="'+ style +'">' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
                     }
                     if (tmp[0] == 'time') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
                         if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
                         if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
-                        data = '<div '+ maxh +'>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
-                        data = '<div '+ maxh +'>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display + '|' + w2utils.settings.time_format;
-                        data = '<div '+ maxh +'>' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
-                        data = '<div '+ maxh +'>' + prefix + w2utils.age(data) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.age(data) + suffix + '</div>';
                     }
                     if (tmp[0] == 'toggle') {
-                        data = '<div '+ maxh +'>' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
                     }
                 }
             } else {
                 // if editable checkbox
-                var addStyle = '';
                 if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
                     var changeInd = summary ? -(ind + 1) : ind;
-                    addStyle = 'text-align: center';
+                    style += 'text-align: center;';
                     data = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
                            '    var obj = w2ui[\''+ this.name + '\']; '+
                            '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                            '">';
                 }
                 if (!this.show.recordTitles) {
-                    var data = '<div '+ maxh +' style="'+ addStyle +'">'+ data +'</div>';
-                } else {
                     // title overwrite
-                    var title = String(data).replace(/"/g, "''");
+                    var title = w2utils.stripTags(String(data).replace(/"/g, "''"));
                     if (typeof col.title != 'undefined') {
                         if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
                         if (typeof col.title == 'string')   title = col.title;
                     }
-                    var data = '<div '+ maxh +' title="'+ w2utils.stripTags(title) +'" style="'+ addStyle +'">'+ data +'</div>';
                 }
+                data = '<div style="'+ style +'" title="'+ title +'">'+ data +'</div>';
             }
             if (data == null) data = '';
             return data;
@@ -6069,10 +6068,10 @@
             var data   = this.parseField(record, col.field);
             if (record.changes && typeof record.changes[col.field] != 'undefined') {
                 data = record.changes[col.field];
-                if ($.isPlainObject(data)) {
-                    if (data.text != null) data = data.text;
-                    if (data.id != null) data = data.id;
-                }
+            }
+            if ($.isPlainObject(data)) {
+                if (data.text != null) data = data.text;
+                if (data.id != null) data = data.id;
             }
             if (data == null) data = '';
             return data;
