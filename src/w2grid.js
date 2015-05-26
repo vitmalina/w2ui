@@ -2888,7 +2888,10 @@
                     break;
 
                 case 37: // left
-                    if (empty) break;
+                    if (empty) {
+                        selectTopRecord();
+                        break;
+                    }
                     // check if this is subgrid
                     var parent = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(obj.records[ind].recid)).parents('tr');
                     if (parent.length > 0 && String(parent.attr('id')).indexOf('expanded_row') != -1) {
@@ -2951,7 +2954,10 @@
                     break;
 
                 case 39: // right
-                    if (empty) break;
+                    if (empty) {
+                        selectTopRecord();
+                        break;
+                    }
                     if (this.selectType == 'row') {
                         if (recEL.length <= 0 || rec.expanded === true || obj.show.expandColumn !== true) break;
                         obj.expand(recid, event);
