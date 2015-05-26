@@ -1462,7 +1462,7 @@ w2utils.event = {
                 var maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7;
                 var maxWidth  = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
                 if (options.contextMenu) { // context menu
-                    maxHeight = window.innerHeight - options.originalEvent.pageY;
+                    maxHeight = window.innerHeight - options.originalEvent.pageY - 15;
                     maxWidth  = window.innerWidth - options.originalEvent.pageX;
                 }
 
@@ -1515,7 +1515,7 @@ w2utils.event = {
                     );
                 }
                 // check scroll bar
-                if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
+                if (overflowY) div2.width(w + w2utils.scrollBarSize() + 2);
             }
         }
     };
@@ -1972,7 +1972,8 @@ w2utils.event = {
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - deprecate placeholder, read it from input
 *   - added get(), set(), setIndex() for fields
-*   - add compare function for list, combo, enum
+*   - added options.compare function for list, combo, enum
+*   - added options.filter for list, combo, enum
 *   - added selection for the current date in the calendar
 *   - added for enum options.onScroll
 *   - modified clearCache()
@@ -2244,6 +2245,7 @@ w2utils.event = {
                         onIconClick     : null,
                         renderDrop      : null,         // render function for drop down item
                         compare         : null,         // compare function for filtering
+                        filter          : true,         // weather to filter at all
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
@@ -2304,6 +2306,7 @@ w2utils.event = {
                         renderDrop      : null,          // render function for drop down item
                         renderItem      : null,          // render selected item
                         compare         : null,          // compare function for filtering
+                        filter          : true,          // alias for compare
                         style           : '',            // style for container div
                         onSearch        : null,          // when search needs to be performed
                         onRequest       : null,          // when request is submitted
@@ -3443,8 +3446,10 @@ w2utils.event = {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
-                    if (typeof options.compare == 'function') {
-                        item.hidden = (options.compare.call(this, item, search) === false ? true : false);
+                    if (options.compare !== null) {
+                        if (typeof options.compare == 'function') {
+                            item.hidden = (options.compare.call(this, item, search) === false ? true : false);
+                        }
                     } else {
                         var prefix = '';
                         var suffix = '';
@@ -3455,6 +3460,7 @@ w2utils.event = {
                             if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
                         } catch (e) {}
                     }
+                    if (options.filter === false) item.hidden = false;
                     // do not show selected items
                     if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
                     if (item.hidden !== true) { shown++; delete item.hidden; }

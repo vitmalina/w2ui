@@ -1462,7 +1462,7 @@ w2utils.event = {
                 var maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7;
                 var maxWidth  = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
                 if (options.contextMenu) { // context menu
-                    maxHeight = window.innerHeight - options.originalEvent.pageY;
+                    maxHeight = window.innerHeight - options.originalEvent.pageY - 15;
                     maxWidth  = window.innerWidth - options.originalEvent.pageX;
                 }
 
@@ -1515,7 +1515,7 @@ w2utils.event = {
                     );
                 }
                 // check scroll bar
-                if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
+                if (overflowY) div2.width(w + w2utils.scrollBarSize() + 2);
             }
         }
     };
@@ -4207,15 +4207,17 @@ w2utils.event = {
                         '    field="'+ col.field +'" recid="'+ recid +'" '+
                         '    '+ edit.inTag +
                         '>'+ html +'</select>' + edit.outTag);
-                el.find('select').focus()
-                    .on('change', function (event) {
-                        delete obj.last.move;
-                    })
-                    .on('blur', function (event) {
-                        if ($(this).data('keep-open') == true) return;
-                        obj.editChange.call(obj, this, index, column, event);
-                    });
-            } if (edit.type == 'div') {
+                setTimeout(function () {
+                    el.find('select').focus()
+                        .on('change', function (event) {
+                            delete obj.last.move;
+                        })
+                        .on('blur', function (event) {
+                            if ($(this).data('keep-open') == true) return;
+                            obj.editChange.call(obj, this, index, column, event);
+                        });
+                }, 10);
+            } else if (edit.type == 'div') {
                 var $tmp = tr.find('[col='+ column +'] > div');
                 var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size') + ';';
                 el.addClass('w2ui-editable')
@@ -4370,7 +4372,7 @@ w2utils.event = {
                     }
                     expand.call(el.find('div.w2ui-input')[0], null);
                 } else {
-                    var tmp = el.find('input').focus();
+                    var tmp = el.find('input, select').focus();
                     clearTimeout(obj.last.kbd_timer); // keep focus
                     if (value != null) {
                         // set cursor to the end
@@ -4381,9 +4383,9 @@ w2utils.event = {
                     expand.call(el.find('input, select')[0], null);
                 }
                 tmp[0].resize = expand;
+                // event after
+                obj.trigger($.extend(eventData, { phase: 'after', input: el.find('input, select, div.w2ui-input') }));
             }, 1);
-            // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
             return;
 
             function expand(event) {
@@ -4447,7 +4449,7 @@ w2utils.event = {
             while (true) {
                 new_val = eventData.value_new;
                 if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
-                    (typeof new_val == 'object' && (typeof old_val != 'object' || old_val === null || new_val.id != old_val.id))) {
+                    (typeof new_val == 'object' && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
                     // change event
                     eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
                     if (eventData.isCancelled !== true) {
@@ -4568,11 +4570,12 @@ w2utils.event = {
             }
             if (typeof event == 'undefined') event = {};
             // check for double click
-            if (time - parseInt(this.last.click_time) < 350 && event.type == 'click') {
+            if (time - parseInt(this.last.click_time) < 350 && this.last.click_recid == recid && event.type == 'click') {
                 this.dblClick(recid, event);
                 return;
             }
-            this.last.click_time = time;
+            this.last.click_time  = time;
+            this.last.click_recid = recid;
             // column user clicked on
             if (column == null && event.target) {
                 var tmp = event.target;
@@ -5538,6 +5541,7 @@ w2utils.event = {
                 var cnt  = 0;
                 var rec  = this.records[ind];
                 var cols = [];
+                if (rec == null) continue;
                 for (var dt = 0; dt < tmp.length; dt++) {
                     if (!this.columns[col + cnt]) continue;
                     var field = this.columns[col + cnt].field;
@@ -7930,14 +7934,14 @@ w2utils.event = {
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.getCellValue(ind, col_ind, summary);
             var edit   = col.editable;
-            var maxh   = 'style="max-height: '+ parseInt(this.recordHeight) +'px;"';
+            var style  = 'max-height: '+ parseInt(this.recordHeight) +'px;';
             // various renderers
             if (typeof col.render != 'undefined') {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
-                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div '+ maxh +'>' + data + '</div>';
+                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div style="'+ style +'">' + data + '</div>';
                 }
-                if (typeof col.render == 'object')   data = '<div '+ maxh +'>' + (col.render[data] || '') + '</div>';
+                if (typeof col.render == 'object')   data = '<div style="'+ style +'">' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');
                     var tmp = [];
@@ -7958,51 +7962,48 @@ w2utils.event = {
                         if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
                         if (tmp[0] == 'int')     { tmp[1] = 0; }
                         // format
-                        data = '<div '+ maxh +'>' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
+                        data = '<div style="'+ style +'">' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
                     }
                     if (tmp[0] == 'time') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
                         if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
                         if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
-                        data = '<div '+ maxh +'>' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display;
-                        data = '<div '+ maxh +'>' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
                         if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_display + '|' + w2utils.settings.time_format;
-                        data = '<div '+ maxh +'>' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
-                        data = '<div '+ maxh +'>' + prefix + w2utils.age(data) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.age(data) + suffix + '</div>';
                     }
                     if (tmp[0] == 'toggle') {
-                        data = '<div '+ maxh +'>' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
                     }
                 }
             } else {
                 // if editable checkbox
-                var addStyle = '';
                 if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
                     var changeInd = summary ? -(ind + 1) : ind;
-                    addStyle = 'text-align: center';
+                    style += 'text-align: center;';
                     data = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked' : '') +' onclick="' +
                            '    var obj = w2ui[\''+ this.name + '\']; '+
                            '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                            '">';
                 }
                 if (!this.show.recordTitles) {
-                    var data = '<div '+ maxh +' style="'+ addStyle +'">'+ data +'</div>';
-                } else {
                     // title overwrite
-                    var title = String(data).replace(/"/g, "''");
+                    var title = w2utils.stripTags(String(data).replace(/"/g, "''"));
                     if (typeof col.title != 'undefined') {
                         if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
                         if (typeof col.title == 'string')   title = col.title;
                     }
-                    var data = '<div '+ maxh +' title="'+ w2utils.stripTags(title) +'" style="'+ addStyle +'">'+ data +'</div>';
                 }
+                data = '<div style="'+ style +'" title="'+ title +'">'+ data +'</div>';
             }
             if (data == null) data = '';
             return data;
@@ -8014,10 +8015,10 @@ w2utils.event = {
             var data   = this.parseField(record, col.field);
             if (record.changes && typeof record.changes[col.field] != 'undefined') {
                 data = record.changes[col.field];
-                if ($.isPlainObject(data)) {
-                    if (data.text != null) data = data.text;
-                    if (data.id != null) data = data.id;
-                }
+            }
+            if ($.isPlainObject(data)) {
+                if (data.text != null) data = data.text;
+                if (data.id != null) data = data.id;
             }
             if (data == null) data = '';
             return data;
@@ -10917,6 +10918,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - tooltipShow(), tooltipHide() methods
 *   - added button types: color, text-color
 *   - added button types: menu-check, menu-radio - will save into item.selected
+*   - item.text and item.html - can be functions now (or string)
 *
 ************************************************************************/
 
@@ -11415,6 +11417,7 @@ var w2confirm = function (msg, title, callBack) {
             if (item.tooltip == null) item.tooltip = '';
             var img  = '<td>&nbsp;</td>';
             var text = item.text;
+            if (typeof text == 'function') text = text.call(item);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
             if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
 
@@ -11467,7 +11470,7 @@ var w2confirm = function (msg, title, callBack) {
 
                 case 'html':
                     html += '<table cellpadding="0" cellspacing="0"><tr>'+
-                            '    <td nowrap>' + item.html + '</td>'+
+                            '    <td nowrap>' + (typeof item.html == 'function' ? item.html.call(item) : item.html) + '</td>'+
                             '</tr></table>';
                     break;
             }
@@ -12541,7 +12544,8 @@ var w2confirm = function (msg, title, callBack) {
 *   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
 *   - deprecate placeholder, read it from input
 *   - added get(), set(), setIndex() for fields
-*   - add compare function for list, combo, enum
+*   - added options.compare function for list, combo, enum
+*   - added options.filter for list, combo, enum
 *   - added selection for the current date in the calendar
 *   - added for enum options.onScroll
 *   - modified clearCache()
@@ -12813,6 +12817,7 @@ var w2confirm = function (msg, title, callBack) {
                         onIconClick     : null,
                         renderDrop      : null,         // render function for drop down item
                         compare         : null,         // compare function for filtering
+                        filter          : true,         // weather to filter at all
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
@@ -12873,6 +12878,7 @@ var w2confirm = function (msg, title, callBack) {
                         renderDrop      : null,          // render function for drop down item
                         renderItem      : null,          // render selected item
                         compare         : null,          // compare function for filtering
+                        filter          : true,          // alias for compare
                         style           : '',            // style for container div
                         onSearch        : null,          // when search needs to be performed
                         onRequest       : null,          // when request is submitted
@@ -14012,8 +14018,10 @@ var w2confirm = function (msg, title, callBack) {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
-                    if (typeof options.compare == 'function') {
-                        item.hidden = (options.compare.call(this, item, search) === false ? true : false);
+                    if (options.compare !== null) {
+                        if (typeof options.compare == 'function') {
+                            item.hidden = (options.compare.call(this, item, search) === false ? true : false);
+                        }
                     } else {
                         var prefix = '';
                         var suffix = '';
@@ -14024,6 +14032,7 @@ var w2confirm = function (msg, title, callBack) {
                             if (re.test(item.text) || item.text == '...') item.hidden = false; else item.hidden = true;
                         } catch (e) {}
                     }
+                    if (options.filter === false) item.hidden = false;
                     // do not show selected items
                     if (obj.type == 'enum' && $.inArray(item.id, ids) != -1) item.hidden = true;
                     if (item.hidden !== true) { shown++; delete item.hidden; }
