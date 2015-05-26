@@ -4685,12 +4685,12 @@
                 +' recid="'+ record.recid +'"'
                 +' line="'+ lineNum +'" '
                 +' class="'
-                    + (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') 
-                    + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') 
+                    + (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd')
+                    + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '')
                     + (record.expanded === true ? ' w2ui-expanded' : '')
                     + (typeof record['_custom_class'] === 'string' ? ' '+record._custom_class : '')
                     + (typeof record['_custom_class'] === 'function' ? ' '+record._custom_class(record) : '')
-                + '" ' 
+                + '" '
                 + (summary !== true ?
                     (w2utils.isIOS ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(\''+ record.recid +'\', event);"'
