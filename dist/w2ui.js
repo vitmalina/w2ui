@@ -4669,6 +4669,10 @@ w2utils.keyboard = (function (obj) {
                 this.total = this.total - tmp.length;
             }
 
+            // collapse all records
+            var rows = obj.find({ expanded: true }, true);
+            for (var r in rows) obj.records[rows[r]].expanded = false;
+
             // -- body
             var bodyHTML = '';
             bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
@@ -4711,9 +4715,6 @@ w2utils.keyboard = (function (obj) {
             }
             // show number of selected
             this.status();
-            // collapse all records
-            var rows = obj.find({ expanded: true }, true);
-            for (var r in rows) obj.records[rows[r]].expanded = false;
             // mark selection
             setTimeout(function () {
                 var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
