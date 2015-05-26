@@ -2083,11 +2083,12 @@
             }
             if (typeof event == 'undefined') event = {};
             // check for double click
-            if (time - parseInt(this.last.click_time) < 350 && event.type == 'click') {
+            if (time - parseInt(this.last.click_time) < 350 && this.last.click_recid == recid && event.type == 'click') {
                 this.dblClick(recid, event);
                 return;
             }
-            this.last.click_time = time;
+            this.last.click_time  = time;
+            this.last.click_recid = recid;
             // column user clicked on
             if (column == null && event.target) {
                 var tmp = event.target;
@@ -2415,7 +2416,7 @@
                                 }
                             }
                         } else { // move selected record
-                            obj.selectNone();
+                            if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
                             obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event);
                         }
                         obj.scrollIntoView(prev);
@@ -2479,7 +2480,7 @@
                                 }
                             }
                         } else { // move selected record
-                            obj.selectNone();
+                            if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
                             obj.click({ recid: obj.records[next].recid, column: columns[0] }, event);
                         }
                         obj.scrollIntoView(next);
@@ -3021,6 +3022,10 @@
                 this.total = this.total - tmp.length;
             }
 
+            // collapse all records
+            var rows = obj.find({ expanded: true }, true);
+            for (var r in rows) obj.records[rows[r]].expanded = false;
+
             // -- body
             var bodyHTML = '';
             bodyHTML +=  '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records"'+
@@ -3063,9 +3068,6 @@
             }
             // show number of selected
             this.status();
-            // collapse all records
-            var rows = obj.find({ expanded: true }, true);
-            for (var r in rows) obj.records[rows[r]].expanded = false;
             // mark selection
             setTimeout(function () {
                 var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
