@@ -2415,7 +2415,7 @@
                                 }
                             }
                         } else { // move selected record
-                            obj.selectNone();
+                            if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
                             obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event);
                         }
                         obj.scrollIntoView(prev);
@@ -2479,7 +2479,7 @@
                                 }
                             }
                         } else { // move selected record
-                            obj.selectNone();
+                            if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
                             obj.click({ recid: obj.records[next].recid, column: columns[0] }, event);
                         }
                         obj.scrollIntoView(next);
