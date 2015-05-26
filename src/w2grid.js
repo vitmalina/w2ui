@@ -2092,10 +2092,10 @@
                 var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
                     if (s == 'recid') continue; // do not allow to change recid
-                    if(typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
+                    if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
                     try { 
-			if(~s.indexOf('.')) {
-				eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]");
+			if (s.indexOf('.') != -1) {
+				eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
 			} else {
 				record[s] = changes[c][s];
 			};
