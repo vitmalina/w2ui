@@ -101,4 +101,29 @@ test( "w2grid().hideSearch(), w2grid.showSearch()", function() {
     equal(w2ui['grid'].showSearch('recid', 'recid2'), 0, 'Show search #2');
 
     $().w2destroy('grid');
+    
+// === mergeChanges
+
+test( "w2grid().mergeChanges()", function() {
+
+    $().w2grid({ 
+        name: 'grid', 
+        records: [
+            { recid: 1, 'a-fname': 'John', 'a-lname': 'Motzart', basket: '5.19', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 2, name: { 'a-fname': 'John', 'a-lname': 'Motzart', basket: '5.19', email: 'jdoe@gmail.com', sdate: '4/3/2012' } },
+        ]        
+    });
+    
+    var newdata1 = { recid: 1, 'a-fname': 'Mark', 'a-lname': { id: "2", text: "Gatos" }, basket: '1.51', email: 'mdoe@gmail.com', sdate: '5/5/2015' };
+    var newdata2 = { recid: 2, 'name.a-fname': 'Mark', 'name.a-lname': { id: "2", text: "Gatos" }, 'name.basket': '1.51', 'name.email': 'mdoe@gmail.com', 'name.sdate': '5/5/2015' };
+    var newrecord1 = { recid: 1, 'a-fname': 'Mark', 'a-lname': "Gatos", basket: '1.51', email: 'mdoe@gmail.com', sdate: '5/5/2015' };
+    var newrecord2 = { recid: 2, name: { 'a-fname': 'Mark', 'a-lname': "Gatos", basket: '1.51', email: 'mdoe@gmail.com', sdate: '5/5/2015' } };
+    
+    w2ui['grid'].set(1, { changes: newdata1 });
+    w2ui['grid'].set(2, { changes: newdata2 });
+    w2ui['grid'].mergeChanges();
+    deepEqual(w2ui['grid'].get(1), newrecord1, 'Changes #1');
+    deepEqual(w2ui['grid'].get(2), newrecord2, 'Changes #2');
+
+    $().w2destroy('grid');
 });
