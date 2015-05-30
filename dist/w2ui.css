@@ -1564,11 +1564,6 @@ button.btn-red.clicked {
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even.w2ui-empty-record:hover {
   background-color: #f3f6fa;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-selected,
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-selected {
-  color: #000000 !important;
-  background-color: #b6d5ff !important;
-}
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded {
   background-color: #CCDCF0 !important;
 }
