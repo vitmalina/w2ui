@@ -2940,7 +2940,7 @@
         refreshRow: function (recid) {
             var tr = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
             if (tr.length != 0) {
-                var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refreshRow' });
+                //var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refreshRow' });
                 var ind  = this.get(recid, true);
                 var line = tr.attr('line');
                 var isSummary = (this.records[ind] && this.records[ind].recid == recid ? false : true);
@@ -2949,7 +2949,7 @@
                 if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
                 $(tr).replaceWith(this.getRecordHTML(ind, line, isSummary));
                 if (isSummary) this.resize();
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                //this.trigger($.extend(eventData, { phase: 'after' }));
             }
         },
 
