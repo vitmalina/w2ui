@@ -2151,11 +2151,13 @@
                 var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
                     if (s == 'recid') continue; // do not allow to change recid
-                    var key = "." + s;
-                    if (w2utils.isFloat(s)) key = "['" + s + "']";
-                    if (String(s).indexOf("'") != -1) key = "['" + s.replace(/'/g, "\\'") + "']";
+                    if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
                     try { 
-                        eval('record' + key + ' = changes[c][s]'); 
+			if (s.indexOf('.') != -1) {
+				eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
+			} else {
+				record[s] = changes[c][s];
+			};
                     } catch (e) {
                         console.log('ERROR: Cannot merge. ', e.message || '', e);
                     }
