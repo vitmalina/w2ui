@@ -2510,7 +2510,7 @@
                 case 88: // x - cut
                 case 88: // c - copy
                     if (empty) break;
-                    if (!event.ctrlKey and !event.metaKey) break;
+                    if (!event.ctrlKey && !event.metaKey) break;
                     var text = obj.copy();
                     $('body').append('<textarea id="_tmp_copy_data" '+
                         '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
@@ -2527,7 +2527,7 @@
                         setTimeout(function () { obj["delete"](true); }, 100);
                     }
                     break;
-                    
+
             }
             var tmp = [187, 189, 32]; // =-spacebar
             for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
