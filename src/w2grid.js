@@ -2505,9 +2505,12 @@
 
                 // copy & paste
 
-                case 17: // ctrl key
-                case 91: // cmd key
+                //case 17: // ctrl key
+                //case 91: // cmd key
+                case 88: // x - cut
+                case 88: // c - copy
                     if (empty) break;
+                    if (!event.ctrlKey and !event.metaKey) break;
                     var text = obj.copy();
                     $('body').append('<textarea id="_tmp_copy_data" '+
                         '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
@@ -2520,14 +2523,11 @@
                         $('#_tmp_copy_data').remove(); 
                         $(document).off('keyup', tmp_key_down); 
                     }
-                    break;
-
-                case 88: // x - cut
-                    if (empty) break;
-                    if (event.ctrlKey || event.metaKey) {
+                    if (event.keyCode === 88) {
                         setTimeout(function () { obj["delete"](true); }, 100);
                     }
                     break;
+                    
             }
             var tmp = [187, 189, 32]; // =-spacebar
             for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
