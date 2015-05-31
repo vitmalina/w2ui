@@ -2508,7 +2508,7 @@
                 //case 17: // ctrl key
                 //case 91: // cmd key
                 case 88: // x - cut
-                case 88: // c - copy
+                case 67: // c - copy
                     if (empty) break;
                     if (!event.ctrlKey && !event.metaKey) break;
                     var text = obj.copy();
