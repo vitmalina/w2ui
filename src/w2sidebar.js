@@ -739,11 +739,14 @@
                         w2ui[obj.name].keydown.call(w2ui[obj.name], event);
                     } 
                 });
-            $(this.box).off('mousedown').on('mousedown', function () {
+            $(this.box).off('mousedown').on('mousedown', function (event) {
                 // set focus to grid
                 setTimeout(function () {
-                    var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
-                    if (!$input.is(':focus')) $input.focus();
+                    // if input then do not focus
+                    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1) {
+                        var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
+                        if (!$input.is(':focus')) $input.focus();
+                    }
                 }, 1);
             });
             // event after
