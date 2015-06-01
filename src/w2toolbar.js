@@ -18,7 +18,7 @@
 *   - tooltipShow(), tooltipHide() methods
 *   - added button types: color, text-color
 *   - added button types: menu-check, menu-radio - will save into item.selected
-*   - item.text and item.html - can be functions now (or string)
+*   - item.text and item.html - can be functions now (or string), where this keyword is the item
 *
 ************************************************************************/
 
