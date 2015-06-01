@@ -5201,7 +5201,7 @@
                 }
                 html += '<tr>'+
                         '    <td class="close-btn">'+ btn +'</td>' +
-                        '    <td class="caption">'+ s.caption +'</td>' +
+                        '    <td class="caption">'+ (s.caption || '') +'</td>' +
                         '    <td class="operator">'+ operator +'</td>'+
                         '    <td class="value">';
 
