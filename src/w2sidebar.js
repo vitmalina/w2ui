@@ -621,11 +621,8 @@
             var body   = $(this.box).find('.w2ui-sidebar-div');
             var item   = $(this.box).find('#node_'+ w2utils.escapeId(id));
             var offset = item.offset().top - body.offset().top;
-            if (offset + item.height() > body.height()) {
-                body.animate({ 'scrollTop': body.scrollTop() + body.height() / 1.3 }, 250, 'linear');
-            }
-            if (offset <= 0) {
-                body.animate({ 'scrollTop': body.scrollTop() - body.height() / 1.3 }, 250, 'linear');
+            if (offset + item.height() > body.height() || offset <= 0) {
+                body.animate({ 'scrollTop': body.scrollTop() + offset - body.height() / 2 + item.height() }, 250, 'linear');
             }
         },
 
