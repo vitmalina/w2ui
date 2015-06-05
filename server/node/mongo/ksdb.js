@@ -1,7 +1,7 @@
 
 var w2mdb = require('./w2mdb.js');
 
-// numberMemebers, Array must be converted to numbers before save!
+// numberMembers, Array must be converted to numbers before save!
 // enumTextMember, is the text used for enumeration
 
 exports.setupKickstartCollection = function(server,collname,numberMemebers)
@@ -21,7 +21,7 @@ exports.setupKickstartCollection = function(server,collname,numberMemebers)
        w2mdb.enumDBMongo(req,res,collname);
     });
     
-}
+};
 
 exports.registerPaths = function(server)
 {
@@ -140,7 +140,7 @@ res.send(new Buffer(photo, 'base64'));
 */    
     
     
-}
+};
 
 
 // dataitem, contains the document item to extract from the collection
@@ -156,7 +156,7 @@ login = function(req, res, collectionName)
            lname : "admin",
            userid : "1", 
            login : "admin",
-           super : true,
+           super : true
        },
        goups : {},
        roles : {},
@@ -165,5 +165,5 @@ login = function(req, res, collectionName)
 
     
      res.send(resultData);
-}
+};
 

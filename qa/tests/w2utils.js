@@ -46,7 +46,7 @@ test( "w2utils.formatNumber()", function () {
         '1,000'       : '1000',
         '1,000.01'    : '1000.01',
         '1,000.0001'  : '1000.0001'
-    }
+    };
     equal( w2utils.formatNumber(), '',          "- no argument -" );
     equal( w2utils.formatNumber(''), '',        "- blank -" );
     equal( w2utils.formatNumber(null), '',      "- null -" );
@@ -74,8 +74,8 @@ test( "w2utils.formatDate()", function () {
         '2014-06-04 => Month dth, yyyy': 'June 4th, 2014',
         '2014-06-01 => Mon dth, yyyy'  : 'Jun 1st, 2014',
         '2014-06-02 => Mon dth, yyyy'  : 'Jun 2nd, 2014',
-        '2014-06-03 => Mon dth, yyyy'  : 'Jun 3rd, 2014',
-    }
+        '2014-06-03 => Mon dth, yyyy'  : 'Jun 3rd, 2014'
+    };
     equal( w2utils.formatDate(), '',          "- no argument -" );
     equal( w2utils.formatDate(''), '',        "- blank -" );
     equal( w2utils.formatDate(null), '',      "- null -" );
@@ -102,7 +102,7 @@ test( "w2utils.formatTime()", function () {
         '8:40:35 => hh24:mi:ss'    : '08:40:35',
         '18:40:35 => hh24:mi:ss'   : '18:40:35',
         '8:40:35 => hhh:mm:ss'     : '08:40:35'
-    }
+    };
     equal( w2utils.formatTime(), '',          "- no argument -" );
     equal( w2utils.formatTime(''), '',        "- blank -" );
     equal( w2utils.formatTime(null), '',      "- null -" );
@@ -127,7 +127,7 @@ test( "w2utils.formatDateTime()", function () {
         '2014-01-05 21:40:05 => mm/dd/yyyy|hh:mi pm'     : '01/05/2014 9:40 pm',
         '2014-01-05 21:40:05 => mm/dd/yyyy|hh:mi:ss pm'  : '01/05/2014 9:40:05 pm',
         '2014-01-05 21:40:05 => mm/dd/yyyy|h24:mi:ss'    : '01/05/2014 21:40:05',
-    }
+    };
     equal( w2utils.formatDateTime(), '',          "- no argument -" );
     equal( w2utils.formatDateTime(''), '',        "- blank -" );
     equal( w2utils.formatDateTime(null), '',      "- null -" );
@@ -162,7 +162,7 @@ test( "w2utils.formatSize()", function() {
         '2.1 MB'    : 1024*1024*2.1,
         '2.5 GB'    : 1024*1024*1024*2.5,
         '2.9 TB'    : 1024*1024*1024*1024*2.99
-    }
+    };
     equal( w2utils.formatSize(), '',          "- no argument -" );
     equal( w2utils.formatSize(''), '',        "- blank -" );
     equal( w2utils.formatSize(null), '',      "- null -" );
@@ -189,7 +189,7 @@ test( "w2utils.isInt()", function() {
         '--1'   : false,
         '1--'   : false,
         '1,000' : false     // should have no commas
-    }
+    };
     ok( w2utils.isInt() === false,          "- no argument -" );
     ok( w2utils.isInt('') === false,        "- blank -" );
     ok( w2utils.isInt(null) === false,      "- null -" );
@@ -222,7 +222,7 @@ test( "w2utils.isFloat()", function() {
         '1,000'     : false,
         '3.0E+2'    : true,
         '3.0E-2'    : true
-    }
+    };
     ok( w2utils.isFloat() === false,            "- no argument -" );
     ok( w2utils.isFloat('') === false,          "- blank -" );
     ok( w2utils.isFloat(null) === false,        "- null -" );
@@ -263,7 +263,7 @@ test( "w2utils.isMoney() - Default Format", function() {
         '4 000€'    : false,
         '-4 000€'   : false,
         '+4 000€'   : false
-    }
+    };
     ok( w2utils.isMoney() === false,            "- no argument -" );
     ok( w2utils.isMoney('') === false,          "- blank -" );
     ok( w2utils.isMoney(null) === false,        "- null -" );
@@ -298,8 +298,8 @@ test( "w2utils.isMoney() - EU Format", function() {
         '4.00€'     : true,
         '4 000€'    : true,
         '-4 000€'   : true,
-        '+4 000€'   : true,
-    }
+        '+4 000€'   : true
+    };
     ok( w2utils.isMoney() === false,            "- no argument -" );
     ok( w2utils.isMoney('') === false,          "- blank -" );
     ok( w2utils.isMoney(null) === false,        "- null -" );

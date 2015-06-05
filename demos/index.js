@@ -38,7 +38,7 @@ $(function () {
                     { id: 'combo-6', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
                     { id: 'combo-7', text: 'Popup & Grid', icon: 'fa-star-empty' },
                     { id: 'combo-8', text: 'Popup & Layout', icon: 'fa-star-empty' },
-                    { id: 'combo-10', text: 'Dependent Fields', icon: 'fa-star-empty' },
+                    { id: 'combo-10', text: 'Dependent Fields', icon: 'fa-star-empty' }
                 ]
             },
             { id: 'layout', text: 'Layout', img: 'icon-folder', group1: true,
@@ -82,7 +82,7 @@ $(function () {
                     { id: 'grid-22', text: 'Resizable Columns', icon: 'fa-table' },
                     { id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa-table' },
                     { id: 'grid-25', text: 'Re-Order Columns', icon: 'fa-table' },
-                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' },
+                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' }
                     //{ id: 'grid-27', text: 'Locked Columns', icon: 'fa-table' }
                 ]
             },
@@ -308,7 +308,7 @@ $(function () {
                 w2ui['demo-sidebar'].expand('utils');
                 w2ui['demo-sidebar'].click(tmp[1] || 'utils-1');
                 break;
-        };
+        }
     }, 100);
 });
 

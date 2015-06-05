@@ -34,11 +34,11 @@ $('#form').w2form({
     fields: [
         { name: 'first_name', type: 'text', required: true },
         { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' },
+        { name: 'email', type: 'email' }
     ],
     actions: {
         "save": function (target, data) { this.validate(); },
-        "reset": function (target, data) { this.clear(); },
+        "reset": function (target, data) { this.clear(); }
     }
 });
 </textarea>

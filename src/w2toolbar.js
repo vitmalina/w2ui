@@ -482,7 +482,7 @@
             var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
             if (eventData.isCancelled === true) return;
 
-            // intentionaly blank
+            // intentionally blank
 
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));

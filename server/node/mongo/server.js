@@ -40,7 +40,7 @@ var db = require('./w2mdb.js');
 
 var ksdb = require('./ksdb.js');
 
-ksdb.setupKickstartCollection(app,"position")
+ksdb.setupKickstartCollection(app,"position");
 
 // ----- Setup counter for user collection
 
