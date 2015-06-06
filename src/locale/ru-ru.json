@@ -1,7 +1,6 @@
 {
     "locale"         : "ru-RU",
     "date_format"    : "dd/mm/yyyy",
-    "date_display"   : "Mon dd, yyyy",
     "time_format"    : "h24",
     "currency"       : "^[-+]?[0-9]*[\\.]?[0-9]+RUB$",
     "currencyPrefix" : "",

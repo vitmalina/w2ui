@@ -1,7 +1,6 @@
 {
     "locale"         : "de-DE",
     "date_format"    : "dd.mm.yyyy",
-    "date_display"   : "dd Mon yyyy",
     "time_format"    : "h24",
     "currency"       : "^[-+]?[0-9]*[\\.]?[0-9]+\\€$",
     "currencyPrefix" : "",

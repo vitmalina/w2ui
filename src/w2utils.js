@@ -61,7 +61,6 @@ var w2utils = (function () {
         settings : {
             "locale"            : "en-us",
             "date_format"       : "m/d/yyyy",
-            "date_display"      : "Mon d, yyyy",
             "time_format"       : "hh:mi pm",
             "currencyPrefix"    : "$",
             "currencySuffix"    : "",
