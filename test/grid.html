@@ -89,8 +89,8 @@ $(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [                
-            { field: 'userid', caption: 'ID', type: 'int' },
-            { field: 'fname', caption: 'First Name', type: 'text' }
+            // { field: 'userid', caption: 'ID', type: 'int' },
+            // { field: 'fname', caption: 'First Name', type: 'text' }
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
@@ -113,7 +113,7 @@ $(function () {
                 },
                 editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } } 
             },
-            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name' },
+            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, searchable: { }, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name' },
             { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2', frozen1: true },

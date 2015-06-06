@@ -34,6 +34,8 @@
         - scrolling on frozen columns is not working only on regular columns
 *   - copy or large number of records is slow
 *   - resize row (height)
+*   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
+*   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -70,6 +72,7 @@
 *   - removed onSubmit and onDeleted - now it uses onSave and onDelete
 *   - added record.w2ui.softspan
 *   - added refreshSpans
+*   - column.seachable - can be an object, which will create search
 *
 ************************************************************************/
 
@@ -255,11 +258,15 @@
             // add searches
             for (var i = 0; i < object.columns.length; i++) {
                 var col = object.columns[i];
-                if (col.searchable == null || col.searchable === false || object.getSearch(col.field) != null) continue;
-                var stype = col.searchable;
-                var attr  = '';
-                if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
-                object.addSearch({ field: col.field, caption: col.caption, type: stype, attr: attr });
+                var search = col.searchable;
+                if (search == null || search === false || object.getSearch(col.field) != null) continue;
+                if ($.isPlainObject(search)) {
+                    object.addSearch($.extend({ field: col.field, caption: col.caption, type: 'text' }, search));    
+                } else {
+                    var stype = col.searchable, attr  = '';
+                    if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
+                    object.addSearch({ field: col.field, caption: col.caption, type: stype, attr: attr });
+                }
             }
             // init toolbar
             object.initToolbar();
