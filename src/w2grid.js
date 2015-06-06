@@ -33,6 +33,7 @@
         - load more only on the right side
         - scrolling on frozen columns is not working only on regular columns
 *   - copy or large number of records is slow
+*   - resize row (height)
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -1466,9 +1467,9 @@
                 // advanced search
                 for (var i = 0; i < this.searches.length; i++) {
                     var search   = this.searches[i];
-                    var operator = $('#grid_'+ this.name + '_operator_'+ s).val();
-                    var field1   = $('#grid_'+ this.name + '_field_'+ s);
-                    var field2   = $('#grid_'+ this.name + '_field2_'+ s);
+                    var operator = $('#grid_'+ this.name + '_operator_'+ i).val();
+                    var field1   = $('#grid_'+ this.name + '_field_'+ i);
+                    var field2   = $('#grid_'+ this.name + '_field2_'+ i);
                     var value1   = field1.val();
                     var value2   = field2.val();
                     var svalue   = null;
@@ -1705,20 +1706,19 @@
             if (this.searches.length == 0) return;
             var obj = this;
             // show search
-            $('#tb_'+ this.name +'_toolbar_item_w2ui-search-advanced').w2overlay(
-                this.getSearchesHTML(),    {
-                    name    : 'searches-'+ this.name,
-                    left    : -10,
-                    'class' : 'w2ui-grid-searches',
-                    onShow  : function () {
-                        if (obj.last.logic == 'OR') obj.searchData = [];
-                        obj.initSearches();
-                        $('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').data('grid-name', obj.name);
-                        var sfields = $('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]');
-                        if (sfields.length > 0) sfields[0].focus();
-                    }
+            $('#tb_'+ this.name +'_toolbar_item_w2ui-search-advanced').w2overlay({
+                html    : this.getSearchesHTML(),
+                name    : this.name + '-searchOverlay',
+                left    : -10,
+                'class' : 'w2ui-grid-searches',
+                onShow  : function () {
+                    if (obj.last.logic == 'OR') obj.searchData = [];
+                    obj.initSearches();
+                    $('#w2ui-overlay-'+ obj.name +'-searchOverlay .w2ui-grid-searches').data('grid-name', obj.name);
+                    var sfields = $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches *[rel=search]');
+                    if (sfields.length > 0) sfields[0].focus();
                 }
-            );
+            });
         },
 
         searchClose: function () {
@@ -1726,9 +1726,8 @@
             if (this.searches.length == 0) return;
             if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced');
             // hide search
-            if ($('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches').length > 0) {
-                $().w2overlay('', { name: 'searches-'+ this.name });
-            }
+            $().w2overlay({ name: this.name + '-searchOverlay' });
+            $().w2overlay({ name: this.name + '-searchOverlay' }); // need to call twice as first ignored after click
         },
 
         searchReset: function (noRefresh) {
@@ -1766,6 +1765,7 @@
         },
 
         searchShowFields: function () {
+            var obj  = this;
             var el   = $('#grid_'+ this.name +'_search_all');
             var html = '<div class="w2ui-select-field"><table>';
             for (var s = -1; s < this.searches.length; s++) {
@@ -1776,7 +1776,8 @@
                 } else {
                     if (this.searches[s].hidden === true) continue;
                 }
-                html += '<tr '+ (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\')">'+
+                html += '<tr '+ (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
+                        '      event.stopPropagation(); $(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });">'+
                         '    <td><input type="radio" tabIndex="-1" '+ (search.field == this.last.field ? 'checked' : '') +'></td>'+
                         '    <td>'+ search.caption +'</td>'+
                         '</tr>';
@@ -1784,7 +1785,7 @@
             html += "</table></div>";
             // need timer otherwise does nto show with list type
             setTimeout(function () {
-                $(el).w2overlay(html, { left: -10 });
+                $(el).w2overlay({ html: html, name: obj.name + '-searchFields', left: -10 });
             }, 1);
         },
 
@@ -1820,7 +1821,7 @@
                 this.last.caption = search.caption;
             }
             el.attr('placeholder', search.caption);
-            $().w2overlay();
+            $().w2overlay({ name: this.name + '-searchFields' });
         },
 
         // clears records and related params
@@ -4579,7 +4580,7 @@
             }
             if (hide) {
                 setTimeout(function () {
-                    $().w2overlay('', { name: 'searches-'+ this.name });
+                    $().w2overlay({ name: this.name + '-searchOverlay' });
                     obj.toolbar.uncheck('column-on-off');
                 }, 100);
             }
@@ -4693,7 +4694,7 @@
                                 obj.searchOpen();
                                 event.originalEvent.stopPropagation();
                                 function tmp_close() {
-                                    if ($('#w2ui-overlay-searches-'+ obj.name).data('keepOpen') === true) return;
+                                    if ($('#w2ui-overlay-'+ obj.name + '-searchOverlay').data('keepOpen') === true) return;
                                     tb.uncheck(id);
                                     $(document).off('click', 'body', tmp_close);
                                 }
@@ -5156,7 +5157,7 @@
         },
 
         getSearchesHTML: function () {
-            var html = '<table cellspacing="0">';
+            var html = '<table cellspacing="0" onclick="event.stopPropagation()">';
             var showBtn = false;
             for (var i = 0; i < this.searches.length; i++) {
                 var s = this.searches[i];
@@ -5164,7 +5165,7 @@
                 if (s.hidden) continue;
                 var btn = '';
                 if (showBtn == false) {
-                    btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchClose(); }">X</button';
+                    btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) obj.searchClose()">X</button>';
                     showBtn = true;
                 }
                 if (typeof s.inTag   == 'undefined') s.inTag  = '';
@@ -5362,10 +5363,10 @@
                 }
             }
             // add on change event
-            $('#w2ui-overlay-searches-'+ this.name +' .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
+            $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches *[rel=search]').on('keypress', function (evnt) {
                 if (evnt.keyCode == 13) {
                     obj.search();
-                    $().w2overlay();
+                    $().w2overlay({ name: obj.name + '-searchOverlay' });
                 }
             });
         },
