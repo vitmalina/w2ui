@@ -6417,7 +6417,7 @@ w2utils.keyboard = (function (obj) {
             var data   = this.getCellValue(ind, col_ind, summary);
             var edit   = col.editable;
             // various renderers
-            if (typeof col.render != 'undefined') {
+            if (col.render != null) {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div>' + data + '</div>';
