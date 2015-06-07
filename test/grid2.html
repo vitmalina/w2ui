@@ -18,7 +18,7 @@ $(function () {
         { id: 5, text: 'Addy Osmani' },
         { id: 6, text: 'Paul Irish' },
         { id: 7, text: 'Doug Crocford' },
-        { id: 8, text: 'Nicolas Cage' },
+        { id: 8, text: 'Nicolas Cage' }
     ];
 
     $('#grid').w2grid({ 
@@ -65,11 +65,11 @@ $(function () {
                     return html;
                 }
             },
-            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } },
+            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } }
             // { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
             // { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
             // { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
-        ],
+        ]
     });
     var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
     var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
@@ -82,7 +82,7 @@ $(function () {
             float: 5,
             money: 6,
             check: Math.random() > 0.9 ? true : false,
-            select: 2,
+            select: 2
             // editable: false
         });
     }

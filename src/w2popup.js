@@ -12,10 +12,10 @@
 * == 1.5 changes
 *   - new: resizeMessages()
 *   - popup can be moved/resized/closed when locked or has messages
-*   - messages negative widht/height means margin
+*   - messages negative width/height means margin
 *   - added btn_yes and btn_no
 *   - dismissed message will slide up - added parameter unlock(speed)
-*   - refactore -webkit-* -moz-* to a function
+*   - refactor -webkit-* -moz-* to a function
 *   - resize nested elements in popup for onMin, onMax
 *   - rename btn -> w2ui-btn and same for colored ones
 *   - added options.body and options.buttons for w2popup.message
@@ -85,7 +85,7 @@ var w2popup = {};
     };
 
     // ====================================================
-    // -- Implementation of core functionality (SINGELTON)
+    // -- Implementation of core functionality (SINGLETON)
 
     w2popup = {
         defaults: {
@@ -635,11 +635,11 @@ var w2popup = {};
             var sel = 'input:visible, button:visible, select:visible, textarea:visible';
             // clear previous blur
             $(pop).find(sel).off('.keep-focus');
-            // in messar or popup
+            // in message or popup
             var cnt = $('#w2ui-popup .w2ui-popup-message').length - 1;
             var msg = $('#w2ui-popup #w2ui-message' + cnt);
             if (msg.length > 0) {
-                var btn =$(msg[msg.length - 1]).find('button')
+                var btn =$(msg[msg.length - 1]).find('button');
                 if (btn.length > 0) btn[0].focus();
                 tmp = msg;
             } else if (pop.length > 0) {
@@ -807,7 +807,7 @@ var w2popup = {};
             var body     = options.body;
             var buttons  = options.buttons;
             if (w2popup._prev) {
-                template = w2popup._prev.template
+                template = w2popup._prev.template;
                 title    = w2popup._prev.title;
                 body     = w2popup._prev.body;
                 buttons  = w2popup._prev.buttons;

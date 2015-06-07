@@ -968,7 +968,7 @@
 
                 // do not show selection cell if it is editable
                 var edit  = $(this.box).find('#grid_'+ this.name + '_editable');
-                var tmp   = edit.find('.w2ui-input')
+                var tmp   = edit.find('.w2ui-input');
                 var tmp1  = tmp.attr('recid');
                 var tmp2  = tmp.attr('column');
                 if (rg.name == 'selection' && rg.range[0].recid == tmp1 && rg.range[0].column == tmp2) continue;
@@ -1144,7 +1144,7 @@
                             '   class="w2ui-soft-range" data-style="' + tmp.style + '"' +
                             '   style="'+ tmp.style +'; left: '+ tmp.left +'px; top: '+ tmp.top +'px; width: '+ tmp.width +'px">'+ 
                                 tmp.html +
-                            '</div>')
+                            '</div>');
                     $(obj.box).find('#'+id).css(css);
                 }
                 $(this).find('>div').css('opacity', 0);
@@ -1207,7 +1207,7 @@
                     }
                 }
             } else {
-                // normalize for perforamce
+                // normalize for performance
                 var new_sel = {};
                 for (var a = 0; a < arguments.length; a++) {
                     var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
@@ -2168,12 +2168,12 @@
                 for (var s in changes[c]) {
                     if (s == 'recid') continue; // do not allow to change recid
                     if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
-                    try { 
-			if (s.indexOf('.') != -1) {
-				eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
-			} else {
-				record[s] = changes[c][s];
-			};
+                    try {
+                        if (s.indexOf('.') != -1) {
+                            eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
+                        } else {
+                            record[s] = changes[c][s];
+                        }
                     } catch (e) {
                         console.log('ERROR: Cannot merge. ', e.message || '', e);
                     }
@@ -2262,7 +2262,7 @@
             if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
                 addStyle += 'text-align: right;';
             }
-            // mormalize items
+            // normalize items
             if (edit.items.length > 0 && !$.isPlainObject(edit.items[0])) {
                 edit.items = w2obj.field.prototype.normMenu(edit.items);
             }
@@ -2555,7 +2555,7 @@
                 break;
             }
             // refresh cell
-            var cell = $(tr).find('[col='+ column +']')
+            var cell = $(tr).find('[col='+ column +']');
             if (!summary) {
                 if (rec.changes && rec.changes[col.field] != null) {
                     cell.addClass('w2ui-changed');
@@ -4336,7 +4336,7 @@
                 _dragData.pressed = false;
                 _dragData.timeout = null;_dragData.columnHead = null;
 
-            //attach orginal event listener
+            //attach original event listener
             $(obj.box).on('mousedown', dragColStart);
             $(obj.box).on('mouseup', catchMouseup);
 

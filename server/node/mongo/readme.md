@@ -6,7 +6,7 @@
 
 ## Installation
 
-To run the server with example client public/index.htlm
+To run the server with example client public/index.html
 
 npm install
 

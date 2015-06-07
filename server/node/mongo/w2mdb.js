@@ -198,14 +198,14 @@ exports.enumDBMongo = function(req, res, collectionName,dataitem)
              });
          });
       });
-}
+};
 
 getRecords = function(req,res,collectionName)
 {
     var searchFor =
             {
                 _id: 1
-            }
+            };
 
     if (req.body.sort)
     {
@@ -258,7 +258,7 @@ getRecords = function(req,res,collectionName)
             });
         });
     });
-}
+};
 
 function isValidObjectID(str) {
   // coerce to string so the function can be generically used to test both strings and native objectIds created by the driver
@@ -290,7 +290,7 @@ customConvert = function(myId)
             }                       
         }
    return (myId);
-}              
+};
 
 saveRecord = function(req,res,collectionName,autoIncVarName,newRecId)
 {
@@ -369,7 +369,7 @@ saveRecord = function(req,res,collectionName,autoIncVarName,newRecId)
                     else
                     {
                         var save_response = {
-                            status    : "success",
+                            status    : "success"
                         };
 
                         //console.log("Saved",doc);
@@ -380,7 +380,7 @@ saveRecord = function(req,res,collectionName,autoIncVarName,newRecId)
             });
         });
     });
-}
+};
 
 getRecord = function(req,res,collectionName)
 {
@@ -416,7 +416,7 @@ getRecord = function(req,res,collectionName)
             });
         });
     });           
-}
+};
 
 saveRecords = function(req,res,collectionName){
     if (req.body.changes)
@@ -437,7 +437,7 @@ saveRecords = function(req,res,collectionName){
             if (numUpdates == changes.length)
             {
                 var save_response = {
-                    status: "success",
+                    status: "success"
                 };
 
                 res.send(save_response);
@@ -561,13 +561,13 @@ saveRecords = function(req,res,collectionName){
     else
     {
         var save_response = {
-            status: "success",
+            status: "success"
         };
 
         res.send(save_response);
 
     }
-}
+};
             
 
 exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
@@ -585,7 +585,7 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
                 getNextSequence(collectionName,function(newNum) {
                     var doc = {
                         recid : newNum
-                    }
+                    };
                     var result_data = {
                         status: "sucess",
                         record: doc
@@ -752,5 +752,5 @@ orderData = function(collectionName)
             });
         });
     });
-}
+};
 

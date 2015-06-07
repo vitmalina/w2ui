@@ -31,13 +31,13 @@ var config = {
             sortData: [{ field: 'lname', direction: 'asc' }],
             searches: [
                 { type: 'text', caption: 'Name', field: 'name' },
-                { type: 'lat', caption: 'Lat', field: 'lat' },
+                { type: 'lat', caption: 'Lat', field: 'lat' }
             ],
             columns: [
                 { field: 'name', caption: 'Name', size: '20%', sortable: true,  editable: { type: 'text' }},
                 { field: 'lname', caption: 'Last name', size: '20%', sortable: true,  editable: { type: 'text' }},     
                 { field: 'email', caption: 'Email', size: '20%', sortable: false ,  editable: { type: 'text' }},
-                { field: 'otherinfo', caption: 'Other Info', size: '25%', sortable: false ,  editable: { type: 'tesxt' }},
+                { field: 'otherinfo', caption: 'Other Info', size: '25%', sortable: false ,  editable: { type: 'tesxt' }}
             ],
             onSave: function (event) {
               event.onComplete = function() {
@@ -68,7 +68,7 @@ var config = {
                    .fail(function(jqXHR, textStatus, errorThrown) {
                         // Handle error
                    });
-          },
+          }
         },
     
 	layout: {
@@ -106,7 +106,7 @@ var config = {
                              }
                              retval+='</div>';
                              return(retval);
-			}},                        
+			}}
 		],
                 url		: '/api/position',
 		onClick: function(event) {
@@ -186,7 +186,7 @@ var config = {
 			}
 		}
 	}
-}
+};
 
 $(function () {
         w2utils.settings.date_format = 'yyyy-mm-dd';

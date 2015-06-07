@@ -136,7 +136,7 @@
             $(this.el).on('blur', function (event)  { // keyCode & charCode differ in FireFox
                 var ch = this.value;
                 if (ch != 'a' && ch != 'b' && ch != 'c') {
-                    $(this).w2tag(w2utils.lang("Not a single charecter from the set of 'abc'"));
+                    $(this).w2tag(w2utils.lang("Not a single character from the set of 'abc'"));
                 }
             });
         });
@@ -266,10 +266,10 @@
                         start       : '',       // string or jquery object or Date object
                         end         : '',       // string or jquery object or Date object
                         blocked     : [],       // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
-                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formated with w2utils.settings.date_format
+                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formatted with w2utils.settings.date_format
                         placeholder : null,     // optional. will fall back to this.format if not specified. Only used if this.el has no placeholder attribute.
                         format_mjs  : 'M/D/YYYY HH:mm', // date format for moment.js, should be equal to "this.format" translated to ISO 8601, see http://momentjs.com/docs/#/parsing/string-format
-                        btn_now     : true,     // show/hide the use-current-date-and-time button
+                        btn_now     : true      // show/hide the use-current-date-and-time button
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
@@ -542,7 +542,7 @@
             var time      = (new Date()).getTime();
             // enum
             if (['list'].indexOf(this.type) != -1) {
-                $(obj.el).parent().css('white-space', 'nowrap'); // needs this for arrow alway to appear on the right side
+                $(obj.el).parent().css('white-space', 'nowrap'); // needs this for arrow always to appear on the right side
                 // hide focus and show text
                 if (obj.helpers.prefix) obj.helpers.prefix.hide();
                 setTimeout(function () {
@@ -557,7 +557,7 @@
                         options.prefix = '';
                         obj.addPrefix();
                     }
-                    // focus helpder
+                    // focus helper
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
@@ -1334,7 +1334,7 @@
                     focus.width(((focus.val().length + 2) * 8) + 'px');
                 }
                 // run search
-                if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refresh on crtl, shift, left/right arrows, etc
                     // run search
                     setTimeout(function () {
                         // trigger event
@@ -2061,7 +2061,7 @@
                     obj.helpers.arrows = helper;
                 }
                 if (obj.options.suffix !== '') {
-                    // remove if already displaed
+                    // remove if already displayed
                     if (obj.helpers.suffix) $(obj.helpers.suffix).remove();
                     // add fresh
                     $(obj.el).after(

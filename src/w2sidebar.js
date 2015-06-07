@@ -9,7 +9,7 @@
 *   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
 *   - reorder with dgrag and drop
-*   - node.style is missleading - should be there to apply color for example
+*   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
 *   - add renderer for the node
 *
@@ -124,7 +124,7 @@
             // internal
             parent          : null,         // node object
             sidebar         : null,
-            render          : null,         // custom render function(node)    
+            render          : null          // custom render function(node)
         },
 
         add: function (parent, nodes) {
