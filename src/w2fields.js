@@ -90,14 +90,14 @@
             if (typeof method == 'string' && typeof options == 'object') {
                 method = $.extend(true, {}, options, { type: method });
             }
-            if (typeof method == 'string' && typeof options == 'undefined') {
+            if (typeof method == 'string' && options == null) {
                 method = { type: method };
             }
             method.type = String(method.type).toLowerCase();
             return this.each(function (index, el) {
                 var obj = $(el).data('w2field');
                 // if object is not defined, define it
-                if (typeof obj == 'undefined') {
+                if (obj == null) {
                     var obj = new w2field(method);
                     $.extend(obj, { handlers: [] });
                     if (el) obj.el = $(el)[0];
@@ -336,7 +336,7 @@
                     this.addSuffix();
                     setTimeout(function () { obj.refresh(); }, 10); // need this for icon refresh
                     $(this.el).attr('autocomplete', 'off');
-                    if (typeof options.selected.text != 'undefined') $(this.el).val(options.selected.text);
+                    if (options.selected.text != null) $(this.el).val(options.selected.text);
                     break;
 
                 case 'enum':
@@ -509,7 +509,7 @@
             var tmp = $(this.el).data('tmp');
             if (!this.tmp) return;
             // restore paddings
-            if (typeof tmp != 'undefined') {
+            if (tmp != null) {
                 $(this.el).height('auto');
                 if (tmp && tmp['old-padding-left'])  $(this.el).css('padding-left',  tmp['old-padding-left']);
                 if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right']);
@@ -817,8 +817,8 @@
                     val = val.replace(options.decimalSymbol, '.');
                 }
                 if (parseFloat(val) == val) {
-                    if (options.min !== null && val < options.min) { val = options.min; $(this.el).val(options.min); }
-                    if (options.max !== null && val > options.max) { val = options.max; $(this.el).val(options.max); }
+                    if (options.min != null && val < options.min) { val = options.min; $(this.el).val(options.min); }
+                    if (options.max != null && val > options.max) { val = options.max; $(this.el).val(options.max); }
                 }
                 if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = '';
             }
@@ -1027,12 +1027,12 @@
                 switch (key) {
                     case 38: // up
                         if (event.shiftKey) break; // no action if shift key is pressed
-                        $(obj.el).val((val + inc <= options.max || options.max === null ? Number((val + inc).toFixed(12)) : options.max)).change();
+                        $(obj.el).val((val + inc <= options.max || options.max == null ? Number((val + inc).toFixed(12)) : options.max)).change();
                         cancel = true;
                         break;
                     case 40: // down
                         if (event.shiftKey) break; // no action if shift key is pressed
-                        $(obj.el).val((val - inc >= options.min || options.min === null ? Number((val - inc).toFixed(12)) : options.min)).change();
+                        $(obj.el).val((val - inc >= options.min || options.min == null ? Number((val - inc).toFixed(12)) : options.min)).change();
                         cancel = true;
                         break;
                 }
@@ -1387,9 +1387,9 @@
                 this.updateOverlay();
                 return;
             }
-            if (typeof interval == 'undefined') interval = 350;
-            if (typeof obj.tmp.xhr_search == 'undefined') obj.tmp.xhr_search = '';
-            if (typeof obj.tmp.xhr_total == 'undefined') obj.tmp.xhr_total = -1;
+            if (interval == null) interval = 350;
+            if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = '';
+            if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1;
             // check if need to search
             if (options.url && $(obj.el).prop('readonly') != true && (
                     (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
@@ -1499,7 +1499,7 @@
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
-                    if (options.compare !== null) {
+                    if (options.compare != null) {
                         if (typeof options.compare == 'function') {
                             item.hidden = (options.compare.call(this, item, search) === false ? true : false);
                         }
@@ -2367,9 +2367,9 @@
                     if (typeof menu[m] == 'string') {
                         menu[m] = { id: menu[m], text: menu[m] };
                     } else {
-                        if (typeof menu[m].text != 'undefined' && typeof menu[m].id == 'undefined') menu[m].id = menu[m].text;
-                        if (typeof menu[m].text == 'undefined' && typeof menu[m].id != 'undefined') menu[m].text = menu[m].id;
-                        if (typeof menu[m].caption != 'undefined') menu[m].text = menu[m].caption;
+                        if (menu[m].text != null && menu[m].id == null) menu[m].id = menu[m].text;
+                        if (menu[m].text == null && menu[m].id != null) menu[m].text = menu[m].id;
+                        if (menu[m].caption != null) menu[m].text = menu[m].caption;
                     }
                 }
                 return menu;
@@ -2506,7 +2506,7 @@
         },
 
         getMinHTML: function (hour) {
-            if (typeof hour == 'undefined') hour = 0;
+            if (hour == null) hour = 0;
             var options = this.options;
             if (options == null) options = { format: w2utils.settings.time_format };
             var h24 = (options.format.indexOf('h24') > -1);

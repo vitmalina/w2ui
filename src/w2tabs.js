@@ -100,14 +100,14 @@
             // assume it is array
             for (var i = 0; i < tab.length; i++) {
                 // checks
-                if (typeof tab[i].id === 'undefined') {
+                if (tab[i].id == null) {
                     console.log('ERROR: The parameter "id" is required but not supplied. (obj: '+ this.name +')');
                     return;
                 }
                 if (!w2utils.checkUniqueId(tab[i].id, this.tabs, 'tabs', this.name)) return;
                 // add tab
                 var newTab = $.extend({}, w2tabs.prototype.tab, tab[i]);
-                if (id === null || typeof id === 'undefined') {
+                if (id == null) {
                     this.tabs.push(newTab);
                 } else {
                     var middle = this.get(id, true);
@@ -132,7 +132,7 @@
         },
 
         select: function (id) {
-            if (this.active == id || this.get(id) === null) return false;
+            if (this.active == id || this.get(id) == null) return false;
             this.active = id;
             this.refresh();
             return true;
@@ -140,7 +140,7 @@
 
         set: function (id, tab) {
             var index = this.get(id, true);
-            if (index === null) return false;
+            if (index == null) return false;
             $.extend(this.tabs[index], tab);
             this.refresh(id);
             return true;
@@ -258,15 +258,15 @@
             var time = (new Date()).getTime();
             if (this.flow == 'up') $(this.box).addClass('w2ui-tabs-up'); else $(this.box).removeClass('w2ui-tabs-up');
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), object: this.get(id) });
+            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), object: this.get(id) });
             if (eventData.isCancelled === true) return;
-            if (typeof id === 'undefined') {
+            if (id == null) {
                 // refresh all
                 for (var i = 0; i < this.tabs.length; i++) this.refresh(this.tabs[i].id);
             } else {
                 // create or refresh only one item
                 var tab = this.get(id);
-                if (tab === null) return false;
+                if (tab == null) return false;
                 if (tab.text == null && tab.caption != null) tab.text = tab.caption;
                 if (tab.tooltip == null && tab.hint != null) tab.tooltip = tab.hint; // for backward compatibility
 
@@ -320,7 +320,7 @@
             if (eventData.isCancelled === true) return;
             // default action
             // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-            if (typeof box !== 'undefined' && box !== null) {
+            if (box != null) {
                 if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
                     $(this.box)
                         .removeAttr('name')
@@ -379,7 +379,7 @@
 
         click: function (id, event) {
             var tab = this.get(id);
-            if (tab === null || tab.disabled) return false;
+            if (tab == null || tab.disabled) return false;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
             if (eventData.isCancelled === true) return;
@@ -405,7 +405,7 @@
 
         animateClose: function(id, event) {
             var tab = this.get(id);
-            if (tab === null || tab.disabled) return false;
+            if (tab == null || tab.disabled) return false;
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });
             if (eventData.isCancelled === true) return;
@@ -429,7 +429,7 @@
         },
 
         animateInsert: function(id, tab) {
-            if (this.get(id) === null) return;
+            if (this.get(id) == null) return;
             if (!$.isPlainObject(tab)) return;
             // check for unique
             if (!w2utils.checkUniqueId(tab.id, this.tabs, 'tabs', this.name)) return;

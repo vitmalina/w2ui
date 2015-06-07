@@ -71,7 +71,7 @@
             var nodes  = method.nodes;
             var object = new w2sidebar(method);
             $.extend(object, { handlers: [], nodes: [] });
-            if (typeof nodes != 'undefined') {
+            if (nodes != null) {
                 object.add(object, nodes);
             }
             if ($(this).length !== 0) {
@@ -145,7 +145,7 @@
                 before = arguments[0];
                 if (before != null) {
                     ind = this.get(before);
-                    if (ind === null) {
+                    if (ind == null) {
                         if (!$.isArray(nodes)) nodes = [nodes];
                         txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
                         console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
@@ -165,7 +165,7 @@
                     console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.');
                     continue;
                 }
-                if (this.get(this, node.id) !== null) {
+                if (this.get(this, node.id) != null) {
                     txt = (node.caption != null ? node.caption : node.text);
                     console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ txt + ') because another node with the same id already exists.');
                     continue;
@@ -175,11 +175,11 @@
                 tmp.parent  = parent;
                 nd = tmp.nodes || [];
                 tmp.nodes = []; // very important to re-init empty nodes array
-                if (before === null) { // append to the end
+                if (before == null) { // append to the end
                     parent.nodes.push(tmp);
                 } else {
                     ind = this.get(parent, before, true);
-                    if (ind === null) {
+                    if (ind == null) {
                         txt = (node.caption != null ? node.caption : node.text);
                         console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
                         return null;
@@ -199,12 +199,12 @@
             var tmp;
             for (var a = 0; a < arguments.length; a++) {
                 tmp = this.get(arguments[a]);
-                if (tmp === null) continue;
-                if (this.selected !== null && this.selected === tmp.id) {
+                if (tmp == null) continue;
+                if (this.selected != null && this.selected === tmp.id) {
                     this.selected = null;
                 }
                 var ind  = this.get(tmp.parent, arguments[a], true);
-                if (ind === null) continue;
+                if (ind == null) continue;
                 if (tmp.parent.nodes[ind].selected)    tmp.sidebar.unselect(tmp.id);
                 tmp.parent.nodes.splice(ind, 1);
                 deleted++;
@@ -296,7 +296,7 @@
             var hidden = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var tmp = this.get(arguments[a]);
-                if (tmp === null) continue;
+                if (tmp == null) continue;
                 tmp.hidden = true;
                 hidden++;
             }
@@ -308,7 +308,7 @@
             var shown = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var tmp = this.get(arguments[a]);
-                if (tmp === null) continue;
+                if (tmp == null) continue;
                 tmp.hidden = false;
                 shown++;
             }
@@ -320,7 +320,7 @@
             var disabled = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var tmp = this.get(arguments[a]);
-                if (tmp === null) continue;
+                if (tmp == null) continue;
                 tmp.disabled = true;
                 if (tmp.selected) this.unselect(tmp.id);
                 disabled++;
@@ -333,7 +333,7 @@
             var enabled = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var tmp = this.get(arguments[a]);
-                if (tmp === null) continue;
+                if (tmp == null) continue;
                 tmp.disabled = false;
                 enabled++;
             }
@@ -371,7 +371,7 @@
 
         toggle: function(id) {
             var nd = this.get(id);
-            if (nd === null) return false;
+            if (nd == null) return false;
             if (nd.plus) {
                 this.set(id, { plus: false });
                 this.expand(id);
@@ -399,7 +399,7 @@
         },
 
         collapseAll: function (parent) {
-            if (typeof parent == 'undefined') parent = this;
+            if (parent == null) parent = this;
             if (typeof parent == 'string') parent = this.get(parent);
             if (parent.nodes == null) return false;
             for (var i = 0; i < parent.nodes.length; i++) {
@@ -427,7 +427,7 @@
         },
 
         expandAll: function (parent) {
-            if (typeof parent == 'undefined') parent = this;
+            if (parent == null) parent = this;
             if (typeof parent == 'string') parent = this.get(parent);
             if (parent.nodes == null) return false;
             for (var i = 0; i < parent.nodes.length; i++) {
@@ -439,7 +439,7 @@
 
         expandParents: function (id) {
             var node = this.get(id);
-            if (node === null) return false;
+            if (node == null) return false;
             if (node.parent) {
                 if (!node.parent.expanded) {
                     node.parent.expanded = true;
@@ -453,7 +453,7 @@
         click: function (id, event) {
             var obj = this;
             var nd  = this.get(id);
-            if (nd === null) return;
+            if (nd == null) return;
             if (nd.disabled || nd.group) return; // should click event if already selected
             // unselect all previsously
             $(obj.box).find('.w2ui-node.w2ui-selected').each(function (index, el) {
@@ -477,7 +477,7 @@
                     return;
                 }
                 // default action
-                if (oldNode !== null) oldNode.selected = false;
+                if (oldNode != null) oldNode.selected = false;
                 obj.get(id).selected = true;
                 obj.selected = id;
                 // route processing
@@ -562,7 +562,7 @@
             obj.trigger($.extend(eventData, { phase: 'after' }));
 
             function selectNode (node, event) {
-                if (node !== null && !node.hidden && !node.disabled && !node.group) {
+                if (node != null && !node.hidden && !node.disabled && !node.group) {
                     obj.click(node.id, event);
                     setTimeout(function () { obj.scrollIntoView(); }, 50);
                 }
@@ -570,14 +570,14 @@
 
             function neighbor (node, neighborFunc) {
                 node = neighborFunc(node);
-                while (node !== null && (node.hidden || node.disabled)) {
+                while (node != null && (node.hidden || node.disabled)) {
                     if (node.group) break; else node = neighborFunc(node);
                 }
                 return node;
             }
 
             function next (node, noSubs) {
-                if (node === null) return null;
+                if (node == null) return null;
                 var parent   = node.parent;
                 var ind      = obj.get(node.id, true);
                 var nextNode = null;
@@ -592,16 +592,16 @@
                         nextNode = next(parent, true); // jump to the parent
                     }
                 }
-                if (nextNode !== null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
+                if (nextNode != null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = next(nextNode);
                 return nextNode;
             }
 
             function prev (node) {
-                if (node === null) return null;
+                if (node == null) return null;
                 var parent   = node.parent;
                 var ind      = obj.get(node.id, true);
                 var prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent;
-                if (prevNode !== null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
+                if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode);
                 return prevNode;
             }
 
@@ -615,9 +615,9 @@
         },
 
         scrollIntoView: function (id) {
-            if (typeof id == 'undefined') id = this.selected;
+            if (id == null) id = this.selected;
             var nd = this.get(id);
-            if (nd === null) return;
+            if (nd == null) return;
             var body   = $(this.box).find('.w2ui-sidebar-div');
             var item   = $(this.box).find('#node_'+ w2utils.escapeId(id));
             var offset = item.offset().top - body.offset().top;
@@ -682,7 +682,7 @@
             var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
             if (eventData.isCancelled === true) return;
             // default action
-            if (typeof box != 'undefined' && box !== null) {
+            if (box != null) {
                 if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
                     $(this.box)
                         .removeAttr('name')
@@ -756,8 +756,8 @@
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id != 'undefined' ? id : this.name), 
-                fullRefresh: (typeof id != 'undefined' ? false : true) });
+            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), 
+                fullRefresh: (id != null ? false : true) });
             if (eventData.isCancelled === true) return;
             // adjust top and bottom
             if (this.topHTML !== '') {
@@ -778,12 +778,12 @@
             var obj = this;
             var node, nd;
             var nm;
-            if (typeof id == 'undefined') {
+            if (id == null) {
                 node = this;
                 nm   = '.w2ui-sidebar-div';
             } else {
                 node = this.get(id);
-                if (node === null) return;
+                if (node == null) return;
                 nm   = '#node_'+ w2utils.escapeId(node.id) + '_sub';
             }
             var nodeHTML;
@@ -819,13 +819,13 @@
             function getNodeHTML(nd) {
                 var html = '';
                 var img  = nd.img;
-                if (img === null) img = this.img;
+                if (img == null) img = this.img;
                 var icon = nd.icon;
-                if (icon === null) icon = this.icon;
+                if (icon == null) icon = this.icon;
                 // -- find out level
                 var tmp   = nd.parent;
                 var level = 0;
-                while (tmp && tmp.parent !== null) {
+                while (tmp && tmp.parent != null) {
                     if (tmp.group) level--;
                     tmp = tmp.parent;
                     level++;

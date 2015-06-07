@@ -105,8 +105,8 @@
             // reassign variables
             if (fields) for (var p = 0; p < fields.length; p++) {
                 var field = $.extend(true, {}, fields[p]);
-                if (typeof field.name == 'undefined' && typeof field.field != 'undefined') field.name = field.field;
-                if (typeof field.field == 'undefined' && typeof field.name != 'undefined') field.field = field.name;
+                if (field.name == null && field.field != null) field.name = field.field;
+                if (field.field == null && field.name != null) field.field = field.name;
                 object.fields[p] = field;
             }
             for (var p in record) { // it is an object
@@ -288,7 +288,7 @@
         },
 
         validate: function (showErrors) {
-            if (typeof showErrors == 'undefined') showErrors = true;
+            if (showErrors == null) showErrors = true;
             $().w2tag(); // hide all tags before validating
             // validate before saving
             var errors = [];
@@ -397,7 +397,7 @@
                 callBack = postData;
                 postData = null;
             }
-            if (typeof postData == 'undefined' || postData == null) postData = {};
+            if (postData == null) postData = {};
             if (!this.url || (typeof this.url == 'object' && !this.url.get)) return;
             if (this.recid == null) this.recid = 0;
             // build parameters list
@@ -466,7 +466,7 @@
                     var responseText = obj.last.xhr.responseText;
                     if (status != 'error') {
                         // default action
-                        if (typeof responseText != 'undefined' && responseText != '') {
+                        if (responseText != null && responseText != '') {
                             // check if the onLoad handler has not already parsed the data
                             if (typeof responseText == "object") {
                                 data = responseText;
@@ -476,7 +476,7 @@
                                 // TODO: avoid (potentially malicious) code injection from the response.
                                 try { eval('data = '+ responseText); } catch (e) { }
                             }
-                            if (typeof data == 'undefined') {
+                            if (data == null) {
                                 data = {
                                     status       : 'error',
                                     message      : obj.msgNotJSON,
@@ -541,7 +541,7 @@
             var errors = obj.validate(true);
             if (errors.length !== 0) return;
             // submit save
-            if (typeof postData == 'undefined' || postData == null) postData = {};
+            if (postData == null) postData = {};
             if (!obj.url || (typeof obj.url == 'object' && !obj.url.save)) {
                 console.log("ERROR: Form cannot be saved because no url is defined.");
                 return;
@@ -626,7 +626,7 @@
                         var responseText = xhr.responseText;
                         if (status != 'error') {
                             // default action
-                            if (typeof responseText != 'undefined' && responseText != '') {
+                            if (responseText != null && responseText != '') {
                                 // check if the onLoad handler has not already parsed the data
                                 if (typeof responseText == "object") {
                                     data = responseText;
@@ -636,7 +636,7 @@
                                     // TODO: avoid (potentially malicious) code injection from the response.
                                     try { eval('data = '+ responseText); } catch (e) { }
                                 }
-                                if (typeof data == 'undefined') {
+                                if (data == null) {
                                     data = {
                                         status       : 'error',
                                         message      : obj.msgNotJSON,
@@ -692,7 +692,7 @@
         },
 
         goto: function (page) {
-            if (typeof page != 'undefined') this.page = page;
+            if (page != null) this.page = page;
             // if it was auto size, resize it
             if ($(this.box).data('auto-size') === true) $(this.box).height(0);
             this.refresh();
@@ -705,10 +705,10 @@
             for (var f = 0; f < this.fields.length; f++) {
                 var html = '';
                 var field = this.fields[f];
-                if (typeof field.html == 'undefined') field.html = {};
-                if (typeof field.options == 'undefined') field.options = {};
+                if (field.html == null) field.html = {};
+                if (field.options == null) field.options = {};
                 field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0 }, field.html);
-                if (typeof page == 'undefined') page = field.html.page;
+                if (page == null) page = field.html.page;
                 if (field.html.caption == '') field.html.caption = field.name;
                 // input control
                 var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +'/>';
@@ -764,17 +764,17 @@
                     pages[pages.length-1] += '\n   </div>';
                     group = '';
                 }
-                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+ 
+                html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+ 
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
-                if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '';
+                if (pages[field.html.page] == null) pages[field.html.page] = '';
                 pages[field.html.page] += html;
                 page = field.html.page;
             }
             if (group != '') pages[pages.length-1] += '\n   </div>';
             if (this.tabs.tabs) {
-                for (var i = 0; i < this.tabs.tabs.length; i++) if (typeof pages[i] == 'undefined') pages[i] = '';
+                for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = '';
             }
             for (var p = 0; p < pages.length; p++) pages[p] = '<div class="w2ui-page page-'+ p +'">' + pages[p] + '\n</div>';
             // buttons if any
@@ -862,10 +862,10 @@
             var time = (new Date()).getTime();
             var obj = this;
             if (!this.box) return;
-            if (!this.isGenerated || typeof $(this.box).html() == 'undefined') return;
+            if (!this.isGenerated || $(this.box).html() == null) return;
             // update what page field belongs
             $(this.box).find('input, textarea, select').each(function (index, el) {
-                var name  = (typeof $(el).attr('name') != 'undefined' ? $(el).attr('name') : $(el).attr('id'));
+                var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
                 var field = obj.get(name);
                 if (field) {
                     // find page
@@ -902,11 +902,11 @@
             // refresh values of all fields
             for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
-                if (typeof field.name == 'undefined' && typeof field.field != 'undefined') field.name = field.field;
-                if (typeof field.field == 'undefined' && typeof field.name != 'undefined') field.field = field.name;
+                if (field.name == null && field.field != null) field.name = field.field;
+                if (field.field == null && field.name != null) field.field = field.name;
                 field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
                 field.el  = field.$el[0];
-                if (typeof field.el == 'undefined') {
+                if (field.el == null) {
                     console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
                     //return;
                 }
@@ -1007,7 +1007,7 @@
             // init controls with record
             for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
-                var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
+                var value = (this.record[field.name] != null ? this.record[field.name] : '');
                 if (!field.el) continue;
                 field.type = String(field.type).toLowerCase();
                 if (!field.options) field.options = {};
@@ -1063,7 +1063,7 @@
                             }
                         } else if (field.type == 'combo' && !$.isPlainObject(value)) {
                             field.el.value = value;
-                        } else if ($.isPlainObject(value) && typeof value.text != 'undefined') {
+                        } else if ($.isPlainObject(value) && value.text != null) {
                             field.el.value = value.text;
                         } else {
                             field.el.value = '';
@@ -1081,7 +1081,7 @@
                     case 'select':
                         // generate options
                         var items = field.options.items;
-                        if (typeof items != 'undefined' && items.length > 0) {
+                        if (items != null && items.length > 0) {
                             items = w2obj.field.prototype.normMenu(items);
                             $(field.el).html('');
                             for (var it = 0; it < items.length; it++) {
@@ -1130,7 +1130,7 @@
             if (!this.isGenerated) return;
             if (!this.box) return;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });
+            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) });
             if (eventData.isCancelled === true) return;
             // default actions
             if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {

@@ -440,7 +440,7 @@ var w2utils = (function () {
     }
 
     function stripTags (html) {
-        if (html === null) return html;
+        if (html == null) return html;
         switch (typeof html) {
             case 'number':
                 break;
@@ -455,7 +455,7 @@ var w2utils = (function () {
     }
 
     function encodeTags (html) {
-        if (html === null) return html;
+        if (html == null) return html;
         switch (typeof html) {
             case 'number':
                 break;
@@ -751,7 +751,7 @@ var w2utils = (function () {
 
         function cross(property, value, none_webkit_value) {
             var isWebkit=!!window.webkitURL; // jQuery no longer supports $.browser - RR
-            if (!isWebkit && typeof none_webkit_value !== 'undefined') value = none_webkit_value;
+            if (!isWebkit && none_webkit_value != null) value = none_webkit_value;
             return ';'+ property +': '+ value +'; -webkit-'+ property +': '+ value +'; -moz-'+ property +': '+ value +'; '+
                 '-ms-'+ property +': '+ value +'; -o-'+ property +': '+ value +';';
         }
@@ -884,11 +884,11 @@ var w2utils = (function () {
 
 
     function checkName (params, component) { // was w2checkNameParam
-        if (!params || typeof params.name === 'undefined') {
+        if (!params || params.name == null) {
             console.log('ERROR: The parameter "name" is required but not supplied in $().'+ component +'().');
             return false;
         }
-        if (typeof w2ui[params.name] !== 'undefined') {
+        if (w2ui[params.name] != null) {
             console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ params.name +').');
             return false;
         }
@@ -988,8 +988,8 @@ w2utils.event = {
         for (var h = 0, len = this.handlers.length; h < len; h++) {
             var t = this.handlers[h];
             if ((t.event.type === eventData.type || eventData.type === '*') &&
-                (t.event.target === eventData.target || eventData.target === null) &&
-                (t.handler === handler || handler === null))
+                (t.event.target === eventData.target || eventData.target == null) &&
+                (t.handler === handler || handler == null))
             {
                 // match
             } else {
@@ -1013,7 +1013,7 @@ w2utils.event = {
         for (var h = this.handlers.length-1; h >= 0; h--) {
             var item = this.handlers[h];
             if ((item.event.type === eventData.type || item.event.type === '*') &&
-                (item.event.target === eventData.target || item.event.target === null) &&
+                (item.event.target === eventData.target || item.event.target == null) &&
                 (item.event.execute === eventData.phase || item.event.execute === '*' || item.event.phase === '*'))
             {
                 eventData = $.extend({}, item.event, eventData);
@@ -1121,7 +1121,7 @@ w2utils.event = {
     $.fn.w2tag = function (text, options) {
         if (!$.isPlainObject(options)) options = {};
         if (!$.isPlainObject(options.css)) options.css = {};
-        if (typeof options['class'] === 'undefined') options['class'] = '';
+        if (options['class'] == null) options['class'] = '';
         // remove all tags
         if ($(this).length === 0) {
             $('.w2ui-tag').each(function (index, elem) {
@@ -1779,7 +1779,7 @@ w2utils.event = {
                     if (img)  imgd = '<td class="menu-icon"><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
                     if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
                     // render only if non-empty
-                    if (typeof txt !== 'undefined' && txt !== '' && !(/^-+$/.test(txt))) {
+                    if (txt != null && txt !== '' && !(/^-+$/.test(txt))) {
                         var bg = (count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;

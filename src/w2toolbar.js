@@ -105,7 +105,7 @@
             if (!$.isArray(items)) items = [items];
             for (var o = 0; o < items.length; o++) {
                 // checks
-                if (typeof items[o].type == 'undefined') {
+                if (items[o].type == null) {
                     console.log('ERROR: The parameter "type" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
@@ -114,7 +114,7 @@
                             'in w2toolbar.add() method.');
                     return;
                 }
-                if (typeof items[o].id == 'undefined') {
+                if (items[o].id == null) {
                     console.log('ERROR: The parameter "id" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
@@ -157,7 +157,7 @@
         get: function (id, returnIndex) {
             if (arguments.length == 0) {
                 var all = [];
-                for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id !== null) all.push(this.items[i1].id);
+                for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id != null) all.push(this.items[i1].id);
                 return all;
             }
             var tmp = String(id).split(':');
@@ -282,7 +282,7 @@
             }
             if (it && !it.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id !== 'undefined' ? id : this.name),
+                var eventData = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
                     item: it, object: it, originalEvent: event });
                 if (eventData.isCancelled === true) return;
 
@@ -429,7 +429,7 @@
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), item: this.get(id) });
+            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), item: this.get(id) });
             if (eventData.isCancelled === true) return;
 
             if (id == null) {

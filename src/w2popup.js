@@ -33,7 +33,7 @@ var w2popup = {};
     // -- Registers as a jQuery plugin
 
     $.fn.w2popup = function(method, options) {
-        if (typeof method === 'undefined') {
+        if (method == null) {
             options = {};
             method  = 'open';
         }
@@ -237,7 +237,7 @@ var w2popup = {};
                 if (eventData.isCancelled === true) return;
                 // check if size changed
                 w2popup.status = 'opening';
-                if (typeof old_options != 'undefined') {
+                if (old_options != null) {
                     if (!old_options.maximized && (old_options['width'] != options['width'] || old_options['height'] != options['height'])) {
                         w2popup.resize(options.width, options.height);
                     }
@@ -501,17 +501,17 @@ var w2popup = {};
 
         load: function (options) {
             w2popup.status = 'loading';
-            if (String(options.url) == 'undefined') {
+            if (options.url == null) {
                 console.log('ERROR: The url parameter is empty.');
                 return;
             }
             var tmp = String(options.url).split('#');
             var url = tmp[0];
             var selector = tmp[1];
-            if (String(options) == 'undefined') options = {};
+            if (options == null) options = {};
             // load url
             var html = $('#w2ui-popup').data(url);
-            if (typeof html != 'undefined' && html != null) {
+            if (html != null) {
                 popup(html, selector);
             } else {
                 $.get(url, function (data, status, obj) { // should always be $.get as it is template
@@ -522,7 +522,7 @@ var w2popup = {};
             function popup(html, selector) {
                 delete options.url;
                 $('body').append('<div id="w2ui-tmp" style="display: none">' + html + '</div>');
-                if (typeof selector != 'undefined' && $('#w2ui-tmp #'+selector).length > 0) {
+                if (selector != null && $('#w2ui-tmp #'+selector).length > 0) {
                     $('#w2ui-tmp #' + selector).w2popup(options);
                 } else {
                     $('#w2ui-tmp > div').w2popup(options);
@@ -549,13 +549,13 @@ var w2popup = {};
             options.originalHeight = options.height;
             if (parseInt(options.width) < 10)  options.width  = 10;
             if (parseInt(options.height) < 10) options.height = 10;
-            if (typeof options.hideOnClick == 'undefined') options.hideOnClick = false;
+            if (options.hideOnClick == null) options.hideOnClick = false;
             var poptions    = $('#w2ui-popup').data('options') || {};
             var titleHeight = parseInt($('#w2ui-popup > .w2ui-msg-title').css('height'));
-            if (typeof options.width == 'undefined' || options.width > poptions.width - 10) {
+            if (options.width == null || options.width > poptions.width - 10) {
                 options.width = poptions.width - 10;
             }
-            if (typeof options.height == 'undefined' || options.height > poptions.height - titleHeight - 5) {
+            if (options.height == null || options.height > poptions.height - titleHeight - 5) {
                 options.height = poptions.height - titleHeight - 5; // need margin from bottom only
             }
             // negative value means margin
@@ -599,8 +599,8 @@ var w2popup = {};
                 $('#w2ui-popup .w2ui-box')
                     .before('<div id="w2ui-message' + msgCount + '" class="w2ui-popup-message" style="display: none; z-index: 1500; ' +
                                 (head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
-                                (typeof options.width  != 'undefined' ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
-                                (typeof options.height != 'undefined' ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
+                                (options.width  != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
+                                (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
                                 w2utils.cssPrefix('transition', '.3s', true) + '"' +
                                 (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
                             '</div>');
@@ -674,8 +674,8 @@ var w2popup = {};
 
         lockScreen: function (options) {
             if ($('#w2ui-lock').length > 0) return false;
-            if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
-            if (typeof options == 'undefined') options = {};
+            if (options == null) options = $('#w2ui-popup').data('options');
+            if (options == null) options = {};
             options = $.extend({}, w2popup.defaults, options);
             // show element
             $('body').append('<div id="w2ui-lock" ' +
@@ -710,8 +710,8 @@ var w2popup = {};
 
         unlockScreen: function (options) {
             if ($('#w2ui-lock').length == 0) return false;
-            if (typeof options == 'undefined') options = $('#w2ui-popup').data('options');
-            if (typeof options == 'undefined') options = {};
+            if (options == null) options = $('#w2ui-popup').data('options');
+            if (options == null) options = {};
             options = $.extend({}, w2popup.defaults, options);
             $('#w2ui-lock')
                 .css('opacity', '0')

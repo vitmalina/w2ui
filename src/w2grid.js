@@ -73,6 +73,7 @@
 *   - added record.w2ui.softspan
 *   - added refreshSpans
 *   - column.seachable - can be an object, which will create search
+*   - added null, not null filters and show.searchNull property
 *
 ************************************************************************/
 
@@ -424,7 +425,7 @@
                 before  = this.columns.length;
             } else {
                 if (typeof before == 'string') before = this.getColumn(before, true);
-                if (before === null) before = this.columns.length;
+                if (before == null) before = this.columns.length;
             }
             if (!$.isArray(columns)) columns = [columns];
             for (var i = 0; i < columns.length; i++) {
@@ -527,7 +528,7 @@
                 before = this.searches.length;
             } else {
                 if (typeof before == 'string') before = this.getSearch(before, true);
-                if (before === null) before = this.searches.length;
+                if (before == null) before = this.searches.length;
             }
             if (!$.isArray(search)) search = [search];
             for (var i = 0; i < search.length; i++) {
@@ -701,7 +702,7 @@
                         if (search == null) search = { field: sdata.field, type: sdata.type };
                         var val1b = obj.parseField(rec, search.field);
                         var val1  = String(val1b).toLowerCase();
-                        if (typeof sdata.value != 'undefined') {
+                        if (sdata.value != null) {
                             if (!$.isArray(sdata.value)) {
                                 var val2 = String(sdata.value).toLowerCase();
                             } else {
@@ -1066,7 +1067,7 @@
                 var recid, column;
                 var tmp = event.originalEvent.target;
                 if (tmp.tagName != 'TD') tmp = $(tmp).parents('td')[0];
-                if (typeof $(tmp).attr('col') != 'undefined') column = parseInt($(tmp).attr('col'));
+                if ($(tmp).attr('col') != null) column = parseInt($(tmp).attr('col'));
                 tmp = $(tmp).parents('tr')[0];
                 recid = $(tmp).attr('recid');
                 // new range
@@ -1509,7 +1510,7 @@
                             value1 = value1.id || '';
                         }
                     }
-                    if ((value1 !== '' && value1 != null) || (typeof value2 != 'undefined' && value2 !== '')) {
+                    if ((value1 !== '' && value1 != null) || (value2 != null && value2 !== '')) {
                         var tmp = {
                             field    : search.field,
                             type     : search.type,
@@ -1557,7 +1558,7 @@
                 last_multi  = false;
                 last_logic  = 'OR';
                 // loop through all searches and see if it applies
-                if (typeof value != 'undefined') {
+                if (value != null) {
                     if (field.toLowerCase() == 'all') {
                         // if there are search fields loop thru them
                         if (this.searches.length > 0) {
@@ -1809,7 +1810,7 @@
                 var search = { field: 'all', caption: w2utils.lang('All Fields') };
                 el.w2field('clear');
                 el.change();
-                if (value !== null) el.focus();
+                if (value != null) el.focus();
             } else {
                 var search = this.getSearch(field);
                 if (search == null) return;
@@ -1823,7 +1824,7 @@
                 }
                 // set focus
                 setTimeout(function () {
-                    if (value !== null) el.focus(); /* do not do el.change() as it will refresh grid and pull from server */
+                    if (value != null) el.focus(); /* do not do el.change() as it will refresh grid and pull from server */
                 }, 1);
             }
             // update field
@@ -1906,7 +1907,7 @@
         },
 
         request: function (cmd, add_params, url, callBack) {
-            if (typeof add_params == 'undefined') add_params = {};
+            if (add_params == null) add_params = {};
             if (url == '' || url == null) url = this.url;
             if (url == '' || url == null) return;
             // build parameters list
@@ -2048,7 +2049,7 @@
             var responseText = this.last.xhr.responseText;
             if (status != 'error') {
                 // default action
-                if (typeof responseText != 'undefined' && responseText != '') {
+                if (responseText != null && responseText != '') {
                     // check if the onLoad handler has not already parsed the data
                     if (typeof responseText == "object") {
                         data = responseText;
@@ -2153,7 +2154,7 @@
             var changes = [];
             for (var r = 0; r < this.records.length; r++) {
                 var rec = this.records[r];
-                if (typeof rec['changes'] != 'undefined') {
+                if (rec['changes'] != null) {
                     changes.push($.extend(true, { recid: rec.recid }, rec.changes));
                 }
             }
@@ -2250,14 +2251,14 @@
                     .remove();
                 el = $('#grid_'+ this.name + '_editable >div:first-child');
             }
-            if (typeof edit.inTag   == 'undefined') edit.inTag   = '';
-            if (typeof edit.outTag  == 'undefined') edit.outTag  = '';
-            if (typeof edit.style   == 'undefined') edit.style   = '';
-            if (typeof edit.items   == 'undefined') edit.items   = [];
-            var val = (rec.changes && typeof rec.changes[col.field] != 'undefined' ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+            if (edit.inTag   == null) edit.inTag   = '';
+            if (edit.outTag  == null) edit.outTag  = '';
+            if (edit.style   == null) edit.style   = '';
+            if (edit.items   == null) edit.items   = [];
+            var val = (rec.changes && rec.changes[col.field] != null ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
             if (val == null) val = '';
             if (value != null) val = value;
-            var addStyle = (typeof col.style != 'undefined' ? col.style + ';' : '');
+            var addStyle = (col.style != null ? col.style + ';' : '');
             if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
                 addStyle += 'text-align: right;';
             }
@@ -2373,7 +2374,7 @@
                                         // find first editable row
                                         for (var c = 0; c < obj.columns.length; c++) {
                                             var tmp = obj.columns[c].editable;
-                                            if (typeof tmp != 'undefined' && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
+                                            if (tmp != null && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
                                                 next_col = parseInt(c);
                                                 if (!event.shiftKey) break;
                                             }
@@ -2416,11 +2417,11 @@
 
                             case 27: // escape
                                 var old = obj.parseField(rec, col.field);
-                                if (rec.changes && typeof rec.changes[col.field] != 'undefined') old = rec.changes[col.field];
+                                if (rec.changes && rec.changes[col.field] != null) old = rec.changes[col.field];
                                 if (this.tagName == 'DIV') {
-                                    $(this).text(typeof old != 'undefined' ? old : '');
+                                    $(this).text(old != null ? old : '');
                                 } else {
-                                    this.value = typeof old != 'undefined' ? old : '';
+                                    this.value = old != null ? old : '';
                                 }
                                 this.blur();
                                 setTimeout(function () { obj.select({ recid: recid, column: column }); }, 1);
@@ -2556,7 +2557,7 @@
             // refresh cell
             var cell = $(tr).find('[col='+ column +']')
             if (!summary) {
-                if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
+                if (rec.changes && rec.changes[col.field] != null) {
                     cell.addClass('w2ui-changed');
                 } else {
                     cell.removeClass('w2ui-changed');
@@ -2641,7 +2642,7 @@
                 column = recid.column;
                 recid  = recid.recid;
             }
-            if (typeof event == 'undefined') event = {};
+            if (event == null) event = {};
             // check for double click
             if (time - parseInt(this.last.click_time) < 350 && this.last.click_recid == recid && event.type == 'click') {
                 this.dblClick(recid, event);
@@ -2653,7 +2654,7 @@
             if (column == null && event.target) {
                 var tmp = event.target;
                 if (tmp.tagName != 'TD') tmp = $(tmp).parents('td')[0];
-                if (typeof $(tmp).attr('col') != 'undefined') column = parseInt($(tmp).attr('col'));
+                if ($(tmp).attr('col') != null) column = parseInt($(tmp).attr('col'));
             }
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, originalEvent: event });
@@ -2855,7 +2856,7 @@
             var ind      = obj.get(recid, true);
             var ind2     = obj.get(recid2, true);
             var rec      = obj.get(recid);
-            var recEL    = $('#grid_'+ obj.name +'_rec_'+ (ind !== null ? w2utils.escapeId(obj.records[ind].recid) : 'none'));
+            var recEL    = $('#grid_'+ obj.name +'_rec_'+ (ind != null ? w2utils.escapeId(obj.records[ind].recid) : 'none'));
             var cancel   = false;
             var key      = event.keyCode;
             var shiftKey = event.shiftKey;
@@ -2987,7 +2988,7 @@
                             this.selectNone();
                             next = this.columns.length-1;
                         }
-                        if (next !== null) {
+                        if (next != null) {
                             if (shiftKey && key == 39 && obj.multiSelect) {
                                 if (tmpUnselect()) return;
                                 var tmp    = [];
@@ -3274,7 +3275,7 @@
             var buffered = this.records.length;
             if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
             if (buffered == 0) return;
-            if (typeof ind == 'undefined') {
+            if (ind == null) {
                 var sel = this.getSelection();
                 if (sel.length == 0) return;
                 if ($.isPlainObject(sel[0])) {
@@ -3324,7 +3325,7 @@
                 column = recid.column;
                 recid  = recid.recid;
             }
-            if (typeof event == 'undefined') event = {};
+            if (event == null) event = {};
             // column user clicked on
             if (column == null && event.target) {
                 var tmp = event.target;
@@ -3349,8 +3350,8 @@
         contextMenu: function (recid, column, event) {
             var obj = this;
             if (obj.last.userSelect == 'text') return;
-            if (typeof event == 'undefined') event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ obj.name +'_rec_'+ recid)[0] };
-            if (typeof event.offsetX === 'undefined') {
+            if (event == null) event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ obj.name +'_rec_'+ recid)[0] };
+            if (event.offsetX == null) {
                 event.offsetX = event.layerX - event.target.offsetLeft;
                 event.offsetY = event.layerY - event.target.offsetTop;
             }
@@ -3484,14 +3485,14 @@
             var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, multiField: multiField });
             if (eventData.isCancelled === true) return;
             // check if needed to quit
-            if (typeof field != 'undefined') {
+            if (field != null) {
                 // default action
                 var sortIndex = this.sortData.length;
                 for (var s = 0; s < this.sortData.length; s++) {
                     if (this.sortData[s].field == field) { sortIndex = s; break; }
                 }
-                if (typeof direction == 'undefined' || direction == null) {
-                    if (typeof this.sortData[sortIndex] == 'undefined') {
+                if (direction == null) {
+                    if (this.sortData[sortIndex] == null) {
                         direction = 'asc';
                     } else {
                         switch (String(this.sortData[sortIndex].direction)) {
@@ -3504,7 +3505,7 @@
                 if (this.multiSort === false) { this.sortData = []; sortIndex = 0; }
                 if (multiField != true) { this.sortData = []; sortIndex = 0; }
                 // set new sort
-                if (typeof this.sortData[sortIndex] == 'undefined') this.sortData[sortIndex] = {};
+                if (this.sortData[sortIndex] == null) this.sortData[sortIndex] = {};
                 this.sortData[sortIndex].field        = field;
                 this.sortData[sortIndex].direction = direction;
             } else {
@@ -3705,7 +3706,7 @@
             } else {
                 cell.html('<div class="cell-value"></div>');
             }
-            if (rec.changes && typeof rec.changes[col.field] != 'undefined') {
+            if (rec.changes && rec.changes[col.field] != null) {
                 cell.addClass('w2ui-changed');
             } else {
                 cell.removeClass('w2ui-changed');
@@ -4141,10 +4142,10 @@
 
                     var ind1  = obj.get(mv.recid, true);
                     // this happens when selection is started on summary row
-                    if (ind1 === null || (obj.records[ind1] && obj.records[ind1].recid != mv.recid)) return;
+                    if (ind1 == null || (obj.records[ind1] && obj.records[ind1].recid != mv.recid)) return;
                     var ind2  = obj.get(recid, true);
                     // this happens when selection is extended into summary row (a good place to implement scrolling)
-                    if (ind2 === null) return;
+                    if (ind2 == null) return;
                     var col1 = parseInt(mv.column);
                     var col2 = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
                     if (isNaN(col1) && isNaN(col2)) { // line number select entire record
@@ -4608,7 +4609,7 @@
         initToolbar: function () {
             var obj = this;
             // -- if toolbar is true
-            if (typeof this.toolbar['render'] == 'undefined') {
+            if (this.toolbar['render'] == null) {
                 var tmp_items = this.toolbar.items;
                 this.toolbar.items = [];
                 this.toolbar = $().w2toolbar($.extend(true, {}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
@@ -4788,7 +4789,7 @@
                     // fix sizes
                     for (var c = 0; c < obj.columns.length; c++) {
                         if (obj.columns[c].hidden) continue;
-                        if (typeof obj.columns[c].sizeOriginal == 'undefined') obj.columns[c].sizeOriginal = obj.columns[c].size;
+                        if (obj.columns[c].sizeOriginal == null) obj.columns[c].sizeOriginal = obj.columns[c].size;
                         obj.columns[c].size = obj.columns[c].sizeCalculated;
                     }
                     var eventData = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field };
@@ -4972,11 +4973,11 @@
                         var j = 0;
                         while (this.columns.length > 0) {
                             var col = this.columns[j];
-                            if (col.hidden) { j++; if (typeof this.columns[j] == 'undefined') break; else continue; }
-                            htmlp += '<td class="w2ui-grid-data" '+ (typeof col.attr != 'undefined' ? col.attr : '') +' col="'+ j +'"></td>';
+                            if (col.hidden) { j++; if (this.columns[j] == null) break; else continue; }
+                            htmlp += '<td class="w2ui-grid-data" '+ (col.attr != null ? col.attr : '') +' col="'+ j +'"></td>';
                             if (col.frozen) html1 += htmlp; else html2 += htmlp;
                             j++;
-                            if (typeof this.columns[j] == 'undefined') break;
+                            if (this.columns[j] == null) break;
                         }
                         html1 += '<td class="w2ui-grid-data-last"></td>';
                         html2 += '<td class="w2ui-grid-data-last"></td>';
@@ -5044,7 +5045,7 @@
                     var col = this.columns[i];
                     if (col.hidden) continue;
                     if (col.sizeType == '%') {
-                        if (typeof this.columns[i].sizeCorrected != 'undefined') {
+                        if (this.columns[i].sizeCorrected != null) {
                             // make it 1px smaller, so margin of error can be calculated correctly
                             this.columns[i].sizeCalculated = Math.floor(width_max * parseFloat(col.sizeCorrected) / 100) - 1 + 'px';
                         } else {
@@ -5059,7 +5060,7 @@
             for (var i = 0; i < this.columns.length; i++) {
                 var col = this.columns[i];
                 if (col.hidden) continue;
-                if (typeof col.min == 'undefined') col.min = 20;
+                if (col.min == null) col.min = 20;
                 if (parseInt(col.sizeCalculated) < parseInt(col.min)) col.sizeCalculated = col.min + 'px';
                 if (parseInt(col.sizeCalculated) > parseInt(col.max)) col.sizeCalculated = col.max + 'px';
                 width_cols += parseInt(col.sizeCalculated);
@@ -5069,7 +5070,7 @@
                 var i = 0;
                 while (true) {
                     var col = this.columns[i];
-                    if (typeof col == 'undefined') { i = 0; continue; }
+                    if (col == null) { i = 0; continue; }
                     if (col.hidden || col.sizeType == 'px') { i++; continue; }
                     col.sizeCalculated = (parseInt(col.sizeCalculated) + 1) + 'px';
                     width_diff--;
@@ -5107,7 +5108,7 @@
                     }
                     // records
                     var ind = $(el).attr('col');
-                    if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    if (ind != null && obj.columns[ind]) {
                         $(el).css('width', obj.columns[ind].sizeCalculated);
                     }
                     // last column
@@ -5136,7 +5137,7 @@
                     }
                     // records
                     var ind = $(el).attr('col');
-                    if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    if (ind != null && obj.columns[ind]) {
                         $(el).css('width', obj.columns[ind].sizeCalculated);
                     }
                     // last column
@@ -5154,7 +5155,7 @@
                     }
                     // records
                     var ind = $(el).attr('col');
-                    if (typeof ind != 'undefined' && obj.columns[ind]) {
+                    if (ind != null && obj.columns[ind]) {
                         $(el).css('width', obj.columns[ind].sizeCalculated);
                     }
                     // last column
@@ -5185,10 +5186,10 @@
                     btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) obj.searchClose()">X</button>';
                     showBtn = true;
                 }
-                if (typeof s.inTag   == 'undefined') s.inTag  = '';
-                if (typeof s.outTag  == 'undefined') s.outTag = '';
-                if (typeof s.style   == 'undefined') s.style = '';
-                if (typeof s.type    == 'undefined') s.type   = 'text';
+                if (s.inTag   == null) s.inTag  = '';
+                if (s.outTag  == null) s.outTag = '';
+                if (s.style   == null) s.style = '';
+                if (s.type    == null) s.type   = 'text';
                 if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
                     var operator =  
                         '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
@@ -5393,8 +5394,8 @@
                             if ($.isPlainObject(search.options.items[i])) {
                                 var val = si.id;
                                 var txt = si.text;
-                                if (typeof val == 'undefined' && typeof si.value != 'undefined')   val = si.value;
-                                if (typeof txt == 'undefined' && typeof si.caption != 'undefined') txt = si.caption;
+                                if (val == null && si.value != null)   val = si.value;
+                                if (txt == null && si.caption != null) txt = si.caption;
                                 if (val == null) val = '';
                                 options += '<option value="'+ val +'">'+ txt +'</option>';
                             } else {
@@ -5477,8 +5478,8 @@
                 for (var i=0; i<obj.columnGroups.length; i++) {
                     var colg = obj.columnGroups[i];
                     var col  = obj.columns[ii];
-                    if (typeof colg.span == 'undefined' || colg.span != parseInt(colg.span)) colg.span = 1;
-                    if (typeof colg.colspan != 'undefined') colg.span = colg.colspan;
+                    if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
+                    if (colg.colspan != null) colg.span = colg.colspan;
                     if (colg.master === true) {
                         var sortStyle = '';
                         for (var si = 0; si < obj.sortData.length; si++) {
@@ -5551,10 +5552,10 @@
                     var col  = obj.columns[i];
                     var colg = {};
                     if (i == id) {
-                        id = id + (typeof obj.columnGroups[ii] != 'undefined' ? parseInt(obj.columnGroups[ii].span) : 0);
+                        id = id + (obj.columnGroups[ii] != null ? parseInt(obj.columnGroups[ii].span) : 0);
                         ii++;
                     }
-                    if (typeof obj.columnGroups[ii-1] != 'undefined') var colg = obj.columnGroups[ii-1];
+                    if (obj.columnGroups[ii-1] != null) var colg = obj.columnGroups[ii-1];
                     if (col.hidden) continue;
                     var sortStyle = '';
                     for (var si = 0; si < obj.sortData.length; si++) {
@@ -5987,7 +5988,7 @@
                     col_ind++; 
                     if (this.columns[col_ind] == null) break; else continue; 
                 }
-                var isChanged = !summary && record.changes && typeof record.changes[col.field] != 'undefined';
+                var isChanged = !summary && record.changes && record.changes[col.field] != null;
                 var rec_cell  = this.getCellHTML(ind, col_ind, summary);
                 var addStyle  = '';
                 if (typeof col.render == 'string') {
@@ -6029,7 +6030,7 @@
                             (soft_set === false && soft_span > 1 ? ' w2ui-soft-hidden' : '') +
                             '" '+
                         '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
-                        '   style="'+ addStyle + (typeof col.style != 'undefined' ? col.style : '') +'" '+
+                        '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
                             (col.attr != null ? col.attr : '') +
                             (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                             (soft_set === true ? 'softspan="'+ soft_span + '"' : '') +
@@ -6059,7 +6060,7 @@
             var edit   = col.editable;
             var style  = 'max-height: '+ parseInt(this.recordHeight) +'px;';
             // various renderers
-            if (typeof col.render != 'undefined') {
+            if (col.render != null) {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div style="'+ style +'">' + data + '</div>';
@@ -6078,7 +6079,7 @@
                     var prefix = '';
                     var suffix = '';
                     if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) {
-                        if (typeof tmp[1] == 'undefined' || !w2utils.isInt(tmp[1])) tmp[1] = 0;
+                        if (tmp[1] == null || !w2utils.isInt(tmp[1])) tmp[1] = 0;
                         if (tmp[1] > 20) tmp[1] = 20;
                         if (tmp[1] < 0)  tmp[1] = 0;
                         if (['money', 'currency'].indexOf(tmp[0]) != -1) { tmp[1] = w2utils.settings.currencyPrecision; prefix = w2utils.settings.currencyPrefix; suffix = w2utils.settings.currencySuffix; }
@@ -6088,17 +6089,17 @@
                         data = '<div style="'+ style +'">' + (data !== '' ? prefix + w2utils.formatNumber(Number(data).toFixed(tmp[1])) + suffix : '') + '</div>';
                     }
                     if (tmp[0] == 'time') {
-                        if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
+                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
                         if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
                         if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
                         data = '<div style="'+ style +'">' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
-                        if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_format;
+                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format;
                         data = '<div style="'+ style +'">' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
-                        if (typeof tmp[1] == 'undefined' || tmp[1] == '') tmp[1] = w2utils.settings.date_format + '|' + w2utils.settings.time_format;
+                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format + '|' + w2utils.settings.time_format;
                         data = '<div style="'+ style +'">' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
@@ -6121,7 +6122,7 @@
                 if (!this.show.recordTitles) {
                     // title overwrite
                     var title = w2utils.stripTags(String(data).replace(/"/g, "''"));
-                    if (typeof col.title != 'undefined') {
+                    if (col.title != null) {
                         if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
                         if (typeof col.title == 'string')   title = col.title;
                     }
@@ -6136,7 +6137,7 @@
             var col    = this.columns[col_ind];
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.parseField(record, col.field);
-            if (record.changes && typeof record.changes[col.field] != 'undefined') {
+            if (record.changes && record.changes[col.field] != null) {
                 data = record.changes[col.field];
             }
             if ($.isPlainObject(data)) {
@@ -6156,7 +6157,7 @@
         },
 
         status: function (msg) {
-            if (typeof msg != 'undefined') {
+            if (msg != null) {
                 $('#grid_'+ this.name +'_footer').find('.w2ui-footer-left').html(msg);
             } else {
                 // show number of selected
