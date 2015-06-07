@@ -120,7 +120,8 @@
             statusSearch    : true,
             recordTitles    : true,
             selectionBorder : true,
-            skipRecords     : true
+            skipRecords     : true,
+            searchNull      : false
         };
 
         this.hasFocus        = false;
@@ -798,6 +799,12 @@
                                 break;
                             case 'contains':
                                 if (val1.indexOf(val2) >= 0) fl++; // do not hide record
+                                break;
+                            case 'null':
+                                if (obj.parseField(rec, search.field) == null) fl++; // do not hide record
+                                break;
+                            case 'not null':
+                                if (obj.parseField(rec, search.field) != null) fl++; // do not hide record
                                 break;
                             case 'ends':
                             case 'ends with': // need for back compatib.
@@ -5183,31 +5190,58 @@
                 if (typeof s.style   == 'undefined') s.style = '';
                 if (typeof s.type    == 'undefined') s.type   = 'text';
                 if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();" class="w2ui-input">'+
+                    var operator =  
+                        '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
+                        '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '    <option value="begins">'+ w2utils.lang('begins') +'</option>'+
                         '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
                         '    <option value="ends">'+ w2utils.lang('ends') +'</option>'+
+                        (this.show.searchNull 
+                            ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
+                              '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
+                            : ''
+                        ) +
                         '</select>';
                 }
                 if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" '+
-                        '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +');" onclick="event.stopPropagation();">'+
-                        '   <option value="is">'+ w2utils.lang('is') +'</option>'+
-                        '   <option value="between">'+ w2utils.lang('between') +'</option>'+
-                        '   <option value="less">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'before' : 'less') +'</option>'+
-                        '   <option value="more">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'after' : 'more') +'</option>'+
+                    var operator =  
+                        '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
+                        '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
+                        '    <option value="is">'+ w2utils.lang('is') +'</option>'+
+                        '    <option value="between">'+ w2utils.lang('between') +'</option>'+
+                        '    <option value="less">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'before' : 'less') +'</option>'+
+                        '    <option value="more">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'after' : 'more') +'</option>'+
+                        (this.show.searchNull 
+                            ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
+                              '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
+                            : ''
+                        ) +
                         '</select>';
                 }
                 if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();" class="w2ui-input">'+
+                    var operator =  
+                        '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
+                        '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
+                        (this.show.searchNull 
+                            ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
+                              '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
+                            : ''
+                        ) +
                         '</select>';
                 }
                 if (['enum'].indexOf(s.type) != -1) {
-                    var operator =  '<select id="grid_'+ this.name +'_operator_'+ i +'" onclick="event.stopPropagation();" class="w2ui-input">'+
+                    var operator =  
+                        '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
+                        '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
                         '    <option value="in">'+ w2utils.lang('in') +'</option>'+
                         '    <option value="not in">'+ w2utils.lang('not in') +'</option>'+
+                        (this.show.searchNull 
+                            ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
+                              '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
+                            : ''
+                        ) +
                         '</select>';
                 }
                 html += '<tr>'+
@@ -5266,8 +5300,25 @@
             var range   = $('#grid_'+ obj.name + '_range_'+ search_ind);
             var fld1    = $('#grid_'+ obj.name +'_field_'+ search_ind);
             var fld2    = fld1.parent().find('span input');
-            if ($(el).val() == 'in' || $(el).val() == 'not in') { fld1.w2field('clear'); } else { fld1.w2field(search.type); }
-            if ($(el).val() == 'between') { range.show(); fld2.w2field(search.type); } else { range.hide(); }
+            fld1.show();
+            range.hide();
+            // fld1.w2field(search.type);
+            switch ($(el).val()) {
+                case 'in':
+                case 'not in':
+                    fld1.w2field('clear');
+                    break;
+                case 'between':
+                    range.show(); 
+                    fld2.w2field(search.type);
+                    break;
+                case 'not null':
+                case 'null':
+                    fld1.hide();
+                    fld1.val('1'); // need to insert something for search to activate
+                    fld1.change();
+                    break;
+            }
         },
 
         initSearches: function () {

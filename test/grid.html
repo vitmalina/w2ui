@@ -16,7 +16,7 @@ $(function () {
     $('#grid').w2grid({ 
         name      : 'grid', 
         header    : 'List of Names',
-        // url : '//w2ui.com/web/pages/demo/infinite/index.php',
+        url : '//w2ui.com/web/pages/demo/infinite/index.php',
         // routeData : { id: 4 },
         // url       : '/1/:id/grid.json',
         // url     : {
@@ -89,8 +89,8 @@ $(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [                
-            // { field: 'userid', caption: 'ID', type: 'int' },
-            // { field: 'fname', caption: 'First Name', type: 'text' }
+            { field: 'personid', caption: 'ID', type: 'int' },
+            { field: 'fname', caption: 'First Name', type: 'text' }
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
@@ -222,9 +222,9 @@ $(function () {
     }
     // w2ui.grid.records[4].style = { fname: 'background-color: red' };
     // w2ui.grid.records[10].summary = true;
-    // w2ui.grid.records[0].sdate = null;
-    // w2ui.grid.records[3].sdate = null;
-    // w2ui.grid.records[7].sdate = null;
+    w2ui.grid.records[0].sdate = null;
+    w2ui.grid.records[3].sdate = null;
+    w2ui.grid.records[7].sdate = null;
     // w2ui.grid.records[3].stime = '0:01 am';
     // w2ui.grid.records[5].stime = '1:05 am';
     // w2ui.grid.records[50].stime = '0:15 am';
