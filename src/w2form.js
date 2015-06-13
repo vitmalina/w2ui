@@ -1039,7 +1039,7 @@
                     case 'toggle':
                         if (w2utils.isFloat(value)) value = parseFloat(value);
                         $(field.el).prop('checked', (value ? true : false));
-                        this.record[field.name] = (value ? 1 : 0);
+                        this.record[field.name] = (value ? true : false);
                         break;
                     // enums
                     case 'list':
