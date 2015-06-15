@@ -30,7 +30,7 @@ var kickStart = (function () {
                 url      : app._config.baseURL + mod,
                 dataType : 'text',
                 cache    : app._config.cache,
-                async    : false, // do it synchronosly - otherwise errors
+                async    : false, // do it synchronously - otherwise errors
                 success : function (data, success, xhr) {
                     if (success != 'success') {
                         console.log('ERROR: error while loading module definition from "'+ mod +'".');
@@ -152,7 +152,7 @@ var kickStart = (function () {
                 }
             }
         }, 1);
-        // promise need to be returned immidiately
+        // promise need to be returned immediately
         return promise;
 
         function isFinished() {
