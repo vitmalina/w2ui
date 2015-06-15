@@ -515,7 +515,7 @@
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.text == null) item.text = '';
             if (item.tooltip == null) item.tooltip = '';
-            var img  = '<td>&nbsp;</td>';
+            var img  = '<td>&#160;</td>';
             var text = item.text;
             if (typeof text == 'function') text = text.call(item);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
@@ -554,23 +554,23 @@
                             '  <table cellpadding="1" cellspacing="0">'+
                             '  <tr>' +
                                     img +
-                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ w2utils.lang(text) +'</td>' : '') +
-                                    (item.count != null ? '<td class="w2ui-tb-count" nowrap><span>'+ item.count +'</span></td>' : '') +
+                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap="nowrap">'+ w2utils.lang(text) +'</td>' : '') +
+                                    (item.count != null ? '<td class="w2ui-tb-count" nowrap="nowrap"><span>'+ item.count +'</span></td>' : '') +
                                     (((['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
-                                        '<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
+                                        '<td class="w2ui-tb-down" nowrap="nowrap"><div></div></td>' : '') +
                             '  </tr></table>'+
                             '</td></tr></table>';
                     break;
 
                 case 'break':
                     html += '<table cellpadding="0" cellspacing="0"><tr>'+
-                            '    <td><div class="w2ui-break">&nbsp;</div></td>'+
+                            '    <td><div class="w2ui-break">&#160;</div></td>'+
                             '</tr></table>';
                     break;
 
                 case 'html':
                     html += '<table cellpadding="0" cellspacing="0"><tr>'+
-                            '    <td nowrap>' + (typeof item.html == 'function' ? item.html.call(item) : item.html) + '</td>'+
+                            '    <td nowrap="nowrap">' + (typeof item.html == 'function' ? item.html.call(item) : item.html) + '</td>'+
                             '</tr></table>';
                     break;
             }
