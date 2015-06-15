@@ -1976,7 +1976,10 @@
                 new_val = tmp.clean(new_val);
                 if (tmp.type == 'list' && new_val != '') new_val = $(el).data('selected');
             }
-            if (el.type == 'checkbox') new_val = el.checked;
+            if (el.type == 'checkbox') {
+                if (rec.editable === false) el.checked = !el.checked;
+                new_val = el.checked;
+            }
             // change/restore event
             var eventData = {
                 phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
