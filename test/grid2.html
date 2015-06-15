@@ -37,7 +37,7 @@ $(function () {
             toolbarSave: true,
             toolbarAdd: true
         },
-        selectType: 'cell',
+        // selectType: 'cell',
         columns: [                
             { field: 'recid', caption: 'ID', size: '80px', sortable: true, searchable: 'int', frozen: true },
             { field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true, editable: { type: 'int', min: 0, max: 100 } },
@@ -83,9 +83,11 @@ $(function () {
             money: 6,
             check: Math.random() > 0.9 ? true : false,
             select: 2
-            // editable: false
         });
     }
+    w2ui.grid.records[0].editable = false;
+    w2ui.grid.records[1].editable = false;
+    w2ui.grid.records[2].editable = false;
     w2ui.grid.total = w2ui.grid.records.length;
     w2ui.grid.buffered = w2ui.grid.records.length;
     w2ui.grid.refresh();

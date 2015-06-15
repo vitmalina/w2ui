@@ -5895,7 +5895,10 @@
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             // render TR
             rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
+                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + 
+                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + 
+                    (record.editable === false ? ' w2ui-no-edit' : '') +
+                    (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick($(this).attr(\'recid\'), event);"'
@@ -5914,7 +5917,10 @@
                     ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
                 '>';
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
+                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + 
+                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + 
+                    (record.editable === false ? ' w2ui-no-edit' : '') +
+                    (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick($(this).attr(\'recid\'), event);"'
