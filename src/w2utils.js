@@ -1637,7 +1637,7 @@ w2utils.event = {
                 html +=
                     '<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
                     '    <div class="w2ui-icon icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
-                    '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();">'+
+                    '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();"/>'+
                     '</div>';
                 options.style += ';background-color: #ECECEC';
                 options.index = 0;
@@ -1918,7 +1918,7 @@ w2utils.event = {
                 for (var j = 0; j < pal[i].length; j++) {
                     html += '<td>'+
                             '    <div class="color '+ (pal[i][j] == '' ? 'no-color' : '') +'" style="background-color: #'+ pal[i][j] +';" ' + 
-                            '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (color == pal[i][j] ? '&#149;' : '&nbsp;') +
+                            '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (color == pal[i][j] ? '&#149;' : '&#160;') +
                             '    </div>'+
                             '</td>';
                     if (color == pal[i][j]) index = [i, j];
@@ -1929,11 +1929,11 @@ w2utils.event = {
             var tmp = pal[pal.length - 1];
             html += '<tr><td style="height: 8px" colspan="8"></td></tr>'+
                     '<tr>'+
-                    '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (color == tmp[0] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (color == tmp[1] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (color == tmp[2] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (color == tmp[3] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"/></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (color == tmp[0] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (color == tmp[1] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (color == tmp[2] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (color == tmp[3] ? '&#149;' : '&#160;') +'</div></td>'+
                     '</tr>'+
                     '<tr><td style="height: 4px" colspan="8"></td></tr>';
             html += '</table></div>';
