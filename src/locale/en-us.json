@@ -1,6 +1,6 @@
 {
     "locale"         : "en-US",
-    "date_format"    : "mm/dd/yyyy",
+    "date_format"    : "m/d/yyyy",
     "time_format"    : "h12",
     "currency"       : "^[\\$]?[-+]?[0-9]*[\\.]?[0-9]+$",
     "currencyPrefix" : "$",

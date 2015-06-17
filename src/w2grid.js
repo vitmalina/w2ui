@@ -2322,7 +2322,7 @@
                     val = w2utils.formatNumber(val);
                 }
                 if (edit.type == 'date') {
-                    val = w2utils.formatDate(val, edit.format);
+                    val = w2utils.formatDate(w2utils.isDate(val, edit.format, true), edit.format);
                 }
                 if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
                 // init w2field
@@ -6110,7 +6110,7 @@
                     }
                     if (tmp[0] == 'date') {
                         if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format;
-                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDate(w2utils.isDate(data, tmp[1], true), tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
                         if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format + '|' + w2utils.settings.time_format;
