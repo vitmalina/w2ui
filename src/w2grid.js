@@ -2317,10 +2317,6 @@
                         '    field="'+ col.field +'" recid="'+ recid +'" '+
                         '    column="'+ column +'" '+ edit.inTag +
                         '>' + edit.outTag);
-                // issue #499
-                if (typeof val == 'number') {
-                    val = w2utils.formatNumber(val);
-                }
                 if (edit.type == 'date') {
                     val = w2utils.formatDate(w2utils.isDate(val, edit.format, true), edit.format);
                 }
