@@ -5826,7 +5826,8 @@
             }
             // check for grid end
             if (buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
-            return;
+
+            frecords[0].scrollTop = records[0].scrollTop;
 
             function markSearch() {
                 // mark search
