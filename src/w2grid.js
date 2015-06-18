@@ -3653,7 +3653,7 @@
             // make sure the box is right
             if (!this.box || $(this.box).attr('name') != this.name) return;
             // determine new width and height
-            $(this.box).find('> div')
+            $(this.box).find('> div:not(.w2ui-lock-msg)')
                 .css('width', $(this.box).width())
                 .css('height', $(this.box).height());
             // event before
