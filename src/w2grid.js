@@ -1944,7 +1944,7 @@
             if (this.last.xhr_offset == 0) {
                 obj.lock(w2utils.lang(obj.msgRefresh), true);
             } else {
-                var more = $('#grid_'+ this.name +'_rec_more');
+                var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
                 if (this.autoLoad === true) {
                     more.show().find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
                 } else {
@@ -5652,7 +5652,7 @@
             html1 += '<tr id="grid_'+ this.name + '_frec_bottom" line="bottom" style="height: '+ ((buffered - limit) * this.recordHeight) +'px">'+
                     '    <td colspan="200"></td>'+
                     '</tr>'+
-                    '<tr id="grid_'+ this.name +'_frec_more" style="display: none">'+
+                    '<tr id="grid_'+ this.name +'_frec_more" style="display: none; visibility: hidden">'+
                     '    <td colspan="200" class="w2ui-load-more"></td>'+
                     '</tr>'+
                     '</table>';
@@ -5808,7 +5808,7 @@
                     this.last.xhr_offset += this.limit;
                     this.request('get-records');
                 } else {
-                    var more = $('#grid_'+ this.name +'_rec_more');
+                    var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
                     if (more.css('display') == 'none') {
                         more.show()
                             .on('click', function () {
@@ -5825,9 +5825,7 @@
                 }
             }
             // check for grid end
-            if (buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
-
-            frecords[0].scrollTop = records[0].scrollTop;
+            if (buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide();
 
             function markSearch() {
                 // mark search
