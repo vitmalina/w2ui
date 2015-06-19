@@ -41,7 +41,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added w2utils.settings.weekStarts
 *   - onComplete should pass widget as context (this)
 *   - hidden and disabled in menus
-*   - added menu.item.tooltip for overlay menues
+*   - added menu.item.tooltip for overlay menus
 *   - added w2tag options.id, options.left, options.top
 *   - added w2tag options.position = top|bottom|left|right - default is right
 *   - added $().w2color(color, callBack) 
@@ -73,7 +73,7 @@ var w2utils = (function () {
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
-            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, RESTFULLJSON, JSON (case sensative)
+            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "phrases"           : {},       // empty object for english phrases
             "dateStartYear"     : 1950,     // start year for date-picker
             "dateEndYear"       : 2020      // end year for date picker
@@ -374,14 +374,14 @@ var w2utils = (function () {
             .replace(/yyyy/g, year)
             .replace(/yyy/g, year)
             .replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
-            .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceded by a letter
             .replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
             .replace(/dd/g, (date < 10 ? '0' : '') + date)
             .replace(/th/g, (date == 1 ? 'st' : 'th'))
             .replace(/th/g, (date == 2 ? 'nd' : 'th'))
             .replace(/th/g, (date == 3 ? 'rd' : 'th'))
-            .replace(/(^|[^a-z$])m/g, '$1' + (month + 1))     // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])d/g, '$1' + date);           // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])m/g, '$1' + (month + 1))     // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])d/g, '$1' + date);           // only y's that are not preceded by a letter
     }
 
     function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
@@ -421,9 +421,9 @@ var w2utils = (function () {
             .replace('mm', min)
             .replace('mi', min)
             .replace('ss', sec)
-            .replace(/(^|[^a-z$])h/g, '$1' + hour)    // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])m/g, '$1' + min)     // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])s/g, '$1' + sec);    // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])h/g, '$1' + hour)    // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])m/g, '$1' + min)     // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])s/g, '$1' + sec);    // only y's that are not preceded by a letter
     }
 
     function formatDateTime(dateStr, format) {
@@ -1253,7 +1253,7 @@ w2utils.event = {
         var obj  = this;
         var name = '';
         var defaults = {
-            name        : null,      // it not null, then allows multiple concurent overlays
+            name        : null,      // it not null, then allows multiple concurrent overlays
             html        : '',        // html text to display
             align       : 'none',    // can be none, left, right, both
             left        : 0,         // offset left
@@ -1624,7 +1624,7 @@ w2utils.event = {
                 $el.parent().find('tr').removeClass('w2ui-selected');
                 $el.addClass('w2ui-selected');
                 $.fn.w2menuTmp = $el;
-            }
+            };
             $.fn.w2menuOut = function (event, index) {
                 var $tmp = $($.fn.w2menuTmp);
                 if ($tmp.length > 0) {
@@ -1632,7 +1632,7 @@ w2utils.event = {
                     $tmp.find('.w2ui-icon').removeClass('w2ui-icon-check');
                     delete $.fn.w2menuTmp;
                 }
-            }
+            };
             var html = '';
             if (options.search) {
                 html +=
@@ -2914,7 +2914,7 @@ w2utils.event = {
 
                 // do not show selection cell if it is editable
                 var edit  = $(this.box).find('#grid_'+ this.name + '_editable');
-                var tmp   = edit.find('.w2ui-input')
+                var tmp   = edit.find('.w2ui-input');
                 var tmp1  = tmp.attr('recid');
                 var tmp2  = tmp.attr('column');
                 if (rg.name == 'selection' && rg.range[0].recid == tmp1 && rg.range[0].column == tmp2) continue;
@@ -3090,7 +3090,7 @@ w2utils.event = {
                             '   class="w2ui-soft-range" data-style="' + tmp.style + '"' +
                             '   style="'+ tmp.style +'; left: '+ tmp.left +'px; top: '+ tmp.top +'px; width: '+ tmp.width +'px">'+ 
                                 tmp.html +
-                            '</div>')
+                            '</div>');
                     $(obj.box).find('#'+id).css(css);
                 }
                 $(this).find('>div').css('opacity', 0);
@@ -3153,7 +3153,7 @@ w2utils.event = {
                     }
                 }
             } else {
-                // normalize for perforamce
+                // normalize for performance
                 var new_sel = {};
                 for (var a = 0; a < arguments.length; a++) {
                     var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
@@ -4114,12 +4114,12 @@ w2utils.event = {
                 for (var s in changes[c]) {
                     if (s == 'recid') continue; // do not allow to change recid
                     if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
-                    try { 
-			if (s.indexOf('.') != -1) {
-				eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
-			} else {
-				record[s] = changes[c][s];
-			};
+                    try {
+                        if (s.indexOf('.') != -1) {
+                            eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
+                        } else {
+                            record[s] = changes[c][s];
+                        }
                     } catch (e) {
                         console.log('ERROR: Cannot merge. ', e.message || '', e);
                     }
@@ -4208,7 +4208,7 @@ w2utils.event = {
             if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
                 addStyle += 'text-align: right;';
             }
-            // mormalize items
+            // normalize items
             if (edit.items.length > 0 && !$.isPlainObject(edit.items[0])) {
                 edit.items = w2obj.field.prototype.normMenu(edit.items);
             }
@@ -4308,73 +4308,78 @@ w2utils.event = {
                         document.execCommand("insertHTML", false, text);
                     })
                     .on('keydown', function (event) {
-                        switch (event.keyCode) {
-                            case 9:  // tab
-                                var next_rec = recid;
-                                var next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true);
-                                // next or prev row
-                                if (next_col == null) {
-                                    var tmp = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
-                                    if (tmp != null && tmp != index) {
-                                        next_rec = obj.records[tmp].recid;
-                                        // find first editable row
-                                        for (var c = 0; c < obj.columns.length; c++) {
-                                            var tmp = obj.columns[c].editable;
-                                            if (tmp != null && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
-                                                next_col = parseInt(c);
-                                                if (!event.shiftKey) break;
+                        var el = this;
+                        if (event.keyCode == 9) event.preventDefault();
+                        // need timeout so, this handler is executed last
+                        setTimeout( function () {
+                            switch (event.keyCode) {
+                                case 9:  // tab
+                                    var next_rec = recid;
+                                    var next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true);
+                                    // next or prev row
+                                    if (next_col == null) {
+                                        var tmp = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
+                                        if (tmp != null && tmp != index) {
+                                            next_rec = obj.records[tmp].recid;
+                                            // find first editable row
+                                            for (var c = 0; c < obj.columns.length; c++) {
+                                                var tmp = obj.columns[c].editable;
+                                                if (tmp != null && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
+                                                    next_col = parseInt(c);
+                                                    if (!event.shiftKey) break;
+                                                }
                                             }
                                         }
-                                    }
 
-                                }
-                                if (next_rec === false) next_rec = recid;
-                                if (next_col == null) next_col = column;
-                                // init new or same record
-                                this.blur();
-                                setTimeout(function () {
-                                    if (obj.selectType != 'row') {
-                                        obj.selectNone();
-                                        obj.select({ recid: next_rec, column: next_col });
-                                    } else {
-                                        obj.editField(next_rec, next_col, null, event);
                                     }
-                                }, 1);
-                                if (event.preventDefault) event.preventDefault();
-                                break;
-
-                            case 13: // enter
-                                this.blur();
-                                var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
-                                if (next != null && next != index) {
+                                    if (next_rec === false) next_rec = recid;
+                                    if (next_col == null) next_col = column;
+                                    // init new or same record
+                                    el.blur();
                                     setTimeout(function () {
                                         if (obj.selectType != 'row') {
                                             obj.selectNone();
-                                            obj.select({ recid: obj.records[next].recid, column: column });
+                                            obj.select({ recid: next_rec, column: next_col });
                                         } else {
-                                            obj.editField(obj.records[next].recid, column, null, event);
+                                            obj.editField(next_rec, next_col, null, event);
                                         }
                                     }, 1);
-                                }
-                                if (this.tagName == 'DIV') {
-                                    event.preventDefault();
-                                }
-                                break;
+                                    if (event.preventDefault) event.preventDefault();
+                                    break;
 
-                            case 27: // escape
-                                var old = obj.parseField(rec, col.field);
-                                if (rec.changes && rec.changes[col.field] != null) old = rec.changes[col.field];
-                                if (this.tagName == 'DIV') {
-                                    $(this).text(old != null ? old : '');
-                                } else {
-                                    this.value = old != null ? old : '';
-                                }
-                                this.blur();
-                                setTimeout(function () { obj.select({ recid: recid, column: column }); }, 1);
-                                break;
-                        }
-                        // if input too small - expand
-                        expand.call(this, event);
+                                case 13: // enter
+                                    el.blur();
+                                    var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
+                                    if (next != null && next != index) {
+                                        setTimeout(function () {
+                                            if (obj.selectType != 'row') {
+                                                obj.selectNone();
+                                                obj.select({ recid: obj.records[next].recid, column: column });
+                                            } else {
+                                                obj.editField(obj.records[next].recid, column, null, event);
+                                            }
+                                        }, 1);
+                                    }
+                                    if (el.tagName == 'DIV') {
+                                        event.preventDefault();
+                                    }
+                                    break;
+
+                                case 27: // escape
+                                    var old = obj.parseField(rec, col.field);
+                                    if (rec.changes && rec.changes[col.field] != null) old = rec.changes[col.field];
+                                    if (el.tagName == 'DIV') {
+                                        $(el).text(old != null ? old : '');
+                                    } else {
+                                        el.value = old != null ? old : '';
+                                    }
+                                    el.blur();
+                                    setTimeout(function () { obj.select({ recid: recid, column: column }); }, 1);
+                                    break;
+                            }
+                            // if input too small - expand
+                            expand.call(el, event);
+                        }, 1);
                     })
                     .on('keyup', function (event) { 
                         expand.call(this, event); 
@@ -4459,7 +4464,10 @@ w2utils.event = {
                 new_val = tmp.clean(new_val);
                 if (tmp.type == 'list' && new_val != '') new_val = $(el).data('selected');
             }
-            if (el.type == 'checkbox') new_val = el.checked;
+            if (el.type == 'checkbox') {
+                if (rec.editable === false) el.checked = !el.checked;
+                new_val = el.checked;
+            }
             // change/restore event
             var eventData = {
                 phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
@@ -4501,7 +4509,7 @@ w2utils.event = {
                 break;
             }
             // refresh cell
-            var cell = $(tr).find('[col='+ column +']')
+            var cell = $(tr).find('[col='+ column +']');
             if (!summary) {
                 if (rec.changes && rec.changes[col.field] != null) {
                     cell.addClass('w2ui-changed');
@@ -6282,7 +6290,7 @@ w2utils.event = {
                 _dragData.pressed = false;
                 _dragData.timeout = null;_dragData.columnHead = null;
 
-            //attach orginal event listener
+            //attach original event listener
             $(obj.box).on('mousedown', dragColStart);
             $(obj.box).on('mouseup', catchMouseup);
 
@@ -9500,10 +9508,10 @@ w2utils.event = {
 * == 1.5 changes
 *   - new: resizeMessages()
 *   - popup can be moved/resized/closed when locked or has messages
-*   - messages negative widht/height means margin
+*   - messages negative width/height means margin
 *   - added btn_yes and btn_no
 *   - dismissed message will slide up - added parameter unlock(speed)
-*   - refactore -webkit-* -moz-* to a function
+*   - refactor -webkit-* -moz-* to a function
 *   - resize nested elements in popup for onMin, onMax
 *   - rename btn -> w2ui-btn and same for colored ones
 *   - added options.body and options.buttons for w2popup.message
@@ -9573,7 +9581,7 @@ var w2popup = {};
     };
 
     // ====================================================
-    // -- Implementation of core functionality (SINGELTON)
+    // -- Implementation of core functionality (SINGLETON)
 
     w2popup = {
         defaults: {
@@ -10123,11 +10131,11 @@ var w2popup = {};
             var sel = 'input:visible, button:visible, select:visible, textarea:visible';
             // clear previous blur
             $(pop).find(sel).off('.keep-focus');
-            // in messar or popup
+            // in message or popup
             var cnt = $('#w2ui-popup .w2ui-popup-message').length - 1;
             var msg = $('#w2ui-popup #w2ui-message' + cnt);
             if (msg.length > 0) {
-                var btn =$(msg[msg.length - 1]).find('button')
+                var btn =$(msg[msg.length - 1]).find('button');
                 if (btn.length > 0) btn[0].focus();
                 tmp = msg;
             } else if (pop.length > 0) {
@@ -10295,7 +10303,7 @@ var w2popup = {};
             var body     = options.body;
             var buttons  = options.buttons;
             if (w2popup._prev) {
-                template = w2popup._prev.template
+                template = w2popup._prev.template;
                 title    = w2popup._prev.title;
                 body     = w2popup._prev.body;
                 buttons  = w2popup._prev.buttons;
@@ -11452,7 +11460,7 @@ var w2confirm = function (msg, title, callBack) {
             var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
             if (eventData.isCancelled === true) return;
 
-            // intentionaly blank
+            // intentionally blank
 
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -11656,7 +11664,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
 *   - reorder with dgrag and drop
-*   - node.style is missleading - should be there to apply color for example
+*   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
 *   - add renderer for the node
 *
@@ -11771,7 +11779,7 @@ var w2confirm = function (msg, title, callBack) {
             // internal
             parent          : null,         // node object
             sidebar         : null,
-            render          : null,         // custom render function(node)    
+            render          : null          // custom render function(node)
         },
 
         add: function (parent, nodes) {
@@ -12615,6 +12623,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - modified clearCache()
 *   - changed onSearch - happens when search input changes
 *   - added options.method - for combo/list/enum if url is defined
+*   - options.items can be a function now
 *
 ************************************************************************/
 
@@ -12719,7 +12728,7 @@ var w2confirm = function (msg, title, callBack) {
             $(this.el).on('blur', function (event)  { // keyCode & charCode differ in FireFox
                 var ch = this.value;
                 if (ch != 'a' && ch != 'b' && ch != 'c') {
-                    $(this).w2tag(w2utils.lang("Not a single charecter from the set of 'abc'"));
+                    $(this).w2tag(w2utils.lang("Not a single character from the set of 'abc'"));
                 }
             });
         });
@@ -12849,10 +12858,10 @@ var w2confirm = function (msg, title, callBack) {
                         start       : '',       // string or jquery object or Date object
                         end         : '',       // string or jquery object or Date object
                         blocked     : [],       // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
-                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formated with w2utils.settings.date_format
+                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formatted with w2utils.settings.date_format
                         placeholder : null,     // optional. will fall back to this.format if not specified. Only used if this.el has no placeholder attribute.
                         format_mjs  : 'M/D/YYYY HH:mm', // date format for moment.js, should be equal to "this.format" translated to ISO 8601, see http://momentjs.com/docs/#/parsing/string-format
-                        btn_now     : true,     // show/hide the use-current-date-and-time button
+                        btn_now     : true      // show/hide the use-current-date-and-time button
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
@@ -13125,7 +13134,7 @@ var w2confirm = function (msg, title, callBack) {
             var time      = (new Date()).getTime();
             // enum
             if (['list'].indexOf(this.type) != -1) {
-                $(obj.el).parent().css('white-space', 'nowrap'); // needs this for arrow alway to appear on the right side
+                $(obj.el).parent().css('white-space', 'nowrap'); // needs this for arrow always to appear on the right side
                 // hide focus and show text
                 if (obj.helpers.prefix) obj.helpers.prefix.hide();
                 setTimeout(function () {
@@ -13140,7 +13149,7 @@ var w2confirm = function (msg, title, callBack) {
                         options.prefix = '';
                         obj.addPrefix();
                     }
-                    // focus helpder
+                    // focus helper
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
@@ -13917,7 +13926,7 @@ var w2confirm = function (msg, title, callBack) {
                     focus.width(((focus.val().length + 2) * 8) + 'px');
                 }
                 // run search
-                if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refresh on crtl, shift, left/right arrows, etc
                     // run search
                     setTimeout(function () {
                         // trigger event
@@ -14644,7 +14653,7 @@ var w2confirm = function (msg, title, callBack) {
                     obj.helpers.arrows = helper;
                 }
                 if (obj.options.suffix !== '') {
-                    // remove if already displaed
+                    // remove if already displayed
                     if (obj.helpers.suffix) $(obj.helpers.suffix).remove();
                     // add fresh
                     $(obj.el).after(
@@ -14956,6 +14965,8 @@ var w2confirm = function (msg, title, callBack) {
                     }
                 }
                 return menu;
+            } else if (typeof menu == 'function') {
+                return this.normMenu(menu());    
             } else if (typeof menu == 'object') {
                 var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });
@@ -16328,7 +16339,7 @@ var w2confirm = function (msg, title, callBack) {
             }
             // attach to resize event
             if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
-                this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+                this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
             setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer

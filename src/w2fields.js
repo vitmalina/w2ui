@@ -32,6 +32,7 @@
 *   - modified clearCache()
 *   - changed onSearch - happens when search input changes
 *   - added options.method - for combo/list/enum if url is defined
+*   - options.items can be a function now
 *
 ************************************************************************/
 
@@ -2373,6 +2374,8 @@
                     }
                 }
                 return menu;
+            } else if (typeof menu == 'function') {
+                return this.normMenu(menu());    
             } else if (typeof menu == 'object') {
                 var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });

@@ -2362,73 +2362,78 @@
                         document.execCommand("insertHTML", false, text);
                     })
                     .on('keydown', function (event) {
-                        switch (event.keyCode) {
-                            case 9:  // tab
-                                var next_rec = recid;
-                                var next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true);
-                                // next or prev row
-                                if (next_col == null) {
-                                    var tmp = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
-                                    if (tmp != null && tmp != index) {
-                                        next_rec = obj.records[tmp].recid;
-                                        // find first editable row
-                                        for (var c = 0; c < obj.columns.length; c++) {
-                                            var tmp = obj.columns[c].editable;
-                                            if (tmp != null && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
-                                                next_col = parseInt(c);
-                                                if (!event.shiftKey) break;
+                        var el = this;
+                        if (event.keyCode == 9) event.preventDefault();
+                        // need timeout so, this handler is executed last
+                        setTimeout( function () {
+                            switch (event.keyCode) {
+                                case 9:  // tab
+                                    var next_rec = recid;
+                                    var next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true);
+                                    // next or prev row
+                                    if (next_col == null) {
+                                        var tmp = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
+                                        if (tmp != null && tmp != index) {
+                                            next_rec = obj.records[tmp].recid;
+                                            // find first editable row
+                                            for (var c = 0; c < obj.columns.length; c++) {
+                                                var tmp = obj.columns[c].editable;
+                                                if (tmp != null && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
+                                                    next_col = parseInt(c);
+                                                    if (!event.shiftKey) break;
+                                                }
                                             }
                                         }
-                                    }
 
-                                }
-                                if (next_rec === false) next_rec = recid;
-                                if (next_col == null) next_col = column;
-                                // init new or same record
-                                this.blur();
-                                setTimeout(function () {
-                                    if (obj.selectType != 'row') {
-                                        obj.selectNone();
-                                        obj.select({ recid: next_rec, column: next_col });
-                                    } else {
-                                        obj.editField(next_rec, next_col, null, event);
                                     }
-                                }, 1);
-                                if (event.preventDefault) event.preventDefault();
-                                break;
-
-                            case 13: // enter
-                                this.blur();
-                                var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
-                                if (next != null && next != index) {
+                                    if (next_rec === false) next_rec = recid;
+                                    if (next_col == null) next_col = column;
+                                    // init new or same record
+                                    el.blur();
                                     setTimeout(function () {
                                         if (obj.selectType != 'row') {
                                             obj.selectNone();
-                                            obj.select({ recid: obj.records[next].recid, column: column });
+                                            obj.select({ recid: next_rec, column: next_col });
                                         } else {
-                                            obj.editField(obj.records[next].recid, column, null, event);
+                                            obj.editField(next_rec, next_col, null, event);
                                         }
                                     }, 1);
-                                }
-                                if (this.tagName == 'DIV') {
-                                    event.preventDefault();
-                                }
-                                break;
+                                    if (event.preventDefault) event.preventDefault();
+                                    break;
 
-                            case 27: // escape
-                                var old = obj.parseField(rec, col.field);
-                                if (rec.changes && rec.changes[col.field] != null) old = rec.changes[col.field];
-                                if (this.tagName == 'DIV') {
-                                    $(this).text(old != null ? old : '');
-                                } else {
-                                    this.value = old != null ? old : '';
-                                }
-                                this.blur();
-                                setTimeout(function () { obj.select({ recid: recid, column: column }); }, 1);
-                                break;
-                        }
-                        // if input too small - expand
-                        expand.call(this, event);
+                                case 13: // enter
+                                    el.blur();
+                                    var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
+                                    if (next != null && next != index) {
+                                        setTimeout(function () {
+                                            if (obj.selectType != 'row') {
+                                                obj.selectNone();
+                                                obj.select({ recid: obj.records[next].recid, column: column });
+                                            } else {
+                                                obj.editField(obj.records[next].recid, column, null, event);
+                                            }
+                                        }, 1);
+                                    }
+                                    if (el.tagName == 'DIV') {
+                                        event.preventDefault();
+                                    }
+                                    break;
+
+                                case 27: // escape
+                                    var old = obj.parseField(rec, col.field);
+                                    if (rec.changes && rec.changes[col.field] != null) old = rec.changes[col.field];
+                                    if (el.tagName == 'DIV') {
+                                        $(el).text(old != null ? old : '');
+                                    } else {
+                                        el.value = old != null ? old : '';
+                                    }
+                                    el.blur();
+                                    setTimeout(function () { obj.select({ recid: recid, column: column }); }, 1);
+                                    break;
+                            }
+                            // if input too small - expand
+                            expand.call(el, event);
+                        }, 1);
                     })
                     .on('keyup', function (event) { 
                         expand.call(this, event); 
@@ -2513,7 +2518,10 @@
                 new_val = tmp.clean(new_val);
                 if (tmp.type == 'list' && new_val != '') new_val = $(el).data('selected');
             }
-            if (el.type == 'checkbox') new_val = el.checked;
+            if (el.type == 'checkbox') {
+                if (rec.editable === false) el.checked = !el.checked;
+                new_val = el.checked;
+            }
             // change/restore event
             var eventData = {
                 phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
@@ -5887,7 +5895,10 @@
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             // render TR
             rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
+                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + 
+                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + 
+                    (record.editable === false ? ' w2ui-no-edit' : '') +
+                    (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick($(this).attr(\'recid\'), event);"'
@@ -5906,7 +5917,10 @@
                     ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
                 '>';
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
+                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + 
+                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + 
+                    (record.editable === false ? ' w2ui-no-edit' : '') +
+                    (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick($(this).attr(\'recid\'), event);"'

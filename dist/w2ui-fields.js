@@ -41,7 +41,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added w2utils.settings.weekStarts
 *   - onComplete should pass widget as context (this)
 *   - hidden and disabled in menus
-*   - added menu.item.tooltip for overlay menues
+*   - added menu.item.tooltip for overlay menus
 *   - added w2tag options.id, options.left, options.top
 *   - added w2tag options.position = top|bottom|left|right - default is right
 *   - added $().w2color(color, callBack) 
@@ -73,7 +73,7 @@ var w2utils = (function () {
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
-            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, RESTFULLJSON, JSON (case sensative)
+            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "phrases"           : {},       // empty object for english phrases
             "dateStartYear"     : 1950,     // start year for date-picker
             "dateEndYear"       : 2020      // end year for date picker
@@ -374,14 +374,14 @@ var w2utils = (function () {
             .replace(/yyyy/g, year)
             .replace(/yyy/g, year)
             .replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
-            .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceded by a letter
             .replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
             .replace(/dd/g, (date < 10 ? '0' : '') + date)
             .replace(/th/g, (date == 1 ? 'st' : 'th'))
             .replace(/th/g, (date == 2 ? 'nd' : 'th'))
             .replace(/th/g, (date == 3 ? 'rd' : 'th'))
-            .replace(/(^|[^a-z$])m/g, '$1' + (month + 1))     // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])d/g, '$1' + date);           // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])m/g, '$1' + (month + 1))     // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])d/g, '$1' + date);           // only y's that are not preceded by a letter
     }
 
     function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
@@ -421,9 +421,9 @@ var w2utils = (function () {
             .replace('mm', min)
             .replace('mi', min)
             .replace('ss', sec)
-            .replace(/(^|[^a-z$])h/g, '$1' + hour)    // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])m/g, '$1' + min)     // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])s/g, '$1' + sec);    // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])h/g, '$1' + hour)    // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])m/g, '$1' + min)     // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])s/g, '$1' + sec);    // only y's that are not preceded by a letter
     }
 
     function formatDateTime(dateStr, format) {
@@ -1253,7 +1253,7 @@ w2utils.event = {
         var obj  = this;
         var name = '';
         var defaults = {
-            name        : null,      // it not null, then allows multiple concurent overlays
+            name        : null,      // it not null, then allows multiple concurrent overlays
             html        : '',        // html text to display
             align       : 'none',    // can be none, left, right, both
             left        : 0,         // offset left
@@ -1624,7 +1624,7 @@ w2utils.event = {
                 $el.parent().find('tr').removeClass('w2ui-selected');
                 $el.addClass('w2ui-selected');
                 $.fn.w2menuTmp = $el;
-            }
+            };
             $.fn.w2menuOut = function (event, index) {
                 var $tmp = $($.fn.w2menuTmp);
                 if ($tmp.length > 0) {
@@ -1632,7 +1632,7 @@ w2utils.event = {
                     $tmp.find('.w2ui-icon').removeClass('w2ui-icon-check');
                     delete $.fn.w2menuTmp;
                 }
-            }
+            };
             var html = '';
             if (options.search) {
                 html +=
@@ -1978,6 +1978,7 @@ w2utils.event = {
 *   - modified clearCache()
 *   - changed onSearch - happens when search input changes
 *   - added options.method - for combo/list/enum if url is defined
+*   - options.items can be a function now
 *
 ************************************************************************/
 
@@ -2082,7 +2083,7 @@ w2utils.event = {
             $(this.el).on('blur', function (event)  { // keyCode & charCode differ in FireFox
                 var ch = this.value;
                 if (ch != 'a' && ch != 'b' && ch != 'c') {
-                    $(this).w2tag(w2utils.lang("Not a single charecter from the set of 'abc'"));
+                    $(this).w2tag(w2utils.lang("Not a single character from the set of 'abc'"));
                 }
             });
         });
@@ -2212,10 +2213,10 @@ w2utils.event = {
                         start       : '',       // string or jquery object or Date object
                         end         : '',       // string or jquery object or Date object
                         blocked     : [],       // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
-                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formated with w2utils.settings.date_format
+                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formatted with w2utils.settings.date_format
                         placeholder : null,     // optional. will fall back to this.format if not specified. Only used if this.el has no placeholder attribute.
                         format_mjs  : 'M/D/YYYY HH:mm', // date format for moment.js, should be equal to "this.format" translated to ISO 8601, see http://momentjs.com/docs/#/parsing/string-format
-                        btn_now     : true,     // show/hide the use-current-date-and-time button
+                        btn_now     : true      // show/hide the use-current-date-and-time button
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
@@ -2488,7 +2489,7 @@ w2utils.event = {
             var time      = (new Date()).getTime();
             // enum
             if (['list'].indexOf(this.type) != -1) {
-                $(obj.el).parent().css('white-space', 'nowrap'); // needs this for arrow alway to appear on the right side
+                $(obj.el).parent().css('white-space', 'nowrap'); // needs this for arrow always to appear on the right side
                 // hide focus and show text
                 if (obj.helpers.prefix) obj.helpers.prefix.hide();
                 setTimeout(function () {
@@ -2503,7 +2504,7 @@ w2utils.event = {
                         options.prefix = '';
                         obj.addPrefix();
                     }
-                    // focus helpder
+                    // focus helper
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() == '') {
                         $(focus).css('opacity', 0).prev().css('opacity', 0);
@@ -3280,7 +3281,7 @@ w2utils.event = {
                     focus.width(((focus.val().length + 2) * 8) + 'px');
                 }
                 // run search
-                if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refresh on crtl, shift, left/right arrows, etc
                     // run search
                     setTimeout(function () {
                         // trigger event
@@ -4007,7 +4008,7 @@ w2utils.event = {
                     obj.helpers.arrows = helper;
                 }
                 if (obj.options.suffix !== '') {
-                    // remove if already displaed
+                    // remove if already displayed
                     if (obj.helpers.suffix) $(obj.helpers.suffix).remove();
                     // add fresh
                     $(obj.el).after(
@@ -4319,6 +4320,8 @@ w2utils.event = {
                     }
                 }
                 return menu;
+            } else if (typeof menu == 'function') {
+                return this.normMenu(menu());    
             } else if (typeof menu == 'object') {
                 var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });
