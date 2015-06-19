@@ -70,6 +70,10 @@
         "not in": "enthält nicht",
         "begins": "beginnt mit",
         "ends": "endet mit",
-        "Cancel": "Abbrechen"        
+        "Cancel": "Abbrechen",
+        "selected": "ausgewählt",
+        "Record ID": "Zeilen ID",
+        "Skip": "Überspringe",
+        "Records": "Zeilen"
     }
 }
