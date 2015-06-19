@@ -6130,7 +6130,7 @@
                            '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                            '">';
                 }
-                if (!this.show.recordTitles) {
+                if (this.show.recordTitles) {
                     // title overwrite
                     var title = w2utils.stripTags(String(data).replace(/"/g, "''"));
                     if (col.title != null) {
@@ -6138,7 +6138,7 @@
                         if (typeof col.title == 'string')   title = col.title;
                     }
                 }
-                data = '<div style="'+ style +'" title="'+ title +'">'+ data +'</div>';
+                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ data +'</div>';
             }
             if (data == null) data = '';
             return data;
