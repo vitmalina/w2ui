@@ -4280,9 +4280,9 @@
                             '<table><tr>'+
                             '<td style="width: 30px">'+
                             '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabindex="-1" '+ (obj.show.lineNumbers ? 'checked' : '') +
-                            '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
+                            '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');">'+
                             '</td>'+
-                            '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(document).click();">'+
+                            '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
                             '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
                             '</td></tr>';
             for (var c = 0; c < this.columns.length; c++) {
@@ -4294,9 +4294,9 @@
                 col_html += '<tr>'+
                     '<td style="width: 30px">'+
                     '    <input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabindex="-1" '+ (col.hidden ? '' : 'checked') +
-                    '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');">'+
+                    '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');">'+
                     '</td>'+
-                    '<td>'+
+                    '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
                     '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ tmp +    '</label>'+
                     '</td>'+
                     '</tr>';
@@ -4310,7 +4310,7 @@
                         '        <input type="text" style="width: 45px" value="'+ this.offset +'" '+
                         '            onkeypress="if (event.keyCode == 13) { '+
                         '               w2ui[\''+ obj.name +'\'].skip(this.value); '+
-                        '               $(document).click(); '+
+                        '               $(\'.w2ui-overlay\')[0].hide(); '+
                         '            }"> '+ w2utils.lang('Records')+
                         '    </div>'+
                         '</td></tr>';
