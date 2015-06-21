@@ -411,7 +411,6 @@ test( "w2utils.isTime()", function() {
         '03:45:11 AM'   : true,
         '24:00:11'      : false,
         '14:26:43 PM'   : false
-        
     };
     ok( w2utils.isTime() === false,             "- no argument -" );
     ok( w2utils.isTime('') === false,           "- blank -" );
