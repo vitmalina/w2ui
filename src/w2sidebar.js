@@ -740,7 +740,7 @@
                 // set focus to grid
                 setTimeout(function () {
                     // if input then do not focus
-                    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1) {
+                    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1) {
                         var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
                         if (!$input.is(':focus')) $input.focus();
                     }

@@ -1066,7 +1066,7 @@
                 // find new cell
                 var recid, column;
                 var tmp = event.originalEvent.target;
-                if (tmp.tagName != 'TD') tmp = $(tmp).parents('td')[0];
+                if (tmp.tagName.toUpperCase() != 'TD') tmp = $(tmp).parents('td')[0];
                 if ($(tmp).attr('col') != null) column = parseInt($(tmp).attr('col'));
                 tmp = $(tmp).parents('tr')[0];
                 recid = $(tmp).attr('recid');
@@ -2414,7 +2414,7 @@
                                             }
                                         }, 1);
                                     }
-                                    if (el.tagName == 'DIV') {
+                                    if (el.tagName.toUpperCase() == 'DIV') {
                                         event.preventDefault();
                                     }
                                     break;
@@ -2422,7 +2422,7 @@
                                 case 27: // escape
                                     var old = obj.parseField(rec, col.field);
                                     if (rec.changes && rec.changes[col.field] != null) old = rec.changes[col.field];
-                                    if (el.tagName == 'DIV') {
+                                    if (el.tagName.toUpperCase() == 'DIV') {
                                         $(el).text(old != null ? old : '');
                                     } else {
                                         el.value = old != null ? old : '';
@@ -2469,7 +2469,7 @@
 
             function expand(event) {
                 try {
-                    var val   = (this.tagName == 'DIV' ? $(this).text() : this.value);
+                    var val   = (this.tagName.toUpperCase() == 'DIV' ? $(this).text() : this.value);
                     var $sel  = $('#grid_'+ obj.name + '_editable');
                     var style = 'font-family: '+ $(this).css('font-family') + '; font-size: '+ $(this).css('font-size') + ';';
                     var width = w2utils.getStrWidth(val, style);
@@ -2511,7 +2511,7 @@
             var rec     = records[index];
             var col     = this.columns[column];
             var tr      = $('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid));
-            var new_val = (el.tagName == 'DIV' ? $(el).text() : el.value);
+            var new_val = (el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value);
             var old_val = this.parseField(rec, col.field);
             var tmp     = $(el).data('w2field');
             if (tmp) {
@@ -2661,7 +2661,7 @@
             // column user clicked on
             if (column == null && event.target) {
                 var tmp = event.target;
-                if (tmp.tagName != 'TD') tmp = $(tmp).parents('td')[0];
+                if (tmp.tagName.toUpperCase() != 'TD') tmp = $(tmp).parents('td')[0];
                 if ($(tmp).attr('col') != null) column = parseInt($(tmp).attr('col'));
             }
             // event before
@@ -3337,7 +3337,7 @@
             // column user clicked on
             if (column == null && event.target) {
                 var tmp = event.target;
-                if (tmp.tagName != 'TD') tmp = $(tmp).parents('td')[0];
+                if (tmp.tagName.toUpperCase() != 'TD') tmp = $(tmp).parents('td')[0];
                 column = parseInt($(tmp).attr('col'));
             }
             // event before
@@ -3369,7 +3369,7 @@
                 if (sel.indexOf(recid) == -1) obj.click(recid);
             } else {
                 var $tmp = $(event.target);
-                if ($tmp[0].tagName != 'TD') $tmp = $(event.target).parents('td');
+                if ($tmp[0].tagName.toUpperCase() != 'TD') $tmp = $(event.target).parents('td');
                 var selected = false;
                 column = $tmp.attr('col');
                 // check if any selected sel in the right row/column
@@ -4001,7 +4001,7 @@
                     if (!$input.is(':focus')) $input.focus();
                     // if toolbar input is clicked
                     setTimeout(function () {
-                        if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName) != -1) $(target).focus();
+                        if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) $(target).focus();
                     }, 50);
                 }, 1);
 
@@ -4028,7 +4028,7 @@
                         divX   : 0,
                         divY   : 0,
                         recid  : $(event.target).parents('tr').attr('recid'),
-                        column : parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col')),
+                        column : parseInt(event.target.tagName.toUpperCase() == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col')),
                         type   : 'select',
                         ghost  : false,
                         start  : true
@@ -4036,7 +4036,7 @@
                 }
                 if (obj.reorderRows == true) {
                     var el = event.target;
-                    if (el.tagName != 'TD') el = $(el).parents('td')[0];
+                    if (el.tagName.toUpperCase() != 'TD') el = $(el).parents('td')[0];
                     if ($(el).hasClass('w2ui-col-number')) {
                         obj.selectNone();
                         obj.last.move.reorder = true;
@@ -4111,7 +4111,7 @@
                     mv.start = false;
                 }
                 var newSel= [];
-                var recid = (event.target.tagName == 'TR' ? $(event.target).attr('recid') : $(event.target).parents('tr').attr('recid'));
+                var recid = (event.target.tagName.toUpperCase() == 'TR' ? $(event.target).attr('recid') : $(event.target).parents('tr').attr('recid'));
                 if (recid == null) {
                     // select by dragging columns
                     if (obj.selectType == 'row') return;
@@ -4155,7 +4155,7 @@
                     // this happens when selection is extended into summary row (a good place to implement scrolling)
                     if (ind2 == null) return;
                     var col1 = parseInt(mv.column);
-                    var col2 = parseInt(event.target.tagName == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
+                    var col2 = parseInt(event.target.tagName.toUpperCase() == 'TD' ? $(event.target).attr('col') : $(event.target).parents('td').attr('col'));
                     if (isNaN(col1) && isNaN(col2)) { // line number select entire record
                         col1 = 0;
                         col2 = obj.columns.length-1;
