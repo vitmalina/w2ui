@@ -331,9 +331,9 @@
             }
             if (!this.box) return false;
             // render all buttons
-            var html =    '<table cellspacing="0" cellpadding="1" width="100%">'+
+            var html =    '<table cellspacing="0" cellpadding="1" width="100%"><tbody>'+
                         '    <tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
-                        '</table>';
+                        '</tbody></table>';
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-tabs')
@@ -439,11 +439,11 @@
             // measure width
             if (tab.text == null && tab.caption != null) tab.text = tab.caption;
             var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
-                '<table cellspacing="0" cellpadding="1" width="100%"><tr>'+
+                '<table cellspacing="0" cellpadding="1" width="100%"><tbody><tr>'+
                 '<td id="_tmp_simple_tab" style="" valign="middle">'+
                     (tab.closable ? '<div class="w2ui-tab-close"></div>' : '') +
                 '    <div class="w2ui-tab '+ (this.active === tab.id ? 'active' : '') +'">'+ tab.text +'</div>'+
-                '</td></tr></table>'+
+                '</td></tr></tbody></table>'+
                 '</div>';
             $('body').append(tmp);
             // create dummy element

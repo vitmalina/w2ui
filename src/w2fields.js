@@ -697,14 +697,14 @@
                             var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
                             var td2 = 'style="padding: 3px"';
                             preview += '<div style="padding: 8px;">'+
-                                '    <table cellpadding="2">'+
+                                '    <table cellpadding="2"><tbody>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Name') +':</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Size') +':</td><td '+ td2 +'>'+ w2utils.formatSize(item.size) +'</td></tr>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Type') +':</td><td '+ td2 +'>' +
-                                '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ item.type +'</span>'+
+                                '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap="nowrap";">'+ item.type +'</span>'+
                                 '    </td></tr>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Modified') +':</td><td '+ td2 +'>'+ w2utils.date(item.modified) +'</td></tr>'+
-                                '    </table>'+
+                                '    </tbody></table>'+
                                 '</div>';
                             $('#w2ui-overlay').remove();
                             $(target).w2overlay(preview);
@@ -2114,8 +2114,8 @@
             var html =
                 '<div class="w2ui-field-helper">'+
                 '    <div class="w2ui-icon icon-search" style="opacity: 0"></div>'+
-                '    <input type="text" autocomplete="off" tabIndex="'+ tabIndex +'">'+
-                '<div>';
+                '    <input type="text" autocomplete="off" tabIndex="'+ tabIndex +'"/>'+
+                '</div>';
             $(obj.el).attr('tabindex', -1).before(html);
             var helper = $(obj.el).prev();
             obj.helpers.focus = helper;
@@ -2195,7 +2195,7 @@
                         '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
+                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '/>'+
                         '        </li>'+
                         '    </ul>'+
                         '    </div>'+
@@ -2204,7 +2204,7 @@
             if (obj.type == 'file') {
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '   <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">'+
-                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1">'+
+                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1"/>'+
                         '   </div>'+
                         '    <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
@@ -2416,7 +2416,7 @@
                 '    <div class="w2ui-calendar-next next"> <div></div> </div> '+
                         months[month-1] +', '+ year +
                 '</div>'+
-                '<table class="w2ui-calendar-days" cellspacing="0">'+
+                '<table class="w2ui-calendar-days" cellspacing="0"><tbody>'+
                 '    <tr class="w2ui-day-title">' + dayTitle + '</tr>'+
                 '    <tr>';
 
@@ -2467,7 +2467,7 @@
                 if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';
                 day++;
             }
-            html += '</tr></table>';
+            html += '</tr></tbody></table>';
             return html;
         },
 
@@ -2500,11 +2500,11 @@
                 tmp[Math.floor(a/8)] += '<div class="'+ ((this.type === 'datetime') || this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
             }
             var html =
-                '<div class="w2ui-calendar-time"><table><tr>'+
+                '<div class="w2ui-calendar-time"><table><tbody><tr>'+
                 '    <td>'+ tmp[0] +'</td>' +
                 '    <td>'+ tmp[1] +'</td>' +
                 '    <td>'+ tmp[2] +'</td>' +
-                '</tr></table></div>';
+                '</tr></tbody></table></div>';
             return html;
         },
 
@@ -2521,11 +2521,11 @@
                 tmp[ind] += '<div class="'+ ((this.type === 'datetime') || this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
             }
             var html =
-                '<div class="w2ui-calendar-time"><table><tr>'+
+                '<div class="w2ui-calendar-time"><table><tbody><tr>'+
                 '    <td>'+ tmp[0] +'</td>' +
                 '    <td>'+ tmp[1] +'</td>' +
                 '    <td>'+ tmp[2] +'</td>' +
-                '</tr></table></div>';
+                '</tr></tbody></table></div>';
             return html;
         },
 

@@ -201,7 +201,7 @@ var w2popup = {};
                           '    </div>'+
                           '</div>'+
                           '<div class="w2ui-msg-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
-                          '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px">'; // this is needed to keep focus in popup
+                          '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px"/>'; // this is needed to keep focus in popup
                 $('#w2ui-popup').html(msg);
 
                 if (options.title) $('#w2ui-popup .w2ui-msg-title').append(options.title);
