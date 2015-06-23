@@ -4643,14 +4643,14 @@
                         '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
                         '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
                         '            onfocus="clearTimeout(w2ui[\''+ this.name +'\'].last.kbd_timer);"'+
-                        '            onkeydown="if (event.keyCode == 13 && w2utils.isIE) this.onchange();"'+
+                        '            onkeydown="if (event.keyCode == 13 &amp;&amp; w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
                         '                var grid = w2ui[\''+ this.name +'\']; '+
                         '                var val = this.value; '+
                         '                var sel = $(this).data(\'selected\');'+
                         '                var fld = $(this).data(\'w2field\'); '+
                         '                if (fld) val = fld.clean(val);'+
-                        '                if (fld && fld.type == \'list\' && sel && typeof sel.id == \'undefined\') {'+
+                        '                if (fld &amp;&amp; fld.type == \'list\' &amp;&amp; sel &amp;&amp; typeof sel.id == \'undefined\') {'+
                         '                   grid.searchReset();'+
                         '                } else {'+
                         '                   grid.search(grid.last.field, val);'+
