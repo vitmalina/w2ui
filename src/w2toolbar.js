@@ -515,7 +515,7 @@
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.text == null) item.text = '';
             if (item.tooltip == null) item.tooltip = '';
-            var img  = '<td>&nbsp;</td>';
+            var img  = '<td>&#160;</td>';
             var text = item.text;
             if (typeof text == 'function') text = text.call(item);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
@@ -564,7 +564,7 @@
 
                 case 'break':
                     html += '<table cellpadding="0" cellspacing="0"><tbody><tr>'+
-                            '    <td><div class="w2ui-break">&nbsp;</div></td>'+
+                            '    <td><div class="w2ui-break">&#160;</div></td>'+
                             '</tr></tbody></table>';
                     break;
 

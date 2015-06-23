@@ -447,7 +447,7 @@
                 '</div>';
             $('body').append(tmp);
             // create dummy element
-            var tabHTML = '<div style="width: 1px; '+ w2utils.cssPrefix('transition', '.2s', true) +'">&nbsp;</div>';
+            var tabHTML = '<div style="width: 1px; '+ w2utils.cssPrefix('transition', '.2s', true) +'">&#160;</div>';
             var addStyle = '';
             if (tab.hidden) { addStyle += 'display: none;'; }
             if (tab.disabled) { addStyle += 'opacity: 0.2;'; }

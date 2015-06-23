@@ -74,7 +74,7 @@ var w2popup = {};
                     dlgOptions['buttons'] = $(this).find('div[rel=buttons]');
                 }
             } else {
-                dlgOptions['title'] = '&nbsp;';
+                dlgOptions['title'] = '&#160;';
                 dlgOptions['body']  = $(this).html();
             }
             if (parseInt($(this).css('width')) != 0)  dlgOptions['width']  = parseInt($(this).css('width'));
