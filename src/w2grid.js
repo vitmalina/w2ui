@@ -74,6 +74,8 @@
 *   - added refreshSpans
 *   - column.seachable - can be an object, which will create search
 *   - added null, not null filters and show.searchNull property
+*   - update(cells) - added argument cells
+*   - scrollIntoView(..., ..., instant) - added third argument
 *
 ************************************************************************/
 
@@ -2587,7 +2589,6 @@
         },
 
         "delete": function (force) {
-            debugger;
             var time = (new Date()).getTime();
             var obj = this;
             // event before
@@ -3280,7 +3281,7 @@
             }
         },
 
-        scrollIntoView: function (ind, column) {
+        scrollIntoView: function (ind, column, instant) {
             var buffered = this.records.length;
             if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
             if (buffered == 0) return;
@@ -3304,9 +3305,9 @@
                 // scroll to correct one
                 var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
                 var t2 = t1 + Math.floor(records.height() / this.recordHeight);
-                if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, 250, 'linear');
-                if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, 250, 'linear');
-                if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight });
+                if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, (instant === true ? 0 : 250), 'linear');
+                if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, (instant === true ? 0 : 250), 'linear');
+                if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight }, (instant === true ? 0 : 250), 'linear');
             }
 
             // horizontal
