@@ -51,6 +51,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added options.noTip for w2overlay()
 *   - added options.overlayStyle for w2overlay()
 *   - added options.selectable
+*   - added options.style for w2tag
 *
 ************************************************/
 
@@ -1151,8 +1152,8 @@ w2utils.event = {
                 // insert
                 $('body').append(
                     '<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+ 
-                    '   <div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;">'+
-                    '      <div class="w2ui-tag-body">'+ text +'</div>'+
+                    '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
+                    '      <div class="w2ui-tag-body" style="'+ (options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
                     '</div>');
 
@@ -1228,8 +1229,13 @@ w2utils.event = {
                         .data('position', posLeft + 'x' + posTop)
                         .data('timer', timer)
                         .find('.w2ui-tag-body').addClass(posClass);
-                    $(el).off('keypress', tmp_hide).on('keypress', tmp_hide).off('change', tmp_hide).on('change', tmp_hide)
-                        .css(options.css).addClass(options['class']);
+                    $(el)
+                        .off('keypress', tmp_hide)
+                        .on('keypress', tmp_hide)
+                        .off('change', tmp_hide)
+                        .on('change', tmp_hide)
+                        .css(options.css)
+                        .addClass(options['class']);
                     if (typeof options.onShow === 'function') options.onShow();
                 }, 1);
                 var originalCSS = '';
