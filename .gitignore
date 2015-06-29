@@ -1,5 +1,6 @@
 tmp/*
 node_modules/
+libs/
 *.txt
 .idea
 *.iml
