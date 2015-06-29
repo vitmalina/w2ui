@@ -936,7 +936,7 @@
                         }
                     }
                     if (['toggle', 'checkbox'].indexOf(field.type) != -1) {
-                        value_new = ($(this).prop('checked') ? true : false);
+                        value_new = ($(this).prop('checked') ? ($(this).prop('value') == 'on' ? true : $(this).prop('value')) : false);
                     }
                     // clean extra chars
                     if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {
