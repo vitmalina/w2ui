@@ -48,7 +48,7 @@
 *           statusSearch    : true,
 *   - change selectAll() and selectNone() - return time it took
 *   - added vs_start and vs_extra
-*   - added update() - updates only data in the grid
+*   - added update(cells) - updates only data in the grid (or cells)
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - record.style[field_name]
@@ -2587,6 +2587,7 @@
         },
 
         "delete": function (force) {
+            debugger;
             var time = (new Date()).getTime();
             var obj = this;
             // event before
@@ -3671,16 +3672,46 @@
             return (new Date()).getTime() - time;
         },
 
-        update: function () {
+        update: function (cells) {
             var time = (new Date()).getTime();
             if (this.box == null) return 0;
-            for (var index = this.last.range_start - 1; index <= this.last.range_end - 1; index++) {
-                if (index < 0) continue;
-                var rec = this.records[index];
-                for (var col_ind = 0; col_ind < this.columns.length; col_ind++) {
-                    var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
+            if (cells == null) {
+                for (var index = this.last.range_start - 1; index <= this.last.range_end - 1; index++) {
+                    if (index < 0) continue;
+                    var rec = this.records[index];
+                    for (var col_index = 0; col_index < this.columns.length; col_index++) {
+                        var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_index);
+                        if (!cell.hasClass('w2ui-soft-hidden')) {
+                            cell.html(this.getCellHTML(index, col_index, false));
+                        } else {
+                            cell.html('<div class="cell-value"></div>');
+                        }
+                        // assign style
+                        if (rec.style != null && !$.isEmptyObject(rec.style)) {
+                            if (typeof rec.style == 'string') {
+                                $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
+                            }
+                            if ($.isPlainObject(rec.style) && typeof rec.style[col_index] == 'string') {
+                                cell.attr('style', rec.style[col_index]);
+                            }
+                        } else {
+                            cell.attr('style', '');
+                        }
+                    }
+                }
+            } else {
+                for (var i = 0; i < cells.length; i++) {
+                    var index     = cells[i].index;
+                    var col_index = cells[i].col_index;
+                    if (index < 0) continue;
+                    if (index == null || col_index == null) {
+                        console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, col_index: Y }, ...]');
+                        continue;
+                    }
+                    var rec  = this.records[index];
+                    var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_index);
                     if (!cell.hasClass('w2ui-soft-hidden')) {
-                        cell.html(this.getCellHTML(index, col_ind, false));
+                        cell.html(this.getCellHTML(index, col_index, false));
                     } else {
                         cell.html('<div class="cell-value"></div>');
                     }
@@ -3689,8 +3720,8 @@
                         if (typeof rec.style == 'string') {
                             $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
                         }
-                        if ($.isPlainObject(rec.style) && typeof rec.style[col_ind] == 'string') {
-                            cell.attr('style', rec.style[col_ind]);
+                        if ($.isPlainObject(rec.style) && typeof rec.style[col_index] == 'string') {
+                            cell.attr('style', rec.style[col_index]);
                         }
                     } else {
                         cell.attr('style', '');
