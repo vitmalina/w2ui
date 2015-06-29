@@ -731,7 +731,7 @@
                         // generate
                         for (var i = 0; i < items.length; i++) {
                             input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
-                                '&nbsp;' + items[i].text + '</label><br>';
+                                '&#160;' + items[i].text + '</label><br/>';
                         }
                         break;
                     case 'select':
