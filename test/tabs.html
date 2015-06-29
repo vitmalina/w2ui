@@ -5,6 +5,7 @@
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script>
+//<![CDATA[
     $(function () {
         $('#tabs').w2tabs({
             name     : 'tabs',
@@ -33,10 +34,11 @@
         w2ui['tabs'].get('t2.2').text = '<div style="width: 300px">new and long</div>'; 
         w2ui['tabs'].refresh();        
     }
+//]]>
 </script>
 <body>
-    <br><br>
+    <br/><br/>
     <div id="tabs" style="padding: 15px;"></div>
-    <br>
+    <br/>
     <button class="w2ui-btn" onclick="changeTab()">Change Tab</button>
 </body>

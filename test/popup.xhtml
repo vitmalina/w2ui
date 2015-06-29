@@ -1,7 +1,9 @@
-<html>
+<?xml version='1.0'?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
 <script type="text/javascript" src="../dist/w2ui.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
@@ -255,7 +257,7 @@ $(function () {
         </div>
         <div rel="buttons">
             <button class="w2ui-btn" onclick="$('#popup2').w2popup({ transition: 'slide-left', showMax: false })" style="width: 150px">Switch to Popup 2</button>
-            <button class="w2ui-btn" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div><div style=\'position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\'><button class=\'w2ui-btn\' onclick=\'w2popup.message();\'>Close</button></div>' })">Message</button>
+            <button class="w2ui-btn" onclick="$(&apos;#popup2&apos;).w2popup(&apos;message&apos;, { html: &apos;&lt;div class=\&apos;w2ui-centered\&apos;&gt;&lt;div&gt;some text&lt;/div&gt;&lt;/div&gt;&lt;div style=\&apos;position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\&apos;&gt;&lt;button class=\&apos;w2ui-btn\&apos; onclick=\&apos;w2popup.message();\&apos;&gt;Close&lt;/button&gt;&lt;/div&gt;&apos; })">Message</button>
         </div>
     </div>
 
