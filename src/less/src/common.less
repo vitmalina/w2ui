@@ -293,7 +293,7 @@ input[type=checkbox].w2ui-toggle:focus {
         font-size: 11px;
         font-family: verdana;
         text-shadow: 1px 1px 3px #000; // for sharper text in a bubble
-        line-height: 100%;
+        line-height: 1.4;
         letter-spacing: 0.1px;
 
         &.w2ui-tag-right:before {
@@ -333,13 +333,13 @@ input[type=checkbox].w2ui-toggle:focus {
         &.w2ui-tag-top:after {
             content: "";
             position: absolute;
-            left: 12px; 
+            left: 12px;
+            bottom: -6px;
             width: 0;
             height: 0;
             border-right: 6px solid transparent;
             border-left: 6px solid transparent;
             border-top: 6px solid @bubble-tag-background-color;
-            margin: 17px 0 0;
         }
     }
     &.w2ui-tag-popup {    // if it is inside popup 

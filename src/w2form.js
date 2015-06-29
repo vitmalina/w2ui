@@ -731,7 +731,7 @@
                         // generate
                         for (var i = 0; i < items.length; i++) {
                             input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
-                                '&nbsp;' + items[i].text + '</label><br>';
+                                '&#160;' + items[i].text + '</label><br/>';
                         }
                         break;
                     case 'select':
@@ -936,7 +936,7 @@
                         }
                     }
                     if (['toggle', 'checkbox'].indexOf(field.type) != -1) {
-                        value_new = ($(this).prop('checked') ? true : false);
+                        value_new = ($(this).prop('checked') ? ($(this).prop('value') == 'on' ? true : $(this).prop('value')) : false);
                     }
                     // clean extra chars
                     if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {

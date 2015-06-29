@@ -2,10 +2,10 @@
 <html>
 <head>
     <title>W2UI Demo: combo-9</title>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.1.min.css" />
+    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="http://underscorejs.org/underscore.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.1.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>
     <script type="text/javascript" src="../src/w2utils.js"></script>
     <script type="text/javascript" src="../src/w2sidebar.js"></script>
     <script type="text/javascript" src="../src/w2popup.js"></script>
@@ -20,9 +20,10 @@
     <button class="btn" onclick="goto10()">goto 10</button>
     <button class="btn" onclick="goto99()">goto 99</button>
 </div>
-<div style="clear: both"></div>
+<div id="main" style="clear: both; width: 500px; height: 400px"></div>
 
 <script type="text/javascript">
+//<![CDATA[
 $(function () {
     var nodes = [];
     for ( var i = 0; i < 100; i++ ) {
@@ -49,6 +50,7 @@ function goto99() {
     w2ui.sidebar.select( 'node99' );
     w2ui.sidebar.scrollIntoView( 'node99' );
 }
+//]]>
 </script>
 
 </body>
