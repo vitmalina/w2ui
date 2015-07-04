@@ -2659,6 +2659,7 @@
                 return;
             }
             this.last.click_time  = time;
+            var last_recid = this.last.click_recid;
             this.last.click_recid = recid;
             // column user clicked on
             if (column == null && event.target) {
@@ -2710,7 +2711,7 @@
                     }
                     for (var c = t1; c <= t2; c++) selectColumns.push(c);
                 } else {
-                    var start = this.get(sel[0], true);
+                    var start = this.get(last_recid, true);
                     var end   = this.get(recid, true);
                 }
                 var sel_add = [];
