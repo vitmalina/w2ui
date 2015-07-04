@@ -17,13 +17,11 @@
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
-*   - row drag and drop has bugs
 *   - header filtration ?? not sure
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
 *   - send parsed URL to the event if there is routeData
 *   - if you set searchData or sortData and call refresh() it should work
-*   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *   - use column field for style: { 1: 'color: red' }
 *   - unselect fires too many times (if many is unselected, one event should fire)
 *   - add selectType: 'none' so that no selection can be make but with mouse
@@ -36,6 +34,11 @@
 *   - resize row (height)
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
+*
+* == KNOWN ISSUES ==
+*   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
+*   - row drag and drop has bugs
+*   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
