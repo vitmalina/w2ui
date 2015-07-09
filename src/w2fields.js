@@ -274,7 +274,7 @@
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
-                    if ($(this.el).attr('placeholder') == null) $(this.el).attr('placeholder', options.placeholder || options.format);
+                    if ($(this.el).attr('placeholder') == null) $(this.el).attr('placeholder', options.placeholder == '' ? '' : options.placeholder ? options.placeholder : options.format );
                     break;
 
                 case 'list':
