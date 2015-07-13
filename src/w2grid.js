@@ -76,6 +76,7 @@
 *   - added null, not null filters and show.searchNull property
 *   - update(cells) - added argument cells
 *   - scrollIntoView(..., ..., instant) - added third argument
+*   - added onResizeDblClick
 *
 ************************************************************************/
 
@@ -1038,7 +1039,13 @@
             }
 
             // add resizer events
-            $(this.box).find('.w2ui-selection-resizer').off('mousedown').on('mousedown', mouseStart);
+            $(this.box).find('.w2ui-selection-resizer')
+                .off('mousedown').on('mousedown', mouseStart)
+                .off('dblclick').on('dblclick', function (event) {
+                    var eventData = obj.trigger({ phase: 'before', type: 'resizerDblClick', target: obj.name, originalEvent: event });
+                    if (eventData.isCancelled === true) return;
+                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                });
             var eventData = { phase: 'before', type: 'selectionExtend', target: obj.name, originalRange: null, newRange: null };
 
             return (new Date()).getTime() - time;
@@ -2966,7 +2973,7 @@
                                 obj.unselect.apply(obj, unSel);
                                 obj.select.apply(obj, newSel);
                             } else {
-                                event.shiftKey = false;
+                                event.metaKey = false;
                                 obj.click({ recid: recid, column: prev }, event);
                                 obj.scrollIntoView(ind, prev);
                             }
@@ -3018,7 +3025,7 @@
                                 obj.unselect.apply(obj, unSel);
                                 obj.select.apply(obj, newSel);
                             } else {
-                                event.shiftKey = false;
+                                event.metaKey = false;
                                 obj.click({ recid: recid, column: next }, event);
                                 obj.scrollIntoView(ind, next);
                             }
@@ -3214,33 +3221,14 @@
             for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
             if (tmp.indexOf(key) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
                 if (columns.length == 0) columns.push(0);
-                var tmp = String.fromCharCode(key);
-                if (!shiftKey) tmp = tmp.toLowerCase();
-                switch (key) {
-                    case 49:  tmp = (!event.shiftKey ? '1' : '!'); break;
-                    case 50:  tmp = (!event.shiftKey ? '2' : '@'); break;
-                    case 51:  tmp = (!event.shiftKey ? '3' : '#'); break;
-                    case 52:  tmp = (!event.shiftKey ? '4' : '$'); break;
-                    case 53:  tmp = (!event.shiftKey ? '5' : '%'); break;
-                    case 54:  tmp = (!event.shiftKey ? '6' : '^'); break;
-                    case 55:  tmp = (!event.shiftKey ? '7' : '&'); break;
-                    case 56:  tmp = (!event.shiftKey ? '8' : '*'); break;
-                    case 57:  tmp = (!event.shiftKey ? '9' : '('); break;
-                    case 48:  tmp = (!event.shiftKey ? '0' : ')'); break;
-                    case 187: tmp = (!event.shiftKey ? '=' : '+'); break;
-                    case 189: tmp = (!event.shiftKey ? '-' : '_'); break;
-                    case 192: tmp = (!event.shiftKey ? '`' : '~'); break;
-                    case 219: tmp = (!event.shiftKey ? '[' : '{'); break;
-                    case 220: tmp = (!event.shiftKey ? '\\' : '|'); break;
-                    case 221: tmp = (!event.shiftKey ? ']' : '}'); break;
-                    case 186: tmp = (!event.shiftKey ? ';' : ':'); break;
-                    case 222: tmp = (!event.shiftKey ? '\'' : '"'); break;
-                    case 188: tmp = (!event.shiftKey ? ',' : '<'); break;
-                    case 190: tmp = (!event.shiftKey ? '.' : '>'); break;
-                    case 191: tmp = (!event.shiftKey ? '/' : '?'); break;
-                }
-                obj.editField(recid, columns[0], tmp, event);
-                cancel = true;
+                cancel = false;
+                // move typed key into edit
+                setTimeout(function () {
+                    var focus = $('#grid_'+ obj.name + '_focus');
+                    var key   = focus.val();
+                    focus.val('');
+                    obj.editField(recid, columns[0], key, event);
+                }, 1);
             }
             if (cancel) { // cancel default behaviour
                 if (event.preventDefault) event.preventDefault();
@@ -3321,9 +3309,9 @@
                     x2 += parseInt(col.sizeCalculated);
                 }
                 if (records.width() < x2 - records.scrollLeft()) { // right
-                    records.animate({ 'scrollLeft': x1 - 20 }, 250, 'linear');
+                    records.animate({ 'scrollLeft': x1 - 20 }, (instant === true ? 0 : 250), 'linear');
                 } else if (x1 < records.scrollLeft()) { // left
-                    records.animate({ 'scrollLeft': x2 - records.width() + 40 }, 250, 'linear'); // 40 because scrollbar is 20
+                    records.animate({ 'scrollLeft': x2 - records.width() + 40 }, (instant === true ? 0 : 250), 'linear'); // 40 because scrollbar is 20
                 }
             }
         },
