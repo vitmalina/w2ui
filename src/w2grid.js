@@ -388,6 +388,20 @@
 
         get: function (recid, returnIndex) {
             // search records
+            if ($.isArray(recid)) {
+                var returnrecs = [];
+                for (var i = 0; i < this.records.length; i++) {
+                    if ($.inArray(this.records[i].recid, recid) != -1) {
+                        if (returnIndex === true) returnrecs.push({'store': 'records', 'index': i}); else returnrecs.push(this.records[i]); 
+                    }
+                }
+                for (var i = 0; i < this.summary.length; i++) {
+                    if ($.inArray(this.summary[i].recid, recid) != -1) {
+                        if (returnIndex === true) returnrecs.push({'store': 'summary', 'index': i}); else returnrecs.push(this.summary[i]);
+                    }
+                }
+                return $.isEmptyObject(returnrecs) ? null : returnrecs;
+            }
             for (var i = 0; i < this.records.length; i++) {
                 if (this.records[i].recid == recid) {
                     if (returnIndex === true) return i; else return this.records[i];
