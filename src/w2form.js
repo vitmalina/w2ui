@@ -821,7 +821,7 @@
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
             if (eventData.isCancelled === true) return;
             // default behaviour
-            var main    = $(this.box).find('> div');
+            var main    = $(this.box).find('> div:not(.w2ui-lock-msg)');
             var header  = $(this.box).find('> div .w2ui-form-header');
             var toolbar = $(this.box).find('> div .w2ui-form-toolbar');
             var tabs    = $(this.box).find('> div .w2ui-form-tabs');

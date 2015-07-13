@@ -184,16 +184,22 @@ input[type=checkbox].w2ui-toggle:focus {
 
 .w2ui-overlay {
     position: absolute;
-    margin-top: 6px;
+    margin-top: 4px;
     margin-left: -17px;
     display: none;
     z-index: 1300;
     color: @overlay-color;
     background-color: @overlay-background-color;
-    border: @overlay-border;
+    border-color: @overlay-background-color;
     box-shadow: @overlay-shadow;
     border-radius: 4px;
     text-align: left;
+
+    & > div {
+        border-radius: 4px;
+        position: relative;
+        border: @overlay-border-width solid @overlay-border-color;
+    }
 
     table td {
         color: @overlay-color;
@@ -202,36 +208,63 @@ input[type=checkbox].w2ui-toggle:focus {
     &:before {
         content: "";
         position: absolute;
-        .transform-rotate(-45deg);
-        width: 12px;
-        height: 12px;
-        border: @overlay-border;
         border-color: inherit;
-        background-color: inherit;
-        border-left: 1px solid transparent;
-        border-bottom: 1px solid transparent;
-        border-bottom-left-radius: 50px;
-        margin: -9px 0 0 30px;
     }
 
     &:after {
-        display: none;
         content: "";
         position: absolute;
-        .transform-rotate(135deg);
-        width: 12px;
-        height: 12px;
-        border: @overlay-border;
         border-color: inherit;
-        background-color: inherit;
-        border-left: 1px solid transparent;
-        border-bottom: 1px solid transparent;
-        border-bottom-left-radius: 50px;
-        margin: -7px 0 0 30px;
+        bottom: 100%;
+        left:@overlay-border-width + 1;
+    }
+
+    &.top-arrow {
+
+        &:before {
+            border-bottom: 12px solid darken(@overlay-border-color, 3%);
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            bottom: 100%;
+            margin-bottom: -@overlay-border-width;
+        }
+
+        &:after {
+            border-bottom: (12px - @overlay-border-width - 1) solid black;
+            border-bottom-color: inherit;
+            border-right: (12px - @overlay-border-width - 1) solid transparent;
+            border-left: (12px - @overlay-border-width - 1) solid transparent;
+            bottom: 100%;
+            margin-bottom: -@overlay-border-width;
+        }
+    }
+
+    &.bottom-arrow {
+
+        &:before {
+            border-top: 12px solid darken(@overlay-border-color, 3%);
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            top: 100%;
+            margin-top: -@overlay-border-width;
+        }
+
+        &:after {
+            border-top: (12px - @overlay-border-width - 1) solid black;
+            border-top-color: inherit;
+            border-right: (12px - @overlay-border-width - 1) solid transparent;
+            border-left: (12px - @overlay-border-width - 1) solid transparent;
+            top: 100%;
+            margin-top: -@overlay-border-width;
+        }
     }
 
     &.w2ui-overlay-popup {    // if it is inside popup 
         z-index: 1700;
+    }
+
+    .w2ui-grid-searches {
+        border-top: @overlay-border-width solid @overlay-border-color !important;
     }
 
     .no-color {
