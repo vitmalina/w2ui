@@ -2,10 +2,10 @@
 <html>
 <head>
     <title>W2UI Demo: combo-9</title>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" />
+    <link rel="stylesheet" type="text/css" href="../dist/w2ui.min.css" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="http://underscorejs.org/underscore.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>
+    <script type="text/javascript" src="../dist/w2ui.min.js"></script>
     <script type="text/javascript" src="../src/w2utils.js"></script>
     <script type="text/javascript" src="../src/w2sidebar.js"></script>
     <script type="text/javascript" src="../src/w2popup.js"></script>
@@ -14,43 +14,46 @@
 </head>
 <body>
 
-<div id="sidebar" style="height: 300px; width: 180px; float: left"></div>
-<div style="margin-left: 200px;">
-    <button class="btn" onclick="goto0()">goto 0</button>
-    <button class="btn" onclick="goto10()">goto 10</button>
-    <button class="btn" onclick="goto99()">goto 99</button>
+<div style="padding: 100px; top: 100px; border: 1px solid red; height: 500px; left: 0px; right: 0px; position: absolute; overflow: auto;">
+    <div style="padding: 100px; height: 1000px;">
+        <input id="some-input1"><br><br>
+        <input id="some-input2"><br><br>
+        <input id="some-input3"><br><br>
+        <button class="w2ui-btn" onclick="validate()">Validate</button>
+    </div>
 </div>
-<div id="main" style="clear: both; width: 500px; height: 400px"></div>
 
 <script type="text/javascript">
-//<![CDATA[
-$(function () {
-    var nodes = [];
-    for ( var i = 0; i < 100; i++ ) {
-        nodes.push( { id: 'node' + i, text: 'Node ' + i, icon: 'fa-home'} );
-    }
-    
-    $('#sidebar').w2sidebar({
-        name: 'sidebar',
-        nodes: nodes
-    });
+
+$().w2field('addType', 'myType', function (options) {
+    $(this.el)
+        .on('focus keyup', function (event) {
+            if ($(this).data('w2tag') == null) {
+                // already there
+            } 
+            if (this.value.length < 5) {
+                $(this).w2tag({ 
+                    html: 'Need to be at least 5 chars long, currently '+ this.value.length + ' chars', 
+                    hideOnKeyPress: false,
+                    hideOnBlur: true
+                });
+            } else {
+                $(this).w2tag();
+            }
+        }
+    );
 });
 
-function goto0() {
-    w2ui.sidebar.select( 'node0' );
-    w2ui.sidebar.scrollIntoView( 'node0' );
+$("#some-input1").w2field("myType");
+$("#some-input2").w2field("myType");
+$("#some-input3").w2field("myType");
+
+function validate() {
+    $("#some-input1").w2tag("Invalid");
+    $("#some-input2").w2tag("Invalid");
+    $("#some-input3").w2tag("Invalid");
 }
 
-function goto10() {
-    w2ui.sidebar.select( 'node10' );
-    w2ui.sidebar.scrollIntoView( 'node10' );
-}
-
-function goto99() {
-    w2ui.sidebar.select( 'node99' );
-    w2ui.sidebar.scrollIntoView( 'node99' );
-}
-//]]>
 </script>
 
 </body>
