@@ -1,4 +1,4 @@
-/* w2ui-fields.js 1.4.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui-fields.js 1.4.3, part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
