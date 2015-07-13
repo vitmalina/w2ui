@@ -27,7 +27,7 @@
 
 var w2popup = {};
 
-(function () {
+(function ($) {
 
     // ====================================================
     // -- Registers as a jQuery plugin
@@ -832,12 +832,13 @@ var w2popup = {};
     // merge in event handling
     $.extend(w2popup, w2utils.event);
 
-})();
+})(jQuery);
 
 // ============================================
 // --- Common dialogs
 
 var w2alert = function (msg, title, callBack) {
+    var $ = jQuery;
     if (title == null) title = w2utils.lang('Notification');
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         w2popup.message({
@@ -876,6 +877,7 @@ var w2alert = function (msg, title, callBack) {
 };
 
 var w2confirm = function (msg, title, callBack) {
+    var $ = jQuery;
     var options  = {};
     var defaults = {
         msg         : '',

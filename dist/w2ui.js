@@ -55,7 +55,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 ************************************************/
 
-var w2utils = (function () {
+var w2utils = (function ($) {
     var tmp = {}; // for some temp variables
     var obj = {
         version  : '1.5.x',
@@ -957,7 +957,7 @@ var w2utils = (function () {
         return ret;
     }
 
-})();
+})(jQuery);
 
 /***********************************************************
 *  Generic Event Object
@@ -1074,7 +1074,7 @@ w2utils.event = {
 *
 *********************************************************/
 
-(function () {
+(function ($) {
 
     $.fn.w2render = function (name) {
         if ($(this).length > 0) {
@@ -1949,7 +1949,7 @@ w2utils.event = {
         }        
     };
 
-})();
+})(jQuery);
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -2033,7 +2033,7 @@ w2utils.event = {
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2grid = function(options) {
 
         // public properties
@@ -8449,7 +8449,7 @@ w2utils.event = {
 
     $.extend(w2grid.prototype, w2utils.event);
     w2obj.grid = w2grid;
-})();
+})(jQuery);
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -8470,7 +8470,7 @@ w2utils.event = {
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2layout = function (options) {
         this.box     = null;        // DOM Element that holds the element
         this.name    = null;        // unique name for w2ui
@@ -9524,7 +9524,7 @@ w2utils.event = {
 
     $.extend(w2layout.prototype, w2utils.event);
     w2obj.layout = w2layout;
-})();
+})(jQuery);
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -9555,7 +9555,7 @@ w2utils.event = {
 
 var w2popup = {};
 
-(function () {
+(function ($) {
 
     // ====================================================
     // -- Registers as a jQuery plugin
@@ -10360,12 +10360,13 @@ var w2popup = {};
     // merge in event handling
     $.extend(w2popup, w2utils.event);
 
-})();
+})(jQuery);
 
 // ============================================
 // --- Common dialogs
 
 var w2alert = function (msg, title, callBack) {
+    var $ = jQuery;
     if (title == null) title = w2utils.lang('Notification');
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         w2popup.message({
@@ -10404,6 +10405,7 @@ var w2alert = function (msg, title, callBack) {
 };
 
 var w2confirm = function (msg, title, callBack) {
+    var $ = jQuery;
     var options  = {};
     var defaults = {
         msg         : '',
@@ -10553,7 +10555,7 @@ var w2confirm = function (msg, title, callBack) {
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2tabs = function (options) {
         this.box       = null;      // DOM Element that holds the element
         this.name      = null;      // unique name for w2ui
@@ -11006,8 +11008,7 @@ var w2confirm = function (msg, title, callBack) {
 
     $.extend(w2tabs.prototype, w2utils.event);
     w2obj.tabs = w2tabs;
-})();
-
+})(jQuery);
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -11034,7 +11035,7 @@ var w2confirm = function (msg, title, callBack) {
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2toolbar = function (options) {
         this.box       = null;      // DOM Element that holds the element
         this.name      = null;      // unique name for w2ui
@@ -11690,8 +11691,7 @@ var w2confirm = function (msg, title, callBack) {
 
     $.extend(w2toolbar.prototype, w2utils.event);
     w2obj.toolbar = w2toolbar;
-})();
-
+})(jQuery);
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -11716,11 +11716,12 @@ var w2confirm = function (msg, title, callBack) {
 *   - added focus(), blur(), onFocus, onBlur
 *   - unselect w/o arguments will unselect selected node
 *   - added hasFocus property
-*   - nd.render deprecated, nd.text can be a function (where this word is the item)
+*   - node.render deprecated, nd.text can be a function (where this word is the item)
+*   - node.collapsible - defines if it can be collapsed
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2sidebar = function (options) {
         this.name          = null;
         this.box           = null;
@@ -11809,6 +11810,7 @@ var w2confirm = function (msg, title, callBack) {
             disabled        : false,
             group           : false,        // if true, it will build as a group
             groupShowHide   : true,
+            collapsible     : true,
             plus            : false,        // if true, plus will be shown even if there is no sub nodes
             // events
             onClick         : null,
@@ -12074,6 +12076,7 @@ var w2confirm = function (msg, title, callBack) {
                 return;
             }
             if (nd.nodes.length === 0) return false;
+            if (!nd.collapsible) return false;
             if (this.get(id).expanded) return this.collapse(id); else return this.expand(id);
         },
 
@@ -12532,7 +12535,7 @@ var w2confirm = function (msg, title, callBack) {
                         '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '        onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '        onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                        (nd.groupShowHide ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
+                        ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
                         (typeof nd.text == 'function' ? nd.text.call(nd) : '<span>'+ nd.text +'</span>') +
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
@@ -12627,7 +12630,7 @@ var w2confirm = function (msg, title, callBack) {
 
     $.extend(w2sidebar.prototype, w2utils.event);
     w2obj.sidebar = w2sidebar;
-})();
+})(jQuery);
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -15224,7 +15227,7 @@ var w2confirm = function (msg, title, callBack) {
 ************************************************************************/
 
 
-(function () {
+(function ($) {
     var w2form = function(options) {
         // public properties
         this.name      = null;
@@ -16236,7 +16239,7 @@ var w2confirm = function (msg, title, callBack) {
                     case 'toggle':
                         if (w2utils.isFloat(value)) value = parseFloat(value);
                         $(field.el).prop('checked', (value ? true : false));
-                        this.record[field.name] = (value ? true : false);
+                        this.record[field.name] = (value ? value : false);
                         break;
                     // enums
                     case 'list':
@@ -16414,4 +16417,4 @@ var w2confirm = function (msg, title, callBack) {
 
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
-})();
+})(jQuery);

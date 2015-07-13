@@ -27,7 +27,7 @@
 ************************************************************************/
 
 
-(function () {
+(function ($) {
     var w2form = function(options) {
         // public properties
         this.name      = null;
@@ -1217,4 +1217,4 @@
 
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
-})();
+})(jQuery);

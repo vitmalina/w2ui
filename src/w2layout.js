@@ -17,7 +17,7 @@
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2layout = function (options) {
         this.box     = null;        // DOM Element that holds the element
         this.name    = null;        // unique name for w2ui
@@ -1071,4 +1071,4 @@
 
     $.extend(w2layout.prototype, w2utils.event);
     w2obj.layout = w2layout;
-})();
+})(jQuery);

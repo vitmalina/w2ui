@@ -20,7 +20,7 @@
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2tabs = function (options) {
         this.box       = null;      // DOM Element that holds the element
         this.name      = null;      // unique name for w2ui
@@ -473,5 +473,4 @@
 
     $.extend(w2tabs.prototype, w2utils.event);
     w2obj.tabs = w2tabs;
-})();
-
+})(jQuery);

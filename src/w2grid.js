@@ -80,7 +80,7 @@
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2grid = function(options) {
 
         // public properties
@@ -6496,4 +6496,4 @@
 
     $.extend(w2grid.prototype, w2utils.event);
     w2obj.grid = w2grid;
-})();
+})(jQuery);

@@ -54,7 +54,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *
 ************************************************/
 
-var w2utils = (function () {
+var w2utils = (function ($) {
     var tmp = {}; // for some temp variables
     var obj = {
         version  : '1.5.x',
@@ -956,7 +956,7 @@ var w2utils = (function () {
         return ret;
     }
 
-})();
+})(jQuery);
 
 /***********************************************************
 *  Generic Event Object
@@ -1073,7 +1073,7 @@ w2utils.event = {
 *
 *********************************************************/
 
-(function () {
+(function ($) {
 
     $.fn.w2render = function (name) {
         if ($(this).length > 0) {
@@ -1948,4 +1948,4 @@ w2utils.event = {
         }        
     };
 
-})();
+})(jQuery);
