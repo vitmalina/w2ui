@@ -17,13 +17,11 @@
 *   - after edit stay on the same record option
 *   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
-*   - row drag and drop has bugs
 *   - header filtration ?? not sure
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
 *   - send parsed URL to the event if there is routeData
 *   - if you set searchData or sortData and call refresh() it should work
-*   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *   - use column field for style: { 1: 'color: red' }
 *   - unselect fires too many times (if many is unselected, one event should fire)
 *   - add selectType: 'none' so that no selection can be make but with mouse
@@ -36,6 +34,11 @@
 *   - resize row (height)
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
+*
+* == KNOWN ISSUES ==
+*   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
+*   - row drag and drop has bugs
+*   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
@@ -2689,6 +2692,7 @@
                 return;
             }
             this.last.click_time  = time;
+            var last_recid = this.last.click_recid;
             this.last.click_recid = recid;
             // column user clicked on
             if (column == null && event.target) {
@@ -2740,7 +2744,7 @@
                     }
                     for (var c = t1; c <= t2; c++) selectColumns.push(c);
                 } else {
-                    var start = this.get(sel[0], true);
+                    var start = this.get(last_recid, true);
                     var end   = this.get(recid, true);
                 }
                 var sel_add = [];
@@ -6014,7 +6018,7 @@
                         '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
                             (summary !== true ?
                             '    <div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
-                            '            onclick="w2ui[\''+ this.name +'\'].toggle($(this).parents(\'tr\').attr(\'recid\');, event); '+
+                            '            onclick="w2ui[\''+ this.name +'\'].toggle($(this).parents(\'tr\').attr(\'recid\')); '+
                             '                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
                             '        '+ tmp_img +' </div>'
                             :
