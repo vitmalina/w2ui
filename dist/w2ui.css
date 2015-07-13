@@ -309,7 +309,7 @@ input[type=checkbox].w2ui-toggle:focus {
   font-size: 11px;
   font-family: verdana;
   text-shadow: 1px 1px 3px #000;
-  line-height: 100%;
+  line-height: 1.4;
   letter-spacing: 0.1px;
 }
 .w2ui-tag .w2ui-tag-body.w2ui-tag-right:before {
@@ -347,12 +347,12 @@ input[type=checkbox].w2ui-toggle:focus {
   content: "";
   position: absolute;
   left: 12px;
+  bottom: -6px;
   width: 0;
   height: 0;
   border-right: 6px solid transparent;
   border-left: 6px solid transparent;
   border-top: 6px solid rgba(60, 60, 60, 0.9);
-  margin: 17px 0 0;
 }
 .w2ui-tag.w2ui-tag-popup {
   z-index: 1700;
@@ -1870,7 +1870,8 @@ button.w2ui-btn-small:focus:before {
   overflow: hidden;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-select div input[type=checkbox] {
-  margin-top: 2px;
+  margin-top: 0px;
+  margin-bottom: 0px;
   position: relative;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-expand {

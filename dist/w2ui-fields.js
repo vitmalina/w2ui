@@ -21,7 +21,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
 *   - add maxHeight for the w2menu
-*   - isTime should support seconds
 *   - add time zone
 *   - TEST On IOS
 *   - $().w2marker() -- only unmarks first instance
@@ -52,6 +51,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added options.noTip for w2overlay()
 *   - added options.overlayStyle for w2overlay()
 *   - added options.selectable
+*   - added options.style for w2tag
 *
 ************************************************/
 
@@ -129,7 +129,7 @@ var w2utils = (function () {
     }
 
     function isFloat (val) {
-        if (typeof val == 'string') val = val.replace(w2utils.settings.decimalSymbol, '.');
+        if (typeof val == 'string') val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.');
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val));
     }
 
@@ -235,21 +235,23 @@ var w2utils = (function () {
         val = $.trim(val);
         // ---
         var tmp = val.split(':');
-        var h = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0);
+        var h = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0), s = parseInt(tmp[2] || 0);
         // accept edge case: 3PM is a good timestamp, but 3 (without AM or PM) is NOT:
-        if ((!ampm || tmp.length !== 1) && tmp.length !== 2) { return false; }
+        if ((!ampm || tmp.length !== 1) && tmp.length !== 2 && tmp.length !== 3) { return false; }
         if (tmp[0] === '' || h < 0 || h > max || !this.isInt(tmp[0]) || tmp[0].length > 2) { return false; }
-        if (tmp.length === 2 && (tmp[1] === '' || m < 0 || m > 59 || !this.isInt(tmp[1]) || tmp[1].length !== 2)) { return false; }
+        if (tmp.length > 1 && (tmp[1] === '' || m < 0 || m > 59 || !this.isInt(tmp[1]) || tmp[1].length !== 2)) { return false; }
+        if (tmp.length > 2 && (tmp[2] === '' || s < 0 || s > 59 || !this.isInt(tmp[2]) || tmp[2].length !== 2)) { return false; }
         // check the edge cases: 12:01AM is ok, as is 12:01PM, but 24:01 is NOT ok while 24:00 is (midnight; equivalent to 00:00).
         // meanwhile, there is 00:00 which is ok, but 0AM nor 0PM are okay, while 0:01AM and 0:00AM are.
-        if (!ampm && max === h && m !== 0) { return false; }
+        if (!ampm && max === h && (m !== 0 || s !== 0)) { return false; }
         if (ampm && tmp.length === 1 && h === 0) { return false; }
 
         if (retTime === true) {
             if (pm) h += 12;
             return {
                 hours: h,
-                minutes: m
+                minutes: m,
+                seconds: s
             };
         }
         return true;
@@ -344,17 +346,8 @@ var w2utils = (function () {
         return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + sizes[i];
     }
 
-    function formatNumber (val, groupSymbol, decimalSymbol) {
-        var ret = '';
-        if (groupSymbol == null) groupSymbol = w2utils.settings.groupSymbol || ',';
-        if (decimalSymbol == null) decimalSymbol = w2utils.settings.decimalSymbol || '.';
-        // check if this is a number
-        if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
-            tmp = String(val).split('.');
-            ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + groupSymbol);
-            if (tmp[1] != null) ret += decimalSymbol + tmp[1];
-        }
-        return ret;
+    function formatNumber (val, fraction, useGrouping) {
+        return parseFloat(val).toLocaleString(w2utils.settings.locale, { minimumFractionDigits: fraction, useGrouping : useGrouping });
     }
 
     function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
@@ -849,6 +842,13 @@ var w2utils = (function () {
 
     function locale (locale) {
         if (!locale) locale = 'en-us';
+
+        // if the locale is an object, not a string, than we assume it's a
+        if(typeof locale !== "string" ) {
+            w2utils.settings = $.extend(true, w2utils.settings, locale);
+            return
+        }
+
         if (locale.length === 5) locale = 'locale/'+ locale +'.json';
 
         // clear phrases from language before
@@ -1150,8 +1150,8 @@ w2utils.event = {
                 // insert
                 $('body').append(
                     '<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+ 
-                    '   <div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;">'+
-                    '      <div class="w2ui-tag-body">'+ text +'</div>'+
+                    '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
+                    '      <div class="w2ui-tag-body" style="'+ (options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
                     '</div>');
 
@@ -1227,8 +1227,13 @@ w2utils.event = {
                         .data('position', posLeft + 'x' + posTop)
                         .data('timer', timer)
                         .find('.w2ui-tag-body').addClass(posClass);
-                    $(el).off('keypress', tmp_hide).on('keypress', tmp_hide).off('change', tmp_hide).on('change', tmp_hide)
-                        .css(options.css).addClass(options['class']);
+                    $(el)
+                        .off('keypress', tmp_hide)
+                        .on('keypress', tmp_hide)
+                        .off('change', tmp_hide)
+                        .on('change', tmp_hide)
+                        .css(options.css)
+                        .addClass(options['class']);
                     if (typeof options.onShow === 'function') options.onShow();
                 }, 1);
                 var originalCSS = '';
@@ -1302,7 +1307,7 @@ w2utils.event = {
             $(document).off('click', tmp_hide);
             if (typeof tmp_hide === 'function') tmp_hide();
         }
-        if (obj.length > 0 && (obj[0].tagName == 'BODY' || obj[0].tagName == null)) options.contextMenu = true;
+        if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
         if (options.contextMenu && options.originalEvent == null) {
             console.log('ERROR: for context menu you need to pass options.originalEvent.');
         }
@@ -1329,11 +1334,11 @@ w2utils.event = {
             .fadeIn('fast')
             .on('click', function (event) {
                 // if there is label for input, it will produce 2 click events
-                if (event.target.tagName == 'LABEL') event.stopPropagation();
+                if (event.target.tagName.toUpperCase() == 'LABEL') event.stopPropagation();
             })
             .on('mousedown', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1 && !options.selectable) {
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1 && !options.selectable) {
                     event.preventDefault();
                 }
             });
@@ -1638,7 +1643,7 @@ w2utils.event = {
                 html +=
                     '<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
                     '    <div class="w2ui-icon icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
-                    '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();">'+
+                    '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();"/>'+
                     '</div>';
                 options.style += ';background-color: #ECECEC';
                 options.index = 0;
@@ -1656,7 +1661,7 @@ w2utils.event = {
                         if (event.keyCode === 9) { event.stopPropagation(); event.preventDefault(); }
                     });
                 if (options.search) {
-                    if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName == 'texarea') return;
+                    if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName.toUpperCase() == 'TEXTAREA') return;
                     $('#w2ui-overlay'+ name +' #menu-search').focus();
                 }
             }, 200);
@@ -1749,13 +1754,13 @@ w2utils.event = {
 
         function getMenuHTML () {
             if (options.spinner) {
-                return  '<table class="w2ui-drop-menu"><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
+                return  '<table class="w2ui-drop-menu"><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
                         '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
                         '    <div style="display: inline-block; padding: 3px; color: #999;">'+ w2utils.lang('Loading...') +'</div>'+
-                        '</td></tr></table>';
+                        '</td></tr></tbody></table>';
             }
             var count        = 0;
-            var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
+            var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu"><tbody>';
             var img = null, icon = null;
             for (var f = 0; f < options.items.length; f++) {
                 var mitem = options.items[f];
@@ -1815,7 +1820,7 @@ w2utils.event = {
             if (count === 0) {
                 menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
             }
-            menu_html += "</table>";
+            menu_html += "</tbody></table>";
             return menu_html;
         }
     };
@@ -1913,13 +1918,13 @@ w2utils.event = {
 
         function getColorHTML(color) {
             var html =  '<div class="w2ui-color">'+
-                        '<table cellspacing="5">';
+                        '<table cellspacing="5"><tbody>';
             for (var i = 0; i < pal.length - 1; i++) {
                 html += '<tr>';
                 for (var j = 0; j < pal[i].length; j++) {
                     html += '<td>'+
                             '    <div class="color '+ (pal[i][j] == '' ? 'no-color' : '') +'" style="background-color: #'+ pal[i][j] +';" ' + 
-                            '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (color == pal[i][j] ? '&#149;' : '&nbsp;') +
+                            '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (color == pal[i][j] ? '&#149;' : '&#160;') +
                             '    </div>'+
                             '</td>';
                     if (color == pal[i][j]) index = [i, j];
@@ -1930,14 +1935,14 @@ w2utils.event = {
             var tmp = pal[pal.length - 1];
             html += '<tr><td style="height: 8px" colspan="8"></td></tr>'+
                     '<tr>'+
-                    '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (color == tmp[0] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (color == tmp[1] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (color == tmp[2] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (color == tmp[3] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"/></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (color == tmp[0] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (color == tmp[1] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (color == tmp[2] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (color == tmp[3] ? '&#149;' : '&#160;') +'</div></td>'+
                     '</tr>'+
                     '<tr><td style="height: 4px" colspan="8"></td></tr>';
-            html += '</table></div>';
+            html += '</tbody></table></div>';
             return html;
         }        
     };
@@ -2117,7 +2122,7 @@ w2utils.event = {
                 return;
             }
             // only for INPUT or TEXTAREA
-            if (['INPUT', 'TEXTAREA'].indexOf(this.el.tagName) == -1) {
+            if (['INPUT', 'TEXTAREA'].indexOf(this.el.tagName.toUpperCase()) == -1) {
                 console.log('ERROR: w2field could only be applied to INPUT or TEXTAREA.', this.el);
                 return;
             }
@@ -2165,7 +2170,7 @@ w2utils.event = {
                 case 'color':
                     defaults = {
                         prefix      : '#',
-                        suffix      : '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&nbsp;</div>',
+                        suffix      : '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&#160;</div>',
                         arrows      : false,
                         keyboard    : false
                     };
@@ -2544,9 +2549,9 @@ w2utils.event = {
                     var it  = selected[s];
                     var ren = '';
                     if (typeof options.renderItem == 'function') {
-                        ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>');
+                        ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>');
                     } else {
-                        ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&nbsp;&nbsp;</div>'+
+                        ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>'+
                               (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.formatSize(it.size) +'</span>');
                     }
                     html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
@@ -2603,7 +2608,7 @@ w2utils.event = {
                     .find('li')
                     .data('mouse', 'out')
                     .on('click', function (event) {
-                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        var target = (event.target.tagName.toUpperCase() == 'LI' ? event.target : $(event.target).parents('LI'));
                         var item   = selected[$(target).attr('index')];
                         if ($(target).hasClass('nomouse')) return;
                         event.stopPropagation();
@@ -2643,14 +2648,14 @@ w2utils.event = {
                             var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
                             var td2 = 'style="padding: 3px"';
                             preview += '<div style="padding: 8px;">'+
-                                '    <table cellpadding="2">'+
+                                '    <table cellpadding="2"><tbody>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Name') +':</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Size') +':</td><td '+ td2 +'>'+ w2utils.formatSize(item.size) +'</td></tr>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Type') +':</td><td '+ td2 +'>' +
-                                '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'+ item.type +'</span>'+
+                                '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap="nowrap";">'+ item.type +'</span>'+
                                 '    </td></tr>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Modified') +':</td><td '+ td2 +'>'+ w2utils.date(item.modified) +'</td></tr>'+
-                                '    </table>'+
+                                '    </tbody></table>'+
                                 '</div>';
                             $('#w2ui-overlay').remove();
                             $(target).w2overlay(preview);
@@ -2659,7 +2664,7 @@ w2utils.event = {
                         obj.trigger($.extend(eventData, { phase: 'after' }));
                     })
                     .on('mouseover', function (event) {
-                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        var target = (event.target.tagName.toUpperCase() == 'LI' ? event.target : $(event.target).parents('LI'));
                         if ($(target).hasClass('nomouse')) return;
                         if ($(target).data('mouse') == 'out') {
                             var item = selected[$(event.target).attr('index')];
@@ -2672,7 +2677,7 @@ w2utils.event = {
                         $(target).data('mouse', 'over');
                     })
                     .on('mouseout', function (event) {
-                        var target = (event.target.tagName == 'LI' ? event.target : $(event.target).parents('LI'));
+                        var target = (event.target.tagName.toUpperCase() == 'LI' ? event.target : $(event.target).parents('LI'));
                         if ($(target).hasClass('nomouse')) return;
                         $(target).data('mouse', 'leaving');
                         setTimeout(function () {
@@ -2761,7 +2766,7 @@ w2utils.event = {
                     if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
                     if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
                     if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
-                    val = val.replace(options.decimalSymbol, '.');
+					val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.');
                 }
                 if (parseFloat(val) == val) {
                     if (options.min != null && val < options.min) { val = options.min; $(this.el).val(options.min); }
@@ -2779,18 +2784,18 @@ w2utils.event = {
                 switch (this.type) {
                     case 'money':
                     case 'currency':
-                        val = w2utils.formatNumber(Number(val).toFixed(options.currencyPrecision), options.groupSymbol);
+                        val = w2utils.formatNumber(val, options.currencyPrecision, options.groupSymbol);
                         if (val != '') val = options.currencyPrefix + val + options.currencySuffix;
                         break;
                     case 'percent':
-                        val = w2utils.formatNumber(options.precision ? Number(val).toFixed(options.precision) : val, options.groupSymbol);
+                        val = w2utils.formatNumber(val, options.precision, options.groupSymbol);
                         if (val != '') val += '%';
                         break;
                     case 'float':
-                        val = w2utils.formatNumber(options.precision ? Number(val).toFixed(options.precision) : val, options.groupSymbol);
+                        val = w2utils.formatNumber(val, options.precision, options.groupSymbol);
                         break;
                     case 'int':
-                        val = w2utils.formatNumber(val, options.groupSymbol);
+                        val = w2utils.formatNumber(val, 0, options.groupSymbol);
                         break;
                 }
             }
@@ -3962,7 +3967,7 @@ w2utils.event = {
                     if (obj.helpers.arrows) $(obj.helpers.arrows).remove();
                     // add fresh
                     $(obj.el).after(
-                        '<div class="w2ui-field-helper" style="border: 1px solid transparent">&nbsp;'+
+                        '<div class="w2ui-field-helper" style="border: 1px solid transparent">&#160;'+
                         '    <div class="w2ui-field-up" type="up">'+
                         '        <div class="arrow-up" type="up"></div>'+
                         '    </div>'+
@@ -4060,8 +4065,8 @@ w2utils.event = {
             var html =
                 '<div class="w2ui-field-helper">'+
                 '    <div class="w2ui-icon icon-search" style="opacity: 0"></div>'+
-                '    <input type="text" autocomplete="off" tabIndex="'+ tabIndex +'">'+
-                '<div>';
+                '    <input type="text" autocomplete="off" tabIndex="'+ tabIndex +'"/>'+
+                '</div>';
             $(obj.el).attr('tabindex', -1).before(html);
             var helper = $(obj.el).prev();
             obj.helpers.focus = helper;
@@ -4141,7 +4146,7 @@ w2utils.event = {
                         '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '>'+
+                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '/>'+
                         '        </li>'+
                         '    </ul>'+
                         '    </div>'+
@@ -4150,7 +4155,7 @@ w2utils.event = {
             if (obj.type == 'file') {
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '   <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">'+
-                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1">'+
+                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1"/>'+
                         '   </div>'+
                         '    <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
@@ -4362,7 +4367,7 @@ w2utils.event = {
                 '    <div class="w2ui-calendar-next next"> <div></div> </div> '+
                         months[month-1] +', '+ year +
                 '</div>'+
-                '<table class="w2ui-calendar-days" cellspacing="0">'+
+                '<table class="w2ui-calendar-days" cellspacing="0"><tbody>'+
                 '    <tr class="w2ui-day-title">' + dayTitle + '</tr>'+
                 '    <tr>';
 
@@ -4374,11 +4379,11 @@ w2utils.event = {
             }
             for (var ci = 1; ci < 43; ci++) {
                 if (weekDay === 0 && ci == 1) {
-                    for (var ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&nbsp;</td>';
+                    for (var ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&#160;</td>';
                     ci += 6;
                 } else {
                     if (ci < weekDay || day > daysCount[month-1]) {
-                        html += '<td class="w2ui-day-empty">&nbsp;</td>';
+                        html += '<td class="w2ui-day-empty">&#160;</td>';
                         if ((ci) % 7 === 0) html += '</tr><tr>';
                         continue;
                     }
@@ -4413,7 +4418,7 @@ w2utils.event = {
                 if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';
                 day++;
             }
-            html += '</tr></table>';
+            html += '</tr></tbody></table>';
             return html;
         },
 
@@ -4446,11 +4451,11 @@ w2utils.event = {
                 tmp[Math.floor(a/8)] += '<div class="'+ ((this.type === 'datetime') || this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
             }
             var html =
-                '<div class="w2ui-calendar-time"><table><tr>'+
+                '<div class="w2ui-calendar-time"><table><tbody><tr>'+
                 '    <td>'+ tmp[0] +'</td>' +
                 '    <td>'+ tmp[1] +'</td>' +
                 '    <td>'+ tmp[2] +'</td>' +
-                '</tr></table></div>';
+                '</tr></tbody></table></div>';
             return html;
         },
 
@@ -4467,11 +4472,11 @@ w2utils.event = {
                 tmp[ind] += '<div class="'+ ((this.type === 'datetime') || this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
             }
             var html =
-                '<div class="w2ui-calendar-time"><table><tr>'+
+                '<div class="w2ui-calendar-time"><table><tbody><tr>'+
                 '    <td>'+ tmp[0] +'</td>' +
                 '    <td>'+ tmp[1] +'</td>' +
                 '    <td>'+ tmp[2] +'</td>' +
-                '</tr></table></div>';
+                '</tr></tbody></table></div>';
             return html;
         },
 
