@@ -114,6 +114,7 @@
             disabled        : false,
             group           : false,        // if true, it will build as a group
             groupShowHide   : true,
+            collapsible     : true,
             plus            : false,        // if true, plus will be shown even if there is no sub nodes
             // events
             onClick         : null,
@@ -379,6 +380,7 @@
                 return;
             }
             if (nd.nodes.length === 0) return false;
+            if (!nd.collapsible) return false;
             if (this.get(id).expanded) return this.collapse(id); else return this.expand(id);
         },
 
@@ -837,7 +839,7 @@
                         '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '        onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '        onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                        (nd.groupShowHide ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
+                        ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
                         (typeof nd.text == 'function' ? nd.text.call(nd) : '<span>'+ nd.text +'</span>') +
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
