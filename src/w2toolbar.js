@@ -19,6 +19,7 @@
 *   - added button types: color, text-color
 *   - added button types: menu-check, menu-radio - will save into item.selected
 *   - item.text and item.html - can be functions now (or string), where this keyword is the item
+*   - item.style - style for caption in the button
 *
 ************************************************************************/
 
@@ -543,7 +544,7 @@
                 case 'radio':
                 case 'drop':
                     html += '<table cellpadding="0" cellspacing="0" '+ (this.tooltip == 'normal' && item.tooltip != null ? 'title="'+ w2utils.lang(item.tooltip) +'"' : '') +
-                            '       class="w2ui-button '+ (item.checked ? 'checked="checked"' : '') +'" '+
+                            '       class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
                             '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over'); w2ui['"+ this.name +"'].tooltipShow('"+ item.id +"', event);" : "") + '"'+
                             '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].tooltipHide('"+ item.id +"', event);" : "") + '"'+
@@ -554,8 +555,14 @@
                             '  <table cellpadding="1" cellspacing="0"><tbody>'+
                             '  <tr>' +
                                     img +
-                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap="nowrap">'+ w2utils.lang(text) +'</td>' : '') +
-                                    (item.count != null ? '<td class="w2ui-tb-count" nowrap="nowrap"><span>'+ item.count +'</span></td>' : '') +
+                                    (text !== '' 
+                                        ? '<td class="w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>' 
+                                        : ''
+                                    ) +
+                                    (item.count != null 
+                                        ? '<td class="w2ui-tb-count" nowrap="nowrap"><span>'+ item.count +'</span></td>' 
+                                        : ''
+                                    ) +
                                     (((['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
                                         '<td class="w2ui-tb-down" nowrap="nowrap"><div></div></td>' : '') +
                             '  </tr></tbody></table>'+
