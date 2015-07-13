@@ -32,7 +32,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function () {
     var tmp = {}; // for some temp variables
     var obj = {
-        version  : '1.4.2',
+        version  : '1.4.3',
         settings : {
             "locale"            : "en-us",
             "date_format"       : "m/d/yyyy",
