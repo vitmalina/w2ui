@@ -389,31 +389,40 @@
         get: function (recid, returnIndex) {
             // search records
             if ($.isArray(recid)) {
-                var returnrecs = [];
+                var recs = [];
                 for (var i = 0; i < this.records.length; i++) {
                     if ($.inArray(this.records[i].recid, recid) != -1) {
-                        if (returnIndex === true) returnrecs.push({'store': 'records', 'index': i}); else returnrecs.push(this.records[i]); 
+                        if (returnIndex === true) {
+                            recs.push(i); 
+                        } else {
+                            recs.push(this.records[i]); 
+                        }
                     }
                 }
                 for (var i = 0; i < this.summary.length; i++) {
                     if ($.inArray(this.summary[i].recid, recid) != -1) {
-                        if (returnIndex === true) returnrecs.push({'store': 'summary', 'index': i}); else returnrecs.push(this.summary[i]);
+                        if (returnIndex === true) {
+                            recs.push(i); 
+                        } else {
+                            recs.push(this.summary[i]);
+                        }
                     }
                 }
-                return $.isEmptyObject(returnrecs) ? null : returnrecs;
-            }
-            for (var i = 0; i < this.records.length; i++) {
-                if (this.records[i].recid == recid) {
-                    if (returnIndex === true) return i; else return this.records[i];
+                return recs;
+            } else {
+                for (var i = 0; i < this.records.length; i++) {
+                    if (this.records[i].recid == recid) {
+                        if (returnIndex === true) return i; else return this.records[i];
+                    }
                 }
-            }
-            // search summary
-            for (var i = 0; i < this.summary.length; i++) {
-                if (this.summary[i].recid == recid) {
-                    if (returnIndex === true) return i; else return this.summary[i];
+                // search summary
+                for (var i = 0; i < this.summary.length; i++) {
+                    if (this.summary[i].recid == recid) {
+                        if (returnIndex === true) return i; else return this.summary[i];
+                    }
                 }
+                return null;
             }
-            return null;
         },
 
         remove: function () {
