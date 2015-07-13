@@ -21,7 +21,8 @@
 *   - added focus(), blur(), onFocus, onBlur
 *   - unselect w/o arguments will unselect selected node
 *   - added hasFocus property
-*   - nd.render deprecated, nd.text can be a function (where this word is the item)
+*   - node.render deprecated, nd.text can be a function (where this word is the item)
+*   - node.collapsible - defines if it can be collapsed
 *
 ************************************************************************/
 
