@@ -1325,7 +1325,7 @@ w2utils.event = {
         div2.html(options.html);
         // pick bg color of first div
         var bc  = div2.css('background-color');
-        if (bc != null && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
+        if (bc != null && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css({ 'background-color': bc, 'border-color': bc });
 
         var offset = $(obj).offset() || {};
         div1.data('element', obj.length > 0 ? obj[0] : null)
@@ -1486,10 +1486,11 @@ w2utils.event = {
                         div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
                         h = maxHeight;
                     }
+                    div1.addClass('bottom-arrow');
                     div1.css('top', (offsetTop - h - tipOffset + options.top) + 'px');
                     div1.find('>style').html(
-                        '#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'+
-                        '#w2ui-overlay'+ name +':after { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'
+                        '#w2ui-overlay'+ name +':before { margin-left: '+ parseInt(tipLeft) +'px; }'+
+                        '#w2ui-overlay'+ name +':after { margin-left: '+ parseInt(tipLeft) +'px; }'
                     );
                 } else {
                     // show under
@@ -1498,9 +1499,10 @@ w2utils.event = {
                         overflowY = true;
                         div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
                     }
+                    div1.addClass('top-arrow');
                     div1.find('>style').html(
-                        '#w2ui-overlay'+ name +':before { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'+
-                        '#w2ui-overlay'+ name +':after { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'
+                        '#w2ui-overlay'+ name +':before { margin-left: '+ parseInt(tipLeft) +'px; }'+
+                        '#w2ui-overlay'+ name +':after { margin-left: '+ parseInt(tipLeft) +'px; }'
                     );
                 }
                 // check width
@@ -1980,7 +1982,7 @@ w2utils.event = {
 *   - add selectType: 'none' so that no selection can be make but with mouse
 *   - reorder records with frozen columns
 *   - focus/blur for selectType = cell not display grayed out selection
-*   - frozen columns 
+*   - frozen columns
         - load more only on the right side
         - scrolling on frozen columns is not working only on regular columns
 *   - copy or large number of records is slow
@@ -2217,7 +2219,7 @@ w2utils.event = {
                 var search = col.searchable;
                 if (search == null || search === false || object.getSearch(col.field) != null) continue;
                 if ($.isPlainObject(search)) {
-                    object.addSearch($.extend({ field: col.field, caption: col.caption, type: 'text' }, search));    
+                    object.addSearch($.extend({ field: col.field, caption: col.caption, type: 'text' }, search));
                 } else {
                     var stype = col.searchable, attr  = '';
                     if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
@@ -3070,7 +3072,7 @@ w2utils.event = {
             var $box = $(this.box);
             if (recid != null) {
                 // both frozen and regular columns
-                $box = $(this.box).find('#grid_'+ this.name +'_frec_'+ recid +', #grid_'+ this.name +'_rec_'+ recid);                
+                $box = $(this.box).find('#grid_'+ this.name +'_frec_'+ recid +', #grid_'+ this.name +'_rec_'+ recid);
             }
             $box.find('.w2ui-soft-span').each(function () {
                 var offset = $(this).parents('table').offset();
@@ -3094,15 +3096,15 @@ w2utils.event = {
                 var id  = 'grid_'+ obj.name +'_softspan_'+ tmp.row +'_'+ tmp.col;
                 var $el = $(obj.box).find('#'+id);
                 // insert if does not exits or different width
-                if ($el.length == 0 
-                        || tmp.width != w2utils.getSize($el[0], 'width') 
-                        || tmp.html != $el.html() 
+                if ($el.length == 0
+                        || tmp.width != w2utils.getSize($el[0], 'width')
+                        || tmp.html != $el.html()
                         || tmp.html != $el.attr('data-style')) {
                     $el.remove();
                     $(this).parents('table').parent()
                         .append('<div id="'+ id +'" recid="'+ obj.records[tmp.row].recid +'" index="'+ tmp.row +'" index="'+ tmp.column +'" '+
                             '   class="w2ui-soft-range" data-style="' + tmp.style + '"' +
-                            '   style="'+ tmp.style +'; left: '+ tmp.left +'px; top: '+ tmp.top +'px; width: '+ tmp.width +'px">'+ 
+                            '   style="'+ tmp.style +'; left: '+ tmp.left +'px; top: '+ tmp.top +'px; width: '+ tmp.width +'px">'+
                                 tmp.html +
                             '</div>');
                     $(obj.box).find('#'+id).css(css);
@@ -3904,7 +3906,7 @@ w2utils.event = {
             if (this.last.xhr_offset == 0) {
                 obj.lock(w2utils.lang(obj.msgRefresh), true);
             } else {
-                var more = $('#grid_'+ this.name +'_rec_more');
+                var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
                 if (this.autoLoad === true) {
                     more.show().find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
                 } else {
@@ -4032,7 +4034,7 @@ w2utils.event = {
                             message      : w2utils.lang(this.msgNotJSON),
                             responseText : responseText
                         };
-                    } else if (obj.recid) {
+                    } else if (obj.recid && data.records) {
                         // convert recids
                         for (var i = 0; i < data.records.length; i++) {
                             data.records[i]['recid'] = data.records[i][obj.recid];
@@ -4180,7 +4182,7 @@ w2utils.event = {
             var edit   = (rec ? rec.editable : null);
             if (edit == null || edit === true) edit = (col ? col.editable : null);
             if (!rec || !col || !edit || rec.editable === false) return;
-            
+
             if (['enum', 'file'].indexOf(edit.type) != -1) {
                 console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
                 return;
@@ -4282,7 +4284,7 @@ w2utils.event = {
                     val = w2utils.formatNumber(val);
                 }
                 if (edit.type == 'date') {
-                    val = w2utils.formatDate(val, edit.format);
+                    val = w2utils.formatDate(w2utils.isDate(val, edit.format, true), edit.format);
                 }
                 if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
                 // init w2field
@@ -4395,8 +4397,8 @@ w2utils.event = {
                             expand.call(el, event);
                         }, 1);
                     })
-                    .on('keyup', function (event) { 
-                        expand.call(this, event); 
+                    .on('keyup', function (event) {
+                        expand.call(this, event);
                     });
                 // focus and select
                 if (edit.type == 'div') {
@@ -4454,7 +4456,7 @@ w2utils.event = {
                 }
                 sel.removeAllRanges();
                 sel.addRange(rg);
-            }            
+            }
         },
 
         editChange: function (el, index, column, event) {
@@ -4723,7 +4725,7 @@ w2utils.event = {
                 if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
                 if (eventData.field == 'line-number') {
                     if (this.getSelection().length >= this.records.length) {
-                        this.selectNone(); 
+                        this.selectNone();
                     } else {
                         this.selectAll();
                     }
@@ -4732,7 +4734,7 @@ w2utils.event = {
                 // select entire column
                 if (eventData.field == 'line-number') {
                     if (this.getSelection().length >= this.records.length) {
-                        this.selectNone(); 
+                        this.selectNone();
                     } else {
                         this.selectAll();
                     }
@@ -5598,7 +5600,7 @@ w2utils.event = {
             // make sure the box is right
             if (!this.box || $(this.box).attr('name') != this.name) return;
             // determine new width and height
-            $(this.box).find('> div')
+            $(this.box).find('> div:not(.w2ui-lock-msg)')
                 .css('width', $(this.box).width())
                 .css('height', $(this.box).height());
             // event before
@@ -5799,7 +5801,7 @@ w2utils.event = {
             // -- separate summary
             var tmp = this.find({ summary: true }, true);
             if (tmp.length > 0) {
-                this.summary = [];    
+                this.summary = [];
                 for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
                 for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
             }
@@ -5871,7 +5873,7 @@ w2utils.event = {
             obj.addRange('selection');
             setTimeout(function () { // allow to render first
                 obj.resize(); // needed for horizontal scroll to show (do not remove)
-                obj.scroll(); 
+                obj.scroll();
             }, 1);
 
             if ( obj.reorderColumns && !obj.last.columnDrag ) {
@@ -5911,7 +5913,7 @@ w2utils.event = {
                       '    <div id="grid_'+ this.name +'_fsummary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
-                      '    <textarea id="grid_'+ this.name +'_focus" style="position: absolute; top: -10px; right: 0px; z-index: 1; '+
+                      '    <textarea id="grid_'+ this.name +'_focus" style="position: fixed; top: -10px; right: 0px; z-index: 1; '+
                       '         width: 1px; height: 1px; border: 0px; padding: 0px; opacity: 0; resize: none"></textarea>'+
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
@@ -5933,12 +5935,12 @@ w2utils.event = {
             this.reload();
             // focus
             $(this.box).find('#grid_'+ this.name + '_focus')
-                .on('focus', function (event) { 
+                .on('focus', function (event) {
                     clearTimeout(obj.last.kbd_timer);
                     if (!obj.hasFocus) obj.focus();
                 })
-                .on('blur', function (event) { 
-                    obj.last.kbd_timer = setTimeout(function () { 
+                .on('blur', function (event) {
+                    obj.last.kbd_timer = setTimeout(function () {
                         if (obj.hasFocus) { obj.blur(); }
                     }, 100); // need this timer to be 100 ms
                 })
@@ -6255,9 +6257,9 @@ w2utils.event = {
                             '<table><tbody><tr>'+
                             '<td style="width: 30px">'+
                             '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabindex="-1" '+ (obj.show.lineNumbers ? 'checked="checked"' : '') +
-                            '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');"/>'+
+                            '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');"/>'+
                             '</td>'+
-                            '<td onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\'); $(document).click();">'+
+                            '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
                             '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
                             '</td></tr>';
             for (var c = 0; c < this.columns.length; c++) {
@@ -6269,9 +6271,9 @@ w2utils.event = {
                 col_html += '<tr>'+
                     '<td style="width: 30px">'+
                     '    <input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabindex="-1" '+ (col.hidden ? '' : 'checked="checked"') +
-                    '        onclick="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');"/>'+
+                    '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');"/>'+
                     '</td>'+
-                    '<td>'+
+                    '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
                     '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ tmp +    '</label>'+
                     '</td>'+
                     '</tr>';
@@ -6285,7 +6287,7 @@ w2utils.event = {
                         '        <input type="text" style="width: 45px" value="'+ this.offset +'" '+
                         '            onkeypress="if (event.keyCode == 13) { '+
                         '               w2ui[\''+ obj.name +'\'].skip(this.value); '+
-                        '               $(document).click(); '+
+                        '               $(\'.w2ui-overlay\')[0].hide(); '+
                         '            }"/> '+ w2utils.lang('Records')+
                         '    </div>'+
                         '</td></tr>';
@@ -7170,14 +7172,14 @@ w2utils.event = {
                 if (s.style   == null) s.style = '';
                 if (s.type    == null) s.type   = 'text';
                 if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
-                    var operator =  
+                    var operator =
                         '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '    <option value="begins">'+ w2utils.lang('begins') +'</option>'+
                         '    <option value="contains">'+ w2utils.lang('contains') +'</option>'+
                         '    <option value="ends">'+ w2utils.lang('ends') +'</option>'+
-                        (this.show.searchNull 
+                        (this.show.searchNull
                             ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
                               '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
                             : ''
@@ -7185,14 +7187,14 @@ w2utils.event = {
                         '</select>';
                 }
                 if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
-                    var operator =  
+                    var operator =
                         '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '    <option value="between">'+ w2utils.lang('between') +'</option>'+
                         '    <option value="less">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'before' : 'less') +'</option>'+
                         '    <option value="more">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'after' : 'more') +'</option>'+
-                        (this.show.searchNull 
+                        (this.show.searchNull
                             ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
                               '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
                             : ''
@@ -7200,11 +7202,11 @@ w2utils.event = {
                         '</select>';
                 }
                 if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
-                    var operator =  
+                    var operator =
                         '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
-                        (this.show.searchNull 
+                        (this.show.searchNull
                             ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
                               '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
                             : ''
@@ -7212,12 +7214,12 @@ w2utils.event = {
                         '</select>';
                 }
                 if (['enum'].indexOf(s.type) != -1) {
-                    var operator =  
+                    var operator =
                         '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
                         '    <option value="in">'+ w2utils.lang('in') +'</option>'+
                         '    <option value="not in">'+ w2utils.lang('not in') +'</option>'+
-                        (this.show.searchNull 
+                        (this.show.searchNull
                             ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
                               '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
                             : ''
@@ -7289,7 +7291,7 @@ w2utils.event = {
                     fld1.w2field('clear');
                     break;
                 case 'between':
-                    range.show(); 
+                    range.show();
                     fld2.w2field(search.type);
                     break;
                 case 'not null':
@@ -7627,7 +7629,7 @@ w2utils.event = {
             html1 += '<tr id="grid_'+ this.name + '_frec_bottom" line="bottom" style="height: '+ ((buffered - limit) * this.recordHeight) +'px">'+
                     '    <td colspan="200"></td>'+
                     '</tr>'+
-                    '<tr id="grid_'+ this.name +'_frec_more" style="display: none">'+
+                    '<tr id="grid_'+ this.name +'_frec_more" style="display: none; visibility: hidden">'+
                     '    <td colspan="200" class="w2ui-load-more"></td>'+
                     '</tr>'+
                     '</tbody></table>';
@@ -7783,7 +7785,7 @@ w2utils.event = {
                     this.last.xhr_offset += this.limit;
                     this.request('get-records');
                 } else {
-                    var more = $('#grid_'+ this.name +'_rec_more');
+                    var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
                     if (more.css('display') == 'none') {
                         more.show()
                             .on('click', function () {
@@ -7800,8 +7802,7 @@ w2utils.event = {
                 }
             }
             // check for grid end
-            if (buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more').hide();
-            return;
+            if (buffered >= this.total - this.offset) $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide();
 
             function markSearch() {
                 // mark search
@@ -7866,8 +7867,8 @@ w2utils.event = {
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             // render TR
             rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + 
-                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + 
+                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') +
+                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.editable === false ? ' w2ui-no-edit' : '') +
                     (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
@@ -7888,8 +7889,8 @@ w2utils.event = {
                     ( typeof record['style'] == 'string' ? 'custom_style="'+ record['style'] +'"' : '') +
                 '>';
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + 
-                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + 
+                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') +
+                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.editable === false ? ' w2ui-no-edit' : '') +
                     (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
@@ -7925,7 +7926,7 @@ w2utils.event = {
                             '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1"'+
                             '            '+ (isRowSelected ? 'checked="checked"' : '') +
                             '            onclick="var obj = w2ui[\''+ this.name +'\']; var recid = $(this).parents(\'tr\').attr(\'recid\'); '+
-                            '                clearTimeout(obj.last.kbd_timer); $(obj.box).find(\'#grid_'+ this.name + '_focus\').focus(); /* keep focus */' + 
+                            '                clearTimeout(obj.last.kbd_timer); $(obj.box).find(\'#grid_'+ this.name + '_focus\').focus(); /* keep focus */' +
                             '                if (!obj.multiSelect) { obj.selectNone(); }'+
                             '                if (this.checked) obj.select(recid); else obj.unselect(recid); '+
                             '                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;"/>'+
@@ -7969,9 +7970,9 @@ w2utils.event = {
                 if (soft_span > 1) {
                     soft_span--;
                 }
-                if (col.hidden) { 
-                    col_ind++; 
-                    if (this.columns[col_ind] == null) break; else continue; 
+                if (col.hidden) {
+                    col_ind++;
+                    if (this.columns[col_ind] == null) break; else continue;
                 }
                 var isChanged = !summary && record.changes && record.changes[col.field] != null;
                 var rec_cell  = this.getCellHTML(ind, col_ind, summary);
@@ -8009,7 +8010,7 @@ w2utils.event = {
                 }
                 var isCellSelected = false;
                 if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
-                tmph = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + 
+                tmph = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') +
                             (isChanged ? ' w2ui-changed' : '') +
                             (soft_set === true ? ' w2ui-soft-span' : '') +
                             (soft_set === false && soft_span > 1 ? ' w2ui-soft-hidden' : '') +
@@ -8081,7 +8082,7 @@ w2utils.event = {
                     }
                     if (tmp[0] == 'date') {
                         if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format;
-                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDate(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDate(w2utils.isDate(data, tmp[1], true), tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
                         if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format + '|' + w2utils.settings.time_format;
@@ -8104,7 +8105,7 @@ w2utils.event = {
                            '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                            '"/>';
                 }
-                if (!this.show.recordTitles) {
+                if (this.show.recordTitles) {
                     // title overwrite
                     var title = w2utils.stripTags(String(data).replace(/"/g, "''"));
                     if (col.title != null) {
@@ -8112,7 +8113,7 @@ w2utils.event = {
                         if (typeof col.title == 'string')   title = col.title;
                     }
                 }
-                data = '<div style="'+ style +'" title="'+ title +'">'+ data +'</div>';
+                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ data +'</div>';
             }
             if (data == null) data = '';
             return data;
@@ -8355,7 +8356,7 @@ w2utils.event = {
             var tmp  = this.records[index].w2ui;
             var span = (tmp && tmp.colspan ? tmp.colspan[this.columns[check].field] : 1);
             var edit = this.columns[check].editable;
-            if (this.columns[check].hidden || span == 0 
+            if (this.columns[check].hidden || span == 0
                     || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
                 return this.nextCell(index, check, editable);
             }
@@ -8368,7 +8369,7 @@ w2utils.event = {
             var tmp  = this.records[index].w2ui;
             var span = (tmp && tmp.colspan ? tmp.colspan[this.columns[check].field] : 1);
             var edit = this.columns[check].editable;
-            if (this.columns[check].hidden || span == 0 
+            if (this.columns[check].hidden || span == 0
                     || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
                 return this.prevCell(index, check, editable);
             }
@@ -16017,7 +16018,7 @@ var w2confirm = function (msg, title, callBack) {
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
             if (eventData.isCancelled === true) return;
             // default behaviour
-            var main    = $(this.box).find('> div');
+            var main    = $(this.box).find('> div:not(.w2ui-lock-msg)');
             var header  = $(this.box).find('> div .w2ui-form-header');
             var toolbar = $(this.box).find('> div .w2ui-form-toolbar');
             var tabs    = $(this.box).find('> div .w2ui-form-tabs');
