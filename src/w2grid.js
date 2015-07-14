@@ -396,16 +396,16 @@
                 for (var i = 0; i < this.records.length; i++) {
                     if ($.inArray(this.records[i].recid, recid) != -1) {
                         if (returnIndex === true) {
-                            recs.push(i); 
+                            recs.push(i);
                         } else {
-                            recs.push(this.records[i]); 
+                            recs.push(this.records[i]);
                         }
                     }
                 }
                 for (var i = 0; i < this.summary.length; i++) {
                     if ($.inArray(this.summary[i].recid, recid) != -1) {
                         if (returnIndex === true) {
-                            recs.push(i); 
+                            recs.push(i);
                         } else {
                             recs.push(this.summary[i]);
                         }
@@ -2486,7 +2486,7 @@
                     }
                     expand.call(el.find('div.w2ui-input')[0], null);
                 } else {
-                    var tmp = el.find('input, select').focus();
+                    var tmp = el.find('input, select')[0].focus();
                     clearTimeout(obj.last.kbd_timer); // keep focus
                     if (value != null) {
                         // set cursor to the end
