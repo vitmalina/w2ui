@@ -2486,13 +2486,14 @@
                     }
                     expand.call(el.find('div.w2ui-input')[0], null);
                 } else {
-                    var tmp = el.find('input, select')[0].focus();
+                    var tmp = el.find('input, select');
+                    tmp[0].focus();
                     clearTimeout(obj.last.kbd_timer); // keep focus
                     if (value != null) {
                         // set cursor to the end
                         tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
                     } else {
-                        tmp.select();
+                        tmp[0].select();
                     }
                     expand.call(el.find('input, select')[0], null);
                 }
