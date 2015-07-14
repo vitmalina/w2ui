@@ -1287,7 +1287,7 @@ w2utils.event = {
             maxWidth    : null,              // max width if any
             maxHeight   : null,              // max height if any
             contextMenu : false,             // if true, it will be opened at mouse position
-            style       : 'min-width:100%;', // additional style for main div
+            style       : '',                // additional style for main div
             'class'     : '',                // additional class name for main div
             overlayStyle: '',
             onShow      : null,              // event on show
@@ -1332,7 +1332,7 @@ w2utils.event = {
             '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'"'+
             '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
-            '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
+            '    <div style="min-width: 100%; '+ options.style +'" class="'+ options['class'] +'"></div>'+
             '</div>'
         );
         // init
