@@ -2165,11 +2165,12 @@
                 this.localSearch();
             }
             this.total = parseInt(this.total);
+            // call back
+            if (typeof callBack == 'function') callBack(data); // need to be befor event:after
+            // after event
             this.trigger($.extend(eventData, { phase: 'after' }));
             // do not refresh if loading on infinite scroll
             if (this.last.xhr_offset == 0) this.refresh(); else this.scroll();
-            // call back
-            if (typeof callBack == 'function') callBack(data);
         },
 
         error: function (msg) {
@@ -2560,8 +2561,9 @@
             }
             // change/restore event
             var eventData = {
-                phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
-                value_new: new_val, value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
+                phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column, 
+                originalEvent: (event.originalEvent ? event.originalEvent : event), value_new: new_val, 
+                value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
             };
             if (old_val == null) old_val = '';
             while (true) {
@@ -6427,11 +6429,12 @@
         nextCell: function (index, col_ind, editable) {
             var check = col_ind + 1;
             if (this.columns.length == check) return null;
-
             var tmp  = this.records[index].w2ui;
-            var span = (tmp && tmp.colspan ? tmp.colspan[this.columns[check].field] : 1);
-            var edit = this.columns[check].editable;
-            if (this.columns[check].hidden || span == 0
+            var col  = this.columns[check];
+            var span = (tmp && tmp.colspan ? tmp.colspan[col.field] : 1);
+            var edit = col ? col.editable : null;
+            if (col == null) return null;
+            if (col && col.hidden || span == 0
                     || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
                 return this.nextCell(index, check, editable);
             }
@@ -6442,9 +6445,11 @@
             var check = col_ind - 1;
             if (check < 0) return null;
             var tmp  = this.records[index].w2ui;
-            var span = (tmp && tmp.colspan ? tmp.colspan[this.columns[check].field] : 1);
-            var edit = this.columns[check].editable;
-            if (this.columns[check].hidden || span == 0
+            var col  = this.columns[check];
+            var span = (tmp && tmp.colspan ? tmp.colspan[col.field] : 1);
+            var edit = col ? col.editable : null;
+            if (col == null) return null;
+            if (col && col.hidden || span == 0
                     || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
                 return this.prevCell(index, check, editable);
             }
