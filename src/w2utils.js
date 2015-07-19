@@ -1419,11 +1419,17 @@ w2utils.event = {
                     h = parseInt(options.tmp.contentHeight);
                     div2.height(h);
                     setTimeout(function () {
-                        if (h > div2.find('div.menu > table').height()) {
+                        var $div = div2.find('div.menu > table');
+                        if (h > $div.height()) {
                             div2.find('div.menu').css('overflow-y', 'hidden');
                         }
                     }, 1);
-                    setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
+                    setTimeout(function () { 
+                        var $div = div2.find('div.menu');
+                        if ($div.css('overflow-y') != 'auto') {
+                            $div.css('overflow-y', 'auto'); 
+                        }
+                    }, 10);
                 }
                 if (options.tmp.contentWidth) {
                     w = parseInt(options.tmp.contentWidth);
@@ -1445,6 +1451,7 @@ w2utils.event = {
                     case 'both':
                         boxLeft = 17 + parseInt(options.left);
                         if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
+                        if (options.maxWidth && options.width > options.maxWidth) options.width = options.maxWidth;
                         break;
                     case 'left':
                         boxLeft = 17 + parseInt(options.left);
@@ -1536,8 +1543,6 @@ w2utils.event = {
                         '#w2ui-overlay'+ name +':after { display: none; }'
                     );
                 }
-                // check scroll bar
-                if (overflowY) div2.width(w + w2utils.scrollBarSize() + 2);
             }
         }
     };

@@ -33,6 +33,7 @@
 *   - changed onSearch - happens when search input changes
 *   - added options.method - for combo/list/enum if url is defined
 *   - options.items can be a function now
+*   - options.maxDropWidth
 *
 ************************************************************************/
 
@@ -288,6 +289,7 @@
                         minLength       : 1,
                         cacheMax        : 250,
                         maxDropHeight   : 350,          // max height for drop down menu
+                        maxDropWidth    : null,         // if null then auto set
                         match           : 'begins',     // ['contains', 'is', 'begins', 'ends']
                         silent          : true,
                         icon            : null,
@@ -353,6 +355,7 @@
                         maxWidth        : 250,           // max width for a single item
                         maxHeight       : 350,           // max height for input control to grow
                         maxDropHeight   : 350,           // max height for drop down menu
+                        maxDropWidth    : null,          // if null then auto set
                         match           : 'contains',    // ['contains', 'is', 'begins', 'ends']
                         silent          : true,
                         openOnFocus     : false,         // if to show overlay onclick or when typing
@@ -400,6 +403,7 @@
                         maxWidth      : 250,      // max width for a single item
                         maxHeight     : 350,      // max height for input control to grow
                         maxDropHeight : 350,      // max height for drop down menu
+                        maxDropWidth  : null,     // if null then auto set
                         silent        : true,
                         renderItem    : null,     // render selected item
                         style         : '',       // style for container div
@@ -1806,6 +1810,7 @@
                         search     : false,
                         render     : options.renderDrop,
                         maxHeight  : options.maxDropHeight,
+                        maxWidth   : options.maxDropWidth,
                         msgNoItems : msgNoItems,
                         // selected with mouse
                         onSelect: function (event) {
