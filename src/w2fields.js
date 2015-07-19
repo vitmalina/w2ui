@@ -561,10 +561,10 @@
                     // focus helper
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() == '') {
-                        $(focus).css('opacity', 0).prev().css('opacity', 0);
+                        $(focus).css('text-indent', '-9999em').prev().css('opacity', 0);
                         $(obj.el).val(selected && selected.text != null ? selected.text : '');
                     } else {
-                        $(focus).css('opacity', 1).prev().css('opacity', 1);
+                        $(focus).css('text-indent', 0).prev().css('opacity', 1);
                         $(obj.el).val('');
                         setTimeout(function () {
                             if (obj.helpers.prefix) obj.helpers.prefix.hide();
@@ -612,7 +612,7 @@
                 $(obj.el).css('z-index', '-1');
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
                     setTimeout(function () {
-                        div[0].scrollTop = 0; // scroll to the top 
+                        div[0].scrollTop = 0; // scroll to the top
                         div.addClass('w2ui-readonly')
                             .find('li').css('opacity', '0.9')
                             .parent().find('li.nomouse').hide()
@@ -1198,7 +1198,7 @@
                     }
                     // paste
                     if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
-                        setTimeout(function () { 
+                        setTimeout(function () {
                             obj.refresh();
                             obj.search();
                             obj.request();
@@ -1341,11 +1341,11 @@
                         // trigger event
                         var eventData = obj.trigger({ phase: 'before', type: 'search', originalEvent: event, target: focus, search: focus.val() });
                         if (eventData.isCancelled === true) return;
-                        // default action                        
+                        // default action
                         if (!obj.tmp.force_hide) obj.request();
                         obj.search();
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));                        
+                        obj.trigger($.extend(eventData, { phase: 'after' }));
                     }, 1);
                 }
             }
@@ -2375,7 +2375,7 @@
                 }
                 return menu;
             } else if (typeof menu == 'function') {
-                return this.normMenu(menu());    
+                return this.normMenu(menu());
             } else if (typeof menu == 'object') {
                 var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });

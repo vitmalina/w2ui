@@ -42,7 +42,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added menu.item.tooltip for overlay menus
 *   - added w2tag options.id, options.left, options.top
 *   - added w2tag options.position = top|bottom|left|right - default is right
-*   - added $().w2color(color, callBack) 
+*   - added $().w2color(color, callBack)
 *   - added custom colors
 *   - added w2menu.options.type = radio|check
 *   - added w2menu items.hotkey
@@ -431,7 +431,7 @@ var w2utils = (function ($) {
         }
         // older formats support
         if (fmt[1] == 'h12') fmt[1] = 'h:m pm';
-        if (fmt[1] == 'h24') fmt[1] = 'h24:m';        
+        if (fmt[1] == 'h24') fmt[1] = 'h24:m';
         return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1]);
     }
 
@@ -1129,7 +1129,7 @@ w2utils.event = {
         }
         // default options
         options = $.extend({
-            id              : null,     // id for the tag, otherwise input id is used 
+            id              : null,     // id for the tag, otherwise input id is used
             html            : text,     // or html
             position        : 'right',  // can be left, right, top, bottom
             left            : 0,        // delta for left coordinate
@@ -1177,7 +1177,7 @@ w2utils.event = {
                 if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
                 // insert
                 $('body').append(
-                    '<div id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+ 
+                    '<div id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                     '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
                     '      <div class="w2ui-tag-body" style="'+ (options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
@@ -1206,10 +1206,10 @@ w2utils.event = {
                     .addClass(options['class']);
 
                 if (options.hideOnKeyPress) {
-                    $(el).on('keypress.w2tag', hideTag)                        
+                    $(el).on('keypress.w2tag', hideTag)
                 }
                 if (options.hideOnBlur) {
-                    $(el).on('blur.w2tag', hideTag)                        
+                    $(el).on('blur.w2tag', hideTag)
                 }
                 if (typeof options.onShow === 'function') options.onShow();
             }, 1);
@@ -1229,7 +1229,7 @@ w2utils.event = {
 
             function checkIfMoved() {
                 // monitor if destroyed
-                if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0) 
+                if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0)
                         || $tags.find('.w2ui-tag-body').length == 0) {
                     clearInterval($tags.data('timer'));
                     hideTag();
@@ -1274,25 +1274,25 @@ w2utils.event = {
         var obj  = this;
         var name = '';
         var defaults = {
-            name        : null,      // it not null, then allows multiple concurrent overlays
-            html        : '',        // html text to display
-            align       : 'none',    // can be none, left, right, both
-            left        : 0,         // offset left
-            top         : 0,         // offset top
-            tipLeft     : 30,        // tip offset left
-            noTip       : false,      // if true - no tip will be displayed
+            name        : null,              // it not null, then allows multiple concurrent overlays
+            html        : '',                // html text to display
+            align       : 'none',            // can be none, left, right, both
+            left        : 0,                 // offset left
+            top         : 0,                 // offset top
+            tipLeft     : 30,                // tip offset left
+            noTip       : false,             // if true - no tip will be displayed
             selectable  : false,
-            width       : 0,         // fixed width
-            height      : 0,         // fixed height
-            maxWidth    : null,      // max width if any
-            maxHeight   : null,      // max height if any
-            contextMenu : false,    // if true, it will be opened at mouse position
-            style       : '',        // additional style for main div
-            'class'     : '',        // additional class name for main div
+            width       : 0,                 // fixed width
+            height      : 0,                 // fixed height
+            maxWidth    : null,              // max width if any
+            maxHeight   : null,              // max height if any
+            contextMenu : false,             // if true, it will be opened at mouse position
+            style       : '',                // additional style for main div
+            'class'     : '',                // additional class name for main div
             overlayStyle: '',
-            onShow      : null,      // event on show
-            onHide      : null,      // event on hide
-            openAbove   : false,     // show above control
+            onShow      : null,              // event on show
+            onHide      : null,              // event on hide
+            openAbove   : false,             // show above control
             tmp         : {}
         };
         if (arguments.length == 1) {
@@ -1332,7 +1332,7 @@ w2utils.event = {
             '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'"'+
             '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
-            '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
+            '    <div style="min-width: 100%; '+ options.style +'" class="'+ options['class'] +'"></div>'+
             '</div>'
         );
         // init
@@ -1822,9 +1822,9 @@ w2utils.event = {
                             '               $.fn.w2menuClick(event, \''+ f +'\');">'+
                                 imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ txt +'</td>'+
-                            '   <td class="menu-count">'+ 
-                                    (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') + 
-                                    (mitem.hotkey != null ? '<span class="hotkey">' + mitem.hotkey + '</span>' : '') + 
+                            '   <td class="menu-count">'+
+                                    (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') +
+                                    (mitem.hotkey != null ? '<span class="hotkey">' + mitem.hotkey + '</span>' : '') +
                             '</td>' +
                             '</tr>';
                         count++;
@@ -1866,7 +1866,7 @@ w2utils.event = {
         if (color) color = String(color).toUpperCase();
 
         if ($('#w2ui-overlay').length == 0) {
-            $(el).w2overlay(getColorHTML(color), { 
+            $(el).w2overlay(getColorHTML(color), {
                 onHide: function () {
                     if (typeof callBack == 'function') callBack($(el).data('_color'));
                     $(el).removeData('_color');
@@ -1917,7 +1917,7 @@ w2utils.event = {
                 case 'down':
                     index[0]++;
                     break;
-                case 'right': 
+                case 'right':
                     index[1]++;
                     break;
                 case 'left':
@@ -1941,7 +1941,7 @@ w2utils.event = {
                 html += '<tr>';
                 for (var j = 0; j < pal[i].length; j++) {
                     html += '<td>'+
-                            '    <div class="color '+ (pal[i][j] == '' ? 'no-color' : '') +'" style="background-color: #'+ pal[i][j] +';" ' + 
+                            '    <div class="color '+ (pal[i][j] == '' ? 'no-color' : '') +'" style="background-color: #'+ pal[i][j] +';" ' +
                             '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (color == pal[i][j] ? '&#149;' : '&#160;') +
                             '    </div>'+
                             '</td>';
@@ -1962,7 +1962,7 @@ w2utils.event = {
                     '<tr><td style="height: 4px" colspan="8"></td></tr>';
             html += '</tbody></table></div>';
             return html;
-        }        
+        }
     };
 
 })(jQuery);
