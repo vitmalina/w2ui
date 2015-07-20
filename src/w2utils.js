@@ -1543,6 +1543,8 @@ w2utils.event = {
                         '#w2ui-overlay'+ name +':after { display: none; }'
                     );
                 }
+                // check scroll bar (needed to avoid horizontal scrollbar)
+                if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);                
             }
         }
     };
