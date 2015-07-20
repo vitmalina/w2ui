@@ -1544,6 +1544,8 @@ w2utils.event = {
                         '#w2ui-overlay'+ name +':after { display: none; }'
                     );
                 }
+                // check scroll bar
+                if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);                
             }
         }
     };
@@ -2260,6 +2262,7 @@ w2utils.event = {
                         selected        : {},
                         url             : null,          // url to pull data from
                         method          : null,          // default comes from w2utils.settings.dataType
+                        interval        : 350,           // number of ms to wait before sending server call on search
                         postData        : {},
                         minLength       : 1,
                         cacheMax        : 250,
@@ -2280,8 +2283,7 @@ w2utils.event = {
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
-                        markSearch      : false,
-                        method          : null          // if defined, overrides default ajax method
+                        markSearch      : false
                     };
                     options.items = this.normMenu(options.items); // need to be first
                     if (this.type == 'list') {
@@ -2323,6 +2325,7 @@ w2utils.event = {
                         selected        : [],
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
+                        interval        : 350,           // number of ms to wait before sending server call on search
                         method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
                         minLength       : 1,
@@ -2350,8 +2353,7 @@ w2utils.event = {
                         onRemove        : null,          // when an item is removed
                         onMouseOver     : null,          // when an item is mouse over
                         onMouseOut      : null,          // when an item is mouse out
-                        onScroll        : null,          // when div with selected items is scrolled
-                        method          : null           // if defined, overrides default ajax method
+                        onScroll        : null           // when div with selected items is scrolled
                     };
                     options = $.extend({}, defaults, options, {
                         align    : 'both',    // same width as control
@@ -3367,7 +3369,7 @@ w2utils.event = {
                 this.updateOverlay();
                 return;
             }
-            if (interval == null) interval = 350;
+            if (interval == null) interval = options.interval;
             if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = '';
             if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1;
             // check if need to search

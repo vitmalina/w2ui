@@ -1544,6 +1544,8 @@ w2utils.event = {
                         '#w2ui-overlay'+ name +':after { display: none; }'
                     );
                 }
+                // check scroll bar
+                if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);                
             }
         }
     };
@@ -5223,7 +5225,7 @@ w2utils.event = {
                     break;
             }
             var tmp = [32, 187, 189, 192, 219, 220, 221, 186, 222, 188, 190, 191]; // other typable chars
-            for (var i=48; i<=90; i++) tmp.push(i); // 0-9,a-z,A-Z
+            for (var i=48; i<=111; i++) tmp.push(i); // 0-9,a-z,A-Z,numpad
             if (tmp.indexOf(key) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
                 if (columns.length == 0) columns.push(0);
                 cancel = false;
@@ -12974,6 +12976,7 @@ var w2confirm = function (msg, title, callBack) {
                         selected        : {},
                         url             : null,          // url to pull data from
                         method          : null,          // default comes from w2utils.settings.dataType
+                        interval        : 350,           // number of ms to wait before sending server call on search
                         postData        : {},
                         minLength       : 1,
                         cacheMax        : 250,
@@ -12994,8 +12997,7 @@ var w2confirm = function (msg, title, callBack) {
                         prefix          : '',
                         suffix          : '',
                         openOnFocus     : false,        // if to show overlay onclick or when typing
-                        markSearch      : false,
-                        method          : null          // if defined, overrides default ajax method
+                        markSearch      : false
                     };
                     options.items = this.normMenu(options.items); // need to be first
                     if (this.type == 'list') {
@@ -13037,6 +13039,7 @@ var w2confirm = function (msg, title, callBack) {
                         selected        : [],
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
+                        interval        : 350,           // number of ms to wait before sending server call on search
                         method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
                         minLength       : 1,
@@ -13064,8 +13067,7 @@ var w2confirm = function (msg, title, callBack) {
                         onRemove        : null,          // when an item is removed
                         onMouseOver     : null,          // when an item is mouse over
                         onMouseOut      : null,          // when an item is mouse out
-                        onScroll        : null,          // when div with selected items is scrolled
-                        method          : null           // if defined, overrides default ajax method
+                        onScroll        : null           // when div with selected items is scrolled
                     };
                     options = $.extend({}, defaults, options, {
                         align    : 'both',    // same width as control
@@ -14081,7 +14083,7 @@ var w2confirm = function (msg, title, callBack) {
                 this.updateOverlay();
                 return;
             }
-            if (interval == null) interval = 350;
+            if (interval == null) interval = options.interval;
             if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = '';
             if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1;
             // check if need to search
