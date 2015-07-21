@@ -66,7 +66,6 @@
         "Edit" : "Değiş",
         "Save Grid State" : "Gridin durumunu ekle",
         "Restore Default State" : "Varsayılanları dön",
-        "in" : "içeren",
         "not in": "içermeyen",
         "begins": "başlayan",
         "ends": "biten",
@@ -76,7 +75,7 @@
         "Skip": "Ötür",
         "Records": "Kayıtlar",        
         "Toggle Line Numbers":"Satır Num. Göster/Gizle",
-        "Reset Column Size":"Sütun Genişliğini Sıfırla"
+        "Reset Column Size":"Sütun Genişliğini Sıfırla",
         "in" : "şunlardan biri"
     }
 }
