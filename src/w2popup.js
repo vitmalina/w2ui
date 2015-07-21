@@ -27,7 +27,7 @@
 
 var w2popup = {};
 
-(function () {
+(function ($) {
 
     // ====================================================
     // -- Registers as a jQuery plugin
@@ -74,7 +74,7 @@ var w2popup = {};
                     dlgOptions['buttons'] = $(this).find('div[rel=buttons]');
                 }
             } else {
-                dlgOptions['title'] = '&nbsp;';
+                dlgOptions['title'] = '&#160;';
                 dlgOptions['body']  = $(this).html();
             }
             if (parseInt($(this).css('width')) != 0)  dlgOptions['width']  = parseInt($(this).css('width'));
@@ -201,7 +201,7 @@ var w2popup = {};
                           '    </div>'+
                           '</div>'+
                           '<div class="w2ui-msg-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
-                          '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px">'; // this is needed to keep focus in popup
+                          '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px"/>'; // this is needed to keep focus in popup
                 $('#w2ui-popup').html(msg);
 
                 if (options.title) $('#w2ui-popup .w2ui-msg-title').append(options.title);
@@ -832,12 +832,13 @@ var w2popup = {};
     // merge in event handling
     $.extend(w2popup, w2utils.event);
 
-})();
+})(jQuery);
 
 // ============================================
 // --- Common dialogs
 
 var w2alert = function (msg, title, callBack) {
+    var $ = jQuery;
     if (title == null) title = w2utils.lang('Notification');
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         w2popup.message({
@@ -876,6 +877,7 @@ var w2alert = function (msg, title, callBack) {
 };
 
 var w2confirm = function (msg, title, callBack) {
+    var $ = jQuery;
     var options  = {};
     var defaults = {
         msg         : '',

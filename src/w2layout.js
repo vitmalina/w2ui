@@ -17,7 +17,7 @@
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2layout = function (options) {
         this.box     = null;        // DOM Element that holds the element
         this.name    = null;        // unique name for w2ui
@@ -412,7 +412,7 @@
                 // tabs are rendered in refresh()
             }
             $(obj.box).find(' > div')
-                .append('<div id="layout_'+ obj.name + '_panel_css" style="position: absolute; top: 10000px;"></div');
+                .append('<div id="layout_'+ obj.name + '_panel_css" style="position: absolute; top: 10000px;"></div>');
             obj.refresh(); // if refresh is not called here, the layout will not be available right after initialization
             // process event
             obj.trigger($.extend(eventData, { phase: 'after' }));
@@ -1071,4 +1071,4 @@
 
     $.extend(w2layout.prototype, w2utils.event);
     w2obj.layout = w2layout;
-})();
+})(jQuery);

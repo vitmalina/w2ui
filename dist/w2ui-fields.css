@@ -181,16 +181,21 @@ input[type=checkbox].w2ui-toggle:focus {
 */
 .w2ui-overlay {
   position: absolute;
-  margin-top: 6px;
+  margin-top: 4px;
   margin-left: -17px;
   display: none;
   z-index: 1300;
   color: inherit;
   background-color: #fbfbfb;
-  border: 3px solid #777777;
+  border-color: #fbfbfb;
   box-shadow: 0px 2px 10px #999999;
   border-radius: 4px;
   text-align: left;
+}
+.w2ui-overlay > div {
+  border-radius: 4px;
+  position: relative;
+  border: 3px solid #777777;
 }
 .w2ui-overlay table td {
   color: inherit;
@@ -198,42 +203,50 @@ input[type=checkbox].w2ui-toggle:focus {
 .w2ui-overlay:before {
   content: "";
   position: absolute;
-  -webkit-transform: rotate(-45deg);
-  -moz-transform: rotate(-45deg);
-  -ms-transform: rotate(-45deg);
-  -o-transform: rotate(-45deg);
-  transform: rotate(-45deg);
-  width: 12px;
-  height: 12px;
-  border: 3px solid #777777;
   border-color: inherit;
-  background-color: inherit;
-  border-left: 1px solid transparent;
-  border-bottom: 1px solid transparent;
-  border-bottom-left-radius: 50px;
-  margin: -9px 0 0 30px;
 }
 .w2ui-overlay:after {
-  display: none;
   content: "";
   position: absolute;
-  -webkit-transform: rotate(135deg);
-  -moz-transform: rotate(135deg);
-  -ms-transform: rotate(135deg);
-  -o-transform: rotate(135deg);
-  transform: rotate(135deg);
-  width: 12px;
-  height: 12px;
-  border: 3px solid #777777;
   border-color: inherit;
-  background-color: inherit;
-  border-left: 1px solid transparent;
-  border-bottom: 1px solid transparent;
-  border-bottom-left-radius: 50px;
-  margin: -7px 0 0 30px;
+  bottom: 100%;
+  left: 4px;
+}
+.w2ui-overlay.top-arrow:before {
+  border-bottom: 12px solid #6f6f6f;
+  border-right: 12px solid transparent;
+  border-left: 12px solid transparent;
+  bottom: 100%;
+  margin-bottom: -3px;
+}
+.w2ui-overlay.top-arrow:after {
+  border-bottom: 8px solid #000000;
+  border-bottom-color: inherit;
+  border-right: 8px solid transparent;
+  border-left: 8px solid transparent;
+  bottom: 100%;
+  margin-bottom: -3px;
+}
+.w2ui-overlay.bottom-arrow:before {
+  border-top: 12px solid #6f6f6f;
+  border-right: 12px solid transparent;
+  border-left: 12px solid transparent;
+  top: 100%;
+  margin-top: -3px;
+}
+.w2ui-overlay.bottom-arrow:after {
+  border-top: 8px solid #000000;
+  border-top-color: inherit;
+  border-right: 8px solid transparent;
+  border-left: 8px solid transparent;
+  top: 100%;
+  margin-top: -3px;
 }
 .w2ui-overlay.w2ui-overlay-popup {
   z-index: 1700;
+}
+.w2ui-overlay .w2ui-grid-searches {
+  border-top: 3px solid #777777 !important;
 }
 .w2ui-overlay .no-color {
   border: 1px solid #eee;
@@ -263,7 +276,7 @@ input[type=checkbox].w2ui-toggle:focus {
   font-size: 11px;
   font-family: verdana;
   text-shadow: 1px 1px 3px #000;
-  line-height: 100%;
+  line-height: 1.4;
   letter-spacing: 0.1px;
 }
 .w2ui-tag .w2ui-tag-body.w2ui-tag-right:before {
@@ -301,12 +314,12 @@ input[type=checkbox].w2ui-toggle:focus {
   content: "";
   position: absolute;
   left: 12px;
+  bottom: -6px;
   width: 0;
   height: 0;
   border-right: 6px solid transparent;
   border-left: 6px solid transparent;
   border-top: 6px solid rgba(60, 60, 60, 0.82);
-  margin: 17px 0 0;
 }
 .w2ui-tag.w2ui-tag-popup {
   z-index: 1700;

@@ -21,11 +21,12 @@
 *   - added focus(), blur(), onFocus, onBlur
 *   - unselect w/o arguments will unselect selected node
 *   - added hasFocus property
-*   - nd.render deprecated, nd.text can be a function (where this word is the item)
+*   - node.render deprecated, nd.text can be a function (where this word is the item)
+*   - node.collapsible - defines if it can be collapsed
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2sidebar = function (options) {
         this.name          = null;
         this.box           = null;
@@ -114,6 +115,7 @@
             disabled        : false,
             group           : false,        // if true, it will build as a group
             groupShowHide   : true,
+            collapsible     : true,
             plus            : false,        // if true, plus will be shown even if there is no sub nodes
             // events
             onClick         : null,
@@ -379,6 +381,7 @@
                 return;
             }
             if (nd.nodes.length === 0) return false;
+            if (!nd.collapsible) return false;
             if (this.get(id).expanded) return this.collapse(id); else return this.expand(id);
         },
 
@@ -697,7 +700,7 @@
                 .addClass('w2ui-reset w2ui-sidebar')
                 .html('<div>'+
                         '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; '+
-                        '       width: 0px; border: 0px; padding: 0px; opacity: 0">'+
+                        '       width: 0px; border: 0px; padding: 0px; opacity: 0"/>'+
                         '<div class="w2ui-sidebar-top"></div>' +
                         '<div class="w2ui-sidebar-div"></div>'+
                         '<div class="w2ui-sidebar-bottom"></div>'+
@@ -740,7 +743,7 @@
                 // set focus to grid
                 setTimeout(function () {
                     // if input then do not focus
-                    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1) {
+                    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1) {
                         var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
                         if (!$input.is(':focus')) $input.focus();
                     }
@@ -837,12 +840,12 @@
                         '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '        onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '        onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                        (nd.groupShowHide ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
+                        ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
                         (typeof nd.text == 'function' ? nd.text.call(nd) : '<span>'+ nd.text +'</span>') +
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
-                        html = '<div class="w2ui-node-group" id="node_'+ nd.id +'"><span>&nbsp;</span></div>'+
+                        html = '<div class="w2ui-node-group" id="node_'+ nd.id +'"><span>&#160;</span></div>'+
                                '<div id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     }
                 } else {
@@ -856,17 +859,17 @@
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                            '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tr>'+
-                            '<td class="w2ui-node-dots" nowrap onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
+                            '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tbody><tr>'+
+                            '<td class="w2ui-node-dots" nowrap="nowrap" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
                             '        if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
                             '    <div class="w2ui-expand">'    + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
                             '</td>'+
-                            '<td class="w2ui-node-data" nowrap>'+
+                            '<td class="w2ui-node-data" nowrap="nowrap">'+
                                     tmp +
                                     (nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
                                     '<div class="w2ui-node-caption">'+ text +'</div>'+
                             '</td>'+
-                            '</tr></table>'+
+                            '</tr></tbody></table>'+
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
@@ -932,4 +935,4 @@
 
     $.extend(w2sidebar.prototype, w2utils.event);
     w2obj.sidebar = w2sidebar;
-})();
+})(jQuery);

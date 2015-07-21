@@ -19,10 +19,11 @@
 *   - added button types: color, text-color
 *   - added button types: menu-check, menu-radio - will save into item.selected
 *   - item.text and item.html - can be functions now (or string), where this keyword is the item
+*   - item.style - style for caption in the button
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2toolbar = function (options) {
         this.box       = null;      // DOM Element that holds the element
         this.name      = null;      // unique name for w2ui
@@ -333,7 +334,7 @@
                                         if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else delete item.checked;
                                     });
                                 }
-                                el.w2menu($.extend({ items: it.items, left: left, top: 3 }, it.overlay, {
+                                el.w2menu($.extend({ name: obj.name, items: it.items, left: left, top: 3 }, it.overlay, {
                                     type: menuType,
                                     select: function (event) {
                                         obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent });
@@ -399,7 +400,7 @@
             }
             if (!this.box) return;
             // render all buttons
-            var html = '<table cellspacing="0" cellpadding="0" width="100%">'+
+            var html = '<table cellspacing="0" cellpadding="0" width="100%"><tbody>'+
                        '<tr>';
             for (var i = 0; i < this.items.length; i++) {
                 var it = this.items[i];
@@ -415,7 +416,7 @@
             }
             html += '<td width="100%" id="tb_'+ this.name +'_right" align="right">'+ this.right +'</td>';
             html += '</tr>'+
-                    '</table>';
+                    '</tbody></table>';
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-toolbar')
@@ -515,7 +516,7 @@
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.text == null) item.text = '';
             if (item.tooltip == null) item.tooltip = '';
-            var img  = '<td>&nbsp;</td>';
+            var img  = '<td>&#160;</td>';
             var text = item.text;
             if (typeof text == 'function') text = text.call(item);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
@@ -549,29 +550,35 @@
                             '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].tooltipHide('"+ item.id +"', event);" : "") + '"'+
                             '       onmousedown = "' + (!item.disabled ? "$(this).addClass('down');" : "") + '"'+
                             '       onmouseup   = "' + (!item.disabled ? "$(this).removeClass('down');" : "") + '"'+
-                            '>'+
+                            '><tbody>'+
                             '<tr><td>'+
-                            '  <table cellpadding="1" cellspacing="0">'+
+                            '  <table cellpadding="1" cellspacing="0"><tbody>'+
                             '  <tr>' +
                                     img +
-                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ w2utils.lang(text) +'</td>' : '') +
-                                    (item.count != null ? '<td class="w2ui-tb-count" nowrap><span>'+ item.count +'</span></td>' : '') +
+                                    (text !== '' 
+                                        ? '<td class="w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>' 
+                                        : ''
+                                    ) +
+                                    (item.count != null 
+                                        ? '<td class="w2ui-tb-count" nowrap="nowrap"><span>'+ item.count +'</span></td>' 
+                                        : ''
+                                    ) +
                                     (((['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
-                                        '<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
-                            '  </tr></table>'+
-                            '</td></tr></table>';
+                                        '<td class="w2ui-tb-down" nowrap="nowrap"><div></div></td>' : '') +
+                            '  </tr></tbody></table>'+
+                            '</td></tr></tbody></table>';
                     break;
 
                 case 'break':
-                    html += '<table cellpadding="0" cellspacing="0"><tr>'+
-                            '    <td><div class="w2ui-break">&nbsp;</div></td>'+
-                            '</tr></table>';
+                    html += '<table cellpadding="0" cellspacing="0"><tbody><tr>'+
+                            '    <td><div class="w2ui-break">&#160;</div></td>'+
+                            '</tr></tbody></table>';
                     break;
 
                 case 'html':
-                    html += '<table cellpadding="0" cellspacing="0"><tr>'+
-                            '    <td nowrap>' + (typeof item.html == 'function' ? item.html.call(item) : item.html) + '</td>'+
-                            '</tr></table>';
+                    html += '<table cellpadding="0" cellspacing="0"><tbody><tr>'+
+                            '    <td nowrap="nowrap">' + (typeof item.html == 'function' ? item.html.call(item) : item.html) + '</td>'+
+                            '</tr></tbody></table>';
                     break;
             }
 
@@ -672,5 +679,4 @@
 
     $.extend(w2toolbar.prototype, w2utils.event);
     w2obj.toolbar = w2toolbar;
-})();
-
+})(jQuery);

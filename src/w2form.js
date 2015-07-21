@@ -27,7 +27,7 @@
 ************************************************************************/
 
 
-(function () {
+(function ($) {
     var w2form = function(options) {
         // public properties
         this.name      = null;
@@ -731,7 +731,7 @@
                         // generate
                         for (var i = 0; i < items.length; i++) {
                             input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
-                                '&nbsp;' + items[i].text + '</label><br>';
+                                '&#160;' + items[i].text + '</label><br/>';
                         }
                         break;
                     case 'select':
@@ -821,7 +821,7 @@
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
             if (eventData.isCancelled === true) return;
             // default behaviour
-            var main    = $(this.box).find('> div');
+            var main    = $(this.box).find('> div:not(.w2ui-lock-msg)');
             var header  = $(this.box).find('> div .w2ui-form-header');
             var toolbar = $(this.box).find('> div .w2ui-form-toolbar');
             var tabs    = $(this.box).find('> div .w2ui-form-tabs');
@@ -936,7 +936,7 @@
                         }
                     }
                     if (['toggle', 'checkbox'].indexOf(field.type) != -1) {
-                        value_new = ($(this).prop('checked') ? true : false);
+                        value_new = ($(this).prop('checked') ? ($(this).prop('value') == 'on' ? true : $(this).prop('value')) : false);
                     }
                     // clean extra chars
                     if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {
@@ -1039,7 +1039,7 @@
                     case 'toggle':
                         if (w2utils.isFloat(value)) value = parseFloat(value);
                         $(field.el).prop('checked', (value ? true : false));
-                        this.record[field.name] = (value ? true : false);
+                        this.record[field.name] = (value ? value : false);
                         break;
                     // enums
                     case 'list':
@@ -1217,4 +1217,4 @@
 
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
-})();
+})(jQuery);
