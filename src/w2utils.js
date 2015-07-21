@@ -80,6 +80,7 @@ var w2utils = (function ($) {
             "dateStartYear"     : 1950,     // start year for date-picker
             "dateEndYear"       : 2020      // end year for date picker
         },
+        isBin           : isBin,
         isInt           : isInt,
         isFloat         : isFloat,
         isMoney         : isMoney,
@@ -124,6 +125,11 @@ var w2utils = (function ($) {
         use_momentjs : ((typeof moment === 'function') && (typeof moment.version === 'string'))
     };
     return obj;
+
+    function isBin (val) {
+        var re = /^[0-1]+$/;
+        return re.test(val);
+    }
 
     function isInt (val) {
         var re = /^[-+]?[0-9]+$/;
