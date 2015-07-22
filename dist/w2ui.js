@@ -81,6 +81,7 @@ var w2utils = (function ($) {
             "dateStartYear"     : 1950,     // start year for date-picker
             "dateEndYear"       : 2020      // end year for date picker
         },
+        isBin           : isBin,
         isInt           : isInt,
         isFloat         : isFloat,
         isMoney         : isMoney,
@@ -125,6 +126,11 @@ var w2utils = (function ($) {
         use_momentjs : ((typeof moment === 'function') && (typeof moment.version === 'string'))
     };
     return obj;
+
+    function isBin (val) {
+        var re = /^[0-1]+$/;
+        return re.test(val);
+    }
 
     function isInt (val) {
         var re = /^[-+]?[0-9]+$/;
@@ -1544,7 +1550,7 @@ w2utils.event = {
                         '#w2ui-overlay'+ name +':after { display: none; }'
                     );
                 }
-                // check scroll bar
+                // check scroll bar (needed to avoid horizontal scrollbar)
                 if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);                
             }
         }
@@ -12876,6 +12882,7 @@ var w2confirm = function (msg, title, callBack) {
                 case 'currency':
                 case 'percent':
                 case 'alphanumeric':
+                case 'bin':
                 case 'hex':
                     defaults = {
                         min                : null,
@@ -12900,7 +12907,7 @@ var w2confirm = function (msg, title, callBack) {
                     options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol +']', 'g');
                     options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g');
                     // no keyboard support needed
-                    if (['text', 'alphanumeric', 'hex'].indexOf(this.type) != -1) {
+                    if (['text', 'alphanumeric', 'hex', 'bin'].indexOf(this.type) != -1) {
                         options.arrows   = false;
                         options.keyboard = false;
                     }
@@ -13693,7 +13700,7 @@ var w2confirm = function (msg, title, callBack) {
             var obj     = this;
             var options = obj.options;
             // ignore wrong pressed key
-            if (['int', 'float', 'money', 'currency', 'percent', 'hex', 'color', 'alphanumeric'].indexOf(obj.type) != -1) {
+            if (['int', 'float', 'money', 'currency', 'percent', 'hex', 'bin', 'color', 'alphanumeric'].indexOf(obj.type) != -1) {
                 // keyCode & charCode differ in FireFox
                 if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
                 var ch = String.fromCharCode(event.charCode);
@@ -14496,7 +14503,7 @@ var w2confirm = function (msg, title, callBack) {
                     if ($(input).val() != '') delete obj.tmp.force_open;
                     var msgNoItems = w2utils.lang('No matches');
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
-                    if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search....');
+                    if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search...');
                     $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
@@ -14630,6 +14637,8 @@ var w2confirm = function (msg, title, callBack) {
                 case 'currency':
                     if (loose && ['-', obj.options.decimalSymbol, obj.options.groupSymbol, obj.options.currencyPrefix, obj.options.currencySuffix].indexOf(ch) != -1) return true;
                     return w2utils.isFloat(ch.replace(obj.options.moneyRE, ''));
+                case 'bin':
+					return w2utils.isBin(ch);
                 case 'hex':
                 case 'color':
                     return w2utils.isHex(ch);
