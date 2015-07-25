@@ -185,6 +185,7 @@
                 case 'currency':
                 case 'percent':
                 case 'alphanumeric':
+                case 'bin':
                 case 'hex':
                     defaults = {
                         min                : null,
@@ -209,7 +210,7 @@
                     options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol +']', 'g');
                     options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g');
                     // no keyboard support needed
-                    if (['text', 'alphanumeric', 'hex'].indexOf(this.type) != -1) {
+                    if (['text', 'alphanumeric', 'hex', 'bin'].indexOf(this.type) != -1) {
                         options.arrows   = false;
                         options.keyboard = false;
                     }
@@ -1002,7 +1003,7 @@
             var obj     = this;
             var options = obj.options;
             // ignore wrong pressed key
-            if (['int', 'float', 'money', 'currency', 'percent', 'hex', 'color', 'alphanumeric'].indexOf(obj.type) != -1) {
+            if (['int', 'float', 'money', 'currency', 'percent', 'hex', 'bin', 'color', 'alphanumeric'].indexOf(obj.type) != -1) {
                 // keyCode & charCode differ in FireFox
                 if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return;
                 var ch = String.fromCharCode(event.charCode);
@@ -1939,6 +1940,8 @@
                 case 'currency':
                     if (loose && ['-', obj.options.decimalSymbol, obj.options.groupSymbol, obj.options.currencyPrefix, obj.options.currencySuffix].indexOf(ch) != -1) return true;
                     return w2utils.isFloat(ch.replace(obj.options.moneyRE, ''));
+                case 'bin':
+					return w2utils.isBin(ch);
                 case 'hex':
                 case 'color':
                     return w2utils.isHex(ch);
