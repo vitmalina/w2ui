@@ -5269,8 +5269,8 @@
                         '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
                         '    <option value="is">'+ w2utils.lang('is') +'</option>'+
                         '    <option value="between">'+ w2utils.lang('between') +'</option>'+
-                        '    <option value="less">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'before' : 'less') +'</option>'+
-                        '    <option value="more">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? 'after' : 'more') +'</option>'+
+                        '    <option value="less">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? w2utils.lang('before') : w2utils.lang('less')) +'</option>'+
+                        '    <option value="more">'+ w2utils.lang(['date', 'time'].indexOf(s.type) != -1 ? w2utils.lang('after') :  w2utils.lang('more')) +'</option>'+
                         (this.show.searchNull
                             ? '<option value="null">'+ w2utils.lang('is null') +'</option>' +
                               '<option value="not null">'+ w2utils.lang('is not null') +'</option>'
