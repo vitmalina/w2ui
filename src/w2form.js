@@ -206,26 +206,18 @@
         show: function () {
             var affected = 0;
             for (var a = 0; a < arguments.length; a++) {
-                var fld = this.get(arguments[a]);
-                if (fld && fld.hidden) { 
-                    fld.hidden = false;
-                    affected++;
-                }
+                $('div[name='+this.name+'] div[class="w2ui-page page-'+this.get(arguments[a]).page+'"] > div > div:eq('+this.get(arguments[a], true)+')').show(500);
+                affected++;
             }
-            if (affected > 0) this.refresh();
             return affected;
         },
 
         hide: function () {
             var affected = 0;
             for (var a = 0; a < arguments.length; a++) {
-                var fld = this.get(arguments[a]);
-                if (fld && !fld.hidden) { 
-                    fld.hidden = true;
-                    affected++;
-                }
+                $('div[name='+this.name+'] div[class="w2ui-page page-'+this.get(arguments[a]).page+'"] > div > div:eq('+this.get(arguments[a], true)+')').hide(500);
+                affected++;
             }
-            if (affected > 0) this.refresh();
             return affected;
         },
 
