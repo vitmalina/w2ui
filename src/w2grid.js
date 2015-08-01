@@ -720,6 +720,7 @@
             }
             var time = (new Date()).getTime();
             var obj = this;
+            var defaultToString = {}.toString;
             this.total = this.records.length;
             // mark all records as shown
             this.last.searchIds = [];
@@ -737,7 +738,9 @@
                         if (sdata  == null) continue;
                         if (search == null) search = { field: sdata.field, type: sdata.type };
                         var val1b = obj.parseField(rec, search.field);
-                        var val1  = String(val1b).toLowerCase();
+                        var val1 = (val1b !== null && val1b !== undefined &&
+                            (typeof val1b != "object" || val1b.toString != defaultToString)) ?
+                            String(val1b).toLowerCase() : "";  // do not match a bogus string
                         if (sdata.value != null) {
                             if (!$.isArray(sdata.value)) {
                                 var val2 = String(sdata.value).toLowerCase();
