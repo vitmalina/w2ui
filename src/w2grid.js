@@ -674,6 +674,7 @@
             // process sort
             this.records.sort(function (a, b) {
                 var ret = 0;
+                var defaultToString = {}.toString;
                 for (var i = 0; i < obj.sortData.length; i++) {
                     var fld = obj.sortData[i].field;
                     if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
@@ -683,12 +684,18 @@
                         aa = obj.parseField(a, fld);
                         bb = obj.parseField(b, fld);
                     }
+                    if (aa === bb) continue;                  // short circuit for speed
+                    if (typeof aa != 'object' && typeof bb == 'object') ret = -1;
+                    if (typeof bb != 'object' && typeof aa == 'object') ret = 1;
+                    if (typeof aa == 'object' &&              // bb is object too
+                        aa.toString != defaultToString && bb.toString != defaultToString) {
+                        aa = String(aa);
+                        bb = String(bb);
+                    }
                     if (typeof aa == 'string') aa = $.trim(aa.toLowerCase());
                     if (typeof bb == 'string') bb = $.trim(bb.toLowerCase());
                     if (aa > bb) ret = (obj.sortData[i].direction == 'asc' ? 1 : -1);
                     if (aa < bb) ret = (obj.sortData[i].direction == 'asc' ? -1 : 1);
-                    if (typeof aa != 'object' && typeof bb == 'object') ret = -1;
-                    if (typeof bb != 'object' && typeof aa == 'object') ret = 1;
                     if (aa == null && bb != null) ret = 1;    // all nuls and undefined on bottom
                     if (aa != null && bb == null) ret = -1;
                     if (ret != 0) break;
