@@ -687,7 +687,7 @@
                     if (aa === bb) continue;                  // short circuit for speed
                     if (typeof aa != 'object' && typeof bb == 'object') ret = -1;
                     if (typeof bb != 'object' && typeof aa == 'object') ret = 1;
-                    if (typeof aa == 'object' &&              // bb is object too
+                    if (typeof aa == 'object' && typeof bb == 'object' &&
                         aa.toString != defaultToString && bb.toString != defaultToString) {
                         aa = String(aa);
                         bb = String(bb);
