@@ -2505,7 +2505,7 @@
             return;
 
             function expand(event) {
-                try {
+                try {					
                     var val   = (this.tagName.toUpperCase() == 'DIV' ? $(this).text() : this.value);
                     var $sel  = $('#grid_'+ obj.name + '_editable');
                     var style = 'font-family: '+ $(this).css('font-family') + '; font-size: '+ $(this).css('font-size') + ';';
@@ -3446,19 +3446,28 @@
             // insert expand row
             var tmp = 1 + (this.show.selectColumn ? 1 : 0);
             var addClass = ''; // ($('#grid_'+this.name +'_rec_'+ w2utils.escapeId(recid)).hasClass('w2ui-odd') ? 'w2ui-odd' : 'w2ui-even');
+            
             $('#grid_'+ this.name +'_rec_'+ id).after(
                     '<tr id="grid_'+ this.name +'_rec_'+ recid +'_expanded_row" class="w2ui-expanded-row '+ addClass +'">'+
-                        (this.show.lineNumbers ? '<td class="w2ui-col-number"></td>' : '') +
-                    '    <td class="w2ui-grid-data w2ui-expanded1" colspan="'+ tmp +'"><div style="display: none"></div></td>'+
+                        (this.show.lineNumbers ? '<td class="w2ui-col-number"></td>' : '') +                    
                     '    <td colspan="100" class="w2ui-expanded2">'+
                     '        <div id="grid_'+ this.name +'_rec_'+ recid +'_expanded" style="opacity: 0"></div>'+
                     '    </td>'+
                     '</tr>');
+            
+            $('#grid_'+ this.name +'_frec_'+ id).after(
+                    '<tr id="grid_'+ this.name +'_frec_'+ recid +'_expanded_row" class="w2ui-expanded-row '+ addClass +'">'+                   
+                    '    <td class="w2ui-grid-data w2ui-expanded1" colspan="'+ tmp +'"><div style="opacity: 0;" id="grid_'+ this.name +'_frec_'+ recid +'_expanded"></div></td>'+
+                    '<td class="w2ui-grid-data-last"></td>'+
+                    '</tr>');
+
+            
             // event before
             var eventData = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid,
                 box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', ready: ready });
             if (eventData.isCancelled === true) {
                 $('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove();
+                $('#grid_'+ this.name +'_frec_'+ id +'_expanded_row').remove();
                 return;
             }
             // default action
@@ -3467,18 +3476,26 @@
             $('#grid_'+ this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('<div class="w2ui-spinner" style="width: 16px; height: 16px; margin: -2px 2px;"></div>');
             rec.expanded = true;
             // check if height of expanded row > 5 then remove spinner
-            setTimeout(ready, 300);
+            setTimeout(ready, 450);
             function ready() {
-                var div1 = $('#grid_'+ obj.name +'_rec_'+ id +'_expanded');
+                var div1 = $('#grid_'+ obj.name +'_rec_'+ id +'_expanded');                
                 var div2 = $('#grid_'+ obj.name +'_rec_'+ id +'_expanded_row .w2ui-expanded1 > div');
                 if (div1.height() < 5) return;
                 div1.css('opacity', 1);
                 div2.show().css('opacity', 1);
                 $('#grid_'+ obj.name +'_cell_'+ obj.get(recid, true) +'_expand div').html('-');
+                
+                var innerHeight = $('#grid_'+ obj.name +'_rec_'+ recid +'_expanded').height();                
+                $('#grid_'+ obj.name +'_frec_'+ recid +'_expanded').height(innerHeight);
+                $('#grid_'+ obj.name +'_frec_'+ recid).addClass('w2ui-expanded');
+                
+                
+                
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
-            this.resizeRecords();
+            this.resizeRecords();            
+                        
             return true;
         },
 
@@ -3499,6 +3516,7 @@
                 $('#grid_'+ obj.name +'_rec_'+ id +'_expanded').height('0px');
                 setTimeout(function () {
                     $('#grid_'+ obj.name +'_rec_'+ id +'_expanded_row').remove();
+                    $('#grid_'+ obj.name +'_frec_'+ id +'_expanded_row').remove();
                     delete rec.expanded;
                     // event after
                     obj.trigger($.extend(eventData, { phase: 'after' }));
