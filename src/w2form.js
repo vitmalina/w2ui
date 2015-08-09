@@ -175,7 +175,7 @@
         msgRefresh    : w2utils.lang('Refreshing...'),
         msgSaving     : w2utils.lang('Saving...'),
 
-        get: function (field, returnIndex) {
+        get: function (field, returnIndex, pageIndex) {
             if (arguments.length === 0) {
                 var all = [];
                 for (var f1 = 0; f1 < this.fields.length; f1++) {
@@ -183,9 +183,21 @@
                 }
                 return all;
             } else {
+                var currentPage = 0;
+                var indexOnPage = 0;
                 for (var f2 = 0; f2 < this.fields.length; f2++) {
+                    if (this.fields[f2].page != currentPage) {
+                        indexOnPage = 0;
+                        currentPage = this.fields[f2].page;
+                    } else {
+                        indexOnPage++;
+                    }
                     if (this.fields[f2].name == field) {
-                        if (returnIndex === true) return f2; else return this.fields[f2];
+                        if (returnIndex === true) {
+                            if (pageIndex === true) return indexOnPage; else return f2;
+                        }  else {
+                            return this.fields[f2];
+                        }
                     }
                 }
                 return null;
@@ -206,26 +218,18 @@
         show: function () {
             var affected = 0;
             for (var a = 0; a < arguments.length; a++) {
-                var fld = this.get(arguments[a]);
-                if (fld && fld.hidden) { 
-                    fld.hidden = false;
-                    affected++;
-                }
+                $('div[name='+this.name+'] div[class="w2ui-page page-'+this.get(arguments[a]).page+'"] > div > div:eq('+this.get(arguments[a], true, true)+')').show(500);
+                affected++;
             }
-            if (affected > 0) this.refresh();
             return affected;
         },
 
         hide: function () {
             var affected = 0;
             for (var a = 0; a < arguments.length; a++) {
-                var fld = this.get(arguments[a]);
-                if (fld && !fld.hidden) { 
-                    fld.hidden = true;
-                    affected++;
-                }
+                $('div[name='+this.name+'] div[class="w2ui-page page-'+this.get(arguments[a]).page+'"] > div > div:eq('+this.get(arguments[a], true, true)+')').hide(500);
+                affected++;
             }
-            if (affected > 0) this.refresh();
             return affected;
         },
 
