@@ -2000,6 +2000,9 @@ w2utils.event = {
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
 *   - for type: list -> read value from attr('value')
+*   - ENUM, LIST: should be able to define which is ID field and which is TEXT
+*   - ENUM, LIST: same data structure as grid
+*   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
