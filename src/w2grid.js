@@ -6136,7 +6136,7 @@
             if (col.render != null) {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
-                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div style="'+ style +'">' + data + '</div>';
+                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div style="'+ style +'">' + String(data) + '</div>';
                 }
                 if (typeof col.render == 'object')   data = '<div style="'+ style +'">' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
@@ -6200,7 +6200,7 @@
                         if (typeof col.title == 'string')   title = col.title;
                     }
                 }
-                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ data +'</div>';
+                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ String(data) +'</div>';
             }
             if (data == null) data = '';
             return data;
