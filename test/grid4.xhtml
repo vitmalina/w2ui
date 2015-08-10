@@ -1,0 +1,55 @@
+<?xml version='1.0'?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../src/w2utils.js"></script>
+<script type="text/javascript" src="../src/w2tabs.js"></script>
+<script type="text/javascript" src="../src/w2toolbar.js"></script>
+<script type="text/javascript" src="../src/w2fields.js"></script>
+<script type="text/javascript" src="../src/w2popup.js"></script>
+<script type="text/javascript" src="../src/w2grid.js"></script>
+<script>
+//<![CDATA[
+$(function () {
+    function Value(value, precision, unit) {
+        this.value = value;
+        this.precision = precision;
+        this.unit = unit;
+        this.toString = function() { return this.value.toFixed(precision) + ' ' + this.unit; };
+    }
+    $('#grid').w2grid({ 
+        name   : 'grid', 
+        header : 'Properties',
+        show   : { 
+            toolbar: true,
+        },
+        // selectType: 'cell',
+        columns: [                
+            { field: 'recid',   caption: 'Property', size: '100px', sortable: true },
+            { field: 'prop',    caption: 'Value',    size: '300px', sortable: true },
+            { field: 'comment', caption: 'Comment',  size: '200px', sortable: true },
+        ]
+    });
+    w2ui['grid'].add([
+        { recid: "UID", prop: 1200 },
+        { recid: "GID", prop: 333 },
+        { recid: "PID", prop: 1433 },
+        { recid: "First Name", prop: "Steve" },
+        { recid: "Last Name", prop: "Jobs" },
+        { recid: "Height", prop: new Value(1.8375, 2, "m"), comment: "Not sure about it" },
+        { recid: "Width", prop: new Value(0.654, 2, "m"), comment: "According to the Onion" },
+        { recid: "Weight", prop: new Value(80.5, 2, "kg") },
+        { recid: "Language", prop: { id: "en-US", text: "US English" }},
+        { recid: "Birth Date", prop: new Date("1955-02-24")},
+        { recid: "Death Date", prop: new Date("2011-10-05")},
+    ]);
+});
+//]]>
+</script>
+</head>
+<body>
+  <div id="grid" style="width: 100vh; height: 100vw;"></div>
+</body>
+</html>
