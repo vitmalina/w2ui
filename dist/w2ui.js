@@ -6314,7 +6314,7 @@ w2utils.event = {
                       '    <div id="grid_'+ this.name +'_fsummary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
-                      '    <textarea id="grid_'+ this.name +'_focus" style="position: relative; top: -10px; right: 0px; z-index: 1; '+
+                      '    <textarea id="grid_'+ this.name +'_focus" style="position: fixed; top: -10px; right: 0px; z-index: 1; '+
                       '         width: 1px; height: 1px; border: 0px; padding: 0px; opacity: 0; resize: none"></textarea>'+
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
@@ -6675,7 +6675,7 @@ w2utils.event = {
                     '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');"/>'+
                     '</td>'+
                     '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
-                    '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ tmp +    '</label>'+
+                    '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ w2utils.stripTags(tmp) +'</label>'+
                     '</td>'+
                     '</tr>';
             }
@@ -7005,7 +7005,7 @@ w2utils.event = {
                 if (this.show.toolbarColumns) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
                 }
-                if (this.show.toolbarReload || this.show.toolbarColumn) {
+                if (this.show.toolbarReload || this.show.toolbarColumns) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
                 }
                 if (this.show.toolbarSearch) {
