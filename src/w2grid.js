@@ -4304,7 +4304,7 @@
                     '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');"/>'+
                     '</td>'+
                     '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
-                    '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ tmp +    '</label>'+
+                    '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ w2utils.stripTags(tmp) +'</label>'+
                     '</td>'+
                     '</tr>';
             }
@@ -4634,7 +4634,7 @@
                 if (this.show.toolbarColumns) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
                 }
-                if (this.show.toolbarReload || this.show.toolbarColumn) {
+                if (this.show.toolbarReload || this.show.toolbarColumns) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
                 }
                 if (this.show.toolbarSearch) {
