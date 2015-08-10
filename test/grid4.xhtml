@@ -34,17 +34,26 @@ $(function () {
         ]
     });
     w2ui['grid'].add([
-        { recid: "UID", prop: 1200 },
-        { recid: "GID", prop: 333 },
-        { recid: "PID", prop: 1433 },
-        { recid: "First Name", prop: "Steve" },
-        { recid: "Last Name", prop: "Jobs" },
-        { recid: "Height", prop: new Value(1.8375, 2, "m"), comment: "Not sure about it" },
-        { recid: "Width", prop: new Value(0.654, 2, "m"), comment: "According to the Onion" },
-        { recid: "Weight", prop: new Value(80.5, 2, "kg") },
-        { recid: "Language", prop: { id: "en-US", text: "US English" }},
-        { recid: "Birth Date", prop: new Date("1955-02-24")},
-        { recid: "Death Date", prop: new Date("2011-10-05")},
+        { recid: "UID", prop: 1200, comment: "Number" },
+        { recid: "GID", prop: 333, comment: "Number"  },
+        { recid: "PID", prop: 1433, comment: "Number"  },
+        { recid: "First Name", prop: "Steve", comment: "String" },
+        { recid: "Last Name", prop: "Jobs", comment: "String"  },
+        { recid: "Height", prop: new Value(1.8375, 2, "m"), comment: "Value" },
+        { recid: "Width", prop: new Value(0.654, 2, "m"), comment: "Value" },
+        { recid: "Weight", prop: new Value(80.5, 2, "kg"), comment: "Value" },
+        { recid: "Language", prop: { id: "en-US", text: "US English" }, comment: "Id/Text" },
+        { recid: "Country", prop: { id: "us", text: "USA" }, comment: "Id/Text" },
+        { recid: "Birth Date", prop: new Date("1955-02-24"), comment: "Date" },
+        { recid: "Death Date", prop: new Date("2011-10-05"), comment: "Date" },
+        { recid: "N1", prop: null },
+        { recid: "N2", prop: null },
+        { recid: "Z1", prop: 0 },
+        { recid: "Z2", prop: 0 },
+        { recid: "E1", prop: "" },
+        { recid: "E2", prop: ""},
+        { recid: "U1" },
+        { recid: "U2" },
     ]);
 });
 //]]>
