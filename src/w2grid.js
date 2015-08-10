@@ -673,33 +673,7 @@
             }
             // process sort
             this.records.sort(function (a, b) {
-                var ret = 0;
-                var defaultToString = {}.toString;
-                for (var i = 0; i < obj.sortData.length; i++) {
-                    var fld = obj.sortData[i].field;
-                    if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
-                    var aa = a[fld];
-                    var bb = b[fld];
-                    if (String(fld).indexOf('.') != -1) {
-                        aa = obj.parseField(a, fld);
-                        bb = obj.parseField(b, fld);
-                    }
-                    if (aa === bb) continue;                  // short circuit for speed
-                    if (typeof aa != 'object' && typeof bb == 'object') ret = -1;
-                    if (typeof bb != 'object' && typeof aa == 'object') ret = 1;
-                    if (typeof aa == 'object' && typeof bb == 'object' &&
-                        aa.toString != defaultToString && bb.toString != defaultToString) {
-                        aa = String(aa);
-                        bb = String(bb);
-                    }
-                    if (typeof aa == 'string') aa = $.trim(aa.toLowerCase());
-                    if (typeof bb == 'string') bb = $.trim(bb.toLowerCase());
-                    if (aa > bb) ret = (obj.sortData[i].direction == 'asc' ? 1 : -1);
-                    if (aa < bb) ret = (obj.sortData[i].direction == 'asc' ? -1 : 1);
-                    if (aa == null && bb != null) ret = 1;    // all nuls and undefined on bottom
-                    if (aa != null && bb == null) ret = -1;
-                    if (ret != 0) break;
-                }
+                var ret = obj.compareRecords.call(obj, a, b);
                 return ret;
             });
             obj.selectionRestore();
@@ -710,6 +684,66 @@
                 }, 10);
             }
             return time;
+        },
+    
+        compareRecords: function (a, b) {
+            var obj  = this;
+            for (var i = 0; i < obj.sortData.length; i++) {
+                var fld = obj.sortData[i].field;
+                if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
+                var aa = a[fld];
+                var bb = b[fld];
+                if (String(fld).indexOf('.') != -1) {
+                    aa = obj.parseField(a, fld);
+                    bb = obj.parseField(b, fld);
+                }
+                var ret = obj.compareCells.call(obj, aa, bb, i, obj.sortData[i].direction);
+                if (ret != 0)
+                    return ret;
+            }
+            return 0;            
+        },
+        
+        compareCells: function (aa, bb, i, direction) {
+            // if both objects are strictly equal, we're done
+            if (aa === bb)
+                return 0;
+            // all nulls, empty and undefined on bottom
+            if ((aa == null || aa === "") && (bb != null && bb !== ""))
+                return 1;
+            if ((aa != null && aa !== "") && (bb == null || bb === ""))
+                return -1;
+            var dir = (direction == 'asc') ? 1 : -1;
+            // for different kind of objects, sort by object type
+            if (typeof aa != typeof bb)
+                return (typeof aa > typeof bb) ? dir : -dir;
+            // for different kind of classes, sort by classes
+            if (aa.constructor.name != bb.constructor.name)
+                return (aa.constructor.name > bb.constructor.name) ? dir : -dir;
+            // if we're dealing with non-null objects, call valueOf().
+            // this mean that Date() or custom objects will compare properly.
+            if (aa && typeof aa == 'object')
+                aa = aa.valueOf();
+            if (bb && typeof bb == 'object')
+                bb = bb.valueOf();
+            // if we're still dealing with non-null objects that have
+            // a useful Object => String conversion, convert to string.
+            var defaultToString = {}.toString;
+            if (aa && typeof aa == 'object' && aa.toString != defaultToString)
+                aa = String(aa);
+            if (bb && typeof bb == 'object' && bb.toString != defaultToString)
+                bb = String(bb);
+            // do case-insensitive string comparaison
+            if (typeof aa == 'string')
+                aa = $.trim(aa.toLowerCase());
+            if (typeof bb == 'string')
+                bb = $.trim(bb.toLowerCase());
+            // compare both objects
+            if (aa > bb)
+                return dir;
+            if (aa < bb)
+                return -dir;
+            return 0;
         },
 
         localSearch: function (silent) {
