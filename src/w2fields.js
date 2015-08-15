@@ -20,6 +20,7 @@
 *   - ENUM, LIST: should be able to define which is ID field and which is TEXT
 *   - ENUM, LIST: same data structure as grid
 *   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
+*   - ENUM, LIST: should support wild cars
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)

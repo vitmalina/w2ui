@@ -433,3 +433,8 @@ test( "w2utils.base64encode(), w2utils.base64decode()", function() {
         "Text with special characters"
     );
 });
+
+test( "md5", function() {
+    ok(w2utils.md5('some')  === '03d59e663c1af9ac33a9949d1193505a', "md5('some')");
+    ok(w2utils.md5('other') === '795f3202b17cb6bc3d4b771d8c6c9eaf', "md5('other')");
+});
