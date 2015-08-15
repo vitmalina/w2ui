@@ -34,6 +34,7 @@
 *   - resize row (height)
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
+*   - if record has no recid, then it should be index in the aray
 *
 * == KNOWN ISSUES ==
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
@@ -2985,18 +2986,19 @@
                                         unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] });
                                     }
                                     obj.unselect.apply(obj, unSel);
-                                    obj.scrollIntoView(ind, columns[columns.length-1]);
+                                    obj.scrollIntoView(ind, columns[columns.length-1], true);
                                 } else {
                                     for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: prev });
                                     }
                                     obj.select.apply(obj, newSel);
-                                    obj.scrollIntoView(ind, prev);
+                                    obj.scrollIntoView(ind, prev, true);
                                 }
                             } else {
                                 event.metaKey = false;
                                 obj.click({ recid: recid, column: prev }, event);
+                                obj.scrollIntoView(ind, prev, true);
                             }
                         } else {
                             // if selected more then one, then select first
@@ -3038,19 +3040,19 @@
                                         unSel.push({ recid: sel[i].recid, column: columns[0] });
                                     }
                                     obj.unselect.apply(obj, unSel);
-                                    obj.scrollIntoView(ind, columns[0]);
+                                    obj.scrollIntoView(ind, columns[0], true);
                                 } else {
                                     for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: next });
                                     }
                                     obj.select.apply(obj, newSel);
-                                    obj.scrollIntoView(ind, next);
+                                    obj.scrollIntoView(ind, next, true);
                                 }
                             } else {
                                 event.metaKey = false;
                                 obj.click({ recid: recid, column: next }, event);
-                                obj.scrollIntoView(ind, next);
+                                obj.scrollIntoView(ind, next, true);
                             }
                         } else {
                             // if selected more then one, then select first
@@ -3312,7 +3314,7 @@
             if (len > 0) ind = this.last.searchIds.indexOf(ind); // if seach is applied
 
             // vertical
-            if (records.height() < this.recordHeight * (len > 0 ? len : buffered)) {
+            if (records.height() < this.recordHeight * (len > 0 ? len : buffered) && records.length > 0) {
                 // scroll to correct one
                 var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
                 var t2 = t1 + Math.floor(records.height() / this.recordHeight);
@@ -3987,7 +3989,7 @@
                       '    <div id="grid_'+ this.name +'_fsummary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
-                      '    <textarea id="grid_'+ this.name +'_focus" style="position: fixed; top: -10px; right: 0px; z-index: 1; '+
+                      '    <textarea id="grid_'+ this.name +'_focus" style="position: relative; top: -10px; right: 0px; z-index: 1; '+
                       '         width: 1px; height: 1px; border: 0px; padding: 0px; opacity: 0; resize: none"></textarea>'+
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
@@ -4020,7 +4022,7 @@
                 })
                 .on('paste', function (event) {
                     var el = this;
-                    setTimeout(function () { w2ui[obj.name].paste(el.value); }, 1)
+                    setTimeout(function () { w2ui[obj.name].paste(el.value); el.value = ''; }, 1)
                 })
                 .on('keydown', function (event) {
                     w2ui[obj.name].keydown.call(w2ui[obj.name], event);
