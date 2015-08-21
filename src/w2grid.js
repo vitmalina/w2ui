@@ -5580,8 +5580,8 @@
                 for (var i=0; i<obj.columnGroups.length; i++) {
                     var colg = obj.columnGroups[i];
                     var col  = obj.columns[ii];
-                    if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
                     if (colg.colspan != null) colg.span = colg.colspan;
+                    if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
                     var colspan = 0;
                     for (var jj = ii; jj < ii + colg.span; jj++) {
                         if (obj.columns[jj] && !obj.columns[jj].hidden)
@@ -5663,7 +5663,7 @@
                     var col  = obj.columns[i];
                     if (i == id) {      // always true on first iteration
                         colg = obj.columnGroups[ii++] || {};
-                        id = id + (colg ? parseInt(colg.span) : 1);
+                        id = id + colg.span;
                     }
                     if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen)
                         continue;
