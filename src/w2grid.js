@@ -5490,7 +5490,7 @@
                         operator = 'is';
                         // build options
                         var options = '<option value="">--</option>';
-                        for (var i = 0; i < search.options.items; i++) {
+                        for (var i = 0; i < search.options.items.length; i++) {
                             var si = search.options.items[i];
                             if ($.isPlainObject(search.options.items[i])) {
                                 var val = si.id;
