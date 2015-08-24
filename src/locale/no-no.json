@@ -55,7 +55,7 @@
         "Reset" : "Reset",
         "Search" : "Søk",
         "Confirmation" : "Bekreftelse",
-        "Notification" : "Informasjon",
+        "Notification" : "Melding",
         "Show" : "Vis",
         "Hide" : "Gjem",
         "buffered" : "bufrede",
@@ -75,6 +75,8 @@
         "Skip": "Hopp over",
         "Records": "Data",        
         "Toggle Line Numbers" : "Bytte linje nummer",
-        "Reset Column Size" : "Tilakestill kolonne bredde"
+        "Reset Column Size" : "Tilakestill kolonne bredde",
+        "Column": "Kolonne",
+        "Loading..." : "Laster inn"
     }
 }
