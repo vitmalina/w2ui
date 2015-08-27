@@ -1045,7 +1045,7 @@
                     case 'list':
                     case 'combo':
                         if (field.type == 'list') {
-                            var tmp_value = ($.isPlainObject(value) ? value.id : value);
+                            var tmp_value = ($.isPlainObject(value) ? value.id : ($.isPlainObject(field.options.selected) ? field.options.selected.id : value));
                             // normalized options
                             if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
