@@ -179,7 +179,7 @@ var w2popup = {};
                           '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
                               w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"' +
                           '>' + '</div>');
-                msg.append(option_body);
+                msg.append(option_body.clone());
                 msg.find("script").remove();
                 $('body').append(msg);
                 // parse rel=*
