@@ -103,7 +103,7 @@ var w2utils = (function ($) {
         escapeId        : escapeId,
         base64encode    : base64encode,
         base64decode    : base64decode,
-        md5encode       : md5encode,
+        md5             : md5,
         transition      : transition,
         lock            : lock,
         unlock          : unlock,
@@ -452,7 +452,14 @@ var w2utils = (function ($) {
                 html = $.trim(String(html).replace(/(<([^>]+)>)/ig, ""));
                 break;
             case 'object':
-                for (var a in html) html[a] = this.stripTags(html[a]);
+                // does not modify original object, but creates a copy
+                if (Array.isArray(html)) {
+                    html = $.extend(true, [], html);
+                    for (var i = 0; i < html.length; i++) html[i] = this.stripTags(html[i]);
+                }  else {
+                    html = $.extend(true, {}, html);
+                    for (var i in html) html[i] = this.stripTags(html[i]);  
+                }
                 break;
         }
         return html;
@@ -467,7 +474,14 @@ var w2utils = (function ($) {
                 html = String(html).replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
                 break;
             case 'object':
-                for (var a in html) html[a] = this.encodeTags(html[a]);
+                // does not modify original object, but creates a copy
+                if (Array.isArray(html)) {
+                    html = $.extend(true, [], html);
+                    for (var i = 0; i < html.length; i++) html[i] = this.encodeTags(html[i]);
+                }  else {
+                    html = $.extend(true, {}, html);
+                    for (var i in html) html[i] = this.encodeTags(html[i]);  
+                }
                 break;
         }
         return html;
@@ -582,7 +596,7 @@ var w2utils = (function ($) {
         return output;
     }
     
-    function md5encode(input) {
+    function md5(input) {
 		/*
          * Based on http://pajhome.org.uk/crypt/md5
          */
@@ -979,140 +993,140 @@ var w2utils = (function ($) {
             return;
         }
 
-        div_old.parentNode.style.cssText += cross('perspective', '700px') +'; overflow: hidden;';
-        div_old.style.cssText += '; position: absolute; z-index: 1019; '+ cross('backface-visibility', 'hidden');
-        div_new.style.cssText += '; position: absolute; z-index: 1020; '+ cross('backface-visibility', 'hidden');
+        div_old.parentNode.style.cssText += 'perspective: 700; overflow: hidden;';
+        div_old.style.cssText += '; position: absolute; z-index: 1019; backface-visibility: hidden';
+        div_new.style.cssText += '; position: absolute; z-index: 1020; backface-visibility: hidden';
 
         switch (type) {
             case 'slide-left':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d('+ width + 'px, 0, 0)', 'translate('+ width +'px, 0)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d('+ width + 'px, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +';'+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +';'+ cross('transform', 'translate3d(-'+ width +'px, 0, 0)', 'translate(-'+ width +'px, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(-'+ width +'px, 0, 0)';
                 }, 1);
                 break;
 
             case 'slide-right':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(-'+ width +'px, 0, 0)', 'translate(-'+ width +'px, 0)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(-'+ width +'px, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0px, 0, 0)', 'translate(0px, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d('+ width +'px, 0, 0)', 'translate('+ width +'px, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0px, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d('+ width +'px, 0, 0)';
                 }, 1);
                 break;
 
             case 'slide-down':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; z-index: 1; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; z-index: 0; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+                div_old.style.cssText += 'overflow: hidden; z-index: 1; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; z-index: 0; transform: translate3d(0, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, '+ height +'px, 0)', 'translate(0, '+ height +'px)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, '+ height +'px, 0)';
                 }, 1);
                 break;
 
             case 'slide-up':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, '+ height +'px, 0)', 'translate(0, '+ height +'px)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, '+ height +'px, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
                 }, 1);
                 break;
 
             case 'flip-left':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(-180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateY(-180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(180deg)';
                 }, 1);
                 break;
 
             case 'flip-right':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateY(180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(-180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(-180deg)';
                 }, 1);
                 break;
 
             case 'flip-down':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateX(180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(-180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(-180deg)';
                 }, 1);
                 break;
 
             case 'flip-up':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(-180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateX(-180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(180deg)';
                 }, 1);
                 break;
 
             case 'pop-in':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') + '; '+ cross('transform', 'scale(.8)') + '; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(.8); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'scale(1)') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time+'s') +';';
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: scale(1); opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s;';
                 }, 1);
                 break;
 
             case 'pop-out':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; '+ cross('transform', 'scale(1)') +'; opacity: 1;';
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(1); opacity: 1;';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'scale(1.7)') +'; opacity: 0;';
+                    div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: scale(1.7); opacity: 0;';
                 }, 1);
                 break;
 
             default:
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; translate3d(0, 0, 0); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time +'s') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time +'s');
+                    div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s';
                 }, 1);
                 break;
         }
@@ -1125,27 +1139,17 @@ var w2utils = (function ($) {
             if (div_new) {
                 $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
-                    'transform' : '',
-                    'backface-visibility': ''
+                    'transform' : ''
                 }));
             }
             if (div_old) {
                 $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
-                    'transform' : '',
-                    'backface-visibility': ''
+                    'transform' : ''
                 }));
-                if (div_old.parentNode) $(div_old.parentNode).css(w2utils.cssPrefix('perspective', ''));
             }
             if (typeof callBack === 'function') callBack();
         }, time * 1000);
-
-        function cross(property, value, none_webkit_value) {
-            var isWebkit=!!window.webkitURL; // jQuery no longer supports $.browser - RR
-            if (!isWebkit && none_webkit_value != null) value = none_webkit_value;
-            return ';'+ property +': '+ value +'; -webkit-'+ property +': '+ value +'; -moz-'+ property +': '+ value +'; '+
-                '-ms-'+ property +': '+ value +'; -o-'+ property +': '+ value +';';
-        }
     }
 
     function lock (box, msg, spinner) {
@@ -2388,6 +2392,10 @@ w2utils.event = {
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
 *   - for type: list -> read value from attr('value')
+*   - ENUM, LIST: should be able to define which is ID field and which is TEXT
+*   - ENUM, LIST: same data structure as grid
+*   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
+*   - ENUM, LIST: should support wild cars
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)

@@ -1660,7 +1660,8 @@ button.w2ui-btn-small:focus:before {
   outline: none;
   white-space: nowrap;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-columns {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-columns,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-fcolumns {
   overflow: hidden;
   position: absolute;
   left: 0px;
@@ -1669,10 +1670,12 @@ button.w2ui-btn-small:focus:before {
   box-shadow: 0px 1px 4px #333333;
   height: auto;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-columns table {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-columns table,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-fcolumns table {
   height: auto;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-columns .w2ui-resizer {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-columns .w2ui-resizer,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-fcolumns .w2ui-resizer {
   position: absolute;
   z-index: 1000;
   display: block;

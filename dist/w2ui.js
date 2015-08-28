@@ -103,7 +103,7 @@ var w2utils = (function ($) {
         escapeId        : escapeId,
         base64encode    : base64encode,
         base64decode    : base64decode,
-        md5encode       : md5encode,
+        md5             : md5,
         transition      : transition,
         lock            : lock,
         unlock          : unlock,
@@ -452,7 +452,14 @@ var w2utils = (function ($) {
                 html = $.trim(String(html).replace(/(<([^>]+)>)/ig, ""));
                 break;
             case 'object':
-                for (var a in html) html[a] = this.stripTags(html[a]);
+                // does not modify original object, but creates a copy
+                if (Array.isArray(html)) {
+                    html = $.extend(true, [], html);
+                    for (var i = 0; i < html.length; i++) html[i] = this.stripTags(html[i]);
+                }  else {
+                    html = $.extend(true, {}, html);
+                    for (var i in html) html[i] = this.stripTags(html[i]);  
+                }
                 break;
         }
         return html;
@@ -467,7 +474,14 @@ var w2utils = (function ($) {
                 html = String(html).replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
                 break;
             case 'object':
-                for (var a in html) html[a] = this.encodeTags(html[a]);
+                // does not modify original object, but creates a copy
+                if (Array.isArray(html)) {
+                    html = $.extend(true, [], html);
+                    for (var i = 0; i < html.length; i++) html[i] = this.encodeTags(html[i]);
+                }  else {
+                    html = $.extend(true, {}, html);
+                    for (var i in html) html[i] = this.encodeTags(html[i]);  
+                }
                 break;
         }
         return html;
@@ -582,7 +596,7 @@ var w2utils = (function ($) {
         return output;
     }
     
-    function md5encode(input) {
+    function md5(input) {
 		/*
          * Based on http://pajhome.org.uk/crypt/md5
          */
@@ -979,140 +993,140 @@ var w2utils = (function ($) {
             return;
         }
 
-        div_old.parentNode.style.cssText += cross('perspective', '700px') +'; overflow: hidden;';
-        div_old.style.cssText += '; position: absolute; z-index: 1019; '+ cross('backface-visibility', 'hidden');
-        div_new.style.cssText += '; position: absolute; z-index: 1020; '+ cross('backface-visibility', 'hidden');
+        div_old.parentNode.style.cssText += 'perspective: 700; overflow: hidden;';
+        div_old.style.cssText += '; position: absolute; z-index: 1019; backface-visibility: hidden';
+        div_new.style.cssText += '; position: absolute; z-index: 1020; backface-visibility: hidden';
 
         switch (type) {
             case 'slide-left':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d('+ width + 'px, 0, 0)', 'translate('+ width +'px, 0)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d('+ width + 'px, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +';'+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +';'+ cross('transform', 'translate3d(-'+ width +'px, 0, 0)', 'translate(-'+ width +'px, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(-'+ width +'px, 0, 0)';
                 }, 1);
                 break;
 
             case 'slide-right':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(-'+ width +'px, 0, 0)', 'translate(-'+ width +'px, 0)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(-'+ width +'px, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0px, 0, 0)', 'translate(0px, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d('+ width +'px, 0, 0)', 'translate('+ width +'px, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0px, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d('+ width +'px, 0, 0)';
                 }, 1);
                 break;
 
             case 'slide-down':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; z-index: 1; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; z-index: 0; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+                div_old.style.cssText += 'overflow: hidden; z-index: 1; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; z-index: 0; transform: translate3d(0, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, '+ height +'px, 0)', 'translate(0, '+ height +'px)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, '+ height +'px, 0)';
                 }, 1);
                 break;
 
             case 'slide-up':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, '+ height +'px, 0)', 'translate(0, '+ height +'px)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, '+ height +'px, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
                 }, 1);
                 break;
 
             case 'flip-left':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(-180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateY(-180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(180deg)';
                 }, 1);
                 break;
 
             case 'flip-right':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateY(180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(-180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(-180deg)';
                 }, 1);
                 break;
 
             case 'flip-down':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateX(180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(-180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(-180deg)';
                 }, 1);
                 break;
 
             case 'flip-up':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(-180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateX(-180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(180deg)';
                 }, 1);
                 break;
 
             case 'pop-in':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') + '; '+ cross('transform', 'scale(.8)') + '; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(.8); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'scale(1)') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time+'s') +';';
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: scale(1); opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s;';
                 }, 1);
                 break;
 
             case 'pop-out':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; '+ cross('transform', 'scale(1)') +'; opacity: 1;';
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(1); opacity: 1;';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'scale(1.7)') +'; opacity: 0;';
+                    div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: scale(1.7); opacity: 0;';
                 }, 1);
                 break;
 
             default:
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; translate3d(0, 0, 0); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time +'s') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time +'s');
+                    div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s';
                 }, 1);
                 break;
         }
@@ -1125,27 +1139,17 @@ var w2utils = (function ($) {
             if (div_new) {
                 $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
-                    'transform' : '',
-                    'backface-visibility': ''
+                    'transform' : ''
                 }));
             }
             if (div_old) {
                 $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
-                    'transform' : '',
-                    'backface-visibility': ''
+                    'transform' : ''
                 }));
-                if (div_old.parentNode) $(div_old.parentNode).css(w2utils.cssPrefix('perspective', ''));
             }
             if (typeof callBack === 'function') callBack();
         }, time * 1000);
-
-        function cross(property, value, none_webkit_value) {
-            var isWebkit=!!window.webkitURL; // jQuery no longer supports $.browser - RR
-            if (!isWebkit && none_webkit_value != null) value = none_webkit_value;
-            return ';'+ property +': '+ value +'; -webkit-'+ property +': '+ value +'; -moz-'+ property +': '+ value +'; '+
-                '-ms-'+ property +': '+ value +'; -o-'+ property +': '+ value +';';
-        }
     }
 
     function lock (box, msg, spinner) {
@@ -2405,6 +2409,7 @@ w2utils.event = {
 *   - resize row (height)
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
+*   - if record has no recid, then it should be index in the aray
 *
 * == KNOWN ISSUES ==
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
@@ -2444,8 +2449,6 @@ w2utils.event = {
 *   - added record.w2ui.colspan
 *   - editable area extands with typing
 *   - removed onSubmit and onDeleted - now it uses onSave and onDelete
-*   - added record.w2ui.softspan
-*   - added refreshSpans
 *   - column.seachable - can be an object, which will create search
 *   - added null, not null filters and show.searchNull property
 *   - update(cells) - added argument cells
@@ -2507,7 +2510,7 @@ w2utils.event = {
         this.fixedBody       = true;     // if false; then grid grows with data
         this.recordHeight    = 24;
         this.lineNumberWidth = null;
-        this.vs_start        = 300;
+        this.vs_start        = 150;
         this.vs_extra        = 15;
         this.keyboard        = true;
         this.selectType      = 'row';    // can be row|cell
@@ -2583,6 +2586,8 @@ w2utils.event = {
             multi       : false,
             scrollTop   : 0,
             scrollLeft  : 0,
+            colStart    : 0,    // for column virtual scrolling
+            colEnd      : 0,
             sortData    : null,
             sortCount   : 0,
             xhr         : null,
@@ -3044,26 +3049,7 @@ w2utils.event = {
             }
             // process sort
             this.records.sort(function (a, b) {
-                var ret = 0;
-                for (var i = 0; i < obj.sortData.length; i++) {
-                    var fld = obj.sortData[i].field;
-                    if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
-                    var aa = a[fld];
-                    var bb = b[fld];
-                    if (String(fld).indexOf('.') != -1) {
-                        aa = obj.parseField(a, fld);
-                        bb = obj.parseField(b, fld);
-                    }
-                    if (typeof aa == 'string') aa = $.trim(aa.toLowerCase());
-                    if (typeof bb == 'string') bb = $.trim(bb.toLowerCase());
-                    if (aa > bb) ret = (obj.sortData[i].direction == 'asc' ? 1 : -1);
-                    if (aa < bb) ret = (obj.sortData[i].direction == 'asc' ? -1 : 1);
-                    if (typeof aa != 'object' && typeof bb == 'object') ret = -1;
-                    if (typeof bb != 'object' && typeof aa == 'object') ret = 1;
-                    if (aa == null && bb != null) ret = 1;    // all nuls and undefined on bottom
-                    if (aa != null && bb == null) ret = -1;
-                    if (ret != 0) break;
-                }
+                var ret = compareRecords(a, b);
                 return ret;
             });
             obj.selectionRestore();
@@ -3074,6 +3060,65 @@ w2utils.event = {
                 }, 10);
             }
             return time;
+
+            function compareRecords(a, b) {
+                for (var i = 0; i < obj.sortData.length; i++) {
+                    var fld = obj.sortData[i].field;
+                    if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
+                    var aa = a[fld];
+                    var bb = b[fld];
+                    if (String(fld).indexOf('.') != -1) {
+                        aa = obj.parseField(a, fld);
+                        bb = obj.parseField(b, fld);
+                    }
+                    var ret = compareCells(aa, bb, i, obj.sortData[i].direction);
+                    if (ret != 0)
+                        return ret;
+                }
+                return 0;            
+            }
+
+            function compareCells(aa, bb, i, direction) {
+                // if both objects are strictly equal, we're done
+                if (aa === bb)
+                    return 0;
+                // all nulls, empty and undefined on bottom
+                if ((aa == null || aa === "") && (bb != null && bb !== ""))
+                    return 1;
+                if ((aa != null && aa !== "") && (bb == null || bb === ""))
+                    return -1;
+                var dir = (direction == 'asc') ? 1 : -1;
+                // for different kind of objects, sort by object type
+                if (typeof aa != typeof bb)
+                    return (typeof aa > typeof bb) ? dir : -dir;
+                // for different kind of classes, sort by classes
+                if (aa.constructor.name != bb.constructor.name)
+                    return (aa.constructor.name > bb.constructor.name) ? dir : -dir;
+                // if we're dealing with non-null objects, call valueOf().
+                // this mean that Date() or custom objects will compare properly.
+                if (aa && typeof aa == 'object')
+                    aa = aa.valueOf();
+                if (bb && typeof bb == 'object')
+                    bb = bb.valueOf();
+                // if we're still dealing with non-null objects that have
+                // a useful Object => String conversion, convert to string.
+                var defaultToString = {}.toString;
+                if (aa && typeof aa == 'object' && aa.toString != defaultToString)
+                    aa = String(aa);
+                if (bb && typeof bb == 'object' && bb.toString != defaultToString)
+                    bb = String(bb);
+                // do case-insensitive string comparaison
+                if (typeof aa == 'string')
+                    aa = $.trim(aa.toLowerCase());
+                if (typeof bb == 'string')
+                    bb = $.trim(bb.toLowerCase());
+                // compare both objects
+                if (aa > bb)
+                    return dir;
+                if (aa < bb)
+                    return -dir;
+                return 0;
+            }
         },
 
         localSearch: function (silent) {
@@ -3084,6 +3129,7 @@ w2utils.event = {
             }
             var time = (new Date()).getTime();
             var obj = this;
+            var defaultToString = {}.toString;
             this.total = this.records.length;
             // mark all records as shown
             this.last.searchIds = [];
@@ -3101,7 +3147,9 @@ w2utils.event = {
                         if (sdata  == null) continue;
                         if (search == null) search = { field: sdata.field, type: sdata.type };
                         var val1b = obj.parseField(rec, search.field);
-                        var val1  = String(val1b).toLowerCase();
+                        var val1 = (val1b !== null && val1b !== undefined &&
+                            (typeof val1b != "object" || val1b.toString != defaultToString)) ?
+                            String(val1b).toLowerCase() : "";  // do not match a bogus string
                         if (sdata.value != null) {
                             if (!$.isArray(sdata.value)) {
                                 var val2 = String(sdata.value).toLowerCase();
@@ -3347,7 +3395,13 @@ w2utils.event = {
                 var td2   = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]');
                 var td1f  = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(first.recid) + ' td[col="'+ first.column +'"]');
                 var td2f  = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]');
-
+                // adjustment due to column virtual scroll
+                if (first.column < this.last.colStart && last.column > this.last.colStart) {
+                    td1 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) + ' td[col="start"]');
+                }
+                if (first.column < this.last.colEnd && last.column > this.last.colEnd) {
+                    td2 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="end"]');
+                }
                 // if virtual scrolling kicked in
                 var index_top     = parseInt($('#grid_'+ this.name +'_rec_top').next().attr('index'));
                 var index_bottom  = parseInt($('#grid_'+ this.name +'_rec_bottom').prev().attr('index'));
@@ -3418,7 +3472,9 @@ w2utils.event = {
                     if (td1.length == 0) {
                         td1 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) +' td:first-child');
                         if (td1.length == 0) td1 = $('#grid_'+ this.name +'_rec_top td:first-child');
-                        $range.css('border-left', '0px');
+                    }
+                    if (td2f.length != 0) {
+                        $range.css('border-left', '0px');   
                     }
                     if (first.recid != null && last.recid != null && td1.length > 0 && td2.length > 0) {
                         $range.show().css({
@@ -3506,63 +3562,6 @@ w2utils.event = {
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after' }));
             }
-        },
-
-        refreshSpans: function (recid) {
-            var obj  = this;
-            var time = (new Date()).getTime();
-            // refresh soft spans
-            var ids  = [];
-            var $box = $(this.box);
-            if (recid != null) {
-                // both frozen and regular columns
-                $box = $(this.box).find('#grid_'+ this.name +'_frec_'+ recid +', #grid_'+ this.name +'_rec_'+ recid);
-            }
-            $box.find('.w2ui-soft-span').each(function () {
-                var offset = $(this).parents('table').offset();
-                var tmp = {
-                    html : $(this).find('>div').html(),
-                    top  : $(this).offset().top - offset.top + 1,
-                    left : $(this).offset().left - offset.left + 1,
-                    span : $(this).attr('softspan'),
-                    col  : $(this).attr('col'),
-                    row  : $(this).parent().attr('index'),
-                    style: $(this).attr('style'),
-                    width: $(this).attr('softwidth')
-                };
-                var $div = $('#grid_'+ obj.name +'_records').find('td:first-child > div');
-                var css = {
-                    "height"      : $(this).height() + 'px',
-                    "padding"     : '5px 3px',
-                    "font-size"   : $div.css('font-size'),
-                    "font-family" : $div.css('font-family')
-                };
-                var id  = 'grid_'+ obj.name +'_softspan_'+ tmp.row +'_'+ tmp.col;
-                var $el = $(obj.box).find('#'+id);
-                // insert if does not exits or different width
-                if ($el.length == 0
-                        || tmp.width != w2utils.getSize($el[0], 'width')
-                        || tmp.html != $el.html()
-                        || tmp.html != $el.attr('data-style')) {
-                    $el.remove();
-                    $(this).parents('table').parent()
-                        .append('<div id="'+ id +'" recid="'+ obj.records[tmp.row].recid +'" index="'+ tmp.row +'" index="'+ tmp.column +'" '+
-                            '   class="w2ui-soft-range" data-style="' + tmp.style + '"' +
-                            '   style="'+ tmp.style +'; left: '+ tmp.left +'px; top: '+ tmp.top +'px; width: '+ tmp.width +'px">'+
-                                tmp.html +
-                            '</div>');
-                    $(obj.box).find('#'+id).css(css);
-                }
-                $(this).find('>div').css('opacity', 0);
-                ids.push(id);
-            });
-            // remove unused soft ranges
-            $(this.box).find('.w2ui-soft-range').each(function () {
-                if (ids.indexOf($(this).attr('id')) == -1) {
-                    if (recid == null || $(this).attr('recid') == recid) $(this).remove();
-                }
-            });
-            return (new Date()).getTime() - time;
         },
 
         select: function () {
@@ -4980,12 +4979,7 @@ w2utils.event = {
                     cell.removeClass('w2ui-changed');
                 }
                 // update cell data
-                if (!cell.hasClass('w2ui-soft-hidden')) {
-                    cell.html(this.getCellHTML(index, column, summary));
-                } else {
-                    cell.html('<div class="cell-value"></div>');
-                }
-                this.refreshSpans(rec.recid);
+                cell.replaceWith(this.getCellHTML(index, column, summary));
             }
             // remove
             $(this.box).find('div.w2ui-edit-box').remove();
@@ -5365,18 +5359,20 @@ w2utils.event = {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] });
                                     }
+                                    obj.unselect.apply(obj, unSel);
+                                    obj.scrollIntoView(ind, columns[columns.length-1], true);
                                 } else {
                                     for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: prev });
                                     }
+                                    obj.select.apply(obj, newSel);
+                                    obj.scrollIntoView(ind, prev, true);
                                 }
-                                obj.unselect.apply(obj, unSel);
-                                obj.select.apply(obj, newSel);
                             } else {
                                 event.metaKey = false;
                                 obj.click({ recid: recid, column: prev }, event);
-                                obj.scrollIntoView(ind, prev);
+                                obj.scrollIntoView(ind, prev, true);
                             }
                         } else {
                             // if selected more then one, then select first
@@ -5417,18 +5413,20 @@ w2utils.event = {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         unSel.push({ recid: sel[i].recid, column: columns[0] });
                                     }
+                                    obj.unselect.apply(obj, unSel);
+                                    obj.scrollIntoView(ind, columns[0], true);
                                 } else {
                                     for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: next });
                                     }
+                                    obj.select.apply(obj, newSel);
+                                    obj.scrollIntoView(ind, next, true);
                                 }
-                                obj.unselect.apply(obj, unSel);
-                                obj.select.apply(obj, newSel);
                             } else {
                                 event.metaKey = false;
                                 obj.click({ recid: recid, column: next }, event);
-                                obj.scrollIntoView(ind, next);
+                                obj.scrollIntoView(ind, next, true);
                             }
                         } else {
                             // if selected more then one, then select first
@@ -5690,7 +5688,7 @@ w2utils.event = {
             if (len > 0) ind = this.last.searchIds.indexOf(ind); // if seach is applied
 
             // vertical
-            if (records.height() < this.recordHeight * (len > 0 ? len : buffered)) {
+            if (records.height() < this.recordHeight * (len > 0 ? len : buffered) && records.length > 0) {
                 // scroll to correct one
                 var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
                 var t2 = t1 + Math.floor(records.height() / this.recordHeight);
@@ -6089,11 +6087,7 @@ w2utils.event = {
                     var rec = this.records[index];
                     for (var col_index = 0; col_index < this.columns.length; col_index++) {
                         var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_index);
-                        if (!cell.hasClass('w2ui-soft-hidden')) {
-                            cell.html(this.getCellHTML(index, col_index, false));
-                        } else {
-                            cell.html('<div class="cell-value"></div>');
-                        }
+                        cell.replaceWith(this.getCellHTML(index, col_index, false));
                         // assign style
                         if (rec.style != null && !$.isEmptyObject(rec.style)) {
                             if (typeof rec.style == 'string') {
@@ -6118,11 +6112,7 @@ w2utils.event = {
                     }
                     var rec  = this.records[index];
                     var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_index);
-                    if (!cell.hasClass('w2ui-soft-hidden')) {
-                        cell.html(this.getCellHTML(index, col_index, false));
-                    } else {
-                        cell.html('<div class="cell-value"></div>');
-                    }
+                    cell.replaceWith(this.getCellHTML(index, col_index, false));
                     // assign style
                     if (rec.style != null && !$.isEmptyObject(rec.style)) {
                         if (typeof rec.style == 'string') {
@@ -6136,7 +6126,6 @@ w2utils.event = {
                     }
                 }
             }
-            this.refreshSpans();
             return (new Date()).getTime() - time;
         },
 
@@ -6148,11 +6137,7 @@ w2utils.event = {
             var col       = this.columns[col_ind];
             var cell      = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
             // set cell html and changed flag
-            if (!cell.hasClass('w2ui-soft-hidden')) {
-                cell.html(this.getCellHTML(index, col_ind, isSummary));
-            } else {
-                cell.html('<div class="cell-value"></div>');
-            }
+            cell.replaceWith(this.getCellHTML(index, col_ind, isSummary));
             if (rec.changes && rec.changes[col.field] != null) {
                 cell.addClass('w2ui-changed');
             } else {
@@ -6197,9 +6182,7 @@ w2utils.event = {
                     }
                 }
                 if (isSummary) {
-                    this.resize(); // resize will trigger refreshSpans
-                } else {
-                    this.refreshSpans(recid);
+                    this.resize();
                 }
             }
         },
@@ -6273,6 +6256,7 @@ w2utils.event = {
             }
 
             // -- body
+            obj.scroll(); // need to calculate virtual scolling for columns
             var recHTML  = this.getRecordsHTML();
             var colHTML  = this.getColumnsHTML();
             var bodyHTML =
@@ -6284,7 +6268,7 @@ w2utils.event = {
                 '</div>'+
                 '<div id="grid_'+ this.name +'_scroll1" class="w2ui-grid-scroll1" style="height: '+ w2utils.scrollBarSize() +'px"></div>'+
                 // Columns need to be after to be able to overlap
-                '<div id="grid_'+ this.name +'_fcolumns" class="w2ui-grid-columns">'+
+                '<div id="grid_'+ this.name +'_fcolumns" class="w2ui-grid-fcolumns">'+
                 '    <table><tbody>'+ colHTML[0] +'</tbody></table>'+
                 '</div>'+
                 '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
@@ -6412,7 +6396,7 @@ w2utils.event = {
                 })
                 .on('paste', function (event) {
                     var el = this;
-                    setTimeout(function () { w2ui[obj.name].paste(el.value); }, 1)
+                    setTimeout(function () { w2ui[obj.name].paste(el.value); el.value = ''; }, 1)
                 })
                 .on('keydown', function (event) {
                     w2ui[obj.name].keydown.call(w2ui[obj.name], event);
@@ -6740,7 +6724,7 @@ w2utils.event = {
                     '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');"/>'+
                     '</td>'+
                     '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
-                    '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ tmp +    '</label>'+
+                    '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ w2utils.stripTags(tmp) +'</label>'+
                     '</td>'+
                     '</tr>';
             }
@@ -7070,7 +7054,7 @@ w2utils.event = {
                 if (this.show.toolbarColumns) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['columns']));
                 }
-                if (this.show.toolbarReload || this.show.toolbarColumn) {
+                if (this.show.toolbarReload || this.show.toolbarColumns) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
                 }
                 if (this.show.toolbarSearch) {
@@ -7253,6 +7237,7 @@ w2utils.event = {
                         obj.last.tmp.y = (event.screenY - obj.last.tmp.y);
                         obj.columns[obj.last.tmp.col].size = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px';
                         obj.resizeRecords();
+                        obj.scroll();
                         // reset
                         obj.last.tmp.x = event.screenX;
                         obj.last.tmp.y = event.screenY;
@@ -7261,7 +7246,8 @@ w2utils.event = {
                         delete obj.resizing;
                         $(document).off('mousemove', 'body');
                         $(document).off('mouseup', 'body');
-                        obj.resizeRecords();
+                        obj.resizeRecords();                        
+                        obj.scroll();
                         // event before
                         obj.trigger($.extend(eventData, { phase: 'after', originalEvent: event }));
                     };
@@ -7347,9 +7333,15 @@ w2utils.event = {
             if (lineNumberWidth < 34) lineNumberWidth = 34; // 3 digit width
             if (this.lineNumberWidth != null) lineNumberWidth = this.lineNumberWidth;
 
-            var bodyOverflowX = false;
+            var bodyOverflowX = false; 
             var bodyOverflowY = false;
-            if (body.width() < $(records).find('>table').width() + $(frecords).find('>table').width()) bodyOverflowX = true;
+            var sWidth = 0; 
+            for (var i = 0; i < obj.columns.length; i++) {
+                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                var cSize = parseInt(obj.columns[i].sizeCalculated ? obj.columns[i].sizeCalculated : obj.columns[i].size);
+                sWidth += cSize;
+            }
+            if (records.width() < sWidth) bodyOverflowX = true;
             if (body.height() - columns.height() < $(records).find('>table').height() + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) bodyOverflowY = true;
 
             // body might be expanded by data
@@ -7417,19 +7409,15 @@ w2utils.event = {
                         if (this.show.lineNumbers)  html1 += '<td class="w2ui-col-number"></td>';
                         if (this.show.selectColumn) html1 += '<td class="w2ui-grid-data w2ui-col-select"></td>';
                         if (this.show.expandColumn) html1 += '<td class="w2ui-grid-data w2ui-col-expand"></td>';
-                        var j = 0;
-                        while (this.columns.length > 0) {
+                        html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>';
+                        for (var j = 0; j < this.columns.length; j++) {
                             var col = this.columns[j];
-                            if (col.hidden) { j++; if (this.columns[j] == null) break; else continue; }
-                            htmlp += '<td class="w2ui-grid-data" '+ (col.attr != null ? col.attr : '') +' col="'+ j +'"></td>';
+                            if ((col.hidden || j < this.last.colStart || j > this.last.colEnd) && !col.frozen) continue; 
+                            htmlp = '<td class="w2ui-grid-data" '+ (col.attr != null ? col.attr : '') +' col="'+ j +'"></td>';
                             if (col.frozen) html1 += htmlp; else html2 += htmlp;
-                            j++;
-                            if (this.columns[j] == null) break;
                         }
-                        html1 += '<td class="w2ui-grid-data-last"></td>';
-                        html2 += '<td class="w2ui-grid-data-last"></td>';
-                        html1 += '</tr>';
-                        html2 += '</tr>';
+                        html1 += '<td class="w2ui-grid-data-last"></td> </tr>';
+                        html2 += '<td class="w2ui-grid-data-last" col="end"></td> </tr>';
                         $('#grid_'+ this.name +'_frecords > table').append(html1);
                         $('#grid_'+ this.name +'_records > table').append(html2);
                     }
@@ -7555,12 +7543,29 @@ w2utils.event = {
                     }
                     // records
                     var ind = $(el).attr('col');
-                    if (ind != null && obj.columns[ind]) {
-                        $(el).css('width', obj.columns[ind].sizeCalculated);
+                    if (ind != null) {
+                        if (ind == 'start') {
+                            var width = 0;
+                            for (var i = 0; i < obj.last.colStart; i++) {
+                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                            }
+                            $(el).css('width', width + 'px');
+                        }
+                        if (obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
                     }
                     // last column
                     if ($(el).hasClass('w2ui-head-last')) {
-                        $(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+                        if (obj.last.colEnd + 1 < obj.columns.length) {
+                            var width = 0;
+                            for (var i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
+                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                            }
+                            $(el).css('width', width + 'px');
+                        } else {
+                            $(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+                        }
                     }
                 });
             // if there are column groups - hide first row (needed for sizing)
@@ -7584,12 +7589,29 @@ w2utils.event = {
                     }
                     // records
                     var ind = $(el).attr('col');
-                    if (ind != null && obj.columns[ind]) {
-                        $(el).css('width', obj.columns[ind].sizeCalculated);
+                    if (ind != null) {
+                        if (ind == 'start') {
+                            var width = 0;
+                            for (var i = 0; i < obj.last.colStart; i++) {
+                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                            }
+                            $(el).css('width', width + 'px');
+                        }
+                        if (obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
                     }
                     // last column
                     if ($(el).hasClass('w2ui-grid-data-last') && $(el).parents('.w2ui-grid-frecords').length == 0) { // not in frecords
-                        $(el).css('width', (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+                        if (obj.last.colEnd + 1 < obj.columns.length) {
+                            var width = 0;
+                            for (var i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
+                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                            }
+                            $(el).css('width', width + 'px');
+                        } else {
+                            $(el).css('width', (width_diff > 0 && percent == 0 ? width_diff : 0) + 'px');
+                        }
                     }
                 });
             // resize summary
@@ -7602,8 +7624,16 @@ w2utils.event = {
                     }
                     // records
                     var ind = $(el).attr('col');
-                    if (ind != null && obj.columns[ind]) {
-                        $(el).css('width', obj.columns[ind].sizeCalculated);
+                    if (ind != null) {
+                        if (ind == 'start') {
+                            var width = 0;
+                            for (var i = 0; i < obj.last.colStart; i++) {
+                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                            }
+                            $(el).css('width', width + 'px');
+                        }
+                        if (obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated);
                     }
                     // last column
                     if ($(el).hasClass('w2ui-grid-data-last') && $(el).parents('.w2ui-grid-frecords').length == 0) { // not in frecords
@@ -7612,7 +7642,6 @@ w2utils.event = {
                 });
             this.initResize();
             this.refreshRanges();
-            this.refreshSpans();
             // apply last scroll if any
             if ((this.last.scrollTop || this.last.scrollLeft) && records.length > 0) {
                 columns.prop('scrollLeft', this.last.scrollLeft);
@@ -7922,6 +7951,7 @@ w2utils.event = {
                             '</td>';
                 }
                 var ii = 0;
+                html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i=0; i<obj.columnGroups.length; i++) {
                     var colg = obj.columnGroups[i];
                     var col  = obj.columns[ii];
@@ -7962,15 +7992,13 @@ w2utils.event = {
                     ii += colg.span;
                 }
                 html1 += '<td></td></tr>'; // need empty column for border-right
-                html2 += '</tr>';
+                html2 += '<td id="grid_'+ obj.name + '_column_end" class="w2ui-head" col="end"></td></tr>';
                 return [html1, html2];
             }
 
             function getColumns (master) {
                 var html1 = '<tr>';
                 var html2 = '<tr>';
-                var tmpf  = '';
-                var reorderCols = (obj.reorderColumns && (!obj.columnGroups || !obj.columnGroups.length)) ? ' w2ui-reorder-cols-head ' : '';
                 if (obj.show.lineNumbers) {
                     html1 += '<td class="w2ui-head w2ui-col-number" onclick="w2ui[\''+ obj.name +'\'].columnClick(\'line-number\', event);">'+
                             '    <div>#</div>'+
@@ -7995,48 +8023,65 @@ w2utils.event = {
                 }
                 var ii = 0;
                 var id = 0;
+                html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
                     var colg = {};
+                    if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen) continue;
                     if (i == id) {
                         id = id + (obj.columnGroups[ii] != null ? parseInt(obj.columnGroups[ii].span) : 0);
                         ii++;
                     }
                     if (obj.columnGroups[ii-1] != null) var colg = obj.columnGroups[ii-1];
                     if (col.hidden) continue;
-                    var sortStyle = '';
-                    for (var si = 0; si < obj.sortData.length; si++) {
-                        if (obj.sortData[si].field == col.field) {
-                            if (new RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
-                            if (new RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
-                        }
-                    }
                     if (colg['master'] !== true || master) { // grouping of columns
-                        var resizer = "";
-                        if (col.resizable !== false) {
-                            resizer = '<div class="w2ui-resizer" name="'+ i +'"></div>';
-                        }
-                        tmpf  = '<td id="grid_'+ obj.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
-                                     (obj.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
-                                '    onmouseover = "w2ui[\''+ obj.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
-                                '    onmouseout  = "w2ui[\''+ obj.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
-                                '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ i +', event);"'+
-                                '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
-                                    resizer +
-                                '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
-                                '        <div class="'+ sortStyle +'"></div>'+
-                                        (!col.caption ? '&#160;' : col.caption) +
-                                '    </div>'+
-                                '</td>';
-                        if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
+                        var colCellHTML = obj.getColumnCellHTML(i);
+                        if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML;
                     }
                 }
                 html1 += '<td class="w2ui-head w2ui-head-last"><div>&#160;</div></td>';
-                html2 += '<td class="w2ui-head w2ui-head-last"><div>&#160;</div></td>';
+                html2 += '<td class="w2ui-head w2ui-head-last" col="end"><div>&#160;</div></td>';
                 html1 += '</tr>';
                 html2 += '</tr>';
                 return [html1, html2];
             }
+        },
+
+        getColumnCellHTML: function (i) {
+            var col = this.columns[i];
+            if (col == null) return '';
+            // reorder style
+            var reorderCols = (this.reorderColumns && (!this.columnGroups || !this.columnGroups.length)) ? ' w2ui-reorder-cols-head ' : '';
+            // sort style
+            var sortStyle = '';
+            for (var si = 0; si < this.sortData.length; si++) {
+                if (this.sortData[si].field == col.field) {
+                    if (new RegExp('asc', 'i').test(this.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
+                    if (new RegExp('desc', 'i').test(this.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
+                }
+            }
+            // col selected
+            var tmp = this.last.selection.columns;
+            var selected = false;
+            for (var t in tmp) {
+                for (var si = 0; si < tmp[t].length; si++) {
+                    if (tmp[t][si] == i) selected = true;
+                }
+            }
+            var html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
+                             (this.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
+                        '    onmouseover = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
+                        '    onmouseout  = "w2ui[\''+ this.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
+                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(null, '+ i +', event);"'+
+                        '    onclick="w2ui[\''+ this.name +'\'].columnClick(\''+ col.field +'\', event);">'+
+                             (col.resizable !== false ? '<div class="w2ui-resizer" name="'+ i +'"></div>' : '') +
+                        '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +' '+ (selected ? 'w2ui-col-selected' : '') +'">'+
+                        '        <div class="'+ sortStyle +'"></div>'+
+                                (!col.caption ? '&#160;' : col.caption) +
+                        '    </div>'+
+                        '</td>';
+
+            return html
         },
 
         columnTooltipShow: function (ind) {
@@ -8082,10 +8127,10 @@ w2utils.event = {
             var html2 = '<table><tbody>' + rec_html[1];
             // first empty row with height
             html1 += '<tr id="grid_'+ this.name + '_frec_top" line="top" style="height: '+ 0 +'px">'+
-                     '    <td colspan="200"></td>'+
+                     '    <td colspan="2000"></td>'+
                      '</tr>';
             html2 += '<tr id="grid_'+ this.name + '_rec_top" line="top" style="height: '+ 0 +'px">'+
-                     '    <td colspan="200"></td>'+
+                     '    <td colspan="2000"></td>'+
                      '</tr>';
             for (var i = 0; i < limit; i++) {
                 rec_html = this.getRecordHTML(i, i+1);
@@ -8093,17 +8138,17 @@ w2utils.event = {
                 html2 += rec_html[1];
             }
             html1 += '<tr id="grid_'+ this.name + '_frec_bottom" line="bottom" style="height: '+ ((buffered - limit) * this.recordHeight) +'px">'+
-                    '    <td colspan="200"></td>'+
+                    '    <td colspan="2000" style="border: 0"></td>'+
                     '</tr>'+
                     '<tr id="grid_'+ this.name +'_frec_more" style="display: none; visibility: hidden">'+
-                    '    <td colspan="200" class="w2ui-load-more"></td>'+
+                    '    <td colspan="2000" class="w2ui-load-more"></td>'+
                     '</tr>'+
                     '</tbody></table>';
             html2 += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((buffered - limit) * this.recordHeight) +'px">'+
-                    '    <td colspan="200"></td>'+
+                    '    <td colspan="2000" style="border: 0"></td>'+
                     '</tr>'+
                     '<tr id="grid_'+ this.name +'_rec_more" style="display: none">'+
-                    '    <td colspan="200" class="w2ui-load-more"></td>'+
+                    '    <td colspan="2000" class="w2ui-load-more"></td>'+
                     '</tr>'+
                     '</tbody></table>';
             this.last.range_start = 0;
@@ -8141,6 +8186,122 @@ w2utils.event = {
                 $('#grid_'+ obj.name +'_summary')[0].scrollLeft = sLeft;
                 frecords[0].scrollTop = sTop;
             }
+            // column virtual scroll
+            var sWidth = records.width();
+            var cLeft  = 0;
+            var colStart = null;
+            var colEnd   = null;
+            for (var i = 0; i < obj.columns.length; i++) {
+                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                var cSize = parseInt(obj.columns[i].sizeCalculated ? obj.columns[i].sizeCalculated : obj.columns[i].size);
+                if (cLeft + cSize + 30 > obj.last.scrollLeft && colStart == null) colStart = i;
+                if (cLeft + cSize - 30 > obj.last.scrollLeft + sWidth && colEnd == null) colEnd = i;
+                cLeft += cSize;
+            }
+            if (colEnd == null) colEnd = obj.columns.length - 1;
+            if (colStart != null) {
+                if (colStart < 0) colStart = 0;
+                if (colEnd < 0) colEnd = 0;
+                if (colStart == colEnd) {
+                    if (colStart > 0) colStart--; else colEnd++; // show at least one column
+                }
+                // ---------
+                if (colStart != obj.last.colStart || colEnd != obj.last.colEnd) {
+                    var $box = $(obj.box);
+                    var deltaStart = Math.abs(colStart - obj.last.colStart);
+                    var deltaEnd   = Math.abs(colEnd - obj.last.colEnd)
+                    // add/remove columns for small jumps
+                    if (deltaStart < 5 && deltaEnd < 5) {
+                        var $cfirst = $box.find('.w2ui-grid-columns #grid_'+ obj.name +'_column_start');
+                        var $clast  = $box.find('.w2ui-grid-columns .w2ui-head-last');
+                        var $rfirst = $box.find('#grid_'+ obj.name +'_records .w2ui-grid-data-spacer');
+                        var $rlast  = $box.find('#grid_'+ obj.name +'_records .w2ui-grid-data-last');
+                        var $sfirst = $box.find('#grid_'+ obj.name +'_summary .w2ui-grid-data-spacer');
+                        var $slast  = $box.find('#grid_'+ obj.name +'_summary .w2ui-grid-data-last');
+                        // remove on left
+                        if (colStart > obj.last.colStart) {
+                            for (var i = obj.last.colStart; i < colStart; i++) {
+                                $box.find('#grid_'+ obj.name +'_columns #grid_'+ obj.name +'_column_'+ i).remove(); // column
+                                $box.find('#grid_'+ obj.name +'_records td[col="'+ i +'"]').remove(); // record
+                                $box.find('#grid_'+ obj.name +'_summary td[col="'+ i +'"]').remove(); // summary
+                            }
+                        }
+                        // remove on right
+                        if (colEnd < obj.last.colEnd) {
+                            for (var i = obj.last.colEnd; i > colEnd; i--) {
+                                $box.find('#grid_'+ obj.name +'_columns #grid_'+ obj.name +'_column_'+ i).remove(); // column
+                                $box.find('#grid_'+ obj.name +'_records td[col="'+ i +'"]').remove(); // record
+                                $box.find('#grid_'+ obj.name +'_summary td[col="'+ i +'"]').remove(); // summary
+                            }
+                        }
+                        // add on left
+                        if (colStart < obj.last.colStart) {
+                            for (var i = obj.last.colStart - 1; i >= colStart; i--) {
+                                if (obj.columns[i] && (obj.columns[i].frozen || obj.columns[i].hidden)) continue;
+                                $cfirst.after(obj.getColumnCellHTML(i)); // column
+                                // record
+                                $rfirst.each(function (ind, el) {
+                                    var index = $(el).parent().attr('index');
+                                    var td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>'; // width column
+                                    if (index != null) td = obj.getCellHTML(parseInt(index), i, false);
+                                    $(el).after(td);
+                                });
+                                // summary
+                                $sfirst.each(function (ind, el) {
+                                    var index = $(el).parent().attr('index');
+                                    var td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>'; // width column
+                                    if (index != null) td = obj.getCellHTML(parseInt(index), i, true);
+                                    $(el).after(td);
+                                });
+                            }
+                        }
+                        // add on right
+                        if (colEnd > obj.last.colEnd) {
+                            for (var i = obj.last.colEnd + 1; i <= colEnd; i++) {
+                                if (obj.columns[i] && (obj.columns[i].frozen || obj.columns[i].hidden)) continue;
+                                $clast.before(obj.getColumnCellHTML(i)); // column
+                                // record
+                                $rlast.each(function (ind, el) {
+                                    var index = $(el).parent().attr('index');
+                                    var td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>'; // width column
+                                    if (index != null) td = obj.getCellHTML(parseInt(index), i, false);
+                                    $(el).before(td);
+                                });
+                                // summary
+                                $slast.each(function (ind, el) {
+                                    var index = $(el).parent().attr('index');
+                                    var td = obj.getCellHTML(parseInt(index), i, true);
+                                    $(el).before(td);
+                                });
+                            }
+                        }
+                        obj.last.colStart = colStart;
+                        obj.last.colEnd   = colEnd;
+                        obj.resizeRecords();
+                    } else {
+                        obj.last.colStart = colStart;
+                        obj.last.colEnd   = colEnd;
+                        // dot not just call obj.refresh();
+                        var colHTML   = this.getColumnsHTML();
+                        var recHTML   = this.getRecordsHTML();
+                        var sumHTML   = this.getSummaryHTML();
+                        var $columns  = $box.find('#grid_'+ this.name +'_columns');
+                        var $records  = $box.find('#grid_'+ this.name +'_records');
+                        var $frecords = $box.find('#grid_'+ this.name +'_frecords');
+                        var $summary  = $box.find('#grid_'+ this.name +'_summary');
+                        $columns.find('tbody').html(colHTML[1]);
+                        $frecords.html(recHTML[0]);
+                        $records.prepend(recHTML[1]);
+                        if (sumHTML != null) $summary.html(sumHTML[1]);
+                        // need timeout to clean up (otherwise scroll problem)
+                        setTimeout(function () { 
+                            $records.find('> table').not('table:first-child').remove();
+                            $summary[0].scrollLeft = obj.last.scrollLeft;
+                        }, 1);      
+                        obj.resizeRecords();
+                    }
+                }
+            }
             // perform virtual scroll
             var buffered = this.records.length;
             if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
@@ -8148,7 +8309,9 @@ w2utils.event = {
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
             // need this to enable scrolling when this.limit < then a screen can fit
             if (records.height() < buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
-                if (this.total > 0) this.refresh();
+                // TODO: is this needed?
+                // console.log(records.height(), buffered, this.total, this.recordHeight)
+                // if (this.total > 0) this.refresh();
                 return;
             }
             // update footer
@@ -8162,7 +8325,7 @@ w2utils.event = {
                 (url && obj.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
             );
             // only for local data source, else no extra records loaded
-            if (!url && (!this.fixedBody || this.total <= 300)) return;
+            if (!url && (!this.fixedBody || this.total <= this.vs_start)) return;
             // regular processing
             var start   = Math.floor(records[0].scrollTop / this.recordHeight) - this.last.show_extra;
             var end     = start + Math.floor(records.height() / this.recordHeight) + this.last.show_extra * 2 + 1;
@@ -8208,7 +8371,7 @@ w2utils.event = {
                     tr2f.before(rec_html[0]);
                 }
                 markSearch();
-                setTimeout(function() { obj.refreshRanges(); obj.refreshSpans(); }, 0);
+                setTimeout(function() { obj.refreshRanges(); }, 0);
             } else { // scroll up
                 if (start >= first - this.last.show_extra + 2 && start > 1) return;
                 // remove from bottom
@@ -8230,7 +8393,7 @@ w2utils.event = {
                     tr1f.after(rec_html[0]);
                 }
                 markSearch();
-                setTimeout(function() { obj.refreshRanges(); obj.refreshSpans(); }, 0);
+                setTimeout(function() { obj.refreshRanges(); }, 0);
             }
             // first/last row size
             var h1 = (start - 1) * obj.recordHeight;
@@ -8299,14 +8462,19 @@ w2utils.event = {
                 if (this.show.lineNumbers)  rec_html1 += '<td class="w2ui-col-number" style="height: 0px;"></td>';
                 if (this.show.selectColumn) rec_html1 += '<td class="w2ui-col-select" style="height: 0px;"></td>';
                 if (this.show.expandColumn) rec_html1 += '<td class="w2ui-col-expand" style="height: 0px;"></td>';
+                rec_html2 += '<td class="w2ui-grid-data w2ui-grid-data-spacer" col="start" style="height: 0px; width: 0px;"></td>';
                 for (var i = 0; i < this.columns.length; i++) {
                     var col = this.columns[i];
-                    if (col.hidden) continue;
                     tmph = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px;"></td>';
-                    if (col.frozen) rec_html1 += tmph; else rec_html2 += tmph;
+                    if (col.frozen && !col.hidden) {
+                        rec_html1 += tmph;
+                    } else {
+                        if (col.hidden || i < this.last.colStart || i > this.last.colEnd) continue; 
+                        rec_html2 += tmph;
+                    }
                 }
                 rec_html1 += '<td class="w2ui-grid-data-last" style="height: 0px"></td>';
-                rec_html2 += '<td class="w2ui-grid-data-last" style="height: 0px"></td>';
+                rec_html2 += '<td class="w2ui-grid-data-last" col="end" style="height: 0px"></td>';
                 rec_html1 += '</tr>';
                 rec_html2 += '</tr>';
                 return [rec_html1, rec_html2];
@@ -8417,14 +8585,14 @@ w2utils.event = {
                             '' ) +
                         '</td>';
             }
+            // insert empty first column
+            rec_html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>';
             var col_ind   = 0;
             var col_skip  = 0;
             var col_span  = 1;
-            var soft_span = 1;
-            var soft_width;
             while (true) {
                 var col = this.columns[col_ind];
-                var soft_set = false;
+                if (col == null) break;
                 if (col_skip > 0) {
                     col_ind++;
                     if (this.columns[col_ind] == null) break;
@@ -8433,23 +8601,14 @@ w2utils.event = {
                     col_skip--;
                     continue;
                 }
-                if (soft_span > 1) {
-                    soft_span--;
-                }
                 if (col.hidden) {
                     col_ind++;
                     if (this.columns[col_ind] == null) break; else continue;
                 }
-                var isChanged = !summary && record.changes && record.changes[col.field] != null;
-                var rec_cell  = this.getCellHTML(ind, col_ind, summary);
-                var addStyle  = '';
-                if (typeof col.render == 'string') {
-                    var tmp = col.render.toLowerCase().split(':');
-                    if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
-                }
-                if (typeof record.style == 'object') {
-                    if (typeof record.style[col_ind] == 'string') addStyle += record.style[col_ind] + ';';
-                    if (typeof record.style[col.field] == 'string') addStyle += record.style[col.field] + ';';
+                // column virtual scroll
+                if ((col_ind < this.last.colStart || col_ind > this.last.colEnd) && !col.frozen) { 
+                    col_ind++; 
+                    continue; 
                 }
                 if (record.w2ui) {
                     if (typeof record.w2ui.colspan == 'object') {
@@ -8459,43 +8618,13 @@ w2utils.event = {
                             col_skip = tmp - 1;
                         }
                     }
-                    if (typeof record.w2ui.softspan == 'object' && rec_cell != null && rec_cell != '') {
-                        var tmp = parseInt(record.w2ui.softspan[col.field]) || 1;
-                        if (tmp > 1) {
-                            soft_span  = tmp;
-                            soft_set   = true;
-                            soft_width = 0;
-                            // calculate width
-                            for (var k = col_ind; k < this.columns.length; k++) {
-                                if (this.columns[k].hidden) continue;
-                                if (k >= col_ind + tmp) break;
-                                soft_width += parseInt(this.columns[k].sizeCalculated);
-                            }
-                        }
-                    }
                 }
-                var isCellSelected = false;
-                if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
-                tmph = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') +
-                            (isChanged ? ' w2ui-changed' : '') +
-                            (soft_set === true ? ' w2ui-soft-span' : '') +
-                            (soft_set === false && soft_span > 1 ? ' w2ui-soft-hidden' : '') +
-                            '" '+
-                        '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
-                        '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
-                            (col.attr != null ? col.attr : '') +
-                            (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
-                            (soft_set === true ? 'softspan="'+ soft_span + '"' : '') +
-                            (soft_set === true ? 'softwidth="'+ soft_width + '"' : '') +
-                        '>'+
-                            (soft_set === false && soft_span > 1 ? '<div class="cell-value"></div>' : rec_cell) +
-                        '</td>';
-                if (col.frozen) rec_html1 += tmph; else rec_html2 += tmph;
+                var rec_cell = this.getCellHTML(ind, col_ind, summary, col_span);
+                if (col.frozen) rec_html1 += rec_cell; else rec_html2 += rec_cell;
                 col_ind++;
-                if (this.columns[col_ind] == null) break;
             }
             rec_html1 += '<td class="w2ui-grid-data-last"></td>';
-            rec_html2 += '<td class="w2ui-grid-data-last"></td>';
+            rec_html2 += '<td class="w2ui-grid-data-last" col="end"></td>';
             rec_html1 += '</tr>';
             rec_html2 += '</tr>';
             return [rec_html1, rec_html2];
@@ -8505,17 +8634,24 @@ w2utils.event = {
             return '<div>' + lineNum + '</div>';
         },
 
-        getCellHTML: function (ind, col_ind, summary) {
+        getCellHTML: function (ind, col_ind, summary, col_span) {
             var col    = this.columns[col_ind];
+            if (col == null) return '';
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.getCellValue(ind, col_ind, summary);
             var edit   = col.editable;
             var style  = 'max-height: '+ parseInt(this.recordHeight) +'px;';
+            var isChanged = !summary && record.changes && record.changes[col.field] != null;
+            var addStyle  = '';
+            var sel = this.last.selection;
+            var isRowSelected = false;
+            if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
+            if (col_span == null) col_span = 1;
             // various renderers
             if (col.render != null) {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
-                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div style="'+ style +'">' + data + '</div>';
+                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div style="'+ style +'">' + String(data) + '</div>';
                 }
                 if (typeof col.render == 'object')   data = '<div style="'+ style +'">' + (col.render[data] || '') + '</div>';
                 if (typeof col.render == 'string') {
@@ -8579,9 +8715,30 @@ w2utils.event = {
                         if (typeof col.title == 'string')   title = col.title;
                     }
                 }
-                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ data +'</div>';
+                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ String(data) +'</div>';
             }
             if (data == null) data = '';
+            // --> cell TD
+            if (typeof col.render == 'string') {
+                var tmp = col.render.toLowerCase().split(':');
+                if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
+            }
+            if (typeof record.style == 'object') {
+                if (typeof record.style[col_ind] == 'string') addStyle += record.style[col_ind] + ';';
+                if (typeof record.style[col.field] == 'string') addStyle += record.style[col.field] + ';';
+            }
+            var isCellSelected = false;
+            if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
+
+            data =  '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') +
+                        (isChanged ? ' w2ui-changed' : '') +
+                        '" '+
+                    '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
+                    '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
+                        (col.attr != null ? col.attr : '') +
+                        (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
+                    '>' + data + '</td>';
+
             return data;
         },
 
@@ -13120,6 +13277,10 @@ var w2confirm = function (msg, title, callBack) {
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
 *   - for type: list -> read value from attr('value')
+*   - ENUM, LIST: should be able to define which is ID field and which is TEXT
+*   - ENUM, LIST: same data structure as grid
+*   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
+*   - ENUM, LIST: should support wild cars
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
