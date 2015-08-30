@@ -6,6 +6,7 @@
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
+*   - scroll on navigating using keyboard, when selectType is 'cell'
 *   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
 *   - easy bubbles in the grid
@@ -1895,14 +1896,14 @@
             if (!noRefresh) this.refresh();
         },
 
-        skip: function (offset) {
+        skip: function (offset, callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url) {
                 this.offset = parseInt(offset);
                 if (this.offset > this.total) this.offset = this.total - this.limit;
                 if (this.offset < 0 || !w2utils.isInt(this.offset)) this.offset = 0;
                 this.clear(true);
-                this.reload();
+                this.reload(callBack);
             } else {
                 console.log('ERROR: grid.skip() can only be called when you have remote data source.');
             }
