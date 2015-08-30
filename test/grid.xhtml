@@ -29,7 +29,7 @@ $(function () {
         // },
         columnTooltip: 'top',
         reorderRows: true,
-        reorderColumns: true,
+        //reorderColumns: true,
         show: { 
             toolbar: true,
             footer: true,
@@ -96,7 +96,7 @@ $(function () {
             { field: 'fname', caption: 'First Name', type: 'text' }
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
-        columnGroups1: [
+        columnGroups: [
             { caption: '', span: 1 },
             { caption: '', span: 1 },
             { caption: 'General Information', span: 2},
@@ -105,7 +105,7 @@ $(function () {
             { caption: 'Important Dates', span: 3 }
         ],
         columns: [                
-            { field: 'userid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true, tooltip: 'User ID' },
+            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true, tooltip: 'User ID' },
             { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, tooltip: 'Person ID', 
                 render: function (record) { 
                     if (record.changes && record.changes['personid']) {
@@ -114,9 +114,10 @@ $(function () {
                         return record['personid']; 
                     }
                 },
-                editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } } 
+                editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } },
+                hidden: true
             },
-            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, searchable: { }, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name' },
+            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, searchable: { }, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name', hidden: true },
             { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2', frozen1: true },

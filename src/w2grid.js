@@ -5615,9 +5615,18 @@
                 for (var i=0; i<obj.columnGroups.length; i++) {
                     var colg = obj.columnGroups[i];
                     var col  = obj.columns[ii];
-                    if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
                     if (colg.colspan != null) colg.span = colg.colspan;
-                    if (colg.master === true) {
+                    if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
+                    var colspan = 0;
+                    for (var jj = ii; jj < ii + colg.span; jj++) {
+                        if (obj.columns[jj] && !obj.columns[jj].hidden)
+                            colspan++;
+                    }
+                    if (i == obj.columnGroups.length-1)
+                        colspan++;      // XXX
+                    if (colspan <= 0) {
+                        // do nothing here, all columns in the group are hidden.
+                    } else if (colg.master === true) {
                         var sortStyle = '';
                         for (var si = 0; si < obj.sortData.length; si++) {
                             if (obj.sortData[si].field == col.field) {
@@ -5630,7 +5639,7 @@
                             resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
                         }
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
-                               '    rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
+                               '    rowspan="2" colspan="'+ colspan +'" '+
                                '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
                                '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                    resizer +
@@ -5642,7 +5651,7 @@
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
                     } else {
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
-                               '        colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'">'+
+                               '        colspan="'+ colspan +'">'+
                                '    <div class="w2ui-col-group">'+
                                    (!colg.caption ? '&#160;' : colg.caption) +
                                '    </div>'+
@@ -5683,18 +5692,19 @@
                 }
                 var ii = 0;
                 var id = 0;
+                var colg;
                 html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
-                    var colg = {};
-                    if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen) continue;
-                    if (i == id) {
-                        id = id + (obj.columnGroups[ii] != null ? parseInt(obj.columnGroups[ii].span) : 0);
-                        ii++;
+                    if (i == id) {      // always true on first iteration
+                        colg = obj.columnGroups[ii++] || {};
+                        id = id + colg.span;
                     }
-                    if (obj.columnGroups[ii-1] != null) var colg = obj.columnGroups[ii-1];
-                    if (col.hidden) continue;
-                    if (colg['master'] !== true || master) { // grouping of columns
+                    if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen)
+                        continue;
+                    if (col.hidden)
+                        continue;
+                    if (colg.master !== true || master) { // grouping of columns
                         var colCellHTML = obj.getColumnCellHTML(i);
                         if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML;
                     }
