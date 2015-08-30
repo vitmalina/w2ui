@@ -1021,11 +1021,13 @@
                 var td2   = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]');
                 var td1f  = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(first.recid) + ' td[col="'+ first.column +'"]');
                 var td2f  = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]');
+                var _lastColumn = last.column;
                 // adjustment due to column virtual scroll
                 if (first.column < this.last.colStart && last.column > this.last.colStart) {
                     td1 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) + ' td[col="start"]');
                 }
                 if (first.column < this.last.colEnd && last.column > this.last.colEnd) {
+                    _lastColumn = '"end"';
                     td2 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="end"]');
                 }
                 // if virtual scrolling kicked in
@@ -1037,7 +1039,7 @@
                     td1 = $('#grid_'+ this.name +'_rec_top').next().find('td[col='+ first.column +']');
                 }
                 if (td2.length == 0 && last.index > index_bottom && first.index < index_bottom) {
-                    td2 = $('#grid_'+ this.name +'_rec_bottom').prev().find('td[col='+ last.column +']');
+                    td2 = $('#grid_'+ this.name +'_rec_bottom').prev().find('td[col='+ _lastColumn +']');
                 }
                 if (td1f.length == 0 && first.index < index_ftop && last.index > index_ftop) { // frozen
                     td1f = $('#grid_'+ this.name +'_frec_top').next().find('td[col='+ first.column +']');
@@ -1072,9 +1074,11 @@
                         $range.find('.w2ui-selection-resizer').hide();
                     }
                     if (first.recid != null && last.recid != null && td1f.length > 0 && td2f.length > 0) {
+                        var _left = (td1f.position().left - 1 + rec1.scrollLeft());
+                        var _top  = (td1f.position().top - 1 + rec1.scrollTop());
                         $range.show().css({
-                            left    : (td1f.position().left - 1 + rec1.scrollLeft()) + 'px',
-                            top     : (td1f.position().top - 1 + rec1.scrollTop()) + 'px',
+                            left    : (_left > 0 ? _left : 0) + 'px',
+                            top     : (_top > 0 ? _top : 0) + 'px',
                             width   : (td2f.position().left - td1f.position().left + td2f.width() + 3) + 'px',
                             height  : (td2f.position().top - td1f.position().top + td2f.height() + 3) + 'px'
                         });
@@ -1103,9 +1107,11 @@
                         $range.css('border-left', '0px');   
                     }
                     if (first.recid != null && last.recid != null && td1.length > 0 && td2.length > 0) {
+                        var _left = (td1.position().left - 1 + rec2.scrollLeft());
+                        var _top  = (td1.position().top - 1 + rec2.scrollTop());
                         $range.show().css({
-                            left    : (td1.position().left - 1 + rec2.scrollLeft()) + 'px',
-                            top     : (td1.position().top - 1 + rec2.scrollTop()) + 'px',
+                            left    : (_left > 0 ? _left : 0) + 'px',
+                            top     : (_top > 0 ? _top : 0) + 'px',
                             width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
                             height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
                         });
@@ -1363,7 +1369,7 @@
                         if (tmp[i].recid == recid) isRowSelected = true;
                     }
                     if (!isColSelected) {
-                       $(this.box).find('.w2ui-grid-columns td[col='+ col +'] .w2ui-col-header').removeClass('w2ui-col-selected');
+                       $(this.box).find('.w2ui-grid-columns td[col='+ col +'] .w2ui-col-header, .w2ui-grid-fcolumns td[col='+ col +'] .w2ui-col-header').removeClass('w2ui-col-selected');
                     }
                     if (!isRowSelected) {
                         $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find('.w2ui-col-number').removeClass('w2ui-row-selected');
@@ -1427,7 +1433,7 @@
                     .addClass('w2ui-selected').data('selected', 'yes').find('.w2ui-col-number').addClass('w2ui-row-selected');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
             } else {
-                $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').addClass('w2ui-col-selected');
+                $(this.box).find('.w2ui-grid-columns td .w2ui-col-header, .w2ui-grid-fcolumns td .w2ui-col-header').addClass('w2ui-col-selected');
                 $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').addClass('w2ui-row-selected');
                 $(this.box).find('.w2ui-grid-records tr').not('.w2ui-empty-record')
                     .find('.w2ui-grid-data').not('.w2ui-col-select').addClass('w2ui-selected').data('selected', 'yes');
@@ -1462,7 +1468,7 @@
                     .find('.w2ui-col-number').removeClass('w2ui-row-selected');
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', false);
             } else {
-                $(this.box).find('.w2ui-grid-columns td .w2ui-col-header').removeClass('w2ui-col-selected');
+                $(this.box).find('.w2ui-grid-columns td .w2ui-col-header, .w2ui-grid-fcolumns td .w2ui-col-header').removeClass('w2ui-col-selected');
                 $(this.box).find('.w2ui-grid-records tr .w2ui-col-number').removeClass('w2ui-row-selected');
                 $(this.box).find('.w2ui-grid-frecords tr .w2ui-col-number').removeClass('w2ui-row-selected');
                 $(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected w2ui-inactive').removeData('selected');
@@ -2397,7 +2403,7 @@
                         var el = this;
                         if (event.keyCode == 9) event.preventDefault();
                         // need timeout so, this handler is executed last
-                        setTimeout( function () {
+                        setTimeout(function () {
                             switch (event.keyCode) {
                                 case 9:  // tab
                                     var next_rec = recid;
@@ -2490,11 +2496,11 @@
                         // set cursor to the end
                         tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
                     } else {
-                        tmp[0].select();
+                        if (tmp[0].select) tmp[0].select();
                     }
                     expand.call(el.find('input, select')[0], null);
                 }
-                tmp[0].resize = expand;
+                if (tmp[0]) tmp[0].resize = expand;
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after', input: el.find('input, select, div.w2ui-input') }));
             }, 1);
@@ -2514,6 +2520,7 @@
             }
 
             function setCursorPosition(element, start, end) {
+                if (element == null) return;
                 var rg  = document.createRange();
                 var sel = window.getSelection();
                 var el  = element.childNodes[0];
@@ -2544,7 +2551,7 @@
             var rec     = records[index];
             var col     = this.columns[column];
             var tr      = $('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid));
-            var new_val = (el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value);
+            var new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value);
             var old_val = this.parseField(rec, col.field);
             var tmp     = $(el).data('w2field');
             if (tmp) {
@@ -3318,15 +3325,34 @@
                 // scroll to correct one
                 var t1 = Math.floor(records[0].scrollTop / this.recordHeight);
                 var t2 = t1 + Math.floor(records.height() / this.recordHeight);
-                if (ind == t1) records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, (instant === true ? 0 : 250), 'linear');
-                if (ind == t2) records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, (instant === true ? 0 : 250), 'linear');
-                if (ind < t1 || ind > t2) records.animate({ 'scrollTop': (ind - 1) * this.recordHeight }, (instant === true ? 0 : 250), 'linear');
+                if (ind == t1) {
+                    if (instant === true) {
+                        records.prop({ 'scrollTop': records.scrollTop() - records.height() / 1.3 });
+                    } else {
+                        records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, 250, 'linear');
+                    }
+                }
+                if (ind == t2) {
+                    if (instant === true) {
+                         records.prop({ 'scrollTop': records.scrollTop() + records.height() / 1.3 });
+                    } else {
+                        records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, 250, 'linear');
+                    }
+                }
+                if (ind < t1 || ind > t2) {
+                    if (instant === true) {
+                        records.prop({ 'scrollTop': (ind - 1) * this.recordHeight });
+                    } else {
+                        records.animate({ 'scrollTop': (ind - 1) * this.recordHeight }, 250, 'linear');
+                    }
+                }
             }
 
             // horizontal
             if (column != null) {
                 var x1 = 0;
                 var x2 = 0;
+                var sb = w2utils.scrollBarSize();
                 for (var i = 0; i <= column; i++) {
                     var col = this.columns[i];
                     if (col.frozen || col.hidden) continue;
@@ -3334,9 +3360,17 @@
                     x2 += parseInt(col.sizeCalculated);
                 }
                 if (records.width() < x2 - records.scrollLeft()) { // right
-                    records.animate({ 'scrollLeft': x1 - 20 }, (instant === true ? 0 : 250), 'linear');
+                    if (instant === true) {
+                        records.prop({ 'scrollLeft': x1 - sb });
+                    } else {
+                        records.animate({ 'scrollLeft': x1 - sb }, 250, 'linear');
+                    }
                 } else if (x1 < records.scrollLeft()) { // left
-                    records.animate({ 'scrollLeft': x2 - records.width() + 40 }, (instant === true ? 0 : 250), 'linear'); // 40 because scrollbar is 20
+                    if (instant === true) {
+                        records.prop({ 'scrollLeft': x2 - records.width() + sb * 2 });
+                    } else {
+                        records.animate({ 'scrollLeft': x2 - records.width() + sb * 2 }, 250, 'linear');
+                    }
                 }
             }
         },
@@ -4167,7 +4201,7 @@
                     var col = parseInt($(event.target).parents('td').attr('col'));
                     if (isNaN(col)) {
                         obj.removeRange('column-selection');
-                        $(obj.box).find('.w2ui-grid-columns .w2ui-col-header').removeClass('w2ui-col-selected');
+                        $(obj.box).find('.w2ui-grid-columns .w2ui-col-header, .w2ui-grid-fcolumns .w2ui-col-header').removeClass('w2ui-col-selected');
                         $(obj.box).find('.w2ui-col-number').removeClass('w2ui-row-selected');
                         delete mv.colRange;
                     } else {
@@ -4178,7 +4212,7 @@
                         if (mv.colRange == null) obj.selectNone();
                         // highlight columns
                         var tmp = newRange.split('-');
-                        $(obj.box).find('.w2ui-grid-columns .w2ui-col-header').removeClass('w2ui-col-selected');
+                        $(obj.box).find('.w2ui-grid-columns .w2ui-col-header, .w2ui-grid-fcolumns .w2ui-col-header').removeClass('w2ui-col-selected');
                         for (var j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) {
                             $(obj.box).find('#grid_'+ obj.name +'_column_' + j + ' .w2ui-col-header').addClass('w2ui-col-selected');
                         }
@@ -4656,7 +4690,7 @@
             if (hide) {
                 setTimeout(function () {
                     $().w2overlay({ name: this.name + '-searchOverlay' });
-                    obj.toolbar.uncheck('column-on-off');
+                    obj.toolbar.uncheck('w2ui-column-on-off');
                 }, 100);
             }
             // event after
