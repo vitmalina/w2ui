@@ -174,10 +174,13 @@ var w2popup = {};
                     btn += '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>';
                 }
                 // first insert just body
-                var msg = '<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
+                var option_body = (typeof options.body == 'string' ? $(options.body) : '');
+                var msg = $('<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
                           '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
                               w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"' +
-                          '>' + (typeof options.body == 'string' ? options.body : '') + '</div>';
+                          '>' + '</div>');
+                msg.append(option_body.clone());
+                msg.find("script").remove();
                 $('body').append(msg);
                 // parse rel=*
                 var parts = $('#w2ui-popup');
@@ -206,7 +209,7 @@ var w2popup = {};
 
                 if (options.title) $('#w2ui-popup .w2ui-msg-title').append(options.title);
                 if (options.buttons) $('#w2ui-popup .w2ui-msg-buttons').append(options.buttons);
-                if (options.body) $('#w2ui-popup .w2ui-msg-body').append(options.body);
+                if (options.body) $('#w2ui-popup .w2ui-msg-body').append(option_body);
 
                 // allow element to render
                 setTimeout(function () {
