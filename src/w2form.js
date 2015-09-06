@@ -203,30 +203,14 @@
             return false;
         },
 
-        show: function () {
-            var affected = 0;
-            for (var a = 0; a < arguments.length; a++) {
-                var fld = this.get(arguments[a]);
-                if (fld && fld.hidden) { 
-                    fld.hidden = false;
-                    affected++;
-                }
-            }
-            if (affected > 0) this.refresh();
-            return affected;
+        show: function (field, duration) {
+            $('input[name='+field+']').parent().parent().show(duration);
+            return true;
         },
 
-        hide: function () {
-            var affected = 0;
-            for (var a = 0; a < arguments.length; a++) {
-                var fld = this.get(arguments[a]);
-                if (fld && !fld.hidden) { 
-                    fld.hidden = true;
-                    affected++;
-                }
-            }
-            if (affected > 0) this.refresh();
-            return affected;
+        hide: function (field, duration) {
+            $('input[name='+field+']').parent().parent().hide(duration);
+            return true;
         },
 
         enable: function () {
