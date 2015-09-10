@@ -163,10 +163,9 @@
                     $(pname).scrollTop(0);
                     panelTop = $(current).position().top;
                 }
-
-                if (typeof p.content == 'object') 
+                if (typeof p.content == 'object') {
                     p.content.trigger({ type: 'close', target: p.content.name, box: p.content.box });
-
+                }
                 if (p.content === '') {
                     p.content = data;
                     this.refresh(panel);
