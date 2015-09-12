@@ -323,7 +323,7 @@ kickStart.register('route', function () {
             }
             // load module
             app.require(tmp[1]).done(function () {
-                if (app.modules[tmp[1]]) process();
+                if (app._config.modules[tmp[1]]) process();
             });
             // if events are available
             if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));

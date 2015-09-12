@@ -3166,7 +3166,7 @@ w2utils.event = {
                                 else if (search.type == 'date') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                                    var val2 = w2utils.formatDate(val2, 'yyyy-mm-dd');
+                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.date_format, true),  'yyyy-mm-dd');
                                     if (val1 == val2) fl++;
                                 }
                                 // only increment "fl" once -> use "else if"
@@ -3204,7 +3204,7 @@ w2utils.event = {
                                 else if (search.type == 'date') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                                    var val2 = w2utils.formatDate(val2, 'yyyy-mm-dd');
+                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.date_format, true),  'yyyy-mm-dd');
                                     if (val1 <= val2) fl++;
                                 }
                                 else if (search.type == 'time') {
@@ -3221,7 +3221,7 @@ w2utils.event = {
                                 else if (search.type == 'date') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                                    var val2 = w2utils.formatDate(val2, 'yyyy-mm-dd');
+                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.date_format, true),  'yyyy-mm-dd');
                                     if (val1 >= val2) fl++;
                                 }
                                 else if (search.type == 'time') {
@@ -6120,16 +6120,16 @@ w2utils.event = {
                 for (var index = this.last.range_start - 1; index <= this.last.range_end - 1; index++) {
                     if (index < 0) continue;
                     var rec = this.records[index];
-                    for (var col_index = 0; col_index < this.columns.length; col_index++) {
-                        var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_index);
-                        cell.replaceWith(this.getCellHTML(index, col_index, false));
+                    for (var column = 0; column < this.columns.length; column++) {
+                        var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
+                        cell.replaceWith(this.getCellHTML(index, column, false));
                         // assign style
                         if (rec.style != null && !$.isEmptyObject(rec.style)) {
                             if (typeof rec.style == 'string') {
                                 $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
                             }
-                            if ($.isPlainObject(rec.style) && typeof rec.style[col_index] == 'string') {
-                                cell.attr('style', rec.style[col_index]);
+                            if ($.isPlainObject(rec.style) && typeof rec.style[column] == 'string') {
+                                cell.attr('style', rec.style[column]);
                             }
                         } else {
                             cell.attr('style', '');
@@ -6138,23 +6138,23 @@ w2utils.event = {
                 }
             } else {
                 for (var i = 0; i < cells.length; i++) {
-                    var index     = cells[i].index;
-                    var col_index = cells[i].col_index;
+                    var index  = cells[i].index;
+                    var column = cells[i].column;
                     if (index < 0) continue;
-                    if (index == null || col_index == null) {
-                        console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, col_index: Y }, ...]');
+                    if (index == null || column == null) {
+                        console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, column: Y }, ...]');
                         continue;
                     }
                     var rec  = this.records[index];
-                    var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_index);
-                    cell.replaceWith(this.getCellHTML(index, col_index, false));
+                    var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
+                    cell.replaceWith(this.getCellHTML(index, column, false));
                     // assign style
                     if (rec.style != null && !$.isEmptyObject(rec.style)) {
                         if (typeof rec.style == 'string') {
                             $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
                         }
-                        if ($.isPlainObject(rec.style) && typeof rec.style[col_index] == 'string') {
-                            cell.attr('style', rec.style[col_index]);
+                        if ($.isPlainObject(rec.style) && typeof rec.style[column] == 'string') {
+                            cell.attr('style', rec.style[column]);
                         }
                     } else {
                         cell.attr('style', '');
@@ -7922,7 +7922,7 @@ w2utils.event = {
                     }
                     $('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
                     if (!$.isArray(sdata.value)) {
-                        if (typeof sdata.value != 'udefined') $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
+                        if (sdata.value != null) $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
                     } else {
                         if (['in', 'not in'].indexOf(sdata.operator) != -1) {
                             $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
@@ -7990,9 +7990,18 @@ w2utils.event = {
                 for (var i=0; i<obj.columnGroups.length; i++) {
                     var colg = obj.columnGroups[i];
                     var col  = obj.columns[ii];
-                    if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
                     if (colg.colspan != null) colg.span = colg.colspan;
-                    if (colg.master === true) {
+                    if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
+                    var colspan = 0;
+                    for (var jj = ii; jj < ii + colg.span; jj++) {
+                        if (obj.columns[jj] && !obj.columns[jj].hidden)
+                            colspan++;
+                    }
+                    if (i == obj.columnGroups.length-1)
+                        colspan++;      // XXX
+                    if (colspan <= 0) {
+                        // do nothing here, all columns in the group are hidden.
+                    } else if (colg.master === true) {
                         var sortStyle = '';
                         for (var si = 0; si < obj.sortData.length; si++) {
                             if (obj.sortData[si].field == col.field) {
@@ -8005,7 +8014,7 @@ w2utils.event = {
                             resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
                         }
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
-                               '    rowspan="2" colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'" '+
+                               '    rowspan="2" colspan="'+ colspan +'" '+
                                '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
                                '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
                                    resizer +
@@ -8017,7 +8026,7 @@ w2utils.event = {
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
                     } else {
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
-                               '        colspan="'+ (colg.span + (i == obj.columnGroups.length-1 ? 1 : 0) ) +'">'+
+                               '        colspan="'+ colspan +'">'+
                                '    <div class="w2ui-col-group">'+
                                    (!colg.caption ? '&#160;' : colg.caption) +
                                '    </div>'+
@@ -8058,18 +8067,19 @@ w2utils.event = {
                 }
                 var ii = 0;
                 var id = 0;
+                var colg;
                 html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
-                    var colg = {};
-                    if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen) continue;
-                    if (i == id) {
-                        id = id + (obj.columnGroups[ii] != null ? parseInt(obj.columnGroups[ii].span) : 0);
-                        ii++;
+                    if (i == id) {      // always true on first iteration
+                        colg = obj.columnGroups[ii++] || {};
+                        id = id + colg.span;
                     }
-                    if (obj.columnGroups[ii-1] != null) var colg = obj.columnGroups[ii-1];
-                    if (col.hidden) continue;
-                    if (colg['master'] !== true || master) { // grouping of columns
+                    if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen)
+                        continue;
+                    if (col.hidden)
+                        continue;
+                    if (colg.master !== true || master) { // grouping of columns
                         var colCellHTML = obj.getColumnCellHTML(i);
                         if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML;
                     }
@@ -16664,7 +16674,7 @@ var w2confirm = function (msg, title, callBack) {
                         if (act["class"]) info['class'] = act['class'];
                     } else {
                         info.caption = a;
-                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'w2ui-btn-green'; else info['class'] = '';
+                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'w2ui-btn-blue'; else info['class'] = '';
                     }
                     buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+ 
                                             w2utils.lang(info.caption) +'</button>';
@@ -16918,7 +16928,7 @@ var w2confirm = function (msg, title, callBack) {
                     case 'list':
                     case 'combo':
                         if (field.type == 'list') {
-                            var tmp_value = ($.isPlainObject(value) ? value.id : value);
+                            var tmp_value = ($.isPlainObject(value) ? value.id : ($.isPlainObject(field.options.selected) ? field.options.selected.id : value));
                             // normalized options
                             if (!field.options.items) field.options.items = [];
                             var items = field.options.items;

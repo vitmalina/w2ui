@@ -125,7 +125,7 @@ input:not([type=button]):not([type=submit]).w2ui-input,
 select.w2ui-input,
 textarea.w2ui-input {
   padding: 4px;
-  border: 1px solid #bbbbbb;
+  border: 1px solid #cacaca;
   border-radius: 3px;
   color: #000000;
   background-color: #ffffff;
@@ -767,7 +767,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-form {
   position: relative;
   color: #000000;
-  background-color: #f5f6f7;
+  background-color: #f2f2f2;
   border: 1px solid #c0c0c0;
   border-radius: 3px;
   padding: 0px;
@@ -818,7 +818,7 @@ button.w2ui-btn-small:focus:before {
   background-color: #fafafa;
 }
 .w2ui-form .w2ui-tabs .w2ui-tab.active {
-  background-color: #f5f6f7;
+  background-color: #f2f2f2;
 }
 .w2ui-form .w2ui-page {
   position: absolute;
@@ -864,11 +864,11 @@ button.w2ui-btn-small:focus:before {
   font-size: 120%;
 }
 .w2ui-group {
-  background-color: #ebecef;
+  background-color: #f9f9f9;
   margin: 5px 0px 10px 0px;
   padding: 10px 5px;
-  border-top: 1px solid #cedcea;
-  border-bottom: 1px solid #cedcea;
+  border-top: 1px solid #dcdcdc;
+  border-bottom: 1px solid #dcdcdc;
 }
 .w2ui-field > label {
   display: block;
@@ -1493,7 +1493,7 @@ button.w2ui-btn-small:focus:before {
   padding: 4px 0px;
 }
 .w2ui-layout > div .w2ui-panel .w2ui-panel-tabs > .w2ui-tab.active {
-  background-color: #f5f6f7;
+  background-color: #f2f2f2;
 }
 .w2ui-layout > div .w2ui-panel .w2ui-panel-toolbar {
   position: absolute;
@@ -1515,7 +1515,7 @@ button.w2ui-btn-small:focus:before {
   bottom: 0px;
   z-index: 1;
   color: inherit;
-  background-color: #f5f6f7;
+  background-color: #f2f2f2;
 }
 .w2ui-layout > div .w2ui-resizer {
   display: none;
