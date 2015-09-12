@@ -353,22 +353,25 @@
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
             if (eventData.isCancelled === true) return;
             // show error
-            if (showErrors) for (var e = 0; e < eventData.errors.length; e++) {
-                var err = eventData.errors[e];
-                if (err.field.type == 'radio') { // for radio and checkboxes
-                    $($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
-                } else if (['enum', 'file'].indexOf(err.field.type) != -1) {
-                    (function (err) {
-                        setTimeout(function () {
-                            var fld = $(err.field.el).data('w2field').helpers.multi;
-                            $(err.field.el).w2tag(err.error);
-                            $(fld).addClass('w2ui-error');
-                        }, 1);
-                    })(err);
-                } else {
-                    $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+            if (showErrors) {
+                for (var e = 0; e < eventData.errors.length; e++) {
+                    var err = eventData.errors[e];
+                    if (err.field == null) continue;
+                    if (err.field.type == 'radio') { // for radio and checkboxes
+                        $($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
+                    } else if (['enum', 'file'].indexOf(err.field.type) != -1) {
+                        (function (err) {
+                            setTimeout(function () {
+                                var fld = $(err.field.el).data('w2field').helpers.multi;
+                                $(err.field.el).w2tag(err.error);
+                                $(fld).addClass('w2ui-error');
+                            }, 1);
+                        })(err);
+                    } else {
+                        $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+                    }
+                    this.goto(errors[0].field.page);                
                 }
-                this.goto(errors[0].field.page);                
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
