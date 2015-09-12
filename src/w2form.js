@@ -791,7 +791,7 @@
                         if (act["class"]) info['class'] = act['class'];
                     } else {
                         info.caption = a;
-                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'w2ui-btn-green'; else info['class'] = '';
+                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'w2ui-btn-blue'; else info['class'] = '';
                     }
                     buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+ 
                                             w2utils.lang(info.caption) +'</button>';

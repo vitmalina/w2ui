@@ -3745,16 +3745,16 @@
                 for (var index = this.last.range_start - 1; index <= this.last.range_end - 1; index++) {
                     if (index < 0) continue;
                     var rec = this.records[index];
-                    for (var col_index = 0; col_index < this.columns.length; col_index++) {
-                        var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_index);
-                        cell.replaceWith(this.getCellHTML(index, col_index, false));
+                    for (var column = 0; column < this.columns.length; column++) {
+                        var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
+                        cell.replaceWith(this.getCellHTML(index, column, false));
                         // assign style
                         if (rec.style != null && !$.isEmptyObject(rec.style)) {
                             if (typeof rec.style == 'string') {
                                 $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
                             }
-                            if ($.isPlainObject(rec.style) && typeof rec.style[col_index] == 'string') {
-                                cell.attr('style', rec.style[col_index]);
+                            if ($.isPlainObject(rec.style) && typeof rec.style[column] == 'string') {
+                                cell.attr('style', rec.style[column]);
                             }
                         } else {
                             cell.attr('style', '');
@@ -3763,23 +3763,23 @@
                 }
             } else {
                 for (var i = 0; i < cells.length; i++) {
-                    var index     = cells[i].index;
-                    var col_index = cells[i].col_index;
+                    var index  = cells[i].index;
+                    var column = cells[i].column;
                     if (index < 0) continue;
-                    if (index == null || col_index == null) {
-                        console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, col_index: Y }, ...]');
+                    if (index == null || column == null) {
+                        console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, column: Y }, ...]');
                         continue;
                     }
                     var rec  = this.records[index];
-                    var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_index);
-                    cell.replaceWith(this.getCellHTML(index, col_index, false));
+                    var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
+                    cell.replaceWith(this.getCellHTML(index, column, false));
                     // assign style
                     if (rec.style != null && !$.isEmptyObject(rec.style)) {
                         if (typeof rec.style == 'string') {
                             $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
                         }
-                        if ($.isPlainObject(rec.style) && typeof rec.style[col_index] == 'string') {
-                            cell.attr('style', rec.style[col_index]);
+                        if ($.isPlainObject(rec.style) && typeof rec.style[column] == 'string') {
+                            cell.attr('style', rec.style[column]);
                         }
                     } else {
                         cell.attr('style', '');
