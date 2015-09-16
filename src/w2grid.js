@@ -2510,7 +2510,7 @@
                 try {					
                     var val   = (this.tagName.toUpperCase() == 'DIV' ? $(this).text() : this.value);
                     var $sel  = $('#grid_'+ obj.name + '_editable');
-                    var style = 'font-family: '+ $(this).css('font-family') + '; font-size: '+ $(this).css('font-size') + ';';
+                    var style = 'font-family: '+ $(this).css('font-family') + '; font-size: '+ $(this).css('font-size') + '; white-space: pre;';
                     var width = w2utils.getStrWidth(val, style);
                     if (width + 20 > $sel.width()) {
                         $sel.width(width + 20);
@@ -2568,7 +2568,7 @@
                 originalEvent: (event.originalEvent ? event.originalEvent : event), value_new: new_val, 
                 value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
             };
-            if (old_val == null) old_val = '';
+            // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
             while (true) {
                 new_val = eventData.value_new;
                 if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
@@ -5966,7 +5966,7 @@
                         // need timeout to clean up (otherwise scroll problem)
                         setTimeout(function () { 
                             $records.find('> table').not('table:first-child').remove();
-                            $summary[0].scrollLeft = obj.last.scrollLeft;
+                            if ($summary[0]) $summary[0].scrollLeft = obj.last.scrollLeft;
                         }, 1);      
                         obj.resizeRecords();
                     }
