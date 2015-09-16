@@ -14,6 +14,7 @@
 * == 1.5 changes
 *   - $('#layout').w2layout() - if called w/o argument then it returns layout object
 *   - negative -size for left/right panels
+*   - sizeTo(..., instant) - added third argument
 *
 ************************************************************************/
 
@@ -222,12 +223,13 @@
             return false;
         },
 
-        sizeTo: function (panel, size) {
+        sizeTo: function (panel, size, instant) {
             var obj = this;
             var pan = obj.get(panel);
             if (pan == null) return false;
             // resize
-            $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'));
+            $(obj.box).find(' > div > .w2ui-panel')
+                .css(w2utils.cssPrefix('transition', (instant !== true ? '.2s' : '0s')));
             setTimeout(function () {
                 obj.set(panel, { size: size });
             }, 1);
