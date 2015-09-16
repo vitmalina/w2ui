@@ -54,6 +54,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added options.style for w2tag
 *   - added options.hideOnKeyPress for w2tag
 *   - added options.hideOnBlur for w2tag
+*   - events 'eventName:after' syntax
 *
 ************************************************/
 
@@ -1553,19 +1554,24 @@ w2utils.event = {
             top             : 0,        // delta for top coordinate
             style           : '',       // adition style for the tag
             css             : {},       // add css for input when tag is shown
-            "class"         : '',       // add class for input when tag is shown
+            className       : '',       // add class bubble
+            inputClass      : '',       // add class for input when tag is shown
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false     // hide tag on blur
         }, options);
 
+        // for backward compatibility
+        if (options['class'] != '' && options.inputClass == '') options.inputClass = options['class'];
+
         // remove all tags
         if ($(this).length === 0) {
             $('.w2ui-tag').each(function (index, el) {
                 var opt = $(el).data('options');
+                console.log(opt);
                 if (opt == null) opt = {};
-                $($(el).data('taged-el')).removeClass(opt['class']);
+                $($(el).data('taged-el')).removeClass(opt.inputClass);
                 clearInterval($(el).data('timer'));
                 $(el).remove();
             });
@@ -1588,6 +1594,7 @@ w2utils.event = {
                 $tags.data('options', options);
                 $tags.find('.w2ui-tag-body')
                     .attr('style', options.style)
+                    .addClass(options.className)
                     .html(options.html);
             } else {
                 var originalCSS = '';
@@ -1596,7 +1603,7 @@ w2utils.event = {
                 $('body').append(
                     '<div id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                     '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
-                    '      <div class="w2ui-tag-body" style="'+ (options.style || '') +'">'+ text +'</div>'+
+                    '      <div class="w2ui-tag-body '+ options.className +'" style="'+ (options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
                     '</div>');
                 $tags = $('#w2ui-tag-'+tagID);
@@ -1616,11 +1623,11 @@ w2utils.event = {
                     .data('taged-el', el)
                     .data('position', pos.left + 'x' + pos.top)
                     .data('timer', setInterval(checkIfMoved, 100))
-                    .find('.w2ui-tag-body').addClass(pos['class']);
+                    .find('.w2ui-tag-body').addClass(pos['posClass']);
 
                 $(el).css(options.css)
                     .off('.w2tag')
-                    .addClass(options['class']);
+                    .addClass(options.inputClass);
 
                 if (options.hideOnKeyPress) {
                     $(el).on('keypress.w2tag', hideTag)
@@ -1638,7 +1645,7 @@ w2utils.event = {
                 clearInterval($tags.data('timer'));
                 $tags.remove();
                 $(el).off('.w2tag', hideTag)
-                    .removeClass(options['class'])
+                    .removeClass(options.inputClass)
                     .removeData('w2tag');
                 if ($(el).length > 0) $(el)[0].style.cssText = originalCSS;
                 if (typeof options.onHide === 'function') options.onHide();
@@ -1646,8 +1653,8 @@ w2utils.event = {
 
             function checkIfMoved() {
                 // monitor if destroyed
-                if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0)
-                        || $tags.find('.w2ui-tag-body').length == 0) {
+                var offset = $(el).offset();
+                if ($(el).length === 0 || (offset.left === 0 && offset.top === 0) || $tags.find('.w2ui-tag-body').length == 0) {
                     clearInterval($tags.data('timer'));
                     hideTag();
                     return;
@@ -1680,7 +1687,7 @@ w2utils.event = {
                         top : posTop + 'px'
                     }).data('position', posLeft + 'x' + posTop);
                 }
-                return { left: posLeft, top: posTop, "class": posClass };
+                return { left: posLeft, top: posTop, posClass: posClass };
             }
         });
     };

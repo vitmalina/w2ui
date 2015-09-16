@@ -315,6 +315,18 @@
                     margin: 0px;
                     padding: 0px;
 
+                    .w2ui-info {
+                        position: relative;
+                        top: 1px;
+                        font-size: 14px;
+                        color: #8D99A7;
+                        cursor: pointer;
+                        width: 16px;
+                        display: inline-block;
+                        margin-right: 2px;
+                        text-align: center;
+                    }
+
                     & > div {
                         padding: 3px 3px 3px 3px;
                         overflow: hidden;
@@ -621,6 +633,30 @@
 
     .w2ui-changed {
         background: inherit; /* do not show changed for spreadsheet */
+    }
+}
+
+// === Info bubble in the grid
+
+.w2ui-info-bubble {
+    table {
+        font-size: 11px;
+        font-family: @main-font-family;
+        color: white;
+        text-shadow: 1px 1px solid #999;
+
+        tr td:first-child {
+            white-space: nowrap;
+            padding: 2px;
+            padding-right: 10px;
+            color: #ddd;
+            vertical-align: top;
+        }
+
+        tr td:last-child {
+            white-space: pre;
+            padding: 2px;
+        }
     }
 }
 

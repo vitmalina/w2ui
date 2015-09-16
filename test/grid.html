@@ -94,7 +94,7 @@ $(function () {
             { field: 'fname', caption: 'First Name', type: 'text' }
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
-        columnGroups: [
+        columnGroups1: [
             { caption: '', span: 1 },
             { caption: '', span: 1 },
             { caption: 'General Information', span: 2},
@@ -103,7 +103,27 @@ $(function () {
             { caption: 'Important Dates', span: 3 }
         ],
         columns: [                
-            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true, tooltip: 'User ID' },
+            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true, tooltip: 'User ID',
+                info: {
+                    icon      : 'fa-legal',
+                    style     : '',
+                    showEmpty : true,
+                    options   : {},    // options for w2tag()
+                    fields    : null
+                },
+            },
+            { field: 'icon', caption: 'Icon', size: '80px', sortable: true, resizable: true, style: 'text-align: center',
+                info: {
+                    icon      : 'fa-flag',
+                    style     : '',
+                    render    : function (record) {
+                        return  '<table>'+
+                                '   <tr><td>Field1</td><td>Value1</td></tr>'+
+                                '   <tr><td>Field2</td><td>Some value</td></tr>'+
+                                '</table>';
+                    }
+                },
+            },
             { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, tooltip: 'Person ID', 
                 render: function (record) { 
                     if (record.changes && record.changes['personid']) {
@@ -115,8 +135,23 @@ $(function () {
                 editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } },
                 hidden: true
             },
-            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, searchable: { }, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name', hidden: true },
-            { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true },
+            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, searchable: { }, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name', hidden1: true, info: true },
+            { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true, 
+                info: { 
+                    // icon: 'fa-user',
+                    showEmpty: true,
+                    maxLength: 10,
+                    fields: {
+                        'Caption 1' : 'field',
+                        'Last Name' : 'lname',
+                        'First Name': 'fname',
+                        'Custom'    : function (record, ind, col_ind) {
+                            console.log('custom', record, ind, col_ind);
+                            return record.fname + ' ' + record.lname;
+                        }
+                    }
+                } 
+            },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2', frozen1: true },
             { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date', sortable: true, 

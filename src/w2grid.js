@@ -9,7 +9,6 @@
 *   - scroll on navigating using keyboard, when selectType is 'cell'
 *   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
-*   - easy bubbles in the grid
 *   - More than 2 layers of header groups
 *   - reorder columns/records
 *   - hidden searches could not be clearned by the user
@@ -80,6 +79,7 @@
 *   - update(cells) - added argument cells
 *   - scrollIntoView(..., ..., instant) - added third argument
 *   - added onResizeDblClick
+*   - implemented showBubble
 *
 ************************************************************************/
 
@@ -2691,6 +2691,11 @@
             if (time - parseInt(this.last.click_time) < 350 && this.last.click_recid == recid && event.type == 'click') {
                 this.dblClick(recid, event);
                 return;
+            }
+            // hide bubble
+            if (this.last.bubbleEl) {
+                $(this.last.bubbleEl).w2tag();
+                this.last.bubbleEl = null;
             }
             this.last.click_time  = time;
             var last_recid = this.last.click_recid;
@@ -5856,6 +5861,11 @@
                 $('#grid_'+ obj.name +'_summary')[0].scrollLeft = sLeft;
                 frecords[0].scrollTop = sTop;
             }
+            // hide bubble
+            if (this.last.bubbleEl) {
+                $(this.last.bubbleEl).w2tag();
+                this.last.bubbleEl = null;
+            }
             // column virtual scroll
             var sWidth = records.width();
             var cLeft  = 0;
@@ -6305,25 +6315,37 @@
         },
 
         getCellHTML: function (ind, col_ind, summary, col_span) {
-            var col    = this.columns[col_ind];
+            var col = this.columns[col_ind];
             if (col == null) return '';
-            var record = (summary !== true ? this.records[ind] : this.summary[ind]);
-            var data   = this.getCellValue(ind, col_ind, summary);
-            var edit   = col.editable;
-            var style  = 'max-height: '+ parseInt(this.recordHeight) +'px;';
-            var isChanged = !summary && record.changes && record.changes[col.field] != null;
-            var addStyle  = '';
-            var sel = this.last.selection;
+            var record        = (summary !== true ? this.records[ind] : this.summary[ind]);
+            var data          = this.getCellValue(ind, col_ind, summary);
+            var edit          = col.editable;
+            var style         = 'max-height: '+ parseInt(this.recordHeight) +'px;';
+            var isChanged     = !summary && record.changes && record.changes[col.field] != null;
+            var addStyle      = '';
+            var sel           = this.last.selection;
             var isRowSelected = false;
+            var infoBubble    = '';
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             if (col_span == null) col_span = 1;
+            // info bubble
+            if (col.info === true) col.info = {};
+            if (col.info != null) {
+                if (!col.info.icon) col.info.icon = 'w2ui-icon-info';
+                infoBubble = '<span class="w2ui-info '+ col.info.icon +'" style="'+ (col.info.style || '') + '" '+
+                    ' onclick="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"></span>';
+            }
             // various renderers
             if (col.render != null) {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind));
-                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') data = '<div style="'+ style +'">' + String(data) + '</div>';
+                    if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
+                        data = '<div style="'+ style +'">' + infoBubble + String(data) + '</div>';
+                    }
                 }
-                if (typeof col.render == 'object')   data = '<div style="'+ style +'">' + (col.render[data] || '') + '</div>';
+                if (typeof col.render == 'object') {
+                    data = '<div style="'+ style +'">' + infoBubble + (col.render[data] || '') + '</div>';
+                }
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');
                     var tmp = [];
@@ -6344,27 +6366,27 @@
                         if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
                         if (tmp[0] == 'int')     { tmp[1] = 0; }
                         // format
-                        data = '<div style="'+ style +'">' + (data !== '' ? prefix + w2utils.formatNumber(Number(data), tmp[1]) + suffix : '') + '</div>';
+                        data = '<div style="'+ style +'">' + infoBubble + (data !== '' ? prefix + w2utils.formatNumber(Number(data), tmp[1]) + suffix : '') + '</div>';
                     }
                     if (tmp[0] == 'time') {
                         if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
                         if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
                         if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
-                        data = '<div style="'+ style +'">' + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
                         if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format;
-                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDate(w2utils.isDate(data, tmp[1], true), tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatDate(w2utils.isDate(data, tmp[1], true), tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
                         if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format + '|' + w2utils.settings.time_format;
-                        data = '<div style="'+ style +'">' + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
-                        data = '<div style="'+ style +'">' + prefix + w2utils.age(data) + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.age(data) + suffix + '</div>';
                     }
                     if (tmp[0] == 'toggle') {
-                        data = '<div style="'+ style +'">' + prefix + (data ? 'Yes' : '') + suffix + '</div>';
+                        data = '<div style="'+ style +'">' + infoBubble + prefix + (data ? 'Yes' : '') + suffix + '</div>';
                     }
                 }
             } else {
@@ -6376,6 +6398,7 @@
                            '    var obj = w2ui[\''+ this.name + '\']; '+
                            '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                            '"/>';
+                    infoBubble = '';
                 }
                 if (this.show.recordTitles) {
                     // title overwrite
@@ -6385,7 +6408,7 @@
                         if (typeof col.title == 'string')   title = col.title;
                     }
                 }
-                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ String(data) +'</div>';
+                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ infoBubble + String(data) +'</div>';
             }
             if (data == null) data = '';
             // --> cell TD
@@ -6399,7 +6422,7 @@
             }
             var isCellSelected = false;
             if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
-
+            // data
             data =  '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') +
                         (isChanged ? ' w2ui-changed' : '') +
                         '" '+
@@ -6410,6 +6433,64 @@
                     '>' + data + '</td>';
 
             return data;
+        },
+
+        showBubble: function (ind, col_ind) {
+            var html = '';
+            var info = this.columns[col_ind].info;
+            var rec  = this.records[ind];
+            var el   = $(this.box).find('#grid_'+ this.name +'_data_'+ ind +'_'+ col_ind + ' .w2ui-info');
+            if (this.last.bubbleEl) $(this.last.bubbleEl).w2tag();
+            if (info.fields == null && typeof info.render == 'function') info.fields = info.render;
+            this.last.bubbleEl = el;
+            // generate html
+            if (typeof info.fields == 'function') {
+                // custom renderer
+                html = info.fields(rec, ind, col_ind);
+            } else if ($.isArray(info.fields)) {
+                // display mentioned fields
+                html = '<table cellpadding="0" cellspacing="0">';
+                for (var i = 0; i < info.fields.length; i++) {
+                    var col = w2ui.grid.getColumn(info.fields[i]);
+                    var val = this.parseField(rec, col.field);
+                    if (info.showEmpty !== true && (val == null || val == '')) continue;
+                    if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
+                    html += '<tr><td>' + col.caption + '</td><td>' + (val || '') + '</td></tr>';
+                }
+                html += '</table>';
+            } else if ($.isPlainObject(info.fields)) {
+                // display some fields
+                html = '<table cellpadding="0" cellspacing="0">';
+                for (var caption in info.fields) {
+                    var fld = info.fields[caption];
+                    var val = this.parseField(rec, fld);
+                    if (typeof fld == 'function') {
+                        val = fld(rec, ind, col_ind);
+                    }
+                    if (info.showEmpty !== true && (val == null || val == '')) continue;
+                    if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
+                    html += '<tr><td>' + caption + '</td><td>' + (val || '') + '</td></tr>';
+                }
+                html += '</table>';
+            } else {
+                // display all fields
+                html = '<table cellpadding="0" cellspacing="0">';
+                for (var i = 0; i < this.columns.length; i++) {
+                    var col = this.columns[i];
+                    var val = this.parseField(rec, col.field);
+                    if (info.showEmpty !== true && (val == null || val == '')) continue;
+                    if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
+                    html += '<tr><td>' + col.caption + '</td><td>' + (val || '') + '</td></tr>';
+                }
+                html += '</table>';
+            }
+            $(el).w2tag($.extend({
+                html      : html,
+                left      : -4,
+                position  : 'bottom',
+                className : 'w2ui-info-bubble',
+                style     : ''
+            }, info.options || {}));
         },
 
         getCellValue: function (ind, col_ind, summary) {
