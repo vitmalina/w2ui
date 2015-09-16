@@ -1368,28 +1368,47 @@ var w2utils = (function ($) {
 
 w2utils.event = {
 
-    on: function (eventData, handler) {
-        if (!$.isPlainObject(eventData)) eventData = { type: eventData };
-        eventData = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, eventData);
-
-        if (!eventData.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
+    on: function (edata, handler) {
+        // allow 'eventName:after' syntax
+        if (typeof edata == 'string' && edata.indexOf(':') != -1) {
+            var tmp = edata.split(':');
+            if (['complete', 'done'].indexOf(edata[1]) != -1) edata[1] = 'after';
+            edata = {
+                type    : tmp[0],
+                execute : tmp[1]
+            };
+        }
+        if (!$.isPlainObject(edata)) edata = { type: edata };
+        edata = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, edata);
+        // errors
+        if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
         if (!$.isArray(this.handlers)) this.handlers = [];
-        this.handlers.push({ event: eventData, handler: handler });
+        this.handlers.push({ edata: edata, handler: handler });
     },
 
-    off: function (eventData, handler) {
-        if (!$.isPlainObject(eventData)) eventData = { type: eventData };
-        eventData = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, eventData);
-
-        if (!eventData.type) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
+    off: function (edata, handler) {
+        // allow 'eventName:after' syntax
+        if (typeof edata == 'string' && edata.indexOf(':') != -1) {
+            var tmp = edata.split(':');
+            if (['complete', 'done'].indexOf(edata[1]) != -1) edata[1] = 'after';
+            edata = {
+                type    : tmp[0],
+                execute : tmp[1]
+            }
+        }
+        if (!$.isPlainObject(edata)) edata = { type: edata };
+        edata = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, edata);
+        // errors
+        if (!edata.type) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
         if (!handler) { handler = null; }
         // remove handlers
         var newHandlers = [];
         for (var h = 0, len = this.handlers.length; h < len; h++) {
             var t = this.handlers[h];
-            if ((t.event.type === eventData.type || eventData.type === '*') &&
-                (t.event.target === eventData.target || eventData.target == null) &&
+            if ((t.edata.type === edata.type || edata.type === '*') &&
+                (t.edata.target === edata.target || edata.target == null) &&
+                (t.edata.execute === edata.execute || edata.execute == null) &&
                 (t.handler === handler || handler == null))
             {
                 // match
@@ -1400,71 +1419,71 @@ w2utils.event = {
         this.handlers = newHandlers;
     },
 
-    trigger: function (eventData) {
-        var eventData = $.extend({ type: null, phase: 'before', target: null }, eventData, {
+    trigger: function (edata) {
+        var edata = $.extend({ type: null, phase: 'before', target: null }, edata, {
             isStopped: false, isCancelled: false,
             preventDefault  : function () { this.isCancelled = true; },
             stopPropagation : function () { this.isStopped   = true; }
         });
-        if (eventData.phase === 'before') eventData.onComplete = null;
+        if (edata.phase === 'before') edata.onComplete = null;
         var args, fun, tmp;
-        if (eventData.target == null) eventData.target = null;
+        if (edata.target == null) edata.target = null;
         if (!$.isArray(this.handlers)) this.handlers = [];
         // process events in REVERSE order
         for (var h = this.handlers.length-1; h >= 0; h--) {
             var item = this.handlers[h];
-            if ((item.event.type === eventData.type || item.event.type === '*') &&
-                (item.event.target === eventData.target || item.event.target == null) &&
-                (item.event.execute === eventData.phase || item.event.execute === '*' || item.event.phase === '*'))
+            if ((item.edata.type === edata.type || item.edata.type === '*') &&
+                (item.edata.target === edata.target || item.edata.target == null) &&
+                (item.edata.execute === edata.phase || item.edata.execute === '*' || item.edata.phase === '*'))
             {
-                eventData = $.extend({}, item.event, eventData);
+                edata = $.extend({}, item.edata, edata);
                 // check handler arguments
                 args = [];
                 tmp  = new RegExp(/\((.*?)\)/).exec(item.handler);
                 if (tmp) args = tmp[1].split(/\s*,\s*/);
                 if (args.length === 2) {
-                    item.handler.call(this, eventData.target, eventData); // old way for back compatibility
+                    item.handler.call(this, edata.target, edata); // old way for back compatibility
                 } else {
-                    item.handler.call(this, eventData); // new way
+                    item.handler.call(this, edata); // new way
                 }
-                if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
+                if (edata.isStopped === true || edata.stop === true) return edata; // back compatibility edata.stop === true
             }
         }
         // main object events
-        var funName = 'on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1);
-        if (eventData.phase === 'before' && typeof this[funName] === 'function') {
+        var funName = 'on' + edata.type.substr(0,1).toUpperCase() + edata.type.substr(1);
+        if (edata.phase === 'before' && typeof this[funName] === 'function') {
             fun = this[funName];
             // check handler arguments
             args = [];
             tmp  = new RegExp(/\((.*?)\)/).exec(fun);
             if (tmp) args = tmp[1].split(/\s*,\s*/);
             if (args.length === 2) {
-                fun.call(this, eventData.target, eventData); // old way for back compatibility
+                fun.call(this, edata.target, edata); // old way for back compatibility
             } else {
-                fun.call(this, eventData); // new way
+                fun.call(this, edata); // new way
             }
-            if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
+            if (edata.isStopped === true || edata.stop === true) return edata; // back compatibility edata.stop === true
         }
         // item object events
-        if (eventData.object != null && eventData.phase === 'before' &&
-            typeof eventData.object[funName] === 'function')
+        if (edata.object != null && edata.phase === 'before' &&
+            typeof edata.object[funName] === 'function')
         {
-            fun = eventData.object[funName];
+            fun = edata.object[funName];
             // check handler arguments
             args = [];
             tmp  = new RegExp(/\((.*?)\)/).exec(fun);
             if (tmp) args = tmp[1].split(/\s*,\s*/);
             if (args.length === 2) {
-                fun.call(this, eventData.target, eventData); // old way for back compatibility
+                fun.call(this, edata.target, edata); // old way for back compatibility
             } else {
-                fun.call(this, eventData); // new way
+                fun.call(this, edata); // new way
             }
-            if (eventData.isStopped === true || eventData.stop === true) return eventData;
+            if (edata.isStopped === true || edata.stop === true) return edata;
         }
         // execute onComplete
-        if (eventData.phase === 'after' && typeof eventData.onComplete === 'function') eventData.onComplete.call(this, eventData);
+        if (edata.phase === 'after' && typeof edata.onComplete === 'function') edata.onComplete.call(this, edata);
 
-        return eventData;
+        return edata;
     }
 };
 
