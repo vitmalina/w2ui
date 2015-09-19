@@ -55,6 +55,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added options.hideOnKeyPress for w2tag
 *   - added options.hideOnBlur for w2tag
 *   - events 'eventName:after' syntax
+*   - deprecated onComplete, introduced event.done(func) - can have multiple handlers
 *
 ************************************************/
 
@@ -1421,8 +1422,10 @@ w2utils.event = {
     },
 
     trigger: function (edata) {
-        var edata = $.extend({ type: null, phase: 'before', target: null }, edata, {
-            isStopped: false, isCancelled: false,
+        var edata = $.extend({ type: null, phase: 'before', target: null, doneHandlers: [] }, edata, {
+            isStopped       : false, 
+            isCancelled     : false,
+            done            : function (handler) { this.doneHandlers.push(handler); },
             preventDefault  : function () { this.isCancelled = true; },
             stopPropagation : function () { this.isStopped   = true; }
         });
@@ -1482,8 +1485,14 @@ w2utils.event = {
             if (edata.isStopped === true || edata.stop === true) return edata;
         }
         // execute onComplete
-        if (edata.phase === 'after' && typeof edata.onComplete === 'function') edata.onComplete.call(this, edata);
-
+        if (edata.phase === 'after') {
+            if (typeof edata.onComplete === 'function') edata.onComplete.call(this, edata);
+            for (var i = 0; i < edata.doneHandlers.length; i++) {
+                if (typeof edata.doneHandlers[i] == 'function') {
+                    edata.doneHandlers[i].call(this, edata);
+                }
+            }
+        }
         return edata;
     }
 };
@@ -1569,7 +1578,6 @@ w2utils.event = {
         if ($(this).length === 0) {
             $('.w2ui-tag').each(function (index, el) {
                 var opt = $(el).data('options');
-                console.log(opt);
                 if (opt == null) opt = {};
                 $($(el).data('taged-el')).removeClass(opt.inputClass);
                 clearInterval($(el).data('timer'));
