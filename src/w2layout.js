@@ -15,6 +15,7 @@
 *   - $('#layout').w2layout() - if called w/o argument then it returns layout object
 *   - negative -size for left/right panels
 *   - sizeTo(..., instant) - added third argument
+*   - assignToolbar()
 *
 ************************************************************************/
 
@@ -353,6 +354,25 @@
             var pan = this.get(panel);
             if (!pan) return;
             if (pan.show.toolbar) this.hideToolbar(panel); else this.showToolbar(panel);
+        },
+
+        assignToolbar: function (panel, toolbar) {
+            if (typeof toolbar == 'string' && w2ui[toolbar] != null) toolbar = w2ui[toolbar];
+            var pan = this.get(panel);
+            pan.toolbar = toolbar;
+            var tmp = $(this.box).find(panel +'> .w2ui-panel-toolbar');
+            if (pan.toolbar != null) {
+                if (tmp.find('[name='+ pan.toolbar.name +']').length === 0) {
+                    tmp.w2render(pan.toolbar); 
+                } else if (pan.toolbar != null) {
+                    pan.toolbar.refresh();
+                }
+                this.showToolbar(panel);
+                this.refresh('main');
+            } else {
+                tmp.html('');
+                this.hideToolbar(panel);
+            }
         },
 
         hideTabs: function (panel) {
