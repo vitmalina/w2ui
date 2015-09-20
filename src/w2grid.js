@@ -2382,6 +2382,7 @@
             }
             setTimeout(function () {
                 el.find('input, select, div.w2ui-input')
+                    .data('old_value', val)
                     .on('mousedown', function (event) {
                         event.stopPropagation();
                     })
@@ -2400,8 +2401,23 @@
                         document.execCommand("insertHTML", false, text);
                     })
                     .on('keydown', function (event) {
-                        var el = this;
-                        if (event.keyCode == 9) event.preventDefault();
+                        var el  = this;
+                        var val = (el.tagName == 'DIV' ? $(el).text() : $(el).val());
+                        switch (event.keyCode) {
+                            case 9:
+                            case 13:
+                                event.preventDefault();
+                                break;
+                            case 37: 
+                                if (w2utils.getCursorPosition(el) == 0) event.preventDefault();
+                                break;
+                            case 39: 
+                                if (w2utils.getCursorPosition(el) == val.length) {
+                                    w2utils.setCursorPosition(el, val.length);
+                                    event.preventDefault();
+                                }
+                                break;
+                        }
                         // need timeout so, this handler is executed last
                         setTimeout(function () {
                             switch (event.keyCode) {
@@ -2460,6 +2476,7 @@
                                 case 27: // escape
                                     var old = obj.parseField(rec, col.field);
                                     if (rec.changes && rec.changes[col.field] != null) old = rec.changes[col.field];
+                                    if ($(el).data('old_value') != null) old = $(el).data('old_value');
                                     if (el.tagName.toUpperCase() == 'DIV') {
                                         $(el).text(old != null ? old : '');
                                     } else {
@@ -2482,10 +2499,10 @@
                     clearTimeout(obj.last.kbd_timer); // keep focus
                     if (value != null) {
                         // set cursor to the end
-                        setCursorPosition(tmp[0], $(tmp).text().length);
+                        w2utils.setCursorPosition(tmp[0], $(tmp).text().length);
                     } else {
                         // select entire text
-                        setCursorPosition(tmp[0], 0, $(tmp).text().length);
+                        w2utils.setCursorPosition(tmp[0], 0, $(tmp).text().length);
                     }
                     expand.call(el.find('div.w2ui-input')[0], null);
                 } else {
@@ -2518,23 +2535,6 @@
                 } catch (e) {
                 }
             }
-
-            function setCursorPosition(element, start, end) {
-                if (element == null) return;
-                var rg  = document.createRange();
-                var sel = window.getSelection();
-                var el  = element.childNodes[0];
-                if (el == null) return;
-                if (start > el.length) start = el.length;
-                rg.setStart(el, start);
-                if (end) {
-                    rg.setEnd(el, end);
-                } else {
-                    rg.collapse(true);
-                }
-                sel.removeAllRanges();
-                sel.addRange(rg);
-            }
         },
 
         editChange: function (el, index, column, event) {
@@ -2553,6 +2553,7 @@
             var tr      = $('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid));
             var new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value);
             var old_val = this.parseField(rec, col.field);
+            if ($(event.target).data('old_value') != null) old_val = $(event.target).data('old_value');
             var tmp     = $(el).data('w2field');
             if (tmp) {
                 new_val = tmp.clean(new_val);
@@ -2565,8 +2566,10 @@
             // change/restore event
             var eventData = {
                 phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column, 
-                originalEvent: (event.originalEvent ? event.originalEvent : event), value_new: new_val, 
-                value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), value_original: old_val
+                originalEvent: (event.originalEvent ? event.originalEvent : event), 
+                value_new: new_val, 
+                value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val), 
+                value_original: old_val
             };
             // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
             while (true) {
@@ -4167,7 +4170,6 @@
 
             function mouseMove (event) {
                 var mv = obj.last.move;
-                // console.log('move');
                 if (!mv || mv.type != 'select') return;
                 mv.divX = (event.screenX - mv.x);
                 mv.divY = (event.screenY - mv.y);
@@ -5990,7 +5992,6 @@
             // need this to enable scrolling when this.limit < then a screen can fit
             if (records.height() < buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
                 // TODO: is this needed?
-                // console.log(records.height(), buffered, this.total, this.recordHeight)
                 // if (this.total > 0) this.refresh();
                 return;
             }
@@ -6029,7 +6030,6 @@
             var last  = parseInt(tr2.prev().attr('line'));
             //$('#log').html('buffer: '+ this.buffered +' start-end: ' + start + '-'+ end + ' ===> first-last: ' + first + '-' + last);
             if (first < start || first == 1 || this.last.pull_refresh) { // scroll down
-                // console.log('end', end, 'last', last, 'show_extre', this.last.show_extra, this.last.pull_refresh);
                 if (end <= last + this.last.show_extra - 2 && end != this.total) return;
                 this.last.pull_refresh = false;
                 // remove from top

@@ -56,6 +56,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added options.hideOnBlur for w2tag
 *   - events 'eventName:after' syntax
 *   - deprecated onComplete, introduced event.done(func) - can have multiple handlers
+*   - added getCursorPosition, setCursorPosition
 *
 ************************************************/
 
@@ -117,6 +118,8 @@ var w2utils = (function ($) {
         checkUniqueId   : checkUniqueId,
         parseRoute      : parseRoute,
         cssPrefix       : cssPrefix,
+        getCursorPosition : getCursorPosition,
+        setCursorPosition : setCursorPosition,
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -1357,6 +1360,58 @@ var w2utils = (function ($) {
             ret = newCSS;
         }
         return ret;
+    }
+
+    function getCursorPosition(input) {
+        if (input == null) return null;
+        var caretOffset = 0;
+        var doc = input.ownerDocument || input.document;
+        var win = doc.defaultView || doc.parentWindow;
+        var sel;
+        if (win.getSelection) {
+            sel = win.getSelection();
+            if (sel.rangeCount > 0) {
+                var range = sel.getRangeAt(0);
+                var preCaretRange = range.cloneRange();
+                preCaretRange.selectNodeContents(input);
+                preCaretRange.setEnd(range.endContainer, range.endOffset);
+                caretOffset = preCaretRange.toString().length;
+            }
+        } else if ( (sel = doc.selection) && sel.type != "Control") {
+            var textRange = sel.createRange();
+            var preCaretTextRange = doc.body.createTextRange();
+            preCaretTextRange.moveToElementText(input);
+            preCaretTextRange.setEndPoint("EndToEnd", textRange);
+            caretOffset = preCaretTextRange.text.length;
+        }
+        return caretOffset;
+    }
+
+    function setCursorPosition(input, pos, posEnd) {
+        var range = document.createRange();
+        var el, sel = window.getSelection();
+        for (var i = 0; i < input.childNodes.length; i++) {
+            var tmp = $(input.childNodes[i]).text();
+            if (input.childNodes[i].tagName) tmp = $(input.childNodes[i]).html();
+            if (pos <= tmp.length) {
+                el = input.childNodes[i];
+                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0];
+                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0];
+                break;
+            } else {
+                pos -= tmp.length;
+            }
+        }
+        if (el == null) return;
+        if (pos > el.length) pos = el.length;
+        range.setStart(el, pos);
+        if (posEnd) {
+            range.setEnd(el, posEnd);
+        } else {
+            range.collapse(true);
+        }
+        sel.removeAllRanges();
+        sel.addRange(range);
     }
 
 })(jQuery);
