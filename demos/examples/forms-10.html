@@ -2,7 +2,7 @@
     <div id="example_title">
         <h1>Auto-Generated Templates</h1>
         Though, you can provide your own form template, which makes it flexible, you can also auto-generate template for the form. It is
-        quite useful when the form is simple. So, if you do not profide formHTML, formURL and there is no HTML inside containter, the
+        quite useful when the form is simple. So, if you do not provide formHTML, formURL and there is no HTML inside container, the
         form will generate template.
     </div>
     <div id="example_view">
@@ -22,9 +22,9 @@ $(function () {
         header : 'Auto-Generated Form',
         url    : 'server/post',
         fields : [
-            { name: 'first_name', type: 'text', required: true, html: { caption: 'First Name', attr: 'style="width: 300px"' } },
-            { name: 'last_name',  type: 'text', required: true, html: { caption: 'Last Name', attr: 'style="width: 300px"' } },
-            { name: 'comments',   type: 'textarea', html: { caption: 'Comments', attr: 'style="width: 300px; height: 90px"' } }
+            { field: 'first_name', type: 'text', required: true, html: { caption: 'First Name', attr: 'style="width: 300px"' } },
+            { field: 'last_name',  type: 'text', required: true, html: { caption: 'Last Name', attr: 'style="width: 300px"' } },
+            { field: 'comments',   type: 'textarea', html: { caption: 'Comments', attr: 'style="width: 300px; height: 90px"' } }
         ],
         actions: {
             'Save': function (event) {
@@ -34,7 +34,7 @@ $(function () {
             'Clear': function (event) {
                 console.log('clear', event);
                 this.clear();
-            },
+            }
         }
     });
 });

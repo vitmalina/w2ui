@@ -1,7 +1,6 @@
 {
 	"locale" 		 : "it-IT",
 	"date_format" 	 : "dd/mm/yyyy",
-	"date_display"   : "dd Mon yyyy",
 	"time_format" 	 : "h24",
 	"currency" 	     : "^[-+]?[0-9]*[\\.]?[0-9]+\\€$",
 	"currencyPrefix" : "",
@@ -35,6 +34,7 @@
 		"Hide" : "Nascondi",
 		"is" : "è",
 		"Line #" : "Riga #",
+		"Loading...":"Caricamento...",
 		"Multi Fields" : "Multi campo",
 		"No items found" : "Nessun risultato trovato",
 		"No" : "No",
@@ -70,7 +70,10 @@
 		"Show" : "Mostra",
 		"Show/hide columns" : "Mostra/Nascondi colonne",
 		"Skip" : "Salta",
+		"Type to search....": "Digita per ricercare....",
 		"Yes" : "Si",
-		"yesterday" : "ieri"
+		"yesterday" : "ieri",
+		"Edit selected record": "Modifica elemento selezionato",
+		"Edit": "Modifica"
 	}
 }

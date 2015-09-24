@@ -268,7 +268,6 @@
                     }
                 }
                 &.w2ui-today {
-                    border: @calendar-day-today-border;
                     color: @calendar-day-today-color;
                     background-color: @calendar-day-today-background-color;
                 }
@@ -276,6 +275,9 @@
                     border: @calendar-day-hover-border;
                     color: @calendar-day-hover-color;
                     background-color: @calendar-day-hover-background-color;
+                }
+                &.w2ui-date-selected {
+                    border: @calendar-day-today-border;
                 }
                 &.w2ui-blocked {
                     text-decoration: line-through;
@@ -337,7 +339,7 @@
     .linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
     &[readonly], &[disabled] {
         background-image: none;
-        background-color: #f1f1f1 !importan;
+        background-color: #f1f1f1 !important;
         color: #777 !important;
     }
 }

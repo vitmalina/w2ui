@@ -1,32 +1,36 @@
-/* kicstart 0.1.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */
+/* kicstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */
 /************************************************
 *  Library: KickStart - Minimalistic Framework
 *   - Dependencies: jQuery
 **/
 
 var kickStart = (function () {
-    var app = {};
-
     // public scope    
-    app.modules   = {};
-    app.config    = {};
-    app.define    = define;
-    app.require   = require;
-    app.register  = register;
 
+    var app = {
+        _config   : { 
+            baseURL : '',
+            cache   : false, 
+            modules : {}
+        },
+        define    : define,
+        require   : require,
+        register  : register
+    };
+    if (!window.app) window.app = app;
     return app;
 
     // ===========================================
     // -- Define modules
 
-    function define (mod) {
+    function define(mod) {
         // if string - it is path to the file
         if (typeof mod == 'string') {
             $.ajax({ 
-                url      : mod,
+                url      : app._config.baseURL + mod,
                 dataType : 'text',
-                cache    : false,
-                async    : false, // do it synchronosly - otherwise errors
+                cache    : app._config.cache,
+                async    : false, // do it synchronously - otherwise errors
                 success : function (data, success, xhr) {
                     if (success != 'success') {
                         console.log('ERROR: error while loading module definition from "'+ mod +'".');
@@ -44,13 +48,12 @@ var kickStart = (function () {
                 }
             });
         }
-        if (!$.isArray(mod)) mod = [mod];
         for (var m in mod) {
-            if (app.modules.hasOwnProperty(mod[m].name)) {
-                console.log('ERROR: module ' + mod[m].name + ' is already registered.');
+            if (app._config.modules.hasOwnProperty(m)) {
+                console.log('ERROR: module ' + m + ' is already registered.');
                 return false;
             }
-            app.modules[mod[m].name] = $.extend({}, mod[m], { loaded: false, files: {} });
+            app._config.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
         }
         return true;
     }
@@ -58,31 +61,28 @@ var kickStart = (function () {
     // ===========================================
     // -- Register module
 
-    function register (name, moduleFunction) {
+    function register(name, moduleFunction) {
         // check if modules id defined
         if (app.hasOwnProperty(name)) {
             console.log('ERROR: Namespace '+ name +' is already registered');
             return false;
         }
-        if (!app.modules.hasOwnProperty(name)) {
+        if (!app._config.modules.hasOwnProperty(name)) {
             console.log('ERROR: Namespace '+ name +' is not defined, first define it with kickStart.define');
             return false;
         }
         // register module
-        var mod = null;
-        for (var m in app.modules) {
-            if (app.modules[m].name == name) mod = app.modules[m];
-        }
+        var mod = app._config.modules[name];
         // init module
         app[name] = moduleFunction(mod.files, mod);
-        app.modules[name].loaded = true;
+        app._config.modules[name].ready = true;
         return;
     }
 
     // ===========================================
     // -- Load Modules
 
-    function require (names, callBack) { // returns promise
+    function require(names, callBack) { // returns promise
         if (!$.isArray(names)) names = [names];
         var modCount = names.length;
         var failed  = false;
@@ -111,20 +111,20 @@ var kickStart = (function () {
                 if (typeof app[name] != 'undefined') {
                     modCount--;
                     isFinished();
-                } else if (typeof app.modules[name] == 'undefined') { 
+                } else if (typeof app._config.modules[name] == 'undefined') { 
                     console.log('ERROR: module ' + name + ' is not defined.');
                 } else { 
                     (function (name) { // need closure
                         // load dependencies
-                        getFiles(app.modules[name].assets.concat([app.modules[name].main]), function (files) {
-                            var main = files[app.modules[name].main];
-                            delete files[app.modules[name].main];
+                        getFiles(app._config.modules[name].assets.concat([app._config.modules[name].start]), function (files) {
+                            var start = files[app._config.modules[name].start];
+                            delete files[app._config.modules[name].start];
                             // register assets
-                            app.modules[name].files  = files;
-                            app.modules[name].loaded = true;
-                            // execute main file
+                            app._config.modules[name].files  = files;
+                            app._config.modules[name].ready  = true;
+                            // execute start file
                             try { 
-                                eval(main); 
+                                eval(start); 
                             } catch (e) { 
                                 failed = true;
                                 // find error line
@@ -133,18 +133,18 @@ var kickStart = (function () {
                                 if (tmp) tmp = tmp[0].split(':');
                                 if (tmp) {
                                     // display error
-                                    console.error('ERROR: ' + err[0] + ' ==> ' + app.modules[name].main + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
+                                    console.error('ERROR: ' + err[0] + ' ==> ' + app._config.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
                                     console.log(e.stack);
                                 } else {
-                                    console.error('ERROR: ' + app.modules[name].main);
+                                    console.error('ERROR: ' + app._config.modules[name].start);
                                     console.log(e.stack);
                                 }
-                                if (typeof app.config.fail == 'function') app.config.fail(app.modules[name]);
-                                if (typeof promise._fail == 'function') promise._fail(app.modules[name]);
+                                // if (typeof app.config.fail == 'function') app.config.fail(app._config.modules[name]);
+                                if (typeof promise._fail == 'function') promise._fail(app._config.modules[name]);
                             }
                             // check ready
-                            if (typeof app.config.ready == 'function') app.config.ready(app.modules[name]);
-                            if (typeof promise._ready == 'function') promise._ready(app.modules[name]);
+                            // if (typeof app.config.ready == 'function') app.config.ready(app._config.modules[name]);
+                            if (typeof promise._ready == 'function') promise._ready(app._config.modules[name]);
                             modCount--;
                             isFinished();
                         });
@@ -152,17 +152,17 @@ var kickStart = (function () {
                 }
             }
         }, 1);
-        // promise need to be returned immidiately
+        // promise need to be returned immediately
         return promise;
 
-        function isFinished () {
+        function isFinished() {
             if (modCount == 0) {
                 if (failed !== true) {
-                    if (typeof app.config.done == 'function') app.config.done(app.modules[name]);
-                    if (typeof promise._done == 'function') promise._done(app.modules[name]);
+                    // if (typeof app.config.done == 'function') app.config.done(app._config.modules[name]);
+                    if (typeof promise._done == 'function') promise._done(app._config.modules[name]);
                     if (typeof callBack == 'function') callBack();
                 }
-                if (typeof app.config.always == 'function') app.config.always(app.modules[name]);
+                // if (typeof app.config.always == 'function') app.config.always(app._config.modules[name]);
                 if (typeof promise._always == 'function') promise._always();
             }
         }
@@ -182,10 +182,10 @@ var kickStart = (function () {
                 var index = i;
                 var path  = files[i];
                 $.ajax({
-                    url        : path,
-                    dataType: 'text',
-                    cache    : false,
-                    success : function (data, success, xhr) {
+                    url      : app._config.baseURL + path,
+                    dataType : 'text',
+                    cache    : app._config.cache,
+                    success  : function (data, success, xhr) {
                         if (success != 'success') {
                             console.log('ERROR: error while getting a file '+ path +'.');
                             return;
@@ -207,40 +207,42 @@ var kickStart = (function () {
             })();
         }
         // internal counter
-        function loadDone () {
+        function loadDone() {
             bufferLen--;
             if (bufferLen <= 0) callBack(bufferObj);
         }
     }
 })();
-/************************************************
-*  Library: KickStart - Minimalistic Framework
-*   - Dependencies: ks-core, jQuery
-**/
-
-kickStart.define({ name: 'route' });
+kickStart.define({ route: { } });
 kickStart.register('route', function () {
-    var app = kickStart;
     // private scope
+    var app     = kickStart;
     var routes  = {};
     var routeRE = {};
-    var options = { debug : false };
+    var silent;
 
     addListener();
-    return {
+
+    var obj = {
         add     : add,
         remove  : remove,
         go      : go,
+        set     : set,
         get     : get,
         process : process,
-        list    : list
-    }
+        list    : list,
+        onAdd   : null,
+        onRemove: null,
+        onRoute : null
+    };
+    if (typeof w2utils != 'undefined') $.extend(obj, w2utils.event, { handlers: [] });
+    return obj;
 
     /*
-    *    Public methods
+    *   Public methods
     */
 
-    function add (route, handler) {
+    function add(route, handler) {
         if (typeof route == 'object') {
             for (var r in route) {
                 var tmp = String('/'+ r).replace(/\/{2,}/g, '/');
@@ -249,28 +251,51 @@ kickStart.register('route', function () {
             return app.route;
         }
         route = String('/'+route).replace(/\/{2,}/g, '/');
+        // if events are available
+        if (typeof app.route.trigger == 'function') {
+            var eventData = app.route.trigger({ phase: 'before', type: 'add', target: 'self', route: route, handler: handler });
+            if (eventData.isCancelled === true) return false;           
+        }
+        // default behavior
         routes[route] = handler;
+        // if events are available
+        if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         return app.route;
     }
 
-    function remove (route) {
+    function remove(route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
+        // if events are available
+        if (typeof app.route.trigger == 'function') {
+            var eventData = app.route.trigger({ phase: 'before', type: 'remove', target: 'self', route: route, handler: handler });
+            if (eventData.isCancelled === true) return false;           
+        }
+        // default behavior
         delete routes[route];
         delete routeRE[route];
+        // if events are available
+        if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         return app.route;
     }
 
-    function go (route) {
+    function go(route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
         setTimeout(function () { window.location.hash = route; }, 1);
-        return app.route;        
+        return app.route;       
     }
 
-    function get () {
+    function set(route) {
+        silent = true;
+        go(route);
+        setTimeout(function () { silent = false }, 1);
+        return app.route;       
+    }
+
+    function get() {
         return window.location.hash.substr(1).replace(/\/{2,}/g, '/');
     }
 
-    function list () {
+    function list() {
         prepare();
         var res = {};
         for (var r in routes) {
@@ -282,7 +307,8 @@ kickStart.register('route', function () {
         return res;
     }
 
-    function process () {
+    function process() {
+        if (silent === true) return;
         prepare();
         // match routes
         var hash = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
@@ -290,10 +316,17 @@ kickStart.register('route', function () {
         var tmp  = hash.split('/');
         // check if modules is loaed
         if (tmp[1] && typeof app[tmp[1]] == 'undefined') {
-            if (options.debug) console.log('ROUTE: load module ' + tmp[1]);
+            // if events are available
+            if (typeof app.route.trigger == 'function') {
+                var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: hash });
+                if (eventData.isCancelled === true) return false;           
+            }
+            // load module
             app.require(tmp[1]).done(function () {
-                if (app.modules[tmp[1]]) process();
+                if (app._config.modules[tmp[1]]) process();
             });
+            // if events are available
+            if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         } else {
             // process route
             for (var r in routeRE) {
@@ -305,19 +338,25 @@ kickStart.register('route', function () {
                         params[routeRE[r].keys[p].name] = tmp[i];
                         i++;
                     }
-                    if (options.debug) console.log('ROUTE:', r, params);
+                    // if events are available
+                    if (typeof app.route.trigger == 'function') {
+                        var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: r, params: params });
+                        if (eventData.isCancelled === true) return false;           
+                    }
+                    // default error handler
                     routes[r](r, params);
+                    // if events are available
+                    if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
                 }
             }
         }
-        return app.route;
     }
 
     /*
-    *    Private methods
+    *   Private methods
     */
 
-    function prepare () {
+    function prepare() {
         // make sure all routes are parsed to RegEx
         for (var r in routes) {
             if (routeRE[r]) continue;
@@ -334,13 +373,13 @@ kickStart.register('route', function () {
                 .replace(/__plus__/g, '(.+)')
                 .replace(/\*/g, '(.*)');
             routeRE[r] = {
-                path  : new RegExp('^' + path + '$', 'i'),
-                keys  : keys
+                path    : new RegExp('^' + path + '$', 'i'),
+                keys    : keys
             }
-        }        
+        }       
     }
 
-    function addListener () {
+    function addListener() {
         if (window.addEventListener) {
             window.addEventListener('hashchange', process, false);
         } else {
@@ -348,7 +387,7 @@ kickStart.register('route', function () {
         }
     }
 
-    function removeListener () {
+    function removeListener() {
         if (window.removeEventListener) {
             window.removeEventListener('hashchange', process);
         } else {

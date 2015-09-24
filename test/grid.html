@@ -2,7 +2,7 @@
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
 <link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
@@ -10,12 +10,14 @@
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
+//<![CDATA[
 $(function () {
     // w2utils.locale('../src/locale/ru-ru');
 
     $('#grid').w2grid({ 
         name      : 'grid', 
         header    : 'List of Names',
+        // url : '//w2ui.com/web/pages/demo/infinite/index.php',
         // routeData : { id: 4 },
         // url       : '/1/:id/grid.json',
         // url     : {
@@ -23,7 +25,9 @@ $(function () {
         //     remove : 'grid3.json',
         //     save   : 'save'
         // },
-        reorderColumns: false,
+        columnTooltip: 'top',
+        reorderRows: true,
+        //reorderColumns: true,
         show: { 
             toolbar: true,
             footer: true,
@@ -31,7 +35,7 @@ $(function () {
             emptyRecords: true,
             columnHeaders: true,
             selectColumn: true,
-            //expandColumn: true,
+            expandColumn: false,
             lineNumbers: true,
             toolbarAdd: true,
             toolbarEdit: true,
@@ -43,8 +47,22 @@ $(function () {
             { id: 2, text: 'View Item', icon: 'fa-camera' }, 
             { id: 4, text: 'Delete Item', icon: 'fa-minus' }
         ],
+        onSave: function (event) {
+            console.log('save', event);
+        },
+        onReorderRow: function (event) {
+            console.log('reorder -->', event);
+        },
         onMenuClick: function (event) {
             console.log(event);
+        },
+        onFocus1: function (event) {
+            console.log('focus: ', this.name, event);
+            // event.preventDefault();
+        },
+        onBlur1: function (event) {
+            console.log('blur: ', this.name, event);
+            // event.preventDefault();
         },
         postData: {
             "admin": 'somename'
@@ -73,44 +91,11 @@ $(function () {
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [                
             { field: 'personid', caption: 'ID', type: 'int' },
-            { field: 'fname', caption: 'First Name', type: 'list', 
-                options: { 
-                    search: true,
-                    applyFilter: true,
-                    items: [
-                        { id: 'Avinash', text: 'Name: Avinash' }, 
-                        { id: 'Vitali', text: 'Name: Vitali' },
-                        { id: 'Sue', text: 'Name: Sue' },
-                        { id: 'Peter', text: 'Name: Peter' },
-                        { id: 'Frank', text: 'Name: Frank' }, 
-                        { id: 'Kate', text: 'Name: Kate' }, 
-                        { id: 'Susan', text: 'Name: Susan' }, 
-                        { id: 'Snehal', text: 'Name: Snehal' }, 
-                        { id: 'Dima', text: 'Name: Dima' }, 
-                    ]
-                }
-            },
-            { field: 'fname', caption: 'First Name', type: 'enum', 
-                options: { 
-                    search: true,
-                    applyFilter: true,
-                    items: [
-                        { id: 'Avinash', text: 'Name: Avinash' }, 
-                        { id: 'Vitali', text: 'Name: Vitali' },
-                        { id: 'Sue', text: 'Name: Sue' },
-                        { id: 'Peter', text: 'Name: Peter' },
-                        { id: 'Frank', text: 'Name: Frank' }, 
-                        { id: 'Kate', text: 'Name: Kate' }, 
-                        { id: 'Susan', text: 'Name: Susan' }, 
-                        { id: 'Snehal', text: 'Name: Snehal' }, 
-                        { id: 'Dima', text: 'Name: Dima' }, 
-                    ]
-                }
-            },
-            { field: 'lname', caption: 'Last Name', type: 'text' }
+            { field: 'fname', caption: 'First Name', type: 'text' }
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
+            { caption: '', span: 1 },
             { caption: '', span: 1 },
             { caption: 'General Information', span: 2},
             { caption: 'Email', span: 1, master: true },
@@ -118,13 +103,59 @@ $(function () {
             { caption: 'Important Dates', span: 3 }
         ],
         columns: [                
-            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true },
-            { field: 'fname', caption: 'First Name', size: '100px', sortable: true, resizable: true, editable: { type: 'text' } },
-            { field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true },
-            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
-            { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2' },
-            { field: 'sdate', caption: 'Date', size: '120px', render: 'date:yyyy-mm-dd', searchable: 'date', sortable: true, 
-                editable: { type: 'date', format: 'yyyy-mm-dd' } },
+            { field: 'personid', caption: 'ID', size: '80px', sortable: true, resizable: true, frozen: true, tooltip: 'User ID',
+                info: {
+                    icon      : 'fa-legal',
+                    style     : '',
+                    showEmpty : true,
+                    options   : {},    // options for w2tag()
+                    fields    : null
+                },
+            },
+            { field: 'icon', caption: 'Icon', size: '80px', sortable: true, resizable: true, style: 'text-align: center',
+                info: {
+                    icon      : 'fa-flag',
+                    style     : '',
+                    render    : function (record) {
+                        return  '<table>'+
+                                '   <tr><td>Field1</td><td>Value1</td></tr>'+
+                                '   <tr><td>Field2</td><td>Some value</td></tr>'+
+                                '</table>';
+                    }
+                },
+            },
+            { field: 'personid', caption: 'ID2', size: '80px', sortable: true, resizable: true, tooltip: 'Person ID', 
+                render: function (record) { 
+                    if (record.changes && record.changes['personid']) {
+                        return record.changes['personid'].text;
+                    } else {
+                        return record['personid']; 
+                    }
+                },
+                editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } },
+                hidden: true
+            },
+            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, searchable: { }, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name', hidden1: true, info: true },
+            { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true, 
+                info: { 
+                    // icon: 'fa-user',
+                    showEmpty: true,
+                    maxLength: 10,
+                    fields: {
+                        'Caption 1' : 'field',
+                        'Last Name' : 'lname',
+                        'First Name': 'fname',
+                        'Custom'    : function (record, ind, col_ind) {
+                            console.log('custom', record, ind, col_ind);
+                            return record.fname + ' ' + record.lname;
+                        }
+                    }
+                } 
+            },
+            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },
+            { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2', frozen1: true },
+            { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date', sortable: true, 
+                editable: { type: 'date' } },
             { field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
             { field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true, gridMinWidth: 1000 }
         ],
@@ -151,6 +182,12 @@ $(function () {
                 //console.log('done', range);
             }
         },
+        onSelect: function (event) {
+            // console.log('select -->', event);
+        },
+        onUnselect: function (event) {
+            // console.log('unselect -->', event);
+        },
         onDelete: function (event) {
             //event.force = true;
         },
@@ -173,7 +210,7 @@ $(function () {
                     toolbar: false,
                     footer: false,
                     header: false,
-                    columnHeaders: false,
+                    columnHeaders: false
                 },
                 columnGroups1: [
                     { caption: '1', span: 1 },
@@ -206,8 +243,8 @@ $(function () {
     var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
     var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
     // add 10k records
-    for (var i = 0; i < 1000; i++) {
-        var dt = ((new Date()).getTime() - Math.floor(Math.random() * 1000000000));
+    for (var i = 0; i < 5000; i++) {
+        var dt = new Date(((new Date()).getTime() - Math.floor(Math.random() * 1000000000)));
         w2ui['grid'].records.push({ 
             recid : (i + 1),
             personid: i+1,
@@ -216,13 +253,15 @@ $(function () {
             email: 'vm@gmail.com', manager: '--',
             snumber: Math.floor(Math.random() * 100000) + '',
             sdate: dt,
-            stime: dt
+            stime: dt,
+            style1: 'background-color: #efefef'
         });
     }
+    // w2ui.grid.records[4].style = { fname: 'background-color: red' };
     // w2ui.grid.records[10].summary = true;
-    // w2ui.grid.records[0].sdate = null;
-    // w2ui.grid.records[3].sdate = null;
-    // w2ui.grid.records[7].sdate = null;
+    w2ui.grid.records[0].sdate = null;
+    w2ui.grid.records[3].sdate = null;
+    w2ui.grid.records[7].sdate = null;
     // w2ui.grid.records[3].stime = '0:01 am';
     // w2ui.grid.records[5].stime = '1:05 am';
     // w2ui.grid.records[50].stime = '0:15 am';
@@ -230,18 +269,21 @@ $(function () {
     // w2ui.grid.total = w2ui.grid.records.length;
     w2ui.grid.refresh();
 });
+//]]>
 </script>
 </head>
 <body>
+    <input placeholder="before grid" class="w2ui-input" style="margin: 10px 0px;"/>
     <div id="grid" style="width: 1024px; height: 568px;"></div>
-    <br>
-    <input type="button" value="destroy"  onclick="$().w2destroy('grid');">
-    <input type="button" value="Jump 0"   onclick="w2ui.grid.skip(0);">
-    <input type="button" value="Jump 10"  onclick="w2ui.grid.skip(10);">
-    <input type="button" value="Jump 110" onclick="w2ui.grid.skip(110);">
-    <input type="button" value="Jump 300" onclick="w2ui.grid.skip(300);">
-    <input type="button" value="Jump 375" onclick="w2ui.grid.skip(375);">
-    <br>
+    <input placeholder="after grid" class="w2ui-input" style="margin: 10px 0px;"/>
+    <br/>
+    <button class="w2ui-btn" onclick="$().w2destroy('grid');">Destroy</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(0);">Skip 0</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(10);">Skip 10</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(110);">Skip 110</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(300);">Skip 300</button>
+    <button class="w2ui-btn" onclick="w2ui.grid.skip(375);">Skip 375</button>
+    <br/>
     <div id="log" style="padding-top: 10px"></div>
 </body>
 </html>

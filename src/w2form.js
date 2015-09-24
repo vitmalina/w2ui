@@ -8,27 +8,26 @@
 * == NICE TO HAVE ==
 *   - refresh(field) - would refresh only one field
 *   - include delta on save
-*   - create an example how to do cascadic dropdown
 *   - form should read <select> <options> into items
 *   - two way data bindings
 *   - verify validation of fields
-*   - when field is blank, set record.field = null
-*   - show/hide a field
 *   - added getChanges() - not complete
 *   - nested record object
-*   - reset: { label: 'Limpiar', action: function () {...
-*   - add enable/disable, show/hide
-*   - add set()
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
 *   - added onProgress
 *   - added field.html.style (for the whole field)
+*   - added enable/disable, show/hide
+*   - added field.disabled, field.hidden
+*   - when field is blank, set record.field = null
+*   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
+*   - added ability to generate radio and select html in generateHTML()
 *
 ************************************************************************/
 
 
-(function () {
+(function ($) {
     var w2form = function(options) {
         // public properties
         this.name      = null;
@@ -50,10 +49,6 @@
 
         this.style         = '';
         this.focus         = 0;    // focus first or other element
-        this.msgNotJSON    = w2utils.lang('Return data is not in JSON format.');
-        this.msgAJAXerror  = w2utils.lang('AJAX error. See console for more details.');
-        this.msgRefresh    = w2utils.lang('Refreshing...');
-        this.msgSaving     = w2utils.lang('Saving...');
 
         // events
         this.onRequest   = null;
@@ -110,8 +105,8 @@
             // reassign variables
             if (fields) for (var p = 0; p < fields.length; p++) {
                 var field = $.extend(true, {}, fields[p]);
-                if (typeof field.name == 'undefined' && typeof field.field != 'undefined') field.name = field.field;
-                if (typeof field.field == 'undefined' && typeof field.name != 'undefined') field.field = field.name;
+                if (field.name == null && field.field != null) field.name = field.field;
+                if (field.field == null && field.name != null) field.field = field.name;
                 object.fields[p] = field;
             }
             for (var p in record) { // it is an object
@@ -175,6 +170,10 @@
     // -- Implementation of core functionality
 
     w2form.prototype = {
+        msgNotJSON    : w2utils.lang('Return data is not in JSON format.'),
+        msgAJAXerror  : w2utils.lang('AJAX error. See console for more details.'),
+        msgRefresh    : w2utils.lang('Refreshing...'),
+        msgSaving     : w2utils.lang('Saving...'),
 
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
@@ -204,9 +203,61 @@
             return false;
         },
 
+        show: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && fld.hidden) { 
+                    fld.hidden = false;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        hide: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && !fld.hidden) { 
+                    fld.hidden = true;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        enable: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && fld.disabled) { 
+                    fld.disabled = false;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
+        disable: function () {
+            var affected = 0;
+            for (var a = 0; a < arguments.length; a++) {
+                var fld = this.get(arguments[a]);
+                if (fld && !fld.disabled) { 
+                    fld.disabled = true;
+                    affected++;
+                }
+            }
+            if (affected > 0) this.refresh();
+            return affected;
+        },
+
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0) {
+            if (url && this.recid != 0 && this.recid != null) {
                 // this.clear();
                 this.request(callBack);
             } else {
@@ -231,13 +282,13 @@
                 return;
             }
             // need a time out because message might be already up)
-            setTimeout(function () { w2alert(msg, 'Error');    }, 1);
+            setTimeout(function () { w2alert(msg, w2utils.lang('Error'));    }, 1);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
 
         validate: function (showErrors) {
-            if (typeof showErrors == 'undefined') showErrors = true;
+            if (showErrors == null) showErrors = true;
             $().w2tag(); // hide all tags before validating
             // validate before saving
             var errors = [];
@@ -302,22 +353,25 @@
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
             if (eventData.isCancelled === true) return;
             // show error
-            if (showErrors) for (var e in eventData.errors) {
-                var err = eventData.errors[e];
-                if (err.field.type == 'radio') { // for radio and checkboxes
-                    $($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
-                } else if (['enum', 'file'].indexOf(err.field.type) != -1) {
-                    (function (err) {
-                        setTimeout(function () {
-                            var fld = $(err.field.el).data('w2field').helpers.multi;
-                            $(err.field.el).w2tag(err.error);
-                            $(fld).addClass('w2ui-error');
-                        }, 1);
-                    })(err);
-                } else {
-                    $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+            if (showErrors) {
+                for (var e = 0; e < eventData.errors.length; e++) {
+                    var err = eventData.errors[e];
+                    if (err.field == null) continue;
+                    if (err.field.type == 'radio') { // for radio and checkboxes
+                        $($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
+                    } else if (['enum', 'file'].indexOf(err.field.type) != -1) {
+                        (function (err) {
+                            setTimeout(function () {
+                                var fld = $(err.field.el).data('w2field').helpers.multi;
+                                $(err.field.el).w2tag(err.error);
+                                $(fld).addClass('w2ui-error');
+                            }, 1);
+                        })(err);
+                    } else {
+                        $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+                    }
+                    this.goto(errors[0].field.page);                
                 }
-                this.goto(errors[0].field.page);                
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -346,9 +400,9 @@
                 callBack = postData;
                 postData = null;
             }
-            if (typeof postData == 'undefined' || postData == null) postData = {};
+            if (postData == null) postData = {};
             if (!this.url || (typeof this.url == 'object' && !this.url.get)) return;
-            if (this.recid == null || typeof this.recid == 'undefined') this.recid = 0;
+            if (this.recid == null) this.recid = 0;
             // build parameters list
             var params = {};
             // add list params
@@ -391,6 +445,11 @@
                 ajaxOptions.type = 'GET';
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
+            if (w2utils.settings.dataType == 'RESTFULLJSON') {
+                ajaxOptions.type = 'GET';
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                ajaxOptions.contentType = 'application/json';
+            }
             if (w2utils.settings.dataType == 'JSON') {
                 ajaxOptions.type        = 'POST';
                 ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
@@ -410,7 +469,7 @@
                     var responseText = obj.last.xhr.responseText;
                     if (status != 'error') {
                         // default action
-                        if (typeof responseText != 'undefined' && responseText != '') {
+                        if (responseText != null && responseText != '') {
                             // check if the onLoad handler has not already parsed the data
                             if (typeof responseText == "object") {
                                 data = responseText;
@@ -420,7 +479,7 @@
                                 // TODO: avoid (potentially malicious) code injection from the response.
                                 try { eval('data = '+ responseText); } catch (e) { }
                             }
-                            if (typeof data == 'undefined') {
+                            if (data == null) {
                                 data = {
                                     status       : 'error',
                                     message      : obj.msgNotJSON,
@@ -485,7 +544,7 @@
             var errors = obj.validate(true);
             if (errors.length !== 0) return;
             // submit save
-            if (typeof postData == 'undefined' || postData == null) postData = {};
+            if (postData == null) postData = {};
             if (!obj.url || (typeof obj.url == 'object' && !obj.url.save)) {
                 console.log("ERROR: Form cannot be saved because no url is defined.");
                 return;
@@ -545,8 +604,13 @@
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
-                    if (obj.recid != 0) ajaxOptions.type = 'PUT';
+                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                }
+                if (w2utils.settings.dataType == 'RESTFULLJSON') {
+                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
                 }
                 if (w2utils.settings.dataType == 'JSON') {
                     ajaxOptions.type        = 'POST';
@@ -565,7 +629,7 @@
                         var responseText = xhr.responseText;
                         if (status != 'error') {
                             // default action
-                            if (typeof responseText != 'undefined' && responseText != '') {
+                            if (responseText != null && responseText != '') {
                                 // check if the onLoad handler has not already parsed the data
                                 if (typeof responseText == "object") {
                                     data = responseText;
@@ -575,7 +639,7 @@
                                     // TODO: avoid (potentially malicious) code injection from the response.
                                     try { eval('data = '+ responseText); } catch (e) { }
                                 }
-                                if (typeof data == 'undefined') {
+                                if (data == null) {
                                     data = {
                                         status       : 'error',
                                         message      : obj.msgNotJSON,
@@ -620,19 +684,18 @@
         },
 
         lock: function (msg, showSpinner) {
-            var box = $(this.box).find('> div:first-child');
             var args = Array.prototype.slice.call(arguments, 0);
-            args.unshift(box);
-            w2utils.lock.apply(window, args);
+            args.unshift(this.box);
+            setTimeout(function () { w2utils.lock.apply(window, args); }, 10);
         },
 
         unlock: function (speed) {
-            var obj = this;
-            setTimeout(function () { w2utils.unlock(obj.box, speed); }, 25); // needed timer so if server fast, it will not flash
+            var box = this.box;
+            setTimeout(function () { w2utils.unlock(box, speed); }, 25); // needed timer so if server fast, it will not flash
         },
 
         goto: function (page) {
-            if (typeof page != 'undefined') this.page = page;
+            if (page != null) this.page = page;
             // if it was auto size, resize it
             if ($(this.box).data('auto-size') === true) $(this.box).height(0);
             this.refresh();
@@ -645,17 +708,56 @@
             for (var f = 0; f < this.fields.length; f++) {
                 var html = '';
                 var field = this.fields[f];
-                if (typeof field.html == 'undefined') field.html = {};
+                if (field.html == null) field.html = {};
+                if (field.options == null) field.options = {};
                 field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0 }, field.html);
-                if (typeof page == 'undefined') page = field.html.page;
+                if (page == null) page = field.html.page;
                 if (field.html.caption == '') field.html.caption = field.name;
-                var input = '<input name="'+ field.name +'" type="text" '+ field.html.attr +'/>';
-                if ((field.type === 'pass') || (field.type === 'password')){
-                    input = '<input name="' + field.name + '" type = "password" ' + field.html.attr + '/>';
+                // input control
+                var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +'/>';
+                switch (field.type) {
+                    case 'pass':
+                    case 'password':
+                        input = '<input name="' + field.name + '" class="w2ui-input" type = "password" ' + field.html.attr + '/>';
+                        break;
+                    case 'checkbox':
+                        input = '<input name="'+ field.name +'" class="w2ui-input" type="checkbox" '+ field.html.attr +'/>';
+                        break;
+                    case 'radio':
+                        input = '';
+                        // normalized options
+                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (!$.isArray(items)) items = [];
+                        if (items.length > 0) {
+                            items = w2obj.field.prototype.normMenu(items);
+                        }
+                        // generate
+                        for (var i = 0; i < items.length; i++) {
+                            input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
+                                '&#160;' + items[i].text + '</label><br/>';
+                        }
+                        break;
+                    case 'select':
+                        input = '<select name="' + field.name + '" class="w2ui-input" ' + field.html.attr + '>';
+                        // normalized options
+                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (!$.isArray(items)) items = [];
+                        if (items.length > 0) {
+                            items = w2obj.field.prototype.normMenu(items);
+                        }
+                        // generate
+                        for (var i = 0; i < items.length; i++) {
+                            input += '<option value="'+ items[i].id + '">' + items[i].text + '</option>';
+                        }
+                        input += '</select>';
+                        break;
+                    case 'textarea':
+                        input = '<textarea name="'+ field.name +'" class="w2ui-input" '+ field.html.attr +'></textarea>';
+                        break;
+                    case 'toggle':
+                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
+                        break;
                 }
-                if (field.type == 'checkbox') input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +'/>';
-                if (field.type == 'textarea') input = '<textarea name="'+ field.name +'" '+ field.html.attr +'></textarea>';
-                if (field.type == 'toggle')   input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-toggle"/><div><div></div></div>';
                 if (field.html.group) {
                     if (group != '') html += '\n   </div>';
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
@@ -665,17 +767,17 @@
                     pages[pages.length-1] += '\n   </div>';
                     group = '';
                 }
-                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+ 
+                html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+ 
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
-                if (typeof pages[field.html.page] == 'undefined') pages[field.html.page] = '';
+                if (pages[field.html.page] == null) pages[field.html.page] = '';
                 pages[field.html.page] += html;
                 page = field.html.page;
             }
             if (group != '') pages[pages.length-1] += '\n   </div>';
             if (this.tabs.tabs) {
-                for (var i = 0; i < this.tabs.tabs.length; i++) if (typeof pages[i] == 'undefined') pages[i] = '';
+                for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = '';
             }
             for (var p = 0; p < pages.length; p++) pages[p] = '<div class="w2ui-page page-'+ p +'">' + pages[p] + '\n</div>';
             // buttons if any
@@ -684,8 +786,18 @@
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) { // it is an object
-                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
-                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) +'</button>';
+                    var act  = this.actions[a];
+                    var info = { caption: '', style: '', "class": '' };
+                    if ($.isPlainObject(act)) {
+                        if (act.caption) info.caption = act.caption;
+                        if (act.style) info.style = act.style;
+                        if (act["class"]) info['class'] = act['class'];
+                    } else {
+                        info.caption = a;
+                        if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'w2ui-btn-blue'; else info['class'] = '';
+                    }
+                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+ 
+                                            w2utils.lang(info.caption) +'</button>';
                 }
                 buttons += '\n</div>';
             }
@@ -693,13 +805,15 @@
         },
 
         action: function (action, event) {
+            var click = null;
+            var act   = this.actions[action];
+            var click = act;
+            if ($.isPlainObject(act) && act.onClick) click = act.onClick;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: action, type: 'action', originalEvent: event });
+            var eventData = this.trigger({ phase: 'before', target: action, type: 'action', click: click, originalEvent: event });
             if (eventData.isCancelled === true) return;
             // default actions
-            if (typeof (this.actions[action]) == 'function') {
-                this.actions[action].call(this, event);
-            }
+            if (typeof click == 'function') click.call(this, event);
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
         },
@@ -710,7 +824,7 @@
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
             if (eventData.isCancelled === true) return;
             // default behaviour
-            var main    = $(this.box).find('> div');
+            var main    = $(this.box).find('> div:not(.w2ui-lock-msg)');
             var header  = $(this.box).find('> div .w2ui-form-header');
             var toolbar = $(this.box).find('> div .w2ui-form-toolbar');
             var tabs    = $(this.box).find('> div .w2ui-form-tabs');
@@ -751,10 +865,10 @@
             var time = (new Date()).getTime();
             var obj = this;
             if (!this.box) return;
-            if (!this.isGenerated || typeof $(this.box).html() == 'undefined') return;
+            if (!this.isGenerated || $(this.box).html() == null) return;
             // update what page field belongs
             $(this.box).find('input, textarea, select').each(function (index, el) {
-                var name  = (typeof $(el).attr('name') != 'undefined' ? $(el).attr('name') : $(el).attr('id'));
+                var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
                 var field = obj.get(name);
                 if (field) {
                     // find page
@@ -791,11 +905,11 @@
             // refresh values of all fields
             for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
-                if (typeof field.name == 'undefined' && typeof field.field != 'undefined') field.name = field.field;
-                if (typeof field.field == 'undefined' && typeof field.name != 'undefined') field.field = field.name;
+                if (field.name == null && field.field != null) field.name = field.field;
+                if (field.field == null && field.name != null) field.field = field.name;
                 field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
                 field.el  = field.$el[0];
-                if (typeof field.el == 'undefined') {
+                if (field.el == null) {
                     console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
                     //return;
                 }
@@ -824,7 +938,9 @@
                             value_previous = $.extend(true, {}, cv); // clone object
                         }
                     }
-                    if (field.type == 'toggle') value_new = ($(this).prop('checked') ? 1 : 0);
+                    if (['toggle', 'checkbox'].indexOf(field.type) != -1) {
+                        value_new = ($(this).prop('checked') ? ($(this).prop('value') == 'on' ? true : $(this).prop('value')) : false);
+                    }
                     // clean extra chars
                     if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {
                         value_new = $(this).data('w2field').clean(value_new);
@@ -854,14 +970,32 @@
                             $(fld).removeClass('w2ui-error');
                         }
                     }
+                    if (val === '' || val == null || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                        val = null;
+                    }
                     obj.record[this.name] = val;
                     // event after
                     obj.trigger($.extend(eventData, { phase: 'after' }));
                 });
+                // required
                 if (field.required) {
                     $(field.el).parent().parent().addClass('w2ui-required');
                 } else {
                     $(field.el).parent().parent().removeClass('w2ui-required');
+                }
+                // disabled
+                if (field.disabled != null) {
+                    if (field.disabled) {
+                        $(field.el).prop('readonly', true);
+                    } else {
+                        $(field.el).prop('readonly', false);
+                    }
+                }
+                // hidden
+                if (field.hidden) {
+                    $(field.el).parent().parent().hide();
+                } else {
+                    $(field.el).parent().parent().show();
                 }
             }
             // attach actions on buttons
@@ -876,7 +1010,7 @@
             // init controls with record
             for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
-                var value = (typeof this.record[field.name] != 'undefined' ? this.record[field.name] : '');
+                var value = (this.record[field.name] != null ? this.record[field.name] : '');
                 if (!field.el) continue;
                 field.type = String(field.type).toLowerCase();
                 if (!field.options) field.options = {};
@@ -893,14 +1027,10 @@
                     case 'money':
                     case 'currency':
                     case 'percent':
-                        //issue #499
-                        if(typeof value == 'number'){
-                             field.el.value = w2utils.formatNumber(value,field.options.groupSymbol,field.options.decimalSymbol);
-                         } else {
-                             field.el.value = value;
-                         }
-                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
-                         break;
+                        // issue #761
+                        field.el.value = value;
+                        $(field.el).w2field($.extend({}, field.options, { type: field.type }));
+                        break;
                     case 'hex':
                     case 'alphanumeric':
                     case 'color':
@@ -912,14 +1042,15 @@
                     case 'toggle':
                         if (w2utils.isFloat(value)) value = parseFloat(value);
                         $(field.el).prop('checked', (value ? true : false));
-                        this.record[field.name] = (value ? 1 : 0);
+                        this.record[field.name] = (value ? value : false);
                         break;
                     // enums
                     case 'list':
                     case 'combo':
                         if (field.type == 'list') {
-                            var tmp_value = ($.isPlainObject(value) ? value.id : value);
+                            var tmp_value = ($.isPlainObject(value) ? value.id : ($.isPlainObject(field.options.selected) ? field.options.selected.id : value));
                             // normalized options
+                            if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
                             if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
                                 field.options.items = w2obj.field.prototype.normMenu(items);
@@ -935,7 +1066,7 @@
                             }
                         } else if (field.type == 'combo' && !$.isPlainObject(value)) {
                             field.el.value = value;
-                        } else if ($.isPlainObject(value) && typeof value.text != 'undefined') {
+                        } else if ($.isPlainObject(value) && value.text != null) {
                             field.el.value = value.text;
                         } else {
                             field.el.value = '';
@@ -953,7 +1084,7 @@
                     case 'select':
                         // generate options
                         var items = field.options.items;
-                        if (typeof items != 'undefined' && items.length > 0) {
+                        if (items != null && items.length > 0) {
                             items = w2obj.field.prototype.normMenu(items);
                             $(field.el).html('');
                             for (var it = 0; it < items.length; it++) {
@@ -971,6 +1102,7 @@
                         $(field.el).prop('checked', value ? true : false);
                         break;
                     default:
+                        $(field.el).val(value);
                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
                         break;
                 }
@@ -1001,7 +1133,7 @@
             if (!this.isGenerated) return;
             if (!this.box) return;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (typeof box != 'undefined' ? box : this.box) });
+            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) });
             if (eventData.isCancelled === true) return;
             // default actions
             if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
@@ -1009,8 +1141,8 @@
             }
             var html =  '<div>' +
                         (this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
-                        '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar"></div>' +
-                        '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs"></div>' +
+                        '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
+                        '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
                             this.formHTML +
                         '</div>';
             $(this.box).attr('name', this.name)
@@ -1046,14 +1178,14 @@
             // after render actions
             this.resize();
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0) {
+            if (url && this.recid != 0 && this.recid != null) {
                 this.request();
             } else {
                 this.refresh();
             }
             // attach to resize event
             if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
-                this.tmp_resize = function (event) { w2ui[obj.name].resize(); }
+                this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
             setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer
@@ -1088,4 +1220,4 @@
 
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
-})();
+})(jQuery);

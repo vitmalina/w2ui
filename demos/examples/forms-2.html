@@ -21,16 +21,19 @@ $(function () {
         header   : 'Field Types',
         formURL  : 'data/form.html', 
         fields: [
-            { name: 'field_text', type: 'text', required: true },
-            { name: 'field_alpha', type: 'alphaNumeric', required: true },
-            { name: 'field_int', type: 'int', required: true },
-            { name: 'field_float', type: 'float', required: true },
-            { name: 'field_date', type: 'date' },
-            { name: 'field_list', type: 'list', required: true, 
+            { field: 'field_text', type: 'text', required: true },
+            { field: 'field_alpha', type: 'alphaNumeric', required: true },
+            { field: 'field_int', type: 'int', required: true },
+            { field: 'field_float', type: 'float', required: true },
+            { field: 'field_date', type: 'date' },
+            { field: 'field_list', type: 'list', required: true, 
                 options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-            { name: 'field_enum', type: 'enum', required: true, 
+            { field: 'field_enum', type: 'enum', required: true, 
                 options: { items: ['Adams, John', 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-            { name: 'field_textarea', type: 'text'}
+            { field: 'field_textarea', type: 'text'},
+            { field: 'field_select', type: 'select', required: false, options: { items: ['fist', 'second'] } },
+            { field: 'field_check', type: 'checkbox', required: false },
+            { field: 'field_radio', type: 'radio', required: false }
         ],
         actions: {
             reset: function () {

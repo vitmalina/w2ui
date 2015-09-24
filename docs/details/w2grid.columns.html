@@ -67,7 +67,7 @@ $('#grid').w2grid({
     name    : 'grid',
     columns: [                
         { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'full-name', caption: 'Last Name', size: '60%',
+        { field: 'full-name', caption: 'Full Name', size: '60%',
             render: function (record) {
                 return '<div>' + record.fname + ' ' + record.lname + '</div>';
             }
@@ -82,14 +82,15 @@ $('#grid').w2grid({
 There are several predefined formatters. They are (for number and float, XX - defines number of digits after dot):
 <ul>
     <li>int</li>
-    <li>float:XX</li>
-    <li>number:XX</li>
+    <li>float:XX, <i>where XX is number digits after comma</i></li>
+    <li>number:XX, <i>where XX is number digits after comma</i></li>
     <li>money</li>
     <li>currency</li>
     <li>percent</li>
     <li>age</li>
-    <li>date</li>
-    <li>time</li>
+    <li>date:date_format, <i>where date_format is the date format, or empty for default format</i></li>
+    <li>time:time_format, <i>where time_format is the tim format, or empty for default format</i></li>
+    <li>datetime:date_format|time_format</li>
     <li>toggle</li>
 </ul>
 You can use them int he following way:
@@ -100,7 +101,7 @@ $('#grid').w2grid({
         { field: 'recid', caption: 'ID', size: '50px', render: 'float:2' },
         { field: 'full-name', caption: 'Last Name', size: '60%'    },
         { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' },
+        { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date:dd.mm.yyyy' },
         { field: 'sdate', caption: 'End Date', size: '120px', render: 'age' }
     ]
 });

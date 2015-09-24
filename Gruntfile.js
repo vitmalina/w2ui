@@ -2,7 +2,7 @@ module.exports = function (grunt) {
 
     var w2ui    = '/* w2ui 1.5.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n';
     var fields  = '/* w2ui-fields.js 1.5.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */\n';
-    var ks      = '/* kicstart 0.1.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n';
+    var ks      = '/* kicstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n';
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -24,9 +24,7 @@ module.exports = function (grunt) {
             ],
             ks: [
                 'dist/kickstart.js',
-                'dist/kickstart.min.js',
-                'dist/kickstart.css',
-                'dist/kickstart.min.css'
+                'dist/kickstart.min.js'
             ]
         },
 
@@ -59,20 +57,6 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "dist/w2ui-fields.min.css": "dist/w2ui-fields.css"
-                }
-            },
-            ks: {
-                files: {
-                    "dist/kickstart.css": "src/kickstart/less/kickstart.less"
-                }
-            },
-            "ks-min": {
-                options: {
-                    cleancss: true,
-                    report: 'min'
-                },
-                files: {
-                    "dist/kickstart.min.css": "dist/kickstart.css"
                 }
             }
         },
@@ -141,16 +125,6 @@ module.exports = function (grunt) {
                 options : { banner: fields },
                 src     : 'dist/w2ui-fields.min.css',
                 dest    : 'dist/w2ui-fields.min.css'
-            },
-            'banner-ks-1': {
-                options : { banner: ks },
-                src     : 'dist/kickstart.css',
-                dest    : 'dist/kickstart.css'
-            },
-            'banner-ks-2': {
-                options : { banner: ks },
-                src     : 'dist/kickstart.min.css',
-                dest    : 'dist/kickstart.min.css'
             }
         },
 
@@ -160,7 +134,7 @@ module.exports = function (grunt) {
                     banner: w2ui
                 },
                 files: {
-                    'dist/w2ui.min.js': 'dist/w2ui.js',
+                    'dist/w2ui.min.js': 'dist/w2ui.js'
                 }
             },
             fields: { 
@@ -168,7 +142,7 @@ module.exports = function (grunt) {
                     banner: fields
                 },
                 files: {
-                    'dist/w2ui-fields.min.js': 'dist/w2ui-fields.js',
+                    'dist/w2ui-fields.min.js': 'dist/w2ui-fields.js'
                 }
             },
             ks: { 
@@ -176,10 +150,9 @@ module.exports = function (grunt) {
                     banner: ks
                 },
                 files: {
-                    'dist/kickstart.min.js': 'dist/kickstart.js',
+                    'dist/kickstart.min.js': 'dist/kickstart.js'
                 }
             }
-
         },
 
         shell: {

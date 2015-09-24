@@ -11,13 +11,13 @@
 <!--CODE-->
 <div id="grid" style="width: 100%; height: 400px; overflow: hidden;"></div>
 <br>
-<button class="btn" onclick="var obj = w2ui['grid']; obj.show.header = !obj.show.header; w2ui['grid'].refresh();">Header</button>
-<button class="btn" onclick="var obj = w2ui['grid']; obj.show.toolbar = !obj.show.toolbar; w2ui['grid'].refresh();">Toolbar</button>
-<button class="btn" onclick="var obj = w2ui['grid']; obj.show.columnHeaders = !obj.show.columnHeaders; w2ui['grid'].refresh();">Column Headers</button>
-<button class="btn" onclick="var obj = w2ui['grid']; obj.show.footer = !obj.show.footer; w2ui['grid'].refresh();">Footer</button>
-<button class="btn" onclick="var obj = w2ui['grid']; obj.show.lineNumbers = !obj.show.lineNumbers; w2ui['grid'].refresh();">Line Numbers</button>
-<button class="btn" onclick="var obj = w2ui['grid']; obj.show.selectColumn = !obj.show.selectColumn; w2ui['grid'].refresh();">Select Column</button>
-<button class="btn" onclick="var obj = w2ui['grid']; obj.show.expandColumn = !obj.show.expandColumn; w2ui['grid'].refresh();">Expand Column</button>
+<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.header = !obj.show.header; w2ui['grid'].refresh();">Header</button>
+<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.toolbar = !obj.show.toolbar; w2ui['grid'].refresh();">Toolbar</button>
+<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.columnHeaders = !obj.show.columnHeaders; w2ui['grid'].refresh();">Column Headers</button>
+<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.footer = !obj.show.footer; w2ui['grid'].refresh();">Footer</button>
+<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.lineNumbers = !obj.show.lineNumbers; w2ui['grid'].refresh();">Line Numbers</button>
+<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.selectColumn = !obj.show.selectColumn; w2ui['grid'].refresh();">Select Column</button>
+<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.expandColumn = !obj.show.expandColumn; w2ui['grid'].refresh();">Expand Column</button>
 
 <!--CODE-->
 <script>
@@ -26,6 +26,7 @@ $(function () {
         name: 'grid', 
         header: 'List of Names',
         url: 'data/list.json',
+        method: 'GET', // need this to avoid 412 error on Safari
         show: {
             header         : true,
             toolbar     : true,
@@ -38,7 +39,7 @@ $(function () {
             { field: 'fname', caption: 'First Name', size: '30%' },
             { field: 'lname', caption: 'Last Name', size: '30%' },
             { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px' },
+            { field: 'sdate', caption: 'Start Date', size: '120px' }
         ],
         searches: [
             { type: 'int',  field: 'recid', caption: 'ID' },

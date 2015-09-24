@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Dependent Fields</h1>
-        The examle below demonstrates how to make dependent fields. Note, that the second field is disabled until you select value in the first
+        The example below demonstrates how to make dependent fields. Note, that the second field is disabled until you select value in the first
         field and if you remove value from the first field, second field becomes disabled again. Also, the remote call in the second field will
         include the value of thr first.
     </div>
@@ -37,14 +37,14 @@ $(function () {
             var fld = $field2.data('w2field');  // before 1.4.1 -- var fld = $field.data('w2field');
             if (sel && !$.isEmptyObject(sel)) {
                 $field2
-                    .attr('placeholder', '') // beofre 1.5.0 -- fld.options.placeholder = '';
+                    .attr('placeholder', '') // before 1.5.0 -- fld.options.placeholder = '';
                     .prop('readonly', false);                
             } else {
                 $field2
                     .attr('placeholder', 'Select employee first')
-                    .prop('readonly', true); // beofre 1.5.0 -- fld.options.placeholder = 'Select employee first';
+                    .prop('readonly', true); // before 1.5.0 -- fld.options.placeholder = 'Select employee first';
             }
-            $field2.data('selected', null)
+            $field2.data('selected', null);
             fld.clearCache();
             fld.refresh();
         });

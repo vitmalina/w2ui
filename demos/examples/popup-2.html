@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<button class="btn" onclick="popup()">Open Popup</button>
+<button class="w2ui-btn" onclick="popup()">Open Popup</button>
 
 <!--CODE-->
 <script>
@@ -16,8 +16,8 @@ function popup() {
     w2popup.open({
         title     : 'Popup Title',
         body      : '<div class="w2ui-centered">This is text inside the popup</div>',
-        buttons   : '<button class="btn" onclick="w2popup.close();">Close</button> '+
-                    '<button class="btn" onclick="w2popup.lock(\'Loading\', true); '+
+        buttons   : '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
+                    '<button class="w2ui-btn" onclick="w2popup.lock(\'Loading\', true); '+
                     '        setTimeout(function () { w2popup.unlock(); }, 2000);">Lock</button>',
         width     : 500,
         height    : 300,

@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Popup &amp; Grid</h1>
-        The demo below features a popup with a resiabled layout with two panels. One panel has a grid and the second has a form. The grid
+        The demo below features a popup with a resizable layout with two panels. One panel has a grid and the second has a form. The grid
         and the form are connected to each other.
     </div>
     <div id="example_view"></div>
@@ -10,7 +10,7 @@
 
 <!--CODE-->
 <div style="padding: 20px 0px">
-    <button class="btn" onclick="openPopup()">Open Popup</button>
+    <button class="w2ui-btn" onclick="openPopup()">Open Popup</button>
 </div>
 
 <!--CODE-->
@@ -31,7 +31,7 @@ var config = {
             { field: 'fname', caption: 'First Name', size: '33%', sortable: true, searchable: true },
             { field: 'lname', caption: 'Last Name', size: '33%', sortable: true, searchable: true },
             { field: 'email', caption: 'Email', size: '33%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' },
+            { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -88,7 +88,7 @@ var config = {
             }
         }
     }
-}
+};
 
 $(function () {
     // initialization in memory

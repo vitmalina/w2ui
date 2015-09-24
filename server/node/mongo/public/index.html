@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Locations</title>
+    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>
+</head>
+
+<body>
+
+    
+<div id="main" style="width: 100%; height: 400px;"></div>
+
+<script type="text/javascript">
+//                 toolbarEdit: true,
+
+var config = {
+    
+        top_usergrid: { 
+            name : 'top_usergrid',
+            url  : '/api/user',
+            show    : {
+                toolbar  : true,
+                toolbarAdd: true,
+                toolbarSave: true,
+                footer   : true,
+                toolbarDelete	: true
+            },
+            style: 'border: 0px',
+            sortData: [{ field: 'lname', direction: 'asc' }],
+            searches: [
+                { type: 'text', caption: 'Name', field: 'name' },
+                { type: 'lat', caption: 'Lat', field: 'lat' }
+            ],
+            columns: [
+                { field: 'name', caption: 'Name', size: '20%', sortable: true,  editable: { type: 'text' }},
+                { field: 'lname', caption: 'Last name', size: '20%', sortable: true,  editable: { type: 'text' }},     
+                { field: 'email', caption: 'Email', size: '20%', sortable: false ,  editable: { type: 'text' }},
+                { field: 'otherinfo', caption: 'Other Info', size: '25%', sortable: false ,  editable: { type: 'tesxt' }}
+            ],
+            onSave: function (event) {
+              event.onComplete = function() {
+                w2ui.top_usergrid.reload();
+                // New users needs new "Users at location" list
+                w2ui.form.refresh();
+              }
+            },
+            onAdd: function (event) {
+
+                 var ajaxOptions = {
+                    type     : 'POST',
+                    url      : '/api/user',
+                    data     : {
+                         cmd: "add-record"
+                    },
+                    dataType : 'text'  // expected data type from server
+                  };
+
+                  $.ajax(ajaxOptions)
+                    .done(function (data, status, xhr){
+                       var resultData =  jQuery.parseJSON(data);
+                       var newrec=$.extend(true, resultData.record,{ name : "Double click to edit, then Save" });
+                       //var newrec=resultData.record;
+                       console.log("newrec",newrec);
+                       w2ui.top_usergrid.add(newrec);
+                    })
+                   .fail(function(jqXHR, textStatus, errorThrown) {
+                        // Handle error
+                   });
+          }
+        },
+    
+	layout: {
+		name: 'layout',
+		padding: 4,
+		panels: [
+            		{ type: 'top', size: '50%', resizable: true, minSize: 200 },
+			{ type: 'left', size: '50%', resizable: true, minSize: 200 },
+			{ type: 'main', minSize: 300 }                        
+		]
+	},
+	grid: { 
+		name: 'grid',
+		show: {
+			toolbar	        : true,
+			toolbarDelete	: true,
+                        footer          : true
+		},
+                multiSelect : false,
+		columns: [
+ 			{ field: '_id', caption: '_id', size: '46px', sortable: false, searchable: false },                   
+			{ field: 'name', caption: 'Name', size: '46px', sortable: true, searchable: false },
+                        { field: 'lname', caption: 'Long name', size: '120px', sortable: false, searchable: false },
+			{ field: 'lat', caption: 'Lat', size: '60px' , sortable: true },
+                      	{ field: 'lon', caption: 'Lon', size: '60px', sortable: true },
+                        { field: 'users', caption: 'Users', size: '20%', sortable: true, searchable: true ,render: function (record) {
+                            var retval='<div>';
+                            for(var ix=0;ix<record.users.length;ix++){
+
+                               if (record.users && record.users[ix])
+                               { 
+                                     retval+= record.users[ix].text;
+			             if (ix+1<record.users.length) retval+=" ,";
+			       }    
+                             }
+                             retval+='</div>';
+                             return(retval);
+			}}
+		],
+                url		: '/api/position',
+		onClick: function(event) {
+			var grid = this;
+			var form = w2ui.form;
+			console.log(event);
+			event.onComplete = function () {
+				var sel = grid.getSelection();
+				console.log(sel);
+				if (sel.length == 1) {
+					form.recid  = sel[0];
+					form.record = $.extend(true, {}, grid.get(sel[0]));
+                                        form.record.selected=false;
+                                        if (form.record.lat && form.record.lon)
+                                        {
+                                          CenterMap(Number(form.record.lat),Number(form.record.lon),form.record.name);
+                                        }
+					form.refresh();
+				} else {
+					form.clear();
+				}
+			}
+		}
+	},
+        
+	form: { 
+		header: 'Positions',
+		name: 'form',
+                url		: '/api/position',
+		fields: [
+			{ name: 'name', type: 'text', required: true, html: { caption: 'Short Name', attr: 'size="20" maxlength="20"' } },
+                        { name: 'users', type: 'enum', required: false,
+                           options: {openOnFocus: true,minLength:0,max :20, url : "/api/enum/user" },                                                   
+                           html: { caption: 'Users at location' , attr: "style='width: 320px; height: 300px; resize: none; white-space:normal;'" } 
+                        },
+			{ name: 'lname', type: 'text', html: { caption: 'Long name', attr: 'size="40"' } },
+                   	{ name: 'lat', type: 'text', html: { caption: 'Lat', attr: 'size="12"' } } ,                       
+			{ name: 'lon', type: 'text', html: { caption: 'Lon', attr: 'size="12"' } } ,
+
+		],
+                onSave: function (event) {
+                   event.onComplete = function() {
+                      w2ui.grid.reload();
+                   }
+                },
+		actions: {
+			New: function () {
+ 			       this.clear();                                
+                               console.log("Set recid to 0");
+                               this.recid = 0;
+                               // Delete hidden _id if it exists
+                               if (w2ui.form.record._id)
+                               {
+                                  delete w2ui.form.record._id;
+                               }
+   
+ 			},
+			Save: function () {
+				var errors = this.validate();
+				if (errors.length > 0) return;
+				if (this.recid == 0) {
+                                    // We are saving a new record,   
+                                    this.save(); 
+                                  } else {
+                                       // Just update the grid with our data
+                                       this.save();
+	 			       w2ui.grid.set(this.recid, this.record);
+				       w2ui.grid.selectNone();
+
+				}
+                                //w2ui.grid.reload();
+                                if (this.record.lat && this.record.lon)
+                                {
+                                  CenterMap(Number(this.record.lat),Number(this.record.lon),this.record.name);
+                                }
+                                //location.reload(true);
+			}
+		}
+	}
+};
+
+$(function () {
+        w2utils.settings.date_format = 'yyyy-mm-dd';
+
+	// initialization
+	$('#main').w2layout(config.layout);
+        w2ui.layout.content('top',$().w2grid(config.top_usergrid));
+	w2ui.layout.content('left', $().w2grid(config.grid));
+	w2ui.layout.content('main', $().w2form(config.form));
+
+});
+
+
+</script>
+<div id="mapdiv" style="width: 100%; height: 400px;"></div>
+<script src="http://openlayers.org/en/v3.4.0/build/ol.js" type="text/javascript"></script>
+<script type="text/javascript">
+    
+var iconFeatures=[];    
+
+ var iconFeature = new ol.Feature({
+  geometry: new ol.geom.Point(ol.proj.transform([-81.58123447568494,28.418713713482276], 'EPSG:4326', 'EPSG:3857')),
+  name: 'Disney world'
+});
+
+var iconStyle = new ol.style.Style({
+  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+    anchor: [0.5, 46],
+    anchorXUnits: 'fraction',
+    anchorYUnits: 'pixels',
+    opacity: 0.75,
+    src: 'http://ol3js.org/en/master/examples/data/icon.png'
+    //src: 'data/icon.png'
+  }))
+});   
+
+iconFeature.setStyle(iconStyle);  
+
+iconFeatures.push(iconFeature);          
+
+var vectorSource = new ol.source.Vector({
+  features: iconFeatures
+});
+
+var vectorLayer = new ol.layer.Vector({
+  source: vectorSource
+});    
+
+
+// Called when user clicks on the map    
+function CenterMap(lat,long,name) {
+    console.log("Long: " + long + " Lat: " + lat);
+    map.getView().setCenter(ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857'));
+    //map.getView().setZoom(5);
+     var iconF = new ol.Feature({
+       geometry: new ol.geom.Point(ol.proj.transform([long,lat], 'EPSG:4326', 'EPSG:3857')),
+       name: name       
+     });
+
+   vectorSource.addFeature(iconF);
+}    
+    
+    
+ var map = new ol.Map({
+        target: 'mapdiv',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.MapQuest({layer: 'sat'})
+          }),vectorLayer],
+        view: new ol.View({ // -81.58123447568494,28.418713713482276
+          center: ol.proj.transform([-81.58123447568494,28.418713713482276], 'EPSG:4326', 'EPSG:3857'),
+          zoom: 17
+        })
+      });
+      
+  map.on('click', function(evt) {
+    var lonlat = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+    var lon = lonlat[0];
+    var lat = lonlat[1];
+
+    var ajaxOptions = {
+        type     : 'POST',
+        url      : '/api/position',
+        data     : {
+           cmd: "add-record"
+        },
+        dataType: 'text'  // expected data type from server
+     };
+
+        $.ajax(ajaxOptions)
+                .done(function(data, status, xhr) {
+                    var resultData = jQuery.parseJSON(data);
+                    var newrec = resultData.record;
+                    console.log("newrec", newrec);
+                    w2ui.form.recid = newrec.recid;
+                    if (w2ui.form.record._id)
+                    {
+                        delete w2ui.form.record._id;
+                    }
+                    w2ui.form.record.name ="id" + newrec.recid;
+                    console.log("click set name to",newrec.recid);
+                    w2ui.form.record.lat=lat;
+                    w2ui.form.record.lon=lon;
+                    w2ui.form.refresh();
+
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    // Handle error
+         });
+
+        
+    
+    //alert(lonlat);
+  });
+ 
+</script>
+
+</body>
+</html>

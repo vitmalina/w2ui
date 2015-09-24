@@ -2,67 +2,58 @@
 <html>
 <head>
     <title>W2UI Demo: combo-9</title>
-    <link rel="stylesheet" type="text/css" href="../dist/w2ui-1.3.min.css" />
+    <link rel="stylesheet" type="text/css" href="../dist/w2ui.min.css" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="http://underscorejs.org/underscore.js"></script>
-    <script type="text/javascript" src="../dist/w2ui-1.3.min.js"></script>
+    <script type="text/javascript" src="../dist/w2ui.min.js"></script>
     <script type="text/javascript" src="../src/w2utils.js"></script>
+    <script type="text/javascript" src="../src/w2sidebar.js"></script>
+    <script type="text/javascript" src="../src/w2popup.js"></script>
     <script type="text/javascript" src="../src/w2grid.js"></script>
+    <script type="text/javascript" src="../src/w2fields.js"></script>
 </head>
 <body>
 
-<div id="main" style="width: 100%; height: 400px;"></div>
+<div style="padding: 100px; top: 100px; border: 1px solid red; height: 500px; left: 0px; right: 0px; position: absolute; overflow: auto;">
+    <div style="padding: 100px; height: 1000px;">
+        <input id="some-input1"><br><br>
+        <input id="some-input2"><br><br>
+        <input id="some-input3"><br><br>
+        <button class="w2ui-btn" onclick="validate()">Validate</button>
+    </div>
+</div>
 
 <script type="text/javascript">
-// widget configuration
-var config = {
-    grid: { 
-        name: 'grid',
-        //url : 'http://w2ui.com/web/pages/demo/infinite/index.php',
-        show: { 
-            footer  : true,
-            toolbar : true,
-            selectColumn: true,
-            lineNumbers: true
-        },
-        columns: [              
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true, searchable: 'int', resizable: true },
-            { field: 'fname', caption: 'First Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
-            { field: 'lname', caption: 'Last Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
-            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
-            { field: 'sdate', caption: 'Date', size: '200px', resizable: true, sortable: true },
-        ]
-    }
-}
-var time = (new Date()).getTime();
 
-$(function () {
-    $('#main').w2grid(config.grid);
-    w2ui.grid.lock('Generating Records');
-    setTimeout(function () {
-        generate(1000); // 12000 - which is 12mil max
-    }, 100);
+$().w2field('addType', 'myType', function (options) {
+    $(this.el)
+        .on('focus keyup', function (event) {
+            if ($(this).data('w2tag') == null) {
+                // already there
+            } 
+            if (this.value.length < 5) {
+                $(this).w2tag({ 
+                    html: 'Need to be at least 5 chars long, currently '+ this.value.length + ' chars', 
+                    hideOnKeyPress: false,
+                    hideOnBlur: true
+                });
+            } else {
+                $(this).w2tag();
+            }
+        }
+    );
 });
 
-function generate(num) {
-    var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Alexander', 'Anton', 'Divia'];
-    var lname = ['Peterson', 'Rene', 'Johnson-Petrov', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Hertz', 'Volkov'];
-    w2ui.grid.records = [];
-    for (var i = 0; i < num * 1000; i++) {
-        w2ui['grid'].records.push({ 
-            recid : (i+1),
-            personid: (i+1),
-            fname: fname[Math.floor(Math.random() * fname.length)], 
-            lname: lname[Math.floor(Math.random() * lname.length)],
-            email: 'vm@gmail.com', sdate: '1/1/2013', manager: '--'
-        });
-    }
-    w2ui.grid.buffered = w2ui.grid.records.length;
-    w2ui.grid.total = w2ui.grid.buffered
-    w2ui.grid.unlock();
-    console.log('Generated records in '+ (((new Date()).getTime() - time) / 1000) +' sec');
-    console.log('Render Time: '+ (w2ui.grid.refresh() / 1000) +' sec');
+$("#some-input1").w2field("myType");
+$("#some-input2").w2field("myType");
+$("#some-input3").w2field("myType");
+
+function validate() {
+    $("#some-input1").w2tag("Invalid");
+    $("#some-input2").w2tag("Invalid");
+    $("#some-input3").w2tag("Invalid");
 }
+
 </script>
 
 </body>

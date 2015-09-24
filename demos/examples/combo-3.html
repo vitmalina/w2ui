@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Spreadsheet Like JavaScript Grid</h1>
-        In version 1.3 a new feature was introducted that allows to create spreadsheet like grids. Some functionality comes by default and other
+        In version 1.3 a new feature was introduced that allows to create spreadsheet like grids. Some functionality comes by default and other
         can be extended with events.
         <ul>
             <li>Editable cells (start typing or click enter)</li>
@@ -17,11 +17,11 @@
 
 <!--CODE-->
 <div id="main" style="width: 100%; height: 300px; margin-bottom: 10px;"></div>
-<button class="btn" onclick="mark()">Mark Range C3:D7</button>
-<button class="btn" onclick="w2ui.grid.removeRange('range')">Remove Range</button>
+<button class="w2ui-btn" onclick="mark()">Mark Range C3:D7</button>
+<button class="w2ui-btn" onclick="w2ui.grid.removeRange('range')">Remove Range</button>
 &nbsp;&nbsp;&nbsp;
-<button class="btn" onclick="cellFormat(true)">Cell Format</button>
-<button class="btn" onclick="cellFormat(false)">Remove Cell Format</button>
+<button class="w2ui-btn" onclick="cellFormat(true)">Cell Format</button>
+<button class="w2ui-btn" onclick="cellFormat(false)">Remove Cell Format</button>
 
 <!--CODE-->
 <script>
@@ -55,7 +55,7 @@ var config = {
             event.force = true;
         }
     }
-}
+};
 
 $(function () {
     // initialization

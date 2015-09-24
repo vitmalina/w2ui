@@ -1,3 +1,7 @@
 tmp/*
 node_modules/
-/nbproject/private/
+*.txt
+.idea
+*.iml
+*.ipr
+*.iws

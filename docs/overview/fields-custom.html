@@ -14,7 +14,7 @@ $().w2field('addType', 'myType', function (options) {
     $(this.el).on('blur', function (event)  { // keyCode & charCode differ in FireFox
         var ch = this.value;
         if (ch != 'a' && ch != 'b' && ch != 'c') {
-            $(this).w2tag(w2utils.lang("Not a single charecter from the set of 'abc'"));
+            $(this).w2tag(w2utils.lang("Not a single character from the set of 'abc'"));
         }
     });
 });

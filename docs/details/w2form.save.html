@@ -33,11 +33,11 @@ $('#form').w2form({
     fields: [
         { name: 'first_name', type: 'text', required: true },
         { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' },
+        { name: 'email', type: 'email' }
     ],
     actions: {
         "save": function (target, data) { this.save(); },
-        "reset": function (target, data) { this.clear(); },
+        "reset": function (target, data) { this.clear(); }
     }
 });
 </textarea>
@@ -70,7 +70,7 @@ If there is no error, the server should return the following JSON:
 If there are errors, you can send:
 <textarea class="javascript">
 {
-    "status": "success",
+    "status": "error",
     "message": "Error message"
 }    
 </textarea>

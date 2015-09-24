@@ -17,11 +17,12 @@
 $(function () {
     $('#grid').w2grid({ 
         name: 'grid', 
+        method: 'GET', // need this to avoid 412 error on Safari
         columns: [                
             { field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
             { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
             { field: 'email', caption: 'Email', size: '40%', sortable: true },
-            { field: 'sdate', caption: 'Start Date', size: '120px', sortable: true },
+            { field: 'sdate', caption: 'Start Date', size: '120px', sortable: true }
         ]
     });    
     w2ui['grid'].load('data/list.json');

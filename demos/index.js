@@ -8,7 +8,7 @@ $(function () {
             { type: 'main', style: 'background-color: white;' }
         ]
     });
-    w2ui['main_layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.4 Demos</div>');
+    w2ui['main_layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Demos</div>');
     // w2ui['main_layout'].content('top', '<div style="padding: 9px;">'+
     //     'Theme: '+
     //     '<select onchange="$(\'#mainCSS\').attr(\'href\', this.value);">'+
@@ -38,7 +38,7 @@ $(function () {
                     { id: 'combo-6', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
                     { id: 'combo-7', text: 'Popup & Grid', icon: 'fa-star-empty' },
                     { id: 'combo-8', text: 'Popup & Layout', icon: 'fa-star-empty' },
-                    { id: 'combo-10', text: 'Dependent Fields', icon: 'fa-star-empty' },
+                    { id: 'combo-10', text: 'Dependent Fields', icon: 'fa-star-empty' }
                 ]
             },
             { id: 'layout', text: 'Layout', img: 'icon-folder', group1: true,
@@ -82,7 +82,7 @@ $(function () {
                     { id: 'grid-22', text: 'Resizable Columns', icon: 'fa-table' },
                     { id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa-table' },
                     { id: 'grid-25', text: 'Re-Order Columns', icon: 'fa-table' },
-                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' },
+                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' }
                     //{ id: 'grid-27', text: 'Locked Columns', icon: 'fa-table' }
                 ]
             },
@@ -145,7 +145,8 @@ $(function () {
                     { id: 'fields-2', text: 'Date & Time', icon: 'fa-edit' },
                     { id: 'fields-3', text: 'Drop Down Lists', icon: 'fa-edit' },
                     { id: 'fields-4', text: 'Multi Selects', icon: 'fa-edit' },
-                    { id: 'fields-5', text: 'File Upload', icon: 'fa-edit' }
+                    { id: 'fields-5', text: 'File Upload', icon: 'fa-edit' },
+                    { id: 'fields-6', text: 'Remote Source', icon: 'fa-edit' }
                 ]
             },
             { id: 'popup', text: 'Popup', img: 'icon-folder', group1: true,
@@ -212,9 +213,9 @@ $(function () {
                            '<html>\n'+
                            '<head>\n'+
                            '    <title>W2UI Demo: '+ cmd +'</title>\n'+
-                           '    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.1.min.css" />\n'+
+                           '    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" />\n'+
                            '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>\n'+
-                           '    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.1.min.js"></script>\n'+
+                           '    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>\n'+
                            '</head>\n'+
                            '<body>\n\n'+
                            html + '\n\n'+
@@ -236,9 +237,9 @@ $(function () {
                         '')+
                     '</div>'+
                     '<div style="display: none">'+
-                    '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.x/" method="post">'+
+                    '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.1/" method="post">'+
                     '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
-                    '    <textarea name="resources">http://w2ui.com/src/w2ui-1.4.1.min.js,http://w2ui.com/src/w2ui-1.4.1.min.css</textarea>'+
+                    '    <textarea name="resources">http://w2ui.com/src/w2ui-1.4.2.min.js,http://w2ui.com/src/w2ui-1.4.2.min.css</textarea>'+
                     '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
                     '    <textarea name="js">'+ js +'</textarea>'+
                     '    <textarea name="css">'+ css +'</textarea>'+
@@ -307,7 +308,7 @@ $(function () {
                 w2ui['demo-sidebar'].expand('utils');
                 w2ui['demo-sidebar'].click(tmp[1] || 'utils-1');
                 break;
-        };
+        }
     }, 100);
 });
 
