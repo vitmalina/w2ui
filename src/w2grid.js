@@ -1010,7 +1010,7 @@
                 }
             } else {
                 var buffered = this.records.length;
-                if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+                if (this.searchData.length != 0 && url) buffered = this.last.searchIds.length;
                 for (var i = 0; i < buffered; i++) {
                     sel.indexes.push(i);
                     if (this.selectType != 'row') sel.columns[i] = cols.slice(); // .slice makes copy of the array
@@ -1490,7 +1490,7 @@
 
         request: function (cmd, add_params, url, callBack) {
             if (typeof add_params == 'undefined') add_params = {};
-            if (typeof url == 'undefined' || url == '' || url == null) url = this.url;
+            if (url == '' || url == null) url = this.url;
             if (url == '' || url == null) return;
             // build parameters list
             var params = {};
@@ -1535,7 +1535,7 @@
             }
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {};
             // URL
-            var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
+            url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
             if (params.cmd == 'save-records' && typeof eventData.url == 'object')   url = eventData.url.save;
             if (params.cmd == 'delete-records' && typeof eventData.url == 'object') url = eventData.url.remove;
             // process url with routeData
@@ -2584,7 +2584,8 @@
 
         scrollIntoView: function (ind) {
             var buffered = this.records.length;
-            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
+            if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (typeof ind == 'undefined') {
                 var sel = this.getSelection();
                 if (sel.length == 0) return;
@@ -3103,6 +3104,7 @@
             }
             if (!this.box) return;
             if (this.last.sortData == null) this.last.sortData = this.sortData;
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
             if (eventData.isCancelled === true) return;
@@ -3132,7 +3134,7 @@
             // refresh
             if (!this.last.state) this.last.state = this.stateSave(true); // initial default state
             this.stateRestore();
-            if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
+            if (url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
             this.reload();
 
             // init mouse events for mouse selection
@@ -3959,7 +3961,8 @@
             }
 
             var buffered = this.records.length;
-            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
+            if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             // check overflow
             var bodyOverflowX = false;
             var bodyOverflowY = false;
@@ -4475,8 +4478,9 @@
         },
 
         getRecordsHTML: function () {
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
             var buffered = this.records.length;
-            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             // larget number works better with chrome, smaller with FF.
             if (buffered > 300) this.show_extra = 30; else this.show_extra = 300;
             var records  = $('#grid_'+ this.name +'_records');
@@ -4514,11 +4518,12 @@
         },
 
         scroll: function (event) {
-            var time    = (new Date()).getTime();
-            var obj     = this;
-            var records = $('#grid_'+ this.name +'_records');
+            var time = (new Date()).getTime();
+            var obj  = this;
+            var url  = (typeof this.url != 'object' ? this.url : this.url.get);
+            var records  = $('#grid_'+ this.name +'_records');
             var buffered = this.records.length;
-            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered == 0 || records.length == 0 || records.height() == 0) return;
             if (buffered > 300) this.show_extra = 30; else this.show_extra = 300;
             // need this to enable scrolling when this.limit < then a screen can fit
@@ -4531,7 +4536,6 @@
             var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
             if (t1 > buffered) t1 = buffered;
             if (t2 > buffered) t2 = buffered;
-            var url = (typeof this.url != 'object' ? this.url : this.url.get);
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) +
                     (url ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
             );
