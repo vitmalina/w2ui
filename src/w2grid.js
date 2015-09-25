@@ -1434,7 +1434,7 @@
                 }
             } else {
                 var buffered = this.records.length;
-                if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+                if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
                 for (var i = 0; i < buffered; i++) {
                     sel.indexes.push(i);
                     if (this.selectType != 'row') sel.columns[i] = cols.slice(); // .slice makes copy of the array
@@ -2005,7 +2005,7 @@
             }
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // URL
-            var url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
+            url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
             if (params.cmd == 'save-records' && typeof eventData.url == 'object')   url = eventData.url.save;
             if (params.cmd == 'delete-records' && typeof eventData.url == 'object') url = eventData.url.remove;
             // process url with routeData
@@ -2896,6 +2896,7 @@
         keydown: function (event) {
             // this method is called from w2utils
             var obj = this;
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (obj.keyboard !== true) return;
             // trigger event
             var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
@@ -3102,7 +3103,7 @@
                     // move to the previous record
                     var prev = obj.prevRow(ind, columns[0]);
                     if (!shiftKey && prev == null) {
-                        if (this.searchData.length != 0 && !this.url) {
+                        if (this.searchData.length != 0 && !url) {
                             prev = this.last.searchIds[0];
                         } else {
                             prev = 0;
@@ -3190,7 +3191,7 @@
                     // move to the next record
                     var next = obj.nextRow(ind2, columns[0]);
                     if (!shiftKey && next == null) {
-                        if (this.searchData.length != 0 && !this.url) {
+                        if (this.searchData.length != 0 && !url) {
                             next = this.last.searchIds[this.last.searchIds.length - 1];
                         } else {
                             next = this.records.length - 1;
@@ -4028,6 +4029,7 @@
                 this.box = box;
             }
             if (!this.box) return;
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
             // event before
             var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
             if (eventData.isCancelled === true) return;
@@ -4070,7 +4072,7 @@
             // refresh
             if (!this.last.state) this.last.state = this.stateSave(true); // initial default state
             this.stateRestore();
-            if (this.url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
+            if (url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
             this.reload();
             // focus
             $(this.box).find('#grid_'+ this.name + '_focus')
@@ -5053,7 +5055,8 @@
             }
 
             var buffered = this.records.length;
-            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
+            if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             // apply overflow
             if (!this.fixedBody) { bodyOverflowY = false; }
             if (bodyOverflowX || bodyOverflowY) {
@@ -5798,7 +5801,8 @@
 
         getRecordsHTML: function () {
             var buffered = this.records.length;
-            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
+            if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             // larget number works better with chrome, smaller with FF.
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
             var records  = $('#grid_'+ this.name +'_records');
@@ -5857,6 +5861,7 @@
         scroll: function (event) {
             var time = (new Date()).getTime();
             var obj  = this;
+            var url  = (typeof this.url != 'object' ? this.url : this.url.get);
             var records  = $('#grid_'+ this.name +'_records');
             var frecords = $('#grid_'+ this.name +'_frecords');
             // sync scroll positions
@@ -5992,7 +5997,7 @@
             }
             // perform virtual scroll
             var buffered = this.records.length;
-            if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length;
+            if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered == 0 || records.length == 0 || records.height() == 0) return;
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
             // need this to enable scrolling when this.limit < then a screen can fit
@@ -6006,7 +6011,6 @@
             var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
             if (t1 > buffered) t1 = buffered;
             if (t2 >= buffered - 1) t2 = buffered;
-            var url = (typeof this.url != 'object' ? this.url : this.url.get);
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
                 (obj.show.statusRange ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) + ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '') +
                 (url && obj.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) + (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
@@ -6610,6 +6614,7 @@
 
         stateRestore: function (newState) {
             var obj = this;
+            var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!newState) {
                 // read it from local storage
                 try {
@@ -6645,7 +6650,7 @@
                 setTimeout(function () {
                     // needs timeout as records need to be populated
                     // ez 10.09.2014 this -->
-                    if (!(typeof obj.url != 'object' ? obj.url : obj.url.get)) {
+                    if (!url) {
                         if (obj.sortData.length > 0) obj.localSort();
                         if (obj.searchData.length > 0) obj.localSearch();
                     }
