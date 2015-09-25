@@ -1390,6 +1390,7 @@ var w2utils = (function ($) {
     function setCursorPosition(input, pos, posEnd) {
         var range = document.createRange();
         var el, sel = window.getSelection();
+        if (input == null) return;
         for (var i = 0; i < input.childNodes.length; i++) {
             var tmp = $(input.childNodes[i]).text();
             if (input.childNodes[i].tagName) tmp = $(input.childNodes[i]).html();
