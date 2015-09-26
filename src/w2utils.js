@@ -57,6 +57,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - events 'eventName:after' syntax
 *   - deprecated onComplete, introduced event.done(func) - can have multiple handlers
 *   - added getCursorPosition, setCursorPosition
+*   - w2tag hideOnClick - hides on document click
 *
 ************************************************/
 
@@ -1624,7 +1625,8 @@ w2utils.event = {
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
-            hideOnBlur      : false     // hide tag on blur
+            hideOnBlur      : false,    // hide tag on blur
+            hideOnClick     : false     // hide tag on document click
         }, options);
 
         // for backward compatibility
@@ -1665,7 +1667,7 @@ w2utils.event = {
                 if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
                 // insert
                 $('body').append(
-                    '<div id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
+                    '<div onclick="event.stopPropagation()" id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                     '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
                     '      <div class="w2ui-tag-body '+ options.className +'" style="'+ (options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
@@ -1699,6 +1701,9 @@ w2utils.event = {
                 if (options.hideOnBlur) {
                     $(el).on('blur.w2tag', hideTag)
                 }
+                if (options.hideOnClick) {
+                    $(document).on('click.w2tag', hideTag)
+                }
                 if (typeof options.onShow === 'function') options.onShow();
             }, 1);
 
@@ -1708,6 +1713,7 @@ w2utils.event = {
                 if ($tags.length <= 0) return;
                 clearInterval($tags.data('timer'));
                 $tags.remove();
+                $(document).off('.w2tag');
                 $(el).off('.w2tag', hideTag)
                     .removeClass(options.inputClass)
                     .removeData('w2tag');
