@@ -286,7 +286,9 @@ kickStart.register('route', function () {
 
     function set(route) {
         silent = true;
-        go(route);
+        // do not use go(route) here
+        route = String('/'+route).replace(/\/{2,}/g, '/');
+        window.location.hash = route;
         setTimeout(function () { silent = false }, 1);
         return app.route;       
     }
@@ -343,8 +345,8 @@ kickStart.register('route', function () {
                         var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: r, params: params });
                         if (eventData.isCancelled === true) return false;           
                     }
-                    // default error handler
-                    routes[r](r, params);
+                    // default handler
+                    routes[r]($.extend({ name: r, path: hash }, params));
                     // if events are available
                     if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
                 }

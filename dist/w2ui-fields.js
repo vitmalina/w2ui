@@ -57,6 +57,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added options.hideOnBlur for w2tag
 *   - events 'eventName:after' syntax
 *   - deprecated onComplete, introduced event.done(func) - can have multiple handlers
+*   - added getCursorPosition, setCursorPosition
+*   - w2tag hideOnClick - hides on document click
 *
 ************************************************/
 
@@ -118,6 +120,8 @@ var w2utils = (function ($) {
         checkUniqueId   : checkUniqueId,
         parseRoute      : parseRoute,
         cssPrefix       : cssPrefix,
+        getCursorPosition : getCursorPosition,
+        setCursorPosition : setCursorPosition,
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -1360,6 +1364,59 @@ var w2utils = (function ($) {
         return ret;
     }
 
+    function getCursorPosition(input) {
+        if (input == null) return null;
+        var caretOffset = 0;
+        var doc = input.ownerDocument || input.document;
+        var win = doc.defaultView || doc.parentWindow;
+        var sel;
+        if (win.getSelection) {
+            sel = win.getSelection();
+            if (sel.rangeCount > 0) {
+                var range = sel.getRangeAt(0);
+                var preCaretRange = range.cloneRange();
+                preCaretRange.selectNodeContents(input);
+                preCaretRange.setEnd(range.endContainer, range.endOffset);
+                caretOffset = preCaretRange.toString().length;
+            }
+        } else if ( (sel = doc.selection) && sel.type != "Control") {
+            var textRange = sel.createRange();
+            var preCaretTextRange = doc.body.createTextRange();
+            preCaretTextRange.moveToElementText(input);
+            preCaretTextRange.setEndPoint("EndToEnd", textRange);
+            caretOffset = preCaretTextRange.text.length;
+        }
+        return caretOffset;
+    }
+
+    function setCursorPosition(input, pos, posEnd) {
+        var range = document.createRange();
+        var el, sel = window.getSelection();
+        if (input == null) return;
+        for (var i = 0; i < input.childNodes.length; i++) {
+            var tmp = $(input.childNodes[i]).text();
+            if (input.childNodes[i].tagName) tmp = $(input.childNodes[i]).html();
+            if (pos <= tmp.length) {
+                el = input.childNodes[i];
+                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0];
+                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0];
+                break;
+            } else {
+                pos -= tmp.length;
+            }
+        }
+        if (el == null) return;
+        if (pos > el.length) pos = el.length;
+        range.setStart(el, pos);
+        if (posEnd) {
+            range.setEnd(el, posEnd);
+        } else {
+            range.collapse(true);
+        }
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+
 })(jQuery);
 
 /***********************************************************
@@ -1569,7 +1626,8 @@ w2utils.event = {
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
-            hideOnBlur      : false     // hide tag on blur
+            hideOnBlur      : false,    // hide tag on blur
+            hideOnClick     : false     // hide tag on document click
         }, options);
 
         // for backward compatibility
@@ -1610,7 +1668,7 @@ w2utils.event = {
                 if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
                 // insert
                 $('body').append(
-                    '<div id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
+                    '<div onclick="event.stopPropagation()" id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                     '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
                     '      <div class="w2ui-tag-body '+ options.className +'" style="'+ (options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
@@ -1644,6 +1702,9 @@ w2utils.event = {
                 if (options.hideOnBlur) {
                     $(el).on('blur.w2tag', hideTag)
                 }
+                if (options.hideOnClick) {
+                    $(document).on('click.w2tag', hideTag)
+                }
                 if (typeof options.onShow === 'function') options.onShow();
             }, 1);
 
@@ -1653,6 +1714,7 @@ w2utils.event = {
                 if ($tags.length <= 0) return;
                 clearInterval($tags.data('timer'));
                 $tags.remove();
+                $(document).off('.w2tag');
                 $(el).off('.w2tag', hideTag)
                     .removeClass(options.inputClass)
                     .removeData('w2tag');
