@@ -6461,7 +6461,7 @@
                 // display mentioned fields
                 html = '<table cellpadding="0" cellspacing="0">';
                 for (var i = 0; i < info.fields.length; i++) {
-                    var col = w2ui.grid.getColumn(info.fields[i]);
+                    var col = this.getColumn(info.fields[i]);
                     var val = this.parseField(rec, col.field);
                     if (info.showEmpty !== true && (val == null || val == '')) continue;
                     if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
@@ -6495,11 +6495,12 @@
                 html += '</table>';
             }
             $(el).w2tag($.extend({
-                html      : html,
-                left      : -4,
-                position  : 'bottom',
-                className : 'w2ui-info-bubble',
-                style     : ''
+                html        : html,
+                left        : -4,
+                position    : 'bottom',
+                className   : 'w2ui-info-bubble',
+                style       : '',
+                hideOnClick : true
             }, info.options || {}));
         },
 
