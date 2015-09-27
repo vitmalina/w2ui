@@ -812,8 +812,8 @@
                                 // only increment "fl" once -> use "else if"
                                 else if (search.type == 'time') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                                    var val1 = w2utils.formatTime(tmp, 'h24:mi');
-                                    var val2 = w2utils.formatTime(val2, 'h24:mi');
+                                    var val1 = w2utils.formatTime(tmp, 'hh24:mi');
+                                    var val2 = w2utils.formatTime(val2, 'hh24:mi');
                                     if (val1 == val2) fl++;
                                 }
                                 break;
@@ -849,8 +849,8 @@
                                 }
                                 else if (search.type == 'time') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                                    var val1 = w2utils.formatTime(tmp, 'h24:mi');
-                                    var val2 = w2utils.formatTime(val2, 'h24:mi');
+                                    var val1 = w2utils.formatTime(tmp, 'hh24:mi');
+                                    var val2 = w2utils.formatTime(val2, 'hh24:mi');
                                     if (val1 <= val2) fl++;
                                 }
                                 break;
@@ -866,8 +866,8 @@
                                 }
                                 else if (search.type == 'time') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                                    var val1 = w2utils.formatTime(tmp, 'h24:mi');
-                                    var val2 = w2utils.formatTime(val2, 'h24:mi');
+                                    var val1 = w2utils.formatTime(tmp, 'hh24:mi');
+                                    var val2 = w2utils.formatTime(val2, 'hh24:mi');
                                     if (val1 >= val2) fl++;
                                 }
                                 break;
@@ -1802,7 +1802,7 @@
             var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
             if (eventData.isCancelled === true) return;
             // default action
-            this.searchData  = [];
+            this.searchData  = eventData.searchData;
             this.last.search = '';
             this.last.logic  = 'OR';
             // --- do not reset to All Fields (I think)
