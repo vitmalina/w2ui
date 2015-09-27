@@ -1802,7 +1802,7 @@
             var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
             if (eventData.isCancelled === true) return;
             // default action
-            this.searchData  = [];
+            this.searchData  = eventData.searchData;
             this.last.search = '';
             this.last.logic  = 'OR';
             // --- do not reset to All Fields (I think)
