@@ -38,6 +38,7 @@
         this.onRefresh      = null;
         this.onResize       = null;
         this.onDestroy      = null;
+        this.onClose        = null;
 
         $.extend(true, this, w2obj.layout, options);
     };
@@ -163,6 +164,9 @@
                 if (current.length > 0) {
                     $(pname).scrollTop(0);
                     panelTop = $(current).position().top;
+                }
+                if (typeof p.content == 'object') {
+                    p.content.trigger({ type: 'close', target: p.content.name, box: p.content.box });
                 }
                 if (p.content === '') {
                     p.content = data;
