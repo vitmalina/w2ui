@@ -2160,10 +2160,10 @@ w2utils.keyboard = (function (obj) {
                             var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';
                             if (options.icon) {
                                 $(focus).css('margin-left', '17px');
-                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 11px !important; opacity: 1');
+                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 11px !important; display: block; opacity: 1');
                             } else {
                                 $(focus).css('margin-left', '0px');
-                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 0px !important; opacity: 0');
+                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 0px !important; display: none; opacity: 0');
                             }
                         }, 1);
                     }
@@ -2810,19 +2810,21 @@ w2utils.keyboard = (function (obj) {
                     var search = input.val();
                     input.width(((search.length + 2) * 8) + 'px');
                 }
-                // run search
-                if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refreah on crtl, shift, left/right arrows, etc
-                    setTimeout(function () {
-                        if (!obj.tmp.force_hide) obj.request();
-                        obj.search();
-                    }, 1);
-                }
             }
         },
 
         keyUp: function (event) {
             if (this.type == 'color') {
                 if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) $(this).prop('maxlength', 6);
+            }
+            if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+                // need to be here for ipad compatibility
+                if ([16, 17, 18, 20, 37, 39, 91].indexOf(event.keyCode) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                    if (!this.tmp.force_hide) this.request();
+                    var input = $(this.helpers.focus).find('input');
+                    if (input.val().length == 1) this.refresh()
+                    this.search();
+                }
             }
         },
 
@@ -3426,7 +3428,7 @@ w2utils.keyboard = (function (obj) {
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+ 
-                '    <div class="w2ui-icon icon-search"></div>'+
+                '    <div class="w2ui-icon icon-search" style="display: none"></div>'+
                 '    <input type="text" autocomplete="off" tabindex="'+ tabIndex +'">'+
                 '<div>';
             $(obj.el).attr('tabindex', -1).before(html);
