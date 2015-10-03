@@ -44,19 +44,6 @@
         this.keyboard      = true;
         this.flat          = false;
         this.hasFocus      = false;
-        this.onClick       = null;      // Fire when user click on Node Text
-        this.onDblClick    = null;      // Fire when user dbl clicks
-        this.onContextMenu = null;
-        this.onMenuClick   = null;      // when context menu item selected
-        this.onExpand      = null;      // Fire when node Expands
-        this.onCollapse    = null;      // Fire when node Colapses
-        this.onKeydown     = null;
-        this.onRender      = null;
-        this.onRefresh     = null;
-        this.onResize      = null;
-        this.onDestroy     = null;
-        this.onFocus       = null;
-        this.onBlur        = null;
 
         $.extend(true, this, w2obj.sidebar, options);
     };
@@ -99,6 +86,20 @@
     // -- Implementation of core functionality
 
     w2sidebar.prototype = {
+
+        onClick       : null,      // Fire when user click on Node Text
+        onDblClick    : null,      // Fire when user dbl clicks
+        onContextMenu : null,
+        onMenuClick   : null,      // when context menu item selected
+        onExpand      : null,      // Fire when node Expands
+        onCollapse    : null,      // Fire when node Colapses
+        onKeydown     : null,
+        onRender      : null,
+        onRefresh     : null,
+        onResize      : null,
+        onDestroy     : null,
+        onFocus       : null,
+        onBlur        : null,
 
         node: {
             id              : null,

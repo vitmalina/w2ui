@@ -30,15 +30,6 @@
         this.resizer = 4;        // resizer width or height
         this.style   = '';
 
-        this.onShow         = null;
-        this.onHide         = null;
-        this.onResizing     = null;
-        this.onResizerClick = null;
-        this.onRender       = null;
-        this.onRefresh      = null;
-        this.onResize       = null;
-        this.onDestroy      = null;
-
         $.extend(true, this, w2obj.layout, options);
     };
 
@@ -111,6 +102,15 @@
     // -- Implementation of core functionality
 
     w2layout.prototype = {
+        onShow        : null,
+        onHide        : null,
+        onResizing    : null,
+        onResizerClick: null,
+        onRender      : null,
+        onRefresh     : null,
+        onResize      : null,
+        onDestroy     : null,
+
         // default setting for a panel
         panel: {
             type      : null,       // left, right, top, bottom

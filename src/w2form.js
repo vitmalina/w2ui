@@ -13,6 +13,7 @@
 *   - verify validation of fields
 *   - added getChanges() - not complete
 *   - nested record object
+*   - formHTML --> template
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
@@ -49,22 +50,6 @@
 
         this.style         = '';
         this.focus         = 0;    // focus first or other element
-
-        // events
-        this.onRequest   = null;
-        this.onLoad      = null;
-        this.onValidate  = null;
-        this.onSubmit    = null;
-        this.onProgress  = null;
-        this.onSave      = null;
-        this.onChange    = null;
-        this.onRender    = null;
-        this.onRefresh   = null;
-        this.onResize    = null;
-        this.onDestroy   = null;
-        this.onAction    = null;
-        this.onToolbar   = null;
-        this.onError     = null;
 
         // internal
         this.isGenerated = false;
@@ -170,6 +155,22 @@
     // -- Implementation of core functionality
 
     w2form.prototype = {
+        // events
+        onRequest     : null,
+        onLoad        : null,
+        onValidate    : null,
+        onSubmit      : null,
+        onProgress    : null,
+        onSave        : null,
+        onChange      : null,
+        onRender      : null,
+        onRefresh     : null,
+        onResize      : null,
+        onDestroy     : null,
+        onAction      : null,
+        onToolbar     : null,
+        onError       : null,
+
         msgNotJSON    : w2utils.lang('Return data is not in JSON format.'),
         msgAJAXerror  : w2utils.lang('AJAX error. See console for more details.'),
         msgRefresh    : w2utils.lang('Refreshing...'),
@@ -441,6 +442,9 @@
             if (w2utils.settings.dataType == 'HTTP') {
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
+            if (w2utils.settings.dataType == 'HTTPJSON') {
+                ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+            }            
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');

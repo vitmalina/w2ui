@@ -79,7 +79,7 @@ var w2utils = (function ($) {
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
-            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, RESTFULLJSON, JSON (case sensitive)
+            "dataType"          : 'HTTP',   // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "phrases"           : {},       // empty object for english phrases
             "dateStartYear"     : 1950,     // start year for date-picker
             "dateEndYear"       : 2020      // end year for date picker
@@ -1577,6 +1577,7 @@ w2utils.event = {
 
     $.fn.w2marker = function () {
         var str = Array.prototype.slice.call(arguments, 0);
+        if (Array.isArray(str[0])) str = str[0];
         if (str.length == 0 || !str[0]) { // remove marker
             return $(this).each(clearMarkedText);
         } else { // add marker

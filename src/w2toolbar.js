@@ -31,11 +31,6 @@
         this.items     = [];
         this.right     = '';        // HTML text on the right of toolbar
         this.tooltip   = 'normal';  // can be normal, top, bottom, left, right
-        this.onClick   = null;
-        this.onRender  = null;
-        this.onRefresh = null;
-        this.onResize  = null;
-        this.onDestroy = null;
 
         $.extend(true, this, w2obj.toolbar, options);
     };
@@ -77,6 +72,12 @@
     // -- Implementation of core functionality
 
     w2toolbar.prototype = {
+        onClick   : null,
+        onRender  : null,
+        onRefresh : null,
+        onResize  : null,
+        onDestroy : null,
+
         item: {
             id       : null,        // command to be sent to all event handlers
             type     : 'button',    // button, check, radio, drop, menu, menu-radio, menu-check, break, html, spacer
@@ -261,6 +262,14 @@
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
                 if (!it || String(arguments[a]).indexOf(':') != -1) continue;
+                // remove overlay
+                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked) {
+                    // hide overlay
+                    setTimeout(function () {
+                        var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
+                        el.w2overlay({ name: obj.name });
+                    }, 1);
+                }
                 items++;
                 it.checked = false;
                 tmp.push(String(arguments[a]).split(':')[0]);
@@ -307,8 +316,17 @@
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                     if (it.checked) {
                         // if it was already checked, second click will hide it
-                        it.checked = false;
+                        setTimeout(function () {
+                            // hide overlay
+                            var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
+                            el.w2overlay({ name: obj.name });
+                            // uncheck
+                            it.checked = false;
+                            obj.refresh();
+                        }, 1);
+
                     } else {
+
                         // show overlay
                         setTimeout(function () {
                             var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));

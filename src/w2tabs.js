@@ -31,12 +31,6 @@
         this.routeData = {};        // data for dynamic routes
         this.right     = '';
         this.style     = '';
-        this.onClick   = null;
-        this.onClose   = null;
-        this.onRender  = null;
-        this.onRefresh = null;
-        this.onResize  = null;
-        this.onDestroy = null;
 
         $.extend(this, { handlers: [] });
         $.extend(true, this, w2obj.tabs, options);
@@ -77,6 +71,13 @@
     // -- Implementation of core functionality
 
     w2tabs.prototype = {
+        onClick   : null,
+        onClose   : null,
+        onRender  : null,
+        onRefresh : null,
+        onResize  : null,
+        onDestroy : null,
+
         tab : {
             id        : null,        // command to be sent to all event handlers
             text      : null,

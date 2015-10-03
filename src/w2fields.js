@@ -580,10 +580,10 @@
                             var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';
                             if (options.icon) {
                                 $(focus).css('margin-left', '17px');
-                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 11px !important; opacity: 1');
+                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 11px !important; opacity: 1; display: block');
                             } else {
                                 $(focus).css('margin-left', '0px');
-                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 0px !important; opacity: 0');
+                                $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 0px !important; opacity: 0; display: none');
                             }
                         }, 1);
                     }
@@ -1343,20 +1343,6 @@
                 if (obj.type == 'enum') {
                     focus.width(((focus.val().length + 2) * 8) + 'px');
                 }
-                // run search
-                if ([16, 17, 18, 20, 37, 39, 91].indexOf(key) == -1) { // no refresh on crtl, shift, left/right arrows, etc
-                    // run search
-                    setTimeout(function () {
-                        // trigger event
-                        var eventData = obj.trigger({ phase: 'before', type: 'search', originalEvent: event, target: focus, search: focus.val() });
-                        if (eventData.isCancelled === true) return;
-                        // default action
-                        if (!obj.tmp.force_hide) obj.request();
-                        obj.search();
-                        // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
-                    }, 1);
-                }
             }
         },
 
@@ -1367,6 +1353,21 @@
                     $(this).prop('maxlength', 6);
                 }
             }
+            if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+                // need to be here for ipad compa
+                if ([16, 17, 18, 20, 37, 39, 91].indexOf(event.keyCode) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                    var input = $(this.helpers.focus).find('input');
+                    // trigger event
+                    var edata = this.trigger({ phase: 'before', type: 'search', originalEvent: event, target: input, search: input.val() });
+                    if (edata.isCancelled === true) return;
+                    // regular
+                    if (!this.tmp.force_hide) this.request();
+                    if (input.val().length == 1) this.refresh()
+                    this.search();
+                    // event after
+                    this.trigger($.extend(edata, { phase: 'after' }));                
+                }
+            }            
         },
 
         clearCache: function () {
@@ -1436,6 +1437,9 @@
                         ajaxOptions.type        = 'POST';
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                         ajaxOptions.contentType = 'application/json';
+                    }
+                    if (w2utils.settings.dataType == 'HTTPJSON') {
+                        ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
                     }
                     if (options.method != null) ajaxOptions.type = options.method;
                     obj.tmp.xhr = $.ajax(ajaxOptions)
@@ -2125,7 +2129,7 @@
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+
-                '    <div class="w2ui-icon icon-search" style="opacity: 0"></div>'+
+                '    <div class="w2ui-icon icon-search" style="opacity: 0; display: none"></div>'+
                 '    <input type="text" autocomplete="off" tabIndex="'+ tabIndex +'"/>'+
                 '</div>';
             $(obj.el).attr('tabindex', -1).before(html);
