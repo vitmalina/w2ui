@@ -40,7 +40,8 @@ $(function () {
             toolbarAdd: true,
             toolbarEdit: true,
             toolbarDelete: true,
-            toolbarSave: true
+            toolbarSave: true,
+            searchAll: false
         },
         menu: [
             { id: 1, text: 'Select Item', icon: 'fa-star' },
@@ -90,8 +91,9 @@ $(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [                
-            { field: 'personid', caption: 'ID', type: 'int' },
-            { field: 'fname', caption: 'First Name', type: 'text' }
+            { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less' },
+            { field: 'fname', caption: 'First Name', type: 'text', hidden1: true, value: 'Peter' },
+            { field: 'lname', caption: 'Last Name', type: 'list', options: { items: ['Cuban', 'Rene'] }}
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
@@ -135,7 +137,7 @@ $(function () {
                 editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } },
                 hidden: true
             },
-            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, searchable: { }, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name', hidden1: true, info: true },
+            { field: 'fname', caption: 'First Name', size: '150px', sortable: true, searchable1: true, resizable: true, editable: { type: 'text' }, tooltip: 'Full Name', hidden1: true, info: true },
             { field: 'lname', caption: 'Last Name', size: '150px', sortable: true, resizable: true, 
                 info: { 
                     // icon: 'fa-user',
@@ -154,9 +156,9 @@ $(function () {
             },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },
             { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'number:2', frozen1: true },
-            { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable: 'date', sortable: true, 
+            { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable1: 'date', sortable: true, 
                 editable: { type: 'date' } },
-            { field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable: 'time', sortable: true },
+            { field: 'stime', caption: 'Time', size: '120px', render: 'time', searchable1: 'time', sortable: true },
             { field: 'sdate', caption: 'Age', size: '120px', render: 'age', sortable: true, gridMinWidth: 1000 }
         ],
         ranges1: [

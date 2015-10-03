@@ -113,7 +113,21 @@
                 // third page
                 { field: 'field.select', type: 'select', required: false, options: { items: ['fist', 'second'] } },
                 { field: 'field.check', type: 'checkbox', required: false },
-                { field: 'field.radio', type: 'radio', required: false }
+                { field: 'field.radio', type: 'radio', required: false, options: {
+                        items: [
+                            { id: 0, text: 'Pickle, Susan' }, 
+                            { id: 1, text: 'Adams, John' },
+                            { id: 2, text: 'Openhimer, Peter' },
+                            { id: 3, text: 'Woznyak, Steve' },
+                            { id: 4, text: 'Rusevelt, Franklin' },
+                            { id: 5, text: 'Stalone, Silvester' },
+                            { id: 6, text: 'Mann, Fred' },
+                            { id: 6, text: 'Ford, Mary' },
+                            { id: 8, text: 'Purky, Mon' },
+                            { id: 9, text: 'Min, Hla' }
+                        ]
+                    }
+                }
             ],
             onChange: function (event) {
                 // console.log('change', event);
@@ -166,154 +180,6 @@
     </div>
 
     <!-- <div id="form" style="width: 700px; height: 600px;"></div> -->
-    <div id="form" style="width: 700px; height: 700px;">
-        <div class="w2ui-page page-0">
-            <div class="w2ui-group-title">
-                Fields with overlays
-            </div>
-            <div class="w2ui-group">
-                <div class="w2ui-field">
-                    <label>Toggle:</label>
-                    <div><input name="field.toggle" type="checkbox" class="w2ui-input1 w2ui-toggle"/><div><div></div></div></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Text:</label>
-                    <div><input name="field.text" class="w2ui-input" type="text" size="40"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Text Area:</label>
-                    <div><textarea name="field.textarea" class="w2ui-input" type="text" style="width: 90%; height: 50px; resize: none"></textarea></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Date:</label>
-                    <div><input name="field.date" class="w2ui-input" type="text" size="16"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Time:</label>
-                    <div><input name="field.time" class="w2ui-input" type="text" size="16"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Color:</label>
-                    <div><input name="field.color" class="w2ui-input" type="text" style="width: 122px"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>List:</label>
-                    <div><input name="field.list" class="w2ui-input" style="width: 200px"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Combo:</label>
-                    <div><input name="field.combo" class="w2ui-input" style="width: 200px"/> (from url)</div>
-                </div>
-            </div>
-            <div class="w2ui-group-title">
-                Enum and file 
-            </div>
-            <div class="w2ui-group">
-                <div class="w2ui-field">
-                    <label>Enum:</label>
-                    <div><input name="field.enum" class="w2ui-input" type="text" style="width: 100%"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Files:</label>
-                    <div><input name="field.file" class="w2ui-input" type="text" style="width: 100%; min-height: 50px"/></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="w2ui-page page-1">
-            <div class="w2ui-group-title">
-                Date/Time fields
-            </div>
-            <div class="w2ui-group">
-                <div class="w2ui-field">
-                    <label>Email:</label>
-                    <div><input name="field.email" class="w2ui-input" type="text" maxlength="100" size="40"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Password:</label>
-                    <div><input name="field.password" class="w2ui-input" type="password" maxlength="100" size="40"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Number (int):</label>
-                    <div><input name="field.int" class="w2ui-input" type="text" maxlength="100" size="16"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Number (float):</label>
-                    <div><input name="field.float" class="w2ui-input" type="text" maxlength="100" size="16"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Money:</label>
-                    <div><input name="field.money" class="w2ui-input" type="text" maxlength="100" size="16"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Currency:</label>
-                    <div><input name="field.currency" class="w2ui-input" type="text" maxlength="100" size="16"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Percent:</label>
-                    <div><input name="field.percent" class="w2ui-input" type="text" maxlength="100" size="16"/></div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Alpha-Numeric:</label>
-                    <div><input name="field.alpha" class="w2ui-input" type="text" maxlength="100" size="40"/></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="w2ui-page page-2">
-            <div class="w2ui-group-title">
-                Standard HTML fields
-            </div>
-            <div class="w2ui-group">
-                <div class="w2ui-field">
-                    <label>Select:</label>
-                    <div>
-                        <select name="field.select" class="w2ui-input">
-                            <option></option>
-                            <option value="1">Item 1</option>
-                            <option value="2">Item 2</option>
-                            <option value="3">Item 3</option>
-                            <option value="4">Item 4</option>
-                            <option value="5">Item 5</option>
-                            <option value="6">Item 6</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Check:</label>
-                    <div>
-                        <label>
-                            <input name="field.check" class="w2ui-input" type="checkbox"/>
-                            Some field
-                        </label>
-                    </div>
-                </div>
-                <div class="w2ui-field">
-                    <label>Radio:</label>
-                    <div>
-                        <label>
-                            <input name="field.radio" class="w2ui-input" type="radio" value="1"/>
-                            Item 1
-                        </label>
-                        <br/>
-                        <label>
-                            <input name="field.radio" class="w2ui-input" type="radio" value="2"/>
-                            Item 2
-                        </label>
-                        <br/>
-                        <label>
-                            <input name="field.radio" class="w2ui-input" type="radio" value="3"/>
-                            Item 3
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>        
-
-        <div class="w2ui-buttons">
-            <button class="w2ui-btn" name="reset">Reset</button>
-            <button class="w2ui-btn w2ui-btn-blue" name="save" id="ssl-submit">Save</button>
-        </div>
-    </div>
+    <div id="form" style="width: 700px; height: 700px;">    </div>
 </body>
 </html>
