@@ -6,24 +6,17 @@
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
 * == NICE TO HAVE ==
-*   - scroll on navigating using keyboard, when selectType is 'cell'
 *   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
 *   - More than 2 layers of header groups
 *   - reorder columns/records
-*   - hidden searches could not be clearned by the user
 *   - problem with .set() and arrays, array get extended too, but should be replaced
-*   - move events into prototype
 *   - after edit stay on the same record option
-*   - allow render: function to be filters
 *   - if supplied array of ids, get should return array of records
-*   - header filtration ?? not sure
 *   - allow functions in routeData (also add routeData to list/enum)
 *   - implement global routeData and all elements read from there
 *   - send parsed URL to the event if there is routeData
 *   - if you set searchData or sortData and call refresh() it should work
-*   - use column field for style: { 1: 'color: red' }
-*   - unselect fires too many times (if many is unselected, one event should fire)
 *   - add selectType: 'none' so that no selection can be make but with mouse
 *   - reorder records with frozen columns
 *   - focus/blur for selectType = cell not display grayed out selection
@@ -31,10 +24,9 @@
         - load more only on the right side
         - scrolling on frozen columns is not working only on regular columns
 *   - copy or large number of records is slow
-*   - resize row (height)
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
-*   - if record has no recid, then it should be index in the aray
+*   - if record has no recid, then it should be index in the aray (should not be 0)
 *
 * == KNOWN ISSUES ==
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
@@ -56,8 +48,10 @@
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
 *   - record.style[field_name]
+*   - use column field for style: { 1: 'color: red' }
 *   - added focus(), blur(), onFocus, onBlur
-*   - added search.operator
+*   - added search.operator, search.value (only for hidden searches)
+*   - hidden searches could not be clearned by the user
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
 *   - frozen columns
@@ -82,6 +76,8 @@
 *   - implemented showBubble
 *   - added show.searchAll
 *   - added w2grid.operators
+*   - move events into prototype
+*   - search.simple - if false, will not show up in simple search
 *
 ************************************************************************/
 
@@ -159,46 +155,6 @@
         this.method  = null;         // if defined, then overwrited ajax method
         this.recid   = null;
         this.parser  = null;
-
-        // events
-        this.onAdd              = null;
-        this.onEdit             = null;
-        this.onRequest          = null;        // called on any server event
-        this.onLoad             = null;
-        this.onDelete           = null;
-        this.onSave             = null;
-        this.onSelect           = null;
-        this.onUnselect         = null;
-        this.onClick            = null;
-        this.onDblClick         = null;
-        this.onContextMenu      = null;
-        this.onMenuClick        = null;        // when context menu item selected
-        this.onColumnClick      = null;
-        this.onColumnResize     = null;
-        this.onSort             = null;
-        this.onSearch           = null;
-        this.onChange           = null;        // called when editable record is changed
-        this.onRestore          = null;        // called when editable record is restored
-        this.onExpand           = null;
-        this.onCollapse         = null;
-        this.onError            = null;
-        this.onKeydown          = null;
-        this.onToolbar          = null;     // all events from toolbar
-        this.onColumnOnOff      = null;
-        this.onCopy             = null;
-        this.onPaste            = null;
-        this.onSelectionExtend  = null;
-        this.onEditField        = null;
-        this.onRender           = null;
-        this.onRefresh          = null;
-        this.onReload           = null;
-        this.onResize           = null;
-        this.onDestroy          = null;
-        this.onStateSave        = null;
-        this.onStateRestore     = null;
-        this.onFocus            = null;
-        this.onBlur             = null;
-        this.onReorderRow       = null;
 
         // internal
         this.last = {
@@ -325,6 +281,46 @@
             'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', disabled: true },
             'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: 'Save changed records', icon: 'w2ui-icon-check' }
         },
+
+        // events
+        onAdd              : null,
+        onEdit             : null,
+        onRequest          : null,        // called on any server event
+        onLoad             : null,
+        onDelete           : null,
+        onSave             : null,
+        onSelect           : null,
+        onUnselect         : null,
+        onClick            : null,
+        onDblClick         : null,
+        onContextMenu      : null,
+        onMenuClick        : null,        // when context menu item selected
+        onColumnClick      : null,
+        onColumnResize     : null,
+        onSort             : null,
+        onSearch           : null,
+        onChange           : null,        // called when editable record is changed
+        onRestore          : null,        // called when editable record is restored
+        onExpand           : null,
+        onCollapse         : null,
+        onError            : null,
+        onKeydown          : null,
+        onToolbar          : null,        // all events from toolbar
+        onColumnOnOff      : null,
+        onCopy             : null,
+        onPaste            : null,
+        onSelectionExtend  : null,
+        onEditField        : null,
+        onRender           : null,
+        onRefresh          : null,
+        onReload           : null,
+        onResize           : null,
+        onDestroy          : null,
+        onStateSave        : null,
+        onStateRestore     : null,
+        onFocus            : null,
+        onBlur             : null,
+        onReorderRow       : null,
 
         operators: {
             "text"    : ['is', 'begins', 'contains', 'ends'], 
@@ -783,8 +779,8 @@
                     var rec = this.records[i];
                     var fl  = 0;
                     for (var j = 0; j < this.searchData.length; j++) {
-                        var sdata      = this.searchData[j];
-                        var search     = this.getSearch(sdata.field);
+                        var sdata  = this.searchData[j];
+                        var search = this.getSearch(sdata.field);
                         if (sdata  == null) continue;
                         if (search == null) search = { field: sdata.field, type: sdata.type };
                         var val1b = obj.parseField(rec, search.field);
@@ -1528,6 +1524,18 @@
             var last_logic  = this.last.logic;
             var last_field  = this.last.field;
             var last_search = this.last.search;
+            var hasHiddenSearches = false;
+            // add hidden searches
+            for (var i = 0; i < this.searches.length; i++) {
+                if (!this.searches[i].hidden) continue;
+                searchData.push({
+                    field    : this.searches[i].field,
+                    operator : this.searches[i].operator || 'is',
+                    type     : this.searches[i].type,
+                    value    : this.searches[i].value || ''
+                });
+                hasHiddenSearches = true;
+            }
             // 1: search() - advanced search (reads from popup)
             if (arguments.length == 0) {
                 last_search = '';
@@ -1595,20 +1603,15 @@
                         searchData.push(tmp);
                     }
                 }
-                if (searchData.length > 0 && !url) {
-                    last_multi = true;
-                    last_logic = 'AND';
-                } else {
-                    last_multi = true;
-                    last_logic = 'AND';
-                }
+                last_multi = true;
+                last_logic = 'AND';
             }
             // 2: search(field, value) - regular search
             if (typeof field == 'string') {
                 last_field  = field;
                 last_search = value;
                 last_multi  = false;
-                last_logic  = 'OR';
+                last_logic  = (hasHiddenSearches ? 'AND' : 'OR');
                 // loop through all searches and see if it applies
                 if (value != null) {
                     if (field.toLowerCase() == 'all') {
@@ -1624,7 +1627,7 @@
                                     var tmp = {
                                         field    : search.field,
                                         type     : search.type,
-                                        operator : (search.type == 'text' ? 'contains' : 'is'),
+                                        operator : (search.type == 'text' ? 'begins' : 'is'),
                                         value    : value
                                     };
                                     if ($.trim(value) != '') searchData.push(tmp);
@@ -1668,7 +1671,7 @@
                                 var tmp = {
                                     field    : this.columns[i].field,
                                     type     : 'text',
-                                    operator : 'contains',
+                                    operator : 'begins',
                                     value    : value
                                 };
                                 searchData.push(tmp);
@@ -1680,7 +1683,7 @@
                         if (search == null) search = { field: field, type: 'text' };
                         if (search.field == field) this.last.caption = search.caption;
                         if (value !== '') {
-                            var op  = 'contains';
+                            var op  = 'begins';
                             var val = value;
                             if (['date', 'time'].indexOf(search.type) != -1) op = 'is';
                             if (['list', 'enum'].indexOf(search.type) != -1) {
@@ -1728,7 +1731,7 @@
                 for (var i = 0; i < field.length; i++) {
                     var data   = field[i];
                     var search = this.getSearch(data.field);
-                    if (search == null) search = { type: 'text', operator: 'contains' };
+                    if (search == null) search = { type: 'text', operator: 'begins' };
                     if ($.isArray(data.value)) {
                         for (var j = 0; j < data.value.length; j++) {
                             if (typeof data.value[j] == 'string') data.value[j] = data.value[j].toLowerCase();
@@ -1779,7 +1782,6 @@
                 left    : -10,
                 'class' : 'w2ui-grid-searches',
                 onShow  : function () {
-                    if (obj.last.logic == 'OR') obj.searchData = [];
                     obj.initSearches();
                     $('#w2ui-overlay-'+ obj.name +'-searchOverlay .w2ui-grid-searches').data('grid-name', obj.name);
                     var sfields = $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches *[rel=search]');
@@ -1798,18 +1800,39 @@
         },
 
         searchReset: function (noRefresh) {
+            var searchData = [];
+            var hasHiddenSearches = false;
+            // add hidden searches
+            for (var i = 0; i < this.searches.length; i++) {
+                if (!this.searches[i].hidden) continue;
+                searchData.push({
+                    field    : this.searches[i].field,
+                    operator : this.searches[i].operator || 'is',
+                    type     : this.searches[i].type,
+                    value    : this.searches[i].value || ''
+                });
+                hasHiddenSearches = true;
+            }
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: [] });
+            var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData });
             if (eventData.isCancelled === true) return;
             // default action
             this.searchData  = eventData.searchData;
             this.last.search = '';
-            this.last.logic  = 'OR';
+            this.last.logic  = (hasHiddenSearches ? 'AND' : 'OR');
             // --- do not reset to All Fields (I think)
             if (this.searches.length > 0) {
                 if (!this.multiSearch || !this.show.searchAll) {
-                    this.last.field   = this.searches[0].field;
-                    this.last.caption = this.searches[0].caption;
+                    var tmp = 0;
+                    while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
+                    if (tmp >= this.searches.length) {
+                        // all searches are hidden
+                        this.last.field   = '';
+                        this.last.caption = '';
+                    } else {
+                        this.last.field   = this.searches[tmp].field;
+                        this.last.caption = this.searches[tmp].caption;
+                    }
                 } else {
                     this.last.field   = 'all';
                     this.last.caption = w2utils.lang('All Fields');
@@ -1841,7 +1864,7 @@
                     if (!this.multiSearch || !this.show.searchAll) continue;
                     search = { field: 'all', caption: w2utils.lang('All Fields') };
                 } else {
-                    if (this.searches[s].hidden === true) continue;
+                    if (this.searches[s].hidden === true || this.searches[s].simple === false) continue;
                 }
                 html += '<tr '+ (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
                         '      event.stopPropagation(); $(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });">'+
@@ -2027,6 +2050,9 @@
             };
             if (w2utils.settings.dataType == 'HTTP') {
                 ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
+            }
+            if (w2utils.settings.dataType == 'HTTPJSON') {
+                ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
             }
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
@@ -3991,10 +4017,19 @@
             var rows = obj.find({ expanded: true }, true);
             for (var r = 0; r < rows.length; r++) obj.records[rows[r]].expanded = false;
             // mark selection
-            setTimeout(function () {
-                var str  = $.trim($('#grid_'+ obj.name +'_search_all').val());
-                if (str != '' && obj.markSearch) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
-            }, 50);
+            if (obj.markSearch) {
+                setTimeout(function () {
+                    // mark all search strings
+                    var str = [];
+                    for (var s = 0; s < obj.searchData.length; s++) {
+                        var sdata = obj.searchData[s];
+                        var fld = obj.getSearch(sdata.field);
+                        if (fld.hidden) continue;
+                        if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
+                    }
+                    if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+                }, 50);
+            }
             // enable/disable toolbar search button
             if (this.show.toolbarSave) {
                 if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save');
@@ -4037,8 +4072,16 @@
             this.reset(true);
             // --- default search field
             if (!this.multiSearch || !this.show.searchAll) {
-                this.last.field   = this.searches[0].field;
-                this.last.caption = this.searches[0].caption;
+                var tmp = 0;
+                while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
+                if (tmp >= this.searches.length) {
+                    // all searches are hidden
+                    this.last.field   = '';
+                    this.last.caption = '';
+                } else {
+                    this.last.field   = this.searches[tmp].field;
+                    this.last.caption = this.searches[tmp].caption;
+                }
             } else {
                 this.last.field   = 'all';
                 this.last.caption = w2utils.lang('All Fields');
@@ -4073,6 +4116,15 @@
             if (!this.last.state) this.last.state = this.stateSave(true); // initial default state
             this.stateRestore();
             if (url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
+                        // if hidden searches - apply it
+            var hasHiddenSearches = false;
+            for (var i = 0; i < this.searches.length; i++) {
+                if (this.searches[i].hidden) { hasHiddenSearches = true; break; }
+            }
+            if (hasHiddenSearches) {
+                this.searchReset(false);
+                if (!url) setTimeout(function () { obj.searchReset(); }, 1);
+            }
             this.reload();
             // focus
             $(this.box).find('#grid_'+ this.name + '_focus')
@@ -4388,32 +4440,37 @@
         initColumnOnOff: function () {
             if (!this.show.toolbarColumns) return;
             var obj = this;
-            var col_html =  '<div class="w2ui-col-on-off">'+
-                            '<table><tbody><tr>'+
-                            '<td style="width: 30px">'+
-                            '    <input id="grid_'+ this.name +'_column_ln_check" type="checkbox" tabindex="-1" '+ (obj.show.lineNumbers ? 'checked="checked"' : '') +
-                            '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \'line-numbers\');"/>'+
-                            '</td>'+
-                            '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
-                            '    <label for="grid_'+ this.name +'_column_ln_check">'+ w2utils.lang('Line #') +'</label>'+
-                            '</td></tr>';
+            // line number
+            var col_html = '<div class="w2ui-col-on-off">'+
+                '<table><tbody>'+
+                '<tr id="grid_'+ this.name +'_column_ln_check" onclick="w2ui[\''+ obj.name +'\'].columnOnOff(event, \'line-numbers\'); event.stopPropagation();">'+
+                '   <td style="width: 30px; text-align: center; padding-right: 3px; color: #888;">'+
+                '      <span class="w2ui-column-check w2ui-icon-'+ (!obj.show.lineNumbers ? 'empty' : 'check') +'"></span>'+
+                '   </td>'+
+                '   <td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
+                '      <label>'+ w2utils.lang('Line #') +'</label>'+
+                '   </td>'+
+                '</tr>';
+            // columns
             for (var c = 0; c < this.columns.length; c++) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
                 if (col.hideable === false) continue;
                 if (!tmp && this.columns[c].tooltip) tmp = this.columns[c].tooltip;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
-                col_html += '<tr>'+
-                    '<td style="width: 30px">'+
-                    '    <input id="grid_'+ this.name +'_column_'+ c +'_check" type="checkbox" tabindex="-1" '+ (col.hidden ? '' : 'checked="checked"') +
-                    '        onchange="w2ui[\''+ obj.name +'\'].columnOnOff(this, event, \''+ col.field +'\');"/>'+
-                    '</td>'+
-                    '<td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
-                    '    <label for="grid_'+ this.name +'_column_'+ c +'_check">'+ w2utils.stripTags(tmp) +'</label>'+
-                    '</td>'+
+                col_html += 
+                    '<tr id="grid_'+ this.name +'_column_'+ c +'_check" '+
+                    '       onclick="w2ui[\''+ obj.name +'\'].columnOnOff(event, \''+ col.field +'\'); event.stopPropagation();">'+
+                    '   <td style="width: 30px; text-align: center; padding-right: 3px; color: #888;">'+
+                    '      <span class="w2ui-column-check w2ui-icon-'+ (col.hidden ? 'empty' : 'check') +'"></span>'+
+                    '   </td>'+
+                    '   <td onclick="$(\'.w2ui-overlay\')[0].hide();">'+
+                    '       <label>'+ w2utils.stripTags(tmp) +'</label>'+
+                    '   </td>'+
                     '</tr>';
             }
-            col_html += '<tr><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
+            // other items
+            col_html += '<tr style="pointer-events: none"><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url && obj.show.skipRecords) {
                 col_html +=
@@ -4427,10 +4484,10 @@
                         '    </div>'+
                         '</td></tr>';
             }
-            col_html += '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateSave(); $(document).click();">'+
+            col_html += '<tr><td colspan="2" onclick="var obj = w2ui[\''+ obj.name +'\']; obj.toolbar.uncheck(\'w2ui-column-on-off\'); obj.stateSave();">'+
                         '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Save Grid State') + '</div>'+
                         '</td></tr>'+
-                        '<tr><td colspan="2" onclick="w2ui[\''+ obj.name +'\'].stateReset(); $(document).click();">'+
+                        '<tr><td colspan="2" onclick="var obj = w2ui[\''+ obj.name +'\']; obj.toolbar.uncheck(\'w2ui-column-on-off\'); obj.stateReset();">'+
                         '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Restore Default State') + '</div>'+
                         '</td></tr>';
             col_html += "</tbody></table></div>";
@@ -4686,9 +4743,10 @@
             };
         },
 
-        columnOnOff: function (el, event, field) {
+        columnOnOff: function (event, field) {
+            var $el = $(event.target).parents('tr').find('.w2ui-column-check');
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', checkbox: el, field: field, originalEvent: event });
+            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', field: field, originalEvent: event });
             if (eventData.isCancelled === true) return;
             // regular processing
             var obj = this;
@@ -4697,26 +4755,29 @@
                 if (this.records[r].expanded === true) this.records[r].expanded = false;
             }
             // show/hide
-            var hide = true;
             if (field == 'line-numbers') {
                 this.show.lineNumbers = !this.show.lineNumbers;
+                if (this.show.lineNumbers) {
+                    $el.addClass('w2ui-icon-check').removeClass('w2ui-icon-empty');
+                } else {
+                    $el.addClass('w2ui-icon-empty').removeClass('w2ui-icon-check');                    
+                }
                 this.refresh();
             } else {
                 var col = this.getColumn(field);
                 if (col.hidden) {
-                    $(el).prop('checked', true);
+                    $el.addClass('w2ui-icon-check').removeClass('w2ui-icon-empty');
                     this.showColumn(col.field);
                 } else {
-                    $(el).prop('checked', false);
+                    $el.addClass('w2ui-icon-empty').removeClass('w2ui-icon-check');
                     this.hideColumn(col.field);
                 }
-                hide = false;
             }
-            if (hide) {
+            if (!event.shiftKey && !event.metaKey && !event.ctrlKey) {
+                // timeout needed for visual delay
                 setTimeout(function () {
-                    $().w2overlay({ name: this.name + '-searchOverlay' });
-                    obj.toolbar.uncheck('w2ui-column-on-off');
-                }, 100);
+                    $().w2overlay({ name: obj.name + '_toolbar' });
+                }, 150);
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -6131,8 +6192,10 @@
                     // mark all search strings
                     var str = [];
                     for (var s = 0; s < obj.searchData.length; s++) {
-                        var tmp = obj.searchData[s];
-                        if ($.inArray(tmp.value, str) == -1) str.push(tmp.value);
+                        var sdata = obj.searchData[s];
+                        var fld = obj.getSearch(sdata.field);
+                        if (fld.hidden) continue;
+                        if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
                     }
                     if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
                 }, 50);
@@ -6563,6 +6626,7 @@
         },
 
         stateSave: function (returnOnly) {
+            var obj = this;
             if (!localStorage) return null;
             var state = {
                 columns     : [],
@@ -6666,6 +6730,7 @@
         },
 
         stateReset: function () {
+            var obj = this;
             this.stateRestore(this.last.state);
             // remove from local storage
             if (localStorage) {
