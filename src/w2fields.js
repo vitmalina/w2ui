@@ -1019,7 +1019,7 @@
             }
             // update date popup
             if (['date', 'time', 'datetime'].indexOf(obj.type) != -1) {
-                setTimeout(function () { obj.updateOverlay(); }, 1);
+                if (event.keyCode !== 9) setTimeout(function () { obj.updateOverlay(); }, 1);
             }
         },
 
