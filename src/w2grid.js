@@ -3722,6 +3722,7 @@
             // resize
             obj.resizeBoxes();
             obj.resizeRecords();
+            if (obj.toolbar) obj.toolbar.resize();
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             return (new Date()).getTime() - time;
