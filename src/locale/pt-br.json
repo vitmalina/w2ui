@@ -1,7 +1,7 @@
 {
     "locale"         : "pt-BR",
-    "date_format"    : "dd/mm/yyyy",
-    "time_format"    : "h24",
+    "dateFormat"    : "dd/mm/yyyy",
+    "timeFormat"    : "h24",
     "currency"       : "^[-+]?[0-9]*[\\.]?[0-9]+\\€$",
     "currencyPrefix" : "",
     "currencySuffix" : "€",

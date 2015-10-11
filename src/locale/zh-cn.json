@@ -1,7 +1,7 @@
 {
     "locale"         : "zh-cn",
-    "date_format"    : "yyyy-mm-dd",
-    "time_format"    : "HH:mm",
+    "dateFormat"    : "yyyy-mm-dd",
+    "timeFormat"    : "HH:mm",
     "currencyPrefix" : "¥",
     "currencySuffix" : "",
     "currencyPrecision": 2,

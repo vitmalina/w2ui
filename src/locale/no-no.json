@@ -1,7 +1,7 @@
 {
     "locale"         : "no-no",
-    "date_format"    : "d/m/yyyy",
-    "time_format"    : "h24",
+    "dateFormat"    : "d/m/yyyy",
+    "timeFormat"    : "h24",
     "currency"       : "^[\\NOK]?[-+]?[0-9]*[\\.]?[0-9]+NOK",
     "currencyPrefix" : "NOK",
     "currencySuffix" : "",

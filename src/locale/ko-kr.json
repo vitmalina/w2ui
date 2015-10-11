@@ -1,7 +1,7 @@
 {
     "locale"         : "ko-KR",
-    "date_format"    : "yyyy-mm-dd",
-    "time_format"    : "h24",
+    "dateFormat"    : "yyyy-mm-dd",
+    "timeFormat"    : "h24",
     "currency"       : "^[\\$]?[-+]?[0-9]*[\\.]?[0-9]+$",
     "currencyPrefix" : "$",
     "currencySuffix" : "",

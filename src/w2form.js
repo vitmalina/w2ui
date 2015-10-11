@@ -329,7 +329,7 @@
                         break;
                     case 'date':
                         // format date before submit
-                        if (!field.options.format) field.options.format = w2utils.settings.date_format;
+                        if (!field.options.format) field.options.format = w2utils.settings.dateFormat;
                         if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
                             errors.push({ field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format });
                         } else {

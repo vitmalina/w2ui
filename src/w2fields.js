@@ -239,7 +239,7 @@
 
                 case 'date':
                     defaults = {
-                        format      : w2utils.settings.date_format, // date format
+                        format      : w2utils.settings.dateFormat, // date format
                         keyboard    : true,
                         silent      : true,
                         start       : '',       // string or jquery object
@@ -254,7 +254,7 @@
 
                 case 'time':
                     defaults = {
-                        format      : w2utils.settings.time_format,
+                        format      : w2utils.settings.timeFormat,
                         keyboard    : true,
                         silent      : true,
                         start       : '',
@@ -267,15 +267,14 @@
 
                 case 'datetime':
                     defaults = {
-                        format      : w2utils.settings.date_format + '|hh24:mm',
+                        format      : w2utils.settings.dateFormat + ' | ' + w2utils.settings.timeFormat,
                         keyboard    : true,
                         silent      : true,
                         start       : '',       // string or jquery object or Date object
                         end         : '',       // string or jquery object or Date object
                         blocked     : [],       // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
-                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formatted with w2utils.settings.date_format
+                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formatted with w2utils.settings.dateFormat
                         placeholder : null,     // optional. will fall back to this.format if not specified. Only used if this.el has no placeholder attribute.
-                        format_mjs  : 'M/D/YYYY HH:mm', // date format for moment.js, should be equal to "this.format" translated to ISO 8601, see http://momentjs.com/docs/#/parsing/string-format
                         btn_now     : true      // show/hide the use-current-date-and-time button
                     };
                     this.options = $.extend(true, {}, defaults, options);
@@ -984,7 +983,7 @@
                             setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
                         }
                     }
-                    else if (obj.type == 'datetime' && val !== '' && !(options.use_moment_js ? w2utils.isDateTime(obj.el.value, options.format_mjs) : w2utils.isDateTime(obj.el.value, options.format))) {
+                    else if (obj.type == 'datetime' && val !== '' && !w2utils.isDateTime(obj.el.value, options.format)) {
                         $(obj.el).val('').removeData('selected').change();
                         if (options.silent === false) {
                             $(obj.el).w2tag('Not a valid date');
@@ -1124,7 +1123,7 @@
                 var inc     = 1;
                 if (event.ctrlKey || event.metaKey) inc = 10;
                 var str = $(obj.el).val();
-                var dt = (w2utils.use_momentjs ? w2utils.isDateTime(str, this.options.format_mjs, true) : w2utils.isDateTime(str, this.options.format, true));
+                var dt  = w2utils.isDateTime(str, this.options.format, true);
                 if (!dt) { dt = new Date(); daymil = 0; }
                 switch (key) {
                     case 38: // up
@@ -1676,16 +1675,10 @@
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 var selDate = null;
                 (function refreshCalendar(month, year) {
-                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
-                    // add "now" button
-                    if(obj.options.btn_now) {
-                        $('#w2ui-overlay > div > div .w2ui-calendar-previous.previous').after('<div class="w2ui-calendar-previous now"></div>');
-                        // openclipart 194286
-                        var bg_image = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAJiS0dEAP+Hj8y/AAAACXBIWXMAAAsTAAALEwEAmpwYAAABDUlEQVQoz23QzyuDARgH8E+0hsSi6aWGklrz42CUiJVcFuXCmDZZKYZyQEocnDnt6B9xWXJ4/4CVUsp/4uLwbkX2fG/P93N4emg3I6aN62zbGXTkxqq8U5P/627nAs+G0ONYKlrHxZtgVc6AvCpIKkXrgt0mKCmriHkVA2c8CtXUhEKhL8+ehL692IzAu4Q9RYlmtlQkvEnJCRRooEuvwKCkMb1G9asL9KkajgBJd0rKHky7llNXUTVOC8QtSEvLGjAjUJfVEd3dsObWonv7DtyY8mBTXdB6TUPGnkkFK5ZtSNkx9xdkFWWUbMk7M6Fs6S+Yd2LWhV3bLqWdWP8NPl21yYe+Fsg6bJOlVv0DQzw+zwokgrkAAAAASUVORK5CYII=)";
-                        $('#w2ui-overlay div div.w2ui-calendar-previous.now').css({
-                            'width': '20px', 'text-align': 'center', 'vertical-align': 'middle', 'background-repeat': 'no-repeat', 'background-position': 'center', 'background-image': bg_image,
-                        });
-                    }
+                    $('#w2ui-overlay > div > div').html(
+                        obj.getMonthHTML(month, year, $(obj.el).val())
+                        + (options.btn_now ? '<div class="w2ui-calendar-now now">'+ w2utils.lang('Current Date & Time') + '</div>' : '')
+                    );
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
                             if ($(this).next().hasClass('w2ui-calendar-jump')) {
@@ -1776,9 +1769,8 @@
                     $('#w2ui-overlay .now')
                         .on('mousedown', function () {
                             // this currently ignores blocked days or start / end dates!
-                            var day = w2utils.formatDateTime(new Date(), obj.options.format);
-                            $(obj.el).val(day).change();
-                            //$(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+                            var tmp = w2utils.formatDateTime(new Date(), obj.options.format);
+                            $(obj.el).val(tmp).change();
                             return false;
                         })
                         .on('mouseup', function () {
@@ -1885,7 +1877,7 @@
                 }
             }
             else if (this.type == 'datetime') {
-                var dt = (w2utils.use_momentjs ? w2utils.isDateTime(str, this.options.format_mjs, true) : w2utils.isDateTime(str, this.options.format, true));
+                var dt = w2utils.isDateTime(str, this.options.format, true);
                 if (dt) {
                     // enable range
                     if (this.options.start || this.options.end) {
@@ -1894,13 +1886,13 @@
                             start = this.options.start;
                         } else {
                             var st = (typeof this.options.start == 'string' ? this.options.start : $(this.options.start).val());
-                            start  = (w2utils.use_momentjs ? w2utils.isDateTime(st, this.options.format_mjs, true) : w2utils.isDateTime(st, this.options.format, true));
+                            start  = w2utils.isDateTime(st, this.options.format, true);
                         }
                         if(typeof this.options.end == 'object' && this.options.end instanceof Date) {
                             end = this.options.end;
                         } else {
                             var en = (typeof this.options.end == 'string' ? this.options.end : $(this.options.end).val());
-                            end    = (w2utils.use_momentjs ? w2utils.isDateTime(en, this.options.format_mjs, true) : w2utils.isDateTime(en, this.options.format, true));
+                            end    = w2utils.isDateTime(en, this.options.format, true);
                         }
                         var current = dt; // new Date(dt);
                         if (!start) start = current;
@@ -1915,7 +1907,7 @@
                             var blocked = this.options.blocked[i];
                             if(typeof blocked == 'string') {
                                 // convert string to Date object
-                                blocked = (w2utils.use_momentjs ? w2utils.isDateTime(blocked, this.options.format_mjs, true) : w2utils.isDateTime(blocked, this.options.format, true));
+                                blocked = w2utils.isDateTime(blocked, this.options.format, true);
                             }
                             // check for Date object with the same day
                             if(typeof blocked == 'object' && blocked instanceof Date && (blocked.getFullYear() == dt.getFullYear() && blocked.getMonth() == dt.getMonth() && blocked.getDate() == dt.getDate())) {
@@ -2439,8 +2431,8 @@
             var day = 1;
             if (w2utils.settings.weekStarts != 'M') weekDay++;
             if(this.type === 'datetime') {
-                var dt_sel = (w2utils.use_momentjs ? w2utils.isDateTime(selected, options.format_mjs, true) : w2utils.isDateTime(selected, options.format, true));
-                selected = w2utils.formatDate(dt_sel, w2utils.settings.date_format);
+                var dt_sel = w2utils.isDateTime(selected, options.format, true);
+                selected = w2utils.formatDate(dt_sel, w2utils.settings.dateFormat);
             }
             for (var ci = 1; ci < 43; ci++) {
                 if (weekDay === 0 && ci == 1) {
@@ -2466,7 +2458,7 @@
                 var tmp_dt, tmp_dt_fmt;
                 if(this.type === 'datetime') {
                     tmp_dt      = w2utils.formatDateTime(dt, options.format);
-                    tmp_dt_fmt  = w2utils.formatDate(dt, w2utils.settings.date_format);
+                    tmp_dt_fmt  = w2utils.formatDate(dt, w2utils.settings.dateFormat);
                 } else {
                     tmp_dt      = w2utils.formatDate(dt, options.format);
                     tmp_dt_fmt  = tmp_dt;
@@ -2505,7 +2497,7 @@
         getHourHTML: function () {
             var tmp = [];
             var options = this.options;
-            if (options == null) options = { format: w2utils.settings.time_format };
+            if (options == null) options = { format: w2utils.settings.timeFormat };
             var h24 = (options.format.indexOf('h24') > -1);
             for (var a = 0; a < 24; a++) {
                 var time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '');
@@ -2516,18 +2508,21 @@
                 tmp[Math.floor(a/8)] += '<div class="'+ ((this.type === 'datetime') || this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
             }
             var html =
-                '<div class="w2ui-calendar-time"><table><tbody><tr>'+
-                '    <td>'+ tmp[0] +'</td>' +
-                '    <td>'+ tmp[1] +'</td>' +
-                '    <td>'+ tmp[2] +'</td>' +
-                '</tr></tbody></table></div>';
+                '<div class="w2ui-calendar">'+
+                '   <div class="w2ui-calendar-title">Select Hour</div>'+
+                '   <div class="w2ui-calendar-time"><table><tbody><tr>'+
+                '       <td>'+ tmp[0] +'</td>' +
+                '       <td>'+ tmp[1] +'</td>' +
+                '       <td>'+ tmp[2] +'</td>' +
+                '   </tr></tbody></table></div>'+
+                '</div>';
             return html;
         },
 
         getMinHTML: function (hour) {
             if (hour == null) hour = 0;
             var options = this.options;
-            if (options == null) options = { format: w2utils.settings.time_format };
+            if (options == null) options = { format: w2utils.settings.timeFormat };
             var h24 = (options.format.indexOf('h24') > -1);
             var tmp = [];
             for (var a = 0; a < 60; a += 5) {
@@ -2537,11 +2532,14 @@
                 tmp[ind] += '<div class="'+ ((this.type === 'datetime') || this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
             }
             var html =
-                '<div class="w2ui-calendar-time"><table><tbody><tr>'+
-                '    <td>'+ tmp[0] +'</td>' +
-                '    <td>'+ tmp[1] +'</td>' +
-                '    <td>'+ tmp[2] +'</td>' +
-                '</tr></tbody></table></div>';
+                '<div class="w2ui-calendar">'+
+                '   <div class="w2ui-calendar-title">Select Minute</div>'+
+                '   <div class="w2ui-calendar-time"><table><tbody><tr>'+
+                '       <td>'+ tmp[0] +'</td>' +
+                '       <td>'+ tmp[1] +'</td>' +
+                '       <td>'+ tmp[2] +'</td>' +
+                '   </tr></tbody></table></div>'+
+                '</div>';
             return html;
         },
 
@@ -2565,7 +2563,7 @@
             var hour = Math.floor(time/60);
             var min  = ((time % 60) < 10 ? '0' : '') + (time % 60);
             var options = this.options;
-            if (options == null) options = { format: w2utils.settings.time_format };
+            if (options == null) options = { format: w2utils.settings.timeFormat };
             if (options.format.indexOf('h24') != -1) {
                 ret = hour + ':' + min;
             } else {

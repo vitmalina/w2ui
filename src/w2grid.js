@@ -802,7 +802,7 @@
                                 else if (search.type == 'date') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.date_format, true),  'yyyy-mm-dd');
+                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true),  'yyyy-mm-dd');
                                     if (val1 == val2) fl++;
                                 }
                                 // only increment "fl" once -> use "else if"
@@ -819,8 +819,8 @@
                                 }
                                 if (search.type == 'date') {
                                     var val1 = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                                    var val2 = w2utils.isDate(val2, w2utils.settings.date_format, true);
-                                    var val3 = w2utils.isDate(val3, w2utils.settings.date_format, true);
+                                    var val2 = w2utils.isDate(val2, w2utils.settings.dateFormat, true);
+                                    var val3 = w2utils.isDate(val3, w2utils.settings.dateFormat, true);
                                     if (val3 != null) val3 = new Date(val3.getTime() + 86400000); // 1 day
                                     if (val1 >= val2 && val1 < val3) fl++;
                                 }
@@ -840,7 +840,7 @@
                                 else if (search.type == 'date') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.date_format, true),  'yyyy-mm-dd');
+                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true),  'yyyy-mm-dd');
                                     if (val1 <= val2) fl++;
                                 }
                                 else if (search.type == 'time') {
@@ -857,7 +857,7 @@
                                 else if (search.type == 'date') {
                                     var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                                     var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.date_format, true),  'yyyy-mm-dd');
+                                    var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true),  'yyyy-mm-dd');
                                     if (val1 >= val2) fl++;
                                 }
                                 else if (search.type == 'time') {
@@ -1591,11 +1591,11 @@
                         // conver date to unix time
                         try {
                             if (search.type == 'date' && operator == 'between') {
-                                tmp.value[0] = value1; // w2utils.isDate(value1, w2utils.settings.date_format, true).getTime();
-                                tmp.value[1] = value2; // w2utils.isDate(value2, w2utils.settings.date_format, true).getTime();
+                                tmp.value[0] = value1; // w2utils.isDate(value1, w2utils.settings.dateFormat, true).getTime();
+                                tmp.value[1] = value2; // w2utils.isDate(value2, w2utils.settings.dateFormat, true).getTime();
                             }
                             if (search.type == 'date' && operator == 'is') {
-                                tmp.value = value1; // w2utils.isDate(value1, w2utils.settings.date_format, true).getTime();
+                                tmp.value = value1; // w2utils.isDate(value1, w2utils.settings.dateFormat, true).getTime();
                             }
                         } catch (e) {
 
@@ -6383,17 +6383,17 @@
                         data = '<div style="'+ style +'">' + infoBubble + (data !== '' ? prefix + w2utils.formatNumber(Number(data), tmp[1]) + suffix : '') + '</div>';
                     }
                     if (tmp[0] == 'time') {
-                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.time_format;
+                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.timeFormat;
                         if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
                         if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
                         data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'date') {
-                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format;
+                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.dateFormat;
                         data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatDate(w2utils.isDate(data, tmp[1], true), tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'datetime') {
-                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.date_format + '|' + w2utils.settings.time_format;
+                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
                         data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
                     }
                     if (tmp[0] == 'age') {
