@@ -58,6 +58,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added getCursorPosition, setCursorPosition
 *   - w2tag hideOnClick - hides on document click
 *   - add isDateTime()
+*   - data_format -> dateFormat, time_format -> timeFormat
 *
 ************************************************/
 
@@ -6220,6 +6221,7 @@ w2utils.event = {
             // resize
             obj.resizeBoxes();
             obj.resizeRecords();
+            if (obj.toolbar) obj.toolbar.resize();
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -11938,11 +11940,11 @@ var w2confirm = function (msg, title, callBack) {
 *   - Dependencies: jQuery, w2utils, w2field
 *
 * == NICE TO HAVE ==
-*   - on overflow display << >>
 *   - vertical toolbar
 *   - declarative toolbar
 *
 * == 1.5 changes
+*   - on overflow display << >>
 *   - $('#toolbar').w2toolbar() - if called w/o argument then it returns toolbar object
 *   - enable, disable, show, hide, get, set, click --> will look into menu items too
 *   - item.render method
@@ -12123,7 +12125,7 @@ var w2confirm = function (msg, title, callBack) {
                 it.hidden = false;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -12138,7 +12140,7 @@ var w2confirm = function (msg, title, callBack) {
                 it.hidden = true;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -12153,7 +12155,7 @@ var w2confirm = function (msg, title, callBack) {
                 it.disabled = false;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -12168,7 +12170,7 @@ var w2confirm = function (msg, title, callBack) {
                 it.disabled = true;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -12183,7 +12185,7 @@ var w2confirm = function (msg, title, callBack) {
                 it.checked = true;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -12206,7 +12208,7 @@ var w2confirm = function (msg, title, callBack) {
                 it.checked = false;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -12218,7 +12220,7 @@ var w2confirm = function (msg, title, callBack) {
             if (tmp.length > 1) {
                 var subItem = this.get(id);
                 if (subItem && !subItem.disabled) {
-                    obj.menuClick({ name: obj.name, item: it, subItem: subItem, originalEvent: event });                
+                    obj.menuClick({ name: obj.name, item: it, subItem: subItem, originalEvent: event });
                 }
                 return;
             }
@@ -12333,6 +12335,20 @@ var w2confirm = function (msg, title, callBack) {
             }
         },
 
+        scroll: function (direction) {
+            var box = $(this.box).children('.w2ui-toolbar-scroll-wrapper');
+            var left = box.scrollLeft();
+
+            switch (direction) {
+                case 'left':
+                    box.scrollLeft(left - 10);
+                    break;
+                case 'right':
+                    box.scrollLeft(left + 10);
+                    break;
+            }
+        },
+
         render: function (box) {
             var time = (new Date()).getTime();
             // event before
@@ -12350,7 +12366,8 @@ var w2confirm = function (msg, title, callBack) {
             }
             if (!this.box) return;
             // render all buttons
-            var html = '<table cellspacing="0" cellpadding="0" width="100%"><tbody>'+
+            var html = '<div class="w2ui-toolbar-scroll-left" onclick="var el=w2ui[\''+ this.name + '\']; if (el) el.scroll(\'left\');"></div>'+
+                       '<div class="w2ui-toolbar-scroll-wrapper"><table cellspacing="0" cellpadding="0" width="100%"><tbody>'+
                        '<tr>';
             for (var i = 0; i < this.items.length; i++) {
                 var it = this.items[i];
@@ -12366,7 +12383,8 @@ var w2confirm = function (msg, title, callBack) {
             }
             html += '<td width="100%" id="tb_'+ this.name +'_right" align="right">'+ this.right +'</td>';
             html += '</tr>'+
-                    '</tbody></table>';
+                    '</tbody></table></div>'+
+                    '<div class="w2ui-toolbar-scroll-right" onclick="var el=w2ui[\''+ this.name + '\']; if (el) el.scroll(\'right\');"></div>';
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-toolbar')
@@ -12433,7 +12451,13 @@ var w2confirm = function (msg, title, callBack) {
             var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
             if (eventData.isCancelled === true) return;
 
-            // intentionally blank
+            var box = $(this.box);
+            if (box.find('table').width() > box.width()) {
+                // we have overflowed content
+                box.addClass('overflowed');
+            } else if (box.hasClass('overflowed')) {
+                box.removeClass('overflowed');
+            }
 
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -12505,12 +12529,12 @@ var w2confirm = function (msg, title, callBack) {
                             '  <table cellpadding="1" cellspacing="0"><tbody>'+
                             '  <tr>' +
                                     img +
-                                    (text !== '' 
-                                        ? '<td class="w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>' 
+                                    (text !== ''
+                                        ? '<td class="w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>'
                                         : ''
                                     ) +
-                                    (item.count != null 
-                                        ? '<td class="w2ui-tb-count" nowrap="nowrap"><span>'+ item.count +'</span></td>' 
+                                    (item.count != null
+                                        ? '<td class="w2ui-tb-count" nowrap="nowrap"><span>'+ item.count +'</span></td>'
                                         : ''
                                     ) +
                                     (((['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
@@ -12535,7 +12559,7 @@ var w2confirm = function (msg, title, callBack) {
             var newHTML = '';
             if (typeof item.render == 'function') newHTML = item.render.call(this, item.id, html);
             if (newHTML !== '' && newHTML != null) html = newHTML;
-            
+
             return '<div>' + html + '</div>';
         },
 
@@ -12613,7 +12637,7 @@ var w2confirm = function (msg, title, callBack) {
             var obj = this;
             if (event.item && !event.item.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item, 
+                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item,
                     color: event.color, originalEvent: event.originalEvent });
                 if (eventData.isCancelled === true) return;
 
@@ -14591,7 +14615,7 @@ var w2confirm = function (msg, title, callBack) {
             }
             // update date popup
             if (['date', 'time', 'datetime'].indexOf(obj.type) != -1) {
-                setTimeout(function () { obj.updateOverlay(); }, 1);
+                if (event.keyCode !== 9) setTimeout(function () { obj.updateOverlay(); }, 1);
             }
         },
 

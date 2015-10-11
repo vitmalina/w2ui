@@ -58,6 +58,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added getCursorPosition, setCursorPosition
 *   - w2tag hideOnClick - hides on document click
 *   - add isDateTime()
+*   - data_format -> dateFormat, time_format -> timeFormat
 *
 ************************************************/
 
@@ -3516,7 +3517,7 @@ w2utils.event = {
             }
             // update date popup
             if (['date', 'time', 'datetime'].indexOf(obj.type) != -1) {
-                setTimeout(function () { obj.updateOverlay(); }, 1);
+                if (event.keyCode !== 9) setTimeout(function () { obj.updateOverlay(); }, 1);
             }
         },
 

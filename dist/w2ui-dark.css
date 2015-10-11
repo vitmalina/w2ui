@@ -2775,6 +2775,7 @@ button.w2ui-btn-small:focus:before {
   margin: 0px;
   padding: 2px;
   outline: 0px;
+  position: relative;
   background-color: #323948;
   overflow: hidden !important;
   -webkit-user-select: none;
@@ -2786,6 +2787,53 @@ button.w2ui-btn-small:focus:before {
 .w2ui-toolbar .disabled {
   opacity: 0.3;
   filter: alpha(opacity=30);
+}
+.w2ui-toolbar.overflowed .w2ui-toolbar-scroll-left,
+.w2ui-toolbar.overflowed .w2ui-toolbar-scroll-right {
+  display: block;
+}
+.w2ui-toolbar.overflowed .w2ui-toolbar-scroll-wrapper > table {
+  padding: 0 18px;
+}
+.w2ui-toolbar .w2ui-toolbar-scroll-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+.w2ui-toolbar .w2ui-toolbar-scroll-left,
+.w2ui-toolbar .w2ui-toolbar-scroll-right {
+  top: 0;
+  width: 18px;
+  height: 100%;
+  background-color: #323948;
+  cursor: default !important;
+  z-index: 10;
+  display: none;
+  position: absolute;
+}
+.w2ui-toolbar .w2ui-toolbar-scroll-left:before,
+.w2ui-toolbar .w2ui-toolbar-scroll-right:before {
+  display: block;
+  color: #c0c8d5;
+  line-height: 34px;
+  font-size: 15px;
+  width: 100%;
+  text-align: center;
+  cursor: default !important;
+  font-weight: bold;
+}
+.w2ui-toolbar .w2ui-toolbar-scroll-left {
+  border-right: 1px solid #797e8a;
+  left: 0;
+}
+.w2ui-toolbar .w2ui-toolbar-scroll-left:before {
+  content: "«";
+}
+.w2ui-toolbar .w2ui-toolbar-scroll-right {
+  border-left: 1px solid #797e8a;
+  right: 0;
+}
+.w2ui-toolbar .w2ui-toolbar-scroll-right:before {
+  content: "»";
 }
 .w2ui-toolbar table {
   table-layout: auto !important;
