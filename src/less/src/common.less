@@ -71,7 +71,7 @@ input[type=button].w2ui-input {
     &:active { .sys-button-active; }
 }
 
-input:not([type=button]):not([type=submit]).w2ui-input, select.w2ui-input, textarea.w2ui-input {
+input:not([type=button]):not([type=submit]).w2ui-input, textarea.w2ui-input {
     padding: 4px;
     border: @input-border;
     border-radius: 3px;
@@ -99,7 +99,16 @@ input.w2ui-input:-ms-input-placeholder {
 }
 
 select.w2ui-input {
-    padding: 2px;
+    color: @input-color;
+    padding: 4px 15px 4px 7px;
+    border-radius: 3px;
+    border: @input-border;
+    -webkit-appearance: none;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAALCAQAAADCIvUBAAAAcElEQVR4AbXLsQEBQADF0H+bAAAtoGUEkCVYygCMAijp7mo1AACAlzr6GXw0adO6U4cG3vuzIcqYxZ3GRDF6BD/9m2sPn54jxOhqHRHUa0gyPVsnJPU6MtjDaknrPRRwm9VR0PsoMVtV1GeoUNG/LAFm8mSWOfmURAAAAABJRU5ErkJggg=='),
+                      -webkit-linear-gradient(top,#FFF 20%,#f6f6f6 50%,#EEE 52%,#f4f4f4 100%);
+    background-size: 14px 6px, 100% 100%;
+    background-position: right center, left top;
+    background-repeat: no-repeat, no-repeat;
 }
 
 /* On/Off switch */

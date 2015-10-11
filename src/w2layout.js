@@ -313,7 +313,9 @@
             if (ind == null) return false;
             $.extend(this.panels[ind], options);
             // refresh only when content changed
-            if (options['content'] != null) this.refresh(panel);
+            if (options['content'] != null || options['resizable'] != null) {
+                this.refresh(panel);
+            }
             // show/hide resizer
             this.resize(); // resize is needed when panel size is changed
             return true;
@@ -669,7 +671,9 @@
                                 .addClass('w2ui-panel-content')
                                 .css('overflow', p.overflow)[0].style.cssText += ';' + p.style;
                         }
-                        p.content.render(); // do not do .render(box);
+                        if (p.content && typeof p.content.render == 'function') {
+                           p.content.render(); // do not do .render(box);
+                        }
                     }, 1);
                 } else {
                     // need to remove unnecessary classes
