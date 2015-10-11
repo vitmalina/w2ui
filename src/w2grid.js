@@ -777,7 +777,10 @@
                 this.total = 0;
                 for (var i = 0; i < this.records.length; i++) {
                     var rec = this.records[i];
-                    var fl  = 0;
+                    var orNb = 0;
+                    var orTot = 0;
+                    var andNb = 0;
+                    var andTot = 0;
                     for (var j = 0; j < this.searchData.length; j++) {
                         var sdata  = this.searchData[j];
                         var search = this.getSearch(sdata.field);
@@ -795,6 +798,7 @@
                                 var val3 = sdata.value[1];
                             }
                         }
+                        var fl = 0;
                         switch (sdata.operator) {
                             case 'is':
                                 if (obj.parseField(rec, search.field) == sdata.value) fl++; // do not hide record
@@ -898,10 +902,18 @@
                                 if (lastIndex !== -1 && lastIndex == val1.length - val2.length) fl++; // do not hide record
                                 break;
                         }
+                        if (sdata.required || this.last.logic == 'AND') {       /* required field */
+                            andTot++;
+                            andNb += fl;
+                            if (!fl)
+                                break;                                           /* short circuit evaluation */
+                        } else {
+                            orTot++;
+                            orNb += fl;
+                        }
                     }
-                    if ((this.last.logic == 'OR' && fl != 0) || (this.last.logic == 'AND' && fl == this.searchData.length)) {
+                    if (andNb == andTot && (!orTot || orNb > 0))
                         this.last.searchIds.push(parseInt(i));
-                    }
                 }
                 this.total = this.last.searchIds.length;
             }
