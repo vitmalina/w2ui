@@ -20,6 +20,7 @@
 *   - added button types: menu-check, menu-radio - will save into item.selected
 *   - item.text and item.html - can be functions now (or string), where this keyword is the item
 *   - item.style - style for caption in the button
+*   - item.check 
 *
 ************************************************************************/
 
@@ -48,6 +49,30 @@
             $.extend(object, { items: [], handlers: [] });
             for (var i = 0; i < items.length; i++) {
                 object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]);
+                // menus
+                if (object.items[i].type == 'menu-check') {
+                    var item = object.items[i];
+                    if (!Array.isArray(item.selected)) item.selected = [];
+                    if (Array.isArray(item.items)) {
+                        for (var j = 0; j < item.items.length; j++) {
+                            var it = item.items[j];
+                            if (it.checked && item.selected.indexOf(it.id) == -1) item.selected.push(it.id);
+                            if (!it.checked && item.selected.indexOf(it.id) != -1) it.checked = true;
+                            if (it.checked == null) it.checked = false;
+                        }
+                    }
+                }
+                if (object.items[i].type == 'menu-radio') {
+                    var item = object.items[i];
+                    if (Array.isArray(item.items)) {
+                        for (var j = 0; j < item.items.length; j++) {
+                            var it = item.items[j];
+                            if (it.checked && item.selected == null) item.selected = it.id; else it.checked = false;
+                            if (!it.checked && item.selected == it.id) it.checked = true;
+                            if (it.checked == null) it.checked = false;
+                        }
+                    }
+                }
             }
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
@@ -343,13 +368,13 @@
                                 if (it.type == 'menu-radio') {
                                     menuType = 'radio';
                                     it.items.forEach(function (item) {
-                                        if (it.selected == item.id) item.checked = true; else delete item.checked;
+                                        if (it.selected == item.id) item.checked = true; else item.checked = false;
                                     });
                                 }
                                 if (it.type == 'menu-check') {
                                     menuType = 'check';
                                     it.items.forEach(function (item) {
-                                        if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else delete item.checked;
+                                        if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
                                     });
                                 }
                                 el.w2menu($.extend({ name: obj.name, items: it.items, left: left, top: 3 }, it.overlay, {
@@ -672,14 +697,18 @@
                 var item = this.get(event.item.id);
                 if (item.type == 'menu-radio') {
                     item.selected = it.id;
+                    event.item.items.forEach(function (item) { item.checked = false });
+                    it.checked = true;
                 }
                 if (item.type == 'menu-check') {
                     if (!$.isArray(item.selected)) item.selected = [];
                     var ind = item.selected.indexOf(it.id);
                     if (ind == -1) {
                         item.selected.push(it.id);
+                        it.checked = true;
                     } else {
                         item.selected.splice(ind, 1);
+                        it.checked = false;
                     }
                 }
                 if (typeof it.route == 'string') {

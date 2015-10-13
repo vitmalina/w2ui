@@ -41,7 +41,7 @@ $(function () {
             toolbarEdit: true,
             toolbarDelete: true,
             toolbarSave: true,
-            searchAll: false
+            searchAll: true
         },
         menu: [
             { id: 1, text: 'Select Item', icon: 'fa-star' },
@@ -93,7 +93,7 @@ $(function () {
         searches: [                
             { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less' },
             { field: 'fname', caption: 'First Name', type: 'text', hidden1: true, value: 'Peter' },
-            { field: 'lname', caption: 'Last Name', type: 'list', options: { items: ['Cuban', 'Rene'] }}
+            { field: 'lname', caption: 'Last Name', type: 'text', options: { items: ['Cuban', 'Rene'] }}
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
