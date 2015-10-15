@@ -143,7 +143,7 @@
                 $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove();
                 // remove from array
                 var ind = this.get(it.id, true);
-                if (ind != null) this.items.splice(ind, 1);
+                if (ind >= 0) this.items.splice(ind, 1);
             }
             return removed;
         },
