@@ -2137,7 +2137,7 @@ w2utils.event = {
             $.fn.w2menuClick = function (event, index) {
                 if (['radio', 'check'].indexOf(options.type) != -1) {
                     // move checkbox
-                    $(event.target).parents('tr').find('.w2ui-icon')
+                    $(event.target).parents('tr').find('.w2ui-sel-icon')
                         .removeClass('w2ui-icon-empty')
                         .addClass('w2ui-icon-check');
                 }
@@ -2162,10 +2162,10 @@ w2utils.event = {
             };
             $.fn.w2menuDown = function (event, index) {
                 var $el = $(event.target).parents('tr');
-                var tmp = $el.find('.w2ui-icon');
+                var tmp = $el.find('.w2ui-sel-icon');
                 if (tmp.hasClass('w2ui-icon-empty')) {
                     if (options.type == 'radio') {
-                        tmp.parents('table').find('.w2ui-icon')
+                        tmp.parents('table').find('.w2ui-sel-icon')
                             .removeClass('w2ui-icon-check')
                             .addClass('w2ui-icon-empty');
                     }
@@ -2181,7 +2181,7 @@ w2utils.event = {
                 var $tmp = $($.fn.w2menuTmp);
                 if ($tmp.length > 0) {
                     $tmp.removeClass('w2ui-selected');
-                    $tmp.find('.w2ui-icon').removeClass('w2ui-icon-check');
+                    $tmp.find('.w2ui-sel-icon').removeClass('w2ui-icon-check');
                     delete $.fn.w2menuTmp;
                 }
             };
@@ -2326,7 +2326,7 @@ w2utils.event = {
                 if (mitem.hidden !== true) {
                     var seld = '';
                     if (sel) {
-                        seld = '<td class="menu-icon" align="center"><span class="w2ui-icon ' +
+                        seld = '<td class="menu-icon" align="center"><span class="w2ui-icon w2ui-sel-icon ' +
                             (mitem.checked === true ? 'w2ui-icon-check' : 'w2ui-icon-empty') +
                             '"></span></td>';
                     }
