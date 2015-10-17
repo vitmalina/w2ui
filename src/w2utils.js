@@ -2135,12 +2135,6 @@ w2utils.event = {
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender;
             // since only one overlay can exist at a time
             $.fn.w2menuClick = function (event, index) {
-                if (['radio', 'check'].indexOf(options.type) != -1) {
-                    // move checkbox
-                    $(event.target).parents('tr').find('.w2ui-sel-icon')
-                        .removeClass('w2ui-icon-empty')
-                        .addClass('w2ui-icon-check');
-                }
                 if (typeof options.onSelect === 'function') {
                     // need time so that menu first hides
                     setTimeout(function () {
