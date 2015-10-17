@@ -2309,6 +2309,7 @@ w2utils.event = {
             var count        = 0;
             var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu"><tbody>';
             var img = null, icon = null;
+            var sel = ['radio', 'check'].indexOf(options.type) != -1;
             for (var f = 0; f < options.items.length; f++) {
                 var mitem = options.items[f];
                 if (typeof mitem === 'string') {
@@ -2322,10 +2323,13 @@ w2utils.event = {
                     if (img  == null) img  = null;
                     if (icon == null) icon = null;
                 }
-                if (['radio', 'check'].indexOf(options.type) != -1) {
-                    if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty';
-                }
                 if (mitem.hidden !== true) {
+                    var seld = '';
+                    if (sel) {
+                        seld = '<td class="menu-icon" align="center"><span class="w2ui-icon ' +
+                            (mitem.checked === true ? 'w2ui-icon-check' : 'w2ui-icon-empty') +
+                            '"></span></td>';
+                    }
                     var imgd = '';
                     var txt = mitem.text;
                     if (typeof options.render === 'function') txt = options.render(mitem, options);
@@ -2349,7 +2353,7 @@ w2utils.event = {
                             '        onclick="event.stopPropagation(); '+
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
                             '               $.fn.w2menuClick(event, \''+ f +'\');">'+
-                                imgd +
+                                seld + imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ txt +'</td>'+
                             '   <td class="menu-count">'+
                                     (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') +
@@ -2359,7 +2363,9 @@ w2utils.event = {
                         count++;
                     } else {
                         // horizontal line
-                        menu_html += '<tr><td colspan="3" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
+                        menu_html += '<tr><td colspan="' + (sel ? 4 : 3) +
+                            '" style="padding: 6px; pointer-events: none">' +
+                            '<div style="border-top: 1px solid silver;"></div></td></tr>';
                     }
                 }
                 options.items[f] = mitem;
