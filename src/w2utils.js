@@ -2243,12 +2243,6 @@ w2utils.event = {
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender;
             // since only one overlay can exist at a time
             $.fn.w2menuClick = function (event, index) {
-                if (['radio', 'check'].indexOf(options.type) != -1) {
-                    // move checkbox
-                    $(event.target).parents('tr').find('.w2ui-icon')
-                        .removeClass('w2ui-icon-empty')
-                        .addClass('w2ui-icon-check');
-                }
                 if (typeof options.onSelect === 'function') {
                     // need time so that menu first hides
                     setTimeout(function () {
@@ -2270,10 +2264,10 @@ w2utils.event = {
             };
             $.fn.w2menuDown = function (event, index) {
                 var $el = $(event.target).parents('tr');
-                var tmp = $el.find('.w2ui-icon');
+                var tmp = $el.find('.w2ui-sel-icon');
                 if (tmp.hasClass('w2ui-icon-empty')) {
                     if (options.type == 'radio') {
-                        tmp.parents('table').find('.w2ui-icon')
+                        tmp.parents('table').find('.w2ui-sel-icon')
                             .removeClass('w2ui-icon-check')
                             .addClass('w2ui-icon-empty');
                     }
@@ -2289,7 +2283,7 @@ w2utils.event = {
                 var $tmp = $($.fn.w2menuTmp);
                 if ($tmp.length > 0) {
                     $tmp.removeClass('w2ui-selected');
-                    $tmp.find('.w2ui-icon').removeClass('w2ui-icon-check');
+                    $tmp.find('.w2ui-sel-icon').removeClass('w2ui-icon-check');
                     delete $.fn.w2menuTmp;
                 }
             };
@@ -2417,6 +2411,7 @@ w2utils.event = {
             var count        = 0;
             var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu"><tbody>';
             var img = null, icon = null;
+            var sel = ['radio', 'check'].indexOf(options.type) != -1;
             for (var f = 0; f < options.items.length; f++) {
                 var mitem = options.items[f];
                 if (typeof mitem === 'string') {
@@ -2430,10 +2425,13 @@ w2utils.event = {
                     if (img  == null) img  = null;
                     if (icon == null) icon = null;
                 }
-                if (['radio', 'check'].indexOf(options.type) != -1) {
-                    if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty';
-                }
                 if (mitem.hidden !== true) {
+                    var seld = '';
+                    if (sel) {
+                        seld = '<td class="menu-icon" align="center"><span class="w2ui-icon w2ui-sel-icon ' +
+                            (mitem.checked === true ? 'w2ui-icon-check' : 'w2ui-icon-empty') +
+                            '"></span></td>';
+                    }
                     var imgd = '';
                     var txt = mitem.text;
                     if (typeof options.render === 'function') txt = options.render(mitem, options);
@@ -2457,7 +2455,7 @@ w2utils.event = {
                             '        onclick="event.stopPropagation(); '+
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
                             '               $.fn.w2menuClick(event, \''+ f +'\');">'+
-                                imgd +
+                                seld + imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ txt +'</td>'+
                             '   <td class="menu-count">'+
                                     (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') +
@@ -2467,7 +2465,9 @@ w2utils.event = {
                         count++;
                     } else {
                         // horizontal line
-                        menu_html += '<tr><td colspan="3" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
+                        menu_html += '<tr><td colspan="' + (sel ? 4 : 3) +
+                            '" style="padding: 6px; pointer-events: none">' +
+                            '<div style="border-top: 1px solid silver;"></div></td></tr>';
                     }
                 }
                 options.items[f] = mitem;
