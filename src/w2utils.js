@@ -1470,6 +1470,7 @@ w2utils.formatters = {
     'number': function (value, params) {
         if (parseInt(params) > 20) params = 20;
         if (parseInt(params) < 0) params = 0;
+        if (value == null || value == '') return '';
         return w2utils.formatNumber(parseInt(value), params, true);
     },
 
@@ -1482,6 +1483,7 @@ w2utils.formatters = {
     },
 
     'money': function (value, params) {
+        if (value == null || value == '') return '';
         var data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision || 2);
         return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '');
     },
@@ -1491,10 +1493,12 @@ w2utils.formatters = {
     },
 
     'percent': function (value, params) {
+        if (value == null || value == '') return '';
         return w2utils.formatNumber(value, params || 1) + '%';
     },
 
     'size': function (value, params) {
+        if (value == null || value == '') return '';
         return w2utils.formatSize(parseInt(value));
     },
 
