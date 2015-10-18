@@ -2217,8 +2217,9 @@
             // after event
             this.trigger($.extend(eventData, { phase: 'after' }));
             // do not refresh if loading on infinite scroll
-            if (this.last.xhr_offset == 0) this.refresh(); 
-            else {
+            if (this.last.xhr_offset == 0) {
+                this.refresh(); 
+            } else {
                 this.scroll();
                 this.resize();
             }
