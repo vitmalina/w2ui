@@ -429,19 +429,54 @@
         scroll: function (direction) {
             var box = $(this.box);
             var scrollBox = box.children('.w2ui-toolbar-scroll-wrapper');
-            var left = scrollBox.scrollLeft();
+            var scrollLeft = scrollBox.scrollLeft();
+            var item, shift, tmp;
 
             switch (direction) {
                 case 'left':
-                    scrollBox.scrollLeft(left - 10);
                     box.addClass('overflowed-right');
+                    tmp = parseInt(box.find('table').first().css('padding-right'));
+                    shift = -scrollLeft;
+
+                    for (var i = this.items.length - 1; i >= 0; i--) {
+                        // search last invisible break or spacer from left side
+                        if (['break', 'spacer'].indexOf(this.items[i].type) >= 0) {
+                            item = $('#tb_' + this.name + '_item_' + this.items[i].id);
+                            if (item.position().left > 0) continue;
+                            shift = item.position().left - tmp + item.width();
+                            break;
+                        }
+                    }
+
+                    // cut scroll shift to max page size
+                    tmp = box.width() - tmp - parseInt(box.find('table').first().css('padding-left'));
+                    shift = Math.abs(shift) > tmp ? -tmp : shift;
+
+                    scrollBox.scrollLeft(scrollLeft + shift);
                     if (scrollBox.scrollLeft() <= 0) {
                         box.removeClass('overflowed-left');
                     }
                     break;
                 case 'right':
-                    scrollBox.scrollLeft(left + 10);
                     box.addClass('overflowed-left');
+                    tmp = parseInt(box.find('table').first().css('padding-left'));
+                    shift = scrollBox.width();
+
+                    for (var i = 0; i < this.items.length; i++) {
+                        // search nearest visible break or spacer from left side
+                        if (['break', 'spacer'].indexOf(this.items[i].type) >= 0) {
+                            item = $('#tb_' + this.name + '_item_' + this.items[i].id);
+                            if (item.position().left - tmp < 0) continue;
+                            shift = item.position().left - tmp + item.width();
+                            break;
+                        }
+                    }
+
+                    // cut scroll shift to max page size
+                    tmp = box.width() - tmp - parseInt(box.find('table').first().css('padding-right'));
+                    shift = Math.abs(shift) > tmp ? tmp : shift;
+
+                    scrollBox.scrollLeft(scrollLeft + shift);
                     if (scrollBox.scrollLeft() >= scrollBox[0].scrollWidth - scrollBox.width()) {
                         box.removeClass('overflowed-right')
                     }
@@ -553,7 +588,7 @@
 
             var box = $(this.box);
             var scrollBox = box.children('.w2ui-toolbar-scroll-wrapper');
-            if (box.find('table').width() > box.width()) {
+            if (box.find('table').first().outerWidth() > box.width()) {
                 // we have overflowed content
                 if (scrollBox.scrollLeft() > 0) {
                     box.addClass('overflowed-left');
