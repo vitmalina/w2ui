@@ -20,7 +20,7 @@
 *   - added button types: menu-check, menu-radio - will save into item.selected
 *   - item.text and item.html - can be functions now (or string), where this keyword is the item
 *   - item.style - style for caption in the button
-*   - item.check 
+*   - item.check
 *
 ************************************************************************/
 
@@ -427,15 +427,24 @@
         },
 
         scroll: function (direction) {
-            var box = $(this.box).children('.w2ui-toolbar-scroll-wrapper');
-            var left = box.scrollLeft();
+            var box = $(this.box);
+            var scrollBox = box.children('.w2ui-toolbar-scroll-wrapper');
+            var left = scrollBox.scrollLeft();
 
             switch (direction) {
                 case 'left':
-                    box.scrollLeft(left - 10);
+                    scrollBox.scrollLeft(left - 10);
+                    box.addClass('overflowed-right');
+                    if (scrollBox.scrollLeft() <= 0) {
+                        box.removeClass('overflowed-left');
+                    }
                     break;
                 case 'right':
-                    box.scrollLeft(left + 10);
+                    scrollBox.scrollLeft(left + 10);
+                    box.addClass('overflowed-left');
+                    if (scrollBox.scrollLeft() >= scrollBox[0].scrollWidth - scrollBox.width()) {
+                        box.removeClass('overflowed-right')
+                    }
                     break;
             }
         },
@@ -543,11 +552,22 @@
             if (eventData.isCancelled === true) return;
 
             var box = $(this.box);
+            var scrollBox = box.children('.w2ui-toolbar-scroll-wrapper');
             if (box.find('table').width() > box.width()) {
                 // we have overflowed content
-                box.addClass('overflowed');
-            } else if (box.hasClass('overflowed')) {
-                box.removeClass('overflowed');
+                if (scrollBox.scrollLeft() > 0) {
+                    box.addClass('overflowed-left');
+                } else {
+                    box.removeClass('overflowed-left');
+                }
+
+                if (scrollBox.scrollLeft() < scrollBox[0].scrollWidth - scrollBox.width()) {
+                    box.addClass('overflowed-right');
+                } else {
+                    box.removeClass('overflowed-right');
+                }
+            } else {
+                box.removeClass('overflowed-right overflowed-left');
             }
 
             // event after
