@@ -278,7 +278,7 @@
                 for (var o in obj) {
                     var val = this.records[i][o];
                     if (hasDots && String(o).indexOf('.') != -1) val = this.parseField(this.records[i], o);
-                    if (obj[o] != val) match = false;
+                    if (obj[o] !== val) match = false;
                 }
                 if (match && returnIndex !== true) recs.push(this.records[i].recid);
                 if (match && returnIndex === true) recs.push(i);
