@@ -720,7 +720,7 @@
         },
 
         _resizePanel: function (panel, l, t, w, h, iehack) {
-            var e = $('#layout_' + this.name + '_panel_' + panel.type)
+            var e = $('#layout_' + this.name + '_panel_' + panel.type);
             if (iehack) {
                 // IE hack
                 if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17;
