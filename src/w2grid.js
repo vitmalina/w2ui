@@ -2217,8 +2217,9 @@
             // after event
             this.trigger($.extend(eventData, { phase: 'after' }));
             // do not refresh if loading on infinite scroll
-            if (this.last.xhr_offset == 0) this.refresh(); 
-            else {
+            if (this.last.xhr_offset == 0) {
+                this.refresh(); 
+            } else {
                 this.scroll();
                 this.resize();
             }
@@ -2348,7 +2349,7 @@
             if (eventData.old_value != null) old_value = eventData.old_value;
             if (value != null) val = value;
             var addStyle = (col.style != null ? col.style + ';' : '');
-            if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent'].indexOf(col.render.split(':')[0]) != -1) {
+            if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent', 'size'].indexOf(col.render.split(':')[0]) != -1) {
                 addStyle += 'text-align: right;';
             }
             // normalize items
@@ -6381,38 +6382,9 @@
                         tmp[0] = col.render.toLowerCase().substr(0, t);
                         tmp[1] = col.render.toLowerCase().substr(t+1);
                     }
-                    var prefix = '';
-                    var suffix = '';
-                    if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) {
-                        if (tmp[1] == null || !w2utils.isInt(tmp[1])) tmp[1] = 0;
-                        if (tmp[1] > 20) tmp[1] = 20;
-                        if (tmp[1] < 0)  tmp[1] = 0;
-                        if (['money', 'currency'].indexOf(tmp[0]) != -1) { tmp[1] = w2utils.settings.currencyPrecision; prefix = w2utils.settings.currencyPrefix; suffix = w2utils.settings.currencySuffix; }
-                        if (tmp[0] == 'percent') { suffix = '%'; if (tmp[1] !== '0') tmp[1] = 1; }
-                        if (tmp[0] == 'int')     { tmp[1] = 0; }
-                        // format
-                        data = '<div style="'+ style +'">' + infoBubble + (data !== '' ? prefix + w2utils.formatNumber(Number(data), tmp[1]) + suffix : '') + '</div>';
-                    }
-                    if (tmp[0] == 'time') {
-                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.timeFormat;
-                        if (tmp[1] == 'h12') tmp[1] = 'hh:mi pm';
-                        if (tmp[1] == 'h24') tmp[1] = 'h24:mi';
-                        data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatTime(data, tmp[1]) + suffix + '</div>';
-                    }
-                    if (tmp[0] == 'date') {
-                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.dateFormat;
-                        data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatDate(w2utils.isDate(data, tmp[1], true), tmp[1]) + suffix + '</div>';
-                    }
-                    if (tmp[0] == 'datetime') {
-                        if (tmp[1] == null || tmp[1] == '') tmp[1] = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
-                        data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.formatDateTime(data, tmp[1]) + suffix + '</div>';
-                    }
-                    if (tmp[0] == 'age') {
-                        data = '<div style="'+ style +'">' + infoBubble + prefix + w2utils.age(data) + suffix + '</div>';
-                    }
-                    if (tmp[0] == 'toggle') {
-                        data = '<div style="'+ style +'">' + infoBubble + prefix + (data ? 'Yes' : '') + suffix + '</div>';
-                    }
+                    // formatters
+                    var func = w2utils.formatters[tmp[0]];
+                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1]) : '') + '</div>';
                 }
             } else {
                 // if editable checkbox
@@ -6439,7 +6411,7 @@
             // --> cell TD
             if (typeof col.render == 'string') {
                 var tmp = col.render.toLowerCase().split(':');
-                if (['number', 'int', 'float', 'money', 'currency', 'percent'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
+                if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
             }
             if (typeof record.style == 'object') {
                 if (typeof record.style[col_ind] == 'string') addStyle += record.style[col_ind] + ';';
@@ -6468,16 +6440,35 @@
             if (this.last.bubbleEl) $(this.last.bubbleEl).w2tag();
             if (info.fields == null && typeof info.render == 'function') info.fields = info.render;
             this.last.bubbleEl = el;
+            // if no fields defined - show all
+            if (info.fields == null) {
+                info.fields = [];
+                for (var i = 0; i < this.columns.length; i++) {
+                    var col = this.columns[i];
+                    info.fields.push(col.field + (typeof col.render == 'string' ? ':' + col.render : ''));
+                }                
+            }
             // generate html
             if (typeof info.fields == 'function') {
-                // custom renderer
-                html = info.fields(rec, ind, col_ind);
+                html = info.fields(rec, ind, col_ind); // custom renderer
             } else if ($.isArray(info.fields)) {
                 // display mentioned fields
                 html = '<table cellpadding="0" cellspacing="0">';
                 for (var i = 0; i < info.fields.length; i++) {
-                    var col = this.getColumn(info.fields[i]);
+                    var tmp = String(info.fields[i]).split(':');
+                    if (tmp[0] == '' || tmp[0] == '-' || tmp[0] == '--' || tmp[0] == '---') {
+                        html += '<tr><td colspan=2><div style="border-top: '+ (tmp[0] == '' ? '0' : '1') +'px solid #C1BEBE; margin: 6px 0px;"></div></td></tr>';
+                        continue;
+                    }
+                    var col = this.getColumn(tmp[0]);
                     var val = this.parseField(rec, col.field);
+                    if (tmp.length > 1) {
+                        if (w2utils.formatters[tmp[1]]) {
+                            val = w2utils.formatters[tmp[1]](val, tmp[2] || null);
+                        } else {
+                            console.log('ERROR: w2utils.formatters["'+ tmp[1] + '"] does not exists.')
+                        }
+                    }
                     if (info.showEmpty !== true && (val == null || val == '')) continue;
                     if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
                     html += '<tr><td>' + col.caption + '</td><td>' + (val || '') + '</td></tr>';
@@ -6488,24 +6479,26 @@
                 html = '<table cellpadding="0" cellspacing="0">';
                 for (var caption in info.fields) {
                     var fld = info.fields[caption];
-                    var val = this.parseField(rec, fld);
+                    if (fld == '' || fld == '-' || fld == '--' || fld == '---') {
+                        html += '<tr><td colspan=2><div style="border-top: '+ (fld == '' ? '0' : '1') +'px solid #C1BEBE; margin: 6px 0px;"></div></td></tr>';
+                        continue;
+                    }
+                    var tmp = String(fld).split(':');
+                    var col = this.getColumn(tmp[0]);
+                    var val = (col ? this.parseField(rec, col.field) : '');
+                    if (tmp.length > 1) {
+                        if (w2utils.formatters[tmp[1]]) {
+                            val = w2utils.formatters[tmp[1]](val, tmp[2] || null);
+                        } else {
+                            console.log('ERROR: w2utils.formatters["'+ tmp[1] + '"] does not exists.')
+                        }
+                    }
                     if (typeof fld == 'function') {
                         val = fld(rec, ind, col_ind);
                     }
                     if (info.showEmpty !== true && (val == null || val == '')) continue;
                     if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
                     html += '<tr><td>' + caption + '</td><td>' + (val || '') + '</td></tr>';
-                }
-                html += '</table>';
-            } else {
-                // display all fields
-                html = '<table cellpadding="0" cellspacing="0">';
-                for (var i = 0; i < this.columns.length; i++) {
-                    var col = this.columns[i];
-                    var val = this.parseField(rec, col.field);
-                    if (info.showEmpty !== true && (val == null || val == '')) continue;
-                    if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
-                    html += '<tr><td>' + col.caption + '</td><td>' + (val || '') + '</td></tr>';
                 }
                 html += '</table>';
             }
