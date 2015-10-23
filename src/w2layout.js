@@ -719,6 +719,43 @@
             return (new Date()).getTime() - time;
         },
 
+        _resizePanel: function (panel, l, t, w, h, iehack) {
+            var e = $('#layout_' + this.name + '_panel_' + panel.type)
+            if (iehack) {
+                // IE hack
+                if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17;
+            }
+            e.css({
+                'display': 'block',
+                'left': l + 'px',
+                'top': t + 'px',
+                'width': w + 'px',
+                'height': h + 'px'
+            }).show();
+            panel.width = w;
+            panel.height = h;
+        },
+        
+        _resizePanelResizer: function (panel, l, t, w, h) {
+            $('#layout_' + this.name + '_resizer_' + panel.type).show().css({
+                'display': 'block',
+                'left': l + 'px',
+                'top': t + 'px',
+                'width': w + 'px',
+                'height': h + 'px',
+                'cursor': 'ns-resize'
+            }).off('mousedown').on('mousedown', function (event) {
+                // event before
+                var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: panel.type, originalEvent: event });
+                if (eventData.isCancelled === true) return;
+                // default action
+                w2ui[obj.name].tmp.events.resizeStart(panel.type, event);
+                // event after
+                obj.trigger($.extend(eventData, { phase: 'after' }));
+                return false;
+            });
+        },
+        
         resize: function () {
             // if (window.getSelection) window.getSelection().removeAllRanges();    // clear selection
             if (!this.box) return false;
@@ -792,36 +829,12 @@
                 t = 0;
                 w = width;
                 h = ptop.sizeCalculated;
-                $('#layout_'+ this.name +'_panel_top').css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px'
-                }).show();
-                ptop.width  = w;
-                ptop.height = h;
+                this._resizePanel(ptop, l, t, w, h, false);
                 // resizer
                 if (ptop.resizable) {
                     t = ptop.sizeCalculated - (this.padding === 0 ? this.resizer : 0);
                     h = (this.resizer > this.padding ? this.resizer : this.padding);
-                    $('#layout_'+ this.name +'_resizer_top').show().css({
-                        'display': 'block',
-                        'left': l + 'px',
-                        'top': t + 'px',
-                        'width': w + 'px',
-                        'height': h + 'px',
-                        'cursor': 'ns-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
-                        // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
-                        // default action
-                        w2ui[obj.name].tmp.events.resizeStart('top', event);
-                        // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
-                        return false;
-                    });
+                    this._resizePanelResizer(ptop, l, t, w, h);
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_top').hide();
@@ -834,38 +847,12 @@
                 w = pleft.sizeCalculated;
                 h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                         (sbottom ? pbottom.sizeCalculated + this.padding : 0);
-                e = $('#layout_'+ this.name +'_panel_left');
-                if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-                e.css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px'
-                }).show();
-                pleft.width  = w;
-                pleft.height = h;
+                this._resizePanel(pleft, l, t, w, h, true);
                 // resizer
                 if (pleft.resizable) {
                     l = pleft.sizeCalculated - (this.padding === 0 ? this.resizer : 0);
                     w = (this.resizer > this.padding ? this.resizer : this.padding);
-                    $('#layout_'+ this.name +'_resizer_left').show().css({
-                        'display': 'block',
-                        'left': l + 'px',
-                        'top': t + 'px',
-                        'width': w + 'px',
-                        'height': h + 'px',
-                        'cursor': 'ew-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
-                        // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
-                        // default action
-                        w2ui[obj.name].tmp.events.resizeStart('left', event);
-                        // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
-                        return false;
-                    });
+                    this._resizePanelResizer(pleft, l, t, w, h);
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_left').hide();
@@ -878,36 +865,12 @@
                 w = pright.sizeCalculated;
                 h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                     (sbottom ? pbottom.sizeCalculated + this.padding : 0);
-                $('#layout_'+ this.name +'_panel_right').css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px'
-                }).show();
-                pright.width  = w;
-                pright.height = h;
+                this._resizePanel(pright, l, t, w, h, false);
                 // resizer
                 if (pright.resizable) {
                     l = l - this.padding;
                     w = (this.resizer > this.padding ? this.resizer : this.padding);
-                    $('#layout_'+ this.name +'_resizer_right').show().css({
-                        'display': 'block',
-                        'left': l + 'px',
-                        'top': t + 'px',
-                        'width': w + 'px',
-                        'height': h + 'px',
-                        'cursor': 'ew-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
-                        // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
-                        // default action
-                        w2ui[obj.name].tmp.events.resizeStart('right', event);
-                        // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
-                        return false;
-                    });
+                    this._resizePanelResizer(pright, l, t, w, h);
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_right').hide();
@@ -919,36 +882,12 @@
                 t = height - pbottom.sizeCalculated;
                 w = width;
                 h = pbottom.sizeCalculated;
-                $('#layout_'+ this.name +'_panel_bottom').css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px'
-                }).show();
-                pbottom.width  = w;
-                pbottom.height = h;
+                this._resizePanel(pbottom, l, t, w, h, false);
                 // resizer
                 if (pbottom.resizable) {
                     t = t - (this.padding === 0 ? 0 : this.padding);
                     h = (this.resizer > this.padding ? this.resizer : this.padding);
-                    $('#layout_'+ this.name +'_resizer_bottom').show().css({
-                        'display': 'block',
-                        'left': l + 'px',
-                        'top': t + 'px',
-                        'width': w + 'px',
-                        'height': h + 'px',
-                        'cursor': 'ns-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
-                        // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
-                        // default action
-                        w2ui[obj.name].tmp.events.resizeStart('bottom', event);
-                        // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
-                        return false;
-                    });
+                    this._resizePanelResizer(pbottom, l, t, w, h);
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_bottom').hide();
@@ -962,17 +901,7 @@
             h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                 (sbottom ? pbottom.sizeCalculated + this.padding : 0) -
                 (sprev ? pprev.sizeCalculated + this.padding : 0);
-            e = $('#layout_'+ this.name +'_panel_main');
-            if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-            e.css({
-                'display': 'block',
-                'left': l + 'px',
-                'top': t + 'px',
-                'width': w + 'px',
-                'height': h + 'px'
-            });
-            pmain.width  = w;
-            pmain.height = h;
+            this._resizePanel(pmain, l, t, w, h, true);
 
             // preview if any
             if (pprev != null && pprev.hidden !== true) {
@@ -981,38 +910,12 @@
                 w = width  - (sleft ? pleft.sizeCalculated + this.padding : 0) -
                     (sright ? pright.sizeCalculated + this.padding : 0);
                 h = pprev.sizeCalculated;
-                e = $('#layout_'+ this.name +'_panel_preview');
-                if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17; // IE hack
-                e.css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px'
-                }).show();
-                pprev.width  = w;
-                pprev.height = h;
+                this._resizePanel(pprev, l, t, w, h, true);
                 // resizer
                 if (pprev.resizable) {
                     t = t - (this.padding === 0 ? 0 : this.padding);
                     h = (this.resizer > this.padding ? this.resizer : this.padding);
-                    $('#layout_'+ this.name +'_resizer_preview').show().css({
-                        'display': 'block',
-                        'left': l + 'px',
-                        'top': t + 'px',
-                        'width': w + 'px',
-                        'height': h + 'px',
-                        'cursor': 'ns-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
-                        // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
-                        // default action
-                        w2ui[obj.name].tmp.events.resizeStart('preview', event);
-                        // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
-                        return false;
-                    });
+                    this._resizePanelResizer(pprev, l, t, w, h);
                 }
             } else {
                 $('#layout_'+ this.name +'_panel_preview').hide();
