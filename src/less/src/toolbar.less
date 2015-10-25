@@ -15,14 +15,23 @@
         .opacity(0.3)
     }
 
-    &.overflowed {
-        .w2ui-toolbar-scroll-left,
+    &.overflowed-left {
+        .w2ui-toolbar-scroll-left {
+            display: block;
+        }
+
+        .w2ui-toolbar-scroll-wrapper > table {
+            padding-left: 18px;
+        }
+    }
+
+    &.overflowed-right {
         .w2ui-toolbar-scroll-right {
             display: block;
         }
 
         .w2ui-toolbar-scroll-wrapper > table {
-            padding: 0 18px;
+            padding-right: 18px;
         }
     }
 
