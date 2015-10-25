@@ -1767,6 +1767,7 @@ w2utils.event = {
             hideOnBlur      : false,    // hide tag on blur
             hideOnClick     : false     // hide tag on document click
         }, options);
+        if (options.name != null && options.id == null) options.id = options.name;
 
         // for backward compatibility
         if (options['class'] != '' && options.inputClass == '') options.inputClass = options['class'];
@@ -2053,16 +2054,14 @@ w2utils.event = {
                     h = parseInt(options.tmp.contentHeight);
                     div2.height(h);
                     setTimeout(function () {
-                        var $div = div2.find('div.menu > table');
+                        var $div = div2.find('div.menu');
                         if (h > $div.height()) {
                             div2.find('div.menu').css('overflow-y', 'hidden');
                         }
                     }, 1);
                     setTimeout(function () { 
                         var $div = div2.find('div.menu');
-                        if ($div.css('overflow-y') != 'auto') {
-                            $div.css('overflow-y', 'auto'); 
-                        }
+                        if ($div.css('overflow-y') != 'auto') $div.css('overflow-y', 'auto'); 
                     }, 10);
                 }
                 if (options.tmp.contentWidth) {
@@ -2070,10 +2069,12 @@ w2utils.event = {
                     div2.width(w);
                     setTimeout(function () {
                         if (w > div2.find('div.menu > table').width()) {
-                            div2.find('div.menu').css('overflow-x', 'hidden');
+                            div2.find('div.menu > table').css('overflow-x', 'hidden');
                         }
                     }, 1);
-                    setTimeout(function () { div2.find('div.menu').css('overflow-x', 'auto'); }, 10);
+                    setTimeout(function () { 
+                        div2.find('div.menu > table').css('overflow-x', 'auto'); 
+                    }, 10);
                 }
                 // adjust position
                 var tmp = (w - 17) / 2;
@@ -2217,7 +2218,7 @@ w2utils.event = {
                 var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
                 $('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
                 $('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
-                setTimeout(function () { mresize(); }, 1);
+                mresize();
             } else {
                 $(this).w2menu(options);
             }
@@ -2236,7 +2237,7 @@ w2utils.event = {
                     $menu.animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
                 }
             }
-            return;
+            mresize();
         } else {
             if (arguments.length === 1) options = menu; else options.items = menu;
             if (typeof options !== 'object') options = {};
@@ -2308,7 +2309,7 @@ w2utils.event = {
                 options.index = 0;
                 for (var i = 0; i < options.items.length; i++) options.items[i].hidden = false;
             }
-            html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%; overflow: auto;">' +
+            html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%;">' +
                         getMenuHTML() +
                     '</div>';
             var ret = $(this).w2overlay(html, options);
@@ -2323,10 +2324,12 @@ w2utils.event = {
                     if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName.toUpperCase() == 'TEXTAREA') return;
                     $('#w2ui-overlay'+ name +' #menu-search').focus();
                 }
+                mresize();
             }, 200);
             mresize();
             return ret;
         }
+        return;
 
         function mresize() {
             setTimeout(function () {
@@ -2411,7 +2414,7 @@ w2utils.event = {
             mresize();
         }
 
-        function getMenuHTML () {
+        function getMenuHTML() {
             if (options.spinner) {
                 return  '<table class="w2ui-drop-menu"><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
                         '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+

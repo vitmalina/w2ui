@@ -317,7 +317,6 @@
                     if (this.type == 'list') {
                         // defaults.search = (options.items && options.items.length >= 10 ? true : false);
                         defaults.openOnFocus = true;
-                        defaults.suffix = '<div class="arrow-down" style="margin-top: '+ ((parseInt($(this.el).height()) - 6) / 2) +'px;"></div>';
                         $(this.el).addClass('w2ui-select');
                         // if simple value - look it up
                         if (!$.isPlainObject(options.selected) && options.items) {
@@ -1364,7 +1363,9 @@
                     // regular
                     if (!this.tmp.force_hide) this.request();
                     if (input.val().length == 1) this.refresh()
-                    this.search();
+                    if ($('#w2ui-overlay').length == 0 || [38, 40].indexOf(event.keyCode) == -1) { // no search on arrows
+                        this.search();
+                    }
                     // event after
                     this.trigger($.extend(edata, { phase: 'after' }));                
                 }
@@ -1534,7 +1535,7 @@
                     if (item.hidden !== true) { shown++; delete item.hidden; }
                 }
                 // preselect first item
-                options.index = 0;
+                options.index = -1;
                 while (options.items[options.index] && options.items[options.index].hidden) options.index++;
                 if (shown <= 0) options.index = -1;
                 options.spinner = false;
@@ -1799,6 +1800,15 @@
                     input = $(el).find('input');
                 }
                 if (this.type == 'list') {
+                    var sel = $(input).data('selected');
+                    if ($.isPlainObject(sel) && !$.isEmptyObject(sel) && options.index == -1) {
+                        options.items.forEach(function (item, ind) {
+                            if (item.id == sel.id) {
+                                console.log('-->', ind);
+                                options.index = ind;
+                            }
+                        });
+                    }
                     input = $(this.helpers.focus).find('input');
                 }
                 if ($(input).is(':focus')) {
