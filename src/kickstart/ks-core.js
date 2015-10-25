@@ -7,7 +7,8 @@ var kickStart = (function () {
     // public scope    
 
     var app = {
-        _config   : { 
+        _conf   : {
+            name    : 'unnamed',
             baseURL : '',
             cache   : false, 
             modules : {}
@@ -26,9 +27,9 @@ var kickStart = (function () {
         // if string - it is path to the file
         if (typeof mod == 'string') {
             $.ajax({ 
-                url      : app._config.baseURL + mod,
+                url      : app._conf.baseURL + mod,
                 dataType : 'text',
-                cache    : app._config.cache,
+                cache    : app._conf.cache,
                 async    : false, // do it synchronously - otherwise errors
                 success : function (data, success, xhr) {
                     if (success != 'success') {
@@ -48,11 +49,11 @@ var kickStart = (function () {
             });
         }
         for (var m in mod) {
-            if (app._config.modules.hasOwnProperty(m)) {
+            if (app._conf.modules.hasOwnProperty(m)) {
                 console.log('ERROR: module ' + m + ' is already registered.');
                 return false;
             }
-            app._config.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
+            app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
         }
         return true;
     }
@@ -66,15 +67,15 @@ var kickStart = (function () {
             console.log('ERROR: Namespace '+ name +' is already registered');
             return false;
         }
-        if (!app._config.modules.hasOwnProperty(name)) {
+        if (!app._conf.modules.hasOwnProperty(name)) {
             console.log('ERROR: Namespace '+ name +' is not defined, first define it with kickStart.define');
             return false;
         }
         // register module
-        var mod = app._config.modules[name];
+        var mod = app._conf.modules[name];
         // init module
         app[name] = moduleFunction(mod.files, mod);
-        app._config.modules[name].ready = true;
+        app._conf.modules[name].ready = true;
         return;
     }
 
@@ -110,17 +111,17 @@ var kickStart = (function () {
                 if (typeof app[name] != 'undefined') {
                     modCount--;
                     isFinished();
-                } else if (typeof app._config.modules[name] == 'undefined') { 
+                } else if (typeof app._conf.modules[name] == 'undefined') { 
                     console.log('ERROR: module ' + name + ' is not defined.');
                 } else { 
                     (function (name) { // need closure
                         // load dependencies
-                        getFiles(app._config.modules[name].assets.concat([app._config.modules[name].start]), function (files) {
-                            var start = files[app._config.modules[name].start];
-                            delete files[app._config.modules[name].start];
+                        getFiles(app._conf.modules[name].assets.concat([app._conf.modules[name].start]), function (files) {
+                            var start = files[app._conf.modules[name].start];
+                            delete files[app._conf.modules[name].start];
                             // register assets
-                            app._config.modules[name].files  = files;
-                            app._config.modules[name].ready  = true;
+                            app._conf.modules[name].files  = files;
+                            app._conf.modules[name].ready  = true;
                             // execute start file
                             try { 
                                 eval(start); 
@@ -132,18 +133,18 @@ var kickStart = (function () {
                                 if (tmp) tmp = tmp[0].split(':');
                                 if (tmp) {
                                     // display error
-                                    console.error('ERROR: ' + err[0] + ' ==> ' + app._config.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
+                                    console.error('ERROR: ' + err[0] + ' ==> ' + app._conf.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
                                     console.log(e.stack);
                                 } else {
-                                    console.error('ERROR: ' + app._config.modules[name].start);
+                                    console.error('ERROR: ' + app._conf.modules[name].start);
                                     console.log(e.stack);
                                 }
-                                // if (typeof app.config.fail == 'function') app.config.fail(app._config.modules[name]);
-                                if (typeof promise._fail == 'function') promise._fail(app._config.modules[name]);
+                                // if (typeof app.conf.fail == 'function') app.conf.fail(app._conf.modules[name]);
+                                if (typeof promise._fail == 'function') promise._fail(app._conf.modules[name]);
                             }
                             // check ready
-                            // if (typeof app.config.ready == 'function') app.config.ready(app._config.modules[name]);
-                            if (typeof promise._ready == 'function') promise._ready(app._config.modules[name]);
+                            // if (typeof app.conf.ready == 'function') app.conf.ready(app._conf.modules[name]);
+                            if (typeof promise._ready == 'function') promise._ready(app._conf.modules[name]);
                             modCount--;
                             isFinished();
                         });
@@ -157,11 +158,11 @@ var kickStart = (function () {
         function isFinished() {
             if (modCount == 0) {
                 if (failed !== true) {
-                    // if (typeof app.config.done == 'function') app.config.done(app._config.modules[name]);
-                    if (typeof promise._done == 'function') promise._done(app._config.modules[name]);
+                    // if (typeof app.conf.done == 'function') app.conf.done(app._conf.modules[name]);
+                    if (typeof promise._done == 'function') promise._done(app._conf.modules[name]);
                     if (typeof callBack == 'function') callBack();
                 }
-                // if (typeof app.config.always == 'function') app.config.always(app._config.modules[name]);
+                // if (typeof app.conf.always == 'function') app.conf.always(app._conf.modules[name]);
                 if (typeof promise._always == 'function') promise._always();
             }
         }
@@ -181,9 +182,9 @@ var kickStart = (function () {
                 var index = i;
                 var path  = files[i];
                 $.ajax({
-                    url      : app._config.baseURL + path,
+                    url      : app._conf.baseURL + path,
                     dataType : 'text',
-                    cache    : app._config.cache,
+                    cache    : app._conf.cache,
                     success  : function (data, success, xhr) {
                         if (success != 'success') {
                             console.log('ERROR: error while getting a file '+ path +'.');

@@ -9,6 +9,7 @@ kickStart.register('route', function () {
     addListener();
 
     var obj = {
+        init    : init,
         add     : add,
         remove  : remove,
         go      : go,
@@ -26,6 +27,15 @@ kickStart.register('route', function () {
     /*
     *   Public methods
     */
+
+    function init(route) {
+        // default route is passed here
+        if (get() === '') {
+            go(route);
+        } else {
+            process();
+        }
+    }
 
     function add(route, handler) {
         if (typeof route == 'object') {
@@ -110,7 +120,7 @@ kickStart.register('route', function () {
             }
             // load module
             app.require(tmp[1]).done(function () {
-                if (app._config.modules[tmp[1]]) process();
+                if (app._conf.modules[tmp[1]]) process();
             });
             // if events are available
             if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
