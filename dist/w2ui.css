@@ -158,10 +158,34 @@ select.w2ui-input {
   border-radius: 3px;
   border: 1px solid #cacaca;
   -webkit-appearance: none;
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAALCAQAAADCIvUBAAAAcElEQVR4AbXLsQEBQADF0H+bAAAtoGUEkCVYygCMAijp7mo1AACAlzr6GXw0adO6U4cG3vuzIcqYxZ3GRDF6BD/9m2sPn54jxOhqHRHUa0gyPVsnJPU6MtjDaknrPRRwm9VR0PsoMVtV1GeoUNG/LAFm8mSWOfmURAAAAABJRU5ErkJggg=='), -webkit-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
-  background-size: 14px 6px, 100% 100%;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'), -webkit-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+  background-size: 17px 6px, 100% 100%;
   background-position: right center, left top;
   background-repeat: no-repeat, no-repeat;
+}
+.w2ui-icon-expand:before {
+  position: relative;
+  top: 1px;
+  left: 1px;
+  content: ' ';
+  width: 6px;
+  height: 6px;
+  border: 2px solid rgba(150, 150, 150, 0.8);
+  border-bottom: 0;
+  border-left: 0;
+  transform: rotateZ(45deg);
+}
+.w2ui-icon-collapse:before {
+  position: relative;
+  top: -1px;
+  left: 3px;
+  content: ' ';
+  width: 6px;
+  height: 6px;
+  border: 2px solid rgba(150, 150, 150, 0.8);
+  border-bottom: 0;
+  border-left: 0;
+  transform: rotateZ(135deg);
 }
 /* On/Off switch */
 input[type="checkbox"].w2ui-toggle {
@@ -1317,11 +1341,10 @@ button.w2ui-btn-small:focus:before {
 .w2ui-select {
   cursor: default;
   color: black !important;
-  background-image: -webkit-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
-  background-image: -moz-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
-  background-image: -ms-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
-  background-image: -o-linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
-  background-image: linear-gradient(top,#ffffff 20%,#f6f6f6 50%,#eeeeee 52%,#f4f4f4 100%);
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'), -webkit-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+  background-size: 17px 6px, 100% 100%;
+  background-position: right center, left top;
+  background-repeat: no-repeat, no-repeat;
 }
 .w2ui-select[readonly],
 .w2ui-select[disabled] {
@@ -1886,6 +1909,14 @@ button.w2ui-btn-small:focus:before {
   height: auto;
   overflow: visible;
   white-space: normal;
+}
+.w2ui-grid .w2ui-grid-body table td.w2ui-grid-data .w2ui-show-children {
+  width: 16px;
+  height: 10px;
+  display: inline-block;
+  position: relative;
+  top: -1px;
+  cursor: pointer;
 }
 .w2ui-grid .w2ui-grid-body table td:last-child {
   border-right: 0px;
