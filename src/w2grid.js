@@ -368,7 +368,11 @@
                 for (var o in obj) {
                     var val = this.records[i][o];
                     if (hasDots && String(o).indexOf('.') != -1) val = this.parseField(this.records[i], o);
-                    if (obj[o] != val) match = false;
+                    if (obj[o] == 'not-null') {
+                        if (val == null || val == '') match = false;
+                    } else {
+                        if (obj[o] != val) match = false;
+                    }
                 }
                 if (match && returnIndex !== true) recs.push(this.records[i].recid);
                 if (match && returnIndex === true) recs.push(i);
@@ -2362,9 +2366,9 @@
                     html += '<option value="'+ edit.items[i].id +'"'+ (edit.items[i].id == val ? ' selected="selected"' : '') +'>'+ edit.items[i].text +'</option>';
                 }
                 el.addClass('w2ui-editable')
-                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'"'+
-                        '    style="width: 100%; pointer-events: auto; padding: 0px; margin: 0px; '+
-                        '       outline: none; border: 0px !important; '+ addStyle + edit.style +'" '+
+                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'" class="w2ui-input"'+
+                        '    style="width: 100%; pointer-events: auto; padding: 0 0 0 3px; margin: 0px; border-left: 0; border-right: 0; border-radius: 0px; '+
+                        '           outline: none; font-family: inherit;'+ addStyle + edit.style +'" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" '+
                         '    '+ edit.inTag +
                         '>'+ html +'</select>' + edit.outTag);
@@ -2401,11 +2405,10 @@
                 var $tmp = tr.find('[col='+ column +'] > div');
                 var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size');
                 el.addClass('w2ui-editable')
-                    .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
-                        '    type="text" style="'+ font +'; width: 100%; height: 100%; padding: 3px; '+
-                        '       border-color: transparent; outline: none; pointer-events: auto; '+ addStyle + edit.style +'" '+
-                        '    field="'+ col.field +'" recid="'+ recid +'" '+
-                        '    column="'+ column +'" '+ edit.inTag +
+                    .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" autocorrect="off" autocomplete="off" spellcheck="false" type="text" '+
+                        '    style="'+ font +'; width: 100%; height: 100%; padding: 3px; border-color: transparent; outline: none; border-radius: 0; '+
+                        '       pointer-events: auto; '+ addStyle + edit.style +'" '+
+                        '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
                         '/>' + edit.outTag);
                 // issue #499
                 if (typeof val == 'number') {
@@ -2424,6 +2427,9 @@
                     if (edit.type == 'list') {
                         tmp = $($(input).data('w2field').helpers.focus).find('input');
                         if (typeof val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
+                        el.find('input').on('change', function (event) {
+                            obj.editChange.call(obj, input, index, column, event);
+                        });
                     }
                     $(tmp).on('blur', function (event) {
                         if ($(this).data('keep-open') == true) return;
@@ -2456,6 +2462,11 @@
                         var el  = this;
                         var val = (el.tagName == 'DIV' ? $(el).text() : $(el).val());
                         switch (event.keyCode) {
+                            case 8: // backspace;
+                                if (edit.type == 'list' && !$(input).data('w2field')) { // cancel backspace when deleting element
+                                    event.preventDefault();
+                                }
+                                break;
                             case 9:
                             case 13:
                                 event.preventDefault();
@@ -2606,10 +2617,11 @@
             var new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value);
             var old_val = this.parseField(rec, col.field);
             if ($(event.target).data('old_value') != null) old_val = $(event.target).data('old_value');
-            var tmp     = $(el).data('w2field');
+            var tmp = $(el).data('w2field');
             if (tmp) {
-                new_val = tmp.clean(new_val);
-                if (tmp.type == 'list' && new_val != '') new_val = $(el).data('selected');
+                if (tmp.type == 'list') new_val = $(el).data('selected');
+                if ($.isEmptyObject(new_val) || new_val == null) new_val = '';
+                if (!$.isPlainObject(new_val)) new_val = tmp.clean(new_val);
             }
             if (el.type == 'checkbox') {
                 if (rec.editable === false) el.checked = !el.checked;
@@ -3551,6 +3563,35 @@
                 obj.resizeRecords();
             }, 300);
             return true;
+        },
+
+        showChildren: function (ind, col_ind) {
+            var rec = this.records[ind];
+            if (rec.w2ui) {
+                if (rec.w2ui.sub_shown !== true) {
+                    rec.w2ui.sub_shown = true;
+                    var children = rec.w2ui.children;
+                    if (Array.isArray(children) && children.length > 0) {
+                        children.forEach(function (child) {
+                            child.w2ui = child.w2ui || {};
+                            child.w2ui.sub_parent_recid = rec.recid;
+                        });
+                        this.records.splice.apply(this.records, [ind + 1, 0].concat(children));
+                    }
+                } else {
+                    rec.w2ui.sub_shown = false;
+                    // all children are directly after
+                    var start = ind + 1;
+                    var end   = start;
+                    while (true) {
+                        if (this.records.length <= end + 1 || this.records[end+1].w2ui.sub_parent_recid == null) break;
+                        if (this.records[end+1].w2ui.sub_shown) this.records[end+1].w2ui.sub_shown = false; 
+                        end++;
+                    }
+                    this.records.splice(start, end - start + 1);
+                }
+                this.refresh();
+            }
         },
 
         sort: function (field, direction, multiField) { // if no params - clears sort
@@ -6354,11 +6395,38 @@
             var infoBubble    = '';
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             if (col_span == null) col_span = 1;
+            // expand icon
+            if (col_ind == 0 && record.w2ui && Array.isArray(record.w2ui.children)) {
+                var level  = 0;
+                var subrec = this.get(record.w2ui.sub_parent_recid, true);
+                while (true) {
+                    if (subrec != null) {
+                        level++
+                        var tmp = this.records[subrec].w2ui;
+                        if (tmp != null && tmp.sub_parent_recid != null) {
+                            subrec = this.get(tmp.sub_parent_recid, true);
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                for (var i = 0; i < level; i++) {
+                    infoBubble += '<span class="w2ui-show-children w2ui-icon-empty"></span>';
+                }
+                infoBubble += '<span class="w2ui-show-children '+ 
+                        (record.w2ui.children.length > 0 
+                            ? (record.w2ui.sub_shown ? 'w2ui-icon-collapse' : 'w2ui-icon-expand') 
+                            : 'w2ui-icon-empty'
+                        ) +'" '+
+                    ' onclick="event.stopPropagation(); w2ui[\''+ this.name + '\'].showChildren('+ ind +', '+ col_ind +')"></span>';
+            }
             // info bubble
             if (col.info === true) col.info = {};
             if (col.info != null) {
                 if (!col.info.icon) col.info.icon = 'w2ui-icon-info';
-                infoBubble = '<span class="w2ui-info '+ col.info.icon +'" style="'+ (col.info.style || '') + '" '+
+                infoBubble += '<span class="w2ui-info '+ col.info.icon +'" style="'+ (col.info.style || '') + '" '+
                     ' onclick="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"></span>';
             }
             // various renderers
@@ -6471,7 +6539,7 @@
                     }
                     if (info.showEmpty !== true && (val == null || val == '')) continue;
                     if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
-                    html += '<tr><td>' + col.caption + '</td><td>' + (val || '') + '</td></tr>';
+                    html += '<tr><td>' + col.caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
                 }
                 html += '</table>';
             } else if ($.isPlainObject(info.fields)) {
@@ -6519,7 +6587,7 @@
             if (record.changes && record.changes[col.field] != null) {
                 data = record.changes[col.field];
             }
-            if ($.isPlainObject(data)) {
+            if ($.isPlainObject(data) && col.editable && col.editable.type == 'list') {
                 if (data.text != null) data = data.text;
                 if (data.id != null) data = data.id;
             }

@@ -49,11 +49,7 @@ $(function () {
             { field: 'date', caption: 'date', size: '80px', sortable: true, resizable: true, editable: { type: 'date' } },
             { field: 'time', caption: 'time', size: '80px', sortable: true, resizable: true, editable: { type: 'time' } },
             { field: 'list', caption: 'list', size: '50%', sortable: true, resizable: true, 
-                editable: { type: 'list', items: people },
-                render: function (record, index, col_index) {
-                    var html = this.getCellValue(index, col_index);
-                    return html.text || '';
-                }
+                editable: { type: 'list', items: people }
             },
             { field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
             { field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true, 
