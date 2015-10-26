@@ -865,7 +865,7 @@
             }
         },
 
-        refresh: function () {
+        refresh: function (id) {
             var time = (new Date()).getTime();
             var obj = this;
             if (!this.box) return;
