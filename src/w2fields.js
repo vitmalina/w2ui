@@ -21,6 +21,7 @@
 *   - ENUM, LIST: same data structure as grid
 *   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
 *   - ENUM, LIST: should support wild cars
+*   - add selection of predefined times (used for appointments)
 *
 * == 1.5 changes
 *   - added support decimalSymbol (added options.decimalSymbol)
@@ -38,6 +39,7 @@
 *   - added options.method - for combo/list/enum if url is defined
 *   - options.items can be a function now
 *   - options.maxDropWidth
+*   - options.noMinutes - for time field
 *
 ************************************************************************/
 
@@ -254,12 +256,12 @@
 
                 case 'time':
                     defaults = {
-                        format          : w2utils.settings.timeFormat,
-                        keyboard        : true,
-                        silent          : true,
-                        start           : '',
-                        end             : '',
-                        withoutMinutes  : false
+                        format    : w2utils.settings.timeFormat,
+                        keyboard  : true,
+                        silent    : true,
+                        start     : '',
+                        end       : '',
+                        noMinutes : false
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
@@ -276,7 +278,8 @@
                         blocked     : [],       // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
                         colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formatted with w2utils.settings.dateFormat
                         placeholder : null,     // optional. will fall back to this.format if not specified. Only used if this.el has no placeholder attribute.
-                        btn_now     : true      // show/hide the use-current-date-and-time button
+                        btn_now     : true,     // show/hide the use-current-date-and-time button
+                        noMinutes   : false
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
@@ -1647,7 +1650,7 @@
                         var hour = $(this).attr('hour');
                         $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
                     })
-                    if (this.options.withoutMinutes == undefined || !this.options.withoutMinutes){
+                    if (this.options.noMinutes == null || this.options.noMinutes === false) {
                         $('#w2ui-overlay .w2ui-time')
                             .on('mouseup', function () {
                                 var hour = $(this).attr('hour');
@@ -1664,7 +1667,7 @@
                                         setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
                                     });
                             });
-                    }else{
+                    } else {
                         $('#w2ui-overlay .w2ui-time')
                             .on('mouseup', function () {
                                     setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
@@ -1729,9 +1732,6 @@
                             selDate = new Date($(this).attr('data-date'));
                         })
                         .on('mouseup', function () {
-                            /*setTimeout(function () {
-                                if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
-                            }, 10);*/
                             // continue with time picker
                             var selHour, selMin;
                             if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
@@ -1746,25 +1746,33 @@
                                     var txt = w2utils.formatDateTime(selDate, obj.options.format);
                                     $(obj.el).val(txt).change();
                                     //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
-                                })
-                                .on('mouseup', function () {
-                                    var hour = $(this).attr('hour');
-                                    if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
-                                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
-                                    $('#w2ui-overlay > div').html(obj.getMinHTML(hour));
-                                    $('#w2ui-overlay .w2ui-time')
-                                        .on('mousedown', function () {
-                                            $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
-                                            selMin = $(this).attr('min');
-                                            selDate.setHours(selHour, selMin);
-                                            var txt = w2utils.formatDateTime(selDate, obj.options.format);
-                                            $(obj.el).val(txt).change();
-                                            //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
-                                        })
-                                        .on('mouseup', function () {
-                                            setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
-                                        });
                                 });
+                            if (obj.options.noMinutes == null || obj.options.noMinutes === false) {
+                                $('#w2ui-overlay .w2ui-time')
+                                    .on('mouseup', function () {
+                                        var hour = $(this).attr('hour');
+                                        if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                                        $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
+                                        $('#w2ui-overlay > div').html(obj.getMinHTML(hour));
+                                        $('#w2ui-overlay .w2ui-time')
+                                            .on('mousedown', function () {
+                                                $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+                                                selMin = $(this).attr('min');
+                                                selDate.setHours(selHour, selMin);
+                                                var txt = w2utils.formatDateTime(selDate, obj.options.format);
+                                                $(obj.el).val(txt).change();
+                                                //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                            })
+                                            .on('mouseup', function () {
+                                                setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
+                                            });
+                                    });
+                            } else {
+                                $('#w2ui-overlay .w2ui-time')
+                                    .on('mouseup', function () {
+                                            setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
+                                    });
+                            }
                         });
                     $('#w2ui-overlay .previous').on('mousedown', function () {
                         var tmp = obj.options.current.split('/');

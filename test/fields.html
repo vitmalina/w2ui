@@ -28,7 +28,7 @@
         $('.date').w2field('date', { silent: false, format: 'dd/mm/yyyy' });
         $('.datetime').w2field('datetime', {});
         $('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
-        $('.time_without_minutes').w2field('time', { start: '8:15am', end: '4:30pm', withoutMinutes: true });
+        $('.time_without_minutes').w2field('time', { noMinutes: true });
         $('.color').w2field('color');
         $('.int').w2field({ type: 'int', min: -36000, max: 36000 });
         $('.float').w2field('float');
@@ -251,9 +251,9 @@
             </div>
         </div>   
          <div class="w2ui-field">
-            <label>time without minutes:</label>
+            <label>time w/o minutes:</label>
             <div>
-                <input id="time_without_minutes" class="w2ui-input time_without_minutes" type="text" size="10"/>
+                <input id="time_without_minutes" class="w2ui-input time_without_minutes" type="text" size="20"/>
             </div>
         </div>  
         <div class="w2ui-field">
@@ -283,7 +283,7 @@
         <div class="w2ui-field">
             <label>regular select:</label>
             <div>
-                <select class="w2ui-input" style="min-height: 50px;">
+                <select class="w2ui-input">
                     <option>value 1</option>
                     <option>value 2</option>
                 </select>
