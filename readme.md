@@ -18,8 +18,9 @@ The complete library is only **69Kb** (minified & gzipped)
 
 ## Who Uses It
 
-If you're using w2ui I'd love to hear about it and will be compiling a list of projects that use it. Please email me at vitmalina@gmail.com and
-if you can included name of you company (or project) and a link (if it is on a public website), that would be fantastic.
+If you're using w2ui I'd love to hear about it, please email to vitmalina@gmail.com name of your project and a link to a public website or demo and I will add it to the list.
+
+[List of projects that use w2ui](https://github.com/vitmalina/w2ui/wiki/Projects-that-use-w2ui)
 
 ## Quick Start
 
