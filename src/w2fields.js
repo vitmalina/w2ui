@@ -254,11 +254,12 @@
 
                 case 'time':
                     defaults = {
-                        format      : w2utils.settings.timeFormat,
-                        keyboard    : true,
-                        silent      : true,
-                        start       : '',
-                        end         : ''
+                        format          : w2utils.settings.timeFormat,
+                        keyboard        : true,
+                        silent          : true,
+                        start           : '',
+                        end             : '',
+                        withoutMinutes  : false
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
@@ -1645,21 +1646,29 @@
                         var hour = $(this).attr('hour');
                         $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
                     })
-                    .on('mouseup', function () {
-                        var hour = $(this).attr('hour');
-                        if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
-                        $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
-                        $('#w2ui-overlay > div').html(obj.getMinHTML(hour));
+                    if (this.options.withoutMinutes == undefined || !this.options.withoutMinutes){
                         $('#w2ui-overlay .w2ui-time')
-                            .on('mousedown', function () {
-                                $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
-                                var min = $(this).attr('min');
-                                $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
-                            })
                             .on('mouseup', function () {
-                                setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
+                                var hour = $(this).attr('hour');
+                                if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                                $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { "background-color": "#fff" } });
+                                $('#w2ui-overlay > div').html(obj.getMinHTML(hour));
+                                $('#w2ui-overlay .w2ui-time')
+                                    .on('mousedown', function () {
+                                        $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
+                                        var min = $(this).attr('min');
+                                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                    })
+                                    .on('mouseup', function () {
+                                        setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
+                                    });
                             });
-                    });
+                    }else{
+                        $('#w2ui-overlay .w2ui-time')
+                            .on('mouseup', function () {
+                                    setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
+                            });
+                    }
             }
             // datetime
             if (this.type == 'datetime') {
