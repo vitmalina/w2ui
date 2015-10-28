@@ -74,6 +74,7 @@
         "selected" : "条已选中",
         "Search took " : "查询耗时 ",
         " sec" : " 秒",
-        "Record ID" : "记录ID"
+        "Record ID" : "记录ID",
+        "Column" : "列"
     }
 }
