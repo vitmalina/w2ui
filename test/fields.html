@@ -26,6 +26,7 @@
             items.push(item);
         }
         $('.date').w2field('date', { silent: false, format: 'dd/mm/yyyy' });
+        $('.date-with-blocked-weekends').w2field('date', { silent: false, format: 'yyyy-m-d', blockWeekDays: [0,6] })
         $('.datetime').w2field('datetime', {});
         $('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
         $('.time_without_minutes').w2field('time', { noMinutes: true });
@@ -244,6 +245,12 @@
                 <input id="date1" class="w2ui-input"/> - <input id="date2" class="w2ui-input"/>
             </div>
         </div>    
+        <div class="w2ui-field">
+            <label>date with blocked weekends:</label>
+            <div>
+                <input class="date-with-blocked-weekends" type="text" size="20"/>
+            </div>
+        </div> 
         <div class="w2ui-field">
             <label>time:</label>
             <div>
