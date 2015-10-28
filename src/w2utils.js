@@ -1471,7 +1471,7 @@ w2utils.formatters = {
         if (parseInt(params) > 20) params = 20;
         if (parseInt(params) < 0) params = 0;
         if (value == null || value == '') return '';
-        return w2utils.formatNumber(parseInt(value), params, true);
+        return w2utils.formatNumber(parseFloat(value), params, true);
     },
 
     'float': function (value, params) {
