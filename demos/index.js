@@ -64,7 +64,7 @@ $(function () {
                     { id: 'grid-4', text: 'Data Source', icon: 'fa-table' },
                     { id: 'grid-5', text: 'Load Data Once', icon: 'fa-table' },
                     { id: 'grid-6', text: 'Single or Multi Select', icon: 'fa-table' },
-                    { id: 'grid-7', text: 'Sub Grids', icon: 'fa-table' },
+                    { id: 'grid-7', text: 'Tree-Like Grid', icon: 'fa-table' },
                     { id: 'grid-8', text: 'Show/Hide Columns', icon: 'fa-table' },
                     { id: 'grid-9', text: 'Add/Remove Records', icon: 'fa-table' },
                     { id: 'grid-10', text: 'Select/Unselect Records', icon: 'fa-table' },
