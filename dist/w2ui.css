@@ -1765,10 +1765,6 @@ button.w2ui-btn-small:focus:before {
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr td.w2ui-inactive {
   background-color: #d8dee7 !important;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded,
-.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded {
-  background-color: #CCDCF0 !important;
-}
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-expanded1,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-expanded1 {
   height: 0px;
@@ -2810,12 +2806,17 @@ button.w2ui-btn-small:focus:before {
   opacity: 0.3;
   filter: alpha(opacity=30);
 }
-.w2ui-toolbar.overflowed .w2ui-toolbar-scroll-left,
-.w2ui-toolbar.overflowed .w2ui-toolbar-scroll-right {
+.w2ui-toolbar.overflowed-left .w2ui-toolbar-scroll-left {
   display: block;
 }
-.w2ui-toolbar.overflowed .w2ui-toolbar-scroll-wrapper > table {
-  padding: 0 18px;
+.w2ui-toolbar.overflowed-left .w2ui-toolbar-scroll-wrapper > table {
+  padding-left: 18px;
+}
+.w2ui-toolbar.overflowed-right .w2ui-toolbar-scroll-right {
+  display: block;
+}
+.w2ui-toolbar.overflowed-right .w2ui-toolbar-scroll-wrapper > table {
+  padding-right: 18px;
 }
 .w2ui-toolbar .w2ui-toolbar-scroll-wrapper {
   overflow: hidden;
