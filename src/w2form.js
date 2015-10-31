@@ -699,6 +699,7 @@
         },
 
         goto: function (page) {
+            if (this.page === page) return; // already on this page
             if (page != null) this.page = page;
             // if it was auto size, resize it
             if ($(this.box).data('auto-size') === true) $(this.box).height(0);
