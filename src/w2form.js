@@ -866,49 +866,56 @@
             }
         },
 
-        refresh: function () {
+        refresh: function (id) {
             var time = (new Date()).getTime();
             var obj = this;
             if (!this.box) return;
             if (!this.isGenerated || $(this.box).html() == null) return;
-            // update what page field belongs
-            $(this.box).find('input, textarea, select').each(function (index, el) {
-                var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
-                var field = obj.get(name);
-                if (field) {
-                    // find page
-                    var div = $(el).parents('.w2ui-page');
-                    if (div.length > 0) {
-                        for (var i = 0; i < 100; i++) {
-                            if (div.hasClass('page-'+i)) { field.page = i; break; }
-                        }
-                    }
-                }
-            });
-            // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
-            if (eventData.isCancelled === true) return;
-            // default action
-            $(this.box).find('.w2ui-page').hide();
-            $(this.box).find('.w2ui-page.page-' + this.page).show();
-            $(this.box).find('.w2ui-form-header').html(this.header);
-            // refresh tabs if needed
-            if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
-                $('#form_'+ this.name +'_tabs').show();
-                this.tabs.active = this.tabs.tabs[this.page].id;
-                this.tabs.refresh();
+			// event before
+			var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
+			if (eventData.isCancelled === true) return;
+            if (id != null) {
+                var from_field = obj.get(id, true);
+                var to_field = from_field + 1;
             } else {
-                $('#form_'+ this.name +'_tabs').hide();
-            }
-            // refresh tabs if needed
-            if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
-                $('#form_'+ this.name +'_toolbar').show();
-                this.toolbar.refresh();
-            } else {
-                $('#form_'+ this.name +'_toolbar').hide();
-            }
-            // refresh values of all fields
-            for (var f = 0; f < this.fields.length; f++) {
+				// update what page field belongs
+				$(this.box).find('input, textarea, select').each(function (index, el) {
+					var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
+					var field = obj.get(name);
+					if (field) {
+						// find page
+						var div = $(el).parents('.w2ui-page');
+						if (div.length > 0) {
+							for (var i = 0; i < 100; i++) {
+								if (div.hasClass('page-'+i)) { field.page = i; break; }
+							}
+						}
+					}
+				});
+				// default action
+				$(this.box).find('.w2ui-page').hide();
+				$(this.box).find('.w2ui-page.page-' + this.page).show();
+				$(this.box).find('.w2ui-form-header').html(this.header);
+				// refresh tabs if needed
+				if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
+					$('#form_'+ this.name +'_tabs').show();
+					this.tabs.active = this.tabs.tabs[this.page].id;
+					this.tabs.refresh();
+				} else {
+					$('#form_'+ this.name +'_tabs').hide();
+				}
+				// refresh tabs if needed
+				if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
+					$('#form_'+ this.name +'_toolbar').show();
+					this.toolbar.refresh();
+				} else {
+					$('#form_'+ this.name +'_toolbar').hide();
+				}
+                var from_field = 0;
+                var to_field = this.fields.length;
+			}
+            // refresh values of fields
+            for (var f = from_field; f < to_field; f++) {
                 var field = this.fields[f];
                 if (field.name == null && field.field != null) field.name = field.field;
                 if (field.field == null && field.name != null) field.field = field.name;
@@ -1013,7 +1020,7 @@
                 });
             });
             // init controls with record
-            for (var f = 0; f < this.fields.length; f++) {
+            for (var f = from_field; f < to_field; f++) {
                 var field = this.fields[f];
                 var value = (this.record[field.name] != null ? this.record[field.name] : '');
                 if (!field.el) continue;
