@@ -2043,7 +2043,7 @@
                 w2confirm({
                     title   : w2utils.lang('Delete Confirmation'),
                     msg     : obj.msgDelete,
-                    btn_yes : { "class": 'btn-red' },
+                    btn_yes : { "class": 'w2ui-btn-red' },
                     callBack: function (result) {
                         if (result == 'Yes') w2ui[obj.name]['delete'](true);
                     }
@@ -4152,7 +4152,7 @@
                 if (s.hidden) continue;
                 var btn = '';
                 if (showBtn == false) {
-                    btn = '<button class="btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchClose(); }">X</button';
+                    btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchClose(); }">X</button';
                     showBtn = true;
                 }
                 if (typeof s.inTag   == 'undefined') s.inTag     = '';
@@ -4227,8 +4227,8 @@
             html += '<tr>'+
                     '    <td colspan="4" class="actions">'+
                     '        <div>'+
-                    '        <button class="btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
-                    '        <button class="btn btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
+                    '        <button class="w2ui-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
+                    '        <button class="w2ui-btn w2ui-btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
                     '        </div>'+
                     '    </td>'+
                     '</tr></table>';

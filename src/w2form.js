@@ -304,7 +304,7 @@
                 } else {
                     $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
                 }
-                this.goto(errors[0].field.page);                
+                this.goto(errors[0].field.page);
             }
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -368,7 +368,7 @@
             var ajaxOptions = {
                 type     : 'POST',
                 url      : url,
-                data     : eventData.postData, 
+                data     : eventData.postData,
                 dataType : 'text'   // expected from server
             };
             if (w2utils.settings.dataType == 'HTTP') {
@@ -444,8 +444,8 @@
                     if (status != 'abort') {
                         var data;
                         try { data = $.parseJSON(xhr.responseText) } catch (e) {}
-                        console.log('ERROR: Server communication failed.', 
-                            '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] }, 
+                        console.log('ERROR: Server communication failed.',
+                            '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
                     }
@@ -509,7 +509,7 @@
                 var ajaxOptions = {
                     type     : 'POST',
                     url      : url,
-                    data     : eventData.postData, 
+                    data     : eventData.postData,
                     dataType : 'text',   // expected from server
                     xhr : function() {
                         var xhr = new window.XMLHttpRequest();
@@ -590,8 +590,8 @@
                         var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
                         if (eventData2.isCancelled === true) return;
                         // default behavior
-                        console.log('ERROR: server communication failed. The server should return', 
-                            { status: 'success' }, 'OR', { status: 'error', message: 'error message' }, 
+                        console.log('ERROR: server communication failed. The server should return',
+                            { status: 'success' }, 'OR', { status: 'error', message: 'error message' },
                             ', instead the AJAX request produced this: ', errorObj);
                         // event after
                         obj.trigger($.extend(eventData2, { phase: 'after' }));
@@ -647,7 +647,7 @@
                     pages[pages.length-1] += '\n   </div>';
                     group = '';
                 }
-                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+ 
+                html += '\n      <div class="w2ui-field '+ (typeof field.html.span != 'undefined' ? 'w2ui-span'+ field.html.span : '') +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
@@ -666,8 +666,8 @@
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
                 for (var a in this.actions) {
-                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'btn-green'; else addClass = '';
-                    buttons += '\n    <button name="'+ a +'" class="btn '+ addClass +'">'+ w2utils.lang(a) +'</button>';
+                    if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) addClass = 'w2ui-btn-green'; else addClass = '';
+                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ addClass +'">'+ w2utils.lang(a) +'</button>';
                 }
                 buttons += '\n</div>';
             }
@@ -900,7 +900,7 @@
                             if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
                                 field.options.items = w2obj.field.prototype.normMenu(items);
                             }
-                            // find value from items 
+                            // find value from items
                             for (var i in field.options.items) {
                                 var item = field.options.items[i];
                                 if (item.id == tmp_value) {
