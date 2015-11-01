@@ -47,7 +47,7 @@
 *   - added update(cells) - updates only data in the grid (or cells)
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
-*   - record.style[field_name]
+*   - record.w2ui.style[field_name]
 *   - use column field for style: { 1: 'color: red' }
 *   - added focus(), blur(), onFocus, onBlur
 *   - added search.operator, search.value (only for hidden searches)
@@ -78,6 +78,27 @@
 *   - added w2grid.operators
 *   - move events into prototype
 *   - search.simple - if false, will not show up in simple search
+*   - move rec.summary, rec.style, rec.editable -> into rec.w2ui.summary, rec.w2ui.style, rec.w2ui.editable
+*   - record: {
+        field1
+        ...
+        fieldN
+        w2ui: {
+            colspan: { field: 5, ...}
+            editable: true/false
+            changes: {
+                field: chagned_value,
+                ....
+            },
+            children: [
+                // similar to records array
+                // can have sub children
+            ]
+            parent_recid: (internally set, id of the parent record, when children are copied to records array)
+            summary: true/false
+            style: 'string' - for entire row OR { field: 'string', ...} - per field
+        }
+}
 *
 ************************************************************************/
 
@@ -92,7 +113,7 @@
         this.routeData    = {};       // data for dynamic routes
         this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, editable }
         this.columnGroups = [];       // { span: int, caption: 'string', master: true/false }
-        this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string', editable: true/false, summary: true/false, changes: object }
+        this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
         this.searches     = [];       // { type, caption, field, inTag, outTag, hidden }
         this.searchData   = [];
@@ -2244,8 +2265,8 @@
             var changes = [];
             for (var r = 0; r < this.records.length; r++) {
                 var rec = this.records[r];
-                if (rec['changes'] != null) {
-                    changes.push($.extend(true, { recid: rec.recid }, rec.changes));
+                if (rec.w2ui && rec.w2ui.changes != null) {
+                    changes.push($.extend(true, { recid: rec.recid }, rec.w2ui.changes));
                 }
             }
             return changes;
@@ -2267,7 +2288,7 @@
                     } catch (e) {
                         console.log('ERROR: Cannot merge. ', e.message || '', e);
                     }
-                    delete record.changes;
+                    if (record.w2ui) delete record.w2ui.changes;
                 }
             }
             this.refresh();
@@ -2307,9 +2328,9 @@
             var rec    = obj.records[index];
             var col    = obj.columns[column];
             var prefix = (col.frozen === true ? '_f' : '_');
-            var edit   = (rec ? rec.editable : null);
+            var edit   = (rec && rec.w2ui ? rec.w2ui.editable : null);
             if (edit == null || edit === true) edit = (col ? col.editable : null);
-            if (!rec || !col || !edit || rec.editable === false) return;
+            if (!rec || !col || !edit || (rec.w2ui && rec.w2ui.editable === false)) return;
 
             if (['enum', 'file'].indexOf(edit.type) != -1) {
                 console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
@@ -2345,7 +2366,7 @@
             if (edit.outTag  == null) edit.outTag  = '';
             if (edit.style   == null) edit.style   = '';
             if (edit.items   == null) edit.items   = [];
-            var val = (rec.changes && rec.changes[col.field] != null ? w2utils.stripTags(rec.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+            var val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null ? w2utils.stripTags(rec.w2ui.changes[col.field]) : w2utils.stripTags(rec[col.field]));
             if (val == null) val = '';
             var old_value = (typeof val != 'object' ? val : '');
             if (eventData.old_value != null) old_value = eventData.old_value;
@@ -2536,7 +2557,7 @@
 
                                 case 27: // escape
                                     var old = obj.parseField(rec, col.field);
-                                    if (rec.changes && rec.changes[col.field] != null) old = rec.changes[col.field];
+                                    if (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null) old = rec.w2ui.changes[col.field];
                                     if ($(el).data('old_value') != null) old = $(el).data('old_value');
                                     if (el.tagName.toUpperCase() == 'DIV') {
                                         $(el).text(old != null ? old : '');
@@ -2622,7 +2643,7 @@
                 if (!$.isPlainObject(new_val)) new_val = tmp.clean(new_val);
             }
             if (el.type == 'checkbox') {
-                if (rec.editable === false) el.checked = !el.checked;
+                if (rec.w2ui && rec.w2ui.editable === false) el.checked = !el.checked;
                 new_val = el.checked;
             }
             // change/restore event
@@ -2630,7 +2651,7 @@
                 phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
                 originalEvent: (event.originalEvent ? event.originalEvent : event),
                 value_new: new_val,
-                value_previous: (rec.changes && rec.changes.hasOwnProperty(col.field) ? rec.changes[col.field]: old_val),
+                value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
                 value_original: old_val
             };
             // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
@@ -2646,8 +2667,9 @@
                             continue;
                         }
                         // default action
-                        rec.changes = rec.changes || {};
-                        rec.changes[col.field] = eventData.value_new;
+                        rec.w2ui = rec.w2ui || {};
+                        rec.w2ui.changes = rec.w2ui.changes || {};
+                        rec.w2ui.changes[col.field] = eventData.value_new;
                         // event after
                         this.trigger($.extend(eventData, { phase: 'after' }));
                     }
@@ -2660,8 +2682,8 @@
                             continue;
                         }
                         // default action
-                        if (rec.changes) delete rec.changes[col.field];
-                        if ($.isEmptyObject(rec.changes)) delete rec.changes;
+                        if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[col.field];
+                        if (rec.w2ui && $.isEmptyObject(rec.w2ui.changes)) delete rec.w2ui.changes;
                         // event after
                         this.trigger($.extend(eventData, { phase: 'after' }));
                     }
@@ -2671,7 +2693,7 @@
             // refresh cell
             var cell = $(tr).find('[col='+ column +']');
             if (!summary) {
-                if (rec.changes && rec.changes[col.field] != null) {
+                if (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null) {
                     cell.addClass('w2ui-changed');
                 } else {
                     cell.removeClass('w2ui-changed');
@@ -2724,7 +2746,7 @@
                         var rec = this.records[ind];
                         if (ind != null && fld != 'recid') {
                             this.records[ind][fld] = '';
-                            if (rec.changes) delete rec.changes[fld];
+                            if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[fld];
                             // -- style should not be deleted
                             // if (rec.style != null && $.isPlainObject(rec.style) && rec.style[recs[r].column]) {
                             //     delete rec.style[recs[r].column];
@@ -3726,8 +3748,9 @@
                 for (var dt = 0; dt < tmp.length; dt++) {
                     if (!this.columns[col + cnt]) continue;
                     var field = this.columns[col + cnt].field;
-                    rec.changes = rec.changes || {};
-                    rec.changes[field] = tmp[dt];
+                    rec.w2ui = rec.w2ui || {};
+                    rec.w2ui.changes = rec.w2ui.changes || {};
+                    rec.w2ui.changes[field] = tmp[dt];
                     cols.push(col + cnt);
                     cnt++;
                 }
@@ -3776,12 +3799,12 @@
                         var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
                         cell.replaceWith(this.getCellHTML(index, column, false));
                         // assign style
-                        if (rec.style != null && !$.isEmptyObject(rec.style)) {
-                            if (typeof rec.style == 'string') {
-                                $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
+                        if (rec.w2ui && rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
+                            if (typeof rec.w2ui.style == 'string') {
+                                $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.w2ui.style);
                             }
-                            if ($.isPlainObject(rec.style) && typeof rec.style[column] == 'string') {
-                                cell.attr('style', rec.style[column]);
+                            if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string') {
+                                cell.attr('style', rec.w2ui.style[column]);
                             }
                         } else {
                             cell.attr('style', '');
@@ -3801,12 +3824,12 @@
                     var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
                     cell.replaceWith(this.getCellHTML(index, column, false));
                     // assign style
-                    if (rec.style != null && !$.isEmptyObject(rec.style)) {
-                        if (typeof rec.style == 'string') {
-                            $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
+                    if (rec.w2ui && rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
+                        if (typeof rec.w2ui.style == 'string') {
+                            $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.w2ui.style);
                         }
-                        if ($.isPlainObject(rec.style) && typeof rec.style[column] == 'string') {
-                            cell.attr('style', rec.style[column]);
+                        if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string') {
+                            cell.attr('style', rec.w2ui.style[column]);
                         }
                     } else {
                         cell.attr('style', '');
@@ -3825,18 +3848,18 @@
             var cell      = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
             // set cell html and changed flag
             cell.replaceWith(this.getCellHTML(index, col_ind, isSummary));
-            if (rec.changes && rec.changes[col.field] != null) {
+            if (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null) {
                 cell.addClass('w2ui-changed');
             } else {
                 cell.removeClass('w2ui-changed');
             }
             // assign style
-            if (rec.style != null && !$.isEmptyObject(rec.style)) {
-                if (typeof rec.style == 'string') {
-                    $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.style);
+            if (rec.w2ui && rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
+                if (typeof rec.w2ui.style == 'string') {
+                    $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.w2ui.style);
                 }
-                if ($.isPlainObject(rec.style) && typeof rec.style[col_ind] == 'string') {
-                    cell.attr('style', rec.style[col_ind]);
+                if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[col_ind] == 'string') {
+                    cell.attr('style', rec.w2ui.style[col_ind]);
                 }
             } else {
                 cell.attr('style', '');
@@ -3857,7 +3880,7 @@
                 $(tr1).replaceWith(rec_html[0]);
                 $(tr2).replaceWith(rec_html[1]);
                 // apply style to row if it was changed in render functions
-                var st = this.records[ind].style;
+                var st = this.records[ind].w2ui.style;
                 if (typeof st == 'string') {
                     var tr1 = $(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid));
                     var tr2 = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
@@ -3935,7 +3958,7 @@
             }
 
             // -- separate summary
-            var tmp = this.find({ summary: true }, true);
+            var tmp = this.find({ 'w2ui.summary': true }, true);
             if (tmp.length > 0) {
                 this.summary = [];
                 for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
@@ -6279,7 +6302,7 @@
             rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
                 ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
-                    (record.editable === false ? ' w2ui-no-edit' : '') +
+                    (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
@@ -6301,7 +6324,7 @@
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
                 ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
-                    (record.editable === false ? ' w2ui-no-edit' : '') +
+                    (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
@@ -6366,21 +6389,21 @@
             rec_html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>';
             var col_ind   = 0;
             var col_skip  = 0;
-            var col_span  = 1;
             while (true) {
+                var col_span  = 1;
                 var col = this.columns[col_ind];
                 if (col == null) break;
+                if (col.hidden) {
+                    col_ind++;
+                    if (col_skip > 0) col_skip--;
+                    continue;
+                }
                 if (col_skip > 0) {
                     col_ind++;
                     if (this.columns[col_ind] == null) break;
-                    record.w2ui.colspan[col.field] = 0; // need it for other methods
-                    col_span = 1;
+                    record.w2ui.colspan[this.columns[col_ind].field] = 0; // need it for other methods
                     col_skip--;
                     continue;
-                }
-                if (col.hidden) {
-                    col_ind++;
-                    if (this.columns[col_ind] == null) break; else continue;
                 }
                 // column virtual scroll
                 if ((col_ind < this.last.colStart || col_ind > this.last.colEnd) && !col.frozen) {
@@ -6389,10 +6412,16 @@
                 }
                 if (record.w2ui) {
                     if (typeof record.w2ui.colspan == 'object') {
-                        var tmp = parseInt(record.w2ui.colspan[col.field]) || null;
-                        if (tmp > 1) {
-                            col_span = tmp;
-                            col_skip = tmp - 1;
+                        var span = parseInt(record.w2ui.colspan[col.field]) || null;
+                        if (span > 1) {
+                            // if there are hidden columns, then no colspan on them
+                            var hcnt = 0;
+                            for (var i = col_ind; i < col_ind + span; i++) {
+                                if (i >= this.columns.length) break;
+                                if (this.columns[i].hidden) hcnt++;
+                            }
+                            col_span = span - hcnt;
+                            col_skip = span - 1;
                         }
                     }
                 }
@@ -6418,7 +6447,7 @@
             var data          = this.getCellValue(ind, col_ind, summary);
             var edit          = col.editable;
             var style         = 'max-height: '+ parseInt(this.recordHeight) +'px;';
-            var isChanged     = !summary && record.changes && record.changes[col.field] != null;
+            var isChanged     = !summary && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null;
             var addStyle      = '';
             var sel           = this.last.selection;
             var isRowSelected = false;
@@ -6511,9 +6540,9 @@
                 var tmp = col.render.toLowerCase().split(':');
                 if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
             }
-            if (typeof record.style == 'object') {
-                if (typeof record.style[col_ind] == 'string') addStyle += record.style[col_ind] + ';';
-                if (typeof record.style[col.field] == 'string') addStyle += record.style[col.field] + ';';
+            if (record.w2ui && typeof record.w2ui.style == 'object') {
+                if (typeof record.w2ui.style[col_ind] == 'string') addStyle += record.w2ui.style[col_ind] + ';';
+                if (typeof record.w2ui.style[col.field] == 'string') addStyle += record.w2ui.style[col.field] + ';';
             }
             var isCellSelected = false;
             if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
@@ -6614,8 +6643,8 @@
             var col    = this.columns[col_ind];
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.parseField(record, col.field);
-            if (record.changes && record.changes[col.field] != null) {
-                data = record.changes[col.field];
+            if (record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+                data = record.w2ui.changes[col.field];
             }
             if ($.isPlainObject(data) && col.editable && col.editable.type == 'list') {
                 if (data.text != null) data = data.text;
