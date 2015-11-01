@@ -5,7 +5,7 @@
 *        - $().w2grid    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
 *
-* == NICE TO HAVE == 
+* == NICE TO HAVE ==
 *   - frozen columns
 *   - add colspans
 *   - allow this.total to be unknown (-1)
@@ -530,7 +530,7 @@
             obj.prepareData();
             // process sortData
             for (var s in this.sortData) {
-                var column = this.getColumn(this.sortData[s].field); 
+                var column = this.getColumn(this.sortData[s].field);
                 if (!column) return;
                 if (typeof column.render == 'string') {
                     if (['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
@@ -1361,8 +1361,8 @@
                     el.val('');
                 }
                 // set focus
-                setTimeout(function () { 
-                    el.focus(); /* do not do el.change() as it will refresh grid and pull from server */ 
+                setTimeout(function () {
+                    el.focus(); /* do not do el.change() as it will refresh grid and pull from server */
                 }, 1);
             }
             // update field
@@ -1552,7 +1552,7 @@
             var ajaxOptions = {
                 type     : 'POST',
                 url      : url,
-                data     : eventData.postData, 
+                data     : eventData.postData,
                 dataType : 'text'  // expected data type from server
             };
             if (w2utils.settings.dataType == 'HTTP') {
@@ -1586,8 +1586,8 @@
                     if (status != 'abort') {
                         var data;
                         try { data = $.parseJSON(xhr.responseText) } catch (e) {}
-                        console.log('ERROR: Server communication failed.', 
-                            '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] }, 
+                        console.log('ERROR: Server communication failed.',
+                            '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
                         obj.requestComplete('error', cmd, callBack);
@@ -1987,7 +1987,7 @@
             };
             while (true) {
                 new_val = eventData.value_new;
-                if ((typeof new_val != 'object' && String(old_val) != String(new_val)) || 
+                if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
                     (typeof new_val == 'object' && (typeof old_val != 'object' || new_val.id != old_val.id))) {
                     // change event
                     eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
@@ -2041,8 +2041,8 @@
             if (recs.length == 0) return;
             if (this.msgDelete != '' && !force) {
                 w2confirm({
-                    title   : w2utils.lang('Delete Confirmation'), 
-                    msg     : obj.msgDelete, 
+                    title   : w2utils.lang('Delete Confirmation'),
+                    msg     : obj.msgDelete,
                     btn_yes : { "class": 'btn-red' },
                     callBack: function (result) {
                         if (result == 'Yes') w2ui[obj.name]['delete'](true);
@@ -2519,9 +2519,9 @@
                     $('#_tmp_copy_data').focus().select();
                     // remove _tmp_copy_data textarea
                     $(document).on('keyup', tmp_key_down);
-                    function tmp_key_down() { 
-                        $('#_tmp_copy_data').remove(); 
-                        $(document).off('keyup', tmp_key_down); 
+                    function tmp_key_down() {
+                        $('#_tmp_copy_data').remove();
+                        $(document).off('keyup', tmp_key_down);
                     }
                     break;
 
@@ -2655,8 +2655,8 @@
                     $(obj.box).find(event.target)
                         .w2menu(obj.menu, {
                             left    : event.offsetX,
-                            onSelect: function (event) { 
-                                obj.menuClick(recid, parseInt(event.index), event.originalEvent); 
+                            onSelect: function (event) {
+                                obj.menuClick(recid, parseInt(event.index), event.originalEvent);
                             }
                         }
                     );
@@ -2671,7 +2671,7 @@
         menuClick: function (recid, index, event) {
             var obj = this;
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: obj.name, originalEvent: event, 
+            var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: obj.name, originalEvent: event,
                 recid: recid, menuIndex: index, menuItem: obj.menu[index] });
             if (eventData.isCancelled === true) return;
             // default action
@@ -2818,7 +2818,6 @@
                     if (sel[s].column > maxCol) maxCol = sel[s].column;
                     if (recs.indexOf(sel[s].index) == -1) recs.push(sel[s].index);
                 }
-                recs.sort();
                 for (var r in recs) {
                     var ind = recs[r];
                     for (var c = minCol; c <= maxCol; c++) {
@@ -2838,7 +2837,7 @@
                 }
                 text = text.substr(0, text.length-1); // remove last \t
                 text += '\n';
-                // copy selected text                
+                // copy selected text
                 for (var s in sel) {
                     var ind = this.get(sel[s], true);
                     for (var c in this.columns) {
@@ -3130,7 +3129,7 @@
                 this.initAllField(this.last.field, (sd.length == 1 ? sd[0].value : null));
             }
             // init footer
-            $('#grid_'+ this.name +'_footer').html(this.getFooterHTML());            
+            $('#grid_'+ this.name +'_footer').html(this.getFooterHTML());
             // refresh
             if (!this.last.state) this.last.state = this.stateSave(true); // initial default state
             this.stateRestore();
@@ -4275,8 +4274,8 @@
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
                         $('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
                         setTimeout(function () { // convert to date if it is number
-                            $('#grid_'+ obj.name +'_field_'+s).keydown(); 
-                            $('#grid_'+ obj.name +'_field2_'+s).keydown(); 
+                            $('#grid_'+ obj.name +'_field_'+s).keydown();
+                            $('#grid_'+ obj.name +'_field2_'+s).keydown();
                         }, 1);
                         break;
 
@@ -4429,7 +4428,8 @@
                             '            style="' + (obj.multiSelect == false ? 'display: none;' : '') + '"'+
                             '            onclick="if (this.checked) w2ui[\''+ obj.name +'\'].selectAll(); '+
                             '                     else w2ui[\''+ obj.name +'\'].selectNone(); '+
-                            '                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
+                            '                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true; '+
+                            '                     this.blur();">'+
                             '    </div>'+
                             '</td>';
                 }
@@ -4688,8 +4688,8 @@
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             // render TR
             rec_html += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" '+
-                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') + 
-                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') + 
+                ' class="'+ (lineNum % 2 == 0 ? 'w2ui-even' : 'w2ui-odd') +
+                    (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.editable === false ? ' w2ui-no-edit' : '') +
                     (record.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
@@ -4720,7 +4720,8 @@
                             '            onclick="var obj = w2ui[\''+ this.name +'\']; '+
                             '                if (!obj.multiSelect) { obj.selectNone(); }'+
                             '                if (this.checked) obj.select(\''+ record.recid + '\'); else obj.unselect(\''+ record.recid + '\'); '+
-                            '                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
+                            '                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;'+
+                            '                this. blur()">'+
                             '    </div>'
                             :
                             '' ) +
@@ -5000,7 +5001,7 @@
                 } catch (e) {
                     delete localStorage.w2ui;
                     return null;
-                }                
+                }
             }
         },
 
