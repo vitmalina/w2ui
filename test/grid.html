@@ -1,7 +1,7 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
@@ -14,8 +14,8 @@
 $(function () {
     // w2utils.locale('../src/locale/ru-ru');
 
-    $('#grid').w2grid({ 
-        name      : 'grid', 
+    $('#grid').w2grid({
+        name      : 'grid',
         header    : 'List of Names',
         // url : '//w2ui.com/web/pages/demo/infinite/index.php',
         // routeData : { id: 4 },
@@ -28,7 +28,7 @@ $(function () {
         columnTooltip: 'top',
         reorderRows: true,
         //reorderColumns: true,
-        show: { 
+        show: {
             toolbar: true,
             footer: true,
             header: true,
@@ -45,7 +45,7 @@ $(function () {
         },
         menu: [
             { id: 1, text: 'Select Item', icon: 'fa-star' },
-            { id: 2, text: 'View Item', icon: 'fa-camera' }, 
+            { id: 2, text: 'View Item', icon: 'fa-camera' },
             { id: 4, text: 'Delete Item', icon: 'fa-minus' }
         ],
         onSave: function (event) {
@@ -78,19 +78,19 @@ $(function () {
             items: [
                 { type: 'break', id: 'br1' },
                 { type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
-                    { text: 'Item 1', icon: 'icon-page' }, 
-                    { text: 'Item 2', icon: 'icon-page' }, 
+                    { text: 'Item 1', icon: 'icon-page' },
+                    { text: 'Item 2', icon: 'icon-page' },
                     { text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
                 ]},
                 { type: 'break', id: 'br2' },
                 { type: 'html', id: 'html1', html: '<b>HTML Button</b>' },
-                { type: 'break', id: 'br3' },                
+                { type: 'break', id: 'br3' },
                 { type: 'drop', id: 'drop1', caption: 'Drop Button', html: '123' }
             ]
         },
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
-        searches: [                
+        searches: [
             { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less' },
             { field: 'fname', caption: 'First Name', type: 'text', hidden1: true, value: 'Peter' },
             { field: 'lname', caption: 'Last Name', type: 'text', options: { items: ['Cuban', 'Rene'] }}
@@ -104,8 +104,8 @@ $(function () {
             { caption: 'Text', span: 1, master: true },
             { caption: 'Important Dates', span: 3 }
         ],
-        columns: [                
-            { field: 'personid', caption: 'ID', size: '160px', sortable: true, resizable: true, frozen1: true, tooltip: 'User ID', info1: true },
+        columns: [
+            { field: 'personid', caption: 'ID', size: '160px', sortable: true, resizable: true, frozen1: true, tooltip: 'User ID', info: true },
             { field: 'icon', caption: 'Icon', size: '60px', sortable: true, resizable: true, style: 'text-align: center',
                 info: {
                     icon      : 'fa-flag',
@@ -118,21 +118,21 @@ $(function () {
                     }
                 },
             },
-            { field: 'personid', caption: 'ID2', size: '60px', sortable: true, resizable: true, tooltip: 'Person ID', 
-                render: function (record) { 
+            { field: 'personid2', caption: 'ID2', size: '60px', sortable: true, resizable: true, tooltip: 'Person ID',
+                render: function (record) {
                     if (record.changes && record.changes['personid']) {
                         return record.changes['personid'].text;
                     } else {
-                        return record['personid']; 
+                        return record['personid'];
                     }
                 },
                 editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } },
                 hidden: true
             },
-            { field: 'fname', caption: 'First Name', size: '100px', sortable: true, searchable1: true, resizable: true, editable: { type: 'text' }, 
+            { field: 'fname', caption: 'First Name', size: '100px', sortable: true, searchable1: true, resizable: true, editable: { type: 'text' },
                 tooltip: 'Full Name', hidden1: true, info: true },
-            { field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true, 
-                info: { 
+            { field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true,
+                info: {
                     icon: 'fa-user',
                     showEmpty: true,
                     maxLength: 10,
@@ -146,11 +146,11 @@ $(function () {
                             return record.fname + ' ' + record.lname;
                         }
                     }
-                } 
+                }
             },
             { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true, frozen1: true },
             { field: 'snumber', caption: 'Number', size: '100px', resizable: true, sortable: true, render: 'size', frozen1: true },
-            { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable1: 'date', sortable: true, 
+            { field: 'sdate', caption: 'Date', size: '120px', render: 'date', searchable1: 'date', sortable: true,
                 editable: { type: 'date' }, hidden: true },
             { field: 'sdate', caption: 'Time', size: '120px', render: 'time', searchable1: 'time', sortable: true, hidden: true },
             { field: 'sdate', caption: 'Age', size: '120px', render: 'age:ago', sortable: true, hidden: true }
@@ -198,11 +198,11 @@ $(function () {
         },
         onExpand1: function (event) {
             if (w2ui['grid-'+ event.recid]) $().w2destroy('grid-'+ event.recid);
-            $('#'+ event.box_id).w2grid({ 
+            $('#'+ event.box_id).w2grid({
                 name: 'grid-' + event.recid,
                 fixedBody: false,
                 style: 'width: 100%; height: 150px;',
-                show: { 
+                show: {
                     toolbar: false,
                     footer: false,
                     header: false,
@@ -212,7 +212,7 @@ $(function () {
                     { caption: '1', span: 1 },
                     { caption: '2', span: 1, master: true }
                 ],
-                columns: [                
+                columns: [
                     { field: 'recid', caption: 'ID', size: '49px', sortable: true, resizable: true, searchable: 'int' },
                     { field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true, searchable: true },
                     { field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true, searchable: true },
@@ -229,7 +229,7 @@ $(function () {
         },
         summary: [
             //{ recid: 1, lname: 'Vitali Malinsouski', fname: '<span style="float: right">Total:</span>', sdate: '444' }
-        ]        
+        ]
         //getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
     });
     w2ui.grid.on('change', function(event) {
@@ -243,10 +243,10 @@ $(function () {
         var t  = ((new Date()).getTime() - Math.floor(Math.random() * 1000000000));
         var dt = new Date(t);
         if (t < 0) dt = null;
-        w2ui['grid'].records.push({ 
+        w2ui['grid'].records.push({
             recid : 'rec-' + i,
             personid: 'Rec-' + i,
-            fname: fname[Math.floor(Math.random() * fname.length)], 
+            fname: fname[Math.floor(Math.random() * fname.length)],
             lname: lname[Math.floor(Math.random() * lname.length)],
             email: 'vm@gmail.com', manager: '--',
             snumber: Math.floor(Math.random() * 100000) + '',
@@ -263,8 +263,8 @@ $(function () {
     w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
     w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };
 
-    // w2ui.grid.records[4].style = { fname: 'background-color: red' };
-    // w2ui.grid.records[10].summary = true;
+    // w2ui.grid.records[4].w2ui.style = { fname: 'background-color: red' };
+    w2ui.grid.records[10].w2ui.summary = true;
     w2ui.grid.records[0].sdate = null;
     w2ui.grid.records[3].sdate = null;
     w2ui.grid.records[7].sdate = null;

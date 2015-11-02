@@ -6,7 +6,6 @@
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
 *
 * == NICE TO HAVE ==
-*   - refresh(field) - would refresh only one field
 *   - include delta on save
 *   - form should read <select> <options> into items
 *   - two way data bindings
@@ -24,6 +23,7 @@
 *   - when field is blank, set record.field = null
 *   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
 *   - added ability to generate radio and select html in generateHTML()
+*   - refresh(field) - would refresh only one field
 *
 ************************************************************************/
 
@@ -208,7 +208,7 @@
             var affected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
-                if (fld && fld.hidden) { 
+                if (fld && fld.hidden) {
                     fld.hidden = false;
                     affected++;
                 }
@@ -221,7 +221,7 @@
             var affected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
-                if (fld && !fld.hidden) { 
+                if (fld && !fld.hidden) {
                     fld.hidden = true;
                     affected++;
                 }
@@ -234,7 +234,7 @@
             var affected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
-                if (fld && fld.disabled) { 
+                if (fld && fld.disabled) {
                     fld.disabled = false;
                     affected++;
                 }
@@ -247,7 +247,7 @@
             var affected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
-                if (fld && !fld.disabled) { 
+                if (fld && !fld.disabled) {
                     fld.disabled = true;
                     affected++;
                 }
@@ -277,15 +277,15 @@
         error: function (msg) {
             var obj = this;
             // let the management of the error outside of the grid
-            var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
-            if (eventData.isCancelled === true) {
+            var edata = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
+            if (edata.isCancelled === true) {
                 if (typeof callBack == 'function') callBack();
                 return;
             }
             // need a time out because message might be already up)
             setTimeout(function () { w2alert(msg, w2utils.lang('Error'));    }, 1);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         validate: function (showErrors) {
@@ -351,12 +351,12 @@
                 }
             }
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
+            if (edata.isCancelled === true) return;
             // show error
             if (showErrors) {
-                for (var e = 0; e < eventData.errors.length; e++) {
-                    var err = eventData.errors[e];
+                for (var e = 0; e < edata.errors.length; e++) {
+                    var err = edata.errors[e];
                     if (err.field == null) continue;
                     if (err.field.type == 'radio') { // for radio and checkboxes
                         $($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
@@ -371,11 +371,11 @@
                     } else {
                         $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
                     }
-                    this.goto(errors[0].field.page);                
+                    this.goto(errors[0].field.page);
                 }
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return errors;
         },
 
@@ -413,15 +413,15 @@
             $.extend(params, this.postData);
             $.extend(params, postData);
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
-            if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
+            var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
+            if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
             this.record   = {};
             this.original = {};
             // call server to get data
             this.lock(this.msgRefresh);
-            var url = eventData.url;
-            if (typeof eventData.url == 'object' && eventData.url.get) url = eventData.url.get;
+            var url = edata.url;
+            if (typeof edata.url == 'object' && edata.url.get) url = edata.url.get;
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // process url with routeData
             if (!$.isEmptyObject(obj.routeData)) {
@@ -436,7 +436,7 @@
             var ajaxOptions = {
                 type     : 'POST',
                 url      : url,
-                data     : eventData.postData, 
+                data     : edata.postData,
                 dataType : 'text'   // expected from server
             };
             if (w2utils.settings.dataType == 'HTTP') {
@@ -444,7 +444,7 @@
             }
             if (w2utils.settings.dataType == 'HTTPJSON') {
                 ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
-            }            
+            }
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -463,8 +463,8 @@
                 .done(function (data, status, xhr) {
                     obj.unlock();
                     // event before
-                    var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr });
-                    if (eventData.isCancelled === true) {
+                    var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr });
+                    if (edata.isCancelled === true) {
                         if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                         return;
                     }
@@ -506,7 +506,7 @@
                         };
                     }
                     // event after
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.refresh();
                     // call back
                     if (typeof callBack == 'function') callBack(data);
@@ -514,22 +514,22 @@
                 .fail(function (xhr, status, error) {
                     // trigger event
                     var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
-                    var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
-                    if (eventData2.isCancelled === true) return;
+                    var edata2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
+                    if (edata2.isCancelled === true) return;
                     // default behavior
                     if (status != 'abort') {
                         var data;
                         try { data = $.parseJSON(xhr.responseText) } catch (e) {}
-                        console.log('ERROR: Server communication failed.', 
-                            '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] }, 
+                        console.log('ERROR: Server communication failed.',
+                            '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
                     }
                     // event after
-                    obj.trigger($.extend(eventData2, { phase: 'after' }));
+                    obj.trigger($.extend(edata2, { phase: 'after' }));
                 });
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         submit: function (postData, callBack) {
@@ -566,11 +566,11 @@
                 $.extend(params, postData);
                 params.record = $.extend(true, {}, obj.record);
                 // event before
-                var eventData = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
-                if (eventData.isCancelled === true) return;
+                var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
+                if (edata.isCancelled === true) return;
                 // default action
-                var url = eventData.url;
-                if (typeof eventData.url == 'object' && eventData.url.save) url = eventData.url.save;
+                var url = edata.url;
+                if (typeof edata.url == 'object' && edata.url.save) url = edata.url.save;
                 if (obj.last.xhr) try { obj.last.xhr.abort(); } catch (e) {}
                 // process url with routeData
                 if (!$.isEmptyObject(obj.routeData)) {
@@ -585,20 +585,20 @@
                 var ajaxOptions = {
                     type     : 'POST',
                     url      : url,
-                    data     : eventData.postData, 
+                    data     : edata.postData,
                     dataType : 'text',   // expected from server
                     xhr : function() {
                         var xhr = new window.XMLHttpRequest();
                         // upload
                         xhr.upload.addEventListener("progress", function(evt) {
                             if (evt.lengthComputable) {
-                                var eventData3 = obj.trigger({ phase: 'before', type: 'progress', total: evt.total, loaded: evt.loaded, originalEvent: evt });
-                                if (eventData3.isCancelled === true) return;
+                                var edata3 = obj.trigger({ phase: 'before', type: 'progress', total: evt.total, loaded: evt.loaded, originalEvent: evt });
+                                if (edata3.isCancelled === true) return;
                                 // default behavior
                                 var percent = Math.round(evt.loaded / evt.total * 100);
                                 $('#'+ obj.name + '_progress').text(''+ percent + '%');
                                 // event after
-                                obj.trigger($.extend(eventData3, { phase: 'after' }));
+                                obj.trigger($.extend(edata3, { phase: 'after' }));
                             }
                         }, false);
                         return xhr;
@@ -626,8 +626,8 @@
                     .done(function (data, status, xhr) {
                         obj.unlock();
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });
+                        if (edata.isCancelled === true) return;
                         // parse server response
                         var data;
                         var responseText = xhr.responseText;
@@ -665,7 +665,7 @@
                             };
                         }
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         obj.refresh();
                         // call back
                         if (data.status == 'success' && typeof callBack == 'function') callBack(data);
@@ -673,17 +673,17 @@
                     .fail(function (xhr, status, error) {
                         // trigger event
                         var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
-                        var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
-                        if (eventData2.isCancelled === true) return;
+                        var edata2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
+                        if (edata2.isCancelled === true) return;
                         // default behavior
-                        console.log('ERROR: server communication failed. The server should return', 
-                            { status: 'success' }, 'OR', { status: 'error', message: 'error message' }, 
+                        console.log('ERROR: server communication failed. The server should return',
+                            { status: 'success' }, 'OR', { status: 'error', message: 'error message' },
                             ', instead the AJAX request produced this: ', errorObj);
                         // event after
-                        obj.trigger($.extend(eventData2, { phase: 'after' }));
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
                     });
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }, 50);
         },
 
@@ -699,6 +699,7 @@
         },
 
         goto: function (page) {
+            if (this.page === page) return; // already on this page
             if (page != null) this.page = page;
             // if it was auto size, resize it
             if ($(this.box).data('auto-size') === true) $(this.box).height(0);
@@ -737,7 +738,7 @@
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' + 
+                            input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + ' value="'+ items[i].id + '"/>' +
                                 '&#160;' + items[i].text + '</label><br/>';
                         }
                         break;
@@ -771,7 +772,7 @@
                     pages[pages.length-1] += '\n   </div>';
                     group = '';
                 }
-                html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+ 
+                html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
@@ -800,7 +801,7 @@
                         info.caption = a;
                         if (['save', 'update', 'create'].indexOf(a.toLowerCase()) != -1) info['class'] = 'w2ui-btn-blue'; else info['class'] = '';
                     }
-                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+ 
+                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+
                                             w2utils.lang(info.caption) +'</button>';
                 }
                 buttons += '\n</div>';
@@ -814,19 +815,19 @@
             var click = act;
             if ($.isPlainObject(act) && act.onClick) click = act.onClick;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: action, type: 'action', click: click, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: action, type: 'action', click: click, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default actions
             if (typeof click == 'function') click.call(this, event);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         resize: function () {
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
+            if (edata.isCancelled === true) return;
             // default behaviour
             var main    = $(this.box).find('> div:not(.w2ui-lock-msg)');
             var header  = $(this.box).find('> div .w2ui-form-header');
@@ -850,7 +851,7 @@
             }
             resizeElements();
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
 
             function resizeElements() {
                 // resize elements
@@ -865,49 +866,56 @@
             }
         },
 
-        refresh: function () {
+        refresh: function (field) {
             var time = (new Date()).getTime();
             var obj = this;
             if (!this.box) return;
             if (!this.isGenerated || $(this.box).html() == null) return;
-            // update what page field belongs
-            $(this.box).find('input, textarea, select').each(function (index, el) {
-                var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
-                var field = obj.get(name);
-                if (field) {
-                    // find page
-                    var div = $(el).parents('.w2ui-page');
-                    if (div.length > 0) {
-                        for (var i = 0; i < 100; i++) {
-                            if (div.hasClass('page-'+i)) { field.page = i; break; }
-                        }
-                    }
-                }
-            });
-            // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page })
-            if (eventData.isCancelled === true) return;
-            // default action
-            $(this.box).find('.w2ui-page').hide();
-            $(this.box).find('.w2ui-page.page-' + this.page).show();
-            $(this.box).find('.w2ui-form-header').html(this.header);
-            // refresh tabs if needed
-            if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
-                $('#form_'+ this.name +'_tabs').show();
-                this.tabs.active = this.tabs.tabs[this.page].id;
-                this.tabs.refresh();
+			// event before
+			var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field })
+			if (edata.isCancelled === true) return;
+            if (field != null) {
+                var from_field = obj.get(field, true);
+                var to_field = from_field + 1;
             } else {
-                $('#form_'+ this.name +'_tabs').hide();
-            }
-            // refresh tabs if needed
-            if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
-                $('#form_'+ this.name +'_toolbar').show();
-                this.toolbar.refresh();
-            } else {
-                $('#form_'+ this.name +'_toolbar').hide();
-            }
-            // refresh values of all fields
-            for (var f = 0; f < this.fields.length; f++) {
+				// update what page field belongs
+				$(this.box).find('input, textarea, select').each(function (index, el) {
+					var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
+					var field = obj.get(name);
+					if (field) {
+						// find page
+						var div = $(el).parents('.w2ui-page');
+						if (div.length > 0) {
+							for (var i = 0; i < 100; i++) {
+								if (div.hasClass('page-'+i)) { field.page = i; break; }
+							}
+						}
+					}
+				});
+				// default action
+				$(this.box).find('.w2ui-page').hide();
+				$(this.box).find('.w2ui-page.page-' + this.page).show();
+				$(this.box).find('.w2ui-form-header').html(this.header);
+				// refresh tabs if needed
+				if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
+					$('#form_'+ this.name +'_tabs').show();
+					this.tabs.active = this.tabs.tabs[this.page].id;
+					this.tabs.refresh();
+				} else {
+					$('#form_'+ this.name +'_tabs').hide();
+				}
+				// refresh tabs if needed
+				if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
+					$('#form_'+ this.name +'_toolbar').show();
+					this.toolbar.refresh();
+				} else {
+					$('#form_'+ this.name +'_toolbar').hide();
+				}
+                var from_field = 0;
+                var to_field = this.fields.length;
+			}
+            // refresh values of fields
+            for (var f = from_field; f < to_field; f++) {
                 var field = this.fields[f];
                 if (field.name == null && field.field != null) field.name = field.field;
                 if (field.field == null && field.name != null) field.field = field.name;
@@ -951,8 +959,8 @@
                     }
                     if (value_new === value_previous) return;
                     // event before
-                    var eventData = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-                    if (eventData.isCancelled === true) {
+                    var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
+                    if (edata2.isCancelled === true) {
                         $(this).val(obj.record[this.name]); // return previous value
                         return;
                     }
@@ -979,7 +987,7 @@
                     }
                     obj.record[this.name] = val;
                     // event after
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata2, { phase: 'after' }));
                 });
                 // required
                 if (field.required) {
@@ -1012,7 +1020,7 @@
                 });
             });
             // init controls with record
-            for (var f = 0; f < this.fields.length; f++) {
+            for (var f = from_field; f < to_field; f++) {
                 var field = this.fields[f];
                 var value = (this.record[field.name] != null ? this.record[field.name] : '');
                 if (!field.el) continue;
@@ -1059,7 +1067,7 @@
                             if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
                                 field.options.items = w2obj.field.prototype.normMenu(items);
                             }
-                            // find value from items 
+                            // find value from items
                             for (var i = 0; i < field.options.items.length; i++) {
                                 var item = field.options.items[i];
                                 if (item.id == tmp_value) {
@@ -1117,7 +1125,7 @@
                 if ($(tmp[i]).find('> *').length > 1) $(tmp[i]).wrapInner('<div></div>');
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             this.resize();
             return (new Date()).getTime() - time;
         },
@@ -1137,8 +1145,8 @@
             if (!this.isGenerated) return;
             if (!this.box) return;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) });
+            if (edata.isCancelled === true) return;
             // default actions
             if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
                 this.original = $.extend(true, {}, this.record);
@@ -1158,10 +1166,10 @@
             if (typeof this.toolbar.render !== 'function') {
                 this.toolbar = $().w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
                 this.toolbar.on('click', function (event) {
-                    var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
-                    if (eventData.isCancelled === true) return;
+                    var edata = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
+                    if (edata.isCancelled === true) return;
                     // no default action
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 });
             }
             if (typeof this.toolbar == 'object' && typeof this.toolbar.render == 'function') {
@@ -1178,7 +1186,7 @@
                 this.tabs.render($('#form_'+ this.name +'_tabs')[0]);
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             // after render actions
             this.resize();
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
@@ -1204,8 +1212,8 @@
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
+            if (edata.isCancelled === true) return;
             // clean up
             if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
             if (typeof this.tabs == 'object' && this.tabs.destroy) this.tabs.destroy();
@@ -1217,7 +1225,7 @@
             }
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             $(window).off('resize', 'body')
         }
     };

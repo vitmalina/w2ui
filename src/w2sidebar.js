@@ -700,8 +700,8 @@
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-sidebar')
                 .html('<div>'+
-                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; '+
-                        '       width: 0px; border: 0px; padding: 0px; opacity: 0"/>'+
+                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: -10px; right: 0px; z-index: 1; '+
+                        '       width: 1px; height: 1px; border: 0px; padding: 0px; opacity: 0"/>'+
                         '<div class="w2ui-sidebar-top"></div>' +
                         '<div class="w2ui-sidebar-div"></div>'+
                         '<div class="w2ui-sidebar-bottom"></div>'+

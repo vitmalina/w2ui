@@ -287,7 +287,7 @@ var w2utils = (function ($) {
             var tmp = String(val).indexOf(' ');
             var values  = [val.substr(0, tmp), val.substr(tmp).trim()];
             formats[0] = formats[0].trim();
-            formats[1] = formats[1].trim();
+            if (formats[1]) formats[1] = formats[1].trim();
             // check
             var tmp1 = w2utils.isDate(values[0], formats[0], true);
             var tmp2 = w2utils.isTime(values[1], true);
@@ -397,11 +397,16 @@ var w2utils = (function ($) {
     }
 
     function formatNumber (val, fraction, useGrouping) {
-        return parseFloat(val).toLocaleString(w2utils.settings.locale, { 
-            minimumFractionDigits : fraction, 
-            maximumFractionDigits : 20,
-            useGrouping : useGrouping 
-        });
+        var options = {
+            minimumFractionDigits : fraction,
+            maximumFractionDigits : fraction,
+            useGrouping : useGrouping
+        };
+        if (fraction == null || fraction < 0) {
+            options.minimumFractionDigits = 0;
+            options.maximumFractionDigits = 20;
+        }
+        return parseFloat(val).toLocaleString(w2utils.settings.locale, options);
     }
 
     function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
@@ -504,7 +509,7 @@ var w2utils = (function ($) {
                     for (var i = 0; i < html.length; i++) html[i] = this.stripTags(html[i]);
                 }  else {
                     html = $.extend(true, {}, html);
-                    for (var i in html) html[i] = this.stripTags(html[i]);  
+                    for (var i in html) html[i] = this.stripTags(html[i]);
                 }
                 break;
         }
@@ -526,7 +531,7 @@ var w2utils = (function ($) {
                     for (var i = 0; i < html.length; i++) html[i] = this.encodeTags(html[i]);
                 }  else {
                     html = $.extend(true, {}, html);
-                    for (var i in html) html[i] = this.encodeTags(html[i]);  
+                    for (var i in html) html[i] = this.encodeTags(html[i]);
                 }
                 break;
         }
@@ -641,15 +646,15 @@ var w2utils = (function ($) {
 
         return output;
     }
-    
+
     function md5(input) {
 		/*
          * Based on http://pajhome.org.uk/crypt/md5
          */
-        
+
         var hexcase = 0;
         var b64pad = "";
-        
+
         function __pj_crypt_hex_md5(s) {
             return __pj_crypt_rstr2hex(__pj_crypt_rstr_md5(__pj_crypt_str2rstr_utf8(s)));
         }
@@ -670,7 +675,7 @@ var w2utils = (function ($) {
         function __pj_crypt_any_hmac_md5(k, d, e)
         {
             return __pj_crypt_rstr2any(__pj_crypt_rstr_hmac_md5(__pj_crypt_str2rstr_utf8(k), __pj_crypt_str2rstr_utf8(d)), e);
-        }        
+        }
 
         /*
          * Calculate the MD5 of a raw string
@@ -1024,9 +1029,9 @@ var w2utils = (function ($) {
         {
             return (num << cnt) | (num >>> (32 - cnt));
         }
-        
+
         return __pj_crypt_hex_md5(input);
-        
+
 	}
 
     function transition (div_old, div_new, type, callBack) {
@@ -1224,8 +1229,6 @@ var w2utils = (function ($) {
             $lock.show();
             mess.html(options.msg).show(0);
         }
-        // hide all tags (do not hide overlays as the form can be in overlay)
-        $().w2tag();
     }
 
     function unlock (box, speed) {
@@ -1471,7 +1474,7 @@ w2utils.formatters = {
         if (parseInt(params) > 20) params = 20;
         if (parseInt(params) < 0) params = 0;
         if (value == null || value == '') return '';
-        return w2utils.formatNumber(parseInt(value), params, true);
+        return w2utils.formatNumber(parseFloat(value), params, true);
     },
 
     'float': function (value, params) {
@@ -1553,7 +1556,7 @@ w2utils.formatters = {
 
     'toggle': function (value, params) {
         return (value ? 'Yes' : '');
-    }     
+    }
 };
 
 /***********************************************************
@@ -1618,7 +1621,7 @@ w2utils.event = {
 
     trigger: function (edata) {
         var edata = $.extend({ type: null, phase: 'before', target: null, doneHandlers: [] }, edata, {
-            isStopped       : false, 
+            isStopped       : false,
             isCancelled     : false,
             done            : function (handler) { this.doneHandlers.push(handler); },
             preventDefault  : function () { this.isCancelled = true; },
@@ -1829,7 +1832,7 @@ w2utils.event = {
                     .data('options', options)
                     .data('taged-el', el)
                     .data('position', pos.left + 'x' + pos.top)
-                    .data('timer', setInterval(checkIfMoved, 100))
+                    .data('timer', setTimeout(checkIfMoved, 100))
                     .find('.w2ui-tag-body').addClass(pos['posClass']);
 
                 $(el).css(options.css)
@@ -1870,6 +1873,7 @@ w2utils.event = {
                     hideTag();
                     return;
                 }
+                setTimeout(checkIfMoved, 100);
                 // monitor if moved
                 var posClass = 'w2ui-tag-right';
                 var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
@@ -2059,9 +2063,9 @@ w2utils.event = {
                             div2.find('div.menu').css('overflow-y', 'hidden');
                         }
                     }, 1);
-                    setTimeout(function () { 
+                    setTimeout(function () {
                         var $div = div2.find('div.menu');
-                        if ($div.css('overflow-y') != 'auto') $div.css('overflow-y', 'auto'); 
+                        if ($div.css('overflow-y') != 'auto') $div.css('overflow-y', 'auto');
                     }, 10);
                 }
                 if (options.tmp.contentWidth) {
@@ -2072,8 +2076,8 @@ w2utils.event = {
                             div2.find('div.menu > table').css('overflow-x', 'hidden');
                         }
                     }, 1);
-                    setTimeout(function () { 
-                        div2.find('div.menu > table').css('overflow-x', 'auto'); 
+                    setTimeout(function () {
+                        div2.find('div.menu > table').css('overflow-x', 'auto');
                     }, 10);
                 }
                 // adjust position
@@ -2179,7 +2183,7 @@ w2utils.event = {
                     );
                 }
                 // check scroll bar (needed to avoid horizontal scrollbar)
-                if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);                
+                if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
         }
     };

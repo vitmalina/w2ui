@@ -241,13 +241,14 @@
 
                 case 'date':
                     defaults = {
-                        format      : w2utils.settings.dateFormat, // date format
-                        keyboard    : true,
-                        silent      : true,
-                        start       : '',       // string or jquery object
-                        end         : '',       // string or jquery object
-                        blocked     : {},       // { '4/11/2011': 'yes' }
-                        colored     : {}        // { '4/11/2011': 'red:white' }
+                        format       : w2utils.settings.dateFormat, // date format
+                        keyboard     : true,
+                        silent       : true,
+                        start        : '',       // string or jquery object
+                        end          : '',       // string or jquery object
+                        blocked      : {},       // { '4/11/2011': 'yes' }
+                        colored      : {},        // { '4/11/2011': 'red:white' }
+                        blockWeekDays : null       // array of numbers of weekday to block
                     };
                     this.options = $.extend(true, {}, defaults, options);
                     options = this.options; // since object is re-created, need to re-assign
@@ -1890,6 +1891,21 @@
                     }
                     // block predefined dates
                     if (this.options.blocked && $.inArray(str, this.options.blocked) != -1) inRange = false;
+
+                    /*
+                    clockWeekDay - type: array or integers. every element - number of week day.
+                    number of weekday (1 - monday, 2 - tuesday, 3 - wensday, 4 - thursday, 5 - friday, 6 - saturday, 0 - sunday)
+                    for block in calendar (for example, block all sundays so user can't choose sunday in calendar)
+                    */
+                    if (this.options.blockWeekDays != null && this.options.blockWeekDays != undefined 
+                        && this.options.blockWeekDays.length != undefined){
+                        var l = this.options.blockWeekDays.length;
+                        for (var i=0; i<l; i++){
+                            if (dt.getDay() == this.options.blockWeekDays[i]){
+                                inRange = false;
+                            }
+                        }
+                    }
                 }
             }
             else if (this.type == 'time') {
