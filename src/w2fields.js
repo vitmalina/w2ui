@@ -446,7 +446,7 @@
                 onKeypress  : function (event) { obj.keyPress.call(obj, event); }
             };
             $(this.el)
-                .addClass('w2field')
+                .addClass('w2field w2ui-input')
                 .data('w2field', this)
                 .on('change',   this.tmp.onChange)
                 .on('click',    this.tmp.onClick)         // ignore click because it messes overlays
