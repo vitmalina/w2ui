@@ -2408,7 +2408,7 @@
                         '    column="'+ column +'" '+ edit.inTag +
                         '/>' + edit.outTag);
                 // issue #499
-                if (typeof val == 'number') {
+                if (edit.type == 'number') {
                     val = w2utils.formatNumber(val);
                 }
                 if (edit.type == 'date') {
