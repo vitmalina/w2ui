@@ -2479,7 +2479,7 @@
                     })
                     .on('keydown', function (event) {
                         var el  = this;
-                        var val = (el.tagName == 'DIV' ? $(el).text() : $(el).val());
+                        var val = (el.tagName.toUpperCase() == 'DIV' ? $(el).text() : $(el).val());
                         switch (event.keyCode) {
                             case 8: // backspace;
                                 if (edit.type == 'list' && !$(input).data('w2field')) { // cancel backspace when deleting element
@@ -4188,9 +4188,9 @@
                     }
                     var tmps = false;
                     while (tmp) {
-                        if (!tmp || tmp.classList.contains('w2ui-grid')) break;
-                        if (tmp.tagName == 'TD') tmps = true;
-                        if (tmp.tagName != 'TR' && tmps == true) {
+                        if (tmp.classList.contains('w2ui-grid')) break;
+                        if (tmp.tagName.toUpperCase() == 'TD') tmps = true;
+                        if (tmp.tagName.toUpperCase() != 'TR' && tmps == true) {
                             pos.x += tmp.offsetLeft;
                             pos.y += tmp.offsetTop;
                         }
