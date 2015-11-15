@@ -1438,7 +1438,13 @@ var w2utils = (function ($) {
         if (input == null) return;
         for (var i = 0; i < input.childNodes.length; i++) {
             var tmp = $(input.childNodes[i]).text();
-            if (input.childNodes[i].tagName) tmp = $(input.childNodes[i]).html();
+            if (input.childNodes[i].tagName) {
+                tmp = $(input.childNodes[i]).html();
+                tmp = tmp.replace('&lt;', '<')
+                         .replace('&gt;', '>')
+                         .replace('&amp;', '&')
+                         .replace('&quot;', '"');
+            }
             if (pos <= tmp.length) {
                 el = input.childNodes[i];
                 if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0];
@@ -2043,6 +2049,8 @@ w2utils.event = {
         function resize () {
             var div1 = $('#w2ui-overlay'+ name);
             var div2 = div1.find(' > div');
+            var menu = $('#w2ui-overlay'+ name +' div.menu');
+            menu.css('overflow-y', 'hidden');
             // if goes over the screen, limit height and width
             if (div1.length > 0) {
                 div2.height('auto').width('auto');
@@ -2185,6 +2193,7 @@ w2utils.event = {
                 // check scroll bar (needed to avoid horizontal scrollbar)
                 if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
+            menu.css('overflow-y', 'auto');
         }
     };
 
@@ -2491,13 +2500,13 @@ w2utils.event = {
         }
     };
 
-    $.fn.w2color = function (color, callBack) {
+    $.fn.w2color = function (options, callBack) {
         var obj   = this;
         var el    = $(this)[0];
         var index = [-1, -1];
         if ($.fn.w2colorPalette == null) {
             $.fn.w2colorPalette = [
-                ['000000', '888888', 'BBBBBB', 'DDDDDD', 'EEEEEE', 'F7F7F7', 'FFFFFF', ''],
+                ['000000', '555555', '888888', 'BBBBBB', 'DDDDDD', 'EEEEEE', 'F7F7F7', 'FFFFFF'],
                 ['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '006CE7', '9B24F4', 'FF21F5'],
                 ['FFEAEA', 'FCEFE1', 'FCF5E1', 'EBF7E7', 'E9F3F5', 'ECF4FC', 'EAE6F4', 'F5E7ED'],
                 ['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
@@ -2510,18 +2519,30 @@ w2utils.event = {
             ];
         }
         var pal = $.fn.w2colorPalette;
-        if (typeof color != 'string') color = '';
-        if (color) color = String(color).toUpperCase();
+        if (typeof options == 'string') options = {
+            color: options,
+            transparent: true
+        };
+        // add remove transarent color
+        if (options.transparent && pal[0][1] == '555555') {
+            pal[0].splice(1, 1);
+            pal[0].push('');
+        }
+        if (!options.transparent && pal[0][1] != '555555') {
+            pal[0].splice(1, 0, '555555');
+            pal[0].pop();
+        }
+        if (options.color) options.color = String(options.color).toUpperCase();
 
         if ($('#w2ui-overlay').length == 0) {
-            $(el).w2overlay(getColorHTML(color), {
+            $(el).w2overlay(getColorHTML(options), {
                 onHide: function () {
                     if (typeof callBack == 'function') callBack($(el).data('_color'));
                     $(el).removeData('_color');
                 }
             });
         } else { // only refresh contents
-            $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(color));
+            $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(options));
         }
         // bind events
         $('#w2ui-overlay .color')
@@ -2552,7 +2573,7 @@ w2utils.event = {
                     return;
                 }
                 $.fn.w2colorPalette[pal.length - 1].unshift(tmp.toUpperCase());
-                $(el).w2color(color, callBack);
+                $(el).w2color(options, callBack);
                 setTimeout(function() { $('#w2ui-overlay input')[0].focus(); }, 100);
             })
             .w2field('hex');
@@ -2582,18 +2603,19 @@ w2utils.event = {
             return color;
         };
 
-        function getColorHTML(color) {
-            var html =  '<div class="w2ui-color">'+
+        function getColorHTML(options) {
+            var color = options.color;
+            var html  = '<div class="w2ui-color">'+
                         '<table cellspacing="5"><tbody>';
             for (var i = 0; i < pal.length - 1; i++) {
                 html += '<tr>';
                 for (var j = 0; j < pal[i].length; j++) {
                     html += '<td>'+
                             '    <div class="color '+ (pal[i][j] == '' ? 'no-color' : '') +'" style="background-color: #'+ pal[i][j] +';" ' +
-                            '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (color == pal[i][j] ? '&#149;' : '&#160;') +
+                            '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (options.color == pal[i][j] ? '&#149;' : '&#160;') +
                             '    </div>'+
                             '</td>';
-                    if (color == pal[i][j]) index = [i, j];
+                    if (options.color == pal[i][j]) index = [i, j];
                 }
                 html += '</tr>';
                 if (i < 2) html += '<tr><td style="height: 8px" colspan="8"></td></tr>';
@@ -2602,10 +2624,10 @@ w2utils.event = {
             html += '<tr><td style="height: 8px" colspan="8"></td></tr>'+
                     '<tr>'+
                     '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"/></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (color == tmp[0] ? '&#149;' : '&#160;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (color == tmp[1] ? '&#149;' : '&#160;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (color == tmp[2] ? '&#149;' : '&#160;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (color == tmp[3] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (options.color == tmp[0] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (options.color == tmp[1] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (options.color == tmp[2] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (options.color == tmp[3] ? '&#149;' : '&#160;') +'</div></td>'+
                     '</tr>'+
                     '<tr><td style="height: 4px" colspan="8"></td></tr>';
             html += '</tbody></table></div>';
