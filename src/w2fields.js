@@ -40,6 +40,7 @@
 *   - options.items can be a function now
 *   - options.maxDropWidth
 *   - options.noMinutes - for time field
+*   - options.transarent = t/f for color
 *
 ************************************************************************/
 
@@ -229,7 +230,8 @@
                         prefix      : '#',
                         suffix      : '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&#160;</div>',
                         arrows      : false,
-                        keyboard    : false
+                        keyboard    : false,
+                        transparent : true
                     };
                     $.extend(options, defaults);
                     this.addPrefix();    // only will add if needed
@@ -1371,9 +1373,9 @@
                         this.search();
                     }
                     // event after
-                    this.trigger($.extend(edata, { phase: 'after' }));                
+                    this.trigger($.extend(edata, { phase: 'after' }));
                 }
-            }            
+            }
         },
 
         clearCache: function () {
@@ -1563,7 +1565,7 @@
             // color
             if (this.type == 'color') {
                 if ($(obj.el).attr('readonly')) return;
-                $(this.el).w2color($(this.el).val(), function (color) {
+                $(this.el).w2color({ color: $(this.el).val(), transparent: options.transparent }, function (color) {
                     if (color == null) return;
                     $(obj.el).val(color).change();
                 });
@@ -1897,7 +1899,7 @@
                     number of weekday (1 - monday, 2 - tuesday, 3 - wensday, 4 - thursday, 5 - friday, 6 - saturday, 0 - sunday)
                     for block in calendar (for example, block all sundays so user can't choose sunday in calendar)
                     */
-                    if (this.options.blockWeekDays != null && this.options.blockWeekDays != undefined 
+                    if (this.options.blockWeekDays != null && this.options.blockWeekDays != undefined
                         && this.options.blockWeekDays.length != undefined){
                         var l = this.options.blockWeekDays.length;
                         for (var i=0; i<l; i++){

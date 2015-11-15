@@ -21,6 +21,7 @@
 *   - item.text and item.html - can be functions now (or string), where this keyword is the item
 *   - item.style - style for caption in the button
 *   - item.check
+*   - item.color, item.transparent - for color buttons
 *
 ************************************************************************/
 
@@ -387,7 +388,7 @@
                                 }));
                             }
                             if (['color', 'text-color'].indexOf(it.type) != -1) {
-                                $(el).w2color(it.color, function (color, index) {
+                                $(el).w2color({ color: it.color, transparent: it.transparent }, function (color, index) {
                                     if (color != null) {
                                         obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
                                     }
@@ -647,7 +648,7 @@
                 case 'text-color':
                     if (typeof item.color == 'string' && item.color.substr(0,1) == '#') item.color = item.color.substr(1);
                     if (item.type == 'color') {
-                        text = '<div style="height: 12px; width: 12px; margin-top: 1px; border: 1px solid #efefef; '+
+                        text = '<div style="height: 12px; width: 12px; margin-top: 1px; border: 1px solid #8A8A8A; border-radius: 1px; box-shadow: 0px 0px 1px #fff; '+
                                '        background-color: #'+ (item.color != null ? item.color : 'fff') +'; float: left;"></div>'+
                                (item.text ? '<div style="margin-left: 17px;">' + w2utils.lang(item.text) + '</div>' : '');
                     }
