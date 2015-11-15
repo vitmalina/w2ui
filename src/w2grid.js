@@ -98,7 +98,8 @@
             summary: true/false
             style: 'string' - for entire row OR { field: 'string', ...} - per field
         }
-}
+    }
+*   - added this.show.toolbarInput
 *
 ************************************************************************/
 
@@ -133,6 +134,7 @@
             toolbarReload   : true,
             toolbarColumns  : true,
             toolbarSearch   : true,
+            toolbarInput    : true,
             toolbarAdd      : false,
             toolbarEdit     : false,
             toolbarDelete   : false,
@@ -287,7 +289,7 @@
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
-        msgNeedReload   : 'Your remove data source record count has changed, reloading from the first record.',
+        msgNeedReload   : 'Your remote data source record count has changed, reloading from the first record.',
 
         buttons: {
             'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
@@ -4840,7 +4842,7 @@
                 if (this.show.toolbarReload || this.show.toolbarColumns) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
                 }
-                if (this.show.toolbarSearch) {
+                if (this.show.toolbarInput) {
                     var html =
                         '<div class="w2ui-toolbar-search">'+
                         '<table cellpadding="0" cellspacing="0"><tbody><tr>'+
@@ -4871,11 +4873,11 @@
                         '</tr></tbody></table>'+
                         '</div>';
                     this.toolbar.items.push({ type: 'html', id: 'w2ui-search', html: html });
-                    if (this.multiSearch && this.searches.length > 0) {
-                        this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
-                    }
                 }
-                if (this.show.toolbarSearch && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
+                if (this.show.toolbarSearch && this.multiSearch && this.searches.length > 0) {
+                    this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
+                }
+                if ((this.show.toolbarSearch || this.show.toolbarInput) && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break1' });
                 }
                 if (this.show.toolbarAdd) {
@@ -6612,6 +6614,7 @@
                     }
                     var tmp = String(fld).split(':');
                     var col = this.getColumn(tmp[0]);
+                    if (col == null) col = { field: tmp[0], caption: tmp[0] }; // if not found in columns
                     var val = (col ? this.parseField(rec, col.field) : '');
                     if (tmp.length > 1) {
                         if (w2utils.formatters[tmp[1]]) {
