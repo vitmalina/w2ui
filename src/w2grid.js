@@ -2637,7 +2637,6 @@
             var tr      = $('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid));
             var new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value);
             var old_val = this.parseField(rec, col.field);
-            if ($(event.target).data('old_value') != null) old_val = $(event.target).data('old_value');
             var tmp = $(el).data('w2field');
             if (tmp) {
                 if (tmp.type == 'list') new_val = $(el).data('selected');
@@ -2656,6 +2655,7 @@
                 value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
                 value_original: old_val
             };
+            if ($(event.target).data('old_value') != null) eventData.value_previous = $(event.target).data('old_value');
             // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
             while (true) {
                 new_val = eventData.value_new;
