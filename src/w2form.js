@@ -564,6 +564,14 @@
                 // append other params
                 $.extend(params, obj.postData);
                 $.extend(params, postData);
+                // clear up files
+                obj.fields.forEach(function (item) {
+                    if (item.type == 'file' && Array.isArray(obj.record[item.field])) {
+                        obj.record[item.field].forEach(function (fitem) {
+                            delete fitem.file;
+                        });
+                    }
+                });
                 params.record = $.extend(true, {}, obj.record);
                 // event before
                 var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
@@ -606,6 +614,9 @@
                 };
                 if (w2utils.settings.dataType == 'HTTP') {
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                }
+                if (w2utils.settings.dataType == 'HTTPJSON') {
+                    ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
                     if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
