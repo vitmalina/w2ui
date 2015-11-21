@@ -264,7 +264,8 @@ var w2utils = (function ($) {
         if (ampm && tmp.length === 1 && h === 0) { return false; }
 
         if (retTime === true) {
-            if (pm) h += 12;
+            if (pm && h !== 12)  h += 12;   // 12:00pm - is noon
+            if (!pm && h === 12) h += 12;   // 12:00am - is midnight
             return {
                 hours: h,
                 minutes: m,
@@ -293,9 +294,9 @@ var w2utils = (function ($) {
             var tmp2 = w2utils.isTime(values[1], true);
             if (tmp1 !== false && tmp2 !== false) {
                 if (retDate !== true) return true;
-                tmp1.setHours(tmp2[0]);
-                tmp1.setMinutes(tmp2[1]);
-                tmp1.setSeconds(tmp2[2]);
+                tmp1.setHours(tmp2.hours);
+                tmp1.setMinutes(tmp2.minutes);
+                tmp1.setSeconds(tmp2.seconds);
                 return tmp1;
             } else {
                 return false;
