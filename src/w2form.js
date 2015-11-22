@@ -1044,8 +1044,6 @@
                     case 'email':
                     case 'pass':
                     case 'password':
-                        field.el.value = value;
-                        break;
                     case 'int':
                     case 'float':
                     case 'money':
