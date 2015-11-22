@@ -1035,6 +1035,7 @@
                 var field = this.fields[f];
                 var value = (this.record[field.name] != null ? this.record[field.name] : '');
                 if (!field.el) continue;
+                if (!$(field.el).hasClass('w2ui-input')) $(field.el).addClass('w2ui-input');
                 field.type = String(field.type).toLowerCase();
                 if (!field.options) field.options = {};
                 switch (field.type) {
