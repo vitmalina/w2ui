@@ -4143,6 +4143,7 @@
                     if (!obj.hasFocus) obj.focus();
                 })
                 .on('blur', function (event) {
+                    clearTimeout(obj.last.kbd_timer);
                     obj.last.kbd_timer = setTimeout(function () {
                         if (obj.hasFocus) { obj.blur(); }
                     }, 100); // need this timer to be 100 ms
@@ -4216,13 +4217,13 @@
                     var target = event.target;
                     setTimeout(function () {
                         var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                        if (!$input.is(':focus')) $input.focus(); // keep focus
                         // move input next to cursor so screen does not jump
                         if (obj.last.move) {
                             $input.css({
                                 left: obj.last.move.focusX - $(obj.box).find('#grid_'+ obj.name +'_records').scrollLeft(),
                                 top : obj.last.move.focusY - $(obj.box).find('#grid_'+ obj.name +'_records').scrollTop()
                             });
-                            if (!$input.is(':focus')) $input.focus();
                         }
                         // if toolbar input is clicked
                         setTimeout(function () {
