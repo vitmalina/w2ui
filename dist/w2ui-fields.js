@@ -265,7 +265,8 @@ var w2utils = (function ($) {
         if (ampm && tmp.length === 1 && h === 0) { return false; }
 
         if (retTime === true) {
-            if (pm) h += 12;
+            if (pm && h !== 12)  h += 12;   // 12:00pm - is noon
+            if (!pm && h === 12) h += 12;   // 12:00am - is midnight
             return {
                 hours: h,
                 minutes: m,
@@ -294,9 +295,9 @@ var w2utils = (function ($) {
             var tmp2 = w2utils.isTime(values[1], true);
             if (tmp1 !== false && tmp2 !== false) {
                 if (retDate !== true) return true;
-                tmp1.setHours(tmp2[0]);
-                tmp1.setMinutes(tmp2[1]);
-                tmp1.setSeconds(tmp2[2]);
+                tmp1.setHours(tmp2.hours);
+                tmp1.setMinutes(tmp2.minutes);
+                tmp1.setSeconds(tmp2.seconds);
                 return tmp1;
             } else {
                 return false;
@@ -3088,7 +3089,7 @@ w2utils.event = {
                 onKeypress  : function (event) { obj.keyPress.call(obj, event); }
             };
             $(this.el)
-                .addClass('w2field')
+                .addClass('w2field w2ui-input')
                 .data('w2field', this)
                 .on('change',   this.tmp.onChange)
                 .on('click',    this.tmp.onClick)         // ignore click because it messes overlays
@@ -4455,7 +4456,6 @@ w2utils.event = {
                     if ($.isPlainObject(sel) && !$.isEmptyObject(sel) && options.index == -1) {
                         options.items.forEach(function (item, ind) {
                             if (item.id == sel.id) {
-                                console.log('-->', ind);
                                 options.index = ind;
                             }
                         });
@@ -4513,7 +4513,7 @@ w2utils.event = {
             }
         },
 
-        inRange: function (str) {
+        inRange: function (str, onlyDate) {
             var inRange = false;
             if (this.type == 'date') {
                 var dt = w2utils.isDate(str, this.options.format, true);
@@ -4549,8 +4549,7 @@ w2utils.event = {
                         }
                     }
                 }
-            }
-            else if (this.type == 'time') {
+            } else if (this.type == 'time') {
                 if (this.options.start || this.options.end) {
                     var tm  = this.toMin(str);
                     var tm1 = this.toMin(this.options.start);
@@ -4561,28 +4560,40 @@ w2utils.event = {
                 } else {
                     inRange = true;
                 }
-            }
-            else if (this.type == 'datetime') {
+            } else if (this.type == 'datetime') {
                 var dt = w2utils.isDateTime(str, this.options.format, true);
                 if (dt) {
                     // enable range
                     if (this.options.start || this.options.end) {
                         var start, end;
-                        if(typeof this.options.start == 'object' && this.options.start instanceof Date) {
+                        if (typeof this.options.start == 'object' && this.options.start instanceof Date) {
                             start = this.options.start;
                         } else {
                             var st = (typeof this.options.start == 'string' ? this.options.start : $(this.options.start).val());
-                            start  = w2utils.isDateTime(st, this.options.format, true);
+                            if (st.trim() != '') {
+                                start = w2utils.isDateTime(st, this.options.format, true);
+                            } else {
+                                start = '';
+                            }
                         }
-                        if(typeof this.options.end == 'object' && this.options.end instanceof Date) {
+                        if (typeof this.options.end == 'object' && this.options.end instanceof Date) {
                             end = this.options.end;
                         } else {
                             var en = (typeof this.options.end == 'string' ? this.options.end : $(this.options.end).val());
-                            end    = w2utils.isDateTime(en, this.options.format, true);
+                            if (en.trim() != '') {
+                                end = w2utils.isDateTime(en, this.options.format, true);
+                            } else {
+                                end = '';
+                            }
                         }
                         var current = dt; // new Date(dt);
                         if (!start) start = current;
                         if (!end) end = current;
+                        if (onlyDate && start instanceof Date) {
+                            start.setHours(0);
+                            start.setMinutes(0);
+                            start.setSeconds(0);
+                        }
                         if (current >= start && current <= end) inRange = true;
                     } else {
                         inRange = true;
@@ -5143,6 +5154,8 @@ w2utils.event = {
                 var bgcol   = '';
                 var tmp_dt, tmp_dt_fmt;
                 if(this.type === 'datetime') {
+                    // var fm = options.format.split('|')[0].trim();
+                    // tmp_dt      = w2utils.formatDate(dt, fm);
                     tmp_dt      = w2utils.formatDateTime(dt, options.format);
                     tmp_dt_fmt  = w2utils.formatDate(dt, w2utils.settings.dateFormat);
                 } else {
@@ -5154,7 +5167,7 @@ w2utils.event = {
                     bgcol   = 'background-color: ' + tmp[0] + ';';
                     col     = 'color: ' + tmp[1] + ';';
                 }
-                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' + (tmp_dt_fmt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
+                html += '<td class="'+ (this.inRange(tmp_dt, true) ? 'w2ui-date ' + (tmp_dt_fmt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
                         '   style="'+ col + bgcol + '" date="'+ tmp_dt +'" data-date="'+ DT +'">'+
                             dspDay +
                         '</td>';
@@ -5191,7 +5204,13 @@ w2utils.event = {
                 if (!tmp[Math.floor(a/8)]) tmp[Math.floor(a/8)] = '';
                 var tm1 = this.fromMin(this.toMin(time));
                 var tm2 = this.fromMin(this.toMin(time) + 59);
-                tmp[Math.floor(a/8)] += '<div class="'+ ((this.type === 'datetime') || this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
+                if (this.type === 'datetime') {
+                    var dt = w2utils.isDateTime(this.el.value, options.format, true);
+                    var fm = options.format.split('|')[0].trim();
+                    tm1 = w2utils.formatDate(dt, fm) + ' ' + tm1;
+                    tm2 = w2utils.formatDate(dt, fm) + ' ' + tm2;
+                }
+                tmp[Math.floor(a/8)] += '<div class="'+ (this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
             }
             var html =
                 '<div class="w2ui-calendar">'+
@@ -5213,9 +5232,15 @@ w2utils.event = {
             var tmp = [];
             for (var a = 0; a < 60; a += 5) {
                 var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
-                var ind = a < 20 ? 0 : (a < 40 ? 1 : 2);
+                var tm   = time;
+                var ind  = a < 20 ? 0 : (a < 40 ? 1 : 2);
                 if (!tmp[ind]) tmp[ind] = '';
-                tmp[ind] += '<div class="'+ ((this.type === 'datetime') || this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
+                if (this.type === 'datetime') {
+                    var dt = w2utils.isDateTime(this.el.value, options.format, true);
+                    var fm = options.format.split('|')[0].trim();
+                    tm = w2utils.formatDate(dt, fm) + ' ' + tm;
+                }
+                tmp[ind] += '<div class="'+ (this.inRange(tm) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
             }
             var html =
                 '<div class="w2ui-calendar">'+

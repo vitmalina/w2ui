@@ -265,7 +265,8 @@ var w2utils = (function ($) {
         if (ampm && tmp.length === 1 && h === 0) { return false; }
 
         if (retTime === true) {
-            if (pm) h += 12;
+            if (pm && h !== 12)  h += 12;   // 12:00pm - is noon
+            if (!pm && h === 12) h += 12;   // 12:00am - is midnight
             return {
                 hours: h,
                 minutes: m,
@@ -294,9 +295,9 @@ var w2utils = (function ($) {
             var tmp2 = w2utils.isTime(values[1], true);
             if (tmp1 !== false && tmp2 !== false) {
                 if (retDate !== true) return true;
-                tmp1.setHours(tmp2[0]);
-                tmp1.setMinutes(tmp2[1]);
-                tmp1.setSeconds(tmp2[2]);
+                tmp1.setHours(tmp2.hours);
+                tmp1.setMinutes(tmp2.minutes);
+                tmp1.setSeconds(tmp2.seconds);
                 return tmp1;
             } else {
                 return false;
@@ -5072,7 +5073,7 @@ w2utils.event = {
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
                         '/>' + edit.outTag);
                 // issue #499
-                if (typeof val == 'number') {
+                if (edit.type == 'number') {
                     val = w2utils.formatNumber(val);
                 }
                 if (edit.type == 'date') {
@@ -5277,7 +5278,6 @@ w2utils.event = {
             var tr      = $('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid));
             var new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value);
             var old_val = this.parseField(rec, col.field);
-            if ($(event.target).data('old_value') != null) old_val = $(event.target).data('old_value');
             var tmp = $(el).data('w2field');
             if (tmp) {
                 if (tmp.type == 'list') new_val = $(el).data('selected');
@@ -5296,6 +5296,7 @@ w2utils.event = {
                 value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
                 value_original: old_val
             };
+            if ($(event.target).data('old_value') != null) eventData.value_previous = $(event.target).data('old_value');
             // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
             while (true) {
                 new_val = eventData.value_new;
@@ -6675,7 +6676,7 @@ w2utils.event = {
                     for (var s = 0; s < obj.searchData.length; s++) {
                         var sdata = obj.searchData[s];
                         var fld = obj.getSearch(sdata.field);
-                        if (fld.hidden) continue;
+                        if (!fld || fld.hidden) continue;
                         if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
                     }
                     if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
@@ -6783,6 +6784,7 @@ w2utils.event = {
                     if (!obj.hasFocus) obj.focus();
                 })
                 .on('blur', function (event) {
+                    clearTimeout(obj.last.kbd_timer);
                     obj.last.kbd_timer = setTimeout(function () {
                         if (obj.hasFocus) { obj.blur(); }
                     }, 100); // need this timer to be 100 ms
@@ -6856,13 +6858,13 @@ w2utils.event = {
                     var target = event.target;
                     setTimeout(function () {
                         var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                        if (!$input.is(':focus')) $input.focus(); // keep focus
                         // move input next to cursor so screen does not jump
                         if (obj.last.move) {
                             $input.css({
                                 left: obj.last.move.focusX - $(obj.box).find('#grid_'+ obj.name +'_records').scrollLeft(),
                                 top : obj.last.move.focusY - $(obj.box).find('#grid_'+ obj.name +'_records').scrollTop()
                             });
-                            if (!$input.is(':focus')) $input.focus();
                         }
                         // if toolbar input is clicked
                         setTimeout(function () {
@@ -8882,7 +8884,7 @@ w2utils.event = {
                     for (var s = 0; s < obj.searchData.length; s++) {
                         var sdata = obj.searchData[s];
                         var fld = obj.getSearch(sdata.field);
-                        if (fld.hidden) continue;
+                        if (!fld || fld.hidden) continue;
                         if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
                     }
                     if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
@@ -14394,7 +14396,7 @@ var w2confirm = function (msg, title, callBack) {
                 onKeypress  : function (event) { obj.keyPress.call(obj, event); }
             };
             $(this.el)
-                .addClass('w2field')
+                .addClass('w2field w2ui-input')
                 .data('w2field', this)
                 .on('change',   this.tmp.onChange)
                 .on('click',    this.tmp.onClick)         // ignore click because it messes overlays
@@ -15761,7 +15763,6 @@ var w2confirm = function (msg, title, callBack) {
                     if ($.isPlainObject(sel) && !$.isEmptyObject(sel) && options.index == -1) {
                         options.items.forEach(function (item, ind) {
                             if (item.id == sel.id) {
-                                console.log('-->', ind);
                                 options.index = ind;
                             }
                         });
@@ -15819,7 +15820,7 @@ var w2confirm = function (msg, title, callBack) {
             }
         },
 
-        inRange: function (str) {
+        inRange: function (str, onlyDate) {
             var inRange = false;
             if (this.type == 'date') {
                 var dt = w2utils.isDate(str, this.options.format, true);
@@ -15855,8 +15856,7 @@ var w2confirm = function (msg, title, callBack) {
                         }
                     }
                 }
-            }
-            else if (this.type == 'time') {
+            } else if (this.type == 'time') {
                 if (this.options.start || this.options.end) {
                     var tm  = this.toMin(str);
                     var tm1 = this.toMin(this.options.start);
@@ -15867,28 +15867,40 @@ var w2confirm = function (msg, title, callBack) {
                 } else {
                     inRange = true;
                 }
-            }
-            else if (this.type == 'datetime') {
+            } else if (this.type == 'datetime') {
                 var dt = w2utils.isDateTime(str, this.options.format, true);
                 if (dt) {
                     // enable range
                     if (this.options.start || this.options.end) {
                         var start, end;
-                        if(typeof this.options.start == 'object' && this.options.start instanceof Date) {
+                        if (typeof this.options.start == 'object' && this.options.start instanceof Date) {
                             start = this.options.start;
                         } else {
                             var st = (typeof this.options.start == 'string' ? this.options.start : $(this.options.start).val());
-                            start  = w2utils.isDateTime(st, this.options.format, true);
+                            if (st.trim() != '') {
+                                start = w2utils.isDateTime(st, this.options.format, true);
+                            } else {
+                                start = '';
+                            }
                         }
-                        if(typeof this.options.end == 'object' && this.options.end instanceof Date) {
+                        if (typeof this.options.end == 'object' && this.options.end instanceof Date) {
                             end = this.options.end;
                         } else {
                             var en = (typeof this.options.end == 'string' ? this.options.end : $(this.options.end).val());
-                            end    = w2utils.isDateTime(en, this.options.format, true);
+                            if (en.trim() != '') {
+                                end = w2utils.isDateTime(en, this.options.format, true);
+                            } else {
+                                end = '';
+                            }
                         }
                         var current = dt; // new Date(dt);
                         if (!start) start = current;
                         if (!end) end = current;
+                        if (onlyDate && start instanceof Date) {
+                            start.setHours(0);
+                            start.setMinutes(0);
+                            start.setSeconds(0);
+                        }
                         if (current >= start && current <= end) inRange = true;
                     } else {
                         inRange = true;
@@ -16449,6 +16461,8 @@ var w2confirm = function (msg, title, callBack) {
                 var bgcol   = '';
                 var tmp_dt, tmp_dt_fmt;
                 if(this.type === 'datetime') {
+                    // var fm = options.format.split('|')[0].trim();
+                    // tmp_dt      = w2utils.formatDate(dt, fm);
                     tmp_dt      = w2utils.formatDateTime(dt, options.format);
                     tmp_dt_fmt  = w2utils.formatDate(dt, w2utils.settings.dateFormat);
                 } else {
@@ -16460,7 +16474,7 @@ var w2confirm = function (msg, title, callBack) {
                     bgcol   = 'background-color: ' + tmp[0] + ';';
                     col     = 'color: ' + tmp[1] + ';';
                 }
-                html += '<td class="'+ (this.inRange(tmp_dt) ? 'w2ui-date ' + (tmp_dt_fmt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
+                html += '<td class="'+ (this.inRange(tmp_dt, true) ? 'w2ui-date ' + (tmp_dt_fmt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
                         '   style="'+ col + bgcol + '" date="'+ tmp_dt +'" data-date="'+ DT +'">'+
                             dspDay +
                         '</td>';
@@ -16497,7 +16511,13 @@ var w2confirm = function (msg, title, callBack) {
                 if (!tmp[Math.floor(a/8)]) tmp[Math.floor(a/8)] = '';
                 var tm1 = this.fromMin(this.toMin(time));
                 var tm2 = this.fromMin(this.toMin(time) + 59);
-                tmp[Math.floor(a/8)] += '<div class="'+ ((this.type === 'datetime') || this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
+                if (this.type === 'datetime') {
+                    var dt = w2utils.isDateTime(this.el.value, options.format, true);
+                    var fm = options.format.split('|')[0].trim();
+                    tm1 = w2utils.formatDate(dt, fm) + ' ' + tm1;
+                    tm2 = w2utils.formatDate(dt, fm) + ' ' + tm2;
+                }
+                tmp[Math.floor(a/8)] += '<div class="'+ (this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>';
             }
             var html =
                 '<div class="w2ui-calendar">'+
@@ -16519,9 +16539,15 @@ var w2confirm = function (msg, title, callBack) {
             var tmp = [];
             for (var a = 0; a < 60; a += 5) {
                 var time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '');
-                var ind = a < 20 ? 0 : (a < 40 ? 1 : 2);
+                var tm   = time;
+                var ind  = a < 20 ? 0 : (a < 40 ? 1 : 2);
                 if (!tmp[ind]) tmp[ind] = '';
-                tmp[ind] += '<div class="'+ ((this.type === 'datetime') || this.inRange(time) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
+                if (this.type === 'datetime') {
+                    var dt = w2utils.isDateTime(this.el.value, options.format, true);
+                    var fm = options.format.split('|')[0].trim();
+                    tm = w2utils.formatDate(dt, fm) + ' ' + tm;
+                }
+                tmp[ind] += '<div class="'+ (this.inRange(tm) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>';
             }
             var html =
                 '<div class="w2ui-calendar">'+
@@ -17136,6 +17162,14 @@ var w2confirm = function (msg, title, callBack) {
                 // append other params
                 $.extend(params, obj.postData);
                 $.extend(params, postData);
+                // clear up files
+                obj.fields.forEach(function (item) {
+                    if (item.type == 'file' && Array.isArray(obj.record[item.field])) {
+                        obj.record[item.field].forEach(function (fitem) {
+                            delete fitem.file;
+                        });
+                    }
+                });
                 params.record = $.extend(true, {}, obj.record);
                 // event before
                 var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
@@ -17178,6 +17212,9 @@ var w2confirm = function (msg, title, callBack) {
                 };
                 if (w2utils.settings.dataType == 'HTTP') {
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                }
+                if (w2utils.settings.dataType == 'HTTPJSON') {
+                    ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
                     if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
@@ -17596,6 +17633,7 @@ var w2confirm = function (msg, title, callBack) {
                 var field = this.fields[f];
                 var value = (this.record[field.name] != null ? this.record[field.name] : '');
                 if (!field.el) continue;
+                if (!$(field.el).hasClass('w2ui-input')) $(field.el).addClass('w2ui-input');
                 field.type = String(field.type).toLowerCase();
                 if (!field.options) field.options = {};
                 switch (field.type) {
