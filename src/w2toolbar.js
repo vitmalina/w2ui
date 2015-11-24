@@ -388,6 +388,7 @@
                                 }));
                             }
                             if (['color', 'text-color'].indexOf(it.type) != -1) {
+                                if (it.transparent == null) it.transparent = true;
                                 $(el).w2color({ color: it.color, transparent: it.transparent }, function (color, index) {
                                     if (color != null) {
                                         obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
