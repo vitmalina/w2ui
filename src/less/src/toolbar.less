@@ -6,12 +6,79 @@
     margin: 0px;
     padding: 2px;
     outline: 0px;
+    position: relative;
     background-color: @toolbar-background-color;
     overflow: hidden !important;
     .user-select;
 
     .disabled {
         .opacity(0.3)
+    }
+
+    &.overflowed-left {
+        .w2ui-toolbar-scroll-left {
+            display: block;
+        }
+
+        .w2ui-toolbar-scroll-wrapper > table {
+            padding-left: 18px;
+        }
+    }
+
+    &.overflowed-right {
+        .w2ui-toolbar-scroll-right {
+            display: block;
+        }
+
+        .w2ui-toolbar-scroll-wrapper > table {
+            padding-right: 18px;
+        }
+    }
+
+    .w2ui-toolbar-scroll-wrapper {
+        overflow: hidden;
+        position: relative;
+    }
+
+    .w2ui-toolbar-scroll-left,
+    .w2ui-toolbar-scroll-right {
+        top: 0;
+        width: 18px;
+        height: 100%;
+        background-color: @toolbar-background-color;
+        cursor: default !important;
+        z-index: 10;
+        display: none;
+        position: absolute;
+
+        &:before {
+            display: block;
+            color: @toolbar-button-image-color;
+            line-height: 34px;
+            font-size: 15px;
+            width: 100%;
+            text-align: center;
+            cursor: default !important;
+            font-weight: bold;
+        }
+    }
+
+    .w2ui-toolbar-scroll-left {
+        border-right: @toolbar-button-checked-border;
+        left: 0;
+
+        &:before {
+            content: "«";
+        }
+    }
+
+    .w2ui-toolbar-scroll-right {
+        border-left: @toolbar-button-checked-border;
+        right: 0;
+
+        &:before {
+            content: "»";
+        }
     }
 
     table {
@@ -23,6 +90,7 @@
             margin: 0px 1px;
             border-radius: @toolbar-button-border-radius;
             height: 24px;
+            min-width: 24px;
             border: @toolbar-button-border;
             background-color: @toolbar-button-background-color;
 
@@ -30,7 +98,7 @@
                 width: 16px;
                 height: 16px;
                 padding: 0px;
-                margin: 5px 4px 3px 3px !important;
+                margin: 5px 1px 3px 3px !important;
                 border: 0px !important;
                 text-align: center;
                 // for font icon
@@ -39,7 +107,7 @@
                     display: block;
                     color: @toolbar-button-image-color;
                     &:before {
-                        vertical-align: top !important; 
+                        vertical-align: top !important;
                     }
                 }
             }
@@ -54,7 +122,7 @@
                 & > span {
                     border: @menu-node-count-border;
                     border-radius: 11px;
-                    width: auto; 
+                    width: auto;
                     height: 18px;
                     padding: 0px 6px 1px 6px;
                     background-color: @menu-node-count-background-color;
@@ -104,10 +172,10 @@
             border-radius: @toolbar-button-border-radius;
             cursor: default;
         }
-    } 
+    }
 
     .w2ui-break {
-        .linear-gradient-dark-center(@toolbar-break-color); 
+        .linear-gradient-dark-center(@toolbar-break-color);
         width: 1px !important;
         height: 22px;
         padding: 0px;

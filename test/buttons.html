@@ -1,0 +1,38 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../dist/w2ui.js"></script>
+<script>
+//<![CDATA[
+$(function () {
+    $('button').on('click', function () {
+        $('#disp').html($(this).val());
+    });
+});
+//]]>
+</script>
+</head>
+<body>
+    <div style="padding: 10px">
+        <button class="w2ui-btn" value="Gray">Regular</button>
+        <button class="w2ui-btn w2ui-btn-blue" value="Blue">Blue</button>
+        <button class="w2ui-btn w2ui-btn-green" value="Green">Green</button>
+        <button class="w2ui-btn w2ui-btn-orange" value="Orange">Orange</button>
+        <button class="w2ui-btn w2ui-btn-red" value="Red">Red</button>
+    </div>
+    <div style="padding: 10px">
+        <button class="w2ui-btn" value="Long">Very, Very, Very Long Button</button>
+    </div>
+    <div style="padding: 10px">
+        <input type="text"/> <button class="w2ui-btn w2ui-btn-small" value="Small">...</button>
+    </div>
+    <div style="padding: 10px">
+        Last Clicked: <span id="disp"></span>
+    </div>
+    <div style="padding: 10px; padding-top: 50px;">
+        Regular HTML Buttons: <br/><br/>
+        <input type="button" value="Small"/> <input type="button" value="Very, Very, Very Long Button"/>
+    </div>
+</body>
+</html>

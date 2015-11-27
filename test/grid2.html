@@ -1,7 +1,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
@@ -9,6 +9,7 @@
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
+//<![CDATA[
 $(function () {
     var people = [
         { id: 1, text: 'John Cook' },
@@ -18,7 +19,7 @@ $(function () {
         { id: 5, text: 'Addy Osmani' },
         { id: 6, text: 'Paul Irish' },
         { id: 7, text: 'Doug Crocford' },
-        { id: 8, text: 'Nicolas Cage' },
+        { id: 8, text: 'Nicolas Cage' }
     ];
 
     $('#grid').w2grid({ 
@@ -37,7 +38,7 @@ $(function () {
             toolbarSave: true,
             toolbarAdd: true
         },
-        selectType: 'cell',
+        // selectType: 'cell',
         columns: [                
             { field: 'recid', caption: 'ID', size: '80px', sortable: true, searchable: 'int', frozen: true },
             { field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true, editable: { type: 'int', min: 0, max: 100 } },
@@ -48,11 +49,7 @@ $(function () {
             { field: 'date', caption: 'date', size: '80px', sortable: true, resizable: true, editable: { type: 'date' } },
             { field: 'time', caption: 'time', size: '80px', sortable: true, resizable: true, editable: { type: 'time' } },
             { field: 'list', caption: 'list', size: '50%', sortable: true, resizable: true, 
-                editable: { type: 'list', items: people },
-                render: function (record, index, col_index) {
-                    var html = this.getCellValue(index, col_index);
-                    return html.text || '';
-                }
+                editable: { type: 'list', items: people }
             },
             { field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
             { field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true, 
@@ -65,11 +62,11 @@ $(function () {
                     return html;
                 }
             },
-            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } },
+            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } }
             // { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
             // { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
             // { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
-        ],
+        ]
     });
     var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
     var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
@@ -82,17 +79,22 @@ $(function () {
             float: 5,
             money: 6,
             check: Math.random() > 0.9 ? true : false,
-            select: 2,
-            // editable: false
+            select: 2
         });
     }
+    w2ui.grid.records[0].editable = false;
+    w2ui.grid.records[1].editable = false;
+    w2ui.grid.records[2].editable = false;
     w2ui.grid.total = w2ui.grid.records.length;
     w2ui.grid.buffered = w2ui.grid.records.length;
     w2ui.grid.refresh();
 });
+//]]>
 </script>
 </head>
 <body>
+    <input placeholder="before" style="margin-bottom: 5px;"/>
     <div id="grid" style="width: 1024px; height: 568px;"></div>
+    <input placeholder="after" style="margin-top: 5px;"/>
 </body>
 </html>

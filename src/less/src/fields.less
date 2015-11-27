@@ -9,21 +9,21 @@
 }
 
 .w2ui-field-helper {
-    position: absolute; 
-    display: inline-block; 
+    position: absolute;
+    display: inline-block;
     line-height: 100%;
     /* pointer-events: none; - do not use as IE does not support it */
     .user-select(none);
 
     .w2ui-field-up {
-        position: absolute; 
-        top: 0px; 
+        position: absolute;
+        top: 0px;
         padding: 2px 3px;
     }
-    
+
     .w2ui-field-down {
-        position: absolute; 
-        bottom: 0px; 
+        position: absolute;
+        bottom: 0px;
         padding: 2px 3px;
     }
 
@@ -38,13 +38,13 @@
 }
 
 /*
-*    ARROWS 
+*    ARROWS
 */
 
 .arrow-up {
     background: none;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 4px solid transparent;  /* left arrow slant */
     border-right: 4px solid transparent; /* right arrow slant */
     border-bottom: 5px solid #777; /* bottom, add background color here */
@@ -54,8 +54,8 @@
 
 .arrow-down {
     background: none;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
     border-top: 5px solid #777;
@@ -65,8 +65,8 @@
 
 .arrow-left {
     background: none;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-bottom: 4px solid transparent;  /* left arrow slant */
     border-top: 4px solid transparent; /* right arrow slant */
     border-right: 5px solid #777; /* bottom, add background color here */
@@ -76,8 +76,8 @@
 
 .arrow-right {
     background: none;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-bottom: 4px solid transparent;  /* left arrow slant */
     border-top: 4px solid transparent; /* right arrow slant */
     border-left: 5px solid #777; /* bottom, add background color here */
@@ -90,9 +90,9 @@
 */
 
 .w2ui-color {
-    padding: 5px; 
+    padding: 5px;
     padding-top: 8px;
-    background-color: white; 
+    background-color: white;
     border-radius: 3px;
 
     > table {
@@ -100,15 +100,15 @@
         width: 160px;
 
         td {
-            width: 20px; 
+            width: 20px;
             height: 20px;
             text-align: center;
 
             div {
                 cursor: pointer;
-                display: inline-block; 
-                width: 16px; 
-                height: 17px; 
+                display: inline-block;
+                width: 16px;
+                height: 17px;
                 padding: 1px 4px;
                 border: 1px solid transparent;
                 color: white;
@@ -122,7 +122,7 @@
     }
 }
 
-/* 
+/*
 *    DATE overlay
 */
 
@@ -138,20 +138,20 @@
         border-bottom: @calendar-title-border-bottom;
         color: @calendar-title-color;
         text-align: center;
-        text-shadow: @calendar-title-text-shadow; 
+        text-shadow: @calendar-title-text-shadow;
         cursor: pointer;
     }
 
     .w2ui-calendar-jump {
-        position: absolute; 
-        top: 27px; 
-        left: 0px; 
-        right: 0px; 
+        position: absolute;
+        top: 27px;
+        left: 0px;
+        right: 0px;
         bottom: 0px;
         background-color: #FaFaFa;
         >:first-child {
             position: absolute;
-            top: 0px; 
+            top: 0px;
             left: 0px;
             bottom: 0px;
             width: 110px;
@@ -161,7 +161,7 @@
         }
         >:last-child {
             position: absolute;
-            top: 0px; 
+            top: 0px;
             right: 0px;
             bottom: 0px;
             width: 88px;
@@ -194,9 +194,9 @@
             border: @calendar-day-hover-border;
             color: @calendar-day-hover-color;
             background-color: #dadada;
-        }    
+        }
     }
-    
+
     .w2ui-calendar-previous, .w2ui-calendar-next {
         width: 24px;
         height: 20px;
@@ -211,13 +211,13 @@
             background-color: @calendar-button-hover-background-color;
         }
         & > div {
-            position: absolute; 
-            border-left: 4px solid #888; 
+            position: absolute;
+            border-left: 4px solid #888;
             border-top: 4px solid #888;
-            border-right: 4px solid transparent; 
-            border-bottom: 4px solid transparent; 
-            width: 0px; 
-            height: 0px; 
+            border-right: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            width: 0px;
+            height: 0px;
             padding: 0px;
             margin: 3px 0px 0px 0px;
         }
@@ -239,7 +239,17 @@
             margin-right: 2px;
         }
     }
-    
+
+    .w2ui-calendar-now {
+        cursor: pointer;
+        margin-bottom: 10px;
+        text-align: center;
+
+        &:hover {
+            color: #0A96DE;
+        }
+    }
+
     table {
         &.w2ui-calendar-days {
             padding: 0px;
@@ -250,7 +260,7 @@
                 padding: 6px;
                 cursor: default;
                 text-align: right;
-                &.w2ui-saturday, 
+                &.w2ui-saturday,
                 &.w2ui-sunday {
                     border: 1px solid @calendar-background-color;
                     color: @calendar-day-weekend-color;
@@ -297,7 +307,7 @@
                 text-align: center;
                 padding: 6px;
             }
-            
+
         }
     }
 }
@@ -333,10 +343,23 @@
     }
 }
 
+.w2ui-select-background (@a, @b, @c, @d, @e, @f, @g, @h, @i) {
+    background-image: @a, -webkit-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+    background-image: @a, -moz-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+    background-image: @a, -ms-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+    background-image: @a, -o-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+    background-image: @a, linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+}
+
 .w2ui-select {
     cursor: default;
     color: black !important;
-    .linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+	.w2ui-select-background(url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'),
+                            #fff, 20%, #f6f6f6, 50%, #EEE, 52%, #f4f4f4, 100%);
+    background-size: 17px 6px, 100% 100%;
+    background-position: right center, left top;
+    background-repeat: no-repeat, no-repeat;
+
     &[readonly], &[disabled] {
         background-image: none;
         background-color: #f1f1f1 !important;
@@ -351,17 +374,17 @@
 
 .w2ui-list {
     color: @list-color;
-    position: absolute; 
+    position: absolute;
     padding: 0px;
-    margin: 0px; 
-    min-height: 25px; 
-    overflow: auto; 
-    border: @list-border; 
+    margin: 0px;
+    min-height: 25px;
+    overflow: auto;
+    border: @list-border;
     border-radius: 3px;
     font-size: 6px;    // need to be small for list
     line-height: 100%;
     .box-sizing;
-    background-color: @list-background-color; // Needed for IE9+ 
+    background-color: @list-background-color; // Needed for IE9+
 
     input[type=text] {
         .box-shadow;
@@ -444,7 +467,7 @@
             }
         }
     }
-    
+
     // file
 
     .w2ui-enum-placeholder { // this a DROP ZONE message, will be remove when first file dropped

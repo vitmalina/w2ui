@@ -1,7 +1,7 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
@@ -9,10 +9,11 @@
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
+//<![CDATA[
 $(function () {
-    $('#grid').w2grid({ 
-        name : 'grid', 
-        show : { 
+    $('#grid').w2grid({
+        name : 'grid',
+        show : {
             toolbar     : true,
             footer      : true,
             lineNumbers : true,
@@ -20,11 +21,11 @@ $(function () {
             selectColumn : false
         },
         selectType: 'cell',
-        columns: [                
-            { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', editable: { type: 'text' }, frozen: true },
-            { field: 'b', caption: '<div style="text-align: center">B</div>', size: '95px', editable: { type: 'text' }, frozen: true},
-            { field: 'c', caption: '<div style="text-align: center">C</div>', size: '95px', editable: { type: 'text' }},
-            { field: 'd', caption: '<div style="text-align: center">D</div>', size: '95px', editable: { type: 'text' }},
+        columns: [
+            { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', searchable: true, editable: { type: 'div' }, frozen: true },
+            { field: 'b', caption: '<div style="text-align: center">B</div>', size: '95px', editable: { type: 'div' }, frozen: true},
+            { field: 'c', caption: '<div style="text-align: center">C</div>', size: '95px', editable: { type: 'div' }},
+            { field: 'd', caption: '<div style="text-align: center">D</div>', size: '95px', editable: { type: 'div' }},
             { field: 'e', caption: '<div style="text-align: center">E</div>', size: '95px', editable: { type: 'text' }},
             { field: 'f', caption: '<div style="text-align: center">F</div>', size: '95px', editable: { type: 'text' }},
             { field: 'g', caption: '<div style="text-align: center">G</div>', size: '95px', editable: { type: 'text' }},
@@ -40,10 +41,17 @@ $(function () {
             { field: 'l', caption: '<div style="text-align: center">L</div>', size: '95px', editable: { type: 'text' }},
             { field: 'm', caption: '<div style="text-align: center">M</div>', size: '95px', editable: { type: 'text' }}
         ],
+        menu: ['some', 'other'],
+        onContextMenu: function (event) {
+            // console.log('context', event);
+        }
+    });
+    w2ui.grid.on('onContextMenu', function (event) {
+        console.log('+++', event);
     });
     // add 10k records
     for (var i = 0; i < 3000; i++) {
-        w2ui['grid'].records.push({ 
+        w2ui['grid'].records.push({
             recid : (i + 10),
             a: 'some',
             b: 'sample',
@@ -51,13 +59,23 @@ $(function () {
         });
     }
     w2ui.grid.records[1].a = 'A1';
+    w2ui.grid.records[5].a = 'A1';
     w2ui.grid.records[1].b = 'BBB1';
+    w2ui.grid.records[1].d = 'This is some long text in cell C and some and event more then this';
+    // w2ui.grid.records[1].e = '0';
+    // w2ui.grid.records[1].f = '1';
+    w2ui.grid.records[1].w2ui = { colspan: { d: 1 }, softspan: { d: 3 } };
     w2ui.grid.records[1].c = 'CC1';
-    w2ui.grid.records[1].d = 'DD1';
-    w2ui.grid.records[4].summary = true;
-    w2ui.grid.records[1].style = { 1: 'background-color: red !important' };
+    // w2ui.grid.records[2].w2ui = { colspan: { e: 4 } };
+    w2ui.grid.records[2].e = 'This is some long text in cell E';
+    // w2ui.grid.records[3].w2ui = { colspan: { e: 3 } };
+    w2ui.grid.records[3].e = 'This is some long text in cell E';
+    w2ui.grid.records[3].w2ui = { softspan: { e: 3 } };
+    w2ui.grid.records[4].w2ui = { summary: true };
+    w2ui.grid.records[1].w2ui = { style: { 1: 'background-color: red !important' }};
     w2ui.grid.refresh();
 });
+//]]>
 </script>
 </head>
 <body>

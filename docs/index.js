@@ -94,11 +94,11 @@ $(function () {
     props.sort();
     methods.sort();
     // properties
-    var nodes = []
+    var nodes = [];
     for (var o in props) nodes.push({ id: 'w2utils.' + props[o], text: props[o], icon: 'fa-tag' });
     w2ui['docs'].add('w2utils-props', nodes);
     // methods
-    var nodes = []
+    var nodes = [];
     for (var o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa-cog' });
     w2ui['docs'].add('w2utils-methods', nodes);
 
@@ -123,7 +123,7 @@ $(function () {
         }
         methods.sort();
         props.sort();
-        var nodes = []
+        var nodes = [];
         for (var o in methods) {
             //console.log('---' + methods[o]);
             nodes.push({ id: 'w2'+ type +'.' + methods[o], text: methods[o], icon: 'fa-cog' });

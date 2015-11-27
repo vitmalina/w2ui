@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/w2ui.min.css" />
+    <script type="text/javascript" src="/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="/w2ui.min.js"></script>
+  </head>
+  <body>
+    <div id="users" style="width: 100%; height: 600px;"></div>
+
+    <!-- editForm Template -->
+    <div id="editUserFormTmpl" style="display: none;">
+      <div class="w2ui-page page-0">
+        <div class="w2ui-label">First Name:</div>
+        <div class="w2ui-field">
+          <input name="fname" type="text" size="35"/>
+        </div>
+        <div class="w2ui-label">Last Name:</div>
+        <div class="w2ui-field">
+          <input name="lname" type="text" size="35"/>
+        </div>
+        <div class="w2ui-label">Email:</div>
+        <div class="w2ui-field">
+          <input name="email" type="text" size="35"/>
+        </div>
+        <div class="w2ui-label">Login:</div>
+        <div class="w2ui-field">
+          <input name="login" type="text" size="25"/>
+        </div>
+        <div class="w2ui-label">Password:</div>
+        <div class="w2ui-field">
+          <input name="password" type="password" size="25"/>
+        </div>
+      </div>
+      <div class="w2ui-buttons">
+        <input type="button" value="Cancel" name="cancel">
+        <input type="button" value="Save" name="save">
+      </div>
+    </div>
+    <!-- /editForm Template -->
+
+  </body>
+  <script>
+    $(function () {
+
+      var Api = {
+        create_user_path: '/user',
+        edit_user_path: '/user/:id',
+        update_user_path: '/user/:id',
+        destroy_users_path: '/users/:ids',
+
+        createUser: function(record, successCallback) {
+          $.ajax({
+            url: Api.create_user_path,
+            type: 'POST',
+            data: { record: record }
+          }).done(function() {
+            successCallback()
+          });
+        },
+
+        getUser: function(recid, successCallback) {
+          $.get(Api.edit_user_path.replace(':id', recid), function(data) {
+            successCallback(data);
+          });
+        },
+
+        updateUser: function(recid, record, successCallback) {
+          $.ajax({
+            url: Api.update_user_path.replace(':id', recid),
+            type: 'PUT',
+            data: { record: record }
+          }).done(function() {
+            successCallback()
+          });
+        },
+
+        destroyUsers: function(ids, callback) {
+          $.ajax({
+            url: Api.destroy_users_path.replace(':ids', ids),
+            type: 'DELETE'
+          }).done(function() {
+            callback();
+          });
+        },
+      };
+
+      // define and render grid
+      $('#users').w2grid({
+        name    : 'users',
+        url     : 'users',
+        method  : 'GET',
+        header  : 'List of Users',
+        show: {
+          header        : true,
+          toolbar       : true,
+          footer        : true,
+          toolbarAdd    : true,
+          toolbarDelete : true
+        },
+        columns: [
+          { field: 'fname', caption: 'First Name', size: '150px', searchable: true },
+          { field: 'lname', caption: 'Last Name', size: '150px', searchable: true },
+          { field: 'email', caption: 'Email', size: '100%', searchable: true },
+          { field: 'login', caption: 'Login', size: '150px', searchable: true }
+        ],
+        onAdd: function (event) {
+          addUser();
+        },
+        onDblClick: function (event) {
+          editUser(event.recid);
+        },
+        onDelete: function(target, event) {
+          if (event.force) {
+            event.preventDefault();
+            var recid = this.getSelection();
+            var successCallback = function() { w2ui['users'].reload(); };
+            Api.destroyUsers(recid, successCallback)
+          }
+        }
+      });
+
+      // defined form
+      $().w2form({
+        name     : 'user_edit',
+        style    : 'border: 0px; background-color: transparent;',
+        formHTML : $('#editUserFormTmpl').html(),
+        fields: [
+          { name: 'fname', type: 'text', required: true },
+          { name: 'lname', type: 'text', required: true },
+          { name: 'email', type: 'email' },
+          { name: 'login', type: 'text', required: true },
+          { name: 'password', type: 'text', required: false },
+        ],
+        actions: {
+          "save": function () {
+            if (this.validate().length == 0) {
+              var saveSuccessCallback = function() {
+                w2ui['users'].reload();
+                $().w2popup('close');
+              }
+              if (this.recid == null) {
+                Api.createUser(this.record, saveSuccessCallback)
+              } else {
+                Api.updateUser(this.recid, this.record, saveSuccessCallback)
+              }
+            }
+          },
+          "cancel": function () {
+            $().w2popup('close');
+          }
+        }
+      });
+
+      var userFormStyle = {
+        body    : '<div id="user_edit" style="width: 100%; height: 100%"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 500,
+        height  : 300,
+      };
+
+      function addUser() {
+        $().w2popup('open', $.extend({
+          title   : 'Add User',
+          onOpen  : function (event) {
+            event.onComplete = function () {
+              w2ui['user_edit'].clear();
+              w2ui['user_edit'].recid = null;
+              $('#w2ui-popup #user_edit').w2render('user_edit');
+            }
+          }
+        }, userFormStyle));
+      }
+
+      function editUser(recid) {
+        $().w2popup('open', $.extend({
+          title   : 'Edit User',
+          onOpen  : function (event) {
+            event.onComplete = function () {
+              w2ui['user_edit'].clear();
+              w2ui['user_edit'].recid = recid;
+              Api.getUser(recid, function(data) {
+                w2ui['user_edit'].record = data;
+              })
+              $('#w2ui-popup #user_edit').w2render('user_edit');
+            }
+          }
+        }, userFormStyle));
+      }
+
+    });
+  </script>
+</html>

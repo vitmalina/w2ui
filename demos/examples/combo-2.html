@@ -1,8 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>Grid & Edit</h1>
-        The demo below features a resiabled layout with two panels, a grid and edit that are connected. You can click on the record in the grid
-        and it will be displaed in the form. If you edit the form and click the Save button it will save records into the grid.
+        The demo below features a resizable layout with two panels, a grid and edit that are connected. You can click on the record in the grid
+        and it will be displayed in the form. If you edit the form and click the Save button it will save records into the grid.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -33,7 +33,7 @@ var config = {
             { field: 'fname', caption: 'First Name', size: '33%', sortable: true, searchable: true },
             { field: 'lname', caption: 'Last Name', size: '33%', sortable: true, searchable: true },
             { field: 'email', caption: 'Email', size: '33%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' },
+            { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -92,7 +92,7 @@ var config = {
             }
         }
     }
-}
+};
 
 $(function () {
     // initialization

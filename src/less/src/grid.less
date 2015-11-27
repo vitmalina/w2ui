@@ -49,15 +49,15 @@
 
         .w2ui-search-all {
             outline: none !important;
-            width: 160px;
-            border-radius: 10px;
-            line-height: normal;
-            height: 22px;
-            border: @grid-search-all-border;
-            color: @grid-search-all-color;
-            background-color: @grid-search-all-background-color;
-            padding: 3px 18px 3px 23px;
-            margin: 0px;
+            width: 160px !important;
+            border-radius: 10px !important;
+            line-height: normal !important;
+            height: 22px !important;
+            border: @grid-search-all-border !important;
+            color: @grid-search-all-color !important;
+            background-color: @grid-search-all-background-color !important;
+            padding: 3px 18px 3px 23px !important;
+            margin: 0px !important;
         }
 
         .w2ui-search-down {
@@ -104,7 +104,20 @@
             .user-select(text);
         }
 
-        .w2ui-grid-columns {
+        div.w2ui-input {
+            .user-select(tex);
+            pointer-events: auto;
+            background-color: white;
+            padding: 5px 2px;
+            border: 1px solid white;
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+            outline: none;
+            white-space: pre;
+        }
+
+        .w2ui-grid-columns, .w2ui-grid-fcolumns {
             overflow: hidden; 
             position: absolute; 
             left: 0px; 
@@ -173,19 +186,15 @@
             }
 
             .w2ui-expanded {
-                background-color: #CCDCF0 !important;
             }
 
             .w2ui-expanded1 {
-                // background-color: rgba(255, 255, 223, 0.7);
-                // background-image: -webkit-linear-gradient(left, #FFFFFF 0%, #FDFFC4 100%);
                 height: 0px;
                 border-bottom: 1px solid rgb(178, 186, 192);
-                background-color: #CCDCF0;
                 & > div {
-                    height: 100%;
-                    margin: 0px;
-                    padding: 0px;
+                    height: 0px;
+                    border: 0px;
+                    transition: height .3s, opacity .3s;
                 }
             }
 
@@ -294,9 +303,25 @@
                 cursor: default;
                 overflow: hidden;
 
+                &.w2ui-soft-span, &.w2ui-soft-hidden {
+                    border-right-color: transparent;
+                }
+
                 &.w2ui-grid-data {
                     margin: 0px;
                     padding: 0px;
+
+                    .w2ui-info {
+                        position: relative;
+                        top: 1px;
+                        font-size: 14px;
+                        color: #8D99A7;
+                        cursor: pointer;
+                        width: 16px;
+                        display: inline-block;
+                        margin-right: 2px;
+                        text-align: center;
+                    }
 
                     & > div {
                         padding: 3px 3px 3px 3px;
@@ -309,6 +334,15 @@
                         height: auto; 
                         overflow: visible;
                         white-space: normal;
+                    }
+
+                    .w2ui-show-children {
+                        width: 16px;
+                        height: 10px;
+                        display: inline-block;
+                        position: relative;
+                        top: -1px;
+                        cursor: pointer;
                     }
                 }
                 &:last-child {
@@ -337,7 +371,8 @@
                     overflow: hidden;
                     input[type=checkbox] {
                         //margin: 3px 1px; //* needed for Opera on Mac */
-                        margin-top: 2px;
+                        margin-top: 0px;
+                        margin-bottom: 0px;
                         position: relative;
                     }
                 }
@@ -401,6 +436,13 @@
         .background-image(@image-changed, no-repeat, top, right);
     }
     
+    .w2ui-edit-box {
+        position: absolute; 
+        z-index: 1001;
+        border: 2px solid #6299DA;
+        pointer-events: auto; 
+    }
+
     .w2ui-editable {
         overflow: hidden; 
         height: 100% !important;
@@ -559,6 +601,7 @@
 
     .w2ui-selection {
         position: absolute; 
+        z-index: 1000;
         border: 2px solid #6299DA; /* #457FC2; */
         pointer-events: none; 
         
@@ -583,10 +626,42 @@
                  background-color: #B0B0B0;
             }
         }
-    }    
+    }
+
+    .w2ui-soft-range  {
+        position: absolute; 
+        pointer-events: none; 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     .w2ui-changed {
         background: inherit; /* do not show changed for spreadsheet */
+    }
+}
+
+// === Info bubble in the grid
+
+.w2ui-info-bubble {
+    table {
+        font-size: 11px;
+        font-family: @main-font-family;
+        color: white;
+        text-shadow: 1px 1px solid #999;
+
+        tr td:first-child {
+            white-space: nowrap;
+            padding: 2px;
+            padding-right: 10px;
+            color: #ddd;
+            vertical-align: top;
+        }
+
+        tr td:last-child {
+            white-space: pre;
+            padding: 2px;
+        }
     }
 }
 
@@ -659,7 +734,7 @@
                 button {
                     min-width: 24px; 
                     height: 24px; 
-                    padding-top: 6px !important;
+                    padding-top: 5px !important;
                 }
             }
             &.caption {
@@ -672,16 +747,11 @@
                 padding: 0px 10px;
                 padding-right: 5px;
                 border-right: @grid-searches-inner-border;
+                height: 31px;
             }
             &.operator select {
                 width: 100%;
                 color: black;
-                padding: 0px 15px 0px 5px;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                -ms-appearance: none;
-                -o-appearance: none;
-                .linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
             }
             /* for IE */
             &.operator select::-ms-expand {

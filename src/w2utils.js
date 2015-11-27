@@ -14,21 +14,17 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - $().w2overlay    - overlay plugin
 *        - $().w2menu       - menu plugin
 *        - w2utils.event    - generic event object
-*        - w2utils.keyboard - object for keyboard navigation
 *  - Dependencies: jQuery
 *
 * == NICE TO HAVE ==
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
 *   - add maxHeight for the w2menu
-*   - isTime should support seconds
 *   - add time zone
 *   - TEST On IOS
 *   - $().w2marker() -- only unmarks first instance
 *   - subitems for w2menus()
 *   - add w2utils.lang wrap for all captions in all buttons.
-*   - add isDateTime()
-*   - remove momentjs
 *   - $().w2date(), $().w2dateTime()
 *
 * == 1.5 changes
@@ -41,23 +37,39 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added w2utils.settings.weekStarts
 *   - onComplete should pass widget as context (this)
 *   - hidden and disabled in menus
-*   - added menu.item.hint for overlay menues
+*   - added menu.item.tooltip for overlay menus
 *   - added w2tag options.id, options.left, options.top
 *   - added w2tag options.position = top|bottom|left|right - default is right
-*   - added $().w2color(color, callBack) 
+*   - added $().w2color(color, callBack)
 *   - added custom colors
+*   - added w2menu.options.type = radio|check
+*   - added w2menu items.hotkey
+*   - added options.contextMenu for w2overlay()
+*   - added options.noTip for w2overlay()
+*   - added options.overlayStyle for w2overlay()
+*   - added options.selectable
+*   - Refactored w2tag
+*   - added options.style for w2tag
+*   - added options.hideOnKeyPress for w2tag
+*   - added options.hideOnBlur for w2tag
+*   - events 'eventName:after' syntax
+*   - deprecated onComplete, introduced event.done(func) - can have multiple handlers
+*   - added getCursorPosition, setCursorPosition
+*   - w2tag hideOnClick - hides on document click
+*   - add isDateTime()
+*   - data_format -> dateFormat, time_format -> timeFormat
+*   - implemented w2utils.formatters (used in grid)
 *
 ************************************************/
 
-var w2utils = (function () {
+var w2utils = (function ($) {
     var tmp = {}; // for some temp variables
     var obj = {
         version  : '1.5.x',
         settings : {
             "locale"            : "en-us",
-            "date_format"       : "m/d/yyyy",
-            "date_display"      : "Mon d, yyyy",
-            "time_format"       : "hh:mi pm",
+            "dateFormat"       : "m/d/yyyy",
+            "timeFormat"       : "hh:mi pm",
             "currencyPrefix"    : "$",
             "currencySuffix"    : "",
             "currencyPrecision" : 2,
@@ -68,11 +80,12 @@ var w2utils = (function () {
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
-            "dataType"          : 'HTTP',   // can be HTTP, RESTFULL, JSON (case sensative)
+            "dataType"          : 'HTTP',   // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "phrases"           : {},       // empty object for english phrases
             "dateStartYear"     : 1950,     // start year for date-picker
             "dateEndYear"       : 2020      // end year for date picker
         },
+        isBin           : isBin,
         isInt           : isInt,
         isFloat         : isFloat,
         isMoney         : isMoney,
@@ -83,6 +96,7 @@ var w2utils = (function () {
         isTime          : isTime,
         isDateTime      : isDateTime,
         age             : age,
+        interval        : interval,
         date            : date,
         formatSize      : formatSize,
         formatNumber    : formatNumber,
@@ -94,17 +108,21 @@ var w2utils = (function () {
         escapeId        : escapeId,
         base64encode    : base64encode,
         base64decode    : base64decode,
+        md5             : md5,
         transition      : transition,
         lock            : lock,
         unlock          : unlock,
         lang            : lang,
         locale          : locale,
         getSize         : getSize,
+        getStrWidth     : getStrWidth,
         scrollBarSize   : scrollBarSize,
         checkName       : checkName,
         checkUniqueId   : checkUniqueId,
         parseRoute      : parseRoute,
         cssPrefix       : cssPrefix,
+        getCursorPosition : getCursorPosition,
+        setCursorPosition : setCursorPosition,
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -112,10 +130,14 @@ var w2utils = (function () {
                  ? true : false),
         isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
-                 ? true : false),
-        use_momentjs : ((typeof moment === 'function') && (typeof moment.version === 'string'))
+                 ? true : false)
     };
     return obj;
+
+    function isBin (val) {
+        var re = /^[0-1]+$/;
+        return re.test(val);
+    }
 
     function isInt (val) {
         var re = /^[-+]?[0-9]+$/;
@@ -123,13 +145,15 @@ var w2utils = (function () {
     }
 
     function isFloat (val) {
-        if (typeof val == 'string') val = val.replace(w2utils.settings.decimalSymbol, '.');
+        if (typeof val == 'string') val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.');
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val));
     }
 
     function isMoney (val) {
         var se = w2utils.settings;
-        var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +'[-+]?[0-9]*[\\'+ se.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
+        var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
+                            '[-+]?'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
+                            '[0-9]*[\\'+ se.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i');
         if (typeof val === 'string') {
             val = val.replace(new RegExp(se.groupSymbol, 'g'), '');
         }
@@ -158,16 +182,17 @@ var w2utils = (function () {
         var dt   = 'Invalid Date';
         var month, day, year;
 
-        if (format == null) format = w2utils.settings.date_format;
+        if (format == null) format = w2utils.settings.dateFormat;
 
-        if (typeof val.getUTCFullYear === 'function' && typeof val.getUTCMonth === 'function' && typeof val.getUTCDate === 'function') {
-            year = val.getUTCFullYear();
+        if (typeof val.getUTCFullYear === 'function') { // date object
+            year  = val.getUTCFullYear();
             month = val.getUTCMonth();
-            day = val.getUTCDate();
-        } else if (typeof val.getFullYear === 'function' && typeof val.getMonth === 'function' && typeof val.getDate === 'function') {
-            year = val.getFullYear();
-            month = val.getMonth();
-            day = val.getDate();
+            day   = val.getUTCDate();
+        } else if (parseInt(val) == val && parseInt(val) > 0) {
+            val = new Date(val);
+            year  = val.getUTCFullYear();
+            month = val.getUTCMonth();
+            day   = val.getUTCDate();
         } else {
             val = String(val);
             // convert month formats
@@ -227,40 +252,56 @@ var w2utils = (function () {
         val = $.trim(val);
         // ---
         var tmp = val.split(':');
-        var h = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0);
+        var h = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0), s = parseInt(tmp[2] || 0);
         // accept edge case: 3PM is a good timestamp, but 3 (without AM or PM) is NOT:
-        if ((!ampm || tmp.length !== 1) && tmp.length !== 2) { return false; }
+        if ((!ampm || tmp.length !== 1) && tmp.length !== 2 && tmp.length !== 3) { return false; }
         if (tmp[0] === '' || h < 0 || h > max || !this.isInt(tmp[0]) || tmp[0].length > 2) { return false; }
-        if (tmp.length === 2 && (tmp[1] === '' || m < 0 || m > 59 || !this.isInt(tmp[1]) || tmp[1].length !== 2)) { return false; }
+        if (tmp.length > 1 && (tmp[1] === '' || m < 0 || m > 59 || !this.isInt(tmp[1]) || tmp[1].length !== 2)) { return false; }
+        if (tmp.length > 2 && (tmp[2] === '' || s < 0 || s > 59 || !this.isInt(tmp[2]) || tmp[2].length !== 2)) { return false; }
         // check the edge cases: 12:01AM is ok, as is 12:01PM, but 24:01 is NOT ok while 24:00 is (midnight; equivalent to 00:00).
         // meanwhile, there is 00:00 which is ok, but 0AM nor 0PM are okay, while 0:01AM and 0:00AM are.
-        if (!ampm && max === h && m !== 0) { return false; }
+        if (!ampm && max === h && (m !== 0 || s !== 0)) { return false; }
         if (ampm && tmp.length === 1 && h === 0) { return false; }
 
         if (retTime === true) {
-            if (pm) h += 12;
+            if (pm && h !== 12)  h += 12;   // 12:00pm - is noon
+            if (!pm && h === 12) h += 12;   // 12:00am - is midnight
             return {
                 hours: h,
-                minutes: m
+                minutes: m,
+                seconds: s
             };
         }
         return true;
     }
 
     function isDateTime (val, format, retDate) {
-        if(w2utils.use_momentjs) {
-            var dt = moment(val, format);
-            var valid = dt.isValid();
-            if (valid && (retDate === true)){
-                return dt.clone().toDate();
+        var formats = format.split('|');
+        if (typeof val.getUTCFullYear === 'function') { // date object
+            if (retDate !== true) return true;
+            return val;
+        } else if (parseInt(val) == val && parseInt(val) > 0) {
+            val = new Date(val);
+            if (retDate !== true) return true;
+            return val;
+        } else {
+            var tmp = String(val).indexOf(' ');
+            var values  = [val.substr(0, tmp), val.substr(tmp).trim()];
+            formats[0] = formats[0].trim();
+            if (formats[1]) formats[1] = formats[1].trim();
+            // check
+            var tmp1 = w2utils.isDate(values[0], formats[0], true);
+            var tmp2 = w2utils.isTime(values[1], true);
+            if (tmp1 !== false && tmp2 !== false) {
+                if (retDate !== true) return true;
+                tmp1.setHours(tmp2.hours);
+                tmp1.setMinutes(tmp2.minutes);
+                tmp1.setSeconds(tmp2.seconds);
+                return tmp1;
+            } else {
+                return false;
             }
-            return valid;
         }
-        // TODO: perform time check, too
-        format = format.split('|')[0];
-        val    = val.split(' ')[0];
-        //console.log("isDateTime() - " + val + " / " + format);
-        return isDate(val, format, retDate);
     }
 
     function age (dateStr) {
@@ -303,6 +344,26 @@ var w2utils = (function () {
         return amount + ' ' + type + (amount > 1 ? 's' : '');
     }
 
+    function interval (value) {
+        var ret = '';
+        if (value < 1000) {
+            ret = "< 1 sec";
+        } else if (value < 60000) {
+            ret = Math.floor(value / 1000) + " secs";
+        } else if (value < 3600000) {
+            ret = Math.floor(value / 60000) + " mins";
+        } else if (value < 86400000) {
+            ret = Math.floor(value / 3600000 * 10) / 10 + " hours";
+        } else if (value < 2628000000) {
+            ret = Math.floor(value / 86400000 * 10) / 10 + " days";
+        } else if (value < 3.1536e+10) {
+            ret = Math.floor(value / 2628000000 * 10) / 10 + " months";
+        } else {
+            ret = Math.floor(value / 3.1536e+9) / 10 + " years";
+        }
+        return ret;
+    }
+
     function date (dateStr) {
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         var d1 = new Date(dateStr);
@@ -336,21 +397,21 @@ var w2utils = (function () {
         return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + sizes[i];
     }
 
-    function formatNumber (val, groupSymbol, decimalSymbol) {
-        var ret = '';
-        if (groupSymbol == null) groupSymbol = w2utils.settings.groupSymbol || ',';
-        if (decimalSymbol == null) decimalSymbol = w2utils.settings.decimalSymbol || '.';
-        // check if this is a number
-        if (w2utils.isFloat(val) || w2utils.isInt(val) || w2utils.isMoney(val)) {
-            tmp = String(val).split('.');
-            ret = String(tmp[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + groupSymbol);
-            if (tmp[1] != null) ret += decimalSymbol + tmp[1];
+    function formatNumber (val, fraction, useGrouping) {
+        var options = {
+            minimumFractionDigits : fraction,
+            maximumFractionDigits : fraction,
+            useGrouping : useGrouping
+        };
+        if (fraction == null || fraction < 0) {
+            options.minimumFractionDigits = 0;
+            options.maximumFractionDigits = 20;
         }
-        return ret;
+        return parseFloat(val).toLocaleString(w2utils.settings.locale, options);
     }
 
     function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
-        if (!format) format = this.settings.date_format;
+        if (!format) format = this.settings.dateFormat;
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
         var dt = new Date(dateStr);
@@ -366,20 +427,20 @@ var w2utils = (function () {
             .replace(/yyyy/g, year)
             .replace(/yyy/g, year)
             .replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
-            .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceded by a letter
             .replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
             .replace(/dd/g, (date < 10 ? '0' : '') + date)
             .replace(/th/g, (date == 1 ? 'st' : 'th'))
             .replace(/th/g, (date == 2 ? 'nd' : 'th'))
             .replace(/th/g, (date == 3 ? 'rd' : 'th'))
-            .replace(/(^|[^a-z$])m/g, '$1' + (month + 1))     // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])d/g, '$1' + date);           // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])m/g, '$1' + (month + 1))     // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])d/g, '$1' + date);           // only y's that are not preceded by a letter
     }
 
     function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
         var months = w2utils.settings.shortmonths;
         var fullMonths = w2utils.settings.fullmonths;
-        if (!format) format = this.settings.time_format;
+        if (!format) format = this.settings.timeFormat;
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
 
         var dt = new Date(dateStr);
@@ -413,24 +474,29 @@ var w2utils = (function () {
             .replace('mm', min)
             .replace('mi', min)
             .replace('ss', sec)
-            .replace(/(^|[^a-z$])h/g, '$1' + hour)    // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])m/g, '$1' + min)     // only y's that are not preceeded by a letter
-            .replace(/(^|[^a-z$])s/g, '$1' + sec);    // only y's that are not preceeded by a letter
+            .replace(/(^|[^a-z$])h/g, '$1' + hour)    // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])m/g, '$1' + min)     // only y's that are not preceded by a letter
+            .replace(/(^|[^a-z$])s/g, '$1' + sec);    // only y's that are not preceded by a letter
     }
 
     function formatDateTime(dateStr, format) {
         var fmt;
         if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
         if (typeof format !== 'string') {
-            fmt = [this.settings.date_format, this.settings.time_format];
+            fmt = [this.settings.dateFormat, this.settings.timeFormat];
         } else {
             fmt = format.split('|');
+            fmt[0] = fmt[0].trim();
+            fmt[1] = fmt[1].trim();
         }
+        // older formats support
+        if (fmt[1] == 'h12') fmt[1] = 'h:m pm';
+        if (fmt[1] == 'h24') fmt[1] = 'h24:m';
         return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1]);
     }
 
     function stripTags (html) {
-        if (html === null) return html;
+        if (html == null) return html;
         switch (typeof html) {
             case 'number':
                 break;
@@ -438,14 +504,21 @@ var w2utils = (function () {
                 html = $.trim(String(html).replace(/(<([^>]+)>)/ig, ""));
                 break;
             case 'object':
-                for (var a in html) html[a] = this.stripTags(html[a]);
+                // does not modify original object, but creates a copy
+                if (Array.isArray(html)) {
+                    html = $.extend(true, [], html);
+                    for (var i = 0; i < html.length; i++) html[i] = this.stripTags(html[i]);
+                }  else {
+                    html = $.extend(true, {}, html);
+                    for (var i in html) html[i] = this.stripTags(html[i]);
+                }
                 break;
         }
         return html;
     }
 
     function encodeTags (html) {
-        if (html === null) return html;
+        if (html == null) return html;
         switch (typeof html) {
             case 'number':
                 break;
@@ -453,7 +526,14 @@ var w2utils = (function () {
                 html = String(html).replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
                 break;
             case 'object':
-                for (var a in html) html[a] = this.encodeTags(html[a]);
+                // does not modify original object, but creates a copy
+                if (Array.isArray(html)) {
+                    html = $.extend(true, [], html);
+                    for (var i = 0; i < html.length; i++) html[i] = this.encodeTags(html[i]);
+                }  else {
+                    html = $.extend(true, {}, html);
+                    for (var i in html) html[i] = this.encodeTags(html[i]);
+                }
                 break;
         }
         return html;
@@ -568,6 +648,393 @@ var w2utils = (function () {
         return output;
     }
 
+    function md5(input) {
+		/*
+         * Based on http://pajhome.org.uk/crypt/md5
+         */
+
+        var hexcase = 0;
+        var b64pad = "";
+
+        function __pj_crypt_hex_md5(s) {
+            return __pj_crypt_rstr2hex(__pj_crypt_rstr_md5(__pj_crypt_str2rstr_utf8(s)));
+        }
+        function __pj_crypt_b64_md5(s) {
+            return __pj_crypt_rstr2b64(__pj_crypt_rstr_md5(__pj_crypt_str2rstr_utf8(s)));
+        }
+        function __pj_crypt_any_md5(s, e) {
+            return __pj_crypt_rstr2any(__pj_crypt_rstr_md5(__pj_crypt_str2rstr_utf8(s)), e);
+        }
+        function __pj_crypt_hex_hmac_md5(k, d)
+        {
+            return __pj_crypt_rstr2hex(__pj_crypt_rstr_hmac_md5(__pj_crypt_str2rstr_utf8(k), __pj_crypt_str2rstr_utf8(d)));
+        }
+        function __pj_crypt_b64_hmac_md5(k, d)
+        {
+            return __pj_crypt_rstr2b64(__pj_crypt_rstr_hmac_md5(__pj_crypt_str2rstr_utf8(k), __pj_crypt_str2rstr_utf8(d)));
+        }
+        function __pj_crypt_any_hmac_md5(k, d, e)
+        {
+            return __pj_crypt_rstr2any(__pj_crypt_rstr_hmac_md5(__pj_crypt_str2rstr_utf8(k), __pj_crypt_str2rstr_utf8(d)), e);
+        }
+
+        /*
+         * Calculate the MD5 of a raw string
+         */
+        function __pj_crypt_rstr_md5(s)
+        {
+            return __pj_crypt_binl2rstr(__pj_crypt_binl_md5(__pj_crypt_rstr2binl(s), s.length * 8));
+        }
+
+        /*
+         * Calculate the HMAC-MD5, of a key and some data (raw strings)
+         */
+        function __pj_crypt_rstr_hmac_md5(key, data)
+        {
+            var bkey = __pj_crypt_rstr2binl(key);
+            if (bkey.length > 16)
+                bkey = __pj_crypt_binl_md5(bkey, key.length * 8);
+
+            var ipad = Array(16), opad = Array(16);
+            for (var i = 0; i < 16; i++)
+            {
+                ipad[i] = bkey[i] ^ 0x36363636;
+                opad[i] = bkey[i] ^ 0x5C5C5C5C;
+            }
+
+            var hash = __pj_crypt_binl_md5(ipad.concat(__pj_crypt_rstr2binl(data)), 512 + data.length * 8);
+            return __pj_crypt_binl2rstr(__pj_crypt_binl_md5(opad.concat(hash), 512 + 128));
+        }
+
+        /*
+         * Convert a raw string to a hex string
+         */
+        function __pj_crypt_rstr2hex(input)
+        {
+            try {
+                hexcase
+            } catch (e) {
+                hexcase = 0;
+            }
+            var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
+            var output = "";
+            var x;
+            for (var i = 0; i < input.length; i++)
+            {
+                x = input.charCodeAt(i);
+                output += hex_tab.charAt((x >>> 4) & 0x0F)
+                        + hex_tab.charAt(x & 0x0F);
+            }
+            return output;
+        }
+
+        /*
+         * Convert a raw string to a base-64 string
+         */
+        function __pj_crypt_rstr2b64(input)
+        {
+            try {
+                b64pad
+            } catch (e) {
+                b64pad = '';
+            }
+            var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+            var output = "";
+            var len = input.length;
+            for (var i = 0; i < len; i += 3)
+            {
+                var triplet = (input.charCodeAt(i) << 16)
+                        | (i + 1 < len ? input.charCodeAt(i + 1) << 8 : 0)
+                        | (i + 2 < len ? input.charCodeAt(i + 2) : 0);
+                for (var j = 0; j < 4; j++)
+                {
+                    if (i * 8 + j * 6 > input.length * 8)
+                        output += b64pad;
+                    else
+                        output += tab.charAt((triplet >>> 6 * (3 - j)) & 0x3F);
+                }
+            }
+            return output;
+        }
+
+        /*
+         * Convert a raw string to an arbitrary string encoding
+         */
+        function __pj_crypt_rstr2any(input, encoding)
+        {
+            var divisor = encoding.length;
+            var i, j, q, x, quotient;
+
+            /* Convert to an array of 16-bit big-endian values, forming the dividend */
+            var dividend = Array(Math.ceil(input.length / 2));
+            for (i = 0; i < dividend.length; i++)
+            {
+                dividend[i] = (input.charCodeAt(i * 2) << 8) | input.charCodeAt(i * 2 + 1);
+            }
+
+            /*
+             * Repeatedly perform a long division. The binary array forms the dividend,
+             * the length of the encoding is the divisor. Once computed, the quotient
+             * forms the dividend for the next step. All remainders are stored for later
+             * use.
+             */
+            var full_length = Math.ceil(input.length * 8 /
+                    (Math.log(encoding.length) / Math.log(2)));
+            var remainders = Array(full_length);
+            for (j = 0; j < full_length; j++)
+            {
+                quotient = Array();
+                x = 0;
+                for (i = 0; i < dividend.length; i++)
+                {
+                    x = (x << 16) + dividend[i];
+                    q = Math.floor(x / divisor);
+                    x -= q * divisor;
+                    if (quotient.length > 0 || q > 0)
+                        quotient[quotient.length] = q;
+                }
+                remainders[j] = x;
+                dividend = quotient;
+            }
+
+            /* Convert the remainders to the output string */
+            var output = "";
+            for (i = remainders.length - 1; i >= 0; i--)
+                output += encoding.charAt(remainders[i]);
+
+            return output;
+        }
+
+        /*
+         * Encode a string as utf-8.
+         * For efficiency, this assumes the input is valid utf-16.
+         */
+        function __pj_crypt_str2rstr_utf8(input)
+        {
+            var output = "";
+            var i = -1;
+            var x, y;
+
+            while (++i < input.length)
+            {
+                /* Decode utf-16 surrogate pairs */
+                x = input.charCodeAt(i);
+                y = i + 1 < input.length ? input.charCodeAt(i + 1) : 0;
+                if (0xD800 <= x && x <= 0xDBFF && 0xDC00 <= y && y <= 0xDFFF)
+                {
+                    x = 0x10000 + ((x & 0x03FF) << 10) + (y & 0x03FF);
+                    i++;
+                }
+
+                /* Encode output as utf-8 */
+                if (x <= 0x7F)
+                    output += String.fromCharCode(x);
+                else if (x <= 0x7FF)
+                    output += String.fromCharCode(0xC0 | ((x >>> 6) & 0x1F),
+                            0x80 | (x & 0x3F));
+                else if (x <= 0xFFFF)
+                    output += String.fromCharCode(0xE0 | ((x >>> 12) & 0x0F),
+                            0x80 | ((x >>> 6) & 0x3F),
+                            0x80 | (x & 0x3F));
+                else if (x <= 0x1FFFFF)
+                    output += String.fromCharCode(0xF0 | ((x >>> 18) & 0x07),
+                            0x80 | ((x >>> 12) & 0x3F),
+                            0x80 | ((x >>> 6) & 0x3F),
+                            0x80 | (x & 0x3F));
+            }
+            return output;
+        }
+
+        /*
+         * Encode a string as utf-16
+         */
+        function __pj_crypt_str2rstr_utf16le(input)
+        {
+            var output = "";
+            for (var i = 0; i < input.length; i++)
+                output += String.fromCharCode(input.charCodeAt(i) & 0xFF,
+                        (input.charCodeAt(i) >>> 8) & 0xFF);
+            return output;
+        }
+
+        function __pj_crypt_str2rstr_utf16be(input)
+        {
+            var output = "";
+            for (var i = 0; i < input.length; i++)
+                output += String.fromCharCode((input.charCodeAt(i) >>> 8) & 0xFF,
+                        input.charCodeAt(i) & 0xFF);
+            return output;
+        }
+
+        /*
+         * Convert a raw string to an array of little-endian words
+         * Characters >255 have their high-byte silently ignored.
+         */
+        function __pj_crypt_rstr2binl(input)
+        {
+            var output = Array(input.length >> 2);
+            for (var i = 0; i < output.length; i++)
+                output[i] = 0;
+            for (var i = 0; i < input.length * 8; i += 8)
+                output[i >> 5] |= (input.charCodeAt(i / 8) & 0xFF) << (i % 32);
+            return output;
+        }
+
+        /*
+         * Convert an array of little-endian words to a string
+         */
+        function __pj_crypt_binl2rstr(input)
+        {
+            var output = "";
+            for (var i = 0; i < input.length * 32; i += 8)
+                output += String.fromCharCode((input[i >> 5] >>> (i % 32)) & 0xFF);
+            return output;
+        }
+
+        /*
+         * Calculate the MD5 of an array of little-endian words, and a bit length.
+         */
+        function __pj_crypt_binl_md5(x, len)
+        {
+            /* append padding */
+            x[len >> 5] |= 0x80 << ((len) % 32);
+            x[(((len + 64) >>> 9) << 4) + 14] = len;
+
+            var a = 1732584193;
+            var b = -271733879;
+            var c = -1732584194;
+            var d = 271733878;
+
+            for (var i = 0; i < x.length; i += 16)
+            {
+                var olda = a;
+                var oldb = b;
+                var oldc = c;
+                var oldd = d;
+
+                a = __pj_crypt_md5_ff(a, b, c, d, x[i + 0], 7, -680876936);
+                d = __pj_crypt_md5_ff(d, a, b, c, x[i + 1], 12, -389564586);
+                c = __pj_crypt_md5_ff(c, d, a, b, x[i + 2], 17, 606105819);
+                b = __pj_crypt_md5_ff(b, c, d, a, x[i + 3], 22, -1044525330);
+                a = __pj_crypt_md5_ff(a, b, c, d, x[i + 4], 7, -176418897);
+                d = __pj_crypt_md5_ff(d, a, b, c, x[i + 5], 12, 1200080426);
+                c = __pj_crypt_md5_ff(c, d, a, b, x[i + 6], 17, -1473231341);
+                b = __pj_crypt_md5_ff(b, c, d, a, x[i + 7], 22, -45705983);
+                a = __pj_crypt_md5_ff(a, b, c, d, x[i + 8], 7, 1770035416);
+                d = __pj_crypt_md5_ff(d, a, b, c, x[i + 9], 12, -1958414417);
+                c = __pj_crypt_md5_ff(c, d, a, b, x[i + 10], 17, -42063);
+                b = __pj_crypt_md5_ff(b, c, d, a, x[i + 11], 22, -1990404162);
+                a = __pj_crypt_md5_ff(a, b, c, d, x[i + 12], 7, 1804603682);
+                d = __pj_crypt_md5_ff(d, a, b, c, x[i + 13], 12, -40341101);
+                c = __pj_crypt_md5_ff(c, d, a, b, x[i + 14], 17, -1502002290);
+                b = __pj_crypt_md5_ff(b, c, d, a, x[i + 15], 22, 1236535329);
+
+                a = __pj_crypt_md5_gg(a, b, c, d, x[i + 1], 5, -165796510);
+                d = __pj_crypt_md5_gg(d, a, b, c, x[i + 6], 9, -1069501632);
+                c = __pj_crypt_md5_gg(c, d, a, b, x[i + 11], 14, 643717713);
+                b = __pj_crypt_md5_gg(b, c, d, a, x[i + 0], 20, -373897302);
+                a = __pj_crypt_md5_gg(a, b, c, d, x[i + 5], 5, -701558691);
+                d = __pj_crypt_md5_gg(d, a, b, c, x[i + 10], 9, 38016083);
+                c = __pj_crypt_md5_gg(c, d, a, b, x[i + 15], 14, -660478335);
+                b = __pj_crypt_md5_gg(b, c, d, a, x[i + 4], 20, -405537848);
+                a = __pj_crypt_md5_gg(a, b, c, d, x[i + 9], 5, 568446438);
+                d = __pj_crypt_md5_gg(d, a, b, c, x[i + 14], 9, -1019803690);
+                c = __pj_crypt_md5_gg(c, d, a, b, x[i + 3], 14, -187363961);
+                b = __pj_crypt_md5_gg(b, c, d, a, x[i + 8], 20, 1163531501);
+                a = __pj_crypt_md5_gg(a, b, c, d, x[i + 13], 5, -1444681467);
+                d = __pj_crypt_md5_gg(d, a, b, c, x[i + 2], 9, -51403784);
+                c = __pj_crypt_md5_gg(c, d, a, b, x[i + 7], 14, 1735328473);
+                b = __pj_crypt_md5_gg(b, c, d, a, x[i + 12], 20, -1926607734);
+
+                a = __pj_crypt_md5_hh(a, b, c, d, x[i + 5], 4, -378558);
+                d = __pj_crypt_md5_hh(d, a, b, c, x[i + 8], 11, -2022574463);
+                c = __pj_crypt_md5_hh(c, d, a, b, x[i + 11], 16, 1839030562);
+                b = __pj_crypt_md5_hh(b, c, d, a, x[i + 14], 23, -35309556);
+                a = __pj_crypt_md5_hh(a, b, c, d, x[i + 1], 4, -1530992060);
+                d = __pj_crypt_md5_hh(d, a, b, c, x[i + 4], 11, 1272893353);
+                c = __pj_crypt_md5_hh(c, d, a, b, x[i + 7], 16, -155497632);
+                b = __pj_crypt_md5_hh(b, c, d, a, x[i + 10], 23, -1094730640);
+                a = __pj_crypt_md5_hh(a, b, c, d, x[i + 13], 4, 681279174);
+                d = __pj_crypt_md5_hh(d, a, b, c, x[i + 0], 11, -358537222);
+                c = __pj_crypt_md5_hh(c, d, a, b, x[i + 3], 16, -722521979);
+                b = __pj_crypt_md5_hh(b, c, d, a, x[i + 6], 23, 76029189);
+                a = __pj_crypt_md5_hh(a, b, c, d, x[i + 9], 4, -640364487);
+                d = __pj_crypt_md5_hh(d, a, b, c, x[i + 12], 11, -421815835);
+                c = __pj_crypt_md5_hh(c, d, a, b, x[i + 15], 16, 530742520);
+                b = __pj_crypt_md5_hh(b, c, d, a, x[i + 2], 23, -995338651);
+
+                a = __pj_crypt_md5_ii(a, b, c, d, x[i + 0], 6, -198630844);
+                d = __pj_crypt_md5_ii(d, a, b, c, x[i + 7], 10, 1126891415);
+                c = __pj_crypt_md5_ii(c, d, a, b, x[i + 14], 15, -1416354905);
+                b = __pj_crypt_md5_ii(b, c, d, a, x[i + 5], 21, -57434055);
+                a = __pj_crypt_md5_ii(a, b, c, d, x[i + 12], 6, 1700485571);
+                d = __pj_crypt_md5_ii(d, a, b, c, x[i + 3], 10, -1894986606);
+                c = __pj_crypt_md5_ii(c, d, a, b, x[i + 10], 15, -1051523);
+                b = __pj_crypt_md5_ii(b, c, d, a, x[i + 1], 21, -2054922799);
+                a = __pj_crypt_md5_ii(a, b, c, d, x[i + 8], 6, 1873313359);
+                d = __pj_crypt_md5_ii(d, a, b, c, x[i + 15], 10, -30611744);
+                c = __pj_crypt_md5_ii(c, d, a, b, x[i + 6], 15, -1560198380);
+                b = __pj_crypt_md5_ii(b, c, d, a, x[i + 13], 21, 1309151649);
+                a = __pj_crypt_md5_ii(a, b, c, d, x[i + 4], 6, -145523070);
+                d = __pj_crypt_md5_ii(d, a, b, c, x[i + 11], 10, -1120210379);
+                c = __pj_crypt_md5_ii(c, d, a, b, x[i + 2], 15, 718787259);
+                b = __pj_crypt_md5_ii(b, c, d, a, x[i + 9], 21, -343485551);
+
+                a = __pj_crypt_safe_add(a, olda);
+                b = __pj_crypt_safe_add(b, oldb);
+                c = __pj_crypt_safe_add(c, oldc);
+                d = __pj_crypt_safe_add(d, oldd);
+            }
+            return Array(a, b, c, d);
+        }
+
+        /*
+         * These functions implement the four basic operations the algorithm uses.
+         */
+        function __pj_crypt_md5_cmn(q, a, b, x, s, t)
+        {
+            return __pj_crypt_safe_add(__pj_crypt_bit_rol(__pj_crypt_safe_add(__pj_crypt_safe_add(a, q), __pj_crypt_safe_add(x, t)), s), b);
+        }
+        function __pj_crypt_md5_ff(a, b, c, d, x, s, t)
+        {
+            return __pj_crypt_md5_cmn((b & c) | ((~b) & d), a, b, x, s, t);
+        }
+        function __pj_crypt_md5_gg(a, b, c, d, x, s, t)
+        {
+            return __pj_crypt_md5_cmn((b & d) | (c & (~d)), a, b, x, s, t);
+        }
+        function __pj_crypt_md5_hh(a, b, c, d, x, s, t)
+        {
+            return __pj_crypt_md5_cmn(b ^ c ^ d, a, b, x, s, t);
+        }
+        function __pj_crypt_md5_ii(a, b, c, d, x, s, t)
+        {
+            return __pj_crypt_md5_cmn(c ^ (b | (~d)), a, b, x, s, t);
+        }
+
+        /*
+         * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+         * to work around bugs in some JS interpreters.
+         */
+        function __pj_crypt_safe_add(x, y)
+        {
+            var lsw = (x & 0xFFFF) + (y & 0xFFFF);
+            var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+            return (msw << 16) | (lsw & 0xFFFF);
+        }
+
+        /*
+         * Bitwise rotate a 32-bit number to the left.
+         */
+        function __pj_crypt_bit_rol(num, cnt)
+        {
+            return (num << cnt) | (num >>> (32 - cnt));
+        }
+
+        return __pj_crypt_hex_md5(input);
+
+	}
+
     function transition (div_old, div_new, type, callBack) {
         var width  = $(div_old).width();
         var height = $(div_old).height();
@@ -578,140 +1045,140 @@ var w2utils = (function () {
             return;
         }
 
-        div_old.parentNode.style.cssText += cross('perspective', '700px') +'; overflow: hidden;';
-        div_old.style.cssText += '; position: absolute; z-index: 1019; '+ cross('backface-visibility', 'hidden');
-        div_new.style.cssText += '; position: absolute; z-index: 1020; '+ cross('backface-visibility', 'hidden');
+        div_old.parentNode.style.cssText += 'perspective: 700; overflow: hidden;';
+        div_old.style.cssText += '; position: absolute; z-index: 1019; backface-visibility: hidden';
+        div_new.style.cssText += '; position: absolute; z-index: 1020; backface-visibility: hidden';
 
         switch (type) {
             case 'slide-left':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d('+ width + 'px, 0, 0)', 'translate('+ width +'px, 0)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d('+ width + 'px, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +';'+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +';'+ cross('transform', 'translate3d(-'+ width +'px, 0, 0)', 'translate(-'+ width +'px, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(-'+ width +'px, 0, 0)';
                 }, 1);
                 break;
 
             case 'slide-right':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(-'+ width +'px, 0, 0)', 'translate(-'+ width +'px, 0)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(-'+ width +'px, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0px, 0, 0)', 'translate(0px, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d('+ width +'px, 0, 0)', 'translate('+ width +'px, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0px, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d('+ width +'px, 0, 0)';
                 }, 1);
                 break;
 
             case 'slide-down':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; z-index: 1; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; z-index: 0; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+                div_old.style.cssText += 'overflow: hidden; z-index: 1; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; z-index: 0; transform: translate3d(0, 0, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, '+ height +'px, 0)', 'translate(0, '+ height +'px)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, '+ height +'px, 0)';
                 }, 1);
                 break;
 
             case 'slide-up':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, '+ height +'px, 0)', 'translate(0, '+ height +'px)');
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, '+ height +'px, 0)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)';
                 }, 1);
                 break;
 
             case 'flip-left':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(-180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateY(-180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(180deg)';
                 }, 1);
                 break;
 
             case 'flip-right':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateY(180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateY(180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateY(-180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(-180deg)';
                 }, 1);
                 break;
 
             case 'flip-down':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateX(180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(-180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(-180deg)';
                 }, 1);
                 break;
 
             case 'flip-up':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(0deg)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'rotateX(-180deg)');
+                div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)';
+                div_new.style.cssText += 'overflow: hidden; transform: rotateX(-180deg)';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(0deg)');
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'rotateX(180deg)');
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(180deg)';
                 }, 1);
                 break;
 
             case 'pop-in':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') + '; '+ cross('transform', 'scale(.8)') + '; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(.8); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'scale(1)') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time+'s') +';';
+                    div_new.style.cssText += 'transition: '+ time +'s; transform: scale(1); opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s;';
                 }, 1);
                 break;
 
             case 'pop-out':
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; '+ cross('transform', 'scale(1)') +'; opacity: 1;';
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(1); opacity: 1;';
+                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time+'s') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time+'s') +'; '+ cross('transform', 'scale(1.7)') +'; opacity: 0;';
+                    div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s; transform: scale(1.7); opacity: 0;';
                 }, 1);
                 break;
 
             default:
                 // init divs
-                div_old.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)');
-                div_new.style.cssText += 'overflow: hidden; '+ cross('transform', 'translate3d(0, 0, 0)', 'translate(0, 0)') +'; opacity: 0;';
+                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)';
+                div_new.style.cssText += 'overflow: hidden; translate3d(0, 0, 0); opacity: 0;';
                 $(div_new).show();
                 // -- need a timing function because otherwise not working
                 window.setTimeout(function() {
-                    div_new.style.cssText += cross('transition', time +'s') +'; opacity: 1;';
-                    div_old.style.cssText += cross('transition', time +'s');
+                    div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;';
+                    div_old.style.cssText += 'transition: '+ time +'s';
                 }, 1);
                 break;
         }
@@ -724,27 +1191,17 @@ var w2utils = (function () {
             if (div_new) {
                 $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
-                    'transform' : '',
-                    'backface-visibility': ''
+                    'transform' : ''
                 }));
             }
             if (div_old) {
                 $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
                     'transition': '',
-                    'transform' : '',
-                    'backface-visibility': ''
+                    'transform' : ''
                 }));
-                if (div_old.parentNode) $(div_old.parentNode).css(w2utils.cssPrefix('perspective', ''));
             }
             if (typeof callBack === 'function') callBack();
         }, time * 1000);
-
-        function cross(property, value, none_webkit_value) {
-            var isWebkit=!!window.webkitURL; // jQuery no longer supports $.browser - RR
-            if (!isWebkit && typeof none_webkit_value !== 'undefined') value = none_webkit_value;
-            return ';'+ property +': '+ value +'; -webkit-'+ property +': '+ value +'; -moz-'+ property +': '+ value +'; '+
-                '-ms-'+ property +': '+ value +'; -o-'+ property +': '+ value +';';
-        }
     }
 
     function lock (box, msg, spinner) {
@@ -773,8 +1230,6 @@ var w2utils = (function () {
             $lock.show();
             mess.html(options.msg).show(0);
         }
-        // hide all tags (do not hide overlays as the form can be in overlay)
-        $().w2tag();
     }
 
     function unlock (box, speed) {
@@ -823,6 +1278,14 @@ var w2utils = (function () {
         return 0;
     }
 
+    function getStrWidth (str, styles) {
+        var w, html = '<div id="_tmp_width" style="position: absolute; top: -900px;'+ styles +'">'+ str +'</div>';
+        $('body').append(html);
+        w = $('#_tmp_width').width();
+        $('#_tmp_width').remove();
+        return w;
+    }
+
     function lang (phrase) {
         var translation = this.settings.phrases[phrase];
         if (translation == null) return phrase; else return translation;
@@ -830,6 +1293,13 @@ var w2utils = (function () {
 
     function locale (locale) {
         if (!locale) locale = 'en-us';
+
+        // if the locale is an object, not a string, than we assume it's a
+        if(typeof locale !== "string" ) {
+            w2utils.settings = $.extend(true, w2utils.settings, locale);
+            return
+        }
+
         if (locale.length === 5) locale = 'locale/'+ locale +'.json';
 
         // clear phrases from language before
@@ -844,15 +1314,6 @@ var w2utils = (function () {
             cache    : false,
             success  : function (data, status, xhr) {
                 w2utils.settings = $.extend(true, w2utils.settings, data);
-                // apply translation to some prototype functions
-                var p = w2obj.grid.prototype;
-                for (var b in p.buttons) { // buttons is an object
-                    p.buttons[b].caption = w2utils.lang(p.buttons[b].caption);
-                    p.buttons[b].hint    = w2utils.lang(p.buttons[b].hint);
-                }
-                p.msgDelete  = w2utils.lang(p.msgDelete);
-                p.msgNotJSON = w2utils.lang(p.msgNotJSON);
-                p.msgRefresh = w2utils.lang(p.msgRefresh);
             },
             error    : function (xhr, status, msg) {
                 console.log('ERROR: Cannot load locale '+ locale);
@@ -875,11 +1336,11 @@ var w2utils = (function () {
 
 
     function checkName (params, component) { // was w2checkNameParam
-        if (!params || typeof params.name === 'undefined') {
+        if (!params || params.name == null) {
             console.log('ERROR: The parameter "name" is required but not supplied in $().'+ component +'().');
             return false;
         }
-        if (typeof w2ui[params.name] !== 'undefined') {
+        if (w2ui[params.name] != null) {
             console.log('ERROR: The parameter "name" is not unique. There are other objects already created with the same name (obj: '+ params.name +').');
             return false;
         }
@@ -947,7 +1408,163 @@ var w2utils = (function () {
         return ret;
     }
 
-})();
+    function getCursorPosition(input) {
+        if (input == null) return null;
+        var caretOffset = 0;
+        var doc = input.ownerDocument || input.document;
+        var win = doc.defaultView || doc.parentWindow;
+        var sel;
+        if (win.getSelection) {
+            sel = win.getSelection();
+            if (sel.rangeCount > 0) {
+                var range = sel.getRangeAt(0);
+                var preCaretRange = range.cloneRange();
+                preCaretRange.selectNodeContents(input);
+                preCaretRange.setEnd(range.endContainer, range.endOffset);
+                caretOffset = preCaretRange.toString().length;
+            }
+        } else if ( (sel = doc.selection) && sel.type != "Control") {
+            var textRange = sel.createRange();
+            var preCaretTextRange = doc.body.createTextRange();
+            preCaretTextRange.moveToElementText(input);
+            preCaretTextRange.setEndPoint("EndToEnd", textRange);
+            caretOffset = preCaretTextRange.text.length;
+        }
+        return caretOffset;
+    }
+
+    function setCursorPosition(input, pos, posEnd) {
+        var range = document.createRange();
+        var el, sel = window.getSelection();
+        if (input == null) return;
+        for (var i = 0; i < input.childNodes.length; i++) {
+            var tmp = $(input.childNodes[i]).text();
+            if (input.childNodes[i].tagName) {
+                tmp = $(input.childNodes[i]).html();
+                tmp = tmp.replace('&lt;', '<')
+                         .replace('&gt;', '>')
+                         .replace('&amp;', '&')
+                         .replace('&quot;', '"');
+            }
+            if (pos <= tmp.length) {
+                el = input.childNodes[i];
+                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0];
+                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0];
+                break;
+            } else {
+                pos -= tmp.length;
+            }
+        }
+        if (el == null) return;
+        if (pos > el.length) pos = el.length;
+        range.setStart(el, pos);
+        if (posEnd) {
+            range.setEnd(el, posEnd);
+        } else {
+            range.collapse(true);
+        }
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+
+})(jQuery);
+
+/***********************************************************
+*  Formatters object
+*  --- Primariy used in grid
+*
+*********************************************************/
+
+w2utils.formatters = {
+
+    'number': function (value, params) {
+        if (parseInt(params) > 20) params = 20;
+        if (parseInt(params) < 0) params = 0;
+        if (value == null || value == '') return '';
+        return w2utils.formatNumber(parseFloat(value), params, true);
+    },
+
+    'float': function (value, params) {
+        return w2utils.formatters['number'](value, params);
+    },
+
+    'int': function (value, params) {
+        return w2utils.formatters['number'](value, 0);
+    },
+
+    'money': function (value, params) {
+        if (value == null || value == '') return '';
+        var data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision || 2);
+        return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '');
+    },
+
+    'currency': function (value, params) {
+        return w2utils.formatters['money'](value, params);
+    },
+
+    'percent': function (value, params) {
+        if (value == null || value == '') return '';
+        return w2utils.formatNumber(value, params || 1) + '%';
+    },
+
+    'size': function (value, params) {
+        if (value == null || value == '') return '';
+        return w2utils.formatSize(parseInt(value));
+    },
+
+    'date': function (value, params) {
+        if (params == null || params == '') params = w2utils.settings.dateFormat;
+        if (value == null || value == 0) return '';
+        var dt = w2utils.isDateTime(value, params, true);
+        if (dt == '') dt = w2utils.isDate(value, params, true);
+        return '<span title="'+ dt +'">' + w2utils.formatDate(dt, params) + '</span>';
+    },
+
+    'datetime': function (value, params) {
+        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (value == null || value == 0) return '';
+        var dt = w2utils.isDateTime(value, params, true);
+        if (dt == '') dt = w2utils.isDate(value, params, true);
+        return '<span title="'+ dt +'">' + w2utils.formatDateTime(dt, params) + '</span>';
+    },
+
+    'time': function (value, params) {
+        if (params == null || params == '') params = w2utils.settings.timeFormat;
+        if (params == 'h12') params = 'hh:mi pm';
+        if (params == 'h24') params = 'h24:mi';
+        if (value == null || value == 0) return '';
+        var dt = w2utils.isDateTime(value, params, true);
+        if (dt == '') dt = w2utils.isDate(value, params, true);
+        return '<span title="'+ dt +'">' + w2utils.formatTime(value, params) + '</span>';
+    },
+
+    'timestamp': function (value, params) {
+        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (value == null || value == 0) return '';
+        var dt = w2utils.isDateTime(value, params, true);
+        if (dt == '') dt = w2utils.isDate(value, params, true);
+        return dt.toString ? dt.toString() : '';
+    },
+
+    'gmt': function (value, params) {
+        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (value == null || value == 0) return '';
+        var dt = w2utils.isDateTime(value, params, true);
+        if (dt == '') dt = w2utils.isDate(value, params, true);
+        return dt.toUTCString ? dt.toUTCString() : '';
+    },
+
+    'age': function (value, params) {
+        if (value == null || value == 0) return '';
+        var dt = w2utils.isDateTime(value, params, true);
+        if (dt == '') dt = w2utils.isDate(value, params, true);
+        return '<span title="'+ dt +'">' + w2utils.age(value) + ((' ' + params) || '') + '</span>';
+    },
+
+    'toggle': function (value, params) {
+        return (value ? 'Yes' : '');
+    }
+};
 
 /***********************************************************
 *  Generic Event Object
@@ -958,29 +1575,48 @@ var w2utils = (function () {
 
 w2utils.event = {
 
-    on: function (eventData, handler) {
-        if (!$.isPlainObject(eventData)) eventData = { type: eventData };
-        eventData = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, eventData);
-
-        if (!eventData.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
+    on: function (edata, handler) {
+        // allow 'eventName:after' syntax
+        if (typeof edata == 'string' && edata.indexOf(':') != -1) {
+            var tmp = edata.split(':');
+            if (['complete', 'done'].indexOf(edata[1]) != -1) edata[1] = 'after';
+            edata = {
+                type    : tmp[0],
+                execute : tmp[1]
+            };
+        }
+        if (!$.isPlainObject(edata)) edata = { type: edata };
+        edata = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, edata);
+        // errors
+        if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
         if (!$.isArray(this.handlers)) this.handlers = [];
-        this.handlers.push({ event: eventData, handler: handler });
+        this.handlers.push({ edata: edata, handler: handler });
     },
 
-    off: function (eventData, handler) {
-        if (!$.isPlainObject(eventData)) eventData = { type: eventData };
-        eventData = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, eventData);
-
-        if (!eventData.type) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
+    off: function (edata, handler) {
+        // allow 'eventName:after' syntax
+        if (typeof edata == 'string' && edata.indexOf(':') != -1) {
+            var tmp = edata.split(':');
+            if (['complete', 'done'].indexOf(edata[1]) != -1) edata[1] = 'after';
+            edata = {
+                type    : tmp[0],
+                execute : tmp[1]
+            }
+        }
+        if (!$.isPlainObject(edata)) edata = { type: edata };
+        edata = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, edata);
+        // errors
+        if (!edata.type) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
         if (!handler) { handler = null; }
         // remove handlers
         var newHandlers = [];
         for (var h = 0, len = this.handlers.length; h < len; h++) {
             var t = this.handlers[h];
-            if ((t.event.type === eventData.type || eventData.type === '*') &&
-                (t.event.target === eventData.target || eventData.target === null) &&
-                (t.handler === handler || handler === null))
+            if ((t.edata.type === edata.type || edata.type === '*') &&
+                (t.edata.target === edata.target || edata.target == null) &&
+                (t.edata.execute === edata.execute || edata.execute == null) &&
+                (t.handler === handler || handler == null))
             {
                 // match
             } else {
@@ -990,143 +1626,81 @@ w2utils.event = {
         this.handlers = newHandlers;
     },
 
-    trigger: function (eventData) {
-        var eventData = $.extend({ type: null, phase: 'before', target: null }, eventData, {
-            isStopped: false, isCancelled: false,
+    trigger: function (edata) {
+        var edata = $.extend({ type: null, phase: 'before', target: null, doneHandlers: [] }, edata, {
+            isStopped       : false,
+            isCancelled     : false,
+            done            : function (handler) { this.doneHandlers.push(handler); },
             preventDefault  : function () { this.isCancelled = true; },
             stopPropagation : function () { this.isStopped   = true; }
         });
-        if (eventData.phase === 'before') eventData.onComplete = null;
+        if (edata.phase === 'before') edata.onComplete = null;
         var args, fun, tmp;
-        if (eventData.target == null) eventData.target = null;
+        if (edata.target == null) edata.target = null;
         if (!$.isArray(this.handlers)) this.handlers = [];
         // process events in REVERSE order
         for (var h = this.handlers.length-1; h >= 0; h--) {
             var item = this.handlers[h];
-            if ((item.event.type === eventData.type || item.event.type === '*') &&
-                (item.event.target === eventData.target || item.event.target === null) &&
-                (item.event.execute === eventData.phase || item.event.execute === '*' || item.event.phase === '*'))
+            if ((item.edata.type === edata.type || item.edata.type === '*') &&
+                (item.edata.target === edata.target || item.edata.target == null) &&
+                (item.edata.execute === edata.phase || item.edata.execute === '*' || item.edata.phase === '*'))
             {
-                eventData = $.extend({}, item.event, eventData);
+                edata = $.extend({}, item.edata, edata);
                 // check handler arguments
                 args = [];
                 tmp  = new RegExp(/\((.*?)\)/).exec(item.handler);
                 if (tmp) args = tmp[1].split(/\s*,\s*/);
                 if (args.length === 2) {
-                    item.handler.call(this, eventData.target, eventData); // old way for back compatibility
+                    item.handler.call(this, edata.target, edata); // old way for back compatibility
                 } else {
-                    item.handler.call(this, eventData); // new way
+                    item.handler.call(this, edata); // new way
                 }
-                if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
+                if (edata.isStopped === true || edata.stop === true) return edata; // back compatibility edata.stop === true
             }
         }
         // main object events
-        var funName = 'on' + eventData.type.substr(0,1).toUpperCase() + eventData.type.substr(1);
-        if (eventData.phase === 'before' && typeof this[funName] === 'function') {
+        var funName = 'on' + edata.type.substr(0,1).toUpperCase() + edata.type.substr(1);
+        if (edata.phase === 'before' && typeof this[funName] === 'function') {
             fun = this[funName];
             // check handler arguments
             args = [];
             tmp  = new RegExp(/\((.*?)\)/).exec(fun);
             if (tmp) args = tmp[1].split(/\s*,\s*/);
             if (args.length === 2) {
-                fun.call(this, eventData.target, eventData); // old way for back compatibility
+                fun.call(this, edata.target, edata); // old way for back compatibility
             } else {
-                fun.call(this, eventData); // new way
+                fun.call(this, edata); // new way
             }
-            if (eventData.isStopped === true || eventData.stop === true) return eventData; // back compatibility eventData.stop === true
+            if (edata.isStopped === true || edata.stop === true) return edata; // back compatibility edata.stop === true
         }
         // item object events
-        if (eventData.object != null && eventData.phase === 'before' &&
-            typeof eventData.object[funName] === 'function')
+        if (edata.object != null && edata.phase === 'before' &&
+            typeof edata.object[funName] === 'function')
         {
-            fun = eventData.object[funName];
+            fun = edata.object[funName];
             // check handler arguments
             args = [];
             tmp  = new RegExp(/\((.*?)\)/).exec(fun);
             if (tmp) args = tmp[1].split(/\s*,\s*/);
             if (args.length === 2) {
-                fun.call(this, eventData.target, eventData); // old way for back compatibility
+                fun.call(this, edata.target, edata); // old way for back compatibility
             } else {
-                fun.call(this, eventData); // new way
+                fun.call(this, edata); // new way
             }
-            if (eventData.isStopped === true || eventData.stop === true) return eventData;
+            if (edata.isStopped === true || edata.stop === true) return edata;
         }
         // execute onComplete
-        if (eventData.phase === 'after' && typeof eventData.onComplete === 'function') eventData.onComplete.call(this, eventData);
-
-        return eventData;
+        if (edata.phase === 'after') {
+            if (typeof edata.onComplete === 'function') edata.onComplete.call(this, edata);
+            for (var i = 0; i < edata.doneHandlers.length; i++) {
+                if (typeof edata.doneHandlers[i] == 'function') {
+                    edata.doneHandlers[i].call(this, edata);
+                }
+            }
+        }
+        return edata;
     }
 };
-
-/***********************************************************
-*  Common Keyboard Handler. Supported in
-*  - grid
-*  - sidebar
-*  - popup
-*
-*********************************************************/
-
-w2utils.keyboard = (function (obj) {
-    // private scope
-    var w2ui_name = null;
-
-    obj.active    = active;
-    obj.clear     = clear;
-
-    init();
-    return obj;
-
-    function init() {
-        $(document).on('keydown', keydown);
-        $(document).on('mousedown', mousedown);
-    }
-
-    function keydown (event) {
-        var tag = event.target.tagName;
-        if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) !== -1) return;
-        if ($(event.target).prop('contenteditable') === 'true') return;
-        if (!w2ui_name) return;
-        // pass to appropriate widget
-        if (w2ui[w2ui_name] && typeof w2ui[w2ui_name].keydown === 'function') {
-            w2ui[w2ui_name].keydown.call(w2ui[w2ui_name], event);
-        }
-    }
-
-    function mousedown (event) {
-        var tag = event.target.tagName;
-        var els = $(event.target).parents('.w2ui-grid, .w2ui-sidebar, .w2ui-popup, .w2ui-keyboard');
-        if (els.length > 0) {
-            var name = els.attr('name');
-            var obj = w2ui[name];
-            if (name != w2ui_name) {
-                if (clear(event) === false) return; // event cancelled
-                if (active(name, event) === false) return; // event cancelled
-            }
-            if (obj && obj.keyboard) w2ui_name = name;
-        } else {
-            clear(event);
-        }
-    }
-
-    function active (new_w2ui_name, event) {
-        if (new_w2ui_name == null) return w2ui_name;
-        var obj = w2ui[new_w2ui_name];
-        if (obj && obj.focus) {
-            if (obj.focus.call(obj, event) === false) return false;
-        }
-        w2ui_name = new_w2ui_name;
-        return true;
-    }
-
-    function clear (event) {
-        if (w2ui_name != null && w2ui[w2ui_name] && w2ui[w2ui_name].blur) {
-            if (w2ui[w2ui_name].blur.call(w2ui[w2ui_name], event) === false) return false;
-        }
-        w2ui_name = null;
-        return true;
-    }
-
-})({});
 
 /***********************************************************
 *  Commonly used plugins
@@ -1134,7 +1708,7 @@ w2utils.keyboard = (function (obj) {
 *
 *********************************************************/
 
-(function () {
+(function ($) {
 
     $.fn.w2render = function (name) {
         if ($(this).length > 0) {
@@ -1151,6 +1725,7 @@ w2utils.keyboard = (function (obj) {
 
     $.fn.w2marker = function () {
         var str = Array.prototype.slice.call(arguments, 0);
+        if (Array.isArray(str[0])) str = str[0];
         if (str.length == 0 || !str[0]) { // remove marker
             return $(this).each(clearMarkedText);
         } else { // add marker
@@ -1177,128 +1752,164 @@ w2utils.keyboard = (function (obj) {
         }
     };
 
-    // -- w2tag - appears on the right side from element, there can be multiple on screen at a time
+    // -- w2tag - there can be multiple on screen at a time
 
     $.fn.w2tag = function (text, options) {
-        if (!$.isPlainObject(options)) options = {};
-        if (!$.isPlainObject(options.css)) options.css = {};
-        if (typeof options['class'] === 'undefined') options['class'] = '';
+        // only one argument
+        if (arguments.length == 1 && typeof text == 'object') {
+            options = text;
+            if (options.html != null) text = options.html;
+        }
+        // default options
+        options = $.extend({
+            id              : null,     // id for the tag, otherwise input id is used
+            html            : text,     // or html
+            position        : 'right',  // can be left, right, top, bottom
+            left            : 0,        // delta for left coordinate
+            top             : 0,        // delta for top coordinate
+            style           : '',       // adition style for the tag
+            css             : {},       // add css for input when tag is shown
+            className       : '',       // add class bubble
+            inputClass      : '',       // add class for input when tag is shown
+            onShow          : null,     // callBack when shown
+            onHide          : null,     // callBack when hidden
+            hideOnKeyPress  : true,     // hide tag if key pressed
+            hideOnBlur      : false,    // hide tag on blur
+            hideOnClick     : false     // hide tag on document click
+        }, options);
+        if (options.name != null && options.id == null) options.id = options.name;
+
+        // for backward compatibility
+        if (options['class'] != '' && options.inputClass == '') options.inputClass = options['class'];
+
         // remove all tags
         if ($(this).length === 0) {
-            $('.w2ui-tag').each(function (index, elem) {
-                var opt = $(elem).data('options');
+            $('.w2ui-tag').each(function (index, el) {
+                var opt = $(el).data('options');
                 if (opt == null) opt = {};
-                $($(elem).data('taged-el')).removeClass( opt['class'] );
-                clearInterval($(elem).data('timer'));
-                $(elem).remove();
+                $($(el).data('taged-el')).removeClass(opt.inputClass);
+                clearInterval($(el).data('timer'));
+                $(el).remove();
             });
             return;
         }
         return $(this).each(function (index, el) {
             // show or hide tag
-            var tagOrigID = (options.id ? options.id : el.id);
-            var tagID = w2utils.escapeId(tagOrigID);
+            var origID = (options.id ? options.id : el.id);
+            var tagID  = w2utils.escapeId(origID);
+            var $tags  = $('#w2ui-tag-'+tagID);
             if (text === '' || text == null) {
-                $('#w2ui-tag-'+tagID).css('opacity', 0);
                 // remmove element
-                clearInterval($('#w2ui-tag-'+tagID).data('timer'));
-                $('#w2ui-tag-'+tagID).remove();
+                $tags.css('opacity', 0);
+                clearInterval($tags.data('timer'));
+                $tags.remove();
+                return;
+            } else if ($tags.length != 0) {
+                // if already present
+                options = $.extend($tags.data('options'), options);
+                $tags.data('options', options);
+                $tags.find('.w2ui-tag-body')
+                    .attr('style', options.style)
+                    .addClass(options.className)
+                    .html(options.html);
             } else {
-                // remove elements
-                clearInterval($('#w2ui-tag-'+tagID).data('timer'));
-                $('#w2ui-tag-'+tagID).remove();
-                // insert
-                $('body').append(
-                    '<div id="w2ui-tag-'+ tagOrigID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+ 
-                    '   <div style="margin-top: -2px 0px 0px -2px; white-space: nowrap;">'+
-                    '      <div class="w2ui-tag-body">'+ text +'</div>'+
-                    '   </div>' +
-                    '</div>');
-
-                var timer = setInterval(function () {
-                    // monitor if destroyed
-                    if ($(el).length === 0 || ($(el).offset().left === 0 && $(el).offset().top === 0)) {
-                        clearInterval($('#w2ui-tag-'+tagID).data('timer'));
-                        tmp_hide();
-                        return;
-                    }
-                    // monitor if moved
-                    var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
-                    var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
-                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
-                    if (options.position == 'top') {
-                        posClass  = 'w2ui-tag-top';
-                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
-                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0)) - height - 10;
-                    }
-                    if (options.position == 'bottom') {
-                        posClass  = 'w2ui-tag-bottom';
-                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
-                        posTop    = parseInt($(el).offset().top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
-                    }
-                    if (options.position == 'left') {
-                        posClass  = 'w2ui-tag-left';
-                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - width - 20;
-                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    }
-                    if ($('#w2ui-tag-'+tagID).data('position') !== posLeft + 'x' + posTop) {
-                        $('#w2ui-tag-'+tagID).css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
-                            left: posLeft + 'px',
-                            top : posTop + 'px'
-                        }).data('position', posLeft + 'x' + posTop);
-                    }
-                }, 100);
-                setTimeout(function () {
-                    if (!$(el).offset()) return;
-                    var posClass = 'w2ui-tag-right';
-                    var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
-                    var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    var width    = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetWidth;
-                    var height   = $('#w2ui-tag-' + tagID).find('.w2ui-tag-body')[0].offsetHeight;
-                    if (options.position == 'top') {
-                        posClass  = 'w2ui-tag-top';
-                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
-                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0)) - height - 10;
-                    }
-                    if (options.position == 'bottom') {
-                        posClass  = 'w2ui-tag-bottom';
-                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
-                        posTop    = parseInt($(el).offset().top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
-                    }
-                    if (options.position == 'left') {
-                        posClass  = 'w2ui-tag-left';
-                        posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - width - 20;
-                        posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0));
-                    }
-                    $('#w2ui-tag-' + tagID)
-                        .css({
-                            opacity : '1',
-                            left    : posLeft + 'px',
-                            top     : posTop + 'px'
-                        })
-                        .data('text', text)
-                        .data('taged-el', el)
-                        .data('options', options)
-                        .data('position', posLeft + 'x' + posTop)
-                        .data('timer', timer)
-                        .find('.w2ui-tag-body').addClass(posClass);
-                    $(el).off('keypress', tmp_hide).on('keypress', tmp_hide).off('change', tmp_hide).on('change', tmp_hide)
-                        .css(options.css).addClass(options['class']);
-                    if (typeof options.onShow === 'function') options.onShow();
-                }, 1);
                 var originalCSS = '';
                 if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
-                // bind event to hide it
-                function tmp_hide() {
-                    $tag = $('#w2ui-tag-'+tagID);
-                    if ($tag.length <= 0) return;
-                    clearInterval($tag.data('timer'));
-                    $tag.remove();
-                    $(el).off('keypress', tmp_hide).removeClass(options['class']);
-                    if ($(el).length > 0) $(el)[0].style.cssText = originalCSS;
-                    if (typeof options.onHide === 'function') options.onHide();
+                // insert
+                $('body').append(
+                    '<div onclick="event.stopPropagation()" id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
+                    '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
+                    '      <div class="w2ui-tag-body '+ options.className +'" style="'+ (options.style || '') +'">'+ text +'</div>'+
+                    '   </div>' +
+                    '</div>');
+                $tags = $('#w2ui-tag-'+tagID);
+                $(el).data('w2tag', $tags.get(0));
+            }
+
+            // need time out to allow tag to be rendered
+            setTimeout(function () {
+                if (!$(el).offset()) return;
+                var pos = checkIfMoved(true);
+                if (pos == null) return;
+                $tags.css({
+                        opacity : '1',
+                        left    : pos.left + 'px',
+                        top     : pos.top + 'px'
+                    })
+                    .data('options', options)
+                    .data('taged-el', el)
+                    .data('position', pos.left + 'x' + pos.top)
+                    .data('timer', setTimeout(checkIfMoved, 100))
+                    .find('.w2ui-tag-body').addClass(pos['posClass']);
+
+                $(el).css(options.css)
+                    .off('.w2tag')
+                    .addClass(options.inputClass);
+
+                if (options.hideOnKeyPress) {
+                    $(el).on('keypress.w2tag', hideTag);
                 }
+                if (options.hideOnBlur) {
+                    $(el).on('blur.w2tag', hideTag);
+                }
+                if (options.hideOnClick) {
+                    $(document).on('click.w2tag', hideTag)
+                }
+                if (typeof options.onShow === 'function') options.onShow();
+            }, 1);
+
+            // bind event to hide it
+            function hideTag() {
+                $tags = $('#w2ui-tag-'+tagID);
+                if ($tags.length <= 0) return;
+                clearInterval($tags.data('timer'));
+                $tags.remove();
+                $(document).off('.w2tag');
+                $(el).off('.w2tag', hideTag)
+                    .removeClass(options.inputClass)
+                    .removeData('w2tag');
+                if ($(el).length > 0) $(el)[0].style.cssText = originalCSS;
+                if (typeof options.onHide === 'function') options.onHide();
+            }
+
+            function checkIfMoved(skipTransition) {
+                // monitor if destroyed
+                var offset = $(el).offset();
+                if ($(el).length === 0 || (offset.left === 0 && offset.top === 0) || $tags.find('.w2ui-tag-body').length == 0) {
+                    clearInterval($tags.data('timer'));
+                    hideTag();
+                    return;
+                }
+                setTimeout(checkIfMoved, 100);
+                // monitor if moved
+                var posClass = 'w2ui-tag-right';
+                var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
+                var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                var tagBody  = $tags.find('.w2ui-tag-body');
+                var width    = tagBody[0].offsetWidth;
+                var height   = tagBody[0].offsetHeight;
+                if (options.position == 'top') {
+                    posClass  = 'w2ui-tag-top';
+                    posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                    posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0)) - height - 10;
+                }
+                if (options.position == 'bottom') {
+                    posClass  = 'w2ui-tag-bottom';
+                    posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
+                    posTop    = parseInt($(el).offset().top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                }
+                if (options.position == 'left') {
+                    posClass  = 'w2ui-tag-left';
+                    posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - width - 20;
+                    posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                }
+                if ($tags.data('position') !== posLeft + 'x' + posTop && skipTransition !== true) {
+                    $tags.css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
+                        left: posLeft + 'px',
+                        top : posTop + 'px'
+                    }).data('position', posLeft + 'x' + posTop);
+                }
+                return { left: posLeft, top: posTop, posClass: posClass };
             }
         });
     };
@@ -1309,22 +1920,26 @@ w2utils.keyboard = (function (obj) {
         var obj  = this;
         var name = '';
         var defaults = {
-            name      : null,      // it not null, then allows multiple concurent overlays
-            html      : '',        // html text to display
-            align     : 'none',    // can be none, left, right, both
-            left      : 0,         // offset left
-            top       : 0,         // offset top
-            tipLeft   : 30,        // tip offset left
-            width     : 0,         // fixed width
-            height    : 0,         // fixed height
-            maxWidth  : null,      // max width if any
-            maxHeight : null,      // max height if any
-            style     : '',        // additional style for main div
-            'class'   : '',        // additional class name for main div
-            onShow    : null,      // event on show
-            onHide    : null,      // event on hide
-            openAbove : false,     // show abover control
-            tmp       : {}
+            name        : null,              // it not null, then allows multiple concurrent overlays
+            html        : '',                // html text to display
+            align       : 'none',            // can be none, left, right, both
+            left        : 0,                 // offset left
+            top         : 0,                 // offset top
+            tipLeft     : 30,                // tip offset left
+            noTip       : false,             // if true - no tip will be displayed
+            selectable  : false,
+            width       : 0,                 // fixed width
+            height      : 0,                 // fixed height
+            maxWidth    : null,              // max width if any
+            maxHeight   : null,              // max height if any
+            contextMenu : false,             // if true, it will be opened at mouse position
+            style       : '',                // additional style for main div
+            'class'     : '',                // additional class name for main div
+            overlayStyle: '',
+            onShow      : null,              // event on show
+            onHide      : null,              // event on hide
+            openAbove   : false,             // show above control
+            tmp         : {}
         };
         if (arguments.length == 1) {
             if (typeof html == 'object') {
@@ -1337,27 +1952,33 @@ w2utils.keyboard = (function (obj) {
         if (!$.isPlainObject(options)) options = {};
         options = $.extend({}, defaults, options);
         if (options.name) name = '-' + options.name;
-        // if empty then hide
+        // hide
         var tmp_hide;
-        if (this.length === 0 || options.html === '' || options.html == null) {
+        if (this.length == 0 || options.html === '' || options.html == null) {
             if ($('#w2ui-overlay'+ name).length > 0) {
                 tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
                 if (typeof tmp_hide === 'function') tmp_hide();
             } else {
-            $('#w2ui-overlay'+ name).remove();
+                $('#w2ui-overlay'+ name).remove();
             }
             return $(this);
         }
+        // hide previous if any
         if ($('#w2ui-overlay'+ name).length > 0) {
             tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
             $(document).off('click', tmp_hide);
             if (typeof tmp_hide === 'function') tmp_hide();
         }
+        if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
+        if (options.contextMenu && options.originalEvent == null) {
+            console.log('ERROR: for context menu you need to pass options.originalEvent.');
+        }
+        // append
         $('body').append(
-            '<div id="w2ui-overlay'+ name +'" style="display: none"'+
+            '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'"'+
             '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
-            '    <div style="'+ options.style +'" class="'+ options['class'] +'"></div>'+
+            '    <div style="min-width: 100%; '+ options.style +'" class="'+ options['class'] +'"></div>'+
             '</div>'
         );
         // init
@@ -1366,25 +1987,27 @@ w2utils.keyboard = (function (obj) {
         div2.html(options.html);
         // pick bg color of first div
         var bc  = div2.css('background-color');
-        if (bc != null && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css('background-color', bc);
+        if (bc != null && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') div1.css({ 'background-color': bc, 'border-color': bc });
 
+        var offset = $(obj).offset() || {};
         div1.data('element', obj.length > 0 ? obj[0] : null)
             .data('options', options)
-            .data('position', $(obj).offset().left + 'x' + $(obj).offset().top)
+            .data('position', offset.left + 'x' + offset.top)
             .fadeIn('fast')
             .on('click', function (event) {
                 // if there is label for input, it will produce 2 click events
-                if (event.target.tagName == 'LABEL') event.stopPropagation();
+                if (event.target.tagName.toUpperCase() == 'LABEL') event.stopPropagation();
             })
             .on('mousedown', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) == -1) event.preventDefault();
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1 && !options.selectable) {
+                    event.preventDefault();
+                }
             });
         div1[0].hide   = hide;
         div1[0].resize = resize;
 
         // need time to display
-        resize();
         setTimeout(function () {
             resize();
             $(document).off('click', hide).on('click', hide);
@@ -1399,7 +2022,8 @@ w2utils.keyboard = (function (obj) {
             var tmp = $('#w2ui-overlay'+ name);
             if (tmp.data('element') !== obj[0]) return; // it if it different overlay
             if (tmp.length === 0) return;
-            var pos = $(obj).offset().left + 'x' + $(obj).offset().top;
+            var offset = $(obj).offset() || {};
+            var pos = offset.left + 'x' + offset.top;
             if (tmp.data('position') !== pos) {
                 hide();
             } else {
@@ -1408,7 +2032,8 @@ w2utils.keyboard = (function (obj) {
         }
 
         // click anywhere else hides the drop down
-        function hide () {
+        function hide(event) {
+            if (event && event.button != 0) return; // only for left click button
             var div1 = $('#w2ui-overlay'+ name);
             if (div1.data('keepOpen') === true) {
                 div1.removeData('keepOpen');
@@ -1425,6 +2050,8 @@ w2utils.keyboard = (function (obj) {
         function resize () {
             var div1 = $('#w2ui-overlay'+ name);
             var div2 = div1.find(' > div');
+            var menu = $('#w2ui-overlay'+ name +' div.menu');
+            menu.css('overflow-y', 'hidden');
             // if goes over the screen, limit height and width
             if (div1.length > 0) {
                 div2.height('auto').width('auto');
@@ -1440,69 +2067,101 @@ w2utils.keyboard = (function (obj) {
                     h = parseInt(options.tmp.contentHeight);
                     div2.height(h);
                     setTimeout(function () {
-                        if (h > div2.find('div.menu > table').height()) {
+                        var $div = div2.find('div.menu');
+                        if (h > $div.height()) {
                             div2.find('div.menu').css('overflow-y', 'hidden');
                         }
                     }, 1);
-                    setTimeout(function () { div2.find('div.menu').css('overflow-y', 'auto'); }, 10);
+                    setTimeout(function () {
+                        var $div = div2.find('div.menu');
+                        if ($div.css('overflow-y') != 'auto') $div.css('overflow-y', 'auto');
+                    }, 10);
                 }
                 if (options.tmp.contentWidth) {
                     w = parseInt(options.tmp.contentWidth);
                     div2.width(w);
                     setTimeout(function () {
                         if (w > div2.find('div.menu > table').width()) {
-                            div2.find('div.menu').css('overflow-x', 'hidden');
+                            div2.find('div.menu > table').css('overflow-x', 'hidden');
                         }
                     }, 1);
-                    setTimeout(function () { div2.find('div.menu').css('overflow-x', 'auto'); }, 10);
-                }
-                // alignment
-                switch (options.align) {
-                    case 'both':
-                        options.left = 17;
-                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
-                        break;
-                    case 'left':
-                        options.left = 17;
-                        break;
-                    case 'right':
-                        options.tipLeft = w - 45;
-                        options.left = w2utils.getSize($(obj), 'width') - w + 10;
-                        break;
+                    setTimeout(function () {
+                        div2.find('div.menu > table').css('overflow-x', 'auto');
+                    }, 10);
                 }
                 // adjust position
                 var tmp = (w - 17) / 2;
                 var boxLeft  = options.left;
                 var boxWidth = options.width;
                 var tipLeft  = options.tipLeft;
+                // alignment
+                switch (options.align) {
+                    case 'both':
+                        boxLeft = 17 + parseInt(options.left);
+                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
+                        if (options.maxWidth && options.width > options.maxWidth) options.width = options.maxWidth;
+                        break;
+                    case 'left':
+                        boxLeft = 17 + parseInt(options.left);
+                        break;
+                    case 'right':
+                        boxLeft = w2utils.getSize($(obj), 'width') - w + 14 + parseInt(options.left);
+                        tipLeft = w - 40;
+                        break;
+                }
                 if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
                 if (tmp < 25) {
                     boxLeft = 25 - tmp;
                     tipLeft = Math.floor(tmp);
                 }
                 // Y coord
+                var X, Y, offsetTop;
+                if (options.contextMenu) { // context menu
+                    X = options.originalEvent.pageX + 8;
+                    Y = options.originalEvent.pageY - 0;
+                    offsetTop = options.originalEvent.pageY;
+                } else {
+                    var offset = obj.offset() || {};
+                    X = ((offset.left > 25 ? offset.left : 25) + boxLeft);
+                    Y = (offset.top + w2utils.getSize(obj, 'height') + options.top + 7);
+                    offsetTop = offset.top;
+                }
                 div1.css({
-                    top         : (obj.offset().top + w2utils.getSize(obj, 'height') + options.top + 7) + 'px',
-                    left        : ((obj.offset().left > 25 ? obj.offset().left : 25) + boxLeft) + 'px',
+                    left        :  X + 'px',
+                    top         :  Y + 'px',
                     'min-width' : boxWidth,
                     'min-height': (options.height ? options.height : 'auto')
                 });
                 // $(window).height() - has a problem in FF20
-                var maxHeight = window.innerHeight + $(document).scrollTop() - div2.offset().top - 7;
-                var maxWidth  = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
+                var offset = div2.offset() || {};
+                var maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7;
+                var maxWidth  = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
+                if (options.contextMenu) { // context menu
+                    maxHeight = window.innerHeight - options.originalEvent.pageY - 15;
+                    maxWidth  = window.innerWidth - options.originalEvent.pageX;
+                }
+
                 if ((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) {
+                    var tipOffset;
                     // show on top
-                    maxHeight = div2.offset().top - $(document).scrollTop() - 7;
+                    if (options.contextMenu) { // context menu
+                        maxHeight = options.originalEvent.pageY - 7;
+                        tipOffset = 5;
+                    } else {
+                        maxHeight = offset.top - $(document).scrollTop() - 7;
+                        tipOffset = 24;
+                    }
                     if (options.maxHeight && maxHeight > options.maxHeight) maxHeight = options.maxHeight;
                     if (h > maxHeight) {
                         overflowY = true;
                         div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
                         h = maxHeight;
                     }
-                    div1.css('top', ($(obj).offset().top - h - 24 + options.top) + 'px');
+                    div1.addClass('bottom-arrow');
+                    div1.css('top', (offsetTop - h - tipOffset + options.top) + 'px');
                     div1.find('>style').html(
-                        '#w2ui-overlay'+ name +':before { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'+
-                        '#w2ui-overlay'+ name +':after { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'
+                        '#w2ui-overlay'+ name +':before { margin-left: '+ parseInt(tipLeft) +'px; }'+
+                        '#w2ui-overlay'+ name +':after { margin-left: '+ parseInt(tipLeft) +'px; }'
                     );
                 } else {
                     // show under
@@ -1511,22 +2170,31 @@ w2utils.keyboard = (function (obj) {
                         overflowY = true;
                         div2.height(maxHeight).width(w).css({ 'overflow-y': 'auto' });
                     }
+                    div1.addClass('top-arrow');
                     div1.find('>style').html(
-                        '#w2ui-overlay'+ name +':before { display: block; margin-left: '+ parseInt(tipLeft) +'px; }'+
-                        '#w2ui-overlay'+ name +':after { display: none; margin-left: '+ parseInt(tipLeft) +'px; }'
+                        '#w2ui-overlay'+ name +':before { margin-left: '+ parseInt(tipLeft) +'px; }'+
+                        '#w2ui-overlay'+ name +':after { margin-left: '+ parseInt(tipLeft) +'px; }'
                     );
                 }
                 // check width
                 w = div2.width();
-                maxWidth = window.innerWidth + $(document).scrollLeft() - div2.offset().left - 7;
+                maxWidth = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
                 if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth;
                 if (w > maxWidth && options.align !== 'both') {
                     options.align = 'right';
                     setTimeout(function () { resize(); }, 1);
                 }
-                // check scroll bar
-                if (overflowY && overflowX) div2.width(w + w2utils.scrollBarSize() + 2);
+                // don't show tip
+                if (options.contextMenu || options.noTip) { // context menu
+                    div1.find('>style').html(
+                        '#w2ui-overlay'+ name +':before { display: none; }'+
+                        '#w2ui-overlay'+ name +':after { display: none; }'
+                    );
+                }
+                // check scroll bar (needed to avoid horizontal scrollbar)
+                if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
+            menu.css('overflow-y', 'auto');
         }
     };
 
@@ -1541,11 +2209,13 @@ w2utils.keyboard = (function (obj) {
                 icon     : '',
                 count    : '',
                 hidden   : false,
+                checked  : null,
                 disabled : false
                 ...
             }
         */
         var defaults = {
+            type       : 'normal',    // can be normal, radio, check
             index      : null,        // current selected
             items      : [],
             render     : null,
@@ -1562,7 +2232,7 @@ w2utils.keyboard = (function (obj) {
                 var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
                 $('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
                 $('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
-                setTimeout(function () { mresize(); }, 1);
+                mresize();
             } else {
                 $(this).w2menu(options);
             }
@@ -1581,7 +2251,7 @@ w2utils.keyboard = (function (obj) {
                     $menu.animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
                 }
             }
-            return;
+            mresize();
         } else {
             if (arguments.length === 1) options = menu; else options.items = menu;
             if (typeof options !== 'object') options = {};
@@ -1591,7 +2261,13 @@ w2utils.keyboard = (function (obj) {
             if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select;
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender;
             // since only one overlay can exist at a time
-            $.fn.w2menuHandler = function (event, index) {
+            $.fn.w2menuClick = function (event, index) {
+                if (['radio', 'check'].indexOf(options.type) != -1) {
+                    // move checkbox
+                    $(event.target).parents('tr').find('.w2ui-icon')
+                        .removeClass('w2ui-icon-empty')
+                        .addClass('w2ui-icon-check');
+                }
                 if (typeof options.onSelect === 'function') {
                     // need time so that menu first hides
                     setTimeout(function () {
@@ -1604,19 +2280,50 @@ w2utils.keyboard = (function (obj) {
                 }
                 // do not uncomment (or enum search type is not working in grid)
                 // setTimeout(function () { $(document).click(); }, 50);
+                // -- hide
+                var div = $('#w2ui-overlay'+ name);
+                if (typeof div[0].hide === 'function') {
+                    div.removeData('keepOpen');
+                    div[0].hide();
+                }
+            };
+            $.fn.w2menuDown = function (event, index) {
+                var $el = $(event.target).parents('tr');
+                var tmp = $el.find('.w2ui-icon');
+                if (tmp.hasClass('w2ui-icon-empty')) {
+                    if (options.type == 'radio') {
+                        tmp.parents('table').find('.w2ui-icon')
+                            .removeClass('w2ui-icon-check')
+                            .addClass('w2ui-icon-empty');
+                    }
+                    tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
+                } else if (tmp.hasClass('w2ui-icon-check') && (options.type == 'check')) {
+                    tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
+                }
+                $el.parent().find('tr').removeClass('w2ui-selected');
+                $el.addClass('w2ui-selected');
+                $.fn.w2menuTmp = $el;
+            };
+            $.fn.w2menuOut = function (event, index) {
+                var $tmp = $($.fn.w2menuTmp);
+                if ($tmp.length > 0) {
+                    $tmp.removeClass('w2ui-selected');
+                    $tmp.find('.w2ui-icon').removeClass('w2ui-icon-check');
+                    delete $.fn.w2menuTmp;
+                }
             };
             var html = '';
             if (options.search) {
                 html +=
                     '<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
                     '    <div class="w2ui-icon icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
-                    '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();">'+
+                    '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();"/>'+
                     '</div>';
                 options.style += ';background-color: #ECECEC';
                 options.index = 0;
                 for (var i = 0; i < options.items.length; i++) options.items[i].hidden = false;
             }
-            html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%; overflow: auto;">' +
+            html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%;">' +
                         getMenuHTML() +
                     '</div>';
             var ret = $(this).w2overlay(html, options);
@@ -1628,13 +2335,15 @@ w2utils.keyboard = (function (obj) {
                         if (event.keyCode === 9) { event.stopPropagation(); event.preventDefault(); }
                     });
                 if (options.search) {
-                    if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName == 'texarea') return;
+                    if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName.toUpperCase() == 'TEXTAREA') return;
                     $('#w2ui-overlay'+ name +' #menu-search').focus();
                 }
+                mresize();
             }, 200);
             mresize();
             return ret;
         }
+        return;
 
         function mresize() {
             setTimeout(function () {
@@ -1666,12 +2375,12 @@ w2utils.keyboard = (function (obj) {
             switch (key) {
                 case 13: // enter
                     $('#w2ui-overlay'+ name).remove();
-                    $.fn.w2menuHandler(event, options.index);
+                    $.fn.w2menuClick(event, options.index);
                     break;
                 case 9:  // tab
                 case 27: // escape
                     $('#w2ui-overlay'+ name).remove();
-                    $.fn.w2menuHandler(event, -1);
+                    $.fn.w2menuClick(event, -1);
                     break;
                 case 38: // up
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
@@ -1719,15 +2428,15 @@ w2utils.keyboard = (function (obj) {
             mresize();
         }
 
-        function getMenuHTML () {
+        function getMenuHTML() {
             if (options.spinner) {
-                return  '<table class="w2ui-drop-menu"><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
+                return  '<table class="w2ui-drop-menu"><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
                         '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
                         '    <div style="display: inline-block; padding: 3px; color: #999;">'+ w2utils.lang('Loading...') +'</div>'+
-                        '</td></tr></table>';
+                        '</td></tr></tbody></table>';
             }
             var count        = 0;
-            var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu">';
+            var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu"><tbody>';
             var img = null, icon = null;
             for (var f = 0; f < options.items.length; f++) {
                 var mitem = options.items[f];
@@ -1742,6 +2451,9 @@ w2utils.keyboard = (function (obj) {
                     if (img  == null) img  = null;
                     if (icon == null) icon = null;
                 }
+                if (['radio', 'check'].indexOf(options.type) != -1) {
+                    if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty';
+                }
                 if (mitem.hidden !== true) {
                     var imgd = '';
                     var txt = mitem.text;
@@ -1749,28 +2461,34 @@ w2utils.keyboard = (function (obj) {
                     if (img)  imgd = '<td class="menu-icon"><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
                     if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
                     // render only if non-empty
-                    if (typeof txt !== 'undefined' && txt !== '' && !(/^-+$/.test(txt))) {
+                    if (txt != null && txt !== '' && !(/^-+$/.test(txt))) {
                         var bg = (count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;
                         if (imgd == '') colspan++;
-                        if (mitem.count == null) colspan++;
+                        if (mitem.count == null && mitem.hotkey == null) colspan++;
+                        if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint; // for backward compatibility
                         menu_html +=
-                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.hint ? 'title="'+ mitem.hint +'"' : '') +
+                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ mitem.tooltip +'"' : '') +
                             '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
-                            '        onmousedown="$(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); $(this).addClass(\'w2ui-selected\');"'+
+                            '        onmousedown="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
+                            '               $.fn.w2menuDown(event, \''+ f +'\');"'+
+                            '        onmouseout="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
+                            '               $.fn.w2menuOut(event, \''+ f +'\');"'+
                             '        onclick="event.stopPropagation(); '+
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               $(\'#w2ui-overlay'+ name +'\').remove(); '+
-                            '               $.fn.w2menuHandler(event, \''+ f +'\');">'+
+                            '               $.fn.w2menuClick(event, \''+ f +'\');">'+
                                 imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ txt +'</td>'+
-                            '   <td class="menu-count">'+ (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') + '</td>' +
+                            '   <td class="menu-count">'+
+                                    (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') +
+                                    (mitem.hotkey != null ? '<span class="hotkey">' + mitem.hotkey + '</span>' : '') +
+                            '</td>' +
                             '</tr>';
                         count++;
                     } else {
                         // horizontal line
-                        menu_html += '<tr><td colspan="2" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
+                        menu_html += '<tr><td colspan="3" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
                     }
                 }
                 options.items[f] = mitem;
@@ -1778,18 +2496,18 @@ w2utils.keyboard = (function (obj) {
             if (count === 0) {
                 menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
             }
-            menu_html += "</table>";
+            menu_html += "</tbody></table>";
             return menu_html;
         }
     };
 
-    $.fn.w2color = function (color, callBack) {
+    $.fn.w2color = function (options, callBack) {
         var obj   = this;
         var el    = $(this)[0];
         var index = [-1, -1];
         if ($.fn.w2colorPalette == null) {
             $.fn.w2colorPalette = [
-                ['000000', '666666', '999999', 'BBBBBB', 'DDDDDD', 'EEEEEE', 'F3F3F3', 'FFFFFF'],
+                ['000000', '555555', '888888', 'BBBBBB', 'DDDDDD', 'EEEEEE', 'F7F7F7', 'FFFFFF'],
                 ['FF011B', 'FF9838', 'FFFD59', '01FD55', '00FFFE', '006CE7', '9B24F4', 'FF21F5'],
                 ['FFEAEA', 'FCEFE1', 'FCF5E1', 'EBF7E7', 'E9F3F5', 'ECF4FC', 'EAE6F4', 'F5E7ED'],
                 ['F4CCCC', 'FCE5CD', 'FFF2CC', 'D9EAD3', 'D0E0E3', 'CFE2F3', 'D9D1E9', 'EAD1DC'],
@@ -1798,22 +2516,34 @@ w2utils.keyboard = (function (obj) {
                 ['CC0814', 'E69138', 'F1C232', '6AA84F', '45818E', '3D85C6', '674EA7', 'A54D79'],
                 ['99050C', 'B45F17', 'BF901F', '37761D', '124F5C', '0A5394', '351C75', '741B47'],
                 // ['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030'],
-                ['F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2'] // custom colors (up to 4)
+                ['F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2'] // custom colors (up to 4)
             ];
         }
         var pal = $.fn.w2colorPalette;
-        if (typeof color != 'string') color = '';
-        if (color) color = String(color).toUpperCase();
+        if (typeof options == 'string') options = {
+            color: options,
+            transparent: true
+        };
+        // add remove transarent color
+        if (options.transparent && pal[0][1] == '555555') {
+            pal[0].splice(1, 1);
+            pal[0].push('');
+        }
+        if (!options.transparent && pal[0][1] != '555555') {
+            pal[0].splice(1, 0, '555555');
+            pal[0].pop();
+        }
+        if (options.color) options.color = String(options.color).toUpperCase();
 
         if ($('#w2ui-overlay').length == 0) {
-            $(el).w2overlay(getColorHTML(color), { 
+            $(el).w2overlay(getColorHTML(options), {
                 onHide: function () {
                     if (typeof callBack == 'function') callBack($(el).data('_color'));
                     $(el).removeData('_color');
                 }
             });
         } else { // only refresh contents
-            $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(color));
+            $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(options));
         }
         // bind events
         $('#w2ui-overlay .color')
@@ -1844,7 +2574,7 @@ w2utils.keyboard = (function (obj) {
                     return;
                 }
                 $.fn.w2colorPalette[pal.length - 1].unshift(tmp.toUpperCase());
-                $(el).w2color(color, callBack);
+                $(el).w2color(options, callBack);
                 setTimeout(function() { $('#w2ui-overlay input')[0].focus(); }, 100);
             })
             .w2field('hex');
@@ -1857,7 +2587,7 @@ w2utils.keyboard = (function (obj) {
                 case 'down':
                     index[0]++;
                     break;
-                case 'right': 
+                case 'right':
                     index[1]++;
                     break;
                 case 'left':
@@ -1874,18 +2604,19 @@ w2utils.keyboard = (function (obj) {
             return color;
         };
 
-        function getColorHTML(color) {
-            var html =  '<div class="w2ui-color">'+
-                        '<table cellspacing="5">';
+        function getColorHTML(options) {
+            var color = options.color;
+            var html  = '<div class="w2ui-color">'+
+                        '<table cellspacing="5"><tbody>';
             for (var i = 0; i < pal.length - 1; i++) {
                 html += '<tr>';
                 for (var j = 0; j < pal[i].length; j++) {
                     html += '<td>'+
-                            '    <div class="color" style="background-color: #'+ pal[i][j] +';" name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+
-                            '        '+ (color == pal[i][j] ? '&#149;' : '&nbsp;') +
+                            '    <div class="color '+ (pal[i][j] == '' ? 'no-color' : '') +'" style="background-color: #'+ pal[i][j] +';" ' +
+                            '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (options.color == pal[i][j] ? '&#149;' : '&#160;') +
                             '    </div>'+
                             '</td>';
-                    if (color == pal[i][j]) index = [i, j];
+                    if (options.color == pal[i][j]) index = [i, j];
                 }
                 html += '</tr>';
                 if (i < 2) html += '<tr><td style="height: 8px" colspan="8"></td></tr>';
@@ -1893,16 +2624,16 @@ w2utils.keyboard = (function (obj) {
             var tmp = pal[pal.length - 1];
             html += '<tr><td style="height: 8px" colspan="8"></td></tr>'+
                     '<tr>'+
-                    '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (color == tmp[0] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (color == tmp[1] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (color == tmp[2] ? '&#149;' : '&nbsp;') +'</div></td>'+
-                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (color == tmp[3] ? '&#149;' : '&nbsp;') +'</div></td>'+
+                    '   <td colspan="4" style="text-align: left"><input placeholder="#FFF000" style="margin-left: 1px; width: 74px" maxlength="7"/></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[0] +';" name="'+ tmp[0] +'" index="8:0">'+ (options.color == tmp[0] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[1] +';" name="'+ tmp[1] +'" index="8:0">'+ (options.color == tmp[1] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[2] +';" name="'+ tmp[2] +'" index="8:0">'+ (options.color == tmp[2] ? '&#149;' : '&#160;') +'</div></td>'+
+                    '   <td><div class="color" style="background-color: #'+ tmp[3] +';" name="'+ tmp[3] +'" index="8:0">'+ (options.color == tmp[3] ? '&#149;' : '&#160;') +'</div></td>'+
                     '</tr>'+
                     '<tr><td style="height: 4px" colspan="8"></td></tr>';
-            html += '</table></div>';
+            html += '</tbody></table></div>';
             return html;
-        }        
+        }
     };
 
-})();
+})(jQuery);

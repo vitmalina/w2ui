@@ -18,7 +18,7 @@ $('#form').w2form({
     fields: [
         { name: 'first_name', type: 'text', required: true },
         { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' },
+        { name: 'email', type: 'email' }
     ],
     record: { 
         first_name    : 'John',
@@ -27,7 +27,7 @@ $('#form').w2form({
     },
     actions: {
         "save": function () { this.validate(); },
-        "reset": function () { this.clear(); },
+        "reset": function () { this.clear(); }
     },
     postData: [
         param1 : 'value1', 

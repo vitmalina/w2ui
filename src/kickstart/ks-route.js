@@ -9,6 +9,7 @@ kickStart.register('route', function () {
     addListener();
 
     var obj = {
+        init    : init,
         add     : add,
         remove  : remove,
         go      : go,
@@ -26,6 +27,15 @@ kickStart.register('route', function () {
     /*
     *   Public methods
     */
+
+    function init(route) {
+        // default route is passed here
+        if (get() === '') {
+            go(route);
+        } else {
+            process();
+        }
+    }
 
     function add(route, handler) {
         if (typeof route == 'object') {
@@ -71,7 +81,9 @@ kickStart.register('route', function () {
 
     function set(route) {
         silent = true;
-        go(route);
+        // do not use go(route) here
+        route = String('/'+route).replace(/\/{2,}/g, '/');
+        window.location.hash = route;
         setTimeout(function () { silent = false }, 1);
         return app.route;       
     }
@@ -108,7 +120,7 @@ kickStart.register('route', function () {
             }
             // load module
             app.require(tmp[1]).done(function () {
-                if (app.modules[tmp[1]]) process();
+                if (app._conf.modules[tmp[1]]) process();
             });
             // if events are available
             if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
@@ -128,8 +140,8 @@ kickStart.register('route', function () {
                         var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: r, params: params });
                         if (eventData.isCancelled === true) return false;           
                     }
-                    // default error handler
-                    routes[r](r, params);
+                    // default handler
+                    routes[r]($.extend({ name: r, path: hash }, params));
                     // if events are available
                     if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
                 }

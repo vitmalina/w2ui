@@ -6,33 +6,33 @@
 *   - Dependencies: jQuery, w2utils, w2field
 *
 * == NICE TO HAVE ==
-*   - on overflow display << >>
 *   - vertical toolbar
 *   - declarative toolbar
 *
 * == 1.5 changes
+*   - on overflow display << >>
 *   - $('#toolbar').w2toolbar() - if called w/o argument then it returns toolbar object
-*   - change enable, disable can disable menu items
+*   - enable, disable, show, hide, get, set, click --> will look into menu items too
 *   - item.render method
-*   - hint property
-*   - hintShow(), hintHide() methods
+*   - tooltip property
+*   - tooltipShow(), tooltipHide() methods
 *   - added button types: color, text-color
+*   - added button types: menu-check, menu-radio - will save into item.selected
+*   - item.text and item.html - can be functions now (or string), where this keyword is the item
+*   - item.style - style for caption in the button
+*   - item.check
+*   - item.color, item.transparent - for color buttons
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2toolbar = function (options) {
         this.box       = null;      // DOM Element that holds the element
         this.name      = null;      // unique name for w2ui
         this.routeData = {};        // data for dynamic routes
         this.items     = [];
         this.right     = '';        // HTML text on the right of toolbar
-        this.hint      = 'normal';  // can be normal, top, bottom
-        this.onClick   = null;
-        this.onRender  = null;
-        this.onRefresh = null;
-        this.onResize  = null;
-        this.onDestroy = null;
+        this.tooltip   = 'normal';  // can be normal, top, bottom, left, right
 
         $.extend(true, this, w2obj.toolbar, options);
     };
@@ -50,6 +50,30 @@
             $.extend(object, { items: [], handlers: [] });
             for (var i = 0; i < items.length; i++) {
                 object.items[i] = $.extend({}, w2toolbar.prototype.item, items[i]);
+                // menus
+                if (object.items[i].type == 'menu-check') {
+                    var item = object.items[i];
+                    if (!Array.isArray(item.selected)) item.selected = [];
+                    if (Array.isArray(item.items)) {
+                        for (var j = 0; j < item.items.length; j++) {
+                            var it = item.items[j];
+                            if (it.checked && item.selected.indexOf(it.id) == -1) item.selected.push(it.id);
+                            if (!it.checked && item.selected.indexOf(it.id) != -1) it.checked = true;
+                            if (it.checked == null) it.checked = false;
+                        }
+                    }
+                }
+                if (object.items[i].type == 'menu-radio') {
+                    var item = object.items[i];
+                    if (Array.isArray(item.items)) {
+                        for (var j = 0; j < item.items.length; j++) {
+                            var it = item.items[j];
+                            if (it.checked && item.selected == null) item.selected = it.id; else it.checked = false;
+                            if (!it.checked && item.selected == it.id) it.checked = true;
+                            if (it.checked == null) it.checked = false;
+                        }
+                    }
+                }
             }
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
@@ -74,10 +98,16 @@
     // -- Implementation of core functionality
 
     w2toolbar.prototype = {
+        onClick   : null,
+        onRender  : null,
+        onRefresh : null,
+        onResize  : null,
+        onDestroy : null,
+
         item: {
             id       : null,        // command to be sent to all event handlers
-            type     : 'button',    // button, check, radio, drop, menu, break, html, spacer
-            text     : '',
+            type     : 'button',    // button, check, radio, drop, menu, menu-radio, menu-check, break, html, spacer
+            text     : null,
             route    : null,        // if not null, it is route to go
             html     : '',
             img      : null,
@@ -87,11 +117,11 @@
             disabled : false,
             checked  : false,       // used for radio buttons
             arrow    : true,        // arrow down for drop/menu types
-            hint     : '',
+            tooltip  : null,
             group    : null,        // used for radio buttons
             items    : null,        // for type menu it is an array of items in the menu
             overlay  : {},
-            rebder   : null,        // item renderer if any
+            render   : null,        // item renderer if any
             onClick  : null
         },
 
@@ -103,16 +133,16 @@
             if (!$.isArray(items)) items = [items];
             for (var o = 0; o < items.length; o++) {
                 // checks
-                if (typeof items[o].type == 'undefined') {
+                if (items[o].type == null) {
                     console.log('ERROR: The parameter "type" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
-                if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'color', 'text-color', 'break', 'html', 'spacer']) == -1) {
+                if ($.inArray(String(items[o].type), ['button', 'check', 'radio', 'drop', 'menu', 'menu-radio', 'menu-check', 'color', 'text-color', 'break', 'html', 'spacer']) == -1) {
                     console.log('ERROR: The parameter "type" should be one of the following [button, check, radio, drop, menu, break, html, spacer] '+
                             'in w2toolbar.add() method.');
                     return;
                 }
-                if (typeof items[o].id == 'undefined') {
+                if (items[o].id == null) {
                     console.log('ERROR: The parameter "id" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
@@ -133,7 +163,7 @@
             var removed = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
-                if (!it) continue;
+                if (!it || String(arguments[a]).indexOf(':') != -1) continue;
                 removed++;
                 // remove from screen
                 $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove();
@@ -144,23 +174,33 @@
             return removed;
         },
 
-        set: function (id, item) {
-            var index = this.get(id, true);
-            if (index == null) return false;
-            $.extend(this.items[index], item);
-            this.refresh(id);
+        set: function (id, newOptions) {
+            var item = this.get(id);
+            if (item == null) return false;
+            $.extend(item, newOptions);
+            this.refresh(String(id).split(':')[0]);
             return true;
         },
 
         get: function (id, returnIndex) {
             if (arguments.length == 0) {
                 var all = [];
-                for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id !== null) all.push(this.items[i1].id);
+                for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id != null) all.push(this.items[i1].id);
                 return all;
             }
+            var tmp = String(id).split(':');
             for (var i2 = 0; i2 < this.items.length; i2++) {
-                if (this.items[i2].id == id) {
-                    if (returnIndex == true) return i2; else return this.items[i2];
+                var it = this.items[i2];
+                // find a menu item
+                if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1 && tmp.length == 2 && it.id == tmp[0]) {
+                    for (var i = 0; i < it.items.length; i++) {
+                        var item = it.items[i];
+                        if (item.id == tmp[1] || (item.id == null && item.text == tmp[1])) {
+                            if (returnIndex == true) return i; else return item;
+                        }
+                    }
+                } else if (it.id == tmp[0]) {
+                    if (returnIndex == true) return i2; else return it;
                 }
             }
             return null;
@@ -175,9 +215,9 @@
                 if (!it) continue;
                 items++;
                 it.hidden = false;
-                tmp.push(it.id);
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -190,9 +230,9 @@
                 if (!it) continue;
                 items++;
                 it.hidden = true;
-                tmp.push(it.id);
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -202,24 +242,12 @@
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
-                var id = arguments[a].split(':');
-                var it = this.get(id[0]);
                 if (!it) continue;
                 items++;
-                tmp.push(it.id);
-                if (it.type == 'menu' && id.length == 2) {
-                    // disable a menu item
-                    for (var i = 0; i < it.items.length; i++) {
-                        var item = it.items[i]
-                        if (item.id == id[1] || (item.id == null && item.text == id[1])) {
-                            item.disabled = false;
-                        }
-                    }
-                } else {
-                    it.disabled = false;
-                }
+                it.disabled = false;
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -228,24 +256,13 @@
             var items = 0;
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
-                var id = arguments[a].split(':');
-                var it = this.get(id[0]);
+                var it = this.get(arguments[a]);
                 if (!it) continue;
                 items++;
-                tmp.push(it.id);
-                if (it.type == 'menu' && id.length == 2) {
-                    // disable a menu item
-                    for (var i = 0; i < it.items.length; i++) {
-                        var item = it.items[i]
-                        if (item.id == id[1] || (item.id == null && item.text == id[1])) {
-                            item.disabled = true;
-                        }
-                    }
-                } else {
-                    it.disabled = true;
-                }
+                it.disabled = true;
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -255,12 +272,12 @@
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
-                if (!it) continue;
+                if (!it || String(arguments[a]).indexOf(':') != -1) continue;
                 items++;
                 it.checked = true;
-                tmp.push(it.id);
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
         },
 
@@ -270,13 +287,202 @@
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
                 var it = this.get(arguments[a]);
-                if (!it) continue;
+                if (!it || String(arguments[a]).indexOf(':') != -1) continue;
+                // remove overlay
+                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked) {
+                    // hide overlay
+                    setTimeout(function () {
+                        var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
+                        el.w2overlay({ name: obj.name });
+                    }, 1);
+                }
                 items++;
                 it.checked = false;
-                tmp.push(it.id);
+                tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return items;
+        },
+
+        click: function (id, event) {
+            var obj = this;
+            // click on menu items
+            var tmp = String(id).split(':');
+            var it  = this.get(tmp[0]);
+            if (tmp.length > 1) {
+                var subItem = this.get(id);
+                if (subItem && !subItem.disabled) {
+                    obj.menuClick({ name: obj.name, item: it, subItem: subItem, originalEvent: event });
+                }
+                return;
+            }
+            if (it && !it.disabled) {
+                // event before
+                var eventData = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
+                    item: it, object: it, originalEvent: event });
+                if (eventData.isCancelled === true) return;
+
+                var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
+                $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
+                obj.tooltipHide(id);
+
+                if (it.type == 'radio') {
+                    for (var i = 0; i < this.items.length; i++) {
+                        var itt = this.items[i];
+                        if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
+                        if (itt.group == it.group && itt.checked) {
+                            itt.checked = false;
+                            this.refresh(itt.id);
+                        }
+                    }
+                    it.checked = true;
+                    $(btn).addClass('checked');
+                }
+
+                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
+                    if (it.checked) {
+                        // if it was already checked, second click will hide it
+                        setTimeout(function () {
+                            // hide overlay
+                            var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
+                            el.w2overlay({ name: obj.name });
+                            // uncheck
+                            it.checked = false;
+                            obj.refresh();
+                        }, 1);
+
+                    } else {
+
+                        // show overlay
+                        setTimeout(function () {
+                            var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
+                            if (!$.isPlainObject(it.overlay)) it.overlay = {};
+                            var left = (el.width() - 50) / 2;
+                            if (left > 19) left = 19;
+                            if (it.type == 'drop') {
+                                el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
+                                    onHide: function () { hideDrop(); }
+                                }));
+                            }
+                            if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
+                                var menuType = 'normal';
+                                if (it.type == 'menu-radio') {
+                                    menuType = 'radio';
+                                    it.items.forEach(function (item) {
+                                        if (it.selected == item.id) item.checked = true; else item.checked = false;
+                                    });
+                                }
+                                if (it.type == 'menu-check') {
+                                    menuType = 'check';
+                                    it.items.forEach(function (item) {
+                                        if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
+                                    });
+                                }
+                                el.w2menu($.extend({ name: obj.name, items: it.items, left: left, top: 3 }, it.overlay, {
+                                    type: menuType,
+                                    select: function (event) {
+                                        obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent });
+                                        hideDrop();
+                                    },
+                                    onHide: function () { hideDrop(); }
+                                }));
+                            }
+                            if (['color', 'text-color'].indexOf(it.type) != -1) {
+                                $(el).w2color({ color: it.color, transparent: it.transparent }, function (color, index) {
+                                    if (color != null) {
+                                        obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
+                                    }
+                                    hideDrop();
+                                });
+                            }
+                            function hideDrop(event) {
+                                it.checked = false;
+                                $(btn).removeClass('checked');
+                            }
+                        }, 1);
+                    }
+                }
+
+                if (['check', 'menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
+                    it.checked = !it.checked;
+                    if (it.checked) {
+                        $(btn).addClass('checked');
+                    } else {
+                        $(btn).removeClass('checked');
+                    }
+                }
+                // route processing
+                if (it.route) {
+                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
+                    var info  = w2utils.parseRoute(route);
+                    if (info.keys.length > 0) {
+                        for (var k = 0; k < info.keys.length; k++) {
+                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
+                        }
+                    }
+                    setTimeout(function () { window.location.hash = route; }, 1);
+                }
+                // event after
+                this.trigger($.extend(eventData, { phase: 'after' }));
+            }
+        },
+
+        scroll: function (direction) {
+            var box = $(this.box);
+            var scrollBox = box.children('.w2ui-toolbar-scroll-wrapper');
+            var scrollLeft = scrollBox.scrollLeft();
+            var item, shift, tmp;
+
+            switch (direction) {
+                case 'left':
+                    box.addClass('overflowed-right');
+                    tmp = parseInt(box.find('table').first().css('padding-right'));
+                    shift = -scrollLeft;
+
+                    for (var i = this.items.length - 1; i >= 0; i--) {
+                        // search last invisible break or spacer from left side
+                        if (['break', 'spacer'].indexOf(this.items[i].type) >= 0) {
+                            item = $('#tb_' + this.name + '_item_' + this.items[i].id);
+                            if (item.position().left > 0) continue;
+                            shift = item.position().left - tmp + item.width();
+                            break;
+                        }
+                    }
+
+                    // cut scroll shift to max page size
+                    tmp = box.width() - tmp - parseInt(box.find('table').first().css('padding-left'));
+                    shift = Math.abs(shift) > tmp ? -tmp : shift;
+
+                    scrollBox.scrollLeft(scrollLeft + shift);
+                    if (scrollBox.scrollLeft() <= 0) {
+                        box.removeClass('overflowed-left');
+                    }
+                    break;
+                case 'right':
+                    box.addClass('overflowed-left');
+                    tmp = parseInt(box.find('table').first().css('padding-left'));
+                    shift = scrollBox.width();
+
+                    for (var i = 0; i < this.items.length; i++) {
+                        // search nearest visible break or spacer from left side
+                        if (['break', 'spacer'].indexOf(this.items[i].type) >= 0) {
+                            item = $('#tb_' + this.name + '_item_' + this.items[i].id);
+                            if (item.position().left - tmp < 0) continue;
+                            shift = item.position().left - tmp + item.width();
+                            break;
+                        }
+                    }
+
+                    // cut scroll shift to max page size
+                    tmp = box.width() - tmp - parseInt(box.find('table').first().css('padding-right'));
+                    shift = Math.abs(shift) > tmp ? tmp : shift;
+
+                    scrollBox.scrollLeft(scrollLeft + shift);
+                    if (scrollBox.scrollLeft() >= scrollBox[0].scrollWidth - scrollBox.width()) {
+                        box.removeClass('overflowed-right')
+                    }
+                    break;
+            }
         },
 
         render: function (box) {
@@ -296,7 +502,8 @@
             }
             if (!this.box) return;
             // render all buttons
-            var html = '<table cellspacing="0" cellpadding="0" width="100%">'+
+            var html = '<div class="w2ui-toolbar-scroll-left" onclick="var el=w2ui[\''+ this.name + '\']; if (el) el.scroll(\'left\');"></div>'+
+                       '<div class="w2ui-toolbar-scroll-wrapper"><table cellspacing="0" cellpadding="0" width="100%"><tbody>'+
                        '<tr>';
             for (var i = 0; i < this.items.length; i++) {
                 var it = this.items[i];
@@ -312,7 +519,8 @@
             }
             html += '<td width="100%" id="tb_'+ this.name +'_right" align="right">'+ this.right +'</td>';
             html += '</tr>'+
-                    '</table>';
+                    '</tbody></table></div>'+
+                    '<div class="w2ui-toolbar-scroll-right" onclick="var el=w2ui[\''+ this.name + '\']; if (el) el.scroll(\'right\');"></div>';
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-toolbar')
@@ -326,7 +534,7 @@
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (typeof id !== 'undefined' ? id : this.name), item: this.get(id) });
+            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), item: this.get(id) });
             if (eventData.isCancelled === true) return;
 
             if (id == null) {
@@ -358,6 +566,11 @@
                     $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
                 }
             } else {
+                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked == true) {
+                    it.checked = false;
+                    html = this.getItemHTML(it);
+                    if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide();
+                }
                 // refresh
                 el.html(html);
                 if (it.hidden) { el.css('display', 'none'); } else { el.css('display', ''); }
@@ -374,7 +587,24 @@
             var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
             if (eventData.isCancelled === true) return;
 
-            // intentionaly blank
+            var box = $(this.box);
+            var scrollBox = box.children('.w2ui-toolbar-scroll-wrapper');
+            if (box.find('table').first().outerWidth() > box.width()) {
+                // we have overflowed content
+                if (scrollBox.scrollLeft() > 0) {
+                    box.addClass('overflowed-left');
+                } else {
+                    box.removeClass('overflowed-left');
+                }
+
+                if (scrollBox.scrollLeft() < scrollBox[0].scrollWidth - scrollBox.width()) {
+                    box.addClass('overflowed-right');
+                } else {
+                    box.removeClass('overflowed-right');
+                }
+            } else {
+                box.removeClass('overflowed-right overflowed-left');
+            }
 
             // event after
             this.trigger($.extend(eventData, { phase: 'after' }));
@@ -403,11 +633,13 @@
 
         getItemHTML: function (item) {
             var html = '';
-            if (typeof item.caption !== 'undefined') item.text = item.caption;
-            if (typeof item.hint == 'undefined') item.hint = '';
-            if (typeof item.text == 'undefined') item.text = '';
-            var img  = '<td>&nbsp;</td>';
+            if (item.caption != null && item.text == null) item.text = item.caption; // for backward compatibility
+            if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
+            if (item.text == null) item.text = '';
+            if (item.tooltip == null) item.tooltip = '';
+            var img  = '<td>&#160;</td>';
             var text = item.text;
+            if (typeof text == 'function') text = text.call(item);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
             if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
 
@@ -416,85 +648,93 @@
                 case 'text-color':
                     if (typeof item.color == 'string' && item.color.substr(0,1) == '#') item.color = item.color.substr(1);
                     if (item.type == 'color') {
-                        text = '<div style="height: 12px; width: 12px; margin-top: 1px; border: 1px solid #efefef; '+
+                        text = '<div style="height: 12px; width: 12px; margin-top: 1px; border: 1px solid #8A8A8A; border-radius: 1px; box-shadow: 0px 0px 1px #fff; '+
                                '        background-color: #'+ (item.color != null ? item.color : 'fff') +'; float: left;"></div>'+
-                               (item.text ? '<div style="margin-left: 17px;">' + item.text + '</div>' : '');
+                               (item.text ? '<div style="margin-left: 17px;">' + w2utils.lang(item.text) + '</div>' : '');
                     }
                     if (item.type == 'text-color') {
                         text = '<div style="color: #'+ (item.color != null ? item.color : '444') +';">'+
-                                    (item.text ? item.text : '<b>Aa</b>') +
+                                    (item.text ? w2utils.lang(item.text) : '<b>Aa</b>') +
                                '</div>';
                     }
                 case 'menu':
+                case 'menu-check':
+                case 'menu-radio':
                 case 'button':
                 case 'check':
                 case 'radio':
                 case 'drop':
-                    html += '<table cellpadding="0" cellspacing="0" '+ (this.hint == 'normal' ? 'title="'+ item.hint +'"' : '') +
+                    html += '<table cellpadding="0" cellspacing="0" '+ (this.tooltip == 'normal' && item.tooltip != null ? 'title="'+ w2utils.lang(item.tooltip) +'"' : '') +
                             '       class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
-                            '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over'); w2ui['"+ this.name +"'].hintShow('"+ item.id +"', event);" : "") + '"'+
-                            '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].hintHide('"+ item.id +"', event);" : "") + '"'+
+                            '       onmouseover = "' + (!item.disabled ? "$(this).addClass('over'); w2ui['"+ this.name +"'].tooltipShow('"+ item.id +"', event);" : "") + '"'+
+                            '       onmouseout  = "' + (!item.disabled ? "$(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].tooltipHide('"+ item.id +"', event);" : "") + '"'+
                             '       onmousedown = "' + (!item.disabled ? "$(this).addClass('down');" : "") + '"'+
                             '       onmouseup   = "' + (!item.disabled ? "$(this).removeClass('down');" : "") + '"'+
-                            '>'+
+                            '><tbody>'+
                             '<tr><td>'+
-                            '  <table cellpadding="1" cellspacing="0">'+
+                            '  <table cellpadding="1" cellspacing="0"><tbody>'+
                             '  <tr>' +
                                     img +
-                                    (text !== '' ? '<td class="w2ui-tb-caption" nowrap>'+ text +'</td>' : '') +
-                                    (item.count != null ? '<td class="w2ui-tb-count" nowrap><span>'+ item.count +'</span></td>' : '') +
-                                    (((['menu', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
-                                        '<td class="w2ui-tb-down" nowrap><div></div></td>' : '') +
-                            '  </tr></table>'+
-                            '</td></tr></table>';
+                                    (text !== ''
+                                        ? '<td class="w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>'
+                                        : ''
+                                    ) +
+                                    (item.count != null
+                                        ? '<td class="w2ui-tb-count" nowrap="nowrap"><span>'+ item.count +'</span></td>'
+                                        : ''
+                                    ) +
+                                    (((['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1) && item.arrow !== false) ?
+                                        '<td class="w2ui-tb-down" nowrap="nowrap"><div></div></td>' : '') +
+                            '  </tr></tbody></table>'+
+                            '</td></tr></tbody></table>';
                     break;
 
                 case 'break':
-                    html += '<table cellpadding="0" cellspacing="0"><tr>'+
-                            '    <td><div class="w2ui-break">&nbsp;</div></td>'+
-                            '</tr></table>';
+                    html += '<table cellpadding="0" cellspacing="0"><tbody><tr>'+
+                            '    <td><div class="w2ui-break">&#160;</div></td>'+
+                            '</tr></tbody></table>';
                     break;
 
                 case 'html':
-                    html += '<table cellpadding="0" cellspacing="0"><tr>'+
-                            '    <td nowrap>' + item.html + '</td>'+
-                            '</tr></table>';
+                    html += '<table cellpadding="0" cellspacing="0"><tbody><tr>'+
+                            '    <td nowrap="nowrap">' + (typeof item.html == 'function' ? item.html.call(item) : item.html) + '</td>'+
+                            '</tr></tbody></table>';
                     break;
             }
 
             var newHTML = '';
             if (typeof item.render == 'function') newHTML = item.render.call(this, item.id, html);
             if (newHTML !== '' && newHTML != null) html = newHTML;
-            
+
             return '<div>' + html + '</div>';
         },
 
-        hintShow: function (id) {
-            if (this.hint == 'normal') return;
+        tooltipShow: function (id) {
+            if (this.tooltip == 'normal') return;
             var $el  = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id));
             var item = this.get(id);
-            var pos  = this.hint;
+            var pos  = this.tooltip;
             $el.prop('_mouse_over', true);
             setTimeout(function () {
-                if ($el.prop('_mouse_over') === true && $el.prop('_mouse_hint') !== true) {
-                    $el.prop('_mouse_hint', true);
-                    // show hint
-                    if (['menu', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return; // not for opened drop downs
-                    $el.w2tag(item.hint, { position: pos });
+                if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
+                    $el.prop('_mouse_tooltip', true);
+                    // show tooltip
+                    if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return; // not for opened drop downs
+                    $el.w2tag(w2utils.lang(item.tooltip), { position: pos });
                 }
             }, 1);
         },
 
-        hintHide: function (id) {
-            if (this.hint == 'normal') return;
+        tooltipHide: function (id) {
+            if (this.tooltip == 'normal') return;
             var $el  = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id));
             var item = this.get(id);
             $el.removeProp('_mouse_over');
             setTimeout(function () {
-                if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_hint') === true) {
-                    $el.removeProp('_mouse_hint');
-                    // hide hint
+                if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_tooltip') === true) {
+                    $el.removeProp('_mouse_tooltip');
+                    // hide tooltip
                     $el.w2tag();
                 }
             }, 1);
@@ -509,9 +749,26 @@
                 if (eventData.isCancelled === true) return;
 
                 // route processing
-                var it = event.subItem;
-                if (it.route) {
-                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
+                var it   = event.subItem;
+                var item = this.get(event.item.id);
+                if (item.type == 'menu-radio') {
+                    item.selected = it.id;
+                    event.item.items.forEach(function (item) { item.checked = false });
+                    it.checked = true;
+                }
+                if (item.type == 'menu-check') {
+                    if (!$.isArray(item.selected)) item.selected = [];
+                    var ind = item.selected.indexOf(it.id);
+                    if (ind == -1) {
+                        item.selected.push(it.id);
+                        it.checked = true;
+                    } else {
+                        item.selected.splice(ind, 1);
+                        it.checked = false;
+                    }
+                }
+                if (typeof it.route == 'string') {
+                    var route = it.route !== '' ? String('/'+ it.route).replace(/\/{2,}/g, '/') : '';
                     var info  = w2utils.parseRoute(route);
                     if (info.keys.length > 0) {
                         for (var k = 0; k < info.keys.length; k++) {
@@ -531,7 +788,7 @@
             var obj = this;
             if (event.item && !event.item.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item, 
+                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item,
                     color: event.color, originalEvent: event.originalEvent });
                 if (eventData.isCancelled === true) return;
 
@@ -542,102 +799,9 @@
                 // event after
                 this.trigger($.extend(eventData, { phase: 'after' }));
             }
-        },
-
-
-        click: function (id, event) {
-            var obj = this;
-            var it  = this.get(id);
-            if (it && !it.disabled) {
-                // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: (typeof id !== 'undefined' ? id : this.name),
-                    item: it, object: it, originalEvent: event });
-                if (eventData.isCancelled === true) return;
-
-                var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
-                $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
-                obj.hintHide(id);
-
-                if (it.type == 'radio') {
-                    for (var i = 0; i < this.items.length; i++) {
-                        var itt = this.items[i];
-                        if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
-                        if (itt.group == it.group && itt.checked) {
-                            itt.checked = false;
-                            this.refresh(itt.id);
-                        }
-                    }
-                    it.checked = true;
-                    $(btn).addClass('checked');
-                }
-
-                if (['menu', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
-                    if (it.checked) {
-                        // if it was already checked, second click will hide it
-                        it.checked = false;
-                    } else {
-                        // show overlay
-                        setTimeout(function () {
-                            var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
-                            if (!$.isPlainObject(it.overlay)) it.overlay = {};
-                            var left = (el.width() - 50) / 2;
-                            if (left > 19) left = 19;
-                            if (it.type == 'drop') {
-                                el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
-                                    onHide: function () { hideDrop(); }
-                                }));
-                            }
-                            if (it.type == 'menu') {
-                                el.w2menu(it.items, $.extend({ left: left, top: 3 }, it.overlay, {
-                                    select: function (event) {
-                                        obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent });
-                                        hideDrop();
-                                    },
-                                    onHide: function () { hideDrop(); }
-                                }));
-                            }
-                            if (['color', 'text-color'].indexOf(it.type) != -1) {
-                                $(el).w2color(it.color, function (color, index) {
-                                    if (color != null) {
-                                        obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
-                                    }
-                                    hideDrop();
-                                });
-                            }
-                            function hideDrop(event) {
-                                it.checked = false;
-                                $(btn).removeClass('checked');
-                            }
-                        }, 1);
-                    }
-                }
-
-                if (['check', 'menu', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
-                    it.checked = !it.checked;
-                    if (it.checked) {
-                        $(btn).addClass('checked');
-                    } else {
-                        $(btn).removeClass('checked');
-                    }
-                }
-                // route processing
-                if (it.route) {
-                    var route = String('/'+ it.route).replace(/\/{2,}/g, '/');
-                    var info  = w2utils.parseRoute(route);
-                    if (info.keys.length > 0) {
-                        for (var k = 0; k < info.keys.length; k++) {
-                            route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name]);
-                        }
-                    }
-                    setTimeout(function () { window.location.hash = route; }, 1);
-                }
-                // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
-            }
         }
     };
 
     $.extend(w2toolbar.prototype, w2utils.event);
     w2obj.toolbar = w2toolbar;
-})();
-
+})(jQuery);

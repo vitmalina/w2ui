@@ -58,7 +58,7 @@ only one overlay on the screen, however, you can provide a unique name if you wa
 Overlay supports following options:
 <textarea class="javascript">
 options: {
-    name      : null,      // it not null, then allows multiple concurent overlays
+    name      : null,      // it not null, then allows multiple concurrent overlays
     html      : '',        // html text to display
     align     : 'none',    // can be none, left, right, both
     left      : 0,         // offset left
@@ -92,7 +92,7 @@ For example:
             { id: 4, text: 'Paste', img: 'icon-page', disabled: true },
             { id: 5, text: 'Hidden', img: 'icon-page', hidden: true },
             { id: 6, text: '--'},
-            { id: 7, text: 'Delete Item', img: 'icon-page' },
+            { id: 7, text: 'Delete Item', img: 'icon-page' }
         ],
         onSelect: function (event) { 
             console.log(event); 
@@ -109,7 +109,7 @@ For example:
             { id: 3, text: 'Copy', icon: 'fa-star' },
             { id: 4, text: 'Paste', img: 'icon-page', disabled: true },
             { id: 5, text: 'Hidden', img: 'icon-page', hidden: true },
-            { id: 7, text: 'Delete Item', img: 'icon-page' },
+            { id: 7, text: 'Delete Item', img: 'icon-page' }
         ],
         onSelect: function (event) { 
             console.log(event); 
@@ -125,13 +125,13 @@ You can use any valid overlay option for the menu as well. In addition it has fo
 options: {
     items       : [],           // array of items
     render      : null,         // function (menu_item, options) - when menu item is rendered
-    spinner     : false,        // indicates if to show spiner
+    spinner     : false,        // indicates if to show spinner
     onSelect    : null          // function (event) - when menu item is selected
     search      : false,        // indicates if to display search control
     // --- only when search is true ---
     match       : 'begins',     // can be is, begins, ends
     altRows     : false,        // display alternate background color
-    index       : 0,            // index of the selected item (when selected by keybaord)
+    index       : 0,            // index of the selected item (when selected by keyboard)
     msgNoItems  : 'No Items',   // default message where no items found 
 }
 </textarea>

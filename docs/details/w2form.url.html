@@ -19,7 +19,7 @@ $('#form').w2form({
     fields: [
         { name: 'first_name', type: 'text', required: true },
         { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' },
+        { name: 'email', type: 'email' }
     ],
     record: { 
         first_name    : 'John',
@@ -28,7 +28,7 @@ $('#form').w2form({
     },
     actions: {
         "save": function () { this.validate(); },
-        "reset": function () { this.clear(); },
+        "reset": function () { this.clear(); }
     },
     postData: [
         param1 : 'value1', 
@@ -50,7 +50,7 @@ $('#form').w2form({
     fields: [
         { name: 'first_name', type: 'text', required: true },
         { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' },
+        { name: 'email', type: 'email' }
     ],
     record: { 
         first_name    : 'John',
@@ -59,7 +59,7 @@ $('#form').w2form({
     },
     actions: {
         "save": function () { this.validate(); },
-        "reset": function () { this.clear(); },
+        "reset": function () { this.clear(); }
     },
     postData: [
         param1 : 'value1', 
@@ -81,9 +81,9 @@ following JSON structure;
 
 <textarea class="javascript">
 {
-    cmd     : 'get-record',    // command
-    name    : 'form',        // name of the form
-    recid   : xx,            // recid of the form
+    cmd     : 'get-record',   // command
+    name    : 'form',         // name of the form
+    recid   : xx              // recid of the form
 }
 </textarea>
 Plus any additional parameters you specified in <a href="w2form.postData" class="property">.postData</a> object. The form will expect back a 

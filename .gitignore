@@ -1,3 +1,7 @@
 tmp/*
 node_modules/
 *.txt
+.idea
+*.iml
+*.ipr
+*.iws

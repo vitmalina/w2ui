@@ -1,5 +1,5 @@
 /*************************************************
-* --- Reset (used for all w2ui wdigetes)
+* --- Reset (used for all w2ui widgets)
 * --- The reset is needed to coexist with other CSS
 * --- on the same page (for example bootstrap)
 */
@@ -27,7 +27,8 @@
         font-family: @main-font-family;
         font-size: 11px;	    
     }
-    & input, & textarea {
+    input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]), 
+    select, textarea {
         display: inline-block;
         width: auto;
         height: auto;
@@ -64,13 +65,13 @@
 * ---- Input Controls ----
 */
 
-input[type=button] {
+input[type=button].w2ui-input {
     .sys-button;
     &:hover { .sys-button-hover; }
     &:active { .sys-button-active; }
 }
 
-input:not([type=button]):not([type=submit]), select, textarea {
+input:not([type=button]):not([type=submit]).w2ui-input, textarea.w2ui-input {
     padding: 4px;
     border: @input-border;
     border-radius: 3px;
@@ -89,16 +90,55 @@ input:not([type=button]):not([type=submit]), select, textarea {
 /* IE9-11 specific classes */
 
 /* needs doblue :: */
-input::-ms-clear { 
+input.w2ui-input::-ms-clear { 
     display: none;
 }
 
-input:-ms-input-placeholder {
+input.w2ui-input:-ms-input-placeholder {
     color: #aaa !important;
 }
 
-select {
-    padding: 2px;
+select.w2ui-input {
+    color: @input-color;
+    padding: 4px 15px 4px 7px;
+    border-radius: 3px;
+    border: @input-border;
+    -webkit-appearance: none;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'),
+                      -webkit-linear-gradient(top,#FFF 20%,#f6f6f6 50%,#EEE 52%,#f4f4f4 100%);
+    background-size: 17px 6px, 100% 100%;
+    background-position: right center, left top;
+    background-repeat: no-repeat, no-repeat;
+}
+
+.w2ui-icon-expand {
+    &:before {
+        position: relative;
+        top: 1px;
+        left: 1px;
+        content: ' ';
+        width: 6px;
+        height: 6px;
+        border: 2px solid rgba(150, 150, 150, 0.8);
+        border-bottom: 0;
+        border-left: 0;
+        transform: rotateZ(45deg);
+    }
+}
+
+.w2ui-icon-collapse {
+    &:before {
+        position: relative;
+        top: -1px;
+        left: 3px;
+        content: ' ';
+        width: 6px;
+        height: 6px;
+        border: 2px solid rgba(150, 150, 150, 0.8);
+        border-bottom: 0;
+        border-left: 0;
+        transform: rotateZ(135deg);
+    }
 }
 
 /* On/Off switch */
@@ -183,16 +223,22 @@ input[type=checkbox].w2ui-toggle:focus {
 
 .w2ui-overlay {
     position: absolute;
-    margin-top: 6px;
+    margin-top: 4px;
     margin-left: -17px;
     display: none;
     z-index: 1300;
     color: @overlay-color;
     background-color: @overlay-background-color;
-    border: @overlay-border;
+    border-color: @overlay-background-color;
     box-shadow: @overlay-shadow;
     border-radius: 4px;
     text-align: left;
+
+    & > div {
+        border-radius: 4px;
+        position: relative;
+        border: @overlay-border-width solid @overlay-border-color;
+    }
 
     table td {
         color: @overlay-color;
@@ -201,36 +247,69 @@ input[type=checkbox].w2ui-toggle:focus {
     &:before {
         content: "";
         position: absolute;
-        .transform-rotate(-45deg);
-        width: 12px;
-        height: 12px;
-        border: @overlay-border;
         border-color: inherit;
-        background-color: inherit;
-        border-left: 1px solid transparent;
-        border-bottom: 1px solid transparent;
-        border-bottom-left-radius: 50px;
-        margin: -9px 0 0 30px;
     }
 
     &:after {
-        display: none;
         content: "";
         position: absolute;
-        .transform-rotate(135deg);
-        width: 12px;
-        height: 12px;
-        border: @overlay-border;
         border-color: inherit;
-        background-color: inherit;
-        border-left: 1px solid transparent;
-        border-bottom: 1px solid transparent;
-        border-bottom-left-radius: 50px;
-        margin: -7px 0 0 30px;
+        bottom: 100%;
+        left:@overlay-border-width + 1;
+    }
+
+    &.top-arrow {
+
+        &:before {
+            border-bottom: 12px solid darken(@overlay-border-color, 3%);
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            bottom: 100%;
+            margin-bottom: -@overlay-border-width;
+        }
+
+        &:after {
+            border-bottom: (12px - @overlay-border-width - 1) solid black;
+            border-bottom-color: inherit;
+            border-right: (12px - @overlay-border-width - 1) solid transparent;
+            border-left: (12px - @overlay-border-width - 1) solid transparent;
+            bottom: 100%;
+            margin-bottom: -@overlay-border-width;
+        }
+    }
+
+    &.bottom-arrow {
+
+        &:before {
+            border-top: 12px solid darken(@overlay-border-color, 3%);
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            top: 100%;
+            margin-top: -@overlay-border-width;
+        }
+
+        &:after {
+            border-top: (12px - @overlay-border-width - 1) solid black;
+            border-top-color: inherit;
+            border-right: (12px - @overlay-border-width - 1) solid transparent;
+            border-left: (12px - @overlay-border-width - 1) solid transparent;
+            top: 100%;
+            margin-top: -@overlay-border-width;
+        }
     }
 
     &.w2ui-overlay-popup {    // if it is inside popup 
         z-index: 1700;
+    }
+
+    .w2ui-grid-searches {
+        border-top: @overlay-border-width solid @overlay-border-color !important;
+    }
+
+    .no-color {
+        border: 1px solid #eee;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==');
+        background-size: 15px 15px;
     }
 }
 
@@ -253,7 +332,7 @@ input[type=checkbox].w2ui-toggle:focus {
         font-size: 11px;
         font-family: verdana;
         text-shadow: 1px 1px 3px #000; // for sharper text in a bubble
-        line-height: 100%;
+        line-height: 1.4;
         letter-spacing: 0.1px;
 
         &.w2ui-tag-right:before {
@@ -293,13 +372,13 @@ input[type=checkbox].w2ui-toggle:focus {
         &.w2ui-tag-top:after {
             content: "";
             position: absolute;
-            left: 12px; 
+            left: 12px;
+            bottom: -6px;
             width: 0;
             height: 0;
             border-right: 6px solid transparent;
             border-left: 6px solid transparent;
             border-top: 6px solid @bubble-tag-background-color;
-            margin: 17px 0 0;
         }
     }
     &.w2ui-tag-popup {    // if it is inside popup 
@@ -363,6 +442,14 @@ input[type=checkbox].w2ui-toggle:focus {
             color: @menu-node-count-color;
             box-shadow: @menu-node-count-shadow;
             text-shadow: @menu-node-count-text-shadow;
+        }
+        & > span.hotkey {
+            border: none;
+            border-radius: 0px;
+            background-color: transparent !important;
+            color: #888;
+            box-shadow: none;
+            text-shadow: none;
         }
     }
 
