@@ -44,7 +44,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added custom colors
 *   - added w2menu.options.type = radio|check
 *   - added w2menu items.hotkey
-*   - added options.contextMenu for w2overlay()
+*   - added options.contextMenu, options.pageX, options.pageY (or options.originalEvent) for w2overlay()
 *   - added options.noTip for w2overlay()
 *   - added options.overlayStyle for w2overlay()
 *   - added options.selectable
@@ -1770,6 +1770,7 @@ w2utils.event = {
             id              : null,     // id for the tag, otherwise input id is used
             html            : text,     // or html
             position        : 'right',  // can be left, right, top, bottom
+            align           : 'none',   // can be none, left, right (only works for potision: top | bottom)
             left            : 0,        // delta for left coordinate
             top             : 0,        // delta for top coordinate
             style           : '',       // adition style for the tag
@@ -1938,6 +1939,9 @@ w2utils.event = {
             maxWidth    : null,              // max width if any
             maxHeight   : null,              // max height if any
             contextMenu : false,             // if true, it will be opened at mouse position
+            pageX       : null,
+            pageY       : null,
+            originalEvent : null,
             style       : '',                // additional style for main div
             'class'     : '',                // additional class name for main div
             overlayStyle: '',
@@ -1975,8 +1979,12 @@ w2utils.event = {
             if (typeof tmp_hide === 'function') tmp_hide();
         }
         if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
-        if (options.contextMenu && options.originalEvent == null) {
-            console.log('ERROR: for context menu you need to pass options.originalEvent.');
+        if (options.contextMenu && options.originalEvent) {
+            options.pageX = options.originalEvent.pageX;
+            options.pageY = options.originalEvent.pageY;
+        }
+        if (options.contextMenu && (options.pageX == null || options.pageY == null)) {
+            console.log('ERROR: to display menu at mouse location, pass options.pageX and options.pageY.');
         }
         // append
         $('body').append(
@@ -2122,9 +2130,9 @@ w2utils.event = {
                 // Y coord
                 var X, Y, offsetTop;
                 if (options.contextMenu) { // context menu
-                    X = options.originalEvent.pageX + 8;
-                    Y = options.originalEvent.pageY - 0;
-                    offsetTop = options.originalEvent.pageY;
+                    X = options.pageX + 8;
+                    Y = options.pageY - 0;
+                    offsetTop = options.pageY;
                 } else {
                     var offset = obj.offset() || {};
                     X = ((offset.left > 25 ? offset.left : 25) + boxLeft);
@@ -2142,15 +2150,15 @@ w2utils.event = {
                 var maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7;
                 var maxWidth  = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
                 if (options.contextMenu) { // context menu
-                    maxHeight = window.innerHeight - options.originalEvent.pageY - 15;
-                    maxWidth  = window.innerWidth - options.originalEvent.pageX;
+                    maxHeight = window.innerHeight - options.pageY - 15;
+                    maxWidth  = window.innerWidth - options.pageX;
                 }
 
                 if ((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) {
                     var tipOffset;
                     // show on top
                     if (options.contextMenu) { // context menu
-                        maxHeight = options.originalEvent.pageY - 7;
+                        maxHeight = options.pageY - 7;
                         tipOffset = 5;
                     } else {
                         maxHeight = offset.top - $(document).scrollTop() - 7;
