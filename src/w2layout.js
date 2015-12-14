@@ -16,6 +16,7 @@
 *   - negative -size for left/right panels
 *   - sizeTo(..., instant) - added third argument
 *   - assignToolbar()
+*   - onContent event - triggered when any panel content is changed
 *
 ************************************************************************/
 
@@ -153,6 +154,10 @@
             if (data == null) {
                 return p.content;
             } else {
+                // event before
+                var edata = this.trigger({ phase: 'before', type: 'content', target: panel, object: p, content: data, transition: transition });
+                if (edata.isCancelled === true) return;
+
                 if (data instanceof jQuery) {
                     console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
                     return false;
@@ -196,6 +201,8 @@
                     this.refresh(panel);
                 }
             }
+            // event after
+            obj.trigger($.extend(edata, { phase: 'after' }));
             // IE Hack
             obj.resize();
             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
@@ -365,7 +372,7 @@
             var tmp = $(this.box).find(panel +'> .w2ui-panel-toolbar');
             if (pan.toolbar != null) {
                 if (tmp.find('[name='+ pan.toolbar.name +']').length === 0) {
-                    tmp.w2render(pan.toolbar); 
+                    tmp.w2render(pan.toolbar);
                 } else if (pan.toolbar != null) {
                     pan.toolbar.refresh();
                 }
