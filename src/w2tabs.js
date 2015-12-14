@@ -8,7 +8,7 @@
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 *   - declarative tabs
-*   - align = left, right, center ?? 
+*   - align = left, right, center ??
 *
 * == 1.5 changes
 *   - $('#tabs').w2tabs() - if called w/o argument then it returns tabs object
@@ -177,7 +177,7 @@
                 tab.hidden = false;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return shown;
         },
 
@@ -192,7 +192,7 @@
                 tab.hidden = true;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return hidden;
         },
 
@@ -207,7 +207,7 @@
                 tab.disabled = false;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return enabled;
         },
 
@@ -222,7 +222,7 @@
                 tab.disabled = true;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return disabled;
         },
 
@@ -259,8 +259,8 @@
             var time = (new Date()).getTime();
             if (this.flow == 'up') $(this.box).addClass('w2ui-tabs-up'); else $(this.box).removeClass('w2ui-tabs-up');
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), object: this.get(id) });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), object: this.get(id) });
+            if (edata.isCancelled === true) return;
             if (id == null) {
                 // refresh all
                 for (var i = 0; i < this.tabs.length; i++) this.refresh(this.tabs[i].id);
@@ -281,11 +281,11 @@
                                '</div>';
                 }
                 var tabHTML = closable +
-                    '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') 
+                    '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '')
                                 + (tab['class'] ? ' ' + tab['class'] : '') +'" '+
-                    '        title="'+ (this.tooltip == 'normal' && tab.tooltip != null ? tab.tooltip : '') +'" style="'+ tab.style +'" '+ 
+                    '        title="'+ (this.tooltip == 'normal' && tab.tooltip != null ? tab.tooltip : '') +'" style="'+ tab.style +'" '+
                     '        onmouseover = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipShow('"+ tab.id +"', event);" : "") + '"'+
-                    '        onmouseout  = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipHide('"+ tab.id +"', event);" : "") + '"'+                    
+                    '        onmouseout  = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipHide('"+ tab.id +"', event);" : "") + '"'+
                     '        onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
                 if (jq_el.length === 0) {
                     // does not exist - create it
@@ -310,15 +310,15 @@
             // right html
             $('#tabs_'+ this.name +'_right').html(this.right);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         render: function (box) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
+            if (edata.isCancelled === true) return;
             // default action
             // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             if (box != null) {
@@ -341,7 +341,7 @@
                 .html(html);
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             this.refresh();
             return (new Date()).getTime() - time;
         },
@@ -349,20 +349,20 @@
         resize: function () {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name });
+            if (edata.isCancelled === true) return;
 
             // intentionaly blank
 
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+            if (edata.isCancelled === true) return;
             // clean up
             if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
                 $(this.box)
@@ -372,7 +372,7 @@
             }
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         // ===================================================
@@ -382,8 +382,8 @@
             var tab = this.get(id);
             if (tab == null || tab.disabled) return false;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
             this.active = tab.id;
@@ -400,7 +400,7 @@
                 setTimeout(function () { window.location.hash = route; }, 1);
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             this.refresh(id);
         },
 
@@ -408,8 +408,8 @@
             var tab = this.get(id);
             if (tab == null || tab.disabled) return false;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default action
             var obj = this;
             $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css(w2utils.cssPrefix('transition', '.2s')).css('opacity', '0');
@@ -425,7 +425,7 @@
                 obj.remove(id);
             }, 450);
             // event before
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             this.refresh();
         },
 

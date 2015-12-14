@@ -161,8 +161,8 @@ var w2popup = {};
             // check if message is already displayed
             if ($('#w2ui-popup').length == 0) {
                 // trigger event
-                var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false });
-                if (eventData.isCancelled === true) return;
+                var edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false });
+                if (edata.isCancelled === true) return;
                 w2popup.status = 'opening';
                 // output message
                 w2popup.lockScreen(options);
@@ -224,7 +224,7 @@ var w2popup = {};
                     // event after
                     w2popup.status = 'open';
                     setTimeout(function () {
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     }, 100);
                 }, options.speed * 1000);
 
@@ -233,8 +233,8 @@ var w2popup = {};
                 if (w2popup._prev == null && w2popup._template != null) obj._restoreTemplate();
 
                 // trigger event
-                var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
-                if (eventData.isCancelled === true) return;
+                var edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
+                if (edata.isCancelled === true) return;
                 // check if size changed
                 w2popup.status = 'opening';
                 if (old_options != null) {
@@ -301,7 +301,7 @@ var w2popup = {};
                     obj.focus();
                     // call event onChange
                     w2popup.status = 'open';
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 });
             }
 
@@ -373,8 +373,8 @@ var w2popup = {};
             var options = $('#w2ui-popup').data('options');
             if (options && !options.keyboard) return;
             // trigger event
-            var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default behavior
             switch (event.keyCode) {
                 case 27:
@@ -383,7 +383,7 @@ var w2popup = {};
                     break;
             }
             // event after
-            w2popup.trigger($.extend(eventData, { phase: 'after'}));
+            w2popup.trigger($.extend(edata, { phase: 'after'}));
         },
 
         close: function (options) {
@@ -395,8 +395,8 @@ var w2popup = {};
                 return;
             }
             // trigger event
-            var eventData = this.trigger({ phase: 'before', type: 'close', target: 'popup', options: options });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'close', target: 'popup', options: options });
+            if (edata.isCancelled === true) return;
             // default behavior
             w2popup.status = 'closing';
             $('#w2ui-popup')
@@ -414,7 +414,7 @@ var w2popup = {};
                 // restore active
                 if (options._last_focus.length > 0) options._last_focus.focus();
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after'}));
+                obj.trigger($.extend(edata, { phase: 'after'}));
             }, options.speed * 1000);
             // remove keyboard events
             if (options.keyboard) $(document).off('keydown', this.keydown);
@@ -424,13 +424,13 @@ var w2popup = {};
             var obj     = this;
             var options = $('#w2ui-popup').data('options');
             // trigger event
-            var eventData = this.trigger({ phase: 'before', type: 'toggle', target: 'popup', options: options });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'toggle', target: 'popup', options: options });
+            if (edata.isCancelled === true) return;
             // defatul action
             if (options.maximized === true) w2popup.min(); else w2popup.max();
             // event after
             setTimeout(function () {
-                obj.trigger($.extend(eventData, { phase: 'after'}));
+                obj.trigger($.extend(edata, { phase: 'after'}));
             }, (options.speed * 1000) + 50);
         },
 
@@ -439,8 +439,8 @@ var w2popup = {};
             var options = $('#w2ui-popup').data('options');
             if (options.maximized === true) return;
             // trigger event
-            var eventData = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options });
+            if (edata.isCancelled === true) return;
             // default behavior
             w2popup.status   = 'resizing';
             options.prevSize = $('#w2ui-popup').css('width') + ':' + $('#w2ui-popup').css('height');
@@ -448,7 +448,7 @@ var w2popup = {};
             w2popup.resize(10000, 10000, function () {
                 w2popup.status    = 'open';
                 options.maximized = true;
-                obj.trigger($.extend(eventData, { phase: 'after'}));
+                obj.trigger($.extend(edata, { phase: 'after'}));
                 // resize gird, form, layout inside popup
                 $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(function () {
                     var name = $(this).attr('name');
@@ -463,8 +463,8 @@ var w2popup = {};
             if (options.maximized !== true) return;
             var size = options.prevSize.split(':');
             // trigger event
-            var eventData = this.trigger({ phase: 'before', type: 'min', target: 'popup', options: options });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'min', target: 'popup', options: options });
+            if (edata.isCancelled === true) return;
             // default behavior
             w2popup.status = 'resizing';
             // do resize
@@ -472,7 +472,7 @@ var w2popup = {};
                 w2popup.status = 'open';
                 options.maximized = false;
                 options.prevSize  = null;
-                obj.trigger($.extend(eventData, { phase: 'after'}));
+                obj.trigger($.extend(edata, { phase: 'after'}));
                 // resize gird, form, layout inside popup
                 $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(function () {
                     var name = $(this).attr('name');

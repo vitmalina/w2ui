@@ -318,9 +318,9 @@
             }
             if (it && !it.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
+                var edata = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
                     item: it, object: it, originalEvent: event });
-                if (eventData.isCancelled === true) return;
+                if (edata.isCancelled === true) return;
 
                 var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
                 $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
@@ -424,7 +424,7 @@
                     setTimeout(function () { window.location.hash = route; }, 1);
                 }
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -489,8 +489,8 @@
         render: function (box) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
+            if (edata.isCancelled === true) return;
 
             if (box != null) {
                 if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
@@ -528,15 +528,15 @@
                 .html(html);
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), item: this.get(id) });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), item: this.get(id) });
+            if (edata.isCancelled === true) return;
 
             if (id == null) {
                 // refresh all
@@ -578,15 +578,15 @@
                 if (it.disabled) { el.addClass('disabled'); } else { el.removeClass('disabled'); }
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         resize: function () {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name });
+            if (edata.isCancelled === true) return;
 
             var box = $(this.box);
             var scrollBox = box.children('.w2ui-toolbar-scroll-wrapper');
@@ -608,14 +608,14 @@
             }
 
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+            if (edata.isCancelled === true) return;
             // clean up
             if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
                 $(this.box)
@@ -626,7 +626,7 @@
             $(this.box).html('');
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         // ========================================
@@ -745,9 +745,9 @@
             var obj = this;
             if (event.item && !event.item.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id + ':' + event.subItem.id, item: event.item,
+                var edata = this.trigger({ phase: 'before', type: 'click', target: event.item.id + ':' + event.subItem.id, item: event.item,
                     subItem: event.subItem, originalEvent: event.originalEvent });
-                if (eventData.isCancelled === true) return;
+                if (edata.isCancelled === true) return;
 
                 // route processing
                 var it   = event.subItem;
@@ -781,7 +781,7 @@
                 }
 
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -789,16 +789,16 @@
             var obj = this;
             if (event.item && !event.item.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item,
+                var edata = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item,
                     color: event.color, originalEvent: event.originalEvent });
-                if (eventData.isCancelled === true) return;
+                if (edata.isCancelled === true) return;
 
                 // default behavior
                 event.item.color = event.color;
                 obj.refresh(event.item.id);
 
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
         }
     };

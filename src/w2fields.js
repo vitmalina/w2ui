@@ -663,10 +663,10 @@
                 }
                 // ITEMS events
                 div.off('scroll.w2field').on('scroll.w2field', function (event) {
-                        var eventData = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     })
                     .find('li')
                     .data('mouse', 'out')
@@ -676,14 +676,14 @@
                         if ($(target).hasClass('nomouse')) return;
                         event.stopPropagation();
                         // trigger event
-                        var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
+                        if (edata.isCancelled === true) return;
                         // default behavior
                         if ($(event.target).hasClass('w2ui-list-remove')) {
                             if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                             // trigger event
-                            var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
-                            if (eventData.isCancelled === true) return;
+                            var edata = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
+                            if (edata.isCancelled === true) return;
                             // default behavior
                             $().w2overlay();
                             selected.splice($(event.target).attr('index'), 1);
@@ -692,7 +692,7 @@
                             setTimeout(function () {
                                 obj.refresh();
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             }, 300);
                         }
                         if (obj.type == 'file' && !$(event.target).hasClass('w2ui-list-remove')) {
@@ -724,7 +724,7 @@
                             $(target).w2overlay(preview);
                         }
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     })
                     .on('mouseover', function (event) {
                         var target = (event.target.tagName.toUpperCase() == 'LI' ? event.target : $(event.target).parents('LI'));
@@ -732,10 +732,10 @@
                         if ($(target).data('mouse') == 'out') {
                             var item = selected[$(event.target).attr('index')];
                             // trigger event
-                            var eventData = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item });
-                            if (eventData.isCancelled === true) return;
+                            var edata = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item });
+                            if (edata.isCancelled === true) return;
                             // event after
-                            obj.trigger($.extend(eventData, { phase: 'after' }));
+                            obj.trigger($.extend(edata, { phase: 'after' }));
                         }
                         $(target).data('mouse', 'over');
                     })
@@ -748,10 +748,10 @@
                                 $(target).data('mouse', 'out');
                                 var item = selected[$(event.target).attr('index')];
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
-                                if (eventData.isCancelled === true) return;
+                                var edata = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                if (edata.isCancelled === true) return;
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             }
                         }, 0);
                     });
@@ -1237,9 +1237,9 @@
                         if (obj.type == 'enum') {
                             if (item != null) {
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
-                                if (eventData.isCancelled === true) return;
-                                item = eventData.item; // need to reassign because it could be recreated by user
+                                var edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                if (edata.isCancelled === true) return;
+                                item = edata.item; // need to reassign because it could be recreated by user
                                 // default behavior
                                 if (selected.length >= options.max && options.max > 0) selected.pop();
                                 delete item.hidden;
@@ -1249,13 +1249,13 @@
                                 focus.val('').width(20);
                                 obj.refresh();
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             } else {
                                 // trigger event
                                 item = { id: focus.val(), text: focus.val() };
-                                var eventData = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
-                                if (eventData.isCancelled === true) return;
-                                item = eventData.item; // need to reassign because it could be recreated by user
+                                var edata = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                if (edata.isCancelled === true) return;
+                                item = edata.item; // need to reassign because it could be recreated by user
                                 // default behavior
                                 if (typeof obj.onNew == 'function') {
                                     if (selected.length >= options.max && options.max > 0) selected.pop();
@@ -1266,7 +1266,7 @@
                                     obj.refresh();
                                 }
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             }
                         } else {
                             if (item) $(obj.el).data('selected', item).val(item.text).change();
@@ -1285,14 +1285,14 @@
                             if (focus.val() == '' && selected.length > 0) {
                                 var item = selected[selected.length - 1];
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
-                                if (eventData.isCancelled === true) return;
+                                var edata = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                if (edata.isCancelled === true) return;
                                 // default behavior
                                 selected.pop();
                                 $(obj.el).trigger('change');
                                 obj.refresh();
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             }
                         }
                         if (obj.type == 'list' && focus.val() == '') {
@@ -1430,10 +1430,10 @@
                         max    : options.cacheMax
                     };
                     $.extend(postData, options.postData);
-                    var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
-                    if (eventData.isCancelled === true) return;
-                    url      = eventData.url;
-                    postData = eventData.postData;
+                    var edata = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
+                    if (edata.isCancelled === true) return;
+                    url      = edata.url;
+                    postData = edata.postData;
                     var ajaxOptions = {
                         type     : 'GET',
                         url      : url,
@@ -1453,10 +1453,10 @@
                     obj.tmp.xhr = $.ajax(ajaxOptions)
                         .done(function (data, status, xhr) {
                             // trigger event
-                            var eventData2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr });
-                            if (eventData2.isCancelled === true) return;
+                            var edata2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr });
+                            if (edata2.isCancelled === true) return;
                             // default behavior
-                            data = eventData2.data;
+                            data = edata2.data;
                             if (typeof data == 'string') data = JSON.parse(data);
                             if (data.status != 'success') {
                                 console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
@@ -1472,13 +1472,13 @@
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // event after
-                            obj.trigger($.extend(eventData2, { phase: 'after' }));
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                         })
                         .fail(function (xhr, status, error) {
                             // trigger event
                             var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
-                            var eventData2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
-                            if (eventData2.isCancelled === true) return;
+                            var edata2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
+                            if (edata2.isCancelled === true) return;
                             // default behavior
                             if (status != 'abort') {
                                 var data;
@@ -1492,10 +1492,10 @@
                             obj.clearCache();
                             obj.search();
                             // event after
-                            obj.trigger($.extend(eventData2, { phase: 'after' }));
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                         });
                     // event after
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 }, interval);
             }
         },
@@ -1849,8 +1849,8 @@
                                 var selected = $(obj.el).data('selected');
                                 if (event.item) {
                                     // trigger event
-                                    var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: event.item });
-                                    if (eventData.isCancelled === true) return;
+                                    var edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: event.item });
+                                    if (edata.isCancelled === true) return;
                                     // default behavior
                                     if (selected.length >= options.max && options.max > 0) selected.pop();
                                     delete event.item.hidden;
@@ -1860,7 +1860,7 @@
                                     obj.refresh();
                                     if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                                     // event after
-                                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                                    obj.trigger($.extend(edata, { phase: 'after' }));
                                 }
                             } else {
                                 $(obj.el).data('selected', event.item).val(event.item.text).change();
@@ -2043,13 +2043,13 @@
                         .on('click', function (event) {
                             if (obj.options.icon && typeof obj.onIconClick == 'function') {
                                 // event before
-                                var eventData = obj.trigger({ phase: 'before', type: 'iconClick', target: obj.el, el: $(this).find('span.w2ui-icon')[0] });
-                                if (eventData.isCancelled === true) return;
+                                var edata = obj.trigger({ phase: 'before', type: 'iconClick', target: obj.el, el: $(this).find('span.w2ui-icon')[0] });
+                                if (edata.isCancelled === true) return;
 
                                 // intentionally empty
 
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             } else {
                                 if (obj.type == 'list') {
                                     $(obj.helpers.focus).find('input').focus();
@@ -2382,8 +2382,8 @@
                 size += selected[s].size; cnt++;
             }
             // trigger event
-            var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
+            if (edata.isCancelled === true) return;
             // check params
             if (options.maxFileSize !== 0 && newItem.size > options.maxFileSize) {
                 err = 'Maximum file size is '+ w2utils.formatSize(options.maxFileSize);
@@ -2416,7 +2416,7 @@
                         obj.refresh();
                         $(obj.el).trigger('change');
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     };
                 })();
                 reader.readAsDataURL(file);
