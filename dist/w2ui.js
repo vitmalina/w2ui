@@ -45,7 +45,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added custom colors
 *   - added w2menu.options.type = radio|check
 *   - added w2menu items.hotkey
-*   - added options.contextMenu for w2overlay()
+*   - added options.contextMenu, options.pageX, options.pageY (or options.originalEvent) for w2overlay()
 *   - added options.noTip for w2overlay()
 *   - added options.overlayStyle for w2overlay()
 *   - added options.selectable
@@ -1415,21 +1415,26 @@ var w2utils = (function ($) {
         var doc = input.ownerDocument || input.document;
         var win = doc.defaultView || doc.parentWindow;
         var sel;
-        if (win.getSelection) {
-            sel = win.getSelection();
-            if (sel.rangeCount > 0) {
-                var range = sel.getRangeAt(0);
-                var preCaretRange = range.cloneRange();
-                preCaretRange.selectNodeContents(input);
-                preCaretRange.setEnd(range.endContainer, range.endOffset);
-                caretOffset = preCaretRange.toString().length;
+        if (input.tagName == 'INPUT' && input.selectionStart) {
+            // standards browser
+            caretOffset = input.selectionStart;
+        } else {
+            if (win.getSelection) {
+                sel = win.getSelection();
+                if (sel.rangeCount > 0) {
+                    var range = sel.getRangeAt(0);
+                    var preCaretRange = range.cloneRange();
+                    preCaretRange.selectNodeContents(input);
+                    preCaretRange.setEnd(range.endContainer, range.endOffset);
+                    caretOffset = preCaretRange.toString().length;
+                }
+            } else if ( (sel = doc.selection) && sel.type != "Control") {
+                var textRange = sel.createRange();
+                var preCaretTextRange = doc.body.createTextRange();
+                preCaretTextRange.moveToElementText(input);
+                preCaretTextRange.setEndPoint("EndToEnd", textRange);
+                caretOffset = preCaretTextRange.text.length;
             }
-        } else if ( (sel = doc.selection) && sel.type != "Control") {
-            var textRange = sel.createRange();
-            var preCaretTextRange = doc.body.createTextRange();
-            preCaretTextRange.moveToElementText(input);
-            preCaretTextRange.setEndPoint("EndToEnd", textRange);
-            caretOffset = preCaretTextRange.text.length;
         }
         return caretOffset;
     }
@@ -1766,6 +1771,7 @@ w2utils.event = {
             id              : null,     // id for the tag, otherwise input id is used
             html            : text,     // or html
             position        : 'right',  // can be left, right, top, bottom
+            align           : 'none',   // can be none, left, right (only works for potision: top | bottom)
             left            : 0,        // delta for left coordinate
             top             : 0,        // delta for top coordinate
             style           : '',       // adition style for the tag
@@ -1934,6 +1940,9 @@ w2utils.event = {
             maxWidth    : null,              // max width if any
             maxHeight   : null,              // max height if any
             contextMenu : false,             // if true, it will be opened at mouse position
+            pageX       : null,
+            pageY       : null,
+            originalEvent : null,
             style       : '',                // additional style for main div
             'class'     : '',                // additional class name for main div
             overlayStyle: '',
@@ -1971,8 +1980,12 @@ w2utils.event = {
             if (typeof tmp_hide === 'function') tmp_hide();
         }
         if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
-        if (options.contextMenu && options.originalEvent == null) {
-            console.log('ERROR: for context menu you need to pass options.originalEvent.');
+        if (options.contextMenu && options.originalEvent) {
+            options.pageX = options.originalEvent.pageX;
+            options.pageY = options.originalEvent.pageY;
+        }
+        if (options.contextMenu && (options.pageX == null || options.pageY == null)) {
+            console.log('ERROR: to display menu at mouse location, pass options.pageX and options.pageY.');
         }
         // append
         $('body').append(
@@ -2118,9 +2131,9 @@ w2utils.event = {
                 // Y coord
                 var X, Y, offsetTop;
                 if (options.contextMenu) { // context menu
-                    X = options.originalEvent.pageX + 8;
-                    Y = options.originalEvent.pageY - 0;
-                    offsetTop = options.originalEvent.pageY;
+                    X = options.pageX + 8;
+                    Y = options.pageY - 0;
+                    offsetTop = options.pageY;
                 } else {
                     var offset = obj.offset() || {};
                     X = ((offset.left > 25 ? offset.left : 25) + boxLeft);
@@ -2138,15 +2151,15 @@ w2utils.event = {
                 var maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7;
                 var maxWidth  = window.innerWidth + $(document).scrollLeft() - offset.left - 7;
                 if (options.contextMenu) { // context menu
-                    maxHeight = window.innerHeight - options.originalEvent.pageY - 15;
-                    maxWidth  = window.innerWidth - options.originalEvent.pageX;
+                    maxHeight = window.innerHeight - options.pageY - 15;
+                    maxWidth  = window.innerWidth - options.pageX;
                 }
 
                 if ((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) {
                     var tipOffset;
                     // show on top
                     if (options.contextMenu) { // context menu
-                        maxHeight = options.originalEvent.pageY - 7;
+                        maxHeight = options.pageY - 7;
                         tipOffset = 5;
                     } else {
                         maxHeight = offset.top - $(document).scrollTop() - 7;
@@ -5134,7 +5147,9 @@ w2utils.event = {
                                 event.preventDefault();
                                 break;
                             case 37:
-                                if (w2utils.getCursorPosition(el) == 0) event.preventDefault();
+                                if (w2utils.getCursorPosition(el) == 0) {
+                                    event.preventDefault();
+                                }
                                 break;
                             case 39:
                                 if (w2utils.getCursorPosition(el) == val.length) {
@@ -5220,32 +5235,37 @@ w2utils.event = {
                     });
                 // focus and select
                 if (edit.type == 'div') {
-                    var tmp = el.find('div.w2ui-input').focus();
-                    clearTimeout(obj.last.kbd_timer); // keep focus
-                    if (value != null) {
-                        // set cursor to the end
-                        w2utils.setCursorPosition(tmp[0], $(tmp).text().length);
-                    } else {
-                        // select entire text
-                        w2utils.setCursorPosition(tmp[0], 0, $(tmp).text().length);
+                    var tmp = el.find('div.w2ui-input');
+                    if (tmp.length > 0) {
+                        tmp.focus();
+                        clearTimeout(obj.last.kbd_timer); // keep focus
+                        if (value != null) {
+                            // set cursor to the end
+                            w2utils.setCursorPosition(tmp[0], $(tmp).text().length);
+                        } else {
+                            // select entire text
+                            w2utils.setCursorPosition(tmp[0], 0, $(tmp).text().length);
+                        }
+                        expand.call(el.find('div.w2ui-input')[0], null);
                     }
-                    expand.call(el.find('div.w2ui-input')[0], null);
                 } else {
                     var tmp = el.find('input, select');
-                    tmp[0].focus();
-                    clearTimeout(obj.last.kbd_timer); // keep focus
-                    if (value != null) {
-                        // set cursor to the end
-                        tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
-                    } else {
-                        if (tmp[0].select) tmp[0].select();
+                    if (tmp.length > 0) {
+                        tmp[0].focus();
+                        clearTimeout(obj.last.kbd_timer); // keep focus
+                        if (value != null) {
+                            // set cursor to the end
+                            tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
+                        } else {
+                            if (tmp[0].select) tmp[0].select();
+                        }
+                        expand.call(el.find('input, select')[0], null);
                     }
-                    expand.call(el.find('input, select')[0], null);
                 }
-                if (tmp[0]) tmp[0].resize = expand;
+                if (tmp.length > 0) tmp[0].resize = expand;
                 // event after
                 obj.trigger($.extend(eventData, { phase: 'after', input: el.find('input, select, div.w2ui-input') }));
-            }, 1);
+            }, 5); // needs to be 5-10
             return;
 
             function expand(event) {
@@ -6437,12 +6457,13 @@ w2utils.event = {
             if (cells == null) {
                 for (var index = this.last.range_start - 1; index <= this.last.range_end - 1; index++) {
                     if (index < 0) continue;
-                    var rec = this.records[index];
+                    var rec = this.records[index] || {};
+                    if (!rec.w2ui) rec.w2ui = {};
                     for (var column = 0; column < this.columns.length; column++) {
                         var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
                         cell.replaceWith(this.getCellHTML(index, column, false));
                         // assign style
-                        if (rec.w2ui && rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
+                        if (rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
                             if (typeof rec.w2ui.style == 'string') {
                                 $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.w2ui.style);
                             }
@@ -6463,11 +6484,12 @@ w2utils.event = {
                         console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, column: Y }, ...]');
                         continue;
                     }
-                    var rec  = this.records[index];
+                    var rec  = this.records[index] || {};
                     var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
+                    if (!rec.w2ui) rec.w2ui = {};
                     cell.replaceWith(this.getCellHTML(index, column, false));
                     // assign style
-                    if (rec.w2ui && rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
+                    if (rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
                         if (typeof rec.w2ui.style == 'string') {
                             $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.w2ui.style);
                         }
@@ -6523,7 +6545,7 @@ w2utils.event = {
                 $(tr1).replaceWith(rec_html[0]);
                 $(tr2).replaceWith(rec_html[1]);
                 // apply style to row if it was changed in render functions
-                var st = this.records[ind].w2ui.style;
+                var st = (this.records[ind].w2ui ? this.records[ind].w2ui.style : '');
                 if (typeof st == 'string') {
                     var tr1 = $(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid));
                     var tr2 = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
@@ -10909,10 +10931,10 @@ var w2popup = {};
                 }
                 // then content
                 var msg = '<div class="w2ui-msg-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
-                          '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') + 
+                          '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') +
                                     (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
-                          '    <div class="w2ui-msg-body' + (!options.title != '' ? ' w2ui-msg-no-title' : '') + 
-                                    (!options.buttons ? ' w2ui-msg-no-buttons' : '') + '" style="' + options.style + '">' + 
+                          '    <div class="w2ui-msg-body' + (!options.title != '' ? ' w2ui-msg-no-title' : '') +
+                                    (!options.buttons ? ' w2ui-msg-no-buttons' : '') + '" style="' + options.style + '">' +
                           '    </div>'+
                           '</div>'+
                           '<div class="w2ui-msg-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
@@ -11031,8 +11053,8 @@ var w2popup = {};
                 mvMove   : mvMove,
                 mvStop   : mvStop
             };
-            $('#w2ui-popup .w2ui-msg-title').on('mousedown', function (event) { 
-                if (!w2popup.get().maximized) mvStart(event); 
+            $('#w2ui-popup .w2ui-msg-title').on('mousedown', function (event) {
+                if (!w2popup.get().maximized) mvStart(event);
             });
 
             // handlers
@@ -11283,8 +11305,8 @@ var w2popup = {};
             if ($.trim(options.html) == '' && $.trim(options.body) == '' && $.trim(options.buttons) == '') {
                 var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
                 var options = $msg.data('options') || {};
-                $msg.css(w2utils.cssPrefix({ 
-                    'transition': '0.15s', 
+                $msg.css(w2utils.cssPrefix({
+                    'transition': '0.15s',
                     'transform': 'translateY(-' + options.height + 'px)'
                 }));
                 if (msgCount == 1) {
@@ -11295,7 +11317,7 @@ var w2popup = {};
                 setTimeout(function () {
                     var $focus = $msg.data('prev_focus');
                     $msg.remove();
-                    if ($focus.length > 0) {
+                    if ($focus && $focus.length > 0) {
                         $focus.focus();
                     } else {
                         obj.focus();
@@ -11466,7 +11488,7 @@ var w2popup = {};
                     width   : moptions.width + 'px',
                     height  : moptions.height + 'px'
                 });
-            });            
+            });
         },
 
         resize: function (width, height, callBack) {
@@ -11560,7 +11582,7 @@ var w2alert = function (msg, title, callBack) {
             width   : 400,
             height  : 170,
             body    : '<div class="w2ui-centered w2ui-alert-msg" style="font-size: 13px;">' + msg + '</div>',
-            buttons : '<button onclick="w2popup.message();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>',            
+            buttons : '<button onclick="w2popup.message();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>',
             onOpen: function () {
                 $('#w2ui-popup .w2ui-popup-message .w2ui-popup-btn').focus();
             },
@@ -11582,7 +11604,7 @@ var w2alert = function (msg, title, callBack) {
                 setTimeout(function () { $('#w2ui-popup .w2ui-popup-btn').focus(); }, 1);
             },
             onKeydown: function (event) {
-                $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked'); 
+                $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked');
             },
             onClose: function () {
                 if (typeof callBack == 'function') callBack();
@@ -11616,13 +11638,13 @@ var w2confirm = function (msg, title, callBack) {
             $.extend(options, defaults, {
                 msg     : msg,
                 callBack: title
-            })            
+            })
         } else {
             $.extend(options, defaults, {
                 msg     : msg,
-                title   : title, 
+                title   : title,
                 callBack: callBack
-            })            
+            })
         }
     }
     // if there is a yes/no button object
@@ -11655,7 +11677,7 @@ var w2confirm = function (msg, title, callBack) {
             },
             onClose: function () {
                 // needed this because there might be other messages
-                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').off('click.w2confirm');   
+                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').off('click.w2confirm');
                 // need to wait for message to slide up
                 setTimeout(function () {
                     if (typeof options.callBack == 'function') options.callBack(w2popup._confirm_btn);
@@ -12588,6 +12610,7 @@ var w2confirm = function (msg, title, callBack) {
                                 }));
                             }
                             if (['color', 'text-color'].indexOf(it.type) != -1) {
+                                if (it.transparent == null) it.transparent = true;
                                 $(el).w2color({ color: it.color, transparent: it.transparent }, function (color, index) {
                                     if (color != null) {
                                         obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
@@ -16521,7 +16544,7 @@ var w2confirm = function (msg, title, callBack) {
             }
             var html =
                 '<div class="w2ui-calendar">'+
-                '   <div class="w2ui-calendar-title">Select Hour</div>'+
+                '   <div class="w2ui-calendar-title">'+ w2utils.lang('Select Hour') +'</div>'+
                 '   <div class="w2ui-calendar-time"><table><tbody><tr>'+
                 '       <td>'+ tmp[0] +'</td>' +
                 '       <td>'+ tmp[1] +'</td>' +
