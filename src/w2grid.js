@@ -794,6 +794,7 @@
             var time = (new Date()).getTime();
             var obj = this;
             var defaultToString = {}.toString;
+            var duplicateMap = {};
             this.total = this.records.length;
             // mark all records as shown
             this.last.searchIds = [];
@@ -927,7 +928,9 @@
                         }
                     }
                     if ((this.last.logic == 'OR' && fl != 0) || (this.last.logic == 'AND' && fl == this.searchData.length)) {
-                        this.last.searchIds.push(parseInt(i));
+                        if (rec && rec.w2ui)
+                            addParent(rec.w2ui.parent_recid);
+                        this.last.searchIds.push(i);
                     }
                 }
                 this.total = this.last.searchIds.length;
@@ -939,6 +942,24 @@
                 }, 10);
             }
             return time;
+            
+            // add parents nodes recursively
+            function addParent(recid) {
+                if (recid === undefined)
+                    return;
+                if (duplicateMap[recid])
+                    return; // already visited
+                duplicateMap[recid] = true;
+                var i = obj.get(recid, true);
+                if (i == null)
+                    return;
+                if ($.inArray(i, obj.last.searchIds) != -1)
+                    return;
+                var rec = obj.records[i];
+                if (rec && rec.w2ui)
+                    addParent(rec.w2ui.parent_recid);
+                obj.last.searchIds.push(i);
+            }
         },
 
         getRangeData: function (range, extra) {
@@ -2481,7 +2502,7 @@
                     })
                     .on('keydown', function (event) {
                         var el  = this;
-                        var val = (el.tagName == 'DIV' ? $(el).text() : $(el).val());
+                        var val = (el.tagName.toUpperCase() == 'DIV' ? $(el).text() : $(el).val());
                         switch (event.keyCode) {
                             case 8: // backspace;
                                 if (edit.type == 'list' && !$(input).data('w2field')) { // cancel backspace when deleting element
@@ -4200,9 +4221,9 @@
                     }
                     var tmps = false;
                     while (tmp) {
-                        if (!tmp || tmp.classList.contains('w2ui-grid')) break;
-                        if (tmp.tagName == 'TD') tmps = true;
-                        if (tmp.tagName != 'TR' && tmps == true) {
+                        if (tmp.classList.contains('w2ui-grid')) break;
+                        if (tmp.tagName.toUpperCase() == 'TD') tmps = true;
+                        if (tmp.tagName.toUpperCase() != 'TR' && tmps == true) {
                             pos.x += tmp.offsetLeft;
                             pos.y += tmp.offsetTop;
                         }
