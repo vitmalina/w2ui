@@ -60,6 +60,16 @@ class w2grid_class {
                         $value    = "(".$search['value'].")";
                         break;
 
+                    case 'more':
+                        $operator = ">=";
+                        $value = "'".$search['value']."'";
+                        break;
+
+                    case 'less':
+                        $operator = "<=";
+                        $value = "'".$search['value']."'";
+                        break;
+
                     default:
                         $operator = "=";
                         $value    = "'".$search['value']."'";
@@ -101,7 +111,7 @@ class w2grid_class {
         $data['total']  = $rs->fields[0];
 
         // execute sql
-        $rs = $db->execute($sql);
+            $rs = $db->execute($sql);
         //print($sql);
 
         // check for error
