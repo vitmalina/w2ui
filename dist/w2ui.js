@@ -3365,11 +3365,15 @@ w2utils.event = {
                     }
                 }
             }
-            // process sort
+
+            // prepare paths and process sort
+            preparePaths();
             this.records.sort(function (a, b) {
-                var ret = compareRecords(a, b);
+                var ret = compareRecordPaths(a, b);
                 return ret;
             });
+            cleanupPaths();
+
             obj.selectionRestore();
             time = (new Date()).getTime() - time;
             if (silent !== true && obj.show.statusSort) {
@@ -3379,7 +3383,64 @@ w2utils.event = {
             }
             return time;
 
+            // grab paths before sorting for efficiency and because calling obj.get()
+            // while sorting 'obj.records' is unsafe, at least on webkit
+            function preparePaths() {
+                for (var i = 0; i < obj.records.length; i++) {
+                    var rec = obj.records[i];
+                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                        rec.w2ui._path = getRecordPath(rec);
+                }
+            }
+
+            // cleanup and release memory allocated by preparePaths()
+            function cleanupPaths() {
+                for (var i = 0; i < obj.records.length; i++) {
+                    var rec = obj.records[i];
+                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                        rec.w2ui._path = null;
+                }
+            }
+
+            // compare two paths, from root of tree to given records
+            function compareRecordPaths(a, b) {
+                if ((!a.w2ui || a.w2ui.parent_recid == null) &&
+                    (!b.w2ui || b.w2ui.parent_recid == null))
+                    return compareRecords(a, b);    // no tree, fast path
+                var pa = getRecordPath(a);
+                var pb = getRecordPath(b);
+                for (var i = 0; i < Math.min(pa.length, pb.length); i++) {
+                    var diff = compareRecords(pa[i], pb[i]);
+                    if (diff != 0)
+                        return diff;                // different subpath
+                }
+                if (pa.length > pb.length)
+                    return 1;
+                if (pa.length < pb.length)
+                    return -1;
+                console.log('ERROR: two paths should not be equal.');
+                return 0;
+            }
+
+            // return an array of all records from root to and including 'rec'
+            function getRecordPath(rec) {
+                if (!rec.w2ui || rec.w2ui.parent_recid == null)
+                    return [ rec ];
+                if (rec.w2ui._path)
+                    return rec.w2ui._path;
+                // during actual sort, we should never reach this point
+                var subrec = obj.get(rec.w2ui.parent_recid);
+                if (!subrec) {
+                    console.log('ERROR: no parent record: '+rec.w2ui.parent_recid);
+                    return [ rec ];
+                }
+                return (getRecordPath(subrec).concat(rec));
+            }
+
+            // compare two records according to sortData and finally recid
             function compareRecords(a, b) {
+                if (a === b)
+                    return 0;   // optimize, same object
                 for (var i = 0; i < obj.sortData.length; i++) {
                     var fld = obj.sortData[i].field;
                     if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
@@ -3393,9 +3454,15 @@ w2utils.event = {
                     if (ret != 0)
                         return ret;
                 }
+                // break tie for similar records,
+                // required to have consistent ordering for tree paths
+                var ret = compareCells(a.recid, b.recid, -1, 'asc');
+                if (ret != 0)
+                    return ret;
                 return 0;
             }
 
+            // compare two values, aa and bb, producing consistent ordering
             function compareCells(aa, bb, i, direction) {
                 // if both objects are strictly equal, we're done
                 if (aa === bb)
@@ -3448,6 +3515,7 @@ w2utils.event = {
             var time = (new Date()).getTime();
             var obj = this;
             var defaultToString = {}.toString;
+            var duplicateMap = {};
             this.total = this.records.length;
             // mark all records as shown
             this.last.searchIds = [];
@@ -3581,7 +3649,9 @@ w2utils.event = {
                         }
                     }
                     if ((this.last.logic == 'OR' && fl != 0) || (this.last.logic == 'AND' && fl == this.searchData.length)) {
-                        this.last.searchIds.push(parseInt(i));
+                        if (rec && rec.w2ui)
+                            addParent(rec.w2ui.parent_recid);
+                        this.last.searchIds.push(i);
                     }
                 }
                 this.total = this.last.searchIds.length;
@@ -3593,6 +3663,24 @@ w2utils.event = {
                 }, 10);
             }
             return time;
+
+            // add parents nodes recursively
+            function addParent(recid) {
+                if (recid === undefined)
+                    return;
+                if (duplicateMap[recid])
+                    return; // already visited
+                duplicateMap[recid] = true;
+                var i = obj.get(recid, true);
+                if (i == null)
+                    return;
+                if ($.inArray(i, obj.last.searchIds) != -1)
+                    return;
+                var rec = obj.records[i];
+                if (rec && rec.w2ui)
+                    addParent(rec.w2ui.parent_recid);
+                obj.last.searchIds.push(i);
+            }
         },
 
         getRangeData: function (range, extra) {
@@ -3819,11 +3907,11 @@ w2utils.event = {
             $(this.box).find('.w2ui-selection-resizer')
                 .off('mousedown').on('mousedown', mouseStart)
                 .off('dblclick').on('dblclick', function (event) {
-                    var eventData = obj.trigger({ phase: 'before', type: 'resizerDblClick', target: obj.name, originalEvent: event });
-                    if (eventData.isCancelled === true) return;
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    var edata = obj.trigger({ phase: 'before', type: 'resizerDblClick', target: obj.name, originalEvent: event });
+                    if (edata.isCancelled === true) return;
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 });
-            var eventData = { phase: 'before', type: 'selectionExtend', target: obj.name, originalRange: null, newRange: null };
+            var edata = { phase: 'before', type: 'selectionExtend', target: obj.name, originalRange: null, newRange: null };
 
             return (new Date()).getTime() - time;
 
@@ -3861,17 +3949,17 @@ w2utils.event = {
                 var prevNewRange = $.extend({}, mv.newRange);
                 mv.newRange = [{ recid: mv.recid, column: mv.column }, { recid: recid, column: column }];
                 // event before
-                eventData = obj.trigger($.extend(eventData, { originalRange: mv.originalRange, newRange : mv.newRange }));
-                if (eventData.isCancelled === true) {
+                edata = obj.trigger($.extend(edata, { originalRange: mv.originalRange, newRange : mv.newRange }));
+                if (edata.isCancelled === true) {
                     mv.newRange        = prevNewRange;
-                    eventData.newRange = prevNewRange;
+                    edata.newRange = prevNewRange;
                     return;
                 } else {
                     // default behavior
                     obj.removeRange('grid-selection-expand');
                     obj.addRange({
                         name  : 'grid-selection-expand',
-                        range : eventData.newRange,
+                        range : edata.newRange,
                         style : 'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
                     });
                 }
@@ -3884,7 +3972,7 @@ w2utils.event = {
                 $(document).off('mousemove', mouseMove);
                 $(document).off('mouseup', mouseStop);
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -3909,8 +3997,8 @@ w2utils.event = {
                 tmp.multiple = true;
                 tmp.recids   = Array.prototype.slice.call(arguments, 0);
             }
-            var eventData = this.trigger(tmp);
-            if (eventData.isCancelled === true) return 0;
+            var edata = this.trigger(tmp);
+            if (edata.isCancelled === true) return 0;
 
             // default action
             if (this.selectType == 'row') {
@@ -4009,7 +4097,7 @@ w2utils.event = {
             this.status();
             this.addRange('selection');
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return selected;
         },
 
@@ -4026,8 +4114,8 @@ w2utils.event = {
                 if (this.selectType == 'row') {
                     if (sel.indexes.indexOf(index) == -1) continue;
                     // event before
-                    var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, index: index });
-                    if (eventData.isCancelled === true) continue;
+                    var edata = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, index: index });
+                    if (edata.isCancelled === true) continue;
                     // default action
                     sel.indexes.splice(sel.indexes.indexOf(index), 1);
                     recEl1.removeClass('w2ui-selected w2ui-inactive').removeData('selected').find('.w2ui-col-number').removeClass('w2ui-row-selected');
@@ -4048,8 +4136,8 @@ w2utils.event = {
                     var s = sel.columns[index];
                     if (!$.isArray(s) || s.indexOf(col) == -1) continue;
                     // event before
-                    var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, column: col });
-                    if (eventData.isCancelled === true) continue;
+                    var edata = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, column: col });
+                    if (edata.isCancelled === true) continue;
                     // default action
                     s.splice(s.indexOf(col), 1);
                     $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected w2ui-inactive');
@@ -4078,7 +4166,7 @@ w2utils.event = {
                     }
                 }
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
             // all selected?
             var areAllSelected = (this.records.length > 0 && sel.indexes.length == this.records.length),
@@ -4098,8 +4186,8 @@ w2utils.event = {
             var time = (new Date()).getTime();
             if (this.multiSelect === false) return;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
+            if (edata.isCancelled === true) return;
             // default action
             var url  = (typeof this.url != 'object' ? this.url : this.url.get);
             var sel  = this.last.selection;
@@ -4145,15 +4233,15 @@ w2utils.event = {
             this.addRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', true);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         selectNone: function () {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true });
+            if (edata.isCancelled === true) return;
             // default action
             var sel = this.last.selection;
             // remove selected class
@@ -4176,7 +4264,7 @@ w2utils.event = {
             this.removeRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', false);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
@@ -4427,11 +4515,11 @@ w2utils.event = {
                 }
             }
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData,
+            var edata = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData,
                     searchField: (field ? field : 'multi'), searchValue: (value ? value : 'multi') });
-            if (eventData.isCancelled === true) return;
+            if (edata.isCancelled === true) return;
             // default action
-            this.searchData  = eventData.searchData;
+            this.searchData  = edata.searchData;
             this.last.field  = last_field;
             this.last.search = last_search;
             this.last.multi  = last_multi;
@@ -4452,7 +4540,7 @@ w2utils.event = {
                 this.refresh();
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         searchOpen: function () {
@@ -4498,10 +4586,10 @@ w2utils.event = {
                 hasHiddenSearches = true;
             }
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData });
+            if (edata.isCancelled === true) return;
             // default action
-            this.searchData  = eventData.searchData;
+            this.searchData  = edata.searchData;
             this.last.search = '';
             this.last.logic  = (hasHiddenSearches ? 'AND' : 'OR');
             // --- do not reset to All Fields (I think)
@@ -4535,7 +4623,7 @@ w2utils.event = {
             // apply search
             if (!noRefresh) this.reload();
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         searchShowFields: function () {
@@ -4692,10 +4780,10 @@ w2utils.event = {
             $.extend(params, add_params);
             // event before
             if (cmd == 'get-records') {
-                var eventData = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
-                if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
+                var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
+                if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             } else {
-                var eventData = { url: url, postData: params };
+                var edata = { url: url, postData: params };
             }
             // call server to get data
             var obj = this;
@@ -4711,9 +4799,9 @@ w2utils.event = {
             }
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // URL
-            url = (typeof eventData.url != 'object' ? eventData.url : eventData.url.get);
-            if (params.cmd == 'save-records' && typeof eventData.url == 'object')   url = eventData.url.save;
-            if (params.cmd == 'delete-records' && typeof eventData.url == 'object') url = eventData.url.remove;
+            url = (typeof edata.url != 'object' ? edata.url : edata.url.get);
+            if (params.cmd == 'save-records' && typeof edata.url == 'object')   url = edata.url.save;
+            if (params.cmd == 'delete-records' && typeof edata.url == 'object') url = edata.url.remove;
             // process url with routeData
             if (!$.isEmptyObject(obj.routeData)) {
                 var info  = w2utils.parseRoute(url);
@@ -4728,7 +4816,7 @@ w2utils.event = {
             var ajaxOptions = {
                 type     : 'POST',
                 url      : url,
-                data     : eventData.postData,
+                data     : edata.postData,
                 dataType : 'text'  // expected data type from server
             };
             if (w2utils.settings.dataType == 'HTTP') {
@@ -4766,8 +4854,8 @@ w2utils.event = {
                 .fail(function (xhr, status, error) {
                     // trigger event
                     var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
-                    var eventData2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
-                    if (eventData2.isCancelled === true) return;
+                    var edata2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr });
+                    if (edata2.isCancelled === true) return;
                     // default behavior
                     if (status != 'abort') { // it can be aborted by the grid itself
                         var data;
@@ -4779,11 +4867,11 @@ w2utils.event = {
                         obj.requestComplete('error', cmd, callBack);
                     }
                     // event after
-                    obj.trigger($.extend(eventData2, { phase: 'after' }));
+                    obj.trigger($.extend(edata2, { phase: 'after' }));
                 });
             if (cmd == 'get-records') {
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -4800,8 +4888,8 @@ w2utils.event = {
             var event_name = 'load';
             if (this.last.xhr_cmd == 'save-records') event_name   = 'save';
             if (this.last.xhr_cmd == 'delete-records') event_name = 'delete';
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
-            if (eventData.isCancelled === true) {
+            var edata = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
+            if (edata.isCancelled === true) {
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                 return;
             }
@@ -4894,7 +4982,7 @@ w2utils.event = {
             // call back
             if (typeof callBack == 'function') callBack(data); // need to be befor event:after
             // after event
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             // do not refresh if loading on infinite scroll
             if (this.last.xhr_offset == 0) {
                 this.refresh();
@@ -4907,14 +4995,14 @@ w2utils.event = {
         error: function (msg) {
             var obj = this;
             // let the management of the error outside of the grid
-            var eventData = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
-            if (eventData.isCancelled === true) {
+            var edata = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr });
+            if (edata.isCancelled === true) {
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                 return;
             }
             w2alert(msg, w2utils.lang('Error'));
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         getChanges: function () {
@@ -4957,24 +5045,24 @@ w2utils.event = {
             var obj = this;
             var changes = this.getChanges();
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes });
+            if (edata.isCancelled === true) return;
             var url = (typeof this.url != 'object' ? this.url : this.url.save);
             if (url) {
-                this.request('save-records', { 'changes' : eventData.changes }, null,
+                this.request('save-records', { 'changes' : edata.changes }, null,
                     function (data) {
                         if (data.status !== 'error') {
                             // only merge changes, if save was successful
                             obj.mergeChanges();
                         }
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     }
                 );
             } else {
                 this.mergeChanges();
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -4993,10 +5081,10 @@ w2utils.event = {
                 return;
             }
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'editField', target: obj.name, recid: recid, column: column, value: value,
+            var edata = obj.trigger({ phase: 'before', type: 'editField', target: obj.name, recid: recid, column: column, value: value,
                 index: index, originalEvent: event });
-            if (eventData.isCancelled === true) return;
-            value = eventData.value;
+            if (edata.isCancelled === true) return;
+            value = edata.value;
             // default behaviour
             this.selectNone();
             this.select({ recid: recid, column: column });
@@ -5025,7 +5113,7 @@ w2utils.event = {
             var val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null ? w2utils.stripTags(rec.w2ui.changes[col.field]) : w2utils.stripTags(rec[col.field]));
             if (val == null) val = '';
             var old_value = (typeof val != 'object' ? val : '');
-            if (eventData.old_value != null) old_value = eventData.old_value;
+            if (edata.old_value != null) old_value = edata.old_value;
             if (value != null) val = value;
             var addStyle = (col.style != null ? col.style + ';' : '');
             if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent', 'size'].indexOf(col.render.split(':')[0]) != -1) {
@@ -5135,7 +5223,7 @@ w2utils.event = {
                     })
                     .on('keydown', function (event) {
                         var el  = this;
-                        var val = (el.tagName == 'DIV' ? $(el).text() : $(el).val());
+                        var val = (el.tagName.toUpperCase() == 'DIV' ? $(el).text() : $(el).val());
                         switch (event.keyCode) {
                             case 8: // backspace;
                                 if (edit.type == 'list' && !$(input).data('w2field')) { // cancel backspace when deleting element
@@ -5264,7 +5352,7 @@ w2utils.event = {
                 }
                 if (tmp.length > 0) tmp[0].resize = expand;
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after', input: el.find('input, select, div.w2ui-input') }));
+                obj.trigger($.extend(edata, { phase: 'after', input: el.find('input, select, div.w2ui-input') }));
             }, 5); // needs to be 5-10
             return;
 
@@ -5309,38 +5397,38 @@ w2utils.event = {
                 new_val = el.checked;
             }
             // change/restore event
-            var eventData = {
+            var edata = {
                 phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
                 originalEvent: (event.originalEvent ? event.originalEvent : event),
                 value_new: new_val,
                 value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
                 value_original: old_val
             };
-            if ($(event.target).data('old_value') != null) eventData.value_previous = $(event.target).data('old_value');
+            if ($(event.target).data('old_value') != null) edata.value_previous = $(event.target).data('old_value');
             // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
             while (true) {
-                new_val = eventData.value_new;
+                new_val = edata.value_new;
                 if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
                     (typeof new_val == 'object' && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
                     // change event
-                    eventData = this.trigger($.extend(eventData, { type: 'change', phase: 'before' }));
-                    if (eventData.isCancelled !== true) {
-                        if (new_val !== eventData.value_new) {
+                    edata = this.trigger($.extend(edata, { type: 'change', phase: 'before' }));
+                    if (edata.isCancelled !== true) {
+                        if (new_val !== edata.value_new) {
                             // re-evaluate the type of change to be made
                             continue;
                         }
                         // default action
                         rec.w2ui = rec.w2ui || {};
                         rec.w2ui.changes = rec.w2ui.changes || {};
-                        rec.w2ui.changes[col.field] = eventData.value_new;
+                        rec.w2ui.changes[col.field] = edata.value_new;
                         // event after
-                        this.trigger($.extend(eventData, { phase: 'after' }));
+                        this.trigger($.extend(edata, { phase: 'after' }));
                     }
                 } else {
                     // restore event
-                    eventData = this.trigger($.extend(eventData, { type: 'restore', phase: 'before' }));
-                    if (eventData.isCancelled !== true) {
-                        if (new_val !== eventData.value_new) {
+                    edata = this.trigger($.extend(edata, { type: 'restore', phase: 'before' }));
+                    if (edata.isCancelled !== true) {
+                        if (new_val !== edata.value_new) {
                             // re-evaluate the type of change to be made
                             continue;
                         }
@@ -5348,7 +5436,7 @@ w2utils.event = {
                         if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[col.field];
                         if (rec.w2ui && $.isEmptyObject(rec.w2ui.changes)) delete rec.w2ui.changes;
                         // event after
-                        this.trigger($.extend(eventData, { phase: 'after' }));
+                        this.trigger($.extend(edata, { phase: 'after' }));
                     }
                 }
                 break;
@@ -5376,9 +5464,9 @@ w2utils.event = {
             var time = (new Date()).getTime();
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
-            if (eventData.isCancelled === true) return;
-            force = eventData.force;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
+            if (edata.isCancelled === true) return;
+            force = edata.force;
             // default action
             var recs = this.getSelection();
             if (recs.length == 0) return;
@@ -5420,7 +5508,7 @@ w2utils.event = {
                 }
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         click: function (recid, event) {
@@ -5453,8 +5541,8 @@ w2utils.event = {
                 if ($(tmp).attr('col') != null) column = parseInt($(tmp).attr('col'));
             }
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default action
             var obj = this;
             var sel = this.getSelection();
@@ -5522,18 +5610,18 @@ w2utils.event = {
             this.status();
             obj.initResize();
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         columnClick: function (field, event) {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default behaviour
             if (this.selectType == 'row') {
                 var column = this.getColumn(field);
                 if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
-                if (eventData.field == 'line-number') {
+                if (edata.field == 'line-number') {
                     if (this.getSelection().length >= this.records.length) {
                         this.selectNone();
                     } else {
@@ -5542,7 +5630,7 @@ w2utils.event = {
                 }
             } else {
                 // select entire column
-                if (eventData.field == 'line-number') {
+                if (edata.field == 'line-number') {
                     if (this.getSelection().length >= this.records.length) {
                         this.selectNone();
                     } else {
@@ -5553,7 +5641,7 @@ w2utils.event = {
                         this.selectNone();
                     }
                     var tmp     = this.getSelection();
-                    var column  = this.getColumn(eventData.field, true);
+                    var column  = this.getColumn(edata.field, true);
                     var sel     = [];
                     var cols    = [];
                     // check if there was a selection before
@@ -5576,14 +5664,14 @@ w2utils.event = {
                 }
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         focus: function (event) {
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
-            if (eventData.isCancelled === true) return false;
+            var edata = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
+            if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = true;
             $(this.box).find('.w2ui-inactive').removeClass('w2ui-inactive');
@@ -5592,19 +5680,19 @@ w2utils.event = {
                 if (!$input.is(':focus')) $input.focus();
             }, 10);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         blur: function (event) {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
-            if (eventData.isCancelled === true) return false;
+            var edata = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
+            if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = false;
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
             $(this.box).find('.w2ui-selection').addClass('w2ui-inactive');
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         keydown: function (event) {
@@ -5613,8 +5701,8 @@ w2utils.event = {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (obj.keyboard !== true) return;
             // trigger event
-            var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default behavior
             var empty   = false;
             var records = $('#grid_'+ obj.name +'_records');
@@ -5947,7 +6035,7 @@ w2utils.event = {
                 if (event.preventDefault) event.preventDefault();
             }
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
 
             function selectTopRecord() {
                 var ind = Math.floor(records[0].scrollTop / obj.recordHeight) + 1;
@@ -6072,8 +6160,8 @@ w2utils.event = {
             }
             var rec = this.get(recid);
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default action
             this.selectNone();
             var col = this.columns[column];
@@ -6084,7 +6172,7 @@ w2utils.event = {
                 if (this.show.expandColumn || (rec.w2ui && Array.isArray(rec.w2ui.children))) this.toggle(recid);
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         contextMenu: function (recid, column, event) {
@@ -6112,8 +6200,8 @@ w2utils.event = {
                 if (!selected && column != null) obj.columnClick(this.columns[column].field, event);
             }
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid, column: column });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: obj.name, originalEvent: event, recid: recid, column: column });
+            if (edata.isCancelled === true) return;
             // default action
             if (obj.menu.length > 0) {
                 $(obj.box).find(event.target)
@@ -6129,19 +6217,19 @@ w2utils.event = {
             // cancel event
             if (event.preventDefault) event.preventDefault();
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
         },
 
         menuClick: function (recid, index, event) {
             var obj = this;
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: obj.name, originalEvent: event,
+            var edata = obj.trigger({ phase: 'before', type: 'menuClick', target: obj.name, originalEvent: event,
                 recid: recid, menuIndex: index, menuItem: obj.menu[index] });
-            if (eventData.isCancelled === true) return;
+            if (edata.isCancelled === true) return;
             // default action
             // -- empty
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
         },
 
         toggle: function (recid) {
@@ -6268,8 +6356,8 @@ w2utils.event = {
 
         sort: function (field, direction, multiField) { // if no params - clears sort
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, multiField: multiField });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, multiField: multiField });
+            if (edata.isCancelled === true) return;
             // check if needed to quit
             if (field != null) {
                 // default action
@@ -6303,11 +6391,11 @@ w2utils.event = {
                 this.localSort();
                 if (this.searchData.length > 0) this.localSearch(true);
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
                 this.refresh();
             } else {
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
                 this.last.xhr_offset = 0;
                 this.reload();
             }
@@ -6370,18 +6458,18 @@ w2utils.event = {
             // if called without params
             if (flag == null) {
                 // before event
-                var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
-                if (eventData.isCancelled === true) return '';
-                text = eventData.text;
+                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+                if (edata.isCancelled === true) return '';
+                text = edata.text;
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
                 return text;
             } else if (flag === false) { // only before event
                 // before event
-                var eventData = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
-                if (eventData.isCancelled === true) return '';
-                text = eventData.text;
-                return eventData;
+                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+                if (edata.isCancelled === true) return '';
+                text = edata.text;
+                return edata;
             }
         },
 
@@ -6390,14 +6478,14 @@ w2utils.event = {
             var ind = this.get(sel[0].recid, true);
             var col = sel[0].column;
             // before event
-            var eventData = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
-            if (eventData.isCancelled === true) return;
-            text = eventData.text;
+            var edata = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col });
+            if (edata.isCancelled === true) return;
+            text = edata.text;
             // default action
             if (this.selectType == 'row' || sel.length == 0) {
                 console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.');
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
                 return;
             }
             var newSel = [];
@@ -6424,7 +6512,7 @@ w2utils.event = {
             this.select.apply(this, newSel);
             this.refresh();
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         // ==================================================
@@ -6440,14 +6528,14 @@ w2utils.event = {
                 .css('width', $(this.box).width())
                 .css('height', $(this.box).height());
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name });
+            if (edata.isCancelled === true) return;
             // resize
             obj.resizeBoxes();
             obj.resizeRecords();
             if (obj.toolbar) obj.toolbar.resize();
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
@@ -6572,8 +6660,8 @@ w2utils.event = {
             this.toolbar.disable('w2ui-edit', 'w2ui-delete');
             if (!this.box) return;
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh' });
+            if (edata.isCancelled === true) return;
             // -- header
             if (this.show.header) {
                 $('#grid_'+ this.name +'_header').html(this.header +'&#160;').show();
@@ -6709,7 +6797,7 @@ w2utils.event = {
                 if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save');
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             obj.resize();
             obj.addRange('selection');
             setTimeout(function () { // allow to render first
@@ -6740,8 +6828,8 @@ w2utils.event = {
             if (!this.box) return;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box });
+            if (edata.isCancelled === true) return;
             // reset needed if grid existed
             this.reset(true);
             // --- default search field
@@ -6821,7 +6909,7 @@ w2utils.event = {
             // init mouse events for mouse selection
             $(this.box).on('mousedown', mouseStart);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             // attach to resize event
             if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
                 this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
@@ -6854,9 +6942,9 @@ w2utils.event = {
                     }
                     var tmps = false;
                     while (tmp) {
-                        if (!tmp || tmp.classList.contains('w2ui-grid')) break;
-                        if (tmp.tagName == 'TD') tmps = true;
-                        if (tmp.tagName != 'TR' && tmps == true) {
+                        if (tmp.classList.contains('w2ui-grid')) break;
+                        if (tmp.tagName.toUpperCase() == 'TD') tmps = true;
+                        if (tmp.tagName.toUpperCase() != 'TR' && tmps == true) {
                             pos.x += tmp.offsetLeft;
                             pos.y += tmp.offsetTop;
                         }
@@ -7083,8 +7171,8 @@ w2utils.event = {
                     }
                     if (obj.reorderRows == true && obj.last.move.reorder) {
                         // event
-                        var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'reorderRow', recid: mv.from, moveAfter: mv.to });
-                        if (eventData.isCancelled === true) {
+                        var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'reorderRow', recid: mv.from, moveAfter: mv.to });
+                        if (edata.isCancelled === true) {
                             $('#grid_'+ obj.name + '_ghost').remove();
                             obj.refresh();
                             return;
@@ -7105,7 +7193,7 @@ w2utils.event = {
                         $('#grid_'+ obj.name + '_ghost').remove();
                         obj.refresh();
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     }
                 }
                 delete obj.last.move;
@@ -7116,8 +7204,8 @@ w2utils.event = {
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
+            if (edata.isCancelled === true) return;
             // remove events
             if (this.tmp_resize) $(window).off('resize', this.tmp_resize);
             // clean up
@@ -7130,7 +7218,7 @@ w2utils.event = {
             }
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         // ===========================================
@@ -7229,7 +7317,7 @@ w2utils.event = {
                 _dragData.timeout = setTimeout(function(){
                     if ( !_dragData.pressed ) return;
 
-                    var eventData,
+                    var edata,
                         columns,
                         selectedCol,
                         origColumn,
@@ -7253,8 +7341,8 @@ w2utils.event = {
                     //start event for drag start
                     _dragData.columnHead = origColumn = $( event.originalEvent.target ).parents( '.w2ui-head' );
                     origColumnNumber = parseInt( origColumn.attr( 'col' ), 10);
-                    eventData = obj.trigger({ type: 'columnDragStart', phase: 'before', originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] });
-                    if ( eventData.isCancelled === true ) return false;
+                    edata = obj.trigger({ type: 'columnDragStart', phase: 'before', originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] });
+                    if ( edata.isCancelled === true ) return false;
 
                     columns = _dragData.columns = $( obj.box ).find( '.w2ui-head:not(.w2ui-head-last)' );
 
@@ -7298,7 +7386,7 @@ w2utils.event = {
                     }
 
                     //conclude event
-                    obj.trigger( $.extend( eventData, { phase: 'after' } ) );
+                    obj.trigger( $.extend( edata, { phase: 'after' } ) );
                 }, 150 );//end timeout wrapper
             }
 
@@ -7319,7 +7407,7 @@ w2utils.event = {
             function dragColEnd ( event ) {
                 _dragData.pressed = false;
 
-                var eventData,
+                var edata,
                     target,
                     selected,
                     columnConfig,
@@ -7327,8 +7415,8 @@ w2utils.event = {
                     ghosts = $( '.w2ui-grid-ghost' );
 
                 //start event for drag start
-                eventData = obj.trigger({ type: 'columnDragEnd', phase: 'before', originalEvent: event, target: _dragData.columnHead[0] });
-                if ( eventData.isCancelled === true ) return false;
+                edata = obj.trigger({ type: 'columnDragEnd', phase: 'before', originalEvent: event, target: _dragData.columnHead[0] });
+                if ( edata.isCancelled === true ) return false;
 
                 selected = obj.columns[ _dragData.originalPos ];
                 columnConfig = obj.columns;
@@ -7365,7 +7453,7 @@ w2utils.event = {
                 obj.refresh();
 
                 //conclude event
-                obj.trigger( $.extend( eventData, { phase: 'after', targetColumnNumber: target - 1 } ) );
+                obj.trigger( $.extend( edata, { phase: 'after', targetColumnNumber: target - 1 } ) );
             }
 
             function markIntersection( intersection ){
@@ -7445,8 +7533,8 @@ w2utils.event = {
         columnOnOff: function (event, field) {
             var $el = $(event.target).parents('tr').find('.w2ui-column-check');
             // event before
-            var eventData = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', field: field, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', field: field, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // regular processing
             var obj = this;
             // collapse expanded rows
@@ -7483,7 +7571,7 @@ w2utils.event = {
                 }, 150);
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         initToolbar: function () {
@@ -7567,15 +7655,15 @@ w2utils.event = {
 
                 var obj = this;
                 this.toolbar.on('click', function (event) {
-                    var eventData = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
-                    if (eventData.isCancelled === true) return;
+                    var edata = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event });
+                    if (edata.isCancelled === true) return;
                     var id = event.target;
                     switch (id) {
                         case 'w2ui-reload':
-                            var eventData2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
-                            if (eventData2.isCancelled === true) return false;
+                            var edata2 = obj.trigger({ phase: 'before', type: 'reload', target: obj.name });
+                            if (edata2.isCancelled === true) return false;
                             obj.reload();
-                            obj.trigger($.extend(eventData2, { phase: 'after' }));
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                             break;
                         case 'w2ui-column-on-off':
                             obj.initColumnOnOff();
@@ -7601,16 +7689,16 @@ w2utils.event = {
                             break;
                         case 'w2ui-add':
                             // events
-                            var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
-                            obj.trigger($.extend(eventData, { phase: 'after' }));
+                            var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
+                            obj.trigger($.extend(edata, { phase: 'after' }));
                             break;
                         case 'w2ui-edit':
                             var sel     = obj.getSelection();
                             var recid     = null;
                             if (sel.length == 1) recid = sel[0];
                             // events
-                            var eventData = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
-                            obj.trigger($.extend(eventData, { phase: 'after' }));
+                            var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
+                            obj.trigger($.extend(edata, { phase: 'after' }));
                             break;
                         case 'w2ui-delete':
                             obj["delete"]();
@@ -7620,7 +7708,7 @@ w2utils.event = {
                             break;
                     }
                     // no default action
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 });
             } else {
                 var pos1, pos2;
@@ -7672,15 +7760,15 @@ w2utils.event = {
                         if (obj.columns[c].sizeOriginal == null) obj.columns[c].sizeOriginal = obj.columns[c].size;
                         obj.columns[c].size = obj.columns[c].sizeCalculated;
                     }
-                    var eventData = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field };
-                    eventData = obj.trigger($.extend(eventData, { resizeBy: 0, originalEvent: event }));
+                    var edata = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field };
+                    edata = obj.trigger($.extend(edata, { resizeBy: 0, originalEvent: event }));
                     // set move event
                     var mouseMove = function (event) {
                         if (obj.resizing != true) return;
                         if (!event) event = window.event;
                         // event before
-                        eventData = obj.trigger($.extend(eventData, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }));
-                        if (eventData.isCancelled === true) { eventData.isCancelled = false; return; }
+                        edata = obj.trigger($.extend(edata, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }));
+                        if (edata.isCancelled === true) { edata.isCancelled = false; return; }
                         // default action
                         obj.last.tmp.x = (event.screenX - obj.last.tmp.x);
                         obj.last.tmp.y = (event.screenY - obj.last.tmp.y);
@@ -7698,7 +7786,7 @@ w2utils.event = {
                         obj.resizeRecords();
                         obj.scroll();
                         // event before
-                        obj.trigger($.extend(eventData, { phase: 'after', originalEvent: event }));
+                        obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                     };
                     $(document).on('mousemove', 'body', mouseMove);
                     $(document).on('mouseup', 'body', mouseUp);
@@ -9398,8 +9486,8 @@ w2utils.event = {
             // save into local storage
             if (returnOnly !== true) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'stateSave', target: this.name, state: state });
-                if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
+                var edata = this.trigger({ phase: 'before', type: 'stateSave', target: this.name, state: state });
+                if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
                 try {
                     var savedState = $.parseJSON(localStorage.w2ui || '{}');
                     if (!savedState) savedState = {};
@@ -9411,7 +9499,7 @@ w2utils.event = {
                     return null;
                 }
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
             return state;
         },
@@ -9433,8 +9521,8 @@ w2utils.event = {
                 }
             }
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'stateRestore', target: this.name, state: newState });
-            if (eventData.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
+            var edata = this.trigger({ phase: 'before', type: 'stateRestore', target: this.name, state: newState });
+            if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default behavior
             if ($.isPlainObject(newState)) {
                 $.extend(this.show, newState.show);
@@ -9464,7 +9552,7 @@ w2utils.event = {
                 }, 1);
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return true;
         },
 
@@ -9652,6 +9740,7 @@ w2utils.event = {
 *   - negative -size for left/right panels
 *   - sizeTo(..., instant) - added third argument
 *   - assignToolbar()
+*   - onContent event - triggered when any panel content is changed
 *
 ************************************************************************/
 
@@ -9789,6 +9878,10 @@ w2utils.event = {
             if (data == null) {
                 return p.content;
             } else {
+                // event before
+                var edata = this.trigger({ phase: 'before', type: 'content', target: panel, object: p, content: data, transition: transition });
+                if (edata.isCancelled === true) return;
+
                 if (data instanceof jQuery) {
                     console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
                     return false;
@@ -9832,6 +9925,8 @@ w2utils.event = {
                     this.refresh(panel);
                 }
             }
+            // event after
+            obj.trigger($.extend(edata, { phase: 'after' }));
             // IE Hack
             obj.resize();
             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
@@ -9881,15 +9976,15 @@ w2utils.event = {
         show: function (panel, immediate) {
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, object: this.get(panel), immediate: immediate });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'show', target: panel, object: this.get(panel), immediate: immediate });
+            if (edata.isCancelled === true) return;
 
             var p = obj.get(panel);
             if (p == null) return false;
             p.hidden = false;
             if (immediate === true) {
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
                 obj.resize();
             } else {
                 // resize
@@ -9903,7 +9998,7 @@ w2utils.event = {
                 // clean
                 setTimeout(function () {
                     $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.resize();
                 }, 500);
             }
@@ -9913,15 +10008,15 @@ w2utils.event = {
         hide: function (panel, immediate) {
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, object: this.get(panel), immediate: immediate });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'hide', target: panel, object: this.get(panel), immediate: immediate });
+            if (edata.isCancelled === true) return;
 
             var p = obj.get(panel);
             if (p == null) return false;
             p.hidden = true;
             if (immediate === true) {
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'    });
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
                 obj.resize();
             } else {
                 // hide
@@ -9931,7 +10026,7 @@ w2utils.event = {
                 // clean
                 setTimeout(function () {
                     $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.resize();
                 }, 500);
             }
@@ -10001,7 +10096,7 @@ w2utils.event = {
             var tmp = $(this.box).find(panel +'> .w2ui-panel-toolbar');
             if (pan.toolbar != null) {
                 if (tmp.find('[name='+ pan.toolbar.name +']').length === 0) {
-                    tmp.w2render(pan.toolbar); 
+                    tmp.w2render(pan.toolbar);
                 } else if (pan.toolbar != null) {
                     pan.toolbar.refresh();
                 }
@@ -10040,8 +10135,8 @@ w2utils.event = {
             // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             var time = (new Date()).getTime();
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'render', target: obj.name, box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'render', target: obj.name, box: box });
+            if (edata.isCancelled === true) return;
 
             if (box != null) {
                 if ($(obj.box).find('#layout_'+ obj.name +'_panel_main').length > 0) {
@@ -10075,7 +10170,7 @@ w2utils.event = {
                 .append('<div id="layout_'+ obj.name + '_panel_css" style="position: absolute; top: 10000px;"></div>');
             obj.refresh(); // if refresh is not called here, the layout will not be available right after initialization
             // process event
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
             // reinit events
             setTimeout(function () { // needed this timeout to allow browser to render first if there are tabs or toolbar
                 initEvents();
@@ -10195,9 +10290,9 @@ w2utils.event = {
                 var panel = obj.get(obj.tmp.resize.type);
                 // event before
                 var tmp = obj.tmp.resize;
-                var eventData = obj.trigger({ phase: 'before', type: 'resizing', target: obj.name, object: panel, originalEvent: evnt,
+                var edata = obj.trigger({ phase: 'before', type: 'resizing', target: obj.name, object: panel, originalEvent: evnt,
                     panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 });
-                if (eventData.isCancelled === true) return;
+                if (edata.isCancelled === true) return;
 
                 var p         = $('#layout_'+ obj.name + '_resizer_'+ tmp.type);
                 var resize_x  = (evnt.screenX - tmp.x);
@@ -10274,7 +10369,7 @@ w2utils.event = {
                         break;
                 }
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -10284,8 +10379,8 @@ w2utils.event = {
             if (panel == null) panel = null;
             var time = (new Date()).getTime();
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (panel != null ? panel : obj.name), object: obj.get(panel) });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'refresh', target: (panel != null ? panel : obj.name), object: obj.get(panel) });
+            if (edata.isCancelled === true) return;
             // obj.unlock(panel);
             if (typeof panel == 'string') {
                 var p = obj.get(panel);
@@ -10351,7 +10446,7 @@ w2utils.event = {
                 // refresh all of them
                 for (var p1 = 0; p1 < this.panels.length; p1++) { obj.refresh(this.panels[p1].type); }
             }
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
@@ -10361,9 +10456,9 @@ w2utils.event = {
             var time = (new Date()).getTime();
             // event before
             var tmp = this.tmp.resize;
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name,
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name,
                 panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0  });
-            if (eventData.isCancelled === true) return;
+            if (edata.isCancelled === true) return;
             if (this.padding < 0) this.padding = 0;
 
             // layout itself
@@ -10450,12 +10545,12 @@ w2utils.event = {
                         'cursor': 'ns-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('top', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -10494,12 +10589,12 @@ w2utils.event = {
                         'cursor': 'ew-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('left', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -10536,12 +10631,12 @@ w2utils.event = {
                         'cursor': 'ew-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('right', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -10577,12 +10672,12 @@ w2utils.event = {
                         'cursor': 'ns-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('bottom', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -10641,12 +10736,12 @@ w2utils.event = {
                         'cursor': 'ns-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('preview', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -10688,14 +10783,14 @@ w2utils.event = {
                     }
                 }
             }, 100);
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+            if (edata.isCancelled === true) return;
             if (w2ui[this.name] == null) return false;
             // clean up
             if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
@@ -10706,7 +10801,7 @@ w2utils.event = {
             }
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             if (this.tmp.events && this.tmp.events.resize) $(window).off('resize', this.tmp.events.resize);
             return true;
         },
@@ -10898,8 +10993,8 @@ var w2popup = {};
             // check if message is already displayed
             if ($('#w2ui-popup').length == 0) {
                 // trigger event
-                var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false });
-                if (eventData.isCancelled === true) return;
+                var edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false });
+                if (edata.isCancelled === true) return;
                 w2popup.status = 'opening';
                 // output message
                 w2popup.lockScreen(options);
@@ -10961,7 +11056,7 @@ var w2popup = {};
                     // event after
                     w2popup.status = 'open';
                     setTimeout(function () {
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     }, 100);
                 }, options.speed * 1000);
 
@@ -10970,8 +11065,8 @@ var w2popup = {};
                 if (w2popup._prev == null && w2popup._template != null) obj._restoreTemplate();
 
                 // trigger event
-                var eventData = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
-                if (eventData.isCancelled === true) return;
+                var edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
+                if (edata.isCancelled === true) return;
                 // check if size changed
                 w2popup.status = 'opening';
                 if (old_options != null) {
@@ -11038,7 +11133,7 @@ var w2popup = {};
                     obj.focus();
                     // call event onChange
                     w2popup.status = 'open';
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 });
             }
 
@@ -11110,8 +11205,8 @@ var w2popup = {};
             var options = $('#w2ui-popup').data('options');
             if (options && !options.keyboard) return;
             // trigger event
-            var eventData = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', options: options, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default behavior
             switch (event.keyCode) {
                 case 27:
@@ -11120,7 +11215,7 @@ var w2popup = {};
                     break;
             }
             // event after
-            w2popup.trigger($.extend(eventData, { phase: 'after'}));
+            w2popup.trigger($.extend(edata, { phase: 'after'}));
         },
 
         close: function (options) {
@@ -11132,8 +11227,8 @@ var w2popup = {};
                 return;
             }
             // trigger event
-            var eventData = this.trigger({ phase: 'before', type: 'close', target: 'popup', options: options });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'close', target: 'popup', options: options });
+            if (edata.isCancelled === true) return;
             // default behavior
             w2popup.status = 'closing';
             $('#w2ui-popup')
@@ -11151,7 +11246,7 @@ var w2popup = {};
                 // restore active
                 if (options._last_focus.length > 0) options._last_focus.focus();
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after'}));
+                obj.trigger($.extend(edata, { phase: 'after'}));
             }, options.speed * 1000);
             // remove keyboard events
             if (options.keyboard) $(document).off('keydown', this.keydown);
@@ -11161,13 +11256,13 @@ var w2popup = {};
             var obj     = this;
             var options = $('#w2ui-popup').data('options');
             // trigger event
-            var eventData = this.trigger({ phase: 'before', type: 'toggle', target: 'popup', options: options });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'toggle', target: 'popup', options: options });
+            if (edata.isCancelled === true) return;
             // defatul action
             if (options.maximized === true) w2popup.min(); else w2popup.max();
             // event after
             setTimeout(function () {
-                obj.trigger($.extend(eventData, { phase: 'after'}));
+                obj.trigger($.extend(edata, { phase: 'after'}));
             }, (options.speed * 1000) + 50);
         },
 
@@ -11176,8 +11271,8 @@ var w2popup = {};
             var options = $('#w2ui-popup').data('options');
             if (options.maximized === true) return;
             // trigger event
-            var eventData = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options });
+            if (edata.isCancelled === true) return;
             // default behavior
             w2popup.status   = 'resizing';
             options.prevSize = $('#w2ui-popup').css('width') + ':' + $('#w2ui-popup').css('height');
@@ -11185,7 +11280,7 @@ var w2popup = {};
             w2popup.resize(10000, 10000, function () {
                 w2popup.status    = 'open';
                 options.maximized = true;
-                obj.trigger($.extend(eventData, { phase: 'after'}));
+                obj.trigger($.extend(edata, { phase: 'after'}));
                 // resize gird, form, layout inside popup
                 $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(function () {
                     var name = $(this).attr('name');
@@ -11200,8 +11295,8 @@ var w2popup = {};
             if (options.maximized !== true) return;
             var size = options.prevSize.split(':');
             // trigger event
-            var eventData = this.trigger({ phase: 'before', type: 'min', target: 'popup', options: options });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'min', target: 'popup', options: options });
+            if (edata.isCancelled === true) return;
             // default behavior
             w2popup.status = 'resizing';
             // do resize
@@ -11209,7 +11304,7 @@ var w2popup = {};
                 w2popup.status = 'open';
                 options.maximized = false;
                 options.prevSize  = null;
-                obj.trigger($.extend(eventData, { phase: 'after'}));
+                obj.trigger($.extend(edata, { phase: 'after'}));
                 // resize gird, form, layout inside popup
                 $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(function () {
                     var name = $(this).attr('name');
@@ -11752,7 +11847,7 @@ var w2confirm = function (msg, title, callBack) {
 * == NICE TO HAVE ==
 *   - on overflow display << >>
 *   - declarative tabs
-*   - align = left, right, center ?? 
+*   - align = left, right, center ??
 *
 * == 1.5 changes
 *   - $('#tabs').w2tabs() - if called w/o argument then it returns tabs object
@@ -11921,7 +12016,7 @@ var w2confirm = function (msg, title, callBack) {
                 tab.hidden = false;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return shown;
         },
 
@@ -11936,7 +12031,7 @@ var w2confirm = function (msg, title, callBack) {
                 tab.hidden = true;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return hidden;
         },
 
@@ -11951,7 +12046,7 @@ var w2confirm = function (msg, title, callBack) {
                 tab.disabled = false;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return enabled;
         },
 
@@ -11966,7 +12061,7 @@ var w2confirm = function (msg, title, callBack) {
                 tab.disabled = true;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout 
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
             return disabled;
         },
 
@@ -12003,8 +12098,8 @@ var w2confirm = function (msg, title, callBack) {
             var time = (new Date()).getTime();
             if (this.flow == 'up') $(this.box).addClass('w2ui-tabs-up'); else $(this.box).removeClass('w2ui-tabs-up');
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), object: this.get(id) });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), object: this.get(id) });
+            if (edata.isCancelled === true) return;
             if (id == null) {
                 // refresh all
                 for (var i = 0; i < this.tabs.length; i++) this.refresh(this.tabs[i].id);
@@ -12025,11 +12120,11 @@ var w2confirm = function (msg, title, callBack) {
                                '</div>';
                 }
                 var tabHTML = closable +
-                    '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') 
+                    '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '')
                                 + (tab['class'] ? ' ' + tab['class'] : '') +'" '+
-                    '        title="'+ (this.tooltip == 'normal' && tab.tooltip != null ? tab.tooltip : '') +'" style="'+ tab.style +'" '+ 
+                    '        title="'+ (this.tooltip == 'normal' && tab.tooltip != null ? tab.tooltip : '') +'" style="'+ tab.style +'" '+
                     '        onmouseover = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipShow('"+ tab.id +"', event);" : "") + '"'+
-                    '        onmouseout  = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipHide('"+ tab.id +"', event);" : "") + '"'+                    
+                    '        onmouseout  = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipHide('"+ tab.id +"', event);" : "") + '"'+
                     '        onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
                 if (jq_el.length === 0) {
                     // does not exist - create it
@@ -12054,15 +12149,15 @@ var w2confirm = function (msg, title, callBack) {
             // right html
             $('#tabs_'+ this.name +'_right').html(this.right);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         render: function (box) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
+            if (edata.isCancelled === true) return;
             // default action
             // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             if (box != null) {
@@ -12085,7 +12180,7 @@ var w2confirm = function (msg, title, callBack) {
                 .html(html);
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             this.refresh();
             return (new Date()).getTime() - time;
         },
@@ -12093,20 +12188,20 @@ var w2confirm = function (msg, title, callBack) {
         resize: function () {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name });
+            if (edata.isCancelled === true) return;
 
             // intentionaly blank
 
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+            if (edata.isCancelled === true) return;
             // clean up
             if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
                 $(this.box)
@@ -12116,7 +12211,7 @@ var w2confirm = function (msg, title, callBack) {
             }
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         // ===================================================
@@ -12126,8 +12221,8 @@ var w2confirm = function (msg, title, callBack) {
             var tab = this.get(id);
             if (tab == null || tab.disabled) return false;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
             this.active = tab.id;
@@ -12144,7 +12239,7 @@ var w2confirm = function (msg, title, callBack) {
                 setTimeout(function () { window.location.hash = route; }, 1);
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             this.refresh(id);
         },
 
@@ -12152,8 +12247,8 @@ var w2confirm = function (msg, title, callBack) {
             var tab = this.get(id);
             if (tab == null || tab.disabled) return false;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default action
             var obj = this;
             $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css(w2utils.cssPrefix('transition', '.2s')).css('opacity', '0');
@@ -12169,7 +12264,7 @@ var w2confirm = function (msg, title, callBack) {
                 obj.remove(id);
             }, 450);
             // event before
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             this.refresh();
         },
 
@@ -12540,9 +12635,9 @@ var w2confirm = function (msg, title, callBack) {
             }
             if (it && !it.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
+                var edata = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
                     item: it, object: it, originalEvent: event });
-                if (eventData.isCancelled === true) return;
+                if (edata.isCancelled === true) return;
 
                 var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
                 $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
@@ -12646,7 +12741,7 @@ var w2confirm = function (msg, title, callBack) {
                     setTimeout(function () { window.location.hash = route; }, 1);
                 }
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -12711,8 +12806,8 @@ var w2confirm = function (msg, title, callBack) {
         render: function (box) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
+            if (edata.isCancelled === true) return;
 
             if (box != null) {
                 if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
@@ -12750,15 +12845,15 @@ var w2confirm = function (msg, title, callBack) {
                 .html(html);
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), item: this.get(id) });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), item: this.get(id) });
+            if (edata.isCancelled === true) return;
 
             if (id == null) {
                 // refresh all
@@ -12800,15 +12895,15 @@ var w2confirm = function (msg, title, callBack) {
                 if (it.disabled) { el.addClass('disabled'); } else { el.removeClass('disabled'); }
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         resize: function () {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name });
+            if (edata.isCancelled === true) return;
 
             var box = $(this.box);
             var scrollBox = box.children('.w2ui-toolbar-scroll-wrapper');
@@ -12830,14 +12925,14 @@ var w2confirm = function (msg, title, callBack) {
             }
 
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+            if (edata.isCancelled === true) return;
             // clean up
             if ($(this.box).find('> table #tb_'+ this.name + '_right').length > 0) {
                 $(this.box)
@@ -12848,7 +12943,7 @@ var w2confirm = function (msg, title, callBack) {
             $(this.box).html('');
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         // ========================================
@@ -12967,9 +13062,9 @@ var w2confirm = function (msg, title, callBack) {
             var obj = this;
             if (event.item && !event.item.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id + ':' + event.subItem.id, item: event.item,
+                var edata = this.trigger({ phase: 'before', type: 'click', target: event.item.id + ':' + event.subItem.id, item: event.item,
                     subItem: event.subItem, originalEvent: event.originalEvent });
-                if (eventData.isCancelled === true) return;
+                if (edata.isCancelled === true) return;
 
                 // route processing
                 var it   = event.subItem;
@@ -13003,7 +13098,7 @@ var w2confirm = function (msg, title, callBack) {
                 }
 
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -13011,16 +13106,16 @@ var w2confirm = function (msg, title, callBack) {
             var obj = this;
             if (event.item && !event.item.disabled) {
                 // event before
-                var eventData = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item,
+                var edata = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item,
                     color: event.color, originalEvent: event.originalEvent });
-                if (eventData.isCancelled === true) return;
+                if (edata.isCancelled === true) return;
 
                 // default behavior
                 event.item.color = event.color;
                 obj.refresh(event.item.id);
 
                 // event after
-                this.trigger($.extend(eventData, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after' }));
             }
         }
     };
@@ -13421,14 +13516,14 @@ var w2confirm = function (msg, title, callBack) {
             var obj = this;
             var nd  = this.get(id);
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
+            if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp(200);
             $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
             nd.expanded = false;
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             setTimeout(function () { obj.refresh(id); }, 200);
             return true;
         },
@@ -13449,14 +13544,14 @@ var w2confirm = function (msg, title, callBack) {
             var obj = this;
             var nd  = this.get(id);
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });
+            if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200);
             $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
             nd.expanded = true;
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             setTimeout(function () { obj.refresh(id); }, 200);
             return true;
         },
@@ -13504,8 +13599,8 @@ var w2confirm = function (msg, title, callBack) {
             // need timeout to allow rendering
             setTimeout(function () {
                 // event before
-                var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, node: nd, object: nd });
-                if (eventData.isCancelled === true) {
+                var edata = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, node: nd, object: nd });
+                if (edata.isCancelled === true) {
                     // restore selection
                     newNode.removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
                     oldNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
@@ -13528,15 +13623,15 @@ var w2confirm = function (msg, title, callBack) {
                     setTimeout(function () { window.location.hash = route; }, 1);
                 }
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }, 1);
         },
 
         focus: function (event) {
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
-            if (eventData.isCancelled === true) return false;
+            var edata = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
+            if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = true;
             $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
@@ -13545,18 +13640,18 @@ var w2confirm = function (msg, title, callBack) {
                 if (!$input.is(':focus')) $input.focus();
             }, 10);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         blur: function (event) {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
-            if (eventData.isCancelled === true) return false;
+            var edata = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
+            if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = false;
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         keydown: function (event) {
@@ -13565,8 +13660,8 @@ var w2confirm = function (msg, title, callBack) {
             if (obj.keyboard !== true) return;
             if (!nd) nd = obj.nodes[0];
             // trigger event
-            var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default behaviour
             if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
                 if (nd.nodes.length > 0) obj.toggle(obj.selected);
@@ -13594,7 +13689,7 @@ var w2confirm = function (msg, title, callBack) {
                 if (event.stopPropagation) event.stopPropagation();
             }
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
 
             function selectNode (node, event) {
                 if (node != null && !node.hidden && !node.disabled && !node.group) {
@@ -13664,12 +13759,12 @@ var w2confirm = function (msg, title, callBack) {
         dblClick: function (id, event) {
             var nd = this.get(id);
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
+            if (edata.isCancelled === true) return;
             // default action
             this.toggle(id);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         contextMenu: function (id, event) {
@@ -13677,8 +13772,8 @@ var w2confirm = function (msg, title, callBack) {
             var nd  = obj.get(id);
             if (id != obj.selected) obj.click(id);
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
+            if (edata.isCancelled === true) return;
             // default action
             if (nd.group || nd.disabled) return;
             if (obj.menu.length > 0) {
@@ -13687,8 +13782,8 @@ var w2confirm = function (msg, title, callBack) {
                         items: obj.menu,
                         contextMenu: true,
                         originalEvent: event,
-                        onSelect: function (event) { 
-                            obj.menuClick(id, parseInt(event.index), event.originalEvent); 
+                        onSelect: function (event) {
+                            obj.menuClick(id, parseInt(event.index), event.originalEvent);
                         }
                     }
                 );
@@ -13696,26 +13791,26 @@ var w2confirm = function (msg, title, callBack) {
             // cancel event
             if (event.preventDefault) event.preventDefault();
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
         },
 
         menuClick: function (itemId, index, event) {
             var obj = this;
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
+            if (edata.isCancelled === true) return;
             // default action
             // -- empty
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
         },
 
         render: function (box) {
             var time = (new Date()).getTime();
             var obj  = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
+            if (edata.isCancelled === true) return;
             // default action
             if (box != null) {
                 if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
@@ -13757,19 +13852,19 @@ var w2confirm = function (msg, title, callBack) {
             // focus
             var kbd_timer;
             $(this.box).find('#sidebar_'+ this.name + '_focus')
-                .on('focus', function (event) { 
+                .on('focus', function (event) {
                     clearTimeout(kbd_timer);
                     if (!obj.hasFocus) obj.focus();
                 })
-                .on('blur', function (event) { 
-                    kbd_timer = setTimeout(function () { 
+                .on('blur', function (event) {
+                    kbd_timer = setTimeout(function () {
                         if (obj.hasFocus) { obj.blur(); }
                     }, 100);
                 })
                 .on('keydown', function (event) {
                     if (event.keyCode != 9) { // not tab
                         w2ui[obj.name].keydown.call(w2ui[obj.name], event);
-                    } 
+                    }
                 });
             $(this.box).off('mousedown').on('mousedown', function (event) {
                 // set focus to grid
@@ -13782,7 +13877,7 @@ var w2confirm = function (msg, title, callBack) {
                 }, 1);
             });
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             // ---
             this.refresh();
             return (new Date()).getTime() - time;
@@ -13791,9 +13886,9 @@ var w2confirm = function (msg, title, callBack) {
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), 
+            var edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name),
                 fullRefresh: (id != null ? false : true) });
-            if (eventData.isCancelled === true) return;
+            if (edata.isCancelled === true) return;
             // adjust top and bottom
             if (this.topHTML !== '') {
                 $(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
@@ -13837,18 +13932,18 @@ var w2confirm = function (msg, title, callBack) {
                 nd = node.nodes[i];
                 nodeHTML = getNodeHTML(nd);
                 $(this.box).find(nm).append(nodeHTML);
-                if (nd.nodes.length !== 0) { 
-                    this.refresh(nd.id); 
+                if (nd.nodes.length !== 0) {
+                    this.refresh(nd.id);
                 } else {
                     // trigger event
-                    var eventData2 = this.trigger({ phase: 'before', type: 'refresh', target: nd.id });
-                    if (eventData2.isCancelled === true) return;
+                    var edata2 = this.trigger({ phase: 'before', type: 'refresh', target: nd.id });
+                    if (edata2.isCancelled === true) return;
                     // event after
-                    this.trigger($.extend(eventData2, { phase: 'after' }));
+                    this.trigger($.extend(edata2, { phase: 'after' }));
                 }
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
 
             function getNodeHTML(nd) {
@@ -13906,10 +14001,10 @@ var w2confirm = function (msg, title, callBack) {
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
                         html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
-                                '    onmouseover="$(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+ 
+                                '    onmouseover="$(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+
                                                 w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
                                 '               { id: \'' + nd.id + '\', left: -5 })"'+
-                                '    onmouseout="$(this).find(\'.w2ui-node-data\').w2tag(null, { id: \'' + nd.id + '\' })"'+ 
+                                '    onmouseout="$(this).find(\'.w2ui-node-data\').w2tag(null, { id: \'' + nd.id + '\' })"'+
                                 '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                                 '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                                 '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
@@ -13925,8 +14020,8 @@ var w2confirm = function (msg, title, callBack) {
         resize: function () {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name });
+            if (edata.isCancelled === true) return;
             // default action
             $(this.box).css('overflow', 'hidden');    // container should have no overflow
             $(this.box).find('> div').css({
@@ -13934,14 +14029,14 @@ var w2confirm = function (msg, title, callBack) {
                 height : $(this.box).height() + 'px'
             });
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+            if (edata.isCancelled === true) return;
             // clean up
             if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
                 $(this.box)
@@ -13951,7 +14046,7 @@ var w2confirm = function (msg, title, callBack) {
             }
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         lock: function (msg, showSpinner) {
@@ -14634,10 +14729,10 @@ var w2confirm = function (msg, title, callBack) {
                 }
                 // ITEMS events
                 div.off('scroll.w2field').on('scroll.w2field', function (event) {
-                        var eventData = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     })
                     .find('li')
                     .data('mouse', 'out')
@@ -14647,14 +14742,14 @@ var w2confirm = function (msg, title, callBack) {
                         if ($(target).hasClass('nomouse')) return;
                         event.stopPropagation();
                         // trigger event
-                        var eventData = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
+                        if (edata.isCancelled === true) return;
                         // default behavior
                         if ($(event.target).hasClass('w2ui-list-remove')) {
                             if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
                             // trigger event
-                            var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
-                            if (eventData.isCancelled === true) return;
+                            var edata = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
+                            if (edata.isCancelled === true) return;
                             // default behavior
                             $().w2overlay();
                             selected.splice($(event.target).attr('index'), 1);
@@ -14663,7 +14758,7 @@ var w2confirm = function (msg, title, callBack) {
                             setTimeout(function () {
                                 obj.refresh();
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             }, 300);
                         }
                         if (obj.type == 'file' && !$(event.target).hasClass('w2ui-list-remove')) {
@@ -14695,7 +14790,7 @@ var w2confirm = function (msg, title, callBack) {
                             $(target).w2overlay(preview);
                         }
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     })
                     .on('mouseover', function (event) {
                         var target = (event.target.tagName.toUpperCase() == 'LI' ? event.target : $(event.target).parents('LI'));
@@ -14703,10 +14798,10 @@ var w2confirm = function (msg, title, callBack) {
                         if ($(target).data('mouse') == 'out') {
                             var item = selected[$(event.target).attr('index')];
                             // trigger event
-                            var eventData = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item });
-                            if (eventData.isCancelled === true) return;
+                            var edata = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item });
+                            if (edata.isCancelled === true) return;
                             // event after
-                            obj.trigger($.extend(eventData, { phase: 'after' }));
+                            obj.trigger($.extend(edata, { phase: 'after' }));
                         }
                         $(target).data('mouse', 'over');
                     })
@@ -14719,10 +14814,10 @@ var w2confirm = function (msg, title, callBack) {
                                 $(target).data('mouse', 'out');
                                 var item = selected[$(event.target).attr('index')];
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
-                                if (eventData.isCancelled === true) return;
+                                var edata = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                if (edata.isCancelled === true) return;
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             }
                         }, 0);
                     });
@@ -15208,9 +15303,9 @@ var w2confirm = function (msg, title, callBack) {
                         if (obj.type == 'enum') {
                             if (item != null) {
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
-                                if (eventData.isCancelled === true) return;
-                                item = eventData.item; // need to reassign because it could be recreated by user
+                                var edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                if (edata.isCancelled === true) return;
+                                item = edata.item; // need to reassign because it could be recreated by user
                                 // default behavior
                                 if (selected.length >= options.max && options.max > 0) selected.pop();
                                 delete item.hidden;
@@ -15220,13 +15315,13 @@ var w2confirm = function (msg, title, callBack) {
                                 focus.val('').width(20);
                                 obj.refresh();
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             } else {
                                 // trigger event
                                 item = { id: focus.val(), text: focus.val() };
-                                var eventData = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
-                                if (eventData.isCancelled === true) return;
-                                item = eventData.item; // need to reassign because it could be recreated by user
+                                var edata = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                if (edata.isCancelled === true) return;
+                                item = edata.item; // need to reassign because it could be recreated by user
                                 // default behavior
                                 if (typeof obj.onNew == 'function') {
                                     if (selected.length >= options.max && options.max > 0) selected.pop();
@@ -15237,7 +15332,7 @@ var w2confirm = function (msg, title, callBack) {
                                     obj.refresh();
                                 }
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             }
                         } else {
                             if (item) $(obj.el).data('selected', item).val(item.text).change();
@@ -15256,14 +15351,14 @@ var w2confirm = function (msg, title, callBack) {
                             if (focus.val() == '' && selected.length > 0) {
                                 var item = selected[selected.length - 1];
                                 // trigger event
-                                var eventData = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
-                                if (eventData.isCancelled === true) return;
+                                var edata = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
+                                if (edata.isCancelled === true) return;
                                 // default behavior
                                 selected.pop();
                                 $(obj.el).trigger('change');
                                 obj.refresh();
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             }
                         }
                         if (obj.type == 'list' && focus.val() == '') {
@@ -15401,10 +15496,10 @@ var w2confirm = function (msg, title, callBack) {
                         max    : options.cacheMax
                     };
                     $.extend(postData, options.postData);
-                    var eventData = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
-                    if (eventData.isCancelled === true) return;
-                    url      = eventData.url;
-                    postData = eventData.postData;
+                    var edata = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
+                    if (edata.isCancelled === true) return;
+                    url      = edata.url;
+                    postData = edata.postData;
                     var ajaxOptions = {
                         type     : 'GET',
                         url      : url,
@@ -15424,10 +15519,10 @@ var w2confirm = function (msg, title, callBack) {
                     obj.tmp.xhr = $.ajax(ajaxOptions)
                         .done(function (data, status, xhr) {
                             // trigger event
-                            var eventData2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr });
-                            if (eventData2.isCancelled === true) return;
+                            var edata2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr });
+                            if (edata2.isCancelled === true) return;
                             // default behavior
-                            data = eventData2.data;
+                            data = edata2.data;
                             if (typeof data == 'string') data = JSON.parse(data);
                             if (data.status != 'success') {
                                 console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
@@ -15443,13 +15538,13 @@ var w2confirm = function (msg, title, callBack) {
                             if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // event after
-                            obj.trigger($.extend(eventData2, { phase: 'after' }));
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                         })
                         .fail(function (xhr, status, error) {
                             // trigger event
                             var errorObj = { status: status, error: error, rawResponseText: xhr.responseText };
-                            var eventData2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
-                            if (eventData2.isCancelled === true) return;
+                            var edata2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr });
+                            if (edata2.isCancelled === true) return;
                             // default behavior
                             if (status != 'abort') {
                                 var data;
@@ -15463,10 +15558,10 @@ var w2confirm = function (msg, title, callBack) {
                             obj.clearCache();
                             obj.search();
                             // event after
-                            obj.trigger($.extend(eventData2, { phase: 'after' }));
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                         });
                     // event after
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 }, interval);
             }
         },
@@ -15820,8 +15915,8 @@ var w2confirm = function (msg, title, callBack) {
                                 var selected = $(obj.el).data('selected');
                                 if (event.item) {
                                     // trigger event
-                                    var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: event.item });
-                                    if (eventData.isCancelled === true) return;
+                                    var edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: event.item });
+                                    if (edata.isCancelled === true) return;
                                     // default behavior
                                     if (selected.length >= options.max && options.max > 0) selected.pop();
                                     delete event.item.hidden;
@@ -15831,7 +15926,7 @@ var w2confirm = function (msg, title, callBack) {
                                     obj.refresh();
                                     if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                                     // event after
-                                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                                    obj.trigger($.extend(edata, { phase: 'after' }));
                                 }
                             } else {
                                 $(obj.el).data('selected', event.item).val(event.item.text).change();
@@ -16014,13 +16109,13 @@ var w2confirm = function (msg, title, callBack) {
                         .on('click', function (event) {
                             if (obj.options.icon && typeof obj.onIconClick == 'function') {
                                 // event before
-                                var eventData = obj.trigger({ phase: 'before', type: 'iconClick', target: obj.el, el: $(this).find('span.w2ui-icon')[0] });
-                                if (eventData.isCancelled === true) return;
+                                var edata = obj.trigger({ phase: 'before', type: 'iconClick', target: obj.el, el: $(this).find('span.w2ui-icon')[0] });
+                                if (edata.isCancelled === true) return;
 
                                 // intentionally empty
 
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));
+                                obj.trigger($.extend(edata, { phase: 'after' }));
                             } else {
                                 if (obj.type == 'list') {
                                     $(obj.helpers.focus).find('input').focus();
@@ -16353,8 +16448,8 @@ var w2confirm = function (msg, title, callBack) {
                 size += selected[s].size; cnt++;
             }
             // trigger event
-            var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
+            if (edata.isCancelled === true) return;
             // check params
             if (options.maxFileSize !== 0 && newItem.size > options.maxFileSize) {
                 err = 'Maximum file size is '+ w2utils.formatSize(options.maxFileSize);
@@ -16387,7 +16482,7 @@ var w2confirm = function (msg, title, callBack) {
                         obj.refresh();
                         $(obj.el).trigger('change');
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     };
                 })();
                 reader.readAsDataURL(file);
