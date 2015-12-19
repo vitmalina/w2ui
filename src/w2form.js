@@ -171,10 +171,10 @@
         onToolbar     : null,
         onError       : null,
 
-        msgNotJSON    : w2utils.lang('Return data is not in JSON format.'),
-        msgAJAXerror  : w2utils.lang('AJAX error. See console for more details.'),
-        msgRefresh    : w2utils.lang('Refreshing...'),
-        msgSaving     : w2utils.lang('Saving...'),
+        msgNotJSON    : 'Return data is not in JSON format.',
+        msgAJAXerror  : 'AJAX error. See console for more details.',
+        msgRefresh    : 'Refreshing...',
+        msgSaving     : 'Saving...',
 
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
@@ -419,7 +419,7 @@
             this.record   = {};
             this.original = {};
             // call server to get data
-            this.lock(this.msgRefresh);
+            this.lock(w2utils.lang(this.msgRefresh));
             var url = edata.url;
             if (typeof edata.url == 'object' && edata.url.get) url = edata.url.get;
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
@@ -491,7 +491,7 @@
                                 }
                             }
                             if (data['status'] == 'error') {
-                                obj.error(data['message']);
+                                obj.error(w2utils.lang(data['message']));
                             } else {
                                 obj.record   = $.extend({}, data.record);
                                 obj.original = $.extend({}, data.record);
@@ -553,7 +553,7 @@
                 console.log("ERROR: Form cannot be saved because no url is defined.");
                 return;
             }
-            obj.lock(obj.msgSaving + ' <span id="'+ obj.name +'_progress"></span>');
+            obj.lock(w2utils.lang(obj.msgSaving) + ' <span id="'+ obj.name +'_progress"></span>');
             // need timer to allow to lock
             setTimeout(function () {
                 // build parameters list
@@ -662,7 +662,7 @@
                                     }
                                 }
                                 if (data['status'] == 'error') {
-                                    obj.error(data['message']);
+                                    obj.error(w2utils.lang(data['message']));
                                 } else {
                                     obj.original = $.extend({}, obj.record);
                                 }
