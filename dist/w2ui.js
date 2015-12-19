@@ -2727,6 +2727,7 @@ w2utils.event = {
 *   - update(cells) - added argument cells
 *   - scrollIntoView(..., ..., instant) - added third argument
 *   - added onResizeDblClick
+*   - added onColumnDblClick
 *   - implemented showBubble
 *   - added show.searchAll
 *   - added w2grid.operators
@@ -2973,6 +2974,7 @@ w2utils.event = {
         onContextMenu      : null,
         onMenuClick        : null,        // when context menu item selected
         onColumnClick      : null,
+        onColumnDblClick   : null,
         onColumnResize     : null,
         onSort             : null,
         onSearch           : null,
@@ -5663,6 +5665,14 @@ w2utils.event = {
                     this.select.apply(this, sel);
                 }
             }
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        columnDblClick: function (field, event) {
+            // event before
+            var edata = this.trigger({ phase: 'before', type: 'columnDblClick', target: this.name, field: field, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
         },
@@ -8509,7 +8519,8 @@ w2utils.event = {
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
                                '    rowspan="2" colspan="'+ colspan +'" '+
                                '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
-                               '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);">'+
+                               '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);"'+
+                               '    ondblclick="w2ui[\''+ obj.name +'\'].columnDblClick(\''+ col.field +'\', event);">'+
                                    resizer +
                                '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
                                '        <div class="'+ sortStyle +'"></div>'+
@@ -8537,7 +8548,9 @@ w2utils.event = {
                 var html1 = '<tr>';
                 var html2 = '<tr>';
                 if (obj.show.lineNumbers) {
-                    html1 += '<td class="w2ui-head w2ui-col-number" onclick="w2ui[\''+ obj.name +'\'].columnClick(\'line-number\', event);">'+
+                    html1 += '<td class="w2ui-head w2ui-col-number" '+
+                            '       onclick="w2ui[\''+ obj.name +'\'].columnClick(\'line-number\', event);"'+
+                            '       ondblclick="w2ui[\''+ obj.name +'\'].columnDblClick(\'line-number\', event);">'+
                             '    <div>#</div>'+
                             '</td>';
                 }
@@ -8614,7 +8627,8 @@ w2utils.event = {
                         '    onmouseover = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
                         '    onmouseout  = "w2ui[\''+ this.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
                         '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(null, '+ i +', event);"'+
-                        '    onclick="w2ui[\''+ this.name +'\'].columnClick(\''+ col.field +'\', event);">'+
+                        '    onclick="w2ui[\''+ this.name +'\'].columnClick(\''+ col.field +'\', event);"'+
+                        '    ondblclick="w2ui[\''+ this.name +'\'].columnDblClick(\''+ col.field +'\', event);">'+
                              (col.resizable !== false ? '<div class="w2ui-resizer" name="'+ i +'"></div>' : '') +
                         '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +' '+ (selected ? 'w2ui-col-selected' : '') +'">'+
                         '        <div class="'+ sortStyle +'"></div>'+
@@ -16887,10 +16901,10 @@ var w2confirm = function (msg, title, callBack) {
         onToolbar     : null,
         onError       : null,
 
-        msgNotJSON    : w2utils.lang('Return data is not in JSON format.'),
-        msgAJAXerror  : w2utils.lang('AJAX error. See console for more details.'),
-        msgRefresh    : w2utils.lang('Refreshing...'),
-        msgSaving     : w2utils.lang('Saving...'),
+        msgNotJSON    : 'Return data is not in JSON format.',
+        msgAJAXerror  : 'AJAX error. See console for more details.',
+        msgRefresh    : 'Refreshing...',
+        msgSaving     : 'Saving...',
 
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
@@ -17135,7 +17149,7 @@ var w2confirm = function (msg, title, callBack) {
             this.record   = {};
             this.original = {};
             // call server to get data
-            this.lock(this.msgRefresh);
+            this.lock(w2utils.lang(this.msgRefresh));
             var url = edata.url;
             if (typeof edata.url == 'object' && edata.url.get) url = edata.url.get;
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
@@ -17207,7 +17221,7 @@ var w2confirm = function (msg, title, callBack) {
                                 }
                             }
                             if (data['status'] == 'error') {
-                                obj.error(data['message']);
+                                obj.error(w2utils.lang(data['message']));
                             } else {
                                 obj.record   = $.extend({}, data.record);
                                 obj.original = $.extend({}, data.record);
@@ -17269,7 +17283,7 @@ var w2confirm = function (msg, title, callBack) {
                 console.log("ERROR: Form cannot be saved because no url is defined.");
                 return;
             }
-            obj.lock(obj.msgSaving + ' <span id="'+ obj.name +'_progress"></span>');
+            obj.lock(w2utils.lang(obj.msgSaving) + ' <span id="'+ obj.name +'_progress"></span>');
             // need timer to allow to lock
             setTimeout(function () {
                 // build parameters list
@@ -17378,7 +17392,7 @@ var w2confirm = function (msg, title, callBack) {
                                     }
                                 }
                                 if (data['status'] == 'error') {
-                                    obj.error(data['message']);
+                                    obj.error(w2utils.lang(data['message']));
                                 } else {
                                     obj.original = $.extend({}, obj.record);
                                 }
