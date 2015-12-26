@@ -80,11 +80,11 @@ var w2utils = (function ($) {
             "fullmonths"        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-            "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
-            "dataType"          : 'HTTP',   // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
-            "phrases"           : {},       // empty object for english phrases
-            "dateStartYear"     : 1950,     // start year for date-picker
-            "dateEndYear"       : 2020      // end year for date picker
+            "weekStarts"        : "M",        // can be "M" for Monday or "S" for Sunday
+            "dataType"          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
+            "phrases"           : {},         // empty object for english phrases
+            "dateStartYear"     : 1950,       // start year for date-picker
+            "dateEndYear"       : 2020        // end year for date picker
         },
         isBin           : isBin,
         isInt           : isInt,
@@ -1486,7 +1486,7 @@ w2utils.formatters = {
     'number': function (value, params) {
         if (parseInt(params) > 20) params = 20;
         if (parseInt(params) < 0) params = 0;
-        if (value == null || value == '') return '';
+        if (value == null || value === '') return '';
         return w2utils.formatNumber(parseFloat(value), params, true);
     },
 
@@ -1499,7 +1499,7 @@ w2utils.formatters = {
     },
 
     'money': function (value, params) {
-        if (value == null || value == '') return '';
+        if (value == null || value === '') return '';
         var data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision || 2);
         return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '');
     },
@@ -1509,12 +1509,12 @@ w2utils.formatters = {
     },
 
     'percent': function (value, params) {
-        if (value == null || value == '') return '';
+        if (value == null || value === '') return '';
         return w2utils.formatNumber(value, params || 1) + '%';
     },
 
     'size': function (value, params) {
-        if (value == null || value == '') return '';
+        if (value == null || value === '') return '';
         return w2utils.formatSize(parseInt(value));
     },
 
@@ -4734,7 +4734,7 @@ w2utils.event = {
             }
             // default action
             this.clear(true);
-            this.request('get-records', {}, url, callBack);
+            this.request('get', {}, url, callBack);
         },
 
         reload: function (callBack) {
@@ -4782,7 +4782,7 @@ w2utils.event = {
             $.extend(params, this.postData);
             $.extend(params, add_params);
             // event before
-            if (cmd == 'get-records') {
+            if (cmd == 'get') {
                 var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
                 if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             } else {
@@ -4803,8 +4803,8 @@ w2utils.event = {
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // URL
             url = (typeof edata.url != 'object' ? edata.url : edata.url.get);
-            if (params.cmd == 'save-records' && typeof edata.url == 'object')   url = edata.url.save;
-            if (params.cmd == 'delete-records' && typeof edata.url == 'object') url = edata.url.remove;
+            if (params.cmd == 'save' && typeof edata.url == 'object')   url = edata.url.save;
+            if (params.cmd == 'delete' && typeof edata.url == 'object') url = edata.url.remove;
             // process url with routeData
             if (!$.isEmptyObject(obj.routeData)) {
                 var info  = w2utils.parseRoute(url);
@@ -4826,18 +4826,18 @@ w2utils.event = {
                 ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
             if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
             }
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
-                if (params.cmd == 'save-records')   ajaxOptions.type = 'PUT';  // so far it is always update
-                if (params.cmd == 'delete-records') ajaxOptions.type = 'DELETE';
+                if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
                 ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
             if (w2utils.settings.dataType == 'RESTFULLJSON') {
                 ajaxOptions.type = 'GET';
-                if (params.cmd == 'save-records')   ajaxOptions.type = 'PUT';  // so far it is always update
-                if (params.cmd == 'delete-records') ajaxOptions.type = 'DELETE';
+                if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
                 ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                 ajaxOptions.contentType = 'application/json';
             }
@@ -4872,7 +4872,7 @@ w2utils.event = {
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
                 });
-            if (cmd == 'get-records') {
+            if (cmd == 'get') {
                 // event after
                 this.trigger($.extend(edata, { phase: 'after' }));
             }
@@ -4889,8 +4889,8 @@ w2utils.event = {
 
             // event before
             var event_name = 'load';
-            if (this.last.xhr_cmd == 'save-records') event_name   = 'save';
-            if (this.last.xhr_cmd == 'delete-records') event_name = 'delete';
+            if (this.last.xhr_cmd == 'save') event_name   = 'save';
+            if (this.last.xhr_cmd == 'delete') event_name = 'delete';
             var edata = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
             if (edata.isCancelled === true) {
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
@@ -4933,7 +4933,7 @@ w2utils.event = {
                     if (data['status'] == 'error') {
                         obj.error(data['message']);
                     } else {
-                        if (cmd == 'get-records') {
+                        if (cmd == 'get') {
                             if (this.last.xhr_offset == 0) {
                                 this.records = [];
                                 this.summary = [];
@@ -4960,7 +4960,7 @@ w2utils.event = {
                                 }
                             }
                         }
-                        if (cmd == 'delete-records') {
+                        if (cmd == 'delete') {
                             this.reset(); // unselect old selections
                             this.reload();
                             return;
@@ -5052,7 +5052,7 @@ w2utils.event = {
             if (edata.isCancelled === true) return;
             var url = (typeof this.url != 'object' ? this.url : this.url.save);
             if (url) {
-                this.request('save-records', { 'changes' : edata.changes }, null,
+                this.request('save', { 'changes' : edata.changes }, null,
                     function (data) {
                         if (data.status !== 'error') {
                             // only merge changes, if save was successful
@@ -5487,7 +5487,7 @@ w2utils.event = {
             // call delete script
             var url = (typeof this.url != 'object' ? this.url : this.url.remove);
             if (url) {
-                this.request('delete-records');
+                this.request('delete');
             } else {
                 if (typeof recs[0] != 'object') {
                     this.selectNone();
@@ -8995,7 +8995,7 @@ w2utils.event = {
                 if (this.autoLoad === true) {
                     this.last.pull_more = true;
                     this.last.xhr_offset += this.limit;
-                    this.request('get-records');
+                    this.request('get');
                 } else {
                     var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
                     if (more.css('display') == 'none') {
@@ -9003,7 +9003,7 @@ w2utils.event = {
                             .on('click', function () {
                                 obj.last.pull_more = true;
                                 obj.last.xhr_offset += obj.limit;
-                                obj.request('get-records');
+                                obj.request('get');
                                 // show spinner the last
                                 $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
                             });
@@ -14139,6 +14139,8 @@ var w2confirm = function (msg, title, callBack) {
 *   - options.maxDropWidth
 *   - options.noMinutes - for time field
 *   - options.transarent = t/f for color
+*   - remote data is not compatible with grid
+*   - options.recId, options.recText - to define custom id and text for remove data, can be string or function
 *
 ************************************************************************/
 
@@ -14393,10 +14395,12 @@ var w2confirm = function (msg, title, callBack) {
                         items           : [],
                         selected        : {},
                         url             : null,          // url to pull data from
+                        recId           : null,          // map retrieved data from url to id, can be string or function
+                        recText         : null,          // map retrieved data from url to text, can be string or function
                         method          : null,          // default comes from w2utils.settings.dataType
                         interval        : 350,           // number of ms to wait before sending server call on search
                         postData        : {},
-                        minLength       : 1,
+                        minLength       : 1,            // min number of chars when trigger search
                         cacheMax        : 250,
                         maxDropHeight   : 350,          // max height for drop down menu
                         maxDropWidth    : null,         // if null then auto set
@@ -14441,7 +14445,10 @@ var w2confirm = function (msg, title, callBack) {
                     this.options = options;
                     if (!$.isPlainObject(options.selected)) options.selected = {};
                     $(this.el).data('selected', options.selected);
-                    if (options.url) this.request(0);
+                    if (options.url) {
+                        options.items = [];
+                        this.request(0);
+                    }
                     if (this.type == 'list') this.addFocus();
                     this.addPrefix();
                     this.addSuffix();
@@ -14456,10 +14463,12 @@ var w2confirm = function (msg, title, callBack) {
                         selected        : [],
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
+                        recId           : null,          // map retrieved data from url to id, can be string or function
+                        recText         : null,          // map retrieved data from url to text, can be string or function
                         interval        : 350,           // number of ms to wait before sending server call on search
                         method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
-                        minLength       : 1,
+                        minLength       : 1,            // min number of chars when trigger search
                         cacheMax        : 250,
                         maxWidth        : 250,           // max width for a single item
                         maxHeight       : 350,           // max height for input control to grow
@@ -14491,12 +14500,15 @@ var w2confirm = function (msg, title, callBack) {
                         suffix   : '',
                         altRows  : true       // alternate row color
                     });
-                    options.items      = this.normMenu(options.items);
+                    options.items    = this.normMenu(options.items);
                     options.selected = this.normMenu(options.selected);
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
-                    if (options.url) this.request(0);
+                    if (options.url) {
+                        options.items = [];
+                        this.request(0);
+                    }
                     this.addSuffix();
                     this.addMulti();
                     this.watchSize();
@@ -15545,7 +15557,7 @@ var w2confirm = function (msg, title, callBack) {
                         ajaxOptions.contentType = 'application/json';
                     }
                     if (w2utils.settings.dataType == 'HTTPJSON') {
-                        ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                        ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
                     }
                     if (options.method != null) ajaxOptions.type = options.method;
                     obj.tmp.xhr = $.ajax(ajaxOptions)
@@ -15556,18 +15568,33 @@ var w2confirm = function (msg, title, callBack) {
                             // default behavior
                             data = edata2.data;
                             if (typeof data == 'string') data = JSON.parse(data);
-                            if (data.status != 'success') {
-                                console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
+                            if (data.records == null && data.items != null) {
+                                // needed for backward compatibility
+                                data.records = data.items;
+                                delete data.items;
+                            }
+                            if (data.status != 'success' || !Array.isArray(data.records)) {
+                                console.log('ERROR: server did not return proper structure. It should return', { status: 'success', records: [{ id: 1, text: 'item' }] });
                                 return;
                             }
                             // remove all extra items if more then needed for cache
-                            if (data.items.length > options.cacheMax) data.items.splice(options.cacheMax, 100000);
+                            if (data.records.length > options.cacheMax) data.records.splice(options.cacheMax, 100000);
+                            // map id and text
+                            if (options.recId == null && options.recid != null) options.recId = options.recid; // since lower-case recid is used in grid
+                            if (options.recId || options.recText) {
+                                data.records.forEach(function (item) {
+                                    if (typeof options.recId == 'string') item.id   = item[options.recId];
+                                    if (typeof options.recId == 'function') item.id = options.recId(item);
+                                    if (typeof options.recText == 'string') item.text   = item[options.recText];
+                                    if (typeof options.recText == 'function') item.text = options.recText(item);
+                                });
+                            }
                             // remember stats
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
-                            obj.tmp.xhr_total   = data.items.length;
-                            options.items       = obj.normMenu(data.items);
-                            if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
+                            obj.tmp.xhr_total   = data.records.length;
+                            options.items       = obj.normMenu(data.records);
+                            if (search == '' && data.records.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // event after
                             obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -15582,7 +15609,7 @@ var w2confirm = function (msg, title, callBack) {
                                 var data;
                                 try { data = $.parseJSON(xhr.responseText); } catch (e) {}
                                 console.log('ERROR: Server communication failed.',
-                                    '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
+                                    '\n   EXPECTED:', { status: 'success', records: [{ id: 1, text: 'item' }] },
                                     '\n         OR:', { status: 'error', message: 'error message' },
                                     '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
                             }
@@ -15935,6 +15962,7 @@ var w2confirm = function (msg, title, callBack) {
                     var msgNoItems = w2utils.lang('No matches');
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
                     if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search...');
+                    if (options.url == null && options.items.length == 0) msgNoItems = w2utils.lang('Empty list');
                     $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
@@ -17155,7 +17183,7 @@ var w2confirm = function (msg, title, callBack) {
             // build parameters list
             var params = {};
             // add list params
-            params['cmd']   = 'get-record';
+            params['cmd']   = 'get';
             params['recid'] = this.recid;
             // append other params
             $.extend(params, this.postData);
@@ -17191,7 +17219,7 @@ var w2confirm = function (msg, title, callBack) {
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
             if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
             }
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
@@ -17307,7 +17335,7 @@ var w2confirm = function (msg, title, callBack) {
                 // build parameters list
                 var params = {};
                 // add list params
-                params['cmd']   = 'save-record';
+                params['cmd']   = 'save';
                 params['recid'] = obj.recid;
                 // append other params
                 $.extend(params, obj.postData);
@@ -17364,7 +17392,7 @@ var w2confirm = function (msg, title, callBack) {
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'HTTPJSON') {
-                    ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
                     if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';

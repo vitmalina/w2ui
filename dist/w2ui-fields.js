@@ -80,11 +80,11 @@ var w2utils = (function ($) {
             "fullmonths"        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-            "weekStarts"        : "M",      // can be "M" for Monday or "S" for Sunday
-            "dataType"          : 'HTTP',   // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
-            "phrases"           : {},       // empty object for english phrases
-            "dateStartYear"     : 1950,     // start year for date-picker
-            "dateEndYear"       : 2020      // end year for date picker
+            "weekStarts"        : "M",        // can be "M" for Monday or "S" for Sunday
+            "dataType"          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
+            "phrases"           : {},         // empty object for english phrases
+            "dateStartYear"     : 1950,       // start year for date-picker
+            "dateEndYear"       : 2020        // end year for date picker
         },
         isBin           : isBin,
         isInt           : isInt,
@@ -1486,7 +1486,7 @@ w2utils.formatters = {
     'number': function (value, params) {
         if (parseInt(params) > 20) params = 20;
         if (parseInt(params) < 0) params = 0;
-        if (value == null || value == '') return '';
+        if (value == null || value === '') return '';
         return w2utils.formatNumber(parseFloat(value), params, true);
     },
 
@@ -1499,7 +1499,7 @@ w2utils.formatters = {
     },
 
     'money': function (value, params) {
-        if (value == null || value == '') return '';
+        if (value == null || value === '') return '';
         var data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision || 2);
         return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '');
     },
@@ -1509,12 +1509,12 @@ w2utils.formatters = {
     },
 
     'percent': function (value, params) {
-        if (value == null || value == '') return '';
+        if (value == null || value === '') return '';
         return w2utils.formatNumber(value, params || 1) + '%';
     },
 
     'size': function (value, params) {
-        if (value == null || value == '') return '';
+        if (value == null || value === '') return '';
         return w2utils.formatSize(parseInt(value));
     },
 
@@ -2695,6 +2695,8 @@ w2utils.event = {
 *   - options.maxDropWidth
 *   - options.noMinutes - for time field
 *   - options.transarent = t/f for color
+*   - remote data is not compatible with grid
+*   - options.recId, options.recText - to define custom id and text for remove data, can be string or function
 *
 ************************************************************************/
 
@@ -2949,10 +2951,12 @@ w2utils.event = {
                         items           : [],
                         selected        : {},
                         url             : null,          // url to pull data from
+                        recId           : null,          // map retrieved data from url to id, can be string or function
+                        recText         : null,          // map retrieved data from url to text, can be string or function
                         method          : null,          // default comes from w2utils.settings.dataType
                         interval        : 350,           // number of ms to wait before sending server call on search
                         postData        : {},
-                        minLength       : 1,
+                        minLength       : 1,            // min number of chars when trigger search
                         cacheMax        : 250,
                         maxDropHeight   : 350,          // max height for drop down menu
                         maxDropWidth    : null,         // if null then auto set
@@ -2997,7 +3001,10 @@ w2utils.event = {
                     this.options = options;
                     if (!$.isPlainObject(options.selected)) options.selected = {};
                     $(this.el).data('selected', options.selected);
-                    if (options.url) this.request(0);
+                    if (options.url) {
+                        options.items = [];
+                        this.request(0);
+                    }
                     if (this.type == 'list') this.addFocus();
                     this.addPrefix();
                     this.addSuffix();
@@ -3012,10 +3019,12 @@ w2utils.event = {
                         selected        : [],
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
+                        recId           : null,          // map retrieved data from url to id, can be string or function
+                        recText         : null,          // map retrieved data from url to text, can be string or function
                         interval        : 350,           // number of ms to wait before sending server call on search
                         method          : null,          // default comes from w2utils.settings.dataType
                         postData        : {},
-                        minLength       : 1,
+                        minLength       : 1,            // min number of chars when trigger search
                         cacheMax        : 250,
                         maxWidth        : 250,           // max width for a single item
                         maxHeight       : 350,           // max height for input control to grow
@@ -3047,12 +3056,15 @@ w2utils.event = {
                         suffix   : '',
                         altRows  : true       // alternate row color
                     });
-                    options.items      = this.normMenu(options.items);
+                    options.items    = this.normMenu(options.items);
                     options.selected = this.normMenu(options.selected);
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
-                    if (options.url) this.request(0);
+                    if (options.url) {
+                        options.items = [];
+                        this.request(0);
+                    }
                     this.addSuffix();
                     this.addMulti();
                     this.watchSize();
@@ -4101,7 +4113,7 @@ w2utils.event = {
                         ajaxOptions.contentType = 'application/json';
                     }
                     if (w2utils.settings.dataType == 'HTTPJSON') {
-                        ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                        ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
                     }
                     if (options.method != null) ajaxOptions.type = options.method;
                     obj.tmp.xhr = $.ajax(ajaxOptions)
@@ -4112,18 +4124,33 @@ w2utils.event = {
                             // default behavior
                             data = edata2.data;
                             if (typeof data == 'string') data = JSON.parse(data);
-                            if (data.status != 'success') {
-                                console.log('ERROR: server did not return proper structure. It should return', { status: 'success', items: [{ id: 1, text: 'item' }] });
+                            if (data.records == null && data.items != null) {
+                                // needed for backward compatibility
+                                data.records = data.items;
+                                delete data.items;
+                            }
+                            if (data.status != 'success' || !Array.isArray(data.records)) {
+                                console.log('ERROR: server did not return proper structure. It should return', { status: 'success', records: [{ id: 1, text: 'item' }] });
                                 return;
                             }
                             // remove all extra items if more then needed for cache
-                            if (data.items.length > options.cacheMax) data.items.splice(options.cacheMax, 100000);
+                            if (data.records.length > options.cacheMax) data.records.splice(options.cacheMax, 100000);
+                            // map id and text
+                            if (options.recId == null && options.recid != null) options.recId = options.recid; // since lower-case recid is used in grid
+                            if (options.recId || options.recText) {
+                                data.records.forEach(function (item) {
+                                    if (typeof options.recId == 'string') item.id   = item[options.recId];
+                                    if (typeof options.recId == 'function') item.id = options.recId(item);
+                                    if (typeof options.recText == 'string') item.text   = item[options.recText];
+                                    if (typeof options.recText == 'function') item.text = options.recText(item);
+                                });
+                            }
                             // remember stats
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
-                            obj.tmp.xhr_total   = data.items.length;
-                            options.items       = obj.normMenu(data.items);
-                            if (search == '' && data.items.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
+                            obj.tmp.xhr_total   = data.records.length;
+                            options.items       = obj.normMenu(data.records);
+                            if (search == '' && data.records.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // event after
                             obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -4138,7 +4165,7 @@ w2utils.event = {
                                 var data;
                                 try { data = $.parseJSON(xhr.responseText); } catch (e) {}
                                 console.log('ERROR: Server communication failed.',
-                                    '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
+                                    '\n   EXPECTED:', { status: 'success', records: [{ id: 1, text: 'item' }] },
                                     '\n         OR:', { status: 'error', message: 'error message' },
                                     '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
                             }
@@ -4491,6 +4518,7 @@ w2utils.event = {
                     var msgNoItems = w2utils.lang('No matches');
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
                     if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search...');
+                    if (options.url == null && options.items.length == 0) msgNoItems = w2utils.lang('Empty list');
                     $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
