@@ -176,8 +176,7 @@ var w2popup = {};
                 // first insert just body
                 var msg = '<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
                           '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
-                              w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"' +
-                          '>' + (typeof options.body == 'string' ? options.body : '') + '</div>';
+                              w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"></div>';
                 $('body').append(msg);
                 // parse rel=*
                 var parts = $('#w2ui-popup');
