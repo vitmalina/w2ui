@@ -1980,7 +1980,7 @@ w2utils.keyboard = (function (obj) {
                         max             : 0,             // max number of selected items, 0 - unlim
                         url             : null,          // not implemented
                         postData        : {},
-                        minLength       : 1, 
+                        minLength       : 1,
                         cacheMax        : 250,
                         maxWidth        : 250,           // max width for a single item
                         maxHeight       : 350,           // max height for input control to grow
@@ -2137,10 +2137,10 @@ w2utils.keyboard = (function (obj) {
                     if (!obj.helpers.focus) return;
                     // if empty show no icon
                     if (!$.isEmptyObject(selected) && options.icon) {
-                        options.prefix = '<span class="w2ui-icon '+ options.icon +'"style="cursor: pointer; font-size: 14px;' + 
+                        options.prefix = '<span class="w2ui-icon '+ options.icon +'"style="cursor: pointer; font-size: 14px;' +
                                          ' display: inline-block; margin-top: -1px; color: #7F98AD;'+ options.iconStyle +'">'+
                             '</span>';
-                        obj.addPrefix();                        
+                        obj.addPrefix();
                     } else {
                         options.prefix = '';
                         obj.addPrefix();
@@ -2156,7 +2156,7 @@ w2utils.keyboard = (function (obj) {
                         $(obj.el).val('');
                         $(obj.el).removeAttr('placeholder');
                         setTimeout(function () {
-                            if (obj.helpers.prefix) obj.helpers.prefix.hide(); 
+                            if (obj.helpers.prefix) obj.helpers.prefix.hide();
                             var tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;';
                             if (options.icon) {
                                 $(focus).css('margin-left', '17px');
@@ -2169,13 +2169,13 @@ w2utils.keyboard = (function (obj) {
                     }
                     // if readonly or disabled
                     if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
-                        setTimeout(function () { 
-                            $(obj.helpers.prefix).css('opacity', '0.6'); 
+                        setTimeout(function () {
+                            $(obj.helpers.prefix).css('opacity', '0.6');
                             $(obj.helpers.suffix).css('opacity', '0.6');
                         }, 1);
                     } else {
-                        setTimeout(function () { 
-                            $(obj.helpers.prefix).css('opacity', '1'); 
+                        setTimeout(function () {
+                            $(obj.helpers.prefix).css('opacity', '1');
                             $(obj.helpers.suffix).css('opacity', '1');
                         }, 1);
                     }
@@ -2199,9 +2199,9 @@ w2utils.keyboard = (function (obj) {
                 var ul  = div.find('ul');
                 div.attr('style', div.attr('style') + ';' + options.style);
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
-                    div.addClass('w2ui-readonly'); 
+                    div.addClass('w2ui-readonly');
                     div.css('pointer-events', 'none').find('li').css('opacity', '0.6');
-                    $(obj.helpers.multi).find('input').prop('readonly', true);                    
+                    $(obj.helpers.multi).find('input').prop('readonly', true);
                 } else {
                     div.removeClass('w2ui-readonly');
                     div.css('pointer-events', 'auto').find('li').css('opacity', '1');
@@ -2405,7 +2405,7 @@ w2utils.keyboard = (function (obj) {
             if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
                 obj.refresh();
                 // need time out to show icon indent properly
-                setTimeout(function () { obj.refresh(); }, 5); 
+                setTimeout(function () { obj.refresh(); }, 5);
             }
             // date, time
             if (['date', 'time'].indexOf(this.type) != -1) {
@@ -2931,8 +2931,8 @@ w2utils.keyboard = (function (obj) {
                             if (status != 'abort') {
                                 var data;
                                 try { data = $.parseJSON(xhr.responseText) } catch (e) {}
-                                console.log('ERROR: Server communication failed.', 
-                                    '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] }, 
+                                console.log('ERROR: Server communication failed.',
+                                    '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                                     '\n         OR:', { status: 'error', message: 'error message' },
                                     '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
                             }
@@ -2992,10 +2992,10 @@ w2utils.keyboard = (function (obj) {
                 if (shown <= 0) options.index = -1;
                 options.spinner = false;
                 obj.updateOverlay();
-                setTimeout(function () { 
+                setTimeout(function () {
                     var html = $('#w2ui-overlay').html() || '';
                     if (options.markSearch && html.indexOf('$.fn.w2menuHandler') != -1) { // do not highlight when no items
-                        $('#w2ui-overlay').w2marker(search); 
+                        $('#w2ui-overlay').w2marker(search);
                     }
                 }, 1);
             } else {
@@ -3153,7 +3153,7 @@ w2utils.keyboard = (function (obj) {
                         $().w2overlay();
                         setTimeout(function () {
                             delete obj.tmp.force_hide;
-                        }, 1);                        
+                        }, 1);
                         return;
                     }
                     if ($(input).val() != '') delete obj.tmp.force_open;
@@ -3298,11 +3298,11 @@ w2utils.keyboard = (function (obj) {
                                 // event before
                                 var eventData = obj.trigger({ phase: 'before', type: 'iconClick', target: obj.el, el: $(this).find('span.w2ui-icon')[0] });
                                 if (eventData.isCancelled === true) return;
-                                
+
                                 // intentionally empty
 
                                 // event after
-                                obj.trigger($.extend(eventData, { phase: 'after' }));                                
+                                obj.trigger($.extend(eventData, { phase: 'after' }));
                             } else {
                                 if (obj.type == 'list') {
                                     $(obj.helpers.focus).find('input').focus();
@@ -3423,15 +3423,16 @@ w2utils.keyboard = (function (obj) {
             $(obj.helpers.focus).remove();
             // remember original tabindex
             var tabIndex = $(obj.el).attr('tabIndex');
-            if (tabIndex && tabIndex != -1) obj.el._tabIndex = tabIndex;
-            if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
+            if (tabIndex != null && tabIndex != -1) obj.el._tabIndex = tabIndex;
+            if (obj.el._tabIndex != null) tabIndex = obj.el._tabIndex;
             // build helper
             var html =
-                '<div class="w2ui-field-helper">'+ 
+                '<div class="w2ui-field-helper">'+
                 '    <div class="w2ui-icon icon-search" style="display: none"></div>'+
-                '    <input type="text" autocomplete="off" tabindex="'+ tabIndex +'">'+
+                '    <input type="text" autocomplete="off" tabindex="'+ tabIndex || -1 +'">'+
                 '<div>';
-            $(obj.el).attr('tabindex', -1).before(html);
+            if (tabIndex != null) $(obj.el).attr('tabindex', -1);
+            $(obj.el).before(html);
             var helper = $(obj.el).prev();
             obj.helpers.focus = helper;
             helper.css({
@@ -3469,7 +3470,7 @@ w2utils.keyboard = (function (obj) {
                 .on('blur', function (event) {
                     $(obj.el).css('outline', 'none');
                     $(this).val('');
-                    obj.refresh(); 
+                    obj.refresh();
                     $(obj.el).triggerHandler('blur');
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                 })
@@ -3479,7 +3480,7 @@ w2utils.keyboard = (function (obj) {
             // MAIN div
             helper.on('click', function (event) { $(this).find('input').focus(); });
             obj.refresh();
-        },    
+        },
 
         addMulti: function () {
             var obj         = this;
@@ -3593,7 +3594,7 @@ w2utils.keyboard = (function (obj) {
                     });
             }
             obj.refresh();
-        },    
+        },
 
         addFile: function (file) {
             var obj      = this;
@@ -3609,10 +3610,10 @@ w2utils.keyboard = (function (obj) {
             var size = 0;
             var cnt  = 0;
             var err;
-            for (var s in selected) { 
+            for (var s in selected) {
                 // check for dups
                 if (selected[s].name == file.name && selected[s].size == file.size) return;
-                size += selected[s].size; cnt++; 
+                size += selected[s].size; cnt++;
             }
             // trigger event
             var eventData = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
