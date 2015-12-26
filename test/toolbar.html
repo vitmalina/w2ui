@@ -8,8 +8,9 @@
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
 <script>
 //<![CDATA[
-    $(function () {
-        $('#toolbar').w2toolbar({
+    jQuery.noConflict();
+    jQuery(function () {
+        jQuery('#toolbar').w2toolbar({
             name: 'toolbar',
             routeData: { id: 5, vid: '40-43' },
             tooltip: 'top',

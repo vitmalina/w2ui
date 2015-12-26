@@ -6,8 +6,9 @@
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script>
 //<![CDATA[
-    $(function () {
-        $('#tabs').w2tabs({
+    jQuery.noConflict();
+    jQuery(function () {
+        jQuery('#tabs').w2tabs({
             name     : 'tabs',
             active   : 'tab1',
             right    : '12232',

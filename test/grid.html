@@ -11,10 +11,11 @@
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
 //<![CDATA[
-$(function () {
+$.noConflict();
+jQuery(function () {
     // w2utils.locale('../src/locale/ru-ru');
 
-    $('#grid').w2grid({
+    jQuery('#grid').w2grid({
         name      : 'grid',
         header    : 'List of Names',
         // url : '//w2ui.com/web/pages/demo/infinite/index.php',
@@ -197,8 +198,8 @@ $(function () {
             }
         },
         onExpand1: function (event) {
-            if (w2ui['grid-'+ event.recid]) $().w2destroy('grid-'+ event.recid);
-            $('#'+ event.box_id).w2grid({
+            if (w2ui['grid-'+ event.recid]) jQuery().w2destroy('grid-'+ event.recid);
+            jQuery('#'+ event.box_id).w2grid({
                 name: 'grid-' + event.recid,
                 fixedBody: false,
                 style: 'width: 100%; height: 150px;',
@@ -283,7 +284,7 @@ $(function () {
     <div id="grid" style="width: 1024px; height: 568px;"></div>
     <input placeholder="after grid" class="w2ui-input" style="margin: 10px 0px;"/>
     <br/>
-    <button class="w2ui-btn" onclick="$().w2destroy('grid');">Destroy</button>
+    <button class="w2ui-btn" onclick="jQuery().w2destroy('grid');">Destroy</button>
     <button class="w2ui-btn" onclick="w2ui.grid.skip(0);">Skip 0</button>
     <button class="w2ui-btn" onclick="w2ui.grid.skip(10);">Skip 10</button>
     <button class="w2ui-btn" onclick="w2ui.grid.skip(110);">Skip 110</button>
