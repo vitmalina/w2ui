@@ -91,7 +91,7 @@ $(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [
-            { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less' },
+            { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less', value: '4' },
             { field: 'fname', caption: 'First Name', type: 'text', hidden1: true, value: 'Peter' },
             { field: 'lname', caption: 'Last Name', type: 'text', options: { items: ['Cuban', 'Rene'] }}
         ],
@@ -245,7 +245,7 @@ $(function () {
         if (t < 0) dt = null;
         w2ui['grid'].records.push({
             recid : 'rec-' + i,
-            personid: 'Rec-' + i,
+            personid: i,
             fname: fname[Math.floor(Math.random() * fname.length)],
             lname: lname[Math.floor(Math.random() * lname.length)],
             email: 'vm@gmail.com', manager: '--',

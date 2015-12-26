@@ -8,7 +8,6 @@
 * == NICE TO HAVE ==
 *   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
-*   - More than 2 layers of header groups
 *   - reorder columns/records
 *   - problem with .set() and arrays, array get extended too, but should be replaced
 *   - after edit stay on the same record option
@@ -50,8 +49,10 @@
 *   - record.w2ui.style[field_name]
 *   - use column field for style: { 1: 'color: red' }
 *   - added focus(), blur(), onFocus, onBlur
-*   - added search.operator, search.value (only for hidden searches)
-*   - hidden searches could not be clearned by the user
+*   - search.simple - if false, will not show up in simple search
+*   - search.operator - default operator to use with search field
+*   - search.hidden - could not be clearned by the user
+*   - search.value - only for hidden searches
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
 *   - frozen columns
@@ -78,7 +79,6 @@
 *   - added show.searchAll
 *   - added w2grid.operators
 *   - move events into prototype
-*   - search.simple - if false, will not show up in simple search
 *   - move rec.summary, rec.style, rec.editable -> into rec.w2ui.summary, rec.w2ui.style, rec.w2ui.editable
 *   - record: {
         field1
@@ -204,7 +204,8 @@
             sel_ind     : null,
             sel_col     : null,
             sel_type    : null,
-            edit_col    : null
+            edit_col    : null,
+            isSafari    : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent)
         };
 
         $.extend(true, this, w2obj.grid, options);
@@ -306,6 +307,18 @@
             'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: 'Save changed records', icon: 'w2ui-icon-check' }
         },
 
+        operators: { // for search fields
+            "text"    : ['is', 'begins', 'contains', 'ends'],
+            "number"  : ['is', 'between', 'less:less than', 'more:more than'],
+            "date"    : ['is', 'between', 'less:before', 'more:after'],
+            "list"    : ['is'],
+            "enum"    : ['in', 'not in']
+            // -- all posible
+            // "text"    : ['is', 'begins', 'contains', 'ends'],
+            // "number"  : ['is', 'between', 'less:less than', 'more:more than', 'null:is null', 'not null:is not null'],
+            // "list"    : ['is', 'null:is null', 'not null:is not null'],
+            // "enum"    : ['in', 'not in', 'null:is null', 'not null:is not null']
+        },
         // events
         onAdd              : null,
         onEdit             : null,
@@ -346,19 +359,6 @@
         onFocus            : null,
         onBlur             : null,
         onReorderRow       : null,
-
-        operators: {
-            "text"    : ['is', 'begins', 'contains', 'ends'],
-            "number"  : ['is', 'between', 'less:less than', 'more:more than'],
-            "date"    : ['is', 'between', 'less:before', 'more:after'],
-            "list"    : ['is'],
-            "enum"    : ['in', 'not in']
-            // -- all posible
-            // "text"    : ['is', 'begins', 'contains', 'ends'],
-            // "number"  : ['is', 'between', 'less:less than', 'more:more than', 'null:is null', 'not null:is not null'],
-            // "list"    : ['is', 'null:is null', 'not null:is not null'],
-            // "enum"    : ['in', 'not in', 'null:is null', 'not null:is not null']
-        },
 
         add: function (record, first) {
             if (!$.isArray(record)) record = [record];
@@ -1748,7 +1748,7 @@
                                     var tmp = {
                                         field    : search.field,
                                         type     : search.type,
-                                        operator : (search.type == 'text' ? 'begins' : 'is'),
+                                        operator : (search.operator != null ? search.operator : (search.type == 'text' ? 'begins' : 'is')),
                                         value    : value
                                     };
                                     if ($.trim(value) != '') searchData.push(tmp);
@@ -1759,7 +1759,7 @@
                                     var tmp = {
                                         field    : search.field,
                                         type     : search.type,
-                                        operator : 'between',
+                                        operator : (search.operator != null ? search.operator : 'between'),
                                         value    : [t[0], t[1]]
                                     };
                                     searchData.push(tmp);
@@ -1779,7 +1779,7 @@
                                         var tmp = {
                                             field    : search.field,
                                             type     : search.type,
-                                            operator : 'in',
+                                            operator : (search.operator != null ? search.operator : 'in'),
                                             value    : new_values
                                         };
                                         searchData.push(tmp);
@@ -1828,6 +1828,7 @@
                                     for (var i = 0; i < tmp.length; i++) val.push(tmp[i]);
                                 }
                             }
+                            if (search.operator != null) op = search.operator;
                             var tmp = {
                                 field    : search.field,
                                 type     : search.type,
@@ -3356,20 +3357,37 @@
                 case 91: // cmd key
                     // SLOW: 10k records take 7.0
                     if (empty) break;
-                    obj.last.copy_event = obj.copy(false);
-                    $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
+                    // in Safari need to copy to buffer on cmd or ctrl key (otherwise does not work)
+                    if (obj.last.isSafari) {
+                        obj.last.copy_event = obj.copy(false);
+                        $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
+                    }
                     break;
 
                 case 67: // - c
                     // this fill trigger event.onComplete
                     if (event.metaKey || event.ctrlKey) {
-                        obj.copy(obj.last.copy_event);
+                        if (obj.last.isSafari) {
+                            obj.copy(obj.last.copy_event);
+                        } else {
+                            obj.last.copy_event = obj.copy(false);
+                            $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
+                            obj.copy(obj.last.copy_event);
+                        }
                     }
                     break;
 
                 case 88: // x - cut
                     if (empty) break;
                     if (event.ctrlKey || event.metaKey) {
+                        if (obj.last.isSafari) {
+                            obj.copy(obj.last.copy_event);
+                        } else {
+                            obj.last.copy_event = obj.copy(false);
+                            $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
+                            obj.copy(obj.last.copy_event);
+                        }
+                        // clear
                         setTimeout(function () { obj["delete"](true); }, 100);
                     }
                     break;
@@ -4233,7 +4251,7 @@
             if (!this.last.state) this.last.state = this.stateSave(true); // initial default state
             this.stateRestore();
             if (url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
-                        // if hidden searches - apply it
+            // if hidden searches - apply it
             var hasHiddenSearches = false;
             for (var i = 0; i < this.searches.length; i++) {
                 if (this.searches[i].hidden) { hasHiddenSearches = true; break; }
@@ -6561,7 +6579,7 @@
             var data          = this.getCellValue(ind, col_ind, summary);
             var edit          = col.editable;
             var style         = 'max-height: '+ parseInt(this.recordHeight) +'px;';
-            var isChanged     = !summary && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null;
+            var isChanged     = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null;
             var addStyle      = '';
             var sel           = this.last.selection;
             var isRowSelected = false;
@@ -6569,7 +6587,7 @@
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             if (col_span == null) col_span = 1;
             // expand icon
-            if (col_ind == 0 && record.w2ui && Array.isArray(record.w2ui.children)) {
+            if (col_ind == 0 && record && record.w2ui && Array.isArray(record.w2ui.children)) {
                 var level  = 0;
                 var subrec = this.get(record.w2ui.parent_recid, true);
                 while (true) {
@@ -6654,7 +6672,7 @@
                 var tmp = col.render.toLowerCase().split(':');
                 if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
             }
-            if (record.w2ui && typeof record.w2ui.style == 'object') {
+            if (record && record.w2ui && typeof record.w2ui.style == 'object') {
                 if (typeof record.w2ui.style[col_ind] == 'string') addStyle += record.w2ui.style[col_ind] + ';';
                 if (typeof record.w2ui.style[col.field] == 'string') addStyle += record.w2ui.style[col.field] + ';';
             }
@@ -6758,7 +6776,7 @@
             var col    = this.columns[col_ind];
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data   = this.parseField(record, col.field);
-            if (record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+            if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
                 data = record.w2ui.changes[col.field];
             }
             if ($.isPlainObject(data) && col.editable && col.editable.type == 'list') {
