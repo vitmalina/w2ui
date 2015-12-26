@@ -407,7 +407,7 @@
             // build parameters list
             var params = {};
             // add list params
-            params['cmd']   = 'get-record';
+            params['cmd']   = 'get';
             params['recid'] = this.recid;
             // append other params
             $.extend(params, this.postData);
@@ -443,7 +443,7 @@
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
             if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
             }
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
@@ -559,7 +559,7 @@
                 // build parameters list
                 var params = {};
                 // add list params
-                params['cmd']   = 'save-record';
+                params['cmd']   = 'save';
                 params['recid'] = obj.recid;
                 // append other params
                 $.extend(params, obj.postData);
@@ -616,7 +616,7 @@
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'HTTPJSON') {
-                    ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
                     if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';

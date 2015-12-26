@@ -2080,7 +2080,7 @@
             }
             // default action
             this.clear(true);
-            this.request('get-records', {}, url, callBack);
+            this.request('get', {}, url, callBack);
         },
 
         reload: function (callBack) {
@@ -2128,7 +2128,7 @@
             $.extend(params, this.postData);
             $.extend(params, add_params);
             // event before
-            if (cmd == 'get-records') {
+            if (cmd == 'get') {
                 var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
                 if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             } else {
@@ -2149,8 +2149,8 @@
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // URL
             url = (typeof edata.url != 'object' ? edata.url : edata.url.get);
-            if (params.cmd == 'save-records' && typeof edata.url == 'object')   url = edata.url.save;
-            if (params.cmd == 'delete-records' && typeof edata.url == 'object') url = edata.url.remove;
+            if (params.cmd == 'save' && typeof edata.url == 'object')   url = edata.url.save;
+            if (params.cmd == 'delete' && typeof edata.url == 'object') url = edata.url.remove;
             // process url with routeData
             if (!$.isEmptyObject(obj.routeData)) {
                 var info  = w2utils.parseRoute(url);
@@ -2172,18 +2172,18 @@
                 ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
             if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
             }
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
-                if (params.cmd == 'save-records')   ajaxOptions.type = 'PUT';  // so far it is always update
-                if (params.cmd == 'delete-records') ajaxOptions.type = 'DELETE';
+                if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
                 ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
             }
             if (w2utils.settings.dataType == 'RESTFULLJSON') {
                 ajaxOptions.type = 'GET';
-                if (params.cmd == 'save-records')   ajaxOptions.type = 'PUT';  // so far it is always update
-                if (params.cmd == 'delete-records') ajaxOptions.type = 'DELETE';
+                if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
                 ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                 ajaxOptions.contentType = 'application/json';
             }
@@ -2218,7 +2218,7 @@
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
                 });
-            if (cmd == 'get-records') {
+            if (cmd == 'get') {
                 // event after
                 this.trigger($.extend(edata, { phase: 'after' }));
             }
@@ -2235,8 +2235,8 @@
 
             // event before
             var event_name = 'load';
-            if (this.last.xhr_cmd == 'save-records') event_name   = 'save';
-            if (this.last.xhr_cmd == 'delete-records') event_name = 'delete';
+            if (this.last.xhr_cmd == 'save') event_name   = 'save';
+            if (this.last.xhr_cmd == 'delete') event_name = 'delete';
             var edata = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
             if (edata.isCancelled === true) {
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
@@ -2279,7 +2279,7 @@
                     if (data['status'] == 'error') {
                         obj.error(data['message']);
                     } else {
-                        if (cmd == 'get-records') {
+                        if (cmd == 'get') {
                             if (this.last.xhr_offset == 0) {
                                 this.records = [];
                                 this.summary = [];
@@ -2306,7 +2306,7 @@
                                 }
                             }
                         }
-                        if (cmd == 'delete-records') {
+                        if (cmd == 'delete') {
                             this.reset(); // unselect old selections
                             this.reload();
                             return;
@@ -2398,7 +2398,7 @@
             if (edata.isCancelled === true) return;
             var url = (typeof this.url != 'object' ? this.url : this.url.save);
             if (url) {
-                this.request('save-records', { 'changes' : edata.changes }, null,
+                this.request('save', { 'changes' : edata.changes }, null,
                     function (data) {
                         if (data.status !== 'error') {
                             // only merge changes, if save was successful
@@ -2833,7 +2833,7 @@
             // call delete script
             var url = (typeof this.url != 'object' ? this.url : this.url.remove);
             if (url) {
-                this.request('delete-records');
+                this.request('delete');
             } else {
                 if (typeof recs[0] != 'object') {
                     this.selectNone();
@@ -6341,7 +6341,7 @@
                 if (this.autoLoad === true) {
                     this.last.pull_more = true;
                     this.last.xhr_offset += this.limit;
-                    this.request('get-records');
+                    this.request('get');
                 } else {
                     var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
                     if (more.css('display') == 'none') {
@@ -6349,7 +6349,7 @@
                             .on('click', function () {
                                 obj.last.pull_more = true;
                                 obj.last.xhr_offset += obj.limit;
-                                obj.request('get-records');
+                                obj.request('get');
                                 // show spinner the last
                                 $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
                             });
