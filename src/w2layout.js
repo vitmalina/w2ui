@@ -8,25 +8,16 @@
 * == NICE TO HAVE ==
 *   - onResize for the panel
 *   - add more panel title positions (left=rotated, right=rotated, bottom)
-*   - bug: resizer is visible (and onHover) when panel is hidden.
 *   - bug: when you assign content before previous transition completed.
-*
-* == 1.5 changes
-*   - $('#layout').w2layout() - if called w/o argument then it returns layout object
-*   - negative -size for left/right panels
-*   - sizeTo(..., instant) - added third argument
-*   - assignToolbar()
-*   - onContent event - triggered when any panel content is changed
 *
 ************************************************************************/
 
 (function ($) {
     var w2layout = function (options) {
-        this.box     = null;        // DOM Element that holds the element
-        this.name    = null;        // unique name for w2ui
+        this.box     = null;     // DOM Element that holds the element
+        this.name    = null;     // unique name for w2ui
         this.panels  = [];
         this.tmp     = {};
-
         this.padding = 1;        // panel padding
         this.resizer = 4;        // resizer width or height
         this.style   = '';
@@ -109,6 +100,7 @@
         onResizerClick: null,
         onRender      : null,
         onRefresh     : null,
+        onContent     : null,
         onResize      : null,
         onDestroy     : null,
 

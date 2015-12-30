@@ -8,7 +8,7 @@ $(function () {
             { type: 'main', style: 'background-color: white;' }
         ]
     });
-    w2ui['layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.4 Documentation</div>');
+    w2ui['layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Documentation</div>');
     // init sidebar
     w2ui['layout'].content('left', $().w2sidebar({
         name: 'docs',
@@ -88,7 +88,7 @@ $(function () {
     // utils
     var props   = [];
     var methods = [];
-    for (var o in w2utils) { 
+    for (var o in w2utils) {
         if (typeof w2utils[o] == 'function') methods.push(o); else props.push(o);
     }
     props.sort();
@@ -187,10 +187,10 @@ $(function () {
 function doClick (cmd, data) {
     if (cmd.indexOf('.') == -1) {
         if (cmd.indexOf('-') == -1) {
-            var path = 'overview/'+ cmd.substr(2) +'.html';    
+            var path = 'overview/'+ cmd.substr(2) +'.html';
         } else {
             var path = 'summary/'+ cmd +'.php';
-        }        
+        }
     } else {
         var tmp  = cmd.split('.');
         switch (tmp[1]) {
@@ -212,15 +212,15 @@ function doClick (cmd, data) {
         }
         w2ui['layout'].content('main', '');
         var path = 'details/'+ cmd +'.html';
-    } 
+    }
     // load file
     $.get(path, function (data) {
         data = data.replace(/href="/g, 'href="#');
         data = data.replace(/href="#\/\/w2ui.com/g, 'href="//w2ui.com');
-        w2ui['layout'].content('main', 
-            '<div class="obj-desc">'+ 
+        w2ui['layout'].content('main',
+            '<div class="obj-desc">'+
             '<h1>' + cmd + '</h1>' +
-            data + 
+            data +
             '</div>');
         // javascript
         $("textarea.javascript").each(function (index, el) {

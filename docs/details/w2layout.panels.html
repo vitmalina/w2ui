@@ -1,4 +1,4 @@
-Array of panel objects. 
+Array of panel objects.
 
 <div class="definition">
     Array, default = []
@@ -23,7 +23,7 @@ panel: {
     tabs        : null,    // w2tabs object for the panel
     toolbar     : null,    // w2toolbar object for the panel
     show : {               // indicates what sections are shown
-        tabs    : false,    
+        tabs    : false,
         toolbar : false
     },
     // events
@@ -34,8 +34,8 @@ panel: {
 }
 </textarea>
 
-If you change this array during run-time you will need to call <a href="w2layout.refresh">.refresh()</a> method to update layout on 
-the screen. It is not recommended to change this array after the object has been created. You should use <a href="w2layout.set">.set()</a> 
+If you change this array during run-time you will need to call <a href="w2layout.refresh">.refresh()</a> method to update layout on
+the screen. It is not recommended to change this array after the object has been created. You should use <a href="w2layout.set">.set()</a>
 method to change panels dynamically, which will refresh the panel you changed.
 
 <textarea class="javascript">
@@ -56,7 +56,7 @@ $('#layout').w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
-        { type: 'main', 
+        { type: 'main',
             tabs: {
                 active: 'tab1',
                 tabs: [
@@ -74,3 +74,6 @@ $('#layout').w2layout({
     ]
 });
 </textarea>
+
+As of version 1.5+ you can set negative size of left and right panel. If size is negative, the panel will take all available size minus the
+size you specified. In ohter words the size of the panel (only left or right) will be 100% of available size - defined size of the panel.
