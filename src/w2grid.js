@@ -3694,10 +3694,16 @@
                 if (edata.isCancelled === true) return false;
                 rec.w2ui.expanded = false;
                 // all children are directly after
+                var stops = [];
+                for (var r = rec; r != null; r = this.get(r.w2ui.parent_recid))
+                    stops.push(r.w2ui.parent_recid);
+                // stops contains 'undefined' plus the ID of all nodes in the path from 'rec' to the tree root
                 var start = ind + 1;
                 var end   = start;
                 while (true) {
-                    if (this.records.length <= end + 1 || this.records[end+1].w2ui == null || this.records[end+1].w2ui.parent_recid == null) break;
+                    if (this.records.length <= end + 1 || this.records[end+1].w2ui == null ||
+                        stops.indexOf(this.records[end+1].w2ui.parent_recid) >= 0)
+                        break;
                     if (this.records[end+1].w2ui.expanded) this.records[end+1].w2ui.expanded = false;
                     end++;
                 }
