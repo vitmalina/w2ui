@@ -12,15 +12,6 @@
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
 *
-* == 1.5 changes
-*   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object
-*   - return ids of all subitems
-*   - added w2sidebar.flat
-*   - added focus(), blur(), onFocus, onBlur
-*   - added hasFocus property
-*   - unselect w/o arguments will unselect selected node
-*   - flatBtn, goFlat, onFlat
-*
 ************************************************************************/
 
 (function ($) {
