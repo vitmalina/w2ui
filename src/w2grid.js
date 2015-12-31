@@ -169,6 +169,7 @@
         this.reorderRows     = false;
         this.markSearch      = true;
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
+        this.disableCVS      = false;    // disable Column Virtual Scroll
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -6119,18 +6120,24 @@
                 this.last.bubbleEl = null;
             }
             // column virtual scroll
-            var sWidth = records.width();
-            var cLeft  = 0;
             var colStart = null;
             var colEnd   = null;
-            for (var i = 0; i < obj.columns.length; i++) {
-                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                var cSize = parseInt(obj.columns[i].sizeCalculated ? obj.columns[i].sizeCalculated : obj.columns[i].size);
-                if (cLeft + cSize + 30 > obj.last.scrollLeft && colStart == null) colStart = i;
-                if (cLeft + cSize - 30 > obj.last.scrollLeft + sWidth && colEnd == null) colEnd = i;
-                cLeft += cSize;
+            if (obj.disableCVS || obj.columnGroups.length > 0) {
+                // disable virtual scroll
+                colStart = 0;
+                colEnd = obj.columns.length - 1;
+            } else {
+                var sWidth = records.width();
+                var cLeft  = 0;
+                for (var i = 0; i < obj.columns.length; i++) {
+                    if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                    var cSize = parseInt(obj.columns[i].sizeCalculated ? obj.columns[i].sizeCalculated : obj.columns[i].size);
+                    if (cLeft + cSize + 30 > obj.last.scrollLeft && colStart == null) colStart = i;
+                    if (cLeft + cSize - 30 > obj.last.scrollLeft + sWidth && colEnd == null) colEnd = i;
+                    cLeft += cSize;
+                }
+                if (colEnd == null) colEnd = obj.columns.length - 1;
             }
-            if (colEnd == null) colEnd = obj.columns.length - 1;
             if (colStart != null) {
                 if (colStart < 0) colStart = 0;
                 if (colEnd < 0) colEnd = 0;
