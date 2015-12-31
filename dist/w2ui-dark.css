@@ -2543,6 +2543,33 @@ button.w2ui-btn-small:focus:before {
   left: 0px;
   right: 0px;
 }
+.w2ui-sidebar .w2ui-sidebar-top .w2ui-flat-left,
+.w2ui-sidebar .w2ui-sidebar-top .w2ui-flat-right {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  height: 24px;
+  padding: 5px;
+  border-radius: 2px;
+  background-size: 16px 12px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #323948;
+}
+.w2ui-sidebar .w2ui-sidebar-top .w2ui-flat-left:hover,
+.w2ui-sidebar .w2ui-sidebar-top .w2ui-flat-right:hover {
+  background-color: #373f52;
+}
+.w2ui-sidebar .w2ui-sidebar-top .w2ui-flat-left {
+  left: auto;
+  width: 25px;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAA0ElEQVR4Ae2TGxADMRCG6xa3uJ1Tn+sTt7qdW9zOLW5xi1vc1u1qO/90dnb+mxYvsW/fr8vf3/kkicpufzFegbbIQQPFavQGVCU7ho7ilGR8AF+j+BMUi9EVaI/MUbFFXfHNM9YJ6Tc2/Y6KUVd887dgnX5Xbsenv7LTr5h+0BVu+kFXiPgVytrhJ3b/VbLbgeqaxrsmiZiBW28xWoCO2MHC7SHbyg1GqcQhBxUzt+hWPIEPrz+HDwr7w5003sT2+0YovxFNun1TlQL0K4fzfQCOU3iWmTMskgAAAABJRU5ErkJggg==');
+}
+.w2ui-sidebar .w2ui-sidebar-top .w2ui-flat-right {
+  left: 2px;
+  width: auto;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAA0klEQVR4Ae2UHRDFMBCEn1vc4lan99f1iVvc6la3utUtbnGLW9zes2Rh56Z/2Kvt/Uz2u5s+7uiBiNS+qakOiT4vGqm04te+V9MnUpP9hkClhQYX0qM9IlFpt/EitcJZAzzZqN0xFhox617tWPMZ7BGZSkNTI6lZNkrHBc7mIwMzO2Y+G1Bqx4LPuv0ikuaD1xGUYSNKDPp0sDLIrRcZ5X7ykWMqTGDrDrwcu+he7VNSOXeH0Xp+OfVT0bcGL6hs2L7fv/0s8QVNxX5+NqhcH3f8ARs3eQH4pzWcAAAAAElFTkSuQmCC');
+}
 .w2ui-sidebar .w2ui-sidebar-bottom {
   position: absolute;
   z-index: 2;

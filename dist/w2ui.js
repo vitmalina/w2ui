@@ -13169,18 +13169,15 @@ var w2confirm = function (msg, title, callBack) {
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
-*   - add renderer for the node
 *
 * == 1.5 changes
 *   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object
-*   - add route property that would navigate to a #route
 *   - return ids of all subitems
 *   - added w2sidebar.flat
 *   - added focus(), blur(), onFocus, onBlur
-*   - unselect w/o arguments will unselect selected node
 *   - added hasFocus property
-*   - node.render deprecated, nd.text can be a function (where this word is the item)
-*   - node.collapsible - defines if it can be collapsed
+*   - unselect w/o arguments will unselect selected node
+*   - flatBtn, goFlat, onFlat
 *
 ************************************************************************/
 
@@ -13199,6 +13196,7 @@ var w2confirm = function (msg, title, callBack) {
         this.style         = '';
         this.topHTML       = '';
         this.bottomHTML    = '';
+        this.flatButton    = false;
         this.keyboard      = true;
         this.flat          = false;
         this.hasFocus      = false;
@@ -13258,6 +13256,7 @@ var w2confirm = function (msg, title, callBack) {
         onDestroy     : null,
         onFocus       : null,
         onBlur        : null,
+        onFlat        : null,
 
         node: {
             id              : null,
@@ -13284,8 +13283,7 @@ var w2confirm = function (msg, title, callBack) {
             onCollapse      : null,
             // internal
             parent          : null,         // node object
-            sidebar         : null,
-            render          : null          // custom render function(node)
+            sidebar         : null
         },
 
         add: function (parent, nodes) {
@@ -13837,6 +13835,17 @@ var w2confirm = function (msg, title, callBack) {
             obj.trigger($.extend(edata, { phase: 'after' }));
         },
 
+        goFlat: function () {
+            // event before
+            var edata = this.trigger({ phase: 'before', type: 'flat', goFlat: !this.flat });
+            if (edata.isCancelled === true) return;
+            // default action
+            this.flat = !this.flat;
+            this.refresh();
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
         render: function (box) {
             var time = (new Date()).getTime();
             var obj  = this;
@@ -13871,8 +13880,12 @@ var w2confirm = function (msg, title, callBack) {
             });
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
             // adjust top and bottom
-            if (this.topHTML !== '') {
-                $(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
+            var flatHTML = '';
+            if (this.flatButton == true) {
+                flatHTML = '<div class="w2ui-flat-'+ (this.flat ? 'right' : 'left') +'" onclick="w2ui[\''+ this.name +'\'].goFlat()"></div>';
+            }
+            if (this.topHTML !== '' || flatHTML != '') {
+                $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML);
                 $(this.box).find('.w2ui-sidebar-div')
                     .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
             }
@@ -13886,11 +13899,11 @@ var w2confirm = function (msg, title, callBack) {
             $(this.box).find('#sidebar_'+ this.name + '_focus')
                 .on('focus', function (event) {
                     clearTimeout(kbd_timer);
-                    if (!obj.hasFocus) obj.focus();
+                    if (!obj.hasFocus) obj.focus(event);
                 })
                 .on('blur', function (event) {
                     kbd_timer = setTimeout(function () {
-                        if (obj.hasFocus) { obj.blur(); }
+                        if (obj.hasFocus) { obj.blur(event); }
                     }, 100);
                 })
                 .on('keydown', function (event) {
@@ -13922,8 +13935,12 @@ var w2confirm = function (msg, title, callBack) {
                 fullRefresh: (id != null ? false : true) });
             if (edata.isCancelled === true) return;
             // adjust top and bottom
-            if (this.topHTML !== '') {
-                $(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
+            var flatHTML = '';
+            if (this.flatButton == true) {
+                flatHTML = '<div class="w2ui-flat-'+ (this.flat ? 'right' : 'left') +'" onclick="w2ui[\''+ this.name +'\'].goFlat()"></div>';
+            }
+            if (this.topHTML !== '' || flatHTML !== '') {
+                $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML);
                 $(this.box).find('.w2ui-sidebar-div')
                     .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
             }
@@ -14000,7 +14017,7 @@ var w2confirm = function (msg, title, callBack) {
                         '        onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '        onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
                         ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
-                        (typeof nd.text == 'function' ? nd.text.call(nd) : '<span>'+ nd.text +'</span>') +
+                        (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span>'+ nd.text +'</span>') +
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
@@ -14013,7 +14030,7 @@ var w2confirm = function (msg, title, callBack) {
                     if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
                     if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
                     var text = nd.text;
-                    if (typeof nd.text == 'function') text = nd.text.call(nd);
+                    if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
                     html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
@@ -14095,7 +14112,6 @@ var w2confirm = function (msg, title, callBack) {
     $.extend(w2sidebar.prototype, w2utils.event);
     w2obj.sidebar = w2sidebar;
 })(jQuery);
-
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
