@@ -1,22 +1,14 @@
-Shows tooltip of the item with <span class="argument">id</span>.
+Scrolls toolbar items if they overflow.
 
 <div class="definition">
-    tooltipShow(id, [event], [forceRefresh])
+    scroll(direction)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>id</td>
-        <td><b>string</b>, id of the toolbar item</td>
-    </tr>
-    <tr>
-        <td>event</td>
-        <td><b>DOM event</b>, event object (<i>optional</i>)</td>
-    </tr>
-    <tr>
-        <td>forceRefresh</td>
-        <td><b>boolean</b>, indicates if to force tooltip show (<i>optional</i>)</td>
+        <td>direction</td>
+        <td><b>string</b>, direction of scrolling</td>
     </tr>
     </table>
 </div>
@@ -25,8 +17,8 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-The item must exists in the <a class="method" href="w2toolbar.items">.items</a> array of the toolbar. The toolbar item is
-identified by the <span class="property">.id</span> property.
+Scrolling will only be applied of the container where tabs are displayed is smaller then rendered tabs. The <span class="argument">direction</span>
+argument can be either 'left' or 'right'.
 <div style="height: 10px"></div>
 
 If you have toolbar defined in the following way:
@@ -43,7 +35,7 @@ $('#toolbar').w2toolbar({
 });
 </textarea>
 
-You can show toolbar item:
+You can trigger scroll in the following way:
 <textarea class="javascript">
-w2ui['toolbar'].showTooltip('item1');
+w2ui['toolbar'].scroll('right');
 </textarea>

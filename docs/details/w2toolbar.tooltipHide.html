@@ -1,14 +1,14 @@
-Scrolls toolbar items if they overflow.
+Shows tooltip of the item with <span class="argument">id</span>.
 
 <div class="definition">
-    scroll(direction)
+    tooltipHide(id)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>direction</td>
-        <td><b>string</b>, direction of scrolling</td>
+        <td>id</td>
+        <td><b>string</b>, id of the toolbar item</td>
     </tr>
     </table>
 </div>
@@ -17,7 +17,8 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-Scrolling will only be applied of the container where toolbar is displayed is smaller then rendered toolbar items.
+The item must exists in the <a class="method" href="w2toolbar.items">.items</a> array of the toolbar. The toolbar item is
+identified by the <span class="property">.id</span> property.
 <div style="height: 10px"></div>
 
 If you have toolbar defined in the following way:
@@ -34,7 +35,7 @@ $('#toolbar').w2toolbar({
 });
 </textarea>
 
-You can trigger scroll in the following way:
+You can show hide tooltip:
 <textarea class="javascript">
-w2ui['toolbar'].scroll('right');
+w2ui['toolbar'].tooltipHide('item1');
 </textarea>

@@ -6,17 +6,7 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == NICE TO HAVE ==
-*   - on overflow display << >>
-*   - declarative tabs
 *   - align = left, right, center ??
-*
-* == 1.5 changes
-*   - $('#tabs').w2tabs() - if called w/o argument then it returns tabs object
-*   - added flow property (up/down)
-*   - added tab.style
-*   - added tooltipShow, tooltipHide methods
-*   - added tooltip property and tab.tooltip
-*   - added tooltip property and tab.class
 *
 ************************************************************************/
 
@@ -26,7 +16,7 @@
         this.name      = null;      // unique name for w2ui
         this.active    = null;
         this.flow      = 'down';    // can be down or up
-        this.tooltip   = 'normal';  // can be normal, top, bottom, left, right
+        this.tooltip   = 'top';     // can be top, bottom, left, right
         this.tabs      = [];
         this.routeData = {};        // data for dynamic routes
         this.right     = '';
@@ -115,6 +105,7 @@
                     this.tabs = this.tabs.slice(0, middle).concat([newTab], this.tabs.slice(middle));
                 }
                 this.refresh(tab[i].id);
+                this.resize();
             }
         },
 
@@ -129,6 +120,7 @@
                 // remove from screen
                 $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).remove();
             }
+            this.resize();
             return removed;
         },
 
@@ -177,7 +169,7 @@
                 tab.hidden = false;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); obj.resize(); }, 15); // needs timeout
             return shown;
         },
 
@@ -192,7 +184,7 @@
                 tab.hidden = true;
                 tmp.push(tab.id);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); obj.resize(); }, 15); // needs timeout
             return hidden;
         },
 
@@ -226,23 +218,28 @@
             return disabled;
         },
 
-        tooltipShow: function (id) {
-            if (this.tooltip == 'normal') return;
+        tooltipShow: function (id, event, forceRefresh) {
+            if (this.tooltip == null) return;
             var $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id));
             var item = this.get(id);
             var pos  = this.tooltip;
+            var txt  = item.tooltip;
+            if (typeof txt == 'function') txt = txt.call(this, item);
             $el.prop('_mouse_over', true);
             setTimeout(function () {
                 if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
                     $el.prop('_mouse_tooltip', true);
                     // show tooltip
-                    $el.w2tag(item.tooltip, { position: pos });
+                    $el.w2tag(w2utils.lang(txt), { position: pos });
+                }
+                if (forceRefresh == true) {
+                    $el.w2tag(w2utils.lang(txt), { position: pos });
                 }
             }, 1);
         },
 
         tooltipHide: function (id) {
-            if (this.tooltip == 'normal') return;
+            if (this.tooltip == null) return;
             var $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id));
             var item = this.get(id);
             $el.removeProp('_mouse_over');
@@ -270,6 +267,9 @@
                 if (tab == null) return false;
                 if (tab.text == null && tab.caption != null) tab.text = tab.caption;
                 if (tab.tooltip == null && tab.hint != null) tab.tooltip = tab.hint; // for backward compatibility
+                var text = tab.text;
+                if (typeof text == 'function') text = text.call(this, tab);
+                if (text == null) text = '';
 
                 var jq_el    = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
                 var closable = '';
@@ -282,11 +282,10 @@
                 }
                 var tabHTML = closable +
                     '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '')
-                                + (tab['class'] ? ' ' + tab['class'] : '') +'" '+
-                    '        title="'+ (this.tooltip == 'normal' && tab.tooltip != null ? tab.tooltip : '') +'" style="'+ tab.style +'" '+
+                                + (tab['class'] ? ' ' + tab['class'] : '') +'" style="'+ tab.style +'" '+
                     '        onmouseover = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipShow('"+ tab.id +"', event);" : "") + '"'+
                     '        onmouseout  = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipHide('"+ tab.id +"', event);" : "") + '"'+
-                    '        onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + tab.text + '</div>';
+                    '        onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + text + '</div>';
                 if (jq_el.length === 0) {
                     // does not exist - create it
                     var addStyle = '';
@@ -332,9 +331,13 @@
             }
             if (!this.box) return false;
             // render all buttons
-            var html =    '<table cellspacing="0" cellpadding="1" width="100%"><tbody>'+
-                        '    <tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
-                        '</tbody></table>';
+            var html =  '<div class="w2ui-scroll-wrapper" onmousedown="var el=w2ui[\''+ this.name +'\']; if (el) el.resize();">'+
+                '<table cellspacing="0" cellpadding="1" width="100%"><tbody>'+
+                '    <tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
+                '</tbody></table>'+
+                '</div>'+
+                '<div class="w2ui-scroll-left" onclick="var el=w2ui[\''+ this.name +'\']; if (el) el.scroll(\'left\');"></div>'+
+                '<div class="w2ui-scroll-right" onclick="var el=w2ui[\''+ this.name +'\']; if (el) el.scroll(\'right\');"></div>';
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-tabs')
@@ -343,8 +346,37 @@
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             this.refresh();
+            this.resize();
             return (new Date()).getTime() - time;
         },
+
+        scroll: function (direction) {
+            var box = $(this.box);
+            var obj = this;
+            var scrollBox  = box.find('.w2ui-scroll-wrapper');
+            var scrollLeft = scrollBox.scrollLeft();
+            var width1, width2, scroll;
+
+            switch (direction) {
+                case 'left':
+                    width1 = scrollBox.outerWidth();
+                    width2 = scrollBox.find(':first').outerWidth();
+                    scroll = scrollLeft - width1 + 50; // 35 is width of both button
+                    if (scroll <= 0) scroll = 0;
+                    scrollBox.animate({ scrollLeft: scroll }, 300);
+                    break;
+
+                case 'right':
+                    width1 = scrollBox.outerWidth();
+                    width2 = scrollBox.find(':first').outerWidth();
+                    scroll = scrollLeft + width1 - 50; // 35 is width of both button
+                    if (scroll >= width2 - width1) scroll = width2 - width1;
+                    scrollBox.animate({ scrollLeft: scroll }, 300);
+                    break;
+            }
+            setTimeout(function () { obj.resize(); }, 350);
+        },
+
 
         resize: function () {
             var time = (new Date()).getTime();
@@ -352,7 +384,19 @@
             var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name });
             if (edata.isCancelled === true) return;
 
-            // intentionaly blank
+            // show hide overflow buttons
+            var box = $(this.box);
+            box.find('.w2ui-scroll-left, .w2ui-scroll-right').hide();
+            var scrollBox = box.find('.w2ui-scroll-wrapper');
+            if (scrollBox.find(':first').outerWidth() > scrollBox.outerWidth()) {
+                // we have overflowed content
+                if (scrollBox.scrollLeft() > 0) {
+                    box.find('.w2ui-scroll-left').show();
+                }
+                if (scrollBox.scrollLeft() < scrollBox.find(':first').outerWidth() - scrollBox.outerWidth()) {
+                    box.find('.w2ui-scroll-right').show();
+                }
+            }
 
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));

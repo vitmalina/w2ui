@@ -128,7 +128,9 @@ $(function () {
                     { id: 'tabs-3', text: 'Closable Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-4', text: 'Add/Remove Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-5', text: 'Enable/Disabled Tabs', icon: 'fa-folder-close-alt' },
-                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa-folder-close-alt' }
+                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa-folder-close-alt' },
+                    { id: 'tabs-7', text: 'Tabs Overflow (1.5+)', icon: 'fa-folder-close-alt' },
+                    { id: 'tabs-8', text: 'Tooltips (1.5+)', icon: 'fa-folder-close-alt' }
                 ]
             },
             { id: 'forms', text: 'Forms', img: 'icon-folder', group1: true,

@@ -4,7 +4,7 @@ Object with data for the route.
     String, default = ''
 </div>
 
-As of 1.4+ you can specify a route for the tabs. When the tab is clicked, it will still emmit 
+As of 1.4+ you can specify a route for the tabs. When the tab is clicked, it will still emmit
 <a href="w2tabs.onClick" class="argument">.onClick</a> event, but in addition it will follow a route defined for the tab.
 The route can have dynamic data, for example:
 
@@ -13,9 +13,9 @@ $('#tabs').w2tabs({
     name: 'tabs',
     routeData: { id: 14 },
     tabs: [
-        { id: 'tab1', caption: 'Tab 1' route: '/view/:id/details' },
-        { id: 'tab2', caption: 'Tab 2' route: '/view/:id/details' }
-    ]    
+        { id: 'tab1', text: 'Tab 1' route: '/view/:id/details' },
+        { id: 'tab2', text: 'Tab 2' route: '/view/:id/details' }
+    ]
 });
 </textarea>
 

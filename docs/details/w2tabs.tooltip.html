@@ -1,0 +1,28 @@
+Defines how tooltips are positions.
+
+<div class="definition">
+    String, default = 'top'
+</div>
+
+The <span class="argument">.tooltip</span> can be either 'top', 'bottom', 'left', 'right' and define how tooltip will be displayed. You will still need to set
+<span class="property">.tooltip</span> of each tab for which you need tooltip.
+<div style="height: 10px"></div>
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#tabs').w2tabs({
+    name: 'tabs',
+    tooltip: 'bottom',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1', tooltip: 'Tab 1 tooltip' },
+        { id: 'tab2', text: 'Tab 2', tooltip: 'Tab 2 tooltip' }
+    ]
+});
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui['tabs'].tooltip = 'top';
+</textarea>
+
+No refresh is needed
