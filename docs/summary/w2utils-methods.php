@@ -70,7 +70,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.formatNumber">formatNumber</a> <span>- formatNumber(val, [groupSymbol])</span>
+    <a href="w2utils.formatNumber">formatNumber</a> <span>- formatNumber(val, [groupSymbol], [decimalSymbol])</span>
 </div>
 <div class="obj-property-desc">
     Formats a number adding commas.
@@ -171,7 +171,7 @@
     <a href="w2utils.parseRoute">parseRoute</a> <span>- parseRoute(route)</span>
 </div>
 <div class="obj-property-desc">
-    Returns time in requested format.
+    Returns parse route object.
 </div>
 
 <div class="obj-property">

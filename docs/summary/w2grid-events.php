@@ -161,7 +161,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.onSaved">onSaved</a> <span>- function (event)</span>
+    <a href="w2grid.onSave">onSave</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
     Called when server responds back after save request.

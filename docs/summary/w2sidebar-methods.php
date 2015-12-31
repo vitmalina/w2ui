@@ -7,6 +7,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.blur">blur</a> <span>- blur([event])</span>
+</div>
+<div class="obj-property-desc">
+    Called when sidebar looses focus.
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.click">click</a> <span>- click(id, [event])</span>
 </div>
 <div class="obj-property-desc">
@@ -84,10 +91,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.focus">focus</a> <span>- focus([event])</span>
+</div>
+<div class="obj-property-desc">
+    Called when sidebar gets focus.
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.get">get</a> <span>- get([parent], [id], [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
     Finds sidebar node with <span class="argument">id</span> and returns it or its index.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.goFlat">goFlat</a> <span>- goFlat()</span>
+</div>
+<div class="obj-property-desc">
+    Called when flat button is clicked.
 </div>
 
 <div class="obj-property">

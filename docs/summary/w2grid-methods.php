@@ -1,6 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container"><div class="obj-property">
-    <a href="w2grid.add">add</a> <span>- add(record)</span>
+    <a href="w2grid.add">add</a> <span>- add(record, [first])</span>
 </div>
 <div class="obj-property-desc">
     Adds a record or records to the grid.
@@ -60,6 +60,13 @@
 </div>
 <div class="obj-property-desc">
     Called when user opens grid settings (on grids toolbar) and selects an item.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.contextMenu">contextMenu</a> <span>- contextMenu(recid, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Displays context menu under specified record.
 </div>
 
 <div class="obj-property">
@@ -431,6 +438,13 @@
 </div>
 <div class="obj-property-desc">
     Resets the grid to the initial state. 
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.resizeBoxes">resizeBoxes</a> <span>- resizeBoxes()</span>
+</div>
+<div class="obj-property-desc">
+    Called to resize grid's elements.
 </div>
 
 <div class="obj-property">

@@ -28,13 +28,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.contextMenu">contextMenu</a> <span>- remove(recid, [event])</span>
-</div>
-<div class="obj-property-desc">
-    Displays context menu under specified record.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.fixedBody">fixedBody</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">
@@ -157,7 +150,7 @@
     <a href="w2grid.parser">parser</a> <span>- Function, default = null</span>
 </div>
 <div class="obj-property-desc">
-    Name for the recid field in the records array.
+    Function to parse server response.
 </div>
 
 <div class="obj-property">
@@ -207,13 +200,6 @@
 </div>
 <div class="obj-property-desc">
     Indicates if reordering of rows is allowed.
-</div>
-
-<div class="obj-property">
-    <a href="w2grid.resizeBoxes">resizeBoxes</a> <span>- requestBoxes()</span>
-</div>
-<div class="obj-property-desc">
-    Called to resize grid's elements.
 </div>
 
 <div class="obj-property">

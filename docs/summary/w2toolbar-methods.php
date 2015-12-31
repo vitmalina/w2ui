@@ -3,7 +3,7 @@
     <a href="w2toolbar.add">add</a> <span>- add(items)</span>
 </div>
 <div class="obj-property-desc">
-    Adds a toolbar item or items. 
+    Adds a toolbar item or items.
 </div>
 
 <div class="obj-property">
@@ -21,6 +21,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2toolbar.colorClick">colorClick</a> <span>- colorClick(event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user selects an item from a color picker drop down menu.
+</div>
+
+<div class="obj-property">
     <a href="w2toolbar.disable">disable</a> <span>- disable(id1, [id2], ...)</span>
 </div>
 <div class="obj-property-desc">
@@ -35,7 +42,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2toolbar.get">get</a> <span>- get(id, [returnIndex])</span>
+    <a href="w2toolbar.get">get</a> <span>- get([id], [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
     Finds toolbar item with <span class="argument">id</span> and returns it or its index.
@@ -77,10 +84,17 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2toolbar.scroll">scroll</a> <span>- scroll(direction)</span>
+</div>
+<div class="obj-property-desc">
+    Scrolls toolbar items if they overflow.
+</div>
+
+<div class="obj-property">
     <a href="w2toolbar.set">set</a> <span>- set(id, item)</span>
 </div>
 <div class="obj-property-desc">
-    Finds toolbar item with <span class="argument">id</span> and extends it with <span class="argument">item</span> object. 
+    Finds toolbar item with <span class="argument">id</span> and extends it with <span class="argument">item</span> object.
 </div>
 
 <div class="obj-property">
@@ -88,6 +102,20 @@
 </div>
 <div class="obj-property-desc">
     Shows toolbar item or items with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+    <a href="w2toolbar.tooltipHide">tooltipHide</a> <span>- tooltipHide(id)</span>
+</div>
+<div class="obj-property-desc">
+    Shows tooltip of the item with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+    <a href="w2toolbar.tooltipShow">tooltipShow</a> <span>- tooltipShow(id, [event], [forceRefresh])</span>
+</div>
+<div class="obj-property-desc">
+    Shows tooltip of the item with <span class="argument">id</span>.
 </div>
 
 <div class="obj-property">
