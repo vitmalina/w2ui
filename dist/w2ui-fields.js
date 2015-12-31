@@ -1979,7 +1979,7 @@ w2utils.event = {
         // hide previous if any
         if ($('#w2ui-overlay'+ name).length > 0) {
             tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
-            $(document).off('click', tmp_hide);
+            $(document).off('.w2overlayHide');
             if (typeof tmp_hide === 'function') tmp_hide();
         }
         if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
@@ -2027,7 +2027,7 @@ w2utils.event = {
         // need time to display
         setTimeout(function () {
             resize();
-            $(document).off('click', hide).on('click', hide);
+            $(document).off('.w2overlayHide').on('click.w2overlayHide', hide);
             if (typeof options.onShow === 'function') options.onShow();
         }, 10);
 
@@ -2279,18 +2279,17 @@ w2utils.event = {
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender;
             // since only one overlay can exist at a time
             $.fn.w2menuClick = function (event, index) {
+                var keepOpen = false;
                 if (['radio', 'check'].indexOf(options.type) != -1) {
-                    // move checkbox
-                    $(event.target).parents('tr').find('.w2ui-icon')
-                        .removeClass('w2ui-icon-empty')
-                        .addClass('w2ui-icon-check');
+                    if (event.shiftKey || event.metaKey || event.ctrlKey) keepOpen = true;
                 }
                 if (typeof options.onSelect === 'function') {
                     // need time so that menu first hides
                     setTimeout(function () {
                         options.onSelect({
-                            index : index,
-                            item  : options.items[index],
+                            index: index,
+                            item: options.items[index],
+                            keepOpen: keepOpen,
                             originalEvent: event
                         });
                     }, 10);
@@ -2299,35 +2298,29 @@ w2utils.event = {
                 // setTimeout(function () { $(document).click(); }, 50);
                 // -- hide
                 var div = $('#w2ui-overlay'+ name);
-                if (typeof div[0].hide === 'function') {
-                    div.removeData('keepOpen');
+                div.removeData('keepOpen');
+                if (typeof div[0].hide === 'function' && !keepOpen) {
                     div[0].hide();
                 }
             };
             $.fn.w2menuDown = function (event, index) {
-                var $el = $(event.target).parents('tr');
-                var tmp = $el.find('.w2ui-icon');
-                if (tmp.hasClass('w2ui-icon-empty')) {
+                var $el  = $(event.target).parents('tr');
+                var tmp  = $el.find('.w2ui-icon');
+                var item = options.items[index];
+                item.checked = !item.checked;
+                if (item.checked) {
                     if (options.type == 'radio') {
                         tmp.parents('table').find('.w2ui-icon')
                             .removeClass('w2ui-icon-check')
                             .addClass('w2ui-icon-empty');
                     }
                     tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
-                } else if (tmp.hasClass('w2ui-icon-check') && (options.type == 'check')) {
+                } else if (options.type == 'check') {
                     tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
                 }
+                // highlight record
                 $el.parent().find('tr').removeClass('w2ui-selected');
                 $el.addClass('w2ui-selected');
-                $.fn.w2menuTmp = $el;
-            };
-            $.fn.w2menuOut = function (event, index) {
-                var $tmp = $($.fn.w2menuTmp);
-                if ($tmp.length > 0) {
-                    $tmp.removeClass('w2ui-selected');
-                    $tmp.find('.w2ui-icon').removeClass('w2ui-icon-check');
-                    delete $.fn.w2menuTmp;
-                }
             };
             var html = '';
             if (options.search) {
@@ -2490,8 +2483,6 @@ w2utils.event = {
                             '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
                             '        onmousedown="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
                             '               jQuery.fn.w2menuDown(event, \''+ f +'\');"'+
-                            '        onmouseout="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2menuOut(event, \''+ f +'\');"'+
                             '        onclick="event.stopPropagation(); '+
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
                             '               jQuery.fn.w2menuClick(event, \''+ f +'\');">'+
@@ -2564,26 +2555,28 @@ w2utils.event = {
         }
         // bind events
         $('#w2ui-overlay .color')
-            .on('mousedown', function (event) {
+            .off('.w2color')
+            .on('mousedown.w2color', function (event) {
                 var color = $(event.originalEvent.target).attr('name');
                 index = $(event.originalEvent.target).attr('index').split(':');
                 $(el).data('_color', color);
             })
-            .on('mouseup', function () {
+            .on('mouseup.w2color', function () {
                 setTimeout(function () {
                     if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide();
                 }, 10);
             });
         $('#w2ui-overlay input')
-            .on('mousedown', function (event) {
+            .off('.w2color')
+            .on('mousedown.w2color', function (event) {
                 $('#w2ui-overlay').data('keepOpen', true);
                 setTimeout(function () { $('#w2ui-overlay').data('keepOpen', true); }, 10);
                 event.stopPropagation();
             })
-            .on('keyup', function (event) {
+            .on('keyup.w2color', function (event) {
                 if (this.value != '' && this.value[0] != '#') this.value = '#' + this.value;
             })
-            .on('change', function (event) {
+            .on('change.w2color', function (event) {
                 var tmp = this.value;
                 if (tmp.substr(0, 1) == '#') tmp = tmp.substr(1);
                 if (tmp.length != 6) {
@@ -2623,7 +2616,7 @@ w2utils.event = {
 
         function getColorHTML(options) {
             var color = options.color;
-            var html  = '<div class="w2ui-color">'+
+            var html  = '<div class="w2ui-color" onmousedown="event.stopPropagation()">'+
                         '<table cellspacing="5"><tbody>';
             for (var i = 0; i < pal.length - 1; i++) {
                 html += '<tr>';
