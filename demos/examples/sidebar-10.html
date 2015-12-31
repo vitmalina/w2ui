@@ -1,23 +1,26 @@
 <div class="content">
     <div id="example_title">
-        <h1>Top &amp; Bottom HTML</h1>
-        You can add top and/or bottom HTML that will always stay there. You can expand columns and if
+        <h1>In/Out of Focus (new in 1.5)</h1>
+        Keyborad navigation is an important feature of w2ui and it plays a role for the sidebar. Sidebar can be in focus and receive all input
+        from the mouse or focus can be somewhere else.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="sidebar" style="height: 300px; width: 200px;"></div>
+<div id="sidebar" style="height: 300px; width: 200px; float: left"></div>
+<div style="margin-left: 220px;">
+  <span id="hasFocus"></span>
+</div>
+<div style="clear: both"/>
 
 <!--CODE-->
 <script>
 $(function () {
     $('#sidebar').w2sidebar({
-        name       : 'sidebar',
-        topHTML    : '<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">Some HTML</div>',
-        bottomHTML : '<div style="background-color: #eee; padding: 10px 5px; border-top: 1px solid silver">Some HTML</div>',
-        nodes : [
+        name : 'sidebar',
+        nodes: [
             { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
               nodes: [ { id: 'level-1-1', text: 'Level 1.1', icon: 'fa-home' },
                        { id: 'level-1-2', text: 'Level 1.2', icon: 'fa-coffee' },
@@ -36,7 +39,15 @@ $(function () {
                        { id: 'level-3-3', text: 'Level 3.3', icon: 'fa-star-empty' }
                      ]
             }
-        ]
+        ],
+        onFocus: function (event) {
+          console.log('focus', event);
+          $('#hasFocus').html('<span style="background-color: #eee; padding: 5px; border-radius: 3px;">HAS FOCUS</span>');
+        },
+        onBlur: function (event) {
+          console.log('blur', event);
+          $('#hasFocus').html('');
+        }
     });
 });
 </script>

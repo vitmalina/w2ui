@@ -1,0 +1,30 @@
+Indicates if sidebar is in the flat mode.
+
+<div class="definition">
+    Boolean, default = false
+</div>
+
+If sidebar is in the flat more, only node icon will be displayed. Parent child structures are also ignored. Flat mode is
+useful to make sidebar take less space.
+<div style="height: 10px"></div>
+
+You can define it during object creation:
+
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    flat : true,
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+or during run-time:
+
+<textarea class="javascript">
+w2ui['sidebar'].flat = true;
+w2ui['sidebar'].refresh();
+</textarea>

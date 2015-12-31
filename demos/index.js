@@ -109,7 +109,9 @@ $(function () {
                     { id: 'sidebar-5', text: 'Expand/Collapse', icon: 'fa-hand-left' },
                     { id: 'sidebar-6', text: 'Select/Unselect', icon: 'fa-hand-left' },
                     { id: 'sidebar-8', text: 'Top & Bottom HTML', icon: 'fa-hand-left' },
-                    { id: 'sidebar-7', text: 'Events', icon: 'fa-hand-left' }
+                    { id: 'sidebar-7', text: 'Events', icon: 'fa-hand-left' },
+                    { id: 'sidebar-9', text: 'Flat Sidebar (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'sidebar-10', text: 'In/Out of Focus (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
             // { id: 'listview', text: 'ListView', img: 'icon-folder', group1: true,
