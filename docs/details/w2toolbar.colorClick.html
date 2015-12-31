@@ -1,0 +1,39 @@
+Called when user selects an item from a color picker drop down menu.
+
+<div class="definition">
+    colorClick(event)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, event object </td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method only works for toolbar item of type color or text-color. It is called when user selects a color. It is used internally, but you can use
+to emulate clicks. This method emits <a class="method" href="w2toolbar.onClick">.onClick</a> event.
+<div style="height: 10px"></div>
+
+If you have toolbar defined in the following way:
+<textarea class="javascript">
+$('#toolbar').w2toolbar({
+    name  : 'toolbar',
+    items : [
+        { type: 'color', id: 'item1' },
+        { type: 'text-color', id: 'item2' }
+    ]
+});
+</textarea>
+
+You can emulate color picker click in the following way:
+<textarea class="javascript">
+var tb = w2ui['toolbar'];
+tb.colorClick({ name: tb.name, item: tb.get('item1'), color: '000000', originalEvent: {} });
+</textarea>

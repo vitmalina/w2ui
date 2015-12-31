@@ -89,10 +89,15 @@ $(function () {
             { id: 'toolbar', text: 'Toolbar', img: 'icon-folder', group1: true,
                 nodes: [
                     { id: 'toolbar-1', text: 'Simple Toolbar', icon: 'fa-hand-up' },
-                    { id: 'toolbar-2', text: 'Advanced Toolbar', icon: 'fa-hand-up' },
+                    { id: 'toolbar-2', text: 'More Buttons Type', icon: 'fa-hand-up' },
                     { id: 'toolbar-3', text: 'Add/Remove Buttons', icon: 'fa-hand-up' },
                     { id: 'toolbar-4', text: 'Show/Hide Buttons', icon: 'fa-hand-up' },
-                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa-hand-up' }
+                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa-hand-up' },
+                    { id: 'toolbar-6', text: 'Menu Buttons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-7', text: 'Color Buttons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-8', text: 'Tooltips (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-9', text: 'Custom Butons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-10', text: 'Toolbar Overflow (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
             { id: 'sidebar', text: 'Sidebar', img: 'icon-folder', group1: true,
