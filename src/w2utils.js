@@ -1414,7 +1414,7 @@ var w2utils = (function ($) {
         var doc = input.ownerDocument || input.document;
         var win = doc.defaultView || doc.parentWindow;
         var sel;
-        if (input.tagName == 'INPUT' && input.selectionStart) {
+        if (input.tagName && input.tagName.toUpperCase() == 'INPUT' && input.selectionStart) {
             // standards browser
             caretOffset = input.selectionStart;
         } else {
