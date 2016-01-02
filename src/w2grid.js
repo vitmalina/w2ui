@@ -3655,8 +3655,9 @@
                 var url = (typeof this.url != 'object' ? this.url : this.url.get);
                 if (!url) {
                     this.localSort(true, true);
-                    if (this.searchData.length > 0)
+                    if (this.searchData.length > 0) {
                         this.localSearch(true);
+                    }
                 }
                 this.refresh();
                 this.trigger($.extend(edata, { phase: 'after' }));
@@ -3729,16 +3730,18 @@
                 var end   = start;
                 while (true) {
                     if (this.records.length <= end + 1 || this.records[end+1].w2ui == null ||
-                        stops.indexOf(this.records[end+1].w2ui.parent_recid) >= 0)
+                        stops.indexOf(this.records[end+1].w2ui.parent_recid) >= 0) {
                         break;
+                    }
                     end++;
                 }
                 this.records.splice(start, end - start + 1);
                 this.total -= end - start + 1;
                 var url = (typeof this.url != 'object' ? this.url : this.url.get);
                 if (!url) {
-                    if (this.searchData.length > 0)
+                    if (this.searchData.length > 0) {
                         this.localSearch(true);
+                    }
                 }
                 this.refresh();
                 obj.trigger($.extend(edata, { phase: 'after' }));
@@ -3769,8 +3772,9 @@
                 rec.w2ui.expanded = false;
                 for (var i = 0; i < rec.w2ui.children.length; i++) {
                     var subRec = rec.w2ui.children[i];
-                    if (subRec.w2ui.expanded)
+                    if (subRec.w2ui.expanded) {
                         clearExpanded(subRec);
+                    }
                 }
             }
         },
