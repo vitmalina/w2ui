@@ -102,6 +102,7 @@
     }
 *   - added this.show.toolbarInput
 *   - disableCVS
+*   - added noReset option to localSort()
 *
 ************************************************************************/
 
@@ -376,7 +377,7 @@
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
                 this.total = this.records.length;
-                this.localSort();
+                this.localSort(false, !first);
                 this.localSearch();
             }
             this.refresh(); // ??  should it be reload?
@@ -689,7 +690,7 @@
             return null;
         },
 
-        localSort: function (silent) {
+        localSort: function (silent, noReset) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url) {
                 console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.');
@@ -701,7 +702,8 @@
             // process date fields
             obj.selectionSave();
             obj.prepareData();
-            obj.reset();
+            if (!noReset)
+                obj.reset();
             // process sortData
             for (var i = 0; i < this.sortData.length; i++) {
                 var column = this.getColumn(this.sortData[i].field);
@@ -893,7 +895,7 @@
             }
             return time;
   
-            // check if a record matches the search data
+            // check if a record (or one of its closed children) matches the search data
             function searchRecord(rec) {
                 var fl  = 0;
                 for (var j = 0; j < obj.searchData.length; j++) {
@@ -1017,9 +1019,18 @@
                         break;
                     }
                 }
-                var match = ((obj.last.logic == 'OR' && fl != 0) ||
-                             (obj.last.logic == 'AND' && fl == obj.searchData.length));
-                return match;
+                if ((obj.last.logic == 'OR' && fl != 0) ||
+                    (obj.last.logic == 'AND' && fl == obj.searchData.length))
+                    return true;
+                if (rec.w2ui && rec.w2ui.children && rec.w2ui.expanded !== true) {
+                    // there are closed children, search them too.
+                    for (var r = 0; r < rec.w2ui.children.length; r++) {
+                        var subRec = rec.w2ui.children[r];
+                        if (searchRecord(subRec))
+                            return true;
+                    }
+                }
+                return false;
             }
  
             // add parents nodes recursively
@@ -3640,6 +3651,13 @@
                     if (child.w2ui.children == null) child.w2ui.children = [];
                 });
                 this.records.splice.apply(this.records, [ind + 1, 0].concat(children));
+                this.total += children.length;
+                var url = (typeof this.url != 'object' ? this.url : this.url.get);
+                if (!url) {
+                    this.localSort(true, true);
+                    if (this.searchData.length > 0)
+                        this.localSearch(true);
+                }
                 this.refresh();
                 this.trigger($.extend(edata, { phase: 'after' }));
             } else {
@@ -3718,6 +3736,12 @@
                     end++;
                 }
                 this.records.splice(start, end - start + 1);
+                this.total -= end - start + 1;
+                var url = (typeof this.url != 'object' ? this.url : this.url.get);
+                if (!url) {
+                    if (this.searchData.length > 0)
+                        this.localSearch(true);
+                }
                 this.refresh();
                 obj.trigger($.extend(edata, { phase: 'after' }));
             } else {
@@ -6997,7 +7021,7 @@
                 prepareRecord(rec);
             }
 
-            // prepare date and time objects for the 'rec' record
+            // prepare date and time objects for the 'rec' record and its closed children
             function prepareRecord(rec) {
                 for (var c = 0; c < obj.columns.length; c++) {
                     var column = obj.columns[c];
@@ -7029,6 +7053,14 @@
                             dt.setHours(tmp.getHours(), tmp.getMinutes(), tmp.getSeconds(), 0); // sets hours, min, sec, mills
                             if (!rec[column.field + '_']) rec[column.field + '_'] = dt;
                         }
+                    }
+                }
+
+                if (rec.w2ui && rec.w2ui.children && rec.w2ui.expanded !== true) {
+                    // there are closed children, prepare them too.
+                    for (var r = 0; r < rec.w2ui.children.length; r++) {
+                        var subRec = rec.w2ui.children[r];
+                        prepareRecord(subRec);
                     }
                 }
             }
