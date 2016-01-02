@@ -3720,8 +3720,7 @@
                 if (rec.w2ui.expanded !== true) return false; // already hidden
                 var edata = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid });
                 if (edata.isCancelled === true) return false;
-                rec.w2ui.expanded = false;
-                // all children are directly after
+                clearExpanded(rec);
                 var stops = [];
                 for (var r = rec; r != null; r = this.get(r.w2ui.parent_recid))
                     stops.push(r.w2ui.parent_recid);
@@ -3732,7 +3731,6 @@
                     if (this.records.length <= end + 1 || this.records[end+1].w2ui == null ||
                         stops.indexOf(this.records[end+1].w2ui.parent_recid) >= 0)
                         break;
-                    if (this.records[end+1].w2ui.expanded) this.records[end+1].w2ui.expanded = false;
                     end++;
                 }
                 this.records.splice(start, end - start + 1);
@@ -3766,6 +3764,15 @@
                 }, 300);
             }
             return true;
+
+            function clearExpanded(rec) {
+                rec.w2ui.expanded = false;
+                for (var i = 0; i < rec.w2ui.children.length; i++) {
+                    var subRec = rec.w2ui.children[i];
+                    if (subRec.w2ui.expanded)
+                        clearExpanded(subRec);
+                }
+            }
         },
 
         sort: function (field, direction, multiField) { // if no params - clears sort
