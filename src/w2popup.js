@@ -9,20 +9,6 @@
 *   - hide overlay on esc
 *   - make popup width/height in %
 *
-* == 1.5 changes
-*   - new: resizeMessages()
-*   - popup can be moved/resized/closed when locked or has messages
-*   - messages negative width/height means margin
-*   - added btn_yes and btn_no
-*   - dismissed message will slide up - added parameter unlock(speed)
-*   - refactor -webkit-* -moz-* to a function
-*   - resize nested elements in popup for onMin, onMax
-*   - rename btn -> w2ui-btn and same for colored ones
-*   - added options.body and options.buttons for w2popup.message
-*   - .message() should have same props (body, buttons, title?)
-*   - template improvements (if template already in DOM, it will move it under popup, not recreate)
-*   - added focus()
-*
 ************************************************************************/
 
 var w2popup = {};
@@ -229,7 +215,7 @@ var w2popup = {};
 
             } else {
                 // if was from template and now not
-                if (w2popup._prev == null && w2popup._template != null) obj._restoreTemplate();
+                if (w2popup._prev == null && w2popup._template != null) obj.restoreTemplate();
 
                 // trigger event
                 var edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
@@ -289,7 +275,7 @@ var w2popup = {};
                 var div_new = $('#w2ui-popup .w2ui-box-temp')[0];
                 w2utils.transition(div_old, div_new, options.transition, function () {
                     // clean up
-                    obj._restoreTemplate();
+                    obj.restoreTemplate();
                     $(div_old).remove();
                     $(div_new).removeClass('w2ui-box-temp').addClass('w2ui-box');
                     var $body = $(div_new).find('.w2ui-msg-body');
@@ -407,7 +393,7 @@ var w2popup = {};
             w2popup.unlockScreen(options);
             setTimeout(function () {
                 // return template
-                obj._restoreTemplate();
+                obj.restoreTemplate();
                 $('#w2ui-popup').remove();
                 w2popup.status = 'closed';
                 // restore active
@@ -798,7 +784,7 @@ var w2popup = {};
         **/
 
         // restores template
-        _restoreTemplate: function () {
+        restoreTemplate: function () {
             var options  = $('#w2ui-popup').data('options');
             if (options == null) return;
             var template = w2popup._template;
