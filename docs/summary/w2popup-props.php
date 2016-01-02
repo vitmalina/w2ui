@@ -1,16 +1,23 @@
-<link rel="stylesheet" type="text/css" href="../summary.css"/>
+<link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container"><div class="obj-property">
     <a href="w2popup.defaults">defaults</a> <span>- Object, default - see below</span>
 </div>
 <div class="obj-property-desc">
-    Default settings for the popup.
+    Default settings for the popup. 
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.resizeMessages">resizeMessages</a> <span>- resizeMessage()</span>
+</div>
+<div class="obj-property-desc">
+    Resized opened messages within popup.
 </div>
 
 <div class="obj-property">
     <a href="w2popup.status">status</a> <span>- String, default 'closed'</span>
 </div>
 <div class="obj-property-desc">
-    State of the popup.
+    State of the popup. 
 </div>
 
 </div>

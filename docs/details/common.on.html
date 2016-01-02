@@ -20,13 +20,13 @@ Adds event listener to a object.
 OR
 
 <div class="definition">
-    on(eventData, handler)
+    on(edata, handler)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>eventData</td>
+        <td>edata</td>
         <td><b>object</b>, parameters of the event</td>
     </tr>
     <tr>
@@ -40,7 +40,7 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-The simplest way to add an event listener is to provide the name of the event and a handler function. For example if you have a 
+The simplest way to add an event listener is to provide the name of the event and a handler function. For example if you have a
 layout (for grid, toolbar, etc. it is exactly the same) defined as follows:
 
 <textarea class="javascript">
@@ -57,50 +57,55 @@ $('#layout').w2layout({
 You can add an event listener in the following way:
 
 <textarea class="javascript">
-w2ui['layout'].on('refresh', function (target, eventData) {
-    console.log(target);
-    console.log(eventData);
+w2ui['layout'].on('refresh', function (event) {
+    console.log(event.target, event);
+});
+</textarea>
+
+Or to execure at the end of event cycle:
+
+<textarea class="javascript">
+w2ui['layout'].on('refresh:after', function (event) {
+    console.log(event.target, event);
 });
 </textarea>
 
 You could also add event listener in the following way:
 
 <textarea class="javascript">
-w2ui['layout'].on({ type : 'refresh' }, function (target, eventData) {
-    console.log(target);
-    console.log(eventData);
+w2ui['layout'].on({ type : 'refresh' }, function (event) {
+    console.log(event.target, event);
 });
 </textarea>
 
-The first way is simple, but the second way provides additional functionality. You can add any property 
-to <span class="argument">eventData</span> object and all of them will be passed to the event handlers function as 
-the part of the <span class="argument">event</span> argument. The <span class="argument">eventData</span> object
-may also contain additional parameters, for example when to trigger event before or after, you can specify 
-<span class="argument">onComplete</span> function that will be called at the end of the evert. 
+The first way is simple, but the second and third way provides additional functionality. You can add any property
+to <span class="argument">event</span> object and all of them will be passed to the event handlers function as
+the part of the <span class="argument">event</span> argument. The <span class="argument">event</span> object
+may also contain additional parameters, for example when to trigger event before or after, you can specify
+<span class="argument">onComplete</span> function that will be called at the end of the evert.
 <div style="height: 10px"></div>
 
-Below is the list of properties of eventData object: 
+Below is the list of properties of event object:
 <textarea class="javascript">
-data = {
+event = {
     type        : '',         // event name or * for all events
     execute     : 'before',   // when to execute the handler, can be before or after
     target      : null,       // target of the event (target will be set when event is triggered)
-    onComplete  : null        // function(target, eventData) to execute after event is processed.
+    onComplete  : null        // function(event) to execute after event is processed.
 }
 </textarea>
 
 <h4>Event Names</h4>
-All event names can be found on the event page of corresponding w2ui object. In order to use them with 
-<span class="argument">on()</span> and <span class="argument">off()</span> methods, you need to drop "on" prefix and 
-lower case first letter. For example, if the object has "onResize" event, you can use it as "resize". If it was 
+All event names can be found on the event page of corresponding w2ui object. In order to use them with
+<span class="argument">on()</span> and <span class="argument">off()</span> methods, you need to drop "on" prefix and
+lower case first letter. For example, if the object has "onResize" event, you can use it as "resize". If it was
 "onColumnClick" it should be "columnClick".
 <div style="height: 10px"></div>
 
-You can attach event listener to all events if you do the following: 
+You can attach event listener to all events if you do the following:
 <textarea class="javascript">
-w2ui['layout'].on('*', function (target, eventData) {
-    console.log(target);
-    console.log(eventData);
+w2ui['layout'].on('*', function (event) {
+    console.log(event.type, event);
 });
 </textarea>
 
@@ -113,7 +118,7 @@ There are several events that are common for all w2ui objects (except w2popup, w
 </ul>
 
 <h4>Event Handlers</h4>
-When any of the event is triggered and it has an event handler, the event handler function will receive one 
+When any of the event is triggered and it has an event handler, the event handler function will receive one
 argument - <span class="argument">event</span>, which is an object with useful data related to the event.
 <textarea class="javascript">
 function handler(event) {

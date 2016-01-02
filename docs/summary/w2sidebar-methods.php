@@ -196,7 +196,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2sidebar.unselect">unselect</a> <span>- unselect(id)</span>
+    <a href="w2sidebar.unselect">unselect</a> <span>- unselect([id])</span>
 </div>
 <div class="obj-property-desc">
     Unselects sidebar node with <span class="argument">id</span>.
