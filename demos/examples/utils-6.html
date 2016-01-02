@@ -1,0 +1,64 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Formatters (new in 1.5)</h1>
+        You can use formatters to format display of a value. Internally formatters are used in grid as option for render function.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<input id="str" type="text" size="20" onkeyup="update()" style="border: 1px solid silver; padding: 3px; height: 30px; width: 200px;">
+<br><br>
+<div style="float: left; width: 130px;">Number</div>         <div id="fNumber" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Number (1.001)</div> <div id="fNumber2" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Money</div>          <div id="fMoney" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Percent</div>        <div id="fPercent" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Size</div>           <div id="fSize" style="margin-left: 130px;">...</div>
+<div style="height: 20px"></div>
+<div style="float: left; width: 130px;">Date</div>           <div id="fDate" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Time</div>           <div id="fTime" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Date Time</div>      <div id="fDateTime" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">GMT Date Time</div>  <div id="fGMT" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Time Stamp</div>     <div id="fTimeStamp" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Age</div>            <div id="fAge" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Interval</div>       <div id="fInterval" style="margin-left: 130px;">...</div>
+
+<!--CODE-->
+<script>
+$('#str').w2field({ type: 'float', autoFormat: false });
+function update() {
+    var val = $('#str').val();
+    if (w2utils.isFloat(val)) {
+        $('#fNumber').html(w2utils.formatters['number'](val));
+        $('#fNumber2').html(w2utils.formatters['number'](val, 3));
+        $('#fMoney').html(w2utils.formatters['money'](val));
+        $('#fPercent').html(w2utils.formatters['percent'](val));
+        $('#fSize').html(w2utils.formatters['size'](val));
+    } else {
+        $('#fNumber').html('--');
+        $('#fNumber2').html('--');
+        $('#fMoney').html('--');
+        $('#fPercent').html('--');
+        $('#fSize').html('--');
+    }
+    var dt = w2utils.isDate(val, null, true);
+    if (dt !== false) {
+        $('#fDate').html(w2utils.formatters['date'](val));
+        $('#fDateTime').html(w2utils.formatters['datetime'](val));
+        $('#fTime').html(w2utils.formatters['time'](val));
+        $('#fGMT').html(w2utils.formatters['gmt'](val));
+        $('#fTimeStamp').html(w2utils.formatters['timestamp'](val));
+        $('#fAge').html(w2utils.formatters['age'](val));
+        $('#fInterval').html(w2utils.formatters['interval'](val));
+    } else {
+        $('#fDate').html('--');
+        $('#fDateTime').html('--');
+        $('#fTime').html('--');
+        $('#fGMT').html('--');
+        $('#fTimeStamp').html('--');
+        $('#fAge').html('--');
+        $('#fInterval').html('--');
+    }
+}
+</script>

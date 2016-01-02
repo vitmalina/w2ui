@@ -153,12 +153,12 @@ var w2utils = (function ($) {
 
         if (typeof val.getUTCFullYear === 'function') { // date object
             year  = val.getUTCFullYear();
-            month = val.getUTCMonth();
+            month = val.getUTCMonth() + 1;
             day   = val.getUTCDate();
         } else if (parseInt(val) == val && parseInt(val) > 0) {
-            val = new Date(val);
+            val = new Date(parseInt(val));
             year  = val.getUTCFullYear();
-            month = val.getUTCMonth();
+            month = val.getUTCMonth() + 1;
             day   = val.getUTCDate();
         } else {
             val = String(val);
@@ -194,10 +194,10 @@ var w2utils = (function ($) {
         if (!isInt(year)) return false;
         if (!isInt(month)) return false;
         if (!isInt(day)) return false;
-        year = +year;
+        year  = +year;
         month = +month;
-        day = +day;
-        dt = new Date(year, month - 1, day);
+        day   = +day;
+        dt    = new Date(year, month - 1, day);
         // do checks
         if (month == null) return false;
         if (String(dt) == 'Invalid Date') return false;
@@ -243,12 +243,13 @@ var w2utils = (function ($) {
     }
 
     function isDateTime (val, format, retDate) {
+        if (format == null) format = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
         var formats = format.split('|');
         if (typeof val.getUTCFullYear === 'function') { // date object
             if (retDate !== true) return true;
             return val;
         } else if (parseInt(val) == val && parseInt(val) > 0) {
-            val = new Date(val);
+            val = new Date(parseInt(val));
             if (retDate !== true) return true;
             return val;
         } else {
@@ -271,10 +272,16 @@ var w2utils = (function ($) {
         }
     }
 
-    function age (dateStr) {
-        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
-        var d1 = new Date(dateStr);
-        if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
+    function age(dateStr) {
+        var dt1;
+        if (dateStr === '' || dateStr == null) return '';
+        if (typeof dateStr.getUTCFullYear === 'function') { // date object
+            dt1 = dateStr;
+        } else if (parseInt(dateStr) == dateStr && parseInt(dateStr) > 0) {
+            d1 = new Date(parseInt(dateStr));
+        } else {
+            d1 = new Date(dateStr);
+        }
         if (String(d1) == 'Invalid Date') return '';
 
         var d2  = new Date();
@@ -359,9 +366,9 @@ var w2utils = (function ($) {
         if (!w2utils.isFloat(sizeStr) || sizeStr === '') return '';
         sizeStr = parseFloat(sizeStr);
         if (sizeStr === 0) return 0;
-        var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
+        var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB'];
         var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
-        return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + sizes[i];
+        return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + (sizes[i] || '??');
     }
 
     function formatNumber (val, fraction, useGrouping) {
@@ -1012,7 +1019,7 @@ var w2utils = (function ($) {
             return;
         }
 
-        div_old.parentNode.style.cssText += 'perspective: 700; overflow: hidden;';
+        div_old.parentNode.style.cssText += 'perspective: 900px; overflow: hidden;';
         div_old.style.cssText += '; position: absolute; z-index: 1019; backface-visibility: hidden';
         div_new.style.cssText += '; position: absolute; z-index: 1020; backface-visibility: hidden';
 
@@ -1485,7 +1492,7 @@ w2utils.formatters = {
     },
 
     'date': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.dateFormat;
+        if (params == '') params = w2utils.settings.dateFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1493,7 +1500,7 @@ w2utils.formatters = {
     },
 
     'datetime': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1501,7 +1508,7 @@ w2utils.formatters = {
     },
 
     'time': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.timeFormat;
         if (params == 'h12') params = 'hh:mi pm';
         if (params == 'h24') params = 'h24:mi';
         if (value == null || value == 0) return '';
@@ -1511,7 +1518,7 @@ w2utils.formatters = {
     },
 
     'timestamp': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1519,7 +1526,7 @@ w2utils.formatters = {
     },
 
     'gmt': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1528,9 +1535,14 @@ w2utils.formatters = {
 
     'age': function (value, params) {
         if (value == null || value == 0) return '';
-        var dt = w2utils.isDateTime(value, params, true);
-        if (dt == '') dt = w2utils.isDate(value, params, true);
-        return '<span title="'+ dt +'">' + w2utils.age(value) + ((' ' + params) || '') + '</span>';
+        var dt = w2utils.isDateTime(value, null, true);
+        if (dt == '') dt = w2utils.isDate(value, null, true);
+        return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>';
+    },
+
+    'interval': function (value, params) {
+        if (value == null || value == 0) return '';
+        return w2utils.interval(value) + (params ? (' ' + params) : '');
     },
 
     'toggle': function (value, params) {

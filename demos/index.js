@@ -178,7 +178,9 @@ $(function () {
                     { id: 'utils-1', text: 'Validation', icon: 'fa-star-empty' },
                     { id: 'utils-2', text: 'Encoding', icon: 'fa-star-empty' },
                     { id: 'utils-3', text: 'Transitions', icon: 'fa-star-empty' },
-                    { id: 'utils-4', text: 'Overlays', icon: 'fa-star-empty' }
+                    { id: 'utils-4', text: 'Tags (1.5+)', icon: 'fa-star-empty' },
+                    { id: 'utils-5', text: 'Overlays (1.5+)', icon: 'fa-star-empty' },
+                    { id: 'utils-6', text: 'Formatters (1.5+)', icon: 'fa-star-empty' },
                 ]
             }
         ],
