@@ -28,39 +28,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - $().w2date(), $().w2dateTime()
 *
-* == 1.5 changes
-*   - date has problems in FF new Date('yyyy-mm-dd') breaks
-*   - bug: w2utils.formatDate('2011-31-01', 'yyyy-dd-mm'); - wrong foratter
-*   - format date and time is buggy
-*   - added decimalSymbol
-*   - renamed size() -> formatSize()
-*   - added cssPrefix()
-*   - added w2utils.settings.weekStarts
-*   - onComplete should pass widget as context (this)
-*   - hidden and disabled in menus
-*   - added menu.item.tooltip for overlay menus
-*   - added w2tag options.id, options.left, options.top
-*   - added w2tag options.position = top|bottom|left|right - default is right
-*   - added $().w2color(color, callBack)
-*   - added custom colors
-*   - added w2menu.options.type = radio|check
-*   - added w2menu items.hotkey
-*   - added options.contextMenu, options.pageX, options.pageY (or options.originalEvent) for w2overlay()
-*   - added options.noTip for w2overlay()
-*   - added options.overlayStyle for w2overlay()
-*   - added options.selectable
-*   - Refactored w2tag
-*   - added options.style for w2tag
-*   - added options.hideOnKeyPress for w2tag
-*   - added options.hideOnBlur for w2tag
-*   - events 'eventName:after' syntax
-*   - deprecated onComplete, introduced event.done(func) - can have multiple handlers
-*   - added getCursorPosition, setCursorPosition
-*   - w2tag hideOnClick - hides on document click
-*   - add isDateTime()
-*   - data_format -> dateFormat, time_format -> timeFormat
-*   - implemented w2utils.formatters (used in grid)
-*
 ************************************************/
 
 var w2utils = (function ($) {
@@ -69,8 +36,8 @@ var w2utils = (function ($) {
         version  : '1.5.x',
         settings : {
             "locale"            : "en-us",
-            "dateFormat"       : "m/d/yyyy",
-            "timeFormat"       : "hh:mi pm",
+            "dateFormat"        : "m/d/yyyy",
+            "timeFormat"        : "hh:mi pm",
             "currencyPrefix"    : "$",
             "currencySuffix"    : "",
             "currencyPrecision" : 2,
@@ -187,12 +154,12 @@ var w2utils = (function ($) {
 
         if (typeof val.getUTCFullYear === 'function') { // date object
             year  = val.getUTCFullYear();
-            month = val.getUTCMonth();
+            month = val.getUTCMonth() + 1;
             day   = val.getUTCDate();
         } else if (parseInt(val) == val && parseInt(val) > 0) {
-            val = new Date(val);
+            val = new Date(parseInt(val));
             year  = val.getUTCFullYear();
-            month = val.getUTCMonth();
+            month = val.getUTCMonth() + 1;
             day   = val.getUTCDate();
         } else {
             val = String(val);
@@ -228,10 +195,10 @@ var w2utils = (function ($) {
         if (!isInt(year)) return false;
         if (!isInt(month)) return false;
         if (!isInt(day)) return false;
-        year = +year;
+        year  = +year;
         month = +month;
-        day = +day;
-        dt = new Date(year, month - 1, day);
+        day   = +day;
+        dt    = new Date(year, month - 1, day);
         // do checks
         if (month == null) return false;
         if (String(dt) == 'Invalid Date') return false;
@@ -277,12 +244,13 @@ var w2utils = (function ($) {
     }
 
     function isDateTime (val, format, retDate) {
+        if (format == null) format = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
         var formats = format.split('|');
         if (typeof val.getUTCFullYear === 'function') { // date object
             if (retDate !== true) return true;
             return val;
         } else if (parseInt(val) == val && parseInt(val) > 0) {
-            val = new Date(val);
+            val = new Date(parseInt(val));
             if (retDate !== true) return true;
             return val;
         } else {
@@ -305,10 +273,16 @@ var w2utils = (function ($) {
         }
     }
 
-    function age (dateStr) {
-        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
-        var d1 = new Date(dateStr);
-        if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
+    function age(dateStr) {
+        var dt1;
+        if (dateStr === '' || dateStr == null) return '';
+        if (typeof dateStr.getUTCFullYear === 'function') { // date object
+            dt1 = dateStr;
+        } else if (parseInt(dateStr) == dateStr && parseInt(dateStr) > 0) {
+            d1 = new Date(parseInt(dateStr));
+        } else {
+            d1 = new Date(dateStr);
+        }
         if (String(d1) == 'Invalid Date') return '';
 
         var d2  = new Date();
@@ -393,9 +367,9 @@ var w2utils = (function ($) {
         if (!w2utils.isFloat(sizeStr) || sizeStr === '') return '';
         sizeStr = parseFloat(sizeStr);
         if (sizeStr === 0) return 0;
-        var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB'];
+        var sizes = ['Bt', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB'];
         var i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) );
-        return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + sizes[i];
+        return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + (sizes[i] || '??');
     }
 
     function formatNumber (val, fraction, useGrouping) {
@@ -1046,7 +1020,7 @@ var w2utils = (function ($) {
             return;
         }
 
-        div_old.parentNode.style.cssText += 'perspective: 700; overflow: hidden;';
+        div_old.parentNode.style.cssText += 'perspective: 900px; overflow: hidden;';
         div_old.style.cssText += '; position: absolute; z-index: 1019; backface-visibility: hidden';
         div_new.style.cssText += '; position: absolute; z-index: 1020; backface-visibility: hidden';
 
@@ -1415,7 +1389,7 @@ var w2utils = (function ($) {
         var doc = input.ownerDocument || input.document;
         var win = doc.defaultView || doc.parentWindow;
         var sel;
-        if (input.tagName == 'INPUT' && input.selectionStart) {
+        if (input.tagName && input.tagName.toUpperCase() == 'INPUT' && input.selectionStart) {
             // standards browser
             caretOffset = input.selectionStart;
         } else {
@@ -1519,7 +1493,7 @@ w2utils.formatters = {
     },
 
     'date': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.dateFormat;
+        if (params == '') params = w2utils.settings.dateFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1527,7 +1501,7 @@ w2utils.formatters = {
     },
 
     'datetime': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1535,7 +1509,7 @@ w2utils.formatters = {
     },
 
     'time': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.timeFormat;
         if (params == 'h12') params = 'hh:mi pm';
         if (params == 'h24') params = 'h24:mi';
         if (value == null || value == 0) return '';
@@ -1545,7 +1519,7 @@ w2utils.formatters = {
     },
 
     'timestamp': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1553,7 +1527,7 @@ w2utils.formatters = {
     },
 
     'gmt': function (value, params) {
-        if (params == null || params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1562,9 +1536,14 @@ w2utils.formatters = {
 
     'age': function (value, params) {
         if (value == null || value == 0) return '';
-        var dt = w2utils.isDateTime(value, params, true);
-        if (dt == '') dt = w2utils.isDate(value, params, true);
-        return '<span title="'+ dt +'">' + w2utils.age(value) + ((' ' + params) || '') + '</span>';
+        var dt = w2utils.isDateTime(value, null, true);
+        if (dt == '') dt = w2utils.isDate(value, null, true);
+        return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>';
+    },
+
+    'interval': function (value, params) {
+        if (value == null || value == 0) return '';
+        return w2utils.interval(value) + (params ? (' ' + params) : '');
     },
 
     'toggle': function (value, params) {
@@ -2225,6 +2204,7 @@ w2utils.event = {
                 img      : '',
                 icon     : '',
                 count    : '',
+                tooltip  : '',
                 hidden   : false,
                 checked  : null,
                 disabled : false
@@ -2703,6 +2683,7 @@ w2utils.event = {
 *   - search.operator - default operator to use with search field
 *   - search.hidden - could not be clearned by the user
 *   - search.value - only for hidden searches
+*   - if .search(val) - search all fields
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
 *   - frozen columns
@@ -2751,6 +2732,7 @@ w2utils.event = {
         }
     }
 *   - added this.show.toolbarInput
+*   - disableCVS
 *
 ************************************************************************/
 
@@ -2819,6 +2801,7 @@ w2utils.event = {
         this.reorderRows     = false;
         this.markSearch      = true;
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
+        this.disableCVS      = false;    // disable Column Virtual Scroll
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -4379,6 +4362,11 @@ w2utils.event = {
             }
             // 2: search(field, value) - regular search
             if (typeof field == 'string') {
+                // if only one argument - search all
+                if (arguments.length == 1) {
+                    value = field;
+                    field = 'all';
+                }
                 last_field  = field;
                 last_search = value;
                 last_multi  = false;
@@ -6344,10 +6332,16 @@ w2utils.event = {
                 if (edata.isCancelled === true) return false;
                 rec.w2ui.expanded = false;
                 // all children are directly after
+                var stops = [];
+                for (var r = rec; r != null; r = this.get(r.w2ui.parent_recid))
+                    stops.push(r.w2ui.parent_recid);
+                // stops contains 'undefined' plus the ID of all nodes in the path from 'rec' to the tree root
                 var start = ind + 1;
                 var end   = start;
                 while (true) {
-                    if (this.records.length <= end + 1 || this.records[end+1].w2ui == null || this.records[end+1].w2ui.parent_recid == null) break;
+                    if (this.records.length <= end + 1 || this.records[end+1].w2ui == null ||
+                        stops.indexOf(this.records[end+1].w2ui.parent_recid) >= 0)
+                        break;
                     if (this.records[end+1].w2ui.expanded) this.records[end+1].w2ui.expanded = false;
                     end++;
                 }
@@ -8763,18 +8757,24 @@ w2utils.event = {
                 this.last.bubbleEl = null;
             }
             // column virtual scroll
-            var sWidth = records.width();
-            var cLeft  = 0;
             var colStart = null;
             var colEnd   = null;
-            for (var i = 0; i < obj.columns.length; i++) {
-                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                var cSize = parseInt(obj.columns[i].sizeCalculated ? obj.columns[i].sizeCalculated : obj.columns[i].size);
-                if (cLeft + cSize + 30 > obj.last.scrollLeft && colStart == null) colStart = i;
-                if (cLeft + cSize - 30 > obj.last.scrollLeft + sWidth && colEnd == null) colEnd = i;
-                cLeft += cSize;
+            if (obj.disableCVS || obj.columnGroups.length > 0) {
+                // disable virtual scroll
+                colStart = 0;
+                colEnd = obj.columns.length - 1;
+            } else {
+                var sWidth = records.width();
+                var cLeft  = 0;
+                for (var i = 0; i < obj.columns.length; i++) {
+                    if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                    var cSize = parseInt(obj.columns[i].sizeCalculated ? obj.columns[i].sizeCalculated : obj.columns[i].size);
+                    if (cLeft + cSize + 30 > obj.last.scrollLeft && colStart == null) colStart = i;
+                    if (cLeft + cSize - 30 > obj.last.scrollLeft + sWidth && colEnd == null) colEnd = i;
+                    cLeft += cSize;
+                }
+                if (colEnd == null) colEnd = obj.columns.length - 1;
             }
-            if (colEnd == null) colEnd = obj.columns.length - 1;
             if (colStart != null) {
                 if (colStart < 0) colStart = 0;
                 if (colEnd < 0) colEnd = 0;
@@ -10861,20 +10861,6 @@ w2utils.event = {
 *   - hide overlay on esc
 *   - make popup width/height in %
 *
-* == 1.5 changes
-*   - new: resizeMessages()
-*   - popup can be moved/resized/closed when locked or has messages
-*   - messages negative width/height means margin
-*   - added btn_yes and btn_no
-*   - dismissed message will slide up - added parameter unlock(speed)
-*   - refactor -webkit-* -moz-* to a function
-*   - resize nested elements in popup for onMin, onMax
-*   - rename btn -> w2ui-btn and same for colored ones
-*   - added options.body and options.buttons for w2popup.message
-*   - .message() should have same props (body, buttons, title?)
-*   - template improvements (if template already in DOM, it will move it under popup, not recreate)
-*   - added focus()
-*
 ************************************************************************/
 
 var w2popup = {};
@@ -11081,7 +11067,7 @@ var w2popup = {};
 
             } else {
                 // if was from template and now not
-                if (w2popup._prev == null && w2popup._template != null) obj._restoreTemplate();
+                if (w2popup._prev == null && w2popup._template != null) obj.restoreTemplate();
 
                 // trigger event
                 var edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true });
@@ -11141,7 +11127,7 @@ var w2popup = {};
                 var div_new = $('#w2ui-popup .w2ui-box-temp')[0];
                 w2utils.transition(div_old, div_new, options.transition, function () {
                     // clean up
-                    obj._restoreTemplate();
+                    obj.restoreTemplate();
                     $(div_old).remove();
                     $(div_new).removeClass('w2ui-box-temp').addClass('w2ui-box');
                     var $body = $(div_new).find('.w2ui-msg-body');
@@ -11259,7 +11245,7 @@ var w2popup = {};
             w2popup.unlockScreen(options);
             setTimeout(function () {
                 // return template
-                obj._restoreTemplate();
+                obj.restoreTemplate();
                 $('#w2ui-popup').remove();
                 w2popup.status = 'closed';
                 // restore active
@@ -11650,7 +11636,7 @@ var w2popup = {};
         **/
 
         // restores template
-        _restoreTemplate: function () {
+        restoreTemplate: function () {
             var options  = $('#w2ui-popup').data('options');
             if (options == null) return;
             var template = w2popup._template;
@@ -13169,15 +13155,6 @@ var w2confirm = function (msg, title, callBack) {
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
-*
-* == 1.5 changes
-*   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object
-*   - return ids of all subitems
-*   - added w2sidebar.flat
-*   - added focus(), blur(), onFocus, onBlur
-*   - added hasFocus property
-*   - unselect w/o arguments will unselect selected node
-*   - flatBtn, goFlat, onFlat
 *
 ************************************************************************/
 
