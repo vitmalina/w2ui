@@ -53,6 +53,7 @@
 *   - search.operator - default operator to use with search field
 *   - search.hidden - could not be clearned by the user
 *   - search.value - only for hidden searches
+*   - if .search(val) - search all fields
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
 *   - frozen columns
@@ -1731,6 +1732,11 @@
             }
             // 2: search(field, value) - regular search
             if (typeof field == 'string') {
+                // if only one argument - search all
+                if (arguments.length == 1) {
+                    value = field;
+                    field = 'all';
+                }
                 last_field  = field;
                 last_search = value;
                 last_multi  = false;
