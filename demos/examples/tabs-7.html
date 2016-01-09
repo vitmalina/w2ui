@@ -1,0 +1,36 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Tabs Overflow (new in 1.5)</h1>
+        If number of tabs is too wide to fit the container, the overflow button will appear. No need to set any property
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="tabs" style="width: 600px;"></div>
+<br><br>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#tabs').w2tabs({
+        name: 'tabs',
+        tabs: [
+            { id: 'tab1', text: 'Tab 1 Text' },
+            { id: 'tab2', text: 'Tab 2 Text' },
+            { id: 'tab3', text: 'Tab 3 Text' },
+            { id: 'tab4', text: 'Tab 4 Text' },
+            { id: 'tab5', text: 'Tab 5 Text' },
+            { id: 'tab6', text: 'Tab 6 Text' },
+            { id: 'tab7', text: 'Tab 7 Text' },
+            { id: 'tab8', text: 'Tab 8 Text' },
+            { id: 'tab9', text: 'Tab 9 Text' },
+            { id: 'tab10', text: 'Tab 10 Text' },
+            { id: 'tab11', text: 'Tab 11 Text' },
+            { id: 'tab12', text: 'Tab 12 Text' },
+            { id: 'tab13', text: 'Tab 13 Text' },
+        ]
+    });
+});
+</script>

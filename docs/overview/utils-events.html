@@ -5,7 +5,7 @@ All w2ui controls have the same event flow. There are two ways you can add/remov
     <li>using on"Event" properties </li>
     <li>using <span class="method">.on()</span> and <span class="method">.off()</span> methods</li>
 </ol>
-The first way is simple, can be done during object creation, but limits you to a single event listener per event. The second way 
+The first way is simple, can be done during object creation, but limits you to a single event listener per event. The second way
 lets you add multiple event listeners, but can only be used at run-time. It gives you a better control of the event flow.
 Every widget property that start with "on" is an event.
 
@@ -40,8 +40,8 @@ Every widget property that start with "on" is an event.
 
 <h3>Event Handler Function</h3>
 
-When an event is emitted the handler function will receive one parameter: <span class="argument">function(event)</span>. 
-This parameter <span class="property">event</span> is an object that contains useful information about the event. 
+When an event is emitted the handler function will receive one parameter: <span class="argument">function(event)</span>.
+This parameter <span class="property">event</span> is an object that contains useful information about the event.
 <div style="height: 10px"></div>
 
 Event handler looks like:
@@ -53,7 +53,7 @@ function (event) {
 
 By default all event handlers are triggered before the default behavior. You can cancel event default behavior by:
 <textarea class="javascript">
-function (event) {    
+function (event) {
     event.preventDefault(); // cancel event
 }
 </textarea>
@@ -61,8 +61,9 @@ function (event) {
 You can also define a function that will be executed after the default behavior is processed. For example:
 <textarea class="javascript">
 function (event) {
-    event.onComplete = function () {
+    event.done(function () {
         // event actions
-    }
+    });
 }
 </textarea>
+You can define several of those functions and all will be executed.

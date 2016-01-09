@@ -11,10 +11,11 @@
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
 //<![CDATA[
-$(function () {
+$.noConflict();
+jQuery(function () {
     // w2utils.locale('../src/locale/ru-ru');
 
-    $('#grid').w2grid({
+    jQuery('#grid').w2grid({
         name      : 'grid',
         header    : 'List of Names',
         // url : '//w2ui.com/web/pages/demo/infinite/index.php',
@@ -91,7 +92,7 @@ $(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [
-            { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less' },
+            { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less', value: '4' },
             { field: 'fname', caption: 'First Name', type: 'text', hidden1: true, value: 'Peter' },
             { field: 'lname', caption: 'Last Name', type: 'text', options: { items: ['Cuban', 'Rene'] }}
         ],
@@ -197,8 +198,8 @@ $(function () {
             }
         },
         onExpand1: function (event) {
-            if (w2ui['grid-'+ event.recid]) $().w2destroy('grid-'+ event.recid);
-            $('#'+ event.box_id).w2grid({
+            if (w2ui['grid-'+ event.recid]) jQuery().w2destroy('grid-'+ event.recid);
+            jQuery('#'+ event.box_id).w2grid({
                 name: 'grid-' + event.recid,
                 fixedBody: false,
                 style: 'width: 100%; height: 150px;',
@@ -245,7 +246,7 @@ $(function () {
         if (t < 0) dt = null;
         w2ui['grid'].records.push({
             recid : 'rec-' + i,
-            personid: 'Rec-' + i,
+            personid: i,
             fname: fname[Math.floor(Math.random() * fname.length)],
             lname: lname[Math.floor(Math.random() * lname.length)],
             email: 'vm@gmail.com', manager: '--',
@@ -262,6 +263,8 @@ $(function () {
     w2ui.grid.records[6].w2ui = { children: w2ui.grid.records.splice(10, 10), colspan: { personid: 7 } };
     w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
     w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    w2ui.grid.records[6].w2ui.children[1].w2ui.children[3].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    w2ui.grid.records[6].w2ui.children[9].w2ui = { children: w2ui.grid.records.splice(10, 4) };
 
     // w2ui.grid.records[4].w2ui.style = { fname: 'background-color: red' };
     w2ui.grid.records[10].w2ui.summary = true;
@@ -283,7 +286,7 @@ $(function () {
     <div id="grid" style="width: 1024px; height: 568px;"></div>
     <input placeholder="after grid" class="w2ui-input" style="margin: 10px 0px;"/>
     <br/>
-    <button class="w2ui-btn" onclick="$().w2destroy('grid');">Destroy</button>
+    <button class="w2ui-btn" onclick="jQuery().w2destroy('grid');">Destroy</button>
     <button class="w2ui-btn" onclick="w2ui.grid.skip(0);">Skip 0</button>
     <button class="w2ui-btn" onclick="w2ui.grid.skip(10);">Skip 10</button>
     <button class="w2ui-btn" onclick="w2ui.grid.skip(110);">Skip 110</button>

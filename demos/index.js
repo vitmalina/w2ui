@@ -89,10 +89,15 @@ $(function () {
             { id: 'toolbar', text: 'Toolbar', img: 'icon-folder', group1: true,
                 nodes: [
                     { id: 'toolbar-1', text: 'Simple Toolbar', icon: 'fa-hand-up' },
-                    { id: 'toolbar-2', text: 'Advanced Toolbar', icon: 'fa-hand-up' },
+                    { id: 'toolbar-2', text: 'More Buttons Type', icon: 'fa-hand-up' },
                     { id: 'toolbar-3', text: 'Add/Remove Buttons', icon: 'fa-hand-up' },
                     { id: 'toolbar-4', text: 'Show/Hide Buttons', icon: 'fa-hand-up' },
-                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa-hand-up' }
+                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa-hand-up' },
+                    { id: 'toolbar-6', text: 'Menu Buttons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-7', text: 'Color Buttons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-8', text: 'Tooltips (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-9', text: 'Custom Butons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-10', text: 'Toolbar Overflow (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
             { id: 'sidebar', text: 'Sidebar', img: 'icon-folder', group1: true,
@@ -104,7 +109,9 @@ $(function () {
                     { id: 'sidebar-5', text: 'Expand/Collapse', icon: 'fa-hand-left' },
                     { id: 'sidebar-6', text: 'Select/Unselect', icon: 'fa-hand-left' },
                     { id: 'sidebar-8', text: 'Top & Bottom HTML', icon: 'fa-hand-left' },
-                    { id: 'sidebar-7', text: 'Events', icon: 'fa-hand-left' }
+                    { id: 'sidebar-7', text: 'Events', icon: 'fa-hand-left' },
+                    { id: 'sidebar-9', text: 'Flat Sidebar (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'sidebar-10', text: 'In/Out of Focus (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
             // { id: 'listview', text: 'ListView', img: 'icon-folder', group1: true,
@@ -123,7 +130,9 @@ $(function () {
                     { id: 'tabs-3', text: 'Closable Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-4', text: 'Add/Remove Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-5', text: 'Enable/Disabled Tabs', icon: 'fa-folder-close-alt' },
-                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa-folder-close-alt' }
+                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa-folder-close-alt' },
+                    { id: 'tabs-7', text: 'Tabs Overflow (1.5+)', icon: 'fa-folder-close-alt' },
+                    { id: 'tabs-8', text: 'Tooltips (1.5+)', icon: 'fa-folder-close-alt' }
                 ]
             },
             { id: 'forms', text: 'Forms', img: 'icon-folder', group1: true,
@@ -159,7 +168,9 @@ $(function () {
                     { id: 'popup-6', text: 'Transitions', icon: 'fa-list-alt' },
                     { id: 'popup-7', text: 'Slide a Message', icon: 'fa-list-alt' },
                     { id: 'popup-9', text: 'Lock Content', icon: 'fa-list-alt' },
-                    { id: 'popup-8', text: 'Dialogs', icon: 'fa-list-alt' }
+                    { id: 'popup-8', text: 'Dialogs', icon: 'fa-list-alt' },
+                    { id: 'popup-10', text: 'Keyboard (1.5+)', icon: 'fa-list-alt' },
+                    { id: 'popup-11', text: 'Messages (1.5+)', icon: 'fa-list-alt' }
                 ]
             },
             { id: 'utils', text: 'Utilities', img: 'icon-folder', group1: true,
@@ -167,7 +178,9 @@ $(function () {
                     { id: 'utils-1', text: 'Validation', icon: 'fa-star-empty' },
                     { id: 'utils-2', text: 'Encoding', icon: 'fa-star-empty' },
                     { id: 'utils-3', text: 'Transitions', icon: 'fa-star-empty' },
-                    { id: 'utils-4', text: 'Overlays', icon: 'fa-star-empty' }
+                    { id: 'utils-4', text: 'Tags (1.5+)', icon: 'fa-star-empty' },
+                    { id: 'utils-5', text: 'Overlays (1.5+)', icon: 'fa-star-empty' },
+                    { id: 'utils-6', text: 'Formatters (1.5+)', icon: 'fa-star-empty' },
                 ]
             }
         ],

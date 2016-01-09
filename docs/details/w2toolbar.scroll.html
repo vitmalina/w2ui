@@ -1,0 +1,41 @@
+Scrolls toolbar items if they overflow.
+
+<div class="definition">
+    scroll(direction)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>direction</td>
+        <td><b>string</b>, direction of scrolling</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+Scrolling will only be applied of the container where tabs are displayed is smaller then rendered tabs. The <span class="argument">direction</span>
+argument can be either 'left' or 'right'.
+<div style="height: 10px"></div>
+
+If you have toolbar defined in the following way:
+<textarea class="javascript">
+$('#toolbar').w2toolbar({
+    name  : 'toolbar',
+    items : [
+        { type: 'check',  id: 'item1', text: 'Check', img: 'icon-page', checked: true,
+            tooltip: 'Check button'
+        },
+        { type: 'radio',  id: 'item3',  group: '1', text: 'R-1', img: 'icon-add', hidden: true },
+        { type: 'radio',  id: 'item4',  group: '1', text: 'R-2', img: 'icon-add' }
+    ]
+});
+</textarea>
+
+You can trigger scroll in the following way:
+<textarea class="javascript">
+w2ui['toolbar'].scroll('right');
+</textarea>

@@ -7,6 +7,27 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.flat">flat</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if sidebar is in the flat mode.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.flatButton">flatButton</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if flat button should be displayed.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.hasFocus">hasFocus</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if sidebar has keyboard focus. Read Only.
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.icon">icon</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">

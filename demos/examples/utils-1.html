@@ -20,8 +20,11 @@
 <div style="float: left; width: 130px;">isEmail</div>        <div id="isEmail" style="margin-left: 130px;">...</div>
 <div style="float: left; width: 130px;">isTime</div>         <div id="isTime" style="margin-left: 130px;">...</div>
 <div style="float: left; width: 130px;">isDate</div>         <div id="isDate" style="margin-left: 130px;">...</div>
-<div style="float: left; width: 130px;">Show Age</div>       <div id="goAge" style="margin-left: 130px;">...</div>
-<div style="float: left; width: 130px;">Show Date</div>      <div id="goDate" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">isDateTime</div>     <div id="isDateTime" style="margin-left: 130px;">...</div>
+<div style="height: 20px"></div>
+<div style="float: left; width: 130px;">age</div>            <div id="goAge" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">date</div>           <div id="goDate" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">interval</div>       <div id="goInterval" style="margin-left: 130px;">...</div>
 
 <!--CODE-->
 <script>
@@ -35,6 +38,13 @@ function update() {
     $('#isEmail').html(w2utils.isEmail($('#str')[0].value) ? 'Yes' : '-');
     $('#isDate').html(w2utils.isDate($('#str')[0].value) ? 'Yes' : '-');
     $('#isTime').html(w2utils.isTime($('#str')[0].value) ? 'Yes' : '-');
+    $('#isDateTime').html(w2utils.isDateTime($('#str')[0].value) ? 'Yes' : '-');
+
+    if (w2utils.isInt($('#str').val())) {
+        $('#goInterval').html(w2utils.interval($('#str')[0].value));
+    } else {
+        $('#goInterval').html('-');
+    }
     if (w2utils.isDate($('#str')[0].value)) {
         $('#goAge').html(w2utils.age($('#str')[0].value));
         $('#goDate').html(w2utils.date($('#str')[0].value));

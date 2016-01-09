@@ -1,0 +1,49 @@
+Shows tooltip of the tab with <span class="argument">id</span>.
+
+<div class="definition">
+    tooltipShow(id, [event], [forceRefresh])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the toolbar item</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>DOM event</b>, event object (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>forceRefresh</td>
+        <td><b>boolean</b>, indicates if to force tooltip show (<i>optional</i>)</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+The tab must exists in the <a class="method" href="w2tabs.tabs">.tabs</a> array. The tab is identified by
+the <span class="property">.id</span> property.
+<div style="height: 10px"></div>
+
+If you have tabs defined in the following way:
+<textarea class="javascript">
+$('#tabs').w2tabs({
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1', tooltip: 'Tab 1 tooltip' },
+        { id: 'tab2', text: 'Tab 2', tooltip: 'Tab 2 tooltip' },
+        { id: 'tab3', text: 'Tab 3', tooltip: 'Tab 3 tooltip' },
+        { id: 'tab4', text: 'Tab 4', tooltip: 'Tab 4 tooltip' }
+    ]
+});
+</textarea>
+
+You can show tab's tooltip:
+<textarea class="javascript">
+w2ui['tabs'].showTooltip('tab1');
+</textarea>

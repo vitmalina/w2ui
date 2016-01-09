@@ -171,10 +171,10 @@
         onToolbar     : null,
         onError       : null,
 
-        msgNotJSON    : w2utils.lang('Return data is not in JSON format.'),
-        msgAJAXerror  : w2utils.lang('AJAX error. See console for more details.'),
-        msgRefresh    : w2utils.lang('Refreshing...'),
-        msgSaving     : w2utils.lang('Saving...'),
+        msgNotJSON    : 'Return data is not in JSON format.',
+        msgAJAXerror  : 'AJAX error. See console for more details.',
+        msgRefresh    : 'Refreshing...',
+        msgSaving     : 'Saving...',
 
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
@@ -407,7 +407,7 @@
             // build parameters list
             var params = {};
             // add list params
-            params['cmd']   = 'get-record';
+            params['cmd']   = 'get';
             params['recid'] = this.recid;
             // append other params
             $.extend(params, this.postData);
@@ -419,7 +419,7 @@
             this.record   = {};
             this.original = {};
             // call server to get data
-            this.lock(this.msgRefresh);
+            this.lock(w2utils.lang(this.msgRefresh));
             var url = edata.url;
             if (typeof edata.url == 'object' && edata.url.get) url = edata.url.get;
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
@@ -443,7 +443,7 @@
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
             if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
             }
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
@@ -491,7 +491,7 @@
                                 }
                             }
                             if (data['status'] == 'error') {
-                                obj.error(data['message']);
+                                obj.error(w2utils.lang(data['message']));
                             } else {
                                 obj.record   = $.extend({}, data.record);
                                 obj.original = $.extend({}, data.record);
@@ -553,17 +553,25 @@
                 console.log("ERROR: Form cannot be saved because no url is defined.");
                 return;
             }
-            obj.lock(obj.msgSaving + ' <span id="'+ obj.name +'_progress"></span>');
+            obj.lock(w2utils.lang(obj.msgSaving) + ' <span id="'+ obj.name +'_progress"></span>');
             // need timer to allow to lock
             setTimeout(function () {
                 // build parameters list
                 var params = {};
                 // add list params
-                params['cmd']   = 'save-record';
+                params['cmd']   = 'save';
                 params['recid'] = obj.recid;
                 // append other params
                 $.extend(params, obj.postData);
                 $.extend(params, postData);
+                // clear up files
+                obj.fields.forEach(function (item) {
+                    if (item.type == 'file' && Array.isArray(obj.record[item.field])) {
+                        obj.record[item.field].forEach(function (fitem) {
+                            delete fitem.file;
+                        });
+                    }
+                });
                 params.record = $.extend(true, {}, obj.record);
                 // event before
                 var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
@@ -606,6 +614,9 @@
                 };
                 if (w2utils.settings.dataType == 'HTTP') {
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                }
+                if (w2utils.settings.dataType == 'HTTPJSON') {
+                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
                     if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
@@ -651,7 +662,7 @@
                                     }
                                 }
                                 if (data['status'] == 'error') {
-                                    obj.error(data['message']);
+                                    obj.error(w2utils.lang(data['message']));
                                 } else {
                                     obj.original = $.extend({}, obj.record);
                                 }
@@ -1024,6 +1035,7 @@
                 var field = this.fields[f];
                 var value = (this.record[field.name] != null ? this.record[field.name] : '');
                 if (!field.el) continue;
+                if (!$(field.el).hasClass('w2ui-input')) $(field.el).addClass('w2ui-input');
                 field.type = String(field.type).toLowerCase();
                 if (!field.options) field.options = {};
                 switch (field.type) {

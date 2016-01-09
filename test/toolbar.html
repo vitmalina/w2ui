@@ -8,13 +8,15 @@
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
 <script>
 //<![CDATA[
-    $(function () {
-        $('#toolbar').w2toolbar({
+    jQuery.noConflict();
+    jQuery(function () {
+        jQuery('#toolbar').w2toolbar({
             name: 'toolbar',
             routeData: { id: 5, vid: '40-43' },
             tooltip: 'top',
             items: [
-                { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: 'Check <br/>button', checked: true, route: '/project' },
+                { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); },
+                    checked: true, route: '/project' },
                 { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
                 { type: 'break', id: 'break0' },
                 { type: 'menu',  id: 'item2', caption: 'Drop Down', img: 'icon-folder', icon: 'fa-camera', hint: 'Menu button',

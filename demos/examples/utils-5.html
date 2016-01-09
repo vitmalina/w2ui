@@ -1,0 +1,67 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Overlays (new in 1.5)</h1>
+        If you need to attach a short one-line message for an element or an input control - user $().w2tag(), if you need to attach
+        a larger multi-line message - use $().w2overlay(). The example below demonstrates how to use these functions.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<input type="text" id="some-input" size="20" style="padding: 4px; border: 1px solid silver; height: 30px; width: 200px;">
+<div style="height: 20px"></div>
+Align:
+<div style="padding: 10px; margin-bottom: 20px; line-height: 2">
+    <label><input name="postion" type="radio" onclick="window.align='none'" checked> &nbsp;none</label><br>
+    <label><input name="postion" type="radio" onclick="window.align='left'"> &nbsp;left</label><br>
+    <label><input name="postion" type="radio" onclick="window.align='right'"> &nbsp;right</label><br>
+    <label><input name="postion" type="radio" onclick="window.align='both'"> &nbsp;both</label><br>
+    <div style="height: 5px"></div>
+    <label>
+        <input type="checkbox" onclick="window.above = this.checked"> &nbsp;Open Above
+    </label>
+</div>
+
+<button class="w2ui-btn" onclick="showOverlay()">Show Overlay</button>
+<button class="w2ui-btn" onclick="showMenu()">Show Menu</button>
+<button class="w2ui-btn" onclick="showMenu('check')">Show Check Menu</button>
+<button class="w2ui-btn" onclick="showMenu('radio')">Show Radio Menu</button>
+<button class="w2ui-btn" onclick="showColor()">Color</button>
+
+<!--CODE-->
+<script>
+window.align = 'none';
+window.above = false;
+
+function showOverlay() {
+    $('#some-input').w2overlay({
+        openAbove: window.above,
+        align: window.align,
+        html: '<div style="padding: 10px; line-height: 150%">'+
+            '    Multi line HTML message<br>Multi line HTML message<br>Multi line HTML message<br>'+
+            '</div>'
+    });
+}
+
+function showMenu(type) {
+    $('#some-input').w2menu({
+        type: type,
+        openAbove: window.above,
+        align: window.align,
+        items: [
+            { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa-star' },
+            { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa-star-empty' },
+            { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa-camera' },
+            { text: '--' },
+            { id: 4, text: 'Item 4 &nbsp;&nbsp;&nbsp;', icon: 'fa-table' },
+        ]
+    });
+}
+
+function showColor() {
+    $('#some-input').w2color({ color: 'EA9899', transparent: true }, function (color) {
+        $('#some-input').val(color);
+    });
+}
+</script>

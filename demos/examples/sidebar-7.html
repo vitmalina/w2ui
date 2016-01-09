@@ -9,14 +9,18 @@
 </div>
 
 <!--CODE-->
-<div id="sidebar" style="height: 300px; width: 200px;"></div>
+<div id="sidebar" style="height: 300px; width: 200px; float: left"></div>
+<div style="margin-left: 220px;">
+    <span id="event"></span>
+</div>
+<div style="clear: both"/>
 
 <!--CODE-->
 <script>
 $(function () {
     $('#sidebar').w2sidebar({
         name: 'sidebar',
-        nodes: [ 
+        nodes: [
             { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
               nodes: [ { id: 'level-1-1', text: 'Level 1.1', icon: 'fa-home' },
                        { id: 'level-1-2', text: 'Level 1.2', icon: 'fa-comment-alt' },
@@ -32,7 +36,8 @@ $(function () {
         ]
     });
     w2ui.sidebar.on('*', function (event) {
-        console.log('Event: ' + event.type + ' Target: ' + event.target);
+        $('#event').html('<span style="color: #999">Event</span>: ' + event.type + ' &nbsp;&nbsp;&nbsp;<span style="color: #999">Target</span>: ' + event.target);
+        console.log('Last Event: ' + event.type + ' Target: ' + event.target);
         console.log(event);
     });
 });
