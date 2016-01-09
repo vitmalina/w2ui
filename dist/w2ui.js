@@ -5072,7 +5072,7 @@ w2utils.event = {
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
                         '/>' + edit.outTag);
                 // issue #499
-                if (typeof val == 'number') {
+                if (edit.type == 'number') {
                     val = w2utils.formatNumber(val);
                 }
                 if (edit.type == 'date') {
@@ -6675,7 +6675,7 @@ w2utils.event = {
                     for (var s = 0; s < obj.searchData.length; s++) {
                         var sdata = obj.searchData[s];
                         var fld = obj.getSearch(sdata.field);
-                        if (fld.hidden) continue;
+                        if (!fld || fld.hidden) continue;
                         if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
                     }
                     if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
@@ -8882,7 +8882,7 @@ w2utils.event = {
                     for (var s = 0; s < obj.searchData.length; s++) {
                         var sdata = obj.searchData[s];
                         var fld = obj.getSearch(sdata.field);
-                        if (fld.hidden) continue;
+                        if (!fld || fld.hidden) continue;
                         if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
                     }
                     if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
