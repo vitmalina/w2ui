@@ -38,9 +38,9 @@ $(function () {
 
     // defined form
     $().w2form({
-        name     : 'user_edit',
-        url     : 'users.php',
-        style     : 'border: 0px; background-color: transparent;',
+        name    : 'user_edit',
+        url     : 'users.list',
+        style   : 'border: 0px; background-color: transparent;',
         formHTML: 
             '<div class="w2ui-page page-0">'+
             '    <div class="w2ui-label">First Name:</div>'+

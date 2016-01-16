@@ -1,6 +1,7 @@
 package com.w2ui.servlets.example;
 
 import java.io.InputStream;
+import java.util.Iterator;
 
 import javax.servlet.Servlet;
 
@@ -10,16 +11,24 @@ import org.json.JSONObject;
 import com.w2ui.servlets.W2uiGridData;
 
 /**
- * Servlet implementation class W2uiGridExample
+ * Servlet implementation of a class derived from W2uiGridData
+ * This class is not intended to be used in production but only to show how to implement methods
+ * Recorda are stored in a database but only into an array in memory; you should
+ * adjust (or rewrite) functions to interact with your favorite DBMS (Postgres, MySql, etc.)
+ * 
+ * Code of this class is not optimized and does not wanto to be: it is intended only as example
  */
 public class W2uiGridExample extends W2uiGridData implements Servlet {
 	private static final long serialVersionUID = 7163093252884618719L;
 
-	// this variable simulates the users database
-	// it is NOT thread safe ... but this is just an example
+	/**
+	 * this variable simulates the users database
+	 * it is NOT thread safe ... but this is just an example
+	 */
 	protected static JSONArray dbUsers = new JSONArray();
 	
 	static {
+		// Load the simulated database for the first time
 		InputStream is = null;
 		try {
 			StringBuffer sb = new StringBuffer();
@@ -145,15 +154,80 @@ public class W2uiGridExample extends W2uiGridData implements Servlet {
 		}
 		
 		// NOTE: sorting is not implemented here
+		// if you have a DBMS you should do it in the query reading the properties contained in
+		// field "sort"
 		
 		return ret;
 	}
+	
+	@Override
+	protected JSONObject processGetRecord(JSONObject reqParams) throws Exception {
+		int recid = reqParams.getInt("recid");
+		for (int i=0; i < dbUsers.length(); i++) {
+			JSONObject jsobj = dbUsers.getJSONObject(i);
+			int id = jsobj.getInt("recid");
+			if (id == recid) {
+				return jsobj;
+			}
+		}
+		throw new Exception("Not found");
+	}
+		
+	protected void updateRecord(int recid, JSONObject change) throws Exception {
+		for (int i=0; i < dbUsers.length(); i++) {
+			JSONObject jsobj = dbUsers.getJSONObject(i);
+			int id = jsobj.getInt("recid");
+			if (recid == id) {
+				// update the record
+				Iterator<String> it = change.keys();
+				while (it.hasNext()) {
+					String key = it.next();
+					Object obj = change.get(key);
+					jsobj.put(key, obj);
+				}
+				// put record on DB
+				dbUsers.put(i, jsobj);
+				return;
+			}
+		}
+		// if we are here no update has been done: we add a new record
+		change.put("recid", recid);
+		dbUsers.put(change);
+    }
 
 	protected void processSaveRecords(JSONObject reqParams) throws Exception {
-		throw new Exception ("TO DO");
+		JSONArray changed = reqParams.getJSONArray("changed");
+		for (int cnt=0; cnt < changed.length(); cnt++) {
+			JSONObject change = changed.getJSONObject(cnt);
+			int recid = change.getInt("recid");
+			updateRecord(recid, change);
+		}
     }
 	
-	protected void processDeleteRecords(JSONObject reqParams) throws Exception {
-		throw new Exception ("TO DO");
+	protected void processSaveRecord(JSONObject reqParams) throws Exception {
+		JSONObject change = reqParams.getJSONObject("record");
+		int recid = reqParams.getInt("recid");
+		updateRecord(recid, change);
+    }
+	
+	protected void processDeleteRecords(int[] ids) throws Exception {
+		JSONArray newDB = new JSONArray();
+		for (int i=0; i < dbUsers.length(); i++) {
+			JSONObject jsobj = dbUsers.getJSONObject(i);
+			int recid = jsobj.getInt("recid");
+			boolean remove = false;
+			for (int cnt=0; cnt < ids.length; cnt++) {
+				if (recid == ids[cnt]) {
+					// do not add in new DB the record
+					remove = true;
+					break;
+				}
+			}
+			if ( !remove ) {
+				newDB.put(jsobj);
+			}
+		}
+		// replace DB
+		dbUsers = newDB;
     }
 }
