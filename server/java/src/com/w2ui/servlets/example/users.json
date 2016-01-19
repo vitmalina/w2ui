@@ -1,0 +1,42 @@
+{
+  "status": "success",
+  "total": "4",
+  "records": [
+    {
+      "recid": "1",
+      "userid": "1",
+      "fname": "John",
+      "lname": "Doe",
+      "email": "jdoe@mail.com",
+      "login": "jdoe",
+      "password": "12345"
+    },
+    {
+      "recid": "4",
+      "userid": "4",
+      "fname": "Vitali",
+      "lname": "Malinouski",
+      "email": "vitmalina@gmail.com",
+      "login": "1",
+      "password": "1"
+    },
+    {
+      "recid": "8",
+      "userid": "8",
+      "fname": "John ",
+      "lname": "Cook",
+      "email": null,
+      "login": "1",
+      "password": "21"
+    },
+    {
+      "recid": "9",
+      "userid": "9",
+      "fname": "Peter",
+      "lname": "Norton",
+      "email": null,
+      "login": "fjf",
+      "password": "kd"
+    }
+  ]
+}
