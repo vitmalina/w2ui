@@ -27,6 +27,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - subitems for w2menus()
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - $().w2date(), $().w2dateTime()
+* == 1.5
+*   - added message
 *
 ************************************************/
 
@@ -80,6 +82,7 @@ var w2utils = (function ($) {
         transition      : transition,
         lock            : lock,
         unlock          : unlock,
+        message         : message,
         lang            : lang,
         locale          : locale,
         getSize         : getSize,
@@ -476,7 +479,7 @@ var w2utils = (function ($) {
             case 'number':
                 break;
             case 'string':
-                html = $.trim(String(html).replace(/(<([^>]+)>)/ig, ""));
+                html = String(html).replace(/(<([^>]+)>)/ig, "");
                 break;
             case 'object':
                 // does not modify original object, but creates a copy
@@ -1220,6 +1223,127 @@ var w2utils = (function ($) {
         }
     }
 
+    /**
+    *  Used in w2popup, w2grid, w2form, w2layout
+    *  should be called with .call(...) method
+    */
+
+    function message(where, options) {
+        var obj = this;
+        // var where.path    = 'w2popup';
+        // var where.title   = '.w2ui-popup-title';
+        // var where.body    = '.w2ui-box';
+        $().w2tag(); // hide all tags
+        if (!options) options = { width: 200, height: 100 };
+        if (options.on == null) $.extend(options, w2utils.event);
+        if (options.width == null) options.width = 200;
+        if (options.height == null) options.height = 100;
+        var pWidth  = parseInt($(where.box).width());
+        var pHeight = parseInt($(where.box).height());
+        var titleHeight = parseInt($(where.box).find(where.title).css('height') || 0);
+        options.originalWidth  = options.width;
+        options.originalHeight = options.height;
+        if (parseInt(options.width) < 0)   options.width  = pWidth + options.width;
+        if (parseInt(options.width) < 10)  options.width  = 10;
+        if (parseInt(options.height) < 0)  options.height  = pHeight + options.height - titleHeight;
+        if (parseInt(options.height) < 10) options.height = 10;
+        if (options.hideOnClick == null) options.hideOnClick = false;
+        var poptions = $(where.box).data('options') || {};
+        if (options.width == null || options.width > poptions.width - 10) {
+            options.width = poptions.width - 10;
+        }
+        if (options.height == null || options.height > poptions.height - titleHeight - 5) {
+            options.height = poptions.height - titleHeight - 5; // need margin from bottom only
+        }
+        // negative value means margin
+        if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight;
+        if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2; // x 2 because there is left and right margin
+
+        var head     = $(where.box).find(where.title);
+        var msgCount = $(where.box).find('.w2ui-message').length;
+        // remove message
+        if ($.trim(options.html) == '' && $.trim(options.body) == '' && $.trim(options.buttons) == '') {
+            var $msg = $(where.box).find('#w2ui-message'+ (msgCount-1));
+            var options = $msg.data('options') || {};
+            // before event
+            var edata = options.trigger({ phase: 'before', type: 'close', target: 'self' });
+            if (edata.isCancelled === true) return;
+            // default behavior
+            $msg.css(w2utils.cssPrefix({
+                'transition': '0.15s',
+                'transform': 'translateY(-' + options.height + 'px)'
+            }));
+            if (msgCount == 1) {
+                if (this.unlock) this.unlock(150);
+            } else {
+                $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500);
+            }
+            setTimeout(function () {
+                var $focus = $msg.data('prev_focus');
+                $msg.remove();
+                if ($focus && $focus.length > 0) {
+                    $focus.focus();
+                } else {
+                    if (obj && obj.focus) obj.focus();
+                }
+                head.css('z-index', head.data('old-z-index'));
+                // event after
+                options.trigger($.extend(edata, { phase: 'after' }));
+            }, 150);
+
+        } else {
+
+            if ($.trim(options.body) != '' || $.trim(options.buttons) != '') {
+                options.html = '<div class="w2ui-message-body">'+ (options.body || '') +'</div>'+
+                    '<div class="w2ui-message-buttons">'+ (options.buttons || '') +'</div>';
+            }
+            // hide previous messages
+            $(where.box).find('.w2ui-message').css('z-index', 1390);
+            head.data('old-z-index', head.css('z-index'));
+            head.css('z-index', 1501);
+            // add message
+            $(where.box).find(where.body)
+                .before('<div id="w2ui-message' + msgCount + '" onmousedown="event.stopPropagation();" '+
+                        '   class="w2ui-message" style="display: none; z-index: 1500; ' +
+                            (head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
+                            (options.width  != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
+                            (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
+                            w2utils.cssPrefix('transition', '.3s', true) + '"' +
+                            (options.hideOnClick === true ? 'onclick="'+ where.path +'.message();"' : '') + '>' +
+                        '</div>');
+            $(where.box).find('#w2ui-message'+ msgCount).data('options', options).data('prev_focus', $(':focus'));
+            var display = $(where.box).find('#w2ui-message'+ msgCount).css('display');
+            $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
+            }));
+            if (display == 'none') {
+                $(where.box).find('#w2ui-message'+ msgCount).show().html(options.html);
+                options.box = $(where.box).find('#w2ui-message'+ msgCount);
+                // before event
+                var edata = options.trigger({ phase: 'before', type: 'open', target: 'self' });
+                if (edata.isCancelled === true) {
+                    head.css('z-index', head.data('old-z-index'));
+                    $(where.box).find('#w2ui-message'+ msgCount).remove();
+                    return;
+                }
+                // timer needs to animation
+                setTimeout(function () {
+                    $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                        'transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
+                    }));
+                }, 1);
+                // timer for lock
+                if (msgCount == 0 && this.lock) this.lock();
+                setTimeout(function() {
+                    // has to be on top of lock
+                    $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
+                    // event after
+                    options.trigger($.extend(edata, { phase: 'after' }));
+                }, 350);
+            }
+        }
+    }
+
     function getSize (el, type) {
         var $el = $(el);
         var bwidth = {
@@ -1254,7 +1378,9 @@ var w2utils = (function ($) {
     }
 
     function getStrWidth (str, styles) {
-        var w, html = '<div id="_tmp_width" style="position: absolute; top: -900px;'+ styles +'">'+ str +'</div>';
+        var w, html = '<div id="_tmp_width" style="position: absolute; top: -900px;'+ (styles || '') +'">'+
+                        encodeTags(str) +
+                      '</div>';
         $('body').append(html);
         w = $('#_tmp_width').width();
         $('#_tmp_width').remove();
@@ -1421,10 +1547,11 @@ var w2utils = (function ($) {
             var tmp = $(input.childNodes[i]).text();
             if (input.childNodes[i].tagName) {
                 tmp = $(input.childNodes[i]).html();
-                tmp = tmp.replace('&lt;', '<')
-                         .replace('&gt;', '>')
-                         .replace('&amp;', '&')
-                         .replace('&quot;', '"');
+                tmp = tmp.replace(/&lt;/g, '<')
+                         .replace(/&gt;/g, '>')
+                         .replace(/&amp;/g, '&')
+                         .replace(/&quot;/g, '"')
+                         .replace(/&nbsp;/g, ' ');
             }
             if (pos <= tmp.length) {
                 el = input.childNodes[i];
@@ -1806,7 +1933,8 @@ w2utils.event = {
                 if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
                 // insert
                 $('body').append(
-                    '<div onclick="event.stopPropagation()" id="w2ui-tag-'+ origID +'" class="w2ui-tag '+ ($(el).parents('.w2ui-popup').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
+                    '<div onclick="event.stopPropagation()" id="w2ui-tag-'+ origID +'" '+
+                    '       class="w2ui-tag '+ ($(el).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                     '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
                     '      <div class="w2ui-tag-body '+ options.className +'" style="'+ (options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
@@ -1972,7 +2100,7 @@ w2utils.event = {
         // append
         $('body').append(
             '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'"'+
-            '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
+            '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
             '    <div style="min-width: 100%; '+ options.style +'" class="'+ options['class'] +'"></div>'+
             '</div>'
@@ -2438,10 +2566,10 @@ w2utils.event = {
                     if (mitem.caption != null) mitem.text = mitem.caption;
                     img  = mitem.img;
                     icon = mitem.icon;
-                    if (img  == null) img  = null;
-                    if (icon == null) icon = null;
+                    if (img  == null) img  = null; // img might be undefined
+                    if (icon == null) icon = null; // icon might be undefined
                 }
-                if (['radio', 'check'].indexOf(options.type) != -1) {
+                if (['radio', 'check'].indexOf(options.type) != -1 && icon == null) {
                     if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty';
                 }
                 if (mitem.hidden !== true) {
@@ -2633,7 +2761,7 @@ w2utils.event = {
 *   - Following objects defined
 *        - w2grid        - grid widget
 *        - $().w2grid    - jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
+*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields
 *
 * == NICE TO HAVE ==
 *   - allow this.total to be unknown (-1)
@@ -2733,6 +2861,7 @@ w2utils.event = {
     }
 *   - added this.show.toolbarInput
 *   - disableCVS
+*   - grid.message
 *
 ************************************************************************/
 
@@ -2788,7 +2917,7 @@ w2utils.event = {
         this.hasFocus        = false;
         this.autoLoad        = true;     // for infinite scroll
         this.fixedBody       = true;     // if false; then grid grows with data
-        this.recordHeight    = 24;
+        this.recordHeight    = 24;       // should be in prototype
         this.lineNumberWidth = null;
         this.vs_start        = 150;
         this.vs_extra        = 15;
@@ -2809,7 +2938,7 @@ w2utils.event = {
         this.style   = '';
         this.ranges  = [];
         this.menu    = [];
-        this.method  = null;         // if defined, then overwrited ajax method
+        this.method  = null;  // if defined, then overwrited ajax method
         this.recid   = null;
         this.parser  = null;
 
@@ -4924,7 +5053,7 @@ w2utils.event = {
                                 if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
                             } else {
                                 if (parseInt(data.total) != parseInt(this.total)) {
-                                    w2alert(w2utils.lang(this.msgNeedReload));
+                                    this.message(w2utils.lang(this.msgNeedReload));
                                     delete this.last.xhr_offset;
                                     this.reload();
                                     return;
@@ -4987,7 +5116,7 @@ w2utils.event = {
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                 return;
             }
-            w2alert(msg, w2utils.lang('Error'));
+            this.message(msg);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
         },
@@ -5137,7 +5266,7 @@ w2utils.event = {
                 var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size') + ';';
                 el.addClass('w2ui-editable')
                     .html('<div id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input"'+
-                        '    contenteditable style="'+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
+                        '    contenteditable style="white-space: nowrap; '+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
                         '></div>' + edit.outTag);
                 if (value == null) el.find('div.w2ui-input').text(typeof val != 'object' ? val : '');
@@ -5454,20 +5583,40 @@ w2utils.event = {
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
             if (edata.isCancelled === true) return;
             force = edata.force;
+            // hide all tooltips
+            setTimeout(function () { $().w2tag(); }, 20);
             // default action
             var recs = this.getSelection();
             if (recs.length == 0) return;
             if (this.msgDelete != '' && !force) {
-                w2confirm({
-                    title : w2utils.lang('Delete Confirmation'),
-                    msg   : w2utils.lang(obj.msgDelete),
-                    yes_class : 'w2ui-btn-red',
-                    callBack: function (result) {
-                        if (result == 'Yes') w2ui[obj.name]['delete'](true);
+                this.message({
+                    width   : 350,
+                    height  : 170,
+                    body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
+                    buttons : '<button class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)"">Yes</button>'+
+                              '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">No</button>',
+                    onOpen: function (event) {
+                        var inputs = $(this.box).find('input, textarea, select, button');
+                        inputs.off('.message')
+                            .on('blur.message', function (evt) {
+                                // last input
+                                if (inputs.index(evt.target) + 1 === inputs.length) {
+                                    inputs.get(0).focus();
+                                    evt.preventDefault();
+                                }
+                            })
+                            .on('keydown.message', function (evt) {
+                                if (evt.keyCode == 27) obj.message(); // esc
+                            });
+                        setTimeout(function () {
+                            $(this.box).find('.w2ui-btn:last-child').focus();
+                            clearTimeout(obj.last.kbd_timer);
+                        }, 25);
                     }
                 });
                 return;
             }
+            this.message(); // hides confirmation message
             // call delete script
             var url = (typeof this.url != 'object' ? this.url : this.url.remove);
             if (url) {
@@ -5699,6 +5848,11 @@ w2utils.event = {
             var edata = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
             if (edata.isCancelled === true) return;
             // default behavior
+            if ($(this.box).find('>.w2ui-message').length > 0) {
+                // if there are messages
+                if (event.keyCode == 27) this.message();
+                return
+            }
             var empty   = false;
             var records = $('#grid_'+ obj.name +'_records');
             var sel     = obj.getSelection();
@@ -5997,7 +6151,7 @@ w2utils.event = {
                     if (empty) break;
                     // in Safari need to copy to buffer on cmd or ctrl key (otherwise does not work)
                     if (obj.last.isSafari) {
-                        obj.last.copy_event = obj.copy(false);
+                        obj.last.copy_event = obj.copy(false, event);
                         $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
                     }
                     break;
@@ -6006,11 +6160,11 @@ w2utils.event = {
                     // this fill trigger event.onComplete
                     if (event.metaKey || event.ctrlKey) {
                         if (obj.last.isSafari) {
-                            obj.copy(obj.last.copy_event);
+                            obj.copy(obj.last.copy_event, event);
                         } else {
-                            obj.last.copy_event = obj.copy(false);
+                            obj.last.copy_event = obj.copy(false, event);
                             $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
-                            obj.copy(obj.last.copy_event);
+                            obj.copy(obj.last.copy_event, event);
                         }
                     }
                     break;
@@ -6019,11 +6173,11 @@ w2utils.event = {
                     if (empty) break;
                     if (event.ctrlKey || event.metaKey) {
                         if (obj.last.isSafari) {
-                            obj.copy(obj.last.copy_event);
+                            obj.copy(obj.last.copy_event, event);
                         } else {
-                            obj.last.copy_event = obj.copy(false);
+                            obj.last.copy_event = obj.copy(false, event);
                             $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
-                            obj.copy(obj.last.copy_event);
+                            obj.copy(obj.last.copy_event, event);
                         }
                         // clear
                         setTimeout(function () { obj["delete"](true); }, 100);
@@ -6419,7 +6573,7 @@ w2utils.event = {
             }
         },
 
-        copy: function (flag) {
+        copy: function (flag, oEvent) {
             if ($.isPlainObject(flag)) {
                 // event after
                 this.trigger($.extend(flag, { phase: 'after' }));
@@ -6476,7 +6630,7 @@ w2utils.event = {
             // if called without params
             if (flag == null) {
                 // before event
-                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text, originalEvent: oEvent });
                 if (edata.isCancelled === true) return '';
                 text = edata.text;
                 // event after
@@ -6484,7 +6638,7 @@ w2utils.event = {
                 return text;
             } else if (flag === false) { // only before event
                 // before event
-                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text, originalEvent: oEvent });
                 if (edata.isCancelled === true) return '';
                 text = edata.text;
                 return edata;
@@ -6542,7 +6696,7 @@ w2utils.event = {
             // make sure the box is right
             if (!this.box || $(this.box).attr('name') != this.name) return;
             // determine new width and height
-            $(this.box).find('> div:not(.w2ui-lock-msg)')
+            $(this.box).find('> div.w2ui-grid-box')
                 .css('width', $(this.box).width())
                 .css('height', $(this.box).height());
             // event before
@@ -6551,7 +6705,7 @@ w2utils.event = {
             // resize
             obj.resizeBoxes();
             obj.resizeRecords();
-            if (obj.toolbar) obj.toolbar.resize();
+            if (obj.toolbar && obj.toolbar.resize) obj.toolbar.resize();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -6870,7 +7024,7 @@ w2utils.event = {
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-grid')
-                .html('<div>'+
+                .html('<div class="w2ui-grid-box">'+
                       '    <div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
                       '    <div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
                       '    <div id="grid_'+ this.name +'_body" class="w2ui-grid-body"></div>'+
@@ -7709,14 +7863,18 @@ w2utils.event = {
                             // events
                             var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
                             obj.trigger($.extend(edata, { phase: 'after' }));
+                            // hide all tooltips
+                            setTimeout(function () { $().w2tag(); }, 20);
                             break;
                         case 'w2ui-edit':
-                            var sel     = obj.getSelection();
-                            var recid     = null;
+                            var sel   = obj.getSelection();
+                            var recid = null;
                             if (sel.length == 1) recid = sel[0];
                             // events
                             var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
                             obj.trigger($.extend(edata, { phase: 'after' }));
+                            // hide all tooltips
+                            setTimeout(function () { $().w2tag(); }, 20);
                             break;
                         case 'w2ui-delete':
                             obj["delete"]();
@@ -7872,7 +8030,7 @@ w2utils.event = {
             $(this.box).find('.w2ui-empty-record').remove();
             // -- Calculate Column size in PX
             var box      = $(this.box);
-            var grid     = $(this.box).find('> div');
+            var grid     = $(this.box).find('> div.w2ui-grid-box');
             var header   = $('#grid_'+ this.name +'_header');
             var toolbar  = $('#grid_'+ this.name +'_toolbar');
             var summary  = $('#grid_'+ this.name +'_summary');
@@ -9743,6 +9901,28 @@ w2utils.event = {
             delete this.last._selection;
             this.refresh();
             return (new Date()).getTime() - time;
+        },
+
+        message: function(options) {
+            if (typeof options == 'string') {
+                options = {
+                    width   : (options.length < 300 ? 350 : 550),
+                    height  : (options.length < 300 ? 170: 250),
+                    body    : '<div class="w2ui-centered">' + options + '</div>',
+                    buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">Ok</button>',
+                    onOpen  : function (event) {
+                        setTimeout(function () {
+                            $(this.box).find('.w2ui-btn').focus();
+                        }, 25);
+                    }
+                };
+            }
+            w2utils.message.call(this, {
+                box   : this.box,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-grid-header:visible',
+                body  : '.w2ui-grid-box'
+            }, options);
         }
     };
 
@@ -11006,10 +11186,10 @@ var w2popup = {};
                 w2popup.lockScreen(options);
                 var btn = '';
                 if (options.showClose) {
-                    btn += '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>';
+                    btn += '<div class="w2ui-popup-button w2ui-popup-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>';
                 }
                 if (options.showMax) {
-                    btn += '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>';
+                    btn += '<div class="w2ui-popup-button w2ui-popup-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>';
                 }
                 // first insert just body
                 var msg = '<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
@@ -11030,20 +11210,20 @@ var w2popup = {};
                     if (tmp.length > 0) options.body = tmp.html(); else options.body = parts.html();
                 }
                 // then content
-                var msg = '<div class="w2ui-msg-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
+                var msg = '<div class="w2ui-popup-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
                           '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') +
                                     (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
-                          '    <div class="w2ui-msg-body' + (!options.title != '' ? ' w2ui-msg-no-title' : '') +
-                                    (!options.buttons ? ' w2ui-msg-no-buttons' : '') + '" style="' + options.style + '">' +
+                          '    <div class="w2ui-popup-body' + (!options.title != '' ? ' w2ui-popup-no-title' : '') +
+                                    (!options.buttons ? ' w2ui-popup-no-buttons' : '') + '" style="' + options.style + '">' +
                           '    </div>'+
                           '</div>'+
-                          '<div class="w2ui-msg-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
+                          '<div class="w2ui-popup-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
                           '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px"/>'; // this is needed to keep focus in popup
                 $('#w2ui-popup').html(msg);
 
-                if (options.title) $('#w2ui-popup .w2ui-msg-title').append(options.title);
-                if (options.buttons) $('#w2ui-popup .w2ui-msg-buttons').append(options.buttons);
-                if (options.body) $('#w2ui-popup .w2ui-msg-body').append(options.body);
+                if (options.title) $('#w2ui-popup .w2ui-popup-title').append(options.title);
+                if (options.buttons) $('#w2ui-popup .w2ui-popup-buttons').append(options.buttons);
+                if (options.body) $('#w2ui-popup .w2ui-popup-body').append(options.body);
 
                 // allow element to render
                 setTimeout(function () {
@@ -11083,7 +11263,7 @@ var w2popup = {};
                 }
                 // show new items
                 var cloned = $('#w2ui-popup .w2ui-box').clone();
-                cloned.removeClass('w2ui-box').addClass('w2ui-box-temp').find('.w2ui-msg-body').empty().append(options.body);
+                cloned.removeClass('w2ui-box').addClass('w2ui-box-temp').find('.w2ui-popup-body').empty().append(options.body);
                 // parse rel=*
                 if (typeof options.body == 'string' && cloned.find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
                     // title
@@ -11101,25 +11281,25 @@ var w2popup = {};
                 $('#w2ui-popup .w2ui-box').after(cloned);
 
                 if (options.buttons) {
-                    $('#w2ui-popup .w2ui-msg-buttons').show().html('').append(options.buttons);
-                    $('#w2ui-popup .w2ui-msg-body').removeClass('w2ui-msg-no-buttons');
+                    $('#w2ui-popup .w2ui-popup-buttons').show().html('').append(options.buttons);
+                    $('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-buttons');
                     $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('bottom', '');
                 } else {
-                    $('#w2ui-popup .w2ui-msg-buttons').hide().html('');
-                    $('#w2ui-popup .w2ui-msg-body').addClass('w2ui-msg-no-buttons');
+                    $('#w2ui-popup .w2ui-popup-buttons').hide().html('');
+                    $('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-buttons');
                     $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('bottom', '0px');
                 }
                 if (options.title) {
-                    $('#w2ui-popup .w2ui-msg-title')
+                    $('#w2ui-popup .w2ui-popup-title')
                         .show()
-                        .html((options.showClose ? '<div class="w2ui-msg-button w2ui-msg-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>' : '') +
-                              (options.showMax ? '<div class="w2ui-msg-button w2ui-msg-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : ''))
+                        .html((options.showClose ? '<div class="w2ui-popup-button w2ui-popup-close" onmousedown="event.stopPropagation()" onclick="w2popup.close()">Close</div>' : '') +
+                              (options.showMax ? '<div class="w2ui-popup-button w2ui-popup-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>' : ''))
                         .append(options.title);
-                    $('#w2ui-popup .w2ui-msg-body').removeClass('w2ui-msg-no-title');
+                    $('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title');
                     $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '');
                 } else {
-                    $('#w2ui-popup .w2ui-msg-title').hide().html('');
-                    $('#w2ui-popup .w2ui-msg-body').addClass('w2ui-msg-no-title');
+                    $('#w2ui-popup .w2ui-popup-title').hide().html('');
+                    $('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-title');
                     $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '0px');
                 }
                 // transition
@@ -11130,7 +11310,7 @@ var w2popup = {};
                     obj.restoreTemplate();
                     $(div_old).remove();
                     $(div_new).removeClass('w2ui-box-temp').addClass('w2ui-box');
-                    var $body = $(div_new).find('.w2ui-msg-body');
+                    var $body = $(div_new).find('.w2ui-popup-body');
                     if ($body.length == 1) $body[0].style.cssText = options.style;
                     // remove max state
                     $('#w2ui-popup').data('prev-size', null);
@@ -11153,7 +11333,7 @@ var w2popup = {};
                 mvMove   : mvMove,
                 mvStop   : mvStop
             };
-            $('#w2ui-popup .w2ui-msg-title').on('mousedown', function (event) {
+            $('#w2ui-popup .w2ui-popup-title').on('mousedown', function (event) {
                 if (!w2popup.get().maximized) mvStart(event);
             });
 
@@ -11216,7 +11396,7 @@ var w2popup = {};
             switch (event.keyCode) {
                 case 27:
                     event.preventDefault();
-                    if ($('#w2ui-popup .w2ui-popup-message').length > 0) w2popup.message(); else w2popup.close();
+                    if ($('#w2ui-popup .w2ui-message').length > 0) w2popup.message(); else w2popup.close();
                     break;
             }
             // event after
@@ -11327,9 +11507,9 @@ var w2popup = {};
         },
 
         clear: function() {
-            $('#w2ui-popup .w2ui-msg-title').html('');
-            $('#w2ui-popup .w2ui-msg-body').html('');
-            $('#w2ui-popup .w2ui-msg-buttons').html('');
+            $('#w2ui-popup .w2ui-popup-title').html('');
+            $('#w2ui-popup .w2ui-popup-body').html('');
+            $('#w2ui-popup .w2ui-popup-buttons').html('');
         },
 
         reset: function () {
@@ -11388,7 +11568,7 @@ var w2popup = {};
             if (parseInt(options.height) < 10) options.height = 10;
             if (options.hideOnClick == null) options.hideOnClick = false;
             var poptions    = $('#w2ui-popup').data('options') || {};
-            var titleHeight = parseInt($('#w2ui-popup > .w2ui-msg-title').css('height'));
+            var titleHeight = parseInt($('#w2ui-popup > .w2ui-popup-title').css('height'));
             if (options.width == null || options.width > poptions.width - 10) {
                 options.width = poptions.width - 10;
             }
@@ -11399,8 +11579,8 @@ var w2popup = {};
             if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight;
             if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2; // x 2 because there is left and right margin
 
-            var head     = $('#w2ui-popup .w2ui-msg-title');
-            var msgCount = $('#w2ui-popup .w2ui-popup-message').length;
+            var head     = $('#w2ui-popup .w2ui-popup-title');
+            var msgCount = $('#w2ui-popup .w2ui-message').length;
             // remove message
             if ($.trim(options.html) == '' && $.trim(options.body) == '' && $.trim(options.buttons) == '') {
                 var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
@@ -11426,15 +11606,15 @@ var w2popup = {};
                 }, 150);
             } else {
                 if ($.trim(options.body) != '' || $.trim(options.buttons) != '') {
-                    options.html = '<div class="w2ui-popup-message-body">'+ options.body +'</div>'+
-                        '<div class="w2ui-popup-message-buttons">'+ options.buttons +'</div>';
+                    options.html = '<div class="w2ui-message-body">'+ options.body +'</div>'+
+                        '<div class="w2ui-message-buttons">'+ options.buttons +'</div>';
                 }
                 // hide previous messages
-                $('#w2ui-popup .w2ui-popup-message').css('z-index', 1390);
+                $('#w2ui-popup .w2ui-message').css('z-index', 1390);
                 head.css('z-index', 1501);
                 // add message
                 $('#w2ui-popup .w2ui-box')
-                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-popup-message" style="display: none; z-index: 1500; ' +
+                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message" style="display: none; z-index: 1500; ' +
                                 (head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width  != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
@@ -11473,14 +11653,14 @@ var w2popup = {};
             // clear previous blur
             $(pop).find(sel).off('.keep-focus');
             // in message or popup
-            var cnt = $('#w2ui-popup .w2ui-popup-message').length - 1;
+            var cnt = $('#w2ui-popup .w2ui-message').length - 1;
             var msg = $('#w2ui-popup #w2ui-message' + cnt);
             if (msg.length > 0) {
                 var btn =$(msg[msg.length - 1]).find('button');
                 if (btn.length > 0) btn[0].focus();
                 tmp = msg;
             } else if (pop.length > 0) {
-                var btn = pop.find('.w2ui-msg-buttons button');
+                var btn = pop.find('.w2ui-popup-buttons button');
                 if (btn.length > 0) btn[0].focus();
                 tmp = pop;
             }
@@ -11563,12 +11743,12 @@ var w2popup = {};
             var obj = this;
             var options = $('#w2ui-popup').data('options');
             // see if there are messages and resize them
-            $('#w2ui-popup .w2ui-popup-message').each(function () {
+            $('#w2ui-popup .w2ui-message').each(function () {
                 var moptions = $(this).data('options');
                 var $popup   = $('#w2ui-popup');
                 if (parseInt(moptions.width) < 10)  moptions.width  = 10;
                 if (parseInt(moptions.height) < 10) moptions.height = 10;
-                var titleHeight = parseInt($popup.find('> .w2ui-msg-title').css('height'));
+                var titleHeight = parseInt($popup.find('> .w2ui-popup-title').css('height'));
                 var pWidth      = parseInt($popup.width());
                 var pHeight     = parseInt($popup.height());
                 // recalc width
@@ -11684,7 +11864,7 @@ var w2alert = function (msg, title, callBack) {
             body    : '<div class="w2ui-centered w2ui-alert-msg" style="font-size: 13px;">' + msg + '</div>',
             buttons : '<button onclick="w2popup.message();" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>',
             onOpen: function () {
-                $('#w2ui-popup .w2ui-popup-message .w2ui-popup-btn').focus();
+                $('#w2ui-popup .w2ui-message .w2ui-popup-btn').focus();
             },
             onClose: function () {
                 if (typeof callBack == 'function') callBack();
@@ -11770,14 +11950,14 @@ var w2confirm = function (msg, title, callBack) {
             buttons : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
                       '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
             onOpen: function () {
-                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').on('click.w2confirm', function (event) {
+                $('#w2ui-popup .w2ui-message .w2ui-btn').on('click.w2confirm', function (event) {
                     w2popup._confirm_btn = event.target.id;
                     w2popup.message();
                 });
             },
             onClose: function () {
                 // needed this because there might be other messages
-                $('#w2ui-popup .w2ui-popup-message .w2ui-btn').off('click.w2confirm');
+                $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2confirm');
                 // need to wait for message to slide up
                 setTimeout(function () {
                     if (typeof options.callBack == 'function') options.callBack(w2popup._confirm_btn);
@@ -11814,7 +11994,7 @@ var w2confirm = function (msg, title, callBack) {
             },
             onKeydown: function (event) {
                 // if there are no messages
-                if ($('#w2ui-popup .w2ui-popup-message').length == 0) {
+                if ($('#w2ui-popup .w2ui-message').length == 0) {
                     switch (event.originalEvent.keyCode) {
                         case 13: // enter
                             $('#w2ui-popup .w2ui-popup-btn#Yes').focus().addClass('clicked'); // no need fo click as enter will do click
@@ -16772,7 +16952,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - Following objects defined
 *        - w2form      - form widget
 *        - $().w2form  - jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
+*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar
 *
 * == NICE TO HAVE ==
 *   - include delta on save
@@ -16793,6 +16973,7 @@ var w2confirm = function (msg, title, callBack) {
 *   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
 *   - added ability to generate radio and select html in generateHTML()
 *   - refresh(field) - would refresh only one field
+*   - form.message
 *
 ************************************************************************/
 
@@ -17052,9 +17233,31 @@ var w2confirm = function (msg, title, callBack) {
                 return;
             }
             // need a time out because message might be already up)
-            setTimeout(function () { w2alert(msg, w2utils.lang('Error'));    }, 1);
+            setTimeout(function () { obj.message(msg); }, 1);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        message: function(options) {
+            if (typeof options == 'string') {
+                options = {
+                    width   : (options.length < 300 ? 350 : 550),
+                    height  : (options.length < 300 ? 170: 250),
+                    body    : '<div class="w2ui-centered">' + options + '</div>',
+                    buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">Ok</button>',
+                    onOpen  : function (event) {
+                        setTimeout(function () {
+                            $(event.box).find('.w2ui-btn').focus();
+                        }, 25);
+                    }
+                };
+            }
+            w2utils.message.call(this, {
+                box   : this.box,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-form-header:visible',
+                body  : '.w2ui-form-box'
+            }, options);
         },
 
         validate: function (showErrors) {
@@ -17609,7 +17812,7 @@ var w2confirm = function (msg, title, callBack) {
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
             if (edata.isCancelled === true) return;
             // default behaviour
-            var main    = $(this.box).find('> div:not(.w2ui-lock-msg)');
+            var main    = $(this.box).find('> div.w2ui-form-box');
             var header  = $(this.box).find('> div .w2ui-form-header');
             var toolbar = $(this.box).find('> div .w2ui-form-toolbar');
             var tabs    = $(this.box).find('> div .w2ui-form-tabs');
@@ -17630,6 +17833,8 @@ var w2confirm = function (msg, title, callBack) {
                 $(this.box).data('auto-size', true);
             }
             resizeElements();
+            if (this.toolbar && this.toolbar.resize) this.toolbar.resize();
+            if (this.tabs && this.tabs.resize) this.tabs.resize();
             // event after
             obj.trigger($.extend(edata, { phase: 'after' }));
 
@@ -17932,7 +18137,7 @@ var w2confirm = function (msg, title, callBack) {
             if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
                 this.original = $.extend(true, {}, this.record);
             }
-            var html =  '<div>' +
+            var html =  '<div class="w2ui-form-box">' +
                         (this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
                         '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
                         '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
@@ -17987,7 +18192,16 @@ var w2confirm = function (msg, title, callBack) {
                 var inputs = $(obj.box).find('input, select, textarea');
                 if (inputs.length > obj.focus) inputs[obj.focus].focus();
             }
-            if (this.focus >= 0) setTimeout(focusEl, 500); // need timeout to allow form to render
+            if (this.focus >= 0) {
+                setTimeout(function () {
+                    // if not rendered in 10ms, then wait 500ms
+                    if ($(obj.box).find('input, select, textarea').length == 0) {
+                        setTimeout(focusEl, 500); // need timeout to allow form to render
+                    } else {
+                        focusEl();
+                    }
+                }, 10);
+            }
             return (new Date()).getTime() - time;
         },
 

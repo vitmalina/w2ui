@@ -121,6 +121,45 @@
   background-color: #f1f1f1 !important;
   color: #777 !important;
 }
+.w2ui-message {
+  font-size: 12px;
+  position: absolute;
+  z-index: 250;
+  background-color: #f9f9f9;
+  border: 1px solid #999999;
+  box-shadow: 0px 0px 15px #aaaaaa;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  border-top: 0px;
+  border-radius: 0px 0px 6px 6px;
+  overflow: auto;
+}
+.w2ui-message .w2ui-message-body {
+  position: absolute;
+  top: 0px;
+  bottom: 45px;
+  left: 0px;
+  right: 0px;
+  overflow: auto;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.w2ui-message .w2ui-message-body .w2ui-centered {
+  line-height: 1.5;
+}
+.w2ui-message .w2ui-message-buttons {
+  position: absolute;
+  height: 45px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  border-top: 1px solid #e5e5e5;
+  text-align: center;
+  padding: 8px;
+}
 /*************************************************
 * ---- Input Controls ----
 */
@@ -2357,7 +2396,7 @@ button.w2ui-btn-small:focus:before {
   -o-box-sizing: border-box;
   box-sizing: border-box;
 }
-.w2ui-popup .w2ui-msg-title {
+.w2ui-popup .w2ui-popup-title {
   padding: 6px;
   border-radius: 6px 6px 0px 0px;
   background-image: -webkit-linear-gradient(#ececec, #dfdfdf);
@@ -2385,7 +2424,7 @@ button.w2ui-btn-small:focus:before {
   color: #555555;
   z-index: 300;
 }
-.w2ui-popup .w2ui-msg-button {
+.w2ui-popup .w2ui-popup-button {
   float: right;
   width: 18px;
   height: 18px;
@@ -2399,18 +2438,18 @@ button.w2ui-btn-small:focus:before {
   border-radius: 3px;
   border: 1px solid transparent;
 }
-.w2ui-popup .w2ui-msg-close {
+.w2ui-popup .w2ui-popup-close {
   margin-top: 0px;
   background-position: -32px 0px;
 }
-.w2ui-popup .w2ui-msg-close:hover {
+.w2ui-popup .w2ui-popup-close:hover {
   background-color: #cccccc;
   border: 1px solid #aaaaaa;
 }
-.w2ui-popup .w2ui-msg-max {
+.w2ui-popup .w2ui-popup-max {
   background-position: -16px 0px;
 }
-.w2ui-popup .w2ui-msg-max:hover {
+.w2ui-popup .w2ui-popup-max:hover {
   background-color: #cccccc;
   border: 1px solid #aaaaaa;
 }
@@ -2423,7 +2462,7 @@ button.w2ui-btn-small:focus:before {
   bottom: 52px;
   z-index: 100;
 }
-.w2ui-popup .w2ui-msg-body {
+.w2ui-popup .w2ui-popup-body {
   font-size: 12px;
   line-height: 130%;
   padding: 0px 7px 7px 7px;
@@ -2434,41 +2473,7 @@ button.w2ui-btn-small:focus:before {
   width: 100%;
   height: 100%;
 }
-.w2ui-popup .w2ui-popup-message {
-  font-size: 12px;
-  position: absolute;
-  z-index: 250;
-  background-color: #f9f9f9;
-  border: 1px solid #999999;
-  box-shadow: 0px 0px 15px #aaaaaa;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
-  border-top: 0px;
-  border-radius: 0px 0px 6px 6px;
-  overflow: auto;
-}
-.w2ui-popup .w2ui-popup-message .w2ui-popup-message-body {
-  position: absolute;
-  top: 0px;
-  bottom: 45px;
-  left: 0px;
-  right: 0px;
-  overflow: auto;
-}
-.w2ui-popup .w2ui-popup-message .w2ui-popup-message-buttons {
-  position: absolute;
-  height: 45px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  border-top: 1px solid #e5e5e5;
-  text-align: center;
-  padding: 8px;
-}
-.w2ui-popup .w2ui-msg-buttons {
+.w2ui-popup .w2ui-popup-buttons {
   padding: 12px;
   border-radius: 0px 0px 6px 6px;
   border-top: 1px solid #d5d8d8;
@@ -2482,12 +2487,12 @@ button.w2ui-btn-small:focus:before {
   bottom: 0px;
   z-index: 200;
 }
-.w2ui-popup .w2ui-msg-no-title {
+.w2ui-popup .w2ui-popup-no-title {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
   top: 0px !important;
 }
-.w2ui-popup .w2ui-msg-no-buttons {
+.w2ui-popup .w2ui-popup-no-buttons {
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
   bottom: 0px !important;
