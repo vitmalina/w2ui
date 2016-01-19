@@ -3,7 +3,7 @@
 *   - Following objects defined
 *        - w2grid        - grid widget
 *        - $().w2grid    - jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields, w2alert, w2confirm
+*   - Dependencies: jQuery, w2utils, w2toolbar, w2fields
 *
 * == NICE TO HAVE ==
 *   - allow this.total to be unknown (-1)
@@ -103,6 +103,7 @@
     }
 *   - added this.show.toolbarInput
 *   - disableCVS
+*   - grid.message
 *
 ************************************************************************/
 
@@ -158,7 +159,7 @@
         this.hasFocus        = false;
         this.autoLoad        = true;     // for infinite scroll
         this.fixedBody       = true;     // if false; then grid grows with data
-        this.recordHeight    = 24;
+        this.recordHeight    = 24;       // should be in prototype
         this.lineNumberWidth = null;
         this.vs_start        = 150;
         this.vs_extra        = 15;
@@ -179,7 +180,7 @@
         this.style   = '';
         this.ranges  = [];
         this.menu    = [];
-        this.method  = null;         // if defined, then overwrited ajax method
+        this.method  = null;  // if defined, then overwrited ajax method
         this.recid   = null;
         this.parser  = null;
 
@@ -2294,7 +2295,7 @@
                                 if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
                             } else {
                                 if (parseInt(data.total) != parseInt(this.total)) {
-                                    w2alert(w2utils.lang(this.msgNeedReload));
+                                    this.message(w2utils.lang(this.msgNeedReload));
                                     delete this.last.xhr_offset;
                                     this.reload();
                                     return;
@@ -2357,7 +2358,7 @@
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                 return;
             }
-            w2alert(msg, w2utils.lang('Error'));
+            this.message(msg);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
         },
@@ -2507,7 +2508,7 @@
                 var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size') + ';';
                 el.addClass('w2ui-editable')
                     .html('<div id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input"'+
-                        '    contenteditable style="'+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
+                        '    contenteditable style="white-space: nowrap; '+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
                         '></div>' + edit.outTag);
                 if (value == null) el.find('div.w2ui-input').text(typeof val != 'object' ? val : '');
@@ -2824,20 +2825,40 @@
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
             if (edata.isCancelled === true) return;
             force = edata.force;
+            // hide all tooltips
+            setTimeout(function () { $().w2tag(); }, 20);
             // default action
             var recs = this.getSelection();
             if (recs.length == 0) return;
             if (this.msgDelete != '' && !force) {
-                w2confirm({
-                    title : w2utils.lang('Delete Confirmation'),
-                    msg   : w2utils.lang(obj.msgDelete),
-                    yes_class : 'w2ui-btn-red',
-                    callBack: function (result) {
-                        if (result == 'Yes') w2ui[obj.name]['delete'](true);
+                this.message({
+                    width   : 350,
+                    height  : 170,
+                    body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
+                    buttons : '<button class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)"">Yes</button>'+
+                              '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">No</button>',
+                    onOpen: function (event) {
+                        var inputs = $(this.box).find('input, textarea, select, button');
+                        inputs.off('.message')
+                            .on('blur.message', function (evt) {
+                                // last input
+                                if (inputs.index(evt.target) + 1 === inputs.length) {
+                                    inputs.get(0).focus();
+                                    evt.preventDefault();
+                                }
+                            })
+                            .on('keydown.message', function (evt) {
+                                if (evt.keyCode == 27) obj.message(); // esc
+                            });
+                        setTimeout(function () {
+                            $(this.box).find('.w2ui-btn:last-child').focus();
+                            clearTimeout(obj.last.kbd_timer);
+                        }, 25);
                     }
                 });
                 return;
             }
+            this.message(); // hides confirmation message
             // call delete script
             var url = (typeof this.url != 'object' ? this.url : this.url.remove);
             if (url) {
@@ -3069,6 +3090,11 @@
             var edata = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
             if (edata.isCancelled === true) return;
             // default behavior
+            if ($(this.box).find('>.w2ui-message').length > 0) {
+                // if there are messages
+                if (event.keyCode == 27) this.message();
+                return
+            }
             var empty   = false;
             var records = $('#grid_'+ obj.name +'_records');
             var sel     = obj.getSelection();
@@ -3367,7 +3393,7 @@
                     if (empty) break;
                     // in Safari need to copy to buffer on cmd or ctrl key (otherwise does not work)
                     if (obj.last.isSafari) {
-                        obj.last.copy_event = obj.copy(false);
+                        obj.last.copy_event = obj.copy(false, event);
                         $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
                     }
                     break;
@@ -3376,11 +3402,11 @@
                     // this fill trigger event.onComplete
                     if (event.metaKey || event.ctrlKey) {
                         if (obj.last.isSafari) {
-                            obj.copy(obj.last.copy_event);
+                            obj.copy(obj.last.copy_event, event);
                         } else {
-                            obj.last.copy_event = obj.copy(false);
+                            obj.last.copy_event = obj.copy(false, event);
                             $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
-                            obj.copy(obj.last.copy_event);
+                            obj.copy(obj.last.copy_event, event);
                         }
                     }
                     break;
@@ -3389,11 +3415,11 @@
                     if (empty) break;
                     if (event.ctrlKey || event.metaKey) {
                         if (obj.last.isSafari) {
-                            obj.copy(obj.last.copy_event);
+                            obj.copy(obj.last.copy_event, event);
                         } else {
-                            obj.last.copy_event = obj.copy(false);
+                            obj.last.copy_event = obj.copy(false, event);
                             $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
-                            obj.copy(obj.last.copy_event);
+                            obj.copy(obj.last.copy_event, event);
                         }
                         // clear
                         setTimeout(function () { obj["delete"](true); }, 100);
@@ -3789,7 +3815,7 @@
             }
         },
 
-        copy: function (flag) {
+        copy: function (flag, oEvent) {
             if ($.isPlainObject(flag)) {
                 // event after
                 this.trigger($.extend(flag, { phase: 'after' }));
@@ -3846,7 +3872,7 @@
             // if called without params
             if (flag == null) {
                 // before event
-                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text, originalEvent: oEvent });
                 if (edata.isCancelled === true) return '';
                 text = edata.text;
                 // event after
@@ -3854,7 +3880,7 @@
                 return text;
             } else if (flag === false) { // only before event
                 // before event
-                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text });
+                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text, originalEvent: oEvent });
                 if (edata.isCancelled === true) return '';
                 text = edata.text;
                 return edata;
@@ -3912,7 +3938,7 @@
             // make sure the box is right
             if (!this.box || $(this.box).attr('name') != this.name) return;
             // determine new width and height
-            $(this.box).find('> div:not(.w2ui-lock-msg)')
+            $(this.box).find('> div.w2ui-grid-box')
                 .css('width', $(this.box).width())
                 .css('height', $(this.box).height());
             // event before
@@ -3921,7 +3947,7 @@
             // resize
             obj.resizeBoxes();
             obj.resizeRecords();
-            if (obj.toolbar) obj.toolbar.resize();
+            if (obj.toolbar && obj.toolbar.resize) obj.toolbar.resize();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -4240,7 +4266,7 @@
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-grid')
-                .html('<div>'+
+                .html('<div class="w2ui-grid-box">'+
                       '    <div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
                       '    <div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
                       '    <div id="grid_'+ this.name +'_body" class="w2ui-grid-body"></div>'+
@@ -5079,14 +5105,18 @@
                             // events
                             var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
                             obj.trigger($.extend(edata, { phase: 'after' }));
+                            // hide all tooltips
+                            setTimeout(function () { $().w2tag(); }, 20);
                             break;
                         case 'w2ui-edit':
-                            var sel     = obj.getSelection();
-                            var recid     = null;
+                            var sel   = obj.getSelection();
+                            var recid = null;
                             if (sel.length == 1) recid = sel[0];
                             // events
                             var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
                             obj.trigger($.extend(edata, { phase: 'after' }));
+                            // hide all tooltips
+                            setTimeout(function () { $().w2tag(); }, 20);
                             break;
                         case 'w2ui-delete':
                             obj["delete"]();
@@ -5242,7 +5272,7 @@
             $(this.box).find('.w2ui-empty-record').remove();
             // -- Calculate Column size in PX
             var box      = $(this.box);
-            var grid     = $(this.box).find('> div');
+            var grid     = $(this.box).find('> div.w2ui-grid-box');
             var header   = $('#grid_'+ this.name +'_header');
             var toolbar  = $('#grid_'+ this.name +'_toolbar');
             var summary  = $('#grid_'+ this.name +'_summary');
@@ -7113,6 +7143,28 @@
             delete this.last._selection;
             this.refresh();
             return (new Date()).getTime() - time;
+        },
+
+        message: function(options) {
+            if (typeof options == 'string') {
+                options = {
+                    width   : (options.length < 300 ? 350 : 550),
+                    height  : (options.length < 300 ? 170: 250),
+                    body    : '<div class="w2ui-centered">' + options + '</div>',
+                    buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">Ok</button>',
+                    onOpen  : function (event) {
+                        setTimeout(function () {
+                            $(this.box).find('.w2ui-btn').focus();
+                        }, 25);
+                    }
+                };
+            }
+            w2utils.message.call(this, {
+                box   : this.box,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-grid-header:visible',
+                body  : '.w2ui-grid-box'
+            }, options);
         }
     };
 

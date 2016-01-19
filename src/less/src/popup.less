@@ -13,15 +13,15 @@
     border: @popup-border;
     background-color: @popup-body-background-color;
     box-shadow: @popup-shadow;
-    
+
     &, & * {
         .box-sizing;
     }
 
-    .w2ui-msg-title {
+    .w2ui-popup-title {
         padding: 6px;
         border-radius: 6px 6px 0px 0px;
-        .linear-gradient-vertical(@popup-title-linear-gradient-start, @popup-title-linear-gradient-end);                
+        .linear-gradient-vertical(@popup-title-linear-gradient-start, @popup-title-linear-gradient-end);
         border-bottom: @popup-title-border-bottom;
         position: absolute;
         overflow: hidden;
@@ -35,10 +35,10 @@
         cursor: move;
         font-size: 15px;
         color: @popup-title-color;
-        z-index: 300;        
+        z-index: 300;
     }
 
-    .w2ui-msg-button {
+    .w2ui-popup-button {
         float: right;
         width: 18px;
         height: 18px;
@@ -53,7 +53,7 @@
         border: @popup-title-button-border;
     }
 
-    .w2ui-msg-close {
+    .w2ui-popup-close {
         margin-top: 0px;
         background-position: -32px 0px;
         &:hover {
@@ -62,7 +62,7 @@
         }
     }
 
-    .w2ui-msg-max {
+    .w2ui-popup-max {
         background-position: -16px 0px;
         &:hover {
             background-color: @popup-title-max-background-color;
@@ -79,7 +79,7 @@
         z-index: 100;
     }
 
-    .w2ui-msg-body {
+    .w2ui-popup-body {
         font-size: 12px;
         line-height: 130%;
         padding: 0px 7px 7px 7px;
@@ -91,40 +91,7 @@
         height: 100%;
     }
 
-    .w2ui-popup-message { // slide down message
-        font-size: 12px;
-        position: absolute;
-        z-index: 250;
-        background-color: @popup-message-background-color; 
-        border: @popup-message-border; 
-        box-shadow: @popup-message-shadow;
-        .box-sizing; 
-        border-top: 0px; 
-        border-radius: 0px 0px 6px 6px; 
-        overflow: auto;
-
-        .w2ui-popup-message-body {
-            position: absolute; 
-            top: 0px; 
-            bottom: 45px; 
-            left: 0px; 
-            right: 0px;
-            overflow: auto;
-        }
-
-        .w2ui-popup-message-buttons {
-            position: absolute; 
-            height: 45px; 
-            bottom: 0px; 
-            left: 0px; 
-            right: 0px; 
-            border-top: 1px solid #e5e5e5;
-            text-align: center;
-            padding: 8px;
-        }
-    }
-    
-    .w2ui-msg-buttons {
+    .w2ui-popup-buttons {
         padding: 12px;
         border-radius: 0px 0px 6px 6px;
         border-top: @popup-buttons-border-top;
@@ -139,13 +106,13 @@
         z-index: 200;
     }
 
-    .w2ui-msg-no-title {
+    .w2ui-popup-no-title {
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
         top: 0px !important;
     }
 
-    .w2ui-msg-no-buttons {
+    .w2ui-popup-no-buttons {
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
         bottom: 0px !important;
