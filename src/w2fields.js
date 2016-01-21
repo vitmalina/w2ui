@@ -462,13 +462,13 @@
             $(this.el)
                 .addClass('w2field w2ui-input')
                 .data('w2field', this)
-                .on('change',   this.tmp.onChange)
-                .on('click',    this.tmp.onClick)         // ignore click because it messes overlays
-                .on('focus',    this.tmp.onFocus)
-                .on('blur',     this.tmp.onBlur)
-                .on('keydown',  this.tmp.onKeydown)
-                .on('keyup',    this.tmp.onKeyup)
-                .on('keypress', this.tmp.onKeypress)
+                .on('change.w2field',   this.tmp.onChange)
+                .on('click.w2field',    this.tmp.onClick)         // ignore click because it messes overlays
+                .on('focus.w2field',    this.tmp.onFocus)
+                .on('blur.w2field',     this.tmp.onBlur)
+                .on('keydown.w2field',  this.tmp.onKeydown)
+                .on('keyup.w2field',    this.tmp.onKeyup)
+                .on('keypress.w2field', this.tmp.onKeypress)
                 .css(w2utils.cssPrefix('box-sizing', 'border-box'));
             // format initial value
             this.change($.Event('change'));
@@ -549,14 +549,8 @@
             $(this.el)
                 .val(this.clean($(this.el).val()))
                 .removeClass('w2field')
-                .removeData() // removes all attached data
-                .off('change',   this.tmp.onChange)
-                .off('click',    this.tmp.onClick)
-                .off('focus',    this.tmp.onFocus)
-                .off('blur',     this.tmp.onBlur)
-                .off('keydown',  this.tmp.onKeydown)
-                .off('keyup',    this.tmp.onKeyup)
-                .off('keypress', this.tmp.onKeypress);
+                .removeData()       // removes all attached data
+                .off('.w2field');   // remove only events added by w2field
             // remove helpers
             for (var h in this.helpers) $(this.helpers[h]).remove();
             this.helpers = {};
