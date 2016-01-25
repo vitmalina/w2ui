@@ -2863,6 +2863,7 @@ w2utils.event = {
 *   - disableCVS
 *   - grid.message
 *   - added noReset option to localSort()
+*   - onColumnSelect
 *
 ************************************************************************/
 
@@ -4059,6 +4060,8 @@ w2utils.event = {
                 };
                 $(document).off('mousemove', mouseMove).on('mousemove', mouseMove);
                 $(document).off('mouseup', mouseStop).on('mouseup', mouseStop);
+                // do not blur grid
+                event.preventDefault();
             }
 
             function mouseMove (event) {
@@ -5811,11 +5814,14 @@ w2utils.event = {
                     } else {
                         cols.push(column);
                     }
-                    // --
-                    for (var i = 0; i < this.records.length; i++) {
-                        sel.push({ recid: this.records[i].recid, column: cols });
+                    var edata = this.trigger({ phase: 'before', type: 'columnSelect', target: this.name, columns: cols });
+                    if (edata.isCancelled !== true) {
+                        for (var i = 0; i < this.records.length; i++) {
+                            sel.push({ recid: this.records[i].recid, column: cols });
+                        }
+                        this.select.apply(this, sel);
                     }
-                    this.select.apply(this, sel);
+                    this.trigger($.extend(edata, { phase: 'after' }));
                 }
             }
             // event after
@@ -7122,6 +7128,7 @@ w2utils.event = {
                     w2ui[obj.name].keydown.call(w2ui[obj.name], event);
                 });
             // init mouse events for mouse selection
+            var edataCol; // event for column select
             $(this.box).on('mousedown', mouseStart);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -7179,6 +7186,7 @@ w2utils.event = {
                         ghost  : false,
                         start  : true
                     };
+                    if (obj.last.move.recid == null) obj.last.move.type = 'select-column';
                     // set focus to grid
                     var target = event.target;
                     setTimeout(function () {
@@ -7242,7 +7250,7 @@ w2utils.event = {
 
             function mouseMove (event) {
                 var mv = obj.last.move;
-                if (!mv || mv.type != 'select') return;
+                if (!mv || ['select', 'select-column'].indexOf(mv.type) == -1) return;
                 mv.divX = (event.screenX - mv.x);
                 mv.divY = (event.screenY - mv.y);
                 if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return; // only if moved more then 1px
@@ -7277,6 +7285,7 @@ w2utils.event = {
                 if (recid == null) {
                     // select by dragging columns
                     if (obj.selectType == 'row') return;
+                    if (obj.last.move && obj.last.move.type == 'select') return;
                     var col = parseInt($(event.target).parents('td').attr('col'));
                     if (isNaN(col)) {
                         obj.removeRange('column-selection');
@@ -7288,23 +7297,32 @@ w2utils.event = {
                         var newRange = col + '-' + col;
                         if (mv.column < col) newRange = mv.column + '-' + col;
                         if (mv.column > col) newRange = col + '-' + mv.column;
-                        if (mv.colRange == null) obj.selectNone();
-                        // highlight columns
-                        var tmp = newRange.split('-');
-                        $(obj.box).find('.w2ui-grid-columns .w2ui-col-header, .w2ui-grid-fcolumns .w2ui-col-header').removeClass('w2ui-col-selected');
-                        for (var j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) {
-                            $(obj.box).find('#grid_'+ obj.name +'_column_' + j + ' .w2ui-col-header').addClass('w2ui-col-selected');
+                        // array of selected columns
+                        var cols = [];
+                        var tmp  = newRange.split('-');
+                        for (var ii = parseInt(tmp[0]); ii <= parseInt(tmp[1]); ii++) {
+                            cols.push(ii)
                         }
-                        $(obj.box).find('.w2ui-col-number').not('.w2ui-head').addClass('w2ui-row-selected');
-                        // show new range
                         if (mv.colRange != newRange) {
-                            mv.colRange = newRange;
-                            obj.removeRange('column-selection');
-                            obj.addRange({
-                                name  : 'column-selection',
-                                range : [{ recid: obj.records[0].recid, column: tmp[0] }, { recid: obj.records[obj.records.length-1].recid, column: tmp[1] }],
-                                style : 'background-color: rgba(90, 145, 234, 0.1)'
-                            });
+                            edataCol = obj.trigger({ phase: 'before', type: 'columnSelect', target: obj.name, columns: cols, isCancelled: false }); // initial isCancelled
+                            if (edataCol.isCancelled !== true) {
+                                if (mv.colRange == null) obj.selectNone();
+                                // highlight columns
+                                var tmp = newRange.split('-');
+                                $(obj.box).find('.w2ui-grid-columns .w2ui-col-header, .w2ui-grid-fcolumns .w2ui-col-header').removeClass('w2ui-col-selected');
+                                for (var j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) {
+                                    $(obj.box).find('#grid_'+ obj.name +'_column_' + j + ' .w2ui-col-header').addClass('w2ui-col-selected');
+                                }
+                                $(obj.box).find('.w2ui-col-number').not('.w2ui-head').addClass('w2ui-row-selected');
+                                // show new range
+                                mv.colRange = newRange;
+                                obj.removeRange('column-selection');
+                                obj.addRange({
+                                    name  : 'column-selection',
+                                    range : [{ recid: obj.records[0].recid, column: tmp[0] }, { recid: obj.records[obj.records.length-1].recid, column: tmp[1] }],
+                                    style : 'background-color: rgba(90, 145, 234, 0.1)'
+                                });
+                            }
                         }
                     }
 
@@ -7372,8 +7390,8 @@ w2utils.event = {
                 var mv = obj.last.move;
                 setTimeout(function () { delete obj.last.cancelClick; }, 1);
                 if ($(event.target).parents().hasClass('.w2ui-head') || $(event.target).hasClass('.w2ui-head')) return;
-                if (mv && mv.type == 'select') {
-                    if (mv.colRange != null) {
+                if (mv && ['select', 'select-column'].indexOf(mv.type) != -1) {
+                    if (mv.colRange != null && edataCol.isCancelled !== true) {
                         var tmp = mv.colRange.split('-');
                         var sel = [];
                         for (var i = 0; i < obj.records.length; i++) {
@@ -7381,8 +7399,9 @@ w2utils.event = {
                             for (var j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) cols.push(j);
                             sel.push({ recid: obj.records[i].recid, column: cols });
                         }
-                        obj.select.apply(obj, sel);
                         obj.removeRange('column-selection');
+                        obj.trigger($.extend(edataCol, { phase: 'after' }));
+                        obj.select.apply(obj, sel);
                     }
                     if (obj.reorderRows == true && obj.last.move.reorder) {
                         // event
