@@ -44,6 +44,22 @@ $(function () {
         menu: ['some', 'other'],
         onContextMenu: function (event) {
             // console.log('context', event);
+        },
+        onSelectionExtend: function (event) {
+            console.log('extend', event);
+        },
+        onColumnSelect: function (event) {
+            console.log('column', event);
+            // event.preventDefault();
+        },
+        onSelect: function (event) {
+            console.log('select', event);
+        },
+        onFocus: function (event) {
+            console.log('focus');
+        },
+        onBlur: function (event) {
+            console.log('blur');
         }
     });
     w2ui.grid.on('onContextMenu', function (event) {
