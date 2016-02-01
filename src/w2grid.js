@@ -106,6 +106,7 @@
 *   - grid.message
 *   - added noReset option to localSort()
 *   - onColumnSelect
+*   - need to update PHP example
 *
 ************************************************************************/
 
@@ -4407,9 +4408,9 @@
                     }
                     var tmps = false;
                     while (tmp) {
-                        if (tmp.classList.contains('w2ui-grid')) break;
-                        if (tmp.tagName.toUpperCase() == 'TD') tmps = true;
-                        if (tmp.tagName.toUpperCase() != 'TR' && tmps == true) {
+                        if (tmp.classList && tmp.classList.contains('w2ui-grid')) break;
+                        if (tmp.tagName && tmp.tagName.toUpperCase() == 'TD') tmps = true;
+                        if (tmp.tagName && tmp.tagName.toUpperCase() != 'TR' && tmps == true) {
                             pos.x += tmp.offsetLeft;
                             pos.y += tmp.offsetTop;
                         }
