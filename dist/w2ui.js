@@ -6021,7 +6021,7 @@ w2utils.event = {
                         if (recEL.length <= 0) break;
                         obj.expand(recid, event);
                     } else {
-                        var next = obj.nextCell(ind, columns[columns.length-1]);
+                        var next = obj.nextCell(ind, columns[columns.length-1]); // columns is an array of selected columns
                         if (!shiftKey && next == null) {
                             this.selectNone();
                             next = this.columns.length-1;
@@ -6820,6 +6820,7 @@ w2utils.event = {
             var rec       = (isSummary ? this.summary[index] : this.records[index]);
             var col       = this.columns[col_ind];
             var cell      = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
+            if (rec == null) return false;
             // set cell html and changed flag
             cell.replaceWith(this.getCellHTML(index, col_ind, isSummary));
             if (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null) {
@@ -9403,9 +9404,15 @@ w2utils.event = {
                 if (col_skip > 0) {
                     col_ind++;
                     if (this.columns[col_ind] == null) break;
-                    record.w2ui.colspan[this.columns[col_ind].field] = 0; // need it for other methods
+                    record.w2ui.colspan[this.columns[col_ind-1].field] = 0; // need it for other methods
                     col_skip--;
                     continue;
+                } else if (record.w2ui) {
+                    var tmp1 = record.w2ui.colspan;
+                    var tmp2 = this.columns[col_ind].field;
+                    if (tmp1 && tmp1[tmp2] === 0) {
+                        delete tmp1[tmp2]; // if no longer colspan then remove 0
+                    }
                 }
                 // column virtual scroll
                 if ((col_ind < this.last.colStart || col_ind > this.last.colEnd) && !col.frozen) {
@@ -9455,7 +9462,13 @@ w2utils.event = {
             var isRowSelected = false;
             var infoBubble    = '';
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
-            if (col_span == null) col_span = 1;
+            if (col_span == null) {
+                if (record && record.w2ui && record.w2ui.colspan && record.w2ui.colspan[col.field]) {
+                    col_span = record.w2ui.colspan[col.field];
+                } else {
+                    col_span = 1;
+                }
+            }
             // expand icon
             if (col_ind == 0 && record && record.w2ui && Array.isArray(record.w2ui.children)) {
                 var level  = 0;
@@ -9894,11 +9907,13 @@ w2utils.event = {
             var check = col_ind + 1;
             if (this.columns.length == check) return null;
             var tmp  = this.records[index].w2ui;
+            var ccol = this.columns[col_ind];
+            // if (tmp && tmp.colspan[ccol.field]) check += parseInt(tmp.colspan[ccol.field]) -1; // colspan of a column
             var col  = this.columns[check];
-            var span = (tmp && tmp.colspan ? tmp.colspan[col.field] : 1);
+            var span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1);
             var edit = col ? col.editable : null;
             if (col == null) return null;
-            if (col && col.hidden || span == 0
+            if (col && col.hidden || span === 0
                     || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
                 return this.nextCell(index, check, editable);
             }
@@ -9910,10 +9925,10 @@ w2utils.event = {
             if (check < 0) return null;
             var tmp  = this.records[index].w2ui;
             var col  = this.columns[check];
-            var span = (tmp && tmp.colspan ? tmp.colspan[col.field] : 1);
+            var span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1);
             var edit = col ? col.editable : null;
             if (col == null) return null;
-            if (col && col.hidden || span == 0
+            if (col && col.hidden || span === 0
                     || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
                 return this.prevCell(index, check, editable);
             }
@@ -9922,6 +9937,7 @@ w2utils.event = {
 
         nextRow: function (ind, col_ind) {
             var sids = this.last.searchIds;
+            var ret  = null;
             if ((ind + 1 < this.records.length && sids.length == 0) // if there are more records
                     || (sids.length > 0 && ind < sids[sids.length-1])) {
                 ind++;
@@ -9929,14 +9945,22 @@ w2utils.event = {
                     if ($.inArray(ind, sids) != -1 || ind > this.records.length) break;
                     ind++;
                 }
-                return ind;
-            } else {
-                return null;
+                // colspan
+                var tmp  = this.records[ind].w2ui;
+                var col  = this.columns[col_ind];
+                var span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1);
+                if (span == 0) {
+                    ret = this.nextRow(ind, col_ind);
+                } else {
+                    ret = ind;
+                }
             }
+            return ret;
         },
 
         prevRow: function (ind, col_ind) {
             var sids = this.last.searchIds;
+            var ret  = null;
             if ((ind > 0 && sids.length == 0)  // if there are more records
                     || (sids.length > 0 && ind > sids[0])) {
                 ind--;
@@ -9944,10 +9968,17 @@ w2utils.event = {
                     if ($.inArray(ind, sids) != -1 || ind < 0) break;
                     ind--;
                 }
-                return ind;
-            } else {
-                return null;
+                // colspan
+                var tmp  = this.records[ind].w2ui;
+                var col  = this.columns[col_ind];
+                var span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1);
+                if (span == 0) {
+                    ret = this.prevRow(ind, col_ind);
+                } else {
+                    ret = ind;
+                }
             }
+            return ret;
         },
 
         selectionSave: function () {
