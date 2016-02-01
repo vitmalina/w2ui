@@ -28,6 +28,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - $().w2date(), $().w2dateTime()
 * == 1.5
 *   - added message
+*   - w2utils.keyboard is removed
 *
 ************************************************/
 

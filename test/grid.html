@@ -254,17 +254,17 @@ jQuery(function () {
             sdate: t,
             stime: dt,
             style1: 'background-color: #efefef',
-            w2ui: { children: [] },
+            w2ui: { children: [], colspan: { personid: 2 } },
         });
     }
 
-    w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan: { personid: 2 } };
-    w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan: { personid: 5 } };
-    w2ui.grid.records[6].w2ui = { children: w2ui.grid.records.splice(10, 10), colspan: { personid: 7 } };
-    w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
-    w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };
-    w2ui.grid.records[6].w2ui.children[1].w2ui.children[3].w2ui = { children: w2ui.grid.records.splice(10, 4) };
-    w2ui.grid.records[6].w2ui.children[9].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    // w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan: { personid: 2 } };
+    // w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan: { personid: 5 } };
+    // w2ui.grid.records[6].w2ui = { children: w2ui.grid.records.splice(10, 10), colspan: { personid: 7 } };
+    // w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    // w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    // w2ui.grid.records[6].w2ui.children[1].w2ui.children[3].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    // w2ui.grid.records[6].w2ui.children[9].w2ui = { children: w2ui.grid.records.splice(10, 4) };
 
     // w2ui.grid.records[4].w2ui.style = { fname: 'background-color: red' };
     w2ui.grid.records[10].w2ui.summary = true;
