@@ -989,3 +989,84 @@ var w2confirm = function (msg, title, callBack) {
         }
     };
 };
+
+var w2prompt = function (options, callBack) {
+    var $ = jQuery;
+    
+    options = {
+        label: options.label ? options.label : '',
+        value: options.value ? options.value : '',
+        title: options.title ? options.title : w2utils.lang('Notification'),
+        width: ($('#w2ui-popup').length > 0 ? 400 : 450),
+        height: ($('#w2ui-popup').length > 0 ? 170 : 220),
+        callBack: callBack ? callBack : null
+    }
+    
+    if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
+        if (options.width > w2popup.get().width) options.width = w2popup.get().width;
+        if (options.height > (w2popup.get().height - 50)) options.height = w2popup.get().height - 50;
+          w2popup.message({
+            width   : options.width,
+            height  : options.height,
+            body    : '<div class="w2ui-centered" style="font-size: 13px;"><div class="w2ui-field"><label>' + options.label + ':</label><div><input id="w2promt" style="width: 100%"></div></div></div>',
+            buttons : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + w2utils.lang('Ok') + '</button>',
+            onOpen: function () {
+                $('#w2promt').val(options.value);
+                $('#w2promt').w2field('text');
+                $('#w2ui-popup .w2ui-message .w2ui-btn').on('click.w2confirm', function (event) {
+                    w2popup._promt_value = $('#w2promt').val();
+                    w2popup.message();
+                });
+            },
+            onClose: function () {
+                // needed this because there might be other messages
+                $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2confirm');
+                // need to wait for message to slide up
+                setTimeout(function () {
+                    if (typeof options.callBack == 'function') options.callBack(w2popup._promt_value);
+                }, 300);
+            }
+            // onKeydown will not work here
+        });
+
+    } else {
+
+        if (!w2utils.isInt(options.height)) options.height = options.height + 50;
+        w2popup.open({
+            width      : options.width,
+            height     : options.height,
+            title      : options.title,
+            modal      : true,
+            showClose  : false,
+            body       : '<div class="w2ui-centered" style="font-size: 13px;"><div class="w2ui-field"><label>' + options.label + ':</label><div><input id="w2promt" style="width: 100%"></div></div></div>',
+            buttons    : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">'+ w2utils.lang('Ok') +'</button>',
+            onOpen: function (event) {
+                // do not use onComplete as it is slower
+                setTimeout(function () {
+                    $('#w2promt').val(options.value);
+                    $('#w2promt').w2field('text');
+                    $('#w2ui-popup .w2ui-popup-btn').on('click', function (event) {
+                        w2popup._promt_value = $('#w2promt').val();
+                        w2popup.close();
+                        if (typeof options.callBack == 'function') options.callBack(w2popup._promt_value);
+                    });
+                    $('#w2ui-popup .w2ui-popup-btn#Ok').focus();
+                }, 1);
+            },
+            onKeydown: function (event) {
+                // if there are no messages
+                if ($('#w2ui-popup .w2ui-message').length == 0) {
+                    switch (event.originalEvent.keyCode) {
+                        case 13: // enter
+                            $('#w2ui-popup .w2ui-popup-btn#Ok').focus().addClass('clicked'); // no need fo click as enter will do click
+                            w2popup.close();
+                            break;
+                        case 27: // esc
+                            w2popup.close();
+                            break;
+                    }
+                }
+            }
+        });
+    }
+};
