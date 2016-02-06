@@ -990,18 +990,36 @@ var w2confirm = function (msg, title, callBack) {
     };
 };
 
-var w2prompt = function (options, callBack) {
+var w2prompt = function (label, title, callBack) {
     var $ = jQuery;
-    
-    options = {
-        label       : options.label ? options.label : '',
-        value       : options.value ? options.value : '',
-        title       : options.title ? options.title : w2utils.lang('Notification'),
-        ok_text     : options.ok_text ? options.ok_text : w2utils.lang('Ok'),
-        cancel_text : options.cancel_text ? options.cancel_text : 'Cancel',
+        
+    var options  = {};
+    var defaults = {
+        label       : '',
+        value       : '',
+        title       : w2utils.lang('Notification'),
+        ok_text     : w2utils.lang('Ok'),
+        cancel_text : w2utils.lang('Cancel'),
         width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
         height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
-        callBack    : callBack ? callBack : null
+        callBack    : null
+    }
+    
+    if (arguments.length == 1 && typeof label == 'object') {
+        $.extend(options, defaults, label);
+    } else {
+        if (typeof title == 'function') {
+            $.extend(options, defaults, {
+                label   : label,
+                callBack: title
+            })
+        } else {
+            $.extend(options, defaults, {
+                label   : label,
+                title   : title,
+                callBack: callBack
+            })
+        }
     }
     
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
@@ -1010,26 +1028,25 @@ var w2prompt = function (options, callBack) {
           w2popup.message({
             width   : options.width,
             height  : options.height,
-            body    : '<div class="w2ui-centered" style="font-size: 13px;"><label style="margin-right: 10px;">' + options.label + ':</label><input id="w2promt"></div>',
+            body    : '<div class="w2ui-centered" style="font-size: 13px;"><label style="margin-right: 10px;">' + options.label + ':</label><input id="w2prompt"></div>',
             buttons : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
             onOpen: function () {
-                $('#w2promt').val(options.value);
-                $('#w2promt').w2field('text');
-                $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').on('click.w2confirm', function (event) {
-                    w2popup._promt_value = $('#w2promt').val();
+                $('#w2prompt').val(options.value);
+                $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').on('click.w2prompt', function (event) {
+                    w2popup._prompt_value = $('#w2prompt').val();
                     w2popup.message();
                 });
-                $('#w2ui-popup .w2ui-message .w2ui-btn#Cancel').on('click.w2confirm', function (event) {
-                    w2popup._promt_value = null;
+                $('#w2ui-popup .w2ui-message .w2ui-btn#Cancel').on('click.w2prompt', function (event) {
+                    w2popup._prompt_value = null;
                     w2popup.message();
                 });
             },
             onClose: function () {
                 // needed this because there might be other messages
-                $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2confirm');
+                $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2prompt');
                 // need to wait for message to slide up
                 setTimeout(function () {
-                    if (typeof options.callBack == 'function') options.callBack(w2popup._promt_value);
+                    if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                 }, 300);
             }
             // onKeydown will not work here
@@ -1044,22 +1061,22 @@ var w2prompt = function (options, callBack) {
             title      : options.title,
             modal      : true,
             showClose  : false,
-            body       : '<div class="w2ui-centered" style="font-size: 13px;"><label style="margin-right: 10px;">' + options.label + ':</label><input id="w2promt"></div>',
+            body       : '<div class="w2ui-centered" style="font-size: 13px;"><label style="margin-right: 10px;">' + options.label + ':</label><input id="w2prompt"></div>',
             buttons    : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () {
-                    $('#w2promt').val(options.value);
-                    $('#w2promt').w2field('text');
+                    $('#w2prompt').val(options.value);
+                    $('#w2prompt').w2field('text');
                     $('#w2ui-popup .w2ui-popup-btn#Ok').on('click', function (event) {
-                        w2popup._promt_value = $('#w2promt').val();
+                        w2popup._prompt_value = $('#w2prompt').val();
                         w2popup.close();
-                        if (typeof options.callBack == 'function') options.callBack(w2popup._promt_value);
+                        if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                     });
                     $('#w2ui-popup .w2ui-popup-btn#Cancel').on('click', function (event) {
-                        w2popup._promt_value = null;
+                        w2popup._prompt_value = null;
                         w2popup.close();
-                        if (typeof options.callBack == 'function') options.callBack(w2popup._promt_value);
+                        if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                     });
                     $('#w2ui-popup .w2ui-popup-btn#Ok').focus();
                 }, 1);
