@@ -127,6 +127,7 @@
         this.searchData   = [];
         this.sortData     = [];
         this.postData     = {};
+        this.httpHdrData  = {};
         this.toolbar      = {};       // if not empty object; then it is toolbar object
 
         this.show = {
@@ -233,10 +234,11 @@
             var searchData   = method.searchData;
             var sortData     = method.sortData;
             var postData     = method.postData;
-            var toolbar      = method.toolbar;
+            var httpHdrData  = method.httpHdrData;
+	    var toolbar      = method.toolbar;
             // extend items
             var object = new w2grid(method);
-            $.extend(object, { postData: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
+            $.extend(object, { postData: {},  httpHdrData: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
             if (object.onExpand != null) object.show.expandColumn = true;
             $.extend(true, object.toolbar, toolbar);
             // reassign variables
@@ -246,6 +248,7 @@
             if (searchData)   for (var p = 0; p < searchData.length; p++)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
             if (sortData)     for (var p = 0; p < sortData.length; p++)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
             object.postData = $.extend(true, {}, postData);
+	    object.httpHdrData = $.extend(true, {}, httpHdrData);
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
@@ -2158,13 +2161,14 @@
             }
             // append other params
             $.extend(params, this.postData);
+            $.extend(params, this.httpHdrData);
             $.extend(params, add_params);
             // event before
             if (cmd == 'get') {
-                var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
+                var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHdrData: params });
                 if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             } else {
-                var edata = { url: url, postData: params };
+                var edata = { url: url, postData: params, httpHdrData: params };
             }
             // call server to get data
             var obj = this;
@@ -2198,6 +2202,7 @@
                 type     : 'POST',
                 url      : url,
                 data     : edata.postData,
+                headers  : edata.httpHdrData,
                 dataType : 'text'  // expected data type from server
             };
             if (w2utils.settings.dataType == 'HTTP') {
