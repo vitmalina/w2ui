@@ -6,6 +6,7 @@
     margin: 0px;
     padding: 2px;
     outline: 0px;
+    position: relative;
     background-color: @toolbar-background-color;
     overflow: hidden !important;
     .user-select;
@@ -23,6 +24,7 @@
             margin: 0px 1px;
             border-radius: @toolbar-button-border-radius;
             height: 24px;
+            min-width: 24px;
             border: @toolbar-button-border;
             background-color: @toolbar-button-background-color;
 
@@ -30,7 +32,7 @@
                 width: 16px;
                 height: 16px;
                 padding: 0px;
-                margin: 5px 4px 3px 3px !important;
+                margin: 5px 1px 3px 3px !important;
                 border: 0px !important;
                 text-align: center;
                 // for font icon
@@ -39,7 +41,7 @@
                     display: block;
                     color: @toolbar-button-image-color;
                     &:before {
-                        vertical-align: top !important; 
+                        vertical-align: top !important;
                     }
                 }
             }
@@ -54,7 +56,7 @@
                 & > span {
                     border: @menu-node-count-border;
                     border-radius: 11px;
-                    width: auto; 
+                    width: auto;
                     height: 18px;
                     padding: 0px 6px 1px 6px;
                     background-color: @menu-node-count-background-color;
@@ -104,10 +106,10 @@
             border-radius: @toolbar-button-border-radius;
             cursor: default;
         }
-    } 
+    }
 
     .w2ui-break {
-        .linear-gradient-dark-center(@toolbar-break-color); 
+        .linear-gradient-dark-center(@toolbar-break-color);
         width: 1px !important;
         height: 22px;
         padding: 0px;

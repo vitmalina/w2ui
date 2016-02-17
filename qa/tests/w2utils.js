@@ -46,7 +46,7 @@ test( "w2utils.formatNumber()", function () {
         '1,000'       : '1000',
         '1,000.01'    : '1000.01',
         '1,000.0001'  : '1000.0001'
-    }
+    };
     equal( w2utils.formatNumber(), '',          "- no argument -" );
     equal( w2utils.formatNumber(''), '',        "- blank -" );
     equal( w2utils.formatNumber(null), '',      "- null -" );
@@ -74,8 +74,8 @@ test( "w2utils.formatDate()", function () {
         '2014-06-04 => Month dth, yyyy': 'June 4th, 2014',
         '2014-06-01 => Mon dth, yyyy'  : 'Jun 1st, 2014',
         '2014-06-02 => Mon dth, yyyy'  : 'Jun 2nd, 2014',
-        '2014-06-03 => Mon dth, yyyy'  : 'Jun 3rd, 2014',
-    }
+        '2014-06-03 => Mon dth, yyyy'  : 'Jun 3rd, 2014'
+    };
     equal( w2utils.formatDate(), '',          "- no argument -" );
     equal( w2utils.formatDate(''), '',        "- blank -" );
     equal( w2utils.formatDate(null), '',      "- null -" );
@@ -102,7 +102,7 @@ test( "w2utils.formatTime()", function () {
         '8:40:35 => hh24:mi:ss'    : '08:40:35',
         '18:40:35 => hh24:mi:ss'   : '18:40:35',
         '8:40:35 => hhh:mm:ss'     : '08:40:35'
-    }
+    };
     equal( w2utils.formatTime(), '',          "- no argument -" );
     equal( w2utils.formatTime(''), '',        "- blank -" );
     equal( w2utils.formatTime(null), '',      "- null -" );
@@ -127,7 +127,7 @@ test( "w2utils.formatDateTime()", function () {
         '2014-01-05 21:40:05 => mm/dd/yyyy|hh:mi pm'     : '01/05/2014 9:40 pm',
         '2014-01-05 21:40:05 => mm/dd/yyyy|hh:mi:ss pm'  : '01/05/2014 9:40:05 pm',
         '2014-01-05 21:40:05 => mm/dd/yyyy|h24:mi:ss'    : '01/05/2014 21:40:05',
-    }
+    };
     equal( w2utils.formatDateTime(), '',          "- no argument -" );
     equal( w2utils.formatDateTime(''), '',        "- blank -" );
     equal( w2utils.formatDateTime(null), '',      "- null -" );
@@ -162,7 +162,7 @@ test( "w2utils.formatSize()", function() {
         '2.1 MB'    : 1024*1024*2.1,
         '2.5 GB'    : 1024*1024*1024*2.5,
         '2.9 TB'    : 1024*1024*1024*1024*2.99
-    }
+    };
     equal( w2utils.formatSize(), '',          "- no argument -" );
     equal( w2utils.formatSize(''), '',        "- blank -" );
     equal( w2utils.formatSize(null), '',      "- null -" );
@@ -189,7 +189,7 @@ test( "w2utils.isInt()", function() {
         '--1'   : false,
         '1--'   : false,
         '1,000' : false     // should have no commas
-    }
+    };
     ok( w2utils.isInt() === false,          "- no argument -" );
     ok( w2utils.isInt('') === false,        "- blank -" );
     ok( w2utils.isInt(null) === false,      "- null -" );
@@ -222,7 +222,7 @@ test( "w2utils.isFloat()", function() {
         '1,000'     : false,
         '3.0E+2'    : true,
         '3.0E-2'    : true
-    }
+    };
     ok( w2utils.isFloat() === false,            "- no argument -" );
     ok( w2utils.isFloat('') === false,          "- blank -" );
     ok( w2utils.isFloat(null) === false,        "- null -" );
@@ -256,12 +256,14 @@ test( "w2utils.isMoney() - Default Format", function() {
         '$4,000'    : true,
         '$-4,000'   : true,
         '$+4,000'   : true,
+        '-$4,000'   : true,
+        '+$4,000'   : true,
         '1 000'     : false,
         '4.0€'      : false,
         '4 000€'    : false,
         '-4 000€'   : false,
         '+4 000€'   : false
-    }
+    };
     ok( w2utils.isMoney() === false,            "- no argument -" );
     ok( w2utils.isMoney('') === false,          "- blank -" );
     ok( w2utils.isMoney(null) === false,        "- null -" );
@@ -296,8 +298,8 @@ test( "w2utils.isMoney() - EU Format", function() {
         '4.00€'     : true,
         '4 000€'    : true,
         '-4 000€'   : true,
-        '+4 000€'   : true,
-    }
+        '+4 000€'   : true
+    };
     ok( w2utils.isMoney() === false,            "- no argument -" );
     ok( w2utils.isMoney('') === false,          "- blank -" );
     ok( w2utils.isMoney(null) === false,        "- null -" );
@@ -348,61 +350,67 @@ test( "w2utils.isDate()", function() {
 
 test( "w2utils.isTime()", function() {
     var values = {
-        1           : false,
-        0           : false,
-        '2'         : false,
-        '-1'        : false,
-        '+1'        : false,
-        '1.'        : false,
-        '1.0'       : false,
-        '1:0'       : false,
-        ':01'       : false,
-        ' :01'      : false,
-        '1:00'      : true,
-        '01:00'     : true,
-        '001:000'   : false,
-        '001:00'    : false,
-        '01:000'    : false,
-        '1 : 0'     : false,
-        '1PM'       : true,
-        '1AM'       : true,
-        '0AM'       : false,
-        '12AM'      : true,
-        '0PM'       : false,
-        '12PM'      : true,
-        '0:00AM'    : true,
-        '4:00'      : true,
-        '4:000'     : false,
-        '-4:00'     : false,
-        '1:00AM'    : true,
-        '13:00AM'   : false,
-        '12:00AM'   : true,
-        '12:01AM'   : true,
-        '00:00AM'   : true,
-        '13:00PM'   : false,
-        '12:00PM'   : true,
-        '12:01PM'   : true,
-        '00:00PM'   : true,
-        '13:00 PM'  : false,
-        '12:00 PM'  : true,
-        '00:00 PM'  : true,
-        ' 6:30 '    : true,
-        ' 6 : 30 '  : false,
-        ' 6 : 3 0 ' : false,
-        '13:00'     : true,
-        '23:00'     : true,
-        '24:00'     : true,
-        '24:01'     : false,
-        '25:00'     : false,
-        '12:00'     : true,
-        '12:01'     : true,
-        '12:59'     : true,
-        '11:60'     : false,
-        '11:-1'     : false,
-        '11:0'      : false,
-        '11:0AM'    : false,
-        '11:0 AM'   : false,
-        '00:00'     : true
+        1               : false,
+        0               : false,
+        '2'             : false,
+        '-1'            : false,
+        '+1'            : false,
+        '1.'            : false,
+        '1.0'           : false,
+        '1:0'           : false,
+        ':01'           : false,
+        ' :01'          : false,
+        '1:00'          : true,
+        '01:00'         : true,
+        '001:000'       : false,
+        '001:00'        : false,
+        '01:000'        : false,
+        '1 : 0'         : false,
+        '1PM'           : true,
+        '1AM'           : true,
+        '0AM'           : false,
+        '12AM'          : true,
+        '0PM'           : false,
+        '12PM'          : true,
+        '0:00AM'        : true,
+        '4:00'          : true,
+        '4:000'         : false,
+        '-4:00'         : false,
+        '1:00AM'        : true,
+        '13:00AM'       : false,
+        '12:00AM'       : true,
+        '12:01AM'       : true,
+        '00:00AM'       : true,
+        '13:00PM'       : false,
+        '12:00PM'       : true,
+        '12:01PM'       : true,
+        '00:00PM'       : true,
+        '13:00 PM'      : false,
+        '12:00 PM'      : true,
+        '00:00 PM'      : true,
+        ' 6:30 '        : true,
+        ' 6 : 30 '      : false,
+        ' 6 : 3 0 '     : false,
+        '13:00'         : true,
+        '23:00'         : true,
+        '24:00'         : true,
+        '24:01'         : false,
+        '25:00'         : false,
+        '12:00'         : true,
+        '12:01'         : true,
+        '12:59'         : true,
+        '11:60'         : false,
+        '11:-1'         : false,
+        '11:0'          : false,
+        '11:0AM'        : false,
+        '11:0 AM'       : false,
+        '00:00'         : true,
+        '12:02:43'      : true,
+        '12:02:43PM'    : true,
+        '11:00:33:43'   : false,
+        '03:45:11 AM'   : true,
+        '24:00:11'      : false,
+        '14:26:43 PM'   : false
     };
     ok( w2utils.isTime() === false,             "- no argument -" );
     ok( w2utils.isTime('') === false,           "- blank -" );
@@ -424,4 +432,9 @@ test( "w2utils.base64encode(), w2utils.base64decode()", function() {
         w2utils.base64decode(w2utils.base64encode('~!@#$%^&*()_+|}{":?><`;,./\\')) === '~!@#$%^&*()_+|}{":?><`;,./\\',
         "Text with special characters"
     );
+});
+
+test( "md5", function() {
+    ok(w2utils.md5('some')  === '03d59e663c1af9ac33a9949d1193505a', "md5('some')");
+    ok(w2utils.md5('other') === '795f3202b17cb6bc3d4b771d8c6c9eaf', "md5('other')");
 });

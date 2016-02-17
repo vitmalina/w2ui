@@ -1,0 +1,28 @@
+Defines flow of the tabs.
+
+<div class="definition">
+    String, default = 'down'
+</div>
+
+The <span class="argument">.flow</span> can be either 'up' or 'down' and define where tabs are pointing.
+<div style="height: 10px"></div>
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#tabs').w2tabs({
+    name: 'tabs',
+    flow: 'up',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' },
+        { id: 'tab3', text: 'Tab 3' },
+        { id: 'tab4', text: 'Tab 4' }
+    ]
+});
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui['tabs'].flow = 'down';
+w2ui['tabs'].refresh();
+</textarea>

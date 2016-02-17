@@ -1,7 +1,7 @@
 Resizes the panel with animation
 
 <div class="definition">
-    sizeTo(type, size)
+    sizeTo(type, size, [instant])
 </div>
 
 <div class="arguments">
@@ -13,6 +13,10 @@ Resizes the panel with animation
     <tr>
         <td>size</td>
         <td><b>integer</b>, new size</td>
+    </tr>
+    <tr>
+        <td>instant</td>
+        <td><b>boolean</b>, indicate if to perform resize of the panel instantly, (<i>optional</i>)</td>
     </tr>
     </table>
 </div>
@@ -29,8 +33,12 @@ The first argument <span class="argument">type</span> is the name of the panel. 
     <li>bottom
 </ul>
 
-The second argument <span class="argument">size</span> is the new size for the panel. For different types of panels it valies, for left 
+The second argument <span class="argument">size</span> is the new size for the panel. For different types of panels it valies, for left
 and right panels it is width, for all other panels it is height.
+<div style="height: 10px;"></div>
+
+For left and right panel you can define size as a negative value. If it is negative, it will take all availble width but the size value (in pixels)
+you defined.
 <div style="height: 10px;"></div>
 
 An example below illustrates the use of <span class="argument">resizeTo</span> method:
@@ -47,4 +55,3 @@ $('#layout').w2layout({
 
 w2ui['layout'].sizeTo('right', 100);
 </textarea>
-

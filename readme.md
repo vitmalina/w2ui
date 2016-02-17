@@ -18,8 +18,9 @@ The complete library is only **69Kb** (minified & gzipped)
 
 ## Who Uses It
 
-If you're using w2ui I'd love to hear about it and will be compiling a list of projects that use it. Please email me at vitmalina@gmail.com and
-if you can included name of you company (or project) and a link (if it is on a public website), that would be fantastic.
+If you're using w2ui I'd love to hear about it, please email to vitmalina@gmail.com name of your project and a link to a public website or demo and I will add it to the list.
+
+[List of projects that use w2ui](https://github.com/vitmalina/w2ui/wiki/Projects-that-use-w2ui)
 
 ## Quick Start
 
@@ -63,7 +64,7 @@ Please make sure that the same issue was not previously submitted by someone els
 
 ## Building
 
-I have switched to Grunt as a build tool. You will find Gruntfile.js in the root. You still can build with ANT if you are more comformatble with it. 
+I have switched to Grunt as a build tool. You will find Gruntfile.js in the root. You still can build with ANT if you are more comfortable with it.
 Both processes will produces same w2ui.js and w2ui.css files. Grunt has a few more tasks, such as watch, to auto compiles less and js files as you 
 develop. Both tools will do the following:
 
@@ -94,7 +95,7 @@ npm install
   - kickstart    - copy of another project used with the demos (not part of w2ui itself)
   - less         - LESS files (source for css)
 - demos          - all demos, same as on the website
-- libs           - auxilary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
+- libs           - auxiliary libraries (jquery, codemirror, etc.) used in the demos (not part of w2ui itself)
 - server         - example implementations for a server implementation communicating with w2ui instances
 - test           - feature testing files
 - qa             - some qunit test
@@ -109,6 +110,6 @@ Your contributions are welcome. However, few things you need to know before cont
 2. If you are changing JS files - do all changes in /src folder
 3. If you are changing CSS files - do all changes in LESS in /src/less/src
 4. If you want to help with unit test - do all changes in /qa
-5. If you want to change documenation - do all changes in /docs
+5. If you want to change documentation - do all changes in /docs
 6. If you want to add demos - do all changes in /demos
 

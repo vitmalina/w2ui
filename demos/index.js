@@ -8,7 +8,7 @@ $(function () {
             { type: 'main', style: 'background-color: white;' }
         ]
     });
-    w2ui['main_layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.4 Demos</div>');
+    w2ui['main_layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Demos</div>');
     // w2ui['main_layout'].content('top', '<div style="padding: 9px;">'+
     //     'Theme: '+
     //     '<select onchange="$(\'#mainCSS\').attr(\'href\', this.value);">'+
@@ -38,7 +38,7 @@ $(function () {
                     { id: 'combo-6', text: 'Layout & Dynamic Tabs', icon: 'fa-star-empty' },
                     { id: 'combo-7', text: 'Popup & Grid', icon: 'fa-star-empty' },
                     { id: 'combo-8', text: 'Popup & Layout', icon: 'fa-star-empty' },
-                    { id: 'combo-10', text: 'Dependent Fields', icon: 'fa-star-empty' },
+                    { id: 'combo-10', text: 'Dependent Fields', icon: 'fa-star-empty' }
                 ]
             },
             { id: 'layout', text: 'Layout', img: 'icon-folder', group1: true,
@@ -64,7 +64,7 @@ $(function () {
                     { id: 'grid-4', text: 'Data Source', icon: 'fa-table' },
                     { id: 'grid-5', text: 'Load Data Once', icon: 'fa-table' },
                     { id: 'grid-6', text: 'Single or Multi Select', icon: 'fa-table' },
-                    { id: 'grid-7', text: 'Sub Grids', icon: 'fa-table' },
+                    { id: 'grid-7', text: 'Tree-Like Grid', icon: 'fa-table' },
                     { id: 'grid-8', text: 'Show/Hide Columns', icon: 'fa-table' },
                     { id: 'grid-9', text: 'Add/Remove Records', icon: 'fa-table' },
                     { id: 'grid-10', text: 'Select/Unselect Records', icon: 'fa-table' },
@@ -82,17 +82,22 @@ $(function () {
                     { id: 'grid-22', text: 'Resizable Columns', icon: 'fa-table' },
                     { id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa-table' },
                     { id: 'grid-25', text: 'Re-Order Columns', icon: 'fa-table' },
-                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' },
+                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' }
                     //{ id: 'grid-27', text: 'Locked Columns', icon: 'fa-table' }
                 ]
             },
             { id: 'toolbar', text: 'Toolbar', img: 'icon-folder', group1: true,
                 nodes: [
                     { id: 'toolbar-1', text: 'Simple Toolbar', icon: 'fa-hand-up' },
-                    { id: 'toolbar-2', text: 'Advanced Toolbar', icon: 'fa-hand-up' },
+                    { id: 'toolbar-2', text: 'More Buttons Type', icon: 'fa-hand-up' },
                     { id: 'toolbar-3', text: 'Add/Remove Buttons', icon: 'fa-hand-up' },
                     { id: 'toolbar-4', text: 'Show/Hide Buttons', icon: 'fa-hand-up' },
-                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa-hand-up' }
+                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa-hand-up' },
+                    { id: 'toolbar-6', text: 'Menu Buttons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-7', text: 'Color Buttons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-8', text: 'Tooltips (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-9', text: 'Custom Butons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-10', text: 'Toolbar Overflow (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
             { id: 'sidebar', text: 'Sidebar', img: 'icon-folder', group1: true,
@@ -104,7 +109,9 @@ $(function () {
                     { id: 'sidebar-5', text: 'Expand/Collapse', icon: 'fa-hand-left' },
                     { id: 'sidebar-6', text: 'Select/Unselect', icon: 'fa-hand-left' },
                     { id: 'sidebar-8', text: 'Top & Bottom HTML', icon: 'fa-hand-left' },
-                    { id: 'sidebar-7', text: 'Events', icon: 'fa-hand-left' }
+                    { id: 'sidebar-7', text: 'Events', icon: 'fa-hand-left' },
+                    { id: 'sidebar-9', text: 'Flat Sidebar (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'sidebar-10', text: 'In/Out of Focus (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
             // { id: 'listview', text: 'ListView', img: 'icon-folder', group1: true,
@@ -123,7 +130,9 @@ $(function () {
                     { id: 'tabs-3', text: 'Closable Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-4', text: 'Add/Remove Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-5', text: 'Enable/Disabled Tabs', icon: 'fa-folder-close-alt' },
-                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa-folder-close-alt' }
+                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa-folder-close-alt' },
+                    { id: 'tabs-7', text: 'Tabs Overflow (1.5+)', icon: 'fa-folder-close-alt' },
+                    { id: 'tabs-8', text: 'Tooltips (1.5+)', icon: 'fa-folder-close-alt' }
                 ]
             },
             { id: 'forms', text: 'Forms', img: 'icon-folder', group1: true,
@@ -159,7 +168,9 @@ $(function () {
                     { id: 'popup-6', text: 'Transitions', icon: 'fa-list-alt' },
                     { id: 'popup-7', text: 'Slide a Message', icon: 'fa-list-alt' },
                     { id: 'popup-9', text: 'Lock Content', icon: 'fa-list-alt' },
-                    { id: 'popup-8', text: 'Dialogs', icon: 'fa-list-alt' }
+                    { id: 'popup-8', text: 'Dialogs', icon: 'fa-list-alt' },
+                    { id: 'popup-10', text: 'Keyboard (1.5+)', icon: 'fa-list-alt' },
+                    { id: 'popup-11', text: 'Messages (1.5+)', icon: 'fa-list-alt' }
                 ]
             },
             { id: 'utils', text: 'Utilities', img: 'icon-folder', group1: true,
@@ -167,7 +178,9 @@ $(function () {
                     { id: 'utils-1', text: 'Validation', icon: 'fa-star-empty' },
                     { id: 'utils-2', text: 'Encoding', icon: 'fa-star-empty' },
                     { id: 'utils-3', text: 'Transitions', icon: 'fa-star-empty' },
-                    { id: 'utils-4', text: 'Overlays', icon: 'fa-star-empty' }
+                    { id: 'utils-4', text: 'Tags (1.5+)', icon: 'fa-star-empty' },
+                    { id: 'utils-5', text: 'Overlays (1.5+)', icon: 'fa-star-empty' },
+                    { id: 'utils-6', text: 'Formatters (1.5+)', icon: 'fa-star-empty' },
                 ]
             }
         ],
@@ -213,9 +226,9 @@ $(function () {
                            '<html>\n'+
                            '<head>\n'+
                            '    <title>W2UI Demo: '+ cmd +'</title>\n'+
-                           '    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.1.min.css" />\n'+
+                           '    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" />\n'+
                            '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>\n'+
-                           '    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.1.min.js"></script>\n'+
+                           '    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>\n'+
                            '</head>\n'+
                            '<body>\n\n'+
                            html + '\n\n'+
@@ -237,9 +250,9 @@ $(function () {
                         '')+
                     '</div>'+
                     '<div style="display: none">'+
-                    '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.x/" method="post">'+
+                    '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.1/" method="post">'+
                     '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
-                    '    <textarea name="resources">http://w2ui.com/src/w2ui-1.4.1.min.js,http://w2ui.com/src/w2ui-1.4.1.min.css</textarea>'+
+                    '    <textarea name="resources">http://w2ui.com/src/w2ui-1.4.2.min.js,http://w2ui.com/src/w2ui-1.4.2.min.css</textarea>'+
                     '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
                     '    <textarea name="js">'+ js +'</textarea>'+
                     '    <textarea name="css">'+ css +'</textarea>'+
@@ -308,7 +321,7 @@ $(function () {
                 w2ui['demo-sidebar'].expand('utils');
                 w2ui['demo-sidebar'].click(tmp[1] || 'utils-1');
                 break;
-        };
+        }
     }, 100);
 });
 

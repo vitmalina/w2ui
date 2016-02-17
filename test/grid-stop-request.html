@@ -1,12 +1,13 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script>
+//<![CDATA[
 $(function () {
 
     $('#grid').w2grid({ 
@@ -97,15 +98,16 @@ $(function () {
             { field: 'email', caption: 'Email', size: '40%', resizable: true, sortable: true },
             { field: 'sdate', caption: 'Start Date', size: '120px', resizable: true, editable: { type: 'date', format: 'Mon dd, yyyy', inTag: 'style="background-color: red"' } },
             { field: 'sdate', caption: 'End Date', size: '120px', resizable: true },
-            { field: 'sdate', caption: 'Release Date', size: '120px', resizable: true },
+            { field: 'sdate', caption: 'Release Date', size: '120px', resizable: true }
         ],
         getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
     });
 });
+//]]>
 </script>
 </head>
 <body>
     <div id="grid" style="width: 100%; height: 500px;"></div>
-    <input type="button" value="destroy" onclick="$().w2destroy('grid');">
+    <input type="button" value="destroy" onclick="$().w2destroy('grid');"/>
 </body>
 </html>

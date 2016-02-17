@@ -10,7 +10,7 @@
     <a href="w2layout.panels">panels</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
-    Array of panel objects. 
+    Array of panel objects.
 </div>
 
 <div class="obj-property">

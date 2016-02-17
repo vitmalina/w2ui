@@ -1,8 +1,7 @@
 {
     "locale"         : "zh-cn",
-    "date_format"    : "yyyy-mm-dd",
-    "date_display"   : "yyyy-mm-dd",
-    "time_format"    : "HH:mm",
+    "dateFormat"    : "yyyy-mm-dd",
+    "timeFormat"    : "HH:mm",
     "currencyPrefix" : "¥",
     "currencySuffix" : "",
     "currencyPrecision": 2,
@@ -75,6 +74,7 @@
         "selected" : "条已选中",
         "Search took " : "查询耗时 ",
         " sec" : " 秒",
-        "Record ID" : "记录ID"
+        "Record ID" : "记录ID",
+        "Column" : "列"
     }
 }

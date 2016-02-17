@@ -1,5 +1,5 @@
 /*************************************************
-* --- Reset (used for all w2ui wdigetes)
+* --- Reset (used for all w2ui widgets)
 * --- The reset is needed to coexist with other CSS
 * --- on the same page (for example bootstrap)
 */
@@ -7,7 +7,7 @@
 .w2ui-reset {
     .box-sizing;
     font-family: @main-font-family;
-    font-size: 11px;        
+    font-size: 11px;
      * {
         color: default;
         line-height: 100%;
@@ -17,22 +17,30 @@
         // do not include any font-* properties
     }
     table {
-        font-family: @main-font-family;
-        font-size: 11px;
         max-width: none;
         background-color: transparent;
         border-collapse: separate;
         border-spacing: 0;
+        border: none;
     }
-    & input, & textarea {
+    table tr th, table tr td {
+        font-family: @main-font-family;
+        font-size: 11px;
+    }
+    input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),
+    select, textarea {
+        display: inline-block;
         width: auto;
         height: auto;
         vertical-align: baseline;
         padding: 4px;
+        margin: 0;
+        font-size: 11px;
     }
     select {
         padding: 1px;
         height: 23px;
+        font-size: 11px;
     }
 }
 
@@ -43,7 +51,7 @@
     top: 50%;
     .transform(translateY(-50%));
     max-height: 100%;
-    margin: 0px; 
+    margin: 0px;
     padding: 0px 10px;
     text-align: center;
 }
@@ -53,17 +61,56 @@
     color: #777 !important;
 }
 
+.w2ui-message { // slide down message
+    font-size: 12px;
+    position: absolute;
+    z-index: 250;
+    background-color: @message-background-color;
+    border: @message-border;
+    box-shadow: @message-shadow;
+    .box-sizing;
+    border-top: 0px;
+    border-radius: 0px 0px 6px 6px;
+    overflow: auto;
+
+    .w2ui-message-body {
+        position: absolute;
+        top: 0px;
+        bottom: 45px;
+        left: 0px;
+        right: 0px;
+        overflow: auto;
+        line-height: 1.5;
+        font-size: 14px;
+        & .w2ui-centered {
+            line-height: 1.5
+        }
+    }
+
+    .w2ui-message-buttons {
+        position: absolute;
+        height: 45px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        border-top: 1px solid #e5e5e5;
+        text-align: center;
+        padding: 8px;
+    }
+}
+
+
 /*************************************************
 * ---- Input Controls ----
 */
 
-input[type=button] {
+input[type=button].w2ui-input {
     .sys-button;
     &:hover { .sys-button-hover; }
     &:active { .sys-button-active; }
 }
 
-input:not([type=button]):not([type=submit]), select, textarea {
+input:not([type=button]):not([type=submit]).w2ui-input, textarea.w2ui-input {
     padding: 4px;
     border: @input-border;
     border-radius: 3px;
@@ -71,32 +118,71 @@ input:not([type=button]):not([type=submit]), select, textarea {
     background-color: @input-background-color;
     line-height: normal;
     &:focus {
-        outline-color: @input-focus-outline-color;    
+        outline-color: @input-focus-outline-color;
     }
     &:disabled, &[readonly] {
         background-color: #f1f1f1;
         color: #777;
-    }    
+    }
 }
 
 /* IE9-11 specific classes */
 
 /* needs doblue :: */
-input::-ms-clear { 
+input.w2ui-input::-ms-clear {
     display: none;
 }
 
-input:-ms-input-placeholder {
+input.w2ui-input:-ms-input-placeholder {
     color: #aaa !important;
 }
 
-select {
-    padding: 2px;
+select.w2ui-input {
+    color: @input-color;
+    padding: 4px 15px 4px 7px;
+    border-radius: 3px;
+    border: @input-border;
+    -webkit-appearance: none;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'),
+                      -webkit-linear-gradient(top,#FFF 20%,#f6f6f6 50%,#EEE 52%,#f4f4f4 100%);
+    background-size: 17px 6px, 100% 100%;
+    background-position: right center, left top;
+    background-repeat: no-repeat, no-repeat;
+}
+
+.w2ui-icon-expand {
+    &:before {
+        position: relative;
+        top: 1px;
+        left: 1px;
+        content: ' ';
+        width: 6px;
+        height: 6px;
+        border: 2px solid rgba(150, 150, 150, 0.8);
+        border-bottom: 0;
+        border-left: 0;
+        transform: rotateZ(45deg);
+    }
+}
+
+.w2ui-icon-collapse {
+    &:before {
+        position: relative;
+        top: -1px;
+        left: 3px;
+        content: ' ';
+        width: 6px;
+        height: 6px;
+        border: 2px solid rgba(150, 150, 150, 0.8);
+        border-bottom: 0;
+        border-left: 0;
+        transform: rotateZ(135deg);
+    }
 }
 
 /* On/Off switch */
 
-input[type="checkbox"].w2ui-toggle { 
+input[type="checkbox"].w2ui-toggle {
     position: absolute;
     opacity: 0;
     width: 46px;
@@ -109,7 +195,7 @@ input[type="checkbox"].w2ui-toggle {
 /* Track */
 input[type="checkbox"].w2ui-toggle + div {
     display: inline-block;
-    width: 46px;    
+    width: 46px;
     height: 22px;
     border: 1px solid #bbb;
     border-radius: 30px;
@@ -129,7 +215,7 @@ input[type="checkbox"].w2ui-toggle:disabled + div {
 /* Knob */
 input[type="checkbox"].w2ui-toggle + div > div {
     float: left;
-    width: 22px; 
+    width: 22px;
     height: 22px;
     border-radius: inherit;
     background: #f5f5f5;
@@ -176,77 +262,119 @@ input[type=checkbox].w2ui-toggle:focus {
 
 .w2ui-overlay {
     position: absolute;
-    margin-top: 6px;
+    margin-top: 4px;
     margin-left: -17px;
     display: none;
     z-index: 1300;
     color: @overlay-color;
     background-color: @overlay-background-color;
-    border: @overlay-border;
+    border-color: @overlay-background-color;
     box-shadow: @overlay-shadow;
     border-radius: 4px;
     text-align: left;
 
+    & > div {
+        border-radius: 4px;
+        position: relative;
+        border: @overlay-border-width solid @overlay-border-color;
+    }
+
     table td {
         color: @overlay-color;
     }
-    
+
     &:before {
         content: "";
         position: absolute;
-        .transform-rotate(-45deg);
-        width: 12px;
-        height: 12px;
-        border: @overlay-border;
         border-color: inherit;
-        background-color: inherit;
-        border-left: 1px solid transparent;
-        border-bottom: 1px solid transparent;
-        border-bottom-left-radius: 50px;
-        margin: -9px 0 0 30px;
     }
 
     &:after {
-        display: none;
         content: "";
         position: absolute;
-        .transform-rotate(135deg);
-        width: 12px;
-        height: 12px;
-        border: @overlay-border;
         border-color: inherit;
-        background-color: inherit;
-        border-left: 1px solid transparent;
-        border-bottom: 1px solid transparent;
-        border-bottom-left-radius: 50px;
-        margin: -7px 0 0 30px;
+        bottom: 100%;
+        left:@overlay-border-width + 1;
     }
 
-    &.w2ui-overlay-popup {    // if it is inside popup 
+    &.top-arrow {
+
+        &:before {
+            border-bottom: 12px solid darken(@overlay-border-color, 3%);
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            bottom: 100%;
+            margin-bottom: -@overlay-border-width;
+        }
+
+        &:after {
+            border-bottom: (12px - @overlay-border-width - 1) solid black;
+            border-bottom-color: inherit;
+            border-right: (12px - @overlay-border-width - 1) solid transparent;
+            border-left: (12px - @overlay-border-width - 1) solid transparent;
+            bottom: 100%;
+            margin-bottom: -@overlay-border-width;
+        }
+    }
+
+    &.bottom-arrow {
+
+        &:before {
+            border-top: 12px solid darken(@overlay-border-color, 3%);
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            top: 100%;
+            margin-top: -@overlay-border-width;
+        }
+
+        &:after {
+            border-top: (12px - @overlay-border-width - 1) solid black;
+            border-top-color: inherit;
+            border-right: (12px - @overlay-border-width - 1) solid transparent;
+            border-left: (12px - @overlay-border-width - 1) solid transparent;
+            top: 100%;
+            margin-top: -@overlay-border-width;
+        }
+    }
+
+    &.w2ui-overlay-popup {    // if it is inside popup
         z-index: 1700;
+    }
+
+    .w2ui-grid-searches {
+        border-top: @overlay-border-width solid @overlay-border-color !important;
+    }
+
+    .no-color {
+        border: 1px solid #eee;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==');
+        background-size: 15px 15px;
     }
 }
 
 .w2ui-tag {
-    position: absolute; 
-    z-index: 1300; 
-    opacity: 0; 
+    position: absolute;
+    z-index: 1300;
+    opacity: 0;
     .transition(opacity, 0.3s);
 
     .w2ui-tag-body {
-        background-color: @bubble-tag-background-color;
+        box-sizing: border-box;
         display: inline-block;
         position: absolute;
         border-radius: 3px;
         padding: 6px 10px;
         margin-left: 10px;
         margin-top: 0px;
+        background-color: @bubble-tag-background-color;
         color: @bubble-tag-color !important;
-        //box-shadow: @bubble-tag-shadow;
-        line-height: 100%;
         font-size: 11px;
-        font-family: @main-font-family;
-        &:before {
+        font-family: verdana;
+        text-shadow: 1px 1px 3px #000; // for sharper text in a bubble
+        line-height: 1.4;
+        letter-spacing: 0.1px;
+
+        &.w2ui-tag-right:before {
             content: "";
             position: absolute;
             width: 0;
@@ -256,8 +384,43 @@ input[type=checkbox].w2ui-toggle:focus {
             border-bottom: 6px solid transparent;
             margin: 0px 0 0 -16px;
         }
+
+        &.w2ui-tag-left:after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-left: 6px solid @bubble-tag-background-color;
+            border-bottom: 6px solid transparent;
+            margin: 0px 0 0 10px;
+        }
+
+        &.w2ui-tag-bottom:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-right: 6px solid transparent;
+            border-left: 6px solid transparent;
+            border-bottom: 6px solid @bubble-tag-background-color;
+            margin: -12px 0 0 2px;
+        }
+
+        &.w2ui-tag-top:after {
+            content: "";
+            position: absolute;
+            left: 12px;
+            bottom: -6px;
+            width: 0;
+            height: 0;
+            border-right: 6px solid transparent;
+            border-left: 6px solid transparent;
+            border-top: 6px solid @bubble-tag-background-color;
+        }
     }
-    &.w2ui-tag-popup {    // if it is inside popup 
+    &.w2ui-tag-popup {    // if it is inside popup
         z-index: 1700;
     }
 }
@@ -310,7 +473,7 @@ input[type=checkbox].w2ui-toggle:focus {
         & > span {
             border: @menu-node-count-border;
             border-radius: 20px;
-            width: auto; 
+            width: auto;
             height: 18px;
             padding: 2px 7px;
             margin: 3px 5px 0px 5px;
@@ -318,6 +481,14 @@ input[type=checkbox].w2ui-toggle:focus {
             color: @menu-node-count-color;
             box-shadow: @menu-node-count-shadow;
             text-shadow: @menu-node-count-text-shadow;
+        }
+        & > span.hotkey {
+            border: none;
+            border-radius: 0px;
+            background-color: transparent !important;
+            color: #888;
+            box-shadow: none;
+            text-shadow: none;
         }
     }
 
@@ -343,7 +514,7 @@ input[type=checkbox].w2ui-toggle:focus {
         font-size: 14px;
         color: @drop-menu-image-color;
         display: inline-block;
-        padding-top: 4px;        
+        padding-top: 4px;
     }
 }
 
@@ -394,7 +565,7 @@ input[type=checkbox].w2ui-toggle:focus {
 
 .w2ui-lock {
     display: none;
-    position: absolute; 
+    position: absolute;
     z-index: 1400;
     top: 0px;
     left: 0px;
@@ -426,9 +597,46 @@ input[type=checkbox].w2ui-toggle:focus {
     border-radius: 5px;
     border: @lock-msg-border;
     .w2ui-spinner {
-        display: inline-block; 
-        width: 24px; 
-        height: 24px; 
+        display: inline-block;
+        width: 24px;
+        height: 24px;
         margin: -3px 8px -7px -10px;
     }
+}
+
+/*************************************************
+* ---- Scroll contet, used in toolbar and tabs ----
+*/
+
+.w2ui-scroll-wrapper {
+    overflow: hidden;
+}
+
+.w2ui-scroll-left,
+.w2ui-scroll-right {
+    top: 0;
+    width: 18px;
+    height: 100%;
+    cursor: default !important;
+    z-index: 10;
+    display: none;
+    position: absolute;
+
+    &:hover {
+        background-color: @overflow-hover-background-color;
+    }
+}
+
+.w2ui-scroll-left {
+    left: 0;
+    box-shadow: 0px 0px 7px #5F5F5F;
+    background: @overflow-background-color @image-less center center no-repeat;
+    background-size: 15px 12px;
+}
+
+.w2ui-scroll-right {
+    right: 0;
+    box-shadow: 0px 0px 7px #5F5F5F;
+    background: @overflow-background-color @image-more center center no-repeat;
+    background-size: 15px 13px;
 }

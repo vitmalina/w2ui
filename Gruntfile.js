@@ -134,7 +134,7 @@ module.exports = function (grunt) {
                     banner: w2ui
                 },
                 files: {
-                    'dist/w2ui.min.js': 'dist/w2ui.js',
+                    'dist/w2ui.min.js': 'dist/w2ui.js'
                 }
             },
             fields: { 
@@ -142,7 +142,7 @@ module.exports = function (grunt) {
                     banner: fields
                 },
                 files: {
-                    'dist/w2ui-fields.min.js': 'dist/w2ui-fields.js',
+                    'dist/w2ui-fields.min.js': 'dist/w2ui-fields.js'
                 }
             },
             ks: { 
@@ -150,7 +150,7 @@ module.exports = function (grunt) {
                     banner: ks
                 },
                 files: {
-                    'dist/kickstart.min.js': 'dist/kickstart.js',
+                    'dist/kickstart.min.js': 'dist/kickstart.js'
                 }
             }
         },

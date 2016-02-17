@@ -1,0 +1,27 @@
+{
+    "name": "w2ui-server",
+    "description": "W2ui node/mongo server",
+    "version": "0.0.1",
+    "main": "server.js",
+    "author": {
+        "name": "Olof Astrand",
+        "email": "olof.astrand@gmail.com"
+    },
+    "keywords": [],
+    "licenses": {
+        "type": "none"
+    },
+    "dependencies": {
+      "body-parser": "^1.5.2",
+      "morgan" : "*",
+      "mongodb":"*",
+      "express": "^4.7.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/vitmalina/w2ui.git"
+    },
+    "bugs": {
+        "url": "http://github.com/vitmalina/w2ui/issues"
+    }
+}

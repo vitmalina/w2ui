@@ -1,0 +1,80 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../src/w2utils.js"></script>
+<script type="text/javascript" src="../src/w2tabs.js"></script>
+<script type="text/javascript" src="../src/w2toolbar.js"></script>
+<script type="text/javascript" src="../src/w2fields.js"></script>
+<script type="text/javascript" src="../src/w2popup.js"></script>
+<script type="text/javascript" src="../src/w2grid.js"></script>
+<script>
+//<![CDATA[
+$(function () {
+    $('#grid').w2grid({ 
+        name : 'grid1', 
+        show : { 
+            toolbar     : true,
+            footer      : true,
+            lineNumbers : true,
+            toolbarDelete: true,
+            selectColumn : false
+        },
+        selectType: 'cell',
+        columns: []
+    });
+    // generate columns
+    var letters = 'abcdefghijklmnopqrstuvwxyz';
+    var dletters = letters.split('');
+    for (var i = 0; i < letters.length; i++) {
+        var j = 0;
+        // for (var j = 0; j < letters.length; j++) {
+            dletters.push(letters[j] + letters[i]);
+        // }
+    }
+    var useGroups = true;
+    if (useGroups) {
+        w2ui.grid1.columnGroups.push({ span: 2, caption: 'a - b' }); // frozen
+        w2ui.grid1.columnGroups.push({ span: 2, caption: 'c - d' });
+    }
+    for (var i = 0; i < dletters.length; i++) {
+        w2ui.grid1.columns.push({
+            field: dletters[i],
+            caption: '<div style="text-align: center">'+ dletters[i].toUpperCase() + '</div>',
+            size: (100 + 0) + 'px',
+            editable: { type: 'div' }
+        });
+        if (useGroups && i >= 4 && (i % 4) == 0) {
+            var end = Math.min(i+3, dletters.length - 1);
+            w2ui.grid1.columnGroups.push({
+                span: end - i + 1,
+                caption: dletters[i]+" - "+dletters[end]
+            });       
+        }
+    }
+
+    // add 10k records
+    for (var i = 0; i < 310; i++) {
+        var rec = { recid: i + 10 };
+        for (var j = 0; j < dletters.length; j++) {
+            rec[dletters[j]] = dletters[j] + (i + 1);
+        }
+        w2ui['grid1'].records.push(rec);
+    }
+    w2ui.grid1.columns[0].hidden = true;
+    w2ui.grid1.columns[3].hidden = true;
+    w2ui.grid1.columns[0].frozen = true;
+    w2ui.grid1.columns[1].frozen = true;
+    w2ui.grid1.records[1].summary = true;
+    w2ui.grid1.records[2].summary = true;
+    // w2ui.grid1.records[5].w2ui = { colspan: { f: 2 } };
+    // w2ui.grid1.records[3].style = { 4: 'background-color: red !important' };
+    w2ui.grid1.refresh();
+});
+//]]>
+</script>
+</head>
+<body>
+    <div id="grid" style="width: 1024px; height: 568px;"></div>
+</body>
+</html>

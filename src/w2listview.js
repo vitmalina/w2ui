@@ -10,7 +10,7 @@
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2listview = function (options) {
         this.box           = null;        // DOM Element that holds the element
         this.name          = null;        // unique name for w2ui
@@ -697,4 +697,4 @@
 
     $.extend(w2listview.prototype, w2utils.event);
     w2obj.listview = w2listview;
-})();
+})(jQuery);

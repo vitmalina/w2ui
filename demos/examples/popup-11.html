@@ -1,0 +1,39 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Alert and Confirm inside Popup (new in 1.5)</h1>
+        When popup is open, you can also use w2alert(), w2confirm() or stack messages on top of it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="popup()">Open Popup</button>
+
+<!--CODE-->
+<script>
+var counter;
+function popup() {
+    w2popup.open({
+        width   : 580,
+        height  : 350,
+        title   : 'Title',
+        body    : '<div class="w2ui-centered">This is text inside the popup</div>',
+        buttons : '<button class="w2ui-btn" onclick="w2alert(\'alert\')">Alert</button>'+
+                  '<button class="w2ui-btn" onclick="w2confirm(\'confirm\')">Confirm</button>'+
+                  '<button class="w2ui-btn" onclick="counter = 0; show();">Message</button>',
+        showMax : true
+    });
+}
+
+function show() {
+    w2popup.message({
+        width   : 350,
+        height  : 170,
+        body    : '<div class="w2ui-centered">Are you sure (click No). ' + (counter || '') + '</div>',
+        buttons : '<button class="w2ui-btn" onclick="w2popup.message()">Ok</button>'+
+                  '<button class="w2ui-btn" onclick="show()">More</button>'
+    });
+    counter++;
+}
+</script>

@@ -7,6 +7,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2popup.resizeMessages">resizeMessages</a> <span>- resizeMessage()</span>
+</div>
+<div class="obj-property-desc">
+    Resized opened messages within popup.
+</div>
+
+<div class="obj-property">
     <a href="w2popup.status">status</a> <span>- String, default 'closed'</span>
 </div>
 <div class="obj-property-desc">

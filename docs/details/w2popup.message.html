@@ -7,29 +7,31 @@ Displays a message at the top of current popup.
 <h4>Description</h4>
 
 The popup must exists. There can be only one popup window on the screen at any given time. Occasionally, you need to display
-a short message while popup still open. The <span class="argument">message</span> method allows you to do just that. 
-The method will slide an overlay at the top of the current popup. 
+a short message while popup still open. The <span class="argument">message</span> method allows you to do just that.
+The method will slide an overlay at the top of the current popup.
 <div style="height: 10px"></div>
 
-The second argument <span class="argument">msgOptions</span> is a map 
+The second argument <span class="argument">msgOptions</span> is a map
 of properties as follows:
 
 <textarea class="javascript">
 options: {
-    html         : '',      // html of the message
-    width        : 10,      // width in px
-    height       : 10,      // height in px
-    hideOnClick  : true,    // if true, hide message if user clicks on it.
-    onOpen       : null,    // function to execute when message opens
-    onClose      : null     // function to execute when message closes
+    html        : '',   // html of the message
+    body        : '',   // similar to body in w2popup, can be used instead of options.html
+    buttons     : '',   // similar to buttons in w2popup, can be used instead of options.html
+    width       : 10,   // width in px (if negative, then it is 100% of popup in message.width)
+    height      : 10,   // height in px (if negative, then it is 100% of popup in message.height)
+    hideOnClick : true, // if true, hide message if user clicks on it
+    onOpen      : null, // function to execute when message opens
+    onClose     : null  // function to execute when message closes
 }
 </textarea>
 
 To display the message
 <textarea class="javascript">
-w2popup.message({ 
-    width  : 200, 
-    height : 60, 
+w2popup.message({
+    width  : 200,
+    height : 60,
     html   : '<div class="w2ui-centered"><div style="padding: 10px;">'+
              '        message '+
              '</div></div>'

@@ -102,3 +102,81 @@ test( "w2grid().hideSearch(), w2grid.showSearch()", function() {
 
     $().w2destroy('grid');
 });
+
+// === mergeChanges
+
+test( "w2grid().mergeChanges()", function() {
+
+    $().w2grid({ 
+        name: 'grid', 
+        records: [
+        ]        
+    });
+
+    var values = [
+        { 
+            changed: { 
+                recid: 1, 
+                "a-fname": "John", 
+                "a-lname": "Motzart", 
+                "b'day": "1/1/2001", 
+                basket: "5.19", 
+                email: "jdoe@gmail.com", 
+                sdate: "4/3/2012", 
+                changes: { 
+                    "a-fname": "Mark", 
+                    "a-lname": { id: "2", text: "Gatos" }, 
+                    "b'day": "2/2/2002",
+                    basket: "1.51", 
+                    email: "mdoe@gmail.com", 
+                    sdate: "5/5/2015" 
+                }
+            },
+            merged: { 
+                recid: 1, 
+                "a-fname": "Mark", 
+                "a-lname": "Gatos", 
+                "b'day": "2/2/2002",
+                basket: "1.51", 
+                email: "mdoe@gmail.com", 
+                sdate: "5/5/2015"
+            }
+        },
+        {
+            changed: { 
+                recid: 1, 
+                name: { 
+                    "a-fname": "John", 
+                    "a-lname": "Motzart", 
+                    basket: "5.19", 
+                    email: "jdoe@gmail.com", 
+                    sdate: "4/3/2012" 
+                },
+                changes: {
+                    "name.a-fname": "Mark", 
+                    "name.a-lname": { id: "2", text: "Gatos" }, 
+                    "name.basket": "1.51", 
+                    "name.email": "mdoe@gmail.com", 
+                    "name.sdate": "5/5/2015"
+                }
+            },
+            merged: { 
+                recid: 1, 
+                name: { 
+                    "a-fname": "Mark", 
+                    "a-lname": "Gatos", 
+                    basket: "1.51", 
+                    email: "mdoe@gmail.com", 
+                    sdate: "5/5/2015" 
+                } 
+            }
+        }
+    ];
+
+    for (var i = 0; i < values.length; i++) {
+        w2ui.grid.records = [values[i].changed];
+        w2ui.grid.mergeChanges();
+        deepEqual(w2ui.grid.get(1), values[i].merged, 'Changes #'+i);
+    }
+    $().w2destroy('grid');
+});

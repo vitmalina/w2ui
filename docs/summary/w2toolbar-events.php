@@ -3,7 +3,7 @@
     <a href="w2toolbar.onClick">onClick</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when toolbar item is clicked. 
+    Called when toolbar item is clicked.
 </div>
 
 </div>

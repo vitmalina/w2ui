@@ -24,7 +24,7 @@ var people = [
     { id: 5, text: 'Addy Osmani' },
     { id: 6, text: 'Paul Irish' },
     { id: 7, text: 'Doug Crocford' },
-    { id: 8, text: 'Nicolas Cage' },
+    { id: 8, text: 'Nicolas Cage' }
 ];
 
 $(function () {
@@ -62,14 +62,14 @@ $(function () {
                 editable: { type: 'list', items: people, showAll: true },
                 render: function (record, index, col_index) {
                     var html = this.getCellValue(index, col_index);
-                    return html.text || '';
+                    return html || '';
                 }
             },
             { field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, 
-                editable: { type: 'combo', items: people, showAll: true } 
+                editable: { type: 'combo', items: people, filter: false } 
             },
             { field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true, 
-                editable: { type: 'select', items: people }, 
+                editable: { type: 'select', items: [{ id: '', text: '' }].concat(people) }, 
                 render: function (record, index, col_index) {
                     var html = '';
                     for (var p in people) {
@@ -78,9 +78,9 @@ $(function () {
                     return html;
                 }
             },
-            { field: 'check', caption: 'check', size: '60px', sortable: true, resizable: true, 
-                editable: { type: 'checkbox' } 
-            },
+            { field: 'check', caption: 'check', size: '60px', sortable: true, resizable: true, style: 'text-align: center',
+                editable: { type: 'checkbox', style: 'text-align: center' } 
+            }
         ],
         toolbar: {
             items: [

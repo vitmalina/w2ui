@@ -14,6 +14,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2popup.focus">focus</a> <span>- focus()</span>
+</div>
+<div class="obj-property-desc">
+    Sets keyboard focus to popup.
+</div>
+
+<div class="obj-property">
     <a href="w2popup.get">get</a> <span>- get()</span>
 </div>
 <div class="obj-property-desc">
@@ -88,6 +95,13 @@
 </div>
 <div class="obj-property-desc">
     Resizes existing popup.
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.restoreTemplate">restoreTemplate</a> <span>- restoreTemplate()</span>
+</div>
+<div class="obj-property-desc">
+    Restores original template.
 </div>
 
 <div class="obj-property">

@@ -1,8 +1,7 @@
 {
     "locale"         : "ru-RU",
-    "date_format"    : "dd/mm/yyyy",
-    "date_display"   : "Mon dd, yyyy",
-    "time_format"    : "h24",
+    "dateFormat"    : "dd/mm/yyyy",
+    "timeFormat"    : "h24",
     "currency"       : "^[-+]?[0-9]*[\\.]?[0-9]+RUB$",
     "currencyPrefix" : "",
     "currencySuffix" : "RUB",
@@ -31,6 +30,7 @@
         "Return data is not in JSON format. See console for more information." : "Возвращенные данные не в формате JSON. Смотрите в консоли ошибки.",
         "Refreshing..." : "Обновление...",
         "All Fields" : "Все поля",
+        "Clear Search": "Очистить поиск",
         "Multi Fields" : "Несколько полей",
         "Delete Confirmation": "Подтверждение удаления",
         "Ok": "OK",
