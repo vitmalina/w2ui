@@ -136,7 +136,7 @@ public class W2uiGridExample extends W2uiGridData implements Servlet {
 		// apply offset and limit
 		int offset = 0;
 		if (reqParams.has("offset")) {
-			reqParams.getInt("offset");
+			offset = reqParams.getInt("offset");
 			if (offset < 0) {
 				offset = 0;
 			}

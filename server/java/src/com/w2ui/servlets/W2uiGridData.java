@@ -51,11 +51,10 @@ public abstract class W2uiGridData extends HttpServlet {
 			checkUserRights(request);
 			
 			JSONObject reqParams = requestToJson(request);
-			
-			String cmd = reqParams.getString("cmd");
-			if (cmd == null) {
+			if ( !reqParams.has("cmd") ) {
 				throw new Exception("cmd not set");
 			}
+			String cmd = reqParams.getString("cmd");
 			if ( cmd.equals("save-records") ) {
 				processSaveRecords(reqParams);
 			} else if ( cmd.equals("save-record") ) {
