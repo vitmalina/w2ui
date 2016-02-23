@@ -100,7 +100,9 @@
         "No matches": "Ni zadetkov",
         "letters or more...": "črke ali več...",
         "Type to search...": "Vnesi za iskanje...",
-        "Field should be equal to ": "Polje naj bo enako kot: "
+        "Field should be equal to ": "Polje naj bo enako kot: ",
+        "Select Hour": "Izberi uro",
+        "Select Minute": "Izberi minuto"
     }
 }
 
