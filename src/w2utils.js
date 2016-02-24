@@ -1675,6 +1675,14 @@ w2utils.formatters = {
 
     'toggle': function (value, params) {
         return (value ? 'Yes' : '');
+    },
+	
+	'password': function (value, params) {
+    	var ret = "";
+		for (var i=0; i < value.length; i++) {
+			ret += "*";
+		}
+		return ret;
     }
 };
 

@@ -51,19 +51,18 @@ public abstract class W2uiGridData extends HttpServlet {
 			checkUserRights(request);
 			
 			JSONObject reqParams = requestToJson(request);
-			
-			String cmd = reqParams.getString("cmd");
-			if (cmd == null) {
+			if ( !reqParams.has("cmd") ) {
 				throw new Exception("cmd not set");
 			}
+			String cmd = reqParams.getString("cmd");
 			if ( cmd.equals("save-records") ) {
 				processSaveRecords(reqParams);
-			} else if ( cmd.equals("save-record") ) {
+			} else if ( cmd.equals("save-record") || cmd.equals("save") ) {
 				processSaveRecord(reqParams);
 			} else if ( cmd.equals("delete-records") ) {
 				int[] ids = paramToIntVector(reqParams, "selected");
 				processDeleteRecords(ids);
-			} else if (cmd.equals("get-records")) {
+			} else if (cmd.equals("get-records") || cmd.equals("get")) {
 				JSONArray array = processGetRecords(reqParams);
 				jsobj.put("total", array.length());
 				jsobj.put("records", array);
@@ -89,6 +88,7 @@ public abstract class W2uiGridData extends HttpServlet {
 	private JSONArray readArray(HttpServletRequest request, String arrayName) {
 		int cnt=0;
 		JSONArray ret = new JSONArray();
+		boolean found = false;
 		while(true) {
 			JSONObject jsobj = null;
 			String nameTmp = arrayName+"["+cnt+"]";
@@ -98,6 +98,7 @@ public abstract class W2uiGridData extends HttpServlet {
 				if ( !name.startsWith(nameTmp) ) {
 					continue;
 				}
+				found = true;
 				String fieldName = name.substring(nameTmp.length()).replace("[", "").replace("]", "");
 				if (jsobj == null) {
 					// is the first value of this entry
@@ -121,6 +122,9 @@ public abstract class W2uiGridData extends HttpServlet {
 			ret.put(jsobj);
 			cnt++;
 		}
+		if ( !found ) {
+			return null;
+		}
 		return ret;
 	}
 	
@@ -143,11 +147,23 @@ public abstract class W2uiGridData extends HttpServlet {
 	}
     
 	private JSONObject requestToJson(HttpServletRequest request) {
-    	JSONObject jsobj = new JSONObject();
+		// first it checks if the parameter request has been passed with a valid json
+		String reqJson = request.getParameter("request");
+		if ( reqJson != null ) {
+			try {
+				JSONObject jsobj = new JSONObject(reqJson);
+				return jsobj;
+			} catch (Exception ex) {
+			}
+			// if we are here "request" is not a valid json
+		}
+		JSONObject jsobResult = new JSONObject();
+		// secondly it checks the classic way
 		Enumeration<String> names = request.getParameterNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
-			if ( name.startsWith("search") || name.startsWith("sort")) {
+			if ( name.startsWith("search") || name.startsWith("sort") || 
+				name.startsWith("changes") ) {
 				// these are treated later
 				continue;
 			}
@@ -173,29 +189,57 @@ public abstract class W2uiGridData extends HttpServlet {
 			if (pos1 > 0) {
 				int pos2 = localName.indexOf(']', pos1);
 				if (pos2 > 0) {
-					// found!
-					String objName = localName.substring(0, pos1);
-					String fieldName = localName.substring(pos1+1, pos2);
-					JSONObject jsobj2 = new JSONObject();
-					if ( jsobj.has(objName) ) {
-						jsobj2 = jsobj.getJSONObject(objName);
+					// found first level
+					String objName1 = localName.substring(0, pos1);
+					String fieldName1 = localName.substring(pos1+1, pos2);
+					JSONObject jsobj1 = new JSONObject();
+					if ( jsobResult.has(objName1) ) {
+						jsobj1 = jsobResult.getJSONObject(objName1);
 					}
-					jsobj2.put(fieldName, value);
-					jsobj.put(objName, jsobj2);					
+					// check if there is a second level
+					int pos3 = localName.indexOf('[', pos2);
+					if (pos3 > 0) {
+						int pos4 = localName.indexOf(']', pos3);
+						if (pos4 > 0) {
+							String objName2 = fieldName1;
+							String fieldName2 = localName.substring(pos3+1, pos4);
+							JSONObject jsobj2 = new JSONObject();
+							if ( jsobj1.has(objName2) ) {
+								jsobj2 = jsobj1.getJSONObject(objName2);
+							}
+							jsobj2.put(fieldName2, value);
+							jsobj1.put(objName2, jsobj2);
+						} else {
+							// we should not arrive here ....
+							jsobj1.put(fieldName1, value);
+						}
+					} else {
+						jsobj1.put(fieldName1, value);
+					}
+					jsobResult.put(objName1, jsobj1);					
 					continue;
 				}
 			}
 			
-			jsobj.put(localName, value);
+			jsobResult.put(localName, value);
 		}
 		
 		JSONArray arr = readArray(request, "sort");
-		jsobj.put("sort", arr);
-		
+		if (arr != null) {
+			jsobResult.put("sort", arr);
+		}
+
 		arr = readArray(request, "search");
-		jsobj.put("search", arr);
-						
-		return jsobj;
+		if (arr != null) {
+			jsobResult.put("search", arr);
+		}
+				
+		arr = readArray(request, "changes");
+		if (arr != null) {
+			jsobResult.put("changes", arr);
+		}
+		
+		return jsobResult;
     }
   
     /**
@@ -213,9 +257,9 @@ public abstract class W2uiGridData extends HttpServlet {
      * @throws Exception
      */
     protected JSONObject processGetRecord(JSONObject reqParams) throws Exception {
-    	throw new Exception ("Save not implemented");
+    	throw new Exception ("GetRecord not implemented");
     }
-
+    
     /**
      * processSaveRecords: save records on database in case command is "save-records"
      * If you need to save records implement this function in child class
