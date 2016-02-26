@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2layout.js"></script>
@@ -8,21 +8,22 @@
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
 <script>
 //<![CDATA[
-$(function () {
-    $('#layout').w2layout({
+jQuery.noConflict();
+jQuery(function () {
+    jQuery('#layout').w2layout({
         name: 'layout',
         panels: [
             { type: 'top', size: '20%', resizable: true },
             { type: 'left', size: '-300px', resizable: true, title: 'Some Title' },
-            { type: 'main', 
+            { type: 'main',
                 title: 'Main Panel Title',
                 content: 'some',
-                content1: '<iframe style="width: 100%; height: 100%; border: 1px solid red;" src="http://refdesk.com"></iframe>', 
+                content1: '<iframe style="width: 100%; height: 100%; border: 1px solid red;" src="http://refdesk.com"></iframe>',
                 style: 'border: 1px solid green',
                 tabs: {
                     active : 'tab1',
                     tabs : [
-                        { id: 'tab1', caption: 'General' }, 
+                        { id: 'tab1', caption: 'General' },
                         { id: 'tab2', caption: 'Additional' },
                         { id: 'tab3', caption: 'tab3', closable: true },
                         { id: 'tab4', caption: 'tab4', closable: true }
@@ -49,7 +50,7 @@ $(function () {
                 tabs1: {
                     active : 'tab3',
                     tabs : [
-                        { id: 'tab1', caption: 'General' }, 
+                        { id: 'tab1', caption: 'General' },
                         { id: 'tab2', caption: 'Additional' },
                         { id: 'tab3', caption: 'tab3', closable: true },
                         { id: 'tab4', caption: 'tab4', closable: true }

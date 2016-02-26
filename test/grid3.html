@@ -44,6 +44,22 @@ $(function () {
         menu: ['some', 'other'],
         onContextMenu: function (event) {
             // console.log('context', event);
+        },
+        onSelectionExtend: function (event) {
+            console.log('extend', event);
+        },
+        onColumnSelect: function (event) {
+            console.log('column', event);
+            // event.preventDefault();
+        },
+        onSelect: function (event) {
+            console.log('select', event);
+        },
+        onFocus: function (event) {
+            console.log('focus');
+        },
+        onBlur: function (event) {
+            console.log('blur');
         }
     });
     w2ui.grid.on('onContextMenu', function (event) {
@@ -64,13 +80,13 @@ $(function () {
     w2ui.grid.records[1].d = 'This is some long text in cell C and some and event more then this';
     // w2ui.grid.records[1].e = '0';
     // w2ui.grid.records[1].f = '1';
-    w2ui.grid.records[1].w2ui = { colspan: { d: 1 }, softspan: { d: 3 } };
+    w2ui.grid.records[1].w2ui = { colspan: { d: 3 } };
     w2ui.grid.records[1].c = 'CC1';
-    // w2ui.grid.records[2].w2ui = { colspan: { e: 4 } };
+    w2ui.grid.records[2].w2ui = { colspan: { e: 4 } };
     w2ui.grid.records[2].e = 'This is some long text in cell E';
-    // w2ui.grid.records[3].w2ui = { colspan: { e: 3 } };
+    w2ui.grid.records[3].w2ui = { colspan: { e: 3 } };
+    w2ui.grid.records[6].w2ui = { colspan: { e: 2 } };
     w2ui.grid.records[3].e = 'This is some long text in cell E';
-    w2ui.grid.records[3].w2ui = { softspan: { e: 3 } };
     w2ui.grid.records[4].w2ui = { summary: true };
     w2ui.grid.records[1].w2ui = { style: { 1: 'background-color: red !important' }};
     w2ui.grid.refresh();

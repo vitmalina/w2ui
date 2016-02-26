@@ -1,0 +1,55 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Menu Buttons (new in 1.5)</h1>
+        In addition to the drop down menu button, where user can select a single item, you can also create a check or radio buttons drop down menus
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar" style="padding: 4px; border: 1px solid #dfdfdf; border-radius: 3px"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#toolbar').w2toolbar({
+        name: 'toolbar',
+        items: [
+            { type: 'menu-radio', id: 'item1', icon: 'fa-star',
+                text: function (item) {
+                    var text = item.selected;
+                    var el   = this.get('item2:' + item.selected);
+                    return 'Radio: ' + el.text;
+                },
+                selected: 'id3',
+                items: [
+                    { id: 'id1', text: 'Item 1', icon: 'fa-camera' },
+                    { id: 'id2', text: 'Item 2', icon: 'fa-picture' },
+                    { id: 'id3', text: 'Item 3', icon: 'fa-glass', count: 12 }
+                ]
+            },
+            { type: 'break' },
+            { type: 'menu-check', id: 'item2', text: 'Check', icon: 'fa-heart',
+                selected: ['id3', 'id4'],
+                onRefresh: function (event) {
+                    event.item.count = event.item.selected.length;
+                },
+                items: [
+                    { id: 'id1', text: 'Item 1', icon: 'fa-camera' },
+                    { id: 'id2', text: 'Item 2', icon: 'fa-picture' },
+                    { id: 'id3', text: 'Item 3', icon: 'fa-glass', count: 12 },
+                    { text: '--' },
+                    { id: 'id4', text: 'Item 4', icon: 'fa-glass' }
+                ]
+            },
+        ],
+        onClick: function (event) {
+            if (event.subItem == null) return;
+            event.done(function () {
+                console.log('Selected:', event.item.selected);
+            });
+        }
+    });
+});
+</script>

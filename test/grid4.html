@@ -32,6 +32,11 @@ $(function () {
             dletters.push(letters[j] + letters[i]);
         // }
     }
+    var useGroups = true;
+    if (useGroups) {
+        w2ui.grid1.columnGroups.push({ span: 2, caption: 'a - b' }); // frozen
+        w2ui.grid1.columnGroups.push({ span: 2, caption: 'c - d' });
+    }
     for (var i = 0; i < dletters.length; i++) {
         w2ui.grid1.columns.push({
             field: dletters[i],
@@ -39,6 +44,13 @@ $(function () {
             size: (100 + 0) + 'px',
             editable: { type: 'div' }
         });
+        if (useGroups && i >= 4 && (i % 4) == 0) {
+            var end = Math.min(i+3, dletters.length - 1);
+            w2ui.grid1.columnGroups.push({
+                span: end - i + 1,
+                caption: dletters[i]+" - "+dletters[end]
+            });       
+        }
     }
 
     // add 10k records

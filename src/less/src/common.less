@@ -7,7 +7,7 @@
 .w2ui-reset {
     .box-sizing;
     font-family: @main-font-family;
-    font-size: 11px;        
+    font-size: 11px;
      * {
         color: default;
         line-height: 100%;
@@ -25,9 +25,9 @@
     }
     table tr th, table tr td {
         font-family: @main-font-family;
-        font-size: 11px;	    
+        font-size: 11px;
     }
-    input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]), 
+    input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),
     select, textarea {
         display: inline-block;
         width: auto;
@@ -51,7 +51,7 @@
     top: 50%;
     .transform(translateY(-50%));
     max-height: 100%;
-    margin: 0px; 
+    margin: 0px;
     padding: 0px 10px;
     text-align: center;
 }
@@ -60,6 +60,45 @@
     background-color: #f1f1f1 !important;
     color: #777 !important;
 }
+
+.w2ui-message { // slide down message
+    font-size: 12px;
+    position: absolute;
+    z-index: 250;
+    background-color: @message-background-color;
+    border: @message-border;
+    box-shadow: @message-shadow;
+    .box-sizing;
+    border-top: 0px;
+    border-radius: 0px 0px 6px 6px;
+    overflow: auto;
+
+    .w2ui-message-body {
+        position: absolute;
+        top: 0px;
+        bottom: 45px;
+        left: 0px;
+        right: 0px;
+        overflow: auto;
+        line-height: 1.5;
+        font-size: 14px;
+        & .w2ui-centered {
+            line-height: 1.5
+        }
+    }
+
+    .w2ui-message-buttons {
+        position: absolute;
+        height: 45px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        border-top: 1px solid #e5e5e5;
+        text-align: center;
+        padding: 8px;
+    }
+}
+
 
 /*************************************************
 * ---- Input Controls ----
@@ -79,18 +118,18 @@ input:not([type=button]):not([type=submit]).w2ui-input, textarea.w2ui-input {
     background-color: @input-background-color;
     line-height: normal;
     &:focus {
-        outline-color: @input-focus-outline-color;    
+        outline-color: @input-focus-outline-color;
     }
     &:disabled, &[readonly] {
         background-color: #f1f1f1;
         color: #777;
-    }    
+    }
 }
 
 /* IE9-11 specific classes */
 
 /* needs doblue :: */
-input.w2ui-input::-ms-clear { 
+input.w2ui-input::-ms-clear {
     display: none;
 }
 
@@ -143,7 +182,7 @@ select.w2ui-input {
 
 /* On/Off switch */
 
-input[type="checkbox"].w2ui-toggle { 
+input[type="checkbox"].w2ui-toggle {
     position: absolute;
     opacity: 0;
     width: 46px;
@@ -156,7 +195,7 @@ input[type="checkbox"].w2ui-toggle {
 /* Track */
 input[type="checkbox"].w2ui-toggle + div {
     display: inline-block;
-    width: 46px;    
+    width: 46px;
     height: 22px;
     border: 1px solid #bbb;
     border-radius: 30px;
@@ -176,7 +215,7 @@ input[type="checkbox"].w2ui-toggle:disabled + div {
 /* Knob */
 input[type="checkbox"].w2ui-toggle + div > div {
     float: left;
-    width: 22px; 
+    width: 22px;
     height: 22px;
     border-radius: inherit;
     background: #f5f5f5;
@@ -243,7 +282,7 @@ input[type=checkbox].w2ui-toggle:focus {
     table td {
         color: @overlay-color;
     }
-    
+
     &:before {
         content: "";
         position: absolute;
@@ -298,7 +337,7 @@ input[type=checkbox].w2ui-toggle:focus {
         }
     }
 
-    &.w2ui-overlay-popup {    // if it is inside popup 
+    &.w2ui-overlay-popup {    // if it is inside popup
         z-index: 1700;
     }
 
@@ -314,9 +353,9 @@ input[type=checkbox].w2ui-toggle:focus {
 }
 
 .w2ui-tag {
-    position: absolute; 
-    z-index: 1300; 
-    opacity: 0; 
+    position: absolute;
+    z-index: 1300;
+    opacity: 0;
     .transition(opacity, 0.3s);
 
     .w2ui-tag-body {
@@ -381,7 +420,7 @@ input[type=checkbox].w2ui-toggle:focus {
             border-top: 6px solid @bubble-tag-background-color;
         }
     }
-    &.w2ui-tag-popup {    // if it is inside popup 
+    &.w2ui-tag-popup {    // if it is inside popup
         z-index: 1700;
     }
 }
@@ -434,7 +473,7 @@ input[type=checkbox].w2ui-toggle:focus {
         & > span {
             border: @menu-node-count-border;
             border-radius: 20px;
-            width: auto; 
+            width: auto;
             height: 18px;
             padding: 2px 7px;
             margin: 3px 5px 0px 5px;
@@ -475,7 +514,7 @@ input[type=checkbox].w2ui-toggle:focus {
         font-size: 14px;
         color: @drop-menu-image-color;
         display: inline-block;
-        padding-top: 4px;        
+        padding-top: 4px;
     }
 }
 
@@ -526,7 +565,7 @@ input[type=checkbox].w2ui-toggle:focus {
 
 .w2ui-lock {
     display: none;
-    position: absolute; 
+    position: absolute;
     z-index: 1400;
     top: 0px;
     left: 0px;
@@ -558,9 +597,46 @@ input[type=checkbox].w2ui-toggle:focus {
     border-radius: 5px;
     border: @lock-msg-border;
     .w2ui-spinner {
-        display: inline-block; 
-        width: 24px; 
-        height: 24px; 
+        display: inline-block;
+        width: 24px;
+        height: 24px;
         margin: -3px 8px -7px -10px;
     }
+}
+
+/*************************************************
+* ---- Scroll contet, used in toolbar and tabs ----
+*/
+
+.w2ui-scroll-wrapper {
+    overflow: hidden;
+}
+
+.w2ui-scroll-left,
+.w2ui-scroll-right {
+    top: 0;
+    width: 18px;
+    height: 100%;
+    cursor: default !important;
+    z-index: 10;
+    display: none;
+    position: absolute;
+
+    &:hover {
+        background-color: @overflow-hover-background-color;
+    }
+}
+
+.w2ui-scroll-left {
+    left: 0;
+    box-shadow: 0px 0px 7px #5F5F5F;
+    background: @overflow-background-color @image-less center center no-repeat;
+    background-size: 15px 12px;
+}
+
+.w2ui-scroll-right {
+    right: 0;
+    box-shadow: 0px 0px 7px #5F5F5F;
+    background: @overflow-background-color @image-more center center no-repeat;
+    background-size: 15px 13px;
 }

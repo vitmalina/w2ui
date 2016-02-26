@@ -1,0 +1,41 @@
+Scrolls tabs if they overflow.
+
+<div class="definition">
+    scroll(direction)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>direction</td>
+        <td><b>string</b>, direction of scrolling</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+Scrolling will only be applied of the container where tabs are displayed is smaller then rendered tabs. The <span class="argument">direction</span>
+argument can be either 'left' or 'right'.
+<div style="height: 10px"></div>
+
+If you have tabs defined in the following way:
+<textarea class="javascript">
+$('#tabs').w2tabs({
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' },
+        { id: 'tab3', text: 'Tab 3', disabled: true },
+        { id: 'tab4', text: 'Tab 4' }
+    ]
+});
+</textarea>
+
+You can trigger scroll in the following way:
+<textarea class="javascript">
+w2ui['tabs'].scroll('right');
+</textarea>

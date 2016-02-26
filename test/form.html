@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
@@ -10,11 +10,12 @@
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script>
 //<![CDATA[
-    $(function () {
-        $('#form').w2form({ 
+    jQuery.noConflict();
+    jQuery(function () {
+        jQuery('#form').w2form({
             name      : 'form',
             // routeData : { id: 4 },
-            url       : { save: 'http://w2ui.com' },
+            url       : { get1: 'http://w2ui.com', save: 'http://w2ui.com' },
             // page      : 2,
             // url       : 'form.php',
             // formURL   : 'form-template.html',
@@ -22,7 +23,7 @@
             header   : 'Edit header',
             style1     : 'border: 1px solid red;',
             tabs: [
-                { id: 'tab1', caption: 'General' }, 
+                { id: 'tab1', caption: 'General' },
                 { id: 'tab2', caption: 'Inputs' },
                 { id: 'tab3', caption: 'HTML' }
             ],
@@ -70,16 +71,16 @@
                 { field: 'field.text', type: 'text', required: true, html: { group: 'General' } },
                 { field: 'field.textarea', type: 'textarea', required: true },
                 { field: 'field.date', type: 'date', required: false },
-                { field: 'field.time', type: 'time', required: false, html: { group: 'General2' } },
+                { field: 'field.time', type: 'time', required: false, html: { group: 'General' } },
                 { field: 'field.color', type: 'color', required: true },
-                { field: 'field.list', type: 'list', required: true, 
-                    options: { 
+                { field: 'field.list', type: 'list', required: true,
+                    options: {
                         match: 'contains',
                         compare: function (item) {
                             if (item.id < 4) return false;
                         },
                         items: [
-                            { id: 0, text: 'Pickle, Susan' }, 
+                            { id: 0, text: 'Pickle, Susan' },
                             { id: 1, text: 'Adams, John' },
                             { id: 2, text: 'Openhimer, Peter' },
                             { id: 3, text: 'Woznyak, Steve' },
@@ -92,30 +93,30 @@
                         ]
                     }
                 },
-                { field: 'field.combo', type: 'combo', required: false, 
-                    options: { 
+                { field: 'field.combo', type: 'combo', required: false,
+                    options: {
                         applyFilter: true,
                         url : 'listdat.json'
                     }
                 },
-                { field: 'field.enum', type: 'enum', required: false, 
+                { field: 'field.enum', type: 'enum', required: false,
                     options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
                 { field: 'field.file', type: 'file', required: false },
                 // second page
-                { field: 'field.email', type: 'email', required: true },
-                { field: 'field.password', type: 'pass', required: false },
-                { field: 'field.int', type: 'int', options: { arrows: false }, required: false },
-                { field: 'field.float', type: 'float', required: false },
-                { field: 'field.money', type: 'money', required: false },
-                { field: 'field.currency', type: 'currency', required: false },
-                { field: 'field.percent', type: 'percent', required: false },
-                { field: 'field.alpha', type: 'alphanumeric', required: false },
+                { field: 'field.email', type: 'email', required: true, html: { page: 1 } },
+                { field: 'field.password', type: 'pass', required: false, html: { page: 1 } },
+                { field: 'field.int', type: 'int', options: { arrows: false }, required: false, html: { page: 1 } },
+                { field: 'field.float', type: 'float', required: false, html: { page: 1 } },
+                { field: 'field.money', type: 'money', required: false, html: { page: 1 } },
+                { field: 'field.currency', type: 'currency', required: false, html: { page: 1 } },
+                { field: 'field.percent', type: 'percent', required: false, html: { page: 1 } },
+                { field: 'field.alpha', type: 'alphanumeric', required: false, html: { page: 1 } },
                 // third page
-                { field: 'field.select', type: 'select', required: false, options: { items: ['fist', 'second'] } },
-                { field: 'field.check', type: 'checkbox', required: false },
-                { field: 'field.radio', type: 'radio', required: false, options: {
+                { field: 'field.select', type: 'select', required: false, options: { items: ['fist', 'second'] }, html: { page: 2 } },
+                { field: 'field.check', type: 'checkbox', required: false, html: { page: 2 } },
+                { field: 'field.radio', type: 'radio', required: false, html: { page: 2 }, options: {
                         items: [
-                            { id: 0, text: 'Pickle, Susan' }, 
+                            { id: 0, text: 'Pickle, Susan' },
                             { id: 1, text: 'Adams, John' },
                             { id: 2, text: 'Openhimer, Peter' },
                             { id: 3, text: 'Woznyak, Steve' },
@@ -133,14 +134,14 @@
                 // console.log('change', event);
             },
             postData1: {
-                a1: 1, 
+                a1: 1,
                 a2: 2
             },
             actions: {
                 reset: {
-                    caption : 'Some Action', 
-                    style   : 'border: 1px solid red',
-                    "class" : 'w2ui-btn-blue',
+                    caption : 'Some Action',
+                    style   : '',
+                    "class" : '',
                     onClick : function () {
                         this.clear();
                     }
@@ -148,7 +149,7 @@
                 save: function () {
                     console.log('save', this.record);
                     var obj = this;
-                    this.save({}, function (data) { 
+                    this.save({}, function (data) {
                         console.log(data);
                         if (data.status == 'error') {
                             console.log('ERROR: '+ data.message);
@@ -168,7 +169,7 @@
                 console.log('change:', event);
                 console.log('record:', w2ui.form.record);
             }
-        });    
+        });
 });
 //]]>
 </script>

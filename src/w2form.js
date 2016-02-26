@@ -3,7 +3,7 @@
 *   - Following objects defined
 *        - w2form      - form widget
 *        - $().w2form  - jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
+*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar
 *
 * == NICE TO HAVE ==
 *   - include delta on save
@@ -24,6 +24,7 @@
 *   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
 *   - added ability to generate radio and select html in generateHTML()
 *   - refresh(field) - would refresh only one field
+*   - form.message
 *
 ************************************************************************/
 
@@ -171,10 +172,10 @@
         onToolbar     : null,
         onError       : null,
 
-        msgNotJSON    : w2utils.lang('Return data is not in JSON format.'),
-        msgAJAXerror  : w2utils.lang('AJAX error. See console for more details.'),
-        msgRefresh    : w2utils.lang('Refreshing...'),
-        msgSaving     : w2utils.lang('Saving...'),
+        msgNotJSON    : 'Return data is not in JSON format.',
+        msgAJAXerror  : 'AJAX error. See console for more details.',
+        msgRefresh    : 'Refreshing...',
+        msgSaving     : 'Saving...',
 
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
@@ -283,9 +284,31 @@
                 return;
             }
             // need a time out because message might be already up)
-            setTimeout(function () { w2alert(msg, w2utils.lang('Error'));    }, 1);
+            setTimeout(function () { obj.message(msg); }, 1);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        message: function(options) {
+            if (typeof options == 'string') {
+                options = {
+                    width   : (options.length < 300 ? 350 : 550),
+                    height  : (options.length < 300 ? 170: 250),
+                    body    : '<div class="w2ui-centered">' + options + '</div>',
+                    buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">Ok</button>',
+                    onOpen  : function (event) {
+                        setTimeout(function () {
+                            $(event.box).find('.w2ui-btn').focus();
+                        }, 25);
+                    }
+                };
+            }
+            w2utils.message.call(this, {
+                box   : this.box,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-form-header:visible',
+                body  : '.w2ui-form-box'
+            }, options);
         },
 
         validate: function (showErrors) {
@@ -407,7 +430,7 @@
             // build parameters list
             var params = {};
             // add list params
-            params['cmd']   = 'get-record';
+            params['cmd']   = 'get';
             params['recid'] = this.recid;
             // append other params
             $.extend(params, this.postData);
@@ -419,7 +442,7 @@
             this.record   = {};
             this.original = {};
             // call server to get data
-            this.lock(this.msgRefresh);
+            this.lock(w2utils.lang(this.msgRefresh));
             var url = edata.url;
             if (typeof edata.url == 'object' && edata.url.get) url = edata.url.get;
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
@@ -443,7 +466,7 @@
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
             if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
             }
             if (w2utils.settings.dataType == 'RESTFULL') {
                 ajaxOptions.type = 'GET';
@@ -491,7 +514,7 @@
                                 }
                             }
                             if (data['status'] == 'error') {
-                                obj.error(data['message']);
+                                obj.error(w2utils.lang(data['message']));
                             } else {
                                 obj.record   = $.extend({}, data.record);
                                 obj.original = $.extend({}, data.record);
@@ -553,13 +576,13 @@
                 console.log("ERROR: Form cannot be saved because no url is defined.");
                 return;
             }
-            obj.lock(obj.msgSaving + ' <span id="'+ obj.name +'_progress"></span>');
+            obj.lock(w2utils.lang(obj.msgSaving) + ' <span id="'+ obj.name +'_progress"></span>');
             // need timer to allow to lock
             setTimeout(function () {
                 // build parameters list
                 var params = {};
                 // add list params
-                params['cmd']   = 'save-record';
+                params['cmd']   = 'save';
                 params['recid'] = obj.recid;
                 // append other params
                 $.extend(params, obj.postData);
@@ -616,7 +639,7 @@
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'HTTPJSON') {
-                    ajaxOptions.data = { data: JSON.stringify(ajaxOptions.data) };
+                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
                     if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
@@ -662,7 +685,7 @@
                                     }
                                 }
                                 if (data['status'] == 'error') {
-                                    obj.error(data['message']);
+                                    obj.error(w2utils.lang(data['message']));
                                 } else {
                                     obj.original = $.extend({}, obj.record);
                                 }
@@ -840,7 +863,7 @@
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
             if (edata.isCancelled === true) return;
             // default behaviour
-            var main    = $(this.box).find('> div:not(.w2ui-lock-msg)');
+            var main    = $(this.box).find('> div.w2ui-form-box');
             var header  = $(this.box).find('> div .w2ui-form-header');
             var toolbar = $(this.box).find('> div .w2ui-form-toolbar');
             var tabs    = $(this.box).find('> div .w2ui-form-tabs');
@@ -861,6 +884,8 @@
                 $(this.box).data('auto-size', true);
             }
             resizeElements();
+            if (this.toolbar && this.toolbar.resize) this.toolbar.resize();
+            if (this.tabs && this.tabs.resize) this.tabs.resize();
             // event after
             obj.trigger($.extend(edata, { phase: 'after' }));
 
@@ -1163,7 +1188,7 @@
             if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
                 this.original = $.extend(true, {}, this.record);
             }
-            var html =  '<div>' +
+            var html =  '<div class="w2ui-form-box">' +
                         (this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
                         '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
                         '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
@@ -1218,7 +1243,16 @@
                 var inputs = $(obj.box).find('input, select, textarea');
                 if (inputs.length > obj.focus) inputs[obj.focus].focus();
             }
-            if (this.focus >= 0) setTimeout(focusEl, 500); // need timeout to allow form to render
+            if (this.focus >= 0) {
+                setTimeout(function () {
+                    // if not rendered in 10ms, then wait 500ms
+                    if ($(obj.box).find('input, select, textarea').length == 0) {
+                        setTimeout(focusEl, 500); // need timeout to allow form to render
+                    } else {
+                        focusEl();
+                    }
+                }, 10);
+            }
             return (new Date()).getTime() - time;
         },
 

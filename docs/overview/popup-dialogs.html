@@ -12,16 +12,16 @@ The alert dialog can be called in the following way:
 w2alert('This is an alert');
 </textarea>
 
-First argument, msg, is a message to display. Second optional argument, title, is the title for the dialog. The third optional argument, 
+First argument, msg, is a message to display. Second optional argument, title, is the title for the dialog. The third optional argument,
 calBack, is a call back function when dialog is closed.
 <div style="height: 20px"></div>
 
 <h4>w2confirm (msg, [title], [callBack])</h4>
 
-The confirm dialog can be called in the following way: 
+The confirm dialog can be called in the following way:
 
 <textarea class="javascript">
-w2confirm('Are you sure?', function btn(answer) { 
+w2confirm('Are you sure?', function btn(answer) {
     console.log(answer); // Yes or No -- case-sensitive
 });
 </textarea>
@@ -37,28 +37,32 @@ You can optionally call w2confirm passing an object with options. This options o
 <textarea class="javascript">
 options = {
     msg          : '',
-    title        : w2utils.lang('Confirmation'),
-    width        : 450,       // width of the dialog
-    height       : 220,       // height of the dialog
-    yes_text     : 'Yes',     // text for yes button
-    yes_class    : '',        // class for yes button
-    yes_style    : '',        // style for yes button
-    yes_callBack : null,      // callBack for yes button
-    no_text      : 'No',      // text for no button
-    no_class     : '',        // class for no button
-    no_style     : '',        // style for no button
-    no_callBack  : null,      // callBack for no button
-    callBack     : null       // common callBack
+    title        : 'Confirmation',
+    width        : 450,     // width of the dialog
+    height       : 220,     // height of the dialog
+    btn_yes      : {
+        text     : 'Yes',   // text for yes button (or yes_text)
+        class    : '',      // class for yes button (or yes_class)
+        style    : '',      // style for yes button (or yes_style)
+        callBack : null     // callBack for yes button (or yes_callBack)
+    },
+    btn_no       : {
+        text     : 'No',    // text for no button (or no_text)
+        class    : '',      // class for no button (or no_class)
+        style    : '',      // style for no button (or no_style)
+        callBack : null     // callBack for no button (or no_callBack)
+    },
+    callBack     : null     // common callBack
 };
 </textarea>
 
 For convenience, w2confirm will return to you an object with yes() and no() methods that you can use in the following way:
 <textarea class="javascript">
 w2confirm('Are you sure?')
-    .yes(function () { 
-        console.log('user clicked YES'); 
+    .yes(function () {
+        console.log('user clicked YES');
     })
-    .no(function () { 
+    .no(function () {
         console.log("user clicked NO")
     });
 </textarea>

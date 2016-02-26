@@ -8,24 +8,16 @@
 * == NICE TO HAVE ==
 *   - onResize for the panel
 *   - add more panel title positions (left=rotated, right=rotated, bottom)
-*   - bug: resizer is visible (and onHover) when panel is hidden.
 *   - bug: when you assign content before previous transition completed.
-*
-* == 1.5 changes
-*   - $('#layout').w2layout() - if called w/o argument then it returns layout object
-*   - negative -size for left/right panels
-*   - sizeTo(..., instant) - added third argument
-*   - assignToolbar()
 *
 ************************************************************************/
 
 (function ($) {
     var w2layout = function (options) {
-        this.box     = null;        // DOM Element that holds the element
-        this.name    = null;        // unique name for w2ui
+        this.box     = null;     // DOM Element that holds the element
+        this.name    = null;     // unique name for w2ui
         this.panels  = [];
         this.tmp     = {};
-
         this.padding = 1;        // panel padding
         this.resizer = 4;        // resizer width or height
         this.style   = '';
@@ -108,6 +100,7 @@
         onResizerClick: null,
         onRender      : null,
         onRefresh     : null,
+        onContent     : null,
         onResize      : null,
         onDestroy     : null,
 
@@ -153,6 +146,10 @@
             if (data == null) {
                 return p.content;
             } else {
+                // event before
+                var edata = this.trigger({ phase: 'before', type: 'content', target: panel, object: p, content: data, transition: transition });
+                if (edata.isCancelled === true) return;
+
                 if (data instanceof jQuery) {
                     console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
                     return false;
@@ -196,6 +193,8 @@
                     this.refresh(panel);
                 }
             }
+            // event after
+            obj.trigger($.extend(edata, { phase: 'after' }));
             // IE Hack
             obj.resize();
             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
@@ -245,15 +244,15 @@
         show: function (panel, immediate) {
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'show', target: panel, object: this.get(panel), immediate: immediate });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'show', target: panel, object: this.get(panel), immediate: immediate });
+            if (edata.isCancelled === true) return;
 
             var p = obj.get(panel);
             if (p == null) return false;
             p.hidden = false;
             if (immediate === true) {
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' });
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
                 obj.resize();
             } else {
                 // resize
@@ -267,7 +266,7 @@
                 // clean
                 setTimeout(function () {
                     $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.resize();
                 }, 500);
             }
@@ -277,15 +276,15 @@
         hide: function (panel, immediate) {
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'hide', target: panel, object: this.get(panel), immediate: immediate });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'hide', target: panel, object: this.get(panel), immediate: immediate });
+            if (edata.isCancelled === true) return;
 
             var p = obj.get(panel);
             if (p == null) return false;
             p.hidden = true;
             if (immediate === true) {
                 $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0'    });
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
                 obj.resize();
             } else {
                 // hide
@@ -295,7 +294,7 @@
                 // clean
                 setTimeout(function () {
                     $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'));
-                    obj.trigger($.extend(eventData, { phase: 'after' }));
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.resize();
                 }, 500);
             }
@@ -365,7 +364,7 @@
             var tmp = $(this.box).find(panel +'> .w2ui-panel-toolbar');
             if (pan.toolbar != null) {
                 if (tmp.find('[name='+ pan.toolbar.name +']').length === 0) {
-                    tmp.w2render(pan.toolbar); 
+                    tmp.w2render(pan.toolbar);
                 } else if (pan.toolbar != null) {
                     pan.toolbar.refresh();
                 }
@@ -404,8 +403,8 @@
             // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             var time = (new Date()).getTime();
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'render', target: obj.name, box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'render', target: obj.name, box: box });
+            if (edata.isCancelled === true) return;
 
             if (box != null) {
                 if ($(obj.box).find('#layout_'+ obj.name +'_panel_main').length > 0) {
@@ -439,7 +438,7 @@
                 .append('<div id="layout_'+ obj.name + '_panel_css" style="position: absolute; top: 10000px;"></div>');
             obj.refresh(); // if refresh is not called here, the layout will not be available right after initialization
             // process event
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
             // reinit events
             setTimeout(function () { // needed this timeout to allow browser to render first if there are tabs or toolbar
                 initEvents();
@@ -559,9 +558,9 @@
                 var panel = obj.get(obj.tmp.resize.type);
                 // event before
                 var tmp = obj.tmp.resize;
-                var eventData = obj.trigger({ phase: 'before', type: 'resizing', target: obj.name, object: panel, originalEvent: evnt,
+                var edata = obj.trigger({ phase: 'before', type: 'resizing', target: obj.name, object: panel, originalEvent: evnt,
                     panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 });
-                if (eventData.isCancelled === true) return;
+                if (edata.isCancelled === true) return;
 
                 var p         = $('#layout_'+ obj.name + '_resizer_'+ tmp.type);
                 var resize_x  = (evnt.screenX - tmp.x);
@@ -638,7 +637,7 @@
                         break;
                 }
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -648,8 +647,8 @@
             if (panel == null) panel = null;
             var time = (new Date()).getTime();
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'refresh', target: (panel != null ? panel : obj.name), object: obj.get(panel) });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'refresh', target: (panel != null ? panel : obj.name), object: obj.get(panel) });
+            if (edata.isCancelled === true) return;
             // obj.unlock(panel);
             if (typeof panel == 'string') {
                 var p = obj.get(panel);
@@ -715,7 +714,7 @@
                 // refresh all of them
                 for (var p1 = 0; p1 < this.panels.length; p1++) { obj.refresh(this.panels[p1].type); }
             }
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
@@ -725,9 +724,9 @@
             var time = (new Date()).getTime();
             // event before
             var tmp = this.tmp.resize;
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name,
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name,
                 panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0  });
-            if (eventData.isCancelled === true) return;
+            if (edata.isCancelled === true) return;
             if (this.padding < 0) this.padding = 0;
 
             // layout itself
@@ -814,12 +813,12 @@
                         'cursor': 'ns-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('top', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -858,12 +857,12 @@
                         'cursor': 'ew-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('left', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -900,12 +899,12 @@
                         'cursor': 'ew-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('right', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -941,12 +940,12 @@
                         'cursor': 'ns-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('bottom', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -1005,12 +1004,12 @@
                         'cursor': 'ns-resize'
                     }).off('mousedown').on('mousedown', function (event) {
                         // event before
-                        var eventData = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
-                        if (eventData.isCancelled === true) return;
+                        var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
+                        if (edata.isCancelled === true) return;
                         // default action
                         w2ui[obj.name].tmp.events.resizeStart('preview', event);
                         // event after
-                        obj.trigger($.extend(eventData, { phase: 'after' }));
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                         return false;
                     });
                 }
@@ -1052,14 +1051,14 @@
                     }
                 }
             }, 100);
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+            if (edata.isCancelled === true) return;
             if (w2ui[this.name] == null) return false;
             // clean up
             if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
@@ -1070,7 +1069,7 @@
             }
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             if (this.tmp.events && this.tmp.events.resize) $(window).off('resize', this.tmp.events.resize);
             return true;
         },

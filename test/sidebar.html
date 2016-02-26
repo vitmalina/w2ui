@@ -1,14 +1,15 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2sidebar.js"></script>
 <script>
 //<![CDATA[
-$(function () {
-    $('#sidebar').w2sidebar({
+jQuery.noConflict();
+jQuery(function () {
+    jQuery('#sidebar').w2sidebar({
         name        : 'sidebar',
         img         : null,
         topHTML     : '<div style="padding: 10px 5px; border-bottom: 1px solid #aaa;">This is text<input/> <select><option>one</option></select></div>',
@@ -17,7 +18,7 @@ $(function () {
         routeData   : { id: 59, vid: '23.323.4' },
         menu: [
             { id: 1, text: 'Select Item', icon: 'fa-star' },
-            { id: 2, text: 'View Item', icon: 'fa-camera' }, 
+            { id: 2, text: 'View Item', icon: 'fa-camera' },
             { id: 4, text: 'Delete Item', icon: 'fa-minus' }
         ],
         onMenuClick: function (event) {
@@ -30,14 +31,14 @@ $(function () {
         onBlur: function (event) {
             console.log('blur: ', this.name, event);
             // event.preventDefault();
-        },        
+        },
         //onKeydown: function (event) { console.log('keyboard', event); event.preventDefault(); },
-        nodes: [ 
-            { id: 'level-1', text: 'Level 1', expanded: true, group: true, 
-                nodes: [ 
-                    { id: 'level-1-1', text: function () { return  'Level 1.1' }, img1: 'icon-add', icon: 'fa-star', count: 1, 
+        nodes: [
+            { id: 'level-1', text: 'Level 1', expanded: true, group: true,
+                nodes: [
+                    { id: 'level-1-1', text: function () { return  'Level 1.1' }, img1: 'icon-add', icon: 'fa-star', count: 1,
                         route: '/project',
-                        onClick: function (event) { console.log('item', event); } 
+                        onClick: function (event) { console.log('item', event); }
                     },
                     { id: 'level-1-2', text: 'Level 1.2', img1: 'icon-save', icon: 'fa-camera', count: 'some',
                         route: '/project/:id'
@@ -48,7 +49,7 @@ $(function () {
                 ]
             },
             { id: 'level-2', text: 'Level 2', img: 'icon-folder', expanded: true, group: true,
-              nodes: [ { id: 'level-2-1', text: 'Level 2.1', img: 'icon-folder', 
+              nodes: [ { id: 'level-2-1', text: 'Level 2.1', img: 'icon-folder',
                          nodes: [
                            { id: 'level-2-1-1', text: function () { return 'Level 2.1.11' }, img: 'icon-page', count: '4', route: '/some/:id/:vid'},
                            { id: 'level-2-1-2', text: 'Level 2.1.2', img: 'icon-page', count: '10', route: '/some/:id/:vid/ok' },
@@ -77,7 +78,7 @@ $(function () {
                            { id: 'level-3-1-7', text: 'Level 3.1.7', icon: 'fa-user-md' },
                            { id: 'level-3-1-8', text: 'Level 3.1.8', icon: 'fa-download' }
                      ]},
-                       { id: 'level-4-1', text: 'Level 4.1', img: 'icon-folder', 
+                       { id: 'level-4-1', text: 'Level 4.1', img: 'icon-folder',
                          nodes: [
                            { id: 'level-4-1-1', text: 'Level 4.1.1', img: 'icon-page' },
                            { id: 'level-4-1-2', text: 'Level 4.1.2', img: 'icon-page' },

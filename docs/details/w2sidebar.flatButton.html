@@ -1,0 +1,30 @@
+Indicates if flat button should be displayed.
+
+<div class="definition">
+    Boolean, default = false
+</div>
+
+Flat button is a small button in the top right corner when sidebar is not in the flat mode and on top when it is. If user clicks
+on the flat button <span class="property">onFlat</span> event will be generated.
+<div style="height: 10px"></div>
+
+You can define it during object creation:
+
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name: 'sidebar',
+    flatButton: true,
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+or during run-time:
+
+<textarea class="javascript">
+w2ui['sidebar'].flatButton = true;
+w2ui['sidebar'].refresh();
+</textarea>
