@@ -29,6 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - $().w2date(), $().w2dateTime()
 * == 1.5
 *   - added message
+*   - w2utils.keyboard is removed
 *
 ************************************************/
 
@@ -1862,7 +1863,7 @@ w2utils.event = {
 
         function clearMarkedText(index, el) {
             while (el.innerHTML.indexOf('<span class="w2ui-marker">') != -1) {
-                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>(.*)\<\/span\>/ig, '$1'); // unmark
+                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>((.|\n|\r)*)\<\/span\>/ig, '$1'); // unmark
             }
         }
     };
@@ -2864,6 +2865,7 @@ w2utils.event = {
 *   - grid.message
 *   - added noReset option to localSort()
 *   - onColumnSelect
+*   - need to update PHP example
 *
 ************************************************************************/
 
@@ -2909,8 +2911,8 @@ w2utils.event = {
             statusRecordID  : true,
             statusSelection : true,
             statusResponse  : true,
-            statusSort      : true,
-            statusSearch    : true,
+            statusSort      : false,
+            statusSearch    : false,
             recordTitles    : true,
             selectionBorder : true,
             skipRecords     : true
@@ -3463,8 +3465,13 @@ w2utils.event = {
             // process date fields
             obj.selectionSave();
             obj.prepareData();
-            if (!noReset)
+            if (!noReset) {
                 obj.reset();
+            } else {
+                // still reset vertical scroll
+                this.last.scrollTop   = 0;
+                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
+            }
             // process sortData
             for (var i = 0; i < this.sortData.length; i++) {
                 var column = this.getColumn(this.sortData[i].field);
@@ -6609,7 +6616,7 @@ w2utils.event = {
             // if local
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
-                this.localSort();
+                this.localSort(true, true);
                 if (this.searchData.length > 0) this.localSearch(true);
                 // event after
                 this.trigger($.extend(edata, { phase: 'after' }));
@@ -7165,9 +7172,9 @@ w2utils.event = {
                     }
                     var tmps = false;
                     while (tmp) {
-                        if (tmp.classList.contains('w2ui-grid')) break;
-                        if (tmp.tagName.toUpperCase() == 'TD') tmps = true;
-                        if (tmp.tagName.toUpperCase() != 'TR' && tmps == true) {
+                        if (tmp.classList && tmp.classList.contains('w2ui-grid')) break;
+                        if (tmp.tagName && tmp.tagName.toUpperCase() == 'TD') tmps = true;
+                        if (tmp.tagName && tmp.tagName.toUpperCase() != 'TR' && tmps == true) {
                             pos.x += tmp.offsetLeft;
                             pos.y += tmp.offsetTop;
                         }
@@ -11149,6 +11156,8 @@ w2utils.event = {
 *   - hide overlay on esc
 *   - make popup width/height in %
 *
+* == 1.5 changes
+*   - w2prompt
 ************************************************************************/
 
 var w2popup = {};
@@ -12130,6 +12139,98 @@ var w2confirm = function (msg, title, callBack) {
     };
 };
 
+var w2prompt = function (options, callBack) {
+    var $ = jQuery;
+    
+    options = {
+        label       : options.label ? options.label : '',
+        value       : options.value ? options.value : '',
+        title       : options.title ? options.title : w2utils.lang('Notification'),
+        ok_text     : options.ok_text ? options.ok_text : w2utils.lang('Ok'),
+        cancel_text : options.cancel_text ? options.cancel_text : 'Cancel',
+        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
+        height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
+        callBack    : callBack ? callBack : null
+    }
+    
+    if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
+        if (options.width > w2popup.get().width) options.width = w2popup.get().width;
+        if (options.height > (w2popup.get().height - 50)) options.height = w2popup.get().height - 50;
+          w2popup.message({
+            width   : options.width,
+            height  : options.height,
+            body    : '<div class="w2ui-centered" style="font-size: 13px;"><label style="margin-right: 10px;">' + options.label + ':</label><input id="w2promt"></div>',
+            buttons : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
+            onOpen: function () {
+                $('#w2promt').val(options.value);
+                $('#w2promt').w2field('text');
+                $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').on('click.w2confirm', function (event) {
+                    w2popup._promt_value = $('#w2promt').val();
+                    w2popup.message();
+                });
+                $('#w2ui-popup .w2ui-message .w2ui-btn#Cancel').on('click.w2confirm', function (event) {
+                    w2popup._promt_value = null;
+                    w2popup.message();
+                });
+            },
+            onClose: function () {
+                // needed this because there might be other messages
+                $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2confirm');
+                // need to wait for message to slide up
+                setTimeout(function () {
+                    if (typeof options.callBack == 'function') options.callBack(w2popup._promt_value);
+                }, 300);
+            }
+            // onKeydown will not work here
+        });
+
+    } else {
+
+        if (!w2utils.isInt(options.height)) options.height = options.height + 50;
+        w2popup.open({
+            width      : options.width,
+            height     : options.height,
+            title      : options.title,
+            modal      : true,
+            showClose  : false,
+            body       : '<div class="w2ui-centered" style="font-size: 13px;"><label style="margin-right: 10px;">' + options.label + ':</label><input id="w2promt"></div>',
+            buttons    : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
+            onOpen: function (event) {
+                // do not use onComplete as it is slower
+                setTimeout(function () {
+                    $('#w2promt').val(options.value);
+                    $('#w2promt').w2field('text');
+                    $('#w2ui-popup .w2ui-popup-btn#Ok').on('click', function (event) {
+                        w2popup._promt_value = $('#w2promt').val();
+                        w2popup.close();
+                        if (typeof options.callBack == 'function') options.callBack(w2popup._promt_value);
+                    });
+                    $('#w2ui-popup .w2ui-popup-btn#Cancel').on('click', function (event) {
+                        w2popup._promt_value = null;
+                        w2popup.close();
+                        if (typeof options.callBack == 'function') options.callBack(w2popup._promt_value);
+                    });
+                    $('#w2ui-popup .w2ui-popup-btn#Ok').focus();
+                }, 1);
+            },
+            onKeydown: function (event) {
+                // if there are no messages
+                if ($('#w2ui-popup .w2ui-message').length == 0) {
+                    switch (event.originalEvent.keyCode) {
+                        case 13: // enter
+                            $('#w2ui-popup .w2ui-popup-btn#Ok').focus().addClass('clicked'); // no need fo click as enter will do click
+                            w2popup.close();
+                            break;
+                        case 27: // esc
+                            w2popup.close();
+                            break;
+                    }
+                }
+            }
+        });
+    }
+};
+
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
@@ -12877,7 +12978,7 @@ var w2confirm = function (msg, title, callBack) {
                 it.hidden = true;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); obj.resize(); }, 15); // needs timeout
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) { obj.refresh(tmp[t]); obj.tooltipHide(tmp[t]); } obj.resize(); }, 15); // needs timeout
             return items;
         },
 
@@ -12907,7 +13008,7 @@ var w2confirm = function (msg, title, callBack) {
                 it.disabled = true;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) { obj.refresh(tmp[t]); obj.tooltipHide(tmp[t]); } }, 15); // needs timeout
             return items;
         },
 
