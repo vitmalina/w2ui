@@ -3,7 +3,7 @@
 * generates summary pages for all events, properties and methods
 */
 
-var fs       = require('fs');
+var fs    = require('fs');
 var files = fs.readdirSync('details');
 
 var rPath = ''; // for website should be '<?=$site_root?>/docs/'
@@ -21,7 +21,7 @@ for (var t in tmp) {
 console.log('    DONE. Removed '+ cnt + ' files');
 
 console.log('==> Generating New Summary Files');
- process.stdout.write('    ');
+process.stdout.write('    ');
 // generate files
 var text1 = '<link rel="stylesheet" type="text/css" href="../summary.css"/> \n'+
     '<div class="container">';
