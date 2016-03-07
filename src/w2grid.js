@@ -152,8 +152,8 @@
             statusRecordID  : true,
             statusSelection : true,
             statusResponse  : true,
-            statusSort      : true,
-            statusSearch    : true,
+            statusSort      : false,
+            statusSearch    : false,
             recordTitles    : true,
             selectionBorder : true,
             skipRecords     : true
@@ -706,8 +706,13 @@
             // process date fields
             obj.selectionSave();
             obj.prepareData();
-            if (!noReset)
+            if (!noReset) {
                 obj.reset();
+            } else {
+                // still reset vertical scroll
+                this.last.scrollTop   = 0;
+                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
+            }
             // process sortData
             for (var i = 0; i < this.sortData.length; i++) {
                 var column = this.getColumn(this.sortData[i].field);
@@ -3852,7 +3857,7 @@
             // if local
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
-                this.localSort();
+                this.localSort(true, true);
                 if (this.searchData.length > 0) this.localSearch(true);
                 // event after
                 this.trigger($.extend(edata, { phase: 'after' }));
