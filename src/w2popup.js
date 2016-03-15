@@ -9,6 +9,8 @@
 *   - hide overlay on esc
 *   - make popup width/height in %
 *
+* == 1.5 changes
+*   - w2prompt
 ************************************************************************/
 
 var w2popup = {};

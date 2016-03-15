@@ -133,6 +133,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.getCellValue">getCellValue</a> <span>- getCellValue(index, column_index, [summary])</span>
+</div>
+<div class="obj-property-desc">
+    Returns parse value for the cell.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.getChanges">getChanges</a> <span>- getChanges()</span>
 </div>
 <div class="obj-property-desc">
@@ -445,6 +452,13 @@
 </div>
 <div class="obj-property-desc">
     Called to resize grid's elements.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.resizeRecords">resizeRecords</a> <span>- resizeRecords()</span>
+</div>
+<div class="obj-property-desc">
+    Called to resize grid's records.
 </div>
 
 <div class="obj-property">

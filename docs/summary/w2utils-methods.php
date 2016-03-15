@@ -245,13 +245,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.size">size</a> <span>- size(int)</span>
-</div>
-<div class="obj-property-desc">
-    Returns human readable file size.
-</div>
-
-<div class="obj-property">
     <a href="w2utils.stripTags">stripTags</a> <span>- stripTags(str)</span>
 </div>
 <div class="obj-property-desc">
