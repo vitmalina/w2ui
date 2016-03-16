@@ -1,4 +1,7 @@
 /************************************************************************
+* 
+* modified crk version for HTTP headers this is a 1.5 module
+* 
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
 *        - w2form      - form widget
@@ -47,6 +50,7 @@
         this.original  = {};
         this.postData  = {};
         this.toolbar   = {};       // if not empty, then it is toolbar
+        this.headersData = {};
         this.tabs      = {};       // if not empty, then it is tabs object
 
         this.style         = '';
@@ -75,9 +79,10 @@
             var fields   = method.fields;
             var toolbar  = method.toolbar;
             var tabs     = method.tabs;
+            var headersData  = method.headersData;
             // extend items
             var object = new w2form(method);
-            $.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [] });
+            $.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [], headersData: {} });
             if ($.isArray(tabs)) {
                 $.extend(true, object.tabs, { tabs: [] });
                 for (var t = 0; t < tabs.length; t++) {
@@ -88,6 +93,7 @@
                 $.extend(true, object.tabs, tabs);
             }
             $.extend(true, object.toolbar, toolbar);
+            $.extend(true, object.headersData, headersData);
             // reassign variables
             if (fields) for (var p = 0; p < fields.length; p++) {
                 var field = $.extend(true, {}, fields[p]);
@@ -303,12 +309,12 @@
                     }
                 };
             }
-            w2utils.message.call(this, {
-                box   : this.box,
-                path  : 'w2ui.' + this.name,
-                title : '.w2ui-form-header:visible',
-                body  : '.w2ui-form-box'
-            }, options);
+            //w2utils.message.call(this, {
+            //    box   : this.box,
+            //    path  : 'w2ui.' + this.name,
+            //    title : '.w2ui-form-header:visible',
+            //    body  : '.w2ui-form-box'
+            //}, options);
         },
 
         validate: function (showErrors) {
@@ -436,7 +442,7 @@
             $.extend(params, this.postData);
             $.extend(params, postData);
             // event before
-            var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
+            var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params, headersData: params });
             if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
             this.record   = {};
@@ -459,6 +465,7 @@
             var ajaxOptions = {
                 type     : 'POST',
                 url      : url,
+                headers  : edata.headersData,
                 data     : edata.postData,
                 dataType : 'text'   // expected from server
             };
@@ -597,7 +604,7 @@
                 });
                 params.record = $.extend(true, {}, obj.record);
                 // event before
-                var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
+                var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, headersData: obj.headersData, postData: params });
                 if (edata.isCancelled === true) return;
                 // default action
                 var url = edata.url;
@@ -616,6 +623,7 @@
                 var ajaxOptions = {
                     type     : 'POST',
                     url      : url,
+                    headers  : edata.headersData,
                     data     : edata.postData,
                     dataType : 'text',   // expected from server
                     xhr : function() {
@@ -1279,3 +1287,6 @@
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
 })(jQuery);
+
+
+
