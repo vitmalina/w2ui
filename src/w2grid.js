@@ -1,4 +1,7 @@
 /************************************************************************
+* 
+* modified crk version for HTTP headers this is a 1.5 module
+* 
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
 *        - w2grid        - grid widget
@@ -127,7 +130,7 @@
         this.searchData   = [];
         this.sortData     = [];
         this.postData     = {};
-        this.httpHdrData  = {};
+        this.headersData  = {};
         this.toolbar      = {};       // if not empty object; then it is toolbar object
 
         this.show = {
@@ -234,11 +237,11 @@
             var searchData   = method.searchData;
             var sortData     = method.sortData;
             var postData     = method.postData;
-            var httpHdrData  = method.httpHdrData;
+            var headersData  = method.headersData;
 	    var toolbar      = method.toolbar;
             // extend items
             var object = new w2grid(method);
-            $.extend(object, { postData: {},  httpHdrData: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
+            $.extend(object, { postData: {}, headersData: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
             if (object.onExpand != null) object.show.expandColumn = true;
             $.extend(true, object.toolbar, toolbar);
             // reassign variables
@@ -248,7 +251,7 @@
             if (searchData)   for (var p = 0; p < searchData.length; p++)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
             if (sortData)     for (var p = 0; p < sortData.length; p++)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
             object.postData = $.extend(true, {}, postData);
-	    object.httpHdrData = $.extend(true, {}, httpHdrData);
+            object.headersData = $.extend(true, {}, headersData);
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
@@ -2161,14 +2164,14 @@
             }
             // append other params
             $.extend(params, this.postData);
-            $.extend(params, this.httpHdrData);
+            $.extend(params, this.headersData);
             $.extend(params, add_params);
             // event before
             if (cmd == 'get') {
-                var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHdrData: params });
+                var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, headersData: params });
                 if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             } else {
-                var edata = { url: url, postData: params, httpHdrData: params };
+                var edata = { url: url, postData: params, headersData: params };
             }
             // call server to get data
             var obj = this;
@@ -2202,7 +2205,7 @@
                 type     : 'POST',
                 url      : url,
                 data     : edata.postData,
-                headers  : edata.httpHdrData,
+                headers  : edata.headersData,
                 dataType : 'text'  // expected data type from server
             };
             if (w2utils.settings.dataType == 'HTTP') {
@@ -7285,3 +7288,5 @@
     $.extend(w2grid.prototype, w2utils.event);
     w2obj.grid = w2grid;
 })(jQuery);
+
+
