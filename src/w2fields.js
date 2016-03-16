@@ -683,7 +683,7 @@
                         event.stopPropagation();
                         // default behavior
                         if ($(event.target).hasClass('w2ui-list-remove')) {
-                            if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
+                            if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                             // trigger event
                             var edata = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (edata.isCancelled === true) return;
@@ -931,13 +931,13 @@
             var options = this.options;
             // color, date, time
             if (['color', 'date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
-                if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 setTimeout(function () { obj.updateOverlay(); }, 150);
             }
             // menu
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
-                if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 obj.resize();
                 setTimeout(function () {
@@ -1041,7 +1041,7 @@
             var key     = event.keyCode || (extra && extra.keyCode);
             // numeric
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
-                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var cancel = false;
                 var val = parseFloat($(obj.el).val().replace(options.moneyRE, '')) || 0;
                 var inc = options.step;
@@ -1068,7 +1068,7 @@
             }
             // date
             if (obj.type == 'date') {
-                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var cancel  = false;
                 var daymil  = 24*60*60*1000;
                 var inc     = 1;
@@ -1102,7 +1102,7 @@
             }
             // time
             if (obj.type == 'time') {
-                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var cancel  = false;
                 var inc     = (event.ctrlKey || event.metaKey ? 60 : 1);
                 var val     = $(obj.el).val();
@@ -1130,7 +1130,7 @@
             }
             // datetime
             if (obj.type == 'datetime') {
-                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var cancel  = false;
                 var daymil  = 24*60*60*1000;
                 var inc     = 1;
@@ -1165,7 +1165,7 @@
             }
             // color
             if (obj.type == 'color') {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // paste
                 if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
                     $(obj.el).prop('maxlength', 7);
@@ -1202,7 +1202,7 @@
             }
             // list/select/combo
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var selected  = $(obj.el).data('selected');
                 var focus     = $(obj.el);
                 var indexOnly = false;
@@ -1366,6 +1366,7 @@
                 }
             }
             if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // need to be here for ipad compa
                 if ([16, 17, 18, 20, 37, 39, 91].indexOf(event.keyCode) == -1) { // no refreah on crtl, shift, left/right arrows, etc
                     var input = $(this.helpers.focus).find('input');
@@ -1417,7 +1418,7 @@
             if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = '';
             if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1;
             // check if need to search
-            if (options.url && $(obj.el).prop('readonly') != true && (
+            if (options.url && $(obj.el).prop('readonly') != true && $(obj.el).prop('disabled') != true && (
                     (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
                     (obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
                     (search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) != obj.tmp.xhr_search) ||
@@ -1586,7 +1587,7 @@
             var options = this.options;
             // color
             if (this.type == 'color') {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 $(this.el).w2color({ color: $(this.el).val(), transparent: options.transparent }, function (color) {
                     if (color == null) return;
                     $(obj.el).val(color).change();
@@ -1594,7 +1595,7 @@
             }
             // date
             if (this.type == 'date') {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($('#w2ui-overlay').length == 0) {
                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
                         css: { "background-color": "#f5f5f5" }
@@ -1661,7 +1662,7 @@
             }
             // time
             if (this.type == 'time') {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($('#w2ui-overlay').length == 0) {
                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time" onclick="event.stopPropagation();"></div>', {
                         css: { "background-color": "#fff" }
@@ -1701,7 +1702,7 @@
             }
             // datetime
             if (this.type == 'datetime') {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // hide overlay if we are in the time selection
                 if ($("#w2ui-overlay .w2ui-time").length > 0) $('#w2ui-overlay')[0].hide();
                 if ($('#w2ui-overlay').length == 0) {
@@ -2282,7 +2283,7 @@
                         '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '/>'+
+                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off" '+ ($(obj.el).prop('readonly') ? 'readonly="readonly"': '') + '/>'+
                         '        </li>'+
                         '    </ul>'+
                         '    </div>'+
@@ -2341,22 +2342,22 @@
                 $(obj.el).css('outline', 'none');
                 div.on('click', function (event) {
                         $(obj.el).focus();
-                        if ($(obj.el).attr('readonly')) return;
+                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         obj.blur(event);
                         obj.resize();
                         setTimeout(function () { div.find('input').click(); }, 10); // needed this when clicked on items div
                     })
                     .on('dragenter', function (event) {
-                        if ($(obj.el).attr('readonly')) return;
+                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         $(div).addClass('w2ui-file-dragover');
                     })
                     .on('dragleave', function (event) {
-                        if ($(obj.el).attr('readonly')) return;
+                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         var tmp = $(event.target).parents('.w2ui-field-helper');
                         if (tmp.length == 0) $(div).removeClass('w2ui-file-dragover');
                     })
                     .on('drop', function (event) {
-                        if ($(obj.el).attr('readonly')) return;
+                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         $(div).removeClass('w2ui-file-dragover');
                         var files = event.originalEvent.dataTransfer.files;
                         for (var i = 0, l = files.length; i < l; i++) obj.addFile.call(obj, files[i]);
