@@ -40,6 +40,7 @@ var w2utils = (function ($) {
             "locale"            : "en-us",
             "dateFormat"        : "m/d/yyyy",
             "timeFormat"        : "hh:mi pm",
+            "datetimeFormat"    : "m/d/yyyy|hh:mi pm",
             "currencyPrefix"    : "$",
             "currencySuffix"    : "",
             "currencyPrecision" : 2,
@@ -247,7 +248,7 @@ var w2utils = (function ($) {
     }
 
     function isDateTime (val, format, retDate) {
-        if (format == null) format = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (format == null) format = w2utils.settings.datetimeFormat;
         var formats = format.split('|');
         if (typeof val.getUTCFullYear === 'function') { // date object
             if (retDate !== true) return true;
@@ -1628,7 +1629,7 @@ w2utils.formatters = {
     },
 
     'datetime': function (value, params) {
-        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.datetimeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1646,7 +1647,7 @@ w2utils.formatters = {
     },
 
     'timestamp': function (value, params) {
-        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.datetimeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1654,7 +1655,7 @@ w2utils.formatters = {
     },
 
     'gmt': function (value, params) {
-        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.datetimeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
