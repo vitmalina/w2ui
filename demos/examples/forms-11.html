@@ -1,0 +1,57 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Form with Tabs and Columns</h1>
+        You can use a basic column layout with the auto template.
+        If you do not provide a <i>page</i> attribute, the field will be rendered to page 0.
+        If you do not provide a <i>column</i> attribute, the field will be rendered to column 0.
+        See field <i>middle_name</i> for an example of omitting <i>page</i> and <i>column</i>.<br />
+        You should give fields ascending column values (0, 1, 2, 3, ...).
+        Do not mix the order of fields with column values on the same page (0, 2, 5, 1, 3, ...), especially when you're using groups.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px;">
+    
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({ 
+        name   : 'form',
+        header : 'Form with Tabs and Columns',
+        url    : 'server/post',
+        tabs: [
+            { id: 'tab1', caption: 'General' },
+            { id: 'tab2', caption: 'Address'},
+            { id: 'tab3', caption: 'About' }
+        ],
+        fields : [
+            { field: 'first_name', type: 'text', html: { caption: 'First Name', page: 0, column: 0 } },
+            { field: 'last_name',  type: 'text', html: { caption: 'Last Name', page: 0, column: 0 } },
+            { field: 'comments',   type: 'textarea', html: { caption: 'Comments:', page: 0, column: 1, attr: 'style="height: 90px"' } },
+            { field: 'middle_name',  type: 'text', html: { caption: 'Middle Name' } },
+            { field: 'address1', type: 'text', html: { caption: 'Address', page: 1, column: 0, group: 'Address Group 1' } },
+            { field: 'address2', type: 'text', html: { caption: 'Line 2', page: 1, column: 0 } },
+            { field: 'country', type: 'text', html: { caption: 'Country', page: 1, column: 0, group: 'Address Group 3' } },
+            { field: 'city', type: 'text', html: { caption: 'City', page: 1, column: 1, group: 'Address Group 2' } },
+            { field: 'state', type: 'text', html: { caption: 'State', page: 1, column: 1 } },
+            { field: 'zip', type: 'int', html: { caption: 'Zip', page: 1, column: 1 } },
+            { field: 'short_bio', type: 'text', html: { caption: 'Short Bio', page: 2 } },
+            { field: 'talk_name', type: 'text', html: { caption: 'Talk Name', page: 2 } },
+            { field: 'description', type: 'text', html: { caption: 'Talk Description', page: 2 } }
+        ],
+        actions: {
+            reset: function () {
+                this.clear();
+            },
+            save: function () {
+                this.save();
+            }
+        }
+    });
+});
+</script>

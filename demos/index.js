@@ -145,7 +145,8 @@ $(function () {
                     { id: 'forms-5', text: 'Form Tabs', icon: 'fa-edit' },
                     { id: 'forms-9', text: 'Form Toolbar', icon: 'fa-edit' },
                     { id: 'forms-8', text: 'Form in a Popup', icon: 'fa-edit' },
-                    { id: 'forms-6', text: 'Events', icon: 'fa-edit' }
+                    { id: 'forms-6', text: 'Events', icon: 'fa-edit' },
+                    { id: 'forms-11', text: 'Form Columns', icon: 'fa-edit' }
                 ]
             },
             { id: 'fields', text: 'Fields', img: 'icon-folder', group1: true,
