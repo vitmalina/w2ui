@@ -327,7 +327,7 @@
             // "list"    : ['is', 'null:is null', 'not null:is not null'],
             // "enum"    : ['in', 'not in', 'null:is null', 'not null:is not null']
         },
-        
+
         operatorsMap: {
             "text"         : "text",
             "int"          : "number",
@@ -350,7 +350,7 @@
             "checkbox"     : "list",
             "toggle"       : "list"
         },
-        
+
         // events
         onAdd              : null,
         onEdit             : null,
@@ -733,10 +733,6 @@
             obj.prepareData();
             if (!noReset) {
                 obj.reset();
-            } else {
-                // still reset vertical scroll
-                this.last.scrollTop   = 0;
-                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
             }
             // process sortData
             for (var i = 0; i < this.sortData.length; i++) {
@@ -3908,6 +3904,9 @@
             if (!url) {
                 this.localSort(true, true);
                 if (this.searchData.length > 0) this.localSearch(true);
+                // reset vertical scroll
+                this.last.scrollTop = 0;
+                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
                 // event after
                 this.trigger($.extend(edata, { phase: 'after' }));
                 this.refresh();
