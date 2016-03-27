@@ -8392,8 +8392,8 @@ w2utils.event = {
                         if (ind == 'start') {
                             var width = 0;
                             for (var i = 0; i < obj.last.colStart; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         }
@@ -8404,8 +8404,8 @@ w2utils.event = {
                         if (obj.last.colEnd + 1 < obj.columns.length) {
                             var width = 0;
                             for (var i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         } else {
@@ -8438,8 +8438,8 @@ w2utils.event = {
                         if (ind == 'start') {
                             var width = 0;
                             for (var i = 0; i < obj.last.colStart; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         }
@@ -8450,8 +8450,8 @@ w2utils.event = {
                         if (obj.last.colEnd + 1 < obj.columns.length) {
                             var width = 0;
                             for (var i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         } else {
@@ -8473,8 +8473,8 @@ w2utils.event = {
                         if (ind == 'start') {
                             var width = 0;
                             for (var i = 0; i < obj.last.colStart; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         }
@@ -15135,17 +15135,19 @@ var w2prompt = function (label, title, callBack) {
             }
             if (['enum', 'file'].indexOf(this.type) != -1) {
                 var html = '';
-                for (var s in selected) {
-                    var it  = selected[s];
-                    var ren = '';
-                    if (typeof options.renderItem == 'function') {
-                        ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>');
-                    } else {
-                        ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>'+
-                              (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.formatSize(it.size) +'</span>');
-                    }
-                    html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
-                            ren +'</li>';
+                if (selected) {
+                   for (var s = 0; s < selected.length; s++) {
+                       var it  = selected[s];
+                       var ren = '';
+                       if (typeof options.renderItem == 'function') {
+                           ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>');
+                       } else {
+                           ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>'+
+                                 (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.formatSize(it.size) +'</span>');
+                       }
+                       html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
+                               ren +'</li>';
+                   }
                 }
                 var div = obj.helpers.multi;
                 var ul  = div.find('ul');
@@ -16621,7 +16623,7 @@ var w2prompt = function (label, title, callBack) {
                 $(obj.el).data('tmp', tmp);
                 pr = parseInt($(obj.el).css('padding-right'), 10);
                 if (obj.options.arrows) {
-                    // remove if already displaed
+                    // remove if already displayed
                     if (obj.helpers.arrows) $(obj.helpers.arrows).remove();
                     // add fresh
                     $(obj.el).after(
@@ -16921,10 +16923,13 @@ var w2prompt = function (label, title, callBack) {
             var size = 0;
             var cnt  = 0;
             var err;
-            for (var s in selected) {
-                // check for dups
-                if (selected[s].name == file.name && selected[s].size == file.size) return;
-                size += selected[s].size; cnt++;
+            if (selected) {
+                for (var s = 0; s < selected.length; s++) {
+                   // check for dups
+                   if (selected[s].name == file.name && selected[s].size == file.size) return;
+                   size += selected[s].size;
+                   cnt++;
+               }
             }
             // trigger event
             var edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
