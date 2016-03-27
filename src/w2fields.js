@@ -614,8 +614,8 @@
             }
             if (['enum', 'file'].indexOf(this.type) != -1) {
                 var html = '';
-                if(selected){
-                   for ( var s = 0, l = selected.length; s < l; s++ ){
+                if (selected) {
+                   for (var s = 0; s < selected.length; s++) {
                        var it  = selected[s];
                        var ren = '';
                        if (typeof options.renderItem == 'function') {
@@ -2402,8 +2402,8 @@
             var size = 0;
             var cnt  = 0;
             var err;
-            if(selected){
-                for ( var s = 0, l = selected.length; s < l; s++ ){
+            if (selected) {
+                for (var s = 0; s < selected.length; s++) {
                    // check for dups
                    if (selected[s].name == file.name && selected[s].size == file.size) return;
                    size += selected[s].size;
